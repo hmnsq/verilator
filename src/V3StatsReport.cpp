@@ -14,175 +14,175 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Os.h"
-#include "V3Stats.h"
+#ضمن "V3File.h"
+#ضمن "V3Global.h"
+#ضمن "V3Os.h"
+#ضمن "V3Stats.h"
 
-#include <iomanip>
-#include <unordered_map>
+#ضمن <iomanip>
+#ضمن <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Stats dumping
 
-class StatsReport final {
+صنف StatsReport final {
     // TYPES
-    using StatColl = std::vector<V3Statistic>;
+    استفاده StatColl = std::وکتور<V3Statistic>;
 
     // STATE
     std::ofstream& os;  ///< Output stream
-    static StatColl s_allStats;  ///< All statistics
+    ساكن StatColl s_allStats;  ///< All statistics
 
-    static void sumit() {
+    ساكن فراغ sumit() {
         // If sumit is set on a statistic, combine with others of same name
         std::multimap<std::string, V3Statistic*> byName;
         // * is always first
-        for (auto& itr : s_allStats) {
+        لكل (خودکار& itr : s_allStats) {
             V3Statistic* repp = &itr;
             byName.emplace(repp->name(), repp);
         }
 
         // Process duplicates
-        V3Statistic* lastp = nullptr;
-        for (const auto& itr : byName) {
-            V3Statistic* repp = itr.second;
-            if (lastp && lastp->sumit() && lastp->printit() && repp->printit()
+        V3Statistic* lastp = اشاره_تهی;
+        لكل (ثابت خودکار& itr : byName) {
+            V3Statistic* repp = itr.دومی;
+            إذا (lastp && lastp->sumit() && lastp->printit() && repp->printit()
                 && lastp->name() == repp->name() && lastp->stage() == repp->stage()) {
                 lastp->combineWith(repp);
-            } else {
+            } وإلا {
                 lastp = repp;
             }
         }
     }
 
-    void stars() {
+    فراغ stars() {
         // Find all stages
-        size_t maxWidth = 0;
-        std::multimap<std::string, const V3Statistic*> byName;
+        اندازه_t max_عرض = 0;
+        std::multimap<std::string, ثابت V3Statistic*> byName;
         // * is always first
-        for (const auto& itr : s_allStats) {
-            const V3Statistic* repp = &itr;
-            if (repp->stage() == "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
+        لكل (ثابت خودکار& itr : s_allStats) {
+            ثابت V3Statistic* repp = &itr;
+            إذا (repp->stage() == "*" && repp->printit()) {
+                إذا (max_عرض < repp->name().درازی()) max_عرض = repp->name().درازی();
                 byName.emplace(repp->name(), repp);
             }
         }
 
         // Print organized by stage
         os << "\nGlobal Statistics:\n\n";
-        for (const auto& itr : byName) {
-            const V3Statistic* repp = itr.second;
-            if (repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+        لكل (ثابت خودکار& itr : byName) {
+            ثابت V3Statistic* repp = itr.دومی;
+            إذا (repp->perf()) استمر;
+            os << "  " << std::چپ << std::setw(max_عرض) << repp->name();
             repp->dump(os);
             os << '\n';
         }
 
         // Print organized by stage
         os << "\nPerformance Statistics:\n\n";
-        for (const auto& itr : byName) {
-            const V3Statistic* repp = itr.second;
-            if (!repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+        لكل (ثابت خودکار& itr : byName) {
+            ثابت V3Statistic* repp = itr.دومی;
+            إذا (!repp->perf()) استمر;
+            os << "  " << std::چپ << std::setw(max_عرض) << repp->name();
             repp->dump(os);
             os << '\n';
         }
         os << '\n';
     }
 
-    void stages() {
+    فراغ stages() {
         os << "Stage Statistics:\n";
 
         // Find all stages
-        int stage = 0;
-        size_t maxWidth = 0;
-        std::vector<std::string> stages;
-        std::unordered_map<string, int> stageInt;
-        std::multimap<std::string, const V3Statistic*> byName;
+        صحيح stage = 0;
+        اندازه_t max_عرض = 0;
+        std::وکتور<std::string> stages;
+        std::unordered_map<string, صحيح> stageInt;
+        std::multimap<std::string, ثابت V3Statistic*> byName;
         // * is always first
-        for (auto it = s_allStats.begin(); it != s_allStats.end(); ++it) {
-            const V3Statistic* repp = &(*it);
-            if (repp->stage() != "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
-                const auto itFoundPair = stageInt.emplace(repp->stage(), stage);
-                if (itFoundPair.second) {
+        لكل (خودکار it = s_allStats.begin(); it != s_allStats.انتها(); ++it) {
+            ثابت V3Statistic* repp = &(*it);
+            إذا (repp->stage() != "*" && repp->printit()) {
+                إذا (max_عرض < repp->name().درازی()) max_عرض = repp->name().درازی();
+                ثابت خودکار it_یافت_Pair = stageInt.emplace(repp->stage(), stage);
+                إذا (it_یافت_Pair.دومی) {
                     ++stage;
-                    stages.push_back(repp->stage());
+                    stages.افزودن_پشت(repp->stage());
                 }
                 byName.emplace(repp->name(), repp);
             }
         }
 
-        // Header
-        os << "  Stat     " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (const string& i : stages) os << " " << std::left << std::setw(9) << i;
+        //سرآیند
+        os << "  Stat     " << std::چپ << std::setw(max_عرض - 5 - 2) << "";
+        لكل (ثابت string& i : stages) os << " " << std::چپ << std::setw(9) << i;
         os << '\n';
-        os << "  -------- " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (auto it = stages.begin(); it != stages.end(); ++it) {
-            os << " " << std::left << std::setw(9) << "-------";
+        os << "  -------- " << std::چپ << std::setw(max_عرض - 5 - 2) << "";
+        لكل (خودکار it = stages.begin(); it != stages.انتها(); ++it) {
+            os << " " << std::چپ << std::setw(9) << "-------";
         }
         // os<<endl;
 
         // Print organized by stage
-        string lastName = "__NONE__";
-        string lastCommaName = "__NONE__";
-        unsigned col = 0;
-        for (auto it = byName.cbegin(); it != byName.cend(); ++it) {
-            const V3Statistic* repp = it->second;
-            if (lastName != repp->name()) {
-                lastName = repp->name();
+        string آخرین_Name = "__NONE__";
+        string آخرین_Comma_Name = "__NONE__";
+        بیعلامت ستون = 0;
+        لكل (خودکار it = byName.cbegin(); it != byName.cend(); ++it) {
+            ثابت V3Statistic* repp = it->دومی;
+            إذا (آخرین_Name != repp->name()) {
+                آخرین_Name = repp->name();
                 {
-                    string commaName = lastName;
-                    string::size_type pos = commaName.find(',');
-                    if (pos != string::npos) commaName.erase(pos);
-                    if (lastCommaName != commaName) {
-                        lastCommaName = commaName;
+                    string commaName = آخرین_Name;
+                    string::اندازه_type pos = commaName.پیدا_کن(',');
+                    إذا (pos != string::npos) commaName.erase(pos);
+                    إذا (آخرین_Comma_Name != commaName) {
+                        آخرین_Comma_Name = commaName;
                         os << '\n';
                     }
                 }
                 os << '\n';
-                col = 0;
-                os << "  " << std::left << std::setw(maxWidth) << repp->name();
+                ستون = 0;
+                os << "  " << std::چپ << std::setw(max_عرض) << repp->name();
             }
-            while (col < stages.size() && stages.at(col) != repp->stage()) {
+            طالما (ستون < stages.اندازه() && stages.at(ستون) != repp->stage()) {
                 os << std::setw(10) << "";
-                col++;
+                ستون++;
             }
             repp->dump(os);
-            col++;
+            ستون++;
         }
         os << '\n';
     }
 
-public:
+عام:
     // METHODS
-    static void addStat(const V3Statistic& stat) { s_allStats.push_back(stat); }
+    ساكن فراغ جمع_کن_Stat(ثابت V3Statistic& stat) { s_allStats.افزودن_پشت(stat); }
 
-    static double getStatSum(const string& name) {
+    ساكن مزدوج get_Stat_جمع(ثابت string& name) {
         // O(n^2) if called a lot; present assumption is only a small call count
-        for (const V3Statistic& itr : s_allStats) {
-            const V3Statistic* const repp = &itr;
-            if (repp->name() == name) return repp->value();
+        لكل (ثابت V3Statistic& itr : s_allStats) {
+            ثابت V3Statistic* ثابت repp = &itr;
+            إذا (repp->name() == name) أرجع repp->مقدار();
         }
-        return 0.0;
+        أرجع 0.0;
     }
 
-    static void calculate() { sumit(); }
+    ساكن فراغ calculate() { sumit(); }
 
     // CONSTRUCTORS
-    explicit StatsReport(std::ofstream* aofp)
+    صریح StatsReport(std::ofstream* aofp)
         : os(*aofp) {  // Need () or GCC 4.8 false warning
         os << "Verilator Statistics Report\n\n";
-        V3Stats::infoHeader(os, "");
+        V3Stats::info_سرآیند(os, "");
         sumit();
         stars();
         stages();
     }
-    ~StatsReport() = default;
+    ~StatsReport() = افتراضي;
 };
 
 StatsReport::StatColl StatsReport::s_allStats;
@@ -190,95 +190,95 @@ StatsReport::StatColl StatsReport::s_allStats;
 //######################################################################
 // V3Statstic class
 
-void V3Statistic::dump(std::ofstream& os) const {
-    os << " " << std::right << std::fixed << std::setprecision(precision()) << std::setw(9)
-       << value();
+فراغ V3Statistic::dump(std::ofstream& os) ثابت {
+    os << " " << std::راست << std::fixed << std::setprecision(precision()) << std::setw(9)
+       << مقدار();
 }
 
 //######################################################################
 // Top Stats class
 
-void V3Stats::addStat(const V3Statistic& stat) { StatsReport::addStat(stat); }
+فراغ V3Stats::جمع_کن_Stat(ثابت V3Statistic& stat) { StatsReport::جمع_کن_Stat(stat); }
 
-double V3Stats::getStatSum(const string& name) { return StatsReport::getStatSum(name); }
+مزدوج V3Stats::get_Stat_جمع(ثابت string& name) { أرجع StatsReport::get_Stat_جمع(name); }
 
-void V3Stats::statsStage(const string& name) {
-    static double s_lastWallTime = -1;
-    static int s_fileNumber = 0;
+فراغ V3Stats::statsStage(ثابت string& name) {
+    ساكن مزدوج s_آخرین_Wall_زمان = -1;
+    ساكن صحيح s_file_عدد = 0;
 
-    const string digitName = V3Global::digitsFilename(++s_fileNumber) + "_" + name;
+    ثابت string digitName = V3Global::digitsFilename(++s_file_عدد) + "_" + name;
 
-    const double wallTime = V3Os::timeUsecs() / 1.0e6;
-    if (s_lastWallTime < 0) s_lastWallTime = wallTime;
-    const double wallTimeDelta = wallTime - s_lastWallTime;
-    s_lastWallTime = wallTime;
-    V3Stats::addStatPerf("Stage, Elapsed time (sec), " + digitName, wallTimeDelta);
-    V3Stats::addStatPerf("Stage, Elapsed time (sec), TOTAL", wallTimeDelta);
+    ثابت مزدوج wall_زمان = V3Os::زمان_Usecs() / 1.0e6;
+    إذا (s_آخرین_Wall_زمان < 0) s_آخرین_Wall_زمان = wall_زمان;
+    ثابت مزدوج wall_زمان_Delta = wall_زمان - s_آخرین_Wall_زمان;
+    s_آخرین_Wall_زمان = wall_زمان;
+    V3Stats::جمع_کن_Stat_Perf("Stage, Elapsed time (sec), " + digitName, wall_زمان_Delta);
+    V3Stats::جمع_کن_Stat_Perf("Stage, Elapsed time (sec), TOTAL", wall_زمان_Delta);
 
     uint64_t memPeak;
     uint64_t memCurrent;
-    VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
-    V3Stats::addStatPerf("Stage, Memory current (MB), " + digitName, memCurrent / 1024.0 / 1024.0);
-    V3Stats::addStatPerf("Stage, Memory peak (MB), " + digitName, memPeak / 1024.0 / 1024.0);
+    VlOs::mem_Usage_بایتها(memPeak /*ref*/, memCurrent /*ref*/);
+    V3Stats::جمع_کن_Stat_Perf("Stage, Memory current (MB), " + digitName, memCurrent / 1024.0 / 1024.0);
+    V3Stats::جمع_کن_Stat_Perf("Stage, Memory peak (MB), " + digitName, memPeak / 1024.0 / 1024.0);
 }
 
-void V3Stats::infoHeader(std::ofstream& os, const string& prefix) {
-    os << prefix << "Information:\n";
-    os << prefix << "  Version: " << V3Options::version() << '\n';
-    os << prefix << "  Arguments: " << v3Global.opt.allArgsString() << '\n';
-    os << prefix << "  Build jobs: " << v3Global.opt.buildJobs() << '\n';
-    os << prefix << "  Verilate jobs: " << v3Global.opt.verilateJobs() << '\n';
+فراغ V3Stats::info_سرآیند(std::ofstream& os, ثابت string& پیشوند) {
+    os << پیشوند << "Information:\n";
+    os << پیشوند << "  Version: " << V3Options::نسخه() << '\n';
+    os << پیشوند << "  Arguments: " << v3Global.opt.all_آرگومانها_String() << '\n';
+    os << پیشوند << "  Build jobs: " << v3Global.opt.buildJobs() << '\n';
+    os << پیشوند << "  Verilate jobs: " << v3Global.opt.verilateJobs() << '\n';
 }
 
-void V3Stats::statsReport() {
+فراغ V3Stats::statsReport() {
     UINFO(2, __FUNCTION__ << ":");
 
     uint64_t memPeak;
     uint64_t memCurrent;
-    VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
-    const double memory = memPeak / 1024.0 / 1024.0;
-    V3Stats::addStat("Peak Memory Usage (MB)", memory);
+    VlOs::mem_Usage_بایتها(memPeak /*ref*/, memCurrent /*ref*/);
+    ثابت مزدوج حافظه = memPeak / 1024.0 / 1024.0;
+    V3Stats::جمع_کن_Stat("Peak Memory Usage (MB)", حافظه);
 
     // Open stats file
-    const string filename
-        = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix() + "__stats.txt";
+    ثابت string filename
+        = v3Global.opt.hier_بالاترین_داده_Dir() + "/" + v3Global.opt.پیشوند() + "__stats.txt";
     std::ofstream* ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    إذا (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     { StatsReport{ofp}; }  // Destruct before cleanup
 
     // Cleanup
     ofp->close();
-    VL_DO_DANGLING(delete ofp, ofp);
+    VL_DO_DANGLING(حذف ofp, ofp);
 }
 
-void V3Stats::summaryReport() {
+فراغ V3Stats::summaryReport() {
     StatsReport::calculate();
-    std::cout << "- V e r i l a t i o n   R e p o r t: " << V3Options::version() << "\n";
+    std::خروجی << "- V e r i l a t i o n   R e p o r t: " << V3Options::نسخه() << "\n";
 
-    std::cout << std::setprecision(3) << std::fixed;
-    const double sourceCharsMB = V3Stats::getStatSumQ(STAT_SOURCE_CHARS) / 1024.0 / 1024.0;
-    const double cppCharsMB = V3Stats::getStatSumQ(STAT_CPP_CHARS) / 1024.0 / 1024.0;
-    const uint64_t sourceModules = V3Stats::getStatSumQ(STAT_SOURCE_MODULES);
-    const uint64_t cppFiles = V3Stats::getStatSumQ(STAT_CPP_FILES);
-    const double modelMB = V3Stats::getStatSum(STAT_MODEL_SIZE) / 1024.0 / 1024.0;
-    std::cout << "- Verilator: Built from " << sourceCharsMB << " MB sources in " << sourceModules
+    std::خروجی << std::setprecision(3) << std::fixed;
+    ثابت مزدوج منبع_Chars_MB = V3Stats::get_Stat_جمع_Q(STAT_منبع_CHARS) / 1024.0 / 1024.0;
+    ثابت مزدوج cppCharsMB = V3Stats::get_Stat_جمع_Q(STAT_CPP_CHARS) / 1024.0 / 1024.0;
+    ثابت uint64_t منبع_Modules = V3Stats::get_Stat_جمع_Q(STAT_منبع_MODULES);
+    ثابت uint64_t cppFiles = V3Stats::get_Stat_جمع_Q(STAT_CPP_FILES);
+    ثابت مزدوج modelMB = V3Stats::get_Stat_جمع(STAT_MODEL_اندازه) / 1024.0 / 1024.0;
+    std::خروجی << "- Verilator: Built from " << منبع_Chars_MB << " MB sources in " << منبع_Modules
               << " modules, into " << cppCharsMB << " MB in " << cppFiles << " C++ files needing "
               << modelMB << " MB\n";
 
-    const double walltime = V3Stats::getStatSum(STAT_WALLTIME);
-    const double walltimeElab = V3Stats::getStatSum(STAT_WALLTIME_ELAB);
-    const double walltimeCvt = V3Stats::getStatSum(STAT_WALLTIME_CVT);
-    const double walltimeBuild = V3Stats::getStatSum(STAT_WALLTIME_BUILD);
-    const double cputime = V3Stats::getStatSum(STAT_CPUTIME);
-    std::cout << "- Verilator: Walltime " << walltime << " s (elab=" << walltimeElab
+    ثابت مزدوج walltime = V3Stats::get_Stat_جمع(STAT_WALLTIME);
+    ثابت مزدوج walltimeElab = V3Stats::get_Stat_جمع(STAT_WALLTIME_ELAB);
+    ثابت مزدوج walltimeCvt = V3Stats::get_Stat_جمع(STAT_WALLTIME_CVT);
+    ثابت مزدوج walltimeBuild = V3Stats::get_Stat_جمع(STAT_WALLTIME_BUILD);
+    ثابت مزدوج cputime = V3Stats::get_Stat_جمع(STAT_CPUTIME);
+    std::خروجی << "- Verilator: Walltime " << walltime << " s (elab=" << walltimeElab
               << ", cvt=" << walltimeCvt << ", bld=" << walltimeBuild << "); cpu " << cputime
               << " s on " << std::max(v3Global.opt.verilateJobs(), v3Global.opt.buildJobs())
               << " threads";
     uint64_t memPeak;
     uint64_t memCurrent;
-    VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
-    const double memory = memPeak / 1024.0 / 1024.0;
-    if (VL_UNCOVERABLE(memory != 0.0)) std::cout << "; allocated " << memory << " MB";
-    std::cout << "\n";
+    VlOs::mem_Usage_بایتها(memPeak /*ref*/, memCurrent /*ref*/);
+    ثابت مزدوج حافظه = memPeak / 1024.0 / 1024.0;
+    إذا (VL_UNCOVERABLE(حافظه != 0.0)) std::خروجی << "; allocated " << حافظه << " MB";
+    std::خروجی << "\n";
 }

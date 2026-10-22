@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STDFUTURE_H_
-#define VERILATOR_V3STDFUTURE_H_
+#اگر_تعریف_نشده VERILATOR_V3STDFUTURE_H_
+#تعریف_کن VERILATOR_V3STDFUTURE_H_
 
-#include <functional>
+#ضمن <functional>
 
 namespace vlstd {
 
 // C++17 is_invocable
-template <typename F, typename... Args>
-struct is_invocable
-    : std::is_constructible<std::function<void(Args...)>,
+قالب <typename F, typename... آرگومانها_2>
+بنية is_invocable
+    : std::is_constructible<std::function<فراغ(آرگومانها_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 
 // C++17 is_invocable_r
-template <typename R, typename F, typename... Args>
-struct is_invocable_r
-    : std::is_constructible<std::function<R(Args...)>,
+قالب <typename R, typename F, typename... آرگومانها_2>
+بنية is_invocable_r
+    : std::is_constructible<std::function<R(آرگومانها_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 };  // namespace vlstd
 
-#endif  // Guard
+#پایان_اگر  // Guard

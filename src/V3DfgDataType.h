@@ -41,22 +41,22 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DFGDATATYPE_H_
-#define VERILATOR_V3DFGDATATYPE_H_
+#اگر_تعریف_نشده VERILATOR_V3DFGDATATYPE_H_
+#تعریف_کن VERILATOR_V3DFGDATATYPE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Hash.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Error.h"
+#ضمن "V3Global.h"
+#ضمن "V3Hash.h"
 
-#include <memory>
-#include <unordered_map>
+#ضمن <memory>
+#ضمن <unordered_map>
 
-class DfgDataType final {
-    enum class Kind : uint8_t {
+class Dfg_داده_Type final {
+    تعداد class نوع_2 : uint8_t {
         Packed,
         Array,
         // Tuple - to model unpacked structs in the future
@@ -64,172 +64,172 @@ class DfgDataType final {
     };
 
     // STATE
-    const Kind m_kind;  // The type category
-    uint32_t m_size;  // The number of elements in this type
-    AstNodeDType* const m_astDtypep;  // Equivalent canonical AstNodeDType
-    const DfgDataType* const m_elemDtypep;  // Type of elements - for arrays only
+    ثابت نوع_2 m_نوع;  // The type category
+    uint32_t m_اندازه;  // The number of elements in this type
+    Ast_گره_DType* ثابت m_astDtypep;  // Equivalent canonical AstNodeDType
+    ثابت Dfg_داده_Type* ثابت m_elemDtypep;  // Type of elements - for arrays only
     // Static singleton Null type
-    static const DfgDataType* s_nullTypep;
+    ساكن ثابت Dfg_داده_Type* s_nullTypep;
     // Static map from 'width' -> 'interned Packed DfgDataType with that width'
-    static std::unordered_map<uint32_t, const DfgDataType*> s_packedTypes;
+    ساكن std::unordered_map<uint32_t, ثابت Dfg_داده_Type*> s_packedTypes;
     // Map from 'elements' -> 'interned Array DfgDataType with that many elements of *this* type'
-    mutable std::unordered_map<uint32_t, const DfgDataType*> m_arrayTypes;
+    mutable std::unordered_map<uint32_t, ثابت Dfg_داده_Type*> m_arrayTypes;
 
     // METHODS
-    static AstNodeDType* canonicalPackedDType(uint32_t width) {
-        return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
+    ساكن Ast_گره_DType* canonicalPackedDType(uint32_t عرض) {
+        أرجع v3Global.rootp()->typeTablep()->پیدا_کن_بیت_DType(عرض, عرض, VSigning::UNSIGNED);
     }
-    static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
-        AstNodeDType* const elemDTypep = elemType.m_astDtypep;
-        FileLine* const flp = elemDTypep->fileline();
-        AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
-        AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
-        v3Global.rootp()->typeTablep()->addTypesp(dtypep);
-        return dtypep;
+    ساكن Ast_گره_DType* canonicalArrayDType(uint32_t اندازه, ثابت Dfg_داده_Type& elemType) {
+        Ast_گره_DType* ثابت elemDTypep = elemType.m_astDtypep;
+        File_سطر* ثابت flp = elemDTypep->fileline();
+        AstRange* ثابت rangep = new AstRange{flp, static_cast<صحيح>(اندازه - 1), 0};
+        Ast_گره_DType* ثابت dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
+        v3Global.rootp()->typeTablep()->جمع_کن_Typesp(dtypep);
+        أرجع dtypep;
     }
 
     // CONSTRUCTOR - use 'fromAst' instead
-    DfgDataType()
-        : m_kind{Kind::Null}
-        , m_size{0}
-        , m_astDtypep{v3Global.rootp()->findVoidDType()}
+    Dfg_داده_Type()
+        : m_نوع{نوع_2::Null}
+        , m_اندازه{0}
+        , m_astDtypep{v3Global.rootp()->پیدا_کن_Void_DType()}
         , m_elemDtypep{nullptr} {}
-    explicit DfgDataType(uint32_t size)
-        : m_kind{Kind::Packed}
-        , m_size{size}
-        , m_astDtypep{canonicalPackedDType(size)}
+    explicit Dfg_داده_Type(uint32_t اندازه)
+        : m_نوع{نوع_2::Packed}
+        , m_اندازه{اندازه}
+        , m_astDtypep{canonicalPackedDType(اندازه)}
         , m_elemDtypep{nullptr} {}
-    DfgDataType(uint32_t size, const DfgDataType& elemType)
-        : m_kind{Kind::Array}
-        , m_size{size}
-        , m_astDtypep{canonicalArrayDType(size, elemType)}
+    Dfg_داده_Type(uint32_t اندازه, ثابت Dfg_داده_Type& elemType)
+        : m_نوع{نوع_2::Array}
+        , m_اندازه{اندازه}
+        , m_astDtypep{canonicalArrayDType(اندازه, elemType)}
         , m_elemDtypep{&elemType} {}
 
-    VL_UNCOPYABLE(DfgDataType);
-    VL_UNMOVABLE(DfgDataType);
-    ~DfgDataType() {
-        for (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+    VL_UNCOPYABLE(Dfg_داده_Type);
+    VL_UNMOVABLE(Dfg_داده_Type);
+    ~Dfg_داده_Type() {
+        لكل (ثابت خودکار& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.دومی, pair.دومی);
     }
 
-public:
+عام:
     //-----------------------------------------------------------------------
     // Properties
 
-    bool isNull() const { return m_kind == Kind::Null; }
-    bool isPacked() const { return m_kind == Kind::Packed; }
-    bool isArray() const { return m_kind == Kind::Array; }
+    bool isNull() ثابت { أرجع m_نوع == نوع_2::Null; }
+    bool isPacked() ثابت { أرجع m_نوع == نوع_2::Packed; }
+    bool isArray() ثابت { أرجع m_نوع == نوع_2::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
-    uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    uint32_t اندازه() ثابت { أرجع m_اندازه; }
+    Ast_گره_DType* astDtypep() ثابت { أرجع m_astDtypep; }
 
     // Thanks to the interning, equality is identity
-    bool operator==(const DfgDataType& that) const { return this == &that; }
-    bool operator!=(const DfgDataType& that) const { return this != &that; }
+    bool عملگر==(ثابت Dfg_داده_Type& that) ثابت { أرجع this == &that; }
+    bool عملگر!=(ثابت Dfg_داده_Type& that) ثابت { أرجع this != &that; }
     // Similarly for hash
-    V3Hash hash() const { return V3Hash{this}; }
+    V3Hash hash() ثابت { أرجع V3Hash{this}; }
 
     // Type of elements, for arrays only
-    const DfgDataType& elemDtype() const {
+    ثابت Dfg_داده_Type& elemDtype() ثابت {
         UASSERT(isArray(), "Non-array has no 'elemDType'");
-        return *m_elemDtypep;
+        أرجع *m_elemDtypep;
     }
 
     //-----------------------------------------------------------------------
     // Static factory and management functions
 
     // Returns a Packed type of the given width
-    static const DfgDataType& packed(uint32_t width) {
-        UASSERT(width > 0, "Width must be positive");
+    ساكن ثابت Dfg_داده_Type& packed(uint32_t عرض) {
+        UASSERT(عرض > 0, "Width must be positive");
         // Find or create the right sized packed type
-        const DfgDataType*& entryr = s_packedTypes[width];
-        if (!entryr) entryr = new DfgDataType{width};
-        return *entryr;
+        ثابت Dfg_داده_Type*& entryr = s_packedTypes[عرض];
+        إذا (!entryr) entryr = new Dfg_داده_Type{عرض};
+        أرجع *entryr;
     }
 
     // Returns an Array type of the given size with the given elements
-    static const DfgDataType& array(const DfgDataType& elemType, uint32_t size) {
+    ساكن ثابت Dfg_داده_Type& array(ثابت Dfg_داده_Type& elemType, uint32_t اندازه) {
         UASSERT(elemType.isPacked(), "Cannot create multi-dimensional arrays yet");
         // Find or create the right sized array type with this as elements
-        const DfgDataType*& entryr = elemType.m_arrayTypes[size];
-        if (!entryr) entryr = new DfgDataType{size, elemType};
-        return *entryr;
+        ثابت Dfg_داده_Type*& entryr = elemType.m_arrayTypes[اندازه];
+        إذا (!entryr) entryr = new Dfg_داده_Type{اندازه, elemType};
+        أرجع *entryr;
     }
 
     // Returns the singleton Null type
-    static const DfgDataType& null() {
-        if (!s_nullTypep) s_nullTypep = new DfgDataType{};
-        return *s_nullTypep;
+    ساكن ثابت Dfg_داده_Type& null() {
+        إذا (!s_nullTypep) s_nullTypep = new Dfg_داده_Type{};
+        أرجع *s_nullTypep;
     }
 
     // Returns the data type of selecting the range [lo + size - 1 : lo] from this type
-    static const DfgDataType& select(const DfgDataType& dtype, uint32_t lo, uint32_t size) {
-        switch (dtype.m_kind) {
-        case Kind::Packed: {
-            UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::packed(size);
+    ساكن ثابت Dfg_داده_Type& select(ثابت Dfg_داده_Type& dtype, uint32_t lo, uint32_t اندازه) {
+        بدل (dtype.m_نوع) {
+        حالة نوع_2::Packed: {
+            UASSERT(lo + اندازه - 1 < dtype.اندازه(), "Out of range");
+            أرجع Dfg_داده_Type::packed(اندازه);
         }
-        case Kind::Array: {
-            UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::array(dtype.elemDtype(), size);
+        حالة نوع_2::Array: {
+            UASSERT(lo + اندازه - 1 < dtype.اندازه(), "Out of range");
+            أرجع Dfg_داده_Type::array(dtype.elemDtype(), اندازه);
         }
-        case Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
+        حالة نوع_2::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
         }
         VL_UNREACHABLE;
     }
 
     // Construct a DfgDataType that represents the given AstNodeDType.
     // Returns nullptr if AstNodeDType is not representable by DfgDataType.
-    static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
+    ساكن ثابت Dfg_داده_Type* fromAst(ثابت Ast_گره_DType* dtypep) {
         dtypep = dtypep->skipRefp();
 
-        if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
+        إذا (ثابت AstUnpackArrayDType* ثابت typep = VN_CAST(dtypep, UnpackArrayDType)) {
             // Convert the element type
-            const DfgDataType* const elemp = fromAst(typep->subDTypep());
+            ثابت Dfg_داده_Type* ثابت elemp = fromAst(typep->subDTypep());
             // If element type is not supported, we cannot handle the array either
-            if (!elemp) return nullptr;
+            إذا (!elemp) أرجع nullptr;
             // Currently restricted to 1-dimensional arrays, just assumptions in the code
-            if (elemp->isArray()) return nullptr;
+            إذا (elemp->isArray()) أرجع nullptr;
             // Unpacked array maps to Array
-            return &array(*elemp, typep->elementsConst());
+            أرجع &array(*elemp, typep->elementsConst());
         }
 
-        if (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
+        إذا (ثابت AstPackArrayDType* ثابت typep = VN_CAST(dtypep, PackArrayDType)) {
             // Packed array maps to Packed
-            return &packed(typep->width());
+            أرجع &packed(typep->عرض());
         }
 
-        if (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
+        إذا (ثابت AstStructDType* ثابت typep = VN_CAST(dtypep, StructDType)) {
             // Unpacked structs currently not supported
-            if (!typep->packed()) return nullptr;
+            إذا (!typep->packed()) أرجع nullptr;
             // Packed struct maps to Packed
-            return &packed(typep->width());
+            أرجع &packed(typep->عرض());
         }
 
-        if (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
+        إذا (ثابت AstUnionDType* ثابت typep = VN_CAST(dtypep, UnionDType)) {
             // Unpacked unions not supported
-            if (!typep->packed()) return nullptr;
+            إذا (!typep->packed()) أرجع nullptr;
             // Packed union maps to Packed
-            return &packed(typep->width());
+            أرجع &packed(typep->عرض());
         }
 
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+        إذا (ثابت AstBasicDType* ثابت typep = VN_CAST(dtypep, BasicDType)) {
             // Anything not resembling a binary encoded number is not supported
-            if (!typep->keyword().isIntNumeric()) return nullptr;
+            إذا (!typep->keyword().isIntNumeric()) أرجع nullptr;
             // Basic numeric types map to Packed
-            return &packed(typep->width());
+            أرجع &packed(typep->عرض());
         }
 
         // Anything else is not representable
-        return nullptr;
+        أرجع nullptr;
     }
 
     // Reset interned types
-    static void reset() {
-        for (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+    ساكن فراغ reset() {
+        لكل (ثابت خودکار& pair : s_packedTypes) VL_DO_DANGLING(delete pair.دومی, pair.دومی);
         s_packedTypes.clear();
         delete s_nullTypep;
         s_nullTypep = nullptr;
     }
 };
 
-#endif
+#پایان_اگر

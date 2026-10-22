@@ -15,21 +15,21 @@
 //*************************************************************************
 
 // clang-format off
-#include "V3Error.h"
-#include "V3Os.h"
-#ifndef V3ERROR_NO_GLOBAL_
+#ضمن "V3Error.h"
+#ضمن "V3Os.h"
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
 # include "V3Ast.h"
 # include "V3DiagSarif.h"
 # include "V3Global.h"
 # include "V3Stats.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
-#endif
-#include <thread>
+#پایان_اگر
+#ضمن <thread>
 // clang-format on
 
 //======================================================================
 
-struct v3errorIniter final {
+بنية v3errorIniter final {
     v3errorIniter() { V3Error::init(); }
 };
 v3errorIniter v3errorInit;
@@ -37,58 +37,58 @@ v3errorIniter v3errorInit;
 //######################################################################
 // ErrorCode class functions
 
-V3ErrorCode::V3ErrorCode(const char* msgp) {
+V3_Error_کد::V3_Error_کد(ثابت حرف* msgp) {
     // Return error encoding for given string, or ERROR, which is a bad code
-    for (int codei = V3ErrorCode::EC_MIN; codei < V3ErrorCode::_ENUM_MAX; codei++) {
-        const V3ErrorCode code{codei};
-        if (0 == VL_STRCASECMP(msgp, code.ascii())) {
-            m_e = code;
-            if (isRenamed()) m_e = renamedTo().m_e;
-            return;
+    لكل (صحيح codei = V3_Error_کد::EC_MIN; codei < V3_Error_کد::_ENUM_MAX; codei++) {
+        ثابت V3_Error_کد کد{codei};
+        إذا (0 == VL_STRCASECMP(msgp, کد.ascii())) {
+            m_e = کد;
+            إذا (isRenamed()) m_e = renamed_مقصد().m_e;
+            أرجع;
         }
     }
-    m_e = V3ErrorCode::EC_ERROR;
+    m_e = V3_Error_کد::EC_ERROR;
 }
 
-string V3ErrorCode::url() const {
-    if (!isNamed())
-        return "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
-    return "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
+string V3_Error_کد::url() ثابت {
+    إذا (!isNamed())
+        أرجع "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_نسخه_عدد_STRING;
+    أرجع "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_نسخه_عدد_STRING;
 }
 
 //######################################################################
 // V3ErrorGuarded class functions
 //
 
-bool V3ErrorGuarded::isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex) {
-    if (code.hardError()) return true;
-    if (supp) return false;
-    if (code.severityInfo()) return false;
-    if (pretendError(code)) return true;
-    return false;
+منطقي V3ErrorGuarded::isError(V3_Error_کد کد, منطقي supp) VL_REQUIRES(m_mutex) {
+    إذا (کد.hardError()) أرجع درست;
+    إذا (supp) أرجع خطأ;
+    إذا (کد.severityInfo()) أرجع خطأ;
+    إذا (pretendError(کد)) أرجع درست;
+    أرجع خطأ;
 }
 
-string V3ErrorGuarded::msgPrefix() VL_REQUIRES(m_mutex) {
-    const V3ErrorCode code = m_message.code();
-    const bool supp = m_errorSuppressed;
-    if (supp) return "-arning-suppressed-" + std::string{code.ascii()} + ": ";
-    if (code.severityInfo()) return "-Info: ";
-    if (code == V3ErrorCode::EC_FATAL) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALMANY) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALSRC) return "%Error: Internal Error: ";
-    if (code == V3ErrorCode::EC_ERROR) return "%Error: ";
-    if (isError(code, supp)) return "%Error-" + std::string{code.ascii()} + ": ";
-    return "%Warning-" + std::string{code.ascii()} + ": ";
+string V3ErrorGuarded::پیام_پیشوند() VL_REQUIRES(m_mutex) {
+    ثابت V3_Error_کد کد = m_پیام.کد();
+    ثابت منطقي supp = m_errorSuppressed;
+    إذا (supp) أرجع "-arning-suppressed-" + std::string{کد.ascii()} + ": ";
+    إذا (کد.severityInfo()) أرجع "-Info: ";
+    إذا (کد == V3_Error_کد::EC_FATAL) أرجع "%Error: ";
+    إذا (کد == V3_Error_کد::EC_FATALMANY) أرجع "%Error: ";
+    إذا (کد == V3_Error_کد::EC_FATALSRC) أرجع "%Error: Internal Error: ";
+    إذا (کد == V3_Error_کد::EC_ERROR) أرجع "%Error: ";
+    إذا (isError(کد, supp)) أرجع "%Error-" + std::string{کد.ascii()} + ": ";
+    أرجع "%Warning-" + std::string{کد.ascii()} + ": ";
 }
 
-void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
-    if (V3Error::debugDefault()) {
-        std::cerr << msgPrefix() << "Aborting since under --debug" << endl;
+فراغ V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
+    إذا (V3Error::debugDefault()) {
+        std::cerr << پیام_پیشوند() << "Aborting since under --debug" << پایان_سطر;
         V3Error::vlAbort();
     }
 
-#ifndef V3ERROR_NO_GLOBAL_
-    if (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+    إذا (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
         // No static destructors are called, thus must be called manually.
         VL_GCOV_DUMP();
         // Exit without triggering any global destructors. Used to prevent
@@ -96,187 +96,187 @@ void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
         ::_exit(1);  // LCOV_EXCL_LINE
     }
     v3Global.vlExit(1);
-#else
-    std::exit(1);
-#endif
+#وإلا
+    std::خروج(1);
+#پایان_اگر
 }
 
-string V3ErrorGuarded::warnMoreSpaces() VL_REQUIRES(m_mutex) {
-    UASSERT_STATIC(!m_message.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
-    return string(msgPrefix().size(), ' ');
+string V3ErrorGuarded::warn_بیشتر_Spaces() VL_REQUIRES(m_mutex) {
+    UASSERT_STATIC(!m_پیام.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
+    أرجع string(پیام_پیشوند().اندازه(), ' ');
 }
 
-void V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
-#ifndef V3ERROR_NO_GLOBAL_
-    V3Stats::addStatSum("Warnings, Suppressed "s + errorCode().ascii(), 1);
-#endif
-    errorSuppressed(true);
+فراغ V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+    V3Stats::جمع_کن_Stat_جمع("Warnings, Suppressed "s + error_کد().ascii(), 1);
+#پایان_اگر
+    errorSuppressed(درست);
 }
 
-void V3ErrorGuarded::v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex) {
+فراغ V3ErrorGuarded::v3errorPrep(V3_Error_کد کد) VL_REQUIRES(m_mutex) {
     m_errorStr.str("");
-    UASSERT_STATIC(m_message.isClear(), "Attempted v3errorPrep inside v3errorPrep...v3errorEnd");
-    m_message.init(code);
-    m_errorContexted = false;
-    m_errorSuppressed = false;
+    UASSERT_STATIC(m_پیام.isClear(), "Attempted v3errorPrep inside v3errorPrep...v3errorEnd");
+    m_پیام.init(کد);
+    m_errorContexted = خطأ;
+    m_errorSuppressed = خطأ;
 }
 
-void V3ErrorGuarded::v3errorEnd(const std::ostringstream& sstr, const string& extra,
-                                FileLine* fileline) VL_REQUIRES(m_mutex) {
-    static bool s_firedTooMany = false;
-    v3errorEndGuts(sstr, extra, fileline);
-    m_message.clear();
-    if (errorLimit() && errorCount() >= errorLimit() && !s_firedTooMany) {
-        s_firedTooMany = true;
+فراغ V3ErrorGuarded::v3error_انتها(ثابت std::ostringstream& sstr, ثابت string& extra,
+                                File_سطر* fileline) VL_REQUIRES(m_mutex) {
+    ساكن منطقي s_firedTooMany = خطأ;
+    v3error_انتها_Guts(sstr, extra, fileline);
+    m_پیام.clear();
+    إذا (error_حد() && error_شمار() >= error_حد() && !s_firedTooMany) {
+        s_firedTooMany = درست;
         // Recurses here
-        v3errorEnd((v3errorPrep(V3ErrorCode::EC_FATALMANY),
+        v3error_انتها((v3errorPrep(V3_Error_کد::EC_FATALMANY),
                     (v3errorStr() << "Exiting due to too many errors encountered; --error-limit="
-                                  << errorCount() << std::endl),
+                                  << error_شمار() << std::پایان_سطر),
                     v3errorStr()),
-                   "", nullptr);
-        assert(0);  // LCOV_EXCL_LINE
+                   "", اشاره_تهی);
+        أكد(0);  // LCOV_EXCL_LINE
         VL_UNREACHABLE;
     }
 }
 
 // cppcheck-has-bug-suppress constParameter
-void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string& extra,
-                                    FileLine* fileline) VL_REQUIRES(m_mutex) {
+فراغ V3ErrorGuarded::v3error_انتها_Guts(ثابت std::ostringstream& sstr, ثابت string& extra,
+                                    File_سطر* fileline) VL_REQUIRES(m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
-#if defined(__COVERITY__) || defined(__cppcheck__)
-    if (m_errorCode == V3ErrorCode::EC_FATAL) __coverity_panic__(x);
-#endif
+#إذا defined(__COVERITY__) || defined(__cppcheck__)
+    إذا (m_error_کد == V3_Error_کد::EC_FATAL) __coverity_panic__(x);
+#پایان_اگر
 
-    UASSERT_STATIC(!m_message.isClear(), "v3errorEnd() outside of v3errorPrep...v3errorEnd");
-    m_message.fileline(fileline);
+    UASSERT_STATIC(!m_پیام.isClear(), "v3errorEnd() outside of v3errorPrep...v3errorEnd");
+    m_پیام.fileline(fileline);
 
     // Skip suppressed messages
-    if (m_errorSuppressed) {
+    إذا (m_errorSuppressed) {
         // On debug, show only non default-off warning to prevent pages of warnings
-        if (m_message.code().defaultsOff()) return;
-        if (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_message.code()))) return;
-        m_showedSuppressed.set(m_message.code(), true);
+        إذا (m_پیام.کد().defaultsOff()) أرجع;
+        إذا (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_پیام.کد()))) أرجع;
+        m_showedSuppressed.مجموعه(m_پیام.کد(), درست);
     }
-    string msg
-        = V3Error::warnContextBegin() + msgPrefix() + V3Error::warnContextEnd() + sstr.str();
+    string پیام_2
+        = V3Error::warnContextBegin() + پیام_پیشوند() + V3Error::warn_Context_انتها() + sstr.str();
 
     // If suppressed print only first line to reduce verbosity
-    string firstLine = msg;
+    string اولی_سطر = پیام_2;
     {
-        const string::size_type pos = firstLine.find('\n');
-        if (pos != string::npos) {
-            firstLine.erase(pos, firstLine.length() - pos);
-            firstLine += "...";
+        ثابت string::اندازه_type pos = اولی_سطر.پیدا_کن('\n');
+        إذا (pos != string::npos) {
+            اولی_سطر.erase(pos, اولی_سطر.درازی() - pos);
+            اولی_سطر += "...";
         }
     }
-    if (m_errorSuppressed) msg = firstLine;
+    إذا (m_errorSuppressed) پیام_2 = اولی_سطر;
     // Suppress duplicate messages
-    if (!m_messages.insert(firstLine).second) return;
+    إذا (!m_messages.درج(اولی_سطر).دومی) أرجع;
 
-    msg = VString::replaceSubstr(msg, V3Error::warnMore(), warnMoreSpaces());
+    پیام_2 = VString::replaceSubstr(پیام_2, V3Error::warn_بیشتر(), warn_بیشتر_Spaces());
 
-    string msg_additional;
+    string پیام_additional;
     {
-        const string::size_type pos = msg.find(V3Error::warnAdditionalInfo());
-        if (pos != string::npos) {
-            msg_additional = msg.substr(pos + V3Error::warnAdditionalInfo().size());
-            msg.erase(pos);
+        ثابت string::اندازه_type pos = پیام_2.پیدا_کن(V3Error::warnAdditionalInfo());
+        إذا (pos != string::npos) {
+            پیام_additional = پیام_2.substr(pos + V3Error::warnAdditionalInfo().اندازه());
+            پیام_2.erase(pos);
         }
     }
-    msg += '\n';  // Trailing newlines generally not put on messages so add
-    if (!extra.empty() && !m_errorSuppressed) {
-        string extraMsg = VString::replaceSubstr(extra, V3Error::warnMore(), warnMoreSpaces());
-        extraMsg = warnMoreSpaces() + extraMsg + "\n";
-        const size_t pos = msg.find('\n');
-        msg.insert(pos + 1, extraMsg);
+    پیام_2 += '\n';  // Trailing newlines generally not put on messages so add
+    إذا (!extra.خالی() && !m_errorSuppressed) {
+        string extra_پیام = VString::replaceSubstr(extra, V3Error::warn_بیشتر(), warn_بیشتر_Spaces());
+        extra_پیام = warn_بیشتر_Spaces() + extra_پیام + "\n";
+        ثابت اندازه_t pos = پیام_2.پیدا_کن('\n');
+        پیام_2.درج(pos + 1, extra_پیام);
     }
     // Output
-    string text;
-    if (
-#ifndef V3ERROR_NO_GLOBAL_
-        !(v3Global.opt.quietExit() && m_message.code() == V3ErrorCode::EC_FATALMANY)
-#else
-        true
-#endif
+    string متن;
+    إذا (
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+        !(v3Global.opt.quietExit() && m_پیام.کد() == V3_Error_کد::EC_FATALMANY)
+#وإلا
+        درست
+#پایان_اگر
     )
-        text += msg;
-    if (m_errorSuppressed || m_message.code().severityInfo()) {
-        std::cerr << V3Error::stripMetaText(text, false);
-        m_message.text(text);
-#ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
-#endif
-    } else {
-        const bool anError = isError(m_message.code(), m_errorSuppressed);
-        if (m_message.code()
-                != V3ErrorCode::EC_FATALMANY  // Not verbose on final too-many-errors error
-            && !m_describedEachWarn.test(m_message.code())) {
-            m_describedEachWarn.set(m_message.code(), true);
-            if (m_message.code() >= V3ErrorCode::EC_FIRST_NAMED) {
-                text += warnMoreSpaces() + "... For " + (anError ? "error" : "warning")
-                        + " description see " + m_message.code().url() + '\n';
-            } else if (m_errCount >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
-                m_tellInternal = true;
-                text += warnMoreSpaces()
+        متن += پیام_2;
+    إذا (m_errorSuppressed || m_پیام.کد().severityInfo()) {
+        std::cerr << V3Error::strip_Meta_متن(متن, خطأ);
+        m_پیام.متن(متن);
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+        V3DiagSarif::افزودن_پیام(m_پیام);
+#پایان_اگر
+    } وإلا {
+        ثابت منطقي anError = isError(m_پیام.کد(), m_errorSuppressed);
+        إذا (m_پیام.کد()
+                != V3_Error_کد::EC_FATALMANY  // Not verbose on final too-many-errors error
+            && !m_describedEachWarn.test(m_پیام.کد())) {
+            m_describedEachWarn.مجموعه(m_پیام.کد(), درست);
+            إذا (m_پیام.کد() >= V3_Error_کد::EC_اولی_NAMED) {
+                متن += warn_بیشتر_Spaces() + "... For " + (anError ? "error" : "warning")
+                        + " description see " + m_پیام.کد().url() + '\n';
+            } وإلا إذا (m_err_شمار >= 1 && m_پیام.کد().severityFatal() && !m_tell_داخلی) {
+                m_tell_داخلی = درست;
+                متن += warn_بیشتر_Spaces()
                         + "... This fatal error may be caused by the earlier error(s);"
                           " resolve those first.\n";
-            } else if (!m_tellManual) {
-                m_tellManual = true;
-                text += warnMoreSpaces() + "... See the manual at " + m_message.code().url()
+            } وإلا إذا (!m_tellManual) {
+                m_tellManual = درست;
+                متن += warn_بیشتر_Spaces() + "... See the manual at " + m_پیام.کد().url()
                         + " for more assistance.\n";
             }
-            if (!m_pretendError.test(m_message.code()) && !m_message.code().hardError()) {
-                text += warnMoreSpaces() + "... Use \"/* verilator lint_off "
-                        + m_message.code().ascii()
+            إذا (!m_pretendError.test(m_پیام.کد()) && !m_پیام.کد().hardError()) {
+                متن += warn_بیشتر_Spaces() + "... Use \"/* verilator lint_off "
+                        + m_پیام.کد().ascii()
                         + " */\" and lint_on around source to disable this message.\n";
-                if (m_message.code().dangerous()) {
-                    text += warnMoreSpaces() + "*** See " + m_message.code().url()
+                إذا (m_پیام.کد().dangerous()) {
+                    متن += warn_بیشتر_Spaces() + "*** See " + m_پیام.کد().url()
                             + " before disabling this,\n";
-                    text += warnMoreSpaces() + "else you may end up with different sim results.\n";
+                    متن += warn_بیشتر_Spaces() + "else you may end up with different sim results.\n";
                 }
             }
         }
-        if (!msg_additional.empty()) text += msg_additional;
-        std::cerr << V3Error::stripMetaText(text, false);
-        m_message.text(text);
-#ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
-#endif
+        إذا (!پیام_additional.خالی()) متن += پیام_additional;
+        std::cerr << V3Error::strip_Meta_متن(متن, خطأ);
+        m_پیام.متن(متن);
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+        V3DiagSarif::افزودن_پیام(m_پیام);
+#پایان_اگر
 
-        if (anError) {
+        إذا (anError) {
             incErrors();
-        } else {
+        } وإلا {
             incWarnings();
         }
-        if (m_message.code().severityFatal()) {
-            static bool s_inFatal = false;
+        إذا (m_پیام.کد().severityFatal()) {
+            ساكن منطقي s_درون_Fatal = خطأ;
             // cppcheck-suppress duplicateConditionalAssign // Used by VlcMain.cpp
-            if (!s_inFatal) {
-                s_inFatal = true;
-#ifndef V3ERROR_NO_GLOBAL_
-                if (dumpTreeLevel() || dumpTreeJsonLevel() || debug()) {
-                    V3Broken::allowMidvisitorCheck(true);
-                    if (dumpTreeLevel()) {
-                        v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("final.tree", 990));
+            إذا (!s_درون_Fatal) {
+                s_درون_Fatal = درست;
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+                إذا (dump_درخت_Level() || dump_درخت_Json_Level() || debug()) {
+                    V3Broken::allowMidvisitorCheck(درست);
+                    إذا (dump_درخت_Level()) {
+                        v3Global.rootp()->dump_درخت_File(v3Global.debugFilename("final.tree", 990));
                     }
-                    if (dumpTreeJsonLevel()) {
-                        v3Global.rootp()->dumpTreeJsonFile(
+                    إذا (dump_درخت_Json_Level()) {
+                        v3Global.rootp()->dump_درخت_Json_File(
                             v3Global.debugFilename("final.tree.json", 990));
                     }
-                    if (debug()) {
+                    إذا (debug()) {
                         execErrorExitCb();
                         V3Stats::statsStageAll(v3Global.rootp(), "Final");
                         V3Stats::statsReport();
                     }
                     vlAbortOrExit();
                 }
-                V3DiagSarif::output(false);
-#endif
+                V3DiagSarif::output(خطأ);
+#پایان_اگر
             }
 
             vlAbortOrExit();
-        } else if (anError) {
+        } وإلا إذا (anError) {
             // We don't dump tree on any error because a Visitor may be in middle of
             // a tree cleanup and cause a false broken problem.
             execErrorExitCb();
@@ -287,106 +287,106 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
 //######################################################################
 // V3Error class functions
 
-void V3Error::init() {
-    for (int i = 0; i < V3ErrorCode::_ENUM_MAX; i++) {
-        const V3ErrorCode code{i};
-        describedEachWarn(code, false);
-        pretendError(code, code.pretendError());
+فراغ V3Error::init() {
+    لكل (صحيح i = 0; i < V3_Error_کد::_ENUM_MAX; i++) {
+        ثابت V3_Error_کد کد{i};
+        describedEachWarn(کد, خطأ);
+        pretendError(کد, کد.pretendError());
     }
     // Not an UASSERT as failure would call V3Error and it's broken due to this
-    assert(std::string{V3ErrorCode{V3ErrorCode::_ENUM_MAX}.ascii()} == " MAX");
+    أكد(std::string{V3_Error_کد{V3_Error_کد::_ENUM_MAX}.ascii()} == " MAX");
 }
 
-string V3Error::lineStr(const char* filename, int lineno) VL_PURE {
-    std::ostringstream out;
-    out << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
-    out << std::string(std::max<int>(0, 20 - static_cast<int>(out.str().length())), ' ');
-    return out.str();
+string V3Error::سطر_Str(ثابت حرف* filename, صحيح lineno) VL_خالص {
+    std::ostringstream بیرون;
+    بیرون << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
+    بیرون << std::string(std::max<صحيح>(0, 20 - static_cast<صحيح>(بیرون.str().درازی())), ' ');
+    أرجع بیرون.str();
 }
 
-string V3Error::stripMetaText(const string& text, bool stripContext) VL_PURE {
-    string result;
-    result.reserve(text.size());
-    int inBegins = 0;
-    for (string::size_type pos = 0; pos < text.size();) {
+string V3Error::strip_Meta_متن(ثابت string& متن, منطقي stripContext) VL_خالص {
+    string نتیجه;
+    نتیجه.reserve(متن.اندازه());
+    صحيح درون_Begins = 0;
+    لكل (string::اندازه_type pos = 0; pos < متن.اندازه();) {
         // string::starts_with is C++20
-        if (0 == text.compare(pos, std::strlen("__WARN"), "__WARN")) {
-            if (0 == text.compare(pos, std::strlen("__WARNRELATED("), "__WARNRELATED(")) {
-                while (pos < text.size() && text[pos] != ')') ++pos;
-                if (pos < text.size() && text[pos] == ')') ++pos;
-                continue;
+        إذا (0 == متن.compare(pos, std::طول_رشته("__WARN"), "__WARN")) {
+            إذا (0 == متن.compare(pos, std::طول_رشته("__WARNRELATED("), "__WARNRELATED(")) {
+                طالما (pos < متن.اندازه() && متن[pos] != ')') ++pos;
+                إذا (pos < متن.اندازه() && متن[pos] == ')') ++pos;
+                استمر;
             }
-            if (0
-                == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_BEGIN),
+            إذا (0
+                == متن.compare(pos, std::طول_رشته(V3Error::WARN_CONTEXT_BEGIN),
                                 V3Error::WARN_CONTEXT_BEGIN)) {
-                pos += std::strlen(V3Error::WARN_CONTEXT_BEGIN);
-                ++inBegins;
-                continue;
+                pos += std::طول_رشته(V3Error::WARN_CONTEXT_BEGIN);
+                ++درون_Begins;
+                استمر;
             }
-            if (0
-                == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_END),
-                                V3Error::WARN_CONTEXT_END)) {
-                pos += std::strlen(V3Error::WARN_CONTEXT_END);
+            إذا (0
+                == متن.compare(pos, std::طول_رشته(V3Error::WARN_CONTEXT_انتها),
+                                V3Error::WARN_CONTEXT_انتها)) {
+                pos += std::طول_رشته(V3Error::WARN_CONTEXT_انتها);
                 // No assert, is not VL_PURE
                 // UASSERT_STATIC(inBegins, "warnContextEnd() outside of warnContextBegin()");
-                --inBegins;
-                continue;
+                --درون_Begins;
+                استمر;
             }
         }
-        if (!stripContext || inBegins == 0) {
+        إذا (!stripContext || درون_Begins == 0) {
             // Remove double newlines
-            if (!(text[pos] == '\n' && !result.empty() && result[result.size() - 1] == '\n'))
-                result += text[pos];
+            إذا (!(متن[pos] == '\n' && !نتیجه.خالی() && نتیجه[نتیجه.اندازه() - 1] == '\n'))
+                نتیجه += متن[pos];
         }
         ++pos;
     }
-    return result;
+    أرجع نتیجه;
 }
 
-void V3Error::abortIfWarnings() {
-    if (!isErrorOrWarn()) return;
-    const bool exwarn = warnFatal() && warnCount();
-    if (errorCount() && exwarn) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s), "  //
-                                      << V3Error::s().warnCount() << " warning(s)\n");
-    } else if (errorCount()) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s)\n");
-    } else {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warnCount() << " warning(s)\n");
+فراغ V3Error::abortIfWarnings() {
+    إذا (!isErrorOrWarn()) أرجع;
+    ثابت منطقي exwarn = warnFatal() && warn_شمار();
+    إذا (error_شمار() && exwarn) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_شمار() << " error(s), "  //
+                                      << V3Error::s().warn_شمار() << " warning(s)\n");
+    } وإلا إذا (error_شمار()) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_شمار() << " error(s)\n");
+    } وإلا {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warn_شمار() << " warning(s)\n");
     }
 }
 
 //======================================================================
 // Abort/exit
 
-void V3Error::vlAbort() {
-#ifndef V3ERROR_NO_GLOBAL_
+فراغ V3Error::vlAbort() {
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
     v3Global.shutdown();
-#endif
+#پایان_اگر
     VL_GCOV_DUMP();
     std::abort();  // LCOV_EXCL_LINE
 }
-std::ostringstream& V3Error::v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex) {
-    V3Error::s().m_mutex.lock();
-    s().v3errorPrep(code);
-    return v3errorStr();
+std::ostringstream& V3Error::v3errorPrep(V3_Error_کد کد) VL_ACQUIRE(s().m_mutex) {
+    V3Error::s().m_mutex.قفل_2();
+    s().v3errorPrep(کد);
+    أرجع v3errorStr();
 }
-std::ostringstream& V3Error::v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+std::ostringstream& V3Error::v3error_Prep_File_سطر(V3_Error_کد کد, ثابت حرف* file, صحيح سطر)
     VL_ACQUIRE(s().m_mutex) {
-    v3errorPrep(code) << file << ":" << std::dec << line << ": ";
-    return v3errorStr();
+    v3errorPrep(کد) << file << ":" << std::dec << سطر << ": ";
+    أرجع v3errorStr();
 }
-void V3Error::v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+فراغ V3Error::v3error_انتها(ثابت std::ostringstream& sstr, ثابت string& extra, File_سطر* fileline)
     VL_RELEASE(s().m_mutex) {
-    s().v3errorEnd(sstr, extra, fileline);
+    s().v3error_انتها(sstr, extra, fileline);
     V3Error::s().m_mutex.unlock();
 }
 
-void v3errorEnd(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
-    V3Error::v3errorEnd(sstr, "", nullptr);
+فراغ v3error_انتها(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
+    V3Error::v3error_انتها(sstr, "", اشاره_تهی);
 }
-void v3errorEndFatal(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
-    V3Error::v3errorEnd(sstr, "", nullptr);
-    assert(0);  // LCOV_EXCL_LINE
+فراغ v3error_انتها_Fatal(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
+    V3Error::v3error_انتها(sstr, "", اشاره_تهی);
+    أكد(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }

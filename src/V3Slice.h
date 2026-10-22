@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SLICE_H_
-#define VERILATOR_V3SLICE_H_
+#اگر_تعریف_نشده VERILATOR_V3_برش_H
+#تعریف_کن VERILATOR_V3_برش_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Slice final {
-public:
-    static void sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_برش final {
+عام:
+    ساكن فراغ برش_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

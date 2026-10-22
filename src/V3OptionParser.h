@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3OPTION_PARSER_H_
-#define VERILATOR_V3OPTION_PARSER_H_
+#اگر_تعریف_نشده VERILATOR_V3OPTION_PARSER_H_
+#تعریف_کن VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#ضمن <functional>
+#ضمن <memory>
+#ضمن <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
+#اگر_تعریف_نشده V3OPTION_PARSER_NO_VOPTION_BOOL
 class VOptionBool;
-#endif
+#پایان_اگر
 
 // Typical usage would look as below.
 // See also V3Options::parseOptsList() in V3Options.cpp for more detailed usage.
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+عام:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    بنية Impl;
 
-private:
+خاص:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    ثابت std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
-    template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs* پیدا_کن(ثابت حرف* optp) VL_MT_DISABLED;
+    قالب <typename T_Act, typename T_Arg>
+    ActionIfs& جمع_کن(ثابت string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    ساكن bool has_پیشوند_FNo(ثابت حرف* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    ساكن bool has_پیشوند_No(ثابت حرف* strp) VL_MT_DISABLED;
 
-public:
+عام:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<صحيح, bool> parse(صحيح idx, صحيح argc, حرف* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(ثابت حرف* str) ثابت VL_MT_DISABLED;
+    فراغ جمع_کن_Suggestion_Candidate(ثابت string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    فراغ finalize() VL_MT_DISABLED;
+    فراغ dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,89 +90,89 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+عام:
+    مجازی ~ActionIfs() = افتراضي;
+    مجازی bool is_مقدار_Needed() ثابت = 0;  // Need val of "-opt val"
+    مجازی bool isFOnOffAllowed() ثابت = 0;  // true if "-fno-opt" is allowed
+    مجازی bool isNotForRerun() ثابت = 0;  // Will not be dumped with --dump-inputs
+    مجازی bool isOnOffAllowed() ثابت = 0;  // true if "-no-opt" is allowed
+    مجازی bool is_Partial_تطابق_Allowed() ثابت = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    مجازی bool isUndocumented() ثابت = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    مجازی فراغ exec(ثابت حرف* optp, ثابت حرف* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    مجازی ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    مجازی ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+عام:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    بنية FOnOff {};  // For ActionFOnOff
+    بنية OnOff {};  // For ActionOnOff
+    بنية مجموعه_2 {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    بنية CbCall {};  // For ActionCbCall
+    بنية CbFOnOff {};  // For ActionCbFOnOff
+    بنية CbOnOff {};  // For ActionCbOnOff
+    بنية Cb_Partial_تطابق {};  // For ActionCbPartialMatch
+    بنية Cb_Partial_تطابق_Val {};  // For ActionCbPartialMatchVal
+    بنية CbVal {};  // For ActionCbVal
 
-private:
+خاص:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+عام:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
-#endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, مجموعه_2, bool*) ثابت VL_MT_DISABLED;
+#اگر_تعریف_نشده V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& عملگر()(ثابت حرف* optp, مجموعه_2, VOptionBool*) ثابت VL_MT_DISABLED;
+#پایان_اگر
+    ActionIfs& عملگر()(ثابت حرف* optp, مجموعه_2, صحيح*) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, مجموعه_2, string*) ثابت VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
-#endif
+    ActionIfs& عملگر()(ثابت حرف* optp, FOnOff, bool*) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, OnOff, bool*) ثابت VL_MT_DISABLED;
+#اگر_تعریف_نشده V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& عملگر()(ثابت حرف* optp, OnOff, VOptionBool*) ثابت VL_MT_DISABLED;
+#پایان_اگر
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, CbCall,
+                          std::function<فراغ(فراغ)>) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, CbFOnOff,
+                          std::function<فراغ(bool)>) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, CbOnOff,
+                          std::function<فراغ(bool)>) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, CbVal, std::function<فراغ(صحيح)>) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, CbVal,
+                          std::function<فراغ(ثابت حرف*)>) ثابت VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, Cb_Partial_تطابق,
+                          std::function<فراغ(ثابت حرف*)>) ثابت VL_MT_DISABLED;
+    ActionIfs& عملگر()(ثابت حرف* optp, Cb_Partial_تطابق_Val,
+                          std::function<فراغ(ثابت حرف*, ثابت حرف*)>) ثابت VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
         : m_parser{parser} {}
 };
 
-#define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
-        = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+#تعریف_کن V3_OPTION_PARSER_DECL_برچسبها \
+    ثابت خودکار مجموعه_2 VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::مجموعه_2{}; \
+    ثابت خودکار FOnOff VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::FOnOff{}; \
+    ثابت خودکار OnOff VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::OnOff{}; \
+    ثابت خودکار CbCall VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::CbCall{}; \
+    ثابت خودکار CbFOnOff VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    ثابت خودکار CbOnOff VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::CbOnOff{}; \
+    ثابت خودکار Cb_Partial_تطابق VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::Cb_Partial_تطابق{}; \
+    ثابت خودکار Cb_Partial_تطابق_Val VL_ATTR_استفادهنشده \
+        = V3OptionParser::AppendHelper::Cb_Partial_تطابق_Val{}; \
+    ثابت خودکار CbVal VL_ATTR_استفادهنشده = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 
-#endif  // guard
+#پایان_اگر  // guard

@@ -14,472 +14,472 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3EmitV.h"
+#ضمن "V3EmitV.h"
 
-#include "V3EmitCBase.h"
+#ضمن "V3EmitCBase.h"
 
-#include <unordered_map>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements and expressions
 
-class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
+صنف EmitVBaseVisitorConst VL_NOT_FINAL : عام VNVisitorConst {
     // STATE - across all visitors
-    const bool m_suppressUnknown;  // Do not error on unknown node
+    ثابت منطقي m_suppressUnknown;  // Do not error on unknown node
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstSenTree* m_sentreep = nullptr;  // Domain for printing one a ALWAYS under a ACTIVE
-    bool m_suppressSemi = false;  // Non-statement, don't print ;
-    bool m_suppressVarSemi = false;  // Suppress emitting semicolon for AstVars
-    bool m_suppressSampled = false;  // Suppress emitting sampled in assertion properties
-    bool m_arrayPost = false;  // Print array information that goes after identifier (vs after)
-    bool m_prefixed = true;  // Whether constants need to be prefixed
-    std::deque<AstNodeArrayDType*> m_packedps;  // Packed arrays to print with BasicDType
-    std::unordered_map<AstJumpBlock*, size_t> m_labelNumbers;  // Label numbers for JumpBlocks
+    Ast_Sen_درخت* m_sentreep = اشاره_تهی;  // Domain for printing one a ALWAYS under a ACTIVE
+    منطقي m_suppressSemi = خطأ;  // Non-statement, don't print ;
+    منطقي m_suppressVarSemi = خطأ;  // Suppress emitting semicolon for AstVars
+    منطقي m_suppressSampled = خطأ;  // Suppress emitting sampled in assertion properties
+    منطقي m_arrayPost = خطأ;  // Print array information that goes after identifier (vs after)
+    منطقي m_prefixed = درست;  // Whether constants need to be prefixed
+    std::deque<Ast_گره_Array_DType*> m_packedps;  // Packed arrays to print with BasicDType
+    std::unordered_map<Ast_Jump_بلوک*, اندازه_t> m_labelNumbers;  // Label numbers for JumpBlocks
 
     // METHODS
-    virtual void puts(const string& str) = 0;
-    virtual void putbs(const string& str) = 0;
-    virtual void putfs(AstNode* nodep, const string& str) = 0;  // Fileline and node %% mark
-    virtual void putqs(AstNode* nodep, const string& str) = 0;  // Fileline quiet w/o %% mark
-    virtual void putsNoTracking(const string& str) = 0;
-    virtual void putsQuoted(const string& str) {
+    مجازی فراغ puts(ثابت string& str) = 0;
+    مجازی فراغ putbs(ثابت string& str) = 0;
+    مجازی فراغ putfs(Ast_گره* nodep, ثابت string& str) = 0;  // Fileline and node %% mark
+    مجازی فراغ putqs(Ast_گره* nodep, ثابت string& str) = 0;  // Fileline quiet w/o %% mark
+    مجازی فراغ putsNoTracking(ثابت string& str) = 0;
+    مجازی فراغ putsQuoted(ثابت string& str) {
         // Quote \ and " for use inside C programs
         // Don't use to quote a filename for #include - #include doesn't \ escape.
         // Duplicate in V3File - here so we can print to string
         putsNoTracking("\"");
-        putsNoTracking(V3OutFormatter::quoteNameControls(str));
+        putsNoTracking(V3_بیرون_Formatter::quoteNameControls(str));
         putsNoTracking("\"");
     }
 
-    void iterateAndCommaConstNull(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
+    فراغ iterateAndCommaConstNull(Ast_گره* nodep) {
+        لكل (; nodep; nodep = nodep->nextp()) {
             iterateConst(nodep);
-            if (nodep->nextp()) puts(", ");
+            إذا (nodep->nextp()) puts(", ");
         }
     }
-    void emitPacked() {
-        for (AstNodeArrayDType* packedp : m_packedps) {
+    فراغ emitPacked() {
+        لكل (Ast_گره_Array_DType* packedp : m_packedps) {
             puts(" ");
             iterateConstNull(packedp->rangep());
         }
         m_packedps.clear();
     }
-    void emitNodesWithText(AstNode* nodesp, bool tracking, const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                if (tracking) {
-                    puts(textp->text());
-                } else {
-                    putsNoTracking(textp->text());
+    فراغ emit_Nodes_With_متن(Ast_گره* nodesp, منطقي tracking, ثابت std::string& separator) {
+        لكل (Ast_گره* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            إذا (ثابت Ast_متن* ثابت textp = VN_CAST(nodep, متن_2)) {
+                إذا (tracking) {
+                    puts(textp->متن());
+                } وإلا {
+                    putsNoTracking(textp->متن());
                 }
-            } else {
+            } وإلا {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            إذا (nodep->nextp()) puts(separator);
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextConstNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override {
-        putfs(nodep, nodep->verilogKwd() + " " + EmitCUtil::prefixNameProtect(nodep) + ";\n");
+    فراغ بازدید(AstNetlist* nodep) override { iterate_And_بعدی_Const_Null(nodep->modulesp()); }
+    فراغ بازدید(Ast_گره_Module* nodep) override {
+        putfs(nodep, nodep->verilogKwd() + " " + EmitCUtil::پیشوند_Name_Protect(nodep) + ";\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
-    void visit(AstPort* nodep) override {}
-    void visit(AstNodeFTask* nodep) override {
+    فراغ بازدید(Ast_پورت* nodep) override {}
+    فراغ بازدید(Ast_گره_FTask* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         puts(" ");
         puts(nodep->prettyName());
         puts(";\n");
         // Only putfs the first time for each visitor; later for same node is putqs
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
 
-    void visit(AstGenBlock* nodep) override {
-        const std::string name = nodep->name().empty() ? "" : " : " + nodep->name();
+    فراغ بازدید(Ast_Gen_بلوک* nodep) override {
+        ثابت std::string name = nodep->name().خالی() ? "" : " : " + nodep->name();
         putbs("/* generate */ begin" + name + '\n');
         iterateChildrenConst(nodep);
         puts("end" + name + '\n');
     }
-    void visit(AstGenCase* nodep) override {
+    فراغ بازدید(AstGenCase* nodep) override {
         putfs(nodep, "/* generate */ case (");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_بعدی_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstGenCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    فراغ بازدید(Ast_Gen_Case_قلم* nodep) override {
+        إذا (nodep->condsp()) {
+            iterate_And_بعدی_Const_Null(nodep->condsp());
+        } وإلا {
             putbs("default");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_بعدی_Const_Null(nodep->itemsp());
     }
-    void visit(AstGenFor* nodep) override {
+    فراغ بازدید(AstGenFor* nodep) override {
         putfs(nodep, "/* generate */ for (");
         {
             VL_RESTORER(m_suppressSemi);
-            m_suppressSemi = true;
-            iterateAndNextConstNull(nodep->initsp());
+            m_suppressSemi = درست;
+            iterate_And_بعدی_Const_Null(nodep->initsp());
             puts(";");
-            iterateAndNextConstNull(nodep->condp());
+            iterate_And_بعدی_Const_Null(nodep->condp());
             puts(";");
-            iterateAndNextConstNull(nodep->incsp());
+            iterate_And_بعدی_Const_Null(nodep->incsp());
         }
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_بعدی_Const_Null(nodep->itemsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstGenIf* nodep) override {
+    فراغ بازدید(AstGenIf* nodep) override {
         putfs(nodep, "");
         puts("/* generate */ if (");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_بعدی_Const_Null(nodep->condp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        iterate_And_بعدی_Const_Null(nodep->thensp());
+        إذا (nodep->elsesp()) {
             putqs(nodep, "end else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_بعدی_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstBegin* nodep) override {
-        if (nodep->name() == "") {
+    فراغ بازدید(AstBegin* nodep) override {
+        إذا (nodep->name() == "") {
             putbs("begin\n");
-        } else {
+        } وإلا {
             putbs("begin : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts("end\n");
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->name() == "") {
+    فراغ بازدید(AstFork* nodep) override {
+        إذا (nodep->name() == "") {
             putbs("fork\n");
-        } else {
+        } وإلا {
             putbs("fork : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts(nodep->joinType().verilogKwd());
         puts("\n");
     }
-    void visit(AstFinal* nodep) override {
+    فراغ بازدید(AstFinal* nodep) override {
         putfs(nodep, "final begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitial* nodep) override {
+    فراغ بازدید(AstInitial* nodep) override {
         putfs(nodep, "initial begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstAlways* nodep) override {
-        if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-            if (!ap->nextp()) {
+    فراغ بازدید(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstAlways* nodep) override {
+        إذا (ثابت Ast_تخصیص_بده_W* ثابت ap = VN_CAST(nodep->stmtsp(), تخصیص_بده_W)) {
+            إذا (!ap->nextp()) {
                 putfs(nodep, "assign ");
-                if (AstNode* const tcp = ap->timingControlp()) {
-                    iterateAndNextConstNull(tcp);
+                إذا (Ast_گره* ثابت tcp = ap->timingControlp()) {
+                    iterate_And_بعدی_Const_Null(tcp);
                     putbs(" ");
                 }
-                iterateAndNextConstNull(ap->lhsp());
+                iterate_And_بعدی_Const_Null(ap->lhsp());
                 putbs(" = ");
-                iterateAndNextConstNull(ap->rhsp());
-                if (!m_suppressSemi) puts(";\n");
-                return;
+                iterate_And_بعدی_Const_Null(ap->rhsp());
+                إذا (!m_suppressSemi) puts(";\n");
+                أرجع;
             }
         }
         putfs(nodep, "always ");
-        if (m_sentreep) {
-            iterateAndNextConstNull(m_sentreep);
+        إذا (m_sentreep) {
+            iterate_And_بعدی_Const_Null(m_sentreep);
         }  // In active
-        else {
-            iterateAndNextConstNull(nodep->sentreep());
+        وإلا {
+            iterate_And_بعدی_Const_Null(nodep->sentreep());
         }
         putbs(" begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPre* nodep) override {
+    فراغ بازدید(AstAlwaysPre* nodep) override {
         putfs(nodep, "always /* PRE */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPost* nodep) override {
+    فراغ بازدید(AstAlwaysPost* nodep) override {
         putfs(nodep, "always /* POST */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (VN_IS(nodep, AssignForce)) puts("force ");
-        iterateAndNextConstNull(nodep->lhsp());
+    فراغ بازدید(Ast_گره_تخصیص_بده* nodep) override {
+        إذا (VN_IS(nodep, تخصیص_بده_Force)) puts("force ");
+        iterate_And_بعدی_Const_Null(nodep->lhsp());
         putfs(nodep, " " + nodep->verilogKwd() + " ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_بعدی_Const_Null(nodep->rhsp());
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstAlias* nodep) override {
+    فراغ بازدید(AstAlias* nodep) override {
         putbs("alias ");
         iterateConst(nodep->itemsp());
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+        لكل (Ast_گره* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
             putfs(nodep, " = ");
             iterateConst(itemp);
         }
-        if (!m_suppressSemi) puts(";\n");
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstAssignW* nodep) override {
+    فراغ بازدید(Ast_تخصیص_بده_W* nodep) override {
         putfs(nodep, "continuous assign ");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_بعدی_Const_Null(nodep->lhsp());
         putbs(" = ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_بعدی_Const_Null(nodep->rhsp());
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstRelease* nodep) override {
+    فراغ بازدید(AstRelease* nodep) override {
         puts("release ");
-        iterateAndNextConstNull(nodep->lhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_بعدی_Const_Null(nodep->lhsp());
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstBreak*) override {
+    فراغ بازدید(AstBreak*) override {
         putbs("break");
-        if (!m_suppressSemi) puts(";\n");
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstSenTree* nodep) override {
+    فراغ بازدید(Ast_Sen_درخت* nodep) override {
         // AstSenItem is called for dumping in isolation by V3Order
         putfs(nodep, "@(");
-        for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+        لكل (Ast_گره* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
             iterateConst(expp);
-            if (expp->nextp()) putqs(expp->nextp(), " or ");
+            إذا (expp->nextp()) putqs(expp->nextp(), " or ");
         }
         puts(")");
     }
-    void visit(AstSenItem* nodep) override {
+    فراغ بازدید(Ast_Sen_قلم* nodep) override {
         putfs(nodep, "");
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
-        if (nodep->sensp()) puts(" ");
+        إذا (nodep->یال_Type() != VEdgeType::ET_تغییریافته) puts(nodep->یال_Type().verilogKwd());
+        إذا (nodep->sensp()) puts(" ");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
-    void visit(AstCase* nodep) override {
+    فراغ بازدید(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
+    فراغ بازدید(AstCase* nodep) override {
         putfs(nodep, "");
-        if (nodep->priorityPragma()) puts("priority ");
-        if (nodep->uniquePragma()) puts("unique ");
-        if (nodep->unique0Pragma()) puts("unique0 ");
+        إذا (nodep->اولویت_Pragma()) puts("priority ");
+        إذا (nodep->uniquePragma()) puts("unique ");
+        إذا (nodep->unique0Pragma()) puts("unique0 ");
         puts(nodep->verilogKwd());
         puts(" (");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")\n");
-        if (nodep->fullPragma() || nodep->parallelPragma()) {
+        إذا (nodep->پر_Pragma() || nodep->parallelPragma()) {
             puts(" // synopsys");
-            if (nodep->fullPragma()) puts(" full_case");
-            if (nodep->parallelPragma()) puts(" parallel_case");
+            إذا (nodep->پر_Pragma()) puts(" full_case");
+            إذا (nodep->parallelPragma()) puts(" parallel_case");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_بعدی_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    فراغ بازدید(Ast_Case_قلم* nodep) override {
+        إذا (nodep->condsp()) {
+            iterate_And_بعدی_Const_Null(nodep->condsp());
+        } وإلا {
             putbs("default");
         }
         putfs(nodep, ": begin ");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstComment* nodep) override {
+    فراغ بازدید(AstComment* nodep) override {
         puts("// "s + nodep->name() + "\n");
         iterateChildrenConst(nodep);
     }
-    void visit(AstContinue*) override {
+    فراغ بازدید(AstContinue*) override {
         putbs("continue");
-        if (!m_suppressSemi) puts(";\n");
+        إذا (!m_suppressSemi) puts(";\n");
     }
-    void visit(AstNodeCoverDecl*) override {}  // N/A
-    void visit(AstCoverInc*) override {}  // N/A
-    void visit(AstCoverToggle*) override {}  // N/A
+    فراغ بازدید(Ast_گره_Cover_Decl*) override {}  // N/A
+    فراغ بازدید(AstCoverInc*) override {}  // N/A
+    فراغ بازدید(AstCoverToggle*) override {}  // N/A
 
-    void visit(AstCovergroup* nodep) override {
+    فراغ بازدید(AstCovergroup* nodep) override {
         // AstCovergroup appears as a member inside the lowered AstClass body.
         // The outer covergroup/endcovergroup wrapper is already emitted by the
         // AstNodeModule visitor (verilogKwd()="covergroup" on AstClass::isCovergroup).
         // Here we only emit the clocking event, if any.
-        if (nodep->eventp()) {
+        إذا (nodep->eventp()) {
             putfs(nodep, "");
             iterateConst(nodep->eventp());
         }
     }
-    void visit(AstCoverpoint* nodep) override {
+    فراغ بازدید(AstCoverpoint* nodep) override {
         putfs(nodep, nodep->name() + ": coverpoint ");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->binsp() || nodep->optionsp()) {
+        iterate_And_بعدی_Const_Null(nodep->exprp());
+        إذا (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
+            iterate_And_بعدی_Const_Null(nodep->optionsp());
+            iterate_And_بعدی_Const_Null(nodep->binsp());
             puts("}");
         }
         puts(";\n");
     }
     // An option or type_option assignment, from a covergroup, coverpoint, or cross
-    void emitCoverageOption(AstNode* nodep, bool typeOption, VCoverOptionType optType,
-                            AstNodeExpr* valuep) {
+    فراغ emitCoverageOption(Ast_گره* nodep, منطقي typeOption, VCoverOptionType optType,
+                            Ast_گره_عبارت* valuep) {
         putfs(nodep,
               std::string{typeOption ? "type_option." : "option."} + optType.ascii() + " = ");
         iterateConst(valuep);
         puts(";\n");
     }
-    void visit(AstCgOptionAssign* nodep) override {
+    فراغ بازدید(Ast_Cg_Option_تخصیص_بده* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverOption* nodep) override {
+    فراغ بازدید(AstCoverOption* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverBin* nodep) override {
+    فراغ بازدید(AstCoverBin* nodep) override {
         putfs(nodep, std::string{nodep->isWildcard() ? "wildcard " : ""}
                          + nodep->binsType().verilogKwd() + " ");
         puts(nodep->name());
-        if (nodep->isArray()) {
+        إذا (nodep->isArray()) {
             puts("[");
-            if (nodep->arraySizep()) iterateConst(nodep->arraySizep());
+            إذا (nodep->arraySizep()) iterateConst(nodep->arraySizep());
             puts("]");
         }
-        if (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
+        إذا (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
             puts(" = default");
-        } else if (nodep->transp()) {
+        } وإلا إذا (nodep->transp()) {
             puts(" = ");
-            for (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
-                if (setp != nodep->transp()) puts(", ");
+            لكل (Ast_گره* setp = nodep->transp(); setp; setp = setp->nextp()) {
+                إذا (setp != nodep->transp()) puts(", ");
                 iterateConst(setp);
             }
-        } else if (VN_IS(nodep->rangesp(), CoverWith)) {
+        } وإلا إذا (VN_IS(nodep->rangesp(), CoverWith)) {
             puts(" = ");
             iterateConst(nodep->rangesp());
-        } else if (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
+        } وإلا إذا (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
                                         // transp/rangesp/default
             puts(" = {");
-            for (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
-                if (rangep != nodep->rangesp()) puts(", ");
+            لكل (Ast_گره* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
+                إذا (rangep != nodep->rangesp()) puts(", ");
                 iterateConst(rangep);
             }
             puts("}");
         }
-        if (nodep->iffp()) {
+        إذا (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
         puts(";\n");
     }
-    void visit(AstCoverWith* nodep) override {
-        const bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
-        if (rangeList) putfs(nodep, "{");
+    فراغ بازدید(AstCoverWith* nodep) override {
+        ثابت منطقي rangeList = !VN_IS(nodep->subp(), CoverpointRef);
+        إذا (rangeList) putfs(nodep, "{");
         iterateAndCommaConstNull(nodep->subp());
-        if (rangeList) puts("}");
+        إذا (rangeList) puts("}");
         puts(" with (");
         iterateConst(nodep->filterp());
         puts(")");
     }
-    void visit(AstCoverBinsof* nodep) override {
+    فراغ بازدید(AstCoverBinsof* nodep) override {
         putfs(nodep, nodep->isNegated() ? "!binsof(" : "binsof(");
         iterateConst(nodep->pointp());
-        if (!nodep->name().empty()) puts("." + nodep->name());
+        إذا (!nodep->name().خالی()) puts("." + nodep->name());
         puts(")");
-        if (nodep->rangesp()) {
+        إذا (nodep->rangesp()) {
             puts(" intersect {");
             iterateAndCommaConstNull(nodep->rangesp());
             puts("}");
         }
     }
-    void visit(AstCoverCrossBin* nodep) override {
+    فراغ بازدید(AstCoverCrossBin* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + nodep->name() + " = ");
         iterateConstNull(nodep->selectp());
-        if (nodep->iffp()) {
+        إذا (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
         puts(";\n");
     }
-    void visit(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstCoverCrossSelect* nodep) override {
+    فراغ بازدید(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
+    فراغ بازدید(AstCoverCrossSelect* nodep) override {
         putfs(nodep, "(");
         iterateConstNull(nodep->lhsp());
         putbs(" " + nodep->verilogKwd() + " ");
         iterateConstNull(nodep->rhsp());
         puts(")");
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    فراغ بازدید(AstCoverCrossWith* nodep) override {
         // A selection with a count is filtered further only in parentheses
-        if (nodep->countp()) putfs(nodep, "(");
+        إذا (nodep->countp()) putfs(nodep, "(");
         iterateConstNull(nodep->selectp());
         putfs(nodep, " with (");
         iterateConst(nodep->filterp());
         puts(")");
-        if (nodep->countp()) {
+        إذا (nodep->countp()) {
             puts(" matches ");
             iterateConst(nodep->countp());
             puts(")");
         }
     }
-    void visit(AstCoverpointRef* nodep) override {
+    فراغ بازدید(AstCoverpointRef* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->exprp());
     }
-    void visit(AstCoverCross* nodep) override {
+    فراغ بازدید(AstCoverCross* nodep) override {
         putfs(nodep, nodep->name() + ": cross ");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(", ");
+        لكل (Ast_گره* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            إذا (itemp != nodep->itemsp()) puts(", ");
             iterateConst(itemp);
         }
-        if (nodep->iffp()) {
+        إذا (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
-        if (nodep->binsp() || nodep->optionsp()) {
+        إذا (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
+            iterate_And_بعدی_Const_Null(nodep->optionsp());
+            iterate_And_بعدی_Const_Null(nodep->binsp());
             puts("}\n");
-        } else {
+        } وإلا {
             puts(";\n");
         }
     }
-    void visit(AstCoverTransSet* nodep) override {
+    فراغ بازدید(Ast_Cover_Trans_مجموعه* nodep) override {
         puts("(");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(" => ");
+        لكل (Ast_گره* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            إذا (itemp != nodep->itemsp()) puts(" => ");
             iterateConst(itemp);
         }
         puts(")");
     }
-    void visit(AstCoverTransItem* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(Ast_Cover_Trans_قلم* nodep) override { iterateChildrenConst(nodep); }
 
-    void visit(AstCvtPackString* nodep) override {
+    فراغ بازدید(AstCvtPackString* nodep) override {
         putfs(nodep, "");
-        if (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
-            putsQuoted(lhsConstp->num().toString());
-        } else {
+        إذا (AstConst* ثابت lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
+            putsQuoted(lhsConstp->رقم().مقصد_String());
+        } وإلا {
             puts("string'(");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_بعدی_Const_Null(nodep->lhsp());
             puts(")");
         }
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    فراغ بازدید(Ast_Test_Plus_آرگومانها* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateChildrenConst(nodep);
         puts(")");
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    فراغ بازدید(Ast_مقدار_Plus_آرگومانها* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateConstNull(nodep->searchp());
@@ -487,299 +487,299 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateConstNull(nodep->outp());
         puts(")");
     }
-    void visitNodeDisplay(AstNode* nodep, AstNode* fileOrStrgp, const string& text,
-                          AstNode* exprsp) {
+    فراغ بازدید_گره_Display(Ast_گره* nodep, Ast_گره* fileOrStrgp, ثابت string& متن,
+                          Ast_گره* exprsp) {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (fileOrStrgp) {
+        إذا (fileOrStrgp) {
             iterateConstNull(fileOrStrgp);
             putbs(", ");
         }
-        putsQuoted(text);
-        for (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
+        putsQuoted(متن);
+        لكل (Ast_گره* expp = exprsp; expp; expp = expp->nextp()) {
             puts(", ");
             iterateConstNull(expp);
         }
         puts(");\n");
     }
-    void visit(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
-    void visit(AstDisplay* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    فراغ بازدید(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
+    فراغ بازدید(AstDisplay* nodep) override {
+        بازدید_گره_Display(nodep, nodep->filep(), nodep->fmtp()->متن(), nodep->fmtp()->exprsp());
     }
-    void visit(AstElabDisplay* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    فراغ بازدید(AstElabDisplay* nodep) override {
+        بازدید_گره_Display(nodep, اشاره_تهی, nodep->fmtp()->متن(), nodep->fmtp()->exprsp());
     }
-    void visit(AstFScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->text(), nodep->exprsp());
+    فراغ بازدید(AstFScanF* nodep) override {
+        بازدید_گره_Display(nodep, nodep->filep(), nodep->متن(), nodep->exprsp());
     }
-    void visit(AstSScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->fromp(), nodep->text(), nodep->exprsp());
+    فراغ بازدید(AstSScanF* nodep) override {
+        بازدید_گره_Display(nodep, nodep->fromp(), nodep->متن(), nodep->exprsp());
     }
-    void visit(AstSFormat* nodep) override {
-        visitNodeDisplay(nodep, nodep->lhsp(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    فراغ بازدید(AstSFormat* nodep) override {
+        بازدید_گره_Display(nodep, nodep->lhsp(), nodep->fmtp()->متن(), nodep->fmtp()->exprsp());
     }
-    void visit(AstToStringN* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
-    void visit(AstSFormatF* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->text(), nodep->exprsp());
+    فراغ بازدید(Ast_مقصد_String_N* nodep) override { iterateConst(nodep->lhsp()); }
+    فراغ بازدید(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
+    فراغ بازدید(AstSFormatF* nodep) override {
+        بازدید_گره_Display(nodep, اشاره_تهی, nodep->متن(), nodep->exprsp());
     }
-    void visit(AstFOpen* nodep) override {
+    فراغ بازدید(AstFOpen* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
+        iterate_And_بعدی_Const_Null(nodep->filenamep());
         putbs(", ");
-        iterateAndNextConstNull(nodep->modep());
+        iterate_And_بعدی_Const_Null(nodep->modep());
         puts(");\n");
     }
-    void visit(AstFOpenMcd* nodep) override {
+    فراغ بازدید(AstFOpenMcd* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
+        iterate_And_بعدی_Const_Null(nodep->filenamep());
         puts(");\n");
     }
-    void visit(AstFClose* nodep) override {
+    فراغ بازدید(AstFClose* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        إذا (nodep->filep()) iterate_And_بعدی_Const_Null(nodep->filep());
         puts(");\n");
     }
-    void visit(AstFFlush* nodep) override {
+    فراغ بازدید(AstFFlush* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        إذا (nodep->filep()) iterate_And_بعدی_Const_Null(nodep->filep());
         puts(");\n");
     }
-    void visit(AstJumpBlock* nodep) override {
+    فراغ بازدید(Ast_Jump_بلوک* nodep) override {
         // Allocate label number
-        const size_t n = m_labelNumbers.size();
-        const bool newEntry = m_labelNumbers.emplace(nodep, n).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twide");
+        ثابت اندازه_t n = m_labelNumbers.اندازه();
+        ثابت منطقي new_مدخل = m_labelNumbers.emplace(nodep, n).دومی;
+        UASSERT_OBJ(new_مدخل, nodep, "AstJumpBlock visited twide");
         // Emit
-        putbs("begin : label" + std::to_string(n) + "\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        putbs("begin : label" + std::مقصد_string(n) + "\n");
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         puts("end\n");
     }
-    void visit(AstJumpGo* nodep) override {
+    فراغ بازدید(AstJumpGo* nodep) override {
         // Retrieve target label number - Sometimes EmitV is used by debug code,
         // so allow printing with an unknown target
-        const auto it = m_labelNumbers.find(nodep->blockp());
-        const std::string label
-            = it != m_labelNumbers.end() ? "label" + std::to_string(it->second) : "<UNKNOWN>";
+        ثابت خودکار it = m_labelNumbers.پیدا_کن(nodep->blockp());
+        ثابت std::string label
+            = it != m_labelNumbers.انتها() ? "label" + std::مقصد_string(it->دومی) : "<UNKNOWN>";
         putbs("disable " + label + ";\n");
     }
-    void visit(AstNodeReadWriteMem* nodep) override {
+    فراغ بازدید(Ast_گره_Read_Write_Mem* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
+        إذا (nodep->filenamep()) iterate_And_بعدی_Const_Null(nodep->filenamep());
         putbs(", ");
-        if (nodep->memp()) iterateAndNextConstNull(nodep->memp());
-        if (nodep->lsbp()) {
+        إذا (nodep->memp()) iterate_And_بعدی_Const_Null(nodep->memp());
+        إذا (nodep->lsbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->lsbp());
+            iterate_And_بعدی_Const_Null(nodep->lsbp());
         }
-        if (nodep->msbp()) {
+        إذا (nodep->msbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->msbp());
+            iterate_And_بعدی_Const_Null(nodep->msbp());
         }
         puts(");\n");
     }
-    void visit(AstSysIgnore* nodep) override {
+    فراغ بازدید(AstSysIgnore* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->exprsp());
+        iterate_And_بعدی_Const_Null(nodep->exprsp());
         puts(");\n");
     }
-    void visit(AstRepeat* nodep) override {
+    فراغ بازدید(AstRepeat* nodep) override {
         putfs(nodep, "repeat (");
-        iterateAndNextConstNull(nodep->countp());
+        iterate_And_بعدی_Const_Null(nodep->countp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoop* nodep) override {
+    فراغ بازدید(AstLoop* nodep) override {
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        إذا (AstLoopTest* ثابت testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putfs(nodep, "while (");
             iterateConst(testp->condp());
             puts(") begin\n");
-            iterateAndNextConstNull(testp->nextp());
+            iterate_And_بعدی_Const_Null(testp->nextp());
             puts("end\n");
-            return;
+            أرجع;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        إذا (Ast_گره* lastp = nodep->stmtsp()) {
+            طالما (Ast_گره* ثابت nextp = lastp->nextp()) lastp = nextp;
+            إذا (AstLoopTest* ثابت testp = VN_CAST(lastp, LoopTest)) {
                 putfs(nodep, "do begin\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                لكل (Ast_گره* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
                 puts("end while (");
                 iterateConst(testp->condp());
                 puts(")\n");
-                return;
+                أرجع;
             }
         }
         // Generic case
         putfs(nodep, "while (true) begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
-        iterateAndNextConstNull(nodep->contsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->contsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoopTest* nodep) override {
+    فراغ بازدید(AstLoopTest* nodep) override {
         putfs(nodep, "if (!(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_بعدی_Const_Null(nodep->condp());
         puts(")) break;\n");
     }
-    void visit(AstNodeIf* nodep) override {
+    فراغ بازدید(Ast_گره_If* nodep) override {
         putfs(nodep, "");
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (ifp->priorityPragma()) puts("priority ");
-            if (ifp->uniquePragma()) puts("unique ");
-            if (ifp->unique0Pragma()) puts("unique0 ");
+        إذا (ثابت AstIf* ثابت ifp = VN_CAST(nodep, If)) {
+            إذا (ifp->اولویت_Pragma()) puts("priority ");
+            إذا (ifp->uniquePragma()) puts("unique ");
+            إذا (ifp->unique0Pragma()) puts("unique0 ");
         }
         puts("if (");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_بعدی_Const_Null(nodep->condp());
         puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        iterate_And_بعدی_Const_Null(nodep->thensp());
+        إذا (nodep->elsesp()) {
             putqs(nodep, "end\n");
             putqs(nodep, "else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_بعدی_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstPast* nodep) override {
+    فراغ بازدید(AstPast* nodep) override {
         putfs(nodep, "$past(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->ticksp() || nodep->sentreep()) {
+        iterate_And_بعدی_Const_Null(nodep->exprp());
+        إذا (nodep->ticksp() || nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->ticksp());
-            if (nodep->sentreep()) {
+            iterate_And_بعدی_Const_Null(nodep->ticksp());
+            إذا (nodep->sentreep()) {
                 puts(", ");
-                iterateAndNextConstNull(nodep->sentreep());
+                iterate_And_بعدی_Const_Null(nodep->sentreep());
             }
         }
         puts(")");
     }
-    void visit(AstSampled* nodep) override {
-        if (!m_suppressSampled) {
+    فراغ بازدید(AstSampled* nodep) override {
+        إذا (!m_suppressSampled) {
             putfs(nodep, "$sampled(");
-            iterateAndNextConstNull(nodep->exprp());
+            iterate_And_بعدی_Const_Null(nodep->exprp());
             puts(")");
         }
     }
-    void visit(AstRising* nodep) override {
+    فراغ بازدید(AstRising* nodep) override {
         putfs(nodep, "$rising(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstRose* nodep) override {
+    فراغ بازدید(AstRose* nodep) override {
         putfs(nodep, "$rose(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_بعدی_Const_Null(nodep->exprp());
+        إذا (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_بعدی_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstFell* nodep) override {
+    فراغ بازدید(AstFell* nodep) override {
         putfs(nodep, "$fell(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_بعدی_Const_Null(nodep->exprp());
+        إذا (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_بعدی_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstFalling* nodep) override {
+    فراغ بازدید(AstFalling* nodep) override {
         putfs(nodep, "$falling(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstFuture* nodep) override {
+    فراغ بازدید(AstFuture* nodep) override {
         putfs(nodep, "$future(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstStable* nodep) override {
+    فراغ بازدید(AstStable* nodep) override {
         putfs(nodep, "$stable(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        iterate_And_بعدی_Const_Null(nodep->exprp());
+        إذا (nodep->sentreep()) {
             puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+            iterate_And_بعدی_Const_Null(nodep->sentreep());
         }
         puts(")");
     }
-    void visit(AstSteady* nodep) override {
+    فراغ بازدید(AstSteady* nodep) override {
         putfs(nodep, "$steady(");
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_بعدی_Const_Null(nodep->exprp());
         puts(")");
     }
-    void visit(AstReturn* nodep) override {
+    فراغ بازدید(AstReturn* nodep) override {
         putfs(nodep, "return ");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_بعدی_Const_Null(nodep->lhsp());
         puts(";\n");
     }
-    void visit(AstStop* nodep) override {
+    فراغ بازدید(AstStop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog());
         puts(";\n");
     }
-    void visit(AstFinish* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstFinishFork* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstStmtExpr* nodep) override {
+    فراغ بازدید(Ast_پایان* nodep) override { putfs(nodep, "$finish;\n"); }
+    فراغ بازدید(Ast_پایان_Fork* nodep) override { putfs(nodep, "$finish;\n"); }
+    فراغ بازدید(Ast_Stmt_عبارت* nodep) override {
         iterateConst(nodep->exprp());
         puts(";\n");
     }
 
     // Nodes involing AstText
-    void visit(AstText* nodep) override {
+    فراغ بازدید(Ast_متن* nodep) override {
         // All Text should be under TextBlock/CStmt/CStmtUser/CExpr/CExprUser
         nodep->v3fatalSrc("Text node in unexpected position");
     }
-    void visit(AstTextBlock* nodep) override {
+    فراغ بازدید(Ast_متن_بلوک* nodep) override {
         VL_RESTORER(m_suppressVarSemi);
-        m_suppressVarSemi = !nodep->separator().empty();
-        puts(nodep->prefix());
-        emitNodesWithText(nodep->nodesp(), true, nodep->separator());
+        m_suppressVarSemi = !nodep->separator().خالی();
+        puts(nodep->پیشوند());
+        emit_Nodes_With_متن(nodep->nodesp(), درست, nodep->separator());
         puts(nodep->suffix());
     }
-    void visit(AstCStmt* nodep) override {
+    فراغ بازدید(AstCStmt* nodep) override {
         putfs(nodep, "$_CSTMT(");
-        emitNodesWithText(nodep->nodesp(), true, "");
+        emit_Nodes_With_متن(nodep->nodesp(), درست, "");
         puts(");\n");
     }
-    void visit(AstCExpr* nodep) override {
+    فراغ بازدید(AstCExpr* nodep) override {
         putfs(nodep, "$_CEXPR(");
-        emitNodesWithText(nodep->nodesp(), true, "");
+        emit_Nodes_With_متن(nodep->nodesp(), درست, "");
         puts(")");
     }
-    void visit(AstCStmtUser* nodep) override {
+    فراغ بازدید(AstCStmtUser* nodep) override {
         putfs(nodep, "$c(");
-        emitNodesWithText(nodep->nodesp(), false, "");
+        emit_Nodes_With_متن(nodep->nodesp(), خطأ, "");
         puts(");\n");
     }
-    void visit(AstCExprUser* nodep) override {
+    فراغ بازدید(AstCExprUser* nodep) override {
         putfs(nodep, "$c(");
-        emitNodesWithText(nodep->nodesp(), false, "");
+        emit_Nodes_With_متن(nodep->nodesp(), خطأ, "");
         puts(")");
     }
 
-    void visit(AstScopeName* nodep) override {}
-    void visit(AstExprStmt* nodep) override {
+    فراغ بازدید(AstScopeName* nodep) override {}
+    فراغ بازدید(Ast_عبارت_Stmt* nodep) override {
         putfs(nodep, "$_EXPRSTMT(\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
         putbs(", ");
-        iterateAndNextConstNull(nodep->resultp());
+        iterate_And_بعدی_Const_Null(nodep->resultp());
         puts(");\n");
     }
 
-    void visit(AstCMethodHard* nodep) override {
+    فراغ بازدید(AstCMethodHard* nodep) override {
         iterateConst(nodep->fromp());
         puts("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->pinsp());
         puts(")");
         iterateConstNull(nodep->withp());
     }
-    void visit(AstCMethodCall* nodep) override {
+    فراغ بازدید(AstCMethodCall* nodep) override {
         iterateConst(nodep->fromp());
         puts("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->argsp());
@@ -787,9 +787,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
 
     // Operators
-    virtual void emitVerilogFormat(AstNode* nodep, const string& format, AstNode* lhsp = nullptr,
-                                   AstNode* const rhsp = nullptr, AstNode* thsp = nullptr,
-                                   AstNode* fhsp = nullptr) {
+    مجازی فراغ emitVerilogFormat(Ast_گره* nodep, ثابت string& format, Ast_گره* lhsp = اشاره_تهی,
+                                   Ast_گره* ثابت rhsp = اشاره_تهی, Ast_گره* thsp = اشاره_تهی,
+                                   Ast_گره* fhsp = اشاره_تهی) {
         // Look at emitVerilog() format for term/uni/dual/triops,
         // and write out appropriate text.
         //      %f      Potential fileline-if-change and line break
@@ -799,347 +799,347 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         //      %o      fhsp - if appropriate
         //      %d      dtypep - if appropriate
         //      %k      Potential line break
-        bool inPct = false;
+        منطقي درون_Pct = خطأ;
         putbs("");
-        for (const char c : format) {
-            if (!inPct && c == '%') {
-                inPct = true;
-            } else if (!inPct) {  // Normal text
+        لكل (ثابت حرف c : format) {
+            إذا (!درون_Pct && c == '%') {
+                درون_Pct = درست;
+            } وإلا إذا (!درون_Pct) {  // Normal text
                 string s;
                 s += c;
                 puts(s);
-            } else {  // Format character
-                inPct = false;
-                switch (c) {
-                case '%': puts("%"); break;
-                case 'f': putfs(nodep, ""); break;
-                case 'k': putbs(""); break;
-                case 'l': {
+            } وإلا {  // Format character
+                درون_Pct = خطأ;
+                بدل (c) {
+                حالة '%': puts("%"); اكسر;
+                حالة 'f': putfs(nodep, ""); اكسر;
+                حالة 'k': putbs(""); اكسر;
+                حالة 'l': {
                     UASSERT_OBJ(lhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(lhsp);
-                    break;
+                    iterate_And_بعدی_Const_Null(lhsp);
+                    اكسر;
                 }
-                case 'r': {
+                حالة 'r': {
                     UASSERT_OBJ(rhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(rhsp);
-                    break;
+                    iterate_And_بعدی_Const_Null(rhsp);
+                    اكسر;
                 }
-                case 't': {
+                حالة 't': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(thsp);
-                    break;
+                    iterate_And_بعدی_Const_Null(thsp);
+                    اكسر;
                 }
-                case 'o': {
+                حالة 'o': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(fhsp);
-                    break;
+                    iterate_And_بعدی_Const_Null(fhsp);
+                    اكسر;
                 }
-                case 'd': {
+                حالة 'd': {
                     UASSERT_OBJ(nodep->dtypep(), nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(nodep->dtypep());
-                    break;
+                    iterate_And_بعدی_Const_Null(nodep->dtypep());
+                    اكسر;
                 }
-                default: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); break;
+                افتراضي: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); اكسر;
                 }
             }
         }
     }
 
-    void visit(AstNodeTermop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
-    void visit(AstNodeUniop* nodep) override {
+    فراغ بازدید(Ast_گره_Termop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    فراغ بازدید(Ast_گره_Uniop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp());
     }
-    void visit(AstNodeBiop* nodep) override {
+    فراغ بازدید(Ast_گره_Biop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstNodeTriop* nodep) override {
+    فراغ بازدید(Ast_گره_Triop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(),
                           nodep->thsp());
     }
-    void visit(AstNodeQuadop* nodep) override {
+    فراغ بازدید(Ast_گره_Quadop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(), nodep->thsp(),
                           nodep->fhsp());
     }
-    void visit(AstMemberSel* nodep) override {
+    فراغ بازدید(AstMemberSel* nodep) override {
         iterateConst(nodep->fromp());
         puts(".");
         puts(nodep->prettyName());
     }
-    void visit(AstStructSel* nodep) override {
+    فراغ بازدید(AstStructSel* nodep) override {
         iterateConst(nodep->fromp());
         puts(".");
         puts(nodep->prettyName());
     }
-    void visit(AstAttrOf* nodep) override {
+    فراغ بازدید(Ast_Attr_از* nodep) override {
         putfs(nodep, "$_ATTROF(");
-        iterateAndNextConstNull(nodep->fromp());
-        if (nodep->dimp()) {
+        iterate_And_بعدی_Const_Null(nodep->fromp());
+        إذا (nodep->dimp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->dimp());
+            iterate_And_بعدی_Const_Null(nodep->dimp());
         }
         puts(")");
     }
-    void visit(AstConsArray* nodep) override {
+    فراغ بازدید(AstConsArray* nodep) override {
         putfs(nodep, "'{");
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (itemp != nodep->itemsp()) putbs(", ");
-            puts(cvtToStr(itemp->index()));
+        لكل (ثابت Ast_Cons_Array_قلم* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Array_قلم)) {
+            إذا (itemp != nodep->itemsp()) putbs(", ");
+            puts(cvt_مقصد_Str(itemp->شاخص()));
             puts(":");
             iterateConst(itemp->valuep());
         }
         puts("}");
     }
-    void visit(AstCond* nodep) override {
+    فراغ بازدید(AstCond* nodep) override {
         putbs("(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_بعدی_Const_Null(nodep->condp());
         putfs(nodep, " ? ");
-        iterateAndNextConstNull(nodep->thenp());
+        iterate_And_بعدی_Const_Null(nodep->thenp());
         putbs(" : ");
-        iterateAndNextConstNull(nodep->elsep());
+        iterate_And_بعدی_Const_Null(nodep->elsep());
         puts(")");
     }
-    void visit(AstInsideRange* nodep) override {
+    فراغ بازدید(AstInsideRange* nodep) override {
         puts("[");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_بعدی_Const_Null(nodep->lhsp());
         puts(":");
-        iterateAndNextConstNull(nodep->rhsp());
+        iterate_And_بعدی_Const_Null(nodep->rhsp());
         puts("]");
     }
-    void visit(AstRange* nodep) override {
+    فراغ بازدید(AstRange* nodep) override {
         puts("[");
-        if (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
+        إذا (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
             // Looks nicer if we print [1:0] rather than [32'sh1:32sh0]
-            puts(cvtToStr(nodep->leftConst()));
+            puts(cvt_مقصد_Str(nodep->چپ_Const()));
             puts(":");
-            puts(cvtToStr(nodep->rightConst()));
-        } else {
-            iterateAndNextConstNull(nodep->leftp());
+            puts(cvt_مقصد_Str(nodep->راست_Const()));
+        } وإلا {
+            iterate_And_بعدی_Const_Null(nodep->leftp());
             puts(":");
-            iterateAndNextConstNull(nodep->rightp());
+            iterate_And_بعدی_Const_Null(nodep->rightp());
         }
         puts("]");
     }
-    void visit(AstRand* nodep) override {
+    فراغ بازدید(AstRand* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->seedp());
     }
-    void visit(AstSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        int offset = 0;
-        AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-        if (VN_IS(dtypep, BasicDType)) {
-            AstBasicDType* const basicDtypep = VN_AS(dtypep, BasicDType);
-            offset = basicDtypep->lo();
+    فراغ بازدید(AstSel* nodep) override {
+        iterate_And_بعدی_Const_Null(nodep->fromp());
+        صحيح جابه_جایی = 0;
+        Ast_گره_DType* ثابت dtypep = nodep->fromp()->dtypep();
+        إذا (VN_IS(dtypep, BasicDType)) {
+            AstBasicDType* ثابت basicDtypep = VN_AS(dtypep, BasicDType);
+            جابه_جایی = basicDtypep->lo();
         }
         puts("[");
-        if (VN_IS(nodep->lsbp(), Const)) {
-            if (nodep->widthConst() == 1) {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
-            } else {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
+        إذا (VN_IS(nodep->lsbp(), Const)) {
+            إذا (nodep->عرض_Const() == 1) {
+                puts(cvt_مقصد_Str(VN_AS(nodep->lsbp(), Const)->مقصد_SInt() + جابه_جایی));
+            } وإلا {
+                puts(cvt_مقصد_Str(VN_AS(nodep->lsbp(), Const)->مقصد_SInt() + nodep->عرض_Const() + جابه_جایی
                               - 1));
                 puts(":");
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
+                puts(cvt_مقصد_Str(VN_AS(nodep->lsbp(), Const)->مقصد_SInt() + جابه_جایی));
             }
-        } else {
-            iterateAndNextConstNull(nodep->lsbp());
-            if (offset != 0) {
+        } وإلا {
+            iterate_And_بعدی_Const_Null(nodep->lsbp());
+            إذا (جابه_جایی != 0) {
                 puts(" + ");
-                puts(cvtToStr(offset));
+                puts(cvt_مقصد_Str(جابه_جایی));
             }
             putfs(nodep, "+:");
-            puts(cvtToStr(nodep->widthConst()));
+            puts(cvt_مقصد_Str(nodep->عرض_Const()));
         }
         puts("]");
     }
-    void visit(AstSliceSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        puts(cvtToStr(nodep->declRange()));
+    فراغ بازدید(Ast_برش_Sel* nodep) override {
+        iterate_And_بعدی_Const_Null(nodep->fromp());
+        puts(cvt_مقصد_Str(nodep->declRange()));
     }
-    void visit(AstThisRef* /*nodep*/) override { puts("this"); }
-    void visit(AstTypedef* nodep) override {
+    فراغ بازدید(AstThisRef* /*nodep*/) override { puts("this"); }
+    فراغ بازدید(AstTypedef* nodep) override {
         putfs(nodep, "typedef ");
         iterateConstNull(nodep->subDTypep());
         puts(" ");
         puts(nodep->prettyName());
         puts(";\n");
     }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    فراغ بازدید(Ast_گره_Cover_Or_Assert* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " ");
-        if (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
+        إذا (nodep->userType() == VAssertType::OBSERVED_DEFERRED_فوری) {
             puts("#0 ");
-        } else if (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
+        } وإلا إذا (nodep->userType() == VAssertType::FINAL_DEFERRED_فوری) {
             puts("final ");
-        } else if (nodep->userType() == VAssertType::CONCURRENT) {
+        } وإلا إذا (nodep->userType() == VAssertType::CONCURRENT) {
             puts("property ");
         }
         iterateConstNull(nodep->sentreep());
         puts("(");
-        if (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
-            iterateAndNextConstNull(sampledp->exprp());
-        } else {
-            iterateAndNextConstNull(nodep->propp());
+        إذا (AstSampled* ثابت sampledp = VN_CAST(nodep->propp(), Sampled)) {
+            iterate_And_بعدی_Const_Null(sampledp->exprp());
+        } وإلا {
+            iterate_And_بعدی_Const_Null(nodep->propp());
         }
-        if (!VN_IS(nodep, Restrict)) {
+        إذا (!VN_IS(nodep, Restrict)) {
             puts(") begin\n");
-            iterateAndNextConstNull(nodep->passsp());
+            iterate_And_بعدی_Const_Null(nodep->passsp());
             puts("end\n");
-        } else {
+        } وإلا {
             puts(");\n");
         }
 
-        if (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        إذا (ثابت AstAssert* ثابت assertp = VN_CAST(nodep, Assert)) {
             puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
+            iterate_And_بعدی_Const_Null(assertp->failsp());
             puts("end\n");
-        } else if (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } وإلا إذا (ثابت AstAssertIntrinsic* ثابت assertp = VN_CAST(nodep, AssertIntrinsic)) {
             puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
+            iterate_And_بعدی_Const_Null(assertp->failsp());
             puts("end\n");
         }
     }
-    void visit(AstAssocArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    فراغ بازدید(AstAssocArrayDType* nodep) override {
+        إذا (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } وإلا {
             VL_RESTORER(m_arrayPost);
-            m_arrayPost = false;
+            m_arrayPost = خطأ;
             puts("[");
-            iterateConst(nodep->keyDTypep());
+            iterateConst(nodep->کلید_DTypep());
             puts("]");
-            m_arrayPost = true;
+            m_arrayPost = درست;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstBasicDType* nodep) override {
-        if (m_arrayPost) return;
+    فراغ بازدید(AstBasicDType* nodep) override {
+        إذا (m_arrayPost) أرجع;
         putfs(nodep, nodep->prettyName());
-        if (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
+        إذا (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
         // Do not emit ranges for integer atoms.
-        if (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) return;
+        إذا (nodep->keyword().isIntNumeric() && !nodep->keyword().is_بیت_Logic()) أرجع;
         emitPacked();
-        if (nodep->rangep()) {
+        إذا (nodep->rangep()) {
             puts(" ");
-            iterateAndNextConstNull(nodep->rangep());
+            iterate_And_بعدی_Const_Null(nodep->rangep());
             puts(" ");
-        } else if (nodep->isRanged()) {
+        } وإلا إذا (nodep->isRanged()) {
             puts(" [");
-            puts(cvtToStr(nodep->left()));
+            puts(cvt_مقصد_Str(nodep->چپ()));
             puts(":");
-            puts(cvtToStr(nodep->right()));
+            puts(cvt_مقصد_Str(nodep->راست()));
             puts("] ");
         }
     }
-    void visit(AstConstDType* nodep) override {
-        if (m_arrayPost) return;
+    فراغ بازدید(AstConstDType* nodep) override {
+        إذا (m_arrayPost) أرجع;
         putfs(nodep, "const ");
         iterateConst(nodep->subDTypep());
     }
-    void visit(AstDynArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    فراغ بازدید(AstDynArrayDType* nodep) override {
+        إذا (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } وإلا {
             puts("[]");
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstEnumDType* nodep) override {
-        if (m_arrayPost) return;
+    فراغ بازدید(AstEnumDType* nodep) override {
+        إذا (m_arrayPost) أرجع;
         putfs(nodep, "enum ");
         iterateConst(nodep->subDTypep());
         puts("{\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_بعدی_Const_Null(nodep->itemsp());
         puts("}");
     }
-    void visit(AstEnumItemRef* nodep) override {
-        if (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
+    فراغ بازدید(Ast_Enum_قلم_Ref* nodep) override {
+        إذا (Ast_گره_Module* ثابت classOrPackagep = nodep->classOrPackagep()) {
             putfs(nodep, classOrPackagep->prettyName());
             puts("::");
         }
         putfs(nodep, nodep->name());
     }
-    void visit(AstEnumItem* nodep) override {
+    فراغ بازدید(Ast_Enum_قلم* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->rangep());
         puts(" = ");
         iterateConstNull(nodep->valuep());
-        if (nodep->nextp()) puts(",");
+        إذا (nodep->nextp()) puts(",");
         puts("\n");
     }
-    void visit(AstNodeArrayDType* nodep) override {
-        if (!m_arrayPost) {
-            if (VN_IS(nodep, PackArrayDType)) {
+    فراغ بازدید(Ast_گره_Array_DType* nodep) override {
+        إذا (!m_arrayPost) {
+            إذا (VN_IS(nodep, PackArrayDType)) {
                 // Unpacked ranges handled in BasicDType, as they print "backwards"
-                m_packedps.push_back(nodep);
+                m_packedps.افزودن_پشت(nodep);
             }
             iterateConst(nodep->subDTypep());
-        } else {
-            if (VN_IS(nodep, UnpackArrayDType)) {
+        } وإلا {
+            إذا (VN_IS(nodep, UnpackArrayDType)) {
                 VL_RESTORER(m_arrayPost);
-                m_arrayPost = false;
-                iterateAndNextConstNull(nodep->rangep());
-                m_arrayPost = true;
+                m_arrayPost = خطأ;
+                iterate_And_بعدی_Const_Null(nodep->rangep());
+                m_arrayPost = درست;
             }
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        if (m_arrayPost) {
+    فراغ بازدید(AstIfaceRefDType* nodep) override {
+        إذا (m_arrayPost) {
             puts(" (");
-            if (nodep->cellp()) {
+            إذا (nodep->cellp()) {
                 iterateConst(nodep->cellp());
-            } else {
+            } وإلا {
                 puts("????");
             }
             puts(")");
-            return;
+            أرجع;
         }
         puts(nodep->ifaceName());
     }
-    void visit(AstRefDType* nodep) override {
-        if (nodep->subDTypep()) {
+    فراغ بازدید(AstRefDType* nodep) override {
+        إذا (nodep->subDTypep()) {
             iterateConst(nodep->skipRefp());
-        } else {
+        } وإلا {
             puts("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
         }
     }
-    void visit(AstClassRefDType* nodep) override {
+    فراغ بازدید(AstClassRefDType* nodep) override {
         UASSERT_OBJ(nodep->classp(), nodep, "AstClassRefDType not linked");
-        putfs(nodep, EmitCUtil::prefixNameProtect(nodep->classp()));
+        putfs(nodep, EmitCUtil::پیشوند_Name_Protect(nodep->classp()));
     }
-    void visit(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstModport* nodep) override {
+    فراغ بازدید(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
+    فراغ بازدید(AstModport* nodep) override {
         puts(nodep->verilogKwd());
         puts(" ");
         puts(nodep->prettyName());
         puts(" (\n");
-        if (nodep->varsp()) {
+        إذا (nodep->varsp()) {
             iterateConst(nodep->varsp());
-        } else {
+        } وإلا {
             puts("????");
         }
         puts(");\n");
     }
-    void visit(AstModportVarRef* nodep) override {
+    فراغ بازدید(AstModportVarRef* nodep) override {
         puts(nodep->direction().verilogKwd());
         puts(" ");
-        if (nodep->varp()) {
+        إذا (nodep->varp()) {
             VL_RESTORER(m_suppressVarSemi);
-            m_suppressVarSemi = true;
+            m_suppressVarSemi = درست;
             iterateConst(nodep->varp());
-        } else {
+        } وإلا {
             puts(nodep->prettyName());
         }
-        if (nodep->nextp()) puts(", ");
+        إذا (nodep->nextp()) puts(", ");
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (m_arrayPost) return;
+    فراغ بازدید(Ast_گره_UOr_Struct_DType* nodep) override {
+        إذا (m_arrayPost) أرجع;
         puts(nodep->verilogKwd() + " ");
-        if (nodep->packed()) puts("packed ");
+        إذا (nodep->packed()) puts("packed ");
         {
             puts("{\n");
             VL_RESTORER_CLEAR(m_packedps);
-            for (AstMemberDType* itemp = nodep->membersp(); itemp;
+            لكل (AstMemberDType* itemp = nodep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 iterateConst(itemp);
             }
@@ -1147,103 +1147,103 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
         emitPacked();
     }
-    void visit(AstMemberDType* nodep) override {
-        if (m_arrayPost) return;
+    فراغ بازدید(AstMemberDType* nodep) override {
+        إذا (m_arrayPost) أرجع;
         iterateConst(nodep->subDTypep());
         puts(" ");
         puts(nodep->name());
         puts(";\n");
     }
-    void visit(AstQueueDType* nodep) override {
-        if (!m_arrayPost) {
+    فراغ بازدید(Ast_صف_DType* nodep) override {
+        إذا (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } وإلا {
             VL_RESTORER(m_arrayPost);
-            m_arrayPost = false;
+            m_arrayPost = خطأ;
             puts("[$");
-            if (nodep->boundp()) {
+            إذا (nodep->boundp()) {
                 puts(":");
                 iterateConst(nodep->boundp());
             }
             puts("]");
-            m_arrayPost = true;
+            m_arrayPost = درست;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->dotted() != "") {
+    فراغ بازدید(Ast_گره_FTask_Ref* nodep) override {
+        إذا (nodep->dotted() != "") {
             putfs(nodep, nodep->dotted());
             puts(".");
             puts(nodep->prettyName());
-        } else {
+        } وإلا {
             putfs(nodep, nodep->prettyName());
         }
-        if (!VN_IS(nodep->taskp(), Property)) {
+        إذا (!VN_IS(nodep->taskp(), Property)) {
             puts("(");
-            iterateAndNextConstNull(nodep->argsp());
+            iterate_And_بعدی_Const_Null(nodep->argsp());
             puts(")");
             iterateConstNull(nodep->withp());
         }
     }
-    void visit(AstCCall* nodep) override {
+    فراغ بازدید(AstCCall* nodep) override {
         puts(nodep->funcp()->name());
         puts("(");
-        iterateAndNextConstNull(nodep->argsp());
+        iterate_And_بعدی_Const_Null(nodep->argsp());
         puts(")");
     }
-    void visit(AstArg* nodep) override { iterateAndNextConstNull(nodep->exprp()); }
-    void visit(AstWith* nodep) override {
+    فراغ بازدید(AstArg* nodep) override { iterate_And_بعدی_Const_Null(nodep->exprp()); }
+    فراغ بازدید(AstWith* nodep) override {
         putfs(nodep, " with (");
         iterateConstNull(nodep->exprp());
         puts(") ");
     }
-    void visit(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstPrintTimeScale* nodep) override {
+    فراغ بازدید(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
+    فراغ بازدید(Ast_Print_زمان_Scale* nodep) override {
         puts(nodep->verilogKwd());
         puts(";\n");
     }
-    void visit(AstPropSpec* nodep) override {
-        if (!VN_IS(nodep->propp(), FuncRef)) {
+    فراغ بازدید(AstPropSpec* nodep) override {
+        إذا (!VN_IS(nodep->propp(), FuncRef)) {
             // Same dumping as in AstSenTree
             putfs(nodep, "@(");
-            for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+            لكل (Ast_گره* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
                 iterateConst(expp);
-                if (expp->nextp()) putqs(expp->nextp(), " or ");
+                إذا (expp->nextp()) putqs(expp->nextp(), " or ");
             }
             puts(")");
         }
-        if (nodep->disablep()) {
+        إذا (nodep->disablep()) {
             puts(" disable iff ");
             iterateConst(nodep->disablep());
         }
 
         puts(" ");
-        if (nodep->propStrength() != VPropStrength::DEFAULT) {
+        إذا (nodep->propStrength() != VPropStrength::DEFAULT) {
             puts(nodep->propStrength().ascii());
             puts("(");
         }
         iterateConstNull(nodep->propp());
-        if (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
+        إذا (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
         puts("\n");
     }
-    void visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
-    void visit(AstAbortOn* nodep) override {
-        puts(nodep->kind().ascii());
+    فراغ بازدید(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
+    فراغ بازدید(AstAbortOn* nodep) override {
+        puts(nodep->نوع().ascii());
         puts(" (");
         iterateConst(nodep->condp());
         puts(") ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSClocked* nodep) override {
+    فراغ بازدید(AstSClocked* nodep) override {
         puts("@(");
         iterateConst(nodep->sensesp());
         puts(") ");
         iterateConst(nodep->exprp());
         puts("\n");
     }
-    void visit(AstPropAlways* nodep) override {
+    فراغ بازدید(AstPropAlways* nodep) override {
         puts(nodep->isStrong() ? "s_always" : "always");
-        if (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
+        إذا (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
             puts(" [");
             iterateConst(nodep->loBoundp());
             puts(":");
@@ -1253,217 +1253,217 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(" ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSExpr* nodep) override {
+    فراغ بازدید(AstSExpr* nodep) override {
         iterateConstNull(nodep->preExprp());
         {
             VL_RESTORER(m_suppressSemi);
-            m_suppressSemi = true;
+            m_suppressSemi = درست;
             iterateConst(nodep->delayp());
         }
         iterateConst(nodep->exprp());
     }
     // Terminals
-    void visit(AstVarRef* nodep) override {
-        if (nodep->varScopep()) {
+    فراغ بازدید(AstVarRef* nodep) override {
+        إذا (nodep->varScopep()) {
             putfs(nodep, nodep->varScopep()->prettyName());
-        } else {
-            if (nodep->varp()) {
-                if (nodep->selfPointer().isEmpty()) {
+        } وإلا {
+            إذا (nodep->varp()) {
+                إذا (nodep->self_اشاره_گر().is_خالی()) {
                     putfs(nodep, nodep->varp()->prettyName());
-                } else {
-                    putfs(nodep, nodep->selfPointer().asString());
+                } وإلا {
+                    putfs(nodep, nodep->self_اشاره_گر().asString());
                     putfs(nodep, "->");
                     puts(nodep->varp()->prettyName());
                 }
-            } else {
+            } وإلا {
                 putfs(nodep, nodep->name());
             }
         }
     }
-    void visit(AstVarXRef* nodep) override {
+    فراغ بازدید(AstVarXRef* nodep) override {
         putfs(nodep, nodep->prettyName(nodep->dotted()));
         puts(".");
-        if (nodep->varp()) {
+        إذا (nodep->varp()) {
             puts(nodep->varp()->prettyName());
-        } else {
+        } وإلا {
             puts(nodep->prettyName());
         }
     }
-    void visit(AstConst* nodep) override { putfs(nodep, nodep->num().ascii(m_prefixed, true)); }
-    void visit(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    فراغ بازدید(AstConst* nodep) override { putfs(nodep, nodep->رقم().ascii(m_prefixed, درست)); }
+    فراغ بازدید(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
 
     // Just iterate
-    void visit(AstTopScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstVar* nodep) override {
-        if (nodep->isIO()) {
+    فراغ بازدید(Ast_بالاترین_Scope* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstScope* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(AstVar* nodep) override {
+        إذا (nodep->isIO()) {
             putfs(nodep, nodep->verilogKwd());
             puts(" ");
         }
         VL_RESTORER(m_arrayPost);
-        m_arrayPost = false;
+        m_arrayPost = خطأ;
         iterateConstNull(nodep->dtypep());  // Dtype part before identifier
         puts(" ");
         puts(nodep->prettyName());
-        m_arrayPost = true;
+        m_arrayPost = درست;
         iterateConstNull(nodep->dtypep());  // Dtype part after identifier
         puts(m_suppressVarSemi ? "\n" : ";\n");
     }
-    void visit(AstActive* nodep) override {
+    فراغ بازدید(Ast_فعال* nodep) override {
         VL_RESTORER(m_sentreep);
         m_sentreep = nodep->sentreep();
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
+    فراغ بازدید(AstDelay* nodep) override {
         puts("");  // this is for proper alignment
-        if (nodep->isCycleDelay()) {
+        إذا (nodep->is_چرخه_Delay()) {
             puts("##");
-        } else {
+        } وإلا {
             puts("#");
         }
         VL_RESTORER(m_prefixed);
-        m_prefixed = false;
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
+        m_prefixed = خطأ;
+        إذا (Ast_گره_عبارت* ثابت fallDelayp = nodep->fallDelay()) {
             puts("(");
             iterateConst(nodep->lhsp());
             puts(", ");
             iterateConst(fallDelayp);
             puts(")");
-        } else {
+        } وإلا {
             iterateConst(nodep->lhsp());
         }
-        if (!m_suppressSemi) {
+        إذا (!m_suppressSemi) {
             puts(";\n");
-        } else {
+        } وإلا {
             puts(" ");
         }
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_بعدی_Const_Null(nodep->stmtsp());
     }
-    void visit(AstWait* nodep) override {
+    فراغ بازدید(AstWait* nodep) override {
         puts("wait(");
         iterateConst(nodep->condp());
         puts(")");
-        if (nodep->stmtsp()) {
+        إذا (nodep->stmtsp()) {
             puts(" ");
-            iterateAndNextConstNull(nodep->stmtsp());
-        } else {
+            iterate_And_بعدی_Const_Null(nodep->stmtsp());
+        } وإلا {
             puts(";\n");
         }
     }
-    void visit(AstCAwait* nodep) override {
+    فراغ بازدید(AstCAwait* nodep) override {
         AstCMethodHard* methodp = VN_CAST(nodep->exprp(), CMethodHard);
         UASSERT_OBJ(methodp, nodep, "AstCAwait expression must be an AstCMethodHard");
         puts("");  // this is for proper alignment
         puts("#");
         iterateConst(methodp->pinsp());
     }
-    void visit(AstParseRef* nodep) override { puts(nodep->prettyName()); }
-    void visit(AstVarScope*) override {}
-    void visit(AstTraceDecl*) override {}
-    void visit(AstTraceInc*) override {}
+    فراغ بازدید(AstParseRef* nodep) override { puts(nodep->prettyName()); }
+    فراغ بازدید(AstVarScope*) override {}
+    فراغ بازدید(AstTraceDecl*) override {}
+    فراغ بازدید(AstTraceInc*) override {}
     // NOPs
-    void visit(AstPragma*) override {}
-    void visit(AstStmtPragma*) override {}
-    void visit(AstCell*) override {}  // Handled outside the Visit class
+    فراغ بازدید(AstPragma*) override {}
+    فراغ بازدید(AstStmtPragma*) override {}
+    فراغ بازدید(AstCell*) override {}  // Handled outside the Visit class
     // Default
-    void visit(AstNode* nodep) override {
+    فراغ بازدید(Ast_گره* nodep) override {
         puts("\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
         // Not v3fatalSrc so we keep processing
-        if (!m_suppressUnknown) {
+        إذا (!m_suppressUnknown) {
             nodep->v3error(
                 "Internal: Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
     }
 
-public:
-    explicit EmitVBaseVisitorConst(bool suppressUnknown)
+عام:
+    صریح EmitVBaseVisitorConst(منطقي suppressUnknown)
         : m_suppressUnknown{suppressUnknown} {}
-    ~EmitVBaseVisitorConst() override = default;
+    ~EmitVBaseVisitorConst() override = افتراضي;
 };
 
 //######################################################################
 // Emit to an output file
 
-class EmitVFileVisitor final : public EmitVBaseVisitorConst {
+صنف EmitVFileVisitor final : عام EmitVBaseVisitorConst {
     // STATE
-    V3OutVFile& m_of;  // The output file
+    V3_بیرون_VFile& m_از;  // The output file
     // METHODS
-    void putsNoTracking(const string& str) override { m_of.putsNoTracking(str); }
-    void puts(const string& str) override { m_of.puts(str); }
-    void putbs(const string& str) override { m_of.putbs(str); }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    فراغ putsNoTracking(ثابت string& str) override { m_از.putsNoTracking(str); }
+    فراغ puts(ثابت string& str) override { m_از.puts(str); }
+    فراغ putbs(ثابت string& str) override { m_از.putbs(str); }
+    فراغ putfs(Ast_گره*, ثابت string& str) override { putbs(str); }
+    فراغ putqs(Ast_گره*, ثابت string& str) override { putbs(str); }
 
-public:
-    EmitVFileVisitor(AstNode* nodep, V3OutVFile& of, bool suppressUnknown)
+عام:
+    EmitVFileVisitor(Ast_گره* nodep, V3_بیرون_VFile& از, منطقي suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
-        , m_of{of} {
+        , m_از{از} {
         iterateConst(nodep);
     }
-    ~EmitVFileVisitor() override = default;
+    ~EmitVFileVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Emit to a stream (perhaps stringstream)
 
-class EmitVStreamVisitor final : public EmitVBaseVisitorConst {
+صنف EmitVStreamVisitor final : عام EmitVBaseVisitorConst {
     // STATE
-    V3OutStream m_os;  // The output stream formatter
-    const bool m_tracking;  // Use line tracking
+    V3_بیرون_جریان m_os;  // The output stream formatter
+    ثابت منطقي m_tracking;  // Use line tracking
     // METHODS
-    void putsNoTracking(const string& str) override { m_os.putsNoTracking(str); }
-    void puts(const string& str) override {
+    فراغ putsNoTracking(ثابت string& str) override { m_os.putsNoTracking(str); }
+    فراغ puts(ثابت string& str) override {
         m_tracking ? m_os.puts(str) : m_os.putsNoTracking(str);
     }
-    void putbs(const string& str) override {
+    فراغ putbs(ثابت string& str) override {
         m_tracking ? m_os.putbs(str) : m_os.putsNoTracking(str);
     }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    فراغ putfs(Ast_گره*, ثابت string& str) override { putbs(str); }
+    فراغ putqs(Ast_گره*, ثابت string& str) override { putbs(str); }
 
-public:
-    EmitVStreamVisitor(const AstNode* nodep, std::ostream& os, bool tracking, bool suppressUnknown)
+عام:
+    EmitVStreamVisitor(ثابت Ast_گره* nodep, std::ostream& os, منطقي tracking, منطقي suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
-        , m_os{os, V3OutFormatter::LA_VERILOG}
+        , m_os{os, V3_بیرون_Formatter::LA_VERILOG}
         , m_tracking{tracking} {
-        iterateConst(const_cast<AstNode*>(nodep));
+        iterateConst(const_cast<Ast_گره*>(nodep));
     }
-    ~EmitVStreamVisitor() override = default;
+    ~EmitVStreamVisitor() override = افتراضي;
 };
 
 //######################################################################
 // EmitV class functions
 
-void V3EmitV::verilogForTree(const AstNode* nodep, std::ostream& os) {
-    { EmitVStreamVisitor{nodep, os, /* tracking: */ false, false}; }
+فراغ V3EmitV::verilog_For_درخت(ثابت Ast_گره* nodep, std::ostream& os) {
+    { EmitVStreamVisitor{nodep, os, /* tracking: */ خطأ, خطأ}; }
 }
 
-void V3EmitV::debugVerilogForTree(const AstNode* nodep, std::ostream& os) {
-    { EmitVStreamVisitor{nodep, os, /* tracking: */ true, true}; }
+فراغ V3EmitV::debug_Verilog_For_درخت(ثابت Ast_گره* nodep, std::ostream& os) {
+    { EmitVStreamVisitor{nodep, os, /* tracking: */ درست, درست}; }
 }
 
-std::string V3EmitV::debugVerilogForTree(const AstNode* nodep) {
+std::string V3EmitV::debug_Verilog_For_درخت(ثابت Ast_گره* nodep) {
     std::stringstream ss;
-    debugVerilogForTree(nodep, ss);
-    return ss.str();
+    debug_Verilog_For_درخت(nodep, ss);
+    أرجع ss.str();
 }
 
-void V3EmitV::emitvFiles() {
+فراغ V3EmitV::emitvFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
-         filep = VN_AS(filep->nextp(), NodeFile)) {
-        AstVFile* const vfilep = VN_CAST(filep, VFile);
-        if (vfilep && vfilep->tblockp()) {
-            V3OutVFile of{vfilep->name()};
-            of.puts("// DESCRIPTION: Verilator generated Verilog\n");
-            EmitVFileVisitor{vfilep->tblockp(), of, false};
+    لكل (Ast_گره_File* filep = v3Global.rootp()->filesp(); filep;
+         filep = VN_AS(filep->nextp(), گره_File)) {
+        AstVFile* ثابت vfilep = VN_CAST(filep, VFile);
+        إذا (vfilep && vfilep->tblockp()) {
+            V3_بیرون_VFile از{vfilep->name()};
+            از.puts("// DESCRIPTION: Verilator generated Verilog\n");
+            EmitVFileVisitor{vfilep->tblockp(), از, خطأ};
         }
     }
 }
 
-void V3EmitV::debugEmitV(const string& filename) {
+فراغ V3EmitV::debugEmitV(ثابت string& filename) {
     UINFO(2, __FUNCTION__ << ":");
-    V3OutVFile of{filename};
-    EmitVFileVisitor{v3Global.rootp(), of, true};
+    V3_بیرون_VFile از{filename};
+    EmitVFileVisitor{v3Global.rootp(), از, درست};
 }

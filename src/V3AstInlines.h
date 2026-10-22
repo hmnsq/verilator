@@ -14,222 +14,222 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTINLINES_H_
-#define VERILATOR_V3ASTINLINES_H_
+#اگر_تعریف_نشده VERILATOR_V3ASTINLINES_H_
+#تعریف_کن VERILATOR_V3ASTINLINES_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
-#endif
+#اگر_تعریف_نشده VERILATOR_V3AST_H_
+#خطا "Use V3Ast.h as the include"
+#ضمن "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
+#پایان_اگر
 
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
-bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+صحيح Ast_گره::عرض() ثابت VL_MT_STABLE { أرجع dtypep() ? dtypep()->عرض() : 0; }
+صحيح Ast_گره::عرض_Min() ثابت VL_MT_STABLE { أرجع dtypep() ? dtypep()->عرض_Min() : 0; }
+bool Ast_گره::width1() ثابت {  // V3Const uses to know it can optimize
+    أرجع dtypep() && dtypep()->عرض() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+صحيح Ast_گره::عرض_Instrs() ثابت {
+    أرجع (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->عرض_واژگان() : 1));
 }
-bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+bool Ast_گره::isCHandle() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
-bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+bool Ast_گره::isDouble() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
-bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+bool Ast_گره::isString() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
-bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+bool Ast_گره::isEvent() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool Ast_گره::isSigned() ثابت VL_MT_STABLE { أرجع dtypep() && dtypep()->isSigned(); }
 
-bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+bool Ast_گره::is_Class_Handle_مقدار() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->رقم().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
-bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+bool Ast_گره::isNull() ثابت { أرجع VN_IS(this, Const) && VN_AS(this, Const)->رقم().isNull(); }
+bool Ast_گره::isZero() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->رقم().isEqZero());
 }
-bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+bool Ast_گره::isNeqZero() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->رقم().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
-bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+bool Ast_گره::isOne() ثابت { أرجع (VN_IS(this, Const) && VN_AS(this, Const)->رقم().isEqOne()); }
+bool Ast_گره::isAllOnes() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
-bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+bool Ast_گره::isAllOnesV() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
-bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+bool Ast_گره::same_درخت(ثابت Ast_گره* node2p) ثابت {
+    أرجع same_درخت_Iter(this, node2p, true, false);
 }
-bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+bool Ast_گره::same_Gate_درخت(ثابت Ast_گره* node2p) ثابت {
+    أرجع same_درخت_Iter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+صحيح Ast_گره_Array_DType::چپ_2() ثابت VL_MT_STABLE { أرجع rangep()->چپ_Const(); }
+صحيح Ast_گره_Array_DType::راست_2() ثابت VL_MT_STABLE { أرجع rangep()->راست_Const(); }
+صحيح Ast_گره_Array_DType::hi() ثابت VL_MT_STABLE { أرجع rangep()->hiConst(); }
+صحيح Ast_گره_Array_DType::lo() ثابت VL_MT_STABLE { أرجع rangep()->loConst(); }
+صحيح Ast_گره_Array_DType::elementsConst() ثابت VL_MT_STABLE { أرجع rangep()->elementsConst(); }
+VNumRange Ast_گره_Array_DType::declRange() ثابت VL_MT_STABLE { أرجع VNumRange{چپ_2(), راست_2()}; }
 
-AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
+AstFuncRef::AstFuncRef(File_سطر* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(File_سطر* fl, صحيح چپ_2, صحيح راست_2)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(left)});
-    rightp(new AstConst{fl, static_cast<uint32_t>(right)});
+    leftp(new AstConst{fl, static_cast<uint32_t>(چپ_2)});
+    rightp(new AstConst{fl, static_cast<uint32_t>(راست_2)});
 }
-AstRange::AstRange(FileLine* fl, const VNumRange& range)
+AstRange::AstRange(File_سطر* fl, ثابت VNumRange& range)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
-    rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
+    leftp(new AstConst{fl, static_cast<uint32_t>(range.چپ_2())});
+    rightp(new AstConst{fl, static_cast<uint32_t>(range.راست_2())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح AstRange::چپ_Const() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(leftp(), Const);
+    أرجع (constp ? constp->مقصد_SInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح AstRange::راست_Const() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(rightp(), Const);
+    أرجع (constp ? constp->مقصد_SInt() : 0);
 }
 
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
+AstPackArrayDType::AstPackArrayDType(File_سطر* fl, VFlag_فرزند_DType, Ast_گره_DType* dtp,
                                      AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
-    childDTypep(dtp);  // Only for parser
+    فرزند_DTypep(dtp);  // Only for parser
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ثابت صحيح عرض = subDTypep()->عرض() * rangep->elementsConst();
+    عرض_Force(عرض, عرض);
 }
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+AstPackArrayDType::AstPackArrayDType(File_سطر* fl, Ast_گره_DType* dtp, AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ثابت صحيح عرض = subDTypep()->عرض() * rangep->elementsConst();
+    عرض_Force(عرض, عرض);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح Ast_صف_DType::boundConst() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(boundp(), Const);
+    أرجع (constp ? constp->مقصد_SInt() : 0);
 }
 
-AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
+AstTaskRef::AstTaskRef(File_سطر* fl, AstTask* taskp, AstArg* argsp)
     : ASTGEN_SUPER_TaskRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
-    dtypeSetVoid();
+    dtype_مجموعه_Void();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+صحيح AstBasicDType::hi() ثابت { أرجع (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+صحيح AstBasicDType::lo() ثابت { أرجع (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+صحيح AstBasicDType::elements() ثابت {
+    أرجع (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
-bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+bool AstBasicDType::ascending() ثابت {
+    أرجع (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool Ast_فعال::hasClocked() ثابت { أرجع m_sentreep->hasClocked(); }
+bool Ast_فعال::hasCombo() ثابت { أرجع m_sentreep->hasCombo(); }
+bool Ast_فعال::hasInitial() ثابت { أرجع m_sentreep->hasInitial(); }
+bool Ast_فعال::hasStatic() ثابت { أرجع m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool Ast_گره_Module::isDollarUnit() ثابت { أرجع this == v3Global.rootp()->dollarUnitPkgp(); }
+bool Ast_گره_Module::isConstPool() ثابت { أرجع this == v3Global.rootp()->constPoolPkgp(); }
 
-AstAlways::AstAlways(AstAssignW* assignp)
+AstAlways::AstAlways(Ast_تخصیص_بده_W* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
-    , m_keyword{VAlwaysKwd::CONT_ASSIGN} {}
+    , m_keyword{VAlwaysKwd::CONT_تخصیص_بده} {}
 
-AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp)
+AstElabDisplay::AstElabDisplay(File_سطر* fl, VDisplayType dispType, Ast_گره_عبارت* exprsp)
     : ASTGEN_SUPER_ElabDisplay(fl) {
-    addFmtp(new AstSFormatF{fl, "", true, exprsp});
+    جمع_کن_Fmtp(new AstSFormatF{fl, "", true, exprsp});
     m_displayType = dispType;
 }
 
-bool AstVar::sameNode(const AstNode* samep) const {
-    const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+bool AstVar::same_گره(ثابت Ast_گره* samep) ثابت {
+    ثابت AstVar* ثابت asamep = VN_DBG_AS(samep, Var);
+    أرجع m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
 
-AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp)
-    : ASTGEN_SUPER_MatchMasked(fl) {
+Ast_تطابق_Masked::Ast_تطابق_Masked(File_سطر* fl, Ast_گره_عبارت* lhsp, AstVarRef* matchp)
+    : ASTGEN_SUPER_تطابق_Masked(fl) {
     this->lhsp(lhsp);
     this->matchp(matchp);
-    dtypeSetUInt32();
+    dtype_مجموعه_UInt32();
 }
 
-AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_سطر* fl, AstVar* varp, ثابت VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    إذا (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } وإلا إذا (varp) {
         m_name = varp->name();
     }
 }
-AstVarRef::AstVarRef(FileLine* fl, AstNodeModule* pkgp, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_سطر* fl, Ast_گره_Module* pkgp, AstVar* varp, ثابت VAccess& access)
     : AstVarRef{fl, varp, access} {
     classOrPackagep(pkgp);
 }
 // This form only allowed post-link (see above)
-AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
+AstVarRef::AstVarRef(File_سطر* fl, AstVarScope* varscp, ثابت VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varscp->varp(), access) {
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() ثابت { أرجع varp() ? varp()->name() : nameThis(); }
 
-bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+bool AstVarRef::same_گره(ثابت AstVarRef* samep) ثابت {
+    إذا (varScopep()) أرجع (varScopep() == samep->varScopep() && access() == samep->access());
+    أرجع (self_اشاره_گر() == samep->self_اشاره_گر() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
-            && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
+            && (varp() && samep->varp() && varp()->same_گره(samep->varp())));
 }
-bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+bool AstVarRef::sameNoLvalue(ثابت AstVarRef* samep) ثابت {
+    إذا (varScopep()) أرجع (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
-            && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
-            && varp()->sameNode(samep->varp()));
+    أرجع (self_اشاره_گر() == samep->self_اشاره_گر() && classOrPackagep() == samep->classOrPackagep()
+            && (!self_اشاره_گر().is_خالی() || !samep->self_اشاره_گر().is_خالی())
+            && varp()->same_گره(samep->varp()));
 }
 
-AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access)
+AstVarXRef::AstVarXRef(File_سطر* fl, AstVar* varp, ثابت string& dotted, ثابت VAccess& access)
     : ASTGEN_SUPER_VarXRef(fl, varp, access)
     , m_name{varp->name()}
     , m_dotted{dotted} {
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+Ast_Stmt_عبارت* Ast_گره_عبارت::makeStmt() { أرجع new Ast_Stmt_عبارت{fileline(), this}; }
 
-AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+Ast_Cons_Array_قلم* AstConsArray::itemsp() ثابت VL_MT_STABLE {
+    أرجع VN_DBG_AS(op2p(), Cons_Array_قلم);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
-inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+مضمن Ast_گره_Module* پیدا_کن_والد_Module(Ast_گره* nodep) {
+    لكل (Ast_گره* curp = nodep; curp; curp = curp->backp()) {
+        إذا (Ast_گره_Module* ثابت modp = VN_CAST(curp, گره_Module)) أرجع modp;
     }
-    return nullptr;
+    أرجع nullptr;
 }
 
-#endif  // Guard
+#پایان_اگر  // Guard

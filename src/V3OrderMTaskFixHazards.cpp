@@ -94,17 +94,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMTaskGraph.h"
+#ضمن "V3Control.h"
+#ضمن "V3Global.h"
+#ضمن "V3Graph.h"
+#ضمن "V3OrderGraph.h"
+#ضمن "V3OrderMTaskGraph.h"
 
-#include <algorithm>
-#include <set>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <set>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -112,60 +112,60 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // DpiImportCallVisitor
 
 // Scan node, indicate whether it contains a call to a DPI imported routine.
-class DpiImportCallVisitor final : public VNVisitor {
-    bool m_hasDpiHazard = false;  // Found a DPI import call.
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
+صنف DpiImportCallVisitor final : عام VNVisitor {
+    منطقي m_hasDpiHazard = خطأ;  // Found a DPI import call.
+    منطقي m_tracingCall = خطأ;  // Iterating into a CCall to a CFunc
     // METHODS
-    void visit(AstCFunc* nodep) override {
-        if (!m_tracingCall) return;
-        m_tracingCall = false;
-        if (nodep->dpiImportWrapper()) {
-            if (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
-                                 : !v3Global.opt.threadsDpiUnpure()) {
+    فراغ بازدید(AstCFunc* nodep) override {
+        إذا (!m_tracingCall) أرجع;
+        m_tracingCall = خطأ;
+        إذا (nodep->dpiImportWrapper()) {
+            إذا (nodep->dpi_خالص() ? !v3Global.opt.نخها_Dpi_خالص()
+                                 : !v3Global.opt.نخها_Dpi_Unpure()) {
                 // If hierarchical DPI wrapper cost is not found or is of a 0 cost,
                 // we have a normal DPI which induces DPI hazard by default.
-                m_hasDpiHazard = V3Control::getProfileData(nodep->cname()) == 0;
+                m_hasDpiHazard = V3Control::get_Profile_داده(nodep->cname()) == 0;
                 UINFO(9, "DPI wrapper '" << nodep->cname()
                                          << "' has dpi hazard = " << m_hasDpiHazard);
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* nodep) override {
+    فراغ بازدید(Ast_گره_CCall* nodep) override {
         iterateChildren(nodep);
         // Enter the function and trace it
-        m_tracingCall = true;
+        m_tracingCall = درست;
         iterate(nodep->funcp());
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit DpiImportCallVisitor(AstNode* nodep) { iterate(nodep); }
+    صریح DpiImportCallVisitor(Ast_گره* nodep) { iterate(nodep); }
 
-public:
-    static bool hasDpiHazard(AstNode* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
+عام:
+    ساكن منطقي hasDpiHazard(Ast_گره* nodep) { أرجع DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
 };
 
 //######################################################################
 // FixDataHazards
 
-class FixDataHazards final {
+صنف Fix_داده_Hazards final {
     // TYPES
 
     // Access to one variable, with the MTask performing it
-    struct Access final {
-        const AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
+    بنية Access final {
+        ثابت AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
         LogicMTask* m_mtaskp;  // The accessing MTask
         VAccess m_access;  // The kind of access
     };
 
     // NODE STATE
     //  AstVarScope::user1    -> int: Variable index for stable sorting
-    const VNUser1InUse m_user1InUse;
+    ثابت VNUser1_درون_Use m_user1_درون_Use;
 
     // MEMBERS
-    OrderMTaskGraph& m_mTaskGraph;  // The Mtask graph
-    std::vector<LogicMTask*> m_scratch;  // Scratch MTask list, reused to avoid reallocation
+    ترتیب_MTask_گراف& m_m_Task_گراف;  // The Mtask graph
+    std::وکتور<LogicMTask*> m_scratch;  // Scratch MTask list, reused to avoid reallocation
 
     // METHODS
 
@@ -173,154 +173,154 @@ class FixDataHazards final {
     // 'from -> to' we have seq(from) < seq(to). See the note at top of file on why this matters.
     // This is a topological sort using Kahn's algorithm with MTasks enumerated in a globally
     // non-decreasing critical path order.
-    void assignSequenceNumbers() {
-        struct MTaskCmp final {
-            bool operator()(const LogicMTask* ap, const LogicMTask* bp) const {
+    فراغ تخصیص_بده_Sequence_Numbers() {
+        بنية MTaskCmp final {
+            منطقي عملگر()(ثابت LogicMTask* ap, ثابت LogicMTask* bp) ثابت {
                 // Order by critical path
-                const uint64_t aCp = ap->cpExclusive<GraphWay::FORWARD>();
-                const uint64_t bCp = bp->cpExclusive<GraphWay::FORWARD>();
-                if (aCp != bCp) return aCp < bCp;
+                ثابت uint64_t aCp = ap->cpExclusive<گراف_Way::FORWARD>();
+                ثابت uint64_t bCp = bp->cpExclusive<گراف_Way::FORWARD>();
+                إذا (aCp != bCp) أرجع aCp < bCp;
                 // Break ties by stable id
-                return *ap < *bp;
+                أرجع *ap < *bp;
             }
         };
         // Set of ready vertices. Initialized to the entry MTask.
-        std::set<LogicMTask*, MTaskCmp> ready{m_mTaskGraph.entryp()};
+        std::مجموعه<LogicMTask*, MTaskCmp> ready{m_m_Task_گراف.entryp()};
         // 'user' also used to count remaining dependencies of each MTask. Initialize it.
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
-            vtx.user(static_cast<uint32_t>(vtx.inEdges().size()));
+        لكل (V3_گراف_رأس& vtx : m_m_Task_گراف.vertices()) {
+            vtx.user(static_cast<uint32_t>(vtx.درون_یالها().اندازه()));
         }
         // Next sequence number to assign to each MTask.
         uint32_t seq = 0;
         // Process ready vertices in critical path order.
-        while (!ready.empty()) {
+        طالما (!ready.خالی()) {
             // Pick up and detach the ready MTask with the smallest critical path.
-            const auto it = ready.begin();
-            LogicMTask* const mtaskp = *it;
+            ثابت خودکار it = ready.begin();
+            LogicMTask* ثابت mtaskp = *it;
             ready.erase(it);
             // Assign the next sequence number to the MTask
             mtaskp->user(++seq);
             // Decrement edge count of successors and add to ready set if no dependencies left
-            for (V3GraphEdge& edge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<LogicMTask*>(edge.top());
-                const uint32_t nDeps = top->user() - 1;
-                top->user(nDeps);
-                if (!nDeps) ready.insert(top);
+            لكل (V3_گراف_یال& یال : mtaskp->بیرون_یالها()) {
+                LogicMTask* ثابت بالاترین = static_cast<LogicMTask*>(یال.بالاترین());
+                ثابت uint32_t nDeps = بالاترین->user() - 1;
+                بالاترین->user(nDeps);
+                إذا (!nDeps) ready.درج(بالاترین);
             }
         }
-        UASSERT(seq == m_mTaskGraph.vertices().size(), "MTask graph is cyclic");
+        UASSERT(seq == m_m_Task_گراف.vertices().اندازه(), "MTask graph is cyclic");
     }
 
     // Gather every variable access, resolved to the MTask performing it.
-    std::vector<Access> gatherAccesses() {
-        std::vector<Access> accesses;
-        int nVars = 0;
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+    std::وکتور<Access> gatherAccesses() {
+        std::وکتور<Access> accesses;
+        صحيح nVars = 0;
+        لكل (V3_گراف_رأس& vtx : m_m_Task_گراف.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            for (const OrderMoveVertex& mVtx : mtask.vertexList()) {
-                const OrderLogicVertex* const lVtxp = mVtx.logicp();
-                if (!lVtxp) continue;
-                for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
-                    AstVarScope* const vscp = acc.m_vscp;
-                    if (!vscp->user1()) vscp->user1(++nVars);
-                    accesses.push_back({vscp, &mtask, acc.m_access});
+            لكل (ثابت ترتیب_Move_رأس& mVtx : mtask.رأس_List()) {
+                ثابت ترتیب_Logic_رأس* ثابت lVtxp = mVtx.logicp();
+                إذا (!lVtxp) استمر;
+                لكل (ثابت ترتیب_Logic_رأس::VarAccess& acc : lVtxp->varAccesses()) {
+                    AstVarScope* ثابت vscp = acc.m_vscp;
+                    إذا (!vscp->user1()) vscp->user1(++nVars);
+                    accesses.افزودن_پشت({vscp, &mtask, acc.m_access});
                 }
             }
         }
-        return accesses;
+        أرجع accesses;
     }
 
     // Add an edge ordering 'fromp' before 'top', unless they are already ordered
-    void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* top) {
+    فراغ جمع_کن_یال_If_Needed(LogicMTask* fromp, LogicMTask* بالاترین) {
         // Nothing to order within a single MTask
-        if (fromp == top) return;
-        UASSERT_OBJ(fromp->user() < top->user(), fromp,
+        إذا (fromp == بالاترین) أرجع;
+        UASSERT_OBJ(fromp->user() < بالاترین->user(), fromp,
                     "Edge must run in increasing sequence order");
         // Already directly ordered. This is an O(1) set lookup, and catches the common case of
         // a dependency the OrderGraph already provided.
-        if (fromp->hasEdgeTo(top)) return;
+        إذا (fromp->has_یال_مقصد(بالاترین)) أرجع;
         // Otherwise check if already ordered
-        if (m_mTaskGraph.pathExists(fromp, top, nullptr)) return;
+        إذا (m_m_Task_گراف.مسیر_Exists(fromp, بالاترین, اشاره_تهی)) أرجع;
         // Unordered. Add an edge between them.
-        m_mTaskGraph.addEdge(fromp, top);
+        m_m_Task_گراف.جمع_کن_یال(fromp, بالاترین);
     }
 
     // Add the edges required to make the accesses of one variable race free. 'beginp'/'endp'
     // delimit the accesses of a single variable, in sequence number order.
-    void serializeVariable(const Access* beginp, const Access* endp) {
+    فراغ serializeVariable(ثابت Access* beginp, ثابت Access* endp) {
         // Nothing to order if at most one MTask accesses this variable. Each MTask appears at
         // most once in the range, see the assertion below, so this is just the range size.
-        if (endp - beginp < 2) return;
+        إذا (endp - beginp < 2) أرجع;
 
-        std::vector<LogicMTask*>& pendingReaders = m_scratch;
+        std::وکتور<LogicMTask*>& pendingReaders = m_scratch;
         pendingReaders.clear();
-        LogicMTask* prevWriterp = nullptr;
-        for (const Access* accp = beginp; accp != endp; ++accp) {
+        LogicMTask* prevWriterp = اشاره_تهی;
+        لكل (ثابت Access* accp = beginp; accp != endp; ++accp) {
             // The OrderLogicVertices record one access per variable, and at this point each MTask
             // holds exactly one logic block, so an MTask cannot appear twice here.
             UASSERT_OBJ(accp == beginp || accp[-1].m_mtaskp != accp->m_mtaskp, accp->m_mtaskp,
                         "Multiple accesses of a variable in an MTask");
-            LogicMTask* const mtaskp = accp->m_mtaskp;
-            if (accp->m_access.isWriteOrRW()) {
+            LogicMTask* ثابت mtaskp = accp->m_mtaskp;
+            إذا (accp->m_access.isWriteOrRW()) {
                 // Reads since the previous write must complete before this write
-                for (LogicMTask* const readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
+                لكل (LogicMTask* ثابت readerp : pendingReaders) جمع_کن_یال_If_Needed(readerp, mtaskp);
                 // Consecutive writes must be ordered. If a read came between them, the edges to
                 // and from that read imply it already.
-                if (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
+                إذا (prevWriterp && pendingReaders.خالی()) جمع_کن_یال_If_Needed(prevWriterp, mtaskp);
                 pendingReaders.clear();
                 prevWriterp = mtaskp;
-            } else {
+            } وإلا {
                 // This read must happen after the preceding write
-                if (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
-                pendingReaders.push_back(mtaskp);
+                إذا (prevWriterp) جمع_کن_یال_If_Needed(prevWriterp, mtaskp);
+                pendingReaders.افزودن_پشت(mtaskp);
             }
         }
     }
 
     // Serialize the given MTasks, in sequence number order
-    void serializeMTasks(std::vector<LogicMTask*>& mtaskps) {
-        std::sort(mtaskps.begin(), mtaskps.end(), [](const LogicMTask* ap, const LogicMTask* bp) {
-            return ap->user() < bp->user();
+    فراغ serializeMTasks(std::وکتور<LogicMTask*>& mtaskps) {
+        std::مرتب_سازی(mtaskps.begin(), mtaskps.انتها(), [](ثابت LogicMTask* ap, ثابت LogicMTask* bp) {
+            أرجع ap->user() < bp->user();
         });
-        mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.end()), mtaskps.end());
-        for (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
+        mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.انتها()), mtaskps.انتها());
+        لكل (اندازه_t i = 1; i < mtaskps.اندازه(); ++i) جمع_کن_یال_If_Needed(mtaskps[i - 1], mtaskps[i]);
     }
 
-    bool hasDpiHazard(LogicMTask* mtaskp) {
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
-            OrderLogicVertex* const lvtxp = mVtx.logicp();
-            if (!lvtxp) continue;
+    منطقي hasDpiHazard(LogicMTask* mtaskp) {
+        لكل (ثابت ترتیب_Move_رأس& mVtx : mtaskp->رأس_List()) {
+            ترتیب_Logic_رأس* ثابت lvtxp = mVtx.logicp();
+            إذا (!lvtxp) استمر;
             // NOTE: We don't handle DPI exports. If testbench code calls a DPI-exported function
             // at any time during eval() we may have a data hazard. (Likewise in non-threaded mode
             // if an export messes with an ordered variable we're broken.)
 
             // Find all calls to DPI-imported functions, we can put those into a serial order at
             // least. That should solve the most likely DPI-related data hazards.
-            if (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) return true;
+            إذا (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) أرجع درست;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // CONSTRUCTOR
-    FixDataHazards(OrderMTaskGraph& mTaskGraph)
-        : m_mTaskGraph{mTaskGraph} {
+    Fix_داده_Hazards(ترتیب_MTask_گراف& m_Task_گراف)
+        : m_m_Task_گراف{m_Task_گراف} {
         // Give the MTasks a total order consistent with their dependencies
-        assignSequenceNumbers();
+        تخصیص_بده_Sequence_Numbers();
 
         // Gather variable accesses made by each MTask
-        std::vector<Access> accesses = gatherAccesses();
+        std::وکتور<Access> accesses = gatherAccesses();
         // Sort by variable (to group by variable), then by sequence number of the accessing MTask
-        std::sort(accesses.begin(), accesses.end(), [](const Access& a, const Access& b) {
-            if (a.m_vscp != b.m_vscp) return a.m_vscp->user1() < b.m_vscp->user1();
-            return a.m_mtaskp->user() < b.m_mtaskp->user();
+        std::مرتب_سازی(accesses.begin(), accesses.انتها(), [](ثابت Access& a, ثابت Access& b) {
+            إذا (a.m_vscp != b.m_vscp) أرجع a.m_vscp->user1() < b.m_vscp->user1();
+            أرجع a.m_mtaskp->user() < b.m_mtaskp->user();
         });
 
         // Serialize the accesses of each variable
-        for (size_t i = 0; i < accesses.size();) {
-            size_t end = i + 1;
-            while (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
-            serializeVariable(accesses.data() + i, accesses.data() + end);
-            i = end;
+        لكل (اندازه_t i = 0; i < accesses.اندازه();) {
+            اندازه_t انتها = i + 1;
+            طالما (انتها < accesses.اندازه() && accesses[انتها].m_vscp == accesses[i].m_vscp) ++انتها;
+            serializeVariable(accesses.داده() + i, accesses.داده() + انتها);
+            i = انتها;
         }
 
         // Serialize all writes to SystemC vars. Note the reads of an individual SC var are already
@@ -329,31 +329,31 @@ class FixDataHazards final {
         // so this should not hurt performance too much.
         {
             m_scratch.clear();
-            for (const Access& access : accesses) {
-                if (!access.m_access.isWriteOrRW()) continue;
-                if (!access.m_vscp->varp()->isSc()) continue;
-                m_scratch.push_back(access.m_mtaskp);
+            لكل (ثابت Access& access : accesses) {
+                إذا (!access.m_access.isWriteOrRW()) استمر;
+                إذا (!access.m_vscp->varp()->isSc()) استمر;
+                m_scratch.افزودن_پشت(access.m_mtaskp);
             }
             serializeMTasks(m_scratch);
         }
 
         // Serialize DPI calls unless user gave '--threads-dpi none'.
-        if (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
+        إذا (!v3Global.opt.نخها_Dpi_خالص() || !v3Global.opt.نخها_Dpi_Unpure()) {
             m_scratch.clear();
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+            لكل (V3_گراف_رأس& vtx : m_m_Task_گراف.vertices()) {
                 LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-                if (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
+                إذا (hasDpiHazard(&mtask)) m_scratch.افزودن_پشت(&mtask);
             }
             serializeMTasks(m_scratch);
         }
     }
 
-public:
-    static void apply(OrderMTaskGraph& mTaskGraph) { FixDataHazards{mTaskGraph}; }
+عام:
+    ساكن فراغ apply(ترتیب_MTask_گراف& m_Task_گراف) { Fix_داده_Hazards{m_Task_گراف}; }
 };
 
-void OrderMTaskGraph::fixDataHazards(OrderMTaskGraph& mtaskGraph) {
-    FixDataHazards::apply(mtaskGraph);
+فراغ ترتیب_MTask_گراف::fix_داده_Hazards(ترتیب_MTask_گراف& mtask_گراف) {
+    Fix_داده_Hazards::apply(mtask_گراف);
     // The critical paths are maintained as the graph is mutated, check them
-    mtaskGraph.validate();
+    mtask_گراف.validate();
 }

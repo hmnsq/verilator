@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PREPROC_H_
-#define VERILATOR_V3PREPROC_H_
+#اگر_تعریف_نشده VERILATOR_V3PREPROC_H_
+#تعریف_کن VERILATOR_V3PREPROC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3Global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
+#ضمن <iostream>
+#ضمن <list>
+#ضمن <map>
 
 class VInFilter;
 class VSpellCheck;
@@ -35,67 +35,67 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+محمي:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+عام:
     // CONSTANTS
-    enum MiscConsts : int {
+    تعداد MiscConsts : صحيح {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
-        INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
+        INCLUDE_عمق_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
         // Set more than DEFINE_RECURSION_LEVEL_MAX or INCLUDE_DEPTH_MAX.
-        STREAM_DEPTH_LEVEL_MAX = 2000,
+        جریان_عمق_LEVEL_MAX = 2000,
         NEWLINES_VS_TICKLINE = 20  // Use `line in place of this many newlines
     };
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
-    virtual string getline() = 0;  // Return next line/lines. (Null if done.)
-    virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    مجازی فراغ openFile(File_سطر* fileline, VInFilter* filterp, ثابت string& filename) = 0;
+    مجازی string getline() = 0;  // Return next line/lines. (Null if done.)
+    مجازی bool isEof() ثابت = 0;  // Return true on EOF.
+    مجازی فراغ درج_Unreadback(ثابت string& متن) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_سطر* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    ساكن صحيح keepComments() { أرجع 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    ساكن bool keepWhitespace() { أرجع false; }
+    ساكن bool سطر_Directives() {  // Insert `line directives
+        أرجع !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_سطر());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    ساكن bool pedantic() { أرجع false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
-    virtual void comment(const string& cmt) = 0;  // Comment detected (if keepComments==2)
-    virtual void include(const string& filename) = 0;  // Request a include file be processed
+    مجازی فراغ comment(ثابت string& cmt) = 0;  // Comment detected (if keepComments==2)
+    مجازی فراغ include(ثابت string& filename) = 0;  // Request a include file be processed
 
-    virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
-                        const string& params = "",
+    مجازی فراغ undef(ثابت string& name) = 0;  // Remove a definition
+    مجازی فراغ define(File_سطر* fileline, ثابت string& name, ثابت string& مقدار,
+                        ثابت string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    مجازی فراغ define_Cmd_سطر(File_سطر* fileline, ثابت string& name,
+                               ثابت string& مقدار) {  // `define without any parameters
+        define(fileline, name, مقدار, "", true);
     }
-    virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
+    مجازی string remove_تعریف_میکند(ثابت string& متن) = 0;  // Remove defines in a text string
 
     // UTILITIES
-    virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
-    virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
+    مجازی فراغ dump_تعریف_میکند(std::ostream& os) = 0;  ///< Print list of `defines
+    مجازی فراغ candidate_تعریف_میکند(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+محمي:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    فراغ configure(File_سطر* fl);
 
-public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
-    virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
-    static void selfTest() VL_MT_DISABLED;
+عام:
+    ساكن V3PreProc* createPreProc(File_سطر* fl) VL_MT_DISABLED;
+    مجازی ~V3PreProc() = افتراضي;  // LCOV_EXCL_LINE  // Persistent
+    ساكن فراغ selfTest() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

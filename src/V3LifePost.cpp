@@ -62,57 +62,57 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LifePost.h"
+#ضمن "V3LifePost.h"
 
-#include "V3ExecGraph.h"
-#include "V3GraphPathChecker.h"
-#include "V3Stats.h"
+#ضمن "V3ExecGraph.h"
+#ضمن "V3GraphPathChecker.h"
+#ضمن "V3Stats.h"
 
-#include <algorithm>
-#include <memory>
-#include <unordered_map>
+#ضمن <algorithm>
+#ضمن <memory>
+#ضمن <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // LifePost delay elimination
 
-class LifePostDlyVisitor final : public VNVisitorConst {
+صنف LifePostDlyVisitor final : عام VNVisitorConst {
     // TYPES
 
     // Location of AstNode within the program
-    template <typename T_Node>
-    class Location final {
-        template <typename U_Node>
-        friend class Location;
+    قالب <نام_نوع T_گره>
+    صنف Location final {
+        قالب <نام_نوع U_گره>
+        دوست صنف Location;
 
-        T_Node* m_nodep;  // The AstNode being recorded
-        const AstExecGraph* m_egraphp;  // AstExecTraph location is under, if any
-        const ExecMTask* m_mtaskp;  // The ExecMTask location is under, if any
-        uint32_t m_seqNum;  // Location counter
+        T_گره* m_nodep;  // The AstNode being recorded
+        ثابت Ast_Exec_گراف* m_egraphp;  // AstExecTraph location is under, if any
+        ثابت ExecMTask* m_mtaskp;  // The ExecMTask location is under, if any
+        uint32_t m_seq_رقم;  // Location counter
 
-    public:
-        Location(T_Node* nodep, const AstExecGraph* egp, const ExecMTask* mtaskp, uint32_t seqNum)
+    عام:
+        Location(T_گره* nodep, ثابت Ast_Exec_گراف* egp, ثابت ExecMTask* mtaskp, uint32_t seq_رقم)
             : m_nodep{nodep}
             , m_egraphp{egp}
             , m_mtaskp{mtaskp}
-            , m_seqNum{seqNum} {}
-        Location() = delete;
+            , m_seq_رقم{seq_رقم} {}
+        Location() = حذف;
 
-        T_Node* const& nodep() const { return m_nodep; }
+        T_گره* ثابت& nodep() ثابت { أرجع m_nodep; }
 
         // "is before" - Note: Equality (concurrency) is possible iff they are independent mtasks!
-        template <typename U_Node>
-        bool operator<(const Location<U_Node>& that) const {
+        قالب <نام_نوع U_گره>
+        منطقي عملگر<(ثابت Location<U_گره>& that) ثابت {
             // If they are in different mtasks under the same graph, check for a path in the graph
-            if (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
-                GraphPathChecker* const checkerp = m_egraphp->user1u().to<GraphPathChecker*>();
-                return checkerp->pathExistsFrom(m_mtaskp, that.m_mtaskp);
+            إذا (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
+                گراف_مسیر_Checker* ثابت checkerp = m_egraphp->user1u().مقصد<گراف_مسیر_Checker*>();
+                أرجع checkerp->مسیر_Exists_From(m_mtaskp, that.m_mtaskp);
             }
             // Otherwise the sequence numbers work (one/both outside graph, or both in same mtask)
-            return m_seqNum < that.m_seqNum;
+            أرجع m_seq_رقم < that.m_seq_رقم;
         }
     };
 
@@ -120,121 +120,121 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     // AstVarScope::user1()    -> bool: referenced outside _eval__nba
     // AstVarScope::user4p()   -> AstVarScope*: Replacement variable
     // AstExecGraph::user1p()  -> GraphPathChecker*: path checker for this AstExecGraph
-    const VNUser1InUse m_inuser1;
-    const VNUser4InUse m_inuser4;
+    ثابت VNUser1_درون_Use m_inuser1;
+    ثابت VNUser4_درون_Use m_inuser4;
 
     // STATE
     uint32_t m_sequence = 0;  // Sequence number of assigns/varrefs,
-    const AstExecGraph* m_execGraphp = nullptr;  // Current AstExecGraph being processed (or null)
-    const ExecMTask* m_execMTaskp = nullptr;  // Current ExecMTask being processed (or null)
+    ثابت Ast_Exec_گراف* m_execGraphp = اشاره_تهی;  // Current AstExecGraph being processed (or null)
+    ثابت ExecMTask* m_execMTaskp = اشاره_تهی;  // Current ExecMTask being processed (or null)
     VDouble0 m_statAssnDel;  // Statistic tracking
-    VDouble0 m_statWordsSaved;  // Words removed from NBA shadow copies
+    VDouble0 m_stat_واژگان_Saved;  // Words removed from NBA shadow copies
     // Maps from Varscope to all their reads and writes
-    using LocMap = std::unordered_map<const AstVarScope*, std::vector<Location<AstVarRef>>>;
+    استفاده LocMap = std::unordered_map<ثابت AstVarScope*, std::وکتور<Location<AstVarRef>>>;
     LocMap m_reads;  // VarScope read locations
     LocMap m_writes;  // VarScope write locations
-    std::vector<Location<AstNodeAssign>> m_assigns;  // Assignments considered for removal
-    std::vector<std::unique_ptr<GraphPathChecker>> m_checkers;  // Storage for exec graph checkers
-    const AstCFunc* const m_nbaFuncp;  // The 'nba' region entry point
-    bool m_inEvalNba = false;  // Traversing under the 'nba' region entry point
+    std::وکتور<Location<Ast_گره_تخصیص_بده>> m_assigns;  // Assignments considered for removal
+    std::وکتور<std::unique_ptr<گراف_مسیر_Checker>> m_checkers;  // Storage for exec graph checkers
+    ثابت AstCFunc* ثابت m_nbaFuncp;  // The 'nba' region entry point
+    منطقي m_درون_Eval_Nba = خطأ;  // Traversing under the 'nba' region entry point
 
     // METHODS
-    void narrowCopies(AstNodeAssign* postp, AstVarScope* dVscp,
-                      const std::vector<Location<AstVarRef>>& writes) {
-        if (!dVscp->isWide()) return;
-        AstNodeAssign* const prep = VN_AS(writes[0].nodep()->backp(), NodeAssign);
+    فراغ narrowCopies(Ast_گره_تخصیص_بده* postp, AstVarScope* dVscp,
+                      ثابت std::وکتور<Location<AstVarRef>>& writes) {
+        إذا (!dVscp->isWide()) أرجع;
+        Ast_گره_تخصیص_بده* ثابت prep = VN_AS(writes[0].nodep()->backp(), گره_تخصیص_بده);
         UASSERT_OBJ(VN_AS(prep->lhsp(), VarRef)->varScopep()
                             == VN_AS(postp->rhsp(), VarRef)->varScopep()
                         && VN_AS(prep->rhsp(), VarRef)->varScopep()
                                == VN_AS(postp->lhsp(), VarRef)->varScopep(),
                     prep, "NBA shadow pre/post assignments are not reverse copies");
 
-        int lsb = dVscp->width();
-        int end = 0;
-        for (size_t i = 1; i < writes.size(); ++i) {
-            const AstSel* const selp = VN_CAST(writes[i].nodep()->backp(), Sel);
-            if (!selp || !VN_IS(selp->lsbp(), Const)) return;
-            const int start = selp->lsbConst();
-            if (start > dVscp->width() - selp->width()) return;
-            lsb = std::min(lsb, start);
-            end = std::max(end, start + selp->width());
+        صحيح lsb = dVscp->عرض();
+        صحيح انتها = 0;
+        لكل (اندازه_t i = 1; i < writes.اندازه(); ++i) {
+            ثابت AstSel* ثابت selp = VN_CAST(writes[i].nodep()->backp(), Sel);
+            إذا (!selp || !VN_IS(selp->lsbp(), Const)) أرجع;
+            ثابت صحيح شروع = selp->lsbConst();
+            إذا (شروع > dVscp->عرض() - selp->عرض()) أرجع;
+            lsb = std::min(lsb, شروع);
+            انتها = std::max(انتها, شروع + selp->عرض());
         }
         // Copy one word-aligned range enclosing all writes, including any gaps.
         lsb = VL_BITWORD_E(lsb) * VL_EDATASIZE;
-        end = std::min(VL_WORDS_I(end) * VL_EDATASIZE, dVscp->width());
-        const int width = end - lsb;
-        if (width == dVscp->width()) return;
-        for (AstNodeAssign* const assignp : {prep, postp}) {
-            FileLine* const flp = assignp->fileline();
-            assignp->lhsp(new AstSel{flp, assignp->lhsp()->unlinkFrBack(), lsb, width});
-            assignp->rhsp(new AstSel{flp, assignp->rhsp()->unlinkFrBack(), lsb, width});
+        انتها = std::min(VL_واژگان_I(انتها) * VL_EDATASIZE, dVscp->عرض());
+        ثابت صحيح عرض = انتها - lsb;
+        إذا (عرض == dVscp->عرض()) أرجع;
+        لكل (Ast_گره_تخصیص_بده* ثابت assignp : {prep, postp}) {
+            File_سطر* ثابت flp = assignp->fileline();
+            assignp->lhsp(جديد AstSel{flp, assignp->lhsp()->unlink_Fr_پشت(), lsb, عرض});
+            assignp->rhsp(جديد AstSel{flp, assignp->rhsp()->unlink_Fr_پشت(), lsb, عرض});
             assignp->dtypeFrom(assignp->lhsp());
         }
-        m_statWordsSaved += 2 * (dVscp->widthWords() - VL_WORDS_I(width));
+        m_stat_واژگان_Saved += 2 * (dVscp->عرض_واژگان() - VL_واژگان_I(عرض));
     }
 
-    void squashAssignposts() {
-        for (const Location<AstNodeAssign>& assign : m_assigns) {
-            AstVarScope* const dVscp = VN_AS(assign.nodep()->rhsp(), VarRef)->varScopep();
-            AstVarScope* const qVscp = VN_AS(assign.nodep()->lhsp(), VarRef)->varScopep();
+    فراغ squashAssignposts() {
+        لكل (ثابت Location<Ast_گره_تخصیص_بده>& تخصیص_بده_2 : m_assigns) {
+            AstVarScope* ثابت dVscp = VN_AS(تخصیص_بده_2.nodep()->rhsp(), VarRef)->varScopep();
+            AstVarScope* ثابت qVscp = VN_AS(تخصیص_بده_2.nodep()->lhsp(), VarRef)->varScopep();
 
             // We are considering deleting 'y', don't do it if referenced external to _eval__nba
-            if (dVscp->user1()) continue;
+            إذا (dVscp->user1()) استمر;
 
-            const std::vector<Location<AstVarRef>>& dWrites = m_writes[dVscp];
-            UASSERT_OBJ(!dWrites.empty(), dVscp, "NBA shadow variable read but never written");
+            ثابت std::وکتور<Location<AstVarRef>>& dWrites = m_writes[dVscp];
+            UASSERT_OBJ(!dWrites.خالی(), dVscp, "NBA shadow variable read but never written");
 
             // *** See file header for requirements ***
 
             // Proof (1) - Only read is on the RHS of this assignment
-            if (m_reads[dVscp].size() > 1) continue;
+            إذا (m_reads[dVscp].اندازه() > 1) استمر;
 
             // Proof (2) - Only write is on the LHS of this assignment
-            if (m_writes[qVscp].size() > 1) continue;
+            إذا (m_writes[qVscp].اندازه() > 1) استمر;
 
             // Proof (3) - Should always hold
-            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), NodeAssign), dVscp,
+            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), گره_تخصیص_بده), dVscp,
                         "Partial first write to NBA shadow variable");
 
             // Proof (4)
-            if (dWrites.size() > 1) {
+            إذا (dWrites.اندازه() > 1) {
                 // V3Order always serializes writes so they cannot be concurrent
                 UASSERT_OBJ(dWrites[0] < dWrites[1], dVscp, "Concurrent writes");
-                const bool qRdOK = [&]() {
-                    for (const Location<AstVarRef>& qRead : m_reads[qVscp]) {
-                        if (assign < qRead) continue;
+                ثابت منطقي qRdOK = [&]() {
+                    لكل (ثابت Location<AstVarRef>& qRead : m_reads[qVscp]) {
+                        إذا (تخصیص_بده_2 < qRead) استمر;
                         // Check from 2nd write of 'd'
-                        for (size_t i = 1; i < dWrites.size(); ++i) {
-                            if (qRead < dWrites[i]) continue;
-                            return false;
+                        لكل (اندازه_t i = 1; i < dWrites.اندازه(); ++i) {
+                            إذا (qRead < dWrites[i]) استمر;
+                            أرجع خطأ;
                         }
                     }
-                    return true;
+                    أرجع درست;
                 }();
-                if (!qRdOK) {
-                    narrowCopies(assign.nodep(), dVscp, dWrites);
-                    continue;
+                إذا (!qRdOK) {
+                    narrowCopies(تخصیص_بده_2.nodep(), dVscp, dWrites);
+                    استمر;
                 }
             }
 
             // Mark variable for replacement
             dVscp->user4p(qVscp);
             // Delete assignment
-            UINFO(4, "    DELETE " << assign.nodep());
-            VL_DO_DANGLING(assign.nodep()->unlinkFrBack()->deleteTree(), assign.nodep());
+            UINFO(4, "    DELETE " << تخصیص_بده_2.nodep());
+            VL_DO_DANGLING(تخصیص_بده_2.nodep()->unlink_Fr_پشت()->delete_درخت(), تخصیص_بده_2.nodep());
             ++m_statAssnDel;
         }
     }
 
     // Trace code in the given function
-    void trace(AstCFunc* nodep) {
-        VL_RESTORER(m_inEvalNba);
-        if (nodep == m_nbaFuncp) m_inEvalNba = true;
+    فراغ trace(AstCFunc* nodep) {
+        VL_RESTORER(m_درون_Eval_Nba);
+        إذا (nodep == m_nbaFuncp) m_درون_Eval_Nba = درست;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    فراغ بازدید(AstNetlist* nodep) override {
         // First, build maps of every location (mtask and sequence
         // within the mtask) where each varscope is read, and written.
         iterateChildrenConst(nodep);
@@ -243,12 +243,12 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // V3Order serializes all writes, and we trace AstExecGraph in
         // dependency order, so the first one we encounter during tracing should
         // always be the one. It's somewhat expensive to assert so only with debugCheck().
-        if (v3Global.opt.debugCheck()) {
-            for (auto& pair : m_writes) {
-                const std::vector<Location<AstVarRef>>& writes = pair.second;
-                const Location<AstVarRef>& first = writes[0];
-                for (size_t i = 1; i < writes.size(); ++i) {
-                    UASSERT_OBJ(first < writes[i], pair.first, "First write is not the first");
+        إذا (v3Global.opt.debugCheck()) {
+            لكل (خودکار& pair : m_writes) {
+                ثابت std::وکتور<Location<AstVarRef>>& writes = pair.دومی;
+                ثابت Location<AstVarRef>& اولی = writes[0];
+                لكل (اندازه_t i = 1; i < writes.اندازه(); ++i) {
+                    UASSERT_OBJ(اولی < writes[i], pair.اولی, "First write is not the first");
                 }
             }
         }
@@ -261,104 +261,104 @@ class LifePostDlyVisitor final : public VNVisitorConst {
 
         // Apply replacements
         nodep->foreach([](AstVarRef* nodep) {
-            const AstVarScope* const vscp = nodep->varScopep();
-            AstVarScope* const replacementp = VN_AS(vscp->user4p(), VarScope);
-            if (!replacementp) return;
+            ثابت AstVarScope* ثابت vscp = nodep->varScopep();
+            AstVarScope* ثابت replacementp = VN_AS(vscp->user4p(), VarScope);
+            إذا (!replacementp) أرجع;
             UINFO(9, "  Replace " << nodep << " target " << vscp << " with " << replacementp);
             nodep->varScopep(replacementp);
             nodep->varp(replacementp->varp());
         });
     }
 
-    void visit(AstVarRef* nodep) override {
+    فراغ بازدید(AstVarRef* nodep) override {
         // We only try to optimize NBA shadow variables
-        if (!nodep->varScopep()->optimizeLifePost()) return;
+        إذا (!nodep->varScopep()->optimizeLifePost()) أرجع;
 
         // Mark variables referenced outside the 'nba' region
-        if (!m_inEvalNba) {
-            nodep->varScopep()->user1(true);
-            return;
+        إذا (!m_درون_Eval_Nba) {
+            nodep->varScopep()->user1(درست);
+            أرجع;
         }
 
         // Consumption/generation of a variable,
-        const AstVarScope* const vscp = nodep->varScopep();
+        ثابت AstVarScope* ثابت vscp = nodep->varScopep();
         UASSERT_OBJ(vscp, nodep, "Scope not assigned");
 
         ++m_sequence;
-        if (nodep->access().isWriteOrRW()) {
-            m_writes[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
+        إذا (nodep->access().isWriteOrRW()) {
+            m_writes[vscp].emplace_پشت(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
-        if (nodep->access().isReadOrRW()) {
-            m_reads[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
+        إذا (nodep->access().isReadOrRW()) {
+            m_reads[vscp].emplace_پشت(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    فراغ بازدید(Ast_گره_تخصیص_بده* nodep) override {
         // Record RHS before assignment
         iterateConst(nodep->rhsp());
         // If a straight assignment between NBA variables, consider for removal
-        if (const AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (const AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (lhsp->varScopep()->optimizeLifePost()  //
+        إذا (ثابت AstVarRef* ثابت lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            إذا (ثابت AstVarRef* ثابت rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                إذا (lhsp->varScopep()->optimizeLifePost()  //
                     && rhsp->varScopep()->optimizeLifePost()) {
-                    m_assigns.emplace_back(nodep, m_execGraphp, m_execMTaskp, ++m_sequence);
+                    m_assigns.emplace_پشت(nodep, m_execGraphp, m_execMTaskp, ++m_sequence);
                 }
             }
         }
         // Record LHS after assignment
         iterateConst(nodep->lhsp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    فراغ بازدید(Ast_گره_CCall* nodep) override {
         iterateChildrenConst(nodep);
         // Entry points are roots of the trace, no need to do it here
-        if (nodep->funcp()->entryPoint()) return;
+        إذا (nodep->funcp()->مدخل_نقطه()) أرجع;
         // Trace cellee
         trace(nodep->funcp());
     }
-    void visit(AstExecGraph* nodep) override {
+    فراغ بازدید(Ast_Exec_گراف* nodep) override {
         UASSERT_OBJ(!m_execGraphp, nodep, "Nested AstExecGraph");
         VL_RESTORER(m_execGraphp);
         m_execGraphp = nodep;
 
         // Set up the path checker for this graph
         UASSERT_OBJ(!nodep->user1p(), nodep, "AstExecGraph visited twice");
-        m_checkers.emplace_back(new GraphPathChecker{nodep->depGraphp()});
-        nodep->user1p(m_checkers.back().get());
+        m_checkers.emplace_پشت(جديد گراف_مسیر_Checker{nodep->depGraphp()});
+        nodep->user1p(m_checkers.پشت().get());
 
         // Trace each mtask body. Note: the vertices are in topological order,
         // and we do not reset m_sequence, so a lower sequence number does
         // guarantee a node is not earlier than a higher sequence number, but
         // might still be concurrent.
-        for (V3GraphVertex& mtaskVtx : nodep->depGraphp()->vertices()) {
-            const ExecMTask* const mtaskp = mtaskVtx.as<ExecMTask>();
+        لكل (V3_گراف_رأس& mtaskVtx : nodep->depGraphp()->vertices()) {
+            ثابت ExecMTask* ثابت mtaskp = mtaskVtx.as<ExecMTask>();
             VL_RESTORER(m_execMTaskp);
             m_execMTaskp = mtaskp;
             trace(mtaskp->funcp());
         }
     }
-    void visit(AstCFunc* nodep) override {
+    فراغ بازدید(AstCFunc* nodep) override {
         // Start a trace from each entry point
-        if (nodep->entryPoint()) trace(nodep);
+        إذا (nodep->مدخل_نقطه()) trace(nodep);
     }
     //-----
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit LifePostDlyVisitor(AstNetlist* netlistp)
+    صریح LifePostDlyVisitor(AstNetlist* netlistp)
         : m_nbaFuncp{netlistp->evalFuncp(VEval::NBA)} {
         iterateConst(netlistp);
     }
     ~LifePostDlyVisitor() override {
-        V3Stats::addStat("Optimizations, Lifetime postassign deletions", m_statAssnDel);
-        V3Stats::addStat("Optimizations, Lifetime NBA copy words removed", m_statWordsSaved);
+        V3Stats::جمع_کن_Stat("Optimizations, Lifetime postassign deletions", m_statAssnDel);
+        V3Stats::جمع_کن_Stat("Optimizations, Lifetime NBA copy words removed", m_stat_واژگان_Saved);
     }
 };
 
 //######################################################################
 // LifePost class functions
 
-void V3LifePost::lifepostAll(AstNetlist* nodep) {
+فراغ V3LifePost::lifepostAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LifePostDlyVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("life_post", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("life_post", 0, dump_درخت_Either_Level() >= 3);
 }

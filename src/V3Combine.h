@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COMBINE_H_
-#define VERILATOR_V3COMBINE_H_
+#اگر_تعریف_نشده VERILATOR_V3COMBINE_H_
+#تعریف_کن VERILATOR_V3COMBINE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Combine final {
-public:
-    static void combineAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ combineAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

@@ -14,372 +14,372 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3HashTable.h"
+#ضمن "V3Dfg.h"
+#ضمن "V3DfgPasses.h"
+#ضمن "V3HashTable.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Hash functor for V3HashSet - depends on vertex and all its inputs
-class DfgCseHash final {
+صنف DfgCseHash final {
     // STATE
-    mutable DfgUserMap<V3Hash> m_cache;  // Cache for vertex hashes
+    تغییرپذیر DfgUserMap<V3Hash> m_cache;  // Cache for vertex hashes
 
-public:
+عام:
     // CONSTRUCTOR
-    explicit DfgCseHash(DfgGraph& dfg)
+    صریح DfgCseHash(Dfg_گراف& dfg)
         : m_cache{dfg.makeUserMap<V3Hash>()} {
         // Pre-hash variables, these are all unique, so just set their hash to a unique value
         uint32_t fixedHash = 0;
-        for (const DfgVertexVar& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        لكل (ثابت Dfg_رأس_Var& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash Ast references, these are all unique like variables
-        for (const DfgVertexAst& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        لكل (ثابت Dfg_رأس_Ast& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash CReset and Prev vertices, these are all unique
-        for (const DfgVertex& vtx : dfg.opVertices()) {
-            if (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
+        لكل (ثابت Dfg_رأس& vtx : dfg.opVertices()) {
+            إذا (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
         }
         // Similarly pre-hash constants for speed. While we don't combine constants, we do want
         // expressions using the same constants to be combined, so we do need to hash equal
         // constants to equal values.
         ++fixedHash;
-        for (const DfgConst& vtx : dfg.constVertices()) {
-            const V3Hash hash = vtx.num().toHash() + fixedHash;
+        لكل (ثابت DfgConst& vtx : dfg.constVertices()) {
+            ثابت V3Hash hash = vtx.رقم().مقصد_Hash() + fixedHash;
             // Technically possible for a hash to be zero, 'vertexSelfHash' assumes it isn't
-            m_cache[vtx] = VL_LIKELY(hash.value()) ? hash : V3Hash{1};
+            m_cache[vtx] = VL_LIKELY(hash.مقدار()) ? hash : V3Hash{1};
         }
     }
 
     // METHODS
-    size_t operator()(DfgVertex* vtxp) const { return vertexHash(*vtxp).value(); }
+    اندازه_t عملگر()(Dfg_رأس* vtxp) ثابت { أرجع رأس_Hash(*vtxp).مقدار(); }
 
-private:
+خاص:
     // Returns hash of vertex dependent on information internal to the vertex
-    static V3Hash vertexSelfHash(const DfgVertex& vtx) {
-        switch (vtx.type()) {
+    ساكن V3Hash رأس_Self_Hash(ثابت Dfg_رأس& vtx) {
+        بدل (vtx.type()) {
         // Unhandled vertices
-        case VDfgType::Logic:  // LCOV_EXCL_START
-        case VDfgType::Unresolved:  // LCOV_EXCL_STOP
+        حالة VDfgType::Logic:  // LCOV_EXCL_START
+        حالة VDfgType::Unresolved:  // LCOV_EXCL_STOP
             vtx.v3fatalSrc("Should not have reached CSE");
 
         // Special vertices
-        case VDfgType::Const:  // LCOV_EXCL_START
-        case VDfgType::CReset:
-        case VDfgType::VarArray:
-        case VDfgType::VarPacked:
-        case VDfgType::Prev:
-        case VDfgType::AstRd:  // LCOV_EXCL_STOP
+        حالة VDfgType::Const:  // LCOV_EXCL_START
+        حالة VDfgType::CReset:
+        حالة VDfgType::VarArray:
+        حالة VDfgType::VarPacked:
+        حالة VDfgType::Prev:
+        حالة VDfgType::AstRd:  // LCOV_EXCL_STOP
             vtx.v3fatalSrc("Hash should have been pre-computed");
 
         // Vertices with internal information
-        case VDfgType::Sel: return V3Hash{vtx.as<DfgSel>()->lsb()};
+        حالة VDfgType::Sel: أرجع V3Hash{vtx.as<DfgSel>()->lsb()};
 
-        case VDfgType::SpliceArray:
-        case VDfgType::SplicePacked: {
+        حالة VDfgType::SpliceArray:
+        حالة VDfgType::SplicePacked: {
             V3Hash hash;
-            vtx.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {
+            vtx.as<Dfg_رأس_Splice>()->foreachDriver([&](ثابت Dfg_رأس&, uint32_t lo) {
                 hash += lo;
-                return false;
+                أرجع خطأ;
             });
-            return hash;
+            أرجع hash;
         }
 
         // Vertices with no internal information
-        case VDfgType::MatchMasked:
-        case VDfgType::Mux:
-        case VDfgType::UnitArray: return V3Hash{};
+        حالة VDfgType::تطابق_Masked:
+        حالة VDfgType::Mux:
+        حالة VDfgType::UnitArray: أرجع V3Hash{};
 
         // Generated classes - none of them have internal information
-        case VDfgType::Add:
-        case VDfgType::And:
-        case VDfgType::ArraySel:
-        case VDfgType::Concat:
-        case VDfgType::Cond:
-        case VDfgType::CountOnes:
-        case VDfgType::Div:
-        case VDfgType::DivS:
-        case VDfgType::Eq:
-        case VDfgType::EqCase:
-        case VDfgType::EqWild:
-        case VDfgType::Extend:
-        case VDfgType::ExtendS:
-        case VDfgType::Gt:
-        case VDfgType::GtS:
-        case VDfgType::Gte:
-        case VDfgType::GteS:
-        case VDfgType::LogAnd:
-        case VDfgType::LogEq:
-        case VDfgType::LogIf:
-        case VDfgType::LogNot:
-        case VDfgType::LogOr:
-        case VDfgType::Lt:
-        case VDfgType::LtS:
-        case VDfgType::Lte:
-        case VDfgType::LteS:
-        case VDfgType::ModDiv:
-        case VDfgType::ModDivS:
-        case VDfgType::Mul:
-        case VDfgType::MulS:
-        case VDfgType::Negate:
-        case VDfgType::Neq:
-        case VDfgType::NeqCase:
-        case VDfgType::NeqWild:
-        case VDfgType::Not:
-        case VDfgType::OneHot:
-        case VDfgType::OneHot0:
-        case VDfgType::Or:
-        case VDfgType::Pow:
-        case VDfgType::PowSS:
-        case VDfgType::PowSU:
-        case VDfgType::PowUS:
-        case VDfgType::RedAnd:
-        case VDfgType::RedOr:
-        case VDfgType::RedXor:
-        case VDfgType::Rep:
-        case VDfgType::ShiftL:
-        case VDfgType::ShiftR:
-        case VDfgType::ShiftRS:
-        case VDfgType::StreamL:
-        case VDfgType::StreamR:
-        case VDfgType::Sub:
-        case VDfgType::Xor: return V3Hash{};
+        حالة VDfgType::جمع_کن_2:
+        حالة VDfgType::And:
+        حالة VDfgType::ArraySel:
+        حالة VDfgType::Concat:
+        حالة VDfgType::Cond:
+        حالة VDfgType::شمار_Ones_2:
+        حالة VDfgType::Div:
+        حالة VDfgType::DivS:
+        حالة VDfgType::Eq:
+        حالة VDfgType::EqCase:
+        حالة VDfgType::EqWild:
+        حالة VDfgType::Extend:
+        حالة VDfgType::ExtendS:
+        حالة VDfgType::Gt:
+        حالة VDfgType::GtS:
+        حالة VDfgType::Gte:
+        حالة VDfgType::GteS:
+        حالة VDfgType::LogAnd:
+        حالة VDfgType::LogEq:
+        حالة VDfgType::LogIf:
+        حالة VDfgType::LogNot:
+        حالة VDfgType::LogOr:
+        حالة VDfgType::Lt:
+        حالة VDfgType::LtS:
+        حالة VDfgType::Lte:
+        حالة VDfgType::LteS:
+        حالة VDfgType::ModDiv:
+        حالة VDfgType::ModDivS:
+        حالة VDfgType::Mul:
+        حالة VDfgType::MulS:
+        حالة VDfgType::Negate:
+        حالة VDfgType::Neq:
+        حالة VDfgType::NeqCase:
+        حالة VDfgType::NeqWild:
+        حالة VDfgType::Not:
+        حالة VDfgType::OneHot:
+        حالة VDfgType::OneHot0:
+        حالة VDfgType::Or:
+        حالة VDfgType::Pow:
+        حالة VDfgType::PowSS:
+        حالة VDfgType::PowSU:
+        حالة VDfgType::PowUS:
+        حالة VDfgType::RedAnd:
+        حالة VDfgType::RedOr:
+        حالة VDfgType::RedXor:
+        حالة VDfgType::Rep:
+        حالة VDfgType::لغزش_L:
+        حالة VDfgType::لغزش_R:
+        حالة VDfgType::لغزش_RS:
+        حالة VDfgType::جریان_L:
+        حالة VDfgType::جریان_R:
+        حالة VDfgType::Sub:
+        حالة VDfgType::Xor: أرجع V3Hash{};
         }
         VL_UNREACHABLE;
     }
 
     // Returns hash of vertex dependent on itself and all its inputs - memoized
-    V3Hash vertexHash(DfgVertex& vtx) const {
-        V3Hash& result = m_cache[vtx];
+    V3Hash رأس_Hash(Dfg_رأس& vtx) ثابت {
+        V3Hash& نتیجه = m_cache[vtx];
         // Technically possible for a hash to be zero, but rare, so assume 0 means uninitialized
-        if (!result.value()) {
-            V3Hash hash{vertexSelfHash(vtx)};
+        إذا (!نتیجه.مقدار()) {
+            V3Hash hash{رأس_Self_Hash(vtx)};
             hash += vtx.type();
-            hash += vtx.size();
-            vtx.foreachSource([&](DfgVertex& src) {
-                hash += vertexHash(src);  // Graph is acyclic, so this terminates
-                return false;
+            hash += vtx.اندازه();
+            vtx.foreach_منبع([&](Dfg_رأس& src) {
+                hash += رأس_Hash(src);  // Graph is acyclic, so this terminates
+                أرجع خطأ;
             });
-            result = hash;
+            نتیجه = hash;
         }
-        return result;
+        أرجع نتیجه;
     }
 };
 
 // Equal functor for V3HashSet - depends on vertex and all its inputs
-class DfgCseEqual final {
+صنف DfgCseEqual final {
     // TYPES
-    using VertexPair = std::pair<const DfgVertex*, const DfgVertex*>;
-    struct VertexPairHash final {
-        size_t operator()(const VertexPair& pair) const {
+    استفاده رأس_Pair = std::pair<ثابت Dfg_رأس*, ثابت Dfg_رأس*>;
+    بنية رأس_Pair_Hash final {
+        اندازه_t عملگر()(ثابت رأس_Pair& pair) ثابت {
             V3Hash hash;
-            hash += pair.first;
-            hash += pair.second;
-            return hash.value();
+            hash += pair.اولی;
+            hash += pair.دومی;
+            أرجع hash.مقدار();
         }
     };
 
     // STATE
-    mutable V3HashMap<VertexPair, bool, VertexPairHash> m_cache;  // Cache for vertex equality
-    mutable std::vector<uint32_t> m_driverLo;  // Low indices of drivers
-    const size_t m_size;  // Size of the graph
+    تغییرپذیر V3HashMap<رأس_Pair, منطقي, رأس_Pair_Hash> m_cache;  // Cache for vertex equality
+    تغییرپذیر std::وکتور<uint32_t> m_driverLo;  // Low indices of drivers
+    ثابت اندازه_t m_اندازه;  // Size of the graph
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit DfgCseEqual(const DfgGraph& dfg)
-        : m_size{dfg.size()} {}
+    صریح DfgCseEqual(ثابت Dfg_گراف& dfg)
+        : m_اندازه{dfg.اندازه()} {}
 
     // METHODS
-    bool operator()(DfgVertex* ap, DfgVertex* bp) const { return vertexEquivalent(*ap, *bp); }
+    منطقي عملگر()(Dfg_رأس* ap, Dfg_رأس* bp) ثابت { أرجع رأس_Equivalent(*ap, *bp); }
 
-private:
+خاص:
     // Compare 'a' and 'b' for equivalence based on their internal information only
-    bool vertexSelfEquivalent(const DfgVertex& a, const DfgVertex& b) const {
+    منطقي رأس_Self_Equivalent(ثابت Dfg_رأس& a, ثابت Dfg_رأس& b) ثابت {
         // Note: 'a' and 'b' are of the same Vertex type, data type, and have
         // the same number of inputs with matching types. This is established
         // by 'vertexEquivalent'.
-        switch (a.type()) {
+        بدل (a.type()) {
         // Unhandled vertices
-        case VDfgType::Logic:  // LCOV_EXCL_START
-        case VDfgType::Unresolved:  // LCOV_EXCL_STOP
+        حالة VDfgType::Logic:  // LCOV_EXCL_START
+        حالة VDfgType::Unresolved:  // LCOV_EXCL_STOP
             a.v3fatalSrc("Should not have reached CSE");
 
         // Not reachable via operation vertices
-        case VDfgType::AstRd:  // LCOV_EXCL_LINE
+        حالة VDfgType::AstRd:  // LCOV_EXCL_LINE
             a.v3fatalSrc("Should not be reachable via operation vertices");
 
         // Special vertices
-        case VDfgType::Const: return a.as<DfgConst>()->num().isCaseEq(b.as<DfgConst>()->num());
-        case VDfgType::CReset: return false;
-        case VDfgType::Prev: return false;
+        حالة VDfgType::Const: أرجع a.as<DfgConst>()->رقم().isCaseEq(b.as<DfgConst>()->رقم());
+        حالة VDfgType::CReset: أرجع خطأ;
+        حالة VDfgType::Prev: أرجع خطأ;
 
-        case VDfgType::VarArray:
-        case VDfgType::VarPacked:  // CSE does not combine variables
-            return false;
+        حالة VDfgType::VarArray:
+        حالة VDfgType::VarPacked:  // CSE does not combine variables
+            أرجع خطأ;
 
         // Vertices with internal information
-        case VDfgType::Sel: return a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
+        حالة VDfgType::Sel: أرجع a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
 
-        case VDfgType::SpliceArray:
-        case VDfgType::SplicePacked: {
-            const DfgVertexSplice* const ap = a.as<DfgVertexSplice>();
+        حالة VDfgType::SpliceArray:
+        حالة VDfgType::SplicePacked: {
+            ثابت Dfg_رأس_Splice* ثابت ap = a.as<Dfg_رأس_Splice>();
             // Gather indices of drivers of 'a'
             m_driverLo.clear();
             m_driverLo.reserve(ap->nInputs());
-            ap->foreachDriver([&](const DfgVertex&, uint32_t lo) {
-                m_driverLo.push_back(lo);
-                return false;
+            ap->foreachDriver([&](ثابت Dfg_رأس&, uint32_t lo) {
+                m_driverLo.افزودن_پشت(lo);
+                أرجع خطأ;
             });
             // Compare indices of drivers of 'b', equal if all match
-            uint32_t* aLop = m_driverLo.data();
-            return !b.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {  //
-                return *aLop++ != lo;
+            uint32_t* aLop = m_driverLo.داده();
+            أرجع !b.as<Dfg_رأس_Splice>()->foreachDriver([&](ثابت Dfg_رأس&, uint32_t lo) {  //
+                أرجع *aLop++ != lo;
             });
         }
 
         // Vertices with no internal information
-        case VDfgType::MatchMasked:
-        case VDfgType::Mux:
-        case VDfgType::UnitArray: return true;
+        حالة VDfgType::تطابق_Masked:
+        حالة VDfgType::Mux:
+        حالة VDfgType::UnitArray: أرجع درست;
 
         // Generated classes - none of them have internal information
-        case VDfgType::Add:
-        case VDfgType::And:
-        case VDfgType::ArraySel:
-        case VDfgType::Concat:
-        case VDfgType::Cond:
-        case VDfgType::CountOnes:
-        case VDfgType::Div:
-        case VDfgType::DivS:
-        case VDfgType::Eq:
-        case VDfgType::EqCase:
-        case VDfgType::EqWild:
-        case VDfgType::Extend:
-        case VDfgType::ExtendS:
-        case VDfgType::Gt:
-        case VDfgType::GtS:
-        case VDfgType::Gte:
-        case VDfgType::GteS:
-        case VDfgType::LogAnd:
-        case VDfgType::LogEq:
-        case VDfgType::LogIf:
-        case VDfgType::LogNot:
-        case VDfgType::LogOr:
-        case VDfgType::Lt:
-        case VDfgType::LtS:
-        case VDfgType::Lte:
-        case VDfgType::LteS:
-        case VDfgType::ModDiv:
-        case VDfgType::ModDivS:
-        case VDfgType::Mul:
-        case VDfgType::MulS:
-        case VDfgType::Negate:
-        case VDfgType::Neq:
-        case VDfgType::NeqCase:
-        case VDfgType::NeqWild:
-        case VDfgType::Not:
-        case VDfgType::OneHot:
-        case VDfgType::OneHot0:
-        case VDfgType::Or:
-        case VDfgType::Pow:
-        case VDfgType::PowSS:
-        case VDfgType::PowSU:
-        case VDfgType::PowUS:
-        case VDfgType::RedAnd:
-        case VDfgType::RedOr:
-        case VDfgType::RedXor:
-        case VDfgType::Rep:
-        case VDfgType::ShiftL:
-        case VDfgType::ShiftR:
-        case VDfgType::ShiftRS:
-        case VDfgType::StreamL:
-        case VDfgType::StreamR:
-        case VDfgType::Sub:
-        case VDfgType::Xor: return true;
+        حالة VDfgType::جمع_کن_2:
+        حالة VDfgType::And:
+        حالة VDfgType::ArraySel:
+        حالة VDfgType::Concat:
+        حالة VDfgType::Cond:
+        حالة VDfgType::شمار_Ones_2:
+        حالة VDfgType::Div:
+        حالة VDfgType::DivS:
+        حالة VDfgType::Eq:
+        حالة VDfgType::EqCase:
+        حالة VDfgType::EqWild:
+        حالة VDfgType::Extend:
+        حالة VDfgType::ExtendS:
+        حالة VDfgType::Gt:
+        حالة VDfgType::GtS:
+        حالة VDfgType::Gte:
+        حالة VDfgType::GteS:
+        حالة VDfgType::LogAnd:
+        حالة VDfgType::LogEq:
+        حالة VDfgType::LogIf:
+        حالة VDfgType::LogNot:
+        حالة VDfgType::LogOr:
+        حالة VDfgType::Lt:
+        حالة VDfgType::LtS:
+        حالة VDfgType::Lte:
+        حالة VDfgType::LteS:
+        حالة VDfgType::ModDiv:
+        حالة VDfgType::ModDivS:
+        حالة VDfgType::Mul:
+        حالة VDfgType::MulS:
+        حالة VDfgType::Negate:
+        حالة VDfgType::Neq:
+        حالة VDfgType::NeqCase:
+        حالة VDfgType::NeqWild:
+        حالة VDfgType::Not:
+        حالة VDfgType::OneHot:
+        حالة VDfgType::OneHot0:
+        حالة VDfgType::Or:
+        حالة VDfgType::Pow:
+        حالة VDfgType::PowSS:
+        حالة VDfgType::PowSU:
+        حالة VDfgType::PowUS:
+        حالة VDfgType::RedAnd:
+        حالة VDfgType::RedOr:
+        حالة VDfgType::RedXor:
+        حالة VDfgType::Rep:
+        حالة VDfgType::لغزش_L:
+        حالة VDfgType::لغزش_R:
+        حالة VDfgType::لغزش_RS:
+        حالة VDfgType::جریان_L:
+        حالة VDfgType::جریان_R:
+        حالة VDfgType::Sub:
+        حالة VDfgType::Xor: أرجع درست;
         }
         VL_UNREACHABLE;
     }
 
     // Compares the sources of 'a' and 'b' for equivalence
-    bool sourcesEquivalent(const DfgVertex& a, const DfgVertex& b) const {
-        for (size_t i = 0; i < a.nInputs(); ++i) {
-            const DfgVertex* const ap = a.inputp(i);
-            const DfgVertex* const bp = b.inputp(i);
-            if (!ap && !bp) continue;
-            if (!ap || !bp) return false;
-            if (!vertexEquivalent(*ap, *bp)) return false;  // Graph is acyclic, so this terminates
+    منطقي sourcesEquivalent(ثابت Dfg_رأس& a, ثابت Dfg_رأس& b) ثابت {
+        لكل (اندازه_t i = 0; i < a.nInputs(); ++i) {
+            ثابت Dfg_رأس* ثابت ap = a.inputp(i);
+            ثابت Dfg_رأس* ثابت bp = b.inputp(i);
+            إذا (!ap && !bp) استمر;
+            إذا (!ap || !bp) أرجع خطأ;
+            إذا (!رأس_Equivalent(*ap, *bp)) أرجع خطأ;  // Graph is acyclic, so this terminates
         }
-        return true;
+        أرجع درست;
     }
 
     // Compares 'a' and 'b' for equivalence
-    bool vertexEquivalent(const DfgVertex& a, const DfgVertex& b) const {
+    منطقي رأس_Equivalent(ثابت Dfg_رأس& a, ثابت Dfg_رأس& b) ثابت {
         // If same vertex, then equal
-        if (&a == &b) return true;
+        إذا (&a == &b) أرجع درست;
 
         // If different type, then not equal
-        if (a.type() != b.type()) return false;
+        إذا (a.type() != b.type()) أرجع خطأ;
 
         // If different data type, then not equal
-        if (a.dtype() != b.dtype()) return false;
+        إذا (a.dtype() != b.dtype()) أرجع خطأ;
 
         // If different number of inputs, then not equal
-        if (a.nInputs() != b.nInputs()) return false;
+        إذا (a.nInputs() != b.nInputs()) أرجع خطأ;
 
         // Check vertex specifics
-        if (!vertexSelfEquivalent(a, b)) return false;
+        إذا (!رأس_Self_Equivalent(a, b)) أرجع خطأ;
 
         // A given pair can only be reached more than once if one of the
         // vertices has multiple sinks, or if there was a hash collision.
         // Collisions are rare, so only memoize the result if it can actually
         // be looked up again through multiple paths.
-        if (!a.hasMultipleSinks() && !b.hasMultipleSinks()) return sourcesEquivalent(a, b);
+        إذا (!a.has_مضرب_Sinks() && !b.has_مضرب_Sinks()) أرجع sourcesEquivalent(a, b);
 
         // Need to compare the source vertices, check memo
-        const VertexPair key = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
-        const auto it = m_cache.find(key);
-        if (it != m_cache.end()) return it->second;
+        ثابت رأس_Pair کلید = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
+        ثابت خودکار it = m_cache.پیدا_کن(کلید);
+        إذا (it != m_cache.انتها()) أرجع it->دومی;
 
         // Not memoized yet, so compute and memoize, reserve table on first insert
-        const bool equal = sourcesEquivalent(a, b);
-        if (VL_UNLIKELY(m_cache.empty())) m_cache.reserve(m_size / 4);
-        m_cache.insert({key, equal});
+        ثابت منطقي equal = sourcesEquivalent(a, b);
+        إذا (VL_UNLIKELY(m_cache.خالی())) m_cache.reserve(m_اندازه / 4);
+        m_cache.درج({کلید, equal});
 
         // The predicate result
-        return equal;
+        أرجع equal;
     }
 };
 
 // Combine equivalent operation vertices
-void dfgCseCombineEquivalent(DfgGraph& dfg, V3DfgCseContext& ctx) {
+فراغ dfgCseCombineEquivalent(Dfg_گراف& dfg, V3DfgCseContext& ctx) {
     // Delete unused constants, so the pre-hashing below need not consider them
-    for (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
-        if (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    لكل (DfgConst* ثابت vtxp : dfg.constVertices().unlinkable()) {
+        إذا (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 
     // Set of unique vertices. This set does all the work identifying equivalent vertices.
-    V3HashSet<DfgVertex*, DfgCseHash, DfgCseEqual> uniqueVtxps{DfgCseHash{dfg}, DfgCseEqual{dfg}};
+    V3_Hash_مجموعه<Dfg_رأس*, DfgCseHash, DfgCseEqual> uniqueVtxps{DfgCseHash{dfg}, DfgCseEqual{dfg}};
     // There is at most one entry per vertex
-    uniqueVtxps.reserve(dfg.size());
+    uniqueVtxps.reserve(dfg.اندازه());
 
     // Combine operation vertices
-    for (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
+    لكل (Dfg_رأس* ثابت vtxp : dfg.opVertices().unlinkable()) {
         // Delete unused nodes while we are at it.
-        if (!vtxp->hasSinks()) {
+        إذا (!vtxp->hasSinks()) {
             vtxp->unlinkDelete(dfg);
-            continue;
+            استمر;
         }
         // Insert the vertex into the set, if an equivalent is found, replace the vertex with it
-        const auto pair = uniqueVtxps.insert(vtxp);
-        if (!pair.second) {
+        ثابت خودکار pair = uniqueVtxps.درج(vtxp);
+        إذا (!pair.دومی) {
             ++ctx.m_eliminated;
-            vtxp->replaceWith(*pair.first);
+            vtxp->replaceWith(*pair.اولی);
             VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
         }
     }
 }
 
-void V3DfgPasses::cse(DfgGraph& dfg, V3DfgCseContext& ctx) {
+فراغ V3DfgPasses::cse(Dfg_گراف& dfg, V3DfgCseContext& ctx) {
     dfgCseCombineEquivalent(dfg, ctx);
-    V3DfgPasses::removeUnused(dfg);
+    V3DfgPasses::remove_استفادهنشده(dfg);
 }

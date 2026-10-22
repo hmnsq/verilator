@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3INLINE_H_
-#define VERILATOR_V3INLINE_H_
+#اگر_تعریف_نشده VERILATOR_V3INLINE_H_
+#تعریف_کن VERILATOR_V3INLINE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Inline final {
-public:
-    static void inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

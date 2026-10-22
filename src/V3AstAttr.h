@@ -23,49 +23,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTATTR_H_
-#define VERILATOR_V3ASTATTR_H_
+#اگر_تعریف_نشده VERILATOR_V3ASTATTR_H_
+#تعریف_کن VERILATOR_V3ASTATTR_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#اگر_تعریف_نشده VERILATOR_V3AST_H_
+#خطا "Use V3Ast.h as the include"
+#ضمن "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#تعریف_کن VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#پایان_اگر
 
 // Hint class so we can choose constructors
-class VFlagBitPacked {};
-class VFlagChildDType {};  // Used by parser.y to select constructor that sets childDType
+class VFlag_بیت_Packed {};
+class VFlag_فرزند_DType {};  // Used by parser.y to select constructor that sets childDType
 class VFlagLogicPacked {};
 class VFlagLogic2StatePacked {};
 
 // ######################################################################
 
-class VAbortKind final {
-public:
+class VAbort_نوع final {
+عام:
     // IEEE 1800-2023 16.12.14 property abort operators.
-    enum en : uint8_t {
+    تعداد en : uint8_t {
         ACCEPT_ON,  // accept_on(cond) prop: async abort, property succeeds
         REJECT_ON,  // reject_on(cond) prop: async abort, property fails
         SYNC_ACCEPT_ON,  // sync_accept_on(cond) prop: sampled at matured clock, succeeds
         SYNC_REJECT_ON  // sync_reject_on(cond) prop: sampled at matured clock, fails
     };
-    enum en m_e;
+    تعداد en m_e;
     // cppcheck-suppress noExplicitConstructor
-    constexpr VAbortKind(en _e)
+    constexpr VAbort_نوع(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static const char* const names[]
+    ثابت حرف* ascii() ثابت {
+        ساكن ثابت حرف* ثابت نامها[]
             = {"accept_on", "reject_on", "sync_accept_on", "sync_reject_on"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    bool isAccept() const { return m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
+    bool isAccept() ثابت { أرجع m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
 };
 
 //######################################################################
 
 class VAccess final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         READ,  // Read/Consumed, variable not changed
         WRITE,  // Written/Updated, variable might be updated, but not consumed
         //      // so variable might be removable if not consumed elsewhere
@@ -74,71 +74,71 @@ public:
         //          // For non-simple data types only e.g. no tristates/delayed vars.
         NOCHANGE  // No change to previous state, used only in V3LinkLValue
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"RD", "WR", "RW", "--"};
-        return names[m_e];
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"RD", "WR", "RW", "--"};
+        أرجع نامها[m_e];
     }
-    const char* arrow() const {
-        static constexpr const char* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
-        return names[m_e];
+    ثابت حرف* arrow() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
+        أرجع نامها[m_e];
     }
     VAccess()
         : m_e{READ} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAccess(en _e)
         : m_e{_e} {}
-    explicit VAccess(int _e)
+    explicit VAccess(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    VAccess invert() const {
-        return (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    VAccess invert() ثابت {
+        أرجع (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
     }
-    bool isReadOnly() const { return m_e == READ; }  // False with READWRITE
-    bool isWriteOnly() const { return m_e == WRITE; }  // False with READWRITE
-    bool isReadOrRW() const { return m_e == READ || m_e == READWRITE; }
-    bool isWriteOrRW() const { return m_e == WRITE || m_e == READWRITE; }
-    bool isRW() const { return m_e == READWRITE; }
+    bool isReadOnly() ثابت { أرجع m_e == READ; }  // False with READWRITE
+    bool isWriteOnly() ثابت { أرجع m_e == WRITE; }  // False with READWRITE
+    bool isReadOrRW() ثابت { أرجع m_e == READ || m_e == READWRITE; }
+    bool isWriteOrRW() ثابت { أرجع m_e == WRITE || m_e == READWRITE; }
+    bool isRW() ثابت { أرجع m_e == READWRITE; }
 };
-constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { return os << rhs.ascii(); }
+constexpr bool عملگر==(ثابت VAccess& lhs, ثابت VAccess& rhs) { أرجع lhs.m_e == rhs.m_e; }
+constexpr bool عملگر==(ثابت VAccess& lhs, VAccess::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VAccess::en lhs, ثابت VAccess& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VAccess& rhs) { أرجع os << rhs.ascii(); }
 
 //######################################################################
 
 class VAlwaysKwd final {
-public:
-    enum en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_تخصیص_بده };
+    تعداد en m_e;
     VAlwaysKwd()
         : m_e{ALWAYS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAlwaysKwd(en _e)
         : m_e{_e} {}
-    explicit VAlwaysKwd(int _e)
+    explicit VAlwaysKwd(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"always", "always_ff", "always_latch", "always_comb", "cont_assign"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VAlwaysKwd& lhs, const VAlwaysKwd& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VAlwaysKwd& lhs, ثابت VAlwaysKwd& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VAlwaysKwd::en lhs, ثابت VAlwaysKwd& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VAssertCtlType final {
-public:
+عام:
     // IEEE 1800-2023 Table 20-5
-    enum en : uint8_t {
-        _TO_BE_EVALUATED = 0,
-        LOCK = 1,
+    تعداد en : uint8_t {
+        مقصد_BE_EVALUATED = 0,
+        قفل = 1,
         UNLOCK = 2,
         ON = 3,
         OFF = 4,
@@ -150,18 +150,18 @@ public:
         NONVACUOUS_ON = 10,
         VACUOUS_OFF = 11
     };
-    enum en m_e;
+    تعداد en m_e;
     VAssertCtlType()
-        : m_e{_TO_BE_EVALUATED} {}
+        : m_e{مقصد_BE_EVALUATED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertCtlType(en _e)
         : m_e{_e} {}
-    explicit VAssertCtlType(int _e)
+    explicit VAssertCtlType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
         // IEEE 1800-2023 20.11
-        static constexpr const char* const names[] = {"",
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"",
                                                       "",
                                                       "",
                                                       "$asserton",
@@ -173,26 +173,26 @@ public:
                                                       "$assertfailoff",
                                                       "$assertnonvacuouson",
                                                       "$assertvacuousoff"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VAssertCtlType& lhs, const VAssertCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VAssertCtlType& lhs, ثابت VAssertCtlType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertCtlType& lhs, VAssertCtlType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VAssertCtlType& lhs, VAssertCtlType::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VAssertCtlType::en lhs, ثابت VAssertCtlType& rhs) {
+    أرجع lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 class VAssertDirectiveType final {
-public:
+عام:
     // IEEE 1800-2023 Table 20-7
-    enum en : uint8_t {
-        INTERNAL = 0,  // Non IEEE type, for directives to be evaluated from expression.
+    تعداد en : uint8_t {
+        داخلی = 0,  // Non IEEE type, for directives to be evaluated from expression.
         ASSERT = (1 << 0),
         COVER = (1 << 1),
         ASSUME = (1 << 2),
@@ -203,154 +203,154 @@ public:
         INTRINSIC = (1 << 5),  // Non IEEE type, for intrinsic assertions.
         RESTRICT = (1 << 6),  // Non IEEE type, for ignored restrict assertions.
     };
-    enum en m_e;
+    تعداد en m_e;
     VAssertDirectiveType()
         : m_e{ASSERT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertDirectiveType(en _e)
         : m_e{_e} {}
-    explicit VAssertDirectiveType(int _e)
+    explicit VAssertDirectiveType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    string ascii() const {
+    string ascii() ثابت {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        إذا (m_e == داخلی)
             types << "INTERNAL ";
-        else {
-            if (m_e & ASSERT) types << "ASSERT ";
-            if (m_e & COVER) types << "COVER ";
-            if (m_e & ASSUME) types << "ASSUME ";
-            if (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
-            if (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
-            if (m_e & INTRINSIC) types << "INTRINSIC ";
-            if (m_e & RESTRICT) types << "RESTRICT ";
+        وإلا {
+            إذا (m_e & ASSERT) types << "ASSERT ";
+            إذا (m_e & COVER) types << "COVER ";
+            إذا (m_e & ASSUME) types << "ASSUME ";
+            إذا (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
+            إذا (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
+            إذا (m_e & INTRINSIC) types << "INTRINSIC ";
+            إذا (m_e & RESTRICT) types << "RESTRICT ";
         }
-        const string str = types.str();
-        UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ثابت string str = types.str();
+        UASSERT(!str.خالی(), "Assert should be of one of types");
+        أرجع str.substr(0, str.اندازه() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VAssertDirectiveType& lhs, const VAssertDirectiveType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VAssertDirectiveType& lhs, ثابت VAssertDirectiveType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertDirectiveType::en lhs, const VAssertDirectiveType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VAssertDirectiveType::en lhs, ثابت VAssertDirectiveType& rhs) {
+    أرجع lhs == rhs.m_e;
 }
-constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
+constexpr VAssertDirectiveType::en عملگر|(VAssertDirectiveType::en lhs,
                                              VAssertDirectiveType::en rhs) {
-    return VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    أرجع VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VAssertType final {
-public:
+عام:
     // IEEE 1800-2023 Table 20-6
-    enum en : uint8_t {
-        INTERNAL = 0,  // Non IEEE type, for assertions that should not be controlled.
+    تعداد en : uint8_t {
+        داخلی = 0,  // Non IEEE type, for assertions that should not be controlled.
         CONCURRENT = (1 << 0),
-        SIMPLE_IMMEDIATE = (1 << 1),
-        OBSERVED_DEFERRED_IMMEDIATE = (1 << 2),
-        FINAL_DEFERRED_IMMEDIATE = (1 << 3),
+        SIMPLE_فوری = (1 << 1),
+        OBSERVED_DEFERRED_فوری = (1 << 2),
+        FINAL_DEFERRED_فوری = (1 << 3),
         EXPECT = (1 << 4),
         UNIQUE = (1 << 5),
         UNIQUE0 = (1 << 6),
-        PRIORITY = (1 << 7),
+        اولویت = (1 << 7),
     };
-    enum en m_e;
+    تعداد en m_e;
     VAssertType()
-        : m_e{INTERNAL} {}
+        : m_e{داخلی} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertType(en _e)
         : m_e{_e} {}
-    explicit VAssertType(int _e)
+    explicit VAssertType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    bool containsAny(VAssertType other) const { return m_e & other.m_e; }
-    string ascii() const {
+    bool شامل_است_Any(VAssertType other) ثابت { أرجع m_e & other.m_e; }
+    string ascii() ثابت {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        إذا (m_e == داخلی)
             types << "INTERNAL ";
-        else {
-            if (m_e & CONCURRENT) types << "CONCURRENT ";
-            if (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
-            if (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
-            if (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
-            if (m_e & EXPECT) types << "EXPECT ";
-            if (m_e & UNIQUE) types << "UNIQUE ";
-            if (m_e & UNIQUE0) types << "UNIQUE0 ";
-            if (m_e & PRIORITY) types << "PRIORITY ";
+        وإلا {
+            إذا (m_e & CONCURRENT) types << "CONCURRENT ";
+            إذا (m_e & SIMPLE_فوری) types << "SIMPLE_IMMEDIATE ";
+            إذا (m_e & OBSERVED_DEFERRED_فوری) types << "OBSERVED_DEFERRED_IMMEDIATE ";
+            إذا (m_e & FINAL_DEFERRED_فوری) types << "FINAL_DEFERRED_IMMEDIATE ";
+            إذا (m_e & EXPECT) types << "EXPECT ";
+            إذا (m_e & UNIQUE) types << "UNIQUE ";
+            إذا (m_e & UNIQUE0) types << "UNIQUE0 ";
+            إذا (m_e & اولویت) types << "PRIORITY ";
         }
-        const string str = types.str();
-        UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ثابت string str = types.str();
+        UASSERT(!str.خالی(), "Assert should be of one of types");
+        أرجع str.substr(0, str.اندازه() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VAssertType& lhs, const VAssertType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VAssertType& lhs, ثابت VAssertType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { return lhs == rhs.m_e; }
-constexpr VAssertType::en operator|(VAssertType::en lhs, VAssertType::en rhs) {
-    return VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool عملگر==(ثابت VAssertType& lhs, VAssertType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VAssertType::en lhs, ثابت VAssertType& rhs) { أرجع lhs == rhs.m_e; }
+constexpr VAssertType::en عملگر|(VAssertType::en lhs, VAssertType::en rhs) {
+    أرجع VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VPropStrength final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         DEFAULT = 0,  // Resolve from assertion/coverage context
         WEAK,
         STRONG,
     };
-    enum en m_e;
+    تعداد en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VPropStrength(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"default", "weak", "strong"};
-        return names[m_e];
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"default", "weak", "strong"};
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VPropStrength& lhs, const VPropStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VPropStrength& lhs, ثابت VPropStrength& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VPropStrength& lhs, VPropStrength::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e != rhs;
+constexpr bool عملگر!=(ثابت VPropStrength& lhs, VPropStrength::en rhs) {
+    أرجع lhs.m_e != rhs;
 }
 
 // ######################################################################
 
 class VAttrType final {
-public:
+عام:
     // clang-format off
-    enum en: uint8_t  {
+    تعداد en: uint8_t  {
         ILLEGAL,
         //
-        DIM_BITS,                       // V3Const converts to constant
-        DIM_BITS_OR_NUMBER,             // V3Const converts to constant
+        DIM_بیتها,                       // V3Const converts to constant
+        DIM_بیتها_OR_عدد,             // V3Const converts to constant
         DIM_DIMENSIONS,                 // V3Width converts to constant
-        DIM_HIGH,                       // V3Width processes
+        DIM_بالا,                       // V3Width processes
         DIM_INCREMENT,                  // V3Width processes
-        DIM_LEFT,                       // V3Width processes
-        DIM_LOW,                        // V3Width processes
-        DIM_RIGHT,                      // V3Width processes
-        DIM_SIZE,                       // V3Width processes
+        DIM_چپ,                       // V3Width processes
+        DIM_کم,                        // V3Width processes
+        DIM_راست,                      // V3Width processes
+        DIM_اندازه,                       // V3Width processes
         DIM_UNPK_DIMENSIONS,            // V3Width converts to constant
         //
-        DT_PUBLIC,                      // V3LinkParse moves to AstTypedef::attrPublic
+        DT_عمومی,                      // V3LinkParse moves to AstTypedef::attrPublic
         //
-        ENUM_FIRST,                     // V3Width processes
-        ENUM_LAST,                      // V3Width processes
-        ENUM_NUM,                       // V3Width processes
-        ENUM_NEXT,                      // V3Width processes
+        ENUM_اولی,                     // V3Width processes
+        ENUM_آخرین,                      // V3Width processes
+        ENUM_رقم,                       // V3Width processes
+        ENUM_بعدی,                      // V3Width processes
         ENUM_PREV,                      // V3Width processes
         ENUM_NAME,                      // V3Width processes
         ENUM_VALID,                     // V3Width processes
@@ -361,31 +361,31 @@ public:
         TYPEID,                         // V3Width processes
         TYPENAME,                       // V3Width processes
         //
-        VAR_BASE,                       // V3LinkResolve creates for AstPreSel, V3LinkParam removes
+        VAR_پایه,                       // V3LinkResolve creates for AstPreSel, V3LinkParam removes
         VAR_FORCEABLE,                  // V3LinkParse moves to AstVar::isForceable
         VAR_FSM_ARC_INCLUDE_COND,       // V3LinkParse moves to AstVar::attrFsmArcInclCond
         VAR_FSM_ARC_INCLUDE_COND_AUTO,  // Flavors of above option - setting expand mode per FSM
         VAR_FSM_ARC_INCLUDE_COND_AUTO_EXPAND,
-        VAR_FSM_ARC_INCLUDE_COND_FULL,
+        VAR_FSM_ARC_INCLUDE_COND_پر,
         VAR_FSM_STATE,                  // V3LinkParse moves to AstVar::attrFsmState
         VAR_FSM_STATE_AUTO,             // Flavors of above option - setting expand mode per FSM
         VAR_FSM_STATE_AUTO_EXPAND,
-        VAR_FSM_STATE_FULL,
-        VAR_PORT_DTYPE,                 // V3LinkDot for V3Width to check port dtype
-        VAR_PUBLIC,                     // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT,                // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT_RD,             // V3LinkParse moves to AstVar::sigPublic
-        VAR_PUBLIC_FLAT_RW,             // V3LinkParse moves to AstVar::sigPublic
+        VAR_FSM_STATE_پر,
+        VAR_پورت_DTYPE,                 // V3LinkDot for V3Width to check port dtype
+        VAR_عمومی,                     // V3LinkParse moves to AstVar::sigPublic
+        VAR_عمومی_FLAT,                // V3LinkParse moves to AstVar::sigPublic
+        VAR_عمومی_FLAT_RD,             // V3LinkParse moves to AstVar::sigPublic
+        VAR_عمومی_FLAT_RW,             // V3LinkParse moves to AstVar::sigPublic
         VAR_SC_BIGUINT,                 // V3LinkParse moves to AstVar::attrScBigUint
         VAR_SC_BV,                      // V3LinkParse moves to AstVar::attrScBv
         VAR_SFORMAT,                    // V3LinkParse moves to AstVar::attrSFormat
-        VAR_SPLIT_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
+        VAR_تقسیم_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
     };
     // clang-format on
-    enum en m_e;
-    const char* ascii() const {
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
         // clang-format off
-        static constexpr const char* const names[] = {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {
             "%E-AT",
             "DIM_BITS", "DIM_BITS_OR_NUMBER", "DIM_DIMENSIONS",
             "DIM_HIGH", "DIM_INCREMENT", "DIM_LEFT",
@@ -406,24 +406,24 @@ public:
             "VAR_SC_BIGUINT", "VAR_SC_BV", "VAR_SFORMAT", "VAR_SPLIT_VAR"
         };
         // clang-format on
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // True for attributes that read an operand's type rather than its value, such as $bits.
-    bool isTypeQuery() const {
-        switch (m_e) {
-        case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
-        case DIM_DIMENSIONS:
-        case DIM_HIGH:
-        case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
-        case DIM_SIZE:
-        case DIM_UNPK_DIMENSIONS:
-        case TYPEID:
-        case TYPENAME: return true;
-        default: return false;
+    bool isTypeQuery() ثابت {
+        بدل (m_e) {
+        حالة DIM_بیتها:
+        حالة DIM_بیتها_OR_عدد:
+        حالة DIM_DIMENSIONS:
+        حالة DIM_بالا:
+        حالة DIM_INCREMENT:
+        حالة DIM_چپ:
+        حالة DIM_کم:
+        حالة DIM_راست:
+        حالة DIM_اندازه:
+        حالة DIM_UNPK_DIMENSIONS:
+        حالة TYPEID:
+        حالة TYPENAME: أرجع true;
+        افتراضي: أرجع false;
         }
     }
     VAttrType()
@@ -431,15 +431,15 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VAttrType(en _e)
         : m_e{_e} {}
-    explicit VAttrType(int _e)
+    explicit VAttrType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VAttrType& lhs, const VAttrType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VAttrType& lhs, ثابت VAttrType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VAttrType& lhs, VAttrType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VAttrType::en lhs, ثابت VAttrType& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -448,7 +448,7 @@ class VBaseOverride final {
     bool m_final : 1;
     bool m_initial : 1;
 
-public:
+عام:
     VBaseOverride()
         : m_extends{false}
         , m_final{false}
@@ -468,31 +468,31 @@ public:
         : m_extends{false}
         , m_final{false}
         , m_initial{true} {}
-    void combine(const VBaseOverride& other) {
+    فراغ combine(ثابت VBaseOverride& other) {
         m_extends |= other.m_extends;
         m_final |= other.m_final;
         m_initial |= other.m_initial;
     }
-    bool isAny() const { return m_extends | m_final | m_initial; }
-    bool isExtends() const { return m_extends; }
-    bool isFinal() const { return m_final; }
-    bool isInitial() const { return m_initial; }
-    string ascii() const {
-        string out;
-        if (m_initial) out = VString::dot(out, " ", "initial");
-        if (m_extends) out = VString::dot(out, " ", "extends");
-        if (m_final) out = VString::dot(out, " ", "final");
-        return out;
+    bool isAny() ثابت { أرجع m_extends | m_final | m_initial; }
+    bool isExtends() ثابت { أرجع m_extends; }
+    bool isFinal() ثابت { أرجع m_final; }
+    bool isInitial() ثابت { أرجع m_initial; }
+    string ascii() ثابت {
+        string بیرون;
+        إذا (m_initial) بیرون = VString::dot(بیرون, " ", "initial");
+        إذا (m_extends) بیرون = VString::dot(بیرون, " ", "extends");
+        إذا (m_final) بیرون = VString::dot(بیرون, " ", "final");
+        أرجع بیرون;
     }
 };
 
 // ######################################################################
 
 class VBasicDTypeKwd final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         UNKNOWN,
-        BIT,
+        بیت,
         BYTE,
         CHANDLE,
         // Void type for tagged union members (CVOID to avoid Windows VOID macro)
@@ -507,7 +507,7 @@ public:
         LONGINT,
         DOUBLE,
         SHORTINT,
-        TIME,
+        زمان,
         TIME2STATE,  // Time but two-state domain (to save info about original DType)
         // Closer to a class type, but limited usage
         STRING,
@@ -533,9 +533,9 @@ public:
         // Leave last
         _ENUM_MAX
     };
-    enum en m_e;
-    const char* ascii() const VL_MT_SAFE {
-        static constexpr const char* const names[] = {"%E-unk",
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت VL_MT_امن {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"%E-unk",
                                                       "bit",
                                                       "byte",
                                                       "chandle",
@@ -569,18 +569,18 @@ public:
                                                       "QData",
                                                       "LOGIC_IMPLICIT",
                                                       " MAX"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    const char* typeName() const VL_MT_SAFE {
-        switch (m_e) {
-        case LOGIC2STATE: return VBasicDTypeKwd{LOGIC}.ascii();
-        case INTEGER2STATE: return VBasicDTypeKwd{INTEGER}.ascii();
-        case TIME2STATE: return VBasicDTypeKwd{TIME}.ascii();
-        default: return ascii();
+    ثابت حرف* typeName() ثابت VL_MT_امن {
+        بدل (m_e) {
+        حالة LOGIC2STATE: أرجع VBasicDTypeKwd{LOGIC}.ascii();
+        حالة INTEGER2STATE: أرجع VBasicDTypeKwd{INTEGER}.ascii();
+        حالة TIME2STATE: أرجع VBasicDTypeKwd{زمان}.ascii();
+        افتراضي: أرجع ascii();
         }
     }
-    const char* dpiType() const {
-        static constexpr const char* const names[] = {"%E-unk",
+    ثابت حرف* dpiType() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"%E-unk",
                                                       "svBit",
                                                       "char",
                                                       "void*",
@@ -614,137 +614,137 @@ public:
                                                       "QData",
                                                       "%E-logic-implct",
                                                       " MAX"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    static void selfTest() {
+    ساكن فراغ selfTest() {
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
                 "SelfTest: Enum mismatch");
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.dpiType(), " MAX"),
                 "SelfTest: Enum mismatch");
     }
-    VBasicDTypeKwd() VL_MT_SAFE : m_e{UNKNOWN} {}
+    VBasicDTypeKwd() VL_MT_امن : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr VBasicDTypeKwd(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VBasicDTypeKwd(int _e) VL_MT_SAFE  //
+    constexpr VBasicDTypeKwd(en _e) VL_MT_امن : m_e{_e} {}
+    explicit VBasicDTypeKwd(صحيح _e) VL_MT_امن  //
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    int width() const {
-        switch (m_e) {
-        case BIT: return 1;  // scalar, can't bit extract unless ranged
-        case BYTE: return 8;
-        case CHANDLE: return 64;
-        case NULLTYPE: return 1;  // Historical - bit was used instead of NULLTYPE
-        case EVENT: return 1;
-        case INT: return 32;
-        case INTEGER: return 32;
-        case INTEGER2STATE: return 32;
-        case LOGIC: return 1;  // scalar, can't bit extract unless ranged
-        case LOGIC2STATE: return 1;  // scalar, can't bit extract unless ranged
-        case LONGINT: return 64;
-        case DOUBLE: return 64;  // opaque
-        case SHORTINT: return 16;
-        case TIME: return 64;
-        case TIME2STATE: return 64;
-        case STRING: return 64;  // opaque  // Just the pointer, for today
-        case SCOPEPTR: return 0;  // opaque
-        case CHARPTR: return 0;  // opaque
-        case MTASKSTATE: return 0;  // opaque
-        case DELAY_SCHEDULER: return 0;  // opaque
-        case TRIGGER_SCHEDULER: return 0;  // opaque
-        case DYNAMIC_TRIGGER_SCHEDULER: return 0;  // opaque
-        case FORK_SYNC: return 0;  // opaque
-        case PROCESS_REFERENCE: return 0;  // opaque
-        case RANDOM_GENERATOR: return 0;  // opaque
-        case RANDOM_STDGENERATOR: return 0;  // opaque
-        case COVERGROUP_INSTHANDLE: return 0;  // opaque
-        case UINT32: return 32;
-        case UINT64: return 64;
-        default: return 0;
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    صحيح عرض() ثابت {
+        بدل (m_e) {
+        حالة بیت: أرجع 1;  // scalar, can't bit extract unless ranged
+        حالة BYTE: أرجع 8;
+        حالة CHANDLE: أرجع 64;
+        حالة NULLTYPE: أرجع 1;  // Historical - bit was used instead of NULLTYPE
+        حالة EVENT: أرجع 1;
+        حالة INT: أرجع 32;
+        حالة INTEGER: أرجع 32;
+        حالة INTEGER2STATE: أرجع 32;
+        حالة LOGIC: أرجع 1;  // scalar, can't bit extract unless ranged
+        حالة LOGIC2STATE: أرجع 1;  // scalar, can't bit extract unless ranged
+        حالة LONGINT: أرجع 64;
+        حالة DOUBLE: أرجع 64;  // opaque
+        حالة SHORTINT: أرجع 16;
+        حالة زمان: أرجع 64;
+        حالة TIME2STATE: أرجع 64;
+        حالة STRING: أرجع 64;  // opaque  // Just the pointer, for today
+        حالة SCOPEPTR: أرجع 0;  // opaque
+        حالة CHARPTR: أرجع 0;  // opaque
+        حالة MTASKSTATE: أرجع 0;  // opaque
+        حالة DELAY_SCHEDULER: أرجع 0;  // opaque
+        حالة TRIGGER_SCHEDULER: أرجع 0;  // opaque
+        حالة DYNAMIC_TRIGGER_SCHEDULER: أرجع 0;  // opaque
+        حالة FORK_SYNC: أرجع 0;  // opaque
+        حالة PROCESS_REFERENCE: أرجع 0;  // opaque
+        حالة RANDOM_GENERATOR: أرجع 0;  // opaque
+        حالة RANDOM_STDGENERATOR: أرجع 0;  // opaque
+        حالة COVERGROUP_INSTHANDLE: أرجع 0;  // opaque
+        حالة UINT32: أرجع 32;
+        حالة UINT64: أرجع 64;
+        افتراضي: أرجع 0;
         }
     }
-    bool isSigned() const {
-        return m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isSigned() ثابت {
+        أرجع m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                || m_e == INTEGER2STATE || m_e == DOUBLE;
     }
-    bool isUnsigned() const {
-        return m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
-               || m_e == UINT32 || m_e == UINT64 || m_e == BIT || m_e == LOGIC
-               || m_e == LOGIC2STATE || m_e == TIME || m_e == TIME2STATE;
+    bool isUnsigned() ثابت {
+        أرجع m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+               || m_e == UINT32 || m_e == UINT64 || m_e == بیت || m_e == LOGIC
+               || m_e == LOGIC2STATE || m_e == زمان || m_e == TIME2STATE;
     }
-    bool isFourstate() const {
-        return m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
+    bool isFourstate() ثابت {
+        أرجع m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == زمان;
     }
-    bool isZeroInit() const {  // Otherwise initializes to X
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
+    bool isZeroInit() ثابت {  // Otherwise initializes to X
+        أرجع (m_e == بیت || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
                 || m_e == INT || m_e == LONGINT || m_e == SHORTINT || m_e == STRING
                 || m_e == DOUBLE);
     }
-    bool isIntNumeric() const {  // Enum increment supported
-        return (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
+    bool isIntNumeric() ثابت {  // Enum increment supported
+        أرجع (m_e == بیت || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
                 || m_e == LOGIC || m_e == LOGIC2STATE || m_e == LONGINT || m_e == SHORTINT
-                || m_e == UINT32 || m_e == UINT64 || m_e == TIME || m_e == TIME2STATE);
+                || m_e == UINT32 || m_e == UINT64 || m_e == زمان || m_e == TIME2STATE);
     }
-    bool isBit() const { return m_e == BIT; }
-    bool isBitLogic() const {  // Bit/logic vector types; can form a packed array
-        return (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
+    bool is_بیت() ثابت { أرجع m_e == بیت; }
+    bool is_بیت_Logic() ثابت {  // Bit/logic vector types; can form a packed array
+        أرجع (m_e == LOGIC || m_e == LOGIC2STATE || m_e == بیت);
     }
-    bool isDpiUnsignable() const {  // Can add "unsigned" to DPI
-        return (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isDpiUnsignable() ثابت {  // Can add "unsigned" to DPI
+        أرجع (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                 || m_e == INTEGER2STATE);
     }
-    bool isDpiCLayout() const {  // Uses standard C layout, for DPI runtime access
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
+    bool isDpiCLayout() ثابت {  // Uses standard C layout, for DPI runtime access
+        أرجع (m_e == بیت || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
                 || m_e == DOUBLE || m_e == SHORTINT || m_e == UINT32 || m_e == UINT64);
     }
-    bool isOpaque() const VL_MT_SAFE {  // IE not a simple number we can bit optimize
-        return (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isOpaque() ثابت VL_MT_امن {  // IE not a simple number we can bit optimize
+        أرجع (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                 || m_e == MTASKSTATE || m_e == DELAY_SCHEDULER || m_e == TRIGGER_SCHEDULER
                 || m_e == DYNAMIC_TRIGGER_SCHEDULER || m_e == FORK_SYNC || m_e == PROCESS_REFERENCE
                 || m_e == RANDOM_GENERATOR || m_e == RANDOM_STDGENERATOR
                 || m_e == COVERGROUP_INSTHANDLE || m_e == DOUBLE || m_e == UNTYPED);
     }
-    bool isCHandle() const VL_MT_SAFE { return m_e == CHANDLE; }
-    bool isDouble() const VL_MT_SAFE { return m_e == DOUBLE; }
-    bool isEvent() const { return m_e == EVENT; }
-    bool isString() const VL_MT_SAFE { return m_e == STRING; }
-    bool isMTaskState() const VL_MT_SAFE { return m_e == MTASKSTATE; }
-    bool isSameish(const VBasicDTypeKwd& other) const VL_MT_SAFE {
-        switch (other.m_e) {
-        case LOGIC:
-        case LOGIC2STATE:
-        case LOGIC_IMPLICIT: return m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
-        case INTEGER:
-        case INTEGER2STATE: return m_e == INTEGER || m_e == INTEGER2STATE;
-        case TIME:
-        case TIME2STATE: return m_e == TIME || m_e == TIME2STATE;
-        default: return m_e == other.m_e;
+    bool isCHandle() ثابت VL_MT_امن { أرجع m_e == CHANDLE; }
+    bool isDouble() ثابت VL_MT_امن { أرجع m_e == DOUBLE; }
+    bool isEvent() ثابت { أرجع m_e == EVENT; }
+    bool isString() ثابت VL_MT_امن { أرجع m_e == STRING; }
+    bool isMTaskState() ثابت VL_MT_امن { أرجع m_e == MTASKSTATE; }
+    bool isSameish(ثابت VBasicDTypeKwd& other) ثابت VL_MT_امن {
+        بدل (other.m_e) {
+        حالة LOGIC:
+        حالة LOGIC2STATE:
+        حالة LOGIC_IMPLICIT: أرجع m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
+        حالة INTEGER:
+        حالة INTEGER2STATE: أرجع m_e == INTEGER || m_e == INTEGER2STATE;
+        حالة زمان:
+        حالة TIME2STATE: أرجع m_e == زمان || m_e == TIME2STATE;
+        افتراضي: أرجع m_e == other.m_e;
         }
     }
     // Does this represent a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_SAFE {
-        switch (m_e) {
-        case BIT:
-        case BYTE:
-        case CHANDLE:
-        case INT:
-        case INTEGER:
-        case INTEGER2STATE:
-        case LOGIC:
-        case LOGIC2STATE:
-        case LONGINT:
-        case DOUBLE:
-        case SHORTINT:
-        case SCOPEPTR:
-        case CHARPTR:
-        case UINT32:
-        case UINT64: return true;
-        default: return false;
+    bool isLiteralType() ثابت VL_MT_امن {
+        بدل (m_e) {
+        حالة بیت:
+        حالة BYTE:
+        حالة CHANDLE:
+        حالة INT:
+        حالة INTEGER:
+        حالة INTEGER2STATE:
+        حالة LOGIC:
+        حالة LOGIC2STATE:
+        حالة LONGINT:
+        حالة DOUBLE:
+        حالة SHORTINT:
+        حالة SCOPEPTR:
+        حالة CHARPTR:
+        حالة UINT32:
+        حالة UINT64: أرجع true;
+        افتراضي: أرجع false;
         }
     }
 
-    const char* traceSigType() const {
+    ثابت حرف* traceSigType() ثابت {
         // VerilatedTraceSigType to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        ساكن constexpr ثابت حرف* ثابت lut[] = {
             /* UNKNOWN:                   */ "",  // Should not be traced
             /* BIT:                       */ "BIT",
             /* BYTE:                      */ "BYTE",
@@ -779,95 +779,95 @@ public:
             /* UINT64:                    */ "BIT",
             /* LOGIC_IMPLICIT:            */ "",  // Should not be traced
         };
-        static_assert(sizeof(lut) / sizeof(lut[0]) == _ENUM_MAX, "Missing trace signal type");
-        return lut[m_e];
+        static_assert(حجم(lut) / حجم(lut[0]) == _ENUM_MAX, "Missing trace signal type");
+        أرجع lut[m_e];
     }
 };
-constexpr bool operator==(const VBasicDTypeKwd& lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VBasicDTypeKwd& lhs, ثابت VBasicDTypeKwd& rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VBasicDTypeKwd::en lhs, ثابت VBasicDTypeKwd& rhs) VL_MT_امن {
+    أرجع lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 /// Boolean or unknown
 class VBoolOrUnknown final {
-public:
-    enum en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, ENUM_انتها };
+    تعداد en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBoolOrUnknown()
         : m_e{BU_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBoolOrUnknown(en _e)
         : m_e{_e} {}
-    explicit VBoolOrUnknown(int _e)
+    explicit VBoolOrUnknown(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FALSE", "TRUE", "UNK"};
-        return names[m_e];
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"FALSE", "TRUE", "UNK"};
+        أرجع نامها[m_e];
     }
-    bool isKnown() const { return m_e != BU_UNKNOWN; }
-    bool trueKnown() const { return m_e == BU_TRUE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
+    bool is_معلوم() ثابت { أرجع m_e != BU_UNKNOWN; }
+    bool true_معلوم() ثابت { أرجع m_e == BU_TRUE; }
+    فراغ مجموعه_True_Or_False(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
 };
-constexpr bool operator==(const VBoolOrUnknown& lhs, const VBoolOrUnknown& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VBoolOrUnknown& lhs, ثابت VBoolOrUnknown& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VBoolOrUnknown::en lhs, const VBoolOrUnknown& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VBoolOrUnknown::en lhs, ثابت VBoolOrUnknown& rhs) {
+    أرجع lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VBoolOrUnknown& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VBranchPred final {
-public:
-    enum en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, ENUM_انتها };
+    تعداد en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBranchPred()
         : m_e{BP_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBranchPred(en _e)
         : m_e{_e} {}
-    explicit VBranchPred(int _e)
+    explicit VBranchPred(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool unknown() const { return m_e == BP_UNKNOWN; }
-    bool likely() const { return m_e == BP_LIKELY; }
-    bool unlikely() const { return m_e == BP_UNLIKELY; }
-    VBranchPred invert() const {
-        if (m_e == BP_UNLIKELY) return BP_LIKELY;
-        if (m_e == BP_LIKELY) return BP_UNLIKELY;
-        return m_e;
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool unknown() ثابت { أرجع m_e == BP_UNKNOWN; }
+    bool likely() ثابت { أرجع m_e == BP_LIKELY; }
+    bool unlikely() ثابت { أرجع m_e == BP_UNLIKELY; }
+    VBranchPred invert() ثابت {
+        إذا (m_e == BP_UNLIKELY) أرجع BP_LIKELY;
+        إذا (m_e == BP_LIKELY) أرجع BP_UNLIKELY;
+        أرجع m_e;
     }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
-        return names[m_e];
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
+        أرجع نامها[m_e];
     }
-    const char* asciiShort() const {
-        static constexpr const char* const names[] = {"", "L", "!L"};
-        return names[m_e];
+    ثابت حرف* asciiShort() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"", "L", "!L"};
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VBranchPred& lhs, const VBranchPred& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VBranchPred& lhs, ثابت VBranchPred& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VBranchPred& lhs, VBranchPred::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VBranchPred::en lhs, ثابت VBranchPred& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VBranchPred& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
@@ -875,18 +875,18 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+ساكن constexpr bool validate_آرگومانها_Descriptor(ثابت حرف* descrp) {
     // Is "TODO"
-    if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
+    إذا (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
-        return true;
+        أرجع true;
     }
     // Is a sequence of 'r'/'w'/'m' with an optional trailing '+'
-    for (const char* cp = descrp; *cp; ++cp) {
-        if (*cp == '+') return cp != descrp && !cp[1];
-        if (*cp != 'r' && *cp != 'w' && *cp != 'm') return false;
+    لكل (ثابت حرف* cp = descrp; *cp; ++cp) {
+        إذا (*cp == '+') أرجع cp != descrp && !cp[1];
+        إذا (*cp != 'r' && *cp != 'w' && *cp != 'm') أرجع false;
     }
-    return true;
+    أرجع true;
 }
 // LCOV_EXCL_STOP
 };  //namespace
@@ -902,145 +902,145 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
 // - "" if the method takes no arguments
 // - "TODO" if not yet checked due to existing issues
 // clang-format off
-#define FOR_EACH_CMETHOD(macro) \
+#تعریف_کن FOR_EACH_CMETHOD(macro) \
     /*    id,                                 method,                   pure,   clean,  args */ \
     macro(_NONE,                              "_none",                  false,  CLEAN,  "") \
-    macro(ARRAY_AT,                           "at",                     PURE,   CLEAN,  "r") \
-    macro(ARRAY_AT_BACK,                      "atBack",                 PURE,   CLEAN,  "r") \
-    macro(ARRAY_AT_WRITE,                     "atWrite",                PURE,   CLEAN,  "r") \
-    macro(ARRAY_FIND,                         "find",                   PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_FIRST,                   "find_first",             PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_FIRST_INDEX,             "find_first_index",       PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_INDEX,                   "find_index",             PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_LAST,                    "find_last",              PURE,   CLEAN,  "") \
-    macro(ARRAY_FIND_LAST_INDEX,              "find_last_index",        PURE,   CLEAN,  "") \
-    macro(ARRAY_FIRST,                        "first",                  false,  CLEAN,  "m") \
-    macro(ARRAY_INSIDE,                       "inside",                 PURE,   CLEAN,  "r") \
-    macro(ARRAY_LAST,                         "last",                   false,  CLEAN,  "m") \
-    macro(ARRAY_MAP,                          "map",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_MAX,                          "max",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_MIN,                          "min",                    PURE,   CLEAN,  "") \
-    macro(ARRAY_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ARRAY_POP_BACK,                     "pop_back",               false,  CLEAN,  "") \
-    macro(ARRAY_POP_FRONT,                    "pop_front",              false,  CLEAN,  "") \
+    macro(ARRAY_AT,                           "at",                     خالص_2,   CLEAN,  "r") \
+    macro(ARRAY_AT_پشت,                      "atBack",                 خالص_2,   CLEAN,  "r") \
+    macro(ARRAY_AT_WRITE,                     "atWrite",                خالص_2,   CLEAN,  "r") \
+    macro(ARRAY_پیدا_کن,                         "find",                   خالص_2,   CLEAN,  "") \
+    macro(ARRAY_پیدا_کن_اولی,                   "find_first",             خالص_2,   CLEAN,  "") \
+    macro(ARRAY_پیدا_کن_اولی_شاخص,             "find_first_index",       خالص_2,   CLEAN,  "") \
+    macro(ARRAY_پیدا_کن_شاخص,                   "find_index",             خالص_2,   CLEAN,  "") \
+    macro(ARRAY_پیدا_کن_آخرین,                    "find_last",              خالص_2,   CLEAN,  "") \
+    macro(ARRAY_پیدا_کن_آخرین_شاخص,              "find_last_index",        خالص_2,   CLEAN,  "") \
+    macro(ARRAY_اولی,                        "first",                  false,  CLEAN,  "m") \
+    macro(ARRAY_INSIDE,                       "inside",                 خالص_2,   CLEAN,  "r") \
+    macro(ARRAY_آخرین,                         "last",                   false,  CLEAN,  "m") \
+    macro(ARRAY_MAP,                          "map",                    خالص_2,   CLEAN,  "") \
+    macro(ARRAY_MAX,                          "max",                    خالص_2,   CLEAN,  "") \
+    macro(ARRAY_MIN,                          "min",                    خالص_2,   CLEAN,  "") \
+    macro(ARRAY_بعدی,                         "next",                   false,  CLEAN,  "m") \
+    macro(ARRAY_برداشت_پشت,                     "pop_back",               false,  CLEAN,  "") \
+    macro(ARRAY_برداشت_FRONT,                    "pop_front",              false,  CLEAN,  "") \
     macro(ARRAY_PREV,                         "prev",                   false,  CLEAN,  "m") \
-    macro(ARRAY_PUSH_BACK,                    "push_back",              false,  CLEAN,  "r") \
-    macro(ARRAY_PUSH_FRONT,                   "push_front",             false,  CLEAN,  "r") \
-    macro(ARRAY_REVERSE,                      "reverse",                false,  CLEAN,  "") \
+    macro(ARRAY_افزودن_پشت,                    "push_back",              false,  CLEAN,  "r") \
+    macro(ARRAY_افزودن_FRONT,                   "push_front",             false,  CLEAN,  "r") \
+    macro(ARRAY_معکوس,                      "reverse",                false,  CLEAN,  "") \
     macro(ARRAY_RSORT,                        "rsort",                  false,  CLEAN,  "") \
-    macro(ARRAY_R_AND,                        "r_and",                  PURE,   CLEAN,  "") \
-    macro(ARRAY_R_OR,                         "r_or",                   PURE,   CLEAN,  "") \
-    macro(ARRAY_R_PRODUCT,                    "r_product",              PURE,   false,  "") \
-    macro(ARRAY_R_SUM,                        "r_sum",                  PURE,   false,  "") \
-    macro(ARRAY_R_XOR,                        "r_xor",                  PURE,   CLEAN,  "") \
+    macro(ARRAY_R_AND,                        "r_and",                  خالص_2,   CLEAN,  "") \
+    macro(ARRAY_R_OR,                         "r_or",                   خالص_2,   CLEAN,  "") \
+    macro(ARRAY_R_حاصلضرب,                    "r_product",              خالص_2,   false,  "") \
+    macro(ARRAY_R_جمع,                        "r_sum",                  خالص_2,   false,  "") \
+    macro(ARRAY_R_XOR,                        "r_xor",                  خالص_2,   CLEAN,  "") \
     macro(ARRAY_SHUFFLE,                      "shuffle",                false,  CLEAN,  "") \
-    macro(ARRAY_SLICE,                        "slice",                  PURE,   CLEAN,  "r") \
-    macro(ARRAY_SORT,                         "sort",                   false,  CLEAN,  "") \
-    macro(ARRAY_UNIQUE,                       "unique",                 PURE,   CLEAN,  "") \
-    macro(ARRAY_UNIQUE_INDEX,                 "unique_index",           PURE,   CLEAN,  "") \
+    macro(ARRAY_برش,                        "slice",                  خالص_2,   CLEAN,  "r") \
+    macro(ARRAY_مرتب_سازی,                         "sort",                   false,  CLEAN,  "") \
+    macro(ARRAY_UNIQUE,                       "unique",                 خالص_2,   CLEAN,  "") \
+    macro(ARRAY_UNIQUE_شاخص,                 "unique_index",           خالص_2,   CLEAN,  "") \
     macro(ASSOC_CLEAR,                        "clear",                  false,  CLEAN,  "") \
     macro(ASSOC_ERASE,                        "erase",                  false,  CLEAN,  "r") \
-    macro(ASSOC_EXISTS,                       "exists",                 PURE,   CLEAN,  "r") \
-    macro(ASSOC_FIRST,                        "first",                  false,  CLEAN,  "m") \
-    macro(ASSOC_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ASSOC_SIZE,                         "size",                   PURE,   CLEAN,  "") \
-    macro(CLASS_SET_RANDMODE,                 "set_randmode",           false,  CLEAN,  "r") \
-    macro(COVERGROUP_ADD_ARRAY_NAMER,         "addArrayNamer",          false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_BIN,                 "addBin",                 false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_COVERPOINT,          "addCoverpoint",          false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_CROSS,               "addCross",               false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_CROSS_DYN,           "addCrossDyn",            false,  CLEAN,  "") \
-    macro(COVERGROUP_ADD_NUMBERED_NAMER,      "addNumberedNamer",       false,  CLEAN,  "r+") \
-    macro(COVERGROUP_ADD_SINGLE_NAMER,        "addSingleNamer",         false,  CLEAN,  "r+") \
+    macro(ASSOC_EXISTS,                       "exists",                 خالص_2,   CLEAN,  "r") \
+    macro(ASSOC_اولی,                        "first",                  false,  CLEAN,  "m") \
+    macro(ASSOC_بعدی,                         "next",                   false,  CLEAN,  "m") \
+    macro(ASSOC_اندازه,                         "size",                   خالص_2,   CLEAN,  "") \
+    macro(CLASS_مجموعه_RANDMODE,                 "set_randmode",           false,  CLEAN,  "r") \
+    macro(COVERGROUP_جمع_کن_ARRAY_NAMER,         "addArrayNamer",          false,  CLEAN,  "r+") \
+    macro(COVERGROUP_جمع_کن_BIN,                 "addBin",                 false,  CLEAN,  "r+") \
+    macro(COVERGROUP_جمع_کن_COVERPOINT,          "addCoverpoint",          false,  CLEAN,  "") \
+    macro(COVERGROUP_جمع_کن_CROSS,               "addCross",               false,  CLEAN,  "") \
+    macro(COVERGROUP_جمع_کن_CROSS_DYN,           "addCrossDyn",            false,  CLEAN,  "") \
+    macro(COVERGROUP_جمع_کن_NUMBERED_NAMER,      "addNumberedNamer",       false,  CLEAN,  "r+") \
+    macro(COVERGROUP_جمع_کن_SINGLE_NAMER,        "addSingleNamer",         false,  CLEAN,  "r+") \
     macro(COVERGROUP_ATTACH,                  "attach",                 false,  CLEAN,  "r") \
-    macro(COVERGROUP_CLEAR_HIT_LIST,          "clearHitList",           false,  CLEAN,  "") \
+    macro(COVERGROUP_CLEAR_اصابت_LIST,          "clearHitList",           false,  CLEAN,  "") \
     macro(COVERGROUP_COVERAGE,                "coverage",               false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_BEGIN,        "withBegin",              false,  CLEAN,  "r+") \
-    macro(COVERGROUP_CROSS_WITH_END,          "withEnd",                false,  CLEAN,  "") \
+    macro(COVERGROUP_CROSS_WITH_انتها,          "withEnd",                false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_TEST,         "withTest",               false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE,        "withValue",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE_W,      "withValueW",             false,  CLEAN,  "rw") \
+    macro(COVERGROUP_CROSS_WITH_مقدار,        "withValue",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_CROSS_WITH_مقدار_W,      "withValueW",             false,  CLEAN,  "rw") \
     macro(COVERGROUP_FINALIZE_BINS,           "finalizeBins",           false,  CLEAN,  "") \
     macro(COVERGROUP_INCREMENT_BIN,           "incrementBin",           false,  CLEAN,  "r") \
     macro(COVERGROUP_INIT,                    "init",                   false,  CLEAN,  "r+") \
-    macro(COVERGROUP_INST_P,                  "p",                      PURE,   CLEAN,  "") \
-    macro(COVERGROUP_LEND_WEIGHT,             "lendWeight",             false,  CLEAN,  "rr") \
-    macro(COVERGROUP_RECORD_HIT,              "recordHit",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_REGISTER_BINS,           "registerBins",           false,  CLEAN,  "rrrr") \
+    macro(COVERGROUP_INST_P,                  "p",                      خالص_2,   CLEAN,  "") \
+    macro(COVERGROUP_LEND_وزن,             "lendWeight",             false,  CLEAN,  "rr") \
+    macro(COVERGROUP_رکورد_اصابت,              "recordHit",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_ثبات_BINS,           "registerBins",           false,  CLEAN,  "rrrr") \
     macro(COVERGROUP_SAMPLE,                  "sample",                 false,  CLEAN,  "") \
     macro(COVERGROUP_SAMPLE_IFFS,             "sample",                 false,  CLEAN,  "r") \
     macro(COVERGROUP_SELECT_ALL,              "selectAll",              false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_AND,              "selectAnd",              false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_BIN,              "selectBin",              false,  CLEAN,  "r+") \
     macro(COVERGROUP_SELECT_DIM,              "selectDim",              false,  CLEAN,  "r+") \
-    macro(COVERGROUP_SELECT_DIM_END,          "selectDimEnd",           false,  CLEAN,  "") \
+    macro(COVERGROUP_SELECT_DIM_انتها,          "selectDimEnd",           false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_OR,               "selectOr",               false,  CLEAN,  "") \
     macro(COVERGROUP_SELECT_RANGE,            "selectRange",            false,  CLEAN,  "rr") \
     macro(COVERGROUP_SELECT_RANGE_W,          "selectRangeW",           false,  CLEAN,  "rr") \
-    macro(COVERGROUP_SIZED_END,               "sizedEnd",               PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_SIZED_FINISH,            "sizedFinish",            false,  CLEAN,  "r+") \
-    macro(COVERGROUP_SIZED_FIRST,             "sizedFirst",             PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_SIZED_انتها,               "sizedEnd",               خالص_2,   CLEAN,  "r") \
+    macro(COVERGROUP_SIZED_پایان,            "sizedFinish",            false,  CLEAN,  "r+") \
+    macro(COVERGROUP_SIZED_اولی,             "sizedFirst",             خالص_2,   CLEAN,  "r") \
     macro(COVERGROUP_SIZED_RANGE,             "sizedRange",             false,  CLEAN,  "rr") \
     macro(COVERGROUP_SIZED_RANGE_W,           "sizedRangeW",            false,  CLEAN,  "rr") \
     macro(COVERGROUP_SIZED_SAMPLE,            "sizedSample",            false,  CLEAN,  "rrr") \
     macro(COVERGROUP_SIZED_SAMPLE_W,          "sizedSampleW",           false,  CLEAN,  "rrr") \
     macro(COVERGROUP_TYPE_COVERAGE,           "typeCoverage",           false,  CLEAN,  "rrrr") \
-    macro(COVERGROUP_TYPE_WEIGHT,             "typeWeight",             false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TYPE,              "valueType",              false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WEIGHT,                  "weight",                 false,  CLEAN,  "rr") \
+    macro(COVERGROUP_TYPE_وزن,             "typeWeight",             false,  CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_EXCLUDED,          "valueExcluded",          خالص_2,   CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_EXCLUDED_W,        "valueExcludedW",         خالص_2,   CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
+    macro(COVERGROUP_مقدار_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
+    macro(COVERGROUP_مقدار_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
+    macro(COVERGROUP_مقدار_TYPE,              "valueType",              false,  CLEAN,  "rr") \
+    macro(COVERGROUP_وزن,                  "weight",                 false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_BEGIN,              "withBegin",              false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WITH_FINISH,             "withFinish",             false,  CLEAN,  "r+") \
+    macro(COVERGROUP_WITH_پایان,             "withFinish",             false,  CLEAN,  "r+") \
     macro(COVERGROUP_WITH_HI,                 "withHi",                 false,  CLEAN,  "") \
     macro(COVERGROUP_WITH_HI_W,               "withHiW",                false,  CLEAN,  "w") \
     macro(COVERGROUP_WITH_LO,                 "withLo",                 false,  CLEAN,  "") \
     macro(COVERGROUP_WITH_LO_W,               "withLoW",                false,  CLEAN,  "w") \
-    macro(COVERGROUP_WITH_NEXT,               "withNext",               false,  CLEAN,  "") \
-    macro(COVERGROUP_WITH_RUN,                "withRun",                false,  CLEAN,  "rr") \
-    macro(COVERGROUP_WITH_RUN_W,              "withRunW",               false,  CLEAN,  "rr") \
+    macro(COVERGROUP_WITH_بعدی,               "withNext",               false,  CLEAN,  "") \
+    macro(COVERGROUP_WITH_پیاپی,                "withRun",                false,  CLEAN,  "rr") \
+    macro(COVERGROUP_WITH_پیاپی_W,              "withRunW",               false,  CLEAN,  "rr") \
     macro(DYN_AT_WRITE_APPEND,                "atWriteAppend",          false,  CLEAN,  "r") \
-    macro(DYN_AT_WRITE_APPEND_BACK,           "atWriteAppendBack",      false,  CLEAN,  "r") \
+    macro(DYN_AT_WRITE_APPEND_پشت,           "atWriteAppendBack",      false,  CLEAN,  "r") \
     macro(DYN_CLEAR,                          "clear",                  false,  CLEAN,  "") \
     macro(DYN_ERASE,                          "erase",                  false,  CLEAN,  "r") \
-    macro(DYN_INSERT,                         "insert",                 false,  CLEAN,  "rr") \
-    macro(DYN_POP,                            "pop",                    false,  CLEAN,  "rrm") \
-    macro(DYN_POP_FRONT,                      "pop_front",              false,  CLEAN,  "") \
-    macro(DYN_PUSH,                           "push",                   false,  CLEAN,  "rr") \
-    macro(DYN_PUSH_FRONT,                     "push_front",             false,  CLEAN,  "r") \
+    macro(DYN_درج,                         "insert",                 false,  CLEAN,  "rr") \
+    macro(DYN_برداشت,                            "pop",                    false,  CLEAN,  "rrm") \
+    macro(DYN_برداشت_FRONT,                      "pop_front",              false,  CLEAN,  "") \
+    macro(DYN_افزودن,                           "push",                   false,  CLEAN,  "rr") \
+    macro(DYN_افزودن_FRONT,                     "push_front",             false,  CLEAN,  "r") \
     macro(DYN_RENEW,                          "renew",                  false,  CLEAN,  "r") \
     macro(DYN_RENEW_COPY,                     "renew_copy",             false,  CLEAN,  "rr") \
     macro(DYN_RESIZE,                         "resize",                 false,  CLEAN,  "TODO") \
-    macro(DYN_SIZE,                           "size",                   PURE,   CLEAN,  "") \
-    macro(DYN_SLICE,                          "slice",                  PURE,   CLEAN,  "rr") \
-    macro(DYN_SLICE_ASSIGN,                   "sliceAssign",            false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_ASSIGN_BACK_BACK,         "sliceAssignBackBack",    false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_ASSIGN_FRONT_BACK,        "sliceAssignFrontBack",   false,  CLEAN,  "rrr") \
-    macro(DYN_SLICE_BACK_BACK,                "sliceBackBack",          PURE,   CLEAN,  "rr") \
-    macro(DYN_SLICE_FRONT_BACK,               "sliceFrontBack",         PURE,   CLEAN,  "rr") \
+    macro(DYN_اندازه,                           "size",                   خالص_2,   CLEAN,  "") \
+    macro(DYN_برش,                          "slice",                  خالص_2,   CLEAN,  "rr") \
+    macro(DYN_برش_تخصیص_بده,                   "sliceAssign",            false,  CLEAN,  "rrr") \
+    macro(DYN_برش_تخصیص_بده_پشت_پشت,         "sliceAssignBackBack",    false,  CLEAN,  "rrr") \
+    macro(DYN_برش_تخصیص_بده_FRONT_پشت,        "sliceAssignFrontBack",   false,  CLEAN,  "rrr") \
+    macro(DYN_برش_پشت_پشت,                "sliceBackBack",          خالص_2,   CLEAN,  "rr") \
+    macro(DYN_برش_FRONT_پشت,               "sliceFrontBack",         خالص_2,   CLEAN,  "rr") \
     macro(EVENT_CLEAR_FIRED,                  "clearFired",             false,  CLEAN,  "") \
     macro(EVENT_CLEAR_TRIGGERED,              "clearTriggered",         false,  CLEAN,  "") \
     macro(EVENT_FIRE,                         "fire",                   false,  CLEAN,  "") \
-    macro(EVENT_IS_FIRED,                     "isFired",                PURE,   CLEAN,  "") \
-    macro(EVENT_IS_TRIGGERED,                 "isTriggered",            PURE,   CLEAN,  "") \
-    macro(FORCE_ADD,                          "addForce",               false,  CLEAN,  "rrrr+") \
-    macro(FORCE_READ,                         "read",                   PURE,   CLEAN,  "r") \
-    macro(FORCE_READ_INDEX,                   "readIndex",              PURE,   CLEAN,  "rr") \
-    macro(FORCE_READ_SEL,                     "readSel",                PURE,   CLEAN,  "TODO") \
+    macro(EVENT_IS_FIRED,                     "isFired",                خالص_2,   CLEAN,  "") \
+    macro(EVENT_IS_TRIGGERED,                 "isTriggered",            خالص_2,   CLEAN,  "") \
+    macro(FORCE_جمع_کن,                          "addForce",               false,  CLEAN,  "rrrr+") \
+    macro(FORCE_READ,                         "read",                   خالص_2,   CLEAN,  "r") \
+    macro(FORCE_READ_شاخص,                   "readIndex",              خالص_2,   CLEAN,  "rr") \
+    macro(FORCE_READ_SEL,                     "readSel",                خالص_2,   CLEAN,  "TODO") \
     macro(FORCE_RELEASE,                      "release",                false,  CLEAN,  "rr+") \
     macro(FORCE_TOUCH,                        "touch",                  false,  CLEAN,  "") \
-    macro(FORK_DONE,                          "done",                   false,  CLEAN,  "rr") \
+    macro(FORK_انجامشده,                          "done",                   false,  CLEAN,  "rr") \
     macro(FORK_INIT,                          "init",                   false,  CLEAN,  "rr") \
     macro(FORK_JOIN,                          "join",                   false,  CLEAN,  "rrr") \
     macro(FORK_ON_KILL,                       "onKill",                 false,  CLEAN,  "r") \
     macro(NBA_COMMIT,                         "commit",                 false,  CLEAN,  "w") \
-    macro(NBA_ENQUEUE,                        "enqueue",                false,  CLEAN,  "r+") \
+    macro(NBA_افزودن_به_صف,                        "enqueue",                false,  CLEAN,  "r+") \
     macro(RANDOMIZER_BASIC_STD_RANDOMIZATION, "basicStdRandomization",  false,  CLEAN,  "mr") \
     macro(RANDOMIZER_CLEARCONSTRAINTS,        "clearConstraints",       false,  CLEAN,  "") \
     macro(RANDOMIZER_CLEARALL,                "clearAll",               false,  CLEAN,  "") \
@@ -1053,17 +1053,17 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(RANDOMIZER_PIN_VAR,                 "pin_var",                false,  CLEAN,  "rrr") \
     macro(RANDOMIZER_UPDATE_VAR,              "update_var",             false,  CLEAN,  "TODO") \
     macro(RANDOMIZER_WRITE_VAR,               "write_var",              false,  CLEAN,  "TODO") \
-    macro(RANDOMIZER_SET_VAR_DISABLED,        "set_var_disabled",       false,  CLEAN,  "r") \
+    macro(RANDOMIZER_مجموعه_VAR_DISABLED,        "set_var_disabled",       false,  CLEAN,  "r") \
     macro(RANDOMIZER_CLEAR_VAR_DISABLED,      "clear_var_disabled",     false,  CLEAN,  "r") \
     macro(RANDOMIZER_MARK_VAR_STATIC,         "mark_var_static",        false,  CLEAN,  "r") \
-    macro(RANDOMIZER_SET_STATIC_RANDMODE,     "set_static_randmode",    false,  CLEAN,  "r") \
-    macro(RNG_GET_RANDSTATE,                  "__Vm_rng.get_randstate", PURE,   CLEAN,  "") \
-    macro(RNG_SET_RANDSTATE,                  "__Vm_rng.set_randstate", false,  CLEAN,  "r") \
+    macro(RANDOMIZER_مجموعه_STATIC_RANDMODE,     "set_static_randmode",    false,  CLEAN,  "r") \
+    macro(RNG_GET_RANDSTATE,                  "__Vm_rng.get_randstate", خالص_2,   CLEAN,  "") \
+    macro(RNG_مجموعه_RANDSTATE,                  "__Vm_rng.set_randstate", false,  CLEAN,  "r") \
     macro(SCHED_ANY_TRIGGERED,                "anyTriggered",           false,  CLEAN,  "r") \
-    macro(SCHED_AWAITING_CURRENT_TIME,        "awaitingCurrentTime",    PURE,   CLEAN,  "") \
-    macro(SCHED_AWAITING_ZERO_DELAY,          "awaitingZeroDelay",      PURE,   CLEAN,  "") \
+    macro(SCHED_AWAITING_CURRENT_زمان,        "awaitingCurrentTime",    خالص_2,   CLEAN,  "") \
+    macro(SCHED_AWAITING_ZERO_DELAY,          "awaitingZeroDelay",      خالص_2,   CLEAN,  "") \
     macro(SCHED_READY,                        "ready",                  false,  CLEAN,  "r") \
-    macro(SCHED_MOVE_TO_RESUME_QUEUE,         "moveToResumeQueue",      false,  CLEAN,  "r") \
+    macro(SCHED_MOVE_مقصد_RESUME_صف,         "moveToResumeQueue",      false,  CLEAN,  "r") \
     macro(SCHED_DELAY,                        "delay",                  false,  CLEAN,  "rrrr") \
     macro(SCHED_DO_POST_UPDATES,              "doPostUpdates",          false,  CLEAN,  "") \
     macro(SCHED_EVALUATE,                     "evaluate",               false,  CLEAN,  "") \
@@ -1074,190 +1074,190 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(SCHED_RESUMPTION,                   "resumption",             false,  CLEAN,  "rrrr") \
     macro(SCHED_TRIGGER,                      "trigger",                false,  CLEAN,  "rrrrr") \
     macro(SCHED_WAIT_FOREVER,                 "waitForever",            false,  CLEAN,  "rrr") \
-    macro(UNPACKED_ASSIGN,                    "assign",                 false,  CLEAN,  "r") \
+    macro(UNPACKED_تخصیص_بده,                    "assign",                 false,  CLEAN,  "r") \
     macro(UNPACKED_FILL,                      "fill",                   false,  CLEAN,  "r") \
-    macro(UNPACKED_NEQ,                       "neq",                    PURE,   CLEAN,  "r")
+    macro(UNPACKED_NEQ,                       "neq",                    خالص_2,   CLEAN,  "r")
 // clang-format on
 
 class VCMethod final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
-    static constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
+    ساكن constexpr bool خالص_2 = true;  // For macro expansion of 'pure' field only
+    ساكن constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
 
-public:
-    enum en : uint8_t {
-#define VL_CMETHOD_ID(id, method, pure, clean, args) id,
+عام:
+    تعداد en : uint8_t {
+#تعریف_کن VL_CMETHOD_ID(id, روش, خالص_3, clean, آرگومانها) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
-#undef VL_CMETHOD_ID
+#لغو_تعریف VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    تعداد en m_e;
     VCMethod()
         : m_e{_NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCMethod(en _e)
         : m_e{_e} {}
-    explicit VCMethod(int _e)
+    explicit VCMethod(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت VL_خالص {
+        ساكن constexpr ثابت حرف* ثابت مقادیر[] = {
+#تعریف_کن VL_CMETHOD_NAME(id, روش, خالص_3, clean, آرگومانها) روش,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
-#undef VL_CMETHOD_NAME
+#لغو_تعریف VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool isPure() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_PURE(id, method, pure, clean, args) pure,
-            FOR_EACH_CMETHOD(VL_CMETHOD_PURE)
-#undef VL_CMETHOD_PURE
+    bool is_خالص() ثابت VL_خالص {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_CMETHOD_خالص(id, روش, خالص_3, clean, آرگومانها) خالص_3,
+            FOR_EACH_CMETHOD(VL_CMETHOD_خالص)
+#لغو_تعریف VL_CMETHOD_خالص
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool isClean() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_CLEAN(id, method, pure, clean, args) clean,
+    bool isClean() ثابت VL_خالص {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_CMETHOD_CLEAN(id, روش, خالص_3, clean, آرگومانها) clean,
             FOR_EACH_CMETHOD(VL_CMETHOD_CLEAN)
-#undef VL_CMETHOD_CLEAN
+#لغو_تعریف VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
-            FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
-#undef VL_CMETHOD_ARGS
+    ثابت حرف* آرگومانها() ثابت VL_خالص {
+        ساكن constexpr ثابت حرف* ثابت مقادیر[] = {
+#تعریف_کن VL_CMETHOD_آرگومانها(id, روش, خالص_3, clean, آرگومانها) آرگومانها,
+            FOR_EACH_CMETHOD(VL_CMETHOD_آرگومانها)
+#لغو_تعریف VL_CMETHOD_آرگومانها
                 ""  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
     // Return array method for given name
-    static VCMethod arrayMethod(const string& name);
+    ساكن VCMethod array_روش(ثابت string& name);
 };
-constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VCMethod& lhs, ثابت VCMethod& rhs) { أرجع lhs.m_e == rhs.m_e; }
+constexpr bool عملگر==(ثابت VCMethod& lhs, VCMethod::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VCMethod::en lhs, ثابت VCMethod& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VCMethod& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // Static assert all argument descriptors are well formed
-#define VL_CMETHOD_ARGS_CHECK(id, method, pure, clean, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CMETHOD(VL_CMETHOD_ARGS_CHECK)
-#undef VL_CMETHOD_ARGS_CHECK
+#تعریف_کن VL_CMETHOD_آرگومانها_CHECK(id, روش, خالص_3, clean, آرگومانها) \
+    static_assert(validate_آرگومانها_Descriptor(آرگومانها), "Malformed argument descriptor for " #id);
+FOR_EACH_CMETHOD(VL_CMETHOD_آرگومانها_CHECK)
+#لغو_تعریف VL_CMETHOD_آرگومانها_CHECK
 
-#undef FOR_EACH_CMETHOD
+#لغو_تعریف FOR_EACH_CMETHOD
 
 // clang-format off
-#define FOR_EACH_CFUNCTION(macro) \
+#تعریف_کن FOR_EACH_CFUNCTION(macro) \
     /*    id,                                 function,                 pure,   args */ \
     macro(_NONE,                              "_none",                  false,  "") \
-    macro(RANDOMIZER_TO_SOLVER_HEX,           "vlToSolverHex",          PURE,   "r")
+    macro(RANDOMIZER_مقصد_SOLVER_HEX,           "vlToSolverHex",          خالص_2,   "r")
 // clang-format on
 
 class VCFunction final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    ساكن constexpr bool خالص_2 = true;  // For macro expansion of 'pure' field only
 
-public:
-    enum en : uint8_t {
-#define VL_CFUNCTION_ID(id, method, pure, args) id,
+عام:
+    تعداد en : uint8_t {
+#تعریف_کن VL_CFUNCTION_ID(id, روش, خالص_3, آرگومانها) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
-#undef VL_CFUNCTION_ID
+#لغو_تعریف VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    تعداد en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCFunction(en _e)
         : m_e{_e} {}
-    const char* ascii() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_NAME(id, function, pure, args) function,
+    ثابت حرف* ascii() ثابت VL_خالص {
+        ساكن ثابت حرف* ثابت مقادیر[] = {
+#تعریف_کن VL_CFUNCTION_NAME(id, function, خالص_3, آرگومانها) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
-#undef VL_CFUNCTION_NAME
+#لغو_تعریف VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool isPure() const VL_PURE {
-        static const bool values[] = {
-#define VL_CFUNCTION_PURE(id, method, pure, args) pure,
-            FOR_EACH_CFUNCTION(VL_CFUNCTION_PURE)
-#undef VL_CFUNCTION_PURE
+    bool is_خالص() ثابت VL_خالص {
+        ساكن ثابت bool مقادیر[] = {
+#تعریف_کن VL_CFUNCTION_خالص(id, روش, خالص_3, آرگومانها) خالص_3,
+            FOR_EACH_CFUNCTION(VL_CFUNCTION_خالص)
+#لغو_تعریف VL_CFUNCTION_خالص
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_ARGS(id, method, pure, args) args,
-            FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
-#undef VL_CFUNCTION_ARGS
+    ثابت حرف* آرگومانها() ثابت VL_خالص {
+        ساكن ثابت حرف* ثابت مقادیر[] = {
+#تعریف_کن VL_CFUNCTION_آرگومانها(id, روش, خالص_3, آرگومانها) آرگومانها,
+            FOR_EACH_CFUNCTION(VL_CFUNCTION_آرگومانها)
+#لغو_تعریف VL_CFUNCTION_آرگومانها
                 ""  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
 };
 
 // Static assert all argument descriptors are well formed
-#define VL_CFUNCTION_ARGS_CHECK(id, method, pure, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
-#undef VL_CFUNCTION_ARGS_CHECK
+#تعریف_کن VL_CFUNCTION_آرگومانها_CHECK(id, روش, خالص_3, آرگومانها) \
+    static_assert(validate_آرگومانها_Descriptor(آرگومانها), "Malformed argument descriptor for " #id);
+FOR_EACH_CFUNCTION(VL_CFUNCTION_آرگومانها_CHECK)
+#لغو_تعریف VL_CFUNCTION_آرگومانها_CHECK
 
-#undef FOR_EACH_CFUNCTION
+#لغو_تعریف FOR_EACH_CFUNCTION
 
 // ######################################################################
 
 class VCStmtType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         NONE,  // Unknown or not applicable
         CTOR_VAR_RESET_CALL,
         _ENUM_MAX  // Leave last
     };
 
-private:
-    struct Item final {
-        enum en m_e;  // Statement's enum mnemonic, for checking
-        const char* m_name;  // Statements name, for debugging
+خاص:
+    بنية قلم final {
+        تعداد en m_e;  // Statement's enum mnemonic, for checking
+        ثابت حرف* m_name;  // Statements name, for debugging
     };
-    static Item s_itemData[];
+    ساكن قلم s_قلم_داده[];
 
-public:
-    enum en m_e;
+عام:
+    تعداد en m_e;
     VCStmtType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCStmtType(en _e)
         : m_e{_e} {}
-    explicit VCStmtType(int _e)
+    explicit VCStmtType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[] = {"none", "ctor_var_reset_call"};
-        return names[m_e];
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت VL_خالص {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"none", "ctor_var_reset_call"};
+        أرجع نامها[m_e];
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() ثابت { أرجع m_e == NONE; }
 };
-constexpr bool operator==(const VCStmtType& lhs, const VCStmtType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VCStmtType& lhs, ثابت VCStmtType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VCStmtType& lhs, VCStmtType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VCStmtType::en lhs, ثابت VCStmtType& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VCStmtType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VCaseType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         CT_CASE,
         CT_CASEX,
         CT_CASEZ,
@@ -1265,32 +1265,32 @@ public:
         CT_CASEMATCHES,
         CT_RANDSEQUENCE
     };
-    enum en m_e;
+    تعداد en m_e;
     VCaseType()
         : m_e{CT_CASE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCaseType(en _e)
         : m_e{_e} {}
-    explicit VCaseType(int _e)
+    explicit VCaseType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت VL_خالص {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"CASE", "CASEX", "CASEZ", "CASEINSIDE", "CASEMATCHES", "RANDSEQUENCE"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VCaseType& lhs, const VCaseType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VCaseType& lhs, ثابت VCaseType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VCaseType& lhs, VCaseType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VCaseType::en lhs, ثابت VCaseType& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VCastable final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         UNSUPPORTED,
         SAMEISH,
         COMPATIBLE,
@@ -1300,37 +1300,37 @@ public:
         INCOMPATIBLE,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"UNSUPPORTED",   "SAMEISH",       "COMPATIBLE",  "ENUM_IMPLICIT",
                "ENUM_EXPLICIT", "DYNAMIC_CLASS", "INCOMPATIBLE"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    bool isAssignable() const { return m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
+    bool isAssignable() ثابت { أرجع m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
     VCastable()
         : m_e{UNSUPPORTED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCastable(en _e)
         : m_e{_e} {}
-    explicit VCastable(int _e)
+    explicit VCastable(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VCastable& lhs, const VCastable& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VCastable& lhs, ثابت VCastable& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VCastable& lhs, VCastable::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VCastable::en lhs, ثابت VCastable& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VCastable& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 //######################################################################
 
 class VCoverBinsType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         BINS_ARRAY,  // Array of bins with user-speciifed size
         BINS_AUTO,  // Automatic bins of a 'bins auto[N]' declaration
         BINS_AUTO_IMPLICIT,  // Automatic bins of a coverpoint without bins (IEEE 1800-2023 19.5.3)
@@ -1341,77 +1341,77 @@ public:
         BINS_USER,  // Single bin with one or more values/ranges
         BINS_WILDCARD  // Wildcard bin
     };
-    enum en m_e;
+    تعداد en m_e;
     VCoverBinsType()  // LCOV_EXCL_START
         : m_e{BINS_USER} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverBinsType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }  // LCOV_EXCL_LINE
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"array",        "auto",       "auto_implicit", "default", "ignore_bins",
                "illegal_bins", "transition", "bins",          "wildcard"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // Keyword declaring the bins, without any 'wildcard' prefix
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    ثابت حرف* verilogKwd() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {
             "bins", "bins", "bins", "bins", "ignore_bins", "illegal_bins", "bins", "bins", "bins"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // VlCovBinKind enumerator naming the bin's set
-    const char* binSetEnum() const {
-        switch (m_e) {
-        case BINS_IGNORE: return "VlCovBinKind::KIND_IGNORE";
-        case BINS_ILLEGAL: return "VlCovBinKind::KIND_ILLEGAL";
-        case BINS_DEFAULT: return "VlCovBinKind::KIND_DEFAULT";
-        default: return "VlCovBinKind::KIND_NORMAL";
+    ثابت حرف* bin_مجموعه_Enum() ثابت {
+        بدل (m_e) {
+        حالة BINS_IGNORE: أرجع "VlCovBinKind::KIND_IGNORE";
+        حالة BINS_ILLEGAL: أرجع "VlCovBinKind::KIND_ILLEGAL";
+        حالة BINS_DEFAULT: أرجع "VlCovBinKind::KIND_DEFAULT";
+        افتراضي: أرجع "VlCovBinKind::KIND_NORMAL";
         }
     }
     // Normal bins (feed coverage) are anything but ignore/illegal/default
-    bool binIsNormal() const {
-        return m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
+    bool bin_Is_نرمال() ثابت {
+        أرجع m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
     }
 };
-constexpr bool operator==(const VCoverBinsType& lhs, VCoverBinsType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VCoverBinsType& lhs, VCoverBinsType::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VCoverOptionType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         // Shared by option.* and type_option.*
-        WEIGHT,
+        وزن,
         GOAL,
-        AT_LEAST,
+        AT_کمترین,
         AUTO_BIN_MAX,
-        PER_INSTANCE,
+        در_هر_INSTANCE,
         COMMENT,
         // option.* only (IEEE 1800-2023 Table 19-1)
         NAME,
-        CROSS_NUM_PRINT_MISSING,
+        CROSS_رقم_PRINT_MISSING,
         CROSS_RETAIN_AUTO_BINS,
         DETECT_OVERLAP,
         GET_INST_COVERAGE,
         // type_option.* only (IEEE 1800-2023 Table 19-3)
         STROBE,
-        MERGE_INSTANCES,
-        DISTRIBUTE_FIRST,
+        ادغام_INSTANCES,
+        DISTRIBUTE_اولی,
         REAL_INTERVAL,
         // Legacy option.* accepted for compatibility
         CROSS_AUTO_BIN_MAX,
         // sentinel - should never appear after parse-time validation
         UNKNOWN
     };
-    enum en m_e;
+    تعداد en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverOptionType(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"weight",
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"weight",
                                                       "goal",
                                                       "at_least",
                                                       "auto_bin_max",
@@ -1428,120 +1428,120 @@ public:
                                                       "real_interval",
                                                       "cross_auto_bin_max",
                                                       "unknown"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VCoverOptionType& lhs, VCoverOptionType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VCoverOptionType& lhs, VCoverOptionType::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VTransRepType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         NONE,  // No repetition
         CONSEC,  // Consecutive repetition [*]
         GOTO,  // Goto repetition [->]
         NONCONS  // Nonconsecutive repetition [=]
     };
-    enum en m_e;
+    تعداد en m_e;
     VTransRepType()  // LCOV_EXCL_START
         : m_e{NONE} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VTransRepType(en _e)
         : m_e{_e} {}
-    explicit VTransRepType(int _e)  // LCOV_EXCL_START
+    explicit VTransRepType(صحيح _e)  // LCOV_EXCL_START
         : m_e(static_cast<en>(_e)) {}  // LCOV_EXCL_STOP  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "[*]", "[->]", "[=]"};
-        return names[m_e];
+    constexpr عملگر en() ثابت { أرجع m_e; }  // LCOV_EXCL_LINE
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"", "[*]", "[->]", "[=]"};
+        أرجع نامها[m_e];
     }
-    const char* asciiJson() const {
-        static constexpr const char* const names[]
+    ثابت حرف* asciiJson() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"\"none\"", "\"consec\"", "\"goto\"", "\"noncons\""};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
 
 //######################################################################
 
 class VDirection final {
-public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { NONE, درون_داد, OUTPUT, INOUT, REF, CONSTREF };
+    تعداد en m_e;
     VDirection()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDirection(en _e)
         : m_e{_e} {}
-    explicit VDirection(int _e)
+    explicit VDirection(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت VL_MT_امن { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"NONE", "INPUT", "OUTPUT", "INOUT", "REF", "CONSTREF"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    string verilogKwd() const {
-        static constexpr const char* const names[]
+    string verilogKwd() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"", "input", "output", "inout", "ref", "const ref"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    string prettyName() const { return verilogKwd(); }
-    bool isAny() const { return m_e != NONE; }
-    bool isInout() const { return m_e == INOUT; }
-    bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
-    bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+    string prettyName() ثابت { أرجع verilogKwd(); }
+    bool isAny() ثابت { أرجع m_e != NONE; }
+    bool isInout() ثابت { أرجع m_e == INOUT; }
+    bool isInoutOrRef() ثابت { أرجع m_e == INOUT || m_e == REF || m_e == CONSTREF; }
+    bool is_درون_داد() ثابت { أرجع m_e == درون_داد; }
+    bool isNonOutput() ثابت {
+        أرجع m_e == درون_داد || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
-    bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
-    bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
-    bool isRef() const VL_MT_SAFE { return m_e == REF; }
-    bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
-    string traceSigDirection() const {
-        if (isInout()) {
-            return "VerilatedTraceSigDirection::INOUT";
-        } else if (isWritable()) {
-            return "VerilatedTraceSigDirection::OUTPUT";
-        } else if (isNonOutput()) {
-            return "VerilatedTraceSigDirection::INPUT";
+    bool isOutput() ثابت { أرجع m_e == OUTPUT; }
+    bool isReadOnly() ثابت VL_MT_امن { أرجع m_e == درون_داد || m_e == CONSTREF; }
+    bool isWritable() ثابت VL_MT_امن { أرجع m_e == OUTPUT || m_e == INOUT || m_e == REF; }
+    bool isRef() ثابت VL_MT_امن { أرجع m_e == REF; }
+    bool isConstRef() ثابت VL_MT_امن { أرجع m_e == CONSTREF; }
+    string traceSigDirection() ثابت {
+        إذا (isInout()) {
+            أرجع "VerilatedTraceSigDirection::INOUT";
+        } وإلا إذا (isWritable()) {
+            أرجع "VerilatedTraceSigDirection::OUTPUT";
+        } وإلا إذا (isNonOutput()) {
+            أرجع "VerilatedTraceSigDirection::INPUT";
         }
-        return "VerilatedTraceSigDirection::NONE";
+        أرجع "VerilatedTraceSigDirection::NONE";
     }
-    VAccess pinAccess() const {
-        switch (m_e) {
-        case NONE: return VAccess::NOCHANGE;
-        case INPUT:
-        case CONSTREF: return VAccess::READ;
-        case OUTPUT: return VAccess::WRITE;
-        case INOUT:
-        case REF: return VAccess::READWRITE;
+    VAccess pinAccess() ثابت {
+        بدل (m_e) {
+        حالة NONE: أرجع VAccess::NOCHANGE;
+        حالة درون_داد:
+        حالة CONSTREF: أرجع VAccess::READ;
+        حالة OUTPUT: أرجع VAccess::WRITE;
+        حالة INOUT:
+        حالة REF: أرجع VAccess::READWRITE;
         }
         v3fatalSrc("Unhandled VDirection");
     }
 };
-constexpr bool operator==(const VDirection& lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VDirection& lhs, ثابت VDirection& rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VDirection& lhs, VDirection::en rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VDirection::en lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VDirection::en lhs, ثابت VDirection& rhs) VL_MT_امن {
+    أرجع lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VDirection& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VDisplayType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         DT_DISPLAY,
         DT_WRITE,
         DT_MONITOR,
@@ -1551,66 +1551,66 @@ public:
         DT_WARNING,
         DT_FATAL
     };
-    enum en m_e;
+    تعداد en m_e;
     VDisplayType()
         : m_e{DT_DISPLAY} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDisplayType(en _e)
         : m_e{_e} {}
-    explicit VDisplayType(int _e)
+    explicit VDisplayType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool addNewline() const { return m_e != DT_WRITE; }
-    bool needScopeTracking() const { return m_e != DT_DISPLAY && m_e != DT_WRITE; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool جمع_کن_Newline() ثابت { أرجع m_e != DT_WRITE; }
+    bool needScopeTracking() ثابت { أرجع m_e != DT_DISPLAY && m_e != DT_WRITE; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"display", "write", "monitor", "strobe", "info", "error", "warning", "fatal"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VDisplayType& lhs, const VDisplayType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VDisplayType& lhs, ثابت VDisplayType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VDisplayType& lhs, VDisplayType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VDisplayType::en lhs, ثابت VDisplayType& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VDumpCtlType final {
-public:
-    enum en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { FILE, VARS, ALL, FLUSH, حد_2, OFF, ON };
+    تعداد en m_e;
     VDumpCtlType()
         : m_e{ON} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDumpCtlType(en _e)
         : m_e{_e} {}
-    explicit VDumpCtlType(int _e)
+    explicit VDumpCtlType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"$dumpfile",  "$dumpvars", "$dumpall", "$dumpflush",
                "$dumplimit", "$dumpoff",  "$dumpon"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VDumpCtlType& lhs, const VDumpCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VDumpCtlType& lhs, ثابت VDumpCtlType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VDumpCtlType& lhs, VDumpCtlType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VDumpCtlType::en lhs, ثابت VDumpCtlType& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VEdgeType final {
-public:
+عام:
     // REMEMBER to edit the strings below too
-    enum en : uint8_t {
+    تعداد en : uint8_t {
         // These must be in general -> most specific order, as we sort by it
         // in V3Const::visit AstSenTree
         // Involving a variable
-        ET_CHANGED,  // Value changed
+        ET_تغییریافته,  // Value changed
         ET_BOTHEDGE,  // POSEDGE | NEGEDGE (i.e.: 'edge' in Verilog)
         ET_POSEDGE,
         ET_NEGEDGE,
@@ -1620,16 +1620,16 @@ public:
         ET_INITIAL_NBA,  // Event that is fired initially and never again
         //
         ET_COMBO,  // Sensitive to all combo inputs to this block
-        ET_COMBO_STAR,  // Sensitive to all combo inputs to this block (from .*)
+        ET_COMBO_ستاره,  // Sensitive to all combo inputs to this block (from .*)
         ET_HYBRID,  // This is like ET_COMB, but with explicit sensitivity to an expression
         ET_STATIC,  // static variable initializers (runs before 'initial')
         ET_INITIAL,  // 'initial' statements
         ET_FINAL,  // 'final' statements
         ET_NEVER  // Never occurs (optimized away)
     };
-    enum en m_e;
-    bool clockedStmt() const {
-        static constexpr bool clocked[] = {
+    تعداد en m_e;
+    bool clockedStmt() ثابت {
+        ساكن constexpr bool clocked[] = {
             true,  // ET_CHANGED
             true,  // ET_BOTHEDGE
             true,  // ET_POSEDGE
@@ -1646,62 +1646,62 @@ public:
             false,  // ET_FINAL
             false,  // ET_NEVER
         };
-        return clocked[m_e];
+        أرجع clocked[m_e];
     }
-    bool anEdge() const { return m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
-    VEdgeType invert() const {
-        switch (m_e) {
-        case ET_CHANGED: return ET_CHANGED;
-        case ET_BOTHEDGE: return ET_BOTHEDGE;
-        case ET_POSEDGE: return ET_NEGEDGE;
-        case ET_NEGEDGE: return ET_POSEDGE;
-        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); return ET_NEGEDGE;
+    bool an_یال() ثابت { أرجع m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
+    VEdgeType invert() ثابت {
+        بدل (m_e) {
+        حالة ET_تغییریافته: أرجع ET_تغییریافته;
+        حالة ET_BOTHEDGE: أرجع ET_BOTHEDGE;
+        حالة ET_POSEDGE: أرجع ET_NEGEDGE;
+        حالة ET_NEGEDGE: أرجع ET_POSEDGE;
+        افتراضي: UASSERT_STATIC(0, "Inverting bad edgeType()"); أرجع ET_NEGEDGE;
         }
     }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"CHANGED", "BOTH",       "POS",    "NEG",    "EVENT",   "TRUE",  "ET_INITIAL_NBA",
                "COMBO",   "COMBO_STAR", "HYBRID", "STATIC", "INITIAL", "FINAL", "NEVER"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    ثابت حرف* verilogKwd() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {
             "[changed]", "edge", "posedge",  "negedge",  "[event]",   "[true]",  "[initial_nba]",
             "*",         "*",    "[hybrid]", "[static]", "[initial]", "[final]", "[never]"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // Return true iff this and the other have mutually exclusive transitions
-    bool exclusiveEdge(const VEdgeType& other) const {
-        switch (m_e) {
-        case VEdgeType::ET_POSEDGE:
-            if (other.m_e == VEdgeType::ET_NEGEDGE) return true;
-            break;
-        case VEdgeType::ET_NEGEDGE:
-            if (other.m_e == VEdgeType::ET_POSEDGE) return true;
-            break;
-        default: break;
+    bool exclusive_یال(ثابت VEdgeType& other) ثابت {
+        بدل (m_e) {
+        حالة VEdgeType::ET_POSEDGE:
+            إذا (other.m_e == VEdgeType::ET_NEGEDGE) أرجع true;
+            اكسر;
+        حالة VEdgeType::ET_NEGEDGE:
+            إذا (other.m_e == VEdgeType::ET_POSEDGE) أرجع true;
+            اكسر;
+        افتراضي: اكسر;
         }
-        return false;
+        أرجع false;
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VEdgeType(en _e)
         : m_e{_e} {}
-    explicit VEdgeType(int _e)
+    explicit VEdgeType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VEdgeType& lhs, const VEdgeType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VEdgeType& lhs, ثابت VEdgeType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs == rhs.m_e; }
+constexpr bool عملگر==(ثابت VEdgeType& lhs, VEdgeType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VEdgeType::en lhs, ثابت VEdgeType& rhs) { أرجع lhs == rhs.m_e; }
 
 // ######################################################################
 
 // Enumeration of the model's evaluation entry points. Fields:
 // is iterated, has triggers, takes 'firstIteration' flag, is slow
 // clang-format off
-#define FOR_EACH_EVAL(macro) \
+#تعریف_کن FOR_EACH_EVAL(macro) \
     /*    id,        iterated,  hasTrigs, firstIt, slow */ \
     macro(STATIC,    false,     false,    false,   true) \
     macro(INITIAL,   false,     false,    false,   true) \
@@ -1718,115 +1718,115 @@ constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs 
 // clang-format on
 
 class VEval final {
-public:
-    enum en : uint8_t {
-#define VL_EVAL_ID(id, iterated, triggers, first, slow) id,
+عام:
+    تعداد en : uint8_t {
+#تعریف_کن VL_EVAL_ID(id, iterated, triggers, اولی, slow) id,
         FOR_EACH_EVAL(VL_EVAL_ID)
-#undef VL_EVAL_ID
-            _ENUM_END
+#لغو_تعریف VL_EVAL_ID
+            ENUM_انتها
     };
-    enum en m_e;
+    تعداد en m_e;
 
-    const char* ascii() const {
-        static constexpr const char* const values[] = {
-#define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت مقادیر[] = {
+#تعریف_کن VL_EVAL_NAME(id, iterated, triggers, اولی, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
-#undef VL_EVAL_NAME
+#لغو_تعریف VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool isIterated() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_IS_ITERATED(id, iterated, triggers, first, slow) iterated,
+    bool isIterated() ثابت {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_EVAL_IS_ITERATED(id, iterated, triggers, اولی, slow) iterated,
             FOR_EACH_EVAL(VL_EVAL_IS_ITERATED)
-#undef VL_EVAL_IS_ITERATED
+#لغو_تعریف VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool hasTriggers() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, first, slow) triggers,
+    bool hasTriggers() ثابت {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, اولی, slow) triggers,
             FOR_EACH_EVAL(VL_EVAL_HAS_TRIGGERS)
-#undef VL_EVAL_HAS_TRIGGERS
+#لغو_تعریف VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool firstIteration() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_FIRST(id, iterated, triggers, first, slow) first,
-            FOR_EACH_EVAL(VL_EVAL_FIRST)
-#undef VL_EVAL_FIRST
+    bool اولی_Iteration() ثابت {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_EVAL_اولی(id, iterated, triggers, اولی, slow) اولی,
+            FOR_EACH_EVAL(VL_EVAL_اولی)
+#لغو_تعریف VL_EVAL_اولی
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
-    bool slow() const {
-        static constexpr bool values[] = {
-#define VL_EVAL_SLOW(id, iterated, triggers, first, slow) slow,
+    bool slow() ثابت {
+        ساكن constexpr bool مقادیر[] = {
+#تعریف_کن VL_EVAL_SLOW(id, iterated, triggers, اولی, slow) slow,
             FOR_EACH_EVAL(VL_EVAL_SLOW)
-#undef VL_EVAL_SLOW
+#لغو_تعریف VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        أرجع مقادیر[m_e];
     }
 
     // Short name
-    std::string tag() const { return VString::downcase(ascii()); }
+    std::string برچسب() ثابت { أرجع VString::downcase(ascii()); }
     // Name of the generated entry point function
-    std::string funcName() const { return "_eval_" + tag(); }
+    std::string funcName() ثابت { أرجع "_eval_" + برچسب(); }
     // Name of the VerilatedModel virtual method invoking the entry point
-    std::string evalMethod() const { return "eval" + capitalizedTag(); }
+    std::string eval_روش() ثابت { أرجع "eval" + capitalized_برچسب(); }
     // Name of the function dumping the triggers of this region
-    std::string dumpTriggersFuncName() const { return "_eval_dump_triggers__" + tag(); }
+    std::string dumpTriggersFuncName() ثابت { أرجع "_eval_dump_triggers__" + برچسب(); }
     // Name of the VerilatedModel virtual method dumping this region's triggers
-    std::string dumpTriggersMethod() const { return "dumpTriggers" + capitalizedTag(); }
+    std::string dump_Triggers_روش() ثابت { أرجع "dumpTriggers" + capitalized_برچسب(); }
 
     // cppcheck-suppress noExplicitConstructor
     VEval(en _e)
         : m_e{_e} {}
-    explicit VEval(int _e)
+    explicit VEval(صحيح _e)
         : m_e(static_cast<en>(_e)) {}
-    operator en() const { return m_e; }
+    عملگر en() ثابت { أرجع m_e; }
 
-private:
-    std::string capitalizedTag() const {
-        const std::string name = ascii();
-        return name.substr(0, 1) + VString::downcase(name.substr(1));
+خاص:
+    std::string capitalized_برچسب() ثابت {
+        ثابت std::string name = ascii();
+        أرجع name.substr(0, 1) + VString::downcase(name.substr(1));
     }
 };
 
-#undef FOR_EACH_EVAL
+#لغو_تعریف FOR_EACH_EVAL
 
 // ######################################################################
 
 class VFwdType final {
-public:
-    enum en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+عام:
+    تعداد en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"none", "enum", "struct", "union", "class", "interface class", "generic interface"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     VFwdType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFwdType(en _e)
         : m_e{_e} {}
-    explicit VFwdType(int _e)
+    explicit VFwdType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
     // Is a node type compatible with the declaration
-    bool isNodeCompatible(const AstNode* nodep) const;
+    bool is_گره_Compatible(ثابت Ast_گره* nodep) ثابت;
 };
-constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VFwdType& lhs, ثابت VFwdType& rhs) { أرجع lhs.m_e == rhs.m_e; }
+constexpr bool عملگر==(ثابت VFwdType& lhs, VFwdType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VFwdType::en lhs, ثابت VFwdType& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VFwdType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1837,23 +1837,23 @@ class VIsCached final {
     // else if cachedCnt == s_cachedCntGbl, then m_state is if cached
     uint64_t m_cachedCnt : 63;  // Mark of when cache was computed
     uint64_t m_state : 1;
-    static uint64_t s_cachedCntGbl;  // Global computed count
+    ساكن uint64_t s_cachedCntGbl;  // Global computed count
 
-public:
+عام:
     VIsCached()
         : m_cachedCnt{0}
         , m_state{0} {}
-    bool isCached() const { return m_cachedCnt == s_cachedCntGbl; }
-    bool get() const { return m_state; }
-    void set(bool flag) {
+    bool isCached() ثابت { أرجع m_cachedCnt == s_cachedCntGbl; }
+    bool get() ثابت { أرجع m_state; }
+    فراغ مجموعه(bool flag) {
         m_cachedCnt = s_cachedCntGbl;
         m_state = flag;
     }
-    void clearCache() {
+    فراغ clearCache() {
         m_cachedCnt = 0;
         m_state = 0;
     }
-    static void clearCacheTree() {
+    ساكن فراغ clear_Cache_درخت() {
         ++s_cachedCntGbl;
         // 64 bits so won't overflow
         // UASSERT_STATIC(s_cachedCntGbl < MAX_CNT, "Overflow of cache counting");
@@ -1864,83 +1864,83 @@ public:
 
 /// Join type
 class VJoinType final {
-public:
-    enum en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
+    تعداد en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VJoinType()
         : m_e{JOIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VJoinType(en _e)
         : m_e{_e} {}
-    explicit VJoinType(int _e)
+    explicit VJoinType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
-        return names[m_e];
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
+        أرجع نامها[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {"join", "join_any", "join_none"};
-        return names[m_e];
+    ثابت حرف* verilogKwd() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"join", "join_any", "join_none"};
+        أرجع نامها[m_e];
     }
-    bool join() const { return m_e == JOIN; }
-    bool joinAny() const { return m_e == JOIN_ANY; }
-    bool joinNone() const { return m_e == JOIN_NONE; }
+    bool join() ثابت { أرجع m_e == JOIN; }
+    bool joinAny() ثابت { أرجع m_e == JOIN_ANY; }
+    bool joinNone() ثابت { أرجع m_e == JOIN_NONE; }
 };
-constexpr bool operator==(const VJoinType& lhs, const VJoinType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VJoinType& lhs, ثابت VJoinType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VJoinType& lhs, VJoinType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VJoinType::en lhs, ثابت VJoinType& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VJoinType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VLifetime final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         NONE,
         AUTOMATIC_EXPLICIT,  // Automatic assigned by user
         AUTOMATIC_IMPLICIT,  // AUtomatic propagated from above
         STATIC_EXPLICIT,  // Static assigned by user
         STATIC_IMPLICIT
     };  // Static propagated from above
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"NONE", "VAUTOM", "VAUTOMI", "VSTATIC", "VSTATICI"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     VLifetime()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VLifetime(en _e)
         : m_e{_e} {}
-    explicit VLifetime(int _e)
+    explicit VLifetime(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isNone() const { return m_e == NONE; }
-    bool isAutomatic() const { return m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
-    bool isStatic() const { return m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
-    bool isStaticExplicit() const { return m_e == STATIC_EXPLICIT; }
-    VLifetime makeImplicit() const {
-        switch (m_e) {
-        case AUTOMATIC_EXPLICIT: return AUTOMATIC_IMPLICIT;
-        case STATIC_EXPLICIT: return STATIC_IMPLICIT;
-        default: return m_e;
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool isNone() ثابت { أرجع m_e == NONE; }
+    bool isAutomatic() ثابت { أرجع m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
+    bool isStatic() ثابت { أرجع m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
+    bool isStaticExplicit() ثابت { أرجع m_e == STATIC_EXPLICIT; }
+    VLifetime makeImplicit() ثابت {
+        بدل (m_e) {
+        حالة AUTOMATIC_EXPLICIT: أرجع AUTOMATIC_IMPLICIT;
+        حالة STATIC_EXPLICIT: أرجع STATIC_IMPLICIT;
+        افتراضي: أرجع m_e;
         }
     }
 };
-constexpr bool operator==(const VLifetime& lhs, const VLifetime& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VLifetime& lhs, ثابت VLifetime& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VLifetime& lhs, VLifetime::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VLifetime::en lhs, ثابت VLifetime& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VLifetime& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1948,126 +1948,126 @@ inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
 //  See also AstRange, which is a symbolic version of this
 
 class VNumRange final {
-public:
+عام:
     // Iterable sequence of integers
     class Sequence final {
         class Iterator final {
-            int m_index;  // Current index
-            const int m_inc;  // Step, +1 or -1
-        public:
-            Iterator(int index, int inc)
-                : m_index{index}
+            صحيح m_شاخص;  // Current index
+            ثابت صحيح m_inc;  // Step, +1 or -1
+        عام:
+            Iterator(صحيح شاخص, صحيح inc)
+                : m_شاخص{شاخص}
                 , m_inc{inc} {}
-            int operator*() const { return m_index; }
-            Iterator& operator++() {
-                m_index += m_inc;
-                return *this;
+            صحيح عملگر*() ثابت { أرجع m_شاخص; }
+            Iterator& عملگر++() {
+                m_شاخص += m_inc;
+                أرجع *this;
             }
-            bool operator!=(const Iterator& that) const { return m_index != that.m_index; }
+            bool عملگر!=(ثابت Iterator& that) ثابت { أرجع m_شاخص != that.m_شاخص; }
         };
-        const int m_begin;  // First index
-        const int m_end;  // One past the last index
-        const int m_inc;  // Step, +1 or -1
-    public:
-        Sequence(int first, int last, int inc)
-            : m_begin{first}
-            , m_end{last + inc}
+        ثابت صحيح m_begin;  // First index
+        ثابت صحيح m_انتها;  // One past the last index
+        ثابت صحيح m_inc;  // Step, +1 or -1
+    عام:
+        Sequence(صحيح اولی, صحيح آخرین, صحيح inc)
+            : m_begin{اولی}
+            , m_انتها{آخرین + inc}
             , m_inc{inc} {}
-        Iterator begin() const { return Iterator{m_begin, m_inc}; }
-        Iterator end() const { return Iterator{m_end, m_inc}; }
+        Iterator begin() ثابت { أرجع Iterator{m_begin, m_inc}; }
+        Iterator انتها() ثابت { أرجع Iterator{m_انتها, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    صحيح m_چپ = 0;  // Left side of range (pre-':')
+    صحيح m_راست = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
-    bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+    bool عملگر==(ثابت VNumRange& rhs) ثابت {
+        أرجع m_چپ == rhs.m_چپ && m_راست == rhs.m_راست && m_ranged == rhs.m_ranged;
     }
-    bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
-        if ((m_ranged < rhs.m_ranged)) return true;
-        if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
-        return false;
+    bool عملگر<(ثابت VNumRange& rhs) ثابت {
+        إذا ((m_چپ < rhs.m_چپ)) أرجع true;
+        إذا (!(m_چپ == rhs.m_چپ)) أرجع false;  // lhs > rhs
+        إذا ((m_راست < rhs.m_راست)) أرجع true;
+        إذا (!(m_راست == rhs.m_راست)) أرجع false;  // lhs > rhs
+        إذا ((m_ranged < rhs.m_ranged)) أرجع true;
+        إذا (!(m_ranged == rhs.m_ranged)) أرجع false;  // lhs > rhs
+        أرجع false;
     }
     //
-    VNumRange() = default;
-    VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
-        : m_left{left}
-        , m_right{right}
+    VNumRange() = افتراضي;
+    VNumRange(صحيح hi, صحيح lo, bool ascending) { init(hi, lo, ascending); }
+    VNumRange(صحيح چپ_2, صحيح راست_2)
+        : m_چپ{چپ_2}
+        , m_راست{راست_2}
         , m_ranged{true} {}
-    ~VNumRange() = default;
+    ~VNumRange() = افتراضي;
     // MEMBERS
-    void init(int hi, int lo, bool ascending) {
-        if (lo > hi) std::swap(hi, lo);
-        m_left = ascending ? lo : hi;
-        m_right = ascending ? hi : lo;
+    فراغ init(صحيح hi, صحيح lo, bool ascending) {
+        إذا (lo > hi) std::جابجا(hi, lo);
+        m_چپ = ascending ? lo : hi;
+        m_راست = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+    صحيح چپ_2() ثابت { أرجع m_چپ; }
+    صحيح راست_2() ثابت { أرجع m_راست; }
+    صحيح hi() ثابت VL_MT_امن {
+        أرجع m_چپ > m_راست ? m_چپ : m_راست;
     }  // How to show a declaration
-    int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+    صحيح lo() ثابت VL_MT_امن {
+        أرجع m_چپ > m_راست ? m_راست : m_چپ;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    صحيح چپ_مقصد_راست_Inc() ثابت { أرجع ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seq_چپ_مقصد_راست() ثابت { أرجع {m_چپ, m_راست, چپ_مقصد_راست_Inc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seq_راست_مقصد_چپ() ثابت { أرجع {m_راست, m_چپ, -چپ_مقصد_راست_Inc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
-    Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
+    Sequence seq_Lo_مقصد_Hi() ثابت { أرجع {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
-    Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
-    int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
-    bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
-    int hiMaxSelect() const {
-        return (lo() < 0 ? hi() - lo() : hi());
+    Sequence seq_Hi_مقصد_Lo() ثابت { أرجع {hi(), lo(), -1}; }
+    صحيح elements() ثابت VL_MT_امن { أرجع hi() - lo() + 1; }
+    bool ranged() ثابت { أرجع m_ranged; }
+    bool ascending() ثابت { أرجع m_چپ < m_راست; }
+    صحيح hiMaxSelect() ثابت {
+        أرجع (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
-    string ascii() const {
-        if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
-        } else {
-            return "[norg]";
+    string ascii() ثابت {
+        إذا (ranged()) {
+            أرجع "["s + std::مقصد_string(چپ_2()) + ":" + std::مقصد_string(راست_2()) + "]";
+        } وإلا {
+            أرجع "[norg]";
         }
     }
-    void dump(std::ostream& str) const { str << ascii(); }
+    فراغ dump(std::ostream& str) ثابت { str << ascii(); }
 };
-inline std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VNumRange& rhs) {
     rhs.dump(os);
-    return os;
+    أرجع os;
 }
 
 // ######################################################################
 
 class VPragmaType final {
-public:
-    enum en : uint8_t {
-        COVERAGE_BLOCK_OFF,
-        HIER_BLOCK,
+عام:
+    تعداد en : uint8_t {
+        COVERAGE_بلوک_OFF,
+        HIER_بلوک,
         HIER_PARAMS,
         INLINE_MODULE,
         NO_INLINE_MODULE,
         NO_INLINE_TASK,
-        PUBLIC_MODULE,
-        PUBLIC_TASK,
-        TIMEUNIT_SET,
+        عمومی_MODULE,
+        عمومی_TASK,
+        TIMEUNIT_مجموعه,
         UNROLL_DISABLE,
-        UNROLL_FULL,
-        FULL_CASE,
+        UNROLL_پر,
+        پر_CASE,
         PARALLEL_CASE,
         VERILATOR_LIB,
-        _ENUM_SIZE
+        ENUM_اندازه
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {
             "COVERAGE_BLOCK_OFF",  //
             "HIER_BLOCK",  //
             "HIER_PARAMS",  //
@@ -2084,52 +2084,52 @@ public:
             "VERILATOR_LIB",  //
             "_ENUM_SIZE"  //
         };
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VPragmaType(en _e)
         : m_e{_e} {}
-    explicit VPragmaType(int _e)
+    explicit VPragmaType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
-constexpr bool operator==(const VPragmaType& lhs, const VPragmaType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VPragmaType& lhs, ثابت VPragmaType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VPragmaType& lhs, VPragmaType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VPragmaType::en lhs, ثابت VPragmaType& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VPragmaType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 // Defines what kind of randomization is done on a variable
 
 class VRandAttr final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         NONE,  // Not randomizable
         RAND,  // Has a rand modifier
         RAND_CYCLIC,  // Has a randc modifier
         RAND_INLINE  // Not rand/randc, but used in inline random variable control
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
-        return names[m_e];
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
+        أرجع نامها[m_e];
     }
     VRandAttr()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VRandAttr(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    bool isRandomizable() const { return m_e != NONE; }
-    bool isRand() const { return m_e == RAND || m_e == RAND_CYCLIC; }
-    bool isRandC() const { return m_e == RAND_CYCLIC; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool isRandomizable() ثابت { أرجع m_e != NONE; }
+    bool isRand() ثابت { أرجع m_e == RAND || m_e == RAND_CYCLIC; }
+    bool isRandC() ثابت { أرجع m_e == RAND_CYCLIC; }
 };
-inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VRandAttr& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2137,110 +2137,110 @@ inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
 //  serve as a pointer to a 'self' object. For example, it could be empty (no self pointer), or the
 //  string 'this', or 'vlSymsp->...'
 
-class VSelfPointerText final {
+class VSelf_اشاره_گر_متن final {
     // STATIC MEMBERS
     // Keep these in shared pointers to avoid branching for special cases
-    static const std::shared_ptr<const string> s_emptyp;  // Holds ""
-    static const std::shared_ptr<const string> s_thisp;  // Holds "this"
+    ساكن ثابت std::shared_ptr<ثابت string> s_emptyp;  // Holds ""
+    ساكن ثابت std::shared_ptr<ثابت string> s_thisp;  // Holds "this"
 
     // MEMBERS
-    std::shared_ptr<const string> m_strp;
+    std::shared_ptr<ثابت string> m_strp;
 
-public:
+عام:
     // CONSTRUCTORS
-    class Empty {};  // for creator type-overload selection
-    explicit VSelfPointerText(Empty)
+    class خالی_2 {};  // for creator type-overload selection
+    explicit VSelf_اشاره_گر_متن(خالی_2)
         : m_strp{s_emptyp} {}
     class This {};  // for creator type-overload selection
-    explicit VSelfPointerText(This)
+    explicit VSelf_اشاره_گر_متن(This)
         : m_strp{s_thisp} {}
-    VSelfPointerText(This, const string& field)
-        : m_strp{std::make_shared<const string>("this->" + field)} {}
+    VSelf_اشاره_گر_متن(This, ثابت string& فیلد)
+        : m_strp{std::make_shared<ثابت string>("this->" + فیلد)} {}
     class VlSyms {};  // for creator type-overload selection
-    VSelfPointerText(VlSyms, const string& field)
-        : m_strp{std::make_shared<const string>("(&vlSymsp->vlInst." + field + ')')} {}
+    VSelf_اشاره_گر_متن(VlSyms, ثابت string& فیلد)
+        : m_strp{std::make_shared<ثابت string>("(&vlSymsp->vlInst." + فیلد + ')')} {}
 
     // METHODS
-    bool isEmpty() const { return m_strp == s_emptyp; }
-    bool isVlSym() const { return m_strp->find("vlSymsp") != string::npos; }
-    bool hasThis() const { return m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
-    string protect(bool useSelfForThis, bool protect) const;
-    static string replaceThis(bool useSelfForThis, const string& text);
-    const std::string& asString() const { return *m_strp; }
-    bool operator==(const VSelfPointerText& other) const { return *m_strp == *other.m_strp; }
+    bool is_خالی() ثابت { أرجع m_strp == s_emptyp; }
+    bool isVlSym() ثابت { أرجع m_strp->پیدا_کن("vlSymsp") != string::npos; }
+    bool hasThis() ثابت { أرجع m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
+    string protect(bool useSelfForThis, bool protect) ثابت;
+    ساكن string replaceThis(bool useSelfForThis, ثابت string& متن);
+    ثابت std::string& asString() ثابت { أرجع *m_strp; }
+    bool عملگر==(ثابت VSelf_اشاره_گر_متن& other) ثابت { أرجع *m_strp == *other.m_strp; }
 };
 
 // ######################################################################
 
 class VSigning final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         UNSIGNED,
         SIGNED,
         NOSIGN,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
-        return names[m_e];
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
+        أرجع نامها[m_e];
     }
     VSigning()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VSigning(en _e)
         : m_e{_e} {}
-    static VSigning fromBool(bool isSigned) {  // Factory method
-        return isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
+    ساكن VSigning fromBool(bool isSigned) {  // Factory method
+        أرجع isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
     }
-    explicit VSigning(int _e)
+    explicit VSigning(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isSigned() const VL_MT_SAFE { return m_e == SIGNED; }
-    bool isNosign() const VL_MT_SAFE { return m_e == NOSIGN; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool isSigned() ثابت VL_MT_امن { أرجع m_e == SIGNED; }
+    bool isNosign() ثابت VL_MT_امن { أرجع m_e == NOSIGN; }
     // No isUnsigned() as it's ambiguous if NOSIGN should be included or not.
 };
-constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VSigning& lhs, ثابت VSigning& rhs) { أرجع lhs.m_e == rhs.m_e; }
+constexpr bool عملگر==(ثابت VSigning& lhs, VSigning::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VSigning::en lhs, ثابت VSigning& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VSigning& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VStrength final {
-public:
-    enum en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
+    تعداد en m_e;
 
     // cppcheck-suppress noExplicitConstructor
     constexpr VStrength(en strengthLevel)
         : m_e{strengthLevel} {}
-    explicit VStrength(int _e)
+    explicit VStrength(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"highz", "small", "medium", "weak", "large", "pull", "strong", "supply"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VStrength& lhs, const VStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VStrength& lhs, ثابت VStrength& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VStrength& lhs, VStrength::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VStrength::en lhs, ثابت VStrength& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VStrength& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 //  VSystemCSectionType - Represents the type of a `systemc_* block (Verilator specific extension)
 
 class VSystemCSectionType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         CTOR,  // `systemc_ctor
         DTOR,  // `systemc_dtor
         HDR,  // `systemc_header
@@ -2249,28 +2249,28 @@ public:
         IMP_HDR,  // `systemc_imp_header
         INT  // `systemc_interface
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"`systemc_ctor",  //
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"`systemc_ctor",  //
                                                       "`systemc_dtor",  //
                                                       "`systemc_header",  //
                                                       "`systemc_header_post",  //
                                                       "`systemc_implementation",  //
                                                       "`systemc_imp_header",  //
                                                       "`systemc_interface"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VSystemCSectionType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
 
 //######################################################################
 
-class VTracePrefixType final {
-public:
-    enum en : uint8_t {
+class VTrace_پیشوند_Type final {
+عام:
+    تعداد en : uint8_t {
         // Note: Entries must match VerilatedTracePrefixType
         ARRAY_PACKED,
         ARRAY_UNPACKED,
@@ -2280,109 +2280,109 @@ public:
         STRUCT_UNPACKED,
         UNION_PACKED,
     };
-    enum en m_e;
+    تعداد en m_e;
     // cppcheck-suppress noExplicitConstructor
-    constexpr VTracePrefixType(en _e)
+    constexpr VTrace_پیشوند_Type(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"ARRAY_PACKED",  "ARRAY_UNPACKED",  "SCOPE_MODULE", "SCOPE_INTERFACE",
                "STRUCT_PACKED", "STRUCT_UNPACKED", "UNION_PACKED"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VTracePrefixType& lhs, const VTracePrefixType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VTrace_پیشوند_Type& lhs, ثابت VTrace_پیشوند_Type& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTracePrefixType& lhs, VTracePrefixType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VTrace_پیشوند_Type& lhs, VTrace_پیشوند_Type::en rhs) {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VTracePrefixType::en lhs, const VTracePrefixType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VTrace_پیشوند_Type::en lhs, ثابت VTrace_پیشوند_Type& rhs) {
+    أرجع lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VTrace_پیشوند_Type& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 //######################################################################
 
 class VTraceType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         CONSTANT,  // Constant value dump (once at the beginning)
-        FULL,  // Full value dump (always emitted)
+        پر,  // Full value dump (always emitted)
         CHANGE  // Incremental value dump (emitted only if the value changed)
     };
-    enum en m_e;
+    تعداد en m_e;
     VTraceType()
         : m_e{CONSTANT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTraceType(en _e)
         : m_e{_e} {}
-    explicit VTraceType(int _e)
+    explicit VTraceType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"CONSTANT", "FULL", "CHANGE"};
-        return names[m_e];
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"CONSTANT", "FULL", "CHANGE"};
+        أرجع نامها[m_e];
     }
-    const char* func_prefix() const {
-        static constexpr const char* const names[] = {"trace_const", "trace_full", "trace_chg"};
-        return names[m_e];
+    ثابت حرف* func_پیشوند() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"trace_const", "trace_full", "trace_chg"};
+        أرجع نامها[m_e];
     }
 };
-constexpr bool operator==(const VTraceType& lhs, const VTraceType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VTraceType& lhs, ثابت VTraceType& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
-    return os << rhs.ascii();
+constexpr bool عملگر==(ثابت VTraceType& lhs, VTraceType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VTraceType::en lhs, ثابت VTraceType& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VTraceType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 //######################################################################
 
 class VUseType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         // Enum values are compared with <, so order matters
         INT_FWD_CLASS = 1 << 0,  // Interface (.h) needs a forward class declaration
         INT_INCLUDE = 1 << 1,  // Interface (.h) needs an include
     };
-    enum en m_e;
+    تعداد en m_e;
     VUseType()
         : m_e{INT_FWD_CLASS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VUseType(en _e)
         : m_e{_e} {}
-    explicit VUseType(int _e)
+    explicit VUseType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool containsAny(VUseType other) const { return m_e & other.m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
-        return names[m_e - 1];
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    bool شامل_است_Any(VUseType other) ثابت { أرجع m_e & other.m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
+        أرجع نامها[m_e - 1];
     }
 };
-constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { return lhs == rhs.m_e; }
-constexpr VUseType::en operator|(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool عملگر==(ثابت VUseType& lhs, ثابت VUseType& rhs) { أرجع lhs.m_e == rhs.m_e; }
+constexpr bool عملگر==(ثابت VUseType& lhs, VUseType::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool عملگر==(VUseType::en lhs, ثابت VUseType& rhs) { أرجع lhs == rhs.m_e; }
+constexpr VUseType::en عملگر|(VUseType::en lhs, VUseType::en rhs) {
+    أرجع VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
-constexpr VUseType::en operator&(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+constexpr VUseType::en عملگر&(VUseType::en lhs, VUseType::en rhs) {
+    أرجع VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
-inline std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VUseType& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VVarType final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         UNKNOWN,
         GPARAM,
         LPARAM,
@@ -2398,7 +2398,7 @@ public:
         TRIWIRE,
         TRI0,
         TRI1,
-        PORT,  // Used in parser to recognize ports
+        پورت,  // Used in parser to recognize ports
         BLOCKTEMP,
         MODULETEMP,
         STMTTEMP,
@@ -2406,54 +2406,54 @@ public:
         IFACEREF,  // Used to link Interfaces between modules
         MEMBER
     };
-    enum en m_e;
-    VVarType() VL_MT_SAFE : m_e{UNKNOWN} {}
+    تعداد en m_e;
+    VVarType() VL_MT_امن : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr VVarType(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VVarType(int _e)
+    constexpr VVarType(en _e) VL_MT_امن : m_e{_e} {}
+    explicit VVarType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr عملگر en() ثابت { أرجع m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن constexpr ثابت حرف* ثابت نامها[]
             = {"?",        "GPARAM",  "LPARAM",   "SPECPARAM", "GENVAR",    "VAR",
                "SUPPLY0",  "SUPPLY1", "WIRE",     "WREAL",     "TRIAND",    "TRIOR",
                "TRIWIRE",  "TRI0",    "TRI1",     "PORT",      "BLOCKTEMP", "MODULETEMP",
                "STMTTEMP", "XTEMP",   "IFACEREF", "MEMBER"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    bool isParam() const { return m_e == GPARAM || m_e == LPARAM; }
-    bool isSignal() const {
-        return (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
-                || m_e == PORT || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
+    bool isParam() ثابت { أرجع m_e == GPARAM || m_e == LPARAM; }
+    bool isSignal() ثابت {
+        أرجع (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
+                || m_e == پورت || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
                 || m_e == TRIAND);
     }
-    bool isNet() const {
-        return (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
+    bool isNet() ثابت {
+        أرجع (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
                 || m_e == SUPPLY1 || m_e == TRIOR || m_e == TRIAND);
     }
-    bool isWor() const { return (m_e == TRIOR); }
-    bool isWiredNet() const { return (m_e == TRIOR || m_e == TRIAND); }
-    bool isContAssignable() const {  // In Verilog, always ok in SystemVerilog
-        return (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
-                || m_e == TRI0 || m_e == TRI1 || m_e == PORT || m_e == BLOCKTEMP
+    bool isWor() ثابت { أرجع (m_e == TRIOR); }
+    bool isWiredNet() ثابت { أرجع (m_e == TRIOR || m_e == TRIAND); }
+    bool isContAssignable() ثابت {  // In Verilog, always ok in SystemVerilog
+        أرجع (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
+                || m_e == TRI0 || m_e == TRI1 || m_e == پورت || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF);
     }
-    bool isProcAssignable() const {
-        return (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
+    bool isProcAssignable() ثابت {
+        أرجع (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF
                 || m_e == MEMBER);
     }
-    bool isTemp() const {
-        return (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
+    bool is_موقت() ثابت {
+        أرجع (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
     }
-    bool isVPIAccessible() const {
-        return (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
+    bool isVPIAccessible() ثابت {
+        أرجع (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == پورت
                 || m_e == WIRE || m_e == TRI0 || m_e == TRI1);
     }
 
-    const char* traceSigKind() const {
+    ثابت حرف* trace_Sig_نوع() ثابت {
         // VerilatedTraceSigKind to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        ساكن constexpr ثابت حرف* ثابت lut[] = {
             /* UNKNOWN:      */ "",  // Should not be traced
             /* GPARAM:       */ "PARAMETER",
             /* LPARAM:       */ "PARAMETER",
@@ -2477,57 +2477,57 @@ public:
             /* IFACEREF:     */ "",  // Should not be traced directly
             /* MEMBER:       */ "VAR",
         };
-        return lut[m_e];
+        أرجع lut[m_e];
     }
 };
-constexpr bool operator==(const VVarType& lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool عملگر==(ثابت VVarType& lhs, ثابت VVarType& rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool عملگر==(ثابت VVarType& lhs, VVarType::en rhs) VL_MT_امن {
+    أرجع lhs.m_e == rhs;
 }
-constexpr bool operator==(VVarType::en lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool عملگر==(VVarType::en lhs, ثابت VVarType& rhs) VL_MT_امن {
+    أرجع lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+مضمن std::ostream& عملگر<<(std::ostream& os, ثابت VVarType& rhs) VL_MT_امن {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Not in sorted order, as depends on above classes
-class VBasicTypeKey final {
-public:
-    const int m_width;  // From AstNodeDType: Bit width of operation
-    const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
-    const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
-    const VSigning m_numeric;  // From AstNodeDType: Node is signed
-    const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
-    bool operator==(const VBasicTypeKey& rhs) const {
-        return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
+class VBasic_Type_کلید final {
+عام:
+    ثابت صحيح m_عرض;  // From AstNodeDType: Bit width of operation
+    ثابت صحيح m_عرض_Min;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
+    ثابت VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
+    ثابت VSigning m_numeric;  // From AstNodeDType: Node is signed
+    ثابت VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
+    bool عملگر==(ثابت VBasic_Type_کلید& rhs) ثابت {
+        أرجع m_عرض == rhs.m_عرض && m_عرض_Min == rhs.m_عرض_Min && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
-    bool operator<(const VBasicTypeKey& rhs) const {
-        if ((m_width < rhs.m_width)) return true;
-        if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
-        if ((m_widthMin < rhs.m_widthMin)) return true;
-        if (!(m_widthMin == rhs.m_widthMin)) return false;  // lhs > rhs
-        if ((m_numeric < rhs.m_numeric)) return true;
-        if (!(m_numeric == rhs.m_numeric)) return false;  // lhs > rhs
-        if ((m_keyword < rhs.m_keyword)) return true;
-        if (!(m_keyword == rhs.m_keyword)) return false;  // lhs > rhs
-        if ((m_nrange < rhs.m_nrange)) return true;
-        if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
-        return false;
+    bool عملگر<(ثابت VBasic_Type_کلید& rhs) ثابت {
+        إذا ((m_عرض < rhs.m_عرض)) أرجع true;
+        إذا (!(m_عرض == rhs.m_عرض)) أرجع false;  // lhs > rhs
+        إذا ((m_عرض_Min < rhs.m_عرض_Min)) أرجع true;
+        إذا (!(m_عرض_Min == rhs.m_عرض_Min)) أرجع false;  // lhs > rhs
+        إذا ((m_numeric < rhs.m_numeric)) أرجع true;
+        إذا (!(m_numeric == rhs.m_numeric)) أرجع false;  // lhs > rhs
+        إذا ((m_keyword < rhs.m_keyword)) أرجع true;
+        إذا (!(m_keyword == rhs.m_keyword)) أرجع false;  // lhs > rhs
+        إذا ((m_nrange < rhs.m_nrange)) أرجع true;
+        إذا (!(m_nrange == rhs.m_nrange)) أرجع false;  // lhs > rhs
+        أرجع false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
-                  const VNumRange& nrange)
-        : m_width{width}
-        , m_widthMin{widthMin}
+    VBasic_Type_کلید(صحيح عرض, صحيح عرض_Min, VSigning numeric, VBasicDTypeKwd kwd,
+                  ثابت VNumRange& nrange)
+        : m_عرض{عرض}
+        , m_عرض_Min{عرض_Min}
         , m_nrange{nrange}
         , m_numeric{numeric}
         , m_keyword{kwd} {}
-    ~VBasicTypeKey() = default;
+    ~VBasic_Type_کلید() = افتراضي;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

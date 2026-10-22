@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FSMDETECT_H_
-#define VERILATOR_V3FSMDETECT_H_
+#اگر_تعریف_نشده VERILATOR_V3FSMDETECT_H_
+#تعریف_کن VERILATOR_V3FSMDETECT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 class V3FsmDetect final {
-public:
+عام:
     // Detect FSMs while the original clocked/case structure is still visible,
     // then immediately lower the recovered graphs into concrete coverage
     // instrumentation as a second local phase in the same pass.
-    static void detect(AstNetlist* rootp) VL_MT_DISABLED;
+    ساكن فراغ detect(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif
+#پایان_اگر

@@ -14,31 +14,31 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTH_H_
-#define VERILATOR_V3WIDTH_H_
+#اگر_تعریف_نشده VERILATOR_V3_عرض_H
+#تعریف_کن VERILATOR_V3_عرض_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_گره;
+class Ast_گره_تخصیص_بده;
+class Ast_گره_DType;
 
 //============================================================================
 
-class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+class V3_عرض final {
+عام:
+    ساكن فراغ عرض(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن Ast_گره* عرض_Params_Edit(Ast_گره* nodep) VL_MT_DISABLED;
+    ساكن Ast_گره* عرض_Generate_Params_Edit(Ast_گره* nodep) VL_MT_DISABLED;
+    ساكن Ast_گره* selectNonConstantRecurse(Ast_گره* nodep, bool درون_Sel = false) VL_MT_DISABLED;
+    ساكن فراغ جریان_تخصیص_بده_پایینی_Edit(Ast_گره_تخصیص_بده* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن Ast_گره* عرض_Sel_No_Iter_Edit(Ast_گره* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

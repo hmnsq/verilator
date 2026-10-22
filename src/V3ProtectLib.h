@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PROTECTLIB_H_
-#define VERILATOR_V3PROTECTLIB_H_
+#اگر_تعریف_نشده VERILATOR_V3PROTECTLIB_H_
+#تعریف_کن VERILATOR_V3PROTECTLIB_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 //============================================================================
 
 class V3ProtectLib final {
-public:
-    static void protect() VL_MT_DISABLED;
+عام:
+    ساكن فراغ protect() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#پایان_اگر  // Guard

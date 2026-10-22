@@ -20,699 +20,699 @@
 //          If operands are constant, replace this node with constant.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Const.h"
+#ضمن "V3Const.h"
 
-#include "V3Ast.h"
-#include "V3Global.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
-#include "V3String.h"
-#include "V3UniqueNames.h"
-#include "V3Width.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Global.h"
+#ضمن "V3Simulate.h"
+#ضمن "V3Stats.h"
+#ضمن "V3String.h"
+#ضمن "V3UniqueNames.h"
+#ضمن "V3Width.h"
 
-#include <algorithm>
-#include <memory>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#ضمن <algorithm>
+#ضمن <memory>
+#ضمن <type_traits>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-#define TREE_SKIP_VISIT(...)
-#define TREEOP1(...)
-#define TREEOPA(...)
-#define TREEOP(...)
-#define TREEOPS(...)
-#define TREEOPC(...)
-#define TREEOPV(...)
+#تعریف_کن درخت_SKIP_بازدید(...)
+#تعریف_کن TREEOP1(...)
+#تعریف_کن TREEOPA(...)
+#تعریف_کن TREEOP(...)
+#تعریف_کن TREEOPS(...)
+#تعریف_کن TREEOPC(...)
+#تعریف_کن TREEOPV(...)
 
 //######################################################################
 // Utilities
 
-static bool isConst(const AstNode* nodep, uint64_t v) {
-    const AstConst* const constp = VN_CAST(nodep, Const);
-    return constp && constp->toUQuad() == v;
+ساكن منطقي isConst(ثابت Ast_گره* nodep, uint64_t v) {
+    ثابت AstConst* ثابت constp = VN_CAST(nodep, Const);
+    أرجع constp && constp->مقصد_UQuad() == v;
 }
 
-template <typename T>
-static typename std::enable_if<std::is_integral<T>::value, bool>::type isPow2(T val) {
-    return (val & (val - 1)) == 0;
+قالب <نام_نوع T>
+ساكن نام_نوع std::enable_if<std::is_integral<T>::مقدار, منطقي>::type isPow2(T val) {
+    أرجع (val & (val - 1)) == 0;
 }
 
-static int countTrailingZeroes(uint64_t val) {
+ساكن صحيح شمار_Trailing_Zeroes(uint64_t val) {
     UASSERT(val, "countTrailingZeroes argument must be non-zero");
-#if defined(__GNUC__) && !defined(VL_NO_BUILTINS)
-    return __builtin_ctzll(val);
-#else
-    int bit = 0;
+#إذا defined(__GNUC__) && !defined(VL_NO_BUILTINS)
+    أرجع __builtin_ctzll(val);
+#وإلا
+    صحيح بیت_2 = 0;
     val = ~val;
-    while (val & 1) {
-        ++bit;
+    طالما (val & 1) {
+        ++بیت_2;
         val >>= 1;
     }
-    return bit;
-#endif
+    أرجع بیت_2;
+#پایان_اگر
 }
 
 // Allocates a unique id for each AstNode it is applied to, held in user4.
-class VNIdAllocator final {
+صنف VNIdAllocator final {
     // NODE STATE
     // AstNode::user4p -> size_t. Unique id of the node (0/nullptr if not allocated yet)
 
     // MEMBERS
     // Claimed lazily on first use TODO: fix conflict with V3Param user4 slot
-    std::unique_ptr<VNUser4InUse> m_inuser4p;
-    size_t m_nextId = 0;  // Id allocated most recently
+    std::unique_ptr<VNUser4_درون_Use> m_inuser4p;
+    اندازه_t m_بعدی_Id = 0;  // Id allocated most recently
 
-public:
+عام:
     // Return the unique id of the given node, allocating a new one if it has none yet
-    size_t operator()(AstNode* nodep) {
-        if (!m_inuser4p) m_inuser4p = std::make_unique<VNUser4InUse>();  // Claim on first use
-        if (!nodep->user4p()) nodep->user4p(reinterpret_cast<void*>(++m_nextId));
-        return reinterpret_cast<size_t>(nodep->user4p());
+    اندازه_t عملگر()(Ast_گره* nodep) {
+        إذا (!m_inuser4p) m_inuser4p = std::make_unique<VNUser4_درون_Use>();  // Claim on first use
+        إذا (!nodep->user4p()) nodep->user4p(reinterpret_cast<فراغ*>(++m_بعدی_Id));
+        أرجع reinterpret_cast<اندازه_t>(nodep->user4p());
     }
 };
 
 // This visitor can be used in the post-expanded Ast from V3Expand, where the Ast satisfies:
 // - Constants are 64 bit at most (because words are accessed via AstWordSel)
 // - Variables are scoped.
-class ConstBitOpTreeVisitor final : public VNVisitorConst {
+صنف Const_بیت_Op_درخت_Visitor final : عام VNVisitorConst {
     // TYPES
 
     // Holds a node to be added as a term in the reduction tree, it's equivalent op count, and a
     // bool indicating if the term is clean (0/1 value, or if the top bits might be dirty)
-    using ResultTerm = std::tuple<AstNodeExpr*, unsigned, bool>;
+    استفاده نتیجه_جمله = std::tuple<Ast_گره_عبارت*, بیعلامت, منطقي>;
 
-    class LeafInfo final {  // Leaf node (either AstConst or AstVarRef)
+    صنف برگ_Info final {  // Leaf node (either AstConst or AstVarRef)
         // MEMBERS
-        bool m_polarity = true;  // Invert result due to NOT
-        int m_lsb = 0;  // LSB of actually used bit of m_refp->varp()
-        int m_msb = 0;  // MSB of actually used bit of m_refp->varp()
-        int m_wordIdx = -1;  // -1 means AstWordSel is not used.
-        AstVarRef* m_refp = nullptr;  // Leaf's variable reference
-        const AstConst* m_constp = nullptr;  // Leaf's constant
+        منطقي m_polarity = درست;  // Invert result due to NOT
+        صحيح m_lsb = 0;  // LSB of actually used bit of m_refp->varp()
+        صحيح m_msb = 0;  // MSB of actually used bit of m_refp->varp()
+        صحيح m_کلمه_Idx = -1;  // -1 means AstWordSel is not used.
+        AstVarRef* m_refp = اشاره_تهی;  // Leaf's variable reference
+        ثابت AstConst* m_constp = اشاره_تهی;  // Leaf's constant
 
-    public:
+    عام:
         // CONSTRUCTORS
-        LeafInfo() = default;
-        LeafInfo(const LeafInfo& other) = default;
-        LeafInfo& operator=(const LeafInfo& other) = default;
-        LeafInfo(LeafInfo&& other) = default;
-        LeafInfo& operator=(LeafInfo&& other) = default;
-        explicit LeafInfo(int lsb)
+        برگ_Info() = افتراضي;
+        برگ_Info(ثابت برگ_Info& other) = افتراضي;
+        برگ_Info& عملگر=(ثابت برگ_Info& other) = افتراضي;
+        برگ_Info(برگ_Info&& other) = افتراضي;
+        برگ_Info& عملگر=(برگ_Info&& other) = افتراضي;
+        صریح برگ_Info(صحيح lsb)
             : m_lsb{lsb} {}
 
         // METHODS
-        void setLeaf(AstVarRef* refp) {
+        فراغ مجموعه_برگ(AstVarRef* refp) {
             UASSERT_OBJ(!m_refp && !m_constp, refp, "Must be called just once");
             m_refp = refp;
-            m_msb = refp->varp()->widthMin() - 1;
+            m_msb = refp->varp()->عرض_Min() - 1;
         }
-        void setLeaf(const AstConst* constp) {
+        فراغ مجموعه_برگ(ثابت AstConst* constp) {
             UASSERT_OBJ(!m_refp && !m_constp, constp, "Must be called just once");
             m_constp = constp;
-            m_msb = constp->widthMin() - 1;
+            m_msb = constp->عرض_Min() - 1;
         }
         // updateBitRange(), limitBitRangeToLsb(), and polarity() must be called during ascending
         // back to the root.
-        void updateBitRange(int newLsb, int newMsb) {
-            if ((m_lsb <= m_msb && newLsb > newMsb) || (m_lsb > m_msb && m_lsb < newLsb)) {
+        فراغ update_بیت_Range(صحيح newLsb, صحيح newMsb) {
+            إذا ((m_lsb <= m_msb && newLsb > newMsb) || (m_lsb > m_msb && m_lsb < newLsb)) {
                 // When the new bit range is out of m_refp, clear polarity because nodes below is
                 // shifted out to zero.
                 // This kind of clear may happen several times. e.g. (!(1'b1 >> 1)) >> 1
-                polarity(true);
+                polarity(درست);
             }
             m_lsb = newLsb;
             m_msb = newMsb;
         }
-        void updateBitRange(const AstCCast* castp) {
-            updateBitRange(m_lsb, std::min(m_msb, m_lsb + castp->width() - 1));
+        فراغ update_بیت_Range(ثابت AstCCast* castp) {
+            update_بیت_Range(m_lsb, std::min(m_msb, m_lsb + castp->عرض() - 1));
         }
-        void updateBitRange(const AstShiftR* shiftp) {
-            updateBitRange(m_lsb + VN_AS(shiftp->rhsp(), Const)->toUInt(), m_msb);
+        فراغ update_بیت_Range(ثابت Ast_لغزش_R* shiftp) {
+            update_بیت_Range(m_lsb + VN_AS(shiftp->rhsp(), Const)->مقصد_UInt(), m_msb);
         }
-        void limitBitRangeToLsb() { updateBitRange(m_lsb, std::min(m_msb, m_lsb)); }
-        int wordIdx() const { return m_wordIdx; }
-        void wordIdx(int i) { m_wordIdx = i; }
-        bool polarity() const { return m_polarity; }
-        void polarity(bool p) { m_polarity = p; }
+        فراغ حد_بیت_Range_مقصد_Lsb() { update_بیت_Range(m_lsb, std::min(m_msb, m_lsb)); }
+        صحيح کلمه_Idx() ثابت { أرجع m_کلمه_Idx; }
+        فراغ کلمه_Idx(صحيح i) { m_کلمه_Idx = i; }
+        منطقي polarity() ثابت { أرجع m_polarity; }
+        فراغ polarity(منطقي p) { m_polarity = p; }
 
-        AstVarRef* refp() const { return m_refp; }
-        const AstConst* constp() const { return m_constp; }
-        bool missingWordSel() const {
+        AstVarRef* refp() ثابت { أرجع m_refp; }
+        ثابت AstConst* constp() ثابت { أرجع m_constp; }
+        منطقي missing_کلمه_Sel() ثابت {
             // When V3Expand is skipped, WordSel is not inserted.
-            return m_refp->isWide() && m_wordIdx == -1;
+            أرجع m_refp->isWide() && m_کلمه_Idx == -1;
         }
-        int lsb() const { return m_lsb; }
+        صحيح lsb() ثابت { أرجع m_lsb; }
 
-        int msb() const { return std::min(m_msb, varWidth() - 1); }
-        int varWidth() const {
+        صحيح msb() ثابت { أرجع std::min(m_msb, var_عرض() - 1); }
+        صحيح var_عرض() ثابت {
             UASSERT(m_refp, "m_refp should be set");
-            const int width = m_refp->varp()->widthMin();
-            if (!m_refp->isWide()) {
-                UASSERT_OBJ(m_wordIdx == -1, m_refp, "Bad word index into non-wide");
-                return width;
-            } else {
-                if (missingWordSel()) return width;
-                UASSERT_OBJ(m_wordIdx >= 0, m_refp, "Bad word index into wide");
-                const int bitsInMSW = VL_BITBIT_E(width) ? VL_BITBIT_E(width) : VL_EDATASIZE;
-                return m_wordIdx == m_refp->widthWords() - 1 ? bitsInMSW : VL_EDATASIZE;
+            ثابت صحيح عرض = m_refp->varp()->عرض_Min();
+            إذا (!m_refp->isWide()) {
+                UASSERT_OBJ(m_کلمه_Idx == -1, m_refp, "Bad word index into non-wide");
+                أرجع عرض;
+            } وإلا {
+                إذا (missing_کلمه_Sel()) أرجع عرض;
+                UASSERT_OBJ(m_کلمه_Idx >= 0, m_refp, "Bad word index into wide");
+                ثابت صحيح بیتها_درون_MSW = VL_BITBIT_E(عرض) ? VL_BITBIT_E(عرض) : VL_EDATASIZE;
+                أرجع m_کلمه_Idx == m_refp->عرض_واژگان() - 1 ? بیتها_درون_MSW : VL_EDATASIZE;
             }
         }
     };
 
-    struct BitPolarityEntry final {  // Found bit polarity during iterate()
-        LeafInfo m_info;  // Leaf (variable or constant) bit polarity was found on
-        bool m_polarity = false;  // Polarity the bit must have to match
-        int m_bit = 0;  // Bit index within the leaf that was tested
-        BitPolarityEntry(const LeafInfo& info, bool pol, int bit)
+    بنية بیت_Polarity_مدخل final {  // Found bit polarity during iterate()
+        برگ_Info m_info;  // Leaf (variable or constant) bit polarity was found on
+        منطقي m_polarity = خطأ;  // Polarity the bit must have to match
+        صحيح m_بیت = 0;  // Bit index within the leaf that was tested
+        بیت_Polarity_مدخل(ثابت برگ_Info& info, منطقي pol, صحيح بیت_2)
             : m_info{info}
             , m_polarity{pol}
-            , m_bit{bit} {}
-        BitPolarityEntry() = default;
+            , m_بیت{بیت_2} {}
+        بیت_Polarity_مدخل() = افتراضي;
     };
 
-    struct FrozenNodeInfo final {  // Context when a frozen node is found
-        bool m_polarity;  // Polarity the frozen node must match
-        int m_lsb;  // LSB position of the frozen node
-        bool operator<(const FrozenNodeInfo& other) const {
-            if (m_lsb != other.m_lsb) return m_lsb < other.m_lsb;
-            return m_polarity < other.m_polarity;
+    بنية Frozen_گره_Info final {  // Context when a frozen node is found
+        منطقي m_polarity;  // Polarity the frozen node must match
+        صحيح m_lsb;  // LSB position of the frozen node
+        منطقي عملگر<(ثابت Frozen_گره_Info& other) ثابت {
+            إذا (m_lsb != other.m_lsb) أرجع m_lsb < other.m_lsb;
+            أرجع m_polarity < other.m_polarity;
         }
     };
 
-    class Restorer final {  // Restore the original state unless disableRestore() is called
-        ConstBitOpTreeVisitor& m_visitor;  // Visitor whose state is saved and restored
-        const size_t m_polaritiesSize;  // Saved m_visitor.m_bitPolarities size to truncate back to
-        const size_t m_frozenSize;  // Saved m_visitor.m_frozenNodes size to truncate back to
-        const unsigned m_ops;  // Saved m_visitor.m_ops to restore
-        const bool m_polarity;  // Saved m_visitor.m_polarity to restore
-        bool m_restore = true;  // Whether the destructor still needs to restore state
+    صنف Restorer final {  // Restore the original state unless disableRestore() is called
+        Const_بیت_Op_درخت_Visitor& m_visitor;  // Visitor whose state is saved and restored
+        ثابت اندازه_t m_polarities_اندازه;  // Saved m_visitor.m_bitPolarities size to truncate back to
+        ثابت اندازه_t m_frozen_اندازه;  // Saved m_visitor.m_frozenNodes size to truncate back to
+        ثابت بیعلامت m_ops;  // Saved m_visitor.m_ops to restore
+        ثابت منطقي m_polarity;  // Saved m_visitor.m_polarity to restore
+        منطقي m_restore = درست;  // Whether the destructor still needs to restore state
 
-    public:
-        explicit Restorer(ConstBitOpTreeVisitor& visitor)
+    عام:
+        صریح Restorer(Const_بیت_Op_درخت_Visitor& visitor)
             : m_visitor{visitor}
-            , m_polaritiesSize{visitor.m_bitPolarities.size()}
-            , m_frozenSize{visitor.m_frozenNodes.size()}
+            , m_polarities_اندازه{visitor.m_بیت_Polarities.اندازه()}
+            , m_frozen_اندازه{visitor.m_frozenNodes.اندازه()}
             , m_ops{visitor.m_ops}
             , m_polarity{visitor.m_polarity} {}
         ~Restorer() {
-            UASSERT(m_visitor.m_bitPolarities.size() >= m_polaritiesSize,
+            UASSERT(m_visitor.m_بیت_Polarities.اندازه() >= m_polarities_اندازه,
                     "m_bitPolarities must grow monotonically");
-            UASSERT(m_visitor.m_frozenNodes.size() >= m_frozenSize,
+            UASSERT(m_visitor.m_frozenNodes.اندازه() >= m_frozen_اندازه,
                     "m_frozenNodes must grow monotonically");
-            if (m_restore) restoreNow();
+            إذا (m_restore) restoreNow();
         }
-        void disableRestore() { m_restore = false; }
-        void restoreNow() {
+        فراغ disableRestore() { m_restore = خطأ; }
+        فراغ restoreNow() {
             UASSERT(m_restore, "Can be called just once");
-            m_visitor.m_bitPolarities.resize(m_polaritiesSize);
-            m_visitor.m_frozenNodes.resize(m_frozenSize);
+            m_visitor.m_بیت_Polarities.resize(m_polarities_اندازه);
+            m_visitor.m_frozenNodes.resize(m_frozen_اندازه);
             m_visitor.m_ops = m_ops;
             m_visitor.m_polarity = m_polarity;
-            m_restore = false;
+            m_restore = خطأ;
         }
     };
     // Collect information for each Variable to transform as below
-    class VarInfo final {
+    صنف VarInfo final {
         // MEMBERS
-        int m_knownResult = -1;  // -1: result is not known, 0 or 1: result of this tree
-        const ConstBitOpTreeVisitor* const
+        صحيح m_معلوم_نتیجه = -1;  // -1: result is not known, 0 or 1: result of this tree
+        ثابت Const_بیت_Op_درخت_Visitor* ثابت
             m_parentp;  // ConstBitOpTreeVisitor holding this VarInfo
-        AstVarRef* const m_refp;  // Points the variable that this VarInfo covers
-        const int m_width;  // Width of term this VarInfo refers to
-        V3Number m_bitPolarity;  // Coefficient of each bit
+        AstVarRef* ثابت m_refp;  // Points the variable that this VarInfo covers
+        ثابت صحيح m_عرض;  // Width of term this VarInfo refers to
+        V3_عدد m_بیت_Polarity;  // Coefficient of each bit
 
-    public:
+    عام:
         // METHODS
-        bool hasConstResult() const { return m_knownResult >= 0 || m_bitPolarity.isAllX(); }
+        منطقي has_Const_نتیجه() ثابت { أرجع m_معلوم_نتیجه >= 0 || m_بیت_Polarity.isAllX(); }
         // The constant result. Only valid if hasConstResult() returned true.
-        bool getConstResult() const {
+        منطقي get_Const_نتیجه() ثابت {
             // Note that this condition covers m_knownResult == -1 but m_bitPolarity.isAllX(),
             // in which case the result is 0
-            return m_knownResult == 1;
+            أرجع m_معلوم_نتیجه == 1;
         }
-        const AstVarRef* refp() const { return m_refp; }
-        bool sameVarAs(const AstNodeVarRef* otherp) const { return m_refp->sameNode(otherp); }
-        void setPolarity(bool compBit, int bit) {
+        ثابت AstVarRef* refp() ثابت { أرجع m_refp; }
+        منطقي sameVarAs(ثابت Ast_گره_Var_Ref* otherp) ثابت { أرجع m_refp->same_گره(otherp); }
+        فراغ مجموعه_Polarity(منطقي comp_بیت, صحيح بیت_2) {
             // Ignore if already determined a known reduction
-            if (m_knownResult >= 0) return;
-            UASSERT_OBJ(bit < m_width, m_refp,
-                        "Bit index out of range: " << bit << " width: " << m_width);
-            if (m_bitPolarity.bitIsX(bit)) {  // The bit is not yet marked with either polarity
-                m_bitPolarity.setBit(bit, compBit);
-            } else {  // The bit has already been marked with some polarity
-                const bool sameFlag = m_bitPolarity.bitIs1(bit) == compBit;
-                if (m_parentp->isXorTree()) {
-                    UASSERT_OBJ(compBit && sameFlag, m_refp, "Only true is set in Xor tree");
+            إذا (m_معلوم_نتیجه >= 0) أرجع;
+            UASSERT_OBJ(بیت_2 < m_عرض, m_refp,
+                        "Bit index out of range: " << بیت_2 << " width: " << m_عرض);
+            إذا (m_بیت_Polarity.بیت_Is_X(بیت_2)) {  // The bit is not yet marked with either polarity
+                m_بیت_Polarity.مجموعه_بیت(بیت_2, comp_بیت);
+            } وإلا {  // The bit has already been marked with some polarity
+                ثابت منطقي sameFlag = m_بیت_Polarity.بیت_Is1(بیت_2) == comp_بیت;
+                إذا (m_parentp->is_Xor_درخت()) {
+                    UASSERT_OBJ(comp_بیت && sameFlag, m_refp, "Only true is set in Xor tree");
                     // a ^ a ^ b == b so we can ignore a
-                    m_bitPolarity.setBit(bit, 'x');
-                } else {  // And, Or
+                    m_بیت_Polarity.مجموعه_بیت(بیت_2, 'x');
+                } وإلا {  // And, Or
                     // Can ignore this nodep as the bit is already marked with the same polarity
-                    if (sameFlag) return;  // a & a == a, b | b == b
+                    إذا (sameFlag) أرجع;  // a & a == a, b | b == b
                     // Otherwise result is constant (a & ~a == 0) or (a | ~a == 1)
-                    m_knownResult = m_parentp->isAndTree() ? 0 : 1;
-                    m_bitPolarity.setAllBitsX();  // The variable is not referred anymore
+                    m_معلوم_نتیجه = m_parentp->is_And_درخت() ? 0 : 1;
+                    m_بیت_Polarity.مجموعه_All_بیتها_X();  // The variable is not referred anymore
                 }
             }
         }
 
         // Return reduction term for this VarInfo, together with the number of ops in the term,
         // and a boolean indicating if the term is clean (1-bit vs multi-bit value)
-        ResultTerm getResultTerm() const {
-            UASSERT_OBJ(!hasConstResult(), m_refp, "getTerm on reduction that yields constant");
-            FileLine* const fl = m_refp->fileline();
+        نتیجه_جمله get_نتیجه_جمله() ثابت {
+            UASSERT_OBJ(!has_Const_نتیجه(), m_refp, "getTerm on reduction that yields constant");
+            File_سطر* ثابت fl = m_refp->fileline();
 
             // Get the term we are referencing (the WordSel, if wide, otherwise just the VarRef)
-            AstNodeExpr* srcp = VN_CAST(m_refp->backp(), WordSel);
-            if (!srcp) srcp = m_refp;
-            srcp = srcp->cloneTree(false);
+            Ast_گره_عبارت* srcp = VN_CAST(m_refp->backp(), کلمه_Sel);
+            إذا (!srcp) srcp = m_refp;
+            srcp = srcp->clone_درخت(خطأ);
 
             // Signed variables might have redundant sign bits that need masking.
-            const bool hasRedundantSignBits
+            ثابت منطقي has_Redundant_Sign_بیتها
                 = m_refp->varp()->dtypep()->isSigned()
-                  && (m_refp->isWide() ? (m_width != VL_EDATASIZE)
-                                       : (m_width < 8 || !isPow2(m_width)));
+                  && (m_refp->isWide() ? (m_عرض != VL_EDATASIZE)
+                                       : (m_عرض < 8 || !isPow2(m_عرض)));
 
             // Get the mask that selects the bits that are relevant in this term
-            V3Number maskNum{srcp, m_width, 0};
-            maskNum.opBitsNonXZ(m_bitPolarity);  // 'x' -> 0, 0->1, 1->1
-            const uint64_t maskVal = maskNum.toUQuad();
-            UASSERT_OBJ(maskVal != 0, m_refp,
+            V3_عدد ماسک_رقم{srcp, m_عرض, 0};
+            ماسک_رقم.op_بیتها_Non_XZ(m_بیت_Polarity);  // 'x' -> 0, 0->1, 1->1
+            ثابت uint64_t ماسک_Val = ماسک_رقم.مقصد_UQuad();
+            UASSERT_OBJ(ماسک_Val != 0, m_refp,
                         "Should have been recognized as having const 0 result");
 
             // Parts of the return value
-            AstNodeExpr* resultp = srcp;  // The tree for this term
-            unsigned ops = 0;  // Number of ops in this term
-            bool clean = false;  // Whether the term is clean (has value 0 or 1)
+            Ast_گره_عبارت* resultp = srcp;  // The tree for this term
+            بیعلامت ops = 0;  // Number of ops in this term
+            منطقي clean = خطأ;  // Whether the term is clean (has value 0 or 1)
 
-            if (isPow2(maskVal)) {
+            إذا (isPow2(ماسک_Val)) {
                 // If we only want a single bit, shift it out instead of a masked compare. Shifts
                 // don't go through the flags register on x86 and are hence faster. This is also
                 // always fewer or same ops as mask and compare, but with shorter instructions on
                 // x86.
 
                 // Find the index of the bit we want.
-                const int bit = countTrailingZeroes(maskVal);
+                ثابت صحيح بیت_2 = شمار_Trailing_Zeroes(ماسک_Val);
                 // If we want something other than the bottom bit, shift it out
-                if (bit != 0) {
-                    resultp = new AstShiftR{fl, resultp,
-                                            new AstConst{fl, static_cast<uint32_t>(bit)}, m_width};
+                إذا (بیت_2 != 0) {
+                    resultp = جديد Ast_لغزش_R{fl, resultp,
+                                            جديد AstConst{fl, static_cast<uint32_t>(بیت_2)}, m_عرض};
                     ++ops;
                 }
                 // Negate it if necessary
-                const bool negate = m_bitPolarity.bitIs0(bit);
-                if (negate) {
-                    resultp = new AstNot{fl, resultp};
+                ثابت منطقي negate = m_بیت_Polarity.بیت_Is0(بیت_2);
+                إذا (negate) {
+                    resultp = جديد AstNot{fl, resultp};
                     ++ops;
                 }
                 // Clean if MSB of unsigned value, and not negated
-                clean = (bit == m_width - 1) && !hasRedundantSignBits && !negate;
-            } else {
+                clean = (بیت_2 == m_عرض - 1) && !has_Redundant_Sign_بیتها && !negate;
+            } وإلا {
                 // We want multiple bits. Go ahead and extract them.
 
                 // Check if masking is required, and if so apply it
-                const bool needsMasking = maskVal != VL_MASK_Q(m_width) || hasRedundantSignBits;
-                if (needsMasking) {
-                    resultp = new AstAnd{fl, new AstConst{fl, maskNum}, resultp};
+                ثابت منطقي needsMasking = ماسک_Val != VL_ماسک_Q(m_عرض) || has_Redundant_Sign_بیتها;
+                إذا (needsMasking) {
+                    resultp = جديد AstAnd{fl, جديد AstConst{fl, ماسک_رقم}, resultp};
                     ++ops;
                 }
 
                 // Create the sub-expression for this term
-                if (m_parentp->isXorTree()) {
-                    if (needsMasking) {
+                إذا (m_parentp->is_Xor_درخت()) {
+                    إذا (needsMasking) {
                         // Reduce the masked term to the minimum known width,
                         // to use the smallest RedXor formula
-                        const int widthMin = maskNum.widthToFit();
-                        resultp->dtypeChgWidth(widthMin, widthMin);
+                        ثابت صحيح عرض_Min = ماسک_رقم.عرض_مقصد_Fit();
+                        resultp->dtype_Chg_عرض(عرض_Min, عرض_Min);
                     }
-                    resultp = new AstRedXor{fl, resultp};
+                    resultp = جديد AstRedXor{fl, resultp};
                     ++ops;
-                    clean = false;
+                    clean = خطأ;
                     // VL_REDXOR_* returns IData, set width accordingly to avoid unnecessary casts
-                    resultp->dtypeChgWidth(VL_IDATASIZE, 1);
-                } else if (m_parentp->isAndTree()) {
-                    V3Number compNum{srcp, m_width, 0};
-                    compNum.opBitsOne(m_bitPolarity);  // 'x'->0, 0->0, 1->1
-                    resultp = new AstEq{fl, new AstConst{fl, compNum}, resultp};
+                    resultp->dtype_Chg_عرض(VL_IDATASIZE, 1);
+                } وإلا إذا (m_parentp->is_And_درخت()) {
+                    V3_عدد comp_رقم{srcp, m_عرض, 0};
+                    comp_رقم.op_بیتها_One(m_بیت_Polarity);  // 'x'->0, 0->0, 1->1
+                    resultp = جديد AstEq{fl, جديد AstConst{fl, comp_رقم}, resultp};
                     ++ops;
-                    clean = true;
-                } else {  // Or
-                    V3Number compNum{srcp, m_width, 0};
-                    compNum.opBitsOne(m_bitPolarity);  // 'x'->0, 0->0, 1->1
-                    compNum.opXor(V3Number{compNum}, maskNum);
-                    resultp = new AstNeq{fl, new AstConst{fl, compNum}, resultp};
+                    clean = درست;
+                } وإلا {  // Or
+                    V3_عدد comp_رقم{srcp, m_عرض, 0};
+                    comp_رقم.op_بیتها_One(m_بیت_Polarity);  // 'x'->0, 0->0, 1->1
+                    comp_رقم.opXor(V3_عدد{comp_رقم}, ماسک_رقم);
+                    resultp = جديد AstNeq{fl, جديد AstConst{fl, comp_رقم}, resultp};
                     ++ops;
-                    clean = true;
+                    clean = درست;
                 }
             }
 
-            return ResultTerm{resultp, ops, clean};
+            أرجع نتیجه_جمله{resultp, ops, clean};
         }
 
         // CONSTRUCTORS
-        VarInfo(ConstBitOpTreeVisitor* parent, AstVarRef* refp, int width)
-            : m_parentp{parent}
+        VarInfo(Const_بیت_Op_درخت_Visitor* والد, AstVarRef* refp, صحيح عرض)
+            : m_parentp{والد}
             , m_refp{refp}
-            , m_width{width}
-            , m_bitPolarity{refp, m_width} {
-            m_bitPolarity.setAllBitsX();
+            , m_عرض{عرض}
+            , m_بیت_Polarity{refp, m_عرض} {
+            m_بیت_Polarity.مجموعه_All_بیتها_X();
         }
     };
 
     // MEMBERS
-    bool m_failed = false;
-    bool m_polarity = true;  // Flip when AstNot comes
-    unsigned m_ops;  // Number of operations such as And, Or, Xor, Sel...
-    int m_lsb = 0;  // Current LSB
-    LeafInfo* m_leafp = nullptr;  // AstConst or AstVarRef that currently looking for
-    const AstNodeExpr* const m_rootp;  // Root of this AST subtree
+    منطقي m_failed = خطأ;
+    منطقي m_polarity = درست;  // Flip when AstNot comes
+    بیعلامت m_ops;  // Number of operations such as And, Or, Xor, Sel...
+    صحيح m_lsb = 0;  // Current LSB
+    برگ_Info* m_leafp = اشاره_تهی;  // AstConst or AstVarRef that currently looking for
+    ثابت Ast_گره_عبارت* ثابت m_rootp;  // Root of this AST subtree
 
-    std::vector<std::pair<AstNodeExpr*, FrozenNodeInfo>>
+    std::وکتور<std::pair<Ast_گره_عبارت*, Frozen_گره_Info>>
         m_frozenNodes;  // Nodes that cannot be optimized
-    std::vector<BitPolarityEntry> m_bitPolarities;  // Polarity of bits found during iterate()
-    std::vector<std::unique_ptr<VarInfo>> m_varInfos;  // VarInfo for each variable, [0] is nullptr
+    std::وکتور<بیت_Polarity_مدخل> m_بیت_Polarities;  // Polarity of bits found during iterate()
+    std::وکتور<std::unique_ptr<VarInfo>> m_varInfos;  // VarInfo for each variable, [0] is nullptr
     VNIdAllocator& m_ids;  // Node id allocator, owned by ConstVisitor
     // Base index of m_varInfos that points VarInfo, keyed by AstVarScope/AstVarRef id,
     // zero means not set yet.
-    std::unordered_map<size_t, int> m_baseIdxs;
+    std::unordered_map<اندازه_t, صحيح> m_پایه_Idxs;
 
     // METHODS
 
-    bool isAndTree() const { return VN_IS(m_rootp, And); }
-    bool isOrTree() const { return VN_IS(m_rootp, Or); }
-    bool isXorTree() const { return VN_IS(m_rootp, Xor) || VN_IS(m_rootp, RedXor); }
+    منطقي is_And_درخت() ثابت { أرجع VN_IS(m_rootp, And); }
+    منطقي is_Or_درخت() ثابت { أرجع VN_IS(m_rootp, Or); }
+    منطقي is_Xor_درخت() ثابت { أرجع VN_IS(m_rootp, Xor) || VN_IS(m_rootp, RedXor); }
 
-#define CONST_BITOP_RETURN_IF(cond, nodep) \
-    if (setFailed(cond, #cond, nodep, __LINE__)) return
+#تعریف_کن CONST_BITOP_RETURN_IF(cond, nodep) \
+    إذا (مجموعه_Failed(cond, #cond, nodep, __LINE__)) أرجع
 
-#define CONST_BITOP_SET_FAILED(reason, nodep) setFailed(true, reason, nodep, __LINE__)
+#تعریف_کن CONST_BITOP_مجموعه_FAILED(reason, nodep) مجموعه_Failed(درست, reason, nodep, __LINE__)
 
-    bool setFailed(bool fail, const char* reason, const AstNode* nodep, int line) {
-        if (fail && !m_failed) {
+    منطقي مجموعه_Failed(منطقي fail, ثابت حرف* reason, ثابت Ast_گره* nodep, صحيح سطر) {
+        إذا (fail && !m_failed) {
             UINFO(9, "cannot optimize " << m_rootp << " reason:" << reason << " called from line:"
-                                        << line << " when checking:" << nodep);
+                                        << سطر << " when checking:" << nodep);
             // UINFOTREE(9, m_rootp, "", "root");
-            m_failed = true;
+            m_failed = درست;
         }
-        return m_failed;
+        أرجع m_failed;
     }
-    void incrOps(const AstNode* nodep, int line) {
+    فراغ incrOps(ثابت Ast_گره* nodep, صحيح سطر) {
         ++m_ops;
-        UINFO(9, "Increment to " << m_ops << " " << nodep << " called from line " << line);
+        UINFO(9, "Increment to " << m_ops << " " << nodep << " called from line " << سطر);
     }
-    VarInfo& getVarInfo(const LeafInfo& ref) {
+    VarInfo& getVarInfo(ثابت برگ_Info& ref) {
         UASSERT_OBJ(ref.refp(), m_rootp, "null varref in And/Or/Xor optimization");
-        AstNode* nodep = ref.refp()->varScopep();
-        if (!nodep) nodep = ref.refp()->varp();  // Not scoped
-        int& baseIdxr = m_baseIdxs[m_ids(nodep)];
-        if (baseIdxr == 0) {  // Not set yet
-            baseIdxr = m_varInfos.size();
-            const int numWords
-                = ref.refp()->dtypep()->isWide() ? ref.refp()->dtypep()->widthWords() : 1;
-            m_varInfos.resize(m_varInfos.size() + numWords);
+        Ast_گره* nodep = ref.refp()->varScopep();
+        إذا (!nodep) nodep = ref.refp()->varp();  // Not scoped
+        صحيح& پایه_Idxr = m_پایه_Idxs[m_ids(nodep)];
+        إذا (پایه_Idxr == 0) {  // Not set yet
+            پایه_Idxr = m_varInfos.اندازه();
+            ثابت صحيح رقم_واژگان
+                = ref.refp()->dtypep()->isWide() ? ref.refp()->dtypep()->عرض_واژگان() : 1;
+            m_varInfos.resize(m_varInfos.اندازه() + رقم_واژگان);
         }
-        const size_t idx = baseIdxr + std::max(0, ref.wordIdx());
+        ثابت اندازه_t idx = پایه_Idxr + std::max(0, ref.کلمه_Idx());
         VarInfo* varInfop = m_varInfos[idx].get();
-        if (!varInfop) {
-            varInfop = new VarInfo{this, ref.refp(), ref.varWidth()};
+        إذا (!varInfop) {
+            varInfop = جديد VarInfo{هذا, ref.refp(), ref.var_عرض()};
             m_varInfos[idx].reset(varInfop);
-            if (ref.missingWordSel()) {
+            إذا (ref.missing_کلمه_Sel()) {
                 // ConstBitOpTreeVisitor makes some constants for masks and its type is uint64_t.
                 // That's why V3Expand, that inserts WordSel, is needed.
-                CONST_BITOP_SET_FAILED("V3Expand is skipped", ref.refp());
+                CONST_BITOP_مجموعه_FAILED("V3Expand is skipped", ref.refp());
             }
-        } else {
-            if (!varInfop->sameVarAs(ref.refp()))
-                CONST_BITOP_SET_FAILED("different var (scope?)", ref.refp());
+        } وإلا {
+            إذا (!varInfop->sameVarAs(ref.refp()))
+                CONST_BITOP_مجموعه_FAILED("different var (scope?)", ref.refp());
         }
-        return *varInfop;
+        أرجع *varInfop;
     }
 
     // Traverse down to see AstConst or AstVarRef
-    LeafInfo findLeaf(AstNode* nodep, bool expectConst) {
-        if (!nodep->dtypep()->skipRefp()->isIntegralOrPacked()) return LeafInfo{};
-        LeafInfo info{m_lsb};
+    برگ_Info پیدا_کن_برگ(Ast_گره* nodep, منطقي expectConst) {
+        إذا (!nodep->dtypep()->skipRefp()->isIntegralOrPacked()) أرجع برگ_Info{};
+        برگ_Info info{m_lsb};
         {
             VL_RESTORER(m_leafp);
             m_leafp = &info;
             iterateConst(nodep);
         }
 
-        bool ok = !m_failed;
-        if (expectConst) {
+        منطقي ok = !m_failed;
+        إذا (expectConst) {
             ok &= !info.refp() && info.constp();
-        } else {
+        } وإلا {
             ok &= info.refp() && !info.constp();
         }
-        return ok ? info : LeafInfo{};
+        أرجع ok ? info : برگ_Info{};
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { CONST_BITOP_SET_FAILED("Hit unexpected op", nodep); }
-    void visit(AstCCast* nodep) override {
+    فراغ بازدید(Ast_گره* nodep) override { CONST_BITOP_مجموعه_FAILED("Hit unexpected op", nodep); }
+    فراغ بازدید(AstCCast* nodep) override {
         iterateChildrenConst(nodep);
-        if (m_leafp) m_leafp->updateBitRange(nodep);
+        إذا (m_leafp) m_leafp->update_بیت_Range(nodep);
     }
-    void visit(AstShiftR* nodep) override {
+    فراغ بازدید(Ast_لغزش_R* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
-        const AstConst* const constp = VN_CAST(nodep->rhsp(), Const);
+        ثابت AstConst* ثابت constp = VN_CAST(nodep->rhsp(), Const);
         CONST_BITOP_RETURN_IF(!constp, nodep->rhsp());
-        m_lsb += constp->toUInt();
+        m_lsb += constp->مقصد_UInt();
         incrOps(nodep, __LINE__);
         iterateConst(nodep->lhsp());
-        m_leafp->updateBitRange(nodep);
-        m_lsb -= constp->toUInt();
+        m_leafp->update_بیت_Range(nodep);
+        m_lsb -= constp->مقصد_UInt();
     }
-    void visit(AstNot* nodep) override {
-        CONST_BITOP_RETURN_IF(nodep->widthMin() != 1, nodep);
-        AstNode* lhsp = nodep->lhsp();
-        AstCCast* const castp = VN_CAST(lhsp, CCast);
-        if (castp) lhsp = castp->lhsp();
-        CONST_BITOP_RETURN_IF(!isXorTree() && !VN_IS(lhsp, VarRef) && !VN_IS(lhsp, ShiftR), lhsp);
+    فراغ بازدید(AstNot* nodep) override {
+        CONST_BITOP_RETURN_IF(nodep->عرض_Min() != 1, nodep);
+        Ast_گره* lhsp = nodep->lhsp();
+        AstCCast* ثابت castp = VN_CAST(lhsp, CCast);
+        إذا (castp) lhsp = castp->lhsp();
+        CONST_BITOP_RETURN_IF(!is_Xor_درخت() && !VN_IS(lhsp, VarRef) && !VN_IS(lhsp, لغزش_R), lhsp);
         incrOps(nodep, __LINE__);
         m_polarity = !m_polarity;
         iterateChildrenConst(nodep);
         // Don't restore m_polarity for Xor as it counts parity of the entire tree
-        if (!isXorTree()) m_polarity = !m_polarity;
-        if (m_leafp && castp) m_leafp->updateBitRange(castp);
-        if (m_leafp) m_leafp->polarity(!m_leafp->polarity());
+        إذا (!is_Xor_درخت()) m_polarity = !m_polarity;
+        إذا (m_leafp && castp) m_leafp->update_بیت_Range(castp);
+        إذا (m_leafp) m_leafp->polarity(!m_leafp->polarity());
     }
-    void visit(AstWordSel* nodep) override {
+    فراغ بازدید(Ast_کلمه_Sel* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
-        const AstConst* const constp = VN_CAST(nodep->bitp(), Const);
+        ثابت AstConst* ثابت constp = VN_CAST(nodep->bitp(), Const);
         CONST_BITOP_RETURN_IF(!constp, nodep->bitp());
-        UASSERT_OBJ(m_leafp->wordIdx() == -1, nodep, "Unexpected nested WordSel");
-        m_leafp->wordIdx(constp->toSInt());
+        UASSERT_OBJ(m_leafp->کلمه_Idx() == -1, nodep, "Unexpected nested WordSel");
+        m_leafp->کلمه_Idx(constp->مقصد_SInt());
         iterateConst(nodep->fromp());
     }
-    void visit(AstVarRef* nodep) override {
+    فراغ بازدید(AstVarRef* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
-        m_leafp->setLeaf(nodep);
+        m_leafp->مجموعه_برگ(nodep);
     }
-    void visit(AstConst* nodep) override {
+    فراغ بازدید(AstConst* nodep) override {
         CONST_BITOP_RETURN_IF(!m_leafp, nodep);
-        m_leafp->setLeaf(nodep);
+        m_leafp->مجموعه_برگ(nodep);
     }
 
-    void visit(AstRedXor* nodep) override {
-        Restorer restorer{*this};
+    فراغ بازدید(AstRedXor* nodep) override {
+        Restorer restorer{*هذا};
         CONST_BITOP_RETURN_IF(!VN_IS(m_rootp, Xor), nodep);
-        AstNode* lhsp = nodep->lhsp();
-        const AstCCast* const castp = VN_CAST(lhsp, CCast);
-        if (castp) lhsp = castp->lhsp();
-        if (const AstAnd* const andp = VN_CAST(lhsp, And)) {  // '^(mask & leaf)'
+        Ast_گره* lhsp = nodep->lhsp();
+        ثابت AstCCast* ثابت castp = VN_CAST(lhsp, CCast);
+        إذا (castp) lhsp = castp->lhsp();
+        إذا (ثابت AstAnd* ثابت andp = VN_CAST(lhsp, And)) {  // '^(mask & leaf)'
             CONST_BITOP_RETURN_IF(!andp, lhsp);
 
-            const LeafInfo& mask = findLeaf(andp->lhsp(), true);
-            CONST_BITOP_RETURN_IF(!mask.constp() || mask.lsb() != 0, andp->lhsp());
+            ثابت برگ_Info& ماسک = پیدا_کن_برگ(andp->lhsp(), درست);
+            CONST_BITOP_RETURN_IF(!ماسک.constp() || ماسک.lsb() != 0, andp->lhsp());
 
-            LeafInfo ref = findLeaf(andp->rhsp(), false);
+            برگ_Info ref = پیدا_کن_برگ(andp->rhsp(), خطأ);
             CONST_BITOP_RETURN_IF(!ref.refp(), andp->rhsp());
-            if (castp) ref.updateBitRange(castp);
+            إذا (castp) ref.update_بیت_Range(castp);
 
             restorer.disableRestore();  // Now all subtree succeeded
 
-            const V3Number& maskNum = mask.constp()->num();
+            ثابت V3_عدد& ماسک_رقم = ماسک.constp()->رقم();
 
             incrOps(nodep, __LINE__);
             incrOps(andp, __LINE__);
 
             // Mark all bits checked in this reduction
-            const int maxBitIdx = std::min(ref.lsb() + maskNum.width(), ref.msb() + 1);
-            for (int bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
-                const int maskIdx = bitIdx - ref.lsb();
-                if (maskNum.bitIs0(maskIdx)) continue;
+            ثابت صحيح max_بیت_Idx = std::min(ref.lsb() + ماسک_رقم.عرض(), ref.msb() + 1);
+            لكل (صحيح بیت_Idx = ref.lsb(); بیت_Idx < max_بیت_Idx; ++بیت_Idx) {
+                ثابت صحيح ماسک_Idx = بیت_Idx - ref.lsb();
+                إذا (ماسک_رقم.بیت_Is0(ماسک_Idx)) استمر;
                 // Set true, m_polarity takes care of the entire parity
-                m_bitPolarities.emplace_back(ref, true, bitIdx);
+                m_بیت_Polarities.emplace_پشت(ref, درست, بیت_Idx);
             }
-        } else {  // '^leaf'
-            LeafInfo ref = findLeaf(lhsp, false);
+        } وإلا {  // '^leaf'
+            برگ_Info ref = پیدا_کن_برگ(lhsp, خطأ);
             CONST_BITOP_RETURN_IF(!ref.refp(), lhsp);
-            if (castp) ref.updateBitRange(castp);
+            إذا (castp) ref.update_بیت_Range(castp);
 
             restorer.disableRestore();  // Now all checks passed
 
             incrOps(nodep, __LINE__);
 
             // Mark all bits checked by this comparison
-            for (int bitIdx = ref.lsb(); bitIdx <= ref.msb(); ++bitIdx) {
-                m_bitPolarities.emplace_back(ref, true, bitIdx);
+            لكل (صحيح بیت_Idx = ref.lsb(); بیت_Idx <= ref.msb(); ++بیت_Idx) {
+                m_بیت_Polarities.emplace_پشت(ref, درست, بیت_Idx);
             }
         }
     }
 
-    void visit(AstNodeBiop* nodep) override {
-        if (VN_IS(nodep, And) && isConst(nodep->lhsp(), 1)) {  // 1 & _
+    فراغ بازدید(Ast_گره_Biop* nodep) override {
+        إذا (VN_IS(nodep, And) && isConst(nodep->lhsp(), 1)) {  // 1 & _
             // Always reach past a plain making AND
-            Restorer restorer{*this};
+            Restorer restorer{*هذا};
             incrOps(nodep, __LINE__);
             iterateConst(nodep->rhsp());
-            if (m_leafp) m_leafp->limitBitRangeToLsb();
+            إذا (m_leafp) m_leafp->حد_بیت_Range_مقصد_Lsb();
             CONST_BITOP_RETURN_IF(m_failed, nodep->rhsp());
             restorer.disableRestore();  // Now all checks passed
-        } else if (nodep->type() == m_rootp->type()) {  // And, Or, Xor
+        } وإلا إذا (nodep->type() == m_rootp->type()) {  // And, Or, Xor
             // subtree under NOT can be optimized only in XOR tree.
-            CONST_BITOP_RETURN_IF(!m_polarity && !isXorTree(), nodep);
+            CONST_BITOP_RETURN_IF(!m_polarity && !is_Xor_درخت(), nodep);
             incrOps(nodep, __LINE__);
-            for (const bool right : {false, true}) {
+            لكل (ثابت منطقي راست : {خطأ, درست}) {
                 VL_RESTORER(m_leafp);
-                Restorer restorer{*this};
-                LeafInfo leafInfo{m_lsb};
+                Restorer restorer{*هذا};
+                برگ_Info برگ_Info_2{m_lsb};
                 // cppcheck-suppress danglingLifetime
-                m_leafp = &leafInfo;
-                AstNodeExpr* opp = right ? nodep->rhsp() : nodep->lhsp();
-                const bool origFailed = m_failed;
+                m_leafp = &برگ_Info_2;
+                Ast_گره_عبارت* opp = راست ? nodep->rhsp() : nodep->lhsp();
+                ثابت منطقي origFailed = m_failed;
                 iterateConst(opp);
-                if (leafInfo.constp() || m_failed) {
+                إذا (برگ_Info_2.constp() || m_failed) {
                     // Revert changes in leaf
                     restorer.restoreNow();
                     // Reach past a cast then add to frozen nodes to be added to final reduction
-                    if (const AstCCast* const castp = VN_CAST(opp, CCast)) opp = castp->lhsp();
-                    const bool pol = isXorTree() || m_polarity;  // Only AND/OR tree needs polarity
+                    إذا (ثابت AstCCast* ثابت castp = VN_CAST(opp, CCast)) opp = castp->lhsp();
+                    ثابت منطقي pol = is_Xor_درخت() || m_polarity;  // Only AND/OR tree needs polarity
                     UASSERT_OBJ(pol, nodep, "AND/OR tree expects m_polarity==true");
-                    m_frozenNodes.emplace_back(opp, FrozenNodeInfo{pol, m_lsb});
+                    m_frozenNodes.emplace_پشت(opp, Frozen_گره_Info{pol, m_lsb});
                     m_failed = origFailed;
-                    continue;
+                    استمر;
                 }
                 restorer.disableRestore();  // Now all checks passed
-                if (leafInfo.refp()) {
+                إذا (برگ_Info_2.refp()) {
                     // The conditional on the lsb being in range is necessary for some degenerate
                     // case, e.g.: (IData)((QData)wide[0] >> 32), or <1-bit-var> >> 1, which is
                     // just zero
-                    if (leafInfo.lsb() <= leafInfo.msb()) {
-                        m_bitPolarities.emplace_back(leafInfo, isXorTree() || leafInfo.polarity(),
-                                                     leafInfo.lsb());
-                    } else if ((isAndTree() && leafInfo.polarity())
-                               || (isOrTree() && !leafInfo.polarity())) {
+                    إذا (برگ_Info_2.lsb() <= برگ_Info_2.msb()) {
+                        m_بیت_Polarities.emplace_پشت(برگ_Info_2, is_Xor_درخت() || برگ_Info_2.polarity(),
+                                                     برگ_Info_2.lsb());
+                    } وإلا إذا ((is_And_درخت() && برگ_Info_2.polarity())
+                               || (is_Or_درخت() && !برگ_Info_2.polarity())) {
                         // If there is a constant 0 term in an And tree or 1 term in an Or tree, we
                         // must include it. Fudge this by adding a bit with both polarities, which
                         // will simplify to zero or one respectively.
                         // Note that Xor tree does not need this kind of care, polarity of Xor tree
                         // is already cared when visitin AstNot. Taking xor with 1'b0 is nop.
-                        m_bitPolarities.emplace_back(leafInfo, true, 0);
-                        m_bitPolarities.emplace_back(leafInfo, false, 0);
+                        m_بیت_Polarities.emplace_پشت(برگ_Info_2, درست, 0);
+                        m_بیت_Polarities.emplace_پشت(برگ_Info_2, خطأ, 0);
                     }
                 }
             }
-        } else if ((isAndTree() && VN_IS(nodep, Eq)) || (isOrTree() && VN_IS(nodep, Neq))) {
-            Restorer restorer{*this};
+        } وإلا إذا ((is_And_درخت() && VN_IS(nodep, Eq)) || (is_Or_درخت() && VN_IS(nodep, Neq))) {
+            Restorer restorer{*هذا};
             CONST_BITOP_RETURN_IF(!m_polarity, nodep);
             CONST_BITOP_RETURN_IF(m_lsb, nodep);  // the result of EQ/NE is 1 bit width
-            const AstNode* lhsp = nodep->lhsp();
-            if (const AstCCast* const castp = VN_CAST(lhsp, CCast)) lhsp = castp->lhsp();
-            const AstConst* const constp = VN_CAST(lhsp, Const);
+            ثابت Ast_گره* lhsp = nodep->lhsp();
+            إذا (ثابت AstCCast* ثابت castp = VN_CAST(lhsp, CCast)) lhsp = castp->lhsp();
+            ثابت AstConst* ثابت constp = VN_CAST(lhsp, Const);
             CONST_BITOP_RETURN_IF(!constp, nodep->lhsp());
 
-            const V3Number& compNum = constp->num();
+            ثابت V3_عدد& comp_رقم = constp->رقم();
 
-            auto setPolarities = [this, &compNum](const LeafInfo& ref, const V3Number* maskp) {
-                const bool maskFlip = isAndTree() ^ ref.polarity();
-                int constantWidth = compNum.width();
-                if (maskp) constantWidth = std::max(constantWidth, maskp->width());
-                const int maxBitIdx = std::max(ref.lsb() + constantWidth, ref.msb() + 1);
+            خودکار مجموعه_Polarities = [هذا, &comp_رقم](ثابت برگ_Info& ref, ثابت V3_عدد* maskp) {
+                ثابت منطقي ماسک_Flip = is_And_درخت() ^ ref.polarity();
+                صحيح constant_عرض = comp_رقم.عرض();
+                إذا (maskp) constant_عرض = std::max(constant_عرض, maskp->عرض());
+                ثابت صحيح max_بیت_Idx = std::max(ref.lsb() + constant_عرض, ref.msb() + 1);
                 // Mark all bits checked by this comparison
-                for (int bitIdx = ref.lsb(); bitIdx < maxBitIdx; ++bitIdx) {
-                    const int maskIdx = bitIdx - ref.lsb();
-                    const bool mask0 = maskp && maskp->bitIs0(maskIdx);
-                    const bool outOfRange = bitIdx > ref.msb();
-                    if (mask0 || outOfRange) {  // RHS is 0
-                        if (compNum.bitIs1(maskIdx)) {
+                لكل (صحيح بیت_Idx = ref.lsb(); بیت_Idx < max_بیت_Idx; ++بیت_Idx) {
+                    ثابت صحيح ماسک_Idx = بیت_Idx - ref.lsb();
+                    ثابت منطقي mask0 = maskp && maskp->بیت_Is0(ماسک_Idx);
+                    ثابت منطقي بیرون_از_Range = بیت_Idx > ref.msb();
+                    إذا (mask0 || بیرون_از_Range) {  // RHS is 0
+                        إذا (comp_رقم.بیت_Is1(ماسک_Idx)) {
                             // LHS is 1
                             // And tree: 1 == 0 => always false, set v && !v
                             // Or tree : 1 != 0 => always true, set v || !v
-                            m_bitPolarities.emplace_back(ref, true, 0);
-                            m_bitPolarities.emplace_back(ref, false, 0);
-                            break;
-                        } else {  // This bitIdx is irrelevant
-                            continue;
+                            m_بیت_Polarities.emplace_پشت(ref, درست, 0);
+                            m_بیت_Polarities.emplace_پشت(ref, خطأ, 0);
+                            اكسر;
+                        } وإلا {  // This bitIdx is irrelevant
+                            استمر;
                         }
                     }
-                    const bool polarity = compNum.bitIs1(maskIdx) != maskFlip;
-                    m_bitPolarities.emplace_back(ref, polarity, bitIdx);
+                    ثابت منطقي polarity = comp_رقم.بیت_Is1(ماسک_Idx) != ماسک_Flip;
+                    m_بیت_Polarities.emplace_پشت(ref, polarity, بیت_Idx);
                 }
             };
 
-            if (const AstAnd* const andp = VN_CAST(nodep->rhsp(), And)) {  // comp == (mask & v)
-                const LeafInfo& mask = findLeaf(andp->lhsp(), true);
-                CONST_BITOP_RETURN_IF(!mask.constp() || mask.lsb() != 0, andp->lhsp());
+            إذا (ثابت AstAnd* ثابت andp = VN_CAST(nodep->rhsp(), And)) {  // comp == (mask & v)
+                ثابت برگ_Info& ماسک = پیدا_کن_برگ(andp->lhsp(), درست);
+                CONST_BITOP_RETURN_IF(!ماسک.constp() || ماسک.lsb() != 0, andp->lhsp());
 
-                const LeafInfo& ref = findLeaf(andp->rhsp(), false);
+                ثابت برگ_Info& ref = پیدا_کن_برگ(andp->rhsp(), خطأ);
                 CONST_BITOP_RETURN_IF(!ref.refp(), andp->rhsp());
 
                 restorer.disableRestore();  // Now all checks passed
 
-                const V3Number& maskNum = mask.constp()->num();
+                ثابت V3_عدد& ماسک_رقم = ماسک.constp()->رقم();
 
                 incrOps(nodep, __LINE__);
                 incrOps(andp, __LINE__);
 
-                setPolarities(ref, &maskNum);
-            } else {  // comp == v
-                const LeafInfo& ref = findLeaf(nodep->rhsp(), false);
+                مجموعه_Polarities(ref, &ماسک_رقم);
+            } وإلا {  // comp == v
+                ثابت برگ_Info& ref = پیدا_کن_برگ(nodep->rhsp(), خطأ);
                 CONST_BITOP_RETURN_IF(!ref.refp(), nodep->rhsp());
 
                 restorer.disableRestore();  // Now all checks passed
 
                 incrOps(nodep, __LINE__);
 
-                setPolarities(ref, nullptr);
+                مجموعه_Polarities(ref, اشاره_تهی);
             }
-        } else {
-            CONST_BITOP_SET_FAILED("Mixture of different ops cannot be optimized", nodep);
+        } وإلا {
+            CONST_BITOP_مجموعه_FAILED("Mixture of different ops cannot be optimized", nodep);
         }
     }
 
     // CONSTRUCTORS
-    ConstBitOpTreeVisitor(AstNodeExpr* nodep, unsigned externalOps, VNIdAllocator& ids)
+    Const_بیت_Op_درخت_Visitor(Ast_گره_عبارت* nodep, بیعلامت externalOps, VNIdAllocator& ids)
         : m_ops{externalOps}
         , m_rootp{nodep}
         , m_ids{ids} {
         // Fill nullptr at [0] because a base index of 0 means not set yet
-        m_varInfos.push_back(nullptr);
-        CONST_BITOP_RETURN_IF(!isAndTree() && !isOrTree() && !isXorTree(), nodep);
-        if (AstNodeBiop* const biopp = VN_CAST(nodep, NodeBiop)) {
+        m_varInfos.افزودن_پشت(اشاره_تهی);
+        CONST_BITOP_RETURN_IF(!is_And_درخت() && !is_Or_درخت() && !is_Xor_درخت(), nodep);
+        إذا (Ast_گره_Biop* ثابت biopp = VN_CAST(nodep, گره_Biop)) {
             iterateConst(biopp);
-        } else {
+        } وإلا {
             UASSERT_OBJ(VN_IS(nodep, RedXor), nodep, "Must be RedXor");
             incrOps(nodep, __LINE__);
             iterateChildrenConst(nodep);
         }
-        for (auto&& entry : m_bitPolarities) {
-            getVarInfo(entry.m_info).setPolarity(entry.m_polarity, entry.m_bit);
+        لكل (خودکار&& مدخل : m_بیت_Polarities) {
+            getVarInfo(مدخل.m_info).مجموعه_Polarity(مدخل.m_polarity, مدخل.m_بیت);
         }
-        UASSERT_OBJ(isXorTree() || m_polarity, nodep, "must be the original polarity");
+        UASSERT_OBJ(is_Xor_درخت() || m_polarity, nodep, "must be the original polarity");
     }
-    virtual ~ConstBitOpTreeVisitor() = default;
-#undef CONST_BITOP_RETURN_IF
-#undef CONST_BITOP_SET_FAILED
+    مجازی ~Const_بیت_Op_درخت_Visitor() = افتراضي;
+#لغو_تعریف CONST_BITOP_RETURN_IF
+#لغو_تعریف CONST_BITOP_مجموعه_FAILED
 
-public:
+عام:
     // Transform as below.
     // v[0] & v[1] => 2'b11 == (2'b11 & v)
     // v[0] | v[1] => 2'b00 != (2'b11 & v)
@@ -721,167 +721,167 @@ public:
     // (3'b000 != (3'b011 & v)) | v[2]  => 3'b000 != (3'b111 & v)
     // Reduction ops are transformed in the same way.
     // &{v[0], v[1]} => 2'b11 == (2'b11 & v)
-    static AstNodeExpr* simplify(AstNodeExpr* nodep, int resultWidth, unsigned externalOps,
+    ساكن Ast_گره_عبارت* simplify(Ast_گره_عبارت* nodep, صحيح نتیجه_عرض, بیعلامت externalOps,
                                  VDouble0& reduction, VNIdAllocator& ids) {
-        UASSERT_OBJ(1 <= resultWidth && resultWidth <= 64, nodep, "resultWidth out of range");
+        UASSERT_OBJ(1 <= نتیجه_عرض && نتیجه_عرض <= 64, nodep, "resultWidth out of range");
 
         // Walk tree, gathering all terms referenced in expression
-        const ConstBitOpTreeVisitor visitor{nodep, externalOps, ids};
+        ثابت Const_بیت_Op_درخت_Visitor visitor{nodep, externalOps, ids};
 
         // If failed on root node is not optimizable, or there are no variable terms, then done
-        if (visitor.m_failed || visitor.m_varInfos.size() == 1) return nullptr;
+        إذا (visitor.m_failed || visitor.m_varInfos.اندازه() == 1) أرجع اشاره_تهی;
 
         // FileLine used for constructing all new nodes in this function
-        FileLine* const fl = nodep->fileline();
+        File_سطر* ثابت fl = nodep->fileline();
 
         // Get partial result each term referenced, count total number of ops and keep track of
         // whether we have clean/dirty terms. visitor.m_varInfos appears in deterministic order,
         // so the optimized tree is deterministic as well.
 
-        std::vector<AstNodeExpr*> termps;
-        termps.reserve(visitor.m_varInfos.size() - 1);
-        unsigned resultOps = 0;
-        bool hasCleanTerm = false;
-        bool hasDirtyTerm = false;
+        std::وکتور<Ast_گره_عبارت*> termps;
+        termps.reserve(visitor.m_varInfos.اندازه() - 1);
+        بیعلامت نتیجه_Ops = 0;
+        منطقي has_Clean_جمله = خطأ;
+        منطقي has_Dirty_جمله = خطأ;
 
-        for (auto&& v : visitor.m_varInfos) {
-            if (!v) continue;  // Skip nullptr at m_varInfos[0]
-            if (v->hasConstResult()) {
+        لكل (خودکار&& v : visitor.m_varInfos) {
+            إذا (!v) استمر;  // Skip nullptr at m_varInfos[0]
+            إذا (v->has_Const_نتیجه()) {
                 // If a constant term is known, we can either drop it or the whole tree is constant
-                AstNodeExpr* resultp = nullptr;
-                if (v->getConstResult()) {
-                    UASSERT_OBJ(visitor.isOrTree(), nodep,
+                Ast_گره_عبارت* resultp = اشاره_تهی;
+                إذا (v->get_Const_نتیجه()) {
+                    UASSERT_OBJ(visitor.is_Or_درخت(), nodep,
                                 "Only OR tree can yield known 1 result");
                     UINFO(9, "OR tree with const 1 term: " << v->refp());
                     // Known 1 bit in OR tree, whole result is 1
-                    resultp = new AstConst{fl, AstConst::BitTrue{}};
-                } else if (visitor.isAndTree()) {
+                    resultp = جديد AstConst{fl, AstConst::بیت_True{}};
+                } وإلا إذا (visitor.is_And_درخت()) {
                     UINFO(9, "AND tree with const 0 term: " << v->refp());
                     // Known 0 bit in AND tree, whole result is 0
-                    resultp = new AstConst{fl, AstConst::BitFalse{}};
-                } else {
+                    resultp = جديد AstConst{fl, AstConst::بیت_False{}};
+                } وإلا {
                     // Known 0 bit in OR or XOR tree. Ignore it.
-                    continue;
+                    استمر;
                 }
                 // Set width and widthMin precisely
-                resultp->dtypeChgWidth(resultWidth, 1);
-                for (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
-                return resultp;
+                resultp->dtype_Chg_عرض(نتیجه_عرض, 1);
+                لكل (Ast_گره* ثابت termp : termps) VL_DO_DANGLING(termp->delete_درخت(), termp);
+                أرجع resultp;
             }
-            const ResultTerm result = v->getResultTerm();
-            termps.push_back(std::get<0>(result));
-            resultOps += std::get<1>(result);
-            if (std::get<2>(result)) {
-                hasCleanTerm = true;
-                UINFO(9, "Clean term: " << termps.back());
-            } else {
-                hasDirtyTerm = true;
-                UINFO(9, "Dirty term: " << termps.back());
+            ثابت نتیجه_جمله نتیجه = v->get_نتیجه_جمله();
+            termps.افزودن_پشت(std::get<0>(نتیجه));
+            نتیجه_Ops += std::get<1>(نتیجه);
+            إذا (std::get<2>(نتیجه)) {
+                has_Clean_جمله = درست;
+                UINFO(9, "Clean term: " << termps.پشت());
+            } وإلا {
+                has_Dirty_جمله = درست;
+                UINFO(9, "Dirty term: " << termps.پشت());
             }
         }
 
         // Group by FrozenNodeInfo
-        std::map<FrozenNodeInfo, std::vector<AstNodeExpr*>> frozenNodes;
+        std::map<Frozen_گره_Info, std::وکتور<Ast_گره_عبارت*>> frozenNodes;
         // Check if frozen terms are clean or not
-        for (const auto& frozenInfo : visitor.m_frozenNodes) {
-            AstNodeExpr* const termp = frozenInfo.first;
+        لكل (ثابت خودکار& frozenInfo : visitor.m_frozenNodes) {
+            Ast_گره_عبارت* ثابت termp = frozenInfo.اولی;
             // Comparison operators are clean
-            if ((VN_IS(termp, Eq) || VN_IS(termp, Neq) || VN_IS(termp, Lt) || VN_IS(termp, Lte)
+            إذا ((VN_IS(termp, Eq) || VN_IS(termp, Neq) || VN_IS(termp, Lt) || VN_IS(termp, Lte)
                  || VN_IS(termp, Gt) || VN_IS(termp, Gte))
-                && frozenInfo.second.m_lsb == 0) {
-                hasCleanTerm = true;
-            } else {
+                && frozenInfo.دومی.m_lsb == 0) {
+                has_Clean_جمله = درست;
+            } وإلا {
                 // Otherwise, conservatively assume the frozen term is dirty
-                hasDirtyTerm = true;
+                has_Dirty_جمله = درست;
                 UINFO(9, "Dirty frozen term: " << termp);
             }
-            frozenNodes[frozenInfo.second].push_back(termp);
+            frozenNodes[frozenInfo.دومی].افزودن_پشت(termp);
         }
 
         // Figure out if a final negation is required
-        const bool needsFlip = visitor.isXorTree() && !visitor.m_polarity;
+        ثابت منطقي needsFlip = visitor.is_Xor_درخت() && !visitor.m_polarity;
 
         // Figure out if the final tree needs cleaning
-        const bool needsCleaning = visitor.isAndTree() ? !hasCleanTerm : hasDirtyTerm;
+        ثابت منطقي needsCleaning = visitor.is_And_درخت() ? !has_Clean_جمله : has_Dirty_جمله;
 
         // Add size of reduction tree to op count
-        resultOps += termps.size() - 1;
-        for (const auto& lsbAndNodes : frozenNodes) {
-            if (lsbAndNodes.first.m_lsb > 0) ++resultOps;  // Needs AstShiftR
-            if (!lsbAndNodes.first.m_polarity) ++resultOps;  // Needs AstNot
-            resultOps += lsbAndNodes.second.size();
+        نتیجه_Ops += termps.اندازه() - 1;
+        لكل (ثابت خودکار& lsbAndNodes : frozenNodes) {
+            إذا (lsbAndNodes.اولی.m_lsb > 0) ++نتیجه_Ops;  // Needs AstShiftR
+            إذا (!lsbAndNodes.اولی.m_polarity) ++نتیجه_Ops;  // Needs AstNot
+            نتیجه_Ops += lsbAndNodes.دومی.اندازه();
         }
         // Add final polarity flip in Xor tree
-        if (needsFlip) ++resultOps;
+        إذا (needsFlip) ++نتیجه_Ops;
         // Add final cleaning AND
-        if (needsCleaning) ++resultOps;
+        إذا (needsCleaning) ++نتیجه_Ops;
 
-        if (debug() >= 9) {  // LCOV_EXCL_START
-            cout << "-  Bitop tree considered:\n";
-            for (const AstNodeExpr* const termp : termps) termp->dumpTree("-  Reduced term: ");
-            for (const std::pair<AstNodeExpr*, FrozenNodeInfo>& termp : visitor.m_frozenNodes) {
-                termp.first->dumpTree("-  Frozen term with lsb "
-                                      + std::to_string(termp.second.m_lsb) + " polarity "
-                                      + std::to_string(termp.second.m_polarity) + ": ");
+        إذا (debug() >= 9) {  // LCOV_EXCL_START
+            خروجی << "-  Bitop tree considered:\n";
+            لكل (ثابت Ast_گره_عبارت* ثابت termp : termps) termp->dump_درخت("-  Reduced term: ");
+            لكل (ثابت std::pair<Ast_گره_عبارت*, Frozen_گره_Info>& termp : visitor.m_frozenNodes) {
+                termp.اولی->dump_درخت("-  Frozen term with lsb "
+                                      + std::مقصد_string(termp.دومی.m_lsb) + " polarity "
+                                      + std::مقصد_string(termp.دومی.m_polarity) + ": ");
             }
-            cout << "-  Needs flipping: " << needsFlip << "\n";
-            cout << "-  Needs cleaning: " << needsCleaning << "\n";
-            cout << "-  Size: " << resultOps << " input size: " << visitor.m_ops << "\n";
+            خروجی << "-  Needs flipping: " << needsFlip << "\n";
+            خروجی << "-  Needs cleaning: " << needsCleaning << "\n";
+            خروجی << "-  Size: " << نتیجه_Ops << " input size: " << visitor.m_ops << "\n";
         }  // LCOV_EXCL_STOP
 
         // Sometimes we have no terms left after ignoring redundant terms
         // (all of which were zeroes)
-        if (termps.empty() && visitor.m_frozenNodes.empty()) {
+        إذا (termps.خالی() && visitor.m_frozenNodes.خالی()) {
             reduction += visitor.m_ops;
-            AstNodeExpr* const resultp = needsFlip ? new AstConst{fl, AstConst::BitTrue{}}
-                                                   : new AstConst{fl, AstConst::BitFalse{}};
-            resultp->dtypeChgWidth(resultWidth, 1);
-            return resultp;
+            Ast_گره_عبارت* ثابت resultp = needsFlip ? جديد AstConst{fl, AstConst::بیت_True{}}
+                                                   : جديد AstConst{fl, AstConst::بیت_False{}};
+            resultp->dtype_Chg_عرض(نتیجه_عرض, 1);
+            أرجع resultp;
         }
 
         // Only substitute the result if beneficial as determined by operation count
-        if (visitor.m_ops <= resultOps) {
-            for (AstNode* const termp : termps) VL_DO_DANGLING(termp->deleteTree(), termp);
-            return nullptr;
+        إذا (visitor.m_ops <= نتیجه_Ops) {
+            لكل (Ast_گره* ثابت termp : termps) VL_DO_DANGLING(termp->delete_درخت(), termp);
+            أرجع اشاره_تهی;
         }
 
         // Update statistics
-        reduction += visitor.m_ops - resultOps;
+        reduction += visitor.m_ops - نتیجه_Ops;
 
         // Reduction op to combine terms
-        const auto reduce = [&visitor, fl](AstNodeExpr* lhsp, AstNodeExpr* rhsp) -> AstNodeExpr* {
-            if (!lhsp) return rhsp;
-            if (visitor.isAndTree()) {
-                return new AstAnd{fl, lhsp, rhsp};
-            } else if (visitor.isOrTree()) {
-                return new AstOr{fl, lhsp, rhsp};
-            } else {
-                return new AstXor{fl, lhsp, rhsp};
+        ثابت خودکار reduce = [&visitor, fl](Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp) -> Ast_گره_عبارت* {
+            إذا (!lhsp) أرجع rhsp;
+            إذا (visitor.is_And_درخت()) {
+                أرجع جديد AstAnd{fl, lhsp, rhsp};
+            } وإلا إذا (visitor.is_Or_درخت()) {
+                أرجع جديد AstOr{fl, lhsp, rhsp};
+            } وإلا {
+                أرجع جديد AstXor{fl, lhsp, rhsp};
             }
         };
 
         // Compute result by reducing all terms
-        AstNodeExpr* resultp = nullptr;
-        for (AstNodeExpr* const termp : termps) {  //
+        Ast_گره_عبارت* resultp = اشاره_تهی;
+        لكل (Ast_گره_عبارت* ثابت termp : termps) {  //
             resultp = reduce(resultp, termp);
         }
         // Add any frozen terms to the reduction
-        for (auto&& nodes : frozenNodes) {
+        لكل (خودکار&& nodes : frozenNodes) {
             // nodes.second has same lsb and polarity
-            AstNodeExpr* termp = nullptr;
-            for (AstNodeExpr* const itemp : nodes.second) {
-                termp = reduce(termp, itemp->unlinkFrBack());
+            Ast_گره_عبارت* termp = اشاره_تهی;
+            لكل (Ast_گره_عبارت* ثابت itemp : nodes.دومی) {
+                termp = reduce(termp, itemp->unlink_Fr_پشت());
             }
-            if (nodes.first.m_lsb > 0) {  // LSB is not 0, so shiftR
-                AstNodeDType* const dtypep = termp->dtypep();
-                termp = new AstShiftR{termp->fileline(), termp,
-                                      new AstConst(termp->fileline(), AstConst::WidthedValue{},
-                                                   termp->width(), nodes.first.m_lsb)};
+            إذا (nodes.اولی.m_lsb > 0) {  // LSB is not 0, so shiftR
+                Ast_گره_DType* ثابت dtypep = termp->dtypep();
+                termp = جديد Ast_لغزش_R{termp->fileline(), termp,
+                                      جديد AstConst(termp->fileline(), AstConst::Widthed_مقدار{},
+                                                   termp->عرض(), nodes.اولی.m_lsb)};
                 termp->dtypep(dtypep);
             }
-            if (!nodes.first.m_polarity) {  // Polarity is inverted, so append Not
-                AstNodeDType* const dtypep = termp->dtypep();
-                termp = new AstNot{termp->fileline(), termp};
+            إذا (!nodes.اولی.m_polarity) {  // Polarity is inverted, so append Not
+                Ast_گره_DType* ثابت dtypep = termp->dtypep();
+                termp = جديد AstNot{termp->fileline(), termp};
                 termp->dtypep(dtypep);
             }
             resultp = reduce(resultp, termp);
@@ -891,47 +891,47 @@ public:
         // of the masking node e.g. by the "AND with all ones" rule. If the result width happens
         // to be 1, we still need to ensure the AstAnd is not dropped, so use a wider mask in this
         // special case.
-        const int maskWidth
-            = std::max(resultp->width(), resultWidth == 1 ? VL_IDATASIZE : resultWidth);
+        ثابت صحيح ماسک_عرض
+            = std::max(resultp->عرض(), نتیجه_عرض == 1 ? VL_IDATASIZE : نتیجه_عرض);
 
         // Apply final polarity flip
-        if (needsFlip) {
-            if (needsCleaning) {
+        إذا (needsFlip) {
+            إذا (needsCleaning) {
                 // Cleaning will be added below. Use a NOT which is a byte shorter on x86
-                resultp = new AstNot{fl, resultp};
-            } else {
+                resultp = جديد AstNot{fl, resultp};
+            } وإلا {
                 // Keep result clean by using XOR(1, _)
-                AstConst* const maskp = new AstConst{fl, AstConst::WidthedValue{}, maskWidth, 1};
-                resultp = new AstXor{fl, maskp, resultp};
+                AstConst* ثابت maskp = جديد AstConst{fl, AstConst::Widthed_مقدار{}, ماسک_عرض, 1};
+                resultp = جديد AstXor{fl, maskp, resultp};
             }
         }
 
         // Apply final cleaning
-        if (needsCleaning) {
-            AstConst* const maskp = new AstConst{fl, AstConst::WidthedValue{}, maskWidth, 1};
-            resultp = new AstAnd{fl, maskp, resultp};
+        إذا (needsCleaning) {
+            AstConst* ثابت maskp = جديد AstConst{fl, AstConst::Widthed_مقدار{}, ماسک_عرض, 1};
+            resultp = جديد AstAnd{fl, maskp, resultp};
         }
 
         // Cast back to original size if required
-        if (resultp->width() != resultWidth) {
-            resultp = new AstCCast{fl, resultp, resultWidth, 1};
+        إذا (resultp->عرض() != نتیجه_عرض) {
+            resultp = جديد AstCCast{fl, resultp, نتیجه_عرض, 1};
         }
 
         // Set width and widthMin precisely
-        resultp->dtypeChgWidth(resultWidth, 1);
+        resultp->dtype_Chg_عرض(نتیجه_عرض, 1);
 
-        return resultp;
+        أرجع resultp;
     }
 };
 
 //######################################################################
 // Const state, as a visitor of each AstNode
 
-class ConstVisitor final : public VNVisitor {
+صنف ConstVisitor final : عام VNVisitor {
     // CONSTANTS
-    static constexpr unsigned CONCAT_MERGABLE_MAX_DEPTH = 10;  // Limit alg recursion
+    ساكن constexpr بیعلامت CONCAT_MERGABLE_MAX_عمق = 10;  // Limit alg recursion
     // Largest right-hand side that is copied to each part of a split concatenation assignment
-    static constexpr int CONCAT_ASSIGN_MAX_RHS_NODES = 16;
+    ساكن constexpr صحيح CONCAT_تخصیص_بده_MAX_RHS_NODES = 16;
 
     // NODE STATE
     // See VNIdAllocator. All per node state below is held in side tables keyed on the
@@ -939,184 +939,184 @@ class ConstVisitor final : public VNVisitor {
 
     // STATE
     VNIdAllocator m_ids;  // Node id allocator
-    bool m_params = false;  // If true, propagate parameterized and true numbers only
-    bool m_required = false;  // If true, must become a constant
-    bool m_wremove = true;  // Inside scope, no assignw removal
-    bool m_warn = false;  // Output warnings
-    bool m_doExpensive = false;  // Enable computationally expensive optimizations
-    bool m_doCpp = false;  // Enable late-stage C++ optimizations
-    bool m_doNConst = false;  // Enable non-constant-child simplifications
-    bool m_doV = false;  // Verilog, not C++ conversion
-    bool m_doGenerate = false;  // Postpone width checking inside generate
-    bool m_convertLogicToBit = false;  // Convert logical operators to bitwise
-    bool m_hasJumpDelay = false;  // JumpGo or Delay under this loop
-    bool m_hasLoopTest = false;  // Contains AstLoopTest
-    bool m_underRecFunc = false;  // Under a recursive function
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const AstArraySel* m_selp = nullptr;  // Current select
-    const AstScope* m_scopep = nullptr;  // Current scope
-    const AstAttrOf* m_attrp = nullptr;  // Current attribute
-    VDouble0 m_statBitOpReduction;  // Ops reduced in ConstBitOpTreeVisitor
-    VDouble0 m_statConcatMerge;  // Concat merges
-    VDouble0 m_statCondExprRedundant;  // Conditional repeated expressions
-    VDouble0 m_statIfCondExprRedundant;  // Conditional repeated expressions
+    منطقي m_params = خطأ;  // If true, propagate parameterized and true numbers only
+    منطقي m_required = خطأ;  // If true, must become a constant
+    منطقي m_wremove = درست;  // Inside scope, no assignw removal
+    منطقي m_warn = خطأ;  // Output warnings
+    منطقي m_doExpensive = خطأ;  // Enable computationally expensive optimizations
+    منطقي m_doCpp = خطأ;  // Enable late-stage C++ optimizations
+    منطقي m_doNConst = خطأ;  // Enable non-constant-child simplifications
+    منطقي m_doV = خطأ;  // Verilog, not C++ conversion
+    منطقي m_doGenerate = خطأ;  // Postpone width checking inside generate
+    منطقي m_convert_Logic_مقصد_بیت = خطأ;  // Convert logical operators to bitwise
+    منطقي m_hasJumpDelay = خطأ;  // JumpGo or Delay under this loop
+    منطقي m_hasLoopTest = خطأ;  // Contains AstLoopTest
+    منطقي m_underRecFunc = خطأ;  // Under a recursive function
+    Ast_گره_Module* m_modp = اشاره_تهی;  // Current module
+    ثابت AstArraySel* m_selp = اشاره_تهی;  // Current select
+    ثابت AstScope* m_scopep = اشاره_تهی;  // Current scope
+    ثابت Ast_Attr_از* m_attrp = اشاره_تهی;  // Current attribute
+    VDouble0 m_stat_بیت_Op_Reduction;  // Ops reduced in ConstBitOpTreeVisitor
+    VDouble0 m_stat_Concat_ادغام;  // Concat merges
+    VDouble0 m_stat_Cond_عبارت_Redundant;  // Conditional repeated expressions
+    VDouble0 m_stat_If_Cond_عبارت_Redundant;  // Conditional repeated expressions
     VDouble0 m_statMemberAccessVisits;  // Nodes visited by containsMemberAccessRecurse
-    const bool m_globalPass;  // ConstVisitor invoked as a global pass
-    static uint32_t s_globalPassNum;  // Counts number of times ConstVisitor invoked as global pass
-    V3UniqueNames m_concswapNames;  // For generating unique temporary variable names
+    ثابت منطقي m_globalPass;  // ConstVisitor invoked as a global pass
+    ساكن uint32_t s_global_Pass_رقم;  // Counts number of times ConstVisitor invoked as global pass
+    V3_Unique_نامها m_concswap_نامها;  // For generating unique temporary variable names
     // Caches results of matchBiopToBitwise, keyed on node id
-    std::unordered_map<size_t, bool> m_containsMemberAccess;
+    std::unordered_map<اندازه_t, منطقي> m_شامل_است_Member_Access;
     // Items of enum currently being recursed into. Cannot use VNIdAllocator, as this runs in
     // every mode, including those invoked under a pass holding user4 (V3Param). Node pointers
     // are safe as keys here, unlike elsewhere in V3Const: folding the item value below does
     // free nodes whose addresses are then reused, but AstEnumItem is only ever constructed
     // while parsing (verilog.y and V3LinkParse), so a reused address can never become one,
     // and every key looked up is an AstEnumItem.
-    std::unordered_set<const AstEnumItem*> m_recursingEnumItems;
-    std::unordered_set<AstJumpBlock*> m_usedJumpBlocks;  // JumpBlocks used by some JumpGo
+    std::unordered_مجموعه<ثابت Ast_Enum_قلم*> m_recursing_Enum_اقلام;
+    std::unordered_مجموعه<Ast_Jump_بلوک*> m_استفاده_شده_Jump_بلوکها;  // JumpBlocks used by some JumpGo
 
     // METHODS
 
     // Return true if statements may be deleted. Until statics are lifted, a variable declared
     // in a statement might be referenced from elsewhere (e.g. hierarchically).
-    static bool canDeleteStatements() { return v3Global.staticsLifted(); }
+    ساكن منطقي canDeleteStatements() { أرجع v3Global.staticsLifted(); }
 
-    void deleteVarScopesUnder(AstNode* subtreep) {
-        if (!subtreep) return;
-        if (!m_scopep) return;
-        std::unordered_set<AstVar*> varps;
-        subtreep->foreachAndNext([&](AstVar* varp) { varps.insert(varp); });
-        if (varps.empty()) return;
-        for (AstVarScope *vscp = m_scopep->varsp(), *nextp; vscp; vscp = nextp) {
+    فراغ deleteVarScopesUnder(Ast_گره* subtreep) {
+        إذا (!subtreep) أرجع;
+        إذا (!m_scopep) أرجع;
+        std::unordered_مجموعه<AstVar*> varps;
+        subtreep->foreach_And_بعدی([&](AstVar* varp) { varps.درج(varp); });
+        إذا (varps.خالی()) أرجع;
+        لكل (AstVarScope *vscp = m_scopep->varsp(), *nextp; vscp; vscp = nextp) {
             nextp = VN_AS(vscp->nextp(), VarScope);
-            if (varps.find(vscp->varp()) != varps.end()) {
-                VL_DO_DANGLING(pushDeletep(vscp->unlinkFrBack()), vscp);
+            إذا (varps.پیدا_کن(vscp->varp()) != varps.انتها()) {
+                VL_DO_DANGLING(افزودن_Deletep(vscp->unlink_Fr_پشت()), vscp);
             }
         }
     }
 
-    V3Number constNumV(AstNode* nodep) {
+    V3_عدد const_رقم_V(Ast_گره* nodep) {
         // Contract C width to V width (if needed, else just direct copy)
         // The upper zeros in the C representation can otherwise cause
         // wrong results in some operations, e.g. MulS
-        const V3Number& numc = VN_AS(nodep, Const)->num();
-        return !numc.isNumber() ? numc : V3Number{nodep, nodep->widthMinV(), numc};
+        ثابت V3_عدد& numc = VN_AS(nodep, Const)->رقم();
+        أرجع !numc.is_عدد() ? numc : V3_عدد{nodep, nodep->عرض_Min_V(), numc};
     }
-    V3Number toNumC(AstNode* nodep, const V3Number& numv) {
+    V3_عدد مقصد_رقم_C(Ast_گره* nodep, ثابت V3_عدد& numv) {
         // Extend V width back to C width for given node
-        return !numv.isNumber() ? numv : V3Number{nodep, nodep->width(), numv};
+        أرجع !numv.is_عدد() ? numv : V3_عدد{nodep, nodep->عرض(), numv};
     }
 
-    static bool lowerAsFixedAggregate(const AstNodeDType* const dtypep) {
-        return dtypep->isStreamableFixedAggregate() && dtypep->containsUnpackedStruct();
+    ساكن منطقي پایینی_As_Fixed_Aggregate(ثابت Ast_گره_DType* ثابت dtypep) {
+        أرجع dtypep->isStreamableFixedAggregate() && dtypep->شامل_است_Unpacked_Struct();
     }
 
-    AstStructSel* newStructSel(AstNodeExpr* const fromp, const AstMemberDType* const itemp) {
-        AstStructSel* const selp = new AstStructSel{fromp->fileline(), fromp, itemp->name()};
+    AstStructSel* newStructSel(Ast_گره_عبارت* ثابت fromp, ثابت AstMemberDType* ثابت itemp) {
+        AstStructSel* ثابت selp = جديد AstStructSel{fromp->fileline(), fromp, itemp->name()};
         selp->dtypeFrom(itemp->dtypep());
-        return selp;
+        أرجع selp;
     }
 
-    void collectFixedAggregateTerms(AstNodeExpr* const fromp, std::vector<AstNodeExpr*>& termps,
-                                    const bool packReal) {
-        const AstNodeDType* const dtypep = fromp->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const unpackDtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-            for (const int idx : unpackDtypep->declRange().seqLeftToRight()) {
-                AstArraySel* const selp
-                    = new AstArraySel{fromp->fileline(), fromp->cloneTreePure(false), idx};
+    فراغ collectFixedAggregateTerms(Ast_گره_عبارت* ثابت fromp, std::وکتور<Ast_گره_عبارت*>& termps,
+                                    ثابت منطقي packReal) {
+        ثابت Ast_گره_DType* ثابت dtypep = fromp->dtypep()->skipRefp();
+        إذا (ثابت AstUnpackArrayDType* ثابت unpackDtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+            لكل (ثابت صحيح idx : unpackDtypep->declRange().seq_چپ_مقصد_راست()) {
+                AstArraySel* ثابت selp
+                    = جديد AstArraySel{fromp->fileline(), fromp->clone_درخت_خالص(خطأ), idx};
                 collectFixedAggregateTerms(selp, termps, packReal);
             }
-            VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        } else if (const AstNodeUOrStructDType* const sdtypep
-                   = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (sdtypep->packed()) {
-                termps.push_back(fromp);
-                return;
+            VL_DO_DANGLING(افزودن_Deletep(fromp), fromp);
+        } وإلا إذا (ثابت Ast_گره_UOr_Struct_DType* ثابت sdtypep
+                   = VN_CAST(dtypep, گره_UOr_Struct_DType)) {
+            إذا (sdtypep->packed()) {
+                termps.افزودن_پشت(fromp);
+                أرجع;
             }
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            لكل (ثابت AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                collectFixedAggregateTerms(newStructSel(fromp->cloneTreePure(false), itemp),
+                collectFixedAggregateTerms(newStructSel(fromp->clone_درخت_خالص(خطأ), itemp),
                                            termps, packReal);
             }
-            VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        } else if (packReal && dtypep->isDouble()) {
-            termps.push_back(new AstRealToBits{fromp->fileline(), fromp});
-        } else {
-            termps.push_back(fromp);
+            VL_DO_DANGLING(افزودن_Deletep(fromp), fromp);
+        } وإلا إذا (packReal && dtypep->isDouble()) {
+            termps.افزودن_پشت(جديد Ast_Real_مقصد_بیتها{fromp->fileline(), fromp});
+        } وإلا {
+            termps.افزودن_پشت(fromp);
         }
     }
 
-    AstNodeExpr* packFixedAggregate(AstNodeExpr* const fromp) {
-        std::vector<AstNodeExpr*> termps;
-        collectFixedAggregateTerms(fromp, termps, true);
-        UASSERT(!termps.empty(), "No stream terms");
-        AstNodeExpr* resultp = termps[0];
-        for (size_t i = 1; i < termps.size(); ++i) {
-            resultp = new AstConcat{resultp->fileline(), resultp, termps[i]};
+    Ast_گره_عبارت* packFixedAggregate(Ast_گره_عبارت* ثابت fromp) {
+        std::وکتور<Ast_گره_عبارت*> termps;
+        collectFixedAggregateTerms(fromp, termps, درست);
+        UASSERT(!termps.خالی(), "No stream terms");
+        Ast_گره_عبارت* resultp = termps[0];
+        لكل (اندازه_t i = 1; i < termps.اندازه(); ++i) {
+            resultp = جديد AstConcat{resultp->fileline(), resultp, termps[i]};
         }
-        return resultp;
+        أرجع resultp;
     }
 
-    void replaceAssignToFixedAggregate(AstNodeAssign* const nodep, AstNodeExpr* const dstp,
-                                       AstNodeExpr* srcp) {
-        const int dstWidth = dstp->dtypep()->widthStream();
-        std::vector<AstNodeExpr*> termps;
-        collectFixedAggregateTerms(dstp, termps, false);
-        int srcWidth = srcp->width();
-        if (srcWidth < dstWidth) {
-            AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dstWidth};
-            srcp = new AstShiftL{
+    فراغ replace_تخصیص_بده_مقصد_Fixed_Aggregate(Ast_گره_تخصیص_بده* ثابت nodep, Ast_گره_عبارت* ثابت dstp,
+                                       Ast_گره_عبارت* srcp) {
+        ثابت صحيح dst_عرض = dstp->dtypep()->عرض_جریان();
+        std::وکتور<Ast_گره_عبارت*> termps;
+        collectFixedAggregateTerms(dstp, termps, خطأ);
+        صحيح src_عرض = srcp->عرض();
+        إذا (src_عرض < dst_عرض) {
+            AstExtend* ثابت extendp = جديد AstExtend{srcp->fileline(), srcp, dst_عرض};
+            srcp = جديد Ast_لغزش_L{
                 extendp->fileline(), extendp,
-                new AstConst{extendp->fileline(), static_cast<uint32_t>(dstWidth - srcWidth)},
-                dstWidth};
-            srcWidth = dstWidth;
+                جديد AstConst{extendp->fileline(), static_cast<uint32_t>(dst_عرض - src_عرض)},
+                dst_عرض};
+            src_عرض = dst_عرض;
         }
-        AstNodeAssign* newp = nullptr;
-        int offset = 0;
-        for (size_t i = 0; i < termps.size(); ++i) {
-            AstNodeExpr* const termp = termps[i];
-            const int width = termp->dtypep()->widthStream();
-            const int lsb = srcWidth - offset - width;
-            offset += width;
-            AstNodeExpr* rhsp
-                = new AstSel{srcp->fileline(), srcp->cloneTreePure(false), lsb, width};
-            if (termp->dtypep()->skipRefp()->isDouble()) {
-                rhsp = new AstBitsToRealD{rhsp->fileline(), rhsp};
+        Ast_گره_تخصیص_بده* newp = اشاره_تهی;
+        صحيح جابه_جایی = 0;
+        لكل (اندازه_t i = 0; i < termps.اندازه(); ++i) {
+            Ast_گره_عبارت* ثابت termp = termps[i];
+            ثابت صحيح عرض = termp->dtypep()->عرض_جریان();
+            ثابت صحيح lsb = src_عرض - جابه_جایی - عرض;
+            جابه_جایی += عرض;
+            Ast_گره_عبارت* rhsp
+                = جديد AstSel{srcp->fileline(), srcp->clone_درخت_خالص(خطأ), lsb, عرض};
+            إذا (termp->dtypep()->skipRefp()->isDouble()) {
+                rhsp = جديد Ast_بیتها_مقصد_Real_D{rhsp->fileline(), rhsp};
             }
-            AstNodeAssign* const assignp = nodep->cloneType(termp, rhsp);
+            Ast_گره_تخصیص_بده* ثابت assignp = nodep->cloneType(termp, rhsp);
             assignp->dtypeFrom(termp);
-            newp = AstNode::addNext(newp, assignp);
+            newp = Ast_گره::جمع_کن_بعدی(newp, assignp);
         }
-        nodep->addNextHere(newp);
-        VL_DO_DANGLING(pushDeletep(srcp), srcp);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        nodep->جمع_کن_بعدی_اینجا(newp);
+        VL_DO_DANGLING(افزودن_Deletep(srcp), srcp);
+        VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
     }
 
-    bool operandConst(const AstNode* nodep) { return VN_IS(nodep, Const); }
-    bool operandAsvConst(const AstNode* nodep) {
+    منطقي عملوند_Const(ثابت Ast_گره* nodep) { أرجع VN_IS(nodep, Const); }
+    منطقي عملوند_Asv_Const(ثابت Ast_گره* nodep) {
         // BIASV(CONST, BIASV(CONST,...)) -> BIASV( BIASV_CONSTED(a,b), ...)
-        const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
-        if (!VN_IS(bnodep->lhsp(), Const)) return false;
-        const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        if (rnodep->lhsp()->width() != bnodep->lhsp()->width()) return false;
-        if (!VN_IS(rnodep->lhsp(), Const)) return false;
-        return true;
+        ثابت Ast_گره_Bi_Com_Asv* ثابت bnodep = VN_CAST(nodep, گره_Bi_Com_Asv);
+        إذا (!bnodep) أرجع خطأ;
+        إذا (!VN_IS(bnodep->lhsp(), Const)) أرجع خطأ;
+        ثابت Ast_گره_Bi_Com_Asv* ثابت rnodep = VN_CAST(bnodep->rhsp(), گره_Bi_Com_Asv);
+        إذا (!rnodep) أرجع خطأ;
+        إذا (rnodep->type() != bnodep->type()) أرجع خطأ;
+        إذا (rnodep->عرض() != bnodep->عرض()) أرجع خطأ;
+        إذا (rnodep->lhsp()->عرض() != bnodep->lhsp()->عرض()) أرجع خطأ;
+        إذا (!VN_IS(rnodep->lhsp(), Const)) أرجع خطأ;
+        أرجع درست;
     }
-    bool operandAsvSame(const AstNode* nodep) {
+    منطقي عملوند_Asv_Same(ثابت Ast_گره* nodep) {
         // BIASV(SAMEa, BIASV(SAMEb,...)) -> BIASV( BIASV(SAMEa,SAMEb), ...)
-        const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
-        const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        return operandsSame(bnodep->lhsp(), rnodep->lhsp());
+        ثابت Ast_گره_Bi_Com_Asv* ثابت bnodep = VN_CAST(nodep, گره_Bi_Com_Asv);
+        إذا (!bnodep) أرجع خطأ;
+        ثابت Ast_گره_Bi_Com_Asv* ثابت rnodep = VN_CAST(bnodep->rhsp(), گره_Bi_Com_Asv);
+        إذا (!rnodep) أرجع خطأ;
+        إذا (rnodep->type() != bnodep->type()) أرجع خطأ;
+        إذا (rnodep->عرض() != bnodep->عرض()) أرجع خطأ;
+        أرجع operandsSame(bnodep->lhsp(), rnodep->lhsp());
     }
-    bool operandAsvLUp(const AstNode* nodep) {
+    منطقي عملوند_Asv_LUp(ثابت Ast_گره* nodep) {
         // BIASV(BIASV(CONSTll,lr),r) -> BIASV(CONSTll,BIASV(lr,r)) ?
         //
         // Example of how this is useful:
@@ -1127,378 +1127,378 @@ class ConstVisitor final : public VNVisitor {
         // BIASV(CONST_a_c,BIASV(c...,d...)))
         //
         // Idea for the future: All BiComAsvs could be lists, sorted by if they're constant
-        const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
-        const AstNodeBiComAsv* const lnodep = VN_CAST(bnodep->lhsp(), NodeBiComAsv);
-        if (!lnodep) return false;
-        if (lnodep->type() != bnodep->type()) return false;
-        if (lnodep->width() != bnodep->width()) return false;
-        return VN_IS(lnodep->lhsp(), Const);
+        ثابت Ast_گره_Bi_Com_Asv* ثابت bnodep = VN_CAST(nodep, گره_Bi_Com_Asv);
+        إذا (!bnodep) أرجع خطأ;
+        ثابت Ast_گره_Bi_Com_Asv* ثابت lnodep = VN_CAST(bnodep->lhsp(), گره_Bi_Com_Asv);
+        إذا (!lnodep) أرجع خطأ;
+        إذا (lnodep->type() != bnodep->type()) أرجع خطأ;
+        إذا (lnodep->عرض() != bnodep->عرض()) أرجع خطأ;
+        أرجع VN_IS(lnodep->lhsp(), Const);
     }
-    bool operandAsvRUp(const AstNode* nodep) {
+    منطقي عملوند_Asv_RUp(ثابت Ast_گره* nodep) {
         // BIASV(l,BIASV(CONSTrl,rr)) -> BIASV(CONSTrl,BIASV(l,rr)) ?
-        const AstNodeBiComAsv* const bnodep = VN_CAST(nodep, NodeBiComAsv);
-        if (!bnodep) return false;
-        const AstNodeBiComAsv* const rnodep = VN_CAST(bnodep->rhsp(), NodeBiComAsv);
-        if (!rnodep) return false;
-        if (rnodep->type() != bnodep->type()) return false;
-        if (rnodep->width() != bnodep->width()) return false;
-        return VN_IS(rnodep->lhsp(), Const);
+        ثابت Ast_گره_Bi_Com_Asv* ثابت bnodep = VN_CAST(nodep, گره_Bi_Com_Asv);
+        إذا (!bnodep) أرجع خطأ;
+        ثابت Ast_گره_Bi_Com_Asv* ثابت rnodep = VN_CAST(bnodep->rhsp(), گره_Bi_Com_Asv);
+        إذا (!rnodep) أرجع خطأ;
+        إذا (rnodep->type() != bnodep->type()) أرجع خطأ;
+        إذا (rnodep->عرض() != bnodep->عرض()) أرجع خطأ;
+        أرجع VN_IS(rnodep->lhsp(), Const);
     }
-    static bool operandSubAdd(const AstNode* nodep) {
+    ساكن منطقي عملوند_Sub_جمع_کن(ثابت Ast_گره* nodep) {
         // SUB( ADD(CONSTx,y), CONSTz) -> ADD(SUB(CONSTx,CONSTz), y)
-        const AstNodeBiop* const np = VN_CAST(nodep, NodeBiop);
-        const AstNodeBiop* const lp = VN_CAST(np->lhsp(), NodeBiop);
-        return (lp && VN_IS(lp->lhsp(), Const) && VN_IS(np->rhsp(), Const)
-                && lp->width() == np->width());
+        ثابت Ast_گره_Biop* ثابت np = VN_CAST(nodep, گره_Biop);
+        ثابت Ast_گره_Biop* ثابت lp = VN_CAST(np->lhsp(), گره_Biop);
+        أرجع (lp && VN_IS(lp->lhsp(), Const) && VN_IS(np->rhsp(), Const)
+                && lp->عرض() == np->عرض());
     }
-    bool matchRedundantClean(AstAnd* andp) {
+    منطقي تطابق_Redundant_Clean(AstAnd* andp) {
         // Remove And with constant one inserted by V3Clean
         // 1 & (a == b)  -> (IData)(a == b)
         // When bool is casted to int, the value is either 0 or 1
-        AstConst* const constp = VN_AS(andp->lhsp(), Const);
+        AstConst* ثابت constp = VN_AS(andp->lhsp(), Const);
         UASSERT_OBJ(constp && constp->isOne(), andp->lhsp(), "TRREEOPC must meet this condition");
-        AstNodeExpr* const rhsp = andp->rhsp();
-        AstCCast* ccastp = nullptr;
-        const auto isEqOrNeq = [](const AstNode* nodep) -> bool {  //
-            return VN_IS(nodep, Eq) || VN_IS(nodep, Neq);
+        Ast_گره_عبارت* ثابت rhsp = andp->rhsp();
+        AstCCast* ccastp = اشاره_تهی;
+        ثابت خودکار isEqOrNeq = [](ثابت Ast_گره* nodep) -> منطقي {  //
+            أرجع VN_IS(nodep, Eq) || VN_IS(nodep, Neq);
         };
-        if (isEqOrNeq(rhsp)) {
-            ccastp = new AstCCast{andp->fileline(), rhsp->unlinkFrBack(), andp};
-        } else if (AstCCast* const tmpp = VN_CAST(rhsp, CCast)) {
-            if (isEqOrNeq(tmpp->lhsp())) {
-                if (tmpp->width() == andp->width()) {
-                    tmpp->unlinkFrBack();
+        إذا (isEqOrNeq(rhsp)) {
+            ccastp = جديد AstCCast{andp->fileline(), rhsp->unlink_Fr_پشت(), andp};
+        } وإلا إذا (AstCCast* ثابت tmpp = VN_CAST(rhsp, CCast)) {
+            إذا (isEqOrNeq(tmpp->lhsp())) {
+                إذا (tmpp->عرض() == andp->عرض()) {
+                    tmpp->unlink_Fr_پشت();
                     ccastp = tmpp;
-                } else {
-                    ccastp = new AstCCast{andp->fileline(), tmpp->lhsp()->unlinkFrBack(), andp};
+                } وإلا {
+                    ccastp = جديد AstCCast{andp->fileline(), tmpp->lhsp()->unlink_Fr_پشت(), andp};
                 }
             }
         }
-        if (ccastp) {
+        إذا (ccastp) {
             andp->replaceWithKeepDType(ccastp);
-            VL_DO_DANGLING(pushDeletep(andp), andp);
-            return true;
+            VL_DO_DANGLING(افزودن_Deletep(andp), andp);
+            أرجع درست;
         }
-        return false;
+        أرجع خطأ;
     }
 
-    static bool operandAndOrSame(const AstNode* nodep) {
+    ساكن منطقي عملوند_And_Or_Same(ثابت Ast_گره* nodep) {
         // OR( AND(VAL,x), AND(VAL,y)) -> AND(VAL,OR(x,y))
         // OR( AND(x,VAL), AND(y,VAL)) -> AND(OR(x,y),VAL)
-        const AstNodeBiop* const np = VN_CAST(nodep, NodeBiop);
-        const AstNodeBiop* const lp = VN_CAST(np->lhsp(), NodeBiop);
-        const AstNodeBiop* const rp = VN_CAST(np->rhsp(), NodeBiop);
-        return (lp && rp && lp->width() == rp->width() && lp->type() == rp->type()
+        ثابت Ast_گره_Biop* ثابت np = VN_CAST(nodep, گره_Biop);
+        ثابت Ast_گره_Biop* ثابت lp = VN_CAST(np->lhsp(), گره_Biop);
+        ثابت Ast_گره_Biop* ثابت rp = VN_CAST(np->rhsp(), گره_Biop);
+        أرجع (lp && rp && lp->عرض() == rp->عرض() && lp->type() == rp->type()
                 && (operandsSame(lp->lhsp(), rp->lhsp()) || operandsSame(lp->rhsp(), rp->rhsp())));
     }
-    bool matchOrAndNot(AstNodeBiop* nodep) {
+    منطقي تطابق_Or_And_Not(Ast_گره_Biop* nodep) {
         // AstOr{$a, AstAnd{AstNot{$b}, $c}} if $a.width1, $a==$b => AstOr{$a,$c}
         // Someday we'll sort the biops completely and this can be simplified
         // This often results from our simplified clock generation:
         // if (rst) ... else if (enable)... -> OR(rst,AND(!rst,enable))
-        const AstNodeExpr* ap;
-        AstNodeBiop* andp;
-        if (VN_IS(nodep->lhsp(), And)) {
+        ثابت Ast_گره_عبارت* ap;
+        Ast_گره_Biop* andp;
+        إذا (VN_IS(nodep->lhsp(), And)) {
             andp = VN_AS(nodep->lhsp(), And);
             ap = nodep->rhsp();
-        } else if (VN_IS(nodep->rhsp(), And)) {
+        } وإلا إذا (VN_IS(nodep->rhsp(), And)) {
             andp = VN_AS(nodep->rhsp(), And);
             ap = nodep->lhsp();
-        } else {
-            return false;
+        } وإلا {
+            أرجع خطأ;
         }
-        const AstNodeUniop* notp;
-        AstNodeExpr* cp;
-        if (VN_IS(andp->lhsp(), Not)) {
+        ثابت Ast_گره_Uniop* notp;
+        Ast_گره_عبارت* cp;
+        إذا (VN_IS(andp->lhsp(), Not)) {
             notp = VN_AS(andp->lhsp(), Not);
             cp = andp->rhsp();
-        } else if (VN_IS(andp->rhsp(), Not)) {
+        } وإلا إذا (VN_IS(andp->rhsp(), Not)) {
             notp = VN_AS(andp->rhsp(), Not);
             cp = andp->lhsp();
-        } else {
-            return false;
+        } وإلا {
+            أرجع خطأ;
         }
-        const AstNodeExpr* const bp = notp->lhsp();
-        if (!operandsSame(ap, bp)) return false;
+        ثابت Ast_گره_عبارت* ثابت bp = notp->lhsp();
+        إذا (!operandsSame(ap, bp)) أرجع خطأ;
         // Do it
-        cp->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(andp->unlinkFrBack()), andp);
+        cp->unlink_Fr_پشت();
+        VL_DO_DANGLING(افزودن_Deletep(andp->unlink_Fr_پشت()), andp);
         VL_DANGLING(notp);
         // Replace whichever branch is now dangling
-        if (nodep->rhsp()) {
+        إذا (nodep->rhsp()) {
             nodep->lhsp(cp);
-        } else {
+        } وإلا {
             nodep->rhsp(cp);
         }
-        return true;
+        أرجع درست;
     }
-    bool matchAndCond(AstAnd* nodep) {
+    منطقي تطابق_And_Cond(AstAnd* nodep) {
         // Push down a AND into conditional, when one side of conditional is constant
         // (otherwise we'd be trading one operation for two operations)
         // V3Clean often makes this pattern, as it postpones the AND until
         // as high as possible, which is usually the right choice, except for this.
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstCond* const condp = VN_CAST(nodep->rhsp(), Cond);
-        if (!condp) return false;
-        if (!VN_IS(condp->thenp(), Const) && !VN_IS(condp->elsep(), Const)) return false;
-        AstConst* const maskp = VN_CAST(nodep->lhsp(), Const);
-        if (!maskp) return false;
+        AstCond* ثابت condp = VN_CAST(nodep->rhsp(), Cond);
+        إذا (!condp) أرجع خطأ;
+        إذا (!VN_IS(condp->thenp(), Const) && !VN_IS(condp->elsep(), Const)) أرجع خطأ;
+        AstConst* ثابت maskp = VN_CAST(nodep->lhsp(), Const);
+        إذا (!maskp) أرجع خطأ;
         UINFO(4, "AND(CONSTm, CONDcond(c, i, e))->CONDcond(c, AND(m,i), AND(m, e)) " << nodep);
-        AstCond* const newp = new AstCond{
-            condp->fileline(), condp->condp()->unlinkFrBack(),
-            new AstAnd{nodep->fileline(), maskp->cloneTree(false), condp->thenp()->unlinkFrBack()},
-            new AstAnd{nodep->fileline(), maskp->cloneTree(false),
-                       condp->elsep()->unlinkFrBack()}};
+        AstCond* ثابت newp = جديد AstCond{
+            condp->fileline(), condp->condp()->unlink_Fr_پشت(),
+            جديد AstAnd{nodep->fileline(), maskp->clone_درخت(خطأ), condp->thenp()->unlink_Fr_پشت()},
+            جديد AstAnd{nodep->fileline(), maskp->clone_درخت(خطأ),
+                       condp->elsep()->unlink_Fr_پشت()}};
         newp->thenp()->dtypeFrom(nodep);  // As And might have been to change widths
         newp->elsep()->dtypeFrom(nodep);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
 
-    bool matchCondCond(const AstCond* nodep) {
+    منطقي تطابق_Cond_Cond(ثابت AstCond* nodep) {
         // Same condition on either leg of a condition means that
         // expression is either always true or always false
-        if (VN_IS(nodep->backp(), Cond)) return false;  // Was checked when visited parent
-        if (!VN_IS(nodep->thenp(), Cond) && !VN_IS(nodep->elsep(), Cond))
-            return false;  // Short circuit
-        std::vector<AstNodeExpr*> truesp;
-        std::vector<AstNodeExpr*> falsesp;
-        matchCondCondRecurse(nodep, truesp /*ref*/, falsesp /*ref*/);
-        return false;  // Can optimize further
+        إذا (VN_IS(nodep->backp(), Cond)) أرجع خطأ;  // Was checked when visited parent
+        إذا (!VN_IS(nodep->thenp(), Cond) && !VN_IS(nodep->elsep(), Cond))
+            أرجع خطأ;  // Short circuit
+        std::وکتور<Ast_گره_عبارت*> truesp;
+        std::وکتور<Ast_گره_عبارت*> falsesp;
+        تطابق_Cond_Cond_Recurse(nodep, truesp /*ref*/, falsesp /*ref*/);
+        أرجع خطأ;  // Can optimize further
     }
-    void matchCondCondRecurse(const AstCond* nodep, std::vector<AstNodeExpr*>& truesp,
-                              std::vector<AstNodeExpr*>& falsesp) {
+    فراغ تطابق_Cond_Cond_Recurse(ثابت AstCond* nodep, std::وکتور<Ast_گره_عبارت*>& truesp,
+                              std::وکتور<Ast_گره_عبارت*>& falsesp) {
         // Avoid O(n^2) compares
         // Could reduce cost with hash table, but seems unlikely to be worth cost
-        if (truesp.size() > 4 || falsesp.size() > 4) return;
-        if (!nodep->condp()->isPure()) return;
-        bool replaced = false;
-        for (const AstNodeExpr* condp : truesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        إذا (truesp.اندازه() > 4 || falsesp.اندازه() > 4) أرجع;
+        إذا (!nodep->condp()->is_خالص()) أرجع;
+        منطقي replaced = خطأ;
+        لكل (ثابت Ast_گره_عبارت* condp : truesp) {
+            إذا (replaced) اكسر;
+            إذا (!operandsSame(nodep->condp(), condp)) استمر;
             UINFO(9, "COND(c, CONDb(c, tt, tf), f) -> CONDb(1, tt, tf) " << nodep);
-            replaceNum(nodep->condp(), 1);
-            replaced = true;
-            ++m_statCondExprRedundant;
+            replace_رقم(nodep->condp(), 1);
+            replaced = درست;
+            ++m_stat_Cond_عبارت_Redundant;
         }
-        for (const AstNodeExpr* condp : falsesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        لكل (ثابت Ast_گره_عبارت* condp : falsesp) {
+            إذا (replaced) اكسر;
+            إذا (!operandsSame(nodep->condp(), condp)) استمر;
             UINFO(9, "COND(c, t, CONDb(c, ft, ff)) -> CONDb(0, ft, ff) " << nodep);
             replaceZero(nodep->condp());
-            replaced = true;
-            ++m_statCondExprRedundant;
+            replaced = درست;
+            ++m_stat_Cond_عبارت_Redundant;
         }
-        if (const AstCond* subCondp = VN_CAST(nodep->thenp(), Cond)) {
-            if (!replaced) truesp.emplace_back(nodep->condp());
-            matchCondCondRecurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) truesp.pop_back();
+        إذا (ثابت AstCond* subCondp = VN_CAST(nodep->thenp(), Cond)) {
+            إذا (!replaced) truesp.emplace_پشت(nodep->condp());
+            تطابق_Cond_Cond_Recurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
+            إذا (!replaced) truesp.برداشت_پشت();
         }
-        if (const AstCond* subCondp = VN_CAST(nodep->elsep(), Cond)) {
-            if (!replaced) falsesp.emplace_back(nodep->condp());
-            matchCondCondRecurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) falsesp.pop_back();
+        إذا (ثابت AstCond* subCondp = VN_CAST(nodep->elsep(), Cond)) {
+            إذا (!replaced) falsesp.emplace_پشت(nodep->condp());
+            تطابق_Cond_Cond_Recurse(subCondp, truesp /*ref*/, falsesp /*ref*/);
+            إذا (!replaced) falsesp.برداشت_پشت();
         }
     }
-    void matchIfCondCond(const AstNodeIf* nodep) {
+    فراغ تطابق_If_Cond_Cond(ثابت Ast_گره_If* nodep) {
         // Same condition on either leg of a condition means that
         // expression is either always true or always false
-        if (VN_IS(nodep->backp(), If)) return;  // Was checked when visited parent
-        if (!VN_IS(nodep->thensp(), If) && !VN_IS(nodep->elsesp(), If)) return;  // Short circuit
-        std::vector<AstNodeExpr*> truesp;
-        std::vector<AstNodeExpr*> falsesp;
-        matchIfCondCondRecurse(nodep, truesp /*ref*/, falsesp /*ref*/);
+        إذا (VN_IS(nodep->backp(), If)) أرجع;  // Was checked when visited parent
+        إذا (!VN_IS(nodep->thensp(), If) && !VN_IS(nodep->elsesp(), If)) أرجع;  // Short circuit
+        std::وکتور<Ast_گره_عبارت*> truesp;
+        std::وکتور<Ast_گره_عبارت*> falsesp;
+        تطابق_If_Cond_Cond_Recurse(nodep, truesp /*ref*/, falsesp /*ref*/);
     }
-    void matchIfCondCondRecurse(const AstNodeIf* nodep, std::vector<AstNodeExpr*>& truesp,
-                                std::vector<AstNodeExpr*>& falsesp) {
+    فراغ تطابق_If_Cond_Cond_Recurse(ثابت Ast_گره_If* nodep, std::وکتور<Ast_گره_عبارت*>& truesp,
+                                std::وکتور<Ast_گره_عبارت*>& falsesp) {
         // Avoid O(n^2) compares
         // Could reduce cost with hash table, but seems unlikely to be worth cost
-        if (truesp.size() > 4 || falsesp.size() > 4) return;
-        if (!nodep->condp()->isPure()) return;
+        إذا (truesp.اندازه() > 4 || falsesp.اندازه() > 4) أرجع;
+        إذا (!nodep->condp()->is_خالص()) أرجع;
         // A constant condition is folded by visit(AstNodeIf), once statements can be deleted
-        if (VN_IS(nodep->condp(), Const)) return;
-        bool replaced = false;
-        for (const AstNodeExpr* condp : truesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        إذا (VN_IS(nodep->condp(), Const)) أرجع;
+        منطقي replaced = خطأ;
+        لكل (ثابت Ast_گره_عبارت* condp : truesp) {
+            إذا (replaced) اكسر;
+            إذا (!operandsSame(nodep->condp(), condp)) استمر;
             UINFO(9, "COND(c, CONDb(c, tt, tf), f) -> CONDb(1, tt, tf) " << nodep);
-            replaceNum(nodep->condp(), 1);
-            replaced = true;
-            ++m_statIfCondExprRedundant;
+            replace_رقم(nodep->condp(), 1);
+            replaced = درست;
+            ++m_stat_If_Cond_عبارت_Redundant;
         }
-        for (const AstNodeExpr* condp : falsesp) {
-            if (replaced) break;
-            if (!operandsSame(nodep->condp(), condp)) continue;
+        لكل (ثابت Ast_گره_عبارت* condp : falsesp) {
+            إذا (replaced) اكسر;
+            إذا (!operandsSame(nodep->condp(), condp)) استمر;
             UINFO(9, "COND(c, t, CONDb(c, ft, ff)) -> CONDb(0, ft, ff) " << nodep);
             replaceZero(nodep->condp());
-            replaced = true;
-            ++m_statIfCondExprRedundant;
+            replaced = درست;
+            ++m_stat_If_Cond_عبارت_Redundant;
         }
         // We only check the first statement of parent IF is an If
         // So we don't need to check for effects in the executing thensp/elsesp
         // altering the child't condition.  e.g. 'if (x) begin x=1; if (x) end'
-        if (const AstNodeIf* subIfp = VN_CAST(nodep->thensp(), NodeIf)) {
-            if (!replaced) truesp.emplace_back(nodep->condp());
-            matchIfCondCondRecurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) truesp.pop_back();
+        إذا (ثابت Ast_گره_If* subIfp = VN_CAST(nodep->thensp(), گره_If)) {
+            إذا (!replaced) truesp.emplace_پشت(nodep->condp());
+            تطابق_If_Cond_Cond_Recurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
+            إذا (!replaced) truesp.برداشت_پشت();
         }
-        if (const AstNodeIf* subIfp = VN_CAST(nodep->elsesp(), NodeIf)) {
-            if (!replaced) falsesp.emplace_back(nodep->condp());
-            matchIfCondCondRecurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
-            if (!replaced) falsesp.pop_back();
+        إذا (ثابت Ast_گره_If* subIfp = VN_CAST(nodep->elsesp(), گره_If)) {
+            إذا (!replaced) falsesp.emplace_پشت(nodep->condp());
+            تطابق_If_Cond_Cond_Recurse(subIfp, truesp /*ref*/, falsesp /*ref*/);
+            إذا (!replaced) falsesp.برداشت_پشت();
         }
     }
 
-    void matchIfSameLast(AstNodeIf* nodep) {
-        if (!nodep->thensp()) return;
-        if (!nodep->elsesp()) return;
-        if (!canDeleteStatements()) return;
+    فراغ تطابق_If_Same_آخرین(Ast_گره_If* nodep) {
+        إذا (!nodep->thensp()) أرجع;
+        إذا (!nodep->elsesp()) أرجع;
+        إذا (!canDeleteStatements()) أرجع;
         // Iterate bodies in reverse
-        AstNode* tp = nodep->thensp()->lastp();
-        AstNode* ep = nodep->elsesp()->lastp();
-        while (tp && ep && tp->sameTree(ep)) {
+        Ast_گره* tp = nodep->thensp()->lastp();
+        Ast_گره* ep = nodep->elsesp()->lastp();
+        طالما (tp && ep && tp->same_درخت(ep)) {
             UASSERT_OBJ(!tp->nextp(), tp, "Expected no nextp");
             UASSERT_OBJ(!ep->nextp(), ep, "Expected no nextp");
-            AstNode* const tPrevp = tp->prevp();
-            AstNode* const ePrevp = ep->prevp();
-            nodep->addNextHere(tp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(ep->unlinkFrBack()), ep);
+            Ast_گره* ثابت tPrevp = tp->prevp();
+            Ast_گره* ثابت ePrevp = ep->prevp();
+            nodep->جمع_کن_بعدی_اینجا(tp->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(ep->unlink_Fr_پشت()), ep);
             tp = tPrevp;
             ep = ePrevp;
         }
     }
 
-    bool matchMaskedOr(AstAnd* nodep) {
+    منطقي تطابق_Masked_Or(AstAnd* nodep) {
         // Masking an OR with terms that have no bits set under the mask is replaced with masking
         // only the remaining terms. Canonical example as generated by V3Expand is:
         // 0xff & (a << 8 | b >> 24) --> 0xff & (b >> 24)
 
         // Compute how many significant bits are in the mask
-        const AstConst* const constp = VN_AS(nodep->lhsp(), Const);
-        const uint32_t significantBits = constp->num().widthToFit();
+        ثابت AstConst* ثابت constp = VN_AS(nodep->lhsp(), Const);
+        ثابت uint32_t significant_بیتها = constp->رقم().عرض_مقصد_Fit();
 
-        AstOr* const orp = VN_AS(nodep->rhsp(), Or);
+        AstOr* ثابت orp = VN_AS(nodep->rhsp(), Or);
 
         // Predicate for checking whether the bottom 'significantBits' bits of the given expression
         // are all zeroes.
-        const auto checkBottomClear = [=](const AstNode* nodep) -> bool {
-            if (const AstShiftL* const shiftp = VN_CAST(nodep, ShiftL)) {
-                if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                    return scp->num().toUInt() >= significantBits;
+        ثابت خودکار checkBottomClear = [=](ثابت Ast_گره* nodep) -> منطقي {
+            إذا (ثابت Ast_لغزش_L* ثابت shiftp = VN_CAST(nodep, لغزش_L)) {
+                إذا (ثابت AstConst* ثابت scp = VN_CAST(shiftp->rhsp(), Const)) {
+                    أرجع scp->رقم().مقصد_UInt() >= significant_بیتها;
                 }
             }
-            return false;
+            أرجع خطأ;
         };
 
-        const bool orLIsRedundant = checkBottomClear(orp->lhsp());
-        const bool orRIsRedundant = checkBottomClear(orp->rhsp());
+        ثابت منطقي orLIsRedundant = checkBottomClear(orp->lhsp());
+        ثابت منطقي orRIsRedundant = checkBottomClear(orp->rhsp());
 
-        if (orLIsRedundant && orRIsRedundant) {
+        إذا (orLIsRedundant && orRIsRedundant) {
             nodep->replaceWithKeepDType(
-                new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
-        } else if (orLIsRedundant) {
-            orp->replaceWithKeepDType(orp->rhsp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(orp), orp);
-            return false;  // input node is still valid, keep going
-        } else if (orRIsRedundant) {
-            orp->replaceWithKeepDType(orp->lhsp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(orp), orp);
-            return false;  // input node is still valid, keep going
-        } else {
-            return false;
+                جديد AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            أرجع درست;
+        } وإلا إذا (orLIsRedundant) {
+            orp->replaceWithKeepDType(orp->rhsp()->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(orp), orp);
+            أرجع خطأ;  // input node is still valid, keep going
+        } وإلا إذا (orRIsRedundant) {
+            orp->replaceWithKeepDType(orp->lhsp()->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(orp), orp);
+            أرجع خطأ;  // input node is still valid, keep going
+        } وإلا {
+            أرجع خطأ;
         }
     }
-    bool matchMaskedShift(AstAnd* nodep) {
+    منطقي تطابق_Masked_لغزش(AstAnd* nodep) {
         // Drop redundant masking of right shift result. E.g: 0xff & ((uint32_t)a >> 24). This
         // commonly appears after V3Expand and the simplification in matchMaskedOr. Similarly,
         // drop redundant masking of left shift result. E.g.: 0xff000000 & ((uint32_t)a << 24).
 
-        const auto checkMask = [nodep, this](const V3Number& mask) -> bool {
-            const AstConst* const constp = VN_AS(nodep->lhsp(), Const);
-            if (constp->num().isCaseEq(mask)) {
-                AstNode* const rhsp = nodep->rhsp();
-                rhsp->unlinkFrBack();
+        ثابت خودکار check_ماسک = [nodep, هذا](ثابت V3_عدد& ماسک) -> منطقي {
+            ثابت AstConst* ثابت constp = VN_AS(nodep->lhsp(), Const);
+            إذا (constp->رقم().isCaseEq(ماسک)) {
+                Ast_گره* ثابت rhsp = nodep->rhsp();
+                rhsp->unlink_Fr_پشت();
                 nodep->replaceWithKeepDType(rhsp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return true;
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                أرجع درست;
             }
-            return false;
+            أرجع خطأ;
         };
 
         // Check if masking is redundant
-        if (const AstShiftR* const shiftp = VN_CAST(nodep->rhsp(), ShiftR)) {
-            if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+        إذا (ثابت Ast_لغزش_R* ثابت shiftp = VN_CAST(nodep->rhsp(), لغزش_R)) {
+            إذا (ثابت AstConst* ثابت scp = VN_CAST(shiftp->rhsp(), Const)) {
                 // Check if mask is full over the non-zero bits
-                V3Number maskLo{nodep, nodep->width()};
-                maskLo.setMask(nodep->width() - scp->num().toUInt());
-                return checkMask(maskLo);
+                V3_عدد ماسک_Lo{nodep, nodep->عرض()};
+                ماسک_Lo.مجموعه_ماسک(nodep->عرض() - scp->رقم().مقصد_UInt());
+                أرجع check_ماسک(ماسک_Lo);
             }
-        } else if (const AstShiftL* const shiftp = VN_CAST(nodep->rhsp(), ShiftL)) {
-            if (const AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
+        } وإلا إذا (ثابت Ast_لغزش_L* ثابت shiftp = VN_CAST(nodep->rhsp(), لغزش_L)) {
+            إذا (ثابت AstConst* ثابت scp = VN_CAST(shiftp->rhsp(), Const)) {
                 // Check if mask is full over the non-zero bits
-                V3Number mask{nodep, nodep->width()};
-                const uint32_t shiftAmount = scp->num().toUInt();
-                mask.setMask(nodep->width() - shiftAmount, shiftAmount);
-                return checkMask(mask);
+                V3_عدد ماسک{nodep, nodep->عرض()};
+                ثابت uint32_t لغزش_Amount = scp->رقم().مقصد_UInt();
+                ماسک.مجموعه_ماسک(nodep->عرض() - لغزش_Amount, لغزش_Amount);
+                أرجع check_ماسک(ماسک);
             }
         }
-        return false;
+        أرجع خطأ;
     }
 
-    bool matchMaskedZero(const AstAnd* nodep) {
+    منطقي تطابق_Masked_Zero(ثابت AstAnd* nodep) {
         // Turn masking of known zero bits into constant zero. Commonly appears after V3Expand.
-        const AstConst* const maskp = VN_AS(nodep->lhsp(), Const);
-        const AstNodeExpr* const rhsp = nodep->rhsp();
-        const uint32_t msbP1 = maskp->num().mostSetBitP1();
-        if (!msbP1) return false;  // Don't rewrite, separate rule matches for this
-        const uint32_t msb = msbP1 - 1;
-        const uint32_t lsb = maskp->num().leastSetBitP1() - 1;
+        ثابت AstConst* ثابت maskp = VN_AS(nodep->lhsp(), Const);
+        ثابت Ast_گره_عبارت* ثابت rhsp = nodep->rhsp();
+        ثابت uint32_t msbP1 = maskp->رقم().most_مجموعه_بیت_P1();
+        إذا (!msbP1) أرجع خطأ;  // Don't rewrite, separate rule matches for this
+        ثابت uint32_t msb = msbP1 - 1;
+        ثابت uint32_t lsb = maskp->رقم().کمترین_مجموعه_بیت_P1() - 1;
 
-        if (const AstShiftL* const shiftp = VN_CAST(rhsp, ShiftL)) {
+        إذا (ثابت Ast_لغزش_L* ثابت shiftp = VN_CAST(rhsp, لغزش_L)) {
             // 'a << S' forces the low S bits to zero
-            if (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                return scp->num().fitsInUInt()  //
-                       && (scp->num().toUInt() > msb);
+            إذا (AstConst* ثابت scp = VN_CAST(shiftp->rhsp(), Const)) {
+                أرجع scp->رقم().میگنجد_درون_UInt()  //
+                       && (scp->رقم().مقصد_UInt() > msb);
             }
         }
-        if (const AstShiftR* const shiftp = VN_CAST(rhsp, ShiftR)) {
+        إذا (ثابت Ast_لغزش_R* ثابت shiftp = VN_CAST(rhsp, لغزش_R)) {
             // 'a >> S' forces the high S bits to zero. Check against the width of the shifted
             // operand, V3Expand can create shifts wider than their inputs. Must use width(),
             // not widthMin(), as bits above widthMin() are not guaranteed to be zero.
-            if (AstConst* const scp = VN_CAST(shiftp->rhsp(), Const)) {
-                return scp->num().fitsInUInt()
-                       && (lsb + scp->num().toUInt()
-                           >= static_cast<uint32_t>(shiftp->lhsp()->width()));
+            إذا (AstConst* ثابت scp = VN_CAST(shiftp->rhsp(), Const)) {
+                أرجع scp->رقم().میگنجد_درون_UInt()
+                       && (lsb + scp->رقم().مقصد_UInt()
+                           >= static_cast<uint32_t>(shiftp->lhsp()->عرض()));
             }
         }
-        if (const AstMul* const mulp = VN_CAST(rhsp, Mul)) {
+        إذا (ثابت AstMul* ثابت mulp = VN_CAST(rhsp, Mul)) {
             // 'C * a' forces the low N bits to zero where 'C' has low zero bits
-            if (AstConst* const cp = VN_CAST(mulp->lhsp(), Const)) {
-                return cp->num().leastSetBitP1() > msb + 1;
+            إذا (AstConst* ثابت cp = VN_CAST(mulp->lhsp(), Const)) {
+                أرجع cp->رقم().کمترین_مجموعه_بیت_P1() > msb + 1;
             }
         }
-        if (const AstExtend* const extendp = VN_CAST(rhsp, Extend)) {
+        إذا (ثابت AstExtend* ثابت extendp = VN_CAST(rhsp, Extend)) {
             // Zero-extension forces the bits above the source width to zero
-            return lsb >= static_cast<uint32_t>(extendp->lhsp()->width());
+            أرجع lsb >= static_cast<uint32_t>(extendp->lhsp()->عرض());
         }
 
-        return false;
+        أرجع خطأ;
     }
 
-    bool matchBitOpTree(AstNodeExpr* nodep) {
-        if (nodep->widthMin() != 1) return false;
-        if (!v3Global.opt.fConstBitOpTree()) return false;
+    منطقي تطابق_بیت_Op_درخت(Ast_گره_عبارت* nodep) {
+        إذا (nodep->عرض_Min() != 1) أرجع خطأ;
+        إذا (!v3Global.opt.f_Const_بیت_Op_درخت()) أرجع خطأ;
 
-        const int width = nodep->width();
-        AstNodeExpr* rootp = nodep;
-        unsigned externalOps = 0;
+        ثابت صحيح عرض = nodep->عرض();
+        Ast_گره_عبارت* rootp = nodep;
+        بیعلامت externalOps = 0;
         // Reach past a plain making AND
-        if (const AstAnd* const andp = VN_CAST(nodep, And)) {
-            if (isConst(andp->lhsp(), 1)) {
+        إذا (ثابت AstAnd* ثابت andp = VN_CAST(nodep, And)) {
+            إذا (isConst(andp->lhsp(), 1)) {
                 rootp = andp->rhsp();
                 externalOps = 1;
             }
@@ -1508,287 +1508,287 @@ class ConstVisitor final : public VNVisitor {
         // operations, otherwise analysis on an eventually unoptimizable unablanced
         // tree can go O(N^2) as we would re-analyze every time as we move up the
         // tree, repeatedly re-discover the sub-tree is not optimizable.
-        if (rootp->type() == nodep->backp()->type()) return false;
+        إذا (rootp->type() == nodep->backp()->type()) أرجع خطأ;
 
-        std::string debugPrefix;
-        if (debug() >= 9) {  // LCOV_EXCL_START
-            static int s_c = 0;
-            debugPrefix = "-  matchBitOpTree[" + std::to_string(++s_c) + "] ";
-            nodep->dumpTree(debugPrefix + "INPUT: ");
+        std::string debug_پیشوند;
+        إذا (debug() >= 9) {  // LCOV_EXCL_START
+            ساكن صحيح s_c = 0;
+            debug_پیشوند = "-  matchBitOpTree[" + std::مقصد_string(++s_c) + "] ";
+            nodep->dump_درخت(debug_پیشوند + "INPUT: ");
         }  // LCOV_EXCL_STOP
 
-        AstNodeExpr* const newp = ConstBitOpTreeVisitor::simplify(rootp, width, externalOps,
-                                                                  m_statBitOpReduction, m_ids);
+        Ast_گره_عبارت* ثابت newp = Const_بیت_Op_درخت_Visitor::simplify(rootp, عرض, externalOps,
+                                                                  m_stat_بیت_Op_Reduction, m_ids);
 
-        if (newp) {
+        إذا (newp) {
             nodep->replaceWithKeepDType(newp);
             UINFO(4, "Transformed leaf of bit tree to " << newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         }
 
-        if (debug() >= 9) {  // LCOV_EXCL_START
-            if (newp) {
-                newp->dumpTree(debugPrefix + "RESULT: ");
-            } else {
-                cout << debugPrefix << "not replaced\n";
+        إذا (debug() >= 9) {  // LCOV_EXCL_START
+            إذا (newp) {
+                newp->dump_درخت(debug_پیشوند + "RESULT: ");
+            } وإلا {
+                خروجی << debug_پیشوند << "not replaced\n";
             }
         }  // LCOV_EXCL_STOP
 
-        return newp;
+        أرجع newp;
     }
-    static bool operandShiftSame(const AstNode* nodep) {
-        const AstNodeBiop* const np = VN_AS(nodep, NodeBiop);
+    ساكن منطقي عملوند_لغزش_Same(ثابت Ast_گره* nodep) {
+        ثابت Ast_گره_Biop* ثابت np = VN_AS(nodep, گره_Biop);
         {
-            const AstShiftL* const lp = VN_CAST(np->lhsp(), ShiftL);
-            const AstShiftL* const rp = VN_CAST(np->rhsp(), ShiftL);
-            if (lp && rp) {
-                return (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
+            ثابت Ast_لغزش_L* ثابت lp = VN_CAST(np->lhsp(), لغزش_L);
+            ثابت Ast_لغزش_L* ثابت rp = VN_CAST(np->rhsp(), لغزش_L);
+            إذا (lp && rp) {
+                أرجع (lp->عرض() == rp->عرض() && lp->lhsp()->عرض() == rp->lhsp()->عرض()
                         && operandsSame(lp->rhsp(), rp->rhsp()));
             }
         }
         {
-            const AstShiftR* const lp = VN_CAST(np->lhsp(), ShiftR);
-            const AstShiftR* const rp = VN_CAST(np->rhsp(), ShiftR);
-            if (lp && rp) {
-                return (lp->width() == rp->width() && lp->lhsp()->width() == rp->lhsp()->width()
+            ثابت Ast_لغزش_R* ثابت lp = VN_CAST(np->lhsp(), لغزش_R);
+            ثابت Ast_لغزش_R* ثابت rp = VN_CAST(np->rhsp(), لغزش_R);
+            إذا (lp && rp) {
+                أرجع (lp->عرض() == rp->عرض() && lp->lhsp()->عرض() == rp->lhsp()->عرض()
                         && operandsSame(lp->rhsp(), rp->rhsp()));
             }
         }
-        return false;
+        أرجع خطأ;
     }
-    bool operandHugeShiftL(const AstNodeBiop* nodep) {
-        return (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
-                && (!VN_AS(nodep->rhsp(), Const)->num().fitsInUInt()  // > 2^32 shift
-                    || (VN_AS(nodep->rhsp(), Const)->toUInt()
-                        >= static_cast<uint32_t>(nodep->width())))
-                && nodep->lhsp()->isPure());
+    منطقي عملوند_Huge_لغزش_L(ثابت Ast_گره_Biop* nodep) {
+        أرجع (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->رقم().isFourState()
+                && (!VN_AS(nodep->rhsp(), Const)->رقم().میگنجد_درون_UInt()  // > 2^32 shift
+                    || (VN_AS(nodep->rhsp(), Const)->مقصد_UInt()
+                        >= static_cast<uint32_t>(nodep->عرض())))
+                && nodep->lhsp()->is_خالص());
     }
-    bool operandHugeShiftR(const AstNodeBiop* nodep) {
-        return (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
-                && (!VN_AS(nodep->rhsp(), Const)->num().fitsInUInt()  // > 2^32 shift
-                    || (VN_AS(nodep->rhsp(), Const)->toUInt()
-                        >= static_cast<uint32_t>(nodep->lhsp()->width())))
-                && nodep->lhsp()->isPure()
-                && !(VN_IS(nodep->lhsp()->dtypep()->skipRefp(), StreamDType)));
+    منطقي عملوند_Huge_لغزش_R(ثابت Ast_گره_Biop* nodep) {
+        أرجع (VN_IS(nodep->rhsp(), Const) && !VN_AS(nodep->rhsp(), Const)->رقم().isFourState()
+                && (!VN_AS(nodep->rhsp(), Const)->رقم().میگنجد_درون_UInt()  // > 2^32 shift
+                    || (VN_AS(nodep->rhsp(), Const)->مقصد_UInt()
+                        >= static_cast<uint32_t>(nodep->lhsp()->عرض())))
+                && nodep->lhsp()->is_خالص()
+                && !(VN_IS(nodep->lhsp()->dtypep()->skipRefp(), جریان_DType)));
     }
-    bool operandIsTwo(const AstNode* nodep) {
-        const AstConst* const constp = VN_CAST(nodep, Const);
-        if (!constp) return false;  // not constant
-        if (constp->num().isFourState()) return false;  // four-state
-        if (nodep->width() > VL_QUADSIZE) return false;  // too wide
-        if (nodep->isSigned() && constp->num().isNegative()) return false;  // signed and negative
-        return constp->toUQuad() == 2;
+    منطقي عملوند_Is_Two(ثابت Ast_گره* nodep) {
+        ثابت AstConst* ثابت constp = VN_CAST(nodep, Const);
+        إذا (!constp) أرجع خطأ;  // not constant
+        إذا (constp->رقم().isFourState()) أرجع خطأ;  // four-state
+        إذا (nodep->عرض() > VL_QUADSIZE) أرجع خطأ;  // too wide
+        إذا (nodep->isSigned() && constp->رقم().isNegative()) أرجع خطأ;  // signed and negative
+        أرجع constp->مقصد_UQuad() == 2;
     }
-    bool operandIsTwostate(const AstNode* nodep) {
-        return (VN_IS(nodep, Const) && !VN_AS(nodep, Const)->num().isFourState());
+    منطقي عملوند_Is_Twostate(ثابت Ast_گره* nodep) {
+        أرجع (VN_IS(nodep, Const) && !VN_AS(nodep, Const)->رقم().isFourState());
     }
-    bool operandIsPowTwo(const AstNode* nodep) {
-        if (!operandIsTwostate(nodep)) return false;
-        return (1 == VN_AS(nodep, Const)->num().countOnes());
+    منطقي عملوند_Is_Pow_Two(ثابت Ast_گره* nodep) {
+        إذا (!عملوند_Is_Twostate(nodep)) أرجع خطأ;
+        أرجع (1 == VN_AS(nodep, Const)->رقم().شمار_Ones());
     }
-    bool operandShiftOp(const AstNodeBiop* nodep) {
-        if (!VN_IS(nodep->rhsp(), Const)) return false;
-        const AstNodeBiop* const lhsp = VN_CAST(nodep->lhsp(), NodeBiop);
-        if (!lhsp || !(VN_IS(lhsp, And) || VN_IS(lhsp, Or) || VN_IS(lhsp, Xor))) return false;
-        if (nodep->width() != lhsp->width()) return false;
-        if (nodep->width() != lhsp->lhsp()->width()) return false;
-        if (nodep->width() != lhsp->rhsp()->width()) return false;
+    منطقي عملوند_لغزش_Op(ثابت Ast_گره_Biop* nodep) {
+        إذا (!VN_IS(nodep->rhsp(), Const)) أرجع خطأ;
+        ثابت Ast_گره_Biop* ثابت lhsp = VN_CAST(nodep->lhsp(), گره_Biop);
+        إذا (!lhsp || !(VN_IS(lhsp, And) || VN_IS(lhsp, Or) || VN_IS(lhsp, Xor))) أرجع خطأ;
+        إذا (nodep->عرض() != lhsp->عرض()) أرجع خطأ;
+        إذا (nodep->عرض() != lhsp->lhsp()->عرض()) أرجع خطأ;
+        إذا (nodep->عرض() != lhsp->rhsp()->عرض()) أرجع خطأ;
 
         // Only do it if we can fruther reduce one of the sides if pulling the shift through:
         // - Either operands are constants
-        if (VN_IS(lhsp->lhsp(), Const)) return true;
-        if (VN_IS(lhsp->rhsp(), Const)) return true;
+        إذا (VN_IS(lhsp->lhsp(), Const)) أرجع درست;
+        إذا (VN_IS(lhsp->rhsp(), Const)) أرجع درست;
         // - Const shift on either side
-        if (AstNodeBiop* const llp = VN_CAST(lhsp->lhsp(), NodeBiop)) {
-            return (VN_IS(llp, ShiftL) || VN_IS(llp, ShiftR)) && VN_IS(llp->rhsp(), Const);
+        إذا (Ast_گره_Biop* ثابت llp = VN_CAST(lhsp->lhsp(), گره_Biop)) {
+            أرجع (VN_IS(llp, لغزش_L) || VN_IS(llp, لغزش_R)) && VN_IS(llp->rhsp(), Const);
         }
-        if (AstNodeBiop* const lrp = VN_CAST(lhsp->rhsp(), NodeBiop)) {
-            return (VN_IS(lrp, ShiftL) || VN_IS(lrp, ShiftR)) && VN_IS(lrp->rhsp(), Const);
+        إذا (Ast_گره_Biop* ثابت lrp = VN_CAST(lhsp->rhsp(), گره_Biop)) {
+            أرجع (VN_IS(lrp, لغزش_L) || VN_IS(lrp, لغزش_R)) && VN_IS(lrp->rhsp(), Const);
         }
         // Otherwise we would increase logic size
-        return false;
+        أرجع خطأ;
     }
-    bool operandShiftShift(const AstNodeBiop* nodep) {
+    منطقي عملوند_لغزش_لغزش(ثابت Ast_گره_Biop* nodep) {
         // We could add a AND though.
-        const AstNodeBiop* const lhsp = VN_CAST(nodep->lhsp(), NodeBiop);
-        if (!lhsp || !(VN_IS(lhsp, ShiftL) || VN_IS(lhsp, ShiftR))) return false;
+        ثابت Ast_گره_Biop* ثابت lhsp = VN_CAST(nodep->lhsp(), گره_Biop);
+        إذا (!lhsp || !(VN_IS(lhsp, لغزش_L) || VN_IS(lhsp, لغزش_R))) أرجع خطأ;
         // We can only get rid of a<<b>>c or a<<b<<c, with constant b & c
         // because bits may be masked in that process, or (b+c) may exceed the word width.
-        if (!(VN_IS(nodep->rhsp(), Const) && VN_IS(lhsp->rhsp(), Const))) return false;
-        if (VN_AS(nodep->rhsp(), Const)->num().isFourState()
-            || VN_AS(lhsp->rhsp(), Const)->num().isFourState())
-            return false;
-        if (nodep->width() != lhsp->width()) return false;
-        if (nodep->width() != lhsp->lhsp()->width()) return false;
-        return true;
+        إذا (!(VN_IS(nodep->rhsp(), Const) && VN_IS(lhsp->rhsp(), Const))) أرجع خطأ;
+        إذا (VN_AS(nodep->rhsp(), Const)->رقم().isFourState()
+            || VN_AS(lhsp->rhsp(), Const)->رقم().isFourState())
+            أرجع خطأ;
+        إذا (nodep->عرض() != lhsp->عرض()) أرجع خطأ;
+        إذا (nodep->عرض() != lhsp->lhsp()->عرض()) أرجع خطأ;
+        أرجع درست;
     }
-    bool operandWordOOB(const AstWordSel* nodep) {
+    منطقي عملوند_کلمه_OOB(ثابت Ast_کلمه_Sel* nodep) {
         // V3Expand may make a arraysel that exceeds the bounds of the array
         // It was an expression, then got constified.  In reality, the WordSel
         // must be wrapped in a Cond, that will be false.
-        return (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), NodeVarRef)
-                && VN_AS(nodep->fromp(), NodeVarRef)->access().isReadOnly()
-                && (static_cast<int>(VN_AS(nodep->bitp(), Const)->toUInt())
-                    >= VN_AS(nodep->fromp(), NodeVarRef)->varp()->widthWords()));
+        أرجع (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), گره_Var_Ref)
+                && VN_AS(nodep->fromp(), گره_Var_Ref)->access().isReadOnly()
+                && (static_cast<صحيح>(VN_AS(nodep->bitp(), Const)->مقصد_UInt())
+                    >= VN_AS(nodep->fromp(), گره_Var_Ref)->varp()->عرض_واژگان()));
     }
-    bool operandSelFull(const AstSel* nodep) {
-        return (VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0
-                && static_cast<int>(nodep->widthConst()) == nodep->fromp()->width());
+    منطقي عملوند_Sel_پر(ثابت AstSel* nodep) {
+        أرجع (VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0
+                && static_cast<صحيح>(nodep->عرض_Const()) == nodep->fromp()->عرض());
     }
-    bool operandSelExtend(AstSel* nodep) {
-        if (!m_doV) return false;
-        AstExtend* const extendp = VN_CAST(nodep->fromp(), Extend);
-        if (!extendp) return false;
-        AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp) return false;
-        const int width = nodep->widthConst();
-        const int lsb = lsbp->toSInt();
-        const int msb = lsb + width - 1;
-        AstNodeExpr* const lhsp = extendp->lhsp();
-        if (!lhsp->isPure()) return false;
+    منطقي عملوند_Sel_Extend(AstSel* nodep) {
+        إذا (!m_doV) أرجع خطأ;
+        AstExtend* ثابت extendp = VN_CAST(nodep->fromp(), Extend);
+        إذا (!extendp) أرجع خطأ;
+        AstConst* ثابت lsbp = VN_CAST(nodep->lsbp(), Const);
+        إذا (!lsbp) أرجع خطأ;
+        ثابت صحيح عرض = nodep->عرض_Const();
+        ثابت صحيح lsb = lsbp->مقصد_SInt();
+        ثابت صحيح msb = lsb + عرض - 1;
+        Ast_گره_عبارت* ثابت lhsp = extendp->lhsp();
+        إذا (!lhsp->is_خالص()) أرجع خطأ;
 
         // Selecting the entire extended expression, replace with that
-        if (lsb == 0 && msb == lhsp->width() - 1) {
-            lhsp->unlinkFrBack();
+        إذا (lsb == 0 && msb == lhsp->عرض() - 1) {
+            lhsp->unlink_Fr_پشت();
             nodep->replaceWithKeepDType(lhsp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            أرجع درست;
         }
         // Select entirely in the extended part - replace with zero
-        if (lsb >= lhsp->width()) {
+        إذا (lsb >= lhsp->عرض()) {
             replaceZero(nodep);
-            return true;
+            أرجع درست;
         }
         // Select entirely in the extended expression - replace with select from that
-        if (msb < lhsp->width()) {
-            lhsp->unlinkFrBack();
-            lsbp->unlinkFrBack();
-            nodep->replaceWithKeepDType(new AstSel{nodep->fileline(), lhsp, lsbp, width});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+        إذا (msb < lhsp->عرض()) {
+            lhsp->unlink_Fr_پشت();
+            lsbp->unlink_Fr_پشت();
+            nodep->replaceWithKeepDType(جديد AstSel{nodep->fileline(), lhsp, lsbp, عرض});
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            أرجع درست;
         }
         // Select straddles both sides, but is just a shorter extend
-        if (lsb == 0) {
-            lhsp->unlinkFrBack();
-            nodep->replaceWithKeepDType(new AstExtend{nodep->fileline(), lhsp});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return true;
+        إذا (lsb == 0) {
+            lhsp->unlink_Fr_پشت();
+            nodep->replaceWithKeepDType(جديد AstExtend{nodep->fileline(), lhsp});
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            أرجع درست;
         }
 
-        return false;
+        أرجع خطأ;
     }
-    bool operandSelBiLower(AstSel* nodep) {
+    منطقي عملوند_Sel_Bi_پایینی(AstSel* nodep) {
         // SEL(ADD(a,b),(width-1),0) -> ADD(SEL(a),SEL(b))
         // Add or any operation which doesn't care if we discard top bits
-        AstNodeBiop* const bip = VN_CAST(nodep->fromp(), NodeBiop);
-        if (!(m_doV && bip && VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0)) return false;
+        Ast_گره_Biop* ثابت bip = VN_CAST(nodep->fromp(), گره_Biop);
+        إذا (!(m_doV && bip && VN_IS(nodep->lsbp(), Const) && nodep->lsbConst() == 0)) أرجع خطأ;
         UINFOTREE(9, nodep, "", "SEL(BI)-in");
-        AstNodeExpr* const bilhsp = bip->lhsp()->unlinkFrBack();
-        AstNodeExpr* const birhsp = bip->rhsp()->unlinkFrBack();
-        bip->lhsp(new AstSel{nodep->fileline(), bilhsp, 0, nodep->widthConst()});
-        bip->rhsp(new AstSel{nodep->fileline(), birhsp, 0, nodep->widthConst()});
+        Ast_گره_عبارت* ثابت bilhsp = bip->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت birhsp = bip->rhsp()->unlink_Fr_پشت();
+        bip->lhsp(جديد AstSel{nodep->fileline(), bilhsp, 0, nodep->عرض_Const()});
+        bip->rhsp(جديد AstSel{nodep->fileline(), birhsp, 0, nodep->عرض_Const()});
         UINFOTREE(9, bip, "", "SEL(BI)-ou");
         VL_DO_DANGLING(replaceWChild(nodep, bip), nodep);
-        return true;
+        أرجع درست;
     }
-    bool operandSelShiftLower(AstSel* nodep) {
+    منطقي عملوند_Sel_لغزش_پایینی(AstSel* nodep) {
         // AND({a}, SHIFTR({b}, {c})) is often shorthand in C for Verilog {b}[{c} :+ {a}]
         // becomes thought other optimizations
         // SEL(SHIFTR({a},{b}),{lsb},{width}) -> SEL({a},{lsb+b},{width})
-        const AstShiftR* const shiftp = VN_CAST(nodep->fromp(), ShiftR);
-        if (!(m_doV && shiftp && VN_IS(shiftp->rhsp(), Const) && VN_IS(nodep->lsbp(), Const))) {
-            return false;
+        ثابت Ast_لغزش_R* ثابت shiftp = VN_CAST(nodep->fromp(), لغزش_R);
+        إذا (!(m_doV && shiftp && VN_IS(shiftp->rhsp(), Const) && VN_IS(nodep->lsbp(), Const))) {
+            أرجع خطأ;
         }
-        AstNodeExpr* const ap = shiftp->lhsp();
-        const AstConst* const bp = VN_AS(shiftp->rhsp(), Const);
-        const AstConst* const lp = VN_AS(nodep->lsbp(), Const);
-        if (bp->isWide() || bp->num().isFourState() || bp->num().isNegative() || lp->isWide()
-            || lp->num().isFourState() || lp->num().isNegative()) {
-            return false;
+        Ast_گره_عبارت* ثابت ap = shiftp->lhsp();
+        ثابت AstConst* ثابت bp = VN_AS(shiftp->rhsp(), Const);
+        ثابت AstConst* ثابت lp = VN_AS(nodep->lsbp(), Const);
+        إذا (bp->isWide() || bp->رقم().isFourState() || bp->رقم().isNegative() || lp->isWide()
+            || lp->رقم().isFourState() || lp->رقم().isNegative()) {
+            أرجع خطأ;
         }
-        const int newLsb = lp->toSInt() + bp->toSInt();
-        if (newLsb + nodep->widthConst() > ap->width()) return false;
+        ثابت صحيح newLsb = lp->مقصد_SInt() + bp->مقصد_SInt();
+        إذا (newLsb + nodep->عرض_Const() > ap->عرض()) أرجع خطأ;
         //
         UINFO(9, "SEL(SHIFTR(a,b),l,w) -> SEL(a,l+b,w)");
         UINFOTREE(9, nodep, "", "SEL(SH)-in");
-        AstSel* const newp
-            = new AstSel{nodep->fileline(), ap->unlinkFrBack(), newLsb, nodep->widthConst()};
+        AstSel* ثابت newp
+            = جديد AstSel{nodep->fileline(), ap->unlink_Fr_پشت(), newLsb, nodep->عرض_Const()};
         nodep->replaceWithKeepDType(newp);
         UINFOTREE(9, newp, "", "SEL(SH)-ou");
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
 
-    bool operandBiExtendConstShrink(AstNodeBiop* nodep) {
+    منطقي عملوند_Bi_Extend_Const_Shrink(Ast_گره_Biop* nodep) {
         // Loop unrolling favors standalone compares
         // EQ(const{width32}, EXTEND(xx{width3})) -> EQ(const{3}, xx{3})
         // The constant must have zero bits (+ 1 if signed) or compare
         // would be incorrect. See also operandBiExtendConst
-        AstExtend* const extendp = VN_CAST(nodep->rhsp(), Extend);
-        if (!extendp) return false;
-        AstNodeExpr* const smallerp = extendp->lhsp();
-        const int subsize = smallerp->width();
-        AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
-        if (!constp) return false;
-        if (!constp->num().isBitsZero(constp->width() - 1, subsize)) return false;
+        AstExtend* ثابت extendp = VN_CAST(nodep->rhsp(), Extend);
+        إذا (!extendp) أرجع خطأ;
+        Ast_گره_عبارت* ثابت smallerp = extendp->lhsp();
+        ثابت صحيح subsize = smallerp->عرض();
+        AstConst* ثابت constp = VN_CAST(nodep->lhsp(), Const);
+        إذا (!constp) أرجع خطأ;
+        إذا (!constp->رقم().is_بیتها_Zero(constp->عرض() - 1, subsize)) أرجع خطأ;
         //
         UINFOTREE(9, nodep, "", "BI(EXTEND)-in");
-        smallerp->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(extendp->unlinkFrBack()), extendp);  // aka nodep->lhsp.
+        smallerp->unlink_Fr_پشت();
+        VL_DO_DANGLING(افزودن_Deletep(extendp->unlink_Fr_پشت()), extendp);  // aka nodep->lhsp.
         nodep->rhsp(smallerp);
 
-        constp->unlinkFrBack();
-        const V3Number num{constp, subsize, constp->num()};
-        nodep->lhsp(new AstConst{constp->fileline(), num});
-        VL_DO_DANGLING(pushDeletep(constp), constp);
-        return false;  // input node is still valid, keep going
+        constp->unlink_Fr_پشت();
+        ثابت V3_عدد رقم{constp, subsize, constp->رقم()};
+        nodep->lhsp(جديد AstConst{constp->fileline(), رقم});
+        VL_DO_DANGLING(افزودن_Deletep(constp), constp);
+        أرجع خطأ;  // input node is still valid, keep going
     }
-    bool operandBiExtendConstOver(const AstNodeBiop* nodep) {
+    منطقي عملوند_Bi_Extend_Const_Over(ثابت Ast_گره_Biop* nodep) {
         // EQ(const{width32}, EXTEND(xx{width3})) -> constant
         // When the constant has non-zero bits above the extend it's a constant.
         // Avoids compiler warning
-        const AstExtend* const extendp = VN_CAST(nodep->rhsp(), Extend);
-        if (!extendp) return false;
-        const AstNode* const smallerp = extendp->lhsp();
-        const int subsize = smallerp->width();
-        const AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
-        if (!constp) return false;
-        if (constp->num().isBitsZero(constp->width() - 1, subsize)) return false;
-        return true;
+        ثابت AstExtend* ثابت extendp = VN_CAST(nodep->rhsp(), Extend);
+        إذا (!extendp) أرجع خطأ;
+        ثابت Ast_گره* ثابت smallerp = extendp->lhsp();
+        ثابت صحيح subsize = smallerp->عرض();
+        ثابت AstConst* ثابت constp = VN_CAST(nodep->lhsp(), Const);
+        إذا (!constp) أرجع خطأ;
+        إذا (constp->رقم().is_بیتها_Zero(constp->عرض() - 1, subsize)) أرجع خطأ;
+        أرجع درست;
     }
 
     // Extraction checks
-    bool warnSelect(AstSel* nodep) {
-        if (m_doGenerate) {
+    منطقي warnSelect(AstSel* nodep) {
+        إذا (m_doGenerate) {
             // Never checked yet
-            V3Width::widthParamsEdit(nodep);
+            V3_عرض::عرض_Params_Edit(nodep);
             iterateChildren(nodep);  // May need "constifying"
         }
         // Find range of dtype we are selecting from
         // Similar code in V3Unknown::AstSel
-        const bool doit = true;
-        if (m_warn && VN_IS(nodep->lsbp(), Const) && doit) {
-            const int maxDeclBit = nodep->declRange().hiMaxSelect() * nodep->declElWidth()
-                                   + (nodep->declElWidth() - 1);
-            if (VN_AS(nodep->lsbp(), Const)->num().isFourState()) {
+        ثابت منطقي doit = درست;
+        إذا (m_warn && VN_IS(nodep->lsbp(), Const) && doit) {
+            ثابت صحيح max_Decl_بیت = nodep->declRange().hiMaxSelect() * nodep->decl_El_عرض()
+                                   + (nodep->decl_El_عرض() - 1);
+            إذا (VN_AS(nodep->lsbp(), Const)->رقم().isFourState()) {
                 nodep->v3error("Selection index is constantly unknown or tristated: "
                                "lsb="
-                               << nodep->lsbp()->name() << " width=" << nodep->widthConst());
+                               << nodep->lsbp()->name() << " width=" << nodep->عرض_Const());
                 // Replacing nodep will make a mess above, so we replace the offender
                 replaceZero(nodep->lsbp());
-            } else if (nodep->declRange().ranged()
-                       && (nodep->msbConst() > maxDeclBit || nodep->lsbConst() > maxDeclBit)) {
+            } وإلا إذا (nodep->declRange().ranged()
+                       && (nodep->msbConst() > max_Decl_بیت || nodep->lsbConst() > max_Decl_بیت)) {
                 // See also warning in V3Width
                 // Must adjust by element width as declRange() is in number of elements
                 string msbLsbProtected;
-                if (nodep->declElWidth() == 0) {
+                إذا (nodep->decl_El_عرض() == 0) {
                     msbLsbProtected = "(nodep->declElWidth() == 0) "
-                                      + std::to_string(nodep->msbConst()) + ":"
-                                      + std::to_string(nodep->lsbConst());
-                } else {
-                    msbLsbProtected = std::to_string(nodep->msbConst() / nodep->declElWidth())
+                                      + std::مقصد_string(nodep->msbConst()) + ":"
+                                      + std::مقصد_string(nodep->lsbConst());
+                } وإلا {
+                    msbLsbProtected = std::مقصد_string(nodep->msbConst() / nodep->decl_El_عرض())
                                       + ":"
-                                      + std::to_string(nodep->lsbConst() / nodep->declElWidth());
+                                      + std::مقصد_string(nodep->lsbConst() / nodep->decl_El_عرض());
                 }
                 nodep->v3warn(SELRANGE,
                               "Selection index out of range: "
@@ -1796,319 +1796,319 @@ class ConstVisitor final : public VNVisitor {
                                   << nodep->declRange().hiMaxSelect() << ":0"
                                   << (nodep->declRange().lo() >= 0
                                           ? ""
-                                          : (" (adjusted +" + cvtToStr(-nodep->declRange().lo())
+                                          : (" (adjusted +" + cvt_مقصد_Str(-nodep->declRange().lo())
                                              + " to account for negative lsb)")));
                 UINFO(1, "    Related Raw index is " << nodep->msbConst() << ":"
                                                      << nodep->lsbConst());
                 // Don't replace with zero, we'll do it later
             }
         }
-        return false;  // Not a transform, so NOP
+        أرجع خطأ;  // Not a transform, so NOP
     }
 
-    static bool operandsSame(const AstNode* node1p, const AstNode* node2p) {
+    ساكن منطقي operandsSame(ثابت Ast_گره* node1p, ثابت Ast_گره* node2p) {
         // For now we just detect constants & simple vars, though it could be more generic
-        if (const AstConst* const const1p = VN_CAST(node1p, Const)) {
-            if (const AstConst* const const2p = VN_CAST(node2p, Const)) {
-                return V3Number{node1p->fileline(), 1, 0}
-                    .opEq(const1p->num(), const2p->num())
+        إذا (ثابت AstConst* ثابت const1p = VN_CAST(node1p, Const)) {
+            إذا (ثابت AstConst* ثابت const2p = VN_CAST(node2p, Const)) {
+                أرجع V3_عدد{node1p->fileline(), 1, 0}
+                    .opEq(const1p->رقم(), const2p->رقم())
                     .isEqOne();
             }
         }
-        if (VN_IS(node1p, VarRef) && VN_IS(node2p, VarRef)) {
+        إذا (VN_IS(node1p, VarRef) && VN_IS(node2p, VarRef)) {
             // Avoid comparing widthMin's, which results in lost optimization attempts
             // If cleanup sameGateTree to be smarter, this can be restored.
             // return node1p->sameGateTree(node2p);
-            return node1p->isSame(node2p);
+            أرجع node1p->isSame(node2p);
         }
         // Pattern created by coverage-line/branch; avoid compiler tautological-compare warning
-        if (const AstAnd* const and1p = VN_CAST(node1p, And)) {
-            if (const AstAnd* const and2p = VN_CAST(node2p, And)) {
-                if (VN_IS(and1p->lhsp(), Const) && VN_IS(and1p->rhsp(), NodeVarRef)
-                    && VN_IS(and2p->lhsp(), Const) && VN_IS(and2p->rhsp(), NodeVarRef))
-                    return node1p->sameGateTree(node2p);
+        إذا (ثابت AstAnd* ثابت and1p = VN_CAST(node1p, And)) {
+            إذا (ثابت AstAnd* ثابت and2p = VN_CAST(node2p, And)) {
+                إذا (VN_IS(and1p->lhsp(), Const) && VN_IS(and1p->rhsp(), گره_Var_Ref)
+                    && VN_IS(and2p->lhsp(), Const) && VN_IS(and2p->rhsp(), گره_Var_Ref))
+                    أرجع node1p->same_Gate_درخت(node2p);
             }
         }
-        return false;
+        أرجع خطأ;
     }
-    bool ifSameAssign(const AstNodeIf* nodep) {
-        const AstNodeAssign* const thensp = VN_CAST(nodep->thensp(), NodeAssign);
-        const AstNodeAssign* const elsesp = VN_CAST(nodep->elsesp(), NodeAssign);
-        if (!thensp || thensp->nextp()) return false;  // Must be SINGLE statement
-        if (!elsesp || elsesp->nextp()) return false;
-        if (thensp->type() != elsesp->type()) return false;  // Can't mix an assigndly with assign
-        if (!thensp->lhsp()->sameGateTree(elsesp->lhsp())) return false;
-        if (!thensp->rhsp()->gateTree()) return false;
-        if (!elsesp->rhsp()->gateTree()) return false;
+    منطقي if_Same_تخصیص_بده(ثابت Ast_گره_If* nodep) {
+        ثابت Ast_گره_تخصیص_بده* ثابت thensp = VN_CAST(nodep->thensp(), گره_تخصیص_بده);
+        ثابت Ast_گره_تخصیص_بده* ثابت elsesp = VN_CAST(nodep->elsesp(), گره_تخصیص_بده);
+        إذا (!thensp || thensp->nextp()) أرجع خطأ;  // Must be SINGLE statement
+        إذا (!elsesp || elsesp->nextp()) أرجع خطأ;
+        إذا (thensp->type() != elsesp->type()) أرجع خطأ;  // Can't mix an assigndly with assign
+        إذا (!thensp->lhsp()->same_Gate_درخت(elsesp->lhsp())) أرجع خطأ;
+        إذا (!thensp->rhsp()->gate_درخت()) أرجع خطأ;
+        إذا (!elsesp->rhsp()->gate_درخت()) أرجع خطأ;
         // Must not create an expression with unpacked array type
-        if (VN_IS(thensp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
-        if (VN_IS(elsesp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
-        if (m_underRecFunc) return false;  // This optimization may lead to infinite recursion
-        if (m_doCpp) {  // Do not combine ifs cretaed by V3Premit
-            if (VN_IS(thensp->lhsp(), VarRef) && thensp->lhsp()->isWide()) return false;
+        إذا (VN_IS(thensp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) أرجع خطأ;
+        إذا (VN_IS(elsesp->rhsp()->dtypep()->skipRefp(), UnpackArrayDType)) أرجع خطأ;
+        إذا (m_underRecFunc) أرجع خطأ;  // This optimization may lead to infinite recursion
+        إذا (m_doCpp) {  // Do not combine ifs cretaed by V3Premit
+            إذا (VN_IS(thensp->lhsp(), VarRef) && thensp->lhsp()->isWide()) أرجع خطأ;
         }
         // Only do it if not calls and both pure, otherwise undoes V3LiftExpr
-        return !VN_IS(thensp->rhsp(), NodeFTaskRef)  //
-               && !VN_IS(elsesp->rhsp(), NodeFTaskRef)  //
-               && thensp->rhsp()->isPure()  //
-               && elsesp->rhsp()->isPure();
+        أرجع !VN_IS(thensp->rhsp(), گره_FTask_Ref)  //
+               && !VN_IS(elsesp->rhsp(), گره_FTask_Ref)  //
+               && thensp->rhsp()->is_خالص()  //
+               && elsesp->rhsp()->is_خالص();
     }
-    bool operandIfIf(const AstNodeIf* nodep) {
-        if (nodep->elsesp()) return false;
-        const AstNodeIf* const lowerIfp = VN_CAST(nodep->thensp(), NodeIf);
-        if (!lowerIfp || lowerIfp->nextp()) return false;
-        if (nodep->type() != lowerIfp->type()) return false;
-        if (AstNode::afterCommentp(lowerIfp->elsesp())) return false;
-        return true;
+    منطقي عملوند_If_If(ثابت Ast_گره_If* nodep) {
+        إذا (nodep->elsesp()) أرجع خطأ;
+        ثابت Ast_گره_If* ثابت پایینی_Ifp = VN_CAST(nodep->thensp(), گره_If);
+        إذا (!پایینی_Ifp || پایینی_Ifp->nextp()) أرجع خطأ;
+        إذا (nodep->type() != پایینی_Ifp->type()) أرجع خطأ;
+        إذا (Ast_گره::afterCommentp(پایینی_Ifp->elsesp())) أرجع خطأ;
+        أرجع درست;
     }
-    bool ifConcatMergeableBiop(const AstNode* nodep) {
-        return (VN_IS(nodep, And) || VN_IS(nodep, Or) || VN_IS(nodep, Xor));
+    منطقي ifConcatMergeableBiop(ثابت Ast_گره* nodep) {
+        أرجع (VN_IS(nodep, And) || VN_IS(nodep, Or) || VN_IS(nodep, Xor));
     }
-    bool ifAdjacentSel(const AstSel* lhsp, const AstSel* rhsp) {
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
-        if (!lhsp || !rhsp) return false;
-        const AstNode* const lfromp = lhsp->fromp();
-        const AstNode* const rfromp = rhsp->fromp();
-        if (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) return false;
-        const AstConst* const lstart = VN_CAST(lhsp->lsbp(), Const);
-        const AstConst* const rstart = VN_CAST(rhsp->lsbp(), Const);
-        if (!lstart || !rstart) return false;  // too complicated
-        const int rend = (rstart->toSInt() + rhsp->widthConst());
-        return (rend == lstart->toSInt());
+    منطقي ifAdjacentSel(ثابت AstSel* lhsp, ثابت AstSel* rhsp) {
+        إذا (!v3Global.opt.fAssemble()) أرجع خطأ;  // opt disabled
+        إذا (!lhsp || !rhsp) أرجع خطأ;
+        ثابت Ast_گره* ثابت lfromp = lhsp->fromp();
+        ثابت Ast_گره* ثابت rfromp = rhsp->fromp();
+        إذا (!lfromp || !rfromp || !lfromp->same_Gate_درخت(rfromp)) أرجع خطأ;
+        ثابت AstConst* ثابت lstart = VN_CAST(lhsp->lsbp(), Const);
+        ثابت AstConst* ثابت rstart = VN_CAST(rhsp->lsbp(), Const);
+        إذا (!lstart || !rstart) أرجع خطأ;  // too complicated
+        ثابت صحيح rend = (rstart->مقصد_SInt() + rhsp->عرض_Const());
+        أرجع (rend == lstart->مقصد_SInt());
     }
-    bool ifMergeAdjacent(const AstNodeExpr* lhsp, const AstNodeExpr* rhsp) {
+    منطقي if_ادغام_Adjacent(ثابت Ast_گره_عبارت* lhsp, ثابت Ast_گره_عبارت* rhsp) {
         // Called by concatmergeable to determine if {lhsp, rhsp} make sense
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
+        إذا (!v3Global.opt.fAssemble()) أرجع خطأ;  // opt disabled
         // Two same varref
-        if (operandsSame(lhsp, rhsp)) return true;
-        const AstSel* const lselp = VN_CAST(lhsp, Sel);
-        const AstSel* const rselp = VN_CAST(rhsp, Sel);
-        if (!lselp && !rselp) return false;
-        if (lselp && !VN_IS(lselp->lsbp(), Const)) return false;
-        if (rselp && !VN_IS(rselp->lsbp(), Const)) return false;
+        إذا (operandsSame(lhsp, rhsp)) أرجع درست;
+        ثابت AstSel* ثابت lselp = VN_CAST(lhsp, Sel);
+        ثابت AstSel* ثابت rselp = VN_CAST(rhsp, Sel);
+        إذا (!lselp && !rselp) أرجع خطأ;
+        إذا (lselp && !VN_IS(lselp->lsbp(), Const)) أرجع خطأ;
+        إذا (rselp && !VN_IS(rselp->lsbp(), Const)) أرجع خطأ;
         // a[i:j] {a[j-1:k], b}
-        if (lselp && !rselp && VN_IS(rhsp, Concat))
-            return ifMergeAdjacent(lhsp, VN_AS(rhsp, Concat)->lhsp());
+        إذا (lselp && !rselp && VN_IS(rhsp, Concat))
+            أرجع if_ادغام_Adjacent(lhsp, VN_AS(rhsp, Concat)->lhsp());
         // {b, a[j:k]} a[k-1:i]
-        if (rselp && !lselp && VN_IS(lhsp, Concat))
-            return ifMergeAdjacent(VN_AS(lhsp, Concat)->rhsp(), rhsp);
+        إذا (rselp && !lselp && VN_IS(lhsp, Concat))
+            أرجع if_ادغام_Adjacent(VN_AS(lhsp, Concat)->rhsp(), rhsp);
         // a a[msb:j]
-        const AstNodeExpr* const lfromp = lselp                                ? lselp->fromp()
-                                          : lhsp->sameGateTree(rselp->fromp()) ? lhsp
-                                                                               : nullptr;
+        ثابت Ast_گره_عبارت* ثابت lfromp = lselp                                ? lselp->fromp()
+                                          : lhsp->same_Gate_درخت(rselp->fromp()) ? lhsp
+                                                                               : اشاره_تهی;
         // a[i:0] a
-        const AstNodeExpr* const rfromp = rselp                                ? rselp->fromp()
-                                          : rhsp->sameGateTree(lselp->fromp()) ? rhsp
-                                                                               : nullptr;
-        if (!lfromp || !rfromp || !lfromp->sameGateTree(rfromp)) return false;
+        ثابت Ast_گره_عبارت* ثابت rfromp = rselp                                ? rselp->fromp()
+                                          : rhsp->same_Gate_درخت(lselp->fromp()) ? rhsp
+                                                                               : اشاره_تهی;
+        إذا (!lfromp || !rfromp || !lfromp->same_Gate_درخت(rfromp)) أرجع خطأ;
 
-        const int32_t lstart = lselp ? lselp->lsbConst() : 0;
-        const int32_t rstart = rselp ? rselp->lsbConst() : 0;
-        const int32_t rend = rstart + (rselp ? rselp->widthConst() : rhsp->width());
+        ثابت int32_t lstart = lselp ? lselp->lsbConst() : 0;
+        ثابت int32_t rstart = rselp ? rselp->lsbConst() : 0;
+        ثابت int32_t rend = rstart + (rselp ? rselp->عرض_Const() : rhsp->عرض());
         // a[i:j] a[j-1:k]
-        if (rend == lstart) return true;
+        إذا (rend == lstart) أرجع درست;
         // a[i:0] a[msb:j]
-        if (rend == rfromp->width() && lstart == 0) return true;
-        return false;
+        إذا (rend == rfromp->عرض() && lstart == 0) أرجع درست;
+        أرجع خطأ;
     }
-    bool concatMergeable(const AstNodeExpr* lhsp, const AstNodeExpr* rhsp, unsigned depth) {
+    منطقي concatMergeable(ثابت Ast_گره_عبارت* lhsp, ثابت Ast_گره_عبارت* rhsp, بیعلامت عمق) {
         // Determine if {a OP b, c OP d} => {a, c} OP {b, d} is advantageous
-        if (!v3Global.opt.fAssemble()) return false;  // opt disabled
-        if (lhsp->type() != rhsp->type()) return false;
-        if (!ifConcatMergeableBiop(lhsp)) return false;
-        if (depth > CONCAT_MERGABLE_MAX_DEPTH) return false;  // As worse case O(n^2) algorithm
+        إذا (!v3Global.opt.fAssemble()) أرجع خطأ;  // opt disabled
+        إذا (lhsp->type() != rhsp->type()) أرجع خطأ;
+        إذا (!ifConcatMergeableBiop(lhsp)) أرجع خطأ;
+        إذا (عمق > CONCAT_MERGABLE_MAX_عمق) أرجع خطأ;  // As worse case O(n^2) algorithm
 
-        const AstNodeBiop* const lp = VN_CAST(lhsp, NodeBiop);
-        const AstNodeBiop* const rp = VN_CAST(rhsp, NodeBiop);
-        if (!lp || !rp) return false;
+        ثابت Ast_گره_Biop* ثابت lp = VN_CAST(lhsp, گره_Biop);
+        ثابت Ast_گره_Biop* ثابت rp = VN_CAST(rhsp, گره_Biop);
+        إذا (!lp || !rp) أرجع خطأ;
         // {a[]&b[], a[]&b[]}
-        const bool lad = ifMergeAdjacent(lp->lhsp(), rp->lhsp());
-        const bool rad = ifMergeAdjacent(lp->rhsp(), rp->rhsp());
-        if (lad && rad) return true;
+        ثابت منطقي lad = if_ادغام_Adjacent(lp->lhsp(), rp->lhsp());
+        ثابت منطقي rad = if_ادغام_Adjacent(lp->rhsp(), rp->rhsp());
+        إذا (lad && rad) أرجع درست;
         // {a[] & b[]&c[], a[] & b[]&c[]}
-        if (lad && concatMergeable(lp->rhsp(), rp->rhsp(), depth + 1)) return true;
+        إذا (lad && concatMergeable(lp->rhsp(), rp->rhsp(), عمق + 1)) أرجع درست;
         // {a[]&b[] & c[], a[]&b[] & c[]}
-        if (rad && concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)) return true;
+        إذا (rad && concatMergeable(lp->lhsp(), rp->lhsp(), عمق + 1)) أرجع درست;
         // {(a[]&b[])&(c[]&d[]), (a[]&b[])&(c[]&d[])}
-        if (concatMergeable(lp->lhsp(), rp->lhsp(), depth + 1)
-            && concatMergeable(lp->rhsp(), rp->rhsp(), depth + 1)) {
-            return true;
+        إذا (concatMergeable(lp->lhsp(), rp->lhsp(), عمق + 1)
+            && concatMergeable(lp->rhsp(), rp->rhsp(), عمق + 1)) {
+            أرجع درست;
         }
-        return false;
+        أرجع خطأ;
     }
-    static bool operandsSameWidth(const AstNode* lhsp, const AstNode* rhsp) {
-        return lhsp->width() == rhsp->width();
+    ساكن منطقي operands_Same_عرض(ثابت Ast_گره* lhsp, ثابت Ast_گره* rhsp) {
+        أرجع lhsp->عرض() == rhsp->عرض();
     }
 
     //----------------------------------------
     // Constant Replacement functions.
     // These all take a node, delete its tree, and replaces it with a constant
 
-    void replaceNum(AstNode* oldp, const V3Number& num, const string& origParamName = "") {
+    فراغ replace_رقم(Ast_گره* oldp, ثابت V3_عدد& رقم, ثابت string& origParamName = "") {
         // Replace oldp node with a constant set to specified value
         UASSERT(oldp, "Null old");
-        UASSERT_OBJ(!(VN_IS(oldp, Const) && !VN_AS(oldp, Const)->num().isFourState()), oldp,
+        UASSERT_OBJ(!(VN_IS(oldp, Const) && !VN_AS(oldp, Const)->رقم().isFourState()), oldp,
                     "Already constant??");
-        AstConst* const newp = new AstConst{oldp->fileline(), num};
-        if (!origParamName.empty()) newp->origParamName(origParamName);
+        AstConst* ثابت newp = جديد AstConst{oldp->fileline(), رقم};
+        إذا (!origParamName.خالی()) newp->origParamName(origParamName);
         oldp->replaceWithKeepDType(newp);
         UINFOTREE(6, oldp, "", "const_old");
         UINFOTREE(6, newp, "", "_new");
-        VL_DO_DANGLING(pushDeletep(oldp), oldp);
+        VL_DO_DANGLING(افزودن_Deletep(oldp), oldp);
     }
-    void replaceNum(AstNode* nodep, uint32_t val) {
-        const V3Number num{nodep, nodep->width(), val};
-        VL_DO_DANGLING(replaceNum(nodep, num), nodep);
+    فراغ replace_رقم(Ast_گره* nodep, uint32_t val) {
+        ثابت V3_عدد رقم{nodep, nodep->عرض(), val};
+        VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
     }
-    void replaceNumSigned(AstNodeBiop* nodep, uint32_t val) {
+    فراغ replace_رقم_Signed(Ast_گره_Biop* nodep, uint32_t val) {
         // We allow both sides to be constant, as one may have come from
         // parameter propagation, etc.
-        if (m_warn && !(VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const))) {
+        إذا (m_warn && !(VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const))) {
             nodep->v3warn(UNSIGNED, "Comparison is constant due to unsigned arithmetic");
         }
-        VL_DO_DANGLING(replaceNum(nodep, val), nodep);
+        VL_DO_DANGLING(replace_رقم(nodep, val), nodep);
     }
-    void replaceNumLimited(AstNodeBiop* nodep, uint32_t val) {
+    فراغ replace_رقم_Limited(Ast_گره_Biop* nodep, uint32_t val) {
         // Avoids gcc warning about same
-        if (m_warn) nodep->v3warn(CMPCONST, "Comparison is constant due to limited range");
-        VL_DO_DANGLING(replaceNum(nodep, val), nodep);
+        إذا (m_warn) nodep->v3warn(CMPCONST, "Comparison is constant due to limited range");
+        VL_DO_DANGLING(replace_رقم(nodep, val), nodep);
     }
-    void replaceZero(AstNode* nodep) { VL_DO_DANGLING(replaceNum(nodep, 0), nodep); }
-    void replaceZeroChkPure(AstNode* nodep, AstNodeExpr* checkp) {
+    فراغ replaceZero(Ast_گره* nodep) { VL_DO_DANGLING(replace_رقم(nodep, 0), nodep); }
+    فراغ replace_Zero_Chk_خالص(Ast_گره* nodep, Ast_گره_عبارت* checkp) {
         // For example, "0 * n" -> 0 if n has no side effects
         // Else strength reduce it to 0 & n.
         // If ever change the operation note AstAnd rule specially ignores this created pattern
-        if (checkp->isPure()) {
-            VL_DO_DANGLING(replaceNum(nodep, 0), nodep);
-        } else {
-            AstNode* const newp = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), 0},
-                                             checkp->unlinkFrBack()};
+        إذا (checkp->is_خالص()) {
+            VL_DO_DANGLING(replace_رقم(nodep, 0), nodep);
+        } وإلا {
+            Ast_گره* ثابت newp = جديد AstAnd{nodep->fileline(), جديد AstConst{nodep->fileline(), 0},
+                                             checkp->unlink_Fr_پشت()};
             nodep->replaceWithKeepDType(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         }
     }
-    void replaceAllOnes(AstNode* nodep) {
-        V3Number ones{nodep, nodep->width(), 0};
-        ones.setMask(nodep->width());
-        VL_DO_DANGLING(replaceNum(nodep, ones), nodep);
+    فراغ replaceAllOnes(Ast_گره* nodep) {
+        V3_عدد ones{nodep, nodep->عرض(), 0};
+        ones.مجموعه_ماسک(nodep->عرض());
+        VL_DO_DANGLING(replace_رقم(nodep, ones), nodep);
     }
-    void replaceConst(AstNodeUniop* nodep) {
-        V3Number numv{nodep, nodep->widthMinV()};
-        nodep->numberOperate(numv, constNumV(nodep->lhsp()));
-        const V3Number& num = toNumC(nodep, numv);
-        UINFO(4, "UNICONST -> " << num);
-        VL_DO_DANGLING(replaceNum(nodep, num), nodep);
+    فراغ replaceConst(Ast_گره_Uniop* nodep) {
+        V3_عدد numv{nodep, nodep->عرض_Min_V()};
+        nodep->عدد_عمل_کن(numv, const_رقم_V(nodep->lhsp()));
+        ثابت V3_عدد& رقم = مقصد_رقم_C(nodep, numv);
+        UINFO(4, "UNICONST -> " << رقم);
+        VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
     }
-    void replaceConst(AstNodeBiop* nodep) {
-        V3Number numv{nodep, nodep->widthMinV()};
-        nodep->numberOperate(numv, constNumV(nodep->lhsp()), constNumV(nodep->rhsp()));
-        const V3Number& num = toNumC(nodep, numv);
-        UINFO(4, "BICONST -> " << num);
-        VL_DO_DANGLING(replaceNum(nodep, num), nodep);
+    فراغ replaceConst(Ast_گره_Biop* nodep) {
+        V3_عدد numv{nodep, nodep->عرض_Min_V()};
+        nodep->عدد_عمل_کن(numv, const_رقم_V(nodep->lhsp()), const_رقم_V(nodep->rhsp()));
+        ثابت V3_عدد& رقم = مقصد_رقم_C(nodep, numv);
+        UINFO(4, "BICONST -> " << رقم);
+        VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
     }
-    void replaceConst(AstNodeTriop* nodep) {
-        V3Number numv{nodep, nodep->widthMinV()};
-        nodep->numberOperate(numv, constNumV(nodep->lhsp()), constNumV(nodep->rhsp()),
-                             constNumV(nodep->thsp()));
-        const V3Number& num = toNumC(nodep, numv);
-        UINFO(4, "TRICONST -> " << num);
-        VL_DO_DANGLING(replaceNum(nodep, num), nodep);
+    فراغ replaceConst(Ast_گره_Triop* nodep) {
+        V3_عدد numv{nodep, nodep->عرض_Min_V()};
+        nodep->عدد_عمل_کن(numv, const_رقم_V(nodep->lhsp()), const_رقم_V(nodep->rhsp()),
+                             const_رقم_V(nodep->thsp()));
+        ثابت V3_عدد& رقم = مقصد_رقم_C(nodep, numv);
+        UINFO(4, "TRICONST -> " << رقم);
+        VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
     }
-    void replaceConst(AstNodeQuadop* nodep) {
-        V3Number numv{nodep, nodep->widthMinV()};
-        nodep->numberOperate(numv, constNumV(nodep->lhsp()), constNumV(nodep->rhsp()),
-                             constNumV(nodep->thsp()), constNumV(nodep->fhsp()));
-        const V3Number& num = toNumC(nodep, numv);
-        UINFO(4, "QUADCONST -> " << num);
-        VL_DO_DANGLING(replaceNum(nodep, num), nodep);
+    فراغ replaceConst(Ast_گره_Quadop* nodep) {
+        V3_عدد numv{nodep, nodep->عرض_Min_V()};
+        nodep->عدد_عمل_کن(numv, const_رقم_V(nodep->lhsp()), const_رقم_V(nodep->rhsp()),
+                             const_رقم_V(nodep->thsp()), const_رقم_V(nodep->fhsp()));
+        ثابت V3_عدد& رقم = مقصد_رقم_C(nodep, numv);
+        UINFO(4, "QUADCONST -> " << رقم);
+        VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
     }
 
-    void replaceConstString(AstNode* oldp, const string& num) {
+    فراغ replaceConstString(Ast_گره* oldp, ثابت string& رقم) {
         // Replace oldp node with a constant set to specified value
         UASSERT(oldp, "Null old");
-        AstNode* const newp = new AstConst{oldp->fileline(), AstConst::String{}, num};
+        Ast_گره* ثابت newp = جديد AstConst{oldp->fileline(), AstConst::String{}, رقم};
         UINFOTREE(6, oldp, "", "const_old");
         UINFOTREE(6, newp, "", "_new");
         oldp->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(oldp), oldp);
+        VL_DO_DANGLING(افزودن_Deletep(oldp), oldp);
     }
     //----------------------------------------
     // Replacement functions.
     // These all take a node and replace it with something else
 
-    void replaceWChild(AstNode* nodep, AstNodeExpr* childp) {
+    فراغ replaceWChild(Ast_گره* nodep, Ast_گره_عبارت* childp) {
         // NODE(..., CHILD(...)) -> CHILD(...)
-        childp->unlinkFrBackWithNext();
+        childp->unlink_Fr_پشت_With_بعدی();
         // If replacing a SEL for example, the data type comes from the parent (is less wide).
         // This may adversely affect the operation of the node being replaced.
         nodep->replaceWithKeepDType(childp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
 
-    void replaceWChildBool(AstNode* nodep, AstNodeExpr* childp) {
+    فراغ replaceWChildBool(Ast_گره* nodep, Ast_گره_عبارت* childp) {
         // NODE(..., CHILD(...)) -> REDOR(CHILD(...))
-        childp->unlinkFrBack();
-        if (childp->width1()) {
+        childp->unlink_Fr_پشت();
+        إذا (childp->width1()) {
             nodep->replaceWithKeepDType(childp);
-        } else {
-            nodep->replaceWithKeepDType(new AstRedOr{childp->fileline(), childp});
+        } وإلا {
+            nodep->replaceWithKeepDType(جديد AstRedOr{childp->fileline(), childp});
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
 
     //! Replace a ternary node with its RHS after iterating
     //! Used with short-circuiting, where the RHS has not yet been iterated.
-    void replaceWIteratedRhs(AstNodeTriop* nodep) {
-        if (AstNode* const rhsp = nodep->rhsp()) iterateAndNextNull(rhsp);
+    فراغ replaceWIteratedRhs(Ast_گره_Triop* nodep) {
+        إذا (Ast_گره* ثابت rhsp = nodep->rhsp()) iterate_And_بعدی_Null(rhsp);
         replaceWChild(nodep, nodep->rhsp());  // May have changed
     }
 
     //! Replace a ternary node with its THS after iterating
     //! Used with short-circuiting, where the THS has not yet been iterated.
-    void replaceWIteratedThs(AstNodeTriop* nodep) {
-        if (AstNode* const thsp = nodep->thsp()) iterateAndNextNull(thsp);
+    فراغ replaceWIteratedThs(Ast_گره_Triop* nodep) {
+        إذا (Ast_گره* ثابت thsp = nodep->thsp()) iterate_And_بعدی_Null(thsp);
         replaceWChild(nodep, nodep->thsp());  // May have changed
     }
-    void replaceWLhs(AstNodeUniop* nodep) {
+    فراغ replaceWLhs(Ast_گره_Uniop* nodep) {
         // Keep LHS, remove RHS
         replaceWChild(nodep, nodep->lhsp());
     }
-    void replaceWLhs(AstNodeBiop* nodep) {
+    فراغ replaceWLhs(Ast_گره_Biop* nodep) {
         // Keep LHS, remove RHS
         replaceWChild(nodep, nodep->lhsp());
     }
-    void replaceWRhs(AstNodeBiop* nodep) {
+    فراغ replaceWRhs(Ast_گره_Biop* nodep) {
         // Keep RHS, remove LHS
         replaceWChild(nodep, nodep->rhsp());
     }
-    void replaceWLhsBool(AstNodeBiop* nodep) { replaceWChildBool(nodep, nodep->lhsp()); }
-    void replaceWRhsBool(AstNodeBiop* nodep) { replaceWChildBool(nodep, nodep->rhsp()); }
-    void replaceAsv(AstNodeBiop* nodep) {
+    فراغ replaceWLhsBool(Ast_گره_Biop* nodep) { replaceWChildBool(nodep, nodep->lhsp()); }
+    فراغ replaceWRhsBool(Ast_گره_Biop* nodep) { replaceWChildBool(nodep, nodep->rhsp()); }
+    فراغ replaceAsv(Ast_گره_Biop* nodep) {
         // BIASV(CONSTa, BIASV(CONSTb, c)) -> BIASV( BIASV_CONSTED(a,b), c)
         // BIASV(SAMEa,  BIASV(SAMEb, c))  -> BIASV( BIASV(SAMEa,SAMEb), c)
         // UINFOTREE(1, nodep, "", "repAsvConst_old");
-        AstNodeExpr* const ap = nodep->lhsp();
-        AstNodeBiop* const rp = VN_AS(nodep->rhsp(), NodeBiop);
-        AstNodeExpr* const bp = rp->lhsp();
-        AstNodeExpr* const cp = rp->rhsp();
-        ap->unlinkFrBack();
-        bp->unlinkFrBack();
-        cp->unlinkFrBack();
-        rp->unlinkFrBack();
+        Ast_گره_عبارت* ثابت ap = nodep->lhsp();
+        Ast_گره_Biop* ثابت rp = VN_AS(nodep->rhsp(), گره_Biop);
+        Ast_گره_عبارت* ثابت bp = rp->lhsp();
+        Ast_گره_عبارت* ثابت cp = rp->rhsp();
+        ap->unlink_Fr_پشت();
+        bp->unlink_Fr_پشت();
+        cp->unlink_Fr_پشت();
+        rp->unlink_Fr_پشت();
         nodep->lhsp(rp);
         nodep->rhsp(cp);
         rp->lhsp(ap);
         rp->rhsp(bp);
         rp->dtypeFrom(nodep);  // Upper widthMin more likely correct
-        if (VN_IS(rp->lhsp(), Const) && VN_IS(rp->rhsp(), Const)) replaceConst(rp);
+        إذا (VN_IS(rp->lhsp(), Const) && VN_IS(rp->rhsp(), Const)) replaceConst(rp);
         iterate(nodep);  // Proceed to fixed point
     }
-    void replaceAsvLUp(AstNodeBiop* nodep) {
+    فراغ replaceAsvLUp(Ast_گره_Biop* nodep) {
         // BIASV(BIASV(CONSTll,lr),r) -> BIASV(CONSTll,BIASV(lr,r))
-        AstNodeBiop* const lp = VN_AS(nodep->lhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const llp = lp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const lrp = lp->rhsp()->unlinkFrBack();
-        AstNodeExpr* const rp = nodep->rhsp()->unlinkFrBack();
+        Ast_گره_Biop* ثابت lp = VN_AS(nodep->lhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت llp = lp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت lrp = lp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rp = nodep->rhsp()->unlink_Fr_پشت();
         nodep->lhsp(llp);
         nodep->rhsp(lp);
         lp->lhsp(lrp);
@@ -2116,12 +2116,12 @@ class ConstVisitor final : public VNVisitor {
         lp->dtypeFrom(nodep);  // Upper widthMin more likely correct
         iterate(nodep);  // Proceed to fixed point
     }
-    void replaceAsvRUp(AstNodeBiop* nodep) {
+    فراغ replaceAsvRUp(Ast_گره_Biop* nodep) {
         // BIASV(l,BIASV(CONSTrl,rr)) -> BIASV(CONSTrl,BIASV(l,rr))
-        AstNodeExpr* const lp = nodep->lhsp()->unlinkFrBack();
-        AstNodeBiop* const rp = VN_AS(nodep->rhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const rlp = rp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rrp = rp->rhsp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت lp = nodep->lhsp()->unlink_Fr_پشت();
+        Ast_گره_Biop* ثابت rp = VN_AS(nodep->rhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت rlp = rp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rrp = rp->rhsp()->unlink_Fr_پشت();
         nodep->lhsp(rlp);
         nodep->rhsp(rp);
         rp->lhsp(lp);
@@ -2129,368 +2129,368 @@ class ConstVisitor final : public VNVisitor {
         rp->dtypeFrom(nodep);  // Upper widthMin more likely correct
         iterate(nodep);  // Proceed to fixed point
     }
-    void replaceAndOr(AstNodeBiop* nodep) {
+    فراغ replaceAndOr(Ast_گره_Biop* nodep) {
         //  OR  (AND (CONSTll,lr), AND(CONSTrl==ll,rr))    -> AND (CONSTll, OR(lr,rr))
         //  OR  (AND (CONSTll,lr), AND(CONSTrl,    rr=lr)) -> AND (OR(ll,rl), rr)
         // nodep ^lp  ^llp   ^lrp  ^rp  ^rlp       ^rrp
         // (Or/And may also be reversed)
-        AstNodeBiop* const lp = VN_AS(nodep->lhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const llp = lp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const lrp = lp->rhsp()->unlinkFrBack();
-        AstNodeBiop* const rp = VN_AS(nodep->rhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const rlp = rp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rrp = rp->rhsp()->unlinkFrBack();
+        Ast_گره_Biop* ثابت lp = VN_AS(nodep->lhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت llp = lp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت lrp = lp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_Biop* ثابت rp = VN_AS(nodep->rhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت rlp = rp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rrp = rp->rhsp()->unlink_Fr_پشت();
         nodep->replaceWithKeepDType(lp);
-        if (operandsSame(llp, rlp)) {
+        إذا (operandsSame(llp, rlp)) {
             lp->lhsp(llp);
             lp->rhsp(nodep);
             lp->dtypeFrom(nodep);
             nodep->lhsp(lrp);
             nodep->rhsp(rrp);
-            VL_DO_DANGLING(pushDeletep(rp), rp);
-            VL_DO_DANGLING(pushDeletep(rlp), rlp);
-        } else if (operandsSame(lrp, rrp)) {
+            VL_DO_DANGLING(افزودن_Deletep(rp), rp);
+            VL_DO_DANGLING(افزودن_Deletep(rlp), rlp);
+        } وإلا إذا (operandsSame(lrp, rrp)) {
             lp->lhsp(nodep);
             lp->rhsp(rrp);
             lp->dtypeFrom(nodep);
             nodep->lhsp(llp);
             nodep->rhsp(rlp);
-            VL_DO_DANGLING(pushDeletep(rp), rp);
-            VL_DO_DANGLING(pushDeletep(lrp), lrp);
-        } else {
+            VL_DO_DANGLING(افزودن_Deletep(rp), rp);
+            VL_DO_DANGLING(افزودن_Deletep(lrp), lrp);
+        } وإلا {
             nodep->v3fatalSrc("replaceAndOr on something operandAndOrSame shouldn't have matched");
         }
         // UINFOTREE(1, nodep, "", "repAndOr_new");
     }
-    void replaceShiftSame(AstNodeBiop* nodep) {
+    فراغ replace_لغزش_Same(Ast_گره_Biop* nodep) {
         // Or(Shift(ll,CONSTlr),Shift(rl,CONSTrr==lr)) -> Shift(Or(ll,rl),CONSTlr)
         // (Or/And may also be reversed)
-        AstNodeBiop* const lp = VN_AS(nodep->lhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const llp = lp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const lrp = lp->rhsp()->unlinkFrBack();
-        AstNodeBiop* const rp = VN_AS(nodep->rhsp()->unlinkFrBack(), NodeBiop);
-        AstNodeExpr* const rlp = rp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rrp = rp->rhsp()->unlinkFrBack();
+        Ast_گره_Biop* ثابت lp = VN_AS(nodep->lhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت llp = lp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت lrp = lp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_Biop* ثابت rp = VN_AS(nodep->rhsp()->unlink_Fr_پشت(), گره_Biop);
+        Ast_گره_عبارت* ثابت rlp = rp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rrp = rp->rhsp()->unlink_Fr_پشت();
         nodep->replaceWithKeepDType(lp);
         lp->lhsp(nodep);
         lp->rhsp(lrp);
         nodep->lhsp(llp);
         nodep->rhsp(rlp);
         nodep->dtypep(llp->dtypep());  // dtype of Biop is before shift.
-        VL_DO_DANGLING(pushDeletep(rp), rp);
-        VL_DO_DANGLING(pushDeletep(rrp), rrp);
+        VL_DO_DANGLING(افزودن_Deletep(rp), rp);
+        VL_DO_DANGLING(افزودن_Deletep(rrp), rrp);
         // UINFOTREE(1, nodep, "", "repShiftSame_new");
     }
-    void replaceConcatSel(AstConcat* nodep) {
+    فراغ replaceConcatSel(AstConcat* nodep) {
         // {a[1], a[0]} -> a[1:0]
-        AstSel* const lselp = VN_AS(nodep->lhsp()->unlinkFrBack(), Sel);
-        AstSel* const rselp = VN_AS(nodep->rhsp()->unlinkFrBack(), Sel);
-        const int lstart = lselp->lsbConst();
-        const int lwidth = lselp->widthConst();
-        const int rstart = rselp->lsbConst();
-        const int rwidth = rselp->widthConst();
+        AstSel* ثابت lselp = VN_AS(nodep->lhsp()->unlink_Fr_پشت(), Sel);
+        AstSel* ثابت rselp = VN_AS(nodep->rhsp()->unlink_Fr_پشت(), Sel);
+        ثابت صحيح lstart = lselp->lsbConst();
+        ثابت صحيح lwidth = lselp->عرض_Const();
+        ثابت صحيح rstart = rselp->lsbConst();
+        ثابت صحيح rwidth = rselp->عرض_Const();
 
         UASSERT_OBJ((rstart + rwidth) == lstart, nodep,
                     "tried to merge two selects which are not adjacent");
-        AstSel* const newselp = new AstSel{
-            lselp->fromp()->fileline(), rselp->fromp()->unlinkFrBack(), rstart, lwidth + rwidth};
+        AstSel* ثابت newselp = جديد AstSel{
+            lselp->fromp()->fileline(), rselp->fromp()->unlink_Fr_پشت(), rstart, lwidth + rwidth};
         UINFO(5, "merged two adjacent sel " << lselp << " and " << rselp << " to one " << newselp);
 
         nodep->replaceWithKeepDType(newselp);
-        VL_DO_DANGLING(pushDeletep(lselp), lselp);
-        VL_DO_DANGLING(pushDeletep(rselp), rselp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(lselp), lselp);
+        VL_DO_DANGLING(افزودن_Deletep(rselp), rselp);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceConcatMerge(AstConcat* nodep) {
+    فراغ replace_Concat_ادغام(AstConcat* nodep) {
         // {llp OP lrp, rlp OP rrp} => {llp, rlp} OP {lrp, rrp}, where OP = AND/OR/XOR
-        AstNodeBiop* const lp = VN_AS(nodep->lhsp(), NodeBiop);
-        AstNodeBiop* const rp = VN_AS(nodep->rhsp(), NodeBiop);
-        if (concatMergeable(lp, rp, 0)) {
-            AstNodeExpr* const llp = lp->lhsp();
-            AstNodeExpr* const lrp = lp->rhsp();
-            AstNodeExpr* const rlp = rp->lhsp();
-            AstNodeExpr* const rrp = rp->rhsp();
-            AstConcat* const newlp = new AstConcat{rlp->fileline(), llp->cloneTreePure(false),
-                                                   rlp->cloneTreePure(false)};
-            AstConcat* const newrp = new AstConcat{rrp->fileline(), lrp->cloneTreePure(false),
-                                                   rrp->cloneTreePure(false)};
+        Ast_گره_Biop* ثابت lp = VN_AS(nodep->lhsp(), گره_Biop);
+        Ast_گره_Biop* ثابت rp = VN_AS(nodep->rhsp(), گره_Biop);
+        إذا (concatMergeable(lp, rp, 0)) {
+            Ast_گره_عبارت* ثابت llp = lp->lhsp();
+            Ast_گره_عبارت* ثابت lrp = lp->rhsp();
+            Ast_گره_عبارت* ثابت rlp = rp->lhsp();
+            Ast_گره_عبارت* ثابت rrp = rp->rhsp();
+            AstConcat* ثابت newlp = جديد AstConcat{rlp->fileline(), llp->clone_درخت_خالص(خطأ),
+                                                   rlp->clone_درخت_خالص(خطأ)};
+            AstConcat* ثابت newrp = جديد AstConcat{rrp->fileline(), lrp->clone_درخت_خالص(خطأ),
+                                                   rrp->clone_درخت_خالص(خطأ)};
             // use the lhs to replace the parent concat
             llp->replaceWith(newlp);
-            VL_DO_DANGLING(pushDeletep(llp), llp);
+            VL_DO_DANGLING(افزودن_Deletep(llp), llp);
             lrp->replaceWith(newrp);
-            VL_DO_DANGLING(pushDeletep(lrp), lrp);
-            lp->dtypeChgWidthSigned(newlp->width(), newlp->width(), VSigning::UNSIGNED);
+            VL_DO_DANGLING(افزودن_Deletep(lrp), lrp);
+            lp->dtype_Chg_عرض_Signed(newlp->عرض(), newlp->عرض(), VSigning::UNSIGNED);
             UINFO(5, "merged " << nodep);
-            ++m_statConcatMerge;
-            VL_DO_DANGLING(pushDeletep(rp->unlinkFrBack()), rp);
-            nodep->replaceWithKeepDType(lp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ++m_stat_Concat_ادغام;
+            VL_DO_DANGLING(افزودن_Deletep(rp->unlink_Fr_پشت()), rp);
+            nodep->replaceWithKeepDType(lp->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             iterate(lp->lhsp());
             iterate(lp->rhsp());
-        } else {
+        } وإلا {
             nodep->v3fatalSrc("tried to merge two Concat which are not adjacent");
         }
     }
-    void replaceExtend(AstNode* nodep, AstNodeExpr* arg0p) {
+    فراغ replaceExtend(Ast_گره* nodep, Ast_گره_عبارت* arg0p) {
         // -> EXTEND(nodep)
         // like a AstExtend{$rhsp}, but we need to set the width correctly from base node
-        arg0p->unlinkFrBack();
-        AstNodeExpr* const newp
+        arg0p->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت newp
             = (VN_IS(nodep, ExtendS)
-                   ? static_cast<AstNodeExpr*>(new AstExtendS{nodep->fileline(), arg0p})
-                   : static_cast<AstNodeExpr*>(new AstExtend{nodep->fileline(), arg0p}));
+                   ? static_cast<Ast_گره_عبارت*>(جديد AstExtendS{nodep->fileline(), arg0p})
+                   : static_cast<Ast_گره_عبارت*>(جديد AstExtend{nodep->fileline(), arg0p}));
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replacePowShift(AstNodeBiop* nodep) {  // Pow or PowS
+    فراغ replace_Pow_لغزش(Ast_گره_Biop* nodep) {  // Pow or PowS
         UINFO(5, "POW(2,b)->SHIFTL(1,b) " << nodep);
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstShiftL* const newp
-            = new AstShiftL{nodep->fileline(), new AstConst{nodep->fileline(), 1}, rhsp};
+        Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlink_Fr_پشت();
+        Ast_لغزش_L* ثابت newp
+            = جديد Ast_لغزش_L{nodep->fileline(), جديد AstConst{nodep->fileline(), 1}, rhsp};
         newp->lhsp()->dtypeFrom(nodep);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceMulShift(AstMul* nodep) {  // Mul, but not MulS as not simple shift
+    فراغ replace_Mul_لغزش(AstMul* nodep) {  // Mul, but not MulS as not simple shift
         UINFO(5, "MUL(2^n,b)->SHIFTL(b,n) " << nodep);
-        const int amount = VN_AS(nodep->lhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
-        AstNodeExpr* const opp = nodep->rhsp()->unlinkFrBack();
-        AstShiftL* const newp
-            = new AstShiftL{nodep->fileline(), opp, new AstConst(nodep->fileline(), amount)};
+        ثابت صحيح amount = VN_AS(nodep->lhsp(), Const)->رقم().most_مجموعه_بیت_P1() - 1;  // 2^n->n+1
+        Ast_گره_عبارت* ثابت opp = nodep->rhsp()->unlink_Fr_پشت();
+        Ast_لغزش_L* ثابت newp
+            = جديد Ast_لغزش_L{nodep->fileline(), opp, جديد AstConst(nodep->fileline(), amount)};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceDivShift(AstDiv* nodep) {  // Mul, but not MulS as not simple shift
+    فراغ replace_Div_لغزش(AstDiv* nodep) {  // Mul, but not MulS as not simple shift
         UINFO(5, "DIV(b,2^n)->SHIFTR(b,n) " << nodep);
-        const int amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
-        AstNodeExpr* const opp = nodep->lhsp()->unlinkFrBack();
-        AstShiftR* const newp
-            = new AstShiftR{nodep->fileline(), opp, new AstConst(nodep->fileline(), amount)};
+        ثابت صحيح amount = VN_AS(nodep->rhsp(), Const)->رقم().most_مجموعه_بیت_P1() - 1;  // 2^n->n+1
+        Ast_گره_عبارت* ثابت opp = nodep->lhsp()->unlink_Fr_پشت();
+        Ast_لغزش_R* ثابت newp
+            = جديد Ast_لغزش_R{nodep->fileline(), opp, جديد AstConst(nodep->fileline(), amount)};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceModAnd(AstModDiv* nodep) {  // Mod, but not ModS as not simple shift
+    فراغ replaceModAnd(AstModDiv* nodep) {  // Mod, but not ModS as not simple shift
         UINFO(5, "MOD(b,2^n)->AND(b,2^n-1) " << nodep);
-        const int amount = VN_AS(nodep->rhsp(), Const)->num().mostSetBitP1() - 1;  // 2^n->n+1
-        V3Number mask{nodep, nodep->width()};
-        mask.setMask(amount);
-        AstNodeExpr* const opp = nodep->lhsp()->unlinkFrBack();
-        AstAnd* const newp
-            = new AstAnd{nodep->fileline(), opp, new AstConst{nodep->fileline(), mask}};
+        ثابت صحيح amount = VN_AS(nodep->rhsp(), Const)->رقم().most_مجموعه_بیت_P1() - 1;  // 2^n->n+1
+        V3_عدد ماسک{nodep, nodep->عرض()};
+        ماسک.مجموعه_ماسک(amount);
+        Ast_گره_عبارت* ثابت opp = nodep->lhsp()->unlink_Fr_پشت();
+        AstAnd* ثابت newp
+            = جديد AstAnd{nodep->fileline(), opp, جديد AstConst{nodep->fileline(), ماسک}};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceShiftOp(AstNodeBiop* nodep) {
+    فراغ replace_لغزش_Op(Ast_گره_Biop* nodep) {
         UINFO(5, "SHIFT(AND(a,b),CONST) with a/b special ->AND(SHIFT(a,CONST),SHIFT(b,CONST)) "
                      << nodep);
-        const int width = nodep->width();
-        const int widthMin = nodep->widthMin();
+        ثابت صحيح عرض = nodep->عرض();
+        ثابت صحيح عرض_Min = nodep->عرض_Min();
         VNRelinker handle;
-        nodep->unlinkFrBack(&handle);
-        AstNodeBiop* const lhsp = VN_AS(nodep->lhsp(), NodeBiop);
-        lhsp->unlinkFrBack();
-        AstNodeExpr* const shiftp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const ap = lhsp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const bp = lhsp->rhsp()->unlinkFrBack();
-        AstNodeBiop* const shift1p = nodep;
-        AstNodeBiop* const shift2p = nodep->cloneTree(true);
+        nodep->unlink_Fr_پشت(&handle);
+        Ast_گره_Biop* ثابت lhsp = VN_AS(nodep->lhsp(), گره_Biop);
+        lhsp->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت shiftp = nodep->rhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت ap = lhsp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت bp = lhsp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_Biop* ثابت shift1p = nodep;
+        Ast_گره_Biop* ثابت shift2p = nodep->clone_درخت(درست);
         shift1p->lhsp(ap);
-        shift1p->rhsp(shiftp->cloneTreePure(true));
+        shift1p->rhsp(shiftp->clone_درخت_خالص(درست));
         shift2p->lhsp(bp);
         shift2p->rhsp(shiftp);
-        AstNodeBiop* const newp = lhsp;
+        Ast_گره_Biop* ثابت newp = lhsp;
         newp->lhsp(shift1p);
         newp->rhsp(shift2p);
-        newp->dtypeChgWidth(width, widthMin);  // The new AND must have width of the original SHIFT
+        newp->dtype_Chg_عرض(عرض, عرض_Min);  // The new AND must have width of the original SHIFT
         handle.relink(newp);
         iterate(newp);  // Further reduce, either node may have more reductions.
     }
-    void replaceShiftShift(AstNodeBiop* nodep) {
+    فراغ replace_لغزش_لغزش(Ast_گره_Biop* nodep) {
         UINFO(4, "SHIFT(SHIFT(a,s1),s2)->SHIFT(a,ADD(s1,s2)) " << nodep);
         UINFOTREE(9, nodep, "", "repShiftShift_old");
-        AstNodeBiop* const lhsp = VN_AS(nodep->lhsp(), NodeBiop);
-        lhsp->unlinkFrBack();
-        AstNodeExpr* const ap = lhsp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const shift1p = lhsp->rhsp()->unlinkFrBack();
-        AstNodeExpr* const shift2p = nodep->rhsp()->unlinkFrBack();
+        Ast_گره_Biop* ثابت lhsp = VN_AS(nodep->lhsp(), گره_Biop);
+        lhsp->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت ap = lhsp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت shift1p = lhsp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت shift2p = nodep->rhsp()->unlink_Fr_پشت();
         // Shift1p and shift2p may have different sizes, both are
         // self-determined so sum with infinite width
-        if (nodep->type() == lhsp->type()) {
-            const int shift1 = VN_AS(shift1p, Const)->toUInt();
-            const int shift2 = VN_AS(shift2p, Const)->toUInt();
-            const int newshift = shift1 + shift2;
-            VL_DO_DANGLING(pushDeletep(shift1p), shift1p);
-            VL_DO_DANGLING(pushDeletep(shift2p), shift2p);
+        إذا (nodep->type() == lhsp->type()) {
+            ثابت صحيح shift1 = VN_AS(shift1p, Const)->مقصد_UInt();
+            ثابت صحيح shift2 = VN_AS(shift2p, Const)->مقصد_UInt();
+            ثابت صحيح newshift = shift1 + shift2;
+            VL_DO_DANGLING(افزودن_Deletep(shift1p), shift1p);
+            VL_DO_DANGLING(افزودن_Deletep(shift2p), shift2p);
             nodep->lhsp(ap);
-            nodep->rhsp(new AstConst(nodep->fileline(), newshift));
+            nodep->rhsp(جديد AstConst(nodep->fileline(), newshift));
             iterate(nodep);  // Further reduce, either node may have more reductions.
-        } else {
+        } وإلا {
             // We know shift amounts are constant, but might be a mixed left/right shift
-            int shift1 = VN_AS(shift1p, Const)->toUInt();
-            if (VN_IS(lhsp, ShiftR)) shift1 = -shift1;
-            int shift2 = VN_AS(shift2p, Const)->toUInt();
-            if (VN_IS(nodep, ShiftR)) shift2 = -shift2;
-            const int newshift = shift1 + shift2;
-            VL_DO_DANGLING(pushDeletep(shift1p), shift1p);
-            VL_DO_DANGLING(pushDeletep(shift2p), shift2p);
-            AstNodeExpr* newp;
-            V3Number mask1{nodep, nodep->width()};
-            V3Number ones{nodep, nodep->width()};
-            ones.setMask(nodep->width());
-            if (shift1 < 0) {
-                mask1.opShiftR(ones, V3Number(nodep, VL_IDATASIZE, -shift1));
-            } else {
-                mask1.opShiftL(ones, V3Number(nodep, VL_IDATASIZE, shift1));
+            صحيح shift1 = VN_AS(shift1p, Const)->مقصد_UInt();
+            إذا (VN_IS(lhsp, لغزش_R)) shift1 = -shift1;
+            صحيح shift2 = VN_AS(shift2p, Const)->مقصد_UInt();
+            إذا (VN_IS(nodep, لغزش_R)) shift2 = -shift2;
+            ثابت صحيح newshift = shift1 + shift2;
+            VL_DO_DANGLING(افزودن_Deletep(shift1p), shift1p);
+            VL_DO_DANGLING(افزودن_Deletep(shift2p), shift2p);
+            Ast_گره_عبارت* newp;
+            V3_عدد mask1{nodep, nodep->عرض()};
+            V3_عدد ones{nodep, nodep->عرض()};
+            ones.مجموعه_ماسک(nodep->عرض());
+            إذا (shift1 < 0) {
+                mask1.op_لغزش_R(ones, V3_عدد(nodep, VL_IDATASIZE, -shift1));
+            } وإلا {
+                mask1.op_لغزش_L(ones, V3_عدد(nodep, VL_IDATASIZE, shift1));
             }
-            V3Number mask{nodep, nodep->width()};
-            if (shift2 < 0) {
-                mask.opShiftR(mask1, V3Number(nodep, VL_IDATASIZE, -shift2));
-            } else {
-                mask.opShiftL(mask1, V3Number(nodep, VL_IDATASIZE, shift2));
+            V3_عدد ماسک{nodep, nodep->عرض()};
+            إذا (shift2 < 0) {
+                ماسک.op_لغزش_R(mask1, V3_عدد(nodep, VL_IDATASIZE, -shift2));
+            } وإلا {
+                ماسک.op_لغزش_L(mask1, V3_عدد(nodep, VL_IDATASIZE, shift2));
             }
-            if (newshift < 0) {
-                newp = new AstShiftR{nodep->fileline(), ap,
-                                     new AstConst(nodep->fileline(), -newshift)};
-            } else {
-                newp = new AstShiftL{nodep->fileline(), ap,
-                                     new AstConst(nodep->fileline(), newshift)};
+            إذا (newshift < 0) {
+                newp = جديد Ast_لغزش_R{nodep->fileline(), ap,
+                                     جديد AstConst(nodep->fileline(), -newshift)};
+            } وإلا {
+                newp = جديد Ast_لغزش_L{nodep->fileline(), ap,
+                                     جديد AstConst(nodep->fileline(), newshift)};
             }
             newp->dtypeFrom(nodep);
-            newp = new AstAnd{nodep->fileline(), newp, new AstConst{nodep->fileline(), mask}};
+            newp = جديد AstAnd{nodep->fileline(), newp, جديد AstConst{nodep->fileline(), ماسک}};
             nodep->replaceWithKeepDType(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             // UINFOTREE(1, newp, "", "repShiftShift_new");
             iterate(newp);  // Further reduce, either node may have more reductions.
         }
-        VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+        VL_DO_DANGLING(افزودن_Deletep(lhsp), lhsp);
     }
 
-    bool replaceAssignMultiSel(AstNodeAssign* nodep) {
+    منطقي replace_تخصیص_بده_Multi_Sel(Ast_گره_تخصیص_بده* nodep) {
         // Multiple assignments to sequential bits can be concated
         // ASSIGN(SEL(a),aq), ASSIGN(SEL(a+1),bq) -> ASSIGN(SEL(a:b),CONCAT(aq,bq)
         // ie. assign var[2]=a, assign var[3]=b -> assign var[3:2]={b,a}
 
         // Skip if we're not const'ing an entire module (IE doing only one assign, etc)
-        if (!m_modp) return false;
+        إذا (!m_modp) أرجع خطأ;
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstSel* const sel1p = VN_CAST(nodep->lhsp(), Sel);
-        if (!sel1p) return false;
-        AstNodeAssign* const nextp = VN_CAST(nodep->nextp(), NodeAssign);
-        if (!nextp) return false;
-        if (nodep->type() != nextp->type()) return false;
-        const AstSel* const sel2p = VN_CAST(nextp->lhsp(), Sel);
-        if (!sel2p) return false;
-        AstVarRef* const varref1p = VN_CAST(sel1p->fromp(), VarRef);
-        if (!varref1p) return false;
-        const AstVarRef* const varref2p = VN_CAST(sel2p->fromp(), VarRef);
-        if (!varref2p) return false;
-        if (!varref1p->sameGateTree(varref2p)) return false;
-        const AstConst* const con1p = VN_CAST(sel1p->lsbp(), Const);
-        if (!con1p) return false;
-        const AstConst* const con2p = VN_CAST(sel2p->lsbp(), Const);
-        if (!con2p) return false;
+        AstSel* ثابت sel1p = VN_CAST(nodep->lhsp(), Sel);
+        إذا (!sel1p) أرجع خطأ;
+        Ast_گره_تخصیص_بده* ثابت nextp = VN_CAST(nodep->nextp(), گره_تخصیص_بده);
+        إذا (!nextp) أرجع خطأ;
+        إذا (nodep->type() != nextp->type()) أرجع خطأ;
+        ثابت AstSel* ثابت sel2p = VN_CAST(nextp->lhsp(), Sel);
+        إذا (!sel2p) أرجع خطأ;
+        AstVarRef* ثابت varref1p = VN_CAST(sel1p->fromp(), VarRef);
+        إذا (!varref1p) أرجع خطأ;
+        ثابت AstVarRef* ثابت varref2p = VN_CAST(sel2p->fromp(), VarRef);
+        إذا (!varref2p) أرجع خطأ;
+        إذا (!varref1p->same_Gate_درخت(varref2p)) أرجع خطأ;
+        ثابت AstConst* ثابت con1p = VN_CAST(sel1p->lsbp(), Const);
+        إذا (!con1p) أرجع خطأ;
+        ثابت AstConst* ثابت con2p = VN_CAST(sel2p->lsbp(), Const);
+        إذا (!con2p) أرجع خطأ;
         // We need to make sure there's no self-references involved in either
         // assignment.  For speed, we only look 3 deep, then give up.
-        if (!varNotReferenced(nodep->rhsp(), varref1p->varp())) return false;
-        if (!varNotReferenced(nextp->rhsp(), varref2p->varp())) return false;
+        إذا (!varNotReferenced(nodep->rhsp(), varref1p->varp())) أرجع خطأ;
+        إذا (!varNotReferenced(nextp->rhsp(), varref2p->varp())) أرجع خطأ;
         // If a variable is marked split_var, access to the variable should not be merged.
-        if (varref1p->varp()->attrSplitVar() || varref2p->varp()->attrSplitVar()) return false;
+        إذا (varref1p->varp()->attr_تقسیم_Var() || varref2p->varp()->attr_تقسیم_Var()) أرجع خطأ;
         // Swap?
-        if ((con1p->toSInt() != con2p->toSInt() + sel2p->width())
-            && (con2p->toSInt() != con1p->toSInt() + sel1p->width())) {
-            return false;
+        إذا ((con1p->مقصد_SInt() != con2p->مقصد_SInt() + sel2p->عرض())
+            && (con2p->مقصد_SInt() != con1p->مقصد_SInt() + sel1p->عرض())) {
+            أرجع خطأ;
         }
-        const bool lsbFirstAssign = (con1p->toUInt() < con2p->toUInt());
+        ثابت منطقي lsb_اولی_تخصیص_بده = (con1p->مقصد_UInt() < con2p->مقصد_UInt());
         UINFO(4, "replaceAssignMultiSel " << nodep);
         UINFO(4, "                   && " << nextp);
         // UINFOTREE(1, nodep, "", "comb1");
         // UINFOTREE(1, nextp, "", "comb2");
-        AstNodeExpr* const rhs1p = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const rhs2p = nextp->rhsp()->unlinkFrBack();
-        AstNodeAssign* newp;
-        if (lsbFirstAssign) {
-            newp = nodep->cloneType(new AstSel{sel1p->fileline(), varref1p->unlinkFrBack(),
-                                               sel1p->lsbConst(), sel1p->width() + sel2p->width()},
-                                    new AstConcat{rhs1p->fileline(), rhs2p, rhs1p});
-        } else {
-            newp = nodep->cloneType(new AstSel{sel1p->fileline(), varref1p->unlinkFrBack(),
-                                               sel2p->lsbConst(), sel1p->width() + sel2p->width()},
-                                    new AstConcat{rhs1p->fileline(), rhs1p, rhs2p});
+        Ast_گره_عبارت* ثابت rhs1p = nodep->rhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rhs2p = nextp->rhsp()->unlink_Fr_پشت();
+        Ast_گره_تخصیص_بده* newp;
+        إذا (lsb_اولی_تخصیص_بده) {
+            newp = nodep->cloneType(جديد AstSel{sel1p->fileline(), varref1p->unlink_Fr_پشت(),
+                                               sel1p->lsbConst(), sel1p->عرض() + sel2p->عرض()},
+                                    جديد AstConcat{rhs1p->fileline(), rhs2p, rhs1p});
+        } وإلا {
+            newp = nodep->cloneType(جديد AstSel{sel1p->fileline(), varref1p->unlink_Fr_پشت(),
+                                               sel2p->lsbConst(), sel1p->عرض() + sel2p->عرض()},
+                                    جديد AstConcat{rhs1p->fileline(), rhs1p, rhs2p});
         }
         // UINFOTREE(1, pnewp, "", "conew");
         nodep->replaceWith(newp);  // dypep intentionally changing
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        VL_DO_DANGLING(pushDeletep(nextp->unlinkFrBack()), nextp);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nextp->unlink_Fr_پشت()), nextp);
+        أرجع درست;
     }
 
-    bool replaceAssignSFormatF(AstNodeAssign* nodep) {
+    منطقي replace_تخصیص_بده_SFormat_F(Ast_گره_تخصیص_بده* nodep) {
         // Rewrite 'x = sformatf(...)' into 'sformat(x, ...)', which is more efficient
         // at the call site as it does not need to check if 'x' needs to be freed first.
         // This is a somewhat common pattern after lowering assertions.
-        if (!VN_IS(nodep, Assign)) return false;
-        AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        if (!lhsp) return false;
-        AstSFormatF* const fmtp = VN_CAST(nodep->rhsp(), SFormatF);
-        if (!fmtp) return false;
-        lhsp->unlinkFrBack();
-        fmtp->unlinkFrBack();
-        nodep->replaceWith(new AstSFormat{nodep->fileline(), fmtp, lhsp});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        إذا (!VN_IS(nodep, تخصیص_بده)) أرجع خطأ;
+        AstVarRef* ثابت lhsp = VN_CAST(nodep->lhsp(), VarRef);
+        إذا (!lhsp) أرجع خطأ;
+        AstSFormatF* ثابت fmtp = VN_CAST(nodep->rhsp(), SFormatF);
+        إذا (!fmtp) أرجع خطأ;
+        lhsp->unlink_Fr_پشت();
+        fmtp->unlink_Fr_پشت();
+        nodep->replaceWith(جديد AstSFormat{nodep->fileline(), fmtp, lhsp});
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
 
-    bool varNotReferenced(AstNode* nodep, AstVar* varp, int level = 0) {
+    منطقي varNotReferenced(Ast_گره* nodep, AstVar* varp, صحيح level = 0) {
         // Return true if varp never referenced under node.
         // Return false if referenced, or tree too deep to be worth it, or side effects
-        if (!nodep) return true;
-        if (level > 2) return false;
-        if (!nodep->isPure()) return false;  // For example a $fgetc can't be reordered
-        if (VN_IS(nodep, NodeVarRef) && VN_AS(nodep, NodeVarRef)->varp() == varp) return false;
-        return (varNotReferenced(nodep->nextp(), varp, level + 1)
+        إذا (!nodep) أرجع درست;
+        إذا (level > 2) أرجع خطأ;
+        إذا (!nodep->is_خالص()) أرجع خطأ;  // For example a $fgetc can't be reordered
+        إذا (VN_IS(nodep, گره_Var_Ref) && VN_AS(nodep, گره_Var_Ref)->varp() == varp) أرجع خطأ;
+        أرجع (varNotReferenced(nodep->nextp(), varp, level + 1)
                 && varNotReferenced(nodep->op1p(), varp, level + 1)
                 && varNotReferenced(nodep->op2p(), varp, level + 1)
                 && varNotReferenced(nodep->op3p(), varp, level + 1)
                 && varNotReferenced(nodep->op4p(), varp, level + 1));
     }
 
-    bool replaceNodeAssign(AstNodeAssign* nodep) {
-        if (VN_IS(nodep->lhsp(), VarRef) && VN_IS(nodep->rhsp(), VarRef)
+    منطقي replace_گره_تخصیص_بده(Ast_گره_تخصیص_بده* nodep) {
+        إذا (VN_IS(nodep->lhsp(), VarRef) && VN_IS(nodep->rhsp(), VarRef)
             && VN_AS(nodep->lhsp(), VarRef)->sameNoLvalue(VN_AS(nodep->rhsp(), VarRef))
-            && !VN_IS(nodep, AssignDly)) {
+            && !VN_IS(nodep, تخصیص_بده_Dly)) {
             // X = X.  Quite pointless, though X <= X may override another earlier assignment
-            if (VN_IS(nodep, AssignW)) {
-                if (!v3Global.opt.pedantic())
+            إذا (VN_IS(nodep, تخصیص_بده_W)) {
+                إذا (!v3Global.opt.pedantic())
                     nodep->v3error(
                         "Wire inputs its own output, creating circular logic (wire x=x)");
-                return false;  // Don't delete the assign, or V3Gate will freak out
-            } else {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return true;
+                أرجع خطأ;  // Don't delete the assign, or V3Gate will freak out
+            } وإلا {
+                VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+                أرجع درست;
             }
-        } else if (m_doV && VN_IS(nodep->lhsp(), Concat)) {
-            bool need_temp = false;
+        } وإلا إذا (m_doV && VN_IS(nodep->lhsp(), Concat)) {
+            منطقي need_موقت = خطأ;
             // A blocking assignment with an intra-assignment timing control evaluates its value,
             // then waits once (IEEE 1800-2023 9.4.5), here to assign a temporary for the parts
-            const bool waits = VN_IS(nodep, Assign) && nodep->timingControlp();
+            ثابت منطقي waits = VN_IS(nodep, تخصیص_بده) && nodep->timingControlp();
             // Splitting copies the RHS once per part, so a large RHS would make the tree
             // grow with the product of the number of parts and the RHS size
-            const bool needTempPure = !nodep->rhsp()->isPure() || waits
-                                      || nodep->rhsp()->isLargerThan(CONCAT_ASSIGN_MAX_RHS_NODES);
-            if (m_warn && !VN_IS(nodep, AssignDly)
-                && !needTempPure) {  // Is same var on LHS and RHS?
+            ثابت منطقي need_موقت_خالص = !nodep->rhsp()->is_خالص() || waits
+                                      || nodep->rhsp()->isLargerThan(CONCAT_تخصیص_بده_MAX_RHS_NODES);
+            إذا (m_warn && !VN_IS(nodep, تخصیص_بده_Dly)
+                && !need_موقت_خالص) {  // Is same var on LHS and RHS?
                 // If the rhs is not pure, we need a temporary variable anyway
-                std::unordered_set<size_t> lhsVarIds;
-                nodep->lhsp()->foreach([&](const AstVarRef* refp) {
+                std::unordered_مجموعه<اندازه_t> lhsVarIds;
+                nodep->lhsp()->foreach([&](ثابت AstVarRef* refp) {
                     UASSERT_OBJ(refp->varp(), refp, "Unlinked VarRef");
                     lhsVarIds.emplace(m_ids(refp->varp()));
                 });
-                nodep->rhsp()->foreach([&](const AstVarRef* refp) {
+                nodep->rhsp()->foreach([&](ثابت AstVarRef* refp) {
                     UASSERT_OBJ(refp->varp(), refp, "Unlinked VarRef");
-                    if (lhsVarIds.count(m_ids(refp->varp()))) need_temp = true;
+                    إذا (lhsVarIds.شمار(m_ids(refp->varp()))) need_موقت = درست;
                 });
             }
-            if (needTempPure) {
+            إذا (need_موقت_خالص) {
                 // if the RHS is impure or large we need to create a temporary variable for it,
                 // because further handling involves copying of the RHS.
                 UINFO(4, "  ASSITEMPPURE " << nodep);
@@ -2498,23 +2498,23 @@ class ConstVisitor final : public VNVisitor {
                 //                                ASSIGN(lc1,SEL(temp,{size1})),
                 //                                ASSIGN(lc2,SEL(temp,{size2}))
 
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                AstVar* const tempPurep = new AstVar{rhsp->fileline(), VVarType::BLOCKTEMP,
-                                                     m_concswapNames.get(rhsp), rhsp->dtypep()};
+                Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlink_Fr_پشت();
+                AstVar* ثابت موقت_Purep = جديد AstVar{rhsp->fileline(), VVarType::BLOCKTEMP,
+                                                     m_concswap_نامها.get(rhsp), rhsp->dtypep()};
                 // Static, as read right after written, also in a fork
-                tempPurep->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(tempPurep);
-                AstVarRef* const tempPureRefp
-                    = new AstVarRef{rhsp->fileline(), tempPurep, VAccess::WRITE};
-                AstNodeAssign* const asnp
-                    = VN_IS(nodep, AssignDly)
-                          ? new AstAssign{nodep->fileline(), tempPureRefp, rhsp}
-                          : nodep->cloneType(tempPureRefp, rhsp);
-                nodep->addHereThisAsNext(asnp);
-                nodep->rhsp(new AstVarRef{rhsp->fileline(), tempPurep, VAccess::READ});
+                موقت_Purep->lifetime(VLifetime::STATIC_EXPLICIT);
+                m_modp->جمع_کن_Stmtsp(موقت_Purep);
+                AstVarRef* ثابت موقت_خالص_Refp
+                    = جديد AstVarRef{rhsp->fileline(), موقت_Purep, VAccess::WRITE};
+                Ast_گره_تخصیص_بده* ثابت asnp
+                    = VN_IS(nodep, تخصیص_بده_Dly)
+                          ? جديد Ast_تخصیص_بده{nodep->fileline(), موقت_خالص_Refp, rhsp}
+                          : nodep->cloneType(موقت_خالص_Refp, rhsp);
+                nodep->جمع_کن_اینجا_This_As_بعدی(asnp);
+                nodep->rhsp(جديد AstVarRef{rhsp->fileline(), موقت_Purep, VAccess::READ});
                 // Only the assignment of the temporary waits
-                if (waits) pushDeletep(nodep->timingControlp()->unlinkFrBack());
-            } else if (need_temp) {
+                إذا (waits) افزودن_Deletep(nodep->timingControlp()->unlink_Fr_پشت());
+            } وإلا إذا (need_موقت) {
                 // The first time we constify, there may be the same variable on the LHS
                 // and RHS.  In that case, we must use temporaries, or {a,b}={b,a} will break.
                 UINFO(4, "  ASSITEMP " << nodep);
@@ -2522,335 +2522,335 @@ class ConstVisitor final : public VNVisitor {
                 //                                ASSIGN(temp2,SEL(newrhs,{size}))
                 //                                ASSIGN(lc1,temp1),
                 //                                ASSIGN(lc2,temp2)
-            } else {
+            } وإلا {
                 UINFO(4, "  ASSI " << nodep);
                 // ASSIGN(CONCAT(lc1,lc2),rhs) -> ASSIGN(lc1,SEL(rhs,{size})),
                 //                                ASSIGN(lc2,SEL(newrhs,{size}))
             }
             // The NBA evaluates its intra-assignment delay as it executes (IEEE 1800-2023 4.9.4),
             // so once for the NBAs to all parts
-            AstDelay* const delayp
-                = VN_IS(nodep, AssignDly) ? VN_CAST(nodep->timingControlp(), Delay) : nullptr;
-            if (delayp && !delayp->lhsp()->isPure()) {
-                FileLine* const flp = nodep->fileline();
-                AstNodeExpr* const valuep = delayp->lhsp()->unlinkFrBack();
-                AstVar* const tempp = new AstVar{flp, VVarType::BLOCKTEMP,
-                                                 m_concswapNames.get(valuep), valuep->dtypep()};
+            AstDelay* ثابت delayp
+                = VN_IS(nodep, تخصیص_بده_Dly) ? VN_CAST(nodep->timingControlp(), Delay) : اشاره_تهی;
+            إذا (delayp && !delayp->lhsp()->is_خالص()) {
+                File_سطر* ثابت flp = nodep->fileline();
+                Ast_گره_عبارت* ثابت valuep = delayp->lhsp()->unlink_Fr_پشت();
+                AstVar* ثابت tempp = جديد AstVar{flp, VVarType::BLOCKTEMP,
+                                                 m_concswap_نامها.get(valuep), valuep->dtypep()};
                 // Static, as read right after written, when the NBAs to the parts start waiting
                 tempp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(tempp);
-                nodep->addHereThisAsNext(
-                    new AstAssign{flp, new AstVarRef{flp, tempp, VAccess::WRITE}, valuep});
-                delayp->lhsp(new AstVarRef{flp, tempp, VAccess::READ});
+                m_modp->جمع_کن_Stmtsp(tempp);
+                nodep->جمع_کن_اینجا_This_As_بعدی(
+                    جديد Ast_تخصیص_بده{flp, جديد AstVarRef{flp, tempp, VAccess::WRITE}, valuep});
+                delayp->lhsp(جديد AstVarRef{flp, tempp, VAccess::READ});
             }
             UINFOTREE(9, nodep, "", "Ass_old");
             // Unlink the stuff
-            AstNodeExpr* const lc1p = VN_AS(nodep->lhsp(), Concat)->lhsp()->unlinkFrBack();
-            AstNodeExpr* const lc2p = VN_AS(nodep->lhsp(), Concat)->rhsp()->unlinkFrBack();
-            AstNodeExpr* const conp = VN_AS(nodep->lhsp(), Concat)->unlinkFrBack();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* const rhs2p = rhsp->cloneTreePure(false);
+            Ast_گره_عبارت* ثابت lc1p = VN_AS(nodep->lhsp(), Concat)->lhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت lc2p = VN_AS(nodep->lhsp(), Concat)->rhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت conp = VN_AS(nodep->lhsp(), Concat)->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت rhs2p = rhsp->clone_درخت_خالص(خطأ);
             // Calc widths
-            const int lsb2 = 0;
-            const int msb2 = lsb2 + lc2p->width() - 1;
-            const int lsb1 = msb2 + 1;
-            const int msb1 = lsb1 + lc1p->width() - 1;
-            UASSERT_OBJ(msb1 == (conp->width() - 1), nodep, "Width calc mismatch");
+            ثابت صحيح lsb2 = 0;
+            ثابت صحيح msb2 = lsb2 + lc2p->عرض() - 1;
+            ثابت صحيح lsb1 = msb2 + 1;
+            ثابت صحيح msb1 = lsb1 + lc1p->عرض() - 1;
+            UASSERT_OBJ(msb1 == (conp->عرض() - 1), nodep, "Width calc mismatch");
             // Form ranges
-            AstSel* const sel1p = new AstSel{conp->fileline(), rhsp, lsb1, msb1 - lsb1 + 1};
-            AstSel* const sel2p = new AstSel{conp->fileline(), rhs2p, lsb2, msb2 - lsb2 + 1};
+            AstSel* ثابت sel1p = جديد AstSel{conp->fileline(), rhsp, lsb1, msb1 - lsb1 + 1};
+            AstSel* ثابت sel2p = جديد AstSel{conp->fileline(), rhs2p, lsb2, msb2 - lsb2 + 1};
             // Make new assigns of same flavor as old one
             //*** Not cloneTree; just one node.
-            AstNodeAssign* newp = nullptr;
-            if (!need_temp) {
-                AstNodeAssign* const asn1ap = nodep->cloneType(lc1p, sel1p);
-                AstNodeAssign* const asn2ap = nodep->cloneType(lc2p, sel2p);
+            Ast_گره_تخصیص_بده* newp = اشاره_تهی;
+            إذا (!need_موقت) {
+                Ast_گره_تخصیص_بده* ثابت asn1ap = nodep->cloneType(lc1p, sel1p);
+                Ast_گره_تخصیص_بده* ثابت asn2ap = nodep->cloneType(lc2p, sel2p);
                 asn1ap->dtypeFrom(sel1p);
                 asn2ap->dtypeFrom(sel2p);
-                newp = AstNode::addNext(newp, asn1ap);
-                newp = AstNode::addNext(newp, asn2ap);
-            } else {
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn1ap);
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn2ap);
+            } وإلا {
                 UASSERT_OBJ(m_modp, nodep, "Not under module");
                 UASSERT_OBJ(m_globalPass, nodep,
                             "Should not reach here when not invoked on whole AstNetlist");
                 // We could create just one temp variable, but we'll get better optimization
                 // if we make one per term.
-                AstVar* const temp1p
-                    = new AstVar{sel1p->fileline(), VVarType::BLOCKTEMP,
-                                 m_concswapNames.get(sel1p), VFlagLogicPacked{}, msb1 - lsb1 + 1};
-                AstVar* const temp2p
-                    = new AstVar{sel2p->fileline(), VVarType::BLOCKTEMP,
-                                 m_concswapNames.get(sel2p), VFlagLogicPacked{}, msb2 - lsb2 + 1};
-                m_modp->addStmtsp(temp1p);
-                m_modp->addStmtsp(temp2p);
-                AstNodeAssign* const asn1ap = nodep->cloneType(
-                    new AstVarRef{sel1p->fileline(), temp1p, VAccess::WRITE}, sel1p);
-                AstNodeAssign* const asn2ap = nodep->cloneType(
-                    new AstVarRef{sel2p->fileline(), temp2p, VAccess::WRITE}, sel2p);
-                AstNodeAssign* const asn1bp = nodep->cloneType(
-                    lc1p, new AstVarRef{sel1p->fileline(), temp1p, VAccess::READ});
-                AstNodeAssign* const asn2bp = nodep->cloneType(
-                    lc2p, new AstVarRef{sel2p->fileline(), temp2p, VAccess::READ});
+                AstVar* ثابت temp1p
+                    = جديد AstVar{sel1p->fileline(), VVarType::BLOCKTEMP,
+                                 m_concswap_نامها.get(sel1p), VFlagLogicPacked{}, msb1 - lsb1 + 1};
+                AstVar* ثابت temp2p
+                    = جديد AstVar{sel2p->fileline(), VVarType::BLOCKTEMP,
+                                 m_concswap_نامها.get(sel2p), VFlagLogicPacked{}, msb2 - lsb2 + 1};
+                m_modp->جمع_کن_Stmtsp(temp1p);
+                m_modp->جمع_کن_Stmtsp(temp2p);
+                Ast_گره_تخصیص_بده* ثابت asn1ap = nodep->cloneType(
+                    جديد AstVarRef{sel1p->fileline(), temp1p, VAccess::WRITE}, sel1p);
+                Ast_گره_تخصیص_بده* ثابت asn2ap = nodep->cloneType(
+                    جديد AstVarRef{sel2p->fileline(), temp2p, VAccess::WRITE}, sel2p);
+                Ast_گره_تخصیص_بده* ثابت asn1bp = nodep->cloneType(
+                    lc1p, جديد AstVarRef{sel1p->fileline(), temp1p, VAccess::READ});
+                Ast_گره_تخصیص_بده* ثابت asn2bp = nodep->cloneType(
+                    lc2p, جديد AstVarRef{sel2p->fileline(), temp2p, VAccess::READ});
                 asn1ap->dtypeFrom(temp1p);
                 asn1bp->dtypeFrom(temp1p);
                 asn2ap->dtypeFrom(temp2p);
                 asn2bp->dtypeFrom(temp2p);
                 // This order matters
-                newp = AstNode::addNext(newp, asn1ap);
-                newp = AstNode::addNext(newp, asn2ap);
-                newp = AstNode::addNext(newp, asn1bp);
-                newp = AstNode::addNext(newp, asn2bp);
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn1ap);
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn2ap);
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn1bp);
+                newp = Ast_گره::جمع_کن_بعدی(newp, asn2bp);
             }
-            if (debug() >= 9 && newp) newp->dumpTreeAndNext(cout, "-     _new: ");
-            nodep->addNextHere(newp);
+            إذا (debug() >= 9 && newp) newp->dump_درخت_And_بعدی(خروجی, "-     _new: ");
+            nodep->جمع_کن_بعدی_اینجا(newp);
             // Cleanup
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            VL_DO_DANGLING(pushDeletep(conp), conp);
+            VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+            VL_DO_DANGLING(افزودن_Deletep(conp), conp);
             // Further reduce, either node may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), CvtPackedToArray)
-                   && lowerAsFixedAggregate(nodep->lhsp()->dtypep())) {
-            AstCvtPackedToArray* const cvtp
-                = VN_AS(nodep->rhsp(), CvtPackedToArray)->unlinkFrBack();
-            AstNodeExpr* srcp = cvtp->fromp()->unlinkFrBack();
-            if (lowerAsFixedAggregate(srcp->dtypep())) {
+            أرجع درست;
+        } وإلا إذا (m_doV && VN_IS(nodep->rhsp(), Cvt_Packed_مقصد_Array)
+                   && پایینی_As_Fixed_Aggregate(nodep->lhsp()->dtypep())) {
+            Ast_Cvt_Packed_مقصد_Array* ثابت cvtp
+                = VN_AS(nodep->rhsp(), Cvt_Packed_مقصد_Array)->unlink_Fr_پشت();
+            Ast_گره_عبارت* srcp = cvtp->fromp()->unlink_Fr_پشت();
+            إذا (پایینی_As_Fixed_Aggregate(srcp->dtypep())) {
                 srcp = packFixedAggregate(srcp);
-            } else if (AstNodeStream* const streamp = VN_CAST(srcp, NodeStream)) {
-                AstNodeExpr* const streamSrcp = streamp->lhsp();
-                if (lowerAsFixedAggregate(streamSrcp->dtypep())) {
-                    AstNodeExpr* const packedp = packFixedAggregate(streamSrcp->unlinkFrBack());
+            } وإلا إذا (Ast_گره_جریان* ثابت streamp = VN_CAST(srcp, گره_جریان)) {
+                Ast_گره_عبارت* ثابت جریان_Srcp = streamp->lhsp();
+                إذا (پایینی_As_Fixed_Aggregate(جریان_Srcp->dtypep())) {
+                    Ast_گره_عبارت* ثابت packedp = packFixedAggregate(جریان_Srcp->unlink_Fr_پشت());
                     streamp->lhsp(packedp);
-                    streamp->dtypeSetBitOrLogicUnsized(packedp->width(), packedp->widthMin(),
+                    streamp->dtype_مجموعه_بیت_Or_Logic_Unsized(packedp->عرض(), packedp->عرض_Min(),
                                                        VSigning::UNSIGNED,
                                                        packedp->isFourstateOrNoDtype());
                 }
             }
-            VL_DO_DANGLING(pushDeletep(cvtp), cvtp);
-            replaceAssignToFixedAggregate(nodep, nodep->lhsp()->unlinkFrBack(), srcp);
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), StreamR)
-                   && !VN_IS(nodep->lhsp()->dtypep()->skipRefp(), QueueDType)) {
+            VL_DO_DANGLING(افزودن_Deletep(cvtp), cvtp);
+            replace_تخصیص_بده_مقصد_Fixed_Aggregate(nodep, nodep->lhsp()->unlink_Fr_پشت(), srcp);
+            أرجع درست;
+        } وإلا إذا (m_doV && VN_IS(nodep->rhsp(), جریان_R)
+                   && !VN_IS(nodep->lhsp()->dtypep()->skipRefp(), صف_DType)) {
             // The right-streaming operator on rhs of assignment does not
             // change the order of bits. Eliminate stream but keep its lhsp.
             // Add a cast if needed.
-            AstStreamR* const streamp = VN_AS(nodep->rhsp(), StreamR)->unlinkFrBack();
-            AstNodeExpr* srcp = streamp->lhsp()->unlinkFrBack();
-            AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
-            const AstNodeDType* const dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
-            if (lowerAsFixedAggregate(srcDTypep)) {
+            Ast_جریان_R* ثابت streamp = VN_AS(nodep->rhsp(), جریان_R)->unlink_Fr_پشت();
+            Ast_گره_عبارت* srcp = streamp->lhsp()->unlink_Fr_پشت();
+            Ast_گره_DType* ثابت srcDTypep = srcp->dtypep()->skipRefp();
+            ثابت Ast_گره_DType* ثابت dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
+            إذا (پایینی_As_Fixed_Aggregate(srcDTypep)) {
                 srcp = packFixedAggregate(srcp);
-            } else if (VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)) {
-                if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
-                        srcElementBits = elemDtp->width();
+            } وإلا إذا (VN_IS(srcDTypep, صف_DType) || VN_IS(srcDTypep, DynArrayDType)) {
+                إذا (VN_IS(dstDTypep, صف_DType) || VN_IS(dstDTypep, DynArrayDType)) {
+                    صحيح src_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = srcDTypep->subDTypep()) {
+                        src_Element_بیتها = elemDtp->عرض();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
-                        dstElementBits = elemDtp->width();
+                    صحيح dst_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = dstDTypep->subDTypep()) {
+                        dst_Element_بیتها = elemDtp->عرض();
                     }
-                    srcp = new AstCvtArrayToArray{
-                        srcp->fileline(), srcp,          nodep->dtypep(), false, 1,
-                        dstElementBits,   srcElementBits};
-                } else {
-                    srcp = new AstCvtArrayToPacked{srcp->fileline(), srcp, nodep->dtypep()};
+                    srcp = جديد Ast_Cvt_Array_مقصد_Array{
+                        srcp->fileline(), srcp,          nodep->dtypep(), خطأ, 1,
+                        dst_Element_بیتها,   src_Element_بیتها};
+                } وإلا {
+                    srcp = جديد Ast_Cvt_Array_مقصد_Packed{srcp->fileline(), srcp, nodep->dtypep()};
                 }
-            } else if (VN_IS(srcDTypep, UnpackArrayDType)) {
-                srcp = new AstCvtArrayToPacked{srcp->fileline(), srcp, srcDTypep};
+            } وإلا إذا (VN_IS(srcDTypep, UnpackArrayDType)) {
+                srcp = جديد Ast_Cvt_Array_مقصد_Packed{srcp->fileline(), srcp, srcDTypep};
                 // Handling the case where lhs is wider than rhs by inserting zeros. StreamL does
                 // not require this, since the left streaming operator implicitly handles this.
-                const int packedBits = nodep->lhsp()->widthMin();
-                const int unpackBits
-                    = srcDTypep->arrayUnpackedElements() * srcDTypep->subDTypep()->widthMin();
-                const uint32_t offset = packedBits > unpackBits ? packedBits - unpackBits : 0;
-                srcp = new AstShiftL{srcp->fileline(), srcp,
-                                     new AstConst{srcp->fileline(), offset}, packedBits};
+                ثابت صحيح packed_بیتها = nodep->lhsp()->عرض_Min();
+                ثابت صحيح unpack_بیتها
+                    = srcDTypep->arrayUnpackedElements() * srcDTypep->subDTypep()->عرض_Min();
+                ثابت uint32_t جابه_جایی = packed_بیتها > unpack_بیتها ? packed_بیتها - unpack_بیتها : 0;
+                srcp = جديد Ast_لغزش_L{srcp->fileline(), srcp,
+                                     جديد AstConst{srcp->fileline(), جابه_جایی}, packed_بیتها};
             }
-            if (!VN_IS(dstDTypep, UnpackArrayDType) && !VN_IS(dstDTypep, QueueDType)
+            إذا (!VN_IS(dstDTypep, UnpackArrayDType) && !VN_IS(dstDTypep, صف_DType)
                 && !VN_IS(dstDTypep, DynArrayDType)) {
-                const int sWidth = srcp->width();
-                const int dWidth = nodep->lhsp()->width();
-                if (sWidth < dWidth) {
-                    AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dWidth};
-                    srcp = new AstShiftL{
+                ثابت صحيح s_عرض = srcp->عرض();
+                ثابت صحيح d_عرض = nodep->lhsp()->عرض();
+                إذا (s_عرض < d_عرض) {
+                    AstExtend* ثابت extendp = جديد AstExtend{srcp->fileline(), srcp, d_عرض};
+                    srcp = جديد Ast_لغزش_L{
                         srcp->fileline(), extendp,
-                        new AstConst{srcp->fileline(), static_cast<uint32_t>(dWidth - sWidth)},
-                        dWidth};
+                        جديد AstConst{srcp->fileline(), static_cast<uint32_t>(d_عرض - s_عرض)},
+                        d_عرض};
                 }
             }
             nodep->rhsp(srcp);
-            VL_DO_DANGLING(pushDeletep(streamp), streamp);
+            VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
             // Further reduce, any of the nodes may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->lhsp(), StreamL)) {
+            أرجع درست;
+        } وإلا إذا (m_doV && VN_IS(nodep->lhsp(), جریان_L)) {
             // Push the stream operator to the rhs of the assignment statement
-            AstNodeExpr* streamp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const dstp = VN_AS(streamp, StreamL)->lhsp()->unlinkFrBack();
-            AstNodeDType* const dstDTypep = dstp->dtypep()->skipRefp();
-            AstNodeExpr* srcp = nodep->rhsp()->unlinkFrBack();
-            const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
+            Ast_گره_عبارت* streamp = nodep->lhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت dstp = VN_AS(streamp, جریان_L)->lhsp()->unlink_Fr_پشت();
+            Ast_گره_DType* ثابت dstDTypep = dstp->dtypep()->skipRefp();
+            Ast_گره_عبارت* srcp = nodep->rhsp()->unlink_Fr_پشت();
+            ثابت Ast_گره_DType* ثابت srcDTypep = srcp->dtypep()->skipRefp();
             // Handle unpacked/queue/dynarray source -> queue/dynarray dest via
             // CvtArrayToArray (StreamL reverses, so reverse=true)
-            if ((VN_IS(srcDTypep, UnpackArrayDType) || VN_IS(srcDTypep, QueueDType)
+            إذا ((VN_IS(srcDTypep, UnpackArrayDType) || VN_IS(srcDTypep, صف_DType)
                  || VN_IS(srcDTypep, DynArrayDType))
-                && (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType))) {
-                int blockSize = 1;
-                if (const AstConst* const constp
-                    = VN_CAST(VN_AS(streamp, StreamL)->rhsp(), Const)) {
-                    blockSize = constp->toSInt();
-                    if (VL_UNLIKELY(blockSize <= 0)) blockSize = 1;
+                && (VN_IS(dstDTypep, صف_DType) || VN_IS(dstDTypep, DynArrayDType))) {
+                صحيح بلوک_اندازه = 1;
+                إذا (ثابت AstConst* ثابت constp
+                    = VN_CAST(VN_AS(streamp, جریان_L)->rhsp(), Const)) {
+                    بلوک_اندازه = constp->مقصد_SInt();
+                    إذا (VL_UNLIKELY(بلوک_اندازه <= 0)) بلوک_اندازه = 1;
                 }
-                int srcElementBits = 0;
-                if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
-                    srcElementBits = elemDtp->width();
+                صحيح src_Element_بیتها = 0;
+                إذا (ثابت Ast_گره_DType* ثابت elemDtp = srcDTypep->subDTypep()) {
+                    src_Element_بیتها = elemDtp->عرض();
                 }
-                int dstElementBits = 0;
-                if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
-                    dstElementBits = elemDtp->width();
+                صحيح dst_Element_بیتها = 0;
+                إذا (ثابت Ast_گره_DType* ثابت elemDtp = dstDTypep->subDTypep()) {
+                    dst_Element_بیتها = elemDtp->عرض();
                 }
                 nodep->lhsp(dstp);
-                nodep->rhsp(new AstCvtArrayToArray{srcp->fileline(), srcp, dstDTypep, true,
-                                                   blockSize, dstElementBits, srcElementBits});
+                nodep->rhsp(جديد Ast_Cvt_Array_مقصد_Array{srcp->fileline(), srcp, dstDTypep, درست,
+                                                   بلوک_اندازه, dst_Element_بیتها, src_Element_بیتها});
                 nodep->dtypep(dstDTypep);
-                VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                return true;
+                VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
+                أرجع درست;
             }
-            if (lowerAsFixedAggregate(srcDTypep)) srcp = packFixedAggregate(srcp);
-            const int sWidth = srcp->width();
-            const int dWidth = dstp->width();
+            إذا (پایینی_As_Fixed_Aggregate(srcDTypep)) srcp = packFixedAggregate(srcp);
+            ثابت صحيح s_عرض = srcp->عرض();
+            ثابت صحيح d_عرض = dstp->عرض();
             // Connect the rhs to the stream operator and update its width
-            VN_AS(streamp, StreamL)->lhsp(srcp);
-            if (VN_IS(srcDTypep, DynArrayDType) || VN_IS(srcDTypep, QueueDType)
+            VN_AS(streamp, جریان_L)->lhsp(srcp);
+            إذا (VN_IS(srcDTypep, DynArrayDType) || VN_IS(srcDTypep, صف_DType)
                 || VN_IS(srcDTypep, UnpackArrayDType)) {
-                streamp->dtypeSetStream();
-            } else {
-                streamp->dtypeSetBitOrLogicUnsized(srcp->width(), srcp->widthMin(),
+                streamp->dtype_مجموعه_جریان();
+            } وإلا {
+                streamp->dtype_مجموعه_بیت_Or_Logic_Unsized(srcp->عرض(), srcp->عرض_Min(),
                                                    VSigning::UNSIGNED,
                                                    srcp->isFourstateOrNoDtype());
             }
-            if (VN_IS(dstDTypep, UnpackArrayDType)) {
-                streamp = new AstCvtPackedToArray{nodep->fileline(), streamp, dstDTypep};
-            } else {
-                if (dWidth == 0) {
-                    streamp = new AstCvtPackedToArray{nodep->fileline(), streamp, dstDTypep};
-                } else if (sWidth >= dWidth) {
-                    streamp = new AstSel{streamp->fileline(), streamp, sWidth - dWidth, dWidth};
+            إذا (VN_IS(dstDTypep, UnpackArrayDType)) {
+                streamp = جديد Ast_Cvt_Packed_مقصد_Array{nodep->fileline(), streamp, dstDTypep};
+            } وإلا {
+                إذا (d_عرض == 0) {
+                    streamp = جديد Ast_Cvt_Packed_مقصد_Array{nodep->fileline(), streamp, dstDTypep};
+                } وإلا إذا (s_عرض >= d_عرض) {
+                    streamp = جديد AstSel{streamp->fileline(), streamp, s_عرض - d_عرض, d_عرض};
                 }
             }
             nodep->lhsp(dstp);
             nodep->rhsp(streamp);
             nodep->dtypep(dstDTypep);
-            return true;
-        } else if (m_doV && VN_IS(nodep->lhsp(), StreamR)) {
+            أرجع درست;
+        } وإلا إذا (m_doV && VN_IS(nodep->lhsp(), جریان_R)) {
             // The right stream operator on lhs of assignment statement does
             // not reorder bits. However, if the rhs is wider than the lhs,
             // then we select bits from the left-most, not the right-most.
-            AstNodeExpr* const streamp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const dstp = VN_AS(streamp, StreamR)->lhsp()->unlinkFrBack();
-            AstNodeDType* const dstDTypep = dstp->dtypep()->skipRefp();
-            AstNodeExpr* srcp = nodep->rhsp()->unlinkFrBack();
+            Ast_گره_عبارت* ثابت streamp = nodep->lhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت dstp = VN_AS(streamp, جریان_R)->lhsp()->unlink_Fr_پشت();
+            Ast_گره_DType* ثابت dstDTypep = dstp->dtypep()->skipRefp();
+            Ast_گره_عبارت* srcp = nodep->rhsp()->unlink_Fr_پشت();
             // Handle unpacked/queue/dynarray source -> queue/dynarray dest via
             // CvtArrayToArray (StreamR does not reverse, so reverse=false).
             // V3Width may have wrapped the source in CvtArrayToPacked; unwrap it.
-            if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
-                AstNodeExpr* origSrcp = srcp;
-                if (AstCvtArrayToPacked* const cvtp = VN_CAST(srcp, CvtArrayToPacked)) {
+            إذا (VN_IS(dstDTypep, صف_DType) || VN_IS(dstDTypep, DynArrayDType)) {
+                Ast_گره_عبارت* origSrcp = srcp;
+                إذا (Ast_Cvt_Array_مقصد_Packed* ثابت cvtp = VN_CAST(srcp, Cvt_Array_مقصد_Packed)) {
                     origSrcp = cvtp->fromp();
                 }
-                const AstNodeDType* const origSrcDTypep = origSrcp->dtypep()->skipRefp();
-                if (VN_IS(origSrcDTypep, UnpackArrayDType) || VN_IS(origSrcDTypep, QueueDType)
+                ثابت Ast_گره_DType* ثابت origSrcDTypep = origSrcp->dtypep()->skipRefp();
+                إذا (VN_IS(origSrcDTypep, UnpackArrayDType) || VN_IS(origSrcDTypep, صف_DType)
                     || VN_IS(origSrcDTypep, DynArrayDType)) {
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = origSrcDTypep->subDTypep()) {
-                        srcElementBits = elemDtp->width();
+                    صحيح src_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = origSrcDTypep->subDTypep()) {
+                        src_Element_بیتها = elemDtp->عرض();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
-                        dstElementBits = elemDtp->width();
+                    صحيح dst_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = dstDTypep->subDTypep()) {
+                        dst_Element_بیتها = elemDtp->عرض();
                     }
-                    if (VN_IS(srcp, CvtArrayToPacked)) {
-                        origSrcp = VN_AS(srcp, CvtArrayToPacked)->fromp()->unlinkFrBack();
-                        VL_DO_DANGLING(pushDeletep(srcp), srcp);
+                    إذا (VN_IS(srcp, Cvt_Array_مقصد_Packed)) {
+                        origSrcp = VN_AS(srcp, Cvt_Array_مقصد_Packed)->fromp()->unlink_Fr_پشت();
+                        VL_DO_DANGLING(افزودن_Deletep(srcp), srcp);
                         srcp = origSrcp;
                     }
                     // Descending unpacked arrays need element reversal
-                    bool reverse = false;
-                    if (const AstUnpackArrayDType* const unpackDtp
+                    منطقي معکوس = خطأ;
+                    إذا (ثابت AstUnpackArrayDType* ثابت unpackDtp
                         = VN_CAST(origSrcDTypep, UnpackArrayDType)) {
-                        reverse = !unpackDtp->declRange().ascending();
+                        معکوس = !unpackDtp->declRange().ascending();
                     }
                     nodep->lhsp(dstp);
-                    nodep->rhsp(new AstCvtArrayToArray{srcp->fileline(), srcp, dstDTypep, reverse,
-                                                       1, dstElementBits, srcElementBits});
+                    nodep->rhsp(جديد Ast_Cvt_Array_مقصد_Array{srcp->fileline(), srcp, dstDTypep, معکوس,
+                                                       1, dst_Element_بیتها, src_Element_بیتها});
                     nodep->dtypep(dstDTypep);
-                    VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                    return true;
+                    VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
+                    أرجع درست;
                 }
             }
-            const int sWidth = srcp->width();
-            const int dWidth = dstp->width();
-            if (VN_IS(dstDTypep, UnpackArrayDType)) {
-                const int dstBitWidth
-                    = dWidth * VN_AS(dstDTypep, UnpackArrayDType)->arrayUnpackedElements();
+            ثابت صحيح s_عرض = srcp->عرض();
+            ثابت صحيح d_عرض = dstp->عرض();
+            إذا (VN_IS(dstDTypep, UnpackArrayDType)) {
+                ثابت صحيح dst_بیت_عرض
+                    = d_عرض * VN_AS(dstDTypep, UnpackArrayDType)->arrayUnpackedElements();
                 // Handling the case where rhs is wider than lhs. StreamL does not require this
                 // since the combination of the left streaming operation and the implicit
                 // truncation in VL_ASSIGN_UNPACK automatically selects the left-most bits.
-                if (sWidth > dstBitWidth) {
+                إذا (s_عرض > dst_بیت_عرض) {
                     srcp
-                        = new AstSel{streamp->fileline(), srcp, sWidth - dstBitWidth, dstBitWidth};
+                        = جديد AstSel{streamp->fileline(), srcp, s_عرض - dst_بیت_عرض, dst_بیت_عرض};
                 }
-                srcp = new AstCvtPackedToArray{nodep->fileline(), srcp, dstDTypep};
-            } else {
-                if (dWidth == 0) {
-                    srcp = new AstCvtPackedToArray{nodep->fileline(), srcp, dstDTypep};
-                } else if (sWidth >= dWidth) {
-                    srcp = new AstSel{streamp->fileline(), srcp, sWidth - dWidth, dWidth};
-                } else {
+                srcp = جديد Ast_Cvt_Packed_مقصد_Array{nodep->fileline(), srcp, dstDTypep};
+            } وإلا {
+                إذا (d_عرض == 0) {
+                    srcp = جديد Ast_Cvt_Packed_مقصد_Array{nodep->fileline(), srcp, dstDTypep};
+                } وإلا إذا (s_عرض >= d_عرض) {
+                    srcp = جديد AstSel{streamp->fileline(), srcp, s_عرض - d_عرض, d_عرض};
+                } وإلا {
                     // Source narrower than destination: left-justify by shifting left.
                     // The right stream operator packs left-to-right, so remaining
                     // LSBs are zero-filled (IEEE 1800-2023 11.4.14.3).
-                    if (!VN_IS(srcp->dtypep()->skipRefp(), QueueDType)) {
-                        AstExtend* const extendp = new AstExtend{srcp->fileline(), srcp, dWidth};
-                        srcp = new AstShiftL{
+                    إذا (!VN_IS(srcp->dtypep()->skipRefp(), صف_DType)) {
+                        AstExtend* ثابت extendp = جديد AstExtend{srcp->fileline(), srcp, d_عرض};
+                        srcp = جديد Ast_لغزش_L{
                             srcp->fileline(), extendp,
-                            new AstConst{srcp->fileline(), static_cast<uint32_t>(dWidth - sWidth)},
-                            dWidth};
-                    } else {  // if it is a queue we dont need do do a shiftL
-                        srcp = new AstExtend{srcp->fileline(), srcp};
+                            جديد AstConst{srcp->fileline(), static_cast<uint32_t>(d_عرض - s_عرض)},
+                            d_عرض};
+                    } وإلا {  // if it is a queue we dont need do do a shiftL
+                        srcp = جديد AstExtend{srcp->fileline(), srcp};
                     }
                 }
             }
             nodep->lhsp(dstp);
             nodep->rhsp(srcp);
             nodep->dtypep(dstDTypep);
-            VL_DO_DANGLING(pushDeletep(streamp), streamp);
+            VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
             // Further reduce, any of the nodes may have more reductions.
-            return true;
-        } else if (m_doV && VN_IS(nodep->rhsp(), StreamL)) {
-            AstStreamL* streamp = VN_AS(nodep->rhsp(), StreamL);
-            AstNodeExpr* srcp = streamp->lhsp();
-            const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
-            AstNodeDType* const dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
-            if (lowerAsFixedAggregate(srcDTypep)) {
-                AstNodeExpr* const packedp = packFixedAggregate(srcp->unlinkFrBack());
+            أرجع درست;
+        } وإلا إذا (m_doV && VN_IS(nodep->rhsp(), جریان_L)) {
+            Ast_جریان_L* streamp = VN_AS(nodep->rhsp(), جریان_L);
+            Ast_گره_عبارت* srcp = streamp->lhsp();
+            ثابت Ast_گره_DType* ثابت srcDTypep = srcp->dtypep()->skipRefp();
+            Ast_گره_DType* ثابت dstDTypep = nodep->lhsp()->dtypep()->skipRefp();
+            إذا (پایینی_As_Fixed_Aggregate(srcDTypep)) {
+                Ast_گره_عبارت* ثابت packedp = packFixedAggregate(srcp->unlink_Fr_پشت());
                 streamp->lhsp(packedp);
-                streamp->dtypeSetBitOrLogicUnsized(packedp->width(), packedp->widthMin(),
+                streamp->dtype_مجموعه_بیت_Or_Logic_Unsized(packedp->عرض(), packedp->عرض_Min(),
                                                    VSigning::UNSIGNED,
                                                    packedp->isFourstateOrNoDtype());
                 srcp = packedp;
-            } else if ((VN_IS(srcDTypep, QueueDType) || VN_IS(srcDTypep, DynArrayDType)
+            } وإلا إذا ((VN_IS(srcDTypep, صف_DType) || VN_IS(srcDTypep, DynArrayDType)
                         || VN_IS(srcDTypep, UnpackArrayDType))) {
-                if (VN_IS(dstDTypep, QueueDType) || VN_IS(dstDTypep, DynArrayDType)) {
-                    int blockSize = 1;
-                    if (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
-                        blockSize = constp->toSInt();
-                        if (VL_UNLIKELY(blockSize <= 0)) {
+                إذا (VN_IS(dstDTypep, صف_DType) || VN_IS(dstDTypep, DynArrayDType)) {
+                    صحيح بلوک_اندازه = 1;
+                    إذا (ثابت AstConst* ثابت constp = VN_CAST(streamp->rhsp(), Const)) {
+                        بلوک_اندازه = constp->مقصد_SInt();
+                        إذا (VL_UNLIKELY(بلوک_اندازه <= 0)) {
                             // Not reachable due to higher level checks when parsing stream
                             // operators commented out to not fail v3error-coverage-checks.
                             // nodep->v3error("Stream block size must be positive, got " <<
                             // blockSize); nodep->v3error("Stream block size must be positive, got
                             // " << blockSize);
-                            blockSize = 1;
+                            بلوک_اندازه = 1;
                         }
                     }
                     // Not reachable due to higher level checks when parsing stream operators
@@ -2859,227 +2859,227 @@ class ConstVisitor final : public VNVisitor {
                     // nodep->v3error("Stream block size must be constant (got " <<
                     // streamp->rhsp()->prettyTypeName() << ")");
                     // }
-                    int srcElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
-                        srcElementBits = elemDtp->width();
+                    صحيح src_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = srcDTypep->subDTypep()) {
+                        src_Element_بیتها = elemDtp->عرض();
                     }
-                    int dstElementBits = 0;
-                    if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
-                        dstElementBits = elemDtp->width();
+                    صحيح dst_Element_بیتها = 0;
+                    إذا (ثابت Ast_گره_DType* ثابت elemDtp = dstDTypep->subDTypep()) {
+                        dst_Element_بیتها = elemDtp->عرض();
                     }
-                    streamp->unlinkFrBack();
-                    srcp = new AstCvtArrayToArray{
-                        srcp->fileline(), srcp->unlinkFrBack(), dstDTypep,     true,
-                        blockSize,        dstElementBits,       srcElementBits};
+                    streamp->unlink_Fr_پشت();
+                    srcp = جديد Ast_Cvt_Array_مقصد_Array{
+                        srcp->fileline(), srcp->unlink_Fr_پشت(), dstDTypep,     درست,
+                        بلوک_اندازه,        dst_Element_بیتها,       src_Element_بیتها};
                     nodep->rhsp(srcp);
-                    VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                } else {
-                    streamp->lhsp(new AstCvtArrayToPacked{srcp->fileline(), srcp->unlinkFrBack(),
+                    VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
+                } وإلا {
+                    streamp->lhsp(جديد Ast_Cvt_Array_مقصد_Packed{srcp->fileline(), srcp->unlink_Fr_پشت(),
                                                           dstDTypep});
                     streamp->dtypeFrom(dstDTypep);
                 }
             }
-        } else if (m_doV && replaceAssignMultiSel(nodep)) {
-            return true;
-        } else if (replaceAssignSFormatF(nodep)) {
-            return true;
+        } وإلا إذا (m_doV && replace_تخصیص_بده_Multi_Sel(nodep)) {
+            أرجع درست;
+        } وإلا إذا (replace_تخصیص_بده_SFormat_F(nodep)) {
+            أرجع درست;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // Boolean replacements
-    bool operandBoolShift(const AstNode* nodep) {
+    منطقي عملوند_Bool_لغزش(ثابت Ast_گره* nodep) {
         // boolean test of AND(const,SHIFTR(x,const)) -> test of AND(SHIFTL(x,const), x)
-        if (!VN_IS(nodep, And)) return false;
-        if (!VN_IS(VN_AS(nodep, And)->lhsp(), Const)) return false;
-        if (!VN_IS(VN_AS(nodep, And)->rhsp(), ShiftR)) return false;
-        const AstShiftR* const shiftp = VN_AS(VN_AS(nodep, And)->rhsp(), ShiftR);
-        if (!VN_IS(shiftp->rhsp(), Const)) return false;
-        if (static_cast<uint32_t>(nodep->width()) <= VN_AS(shiftp->rhsp(), Const)->toUInt()) {
-            return false;
+        إذا (!VN_IS(nodep, And)) أرجع خطأ;
+        إذا (!VN_IS(VN_AS(nodep, And)->lhsp(), Const)) أرجع خطأ;
+        إذا (!VN_IS(VN_AS(nodep, And)->rhsp(), لغزش_R)) أرجع خطأ;
+        ثابت Ast_لغزش_R* ثابت shiftp = VN_AS(VN_AS(nodep, And)->rhsp(), لغزش_R);
+        إذا (!VN_IS(shiftp->rhsp(), Const)) أرجع خطأ;
+        إذا (static_cast<uint32_t>(nodep->عرض()) <= VN_AS(shiftp->rhsp(), Const)->مقصد_UInt()) {
+            أرجع خطأ;
         }
-        return true;
+        أرجع درست;
     }
-    void replaceBoolShift(AstNode* nodep) {
+    فراغ replace_Bool_لغزش(Ast_گره* nodep) {
         UINFOTREE(9, nodep, "", "bshft_old");
-        AstConst* const andConstp = VN_AS(VN_AS(nodep, And)->lhsp(), Const);
-        AstNodeExpr* const fromp
-            = VN_AS(VN_AS(nodep, And)->rhsp(), ShiftR)->lhsp()->unlinkFrBack();
-        AstConst* const shiftConstp
-            = VN_AS(VN_AS(VN_AS(nodep, And)->rhsp(), ShiftR)->rhsp(), Const);
-        V3Number val{andConstp, andConstp->width()};
-        val.opShiftL(andConstp->num(), shiftConstp->num());
-        AstAnd* const newp
-            = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), val}, fromp};
+        AstConst* ثابت andConstp = VN_AS(VN_AS(nodep, And)->lhsp(), Const);
+        Ast_گره_عبارت* ثابت fromp
+            = VN_AS(VN_AS(nodep, And)->rhsp(), لغزش_R)->lhsp()->unlink_Fr_پشت();
+        AstConst* ثابت لغزش_Constp
+            = VN_AS(VN_AS(VN_AS(nodep, And)->rhsp(), لغزش_R)->rhsp(), Const);
+        V3_عدد val{andConstp, andConstp->عرض()};
+        val.op_لغزش_L(andConstp->رقم(), لغزش_Constp->رقم());
+        AstAnd* ثابت newp
+            = جديد AstAnd{nodep->fileline(), جديد AstConst{nodep->fileline(), val}, fromp};
         // widthMin no longer applicable if different C-expanded width
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         UINFOTREE(9, newp, "", "_new");
     }
 
-    void replaceWithSimulation(AstNode* nodep) {
+    فراغ replaceWithSimulation(Ast_گره* nodep) {
         SimulateVisitor simvis;
         // Run it - may be unoptimizable due to large for loop, etc
         simvis.mainParamEmulate(nodep);
-        if (!simvis.optimizable()) {
-            const AstNode* errorp = simvis.whyNotNodep();
-            if (!errorp) errorp = nodep;
+        إذا (!simvis.optimizable()) {
+            ثابت Ast_گره* errorp = simvis.whyNotNodep();
+            إذا (!errorp) errorp = nodep;
             nodep->v3error("Expecting expression to be constant, but can't determine constant for "
                            << nodep->prettyTypeName() << '\n'
                            << errorp->warnOther() << "... Location of non-constant "
-                           << errorp->prettyTypeName() << ": " << simvis.whyNotMessage());
+                           << errorp->prettyTypeName() << ": " << simvis.why_Not_پیام());
             VL_DO_DANGLING(replaceZero(nodep), nodep);
-        } else {
+        } وإلا {
             // Fetch the result
-            AstNode* const valuep = simvis.fetchValueNull(nodep);  // valuep is owned by Simulate
+            Ast_گره* ثابت valuep = simvis.fetch_مقدار_Null(nodep);  // valuep is owned by Simulate
             UASSERT_OBJ(valuep, nodep, "No value returned from simulation");
             // Replace it
-            AstNode* const newp = valuep->cloneTree(false);
+            Ast_گره* ثابت newp = valuep->clone_درخت(خطأ);
             newp->fileline(nodep->fileline());
             nodep->replaceWithKeepDType(newp);
             UINFO(4, "Simulate->" << newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         }
     }
 
     //----------------------------------------
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    فراغ بازدید(AstNetlist* nodep) override {
         // Iterate modules backwards, in bottom-up order.  That's faster
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    فراغ بازدید(Ast_گره_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
-        m_concswapNames.reset();
+        m_concswap_نامها.reset();
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    فراغ بازدید(AstCFunc* nodep) override {
         // No ASSIGNW removals under funcs, we've long eliminated INITIALs
         // (We should perhaps rename the assignw's to just assigns)
         VL_RESTORER(m_wremove);
-        m_wremove = false;
+        m_wremove = خطأ;
         iterateChildren(nodep);
     }
-    void visit(AstCLocalScope* nodep) override {
+    فراغ بازدید(AstCLocalScope* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->stmtsp()) {
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        إذا (!nodep->stmtsp()) {
+            nodep->unlink_Fr_پشت();
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         }
     }
-    void visit(AstScope* nodep) override {
+    فراغ بازدید(AstScope* nodep) override {
         // No ASSIGNW removals under scope, we've long eliminated INITIALs
         VL_RESTORER(m_wremove);
         VL_RESTORER(m_scopep);
-        m_wremove = false;
+        m_wremove = خطأ;
         m_scopep = nodep;
         iterateChildren(nodep);
     }
 
-    void swapSides(AstNodeBiCom* nodep) {
+    فراغ جابجا_Sides(Ast_گره_Bi_Com* nodep) {
         // COMMUTATIVE({a},CONST) -> COMMUTATIVE(CONST,{a})
         // This simplifies later optimizations
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBackWithNext();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBackWithNext();
+        Ast_گره_عبارت* ثابت lhsp = nodep->lhsp()->unlink_Fr_پشت_With_بعدی();
+        Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlink_Fr_پشت_With_بعدی();
         nodep->lhsp(rhsp);
         nodep->rhsp(lhsp);
         iterate(nodep);  // Again?
     }
 
-    bool containsMemberAccessRecurse(AstNode* const nodep) {
-        if (!nodep) return false;
-        const size_t id = m_ids(nodep);
-        const auto it = m_containsMemberAccess.find(id);
-        if (it != m_containsMemberAccess.end()) return it->second;
+    منطقي شامل_است_Member_Access_Recurse(Ast_گره* ثابت nodep) {
+        إذا (!nodep) أرجع خطأ;
+        ثابت اندازه_t id = m_ids(nodep);
+        ثابت خودکار it = m_شامل_است_Member_Access.پیدا_کن(id);
+        إذا (it != m_شامل_است_Member_Access.انتها()) أرجع it->دومی;
         ++m_statMemberAccessVisits;
-        bool result = false;
-        if (VN_IS(nodep, MemberSel) || VN_IS(nodep, MethodCall) || VN_IS(nodep, CMethodCall)) {
-            result = true;
-        } else if (const AstNodeFTaskRef* const funcRefp = VN_CAST(nodep, NodeFTaskRef)) {
-            if (containsMemberAccessRecurse(funcRefp->taskp())) result = true;
-        } else if (const AstNodeCCall* const funcRefp = VN_CAST(nodep, NodeCCall)) {
-            if (containsMemberAccessRecurse(funcRefp->funcp())) result = true;
-        } else if (const AstNodeFTask* const funcp = VN_CAST(nodep, NodeFTask)) {
+        منطقي نتیجه = خطأ;
+        إذا (VN_IS(nodep, MemberSel) || VN_IS(nodep, روش_Call) || VN_IS(nodep, CMethodCall)) {
+            نتیجه = درست;
+        } وإلا إذا (ثابت Ast_گره_FTask_Ref* ثابت funcRefp = VN_CAST(nodep, گره_FTask_Ref)) {
+            إذا (شامل_است_Member_Access_Recurse(funcRefp->taskp())) نتیجه = درست;
+        } وإلا إذا (ثابت Ast_گره_CCall* ثابت funcRefp = VN_CAST(nodep, گره_CCall)) {
+            إذا (شامل_است_Member_Access_Recurse(funcRefp->funcp())) نتیجه = درست;
+        } وإلا إذا (ثابت Ast_گره_FTask* ثابت funcp = VN_CAST(nodep, گره_FTask)) {
             // Assume that it has a member access
-            if (funcp->recursive()) result = true;
-        } else if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
-            if (funcp->recursive()) result = true;
+            إذا (funcp->recursive()) نتیجه = درست;
+        } وإلا إذا (ثابت AstCFunc* ثابت funcp = VN_CAST(nodep, CFunc)) {
+            إذا (funcp->recursive()) نتیجه = درست;
         }
-        if (!result) {
-            result = containsMemberAccessRecurse(nodep->op1p())
-                     || containsMemberAccessRecurse(nodep->op2p())
-                     || containsMemberAccessRecurse(nodep->op3p())
-                     || containsMemberAccessRecurse(nodep->op4p());
+        إذا (!نتیجه) {
+            نتیجه = شامل_است_Member_Access_Recurse(nodep->op1p())
+                     || شامل_است_Member_Access_Recurse(nodep->op2p())
+                     || شامل_است_Member_Access_Recurse(nodep->op3p())
+                     || شامل_است_Member_Access_Recurse(nodep->op4p());
         }
-        if (!result && !VN_IS(nodep, NodeFTask)
+        إذا (!نتیجه && !VN_IS(nodep, گره_FTask)
             && !VN_IS(nodep, CFunc)  // don't enter into next function
-            && containsMemberAccessRecurse(nodep->nextp())) {
-            result = true;
+            && شامل_است_Member_Access_Recurse(nodep->nextp())) {
+            نتیجه = درست;
         }
-        m_containsMemberAccess.emplace(id, result);
-        return result;
+        m_شامل_است_Member_Access.emplace(id, نتیجه);
+        أرجع نتیجه;
     }
 
-    bool matchBiopToBitwise(AstNodeBiop* const nodep) {
-        if (!m_convertLogicToBit) return false;
-        if (!nodep->lhsp()->width1()) return false;
-        if (!nodep->rhsp()->width1()) return false;
-        if (!nodep->isPure()) return false;
-        if (containsMemberAccessRecurse(nodep)) return false;
-        return true;
+    منطقي تطابق_Biop_مقصد_Bitwise(Ast_گره_Biop* ثابت nodep) {
+        إذا (!m_convert_Logic_مقصد_بیت) أرجع خطأ;
+        إذا (!nodep->lhsp()->width1()) أرجع خطأ;
+        إذا (!nodep->rhsp()->width1()) أرجع خطأ;
+        إذا (!nodep->is_خالص()) أرجع خطأ;
+        إذا (شامل_است_Member_Access_Recurse(nodep)) أرجع خطأ;
+        أرجع درست;
     }
-    bool matchConcatRand(AstConcat* nodep) {
+    منطقي تطابق_Concat_Rand(AstConcat* nodep) {
         //    CONCAT(RAND, RAND) - created by Chisel code
-        AstRand* const aRandp = VN_CAST(nodep->lhsp(), Rand);
-        const AstRand* const bRandp = VN_CAST(nodep->rhsp(), Rand);
-        if (!aRandp || !bRandp) return false;
-        if (!aRandp->combinable(bRandp)) return false;
+        AstRand* ثابت aRandp = VN_CAST(nodep->lhsp(), Rand);
+        ثابت AstRand* ثابت bRandp = VN_CAST(nodep->rhsp(), Rand);
+        إذا (!aRandp || !bRandp) أرجع خطأ;
+        إذا (!aRandp->combinable(bRandp)) أرجع خطأ;
         UINFO(4, "Concat(Rand,Rand) => Rand: " << nodep);
-        nodep->replaceWithKeepDType(aRandp->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        nodep->replaceWithKeepDType(aRandp->unlink_Fr_پشت());
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
-    bool matchSelRand(AstSel* nodep) {
+    منطقي تطابق_Sel_Rand(AstSel* nodep) {
         //    SEL(RAND) - created by Chisel code
-        AstRand* const aRandp = VN_CAST(nodep->fromp(), Rand);
-        if (!aRandp) return false;
-        if (aRandp->seedp()) return false;
+        AstRand* ثابت aRandp = VN_CAST(nodep->fromp(), Rand);
+        إذا (!aRandp) أرجع خطأ;
+        إذا (aRandp->seedp()) أرجع خطأ;
         UINFO(4, "Sel(Rand) => Rand: " << nodep);
-        nodep->replaceWithKeepDType(aRandp->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        nodep->replaceWithKeepDType(aRandp->unlink_Fr_پشت());
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
-    bool matchToStringNConst(AstToStringN* nodep) {
+    منطقي تطابق_مقصد_String_NConst(Ast_مقصد_String_N* nodep) {
         iterateChildren(nodep);
-        if (const AstConsArray* const consp = VN_CAST(nodep->lhsp(), ConsArray)) {
-            if (!(m_doExpensive || m_params)) return false;
-            if (!consp->isConstantTree()) return false;
-        } else if (!VN_IS(nodep->lhsp(), Const)) {
-            return false;
+        إذا (ثابت AstConsArray* ثابت consp = VN_CAST(nodep->lhsp(), ConsArray)) {
+            إذا (!(m_doExpensive || m_params)) أرجع خطأ;
+            إذا (!consp->is_Constant_درخت()) أرجع خطأ;
+        } وإلا إذا (!VN_IS(nodep->lhsp(), Const)) {
+            أرجع خطأ;
         }
         replaceWithSimulation(nodep);
-        return true;
+        أرجع درست;
     }
-    int operandConcatMove(const AstConcat* nodep) {
+    صحيح عملوند_Concat_Move(ثابت AstConcat* nodep) {
         //    CONCAT under concat  (See moveConcat)
         // Return value: true indicates to do it; 2 means move to LHS
-        const AstConcat* const abConcp = VN_CAST(nodep->lhsp(), Concat);
-        const AstConcat* const bcConcp = VN_CAST(nodep->rhsp(), Concat);
-        if (!abConcp && !bcConcp) return 0;
-        if (bcConcp) {
-            const AstNodeExpr* const ap = nodep->lhsp();
-            const AstNodeExpr* const bp = bcConcp->lhsp();
+        ثابت AstConcat* ثابت abConcp = VN_CAST(nodep->lhsp(), Concat);
+        ثابت AstConcat* ثابت bcConcp = VN_CAST(nodep->rhsp(), Concat);
+        إذا (!abConcp && !bcConcp) أرجع 0;
+        إذا (bcConcp) {
+            ثابت Ast_گره_عبارت* ثابت ap = nodep->lhsp();
+            ثابت Ast_گره_عبارت* ثابت bp = bcConcp->lhsp();
             // If a+b == 32,64,96 etc, then we want to have a+b together on LHS
-            if (VL_BITBIT_I(ap->width() + bp->width()) == 0) return 2;  // Transform 2: to abConc
-        } else {  // abConcp
+            إذا (VL_BITBIT_I(ap->عرض() + bp->عرض()) == 0) أرجع 2;  // Transform 2: to abConc
+        } وإلا {  // abConcp
             // Unless lhs is already 32 bits due to above, reorder it
-            if (VL_BITBIT_I(nodep->lhsp()->width()) != 0) return 1;  // Transform 1: to bcConc
+            إذا (VL_BITBIT_I(nodep->lhsp()->عرض()) != 0) أرجع 1;  // Transform 1: to bcConc
         }
-        return 0;  // ok
+        أرجع 0;  // ok
     }
-    void moveConcat(AstConcat* nodep) {
+    فراغ moveConcat(AstConcat* nodep) {
         //    1: CONCAT(CONCAT({a},{b}),{c})  -> CONCAT({a},CONCAT({b}, {c}))
         // or 2: CONCAT({a}, CONCAT({b},{c})) -> CONCAT(CONCAT({a},{b}),{c})
         // Because the lhs of a concat needs a shift but the rhs doesn't,
@@ -3087,513 +3087,513 @@ class ConstVisitor final : public VNVisitor {
         // However, we'll end up with lots of wide moves if we make huge trees
         // like that, so on 32 bit boundaries, we'll do the opposite form.
         UINFO(4, "Move concat: " << nodep);
-        if (operandConcatMove(nodep) > 1) {
-            AstNodeExpr* const ap = nodep->lhsp()->unlinkFrBack();
-            AstConcat* const bcConcp = VN_AS(nodep->rhsp(), Concat);
-            bcConcp->unlinkFrBack();
-            AstNodeExpr* const bp = bcConcp->lhsp()->unlinkFrBack();
-            AstNodeExpr* const cp = bcConcp->rhsp()->unlinkFrBack();
-            AstConcat* const abConcp = new AstConcat{bcConcp->fileline(), ap, bp};
+        إذا (عملوند_Concat_Move(nodep) > 1) {
+            Ast_گره_عبارت* ثابت ap = nodep->lhsp()->unlink_Fr_پشت();
+            AstConcat* ثابت bcConcp = VN_AS(nodep->rhsp(), Concat);
+            bcConcp->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت bp = bcConcp->lhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت cp = bcConcp->rhsp()->unlink_Fr_پشت();
+            AstConcat* ثابت abConcp = جديد AstConcat{bcConcp->fileline(), ap, bp};
             nodep->lhsp(abConcp);
             nodep->rhsp(cp);
             // If bp was a concat, then we have this exact same form again!
             // Recurse rather then calling node->iterate to prevent 2^n recursion!
-            if (operandConcatMove(abConcp)) moveConcat(abConcp);
-            VL_DO_DANGLING(pushDeletep(bcConcp), bcConcp);
-        } else {
-            AstConcat* const abConcp = VN_AS(nodep->lhsp(), Concat);
-            abConcp->unlinkFrBack();
-            AstNodeExpr* const ap = abConcp->lhsp()->unlinkFrBack();
-            AstNodeExpr* const bp = abConcp->rhsp()->unlinkFrBack();
-            AstNodeExpr* const cp = nodep->rhsp()->unlinkFrBack();
-            AstConcat* const bcConcp = new AstConcat{abConcp->fileline(), bp, cp};
+            إذا (عملوند_Concat_Move(abConcp)) moveConcat(abConcp);
+            VL_DO_DANGLING(افزودن_Deletep(bcConcp), bcConcp);
+        } وإلا {
+            AstConcat* ثابت abConcp = VN_AS(nodep->lhsp(), Concat);
+            abConcp->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت ap = abConcp->lhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت bp = abConcp->rhsp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت cp = nodep->rhsp()->unlink_Fr_پشت();
+            AstConcat* ثابت bcConcp = جديد AstConcat{abConcp->fileline(), bp, cp};
             nodep->lhsp(ap);
             nodep->rhsp(bcConcp);
-            if (operandConcatMove(bcConcp)) moveConcat(bcConcp);
-            VL_DO_DANGLING(pushDeletep(abConcp), abConcp);
+            إذا (عملوند_Concat_Move(bcConcp)) moveConcat(bcConcp);
+            VL_DO_DANGLING(افزودن_Deletep(abConcp), abConcp);
         }
     }
 
     // Special cases
-    void visit(AstConst*) override {}  // Already constant
+    فراغ بازدید(AstConst*) override {}  // Already constant
 
-    void visit(AstCell* nodep) override {
-        if (m_params) {
-            iterateAndNextNull(nodep->paramsp());
-        } else {
+    فراغ بازدید(AstCell* nodep) override {
+        إذا (m_params) {
+            iterate_And_بعدی_Null(nodep->paramsp());
+        } وإلا {
             iterateChildren(nodep);
         }
     }
-    void visit(AstClassOrPackageRef* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstClassOrPackageRef* nodep) override { iterateChildren(nodep); }
 
-    void visit(AstMatchMasked* nodep) override {
+    فراغ بازدید(Ast_تطابق_Masked* nodep) override {
         // Do not iterate the tables, they must be constant pool entries
         iterate(nodep->lhsp());
-        if (AstConst* const constp = VN_CAST(nodep->lhsp(), Const)) {
-            replaceNum(nodep, AstMatchMasked::fold(constp->num(), nodep->matchp()->varp()));
+        إذا (AstConst* ثابت constp = VN_CAST(nodep->lhsp(), Const)) {
+            replace_رقم(nodep, Ast_تطابق_Masked::fold(constp->رقم(), nodep->matchp()->varp()));
         }
     }
 
-    void visit(AstPin* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstPin* nodep) override { iterateChildren(nodep); }
 
-    void replaceLogEq(AstLogEq* nodep) {
+    فراغ replaceLogEq(AstLogEq* nodep) {
         // LOGEQ(a,b) => AstLogAnd{AstLogOr{AstLogNot{a},b},AstLogOr{AstLogNot{b},a}}
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت lhsp = nodep->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlink_Fr_پشت();
         // Do exactly as IEEE says, might result in extra terms, so in future may do differently
-        AstLogAnd* const newp = new AstLogAnd{
+        AstLogAnd* ثابت newp = جديد AstLogAnd{
             nodep->fileline(),
-            new AstLogOr{nodep->fileline(), new AstLogNot{nodep->fileline(), lhsp}, rhsp},
-            new AstLogOr{nodep->fileline(),
-                         new AstLogNot{nodep->fileline(), rhsp->cloneTreePure(false)},
-                         lhsp->cloneTreePure(false)}};
+            جديد AstLogOr{nodep->fileline(), جديد AstLogNot{nodep->fileline(), lhsp}, rhsp},
+            جديد AstLogOr{nodep->fileline(),
+                         جديد AstLogNot{nodep->fileline(), rhsp->clone_درخت_خالص(خطأ)},
+                         lhsp->clone_درخت_خالص(خطأ)}};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
 
-    void replaceSelSel(AstSel* nodep) {
+    فراغ replaceSelSel(AstSel* nodep) {
         // SEL(SEL({x},a,b),c,d) => SEL({x},a+c,d)
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstSel* const belowp = VN_AS(nodep->fromp(), Sel);
-        AstNodeExpr* const fromp = belowp->fromp()->unlinkFrBack();
-        AstNodeExpr* const lsb1p = nodep->lsbp()->unlinkFrBack();
-        AstNodeExpr* const lsb2p = belowp->lsbp()->unlinkFrBack();
+        AstSel* ثابت belowp = VN_AS(nodep->fromp(), Sel);
+        Ast_گره_عبارت* ثابت fromp = belowp->fromp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت lsb1p = nodep->lsbp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت lsb2p = belowp->lsbp()->unlink_Fr_پشت();
         // Eliminate lower range
         UINFO(4, "Elim Lower range: " << nodep);
-        AstNodeExpr* newlsbp;
-        if (VN_IS(lsb1p, Const) && VN_IS(lsb2p, Const)) {
-            newlsbp = new AstConst{lsb1p->fileline(),
-                                   VN_AS(lsb1p, Const)->toUInt() + VN_AS(lsb2p, Const)->toUInt()};
-            VL_DO_DANGLING(pushDeletep(lsb1p), lsb1p);
-            VL_DO_DANGLING(pushDeletep(lsb2p), lsb2p);
-        } else {
+        Ast_گره_عبارت* newlsbp;
+        إذا (VN_IS(lsb1p, Const) && VN_IS(lsb2p, Const)) {
+            newlsbp = جديد AstConst{lsb1p->fileline(),
+                                   VN_AS(lsb1p, Const)->مقصد_UInt() + VN_AS(lsb2p, Const)->مقصد_UInt()};
+            VL_DO_DANGLING(افزودن_Deletep(lsb1p), lsb1p);
+            VL_DO_DANGLING(افزودن_Deletep(lsb2p), lsb2p);
+        } وإلا {
             // Width is important, we need the width of the fromp's expression, not the
             // potentially smaller lsb1p's width, but don't insert a redundant AstExtend.
             // Note that due to some sloppiness in earlier passes, lsb1p might actually be wider,
             // so extend to the wider type.
-            const AstNodeExpr* const widep = lsb1p->width() > lsb2p->width() ? lsb1p : lsb2p;
-            AstNodeExpr* const lhsp = widep->width() > lsb2p->width()
-                                          ? new AstExtend{lsb2p->fileline(), lsb2p}
+            ثابت Ast_گره_عبارت* ثابت widep = lsb1p->عرض() > lsb2p->عرض() ? lsb1p : lsb2p;
+            Ast_گره_عبارت* ثابت lhsp = widep->عرض() > lsb2p->عرض()
+                                          ? جديد AstExtend{lsb2p->fileline(), lsb2p}
                                           : lsb2p;
-            AstNodeExpr* const rhsp = widep->width() > lsb1p->width()
-                                          ? new AstExtend{lsb1p->fileline(), lsb1p}
+            Ast_گره_عبارت* ثابت rhsp = widep->عرض() > lsb1p->عرض()
+                                          ? جديد AstExtend{lsb1p->fileline(), lsb1p}
                                           : lsb1p;
             lhsp->dtypeFrom(widep);
             rhsp->dtypeFrom(widep);
-            newlsbp = new AstAdd{lsb1p->fileline(), lhsp, rhsp};
+            newlsbp = جديد Ast_جمع_کن{lsb1p->fileline(), lhsp, rhsp};
             newlsbp->dtypeFrom(widep);
         }
-        AstSel* const newp = new AstSel{nodep->fileline(), fromp, newlsbp, nodep->widthConst()};
+        AstSel* ثابت newp = جديد AstSel{nodep->fileline(), fromp, newlsbp, nodep->عرض_Const()};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
 
-    void replaceSelConcat(AstSel* nodep) {
+    فراغ replaceSelConcat(AstSel* nodep) {
         // SEL(CONCAT(a,b),c,d) => SEL(a or b, . .)
-        AstConcat* const conp = VN_AS(nodep->fromp(), Concat);
-        AstNodeExpr* const conLhsp = conp->lhsp();
-        AstNodeExpr* const conRhsp = conp->rhsp();
-        if (static_cast<int>(nodep->lsbConst()) >= conRhsp->width()) {
-            conLhsp->unlinkFrBack();
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), conLhsp, nodep->lsbConst() - conRhsp->width(),
-                             nodep->widthConst()};
+        AstConcat* ثابت conp = VN_AS(nodep->fromp(), Concat);
+        Ast_گره_عبارت* ثابت conLhsp = conp->lhsp();
+        Ast_گره_عبارت* ثابت conRhsp = conp->rhsp();
+        إذا (static_cast<صحيح>(nodep->lsbConst()) >= conRhsp->عرض()) {
+            conLhsp->unlink_Fr_پشت();
+            AstSel* ثابت newp
+                = جديد AstSel{nodep->fileline(), conLhsp, nodep->lsbConst() - conRhsp->عرض(),
+                             nodep->عرض_Const()};
             nodep->replaceWithKeepDType(newp);
-        } else if (static_cast<int>(nodep->msbConst()) < conRhsp->width()) {
-            conRhsp->unlinkFrBack();
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), conRhsp, nodep->lsbConst(), nodep->widthConst()};
+        } وإلا إذا (static_cast<صحيح>(nodep->msbConst()) < conRhsp->عرض()) {
+            conRhsp->unlink_Fr_پشت();
+            AstSel* ثابت newp
+                = جديد AstSel{nodep->fileline(), conRhsp, nodep->lsbConst(), nodep->عرض_Const()};
             nodep->replaceWithKeepDType(newp);
-        } else {
+        } وإلا {
             // Yuk, split between the two
-            conRhsp->unlinkFrBack();
-            conLhsp->unlinkFrBack();
-            AstConcat* const newp
-                = new AstConcat{nodep->fileline(),
-                                new AstSel{nodep->fileline(), conLhsp, 0,
-                                           nodep->msbConst() - conRhsp->width() + 1},
-                                new AstSel{nodep->fileline(), conRhsp, nodep->lsbConst(),
-                                           conRhsp->width() - nodep->lsbConst()}};
+            conRhsp->unlink_Fr_پشت();
+            conLhsp->unlink_Fr_پشت();
+            AstConcat* ثابت newp
+                = جديد AstConcat{nodep->fileline(),
+                                جديد AstSel{nodep->fileline(), conLhsp, 0,
+                                           nodep->msbConst() - conRhsp->عرض() + 1},
+                                جديد AstSel{nodep->fileline(), conRhsp, nodep->lsbConst(),
+                                           conRhsp->عرض() - nodep->lsbConst()}};
             nodep->replaceWithKeepDType(newp);
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    bool operandSelReplicate(AstSel* nodep) {
+    منطقي عملوند_Sel_Replicate(AstSel* nodep) {
         // SEL(REPLICATE(from,rep),lsb,width) => SEL(from,0,width) as long
         // as SEL's width <= b's width
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstReplicate* const repp = VN_AS(nodep->fromp(), Replicate);
-        AstNodeExpr* const fromp = repp->srcp();
-        const AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp) return false;
-        UASSERT_OBJ(fromp->width(), nodep, "Not widthed");
-        if ((lsbp->toUInt() / fromp->width())
-            != ((lsbp->toUInt() + nodep->width() - 1) / fromp->width())) {
-            return false;
+        AstReplicate* ثابت repp = VN_AS(nodep->fromp(), Replicate);
+        Ast_گره_عبارت* ثابت fromp = repp->srcp();
+        ثابت AstConst* ثابت lsbp = VN_CAST(nodep->lsbp(), Const);
+        إذا (!lsbp) أرجع خطأ;
+        UASSERT_OBJ(fromp->عرض(), nodep, "Not widthed");
+        إذا ((lsbp->مقصد_UInt() / fromp->عرض())
+            != ((lsbp->مقصد_UInt() + nodep->عرض() - 1) / fromp->عرض())) {
+            أرجع خطأ;
         }
         //
-        fromp->unlinkFrBack();
-        AstSel* const newp = new AstSel{
+        fromp->unlink_Fr_پشت();
+        AstSel* ثابت newp = جديد AstSel{
             nodep->fileline(), fromp,
-            new AstConst{lsbp->fileline(), lsbp->toUInt() % fromp->width()}, nodep->widthConst()};
+            جديد AstConst{lsbp->fileline(), lsbp->مقصد_UInt() % fromp->عرض()}, nodep->عرض_Const()};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
-    bool operandRepRep(AstReplicate* nodep) {
+    منطقي عملوند_Rep_Rep(AstReplicate* nodep) {
         // REPLICATE(REPLICATE2(from2,cnt2),cnt1) => REPLICATE(from2,(cnt1+cnt2))
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstReplicate* const rep2p = VN_AS(nodep->srcp(), Replicate);
-        AstNodeExpr* const from2p = rep2p->srcp();
-        const AstConst* const cnt1p = VN_CAST(nodep->countp(), Const);
-        if (!cnt1p) return false;
-        const AstConst* const cnt2p = VN_CAST(rep2p->countp(), Const);
-        if (!cnt2p) return false;
+        AstReplicate* ثابت rep2p = VN_AS(nodep->srcp(), Replicate);
+        Ast_گره_عبارت* ثابت from2p = rep2p->srcp();
+        ثابت AstConst* ثابت cnt1p = VN_CAST(nodep->countp(), Const);
+        إذا (!cnt1p) أرجع خطأ;
+        ثابت AstConst* ثابت cnt2p = VN_CAST(rep2p->countp(), Const);
+        إذا (!cnt2p) أرجع خطأ;
         //
-        from2p->unlinkFrBack();
-        AstReplicate* const newp
-            = new AstReplicate{nodep->fileline(), from2p, cnt1p->toUInt() * cnt2p->toUInt()};
+        from2p->unlink_Fr_پشت();
+        AstReplicate* ثابت newp
+            = جديد AstReplicate{nodep->fileline(), from2p, cnt1p->مقصد_UInt() * cnt2p->مقصد_UInt()};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
-    bool operandConcatSame(AstConcat* nodep) {
+    منطقي عملوند_Concat_Same(AstConcat* nodep) {
         // CONCAT(fromp,fromp) -> REPLICATE(fromp,1+1)
         // CONCAT(REP(fromp,cnt1),fromp) -> REPLICATE(fromp,cnt1+1)
         // CONCAT(fromp,REP(fromp,cnt1)) -> REPLICATE(fromp,1+cnt1)
         // CONCAT(REP(fromp,cnt1),REP(fromp,cnt2)) -> REPLICATE(fromp,cnt1+cnt2)
-        AstNodeExpr* from1p = nodep->lhsp();
+        Ast_گره_عبارت* from1p = nodep->lhsp();
         uint32_t cnt1 = 1;
-        AstNodeExpr* from2p = nodep->rhsp();
+        Ast_گره_عبارت* from2p = nodep->rhsp();
         uint32_t cnt2 = 1;
-        if (VN_IS(from1p, Replicate)) {
-            const AstConst* const cnt1p = VN_CAST(VN_CAST(from1p, Replicate)->countp(), Const);
-            if (!cnt1p) return false;
+        إذا (VN_IS(from1p, Replicate)) {
+            ثابت AstConst* ثابت cnt1p = VN_CAST(VN_CAST(from1p, Replicate)->countp(), Const);
+            إذا (!cnt1p) أرجع خطأ;
             from1p = VN_AS(from1p, Replicate)->srcp();
-            cnt1 = cnt1p->toUInt();
+            cnt1 = cnt1p->مقصد_UInt();
         }
-        if (VN_IS(from2p, Replicate)) {
-            const AstConst* const cnt2p = VN_CAST(VN_CAST(from2p, Replicate)->countp(), Const);
-            if (!cnt2p) return false;
+        إذا (VN_IS(from2p, Replicate)) {
+            ثابت AstConst* ثابت cnt2p = VN_CAST(VN_CAST(from2p, Replicate)->countp(), Const);
+            إذا (!cnt2p) أرجع خطأ;
             from2p = VN_AS(from2p, Replicate)->srcp();
-            cnt2 = cnt2p->toUInt();
+            cnt2 = cnt2p->مقصد_UInt();
         }
-        if (!operandsSame(from1p, from2p)) return false;
+        إذا (!operandsSame(from1p, from2p)) أرجع خطأ;
         //
-        from1p->unlinkFrBack();
-        AstReplicate* const newp = new AstReplicate{nodep->fileline(), from1p, cnt1 + cnt2};
+        from1p->unlink_Fr_پشت();
+        AstReplicate* ثابت newp = جديد AstReplicate{nodep->fileline(), from1p, cnt1 + cnt2};
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+        أرجع درست;
     }
-    void replaceSelIntoBiop(AstSel* nodep) {
+    فراغ replaceSelIntoBiop(AstSel* nodep) {
         // SEL(BUFIF1(a,b),1,bit) => BUFIF1(SEL(a,1,bit),SEL(b,1,bit))
-        AstNodeBiop* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), NodeBiop);
+        Ast_گره_Biop* ثابت fromp = VN_AS(nodep->fromp()->unlink_Fr_پشت(), گره_Biop);
         UASSERT_OBJ(fromp, nodep, "Called on non-biop");
-        AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت lsbp = nodep->lsbp()->unlink_Fr_پشت();
         //
-        AstNodeExpr* const bilhsp = fromp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const birhsp = fromp->rhsp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت bilhsp = fromp->lhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت birhsp = fromp->rhsp()->unlink_Fr_پشت();
         //
         fromp->lhsp(
-            new AstSel{nodep->fileline(), bilhsp, lsbp->cloneTreePure(true), nodep->widthConst()});
-        fromp->rhsp(new AstSel{nodep->fileline(), birhsp, lsbp, nodep->widthConst()});
+            جديد AstSel{nodep->fileline(), bilhsp, lsbp->clone_درخت_خالص(درست), nodep->عرض_Const()});
+        fromp->rhsp(جديد AstSel{nodep->fileline(), birhsp, lsbp, nodep->عرض_Const()});
         nodep->replaceWithKeepDType(fromp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void replaceSelIntoUniop(AstSel* nodep) {
+    فراغ replaceSelIntoUniop(AstSel* nodep) {
         // SEL(NOT(a),1,bit) => NOT(SEL(a,bit))
-        AstNodeUniop* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), NodeUniop);
+        Ast_گره_Uniop* ثابت fromp = VN_AS(nodep->fromp()->unlink_Fr_پشت(), گره_Uniop);
         UASSERT_OBJ(fromp, nodep, "Called on non-biop");
-        AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت lsbp = nodep->lsbp()->unlink_Fr_پشت();
         //
-        AstNodeExpr* const bilhsp = fromp->lhsp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت bilhsp = fromp->lhsp()->unlink_Fr_پشت();
         //
-        fromp->lhsp(new AstSel{nodep->fileline(), bilhsp, lsbp, nodep->widthConst()});
+        fromp->lhsp(جديد AstSel{nodep->fileline(), bilhsp, lsbp, nodep->عرض_Const()});
         nodep->replaceWithKeepDType(fromp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
 
-    void visit(AstAttrOf* nodep) override {
+    فراغ بازدید(Ast_Attr_از* nodep) override {
         VL_RESTORER(m_attrp);
         m_attrp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstArraySel* nodep) override {
-        iterateAndNextNull(nodep->bitp());
-        if (VN_IS(nodep->bitp(), Const)
+    فراغ بازدید(AstArraySel* nodep) override {
+        iterate_And_بعدی_Null(nodep->bitp());
+        إذا (VN_IS(nodep->bitp(), Const)
             && VN_IS(nodep->fromp(), VarRef)
             // Need to make sure it's an array object so don't mis-allow a constant (bug509.)
             && VN_AS(nodep->fromp(), VarRef)->varp()
             && VN_IS(VN_AS(nodep->fromp(), VarRef)->varp()->valuep(), ConsArray)) {
             m_selp = nodep;  // Ask visit(AstVarRef) to replace varref with const
         }
-        iterateAndNextNull(nodep->fromp());
-        if (VN_IS(nodep->fromp(), Const)) {  // It did.
-            if (!m_selp) {
+        iterate_And_بعدی_Null(nodep->fromp());
+        إذا (VN_IS(nodep->fromp(), Const)) {  // It did.
+            إذا (!m_selp) {
                 nodep->v3error("Illegal assignment of constant to unpacked array");
-            } else {
-                AstNode* const fromp = nodep->fromp()->unlinkFrBack();
+            } وإلا {
+                Ast_گره* ثابت fromp = nodep->fromp()->unlink_Fr_پشت();
                 nodep->replaceWithKeepDType(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             }
         }
         // Handle ARRAYSEL directly on ConsArray (not through VarRef)
-        else if (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), ConsArray)) {
-            const AstConsArray* const consp = VN_AS(nodep->fromp(), ConsArray);
-            const uint32_t bit = VN_AS(nodep->bitp(), Const)->toUInt();
-            AstNodeExpr* const itemp = consp->valuep(bit);
-            if (VN_IS(itemp, Const)) {
-                const V3Number& num = VN_AS(itemp, Const)->num();
-                VL_DO_DANGLING(replaceNum(nodep, num), nodep);
-            } else if (m_params && itemp) {
+        وإلا إذا (VN_IS(nodep->bitp(), Const) && VN_IS(nodep->fromp(), ConsArray)) {
+            ثابت AstConsArray* ثابت consp = VN_AS(nodep->fromp(), ConsArray);
+            ثابت uint32_t بیت_2 = VN_AS(nodep->bitp(), Const)->مقصد_UInt();
+            Ast_گره_عبارت* ثابت itemp = consp->valuep(بیت_2);
+            إذا (VN_IS(itemp, Const)) {
+                ثابت V3_عدد& رقم = VN_AS(itemp, Const)->رقم();
+                VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
+            } وإلا إذا (m_params && itemp) {
                 // An aggregate element, e.g. a structure in an array parameter
-                nodep->replaceWithKeepDType(itemp->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                nodep->replaceWithKeepDType(itemp->clone_درخت(خطأ));
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             }
         }
-        m_selp = nullptr;
+        m_selp = اشاره_تهی;
     }
 
     // Evaluate a slice of an unpacked array.  If constantification is
     // required (m_required=true), call replaceWithSimulation() to compute
     // the slice via simulation.  Otherwise just iterate the children.
-    void visit(AstSliceSel* nodep) override {
+    فراغ بازدید(Ast_برش_Sel* nodep) override {
         // First constify or width any child nodes
         iterateChildren(nodep);
-        if (!m_required) return;  // Do nothing unless we are in parameter mode
+        إذا (!m_required) أرجع;  // Do nothing unless we are in parameter mode
         // Fallback to simulation: this will invoke SimulateVisitor::visit(AstSliceSel*)
         replaceWithSimulation(nodep);
     }
 
-    void visit(AstStructSel* nodep) override {
+    فراغ بازدید(AstStructSel* nodep) override {
         iterateChildren(nodep);
 
-        if (const AstConsStruct* const consp = VN_CAST(nodep->fromp(), ConsStruct)) {
-            AstNodeExpr* const valuep = consp->memberValuep(nodep->name());
-            if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-                VL_DO_DANGLING(replaceNum(nodep, constp->num()), nodep);
-            } else {
-                nodep->replaceWith(valuep->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        إذا (ثابت AstConsStruct* ثابت consp = VN_CAST(nodep->fromp(), ConsStruct)) {
+            Ast_گره_عبارت* ثابت valuep = consp->memberValuep(nodep->name());
+            إذا (ثابت AstConst* ثابت constp = VN_CAST(valuep, Const)) {
+                VL_DO_DANGLING(replace_رقم(nodep, constp->رقم()), nodep);
+            } وإلا {
+                nodep->replaceWith(valuep->clone_درخت(خطأ));
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             }
         }
     }
 
-    void visit(AstCAwait* nodep) override {
-        m_hasJumpDelay = true;
+    فراغ بازدید(AstCAwait* nodep) override {
+        m_hasJumpDelay = درست;
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    فراغ بازدید(Ast_گره_Var_Ref* nodep) override {
         iterateChildren(nodep);
         UASSERT_OBJ(nodep->varp(), nodep, "Not linked");
-        bool did = false;
-        if (m_doV && (!nodep->varp()->constPoolEntry() || m_selp) && nodep->varp()->valuep()
+        منطقي did = خطأ;
+        إذا (m_doV && (!nodep->varp()->const_Pool_مدخل() || m_selp) && nodep->varp()->valuep()
             && !m_attrp) {
             // UINFOTREE(1, valuep, "", "visitvaref");
-            iterateAndNextNull(nodep->varp()->valuep());  // May change nodep->varp()->valuep()
-            AstNode* const valuep = nodep->varp()->valuep();
+            iterate_And_بعدی_Null(nodep->varp()->valuep());  // May change nodep->varp()->valuep()
+            Ast_گره* ثابت valuep = nodep->varp()->valuep();
             // The selected element, when under a constant select of an array
-            const AstConsArray* const consp = VN_CAST(valuep, ConsArray);
-            const AstNode* const selItemp
-                = (m_selp && consp) ? consp->valuep(m_selp->bitConst()) : nullptr;
-            if (nodep->access().isReadOnly() && valuep
+            ثابت AstConsArray* ثابت consp = VN_CAST(valuep, ConsArray);
+            ثابت Ast_گره* ثابت selItemp
+                = (m_selp && consp) ? consp->valuep(m_selp->بیت_Const()) : اشاره_تهی;
+            إذا (nodep->access().isReadOnly() && valuep
                 && ((!m_params  // Can reduce constant wires into equations
                      && m_doNConst && v3Global.opt.fConst() && nodep->varp()->isConst())
                     || nodep->varp()->isParam())) {
-                if (operandConst(valuep)) {
-                    const V3Number& num = VN_AS(valuep, Const)->num();
+                إذا (عملوند_Const(valuep)) {
+                    ثابت V3_عدد& رقم = VN_AS(valuep, Const)->رقم();
                     // UINFO(2, "constVisit " << cvtToHex(valuep) << " " << num);
-                    const string origParamName
+                    ثابت string origParamName
                         = nodep->varp()->isParam() ? nodep->varp()->name() : "";
-                    VL_DO_DANGLING(replaceNum(nodep, num, origParamName), nodep);
-                    did = true;
-                } else if (const AstConst* const itemp = VN_CAST(selItemp, Const)) {
-                    VL_DO_DANGLING(replaceNum(nodep, itemp->num()), nodep);
-                    did = true;
-                } else if (m_params && consp) {
+                    VL_DO_DANGLING(replace_رقم(nodep, رقم, origParamName), nodep);
+                    did = درست;
+                } وإلا إذا (ثابت AstConst* ثابت itemp = VN_CAST(selItemp, Const)) {
+                    VL_DO_DANGLING(replace_رقم(nodep, itemp->رقم()), nodep);
+                    did = درست;
+                } وإلا إذا (m_params && consp) {
                     // Allow parameters to pass arrays
                     // Earlier recursion of ConsArray made sure each array value is constant
                     // This exception is fairly fragile, i.e. doesn't
                     // support arrays of arrays or other stuff
-                    AstNode* const newp = valuep->cloneTree(false);
+                    Ast_گره* ثابت newp = valuep->clone_درخت(خطأ);
                     nodep->replaceWithKeepDType(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    did = true;
-                } else if (m_params && VN_IS(valuep, ConsStruct)) {
-                    AstNode* const newp = valuep->cloneTree(false);
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                    did = درست;
+                } وإلا إذا (m_params && VN_IS(valuep, ConsStruct)) {
+                    Ast_گره* ثابت newp = valuep->clone_درخت(خطأ);
                     nodep->replaceWithKeepDType(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    did = true;
-                } else if (nodep->varp()->isParam() && VN_IS(valuep, Unbounded)) {
-                    AstNode* const newp = valuep->cloneTree(false);
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                    did = درست;
+                } وإلا إذا (nodep->varp()->isParam() && VN_IS(valuep, Unbounded)) {
+                    Ast_گره* ثابت newp = valuep->clone_درخت(خطأ);
                     nodep->replaceWithKeepDType(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    did = true;
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                    did = درست;
                 }
             }
         }
-        if (!did && m_required) {
+        إذا (!did && m_required) {
             nodep->v3error("Expecting expression to be constant, but variable isn't const: "
                            << nodep->varp()->prettyNameQ());
         }
     }
-    void visit(AstExprStmt* nodep) override {
+    فراغ بازدید(Ast_عبارت_Stmt* nodep) override {
         iterateChildren(nodep);
-        if (!AstNode::afterCommentp(nodep->stmtsp())) {
+        إذا (!Ast_گره::afterCommentp(nodep->stmtsp())) {
             deleteVarScopesUnder(nodep->stmtsp());
             UINFO(8, "ExprStmt(...) " << nodep << " " << nodep->resultp());
-            nodep->replaceWith(nodep->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(nodep->resultp()->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             // Removing the ExprStmt might have made something impure above now pure
         }
     }
-    void visit(AstEnumItemRef* nodep) override {
+    فراغ بازدید(Ast_Enum_قلم_Ref* nodep) override {
         iterateChildren(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        bool did = false;
-        if (nodep->itemp()->valuep()) {
+        منطقي did = خطأ;
+        إذا (nodep->itemp()->valuep()) {
             // UINFOTREE(1, nodep->itemp()->valuep(), "", "visitvaref");
-            const AstEnumItem* const itemp = nodep->itemp();
-            if (m_recursingEnumItems.count(itemp)) {
+            ثابت Ast_Enum_قلم* ثابت itemp = nodep->itemp();
+            إذا (m_recursing_Enum_اقلام.شمار(itemp)) {
                 nodep->v3error("Recursive enum value: " << nodep->itemp()->prettyNameQ());
-            } else {
-                m_recursingEnumItems.emplace(itemp);
-                iterateAndNextNull(nodep->itemp()->valuep());
-                m_recursingEnumItems.erase(itemp);
+            } وإلا {
+                m_recursing_Enum_اقلام.emplace(itemp);
+                iterate_And_بعدی_Null(nodep->itemp()->valuep());
+                m_recursing_Enum_اقلام.erase(itemp);
             }
-            if (AstConst* const valuep = VN_CAST(nodep->itemp()->valuep(), Const)) {
-                const V3Number& num = valuep->num();
-                VL_DO_DANGLING(replaceNum(nodep, num), nodep);
-                did = true;
+            إذا (AstConst* ثابت valuep = VN_CAST(nodep->itemp()->valuep(), Const)) {
+                ثابت V3_عدد& رقم = valuep->رقم();
+                VL_DO_DANGLING(replace_رقم(nodep, رقم), nodep);
+                did = درست;
             }
         }
-        if (!did && m_required) {
+        إذا (!did && m_required) {
             nodep->v3error("Expecting expression to be constant, but enum value isn't const: "
                            << nodep->itemp()->prettyNameQ());
         }
     }
 
-    bool onlySenItemInSenTree(const AstSenItem* nodep) {
+    منطقي only_Sen_قلم_درون_Sen_درخت(ثابت Ast_Sen_قلم* nodep) {
         // Only one if it's not in a list
-        return (!nodep->nextp() && nodep->backp()->nextp() != nodep);
+        أرجع (!nodep->nextp() && nodep->backp()->nextp() != nodep);
     }
-    void visit(AstSenItem* nodep) override {
+    فراغ بازدید(Ast_Sen_قلم* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst
-            && !v3Global.opt.timing().isSetTrue()  // If --timing, V3Sched would turn this into an
+        إذا (m_doNConst
+            && !v3Global.opt.timing().is_مجموعه_True()  // If --timing, V3Sched would turn this into an
                                                    // infinite loop. See #5080
-            && (VN_IS(nodep->sensp(), Const) || VN_IS(nodep->sensp(), EnumItemRef)
+            && (VN_IS(nodep->sensp(), Const) || VN_IS(nodep->sensp(), Enum_قلم_Ref)
                 || (nodep->varrefp() && nodep->varrefp()->varp()->isParam()))) {
             // Constants in sensitivity lists may be removed (we'll simplify later)
-            if (nodep->isClocked()) {  // A constant can never get a pos/negedge
-                if (onlySenItemInSenTree(nodep)) {
-                    if (nodep->edgeType() == VEdgeType::ET_CHANGED) {
+            إذا (nodep->isClocked()) {  // A constant can never get a pos/negedge
+                إذا (only_Sen_قلم_درون_Sen_درخت(nodep)) {
+                    إذا (nodep->یال_Type() == VEdgeType::ET_تغییریافته) {
                         // TODO: This really is dodgy, as strictly compliant simulators will not
                         //       execute this block, but but t_func_check relies on it
                         nodep->replaceWith(
-                            new AstSenItem{nodep->fileline(), AstSenItem::Initial{}});
-                    } else {
-                        nodep->replaceWith(new AstSenItem{nodep->fileline(), AstSenItem::Never{}});
+                            جديد Ast_Sen_قلم{nodep->fileline(), Ast_Sen_قلم::Initial{}});
+                    } وإلا {
+                        nodep->replaceWith(جديد Ast_Sen_قلم{nodep->fileline(), Ast_Sen_قلم::Never{}});
                     }
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                } وإلا {
+                    VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
                 }
-            } else {  // Otherwise it may compute a result that needs to settle out
-                nodep->replaceWith(new AstSenItem{nodep->fileline(), AstSenItem::Combo{}});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            } وإلا {  // Otherwise it may compute a result that needs to settle out
+                nodep->replaceWith(جديد Ast_Sen_قلم{nodep->fileline(), Ast_Sen_قلم::Combo{}});
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
             }
-        } else if (m_doNConst && VN_IS(nodep->sensp(), Not)) {
+        } وإلا إذا (m_doNConst && VN_IS(nodep->sensp(), Not)) {
             // V3Gate may propagate NOTs into clocks... Just deal with it
-            AstNode* const sensp = nodep->sensp();
-            AstNode* lastSensp = sensp;
-            bool invert = false;
-            while (VN_IS(lastSensp, Not)) {
-                lastSensp = VN_AS(lastSensp, Not)->lhsp();
+            Ast_گره* ثابت sensp = nodep->sensp();
+            Ast_گره* آخرین_Sensp = sensp;
+            منطقي invert = خطأ;
+            طالما (VN_IS(آخرین_Sensp, Not)) {
+                آخرین_Sensp = VN_AS(آخرین_Sensp, Not)->lhsp();
                 invert = !invert;
             }
             UINFO(8, "senItem(NOT...) " << nodep << " " << invert);
-            if (invert) nodep->edgeType(nodep->edgeType().invert());
-            sensp->replaceWith(lastSensp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(sensp), sensp);
+            إذا (invert) nodep->یال_Type(nodep->یال_Type().invert());
+            sensp->replaceWith(آخرین_Sensp->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(sensp), sensp);
         }
     }
 
-    class SenItemCmp final {
-        static int cmp(const AstNodeExpr* ap, const AstNodeExpr* bp) {
-            const VNType aType = ap->type();
-            const VNType bType = bp->type();
-            if (aType != bType) return static_cast<int>(bType) - static_cast<int>(aType);
+    صنف Sen_قلم_Cmp final {
+        ساكن صحيح cmp(ثابت Ast_گره_عبارت* ap, ثابت Ast_گره_عبارت* bp) {
+            ثابت VNType aType = ap->type();
+            ثابت VNType bType = bp->type();
+            إذا (aType != bType) أرجع static_cast<صحيح>(bType) - static_cast<صحيح>(aType);
 
-            if (const AstVarRef* const aRefp = VN_CAST(ap, VarRef)) {
-                const AstVarRef* const bRefp = VN_AS(bp, VarRef);
+            إذا (ثابت AstVarRef* ثابت aRefp = VN_CAST(ap, VarRef)) {
+                ثابت AstVarRef* ثابت bRefp = VN_AS(bp, VarRef);
                 // Looks visually better if we keep sorted by name
-                if (aRefp->name() < bRefp->name()) return -1;
-                if (aRefp->name() > bRefp->name()) return 1;
+                إذا (aRefp->name() < bRefp->name()) أرجع -1;
+                إذا (aRefp->name() > bRefp->name()) أرجع 1;
                 // But might be same name with different scopes
-                if (aRefp->varScopep() < bRefp->varScopep()) return -1;
-                if (aRefp->varScopep() > bRefp->varScopep()) return 1;
+                إذا (aRefp->varScopep() < bRefp->varScopep()) أرجع -1;
+                إذا (aRefp->varScopep() > bRefp->varScopep()) أرجع 1;
                 // Or rarely, different data types
-                if (aRefp->dtypep() < bRefp->dtypep()) return -1;
-                if (aRefp->dtypep() > bRefp->dtypep()) return 1;
-                return 0;
+                إذا (aRefp->dtypep() < bRefp->dtypep()) أرجع -1;
+                إذا (aRefp->dtypep() > bRefp->dtypep()) أرجع 1;
+                أرجع 0;
             }
 
-            if (const AstConst* const aConstp = VN_CAST(ap, Const)) {
-                const AstConst* const bConstp = VN_AS(bp, Const);
-                if (aConstp->num().isLtXZ(bConstp->num())) return -1;
-                if (bConstp->num().isLtXZ(aConstp->num())) return 1;
-                return 0;
+            إذا (ثابت AstConst* ثابت aConstp = VN_CAST(ap, Const)) {
+                ثابت AstConst* ثابت bConstp = VN_AS(bp, Const);
+                إذا (aConstp->رقم().isLtXZ(bConstp->رقم())) أرجع -1;
+                إذا (bConstp->رقم().isLtXZ(aConstp->رقم())) أرجع 1;
+                أرجع 0;
             }
 
-            if (const AstNodeBiop* const aBiOpp = VN_CAST(ap, NodeBiop)) {
-                const AstNodeBiop* const bBiOpp = VN_AS(bp, NodeBiop);
+            إذا (ثابت Ast_گره_Biop* ثابت aBiOpp = VN_CAST(ap, گره_Biop)) {
+                ثابت Ast_گره_Biop* ثابت bBiOpp = VN_AS(bp, گره_Biop);
                 // Compare RHSs first, as LHS might be const
-                if (const int c = cmp(aBiOpp->rhsp(), bBiOpp->rhsp())) return c;
-                return cmp(aBiOpp->lhsp(), bBiOpp->lhsp());
+                إذا (ثابت صحيح c = cmp(aBiOpp->rhsp(), bBiOpp->rhsp())) أرجع c;
+                أرجع cmp(aBiOpp->lhsp(), bBiOpp->lhsp());
             }
 
-            if (const AstCMethodHard* const aCallp = VN_CAST(ap, CMethodHard)) {
-                const AstCMethodHard* const bCallp = VN_AS(bp, CMethodHard);
-                if (aCallp->method() < bCallp->method()) return -1;
-                if (aCallp->method() > bCallp->method()) return 1;
-                if (const int c = cmp(aCallp->fromp(), bCallp->fromp())) return c;
-                const AstNodeExpr* aPinsp = aCallp->pinsp();
-                const AstNodeExpr* bPinsp = bCallp->pinsp();
-                while (aPinsp && bPinsp) {
-                    if (const int c = cmp(aPinsp, bPinsp)) return c;
-                    aPinsp = VN_AS(aPinsp->nextp(), NodeExpr);
-                    bPinsp = VN_AS(bPinsp->nextp(), NodeExpr);
+            إذا (ثابت AstCMethodHard* ثابت aCallp = VN_CAST(ap, CMethodHard)) {
+                ثابت AstCMethodHard* ثابت bCallp = VN_AS(bp, CMethodHard);
+                إذا (aCallp->روش() < bCallp->روش()) أرجع -1;
+                إذا (aCallp->روش() > bCallp->روش()) أرجع 1;
+                إذا (ثابت صحيح c = cmp(aCallp->fromp(), bCallp->fromp())) أرجع c;
+                ثابت Ast_گره_عبارت* aPinsp = aCallp->pinsp();
+                ثابت Ast_گره_عبارت* bPinsp = bCallp->pinsp();
+                طالما (aPinsp && bPinsp) {
+                    إذا (ثابت صحيح c = cmp(aPinsp, bPinsp)) أرجع c;
+                    aPinsp = VN_AS(aPinsp->nextp(), گره_عبارت);
+                    bPinsp = VN_AS(bPinsp->nextp(), گره_عبارت);
                 }
-                return aPinsp ? -1 : bPinsp ? 1 : 0;
+                أرجع aPinsp ? -1 : bPinsp ? 1 : 0;
             }
 
-            return 0;
+            أرجع 0;
         }
 
-    public:
-        bool operator()(const AstSenItem* lhsp, const AstSenItem* rhsp) const {
-            const AstNodeExpr* const lSensp = lhsp->sensp();
-            const AstNodeExpr* const rSensp = rhsp->sensp();
-            if (lSensp && rSensp) {
+    عام:
+        منطقي عملگر()(ثابت Ast_Sen_قلم* lhsp, ثابت Ast_Sen_قلم* rhsp) ثابت {
+            ثابت Ast_گره_عبارت* ثابت lSensp = lhsp->sensp();
+            ثابت Ast_گره_عبارت* ثابت rSensp = rhsp->sensp();
+            إذا (lSensp && rSensp) {
                 // If both terms have sensitivity expressions, recursively compare them
-                if (const int c = cmp(lSensp, rSensp)) return c < 0;
-            } else if (lSensp || rSensp) {
+                إذا (ثابت صحيح c = cmp(lSensp, rSensp)) أرجع c < 0;
+            } وإلا إذا (lSensp || rSensp) {
                 // Terms with sensitivity expressions come after those without
-                return rSensp;
+                أرجع rSensp;
             }
             // Finally sort by edge, AFTER variable, as we want multiple edges for same var
             // adjacent. note the SenTree optimizer requires this order (more general first,
             // less general last)
-            return lhsp->edgeType() < rhsp->edgeType();
+            أرجع lhsp->یال_Type() < rhsp->یال_Type();
         }
     };
 
-    void visit(AstSenTree* nodep) override {
+    فراغ بازدید(Ast_Sen_درخت* nodep) override {
         iterateChildren(nodep);
-        if (m_doExpensive) {
+        إذا (m_doExpensive) {
             // UINFOTREE(1, nodep, "", "ssin");
             // Optimize ideas for the future:
             //   SENTREE(... SENGATE(x,a), SENGATE(SENITEM(x),b) ...)  => SENGATE(x,OR(a,b))
@@ -3607,48 +3607,48 @@ class ConstVisitor final : public VNVisitor {
 
             // Pass 1: Sort the sensitivity items so "posedge a or b" and "posedge b or a" and
             // similar, optimizable expressions end up next to each other.
-            for (AstSenItem *nextp, *senp = nodep->sensesp(); senp; senp = nextp) {
-                nextp = VN_AS(senp->nextp(), SenItem);
+            لكل (Ast_Sen_قلم *nextp, *senp = nodep->sensesp(); senp; senp = nextp) {
+                nextp = VN_AS(senp->nextp(), Sen_قلم);
                 // cppcheck-suppress unassignedVariable  // cppcheck bug
-                const SenItemCmp cmp;
-                if (nextp && !cmp(senp, nextp)) {
+                ثابت Sen_قلم_Cmp cmp;
+                إذا (nextp && !cmp(senp, nextp)) {
                     // Something's out of order, sort it
-                    senp = nullptr;
-                    std::vector<AstSenItem*> vec;
-                    for (AstSenItem* senp = nodep->sensesp(); senp;
-                         senp = VN_AS(senp->nextp(), SenItem)) {
-                        vec.push_back(senp);
+                    senp = اشاره_تهی;
+                    std::وکتور<Ast_Sen_قلم*> vec;
+                    لكل (Ast_Sen_قلم* senp = nodep->sensesp(); senp;
+                         senp = VN_AS(senp->nextp(), Sen_قلم)) {
+                        vec.افزودن_پشت(senp);
                     }
-                    stable_sort(vec.begin(), vec.end(), SenItemCmp());
-                    for (const auto& ip : vec) ip->unlinkFrBack();
-                    for (const auto& ip : vec) nodep->addSensesp(ip);
-                    break;
+                    stable_مرتب_سازی(vec.begin(), vec.انتها(), Sen_قلم_Cmp());
+                    لكل (ثابت خودکار& ip : vec) ip->unlink_Fr_پشت();
+                    لكل (ثابت خودکار& ip : vec) nodep->جمع_کن_Sensesp(ip);
+                    اكسر;
                 }
             }
 
             // Pass 2, remove duplicates and simplify adjacent terms if possible
-            for (AstSenItem *senp = nodep->sensesp(), *nextp; senp; senp = nextp) {
-                nextp = VN_AS(senp->nextp(), SenItem);
-                if (!nextp) break;
-                AstSenItem* const lItemp = senp;
-                AstSenItem* const rItemp = nextp;
-                const AstNodeExpr* const lSenp = lItemp->sensp();
-                const AstNodeExpr* const rSenp = rItemp->sensp();
-                if (!lSenp || !rSenp) continue;
+            لكل (Ast_Sen_قلم *senp = nodep->sensesp(), *nextp; senp; senp = nextp) {
+                nextp = VN_AS(senp->nextp(), Sen_قلم);
+                إذا (!nextp) اكسر;
+                Ast_Sen_قلم* ثابت lItemp = senp;
+                Ast_Sen_قلم* ثابت rItemp = nextp;
+                ثابت Ast_گره_عبارت* ثابت lSenp = lItemp->sensp();
+                ثابت Ast_گره_عبارت* ثابت rSenp = rItemp->sensp();
+                إذا (!lSenp || !rSenp) استمر;
 
-                if (lSenp->sameGateTree(rSenp)) {
+                إذا (lSenp->same_Gate_درخت(rSenp)) {
                     // POSEDGE or NEGEDGE -> BOTHEDGE. (We've sorted POSEDGE, before NEGEDGE, so we
                     // do not need to test for the opposite orders.)
-                    if (lItemp->edgeType() == VEdgeType::ET_POSEDGE
-                        && rItemp->edgeType() == VEdgeType::ET_NEGEDGE) {
+                    إذا (lItemp->یال_Type() == VEdgeType::ET_POSEDGE
+                        && rItemp->یال_Type() == VEdgeType::ET_NEGEDGE) {
                         // Make both terms BOTHEDGE, the second will be removed below
-                        lItemp->edgeType(VEdgeType::ET_BOTHEDGE);
-                        rItemp->edgeType(VEdgeType::ET_BOTHEDGE);
+                        lItemp->یال_Type(VEdgeType::ET_BOTHEDGE);
+                        rItemp->یال_Type(VEdgeType::ET_BOTHEDGE);
                     }
 
                     // Remove identical expressions
-                    if (lItemp->edgeType() == rItemp->edgeType()) {
-                        VL_DO_DANGLING(pushDeletep(rItemp->unlinkFrBack()), rItemp);
+                    إذا (lItemp->یال_Type() == rItemp->یال_Type()) {
+                        VL_DO_DANGLING(افزودن_Deletep(rItemp->unlink_Fr_پشت()), rItemp);
                         nextp = lItemp;
                     }
                 }
@@ -3658,27 +3658,27 @@ class ConstVisitor final : public VNVisitor {
 
     //-----
     // Zero elimination
-    void visit(AstNodeAssign* nodep) override {
+    فراغ بازدید(Ast_گره_تخصیص_بده* nodep) override {
         iterateChildren(nodep);
-        if (nodep->timingControlp()) m_hasJumpDelay = true;
-        if (m_doNConst && replaceNodeAssign(nodep)) return;
+        إذا (nodep->timingControlp()) m_hasJumpDelay = درست;
+        إذا (m_doNConst && replace_گره_تخصیص_بده(nodep)) أرجع;
     }
-    void visit(AstAlias* nodep) override {
+    فراغ بازدید(AstAlias* nodep) override {
         // Don't perform any optimizations, keep the alias around
     }
-    void visit(AstAliasScope* nodep) override {
+    فراغ بازدید(AstAliasScope* nodep) override {
         // Don't perform any optimizations, keep the alias around
     }
-    void visit(AstAssignW* nodep) override {
+    فراغ بازدید(Ast_تخصیص_بده_W* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst && replaceNodeAssign(nodep)) return;
+        إذا (m_doNConst && replace_گره_تخصیص_بده(nodep)) أرجع;
         // Process containing this AssignW as single body statement
-        AstAlways* const procp = VN_CAST(nodep->backp(), Always);
-        if (!procp || procp->stmtsp() != nodep || nodep->nextp()) return;
+        AstAlways* ثابت procp = VN_CAST(nodep->backp(), Always);
+        إذا (!procp || procp->stmtsp() != nodep || nodep->nextp()) أرجع;
         // Not VarXRef, as different refs may set different values to each hierarchy
-        AstNodeVarRef* const varrefp = VN_CAST(nodep->lhsp(), VarRef);
-        if (m_wremove && !m_params && m_doNConst && m_modp && operandConst(nodep->rhsp())
-            && !VN_AS(nodep->rhsp(), Const)->num().isFourState()
+        Ast_گره_Var_Ref* ثابت varrefp = VN_CAST(nodep->lhsp(), VarRef);
+        إذا (m_wremove && !m_params && m_doNConst && m_modp && عملوند_Const(nodep->rhsp())
+            && !VN_AS(nodep->rhsp(), Const)->رقم().isFourState()
             && varrefp  // Don't do messes with BITREFs/ARRAYREFs
             && !varrefp->varp()->hasStrengthAssignment()  // Strengths are resolved in V3Tristate
             && !varrefp->varp()->valuep()  // Not already constified
@@ -3688,89 +3688,89 @@ class ConstVisitor final : public VNVisitor {
             // ASSIGNW (VARREF, const) -> INITIAL ( ASSIGN (VARREF, const) )
             UINFO(4, "constAssignW " << nodep);
             // Make a initial assignment
-            AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
-            varrefp->unlinkFrBack();
-            FileLine* const flp = nodep->fileline();
-            AstInitial* const newinitp = new AstInitial{flp, new AstAssign{flp, varrefp, exprp}};
+            Ast_گره_عبارت* ثابت exprp = nodep->rhsp()->unlink_Fr_پشت();
+            varrefp->unlink_Fr_پشت();
+            File_سطر* ثابت flp = nodep->fileline();
+            AstInitial* ثابت newinitp = جديد AstInitial{flp, جديد Ast_تخصیص_بده{flp, varrefp, exprp}};
             procp->replaceWith(newinitp);
-            VL_DO_DANGLING(pushDeletep(procp), procp);
+            VL_DO_DANGLING(افزودن_Deletep(procp), procp);
             // Set the initial value right in the variable so we can constant propagate
-            AstNode* const initvaluep = exprp->cloneTree(false);
-            varrefp->varp()->isConst(true);
+            Ast_گره* ثابت initvaluep = exprp->clone_درخت(خطأ);
+            varrefp->varp()->isConst(درست);
             varrefp->varp()->valuep(initvaluep);
         }
     }
-    void visit(AstCReset* nodep) override {
+    فراغ بازدید(AstCReset* nodep) override {
         iterateChildren(nodep);
-        if (!m_doNConst) return;
-        const AstBasicDType* const bdtypep = VN_CAST(nodep->dtypep()->skipRefp(), BasicDType);
-        if (!bdtypep) return;
-        if (!bdtypep->isZeroInit()) return;
-        AstConst* const newp = new AstConst{nodep->fileline(), V3Number{nodep, bdtypep}};
+        إذا (!m_doNConst) أرجع;
+        ثابت AstBasicDType* ثابت bdtypep = VN_CAST(nodep->dtypep()->skipRefp(), BasicDType);
+        إذا (!bdtypep) أرجع;
+        إذا (!bdtypep->isZeroInit()) أرجع;
+        AstConst* ثابت newp = جديد AstConst{nodep->fileline(), V3_عدد{nodep, bdtypep}};
         UINFO(9, "CRESET(0) => CONST(0) " << nodep);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
+    فراغ بازدید(Ast_Cvt_Unpack_مقصد_Unpack* nodep) override {
         iterateChildren(nodep);
-        AstConsArray* const fromp = VN_CAST(nodep->fromp(), ConsArray);
-        if (!fromp) return;
+        AstConsArray* ثابت fromp = VN_CAST(nodep->fromp(), ConsArray);
+        إذا (!fromp) أرجع;
         // Fold the outermost dimension, converting the elements for any dimension under it
-        const AstUnpackArrayDType* const toArrayp
+        ثابت AstUnpackArrayDType* ثابت مقصد_Arrayp
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const AstUnpackArrayDType* const fromArrayp
+        ثابت AstUnpackArrayDType* ثابت fromArrayp
             = VN_AS(fromp->dtypep()->skipRefp(), UnpackArrayDType);
         // This dimension may not be reversed, only one under it
-        const bool reverse
-            = toArrayp->declRange().ascending() != fromArrayp->declRange().ascending();
-        const uint64_t lastIndex = toArrayp->elementsConst() - 1;
-        AstNodeDType* const subDTypep = toArrayp->subDTypep();
-        const AstUnpackArrayDType* const subArrayp
+        ثابت منطقي معکوس
+            = مقصد_Arrayp->declRange().ascending() != fromArrayp->declRange().ascending();
+        ثابت uint64_t آخرین_شاخص = مقصد_Arrayp->elementsConst() - 1;
+        Ast_گره_DType* ثابت subDTypep = مقصد_Arrayp->subDTypep();
+        ثابت AstUnpackArrayDType* ثابت subArrayp
             = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
-        const auto convert = [&](AstNodeExpr* valuep) -> AstNodeExpr* {
-            valuep->unlinkFrBack();
-            if (!subArrayp || !subArrayp->isReverseOf(valuep->dtypep())) return valuep;
-            return new AstCvtUnpackToUnpack{valuep->fileline(), valuep, subDTypep};
+        ثابت خودکار convert = [&](Ast_گره_عبارت* valuep) -> Ast_گره_عبارت* {
+            valuep->unlink_Fr_پشت();
+            إذا (!subArrayp || !subArrayp->is_معکوس_از(valuep->dtypep())) أرجع valuep;
+            أرجع جديد Ast_Cvt_Unpack_مقصد_Unpack{valuep->fileline(), valuep, subDTypep};
         };
-        AstConsArray* const newp
-            = new AstConsArray{fromp->fileline(), nodep->dtypep(),
-                               fromp->defaultp() ? convert(fromp->defaultp()) : nullptr};
-        for (const AstConsArrayItem* itemp = fromp->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            newp->valuep(reverse ? lastIndex - itemp->index() : itemp->index(),
+        AstConsArray* ثابت newp
+            = جديد AstConsArray{fromp->fileline(), nodep->dtypep(),
+                               fromp->defaultp() ? convert(fromp->defaultp()) : اشاره_تهی};
+        لكل (ثابت Ast_Cons_Array_قلم* itemp = fromp->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Cons_Array_قلم)) {
+            newp->valuep(معکوس ? آخرین_شاخص - itemp->شاخص() : itemp->شاخص(),
                          convert(itemp->valuep()));
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         iterate(newp);  // Fold the conversions of the elements
     }
-    void visit(AstCvtArrayToArray* nodep) override {
+    فراغ بازدید(Ast_Cvt_Array_مقصد_Array* nodep) override {
         iterateChildren(nodep);
         // Handle the case where we have a stream operation inside a cast conversion
         // Check for both StreamL and StreamR operations
-        AstNodeStream* streamp = nullptr;
-        bool isReverse = false;
-        if (AstStreamL* const streamLp = VN_CAST(nodep->fromp(), StreamL)) {
-            streamp = streamLp;
-            isReverse = true;  // StreamL reverses the operation
-        } else if (AstStreamR* const streamRp = VN_CAST(nodep->fromp(), StreamR)) {
-            streamp = streamRp;
-            isReverse = false;  // StreamR doesn't reverse the operation
+        Ast_گره_جریان* streamp = اشاره_تهی;
+        منطقي is_معکوس = خطأ;
+        إذا (Ast_جریان_L* ثابت جریان_Lp = VN_CAST(nodep->fromp(), جریان_L)) {
+            streamp = جریان_Lp;
+            is_معکوس = درست;  // StreamL reverses the operation
+        } وإلا إذا (Ast_جریان_R* ثابت جریان_Rp = VN_CAST(nodep->fromp(), جریان_R)) {
+            streamp = جریان_Rp;
+            is_معکوس = خطأ;  // StreamR doesn't reverse the operation
         }
-        if (streamp) {
-            AstNodeExpr* srcp = streamp->lhsp();
-            const AstNodeDType* const srcDTypep = srcp->dtypep()->skipRefp();
-            AstNodeDType* const dstDTypep = nodep->dtypep()->skipRefp();
-            if (VN_IS(srcDTypep, QueueDType) && VN_IS(dstDTypep, QueueDType)) {
-                int blockSize = 1;
-                if (const AstConst* const constp = VN_CAST(streamp->rhsp(), Const)) {
-                    blockSize = constp->toSInt();
-                    if (VL_UNLIKELY(blockSize <= 0)) {
+        إذا (streamp) {
+            Ast_گره_عبارت* srcp = streamp->lhsp();
+            ثابت Ast_گره_DType* ثابت srcDTypep = srcp->dtypep()->skipRefp();
+            Ast_گره_DType* ثابت dstDTypep = nodep->dtypep()->skipRefp();
+            إذا (VN_IS(srcDTypep, صف_DType) && VN_IS(dstDTypep, صف_DType)) {
+                صحيح بلوک_اندازه = 1;
+                إذا (ثابت AstConst* ثابت constp = VN_CAST(streamp->rhsp(), Const)) {
+                    بلوک_اندازه = constp->مقصد_SInt();
+                    إذا (VL_UNLIKELY(بلوک_اندازه <= 0)) {
                         // Not reachable due to higher level checks when parsing stream
                         // operators commented out to not fail v3error-coverage-checks.
                         // nodep->v3error("Stream block size must be positive, got " <<
                         // blockSize);
-                        blockSize = 1;
+                        بلوک_اندازه = 1;
                     }
                 }
                 // Not reachable due to higher level checks when parsing stream operators
@@ -3779,454 +3779,454 @@ class ConstVisitor final : public VNVisitor {
                 //    nodep->v3error("Stream block size must be constant (got " <<
                 //    streamp->rhsp()->prettyTypeName() << ")");
                 // }
-                int srcElementBits = 0;
-                if (const AstNodeDType* const elemDtp = srcDTypep->subDTypep()) {
-                    srcElementBits = elemDtp->width();
+                صحيح src_Element_بیتها = 0;
+                إذا (ثابت Ast_گره_DType* ثابت elemDtp = srcDTypep->subDTypep()) {
+                    src_Element_بیتها = elemDtp->عرض();
                 }
-                int dstElementBits = 0;
-                if (const AstNodeDType* const elemDtp = dstDTypep->subDTypep()) {
-                    dstElementBits = elemDtp->width();
+                صحيح dst_Element_بیتها = 0;
+                إذا (ثابت Ast_گره_DType* ثابت elemDtp = dstDTypep->subDTypep()) {
+                    dst_Element_بیتها = elemDtp->عرض();
                 }
-                streamp->unlinkFrBack();
-                AstNodeExpr* newp = new AstCvtArrayToArray{
-                    srcp->fileline(), srcp->unlinkFrBack(), dstDTypep,     isReverse,
-                    blockSize,        dstElementBits,       srcElementBits};
+                streamp->unlink_Fr_پشت();
+                Ast_گره_عبارت* newp = جديد Ast_Cvt_Array_مقصد_Array{
+                    srcp->fileline(), srcp->unlink_Fr_پشت(), dstDTypep,     is_معکوس,
+                    بلوک_اندازه,        dst_Element_بیتها,       src_Element_بیتها};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(streamp), streamp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(افزودن_Deletep(streamp), streamp);
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                أرجع;
             }
         }
     }
-    void visit(AstRelease* nodep) override {
+    فراغ بازدید(AstRelease* nodep) override {
         // cppcheck-suppress constVariablePointer // children unlinked below
-        if (AstConcat* const concatp = VN_CAST(nodep->lhsp(), Concat)) {
-            FileLine* const flp = nodep->fileline();
-            AstRelease* const newLp = new AstRelease{flp, concatp->lhsp()->unlinkFrBack()};
-            AstRelease* const newRp = new AstRelease{flp, concatp->rhsp()->unlinkFrBack()};
+        إذا (AstConcat* ثابت concatp = VN_CAST(nodep->lhsp(), Concat)) {
+            File_سطر* ثابت flp = nodep->fileline();
+            AstRelease* ثابت newLp = جديد AstRelease{flp, concatp->lhsp()->unlink_Fr_پشت()};
+            AstRelease* ثابت newRp = جديد AstRelease{flp, concatp->rhsp()->unlink_Fr_پشت()};
             nodep->replaceWith(newLp);
-            newLp->addNextHere(newRp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            visit(newLp);
-            visit(newRp);
+            newLp->جمع_کن_بعدی_اینجا(newRp);
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            بازدید(newLp);
+            بازدید(newRp);
         }
     }
 
-    void visit(AstNodeIf* nodep) override {
+    فراغ بازدید(Ast_گره_If* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst) {
-            if (const AstConst* const constp = VN_CAST(nodep->condp(), Const)) {
-                AstNode* keepp = nullptr;
-                AstNode* delp = nullptr;
-                if (constp->isZero()) {
+        إذا (m_doNConst) {
+            إذا (ثابت AstConst* ثابت constp = VN_CAST(nodep->condp(), Const)) {
+                Ast_گره* keepp = اشاره_تهی;
+                Ast_گره* delp = اشاره_تهی;
+                إذا (constp->isZero()) {
                     UINFO(4, "IF(0,{any},{x}) => {x}: " << nodep);
                     keepp = nodep->elsesp();
                     delp = nodep->thensp();
-                } else if (!m_doV || constp->isNeqZero()) {  // Might be X in Verilog
+                } وإلا إذا (!m_doV || constp->isNeqZero()) {  // Might be X in Verilog
                     UINFO(4, "IF(!0,{x},{any}) => {x}: " << nodep);
                     keepp = nodep->thensp();
                     delp = nodep->elsesp();
-                } else {
+                } وإلا {
                     UINFO(4, "IF condition is X, retaining: " << nodep);
-                    return;
+                    أرجع;
                 }
-                if (!canDeleteStatements()) {
+                إذا (!canDeleteStatements()) {
                     UINFO(4, "IF retained until statics lifted: " << nodep);
-                    return;
+                    أرجع;
                 }
 
                 // If we delete a branch that contains variable declarations, also delete the
                 // corresponding varscopes so we don't leave dangling AstVarScope::m_varp pointers.
                 deleteVarScopesUnder(delp);
 
-                if (keepp) {
-                    keepp->unlinkFrBackWithNext();
+                إذا (keepp) {
+                    keepp->unlink_Fr_پشت_With_بعدی();
                     nodep->replaceWith(keepp);
-                } else {
-                    nodep->unlinkFrBack();
+                } وإلا {
+                    nodep->unlink_Fr_پشت();
                     deleteVarScopesUnder(nodep->thensp());
                     deleteVarScopesUnder(nodep->elsesp());
                 }
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
 
                 // Removed branch could contain only impurity within a function and the
                 // function could be purified
-                VIsCached::clearCacheTree();
-            } else if (!AstNode::afterCommentp(nodep->thensp())
-                       && !AstNode::afterCommentp(nodep->elsesp())) {
-                if (!nodep->condp()->isPure()) {
+                VIsCached::clear_Cache_درخت();
+            } وإلا إذا (!Ast_گره::afterCommentp(nodep->thensp())
+                       && !Ast_گره::afterCommentp(nodep->elsesp())) {
+                إذا (!nodep->condp()->is_خالص()) {
                     // Condition has side effect - leave, but don't need return value
                     UINFO(4, "IF({x}) ; => STMTEXPR({x}): " << nodep);
-                    nodep->fileline()->warnOff(V3ErrorCode::IGNOREDRETURN, true);
-                    AstNodeStmt* const newp
-                        = new AstStmtExpr{nodep->fileline(), nodep->condp()->unlinkFrBack()};
+                    nodep->fileline()->warnOff(V3_Error_کد::IGNOREDRETURN, درست);
+                    Ast_گره_Stmt* ثابت newp
+                        = جديد Ast_Stmt_عبارت{nodep->fileline(), nodep->condp()->unlink_Fr_پشت()};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                } وإلا {
                     // Empty block, remove it
                     UINFO(4, "IF({x}) ; => ; : " << nodep);
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+                    VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
                 }
-            } else if (!AstNode::afterCommentp(nodep->thensp())) {
+            } وإلا إذا (!Ast_گره::afterCommentp(nodep->thensp())) {
                 UINFO(4, "IF({x}) nullptr {...} => IF(NOT{x}}: " << nodep);
-                AstNodeExpr* const condp = nodep->condp();
-                AstNode* const elsesp = nodep->elsesp();
-                condp->unlinkFrBackWithNext();
-                elsesp->unlinkFrBackWithNext();
-                if (nodep->thensp()) {  // Must have been comment
-                    pushDeletep(nodep->thensp()->unlinkFrBackWithNext());
+                Ast_گره_عبارت* ثابت condp = nodep->condp();
+                Ast_گره* ثابت elsesp = nodep->elsesp();
+                condp->unlink_Fr_پشت_With_بعدی();
+                elsesp->unlink_Fr_پشت_With_بعدی();
+                إذا (nodep->thensp()) {  // Must have been comment
+                    افزودن_Deletep(nodep->thensp()->unlink_Fr_پشت_With_بعدی());
                 }
-                nodep->condp(new AstLogNot{condp->fileline(),
+                nodep->condp(جديد AstLogNot{condp->fileline(),
                                            condp});  // LogNot, as C++ optimization also possible
-                nodep->addThensp(elsesp);
+                nodep->جمع_کن_Thensp(elsesp);
                 nodep->branchPred(nodep->branchPred().invert());
-            } else if (((VN_IS(nodep->condp(), Not) && nodep->condp()->width() == 1)
+            } وإلا إذا (((VN_IS(nodep->condp(), Not) && nodep->condp()->عرض() == 1)
                         || VN_IS(nodep->condp(), LogNot))
                        && nodep->thensp() && nodep->elsesp()) {
                 UINFO(4, "IF(NOT {x})  => IF(x) swapped if/else" << nodep);
-                AstNodeExpr* const condp
-                    = VN_AS(nodep->condp(), NodeUniop)->lhsp()->unlinkFrBackWithNext();
-                AstNode* const thensp = nodep->thensp()->unlinkFrBackWithNext();
-                AstNode* const elsesp = nodep->elsesp()->unlinkFrBackWithNext();
-                AstIf* const ifp = new AstIf{nodep->fileline(), condp, elsesp, thensp};
+                Ast_گره_عبارت* ثابت condp
+                    = VN_AS(nodep->condp(), گره_Uniop)->lhsp()->unlink_Fr_پشت_With_بعدی();
+                Ast_گره* ثابت thensp = nodep->thensp()->unlink_Fr_پشت_With_بعدی();
+                Ast_گره* ثابت elsesp = nodep->elsesp()->unlink_Fr_پشت_With_بعدی();
+                AstIf* ثابت ifp = جديد AstIf{nodep->fileline(), condp, elsesp, thensp};
                 ifp->isBoundsCheck(nodep->isBoundsCheck());  // Copy bounds check info
                 ifp->branchPred(nodep->branchPred().invert());
                 nodep->replaceWith(ifp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (ifSameAssign(nodep)) {
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            } وإلا إذا (if_Same_تخصیص_بده(nodep)) {
                 UINFO(4,
                       "IF({a}) ASSIGN({b},{c}) else ASSIGN({b},{d}) => ASSIGN({b}, {a}?{c}:{d})");
-                AstNodeAssign* const thensp = VN_AS(nodep->thensp(), NodeAssign);
+                Ast_گره_تخصیص_بده* ثابت thensp = VN_AS(nodep->thensp(), گره_تخصیص_بده);
                 // cppcheck-suppress constVariablePointer // children unlinked below
-                AstNodeAssign* const elsesp = VN_AS(nodep->elsesp(), NodeAssign);
-                thensp->unlinkFrBack();
-                AstNodeExpr* const condp = nodep->condp()->unlinkFrBack();
-                AstNodeExpr* const truep = thensp->rhsp()->unlinkFrBack();
-                AstNodeExpr* const falsep = elsesp->rhsp()->unlinkFrBack();
-                thensp->rhsp(new AstCond{truep->fileline(), condp, truep, falsep});
+                Ast_گره_تخصیص_بده* ثابت elsesp = VN_AS(nodep->elsesp(), گره_تخصیص_بده);
+                thensp->unlink_Fr_پشت();
+                Ast_گره_عبارت* ثابت condp = nodep->condp()->unlink_Fr_پشت();
+                Ast_گره_عبارت* ثابت truep = thensp->rhsp()->unlink_Fr_پشت();
+                Ast_گره_عبارت* ثابت falsep = elsesp->rhsp()->unlink_Fr_پشت();
+                thensp->rhsp(جديد AstCond{truep->fileline(), condp, truep, falsep});
                 nodep->replaceWith(thensp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (false  // Disabled, as vpm assertions are faster
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            } وإلا إذا (خطأ  // Disabled, as vpm assertions are faster
                               // without due to short-circuiting
-                       && operandIfIf(nodep)) {
+                       && عملوند_If_If(nodep)) {
                 UINFO(9, "IF({a}) IF({b}) => IF({a} && {b})");
-                AstNodeIf* const lowerIfp = VN_AS(nodep->thensp(), NodeIf);
-                AstNodeExpr* const condp = nodep->condp()->unlinkFrBack();
-                AstNode* const lowerThensp = lowerIfp->thensp()->unlinkFrBackWithNext();
-                AstNodeExpr* const lowerCondp = lowerIfp->condp()->unlinkFrBackWithNext();
-                nodep->condp(new AstLogAnd{lowerIfp->fileline(), condp, lowerCondp});
-                lowerIfp->replaceWith(lowerThensp);
-                VL_DO_DANGLING(pushDeletep(lowerIfp), lowerIfp);
-            } else {
+                Ast_گره_If* ثابت پایینی_Ifp = VN_AS(nodep->thensp(), گره_If);
+                Ast_گره_عبارت* ثابت condp = nodep->condp()->unlink_Fr_پشت();
+                Ast_گره* ثابت پایینی_Thensp = پایینی_Ifp->thensp()->unlink_Fr_پشت_With_بعدی();
+                Ast_گره_عبارت* ثابت پایینی_Condp = پایینی_Ifp->condp()->unlink_Fr_پشت_With_بعدی();
+                nodep->condp(جديد AstLogAnd{پایینی_Ifp->fileline(), condp, پایینی_Condp});
+                پایینی_Ifp->replaceWith(پایینی_Thensp);
+                VL_DO_DANGLING(افزودن_Deletep(پایینی_Ifp), پایینی_Ifp);
+            } وإلا {
                 // Optimizations that don't reform the IF itself
-                if (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
-                matchIfSameLast(nodep);
-                matchIfCondCond(nodep);
+                إذا (عملوند_Bool_لغزش(nodep->condp())) replace_Bool_لغزش(nodep->condp());
+                تطابق_If_Same_آخرین(nodep);
+                تطابق_If_Cond_Cond(nodep);
             }
         }
     }
 
-    void visit(AstDisplay* nodep) override {
+    فراغ بازدید(AstDisplay* nodep) override {
         // DISPLAY(SFORMAT(text1)),DISPLAY(SFORMAT(text2)) -> DISPLAY(SFORMAT(text1+text2))
         iterateChildren(nodep);
-        if (stmtDisplayDisplay(nodep)) return;
+        إذا (stmtDisplayDisplay(nodep)) أرجع;
     }
-    bool stmtDisplayDisplay(AstDisplay* nodep) {
+    منطقي stmtDisplayDisplay(AstDisplay* nodep) {
         // DISPLAY(SFORMAT(text1)),DISPLAY(SFORMAT(text2)) -> DISPLAY(SFORMAT(text1+text2))
-        if (!m_modp) return false;  // Don't optimize under single statement
-        AstDisplay* const prevp = VN_CAST(nodep->backp(), Display);
-        if (!prevp) return false;
-        if (!((prevp->displayType() == nodep->displayType())
+        إذا (!m_modp) أرجع خطأ;  // Don't optimize under single statement
+        AstDisplay* ثابت prevp = VN_CAST(nodep->backp(), Display);
+        إذا (!prevp) أرجع خطأ;
+        إذا (!((prevp->displayType() == nodep->displayType())
               || (prevp->displayType() == VDisplayType::DT_WRITE
                   && nodep->displayType() == VDisplayType::DT_DISPLAY)
               || (prevp->displayType() == VDisplayType::DT_DISPLAY
                   && nodep->displayType() == VDisplayType::DT_WRITE)))
-            return false;
-        if ((prevp->filep() && !nodep->filep()) || (!prevp->filep() && nodep->filep())
-            || (prevp->filep() && nodep->filep() && !prevp->filep()->sameTree(nodep->filep())))
-            return false;
-        if (!prevp->fmtp() || prevp->fmtp()->nextp() || !nodep->fmtp() || nodep->fmtp()->nextp())
-            return false;
-        AstSFormatF* const pformatp = prevp->fmtp();
+            أرجع خطأ;
+        إذا ((prevp->filep() && !nodep->filep()) || (!prevp->filep() && nodep->filep())
+            || (prevp->filep() && nodep->filep() && !prevp->filep()->same_درخت(nodep->filep())))
+            أرجع خطأ;
+        إذا (!prevp->fmtp() || prevp->fmtp()->nextp() || !nodep->fmtp() || nodep->fmtp()->nextp())
+            أرجع خطأ;
+        AstSFormatF* ثابت pformatp = prevp->fmtp();
         // cppcheck-suppress constVariablePointer // children unlinked below
-        AstSFormatF* const nformatp = nodep->fmtp();
+        AstSFormatF* ثابت nformatp = nodep->fmtp();
         // We don't merge scopeNames as can have only one and might be different scopes (late in
         // process) Also rare for real code to print %m multiple times in same message
-        if (nformatp->scopeNamep() && pformatp->scopeNamep()) return false;
+        إذا (nformatp->scopeNamep() && pformatp->scopeNamep()) أرجع خطأ;
         // We don't early merge arguments as might need to later print warnings with
         // right line numbers, nor scopeNames as might be different scopes (late in process)
-        if (!m_doCpp && pformatp->exprsp()) return false;
-        if (!m_doCpp && nformatp->exprsp()) return false;
-        if (pformatp->exprsp() && !pformatp->exprsp()->isPureAndNext()) return false;
-        if (nformatp->exprsp() && !nformatp->exprsp()->isPureAndNext()) return false;
+        إذا (!m_doCpp && pformatp->exprsp()) أرجع خطأ;
+        إذا (!m_doCpp && nformatp->exprsp()) أرجع خطأ;
+        إذا (pformatp->exprsp() && !pformatp->exprsp()->is_خالص_And_بعدی()) أرجع خطأ;
+        إذا (nformatp->exprsp() && !nformatp->exprsp()->is_خالص_And_بعدی()) أرجع خطأ;
         // Avoid huge merges
-        static constexpr int DISPLAY_MAX_MERGE_LENGTH = 500;
-        if (pformatp->text().length() + nformatp->text().length() > DISPLAY_MAX_MERGE_LENGTH)
-            return false;
+        ساكن constexpr صحيح DISPLAY_MAX_ادغام_درازی = 500;
+        إذا (pformatp->متن().درازی() + nformatp->متن().درازی() > DISPLAY_MAX_ادغام_درازی)
+            أرجع خطأ;
         //
         UINFO(9, "DISPLAY(SF({a})) DISPLAY(SF({b})) -> DISPLAY(SF({a}+{b}))");
         // Convert DT_DISPLAY to DT_WRITE as may allow later optimizations
-        if (prevp->displayType() == VDisplayType::DT_DISPLAY) {
+        إذا (prevp->displayType() == VDisplayType::DT_DISPLAY) {
             prevp->displayType(VDisplayType::DT_WRITE);
-            pformatp->text(pformatp->text() + "\n");
+            pformatp->متن(pformatp->متن() + "\n");
         }
         // We can't replace prev() as the edit tracking iterators will get confused.
         // So instead we edit the prev note itself.
-        if (prevp->addNewline()) pformatp->text(pformatp->text() + "\n");
-        pformatp->text(pformatp->text() + nformatp->text());
-        if (!prevp->addNewline() && nodep->addNewline()) pformatp->text(pformatp->text() + "\n");
-        if (nformatp->exprsp()) pformatp->addExprsp(nformatp->exprsp()->unlinkFrBackWithNext());
-        if (AstScopeName* const scopeNamep = nformatp->scopeNamep()) {
-            scopeNamep->unlinkFrBackWithNext();
+        إذا (prevp->جمع_کن_Newline()) pformatp->متن(pformatp->متن() + "\n");
+        pformatp->متن(pformatp->متن() + nformatp->متن());
+        إذا (!prevp->جمع_کن_Newline() && nodep->جمع_کن_Newline()) pformatp->متن(pformatp->متن() + "\n");
+        إذا (nformatp->exprsp()) pformatp->جمع_کن_Exprsp(nformatp->exprsp()->unlink_Fr_پشت_With_بعدی());
+        إذا (AstScopeName* ثابت scopeNamep = nformatp->scopeNamep()) {
+            scopeNamep->unlink_Fr_پشت_With_بعدی();
             pformatp->scopeNamep(scopeNamep);
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+        أرجع درست;
     }
-    void visit(AstSFormatArg* nodep) override {
+    فراغ بازدید(AstSFormatArg* nodep) override {
         // Skip namep(): requiring its runtime lookup to be constant can reject valid
         // enum-valued constant-function calls in parameters. displayedEnum() resolves
         // the name from the folded exprp() value and enum dtype instead.
-        iterateAndNextNull(nodep->exprp());
+        iterate_And_بعدی_Null(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
+    فراغ بازدید(AstSFormatF* nodep) override {
         // Substitute constants into displays.  The main point of this is to
         // simplify assertion methodologies which call functions with display's.
         // This eliminates a pile of wide temps, and makes the C a whole lot more readable.
         iterateChildren(nodep);
-        if (nodep->exprFormat()) {
+        إذا (nodep->عبارت_Format_2()) {
             // Upconvert to text-based format?
             // Similar code in V3LinkResolve::visit(AstSFormatF)
-            UASSERT_OBJ(nodep->text() == "", nodep,
+            UASSERT_OBJ(nodep->متن() == "", nodep,
                         "Non-format $sformatf should have text format == \"\"");
-            if (VN_IS(nodep->exprsp(), Const)
-                && VN_AS(nodep->exprsp(), Const)->num().isFromString()) {
-                AstConst* const fmtp = VN_AS(nodep->exprsp()->unlinkFrBack(), Const);
-                nodep->text(fmtp->num().toString());
-                nodep->exprFormat(false);
-                VL_DO_DANGLING(pushDeletep(fmtp), fmtp);
+            إذا (VN_IS(nodep->exprsp(), Const)
+                && VN_AS(nodep->exprsp(), Const)->رقم().isFromString()) {
+                AstConst* ثابت fmtp = VN_AS(nodep->exprsp()->unlink_Fr_پشت(), Const);
+                nodep->متن(fmtp->رقم().مقصد_String());
+                nodep->عبارت_Format_2(خطأ);
+                VL_DO_DANGLING(افزودن_Deletep(fmtp), fmtp);
             }
         }
-        if (nodep->exprFormat()) return;  // Runtime, unfortunately  (unless constify format later)
-        bool anyconst = false;
-        for (AstNode* argp = nodep->exprsp(); argp; argp = argp->nextp()) {
-            AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-            AstNode* const subargp = fargp ? fargp->exprp() : argp;
-            if (VN_IS(subargp, Const)) {
-                anyconst = true;
-                break;
+        إذا (nodep->عبارت_Format_2()) أرجع;  // Runtime, unfortunately  (unless constify format later)
+        منطقي anyconst = خطأ;
+        لكل (Ast_گره* argp = nodep->exprsp(); argp; argp = argp->nextp()) {
+            AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+            Ast_گره* ثابت subargp = fargp ? fargp->exprp() : argp;
+            إذا (VN_IS(subargp, Const)) {
+                anyconst = درست;
+                اكسر;
             }
         }
-        if (m_doNConst && anyconst) {
-            UINFO(9, "  Display in  " << nodep->text());
+        إذا (m_doNConst && anyconst) {
+            UINFO(9, "  Display in  " << nodep->متن());
             string newFormat;
             string fmt;
-            bool inPct = false;
-            AstNode* argp = nodep->exprsp();
-            const string text = nodep->text();
-            for (char ch : text) {
-                if (!inPct && ch == '%') {
-                    inPct = true;
+            منطقي درون_Pct = خطأ;
+            Ast_گره* argp = nodep->exprsp();
+            ثابت string متن = nodep->متن();
+            لكل (حرف ch : متن) {
+                إذا (!درون_Pct && ch == '%') {
+                    درون_Pct = درست;
                     fmt = ch;
-                } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+                } وإلا إذا (درون_Pct && (std::آیا_رقم(ch) || ch == '.' || ch == '-')) {
                     fmt += ch;
-                } else if (inPct) {
-                    inPct = false;
+                } وإلا إذا (درون_Pct) {
+                    درون_Pct = خطأ;
                     fmt += ch;
                     ch = std::tolower(ch);
-                    switch (ch) {
-                    case '%': break;  // %% - still %%
-                    case 'm': break;  // %m - still %m - auto insert "name"
-                    case 'l': break;  // %l - still %l - auto insert "library"
-                    case 't':  // %t - don't know $timeformat so can't constify
-                        if (argp) argp = argp->nextp();
-                        break;
-                    default:  // Most operators, just move to next argument
-                        if (argp) {
-                            AstNode* const nextp = argp->nextp();
-                            AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                            AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                            const VFormatAttr formatAttr
+                    بدل (ch) {
+                    حالة '%': اكسر;  // %% - still %%
+                    حالة 'm': اكسر;  // %m - still %m - auto insert "name"
+                    حالة 'l': اكسر;  // %l - still %l - auto insert "library"
+                    حالة 't':  // %t - don't know $timeformat so can't constify
+                        إذا (argp) argp = argp->nextp();
+                        اكسر;
+                    افتراضي:  // Most operators, just move to next argument
+                        إذا (argp) {
+                            Ast_گره* ثابت nextp = argp->nextp();
+                            AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+                            Ast_گره* ثابت subargp = fargp ? fargp->exprp() : argp;
+                            ثابت VFormatAttr formatAttr
                                 = argp
                                       ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                       : VFormatAttr{};
-                            if (VN_IS(subargp, Const)) {  // Convert it
-                                const string out
+                            إذا (VN_IS(subargp, Const)) {  // Convert it
+                                ثابت string بیرون
                                     = formatAttr.isEnum()
-                                          ? constNumV(subargp).displayedEnum(fargp, fmt)
-                                          : constNumV(subargp).displayed(nodep, fmt, formatAttr);
-                                UINFO(9, "     DispConst: " << fmt << " -> " << out << "  for "
+                                          ? const_رقم_V(subargp).displayedEnum(fargp, fmt)
+                                          : const_رقم_V(subargp).displayed(nodep, fmt, formatAttr);
+                                UINFO(9, "     DispConst: " << fmt << " -> " << بیرون << "  for "
                                                             << subargp);
                                 // fmt = out w/ replace % with %% as it must later when
                                 // used as a format output as literal.
-                                fmt = VString::quotePercent(out);
-                                VL_DO_DANGLING(pushDeletep(argp->unlinkFrBack()), argp);
+                                fmt = VString::quotePercent(بیرون);
+                                VL_DO_DANGLING(افزودن_Deletep(argp->unlink_Fr_پشت()), argp);
                             }
                             argp = nextp;
                         }
-                        break;
+                        اكسر;
                     }  // switch
                     newFormat += fmt;
-                } else {
+                } وإلا {
                     newFormat += ch;
                 }
             }
-            if (newFormat != nodep->text()) {
-                nodep->text(newFormat);
+            إذا (newFormat != nodep->متن()) {
+                nodep->متن(newFormat);
                 UINFO(9, "  Display out " << nodep);
             }
         }
-        if (!nodep->exprsp() && nodep->text().find('%') == string::npos && !nodep->hidden()) {
+        إذا (!nodep->exprsp() && nodep->متن().پیدا_کن('%') == string::npos && !nodep->hidden()) {
             // Just a simple constant string - the formatting is pointless
             UINFO(9, "replaceConstStr");
-            VL_DO_DANGLING(replaceConstString(nodep, nodep->text()), nodep);
-            return;
+            VL_DO_DANGLING(replaceConstString(nodep, nodep->متن()), nodep);
+            أرجع;
         }
-        if (VN_IS(nodep->backp(), NodeAssign)  // Can't remove under Display etc
-            && nodep->text() == "%s" && VN_IS(nodep->exprsp(), SFormatArg)
+        إذا (VN_IS(nodep->backp(), گره_تخصیص_بده)  // Can't remove under Display etc
+            && nodep->متن() == "%s" && VN_IS(nodep->exprsp(), SFormatArg)
             && VN_AS(nodep->exprsp(), SFormatArg)->formatAttr().isString()
             && !nodep->exprsp()->nextp()) {
             UINFO(9, "  Display(%p, expr) -> constant expr " << nodep);
-            nodep->replaceWith(VN_AS(nodep->exprsp(), SFormatArg)->exprp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            nodep->replaceWith(VN_AS(nodep->exprsp(), SFormatArg)->exprp()->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            أرجع;
         }
     }
-    void visit(AstSFormat* nodep) override {
+    فراغ بازدید(AstSFormat* nodep) override {
         iterateChildren(nodep);
-        if (!m_doNConst) return;
-        if (m_doNConst) {
+        إذا (!m_doNConst) أرجع;
+        إذا (m_doNConst) {
             // If it's a constant string written to a string variable, inline it as an assignment
-            AstSFormatF* const fmtp = nodep->fmtp();
-            AstNodeExpr* const lhsp = nodep->lhsp();
-            AstBasicDType* const basicp = VN_CAST(lhsp->dtypep()->skipRefp(), BasicDType);
-            if (basicp && basicp->isString() && !fmtp->exprsp()
-                && fmtp->text().find('%') == string::npos) {
-                AstConst* const strp
-                    = new AstConst{fmtp->fileline(), AstConst::String{}, fmtp->text()};
-                lhsp->unlinkFrBack();
-                nodep->replaceWith(new AstAssign{nodep->fileline(), lhsp, strp});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+            AstSFormatF* ثابت fmtp = nodep->fmtp();
+            Ast_گره_عبارت* ثابت lhsp = nodep->lhsp();
+            AstBasicDType* ثابت basicp = VN_CAST(lhsp->dtypep()->skipRefp(), BasicDType);
+            إذا (basicp && basicp->isString() && !fmtp->exprsp()
+                && fmtp->متن().پیدا_کن('%') == string::npos) {
+                AstConst* ثابت strp
+                    = جديد AstConst{fmtp->fileline(), AstConst::String{}, fmtp->متن()};
+                lhsp->unlink_Fr_پشت();
+                nodep->replaceWith(جديد Ast_تخصیص_بده{nodep->fileline(), lhsp, strp});
+                VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                أرجع;
             }
         }
     }
-    void visit(AstNodeFTask* nodep) override {
+    فراغ بازدید(Ast_گره_FTask* nodep) override {
         VL_RESTORER(m_underRecFunc);
-        if (nodep->recursive()) m_underRecFunc = true;
+        إذا (nodep->recursive()) m_underRecFunc = درست;
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
+    فراغ بازدید(Ast_گره_CCall* nodep) override {
         iterateChildren(nodep);
-        m_hasJumpDelay = true;  // As don't analyze inside tasks for timing controls
+        m_hasJumpDelay = درست;  // As don't analyze inside tasks for timing controls
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    فراغ بازدید(Ast_گره_FTask_Ref* nodep) override {
         // Note excludes AstFuncRef as other visitor below
         iterateChildren(nodep);
-        m_hasJumpDelay = true;  // As don't analyze inside tasks for timing controls
+        m_hasJumpDelay = درست;  // As don't analyze inside tasks for timing controls
     }
-    void visit(AstFuncRef* nodep) override {
-        visit(static_cast<AstNodeFTaskRef*>(nodep));
-        if (m_params) {  // Only parameters force us to do constant function call propagation
+    فراغ بازدید(AstFuncRef* nodep) override {
+        بازدید(static_cast<Ast_گره_FTask_Ref*>(nodep));
+        إذا (m_params) {  // Only parameters force us to do constant function call propagation
             replaceWithSimulation(nodep);
         }
     }
-    void visit(AstArg* nodep) override {
+    فراغ بازدید(AstArg* nodep) override {
         // replaceWithSimulation on the Arg's parent FuncRef replaces these
         iterateChildren(nodep);
     }
-    void visit(AstLoop* nodep) override {
+    فراغ بازدید(AstLoop* nodep) override {
         VL_RESTORER(m_hasLoopTest);
-        const bool oldHasJumpDelay = m_hasJumpDelay;
-        m_hasJumpDelay = false;
-        m_hasLoopTest = false;
+        ثابت منطقي oldHasJumpDelay = m_hasJumpDelay;
+        m_hasJumpDelay = خطأ;
+        m_hasLoopTest = خطأ;
         iterateChildren(nodep);
-        const bool thisLoopHasJumpDelay = m_hasJumpDelay;
+        ثابت منطقي thisLoopHasJumpDelay = m_hasJumpDelay;
         m_hasJumpDelay = thisLoopHasJumpDelay || oldHasJumpDelay;
         // If the first statement always break, the loop is useless
-        if (const AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
-            if (testp->condp()->isZero() && (!testp->nextp() || canDeleteStatements())) {
+        إذا (ثابت AstLoopTest* ثابت testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+            إذا (testp->condp()->isZero() && (!testp->nextp() || canDeleteStatements())) {
                 nodep->v3warn(UNUSEDLOOP, "Loop condition is always false");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+                أرجع;
             }
         }
         // If last statement always breaks, repalce loop with body
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
-                if (testp->condp()->isZero()) {
-                    VL_DO_DANGLING2(pushDeletep(testp->unlinkFrBack()), testp, lastp);
-                    nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+        إذا (Ast_گره* lastp = nodep->stmtsp()) {
+            طالما (Ast_گره* ثابت nextp = lastp->nextp()) lastp = nextp;
+            إذا (AstLoopTest* ثابت testp = VN_CAST(lastp, LoopTest)) {
+                إذا (testp->condp()->isZero()) {
+                    VL_DO_DANGLING2(افزودن_Deletep(testp->unlink_Fr_پشت()), testp, lastp);
+                    nodep->replaceWith(nodep->stmtsp()->unlink_Fr_پشت_With_بعدی());
+                    VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+                    أرجع;
                 }
             }
         }
         // Warn on infinite loop
-        if (!m_hasLoopTest && !thisLoopHasJumpDelay) {
+        إذا (!m_hasLoopTest && !thisLoopHasJumpDelay) {
             nodep->v3warn(INFINITELOOP, "Infinite loop (condition always true)");
-            nodep->fileline()->modifyWarnOff(V3ErrorCode::INFINITELOOP, true);  // Complain once
+            nodep->fileline()->modifyWarnOff(V3_Error_کد::INFINITELOOP, درست);  // Complain once
         }
     }
-    void visit(AstLoopTest* nodep) override {
+    فراغ بازدید(AstLoopTest* nodep) override {
         iterateChildren(nodep);
 
         // If never breaks, remove
-        if (nodep->condp()->isNeqZero()) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+        إذا (nodep->condp()->isNeqZero()) {
+            VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+            أرجع;
         }
 
-        m_hasLoopTest = true;
+        m_hasLoopTest = درست;
 
         // If always breaks, subsequent statements are dead code, delete them
-        if (nodep->condp()->isZero()) {
-            AstNode* const nextp = nodep->nextp();
-            if (nextp && canDeleteStatements()) {
-                VL_DO_DANGLING(pushDeletep(nextp->unlinkFrBackWithNext()), nodep);
+        إذا (nodep->condp()->isZero()) {
+            Ast_گره* ثابت nextp = nodep->nextp();
+            إذا (nextp && canDeleteStatements()) {
+                VL_DO_DANGLING(افزودن_Deletep(nextp->unlink_Fr_پشت_With_بعدی()), nodep);
             }
-            return;
+            أرجع;
         }
 
-        if (operandBoolShift(nodep->condp())) replaceBoolShift(nodep->condp());
+        إذا (عملوند_Bool_لغزش(nodep->condp())) replace_Bool_لغزش(nodep->condp());
     }
 
-    void visit(AstConsArray* nodep) override { iterateChildren(nodep); }
-    void visit(AstConsStruct* nodep) override { iterateChildren(nodep); }
-    void visit(AstConsStructItem* nodep) override { iterateChildren(nodep); }
-    void visit(AstConsArrayItem* nodep) override { iterateChildren(nodep); }
-    void visit(AstUnbounded* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstConsArray* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstConsStruct* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_Cons_Struct_قلم* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_Cons_Array_قلم* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstUnbounded* nodep) override { iterateChildren(nodep); }
     // These are converted by V3Param.  Don't constify as we don't want the
     // from() VARREF to disappear, if any.
     // If output of a presel didn't get consted, chances are V3Param didn't visit properly
-    void visit(AstNodePreSel*) override {}
+    فراغ بازدید(Ast_گره_Pre_Sel*) override {}
 
     // Ignored, can eliminate early
-    void visit(AstSysIgnore* nodep) override {
+    فراغ بازدید(AstSysIgnore* nodep) override {
         iterateChildren(nodep);
-        if (m_doNConst) VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        إذا (m_doNConst) VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
     }
 
-    void visit(AstStmtExpr* nodep) override {
+    فراغ بازدید(Ast_Stmt_عبارت* nodep) override {
         iterateChildren(nodep);
         // Malformed due to child being deleted, remove here
-        if (!nodep->exprp()) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+        إذا (!nodep->exprp()) {
+            VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+            أرجع;
         }
         // Remove if expression is trivially pure
-        if (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), VarRef)) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+        إذا (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), VarRef)) {
+            VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+            أرجع;
         }
         // Remove calls to empty functions
-        if (const AstCCall* const callp = VN_CAST(nodep->exprp(), CCall)) {
-            const AstCFunc* const funcp = callp->funcp();
-            if (!callp->argsp() && funcp->emptyBody()) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+        إذا (ثابت AstCCall* ثابت callp = VN_CAST(nodep->exprp(), CCall)) {
+            ثابت AstCFunc* ثابت funcp = callp->funcp();
+            إذا (!callp->argsp() && funcp->خالی_Body()) {
+                VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+                أرجع;
             }
         }
 
@@ -4240,7 +4240,7 @@ class ConstVisitor final : public VNVisitor {
     }
 
     // Simplify
-    void visit(AstBasicDType* nodep) override {
+    فراغ بازدید(AstBasicDType* nodep) override {
         iterateChildren(nodep);
         nodep->cvtRangeConst();
     }
@@ -4248,50 +4248,50 @@ class ConstVisitor final : public VNVisitor {
     //-----
     // Jump elimination
 
-    void visit(AstJumpGo* nodep) override {
+    فراغ بازدید(AstJumpGo* nodep) override {
         // Any statements following the JumpGo (at this statement level) never execute, delete
-        if (nodep->nextp() && canDeleteStatements()) {
-            pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        إذا (nodep->nextp() && canDeleteStatements()) {
+            افزودن_Deletep(nodep->nextp()->unlink_Fr_پشت_With_بعدی());
         }
 
         // JumpGo as last statement in target JumpBlock (including last in a last sub-list),
         // is a no-op, remove it.
-        if (!nodep->nextp()) {
-            for (AstNode* abovep = nodep->abovep(); abovep; abovep = abovep->abovep()) {
-                if (abovep == nodep->blockp()) {
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
+        إذا (!nodep->nextp()) {
+            لكل (Ast_گره* abovep = nodep->abovep(); abovep; abovep = abovep->abovep()) {
+                إذا (abovep == nodep->blockp()) {
+                    VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+                    أرجع;
                 }
                 // Stop if not doing expensive, or if the above node is not the last in its list,
                 // ... or if it's not an 'if' TODO: it would be enough if it was not a branch.
-                if (!m_doExpensive || abovep->nextp() || !VN_IS(abovep, If)) break;
+                إذا (!m_doExpensive || abovep->nextp() || !VN_IS(abovep, If)) اكسر;
             }
         }
         // Mark JumpBlock as used
-        m_usedJumpBlocks.emplace(nodep->blockp());
-        m_hasJumpDelay = true;
+        m_استفاده_شده_Jump_بلوکها.emplace(nodep->blockp());
+        m_hasJumpDelay = درست;
     }
 
-    void visit(AstJumpBlock* nodep) override {
+    فراغ بازدید(Ast_Jump_بلوک* nodep) override {
         iterateChildren(nodep);
 
         // If first statement is an AstLoopTest, pull it before the jump block
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
-            nodep->addHereThisAsNext(testp->unlinkFrBack());
+        إذا (AstLoopTest* ثابت testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+            nodep->جمع_کن_اینجا_This_As_بعدی(testp->unlink_Fr_پشت());
         }
 
         // Remove if empty
-        if (!nodep->stmtsp()) {
+        إذا (!nodep->stmtsp()) {
             UINFO(4, "JUMPLABEL => empty " << nodep);
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(افزودن_Deletep(nodep->unlink_Fr_پشت()), nodep);
+            أرجع;
         }
 
         // If no JumpGo points to this node, replace it with its body
-        if (!m_usedJumpBlocks.count(nodep)) {
+        إذا (!m_استفاده_شده_Jump_بلوکها.شمار(nodep)) {
             UINFO(4, "JUMPLABEL => unused " << nodep);
-            nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(nodep->stmtsp()->unlink_Fr_پشت_With_بعدی());
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
         }
     }
 
@@ -4300,8 +4300,8 @@ class ConstVisitor final : public VNVisitor {
     //  TREE_SKIP_VISIT("AstNODETYPE")    # Rename normal visit to visitGen and don't iterate
     //-----
     // clang-format off
-    TREE_SKIP_VISIT("ArraySel");
-    TREE_SKIP_VISIT("CAwait");
+    درخت_SKIP_بازدید("ArraySel");
+    درخت_SKIP_بازدید("CAwait");
 
     //-----
     //  "AstNODETYPE {             # bracket not paren
@@ -4618,7 +4618,7 @@ class ConstVisitor final : public VNVisitor {
     TREEOPS("AstLogIf{$lhsp.isZero}",  "replaceNum(nodep, 1)");
     TREEOPV("AstLogIf{$lhsp, $rhsp}",  "AstLogOr{AstLogNot{$lhsp},$rhsp}");
     TREEOPV("AstLogEq{$lhsp, $rhsp}",  "replaceLogEq(nodep)");
-    // Strings
+    //رشتهها
     TREEOPA("AstPutcN{$lhsp.castConst, $rhsp.castConst, $thsp.castConst}",  "replaceConst(nodep)");
     TREEOPA("AstSubstrN{$lhsp.castConst, $rhsp.castConst, $thsp.castConst}",  "replaceConst(nodep)");
     TREEOP ("AstToStringN{DISABLE_BASE}", "DONE");  // Avoid uniop(const); use matchToStringNConst
@@ -4641,41 +4641,41 @@ class ConstVisitor final : public VNVisitor {
     // Note we can't convert EqCase/NeqCase to Eq/Neq here because that would break 3'b1x1==3'b101
 
     //-----
-    void visit(AstNode* nodep) override {
+    فراغ بازدید(Ast_گره* nodep) override {
         // Default: Just iterate
-        if (m_required) {
-            if (VN_IS(nodep, NodeDType) || VN_IS(nodep, Range) || VN_IS(nodep, SliceSel)
-                || VN_IS(nodep, Dot) || VN_IS(nodep, Text)) {
+        إذا (m_required) {
+            إذا (VN_IS(nodep, گره_DType) || VN_IS(nodep, Range) || VN_IS(nodep, برش_Sel)
+                || VN_IS(nodep, Dot) || VN_IS(nodep, متن_2)) {
                 // ignore
-            } else if (VN_IS(nodep, Pattern) || VN_IS(nodep, PatMember)) {
+            } وإلا إذا (VN_IS(nodep, الگو) || VN_IS(nodep, PatMember)) {
                 // A parameter override pattern is typed later, so only fold its members
                 iterateChildren(nodep);
-            } else if (AstCellRef* const crp = VN_CAST(nodep, CellRef)) {
+            } وإلا إذا (AstCellRef* ثابت crp = VN_CAST(nodep, CellRef)) {
                 iterate(crp->exprp());
-                if (AstNode* const newp = crp->exprp()) {
-                    crp->replaceWithKeepDType(newp->unlinkFrBack());
-                    VL_DO_DANGLING(pushDeletep(crp), crp);
+                إذا (Ast_گره* ثابت newp = crp->exprp()) {
+                    crp->replaceWithKeepDType(newp->unlink_Fr_پشت());
+                    VL_DO_DANGLING(افزودن_Deletep(crp), crp);
                 }
-                return;
-            } else {
+                أرجع;
+            } وإلا {
                 nodep->v3error("Expecting expression to be constant, but can't convert a "
                                << nodep->prettyTypeName() << " to constant.");
             }
-        } else {
-            if (nodep->isTimingControl()) m_hasJumpDelay = true;
+        } وإلا {
+            إذا (nodep->isTimingControl()) m_hasJumpDelay = درست;
             // Calculate the width of this operation
-            if (m_params && !nodep->width()) nodep = V3Width::widthParamsEdit(nodep);
+            إذا (m_params && !nodep->عرض()) nodep = V3_عرض::عرض_Params_Edit(nodep);
             iterateChildren(nodep);
         }
     }
 
-public:
+عام:
     // Processing Mode Enum
-    enum ProcMode : uint8_t {
+    تعداد Proc_نما : uint8_t {
         PROC_PARAMS_NOWARN,
         PROC_PARAMS,
         PROC_GENERATE,
-        PROC_LIVE,
+        PROC_زنده,
         PROC_V_WARN,
         PROC_V_NOWARN,
         PROC_V_EXPENSIVE,
@@ -4683,93 +4683,93 @@ public:
     };
 
     // CONSTRUCTORS
-    ConstVisitor(ProcMode pmode, bool globalPass)
+    ConstVisitor(Proc_نما pmode, منطقي globalPass)
         : m_globalPass{globalPass}
-        , m_concswapNames{globalPass ? ("__Vconcswap_" + cvtToStr(s_globalPassNum++)) : ""} {
+        , m_concswap_نامها{globalPass ? ("__Vconcswap_" + cvt_مقصد_Str(s_global_Pass_رقم++)) : ""} {
         // clang-format off
-        switch (pmode) {
-        case PROC_PARAMS_NOWARN:  m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = false; break;
-        case PROC_PARAMS:         m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = true; break;
-        case PROC_GENERATE:       m_doV = true;  m_doNConst = true; m_params = true;
-                                  m_required = true; m_doGenerate = true; break;
-        case PROC_LIVE:           break;
-        case PROC_V_WARN:         m_doV = true;  m_doNConst = true; m_warn = true; m_convertLogicToBit = true; break;
-        case PROC_V_NOWARN:       m_doV = true;  m_doNConst = true; break;
-        case PROC_V_EXPENSIVE:    m_doV = true;  m_doNConst = true; m_doExpensive = true; break;
-        case PROC_CPP:            m_doV = false; m_doNConst = true; m_doCpp = true; break;
-        default:                  v3fatalSrc("Bad case"); break;
+        بدل (pmode) {
+        حالة PROC_PARAMS_NOWARN:  m_doV = درست;  m_doNConst = درست; m_params = درست;
+                                  m_required = خطأ; اكسر;
+        حالة PROC_PARAMS:         m_doV = درست;  m_doNConst = درست; m_params = درست;
+                                  m_required = درست; اكسر;
+        حالة PROC_GENERATE:       m_doV = درست;  m_doNConst = درست; m_params = درست;
+                                  m_required = درست; m_doGenerate = درست; اكسر;
+        حالة PROC_زنده:           اكسر;
+        حالة PROC_V_WARN:         m_doV = درست;  m_doNConst = درست; m_warn = درست; m_convert_Logic_مقصد_بیت = درست; اكسر;
+        حالة PROC_V_NOWARN:       m_doV = درست;  m_doNConst = درست; اكسر;
+        حالة PROC_V_EXPENSIVE:    m_doV = درست;  m_doNConst = درست; m_doExpensive = درست; اكسر;
+        حالة PROC_CPP:            m_doV = خطأ; m_doNConst = درست; m_doCpp = درست; اكسر;
+        افتراضي:                  v3fatalSrc("Bad case"); اكسر;
         }
         // clang-format on
     }
     ~ConstVisitor() override {
-        if (m_doCpp) {
-            if (m_globalPass) {
-                V3Stats::addStat("Optimizations, Const bit op reduction", m_statBitOpReduction);
-            } else {
-                V3Stats::addStatSum("Optimizations, Const bit op reduction", m_statBitOpReduction);
+        إذا (m_doCpp) {
+            إذا (m_globalPass) {
+                V3Stats::جمع_کن_Stat("Optimizations, Const bit op reduction", m_stat_بیت_Op_Reduction);
+            } وإلا {
+                V3Stats::جمع_کن_Stat_جمع("Optimizations, Const bit op reduction", m_stat_بیت_Op_Reduction);
             }
         }
-        V3Stats::addStatSum("Optimizations, Cond redundant expressions", m_statCondExprRedundant);
-        V3Stats::addStatSum("Optimizations, If cond redundant expressions",
-                            m_statIfCondExprRedundant);
-        V3Stats::addStatSum("Optimizations, Concat merges", m_statConcatMerge);
-        V3Stats::addStatSum("Optimizations, Member access predicate node visits",
+        V3Stats::جمع_کن_Stat_جمع("Optimizations, Cond redundant expressions", m_stat_Cond_عبارت_Redundant);
+        V3Stats::جمع_کن_Stat_جمع("Optimizations, If cond redundant expressions",
+                            m_stat_If_Cond_عبارت_Redundant);
+        V3Stats::جمع_کن_Stat_جمع("Optimizations, Concat merges", m_stat_Concat_ادغام);
+        V3Stats::جمع_کن_Stat_جمع("Optimizations, Member access predicate node visits",
                             m_statMemberAccessVisits);
     }
 
-    AstNode* mainAcceptEdit(AstNode* nodep) {
-        VIsCached::clearCacheTree();  // Avoid using any stale isPure
+    Ast_گره* mainAcceptEdit(Ast_گره* nodep) {
+        VIsCached::clear_Cache_درخت();  // Avoid using any stale isPure
         // Operate starting at a random place
-        return iterateSubtreeReturnEdits(nodep);
+        أرجع iterateSubtreeReturnEdits(nodep);
     }
 };
 
-uint32_t ConstVisitor::s_globalPassNum = 0;
+uint32_t ConstVisitor::s_global_Pass_رقم = 0;
 
 //######################################################################
 // Const class functions
 
 //! Force this cell node's parameter list to become a constant
-void V3Const::constifyParamsEdit(AstNode* nodep) {
+فراغ V3Const::constifyParamsEdit(Ast_گره* nodep) {
     // UINFOTREE(1, nodep, "", "forceConPRE");
     // Resize even if the node already has a width, because buried in the tree
     // we may have a node we just created with signing, etc, that isn't sized yet.
 
     // Make sure we've sized everything first
-    nodep = V3Width::widthParamsEdit(nodep);
-    ConstVisitor visitor{ConstVisitor::PROC_PARAMS, /* globalPass: */ false};
+    nodep = V3_عرض::عرض_Params_Edit(nodep);
+    ConstVisitor visitor{ConstVisitor::PROC_PARAMS, /* globalPass: */ خطأ};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    إذا (AstVar* ثابت varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
-        (void)visitor.mainAcceptEdit(nodep);
+        إذا (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } وإلا {
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump if have next line
     // UINFOTREE(1, nodep, "", "forceConDONE");
 }
 
 //! Constify this cell node's parameter list if possible
-void V3Const::constifyParamsNoWarnEdit(AstNode* nodep) {
+فراغ V3Const::constifyParamsNoWarnEdit(Ast_گره* nodep) {
     // UINFOTREE(1, nodep, "", "forceConPRE");
     // Resize even if the node already has a width, because buried in the tree
     // we may have a node we just created with signing, etc, that isn't sized yet.
 
     // Make sure we've sized everything first
-    nodep = V3Width::widthParamsEdit(nodep);
-    ConstVisitor visitor{ConstVisitor::PROC_PARAMS_NOWARN, /* globalPass: */ false};
+    nodep = V3_عرض::عرض_Params_Edit(nodep);
+    ConstVisitor visitor{ConstVisitor::PROC_PARAMS_NOWARN, /* globalPass: */ خطأ};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    إذا (AstVar* ثابت varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
-        (void)visitor.mainAcceptEdit(nodep);
+        إذا (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } وإلا {
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump this.
     // UINFOTREE(1, nodep, "", "forceConDONE");
@@ -4782,83 +4782,83 @@ void V3Const::constifyParamsNoWarnEdit(AstNode* nodep) {
 //! generated. Since such occurrences, must be constant, in order to be
 //! something a generate block can depend on, we can wait until later to do the
 //! width check.
-void V3Const::constifyGenerateParamsEdit(AstNode* nodep) {
+فراغ V3Const::constifyGenerateParamsEdit(Ast_گره* nodep) {
     // UINFOTREE(1, nodep, "", "forceConPRE:");
     // Resize even if the node already has a width, because buried in the tree
     // we may have a node we just created with signing, etc, that isn't sized
     // yet.
 
     // Make sure we've sized everything first
-    nodep = V3Width::widthGenerateParamsEdit(nodep);
-    ConstVisitor visitor{ConstVisitor::PROC_GENERATE, /* globalPass: */ false};
+    nodep = V3_عرض::عرض_Generate_Params_Edit(nodep);
+    ConstVisitor visitor{ConstVisitor::PROC_GENERATE, /* globalPass: */ خطأ};
     // cppcheck-suppress constVariablePointer // edited below
-    if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    إذا (AstVar* ثابت varp = VN_CAST(nodep, Var)) {
         // If a var wants to be constified, it's really a param, and
         // we want the value to be constant.  We aren't passed just the
         // init value because we need widthing above to handle the var's type.
-        if (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
-    } else {
+        إذا (varp->valuep()) visitor.mainAcceptEdit(varp->valuep());
+    } وإلا {
         VL_DO_DANGLING(visitor.mainAcceptEdit(nodep), nodep);
     }
     // Because we do edits, nodep links may get trashed and core dump this.
     // UINFOTREE(1, nodep, "", "forceConDONE");
 }
 
-void V3Const::constifyAllLint(AstNetlist* nodep) {
+فراغ V3Const::constifyAllLint(AstNetlist* nodep) {
     // Only call from Verilator.cpp, as it uses user#'s
     UINFO(2, __FUNCTION__ << ":");
     {
-        ConstVisitor visitor{ConstVisitor::PROC_V_WARN, /* globalPass: */ true};
-        (void)visitor.mainAcceptEdit(nodep);
+        ConstVisitor visitor{ConstVisitor::PROC_V_WARN, /* globalPass: */ درست};
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("const", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("const", 0, dump_درخت_Either_Level() >= 3);
 }
 
-void V3Const::constifyCpp(AstNetlist* nodep) {
+فراغ V3Const::constifyCpp(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        ConstVisitor visitor{ConstVisitor::PROC_CPP, /* globalPass: */ true};
-        (void)visitor.mainAcceptEdit(nodep);
+        ConstVisitor visitor{ConstVisitor::PROC_CPP, /* globalPass: */ درست};
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("const_cpp", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("const_cpp", 0, dump_درخت_Either_Level() >= 3);
 }
 
-AstNode* V3Const::constifyEdit(AstNode* nodep) {
-    ConstVisitor visitor{ConstVisitor::PROC_V_NOWARN, /* globalPass: */ false};
+Ast_گره* V3Const::constifyEdit(Ast_گره* nodep) {
+    ConstVisitor visitor{ConstVisitor::PROC_V_NOWARN, /* globalPass: */ خطأ};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    أرجع nodep;
 }
 
-AstNode* V3Const::constifyEditCpp(AstNode* nodep) {
-    ConstVisitor visitor{ConstVisitor::PROC_CPP, /* globalPass: */ false};
+Ast_گره* V3Const::constifyEditCpp(Ast_گره* nodep) {
+    ConstVisitor visitor{ConstVisitor::PROC_CPP, /* globalPass: */ خطأ};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    أرجع nodep;
 }
 
-void V3Const::constifyAllLive(AstNetlist* nodep) {
+فراغ V3Const::constify_All_زنده(AstNetlist* nodep) {
     // Only call from Verilator.cpp, as it uses user#'s
     // This only pushes constants up, doesn't make any other edits
     // IE doesn't prune dead statements, as we need to do some usability checks after this
     UINFO(2, __FUNCTION__ << ":");
     {
-        ConstVisitor visitor{ConstVisitor::PROC_LIVE, /* globalPass: */ true};
-        (void)visitor.mainAcceptEdit(nodep);
+        ConstVisitor visitor{ConstVisitor::PROC_زنده, /* globalPass: */ درست};
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("const", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("const", 0, dump_درخت_Either_Level() >= 3);
 }
 
-void V3Const::constifyAll(AstNetlist* nodep) {
+فراغ V3Const::constifyAll(AstNetlist* nodep) {
     // Only call from Verilator.cpp, as it uses user#'s
     UINFO(2, __FUNCTION__ << ":");
     {
-        ConstVisitor visitor{ConstVisitor::PROC_V_EXPENSIVE, /* globalPass: */ true};
-        (void)visitor.mainAcceptEdit(nodep);
+        ConstVisitor visitor{ConstVisitor::PROC_V_EXPENSIVE, /* globalPass: */ درست};
+        (فراغ)visitor.mainAcceptEdit(nodep);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("const", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("const", 0, dump_درخت_Either_Level() >= 3);
 }
 
-AstNode* V3Const::constifyExpensiveEdit(AstNode* nodep) {
-    ConstVisitor visitor{ConstVisitor::PROC_V_EXPENSIVE, /* globalPass: */ false};
+Ast_گره* V3Const::constifyExpensiveEdit(Ast_گره* nodep) {
+    ConstVisitor visitor{ConstVisitor::PROC_V_EXPENSIVE, /* globalPass: */ خطأ};
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    أرجع nodep;
 }

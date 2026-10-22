@@ -29,177 +29,177 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Common.h"
+#ضمن "V3Common.h"
 
-#include "V3EmitCBase.h"
+#ضمن "V3EmitCBase.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Common component builders
 
-string V3Common::makeToStringCall(AstNodeDType* nodep, const std::string& lhs) {
+string V3Common::make_مقصد_String_Call(Ast_گره_DType* nodep, ثابت std::string& lhs) {
     std::string stmt;
-    if (VN_IS(nodep->skipRefp(), BasicDType) && nodep->isWide()) {
+    إذا (VN_IS(nodep->skipRefp(), BasicDType) && nodep->isWide()) {
         stmt += "VL_TO_STRING_W(";
-        stmt += cvtToStr(nodep->widthWords());
+        stmt += cvt_مقصد_Str(nodep->عرض_واژگان());
         stmt += ", ";
-    } else {
+    } وإلا {
         stmt += "VL_TO_STRING(";
     }
     stmt += lhs;
     stmt += ")";
-    return stmt;
+    أرجع stmt;
 }
 
-static void makeVlToString(AstIface* nodep) {
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "VL_TO_STRING", nullptr, "std::string"};
-    funcp->argTypes("const " + EmitCUtil::prefixNameProtect(nodep) + "* obj");
-    funcp->isMethod(false);
-    funcp->isConst(false);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    AstNodeExpr* const exprp = new AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
-    nodep->addStmtsp(funcp);
+ساكن فراغ make_Vl_مقصد_String(AstIface* nodep) {
+    AstCFunc* ثابت funcp
+        = جديد AstCFunc{nodep->fileline(), "VL_TO_STRING", اشاره_تهی, "std::string"};
+    funcp->argTypes("const " + EmitCUtil::پیشوند_Name_Protect(nodep) + "* obj");
+    funcp->is_روش(خطأ);
+    funcp->isConst(خطأ);
+    funcp->isStatic(خطأ);
+    funcp->protect(خطأ);
+    Ast_گره_عبارت* ثابت exprp = جديد AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
+    exprp->dtype_مجموعه_String();
+    funcp->جمع_کن_Stmtsp(جديد AstCReturn{nodep->fileline(), exprp});
+    nodep->جمع_کن_Stmtsp(funcp);
 }
-static void makeVlToString(AstNodeUOrStructDType* nodep) {
-    AstNodeModule* const modp = nodep->classOrPackagep();
+ساكن فراغ make_Vl_مقصد_String(Ast_گره_UOr_Struct_DType* nodep) {
+    Ast_گره_Module* ثابت modp = nodep->classOrPackagep();
     UASSERT_OBJ(modp, nodep, "Unlinked struct package");
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "VL_TO_STRING", nullptr, "std::string"};
-    funcp->argTypes("const " + EmitCUtil::prefixNameProtect(nodep) + "& obj");
-    funcp->isMethod(false);
-    funcp->isConst(false);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    funcp->addStmtsp(new AstCStmt{nodep->fileline(), "std::string out;"});
-    for (const AstMemberDType* itemp = nodep->membersp(); itemp;
+    AstCFunc* ثابت funcp
+        = جديد AstCFunc{nodep->fileline(), "VL_TO_STRING", اشاره_تهی, "std::string"};
+    funcp->argTypes("const " + EmitCUtil::پیشوند_Name_Protect(nodep) + "& obj");
+    funcp->is_روش(خطأ);
+    funcp->isConst(خطأ);
+    funcp->isStatic(خطأ);
+    funcp->protect(خطأ);
+    funcp->جمع_کن_Stmtsp(جديد AstCStmt{nodep->fileline(), "std::string out;"});
+    لكل (ثابت AstMemberDType* itemp = nodep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         std::string stmt = "out += \"";
-        if (itemp == nodep->membersp()) {
+        إذا (itemp == nodep->membersp()) {
             stmt += "'{";
-        } else {
+        } وإلا {
             stmt += ", ";
         }
         stmt += VIdProtect::protect(itemp->prettyName()) + ":\" + ";
-        stmt += V3Common::makeToStringCall(itemp->dtypep(), "obj."s + itemp->nameProtect());
+        stmt += V3Common::make_مقصد_String_Call(itemp->dtypep(), "obj."s + itemp->nameProtect());
         stmt += ";";
-        funcp->addStmtsp(new AstCStmt{nodep->fileline(), stmt});
+        funcp->جمع_کن_Stmtsp(جديد AstCStmt{nodep->fileline(), stmt});
     }
-    funcp->addStmtsp(new AstCStmt{nodep->fileline(), "out += \"}\";"});
+    funcp->جمع_کن_Stmtsp(جديد AstCStmt{nodep->fileline(), "out += \"}\";"});
 
-    AstCExpr* const exprp = new AstCExpr{nodep->fileline(), "out"};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
+    AstCExpr* ثابت exprp = جديد AstCExpr{nodep->fileline(), "out"};
+    exprp->dtype_مجموعه_String();
+    funcp->جمع_کن_Stmtsp(جديد AstCReturn{nodep->fileline(), exprp});
 
-    modp->addStmtsp(funcp);
+    modp->جمع_کن_Stmtsp(funcp);
 }
-static void makeToString(AstClass* nodep) {
-    AstCFunc* const funcp = new AstCFunc{nodep->fileline(), "to_string", nullptr, "std::string"};
-    funcp->isConst(true);
-    funcp->isStatic(false);
-    funcp->isVirtual(true);
-    funcp->protect(false);
-    AstCExpr* const exprp = new AstCExpr{nodep->fileline(), R"("'{"s + to_string_middle() + "}")"};
-    exprp->dtypeSetString();
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
-    nodep->addStmtsp(funcp);
+ساكن فراغ make_مقصد_String(AstClass* nodep) {
+    AstCFunc* ثابت funcp = جديد AstCFunc{nodep->fileline(), "to_string", اشاره_تهی, "std::string"};
+    funcp->isConst(درست);
+    funcp->isStatic(خطأ);
+    funcp->isVirtual(درست);
+    funcp->protect(خطأ);
+    AstCExpr* ثابت exprp = جديد AstCExpr{nodep->fileline(), R"("'{"s + to_string_middle() + "}")"};
+    exprp->dtype_مجموعه_String();
+    funcp->جمع_کن_Stmtsp(جديد AstCReturn{nodep->fileline(), exprp});
+    nodep->جمع_کن_Stmtsp(funcp);
 }
-static void makeToStringMiddle(AstClass* nodep) {
-    AstCFunc* const funcp
-        = new AstCFunc{nodep->fileline(), "to_string_middle", nullptr, "std::string"};
-    funcp->isConst(true);
-    funcp->isStatic(false);
-    funcp->protect(false);
-    AstNodeStmt* stmtsp = nullptr;
+ساكن فراغ make_مقصد_String_میانه(AstClass* nodep) {
+    AstCFunc* ثابت funcp
+        = جديد AstCFunc{nodep->fileline(), "to_string_middle", اشاره_تهی, "std::string"};
+    funcp->isConst(درست);
+    funcp->isStatic(خطأ);
+    funcp->protect(خطأ);
+    Ast_گره_Stmt* stmtsp = اشاره_تهی;
     std::string comma;
-    for (AstNode* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
-        if (const auto* const varp = VN_CAST(itemp, Var)) {
-            const AstBasicDType* const basicp = varp->dtypeSkipRefp()->basicp();
-            if (!varp->isParam() && !varp->isInternal()
+    لكل (Ast_گره* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
+        إذا (ثابت خودکار* ثابت varp = VN_CAST(itemp, Var)) {
+            ثابت AstBasicDType* ثابت basicp = varp->dtypeSkipRefp()->basicp();
+            إذا (!varp->isParam() && !varp->is_داخلی()
                 && !(basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator()))) {
                 string stmt = "out += \"";
                 stmt += comma;
                 comma = ", ";
                 stmt += itemp->origNameProtect();
                 stmt += ":\" + ";
-                stmt += V3Common::makeToStringCall(itemp->dtypep(), itemp->nameProtect());
+                stmt += V3Common::make_مقصد_String_Call(itemp->dtypep(), itemp->nameProtect());
                 stmt += ";";
-                nodep->user1(true);  // So what we extend dumps this
-                stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+                nodep->user1(درست);  // So what we extend dumps this
+                stmtsp = Ast_گره::جمع_کن_بعدی_Null(stmtsp, جديد AstCStmt{nodep->fileline(), stmt});
             }
         }
     }
-    if (nodep->extendsp()) {
+    إذا (nodep->extendsp()) {
         string stmt = "out += ";
-        if (!comma.empty()) stmt += "\", \" + ";
+        إذا (!comma.خالی()) stmt += "\", \" + ";
         // comma = ", ";  // Nothing further so not needed
-        stmt += EmitCUtil::prefixNameProtect(nodep->extendsp()->dtypep());
+        stmt += EmitCUtil::پیشوند_Name_Protect(nodep->extendsp()->dtypep());
         stmt += "::to_string_middle();";
-        nodep->user1(true);  // So what we extend dumps this
-        stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+        nodep->user1(درست);  // So what we extend dumps this
+        stmtsp = Ast_گره::جمع_کن_بعدی_Null(stmtsp, جديد AstCStmt{nodep->fileline(), stmt});
     }
 
-    AstNodeExpr* exprp;
-    if (stmtsp) {
-        funcp->addStmtsp(new AstCStmt{nodep->fileline(), "std::string out;"});
-        funcp->addStmtsp(stmtsp);
-        exprp = new AstCExpr{nodep->fileline(), "out"};
-        exprp->dtypeSetString();
-    } else {  // Nothing to print, return ""
-        exprp = new AstConst{nodep->fileline(), AstConst::String{}, ""};
+    Ast_گره_عبارت* exprp;
+    إذا (stmtsp) {
+        funcp->جمع_کن_Stmtsp(جديد AstCStmt{nodep->fileline(), "std::string out;"});
+        funcp->جمع_کن_Stmtsp(stmtsp);
+        exprp = جديد AstCExpr{nodep->fileline(), "out"};
+        exprp->dtype_مجموعه_String();
+    } وإلا {  // Nothing to print, return ""
+        exprp = جديد AstConst{nodep->fileline(), AstConst::String{}, ""};
     }
-    funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
+    funcp->جمع_کن_Stmtsp(جديد AstCReturn{nodep->fileline(), exprp});
 
-    nodep->addStmtsp(funcp);
+    nodep->جمع_کن_Stmtsp(funcp);
 }
 
-class ToStringVisitor final : public VNVisitorConst {
+صنف مقصد_String_Visitor final : عام VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()  -> bool. to_string() was emitted
     //  AstClass::user2()  -> PrintedFromParent. Used to propagate emission of to_string() from
     //  parent to child
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    size_t m_emitTowardsRoot
+    ثابت VNUser1_درون_Use m_inuser1;
+    ثابت VNUser2_درون_Use m_inuser2;
+    اندازه_t m_emit_Towards_ریشه
         = 0;  // class that require its ancestors to emit to_string() sets this
-    size_t m_emitForMembers = 0;  // class/struct that requires its members (and their members
+    اندازه_t m_emitForMembers = 0;  // class/struct that requires its members (and their members
                                   // recursively) to emit to_string() sets this
-    enum class PrintedFromParent : uint8_t {
+    تعداد صنف Printed_From_والد : uint8_t {
         UNRESOLVED,
-        PRINTED_FROM_PARENT,
-        NO_PRINTED_FROM_PARENT
+        PRINTED_FROM_والد,
+        NO_PRINTED_FROM_والد
     };
 
-    VDouble0 m_statClassToString;
-    VDouble0 m_statInterfaceToString;
-    VDouble0 m_statStructUnionToString;
+    VDouble0 m_stat_Class_مقصد_String;
+    VDouble0 m_stat_Interface_مقصد_String;
+    VDouble0 m_stat_Struct_Union_مقصد_String;
 
-    void markClassIterate(AstClass* classp) {
-        if (classp->user1SetOnce()) return;
+    فراغ markClassIterate(AstClass* classp) {
+        إذا (classp->user1_مجموعه_Once()) أرجع;
         VL_RESTORER(m_emitForMembers);
         ++m_emitForMembers;
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                AstNodeDType* nodeDtypep = varp->dtypep();
-                if (AstIfaceRefDType* const ifaceRedDTypep = VN_CAST(nodeDtypep, IfaceRefDType)) {
-                    if (ifaceRedDTypep->ifacep()) iterateConst(ifaceRedDTypep->ifacep());
-                } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()
-                           && nodeDtypep->subDTypep()->skipRefp()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
-                        if (AstIfaceRefDType* const ifaceRedDTypep
-                            = VN_CAST(nodeDtypep, IfaceRefDType)) {
-                            if (ifaceRedDTypep->ifacep()) {
+        لكل (Ast_گره* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            إذا (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                Ast_گره_DType* گره_Dtypep = varp->dtypep();
+                إذا (AstIfaceRefDType* ثابت ifaceRedDTypep = VN_CAST(گره_Dtypep, IfaceRefDType)) {
+                    إذا (ifaceRedDTypep->ifacep()) iterateConst(ifaceRedDTypep->ifacep());
+                } وإلا {
+                    طالما (گره_Dtypep && گره_Dtypep->subDTypep()
+                           && گره_Dtypep->subDTypep()->skipRefp()) {
+                        گره_Dtypep = گره_Dtypep->subDTypep()->skipRefp();
+                        إذا (AstIfaceRefDType* ثابت ifaceRedDTypep
+                            = VN_CAST(گره_Dtypep, IfaceRefDType)) {
+                            إذا (ifaceRedDTypep->ifacep()) {
                                 iterateConst(ifaceRedDTypep->ifacep());
                             }
-                        } else if (AstNodeUOrStructDType* const uOrStructDTypep
-                                   = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                        } وإلا إذا (Ast_گره_UOr_Struct_DType* ثابت uOrStructDTypep
+                                   = VN_CAST(گره_Dtypep, گره_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
@@ -207,99 +207,99 @@ class ToStringVisitor final : public VNVisitorConst {
             }
         }
 
-        makeToString(classp);
-        makeToStringMiddle(classp);
-        ++m_statClassToString;
+        make_مقصد_String(classp);
+        make_مقصد_String_میانه(classp);
+        ++m_stat_Class_مقصد_String;
     }
-    void visit(AstNodeUOrStructDType* structp) override {
-        if (structp->user1())
-            return;  // if to_string() was already emitted skip the rest of the function
-        if (structp->emitToString()) ++m_emitForMembers;
-        if (m_emitForMembers
+    فراغ بازدید(Ast_گره_UOr_Struct_DType* structp) override {
+        إذا (structp->user1())
+            أرجع;  // if to_string() was already emitted skip the rest of the function
+        إذا (structp->emit_مقصد_String()) ++m_emitForMembers;
+        إذا (m_emitForMembers
             > 0) {  // either this struct directly requires emission of to_string() or the
                     // class/struct that has this struct as a field requires it to emit to_string()
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+            لكل (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeDType* nodeDtypep = memberp->dtypep();
-                if (AstNodeUOrStructDType* const uOrStructDTypep
-                    = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                Ast_گره_DType* گره_Dtypep = memberp->dtypep();
+                إذا (Ast_گره_UOr_Struct_DType* ثابت uOrStructDTypep
+                    = VN_CAST(گره_Dtypep, گره_UOr_Struct_DType)) {
                     iterateConst(uOrStructDTypep);
-                } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
-                        if (AstNodeUOrStructDType* const uOrStructDTypep
-                            = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                } وإلا {
+                    طالما (گره_Dtypep && گره_Dtypep->subDTypep()) {
+                        گره_Dtypep = گره_Dtypep->subDTypep()->skipRefp();
+                        إذا (Ast_گره_UOr_Struct_DType* ثابت uOrStructDTypep
+                            = VN_CAST(گره_Dtypep, گره_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
                 }
             }
-            if (structp->emitToString()) --m_emitForMembers;
+            إذا (structp->emit_مقصد_String()) --m_emitForMembers;
 
-            if (!structp->packed()) {
-                makeVlToString(structp);
-                ++m_statStructUnionToString;
+            إذا (!structp->packed()) {
+                make_Vl_مقصد_String(structp);
+                ++m_stat_Struct_Union_مقصد_String;
             }
 
-            structp->user1(true);  // mark that to_string() was emitted to not emit it twice (if
+            structp->user1(درست);  // mark that to_string() was emitted to not emit it twice (if
                                    // e.g two printed classes have this struct as a field)
         }
     }
-    void visit(AstIface* ifacep) override {
-        if (ifacep->user1())
-            return;  // if to_string() was already emitted skip the rest of the function
-        if (m_emitForMembers
+    فراغ بازدید(AstIface* ifacep) override {
+        إذا (ifacep->user1())
+            أرجع;  // if to_string() was already emitted skip the rest of the function
+        إذا (m_emitForMembers
             > 0) {  // class that has this iface as a field requires it to emit to_string()
-            makeVlToString(ifacep);
-            ++m_statInterfaceToString;
-            ifacep->user1(true);  // mark that to_string() was emitted to not emit it twice (if e.g
+            make_Vl_مقصد_String(ifacep);
+            ++m_stat_Interface_مقصد_String;
+            ifacep->user1(درست);  // mark that to_string() was emitted to not emit it twice (if e.g
                                   // two printed classes have this interface as a field)
         }
     }
     // go towards class hierarchy root, if there is any printed from class on the way, mark its
     // ancestors, and mark everything on the return path from the printed from class
-    void visit(AstClass* classp) override {
-        if (classp->user1()) return;
-        if (classp->isPrintedFrom()) {
+    فراغ بازدید(AstClass* classp) override {
+        إذا (classp->user1()) أرجع;
+        إذا (classp->isPrintedFrom()) {
             markClassIterate(classp);
-            VL_RESTORER(m_emitTowardsRoot);
-            ++m_emitTowardsRoot;
-            for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+            VL_RESTORER(m_emit_Towards_ریشه);
+            ++m_emit_Towards_ریشه;
+            لكل (ثابت AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                if (extendp->classp() && !extendp->classp()->user1()) {
+                إذا (extendp->classp() && !extendp->classp()->user1()) {
                     iterateConst(extendp->classp());
                 }
             }
-            classp->user2(static_cast<int>(PrintedFromParent::PRINTED_FROM_PARENT));
-        } else {
-            PrintedFromParent printed_parent = static_cast<PrintedFromParent>(classp->user2());
-            if (printed_parent != PrintedFromParent::UNRESOLVED && m_emitTowardsRoot == 0) {
-                return;
+            classp->user2(static_cast<صحيح>(Printed_From_والد::PRINTED_FROM_والد));
+        } وإلا {
+            Printed_From_والد printed_والد = static_cast<Printed_From_والد>(classp->user2());
+            إذا (printed_والد != Printed_From_والد::UNRESOLVED && m_emit_Towards_ریشه == 0) {
+                أرجع;
             }
 
-            if (m_emitTowardsRoot > 0) markClassIterate(classp);
+            إذا (m_emit_Towards_ریشه > 0) markClassIterate(classp);
 
-            bool is_root = true;
-            for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+            منطقي is_ریشه = درست;
+            لكل (ثابت AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                if (extendp->classp()) {
-                    if (static_cast<PrintedFromParent>(extendp->classp()->user2())
-                            == PrintedFromParent::UNRESOLVED
-                        || (m_emitTowardsRoot > 0 && !extendp->classp()->user1())) {
+                إذا (extendp->classp()) {
+                    إذا (static_cast<Printed_From_والد>(extendp->classp()->user2())
+                            == Printed_From_والد::UNRESOLVED
+                        || (m_emit_Towards_ریشه > 0 && !extendp->classp()->user1())) {
                         iterateConst(extendp->classp());
                     }
-                    if (printed_parent != PrintedFromParent::PRINTED_FROM_PARENT) {
-                        printed_parent
-                            = static_cast<PrintedFromParent>(extendp->classp()->user2());
+                    إذا (printed_والد != Printed_From_والد::PRINTED_FROM_والد) {
+                        printed_والد
+                            = static_cast<Printed_From_والد>(extendp->classp()->user2());
                     }
-                    is_root = false;
+                    is_ریشه = خطأ;
                 }
             }
 
-            if (is_root) printed_parent = PrintedFromParent::NO_PRINTED_FROM_PARENT;
+            إذا (is_ریشه) printed_والد = Printed_From_والد::NO_PRINTED_FROM_والد;
 
-            classp->user2(static_cast<int>(printed_parent));
-            if (printed_parent == PrintedFromParent::PRINTED_FROM_PARENT) {
+            classp->user2(static_cast<صحيح>(printed_والد));
+            إذا (printed_والد == Printed_From_والد::PRINTED_FROM_والد) {
                 markClassIterate(classp);
 
                 // If one parent is printed from, other parent also has to emit to_string() to
@@ -307,43 +307,43 @@ class ToStringVisitor final : public VNVisitorConst {
                 // Base  IFaceClass (printed from)
                 //   V    V
                 //   Derived (this class)
-                VL_RESTORER(m_emitTowardsRoot);
-                ++m_emitTowardsRoot;
-                for (const AstClassExtends* extendp = classp->extendsp(); extendp;
+                VL_RESTORER(m_emit_Towards_ریشه);
+                ++m_emit_Towards_ریشه;
+                لكل (ثابت AstClassExtends* extendp = classp->extendsp(); extendp;
                      extendp = VN_AS(extendp->nextp(), ClassExtends)) {
-                    if (extendp->classp() && !extendp->classp()->user1()) {
+                    إذا (extendp->classp() && !extendp->classp()->user1()) {
                         iterateConst(extendp->classp());
                     }
                 }
             }
         }
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit ToStringVisitor(AstNode* nodep) {
-        if (v3Global.hasPrintedObjects()) {
-            AstNode::user1ClearTree();
-            AstNode::user2ClearTree();
+عام:
+    صریح مقصد_String_Visitor(Ast_گره* nodep) {
+        إذا (v3Global.hasPrintedObjects()) {
+            Ast_گره::user1_Clear_درخت();
+            Ast_گره::user2_Clear_درخت();
 
             iterateConst(nodep);
         }
 
-        V3Stats::addStat("Optimizations, Class ToString emitted", m_statClassToString);
-        V3Stats::addStat("Optimizations, Interface ToString emitted", m_statInterfaceToString);
-        V3Stats::addStat("Optimizations, Struct/union ToString emitted",
-                         m_statStructUnionToString);
+        V3Stats::جمع_کن_Stat("Optimizations, Class ToString emitted", m_stat_Class_مقصد_String);
+        V3Stats::جمع_کن_Stat("Optimizations, Interface ToString emitted", m_stat_Interface_مقصد_String);
+        V3Stats::جمع_کن_Stat("Optimizations, Struct/union ToString emitted",
+                         m_stat_Struct_Union_مقصد_String);
     }
-    ~ToStringVisitor() override = default;
+    ~مقصد_String_Visitor() override = افتراضي;
 };
 
 //######################################################################
 // V3Common class functions
 
-void V3Common::commonAll() {
+فراغ V3Common::commonAll() {
     UINFO(2, __FUNCTION__ << ":");
 
-    ToStringVisitor{v3Global.rootp()};
+    مقصد_String_Visitor{v3Global.rootp()};
 
-    V3Global::dumpCheckGlobalTree("common", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("common", 0, dump_درخت_Either_Level() >= 3);
 }

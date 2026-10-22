@@ -34,132 +34,132 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Case.h"
+#ضمن "V3Case.h"
 
-#include "V3ConstPool.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#ضمن "V3ConstPool.h"
+#ضمن "V3SharedTmps.h"
+#ضمن "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class CaseLintVisitor final : public VNVisitorConst {
+صنف CaseLintVisitor final : عام VNVisitorConst {
     // Under a CASE value node, if so the relevant case statement
-    const AstNode* m_casep = nullptr;
+    ثابت Ast_گره* m_casep = اشاره_تهی;
 
     // METHODS
-    template <typename CaseItem>
-    static void detectMultipleDefaults(CaseItem* itemsp) {
-        bool hitDefault = false;
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            if (!itemp->isDefault()) continue;
-            if (hitDefault) itemp->v3error("Multiple default statements in case statement.");
-            hitDefault = true;
+    قالب <نام_نوع Case_قلم>
+    ساكن فراغ detect_مضرب_Defaults(Case_قلم* itemsp) {
+        منطقي اصابت_Default = خطأ;
+        لكل (Case_قلم* itemp = itemsp; itemp; itemp = Ast_گره::as<Case_قلم>(itemp->nextp())) {
+            إذا (!itemp->isDefault()) استمر;
+            إذا (اصابت_Default) itemp->v3error("Multiple default statements in case statement.");
+            اصابت_Default = درست;
         }
     }
 
-    template <typename CaseItem>
-    void checkXZinNonCaseX(AstNode* casep, AstNodeExpr* exprp, CaseItem* itemsp) {
+    قالب <نام_نوع Case_قلم>
+    فراغ checkXZinNonCaseX(Ast_گره* casep, Ast_گره_عبارت* exprp, Case_قلم* itemsp) {
         VL_RESTORER(m_casep);
         m_casep = casep;
         iterateConst(exprp);
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            iterateAndNextConstNull(itemp->condsp());
+        لكل (Case_قلم* itemp = itemsp; itemp; itemp = Ast_گره::as<Case_قلم>(itemp->nextp())) {
+            iterate_And_بعدی_Const_Null(itemp->condsp());
         }
     }
 
     // VISITORS
-    void visit(AstGenCase* nodep) override {
+    فراغ بازدید(AstGenCase* nodep) override {
         // Detect multiple defaults
-        detectMultipleDefaults(nodep->itemsp());
+        detect_مضرب_Defaults(nodep->itemsp());
         // Check for X/Z in non-casex statements
         checkXZinNonCaseX(nodep, nodep->exprp(), nodep->itemsp());
     }
 
-    void visit(AstCase* nodep) override {
-        if (nodep->casex()) {
+    فراغ بازدید(AstCase* nodep) override {
+        إذا (nodep->casex()) {
             nodep->v3warn(CASEX, "Suggest casez (with ?'s) in place of casex (with X's)");
         }
         // Detect multiple defaults
-        detectMultipleDefaults(nodep->itemsp());
+        detect_مضرب_Defaults(nodep->itemsp());
         // Check for X/Z in non-casex statements
         checkXZinNonCaseX(nodep, nodep->exprp(), nodep->itemsp());
     }
-    void visit(AstConst* nodep) override {
-        if (!nodep->num().isFourState()) return;
+    فراغ بازدید(AstConst* nodep) override {
+        إذا (!nodep->رقم().isFourState()) أرجع;
 
         // Error if generate case
-        if (VN_IS(m_casep, GenCase)) {
+        إذا (VN_IS(m_casep, GenCase)) {
             nodep->v3error("Use of x/? constant in generate case statement, "
                            "(no such thing as 'generate casez')");
-            return;
+            أرجع;
         }
 
         // Otherwise must be a case statement
-        const AstCase* const casep = VN_AS(m_casep, Case);
+        ثابت AstCase* ثابت casep = VN_AS(m_casep, Case);
 
         // Don't sweat it, we already complained about casex in general
-        if (casep->casex()) return;
+        إذا (casep->casex()) أرجع;
 
-        if (casep->casez() || casep->caseInside()) {
-            if (nodep->num().isAnyX()) {
+        إذا (casep->casez() || casep->caseInside()) {
+            إذا (nodep->رقم().isAnyX()) {
                 nodep->v3warn(CASEWITHX, "Use of x constant in casez statement, "
                                          "(perhaps intended ?/z in constant)");
             }
-            return;
+            أرجع;
         }
 
         nodep->v3warn(CASEWITHX, "Use of x/? constant in case statement, "
                                  "(perhaps intended casex/casez)");
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
-    explicit CaseLintVisitor(AstCase* nodep) { iterateConst(nodep); }
-    explicit CaseLintVisitor(AstGenCase* nodep) { iterateConst(nodep); }
-    ~CaseLintVisitor() override = default;
+    صریح CaseLintVisitor(AstCase* nodep) { iterateConst(nodep); }
+    صریح CaseLintVisitor(AstGenCase* nodep) { iterateConst(nodep); }
+    ~CaseLintVisitor() override = افتراضي;
 
-public:
-    static void apply(AstCase* nodep) { CaseLintVisitor{nodep}; }
-    static void apply(AstGenCase* nodep) { CaseLintVisitor{nodep}; }
+عام:
+    ساكن فراغ apply(AstCase* nodep) { CaseLintVisitor{nodep}; }
+    ساكن فراغ apply(AstGenCase* nodep) { CaseLintVisitor{nodep}; }
 };
 
 //######################################################################
 // Case state, as a visitor of each AstNode
 
-class CaseVisitor final : public VNVisitor {
+صنف CaseVisitor final : عام VNVisitor {
     // Maximum width for detailed analysis
-    constexpr static int CASE_DETAILS_MAX_WIDTH = 16;
+    constexpr ساكن صحيح CASE_DETAILS_MAX_عرض = 16;
     // Levels of priority to be ORed together in top IF tree
-    constexpr static int CASE_ENCODER_GROUP_DEPTH = 8;
+    constexpr ساكن صحيح CASE_ENCODER_گروه_عمق = 8;
     // Maximum size for tiny lookup tables - materialized in code
-    constexpr static size_t CASE_TABLE_TINY_BITS = 32;  // Up to 2 instructions to materialize
+    constexpr ساكن اندازه_t CASE_جدول_TINY_بیتها = 32;  // Up to 2 instructions to materialize
     // Maximum size for normal lookup tables - stored in constant pool
-    constexpr static size_t CASE_TABLE_MAX_BITS = 1ULL << 16;  // 64Kbits / 8KBytes
+    constexpr ساكن اندازه_t CASE_جدول_MAX_بیتها = 1ULL << 16;  // 64Kbits / 8KBytes
     // Minimum number of the branches a table must replace to be worth a load
-    constexpr static size_t CASE_TABLE_MIN_BRANCHES = 3;
+    constexpr ساكن اندازه_t CASE_جدول_MIN_BRANCHES = 3;
 
     // TYPES
     // Record for each case value
-    struct CaseRecord final {
-        AstCaseItem* itemp;  // Case item that covers value
+    بنية Case_رکورد final {
+        Ast_Case_قلم* itemp;  // Case item that covers value
         AstConst* constp;  // Expression within 'itemp' that covers value (nullptr for default)
-        AstNode* stmtsp;  // Statements of 'itemp' (might be nullptr if case is empty)
+        Ast_گره* stmtsp;  // Statements of 'itemp' (might be nullptr if case is empty)
     };
 
     // Record for each LHS of a decoder pattern
-    struct LhsRecord final {
-        AstNodeExpr* lhsp = nullptr;  // LHS of the assignment
-        AstNodeAssign* preDefaultp = nullptr;  // Default assignment *before the case statement*
-        size_t nCaseAssigns = 0;  // Number of AstAssigns to this LHS in case clauses
-        size_t nCaseAssignDlys = 0;  // Number of AstAssignDlys to this LHS in case clauses
-        size_t offset = 0;  // Offset in the table for this LHS
+    بنية Lhs_رکورد final {
+        Ast_گره_عبارت* lhsp = اشاره_تهی;  // LHS of the assignment
+        Ast_گره_تخصیص_بده* preDefaultp = اشاره_تهی;  // Default assignment *before the case statement*
+        اندازه_t nCaseAssigns = 0;  // Number of AstAssigns to this LHS in case clauses
+        اندازه_t n_Case_تخصیص_بده_Dlys = 0;  // Number of AstAssignDlys to this LHS in case clauses
+        اندازه_t جابه_جایی = 0;  // Offset in the table for this LHS
 
-        static size_t s_nextId;  // Static unique Id counter
-        size_t id = ++s_nextId;  // Unique Id for sorting
+        ساكن اندازه_t s_بعدی_Id;  // Static unique Id counter
+        اندازه_t id = ++s_بعدی_Id;  // Unique Id for sorting
     };
 
     // NODE STATE:
@@ -167,343 +167,343 @@ class CaseVisitor final : public VNVisitor {
 
     // STATE
     // Statistics tracking, as a struct so can be passed to 'const' methods
-    struct Stats final {
+    بنية Stats final {
         VDouble0 caseDecoder;  // Cases using decoder method
-        VDouble0 caseTableNormal;  // Cases using table method with normal table
-        VDouble0 caseTableTiny;  // Cases using table method with tiny table
+        VDouble0 case_جدول_نرمال;  // Cases using table method with normal table
+        VDouble0 case_جدول_Tiny;  // Cases using table method with tiny table
         VDouble0 caseFast;  // Cases using fast bit tree method
         VDouble0 caseGeneric;  // Cases using generic if/else tree method
         VDouble0 provenAssertions;  // Assertions proven to hold
     } m_stats;
-    const AstNode* m_alwaysp = nullptr;  // Always in which case is located
+    ثابت Ast_گره* m_alwaysp = اشاره_تهی;  // Always in which case is located
     // Temporary variables, shared by instances
     // For table lookup results
-    V3SharedTmps m_tableOutTmps{"__VcaseTableOut", VVarType::MODULETEMP};
+    V3SharedTmps m_جدول_بیرون_Tmps{"__VcaseTableOut", VVarType::MODULETEMP};
     // For decoder results
-    V3SharedTmps m_decoderOutTmps{"__VcaseDecoderOut", VVarType::MODULETEMP};
-    AstScope* m_scopep = nullptr;  // Current scope
+    V3SharedTmps m_decoder_بیرون_Tmps{"__VcaseDecoderOut", VVarType::MODULETEMP};
+    AstScope* m_scopep = اشاره_تهی;  // Current scope
 
     // STATE - per AstCase. Update by 'analyzeCase', treat 'const' otherwise
-    bool m_caseOpaque = false;  // Case statement is opaque (non-packed, or non-const conditions)
-    bool m_caseHasDefault = false;  // Indicates the case statement has a default case
-    size_t m_caseNCaseItems = 0;  // Number of AstCaseItems in the case statement
-    size_t m_caseNConditions = 0;  // Number of conditions in the case statement
+    منطقي m_caseOpaque = خطأ;  // Case statement is opaque (non-packed, or non-const conditions)
+    منطقي m_caseHasDefault = خطأ;  // Indicates the case statement has a default case
+    اندازه_t m_case_NCase_اقلام = 0;  // Number of AstCaseItems in the case statement
+    اندازه_t m_caseNConditions = 0;  // Number of conditions in the case statement
     // Map from LHSs of decoder pattern to corresponding LhsRecord.
-    std::unordered_map<VNRef<AstNodeExpr>, LhsRecord> m_caseLhsRecords;
+    std::unordered_map<VNRef<Ast_گره_عبارت>, Lhs_رکورد> m_case_Lhs_رکوردها;
     // Values of 'm_caseLhsRecords' in sorted order, if case statement is a decoder pattern
-    std::vector<LhsRecord> m_caseDecoderRecords;
-    size_t m_caseDecoderEntryWidth = 0;  // Width of each entry in the decoder table
-    size_t m_caseTableWidth = 0;  // Total width of the case table - 0 means can't optimize
-    bool m_caseDetailsValid = false;  // Indicates m_caseDetails is valid
-    struct final {
-        bool exhaustive = false;  // Proven exhaustive
-        bool exhaustiveOverEnumOnly = false;  // Exhaustive over enum values only
-        bool noOverlaps = false;  // Proven no overlaps between cases
+    std::وکتور<Lhs_رکورد> m_case_Decoder_رکوردها;
+    اندازه_t m_case_Decoder_مدخل_عرض = 0;  // Width of each entry in the decoder table
+    اندازه_t m_case_جدول_عرض = 0;  // Total width of the case table - 0 means can't optimize
+    منطقي m_caseDetailsValid = خطأ;  // Indicates m_caseDetails is valid
+    بنية final {
+        منطقي exhaustive = خطأ;  // Proven exhaustive
+        منطقي exhaustiveOverEnumOnly = خطأ;  // Exhaustive over enum values only
+        منطقي noOverlaps = خطأ;  // Proven no overlaps between cases
         // Map from value (index) to the CaseRecord that covers this value
-        std::array<CaseRecord, 1U << CASE_DETAILS_MAX_WIDTH> records;
+        std::array<Case_رکورد, 1U << CASE_DETAILS_MAX_عرض> رکوردها;
     } m_caseDetails;
 
     // METHODS
 
     // Xs in case or casez are impossible due to two state simulations.
     // Returns true if the item is never possible
-    static bool neverItem(const AstCase* casep, const AstNodeExpr* itemExprp) {
-        const AstConst* const constp = VN_CAST(itemExprp, Const);
-        if (!constp) return false;
-        if (casep->casex() || casep->caseInside()) return false;
-        if (casep->casez()) return constp->num().isAnyX();
-        return constp->num().isFourState();
+    ساكن منطقي never_قلم(ثابت AstCase* casep, ثابت Ast_گره_عبارت* قلم_Exprp) {
+        ثابت AstConst* ثابت constp = VN_CAST(قلم_Exprp, Const);
+        إذا (!constp) أرجع خطأ;
+        إذا (casep->casex() || casep->caseInside()) أرجع خطأ;
+        إذا (casep->casez()) أرجع constp->رقم().isAnyX();
+        أرجع constp->رقم().isFourState();
     }
 
     // Returns the matching mask and bits for a case item constant condition
     // TODO: with 'neverItem' checked, this is alway the same for all types of cases
     //       4-state will have to fix this up
-    static std::pair<V3Number, V3Number> matchPattern(const AstCase* /*casep*/,
-                                                      const AstConst* condp) {
+    ساكن std::pair<V3_عدد, V3_عدد> تطابق_الگو(ثابت AstCase* /*casep*/,
+                                                      ثابت AstConst* condp) {
         // As one to encourage NRVO/move
-        std::pair<V3Number, V3Number> pairMaskBits{
+        std::pair<V3_عدد, V3_عدد> pair_ماسک_بیتها{
             std::piecewise_construct,  //
-            std::forward_as_tuple(condp->fileline(), condp->width(), 0),
-            std::forward_as_tuple(condp->fileline(), condp->width(), 0)};
-        pairMaskBits.first.opBitsNonXZ(condp->num());
-        pairMaskBits.second.opBitsOne(condp->num());
-        return pairMaskBits;
+            std::forward_as_tuple(condp->fileline(), condp->عرض(), 0),
+            std::forward_as_tuple(condp->fileline(), condp->عرض(), 0)};
+        pair_ماسک_بیتها.اولی.op_بیتها_Non_XZ(condp->رقم());
+        pair_ماسک_بیتها.دومی.op_بیتها_One(condp->رقم());
+        أرجع pair_ماسک_بیتها;
     }
 
     // If the given statement is an assignment that fits the decoder pattern,
     // return it, otherwise return nullptr
-    static AstNodeAssign* checkDecoderAssign(AstNode* stmtp) {
+    ساكن Ast_گره_تخصیص_بده* check_Decoder_تخصیص_بده(Ast_گره* stmtp) {
         // Only Assign and AssignDly are supported
-        if (!VN_IS(stmtp, Assign) && !VN_IS(stmtp, AssignDly)) return nullptr;
-        AstNodeAssign* const assp = VN_AS(stmtp, NodeAssign);
+        إذا (!VN_IS(stmtp, تخصیص_بده) && !VN_IS(stmtp, تخصیص_بده_Dly)) أرجع اشاره_تهی;
+        Ast_گره_تخصیص_بده* ثابت assp = VN_AS(stmtp, گره_تخصیص_بده);
         // Only if no timing control
-        if (assp->timingControlp()) return nullptr;
+        إذا (assp->timingControlp()) أرجع اشاره_تهی;
         // Only if assigning a constant
-        if (!VN_IS(assp->rhsp(), Const)) return nullptr;
+        إذا (!VN_IS(assp->rhsp(), Const)) أرجع اشاره_تهی;
         // Only if it's a packed value
-        AstNodeDType* const dtypep = assp->rhsp()->dtypep();
-        if (dtypep->isString() || dtypep->isDouble()) return nullptr;
+        Ast_گره_DType* ثابت dtypep = assp->rhsp()->dtypep();
+        إذا (dtypep->isString() || dtypep->isDouble()) أرجع اشاره_تهی;
         // Only if the LHS has no reads (can be relaxed, but need to prove there is no r/w hazard)
-        if (assp->lhsp()->exists([](AstVarRef* refp) { return refp->access().isReadOrRW(); })) {
-            return nullptr;
+        إذا (assp->lhsp()->exists([](AstVarRef* refp) { أرجع refp->access().isReadOrRW(); })) {
+            أرجع اشاره_تهی;
         }
         // This is an assignment that fits the decoder pattern
-        return assp;
+        أرجع assp;
     }
 
     // Analyze if the given case item fits the decoder pattern, return true iff so.
     // Updates 'm_caseLhsRecords'.
-    bool analyzeDecoderCaseItem(AstCaseItem* cip) {
+    منطقي analyze_Decoder_Case_قلم(Ast_Case_قلم* cip) {
         // AstVarScope::user1() -> bool: true if written to
-        const VNUser1InUse user1InUse;
-        for (AstNode* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        ثابت VNUser1_درون_Use user1_درون_Use;
+        لكل (Ast_گره* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             // Must be an assignment that fits the decoder pattern
-            AstNodeAssign* const assp = checkDecoderAssign(stmtp);
-            if (!assp) return false;
+            Ast_گره_تخصیص_بده* ثابت assp = check_Decoder_تخصیص_بده(stmtp);
+            إذا (!assp) أرجع خطأ;
             // Must assign each LHS exactly once - RHS is Const
-            const bool multipleAssignments = assp->lhsp()->exists([](AstVarRef* refp) {  //
-                return refp->varScopep()->user1SetOnce();
+            ثابت منطقي مضرب_Assignments = assp->lhsp()->exists([](AstVarRef* refp) {  //
+                أرجع refp->varScopep()->user1_مجموعه_Once();
             });
-            if (multipleAssignments) return false;
+            إذا (مضرب_Assignments) أرجع خطأ;
             // Update LhsRecord
-            LhsRecord& lhsRecord = m_caseLhsRecords[*assp->lhsp()];
-            if (!lhsRecord.lhsp) lhsRecord.lhsp = assp->lhsp();
-            lhsRecord.nCaseAssigns += VN_IS(assp, Assign);
-            lhsRecord.nCaseAssignDlys += VN_IS(assp, AssignDly);
+            Lhs_رکورد& lhs_رکورد = m_case_Lhs_رکوردها[*assp->lhsp()];
+            إذا (!lhs_رکورد.lhsp) lhs_رکورد.lhsp = assp->lhsp();
+            lhs_رکورد.nCaseAssigns += VN_IS(assp, تخصیص_بده);
+            lhs_رکورد.n_Case_تخصیص_بده_Dlys += VN_IS(assp, تخصیص_بده_Dly);
         }
-        return true;
+        أرجع درست;
     }
 
     // Determine whether we should check case items are complete
     // Returns enum's dtype if should check, nullptr if shouldn't
-    static const AstEnumDType* getEnumCompletionCheckDType(const AstCase* const nodep) {
-        if (!nodep->uniquePragma() && !nodep->unique0Pragma()) return nullptr;
-        const AstEnumDType* const enumDtp
-            = VN_CAST(nodep->exprp()->dtypep()->skipRefToEnump(), EnumDType);
-        if (!enumDtp) return nullptr;  // Case isn't enum
-        const AstBasicDType* const basicp = enumDtp->subDTypep()->basicp();
-        if (!basicp) return nullptr;  // Not simple type (perhaps IEEE illegal)
-        return enumDtp;
+    ساكن ثابت AstEnumDType* getEnumCompletionCheckDType(ثابت AstCase* ثابت nodep) {
+        إذا (!nodep->uniquePragma() && !nodep->unique0Pragma()) أرجع اشاره_تهی;
+        ثابت AstEnumDType* ثابت enumDtp
+            = VN_CAST(nodep->exprp()->dtypep()->skip_Ref_مقصد_Enump(), EnumDType);
+        إذا (!enumDtp) أرجع اشاره_تهی;  // Case isn't enum
+        ثابت AstBasicDType* ثابت basicp = enumDtp->subDTypep()->basicp();
+        إذا (!basicp) أرجع اشاره_تهی;  // Not simple type (perhaps IEEE illegal)
+        أرجع enumDtp;
     }
 
     // Check and warn if case items are not complete over the given enum type.
     // Returns true iff the case items cover all enum values/patterns.
-    bool checkExhaustiveEnum(const AstCase* const nodep, const AstEnumDType* const enump) {
-        const uint32_t numCases = 1UL << nodep->exprp()->width();
-        bool fullyCovered = true;
-        string missingItems;
-        for (AstEnumItem* eip = enump->itemsp(); eip; eip = VN_AS(eip->nextp(), EnumItem)) {
-            const auto& match = matchPattern(nodep, VN_AS(eip->valuep(), Const));
-            const uint32_t mask = match.first.toUInt();
-            const uint32_t bits = match.second.toUInt();
+    منطقي checkExhaustiveEnum(ثابت AstCase* ثابت nodep, ثابت AstEnumDType* ثابت enump) {
+        ثابت uint32_t رقم_Cases = 1UL << nodep->exprp()->عرض();
+        منطقي fullyCovered = درست;
+        string missing_اقلام;
+        لكل (Ast_Enum_قلم* eip = enump->itemsp(); eip; eip = VN_AS(eip->nextp(), Enum_قلم)) {
+            ثابت خودکار& تطابق = تطابق_الگو(nodep, VN_AS(eip->valuep(), Const));
+            ثابت uint32_t ماسک = تطابق.اولی.مقصد_UInt();
+            ثابت uint32_t بیتها = تطابق.دومی.مقصد_UInt();
 
             // Check all cases to see if they cover this enum value/pattern
-            for (uint32_t i = 0; i < numCases; ++i) {
-                if ((i & mask) != bits) continue;  // This case is not for this enum value
-                if (m_caseDetails.records[i].itemp) continue;  // Covered case
-                if (!missingItems.empty()) missingItems += ", ";
-                missingItems += eip->prettyNameQ();
-                fullyCovered = false;
-                break;
+            لكل (uint32_t i = 0; i < رقم_Cases; ++i) {
+                إذا ((i & ماسک) != بیتها) استمر;  // This case is not for this enum value
+                إذا (m_caseDetails.رکوردها[i].itemp) استمر;  // Covered case
+                إذا (!missing_اقلام.خالی()) missing_اقلام += ", ";
+                missing_اقلام += eip->prettyNameQ();
+                fullyCovered = خطأ;
+                اكسر;
             }
         }
-        if (!missingItems.empty() && !nodep->unique0Pragma()) {
-            nodep->v3warn(CASEINCOMPLETE, "Enum item(s) not covered by case: " << missingItems);
+        إذا (!missing_اقلام.خالی() && !nodep->unique0Pragma()) {
+            nodep->v3warn(CASEINCOMPLETE, "Enum item(s) not covered by case: " << missing_اقلام);
         }
-        return fullyCovered;  // enum is fully covered
+        أرجع fullyCovered;  // enum is fully covered
     }
 
     // Check and warn if case items are not complete over all possible values.
     // Returns true iff the case items cover all values of the case expression.
-    bool checkExhaustivePacked(AstCase* nodep) {
-        const uint32_t numCases = 1UL << nodep->exprp()->width();
-        for (uint32_t i = 0; i < numCases; ++i) {
-            if (m_caseDetails.records[i].itemp) continue;  // Covered case
-            if (!nodep->unique0Pragma()) {
+    منطقي checkExhaustivePacked(AstCase* nodep) {
+        ثابت uint32_t رقم_Cases = 1UL << nodep->exprp()->عرض();
+        لكل (uint32_t i = 0; i < رقم_Cases; ++i) {
+            إذا (m_caseDetails.رکوردها[i].itemp) استمر;  // Covered case
+            إذا (!nodep->unique0Pragma()) {
                 nodep->v3warn(CASEINCOMPLETE,
                               "Case values incompletely covered (example pattern 0x" << std::hex
                                                                                      << i << ")");
             }
             // TODO: warn for more than one uncovered case, not just the first
-            return false;
+            أرجع خطأ;
         }
 
         // It's an exhaustive case statement
-        return true;
+        أرجع درست;
     }
 
     // Analyze each value in the case statement. Updates 'm_caseDetails' and issues warnings.
-    void analyzeCaseDetails(AstCase* nodep) {
-        const uint32_t numValues = 1UL << nodep->exprp()->width();
+    فراغ analyzeCaseDetails(AstCase* nodep) {
+        ثابت uint32_t رقم_مقادیر = 1UL << nodep->exprp()->عرض();
         // Clear case records
-        for (uint32_t i = 0; i < numValues; ++i) {
-            m_caseDetails.records[i].itemp = nullptr;
-            m_caseDetails.records[i].constp = nullptr;
-            m_caseDetails.records[i].stmtsp = nullptr;
+        لكل (uint32_t i = 0; i < رقم_مقادیر; ++i) {
+            m_caseDetails.رکوردها[i].itemp = اشاره_تهی;
+            m_caseDetails.رکوردها[i].constp = اشاره_تهی;
+            m_caseDetails.رکوردها[i].stmtsp = اشاره_تهی;
         }
         // Now pick up the values for each assignment
         // We can cheat and use uint32_t's because we only support narrow case's
-        bool reportedOverlap = false;
-        bool hasDefault = false;
-        m_caseDetails.noOverlaps = true;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), CaseItem)) {
+        منطقي reportedOverlap = خطأ;
+        منطقي hasDefault = خطأ;
+        m_caseDetails.noOverlaps = درست;
+        لكل (Ast_Case_قلم* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Case_قلم)) {
 
             // Default case
-            if (itemp->isDefault()) {
+            إذا (itemp->isDefault()) {
                 // Default was moved to be the last item by V3LinkDot. Fill remaining cases
-                for (uint32_t i = 0; i < numValues; ++i) {
-                    CaseRecord& caseRecord = m_caseDetails.records[i];
-                    if (!caseRecord.itemp) {
-                        caseRecord.itemp = itemp;
-                        caseRecord.stmtsp = itemp->stmtsp();
+                لكل (uint32_t i = 0; i < رقم_مقادیر; ++i) {
+                    Case_رکورد& case_رکورد = m_caseDetails.رکوردها[i];
+                    إذا (!case_رکورد.itemp) {
+                        case_رکورد.itemp = itemp;
+                        case_رکورد.stmtsp = itemp->stmtsp();
                     }
                 }
-                hasDefault = true;
-                continue;
+                hasDefault = درست;
+                استمر;
             }
 
-            for (AstConst* iconstp = VN_AS(itemp->condsp(), Const); iconstp;
+            لكل (AstConst* iconstp = VN_AS(itemp->condsp(), Const); iconstp;
                  iconstp = VN_AS(iconstp->nextp(), Const)) {
                 // Some items can never match due to 2-state simulation
-                if (neverItem(nodep, iconstp)) continue;
+                إذا (never_قلم(nodep, iconstp)) استمر;
 
-                const auto& match = matchPattern(nodep, iconstp);
-                const uint32_t mask = match.first.toUInt();
-                const uint32_t bits = match.second.toUInt();
+                ثابت خودکار& تطابق = تطابق_الگو(nodep, iconstp);
+                ثابت uint32_t ماسک = تطابق.اولی.مقصد_UInt();
+                ثابت uint32_t بیتها = تطابق.دومی.مقصد_UInt();
 
-                bool foundNewCase = false;
-                const AstConst* firstOverlapConstp = nullptr;
-                uint32_t firstOverlapValue = 0;
-                for (uint32_t i = 0; i < numValues; ++i) {
-                    if ((i & mask) != bits) continue;
+                منطقي یافت_New_Case = خطأ;
+                ثابت AstConst* اولی_Overlap_Constp = اشاره_تهی;
+                uint32_t اولی_Overlap_مقدار = 0;
+                لكل (uint32_t i = 0; i < رقم_مقادیر; ++i) {
+                    إذا ((i & ماسک) != بیتها) استمر;
 
-                    CaseRecord& caseRecord = m_caseDetails.records[i];
+                    Case_رکورد& case_رکورد = m_caseDetails.رکوردها[i];
 
                     // If this is the first case that covers this value, record it
-                    if (!caseRecord.itemp) {
-                        caseRecord.itemp = itemp;
-                        caseRecord.constp = iconstp;
-                        caseRecord.stmtsp = itemp->stmtsp();
-                        foundNewCase = true;
-                        continue;
+                    إذا (!case_رکورد.itemp) {
+                        case_رکورد.itemp = itemp;
+                        case_رکورد.constp = iconstp;
+                        case_رکورد.stmtsp = itemp->stmtsp();
+                        یافت_New_Case = درست;
+                        استمر;
                     }
 
                     // There is an overlap. If it's within the same CaseItem, it is legal
-                    if (caseRecord.itemp == itemp) continue;
+                    إذا (case_رکورد.itemp == itemp) استمر;
 
                     // Otherwise record the first overlapping case
-                    if (!firstOverlapConstp) {
-                        firstOverlapConstp = caseRecord.constp;
-                        firstOverlapValue = i;
-                        m_caseDetails.noOverlaps = false;
+                    إذا (!اولی_Overlap_Constp) {
+                        اولی_Overlap_Constp = case_رکورد.constp;
+                        اولی_Overlap_مقدار = i;
+                        m_caseDetails.noOverlaps = خطأ;
                     }
                 }
 
                 // Only report first overlap
-                if (reportedOverlap || !firstOverlapConstp) continue;
+                إذا (reportedOverlap || !اولی_Overlap_Constp) استمر;
 
                 // Report first overlap
-                if (nodep->priorityPragma()) {
+                إذا (nodep->اولویت_Pragma()) {
                     // If this is a priority case, we only want to complain if every possible
                     // value for this item is already hit by some other item. This is true if
                     // 'foundNewCase' is false. 'firstOverlapConstp' is null when the only
                     // covering item is this item itself, which is legal overlap within one
                     // item.
-                    if (!foundNewCase) {
+                    إذا (!یافت_New_Case) {
                         iconstp->v3warn(CASEOVERLAP,
                                         "Case item ignored: every matching value is covered "
                                         "by an earlier condition\n"
                                             << iconstp->warnContextPrimary() << '\n'
-                                            << firstOverlapConstp->warnOther()
+                                            << اولی_Overlap_Constp->warnOther()
                                             << "... Location of previous condition\n"
-                                            << firstOverlapConstp->warnContextPrimary());
-                        reportedOverlap = true;
+                                            << اولی_Overlap_Constp->warnContextPrimary());
+                        reportedOverlap = درست;
                     }
-                } else {
+                } وإلا {
                     // If this case statement doesn't have the priority keyword,
                     // we want to warn on any overlap.
-                    std::ostringstream examplePattern;
-                    if (iconstp->num().isAnyXZ()) {
-                        examplePattern << " (example pattern 0x" << std::hex << firstOverlapValue
+                    std::ostringstream example_الگو;
+                    إذا (iconstp->رقم().isAnyXZ()) {
+                        example_الگو << " (example pattern 0x" << std::hex << اولی_Overlap_مقدار
                                        << ")";
                     }
                     iconstp->v3warn(CASEOVERLAP,
                                     "Case conditions overlap"
-                                        << examplePattern.str() << "\n"
+                                        << example_الگو.str() << "\n"
                                         << iconstp->warnContextPrimary() << '\n'
-                                        << firstOverlapConstp->warnOther()
+                                        << اولی_Overlap_Constp->warnOther()
                                         << "... Location of overlapping condition\n"
-                                        << firstOverlapConstp->warnContextSecondary());
-                    reportedOverlap = true;
+                                        << اولی_Overlap_Constp->warnContextSecondary());
+                    reportedOverlap = درست;
                 }
             }
         }
 
         // If there was no default, check exhaustiveness
-        m_caseDetails.exhaustiveOverEnumOnly = false;
+        m_caseDetails.exhaustiveOverEnumOnly = خطأ;
         m_caseDetails.exhaustive = hasDefault;
-        if (!hasDefault) {
-            if (const AstEnumDType* const enump = getEnumCompletionCheckDType(nodep)) {
+        إذا (!hasDefault) {
+            إذا (ثابت AstEnumDType* ثابت enump = getEnumCompletionCheckDType(nodep)) {
                 // Only checks enum values are covered, not all bit patterns of the case expression
-                const bool exhaustiveOverEnum = checkExhaustiveEnum(nodep, enump);
+                ثابت منطقي exhaustiveOverEnum = checkExhaustiveEnum(nodep, enump);
                 m_caseDetails.exhaustiveOverEnumOnly = exhaustiveOverEnum;
                 m_caseDetails.exhaustive = exhaustiveOverEnum;
-            } else {
+            } وإلا {
                 m_caseDetails.exhaustive = checkExhaustivePacked(nodep);
             }
         }
 
         // Records now valid
-        m_caseDetailsValid = true;
+        m_caseDetailsValid = درست;
     }
 
-    void analyzeDecoderPattern(AstCase* nodep) {
+    فراغ analyze_Decoder_الگو(AstCase* nodep) {
         // Check each LHS record
-        for (auto it = m_caseLhsRecords.cbegin(); it != m_caseLhsRecords.cend();) {
-            const LhsRecord& lhsRecord = it->second;
+        لكل (خودکار it = m_case_Lhs_رکوردها.cbegin(); it != m_case_Lhs_رکوردها.cend();) {
+            ثابت Lhs_رکورد& lhs_رکورد = it->دومی;
 
             // Delete records that have no assignments in any case item (only pre-defaults)
-            if (!lhsRecord.nCaseAssigns && !lhsRecord.nCaseAssignDlys) {
-                it = m_caseLhsRecords.erase(it);
-                continue;
+            إذا (!lhs_رکورد.nCaseAssigns && !lhs_رکورد.n_Case_تخصیص_بده_Dlys) {
+                it = m_case_Lhs_رکوردها.erase(it);
+                استمر;
             }
             ++it;
 
             // If mixed assignments, it's not a decoder pattern
-            if (lhsRecord.nCaseAssigns && lhsRecord.nCaseAssignDlys) return;
+            إذا (lhs_رکورد.nCaseAssigns && lhs_رکورد.n_Case_تخصیص_بده_Dlys) أرجع;
 
             // If assigned in all branches, it's good - but only if every table entry will be
             // covered, i.e. the case has a default, or is exhaustive over all bit patterns.
             // Enum-only exhaustiveness is not enough: out-of-enum values leave entries
             // uncovered.
-            if (m_caseHasDefault
+            إذا (m_caseHasDefault
                 || (m_caseDetailsValid && m_caseDetails.exhaustive
                     && !m_caseDetails.exhaustiveOverEnumOnly)) {
-                if (lhsRecord.nCaseAssigns == m_caseNCaseItems) continue;
-                if (lhsRecord.nCaseAssignDlys == m_caseNCaseItems) continue;
+                إذا (lhs_رکورد.nCaseAssigns == m_case_NCase_اقلام) استمر;
+                إذا (lhs_رکورد.n_Case_تخصیص_بده_Dlys == m_case_NCase_اقلام) استمر;
             }
 
             // Otherwise it needs to have a pre-default assignment
-            AstNode* const preDefaultp = lhsRecord.preDefaultp;
-            if (!preDefaultp) return;
+            Ast_گره* ثابت preDefaultp = lhs_رکورد.preDefaultp;
+            إذا (!preDefaultp) أرجع;
             // And the pre-default needs to be the same type
-            if (lhsRecord.nCaseAssigns && !VN_IS(preDefaultp, Assign)) return;
-            if (lhsRecord.nCaseAssignDlys && !VN_IS(preDefaultp, AssignDly)) return;
+            إذا (lhs_رکورد.nCaseAssigns && !VN_IS(preDefaultp, تخصیص_بده)) أرجع;
+            إذا (lhs_رکورد.n_Case_تخصیص_بده_Dlys && !VN_IS(preDefaultp, تخصیص_بده_Dly)) أرجع;
         }
         // All cases check out, can optimize if there are some entries left
-        if (m_caseLhsRecords.empty()) return;
+        إذا (m_case_Lhs_رکوردها.خالی()) أرجع;
 
         // Gather all the LhsRecords and sort them - there is a copy here, it's ok, won't be many
-        m_caseDecoderRecords.reserve(m_caseLhsRecords.size());
-        for (const auto& item : m_caseLhsRecords) m_caseDecoderRecords.emplace_back(item.second);
-        std::sort(m_caseDecoderRecords.begin(), m_caseDecoderRecords.end(),
-                  [](const LhsRecord& a, const LhsRecord& b) {
+        m_case_Decoder_رکوردها.reserve(m_case_Lhs_رکوردها.اندازه());
+        لكل (ثابت خودکار& قلم_2 : m_case_Lhs_رکوردها) m_case_Decoder_رکوردها.emplace_پشت(قلم_2.دومی);
+        std::مرتب_سازی(m_case_Decoder_رکوردها.begin(), m_case_Decoder_رکوردها.انتها(),
+                  [](ثابت Lhs_رکورد& a, ثابت Lhs_رکورد& b) {
                       // Sort by width, then id
-                      const int aWidth = a.lhsp->width();
-                      const int bWidth = b.lhsp->width();
-                      if (aWidth != bWidth) return aWidth < bWidth;
-                      return a.id < b.id;
+                      ثابت صحيح a_عرض = a.lhsp->عرض();
+                      ثابت صحيح b_عرض = b.lhsp->عرض();
+                      إذا (a_عرض != b_عرض) أرجع a_عرض < b_عرض;
+                      أرجع a.id < b.id;
                   });
 
         // We can either create a single lookup table for all LHSs, or one for each LHS.
@@ -511,458 +511,458 @@ class CaseVisitor final : public VNVisitor {
         // With one table per LHS, we need to do multiple loads. The table is likely to incur a
         // D-cache miss on large designs, so we choose single table.
 
-        const int caseWidth = nodep->exprp()->width();
+        ثابت صحيح case_عرض = nodep->exprp()->عرض();
 
         // Safely check if table with 'entryWidth' entries would fit within 'maxWidth' bits
-        const auto fitsLimit = [&](size_t entryWidth, size_t maxWidth) -> bool {
-            size_t totalWidth = entryWidth;
+        ثابت خودکار میگنجد_حد = [&](اندازه_t مدخل_عرض, اندازه_t max_عرض) -> منطقي {
+            اندازه_t مجموع_عرض = مدخل_عرض;
             // Multiply cases - iterative to avoid overflow
-            for (int i = 0; i < caseWidth; ++i) {
-                totalWidth <<= 1;
-                if (totalWidth > maxWidth) return false;
+            لكل (صحيح i = 0; i < case_عرض; ++i) {
+                مجموع_عرض <<= 1;
+                إذا (مجموع_عرض > max_عرض) أرجع خطأ;
             }
-            return true;
+            أرجع درست;
         };
 
         // Check if the whole table would fit in a tiny table packed tightly
-        m_caseDecoderEntryWidth = 0;
-        for (LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            lhsRecord.offset = m_caseDecoderEntryWidth;
-            m_caseDecoderEntryWidth += lhsRecord.lhsp->width();
+        m_case_Decoder_مدخل_عرض = 0;
+        لكل (Lhs_رکورد& lhs_رکورد : m_case_Decoder_رکوردها) {
+            lhs_رکورد.جابه_جایی = m_case_Decoder_مدخل_عرض;
+            m_case_Decoder_مدخل_عرض += lhs_رکورد.lhsp->عرض();
         }
         // If it fits, we will pack it tightly
-        if (fitsLimit(m_caseDecoderEntryWidth, CASE_TABLE_TINY_BITS)) {
-            m_caseTableWidth = m_caseDecoderEntryWidth << caseWidth;  // Can optimize
-            return;
+        إذا (میگنجد_حد(m_case_Decoder_مدخل_عرض, CASE_جدول_TINY_بیتها)) {
+            m_case_جدول_عرض = m_case_Decoder_مدخل_عرض << case_عرض;  // Can optimize
+            أرجع;
         }
 
         // Tabel will be bigish. To avoid expensive bit swizzling, align each entry to a
         // word boundary if it would cross a word boundary.
-        m_caseDecoderEntryWidth = 0;
-        for (LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const size_t width = lhsRecord.lhsp->width();
-            const size_t lsbWord = VL_BITWORD_E(m_caseDecoderEntryWidth);
-            const size_t msbWord = VL_BITWORD_E(m_caseDecoderEntryWidth + width - 1);
-            if (lsbWord != msbWord) {
-                m_caseDecoderEntryWidth = VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
+        m_case_Decoder_مدخل_عرض = 0;
+        لكل (Lhs_رکورد& lhs_رکورد : m_case_Decoder_رکوردها) {
+            ثابت اندازه_t عرض = lhs_رکورد.lhsp->عرض();
+            ثابت اندازه_t lsb_کلمه = VL_BITWORD_E(m_case_Decoder_مدخل_عرض);
+            ثابت اندازه_t msb_کلمه = VL_BITWORD_E(m_case_Decoder_مدخل_عرض + عرض - 1);
+            إذا (lsb_کلمه != msb_کلمه) {
+                m_case_Decoder_مدخل_عرض = VL_واژگان_I(m_case_Decoder_مدخل_عرض) * VL_EDATASIZE;
             }
-            lhsRecord.offset = m_caseDecoderEntryWidth;
-            m_caseDecoderEntryWidth += width;
+            lhs_رکورد.جابه_جایی = m_case_Decoder_مدخل_عرض;
+            m_case_Decoder_مدخل_عرض += عرض;
         }
         // Check the table fits max size
-        const size_t alignedEntryWidth = VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
-        if (fitsLimit(alignedEntryWidth, CASE_TABLE_MAX_BITS)) {
-            m_caseTableWidth = alignedEntryWidth << caseWidth;  // Can optimize
-            return;
+        ثابت اندازه_t aligned_مدخل_عرض = VL_واژگان_I(m_case_Decoder_مدخل_عرض) * VL_EDATASIZE;
+        إذا (میگنجد_حد(aligned_مدخل_عرض, CASE_جدول_MAX_بیتها)) {
+            m_case_جدول_عرض = aligned_مدخل_عرض << case_عرض;  // Can optimize
+            أرجع;
         }
 
         // Can optimize as AstMatchMasked, no other info needed
     }
 
     // Analyze case statement. Updates 'm_case*' members. Reports warnings.
-    void analyzeCase(AstCase* nodep) {
+    فراغ analyzeCase(AstCase* nodep) {
         // Reset all analysis results
-        m_caseOpaque = false;
-        m_caseHasDefault = false;
-        m_caseNCaseItems = 0;
+        m_caseOpaque = خطأ;
+        m_caseHasDefault = خطأ;
+        m_case_NCase_اقلام = 0;
         m_caseNConditions = 0;
-        m_caseDecoderRecords.clear();
-        m_caseDecoderEntryWidth = 0;
-        m_caseTableWidth = 0;
-        m_caseLhsRecords.clear();
-        m_caseDetailsValid = false;
+        m_case_Decoder_رکوردها.clear();
+        m_case_Decoder_مدخل_عرض = 0;
+        m_case_جدول_عرض = 0;
+        m_case_Lhs_رکوردها.clear();
+        m_caseDetailsValid = خطأ;
 
-        AstNode* const caseExprp = nodep->exprp();
+        Ast_گره* ثابت caseExprp = nodep->exprp();
 
         // Mark opaque if not a packed value - TODO: can this be a class?
-        if (caseExprp->isDouble() || caseExprp->isString()) m_caseOpaque = true;
+        إذا (caseExprp->isDouble() || caseExprp->isString()) m_caseOpaque = درست;
 
         // Gather pre-default assignments of decoder pattern
         {
             // AstVarScope::user1() -> bool: true if written to
-            const VNUser1InUse user1InUse;
-            for (AstNode* prevp = nodep->prevp(); prevp; prevp = prevp->prevp()) {
-                AstNodeAssign* const assp = checkDecoderAssign(prevp);
-                if (!assp) break;  // Stop if not a decoder assignment
+            ثابت VNUser1_درون_Use user1_درون_Use;
+            لكل (Ast_گره* prevp = nodep->prevp(); prevp; prevp = prevp->prevp()) {
+                Ast_گره_تخصیص_بده* ثابت assp = check_Decoder_تخصیص_بده(prevp);
+                إذا (!assp) اكسر;  // Stop if not a decoder assignment
                 // Stop if multiple assignments
-                const bool multipleAssignments = assp->lhsp()->exists([&](AstVarRef* refp) {  //
-                    return refp->varScopep()->user1SetOnce();
+                ثابت منطقي مضرب_Assignments = assp->lhsp()->exists([&](AstVarRef* refp) {  //
+                    أرجع refp->varScopep()->user1_مجموعه_Once();
                 });
-                if (multipleAssignments) break;
+                إذا (مضرب_Assignments) اكسر;
                 // Store pre-default assignment
-                LhsRecord& lhsRecord = m_caseLhsRecords[*assp->lhsp()];
-                lhsRecord.lhsp = assp->lhsp();
-                lhsRecord.preDefaultp = assp;
+                Lhs_رکورد& lhs_رکورد = m_case_Lhs_رکوردها[*assp->lhsp()];
+                lhs_رکورد.lhsp = assp->lhsp();
+                lhs_رکورد.preDefaultp = assp;
             }
         }
 
         // Check each case item
-        bool canBeDecoder = true;
-        for (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
+        منطقي canBeDecoder = درست;
+        لكل (Ast_Case_قلم* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), Case_قلم)) {
             // Check conditions
-            for (AstNode* condp = cip->condsp(); condp; condp = condp->nextp()) {
+            لكل (Ast_گره* condp = cip->condsp(); condp; condp = condp->nextp()) {
                 // Count conditions that can actually match.
-                if (!neverItem(nodep, VN_AS(condp, NodeExpr))) ++m_caseNConditions;
+                إذا (!never_قلم(nodep, VN_AS(condp, گره_عبارت))) ++m_caseNConditions;
                 // Mark opaque if non-constant condition
-                if (!VN_IS(condp, Const)) {
-                    m_caseOpaque = true;
-                    canBeDecoder = false;  // Can't be a decoder if opaque
+                إذا (!VN_IS(condp, Const)) {
+                    m_caseOpaque = درست;
+                    canBeDecoder = خطأ;  // Can't be a decoder if opaque
                 }
             }
             // Check if it has a default case
-            if (cip->isDefault()) m_caseHasDefault = true;
+            إذا (cip->isDefault()) m_caseHasDefault = درست;
             // Count case items
-            ++m_caseNCaseItems;
+            ++m_case_NCase_اقلام;
             // Check if it fits the decoder pattern, if still possible
-            if (canBeDecoder) canBeDecoder = analyzeDecoderCaseItem(cip);
+            إذا (canBeDecoder) canBeDecoder = analyze_Decoder_Case_قلم(cip);
         }
 
         // Nothing else to do if not a packed type, or non-const conditions
-        if (m_caseOpaque) return;
+        إذا (m_caseOpaque) أرجع;
 
         // If small enough, analyse details
-        if (caseExprp->width() <= CASE_DETAILS_MAX_WIDTH) analyzeCaseDetails(nodep);
+        إذا (caseExprp->عرض() <= CASE_DETAILS_MAX_عرض) analyzeCaseDetails(nodep);
 
         // Check if it actually fits a full decoder pattern
-        if (canBeDecoder) analyzeDecoderPattern(nodep);
+        إذا (canBeDecoder) analyze_Decoder_الگو(nodep);
     }
 
-    AstNodeStmt* connectDecoderOutputs(AstCase* nodep, AstNodeExpr* exprp, V3SharedTmps& tmps) {
-        FileLine* const flp = nodep->fileline();
+    Ast_گره_Stmt* connectDecoderOutputs(AstCase* nodep, Ast_گره_عبارت* exprp, V3SharedTmps& tmps) {
+        File_سطر* ثابت flp = nodep->fileline();
 
         // If there is only one LHS, just use the result
-        if (m_caseDecoderRecords.size() == 1) {
-            const LhsRecord& lhsRecord = m_caseDecoderRecords[0];
-            const int width = lhsRecord.lhsp->width();
-            AstNodeExpr* const rhsp
-                = exprp->width() == width ? exprp : new AstSel{flp, exprp, 0, width};
-            AstNodeExpr* const lhsp = lhsRecord.lhsp->cloneTreePure(false);
-            if (lhsRecord.nCaseAssigns) {
-                return new AstAssign{flp, lhsp, rhsp};
-            } else if (lhsRecord.nCaseAssignDlys) {
-                return new AstAssignDly{flp, lhsp, rhsp};
-            } else {
+        إذا (m_case_Decoder_رکوردها.اندازه() == 1) {
+            ثابت Lhs_رکورد& lhs_رکورد = m_case_Decoder_رکوردها[0];
+            ثابت صحيح عرض = lhs_رکورد.lhsp->عرض();
+            Ast_گره_عبارت* ثابت rhsp
+                = exprp->عرض() == عرض ? exprp : جديد AstSel{flp, exprp, 0, عرض};
+            Ast_گره_عبارت* ثابت lhsp = lhs_رکورد.lhsp->clone_درخت_خالص(خطأ);
+            إذا (lhs_رکورد.nCaseAssigns) {
+                أرجع جديد Ast_تخصیص_بده{flp, lhsp, rhsp};
+            } وإلا إذا (lhs_رکورد.n_Case_تخصیص_بده_Dlys) {
+                أرجع جديد Ast_تخصیص_بده_Dly{flp, lhsp, rhsp};
+            } وإلا {
                 nodep->v3fatalSrc("Unknown assignment type");
             }
         }
 
         // There are multiple LHSs, store the lookup result in a temporary
-        AstVarScope* const tempVscp = tmps.make(flp, m_scopep, m_caseDecoderEntryWidth);
-        AstNodeExpr* const tempWritep = new AstVarRef{flp, tempVscp, VAccess::WRITE};
-        AstNodeStmt* const resultp = new AstAssign{flp, tempWritep, exprp};
+        AstVarScope* ثابت موقت_Vscp = tmps.make(flp, m_scopep, m_case_Decoder_مدخل_عرض);
+        Ast_گره_عبارت* ثابت موقت_Writep = جديد AstVarRef{flp, موقت_Vscp, VAccess::WRITE};
+        Ast_گره_Stmt* ثابت resultp = جديد Ast_تخصیص_بده{flp, موقت_Writep, exprp};
 
         // For each LHS, select out the result
-        for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const int width = lhsRecord.lhsp->width();
-            const int lsb = lhsRecord.offset;
-            AstNodeExpr* const tempReadp = new AstVarRef{flp, tempVscp, VAccess::READ};
-            AstNodeExpr* const rhsp = new AstSel{flp, tempReadp, lsb, width};
-            AstNodeExpr* const lhsp = lhsRecord.lhsp->cloneTreePure(false);
-            if (lhsRecord.nCaseAssigns) {
-                resultp->addNext(new AstAssign{flp, lhsp, rhsp});
-            } else if (lhsRecord.nCaseAssignDlys) {
-                resultp->addNext(new AstAssignDly{flp, lhsp, rhsp});
-            } else {
+        لكل (ثابت Lhs_رکورد& lhs_رکورد : m_case_Decoder_رکوردها) {
+            ثابت صحيح عرض = lhs_رکورد.lhsp->عرض();
+            ثابت صحيح lsb = lhs_رکورد.جابه_جایی;
+            Ast_گره_عبارت* ثابت موقت_Readp = جديد AstVarRef{flp, موقت_Vscp, VAccess::READ};
+            Ast_گره_عبارت* ثابت rhsp = جديد AstSel{flp, موقت_Readp, lsb, عرض};
+            Ast_گره_عبارت* ثابت lhsp = lhs_رکورد.lhsp->clone_درخت_خالص(خطأ);
+            إذا (lhs_رکورد.nCaseAssigns) {
+                resultp->جمع_کن_بعدی(جديد Ast_تخصیص_بده{flp, lhsp, rhsp});
+            } وإلا إذا (lhs_رکورد.n_Case_تخصیص_بده_Dlys) {
+                resultp->جمع_کن_بعدی(جديد Ast_تخصیص_بده_Dly{flp, lhsp, rhsp});
+            } وإلا {
                 nodep->v3fatalSrc("Unknown assignment type");
             }
         }
-        return resultp;
+        أرجع resultp;
     }
 
-    AstNodeStmt* convertCaseTable(AstCase* nodep) {
+    Ast_گره_Stmt* convert_Case_جدول(AstCase* nodep) {
         // Create the table constant
-        FileLine* const flp = nodep->fileline();
-        AstConst* const tablep
-            = new AstConst{flp, AstConst::WidthedValue{}, static_cast<int>(m_caseTableWidth), 0};
-        const uint32_t tableEntries = 1U << nodep->exprp()->width();
+        File_سطر* ثابت flp = nodep->fileline();
+        AstConst* ثابت tablep
+            = جديد AstConst{flp, AstConst::Widthed_مقدار{}, static_cast<صحيح>(m_case_جدول_عرض), 0};
+        ثابت uint32_t جدول_Entries = 1U << nodep->exprp()->عرض();
 
-        const bool isTinyTable = m_caseTableWidth <= CASE_TABLE_TINY_BITS;
-        if (isTinyTable) {
-            ++m_stats.caseTableTiny;
-        } else {
-            ++m_stats.caseTableNormal;
+        ثابت منطقي is_Tiny_جدول = m_case_جدول_عرض <= CASE_جدول_TINY_بیتها;
+        إذا (is_Tiny_جدول) {
+            ++m_stats.case_جدول_Tiny;
+        } وإلا {
+            ++m_stats.case_جدول_نرمال;
         }
 
         // Populate the table. Align entries to a word boundary to avoid bit swizzling at runtime.
-        const uint32_t entryWidth = isTinyTable
-                                        ? m_caseDecoderEntryWidth
-                                        : VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
-        for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const int lhsWidth = lhsRecord.lhsp->width();
-            const int lhsOffset = lhsRecord.offset;
+        ثابت uint32_t مدخل_عرض = is_Tiny_جدول
+                                        ? m_case_Decoder_مدخل_عرض
+                                        : VL_واژگان_I(m_case_Decoder_مدخل_عرض) * VL_EDATASIZE;
+        لكل (ثابت Lhs_رکورد& lhs_رکورد : m_case_Decoder_رکوردها) {
+            ثابت صحيح lhs_عرض = lhs_رکورد.lhsp->عرض();
+            ثابت صحيح lhs_جابه_جایی = lhs_رکورد.جابه_جایی;
 
             // Broadcast the pre-default assignment
-            if (lhsRecord.preDefaultp) {
-                AstConst* const rhsp = VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
-                for (uint32_t index = 0; index < tableEntries; ++index) {
-                    const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                    tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
+            إذا (lhs_رکورد.preDefaultp) {
+                AstConst* ثابت rhsp = VN_AS(lhs_رکورد.preDefaultp->rhsp(), Const);
+                لكل (uint32_t شاخص = 0; شاخص < جدول_Entries; ++شاخص) {
+                    ثابت uint32_t جدول_جابه_جایی = شاخص * مدخل_عرض + lhs_جابه_جایی;
+                    tablep->رقم().opSelInto(rhsp->رقم(), جدول_جابه_جایی, lhs_عرض);
                 }
             }
 
             // Populate table based on each case item. In reverse order so earlier items win
-            for (AstCaseItem* cip = VN_AS(nodep->itemsp()->lastp(), CaseItem); cip;
-                 cip = VN_AS(cip->prevp(), CaseItem)) {
+            لكل (Ast_Case_قلم* cip = VN_AS(nodep->itemsp()->lastp(), Case_قلم); cip;
+                 cip = VN_AS(cip->prevp(), Case_قلم)) {
                 // Find the RHS in this case
-                AstConst* const rhsp = [&]() -> AstConst* {
-                    for (AstNode* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                        AstNodeAssign* const ap = VN_AS(stmtp, NodeAssign);
-                        if (lhsRecord.lhsp->sameTree(ap->lhsp())) return VN_AS(ap->rhsp(), Const);
+                AstConst* ثابت rhsp = [&]() -> AstConst* {
+                    لكل (Ast_گره* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                        Ast_گره_تخصیص_بده* ثابت ap = VN_AS(stmtp, گره_تخصیص_بده);
+                        إذا (lhs_رکورد.lhsp->same_درخت(ap->lhsp())) أرجع VN_AS(ap->rhsp(), Const);
                     }
                     // Not assigned in this case, use the pre-assigned default
-                    return VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
+                    أرجع VN_AS(lhs_رکورد.preDefaultp->rhsp(), Const);
                 }();
 
                 // If default, broadcast it
-                if (cip->isDefault()) {
-                    for (uint32_t index = 0; index < tableEntries; ++index) {
-                        const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                        tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
+                إذا (cip->isDefault()) {
+                    لكل (uint32_t شاخص = 0; شاخص < جدول_Entries; ++شاخص) {
+                        ثابت uint32_t جدول_جابه_جایی = شاخص * مدخل_عرض + lhs_جابه_جایی;
+                        tablep->رقم().opSelInto(rhsp->رقم(), جدول_جابه_جایی, lhs_عرض);
                     }
-                    continue;
+                    استمر;
                 }
 
                 // Iterate case conditions in reverse order
-                for (AstConst* condp = VN_AS(cip->condsp()->lastp(), Const); condp;
+                لكل (AstConst* condp = VN_AS(cip->condsp()->lastp(), Const); condp;
                      condp = VN_AS(condp->prevp(), Const)) {
-                    if (neverItem(nodep, condp)) continue;  // If item never matches, ignore it
-                    const auto& match = matchPattern(nodep, condp);
-                    const uint32_t matchMask = match.first.toUInt();
-                    const uint32_t matchBits = match.second.toUInt();
-                    const uint32_t inverseMask = ~matchMask & ((1U << condp->width()) - 1);
+                    إذا (never_قلم(nodep, condp)) استمر;  // If item never matches, ignore it
+                    ثابت خودکار& تطابق = تطابق_الگو(nodep, condp);
+                    ثابت uint32_t تطابق_ماسک = تطابق.اولی.مقصد_UInt();
+                    ثابت uint32_t تطابق_بیتها = تطابق.دومی.مقصد_UInt();
+                    ثابت uint32_t inverse_ماسک = ~تطابق_ماسک & ((1U << condp->عرض()) - 1);
                     // This iterates through all integers that are a subset of the inverse mask,
                     // i.e.: all don't care values masked out
-                    for (uint32_t i = inverseMask; true; i = (i - 1) & inverseMask) {
-                        const uint32_t index = i | matchBits;
-                        const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                        tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
-                        if (!i) break;
+                    لكل (uint32_t i = inverse_ماسک; درست; i = (i - 1) & inverse_ماسک) {
+                        ثابت uint32_t شاخص = i | تطابق_بیتها;
+                        ثابت uint32_t جدول_جابه_جایی = شاخص * مدخل_عرض + lhs_جابه_جایی;
+                        tablep->رقم().opSelInto(rhsp->رقم(), جدول_جابه_جایی, lhs_عرض);
+                        إذا (!i) اكسر;
                     }
                 }
             }
         }
 
         // Create the lookup table reference, in the constant pool unless using an inline table
-        AstNodeExpr* const tableRefp = [&]() -> AstNodeExpr* {
-            if (isTinyTable) return tablep;
-            AstVarRef* const refp = V3ConstPool::find(tablep);
-            VL_DO_DANGLING(tablep->deleteTree(), tablep);  // V3ConstPool::find clones
-            return refp;
+        Ast_گره_عبارت* ثابت جدول_Refp = [&]() -> Ast_گره_عبارت* {
+            إذا (is_Tiny_جدول) أرجع tablep;
+            AstVarRef* ثابت refp = V3ConstPool::پیدا_کن(tablep);
+            VL_DO_DANGLING(tablep->delete_درخت(), tablep);  // V3ConstPool::find clones
+            أرجع refp;
         }();
 
         // Create the lookup index
-        AstNodeExpr* const caseExprp
-            = new AstExtend{flp, nodep->exprp()->cloneTreePure(false), 32};
-        AstNodeExpr* const scalep = new AstConst{flp, entryWidth};
-        AstNodeExpr* const tableLsbp = new AstMul{flp, scalep, caseExprp};
-        AstNodeExpr* const tableSelp
-            = new AstSel{flp, tableRefp, tableLsbp, static_cast<int>(m_caseDecoderEntryWidth)};
+        Ast_گره_عبارت* ثابت caseExprp
+            = جديد AstExtend{flp, nodep->exprp()->clone_درخت_خالص(خطأ), 32};
+        Ast_گره_عبارت* ثابت scalep = جديد AstConst{flp, مدخل_عرض};
+        Ast_گره_عبارت* ثابت جدول_Lsbp = جديد AstMul{flp, scalep, caseExprp};
+        Ast_گره_عبارت* ثابت جدول_Selp
+            = جديد AstSel{flp, جدول_Refp, جدول_Lsbp, static_cast<صحيح>(m_case_Decoder_مدخل_عرض)};
 
         // Connect outputs
-        return connectDecoderOutputs(nodep, tableSelp, m_tableOutTmps);
+        أرجع connectDecoderOutputs(nodep, جدول_Selp, m_جدول_بیرون_Tmps);
     }
 
-    AstNodeStmt* convertCaseDecoder(AstCase* nodep) {
+    Ast_گره_Stmt* convertCaseDecoder(AstCase* nodep) {
         ++m_stats.caseDecoder;
 
-        FileLine* const flp = nodep->fileline();
+        File_سطر* ثابت flp = nodep->fileline();
 
         // Gather all the case conditions, paird with their statements. A 'nullptr' condition
         // matches anything (the default case, or the catch-all added below).
-        std::vector<std::pair<AstConst*, AstNode*>> clauses;  // (condition, item statements)
+        std::وکتور<std::pair<AstConst*, Ast_گره*>> clauses;  // (condition, item statements)
         clauses.reserve(m_caseNConditions + 1);
-        for (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
-            if (cip->isDefault()) {
-                clauses.emplace_back(nullptr, cip->stmtsp());
-                continue;
+        لكل (Ast_Case_قلم* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), Case_قلم)) {
+            إذا (cip->isDefault()) {
+                clauses.emplace_پشت(اشاره_تهی, cip->stmtsp());
+                استمر;
             }
-            for (AstNode* condp = cip->condsp(); condp; condp = condp->nextp()) {
-                AstConst* const iconstp = VN_AS(condp, Const);
+            لكل (Ast_گره* condp = cip->condsp(); condp; condp = condp->nextp()) {
+                AstConst* ثابت iconstp = VN_AS(condp, Const);
                 // Skip items that can never match in 2-state simulation (e.g. X in casez)
-                if (neverItem(nodep, iconstp)) continue;
-                clauses.emplace_back(iconstp, cip->stmtsp());
+                إذا (never_قلم(nodep, iconstp)) استمر;
+                clauses.emplace_پشت(iconstp, cip->stmtsp());
             }
         }
         // If the case has no default item and is not provably exhaustive, unmatched selector
         // values fall back to the pre-defaults. Represent that with a catch-all clause (null
         // condition and no statements, so every LHS uses its pre-default). 'analyzeDecoderPattern'
         // guarantees every LHS has a pre-default in this case.
-        const bool provenExhaustive = m_caseDetailsValid && m_caseDetails.exhaustive
+        ثابت منطقي provenExhaustive = m_caseDetailsValid && m_caseDetails.exhaustive
                                       && !m_caseDetails.exhaustiveOverEnumOnly;
-        if (clauses.back().first && !provenExhaustive) clauses.emplace_back(nullptr, nullptr);
+        إذا (clauses.پشت().اولی && !provenExhaustive) clauses.emplace_پشت(اشاره_تهی, اشاره_تهی);
 
         // Number of entries in decoder table
-        const int decoderEnries = clauses.size();
+        ثابت صحيح decoderEnries = clauses.اندازه();
 
         // Build the match table: a {matchBits, matchMask} packed pair per clause, shared by all
         // LHSs. Each field is rounded up to a whole EDATA word boundary to avoid bit swizzling
         // at runtime. We use a packed value so the runtime function can take a VlWide pointer
         // without templating on the array size.
-        const int condWidth = nodep->exprp()->width();
-        const int matchWidth = 2 * VL_WORDS_I(condWidth) * VL_EDATASIZE;
-        AstConst* const matchp
-            = new AstConst{flp, AstConst::WidthedValue{}, decoderEnries * matchWidth, 0};
-        for (int i = 0; i < decoderEnries; ++i) {
-            const int entryLsb = i * matchWidth;
+        ثابت صحيح cond_عرض = nodep->exprp()->عرض();
+        ثابت صحيح تطابق_عرض = 2 * VL_واژگان_I(cond_عرض) * VL_EDATASIZE;
+        AstConst* ثابت matchp
+            = جديد AstConst{flp, AstConst::Widthed_مقدار{}, decoderEnries * تطابق_عرض, 0};
+        لكل (صحيح i = 0; i < decoderEnries; ++i) {
+            ثابت صحيح مدخل_Lsb = i * تطابق_عرض;
 
             // If the entry has a condition, use it's match bits and mask
-            if (AstConst* const condp = clauses[i].first) {
-                const auto& match = matchPattern(nodep, condp);
-                matchp->num().opSelInto(match.first, entryLsb, condWidth);
-                matchp->num().opSelInto(match.second, entryLsb + matchWidth / 2, condWidth);
-                continue;
+            إذا (AstConst* ثابت condp = clauses[i].اولی) {
+                ثابت خودکار& تطابق = تطابق_الگو(nodep, condp);
+                matchp->رقم().opSelInto(تطابق.اولی, مدخل_Lsb, cond_عرض);
+                matchp->رقم().opSelInto(تطابق.دومی, مدخل_Lsb + تطابق_عرض / 2, cond_عرض);
+                استمر;
             }
 
             // Otherwise use zero for mask and bits, which matches anything
-            V3Number numZero{flp, condWidth, 0};
-            matchp->num().opSelInto(numZero, entryLsb, condWidth);
-            matchp->num().opSelInto(numZero, entryLsb + matchWidth / 2, condWidth);
+            V3_عدد رقم_Zero{flp, cond_عرض, 0};
+            matchp->رقم().opSelInto(رقم_Zero, مدخل_Lsb, cond_عرض);
+            matchp->رقم().opSelInto(رقم_Zero, مدخل_Lsb + تطابق_عرض / 2, cond_عرض);
         }
 
         // Create the table initializer
-        AstRange* const rangep = new AstRange{flp, decoderEnries - 1, 0};
-        AstNodeDType* const entryDtypep = nodep->findBitDType(
-            m_caseDecoderEntryWidth, m_caseDecoderEntryWidth, VSigning::UNSIGNED);
-        AstNodeDType* const tableDtypep = new AstUnpackArrayDType{flp, entryDtypep, rangep};
-        v3Global.rootp()->typeTablep()->addTypesp(tableDtypep);
-        AstConsArray* const tablep = new AstConsArray{flp, tableDtypep};
+        AstRange* ثابت rangep = جديد AstRange{flp, decoderEnries - 1, 0};
+        Ast_گره_DType* ثابت مدخل_Dtypep = nodep->پیدا_کن_بیت_DType(
+            m_case_Decoder_مدخل_عرض, m_case_Decoder_مدخل_عرض, VSigning::UNSIGNED);
+        Ast_گره_DType* ثابت جدول_Dtypep = جديد AstUnpackArrayDType{flp, مدخل_Dtypep, rangep};
+        v3Global.rootp()->typeTablep()->جمع_کن_Typesp(جدول_Dtypep);
+        AstConsArray* ثابت tablep = جديد AstConsArray{flp, جدول_Dtypep};
 
         // Build a single value table for all LHSs: one entry per clause, packing each LHS's value
         // at its offset. The entry width is the table packing computed by 'analyzeDecoderPattern'
         // Rounded up to a whole EDATA word boundary to avoid bit swizzling at runtime.
-        for (int i = 0; i < decoderEnries; ++i) {
-            AstNode* const stmtsp = clauses[i].second;
-            AstConst* const entryp = new AstConst{flp, AstConst::WidthedValue{},
-                                                  static_cast<int>(m_caseDecoderEntryWidth), 0};
-            for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-                AstNodeExpr* const lhsp = lhsRecord.lhsp;
+        لكل (صحيح i = 0; i < decoderEnries; ++i) {
+            Ast_گره* ثابت stmtsp = clauses[i].دومی;
+            AstConst* ثابت entryp = جديد AstConst{flp, AstConst::Widthed_مقدار{},
+                                                  static_cast<صحيح>(m_case_Decoder_مدخل_عرض), 0};
+            لكل (ثابت Lhs_رکورد& lhs_رکورد : m_case_Decoder_رکوردها) {
+                Ast_گره_عبارت* ثابت lhsp = lhs_رکورد.lhsp;
                 // Find the value assigned to this LHS in the clause's statements
-                AstConst* valConstp = nullptr;
-                for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
-                    AstNodeAssign* const assignp = VN_AS(stmtp, NodeAssign);
-                    if (!lhsp->sameTree(assignp->lhsp())) continue;
+                AstConst* valConstp = اشاره_تهی;
+                لكل (Ast_گره* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+                    Ast_گره_تخصیص_بده* ثابت assignp = VN_AS(stmtp, گره_تخصیص_بده);
+                    إذا (!lhsp->same_درخت(assignp->lhsp())) استمر;
                     valConstp = VN_AS(assignp->rhsp(), Const);
-                    break;
+                    اكسر;
                 }
                 // Not assigned in this clause, so use the pre-assigned default
-                if (!valConstp) {
-                    UASSERT_OBJ(lhsRecord.preDefaultp, nodep,
+                إذا (!valConstp) {
+                    UASSERT_OBJ(lhs_رکورد.preDefaultp, nodep,
                                 "Decoder LHS unassigned in case item without a pre-default");
-                    valConstp = VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
+                    valConstp = VN_AS(lhs_رکورد.preDefaultp->rhsp(), Const);
                 }
-                entryp->num().opSelInto(valConstp->num(), lhsRecord.offset, lhsp->width());
+                entryp->رقم().opSelInto(valConstp->رقم(), lhs_رکورد.جابه_جایی, lhsp->عرض());
             }
             tablep->valuep(i, entryp);
         }
 
         // Create the tables
-        AstVarRef* const matchRefp = V3ConstPool::find(matchp);
-        AstVarRef* const tableRefp = V3ConstPool::find(tablep);
-        VL_DO_DANGLING(matchp->deleteTree(), matchp);
-        VL_DO_DANGLING(tablep->deleteTree(), tablep);
+        AstVarRef* ثابت تطابق_Refp = V3ConstPool::پیدا_کن(matchp);
+        AstVarRef* ثابت جدول_Refp = V3ConstPool::پیدا_کن(tablep);
+        VL_DO_DANGLING(matchp->delete_درخت(), matchp);
+        VL_DO_DANGLING(tablep->delete_درخت(), tablep);
 
         // AstMatchMasked produces the index of the matching entry
-        AstNodeExpr* const caseExprp = nodep->exprp()->cloneTreePure(false);
-        AstMatchMasked* const indexp = new AstMatchMasked{flp, caseExprp, matchRefp};
-        AstNodeExpr* const entryp = new AstArraySel{flp, tableRefp, indexp};
+        Ast_گره_عبارت* ثابت caseExprp = nodep->exprp()->clone_درخت_خالص(خطأ);
+        Ast_تطابق_Masked* ثابت indexp = جديد Ast_تطابق_Masked{flp, caseExprp, تطابق_Refp};
+        Ast_گره_عبارت* ثابت entryp = جديد AstArraySel{flp, جدول_Refp, indexp};
 
-        return connectDecoderOutputs(nodep, entryp, m_decoderOutTmps);
+        أرجع connectDecoderOutputs(nodep, entryp, m_decoder_بیرون_Tmps);
     }
 
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseFastRecurse(AstNodeExpr* cexprp, int msb, uint32_t upperValue) const {
+    Ast_گره* convertCaseFastRecurse(Ast_گره_عبارت* cexprp, صحيح msb, uint32_t فوقانی_مقدار) ثابت {
         // Base case: If reached the last bit, upperValue equals an exact value, just return
         // the statements from that CaseItem. Note: Not cloning here as the caller will do
         // an identity check.
-        if (msb < 0) return m_caseDetails.records[upperValue].stmtsp;
+        إذا (msb < 0) أرجع m_caseDetails.رکوردها[فوقانی_مقدار].stmtsp;
 
         // Recursive case:
         // Make left and right subtrees assuming cexpr[msb] is 0 and 1 respectively
-        const uint32_t upperValue0 = upperValue;
-        const uint32_t upperValue1 = upperValue | (1UL << msb);
-        AstNode* tree0p = convertCaseFastRecurse(cexprp, msb - 1, upperValue0);
-        AstNode* tree1p = convertCaseFastRecurse(cexprp, msb - 1, upperValue1);
+        ثابت uint32_t فوقانی_Value0 = فوقانی_مقدار;
+        ثابت uint32_t فوقانی_Value1 = فوقانی_مقدار | (1UL << msb);
+        Ast_گره* tree0p = convertCaseFastRecurse(cexprp, msb - 1, فوقانی_Value0);
+        Ast_گره* tree1p = convertCaseFastRecurse(cexprp, msb - 1, فوقانی_Value1);
 
         // If same logic on both sides, we can just return one of them
-        if (tree0p == tree1p) return tree0p;
+        إذا (tree0p == tree1p) أرجع tree0p;
 
         // We could have a "checkerboard" with A B A B, we can use the same IF on both edges
         {
-            bool same = true;
-            for (uint32_t a = upperValue0, b = upperValue1; a < upperValue1; ++a, ++b) {
-                if (m_caseDetails.records[a].stmtsp != m_caseDetails.records[b].stmtsp) {
-                    same = false;
-                    break;
+            منطقي same = درست;
+            لكل (uint32_t a = فوقانی_Value0, b = فوقانی_Value1; a < فوقانی_Value1; ++a, ++b) {
+                إذا (m_caseDetails.رکوردها[a].stmtsp != m_caseDetails.رکوردها[b].stmtsp) {
+                    same = خطأ;
+                    اكسر;
                 }
             }
-            if (same) {
-                VL_DO_DANGLING(tree1p->deleteTree(), tree1p);
-                return tree0p;
+            إذا (same) {
+                VL_DO_DANGLING(tree1p->delete_درخت(), tree1p);
+                أرجع tree0p;
             }
         }
 
         // Must have differing logic. Test the bit and convert to an If.
 
         // Clone if needed
-        if (tree0p && tree0p->backp()) tree0p = tree0p->cloneTree(true);
-        if (tree1p && tree1p->backp()) tree1p = tree1p->cloneTree(true);
+        إذا (tree0p && tree0p->backp()) tree0p = tree0p->clone_درخت(درست);
+        إذا (tree1p && tree1p->backp()) tree1p = tree1p->clone_درخت(درست);
         // Create the If statement
-        FileLine* const flp = cexprp->fileline();
-        AstNodeExpr* const condp = new AstSel{flp, cexprp->cloneTreePure(false), msb, 1};
-        AstIf* const ifp = new AstIf{flp, condp, tree1p, tree0p};
-        return ifp;
+        File_سطر* ثابت flp = cexprp->fileline();
+        Ast_گره_عبارت* ثابت condp = جديد AstSel{flp, cexprp->clone_درخت_خالص(خطأ), msb, 1};
+        AstIf* ثابت ifp = جديد AstIf{flp, condp, tree1p, tree0p};
+        أرجع ifp;
     }
 
     // CASEx(cexpr,....
     // ->  tree of IF(msb,  IF(msb-1, 11, 10)
     //                      IF(msb-1, 01, 00))
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseFast(AstCase* nodep) {
+    Ast_گره* convertCaseFast(AstCase* nodep) {
         ++m_stats.caseFast;
-        const int caseWidth = nodep->exprp()->width();
-        AstNode* const ifrootp = convertCaseFastRecurse(nodep->exprp(), caseWidth - 1, 0UL);
-        return ifrootp && ifrootp->backp() ? ifrootp->cloneTree(true) : ifrootp;
+        ثابت صحيح case_عرض = nodep->exprp()->عرض();
+        Ast_گره* ثابت ifrootp = convertCaseFastRecurse(nodep->exprp(), case_عرض - 1, 0UL);
+        أرجع ifrootp && ifrootp->backp() ? ifrootp->clone_درخت(درست) : ifrootp;
     }
 
-    AstNodeExpr* newCaseCompare(const AstCase* casep, AstNodeExpr* itemExprp) {
-        FileLine* const flp = itemExprp->fileline();
-        if (neverItem(casep, itemExprp)) {
-            VL_DO_DANGLING(pushDeletep(itemExprp), itemExprp);
-            return new AstConst{flp, AstConst::BitFalse{}};
+    Ast_گره_عبارت* newCaseCompare(ثابت AstCase* casep, Ast_گره_عبارت* قلم_Exprp) {
+        File_سطر* ثابت flp = قلم_Exprp->fileline();
+        إذا (never_قلم(casep, قلم_Exprp)) {
+            VL_DO_DANGLING(افزودن_Deletep(قلم_Exprp), قلم_Exprp);
+            أرجع جديد AstConst{flp, AstConst::بیت_False{}};
         }
 
-        if (AstCond* const condp = VN_CAST(itemExprp, Cond)) {
+        إذا (AstCond* ثابت condp = VN_CAST(قلم_Exprp, Cond)) {
             // Bounds checks can leave X-valued branches in case items. Compare each
             // branch using case semantics before lowering to two-state expressions.
-            AstNodeExpr* const testp = condp->condp()->unlinkFrBack();
-            AstNodeExpr* const thenp = newCaseCompare(casep, condp->thenp()->unlinkFrBack());
-            AstNodeExpr* const elsep = newCaseCompare(casep, condp->elsep()->unlinkFrBack());
-            VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, condp);
-            return new AstCond{flp, testp, thenp, elsep};
+            Ast_گره_عبارت* ثابت testp = condp->condp()->unlink_Fr_پشت();
+            Ast_گره_عبارت* ثابت thenp = newCaseCompare(casep, condp->thenp()->unlink_Fr_پشت());
+            Ast_گره_عبارت* ثابت elsep = newCaseCompare(casep, condp->elsep()->unlink_Fr_پشت());
+            VL_DO_DANGLING2(افزودن_Deletep(قلم_Exprp), قلم_Exprp, condp);
+            أرجع جديد AstCond{flp, testp, thenp, elsep};
         }
 
-        AstNodeExpr* const caseExprp = casep->exprp()->cloneTreePure(false);
+        Ast_گره_عبارت* ثابت caseExprp = casep->exprp()->clone_درخت_خالص(خطأ);
         // InsideRange: Similar logic in V3Width::visit(AstInside)
-        if (AstInsideRange* const itemRangep = VN_CAST(itemExprp, InsideRange)) {
-            AstNodeExpr* const resultp = itemRangep->newAndFromInside(
-                caseExprp, itemRangep->lhsp()->unlinkFrBack(), itemRangep->rhsp()->unlinkFrBack());
-            VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, itemRangep);
-            return resultp;
+        إذا (AstInsideRange* ثابت قلم_Rangep = VN_CAST(قلم_Exprp, InsideRange)) {
+            Ast_گره_عبارت* ثابت resultp = قلم_Rangep->newAndFromInside(
+                caseExprp, قلم_Rangep->lhsp()->unlink_Fr_پشت(), قلم_Rangep->rhsp()->unlink_Fr_پشت());
+            VL_DO_DANGLING2(افزودن_Deletep(قلم_Exprp), قلم_Exprp, قلم_Rangep);
+            أرجع resultp;
         }
 
-        if (AstConst* const itemConstp = VN_CAST(itemExprp, Const)) {
+        إذا (AstConst* ثابت قلم_Constp = VN_CAST(قلم_Exprp, Const)) {
             // neverItem has already rejected X/Z values that cannot match.
-            if (itemConstp->num().isFourState()) {
-                const auto& match = matchPattern(casep, itemConstp);
-                const V3Number& matchMask = match.first;
-                const V3Number& matchBits = match.second;
-                VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, itemConstp);
-                return AstEq::newTyped(flp, new AstConst{flp, matchBits},
-                                       new AstAnd{flp, caseExprp, new AstConst{flp, matchMask}});
+            إذا (قلم_Constp->رقم().isFourState()) {
+                ثابت خودکار& تطابق = تطابق_الگو(casep, قلم_Constp);
+                ثابت V3_عدد& تطابق_ماسک = تطابق.اولی;
+                ثابت V3_عدد& تطابق_بیتها = تطابق.دومی;
+                VL_DO_DANGLING2(افزودن_Deletep(قلم_Exprp), قلم_Exprp, قلم_Constp);
+                أرجع AstEq::newTyped(flp, جديد AstConst{flp, تطابق_بیتها},
+                                       جديد AstAnd{flp, caseExprp, جديد AstConst{flp, تطابق_ماسک}});
             }
         }
 
-        return AstEq::newTyped(flp, caseExprp, itemExprp);
+        أرجع AstEq::newTyped(flp, caseExprp, قلم_Exprp);
     }
 
     // Convet case statement using generic if/else tree
@@ -971,62 +971,62 @@ class CaseVisitor final : public VNVisitor {
     //                       IF((EQ (AND MASK cexpr) (AND MASK icond1)
     //                              ,istmts2, istmts3
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseGeneric(AstCase* nodep) {
+    Ast_گره* convertCaseGeneric(AstCase* nodep) {
         ++m_stats.caseGeneric;
         // We'll do this in two stages.
         // First stage, convert the conditions to the appropriate IF AND terms.
-        bool hasDefault = false;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), CaseItem)) {
+        منطقي hasDefault = خطأ;
+        لكل (Ast_Case_قلم* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Case_قلم)) {
 
-            FileLine* const flp = itemp->fileline();
+            File_سطر* ثابت flp = itemp->fileline();
 
             // Default clause. Just make true, we'll optimize it away later
-            if (itemp->isDefault()) {
-                itemp->addCondsp(new AstConst{flp, AstConst::BitTrue{}});
-                hasDefault = true;
-                continue;
+            إذا (itemp->isDefault()) {
+                itemp->جمع_کن_Condsp(جديد AstConst{flp, AstConst::بیت_True{}});
+                hasDefault = درست;
+                استمر;
             }
 
             // Regular clause. Construct the condition expression.
-            AstNodeExpr* newCondp = nullptr;
-            for (AstNodeExpr *itemExprp = itemp->condsp(), *nextp; itemExprp; itemExprp = nextp) {
-                nextp = VN_AS(itemExprp->nextp(), NodeExpr);
-                itemExprp->unlinkFrBack();
+            Ast_گره_عبارت* newCondp = اشاره_تهی;
+            لكل (Ast_گره_عبارت *قلم_Exprp = itemp->condsp(), *nextp; قلم_Exprp; قلم_Exprp = nextp) {
+                nextp = VN_AS(قلم_Exprp->nextp(), گره_عبارت);
+                قلم_Exprp->unlink_Fr_پشت();
 
                 // If case never matches, ignore it
-                if (neverItem(nodep, itemExprp)) {
-                    VL_DO_DANGLING(pushDeletep(itemExprp), itemExprp);
-                    continue;
+                إذا (never_قلم(nodep, قلم_Exprp)) {
+                    VL_DO_DANGLING(افزودن_Deletep(قلم_Exprp), قلم_Exprp);
+                    استمر;
                 }
 
                 // Compute the term to add to the condition expression
-                AstNodeExpr* const termp = newCaseCompare(nodep, itemExprp);
+                Ast_گره_عبارت* ثابت termp = newCaseCompare(nodep, قلم_Exprp);
 
                 // 'Or' new term with previous terms
-                newCondp = newCondp ? new AstLogOr{flp, newCondp, termp} : termp;
+                newCondp = newCondp ? جديد AstLogOr{flp, newCondp, termp} : termp;
             }
             // Replace expression in tree. Needs to be non-null, so add a constant false if
             // needed
-            if (!newCondp) newCondp = new AstConst{flp, AstConst::BitFalse{}};
-            itemp->addCondsp(newCondp);
+            إذا (!newCondp) newCondp = جديد AstConst{flp, AstConst::بیت_False{}};
+            itemp->جمع_کن_Condsp(newCondp);
         }
 
         // If there was no default, make one up, this greatly simplifies below code
         // and constant propagation will just eliminate it for us later.
-        if (!hasDefault) {
-            if (m_caseDetailsValid && m_caseDetails.exhaustive
+        إذا (!hasDefault) {
+            إذا (m_caseDetailsValid && m_caseDetails.exhaustive
                 && !m_caseDetails.exhaustiveOverEnumOnly) {
                 // Case is proven exhaustive, so the last is reached only when its test holds,
                 // make it unconditional
-                AstCaseItem* const lastp = VN_AS(nodep->itemsp()->lastp(), CaseItem);
-                pushDeletep(lastp->condsp()->unlinkFrBackWithNext());
-                lastp->addCondsp(new AstConst{lastp->fileline(), AstConst::BitTrue{}});
-            } else {
+                Ast_Case_قلم* ثابت lastp = VN_AS(nodep->itemsp()->lastp(), Case_قلم);
+                افزودن_Deletep(lastp->condsp()->unlink_Fr_پشت_With_بعدی());
+                lastp->جمع_کن_Condsp(جديد AstConst{lastp->fileline(), AstConst::بیت_True{}});
+            } وإلا {
                 // Otherwise needs an explicit empty default
-                nodep->addItemsp(new AstCaseItem{
-                    nodep->fileline(), new AstConst{nodep->fileline(), AstConst::BitTrue{}},
-                    nullptr});
+                nodep->جمع_کن_Itemsp(جديد Ast_Case_قلم{
+                    nodep->fileline(), جديد AstConst{nodep->fileline(), AstConst::بیت_True{}},
+                    اشاره_تهی});
             }
         }
 
@@ -1036,122 +1036,122 @@ class CaseVisitor final : public VNVisitor {
         // some of the top elements.  If we ever have profiling data, we
         // should pull out the most common item from here and instead make
         // it the first IF branch.
-        int depth = 0;
-        AstIf* grouprootp = nullptr;
-        AstIf* groupnextp = nullptr;
-        AstIf* itemnextp = nullptr;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), CaseItem)) {
+        صحيح عمق = 0;
+        AstIf* grouprootp = اشاره_تهی;
+        AstIf* groupnextp = اشاره_تهی;
+        AstIf* itemnextp = اشاره_تهی;
+        لكل (Ast_Case_قلم* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Case_قلم)) {
 
             // Grab the statements from this item. May be empty.
-            AstNode* const istmtsp = itemp->stmtsp();
-            if (istmtsp) istmtsp->unlinkFrBackWithNext();
+            Ast_گره* ثابت istmtsp = itemp->stmtsp();
+            إذا (istmtsp) istmtsp->unlink_Fr_پشت_With_بعدی();
 
             // Expressioned clause
-            AstNodeExpr* const ifexprp = itemp->condsp()->unlinkFrBack();
+            Ast_گره_عبارت* ثابت ifexprp = itemp->condsp()->unlink_Fr_پشت();
             {  // Prepare for next group
-                if (++depth > CASE_ENCODER_GROUP_DEPTH) depth = 1;
-                if (depth == 1) {  // First group or starting new group
-                    itemnextp = nullptr;
-                    AstIf* const newp = new AstIf{itemp->fileline(), ifexprp->cloneTreePure(true)};
-                    if (groupnextp) {
-                        groupnextp->addElsesp(newp);
-                    } else {
+                إذا (++عمق > CASE_ENCODER_گروه_عمق) عمق = 1;
+                إذا (عمق == 1) {  // First group or starting new group
+                    itemnextp = اشاره_تهی;
+                    AstIf* ثابت newp = جديد AstIf{itemp->fileline(), ifexprp->clone_درخت_خالص(درست)};
+                    إذا (groupnextp) {
+                        groupnextp->جمع_کن_Elsesp(newp);
+                    } وإلا {
                         grouprootp = newp;
                     }
                     groupnextp = newp;
-                } else {  // Continue group, modify if condition to OR in this new condition
-                    AstNodeExpr* const condp = groupnextp->condp()->unlinkFrBack();
+                } وإلا {  // Continue group, modify if condition to OR in this new condition
+                    Ast_گره_عبارت* ثابت condp = groupnextp->condp()->unlink_Fr_پشت();
                     groupnextp->condp(
-                        new AstOr{ifexprp->fileline(), condp, ifexprp->cloneTreePure(true)});
+                        جديد AstOr{ifexprp->fileline(), condp, ifexprp->clone_درخت_خالص(درست)});
                 }
             }
             {  // Make the new lower IF and attach in the tree
-                AstNodeExpr* itemexprp = ifexprp;
+                Ast_گره_عبارت* itemexprp = ifexprp;
                 VL_DANGLING(ifexprp);
-                if (depth == CASE_ENCODER_GROUP_DEPTH) {  // End of group - can skip the condition
-                    VL_DO_DANGLING(itemexprp->deleteTree(), itemexprp);
-                    itemexprp = new AstConst{itemp->fileline(), AstConst::BitTrue{}};
+                إذا (عمق == CASE_ENCODER_گروه_عمق) {  // End of group - can skip the condition
+                    VL_DO_DANGLING(itemexprp->delete_درخت(), itemexprp);
+                    itemexprp = جديد AstConst{itemp->fileline(), AstConst::بیت_True{}};
                 }
-                AstIf* const newp = new AstIf{itemp->fileline(), itemexprp, istmtsp};
-                if (itemnextp) {
-                    itemnextp->addElsesp(newp);
-                } else {
-                    groupnextp->addThensp(newp);  // First in a new group
+                AstIf* ثابت newp = جديد AstIf{itemp->fileline(), itemexprp, istmtsp};
+                إذا (itemnextp) {
+                    itemnextp->جمع_کن_Elsesp(newp);
+                } وإلا {
+                    groupnextp->جمع_کن_Thensp(newp);  // First in a new group
                 }
                 itemnextp = newp;
             }
         }
-        return grouprootp;
+        أرجع grouprootp;
     }
 
     // Convert the given case statement to a representation not using AstCase
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCase(AstCase* nodep) {
+    Ast_گره* convertCase(AstCase* nodep) {
         // Determine if we should use the lookup table method
-        const bool useTable = [&]() {
+        ثابت منطقي use_جدول = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseTable()) return false;
+            إذا (!v3Global.opt.f_Case_جدول()) أرجع خطأ;
             // Not if analysis tells us we can't
-            if (!m_caseTableWidth) return false;
+            إذا (!m_case_جدول_عرض) أرجع خطأ;
             // Always if tiny - it is materialized inline, so there is no load to amortize
-            if (m_caseTableWidth <= CASE_TABLE_TINY_BITS) return true;
+            إذا (m_case_جدول_عرض <= CASE_جدول_TINY_بیتها) أرجع درست;
             // For a normal (constant-pool) table, weigh the indexed load against the branch
             // lowering it would replace. That lowering's depth is bounded by the selector
             // width (a balanced bit tree tests ~one bit per level) and by the number of
             // distinct values (a generic if/else does ~one compare per value). A few compares
             // are cheaper than a load that is likely to be a cache miss, so only table once that
             // depth is exceeded.
-            const size_t branches = std::min<size_t>(nodep->exprp()->width(), m_caseNConditions);
-            if (branches < CASE_TABLE_MIN_BRANCHES) return false;
-            return true;
+            ثابت اندازه_t branches = std::min<اندازه_t>(nodep->exprp()->عرض(), m_caseNConditions);
+            إذا (branches < CASE_جدول_MIN_BRANCHES) أرجع خطأ;
+            أرجع درست;
         }();
-        if (useTable) return convertCaseTable(nodep);
+        إذا (use_جدول) أرجع convert_Case_جدول(nodep);
 
         // Determine if we should use the decoder method.
-        const bool useDecoder = [&]() {
+        ثابت منطقي useDecoder = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseDecoder()) return false;
+            إذا (!v3Global.opt.fCaseDecoder()) أرجع خطأ;
             // Not if not a decoder pattern
-            if (m_caseDecoderRecords.empty()) return false;
+            إذا (m_case_Decoder_رکوردها.خالی()) أرجع خطأ;
             // Only worth it once the branch lowering it would replace is deep enough (see
             // useTable)
-            const size_t branches = std::min<size_t>(nodep->exprp()->width(), m_caseNConditions);
-            if (branches < CASE_TABLE_MIN_BRANCHES) return false;
-            return true;
+            ثابت اندازه_t branches = std::min<اندازه_t>(nodep->exprp()->عرض(), m_caseNConditions);
+            إذا (branches < CASE_جدول_MIN_BRANCHES) أرجع خطأ;
+            أرجع درست;
         }();
-        if (useDecoder) return convertCaseDecoder(nodep);
+        إذا (useDecoder) أرجع convertCaseDecoder(nodep);
 
         // Determine if we should use the fast bitwise branching tree method
-        const bool useFastBitTree = [&]() {
+        ثابت منطقي use_Fast_بیت_درخت = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseTree()) return false;
+            إذا (!v3Global.opt.f_Case_درخت()) أرجع خطأ;
             // Can't do it without the detailed analysis
-            if (!m_caseDetailsValid) return false;
+            إذا (!m_caseDetailsValid) أرجع خطأ;
             // Can't do it if not exhaustive
-            if (!m_caseDetails.exhaustive) return false;
+            إذا (!m_caseDetails.exhaustive) أرجع خطأ;
             // Not worth doing if there are few conditions
-            if (m_caseNConditions <= 3) return false;
+            إذا (m_caseNConditions <= 3) أرجع خطأ;
             // Avoid e.g. priority expanders from going crazy in expansion
-            const size_t caseWidth = nodep->exprp()->width();
-            if (caseWidth >= 8 && m_caseNConditions <= (caseWidth + 1)) return false;
+            ثابت اندازه_t case_عرض = nodep->exprp()->عرض();
+            إذا (case_عرض >= 8 && m_caseNConditions <= (case_عرض + 1)) أرجع خطأ;
             // Otherwise use the bit tree
-            return true;
+            أرجع درست;
         }();
-        if (useFastBitTree) return convertCaseFast(nodep);
+        إذا (use_Fast_بیت_درخت) أرجع convertCaseFast(nodep);
 
         // Convert using the generic if/else tree method
         // If a case statement is exhaustive, presume signals involved aren't forming a latch
         // TODO: this is broken, but it is as was before
-        if (m_alwaysp && (!m_caseDetailsValid || m_caseDetails.exhaustive)) {
-            m_alwaysp->fileline()->warnOff(V3ErrorCode::LATCH, true);
+        إذا (m_alwaysp && (!m_caseDetailsValid || m_caseDetails.exhaustive)) {
+            m_alwaysp->fileline()->warnOff(V3_Error_کد::LATCH, درست);
         }
-        return convertCaseGeneric(nodep);
+        أرجع convertCaseGeneric(nodep);
     }
 
     // VISITORS
-    void visit(AstCase* nodep) override {
-        UASSERT_OBJ(nodep->exprp()->isPure(), nodep,
+    فراغ بازدید(AstCase* nodep) override {
+        UASSERT_OBJ(nodep->exprp()->is_خالص(), nodep,
                     "Impure case expression should have been removed by V3LiftExpr");
 
         CaseLintVisitor::apply(nodep);
@@ -1165,62 +1165,62 @@ class CaseVisitor final : public VNVisitor {
         // Take the 'notParallelp' statements under the case statement created by V3Assert.
         // If the statement was proven to have no overlaps and all cases covered,
         // it can be removed. Otherwise insert the assertion after the case statement.
-        if (AstNode* const stmtp = nodep->notParallelp()) {
-            stmtp->unlinkFrBackWithNext();
-            if (m_caseDetailsValid && m_caseDetails.exhaustive && m_caseDetails.noOverlaps) {
+        إذا (Ast_گره* ثابت stmtp = nodep->notParallelp()) {
+            stmtp->unlink_Fr_پشت_With_بعدی();
+            إذا (m_caseDetailsValid && m_caseDetails.exhaustive && m_caseDetails.noOverlaps) {
                 ++m_stats.provenAssertions;
-                VL_DO_DANGLING(stmtp->deleteTree(), stmtp);
-            } else {
-                nodep->addNextHere(stmtp);
+                VL_DO_DANGLING(stmtp->delete_درخت(), stmtp);
+            } وإلا {
+                nodep->جمع_کن_بعدی_اینجا(stmtp);
             }
         }
 
         // Convert the case statement and replace the original
-        if (AstNode* const replacementp = convertCase(nodep)) {
+        إذا (Ast_گره* ثابت replacementp = convertCase(nodep)) {
             nodep->replaceWith(replacementp);
-        } else {
-            nodep->unlinkFrBack();
+        } وإلا {
+            nodep->unlink_Fr_پشت();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
 
-    void visit(AstScope* nodep) override {
+    فراغ بازدید(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstAlways* nodep) override {
+    فراغ بازدید(AstAlways* nodep) override {
         VL_RESTORER(m_alwaysp);
         m_alwaysp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit CaseVisitor(AstNetlist* nodep) { iterate(nodep); }
+    صریح CaseVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CaseVisitor() override {
-        V3Stats::addStat("Optimizations, Cases decoder", m_stats.caseDecoder);
-        V3Stats::addStat("Optimizations, Cases table normal", m_stats.caseTableNormal);
-        V3Stats::addStat("Optimizations, Cases table tiny", m_stats.caseTableTiny);
-        V3Stats::addStat("Optimizations, Cases parallelized", m_stats.caseFast);
-        V3Stats::addStat("Optimizations, Cases complex", m_stats.caseGeneric);
-        V3Stats::addStat("Optimizations, Cases proven assertions", m_stats.provenAssertions);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases decoder", m_stats.caseDecoder);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases table normal", m_stats.case_جدول_نرمال);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases table tiny", m_stats.case_جدول_Tiny);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases parallelized", m_stats.caseFast);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases complex", m_stats.caseGeneric);
+        V3Stats::جمع_کن_Stat("Optimizations, Cases proven assertions", m_stats.provenAssertions);
     }
 };
 
-size_t CaseVisitor::LhsRecord::s_nextId = 0;
+اندازه_t CaseVisitor::Lhs_رکورد::s_بعدی_Id = 0;
 
 //######################################################################
 // Case class functions
 
-void V3Case::caseAll(AstNetlist* nodep) {
+فراغ V3Case::caseAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CaseVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("case", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("case", 0, dump_درخت_Either_Level() >= 3);
 }
-void V3Case::caseLint(AstGenCase* nodep) {
+فراغ V3Case::caseLint(AstGenCase* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
     CaseLintVisitor::apply(nodep);
 }

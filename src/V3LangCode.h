@@ -14,23 +14,23 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LANGCODE_H_
-#define VERILATOR_V3LANGCODE_H_
+#اگر_تعریف_نشده VERILATOR_V3LANGCODE_H_
+#تعریف_کن VERILATOR_V3LANGCODE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#ضمن <map>
+#ضمن <set>
+#ضمن <vector>
 
 //######################################################################
 //! Class for the different languages supported.
 //! A separate file, since used both in V3Options (globally) and FileLine 9per
 //! file).
-class V3LangCode final {
-public:
-    enum en : uint8_t {
+class V3_Lang_کد final {
+عام:
+    تعداد en : uint8_t {
         L_ERROR,  // Must be first.
         L1364_1995,
         L1364_2001,
@@ -41,34 +41,34 @@ public:
         L1800_2017,
         L1800_2023,
         // ***Add new elements below also***
-        _ENUM_END
+        ENUM_انتها
     };
-    const char* ascii() const {
-        const char* const names[]
+    ثابت حرف* ascii() ثابت {
+        ثابت حرف* ثابت نامها[]
             = {// These must match the `begin_keywords values
                " ERROR",    "1364-1995", "1364-2001", "1364-2005", "1800-2005",
                "1800-2009", "1800-2012", "1800-2017", "1800-2023"};
-        return names[m_e];
+        أرجع نامها[m_e];
     }
-    static V3LangCode mostRecent() VL_MT_SAFE { return V3LangCode{L1800_2023}; }
-    bool systemVerilog() const {
-        return m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
+    ساكن V3_Lang_کد mostRecent() VL_MT_امن { أرجع V3_Lang_کد{L1800_2023}; }
+    bool systemVerilog() ثابت {
+        أرجع m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
                || m_e == L1800_2023;
     }
-    bool legal() const { return m_e != L_ERROR; }
+    bool legal() ثابت { أرجع m_e != L_ERROR; }
     //
-    enum en m_e;
-    V3LangCode()
+    تعداد en m_e;
+    V3_Lang_کد()
         : m_e{L_ERROR} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr V3LangCode(en _e)
+    constexpr V3_Lang_کد(en _e)
         : m_e{_e} {}
-    explicit V3LangCode(const char* textp);
-    explicit V3LangCode(int _e)
+    explicit V3_Lang_کد(ثابت حرف* textp);
+    explicit V3_Lang_کد(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr عملگر en() ثابت { أرجع m_e; }
 };
 
 //######################################################################
 
-#endif  // guard
+#پایان_اگر  // guard

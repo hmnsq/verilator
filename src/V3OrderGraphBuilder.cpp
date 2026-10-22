@@ -18,153 +18,153 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstUserAllocator.h"
-#include "V3Graph.h"
-#include "V3OrderGraph.h"
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#ضمن "V3AstUserAllocator.h"
+#ضمن "V3Graph.h"
+#ضمن "V3OrderGraph.h"
+#ضمن "V3OrderInternal.h"
+#ضمن "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Order information stored under each AstNode::user1p()...
 
-class OrderUser final {
+صنف ترتیب_User final {
     // Stored in AstVarScope::user1p, a list of all the various vertices
     // that can exist for one given scoped variable
-public:
+عام:
     // TYPES
-    enum class VarVertexType : uint8_t {  // Types of vertices we can create
+    تعداد صنف Var_رأس_Type : uint8_t {  // Types of vertices we can create
         STD = 0,
         PRE = 1,
         PORD = 2,
         POST = 3
     };
 
-private:
+خاص:
     // Vertex of each type (if non-nullptr)
-    std::array<OrderVarVertex*, static_cast<size_t>(VarVertexType::POST) + 1> m_vertexps;
+    std::array<ترتیب_Var_رأس*, static_cast<اندازه_t>(Var_رأس_Type::POST) + 1> m_vertexps;
 
-public:
+عام:
     // METHODS
-    OrderVarVertex* getVarVertex(OrderGraph* graphp, AstVarScope* varscp, VarVertexType type) {
-        const unsigned idx = static_cast<unsigned>(type);
-        OrderVarVertex* vertexp = m_vertexps[idx];
-        if (!vertexp) {
-            switch (type) {
-            case VarVertexType::STD: vertexp = new OrderVarStdVertex{graphp, varscp}; break;
-            case VarVertexType::PRE: vertexp = new OrderVarPreVertex{graphp, varscp}; break;
-            case VarVertexType::PORD: vertexp = new OrderVarPordVertex{graphp, varscp}; break;
-            case VarVertexType::POST: vertexp = new OrderVarPostVertex{graphp, varscp}; break;
+    ترتیب_Var_رأس* get_Var_رأس(ترتیب_گراف* graphp, AstVarScope* varscp, Var_رأس_Type type) {
+        ثابت بیعلامت idx = static_cast<بیعلامت>(type);
+        ترتیب_Var_رأس* vertexp = m_vertexps[idx];
+        إذا (!vertexp) {
+            بدل (type) {
+            حالة Var_رأس_Type::STD: vertexp = جديد ترتیب_Var_Std_رأس{graphp, varscp}; اكسر;
+            حالة Var_رأس_Type::PRE: vertexp = جديد ترتیب_Var_Pre_رأس{graphp, varscp}; اكسر;
+            حالة Var_رأس_Type::PORD: vertexp = جديد ترتیب_Var_Pord_رأس{graphp, varscp}; اكسر;
+            حالة Var_رأس_Type::POST: vertexp = جديد ترتیب_Var_Post_رأس{graphp, varscp}; اكسر;
             }
             m_vertexps[idx] = vertexp;
         }
-        return vertexp;
+        أرجع vertexp;
     }
 
     // CONSTRUCTORS
-    OrderUser() { m_vertexps.fill(nullptr); }
-    ~OrderUser() = default;
+    ترتیب_User() { m_vertexps.fill(اشاره_تهی); }
+    ~ترتیب_User() = افتراضي;
 };
 
 //######################################################################
 // OrderBuildVisitor builds the ordering graph of the entire netlist, and
 // removes any nodes that are no longer required once the graph is built
 
-class OrderGraphBuilder final : public VNVisitor {
+صنف ترتیب_گراف_Builder final : عام VNVisitor {
     // TYPES
-    enum VarUsage : uint8_t { VU_CON = 0x1, VU_GEN = 0x2 };
-    enum VarAccess : uint8_t { VA_READ = 0x1, VA_WRITE = 0x2 };
-    using VarVertexType = OrderUser::VarVertexType;
+    تعداد VarUsage : uint8_t { VU_CON = 0x1, VU_GEN = 0x2 };
+    تعداد VarAccess : uint8_t { VA_READ = 0x1, VA_WRITE = 0x2 };
+    استفاده Var_رأس_Type = ترتیب_User::Var_رأس_Type;
 
     // NODE STATE
     //  AstVarScope::user1    -> OrderUser instance for variable (via m_orderUser)
     //  AstVarScope::user2    -> VarUsage within logic blocks
     //  AstVarScope::user3    -> bool: Hybrid sensitivity
     //  AstVarScope::user4    -> VarAccess within logic blocks
-    const VNUser1InUse user1InUse;
-    const VNUser2InUse user2InUse;
-    const VNUser3InUse user3InUse;
-    const VNUser4InUse user4InUse;
-    AstUser1Allocator<AstVarScope, OrderUser> m_orderUser;
+    ثابت VNUser1_درون_Use user1_درون_Use;
+    ثابت VNUser2_درون_Use user2_درون_Use;
+    ثابت VNUser3_درون_Use user3_درون_Use;
+    ثابت VNUser4_درون_Use user4_درون_Use;
+    AstUser1Allocator<AstVarScope, ترتیب_User> m_ترتیب_User;
 
     // STATE
-    OrderGraph* const m_graphp;  // The ordering graph built by this visitor
-    OrderLogicVertex* m_logicVxp = nullptr;  // Current logic block being analyzed
-    std::vector<AstVarScope*> m_accessedVscps;  // Variables accessed by the current logic block
+    ترتیب_گراف* ثابت m_graphp;  // The ordering graph built by this visitor
+    ترتیب_Logic_رأس* m_logicVxp = اشاره_تهی;  // Current logic block being analyzed
+    std::وکتور<AstVarScope*> m_accessedVscps;  // Variables accessed by the current logic block
 
     // Current AstScope being processed
-    AstScope* m_scopep = nullptr;
+    AstScope* m_scopep = اشاره_تهی;
     // Domain of the triggers of the current AstActive being processed
-    const OrderDomain* m_activeDomainp = nullptr;
+    ثابت ترتیب_Domain* m_فعال_Domainp = اشاره_تهی;
     // Sensitivity list for clocked logic, nullptr for combinational and hybrid logic
-    const OrderDomain* m_domainp = nullptr;
+    ثابت ترتیب_Domain* m_domainp = اشاره_تهی;
     // Sensitivity list for hybrid logic, nullptr for everything else
-    const OrderDomain* m_hybridp = nullptr;
+    ثابت ترتیب_Domain* m_hybridp = اشاره_تهی;
 
-    bool m_inClocked = false;  // Underneath clocked AstActive
-    bool m_inPre = false;  // Underneath AlwaysPre
-    bool m_inPost = false;  // Underneath AstAlwaysPost
-    std::function<bool(const AstVarScope*)> m_readTriggersCombLogic;
-    V3Sched::util::VarScopeSet m_forceReadEdgeIgnores;
-    const bool m_parallel;  // Ordering for multi-threaded execution (record variable accesses)
+    منطقي m_درون_Clocked = خطأ;  // Underneath clocked AstActive
+    منطقي m_درون_Pre = خطأ;  // Underneath AlwaysPre
+    منطقي m_درون_Post = خطأ;  // Underneath AstAlwaysPost
+    std::function<منطقي(ثابت AstVarScope*)> m_readTriggersCombLogic;
+    V3Sched::util::Var_Scope_مجموعه m_force_Read_یال_Ignores;
+    ثابت منطقي m_parallel;  // Ordering for multi-threaded execution (record variable accesses)
 
     // What covergroup reference formal arguments are bound to at construction
-    const V3Sched::CovergroupRefBindings& m_cgRefBindings;
+    ثابت V3Sched::CovergroupRefBindings& m_cgRefBindings;
     // Bindings reachable from the covergroup sample() being walked, nullptr when not in one
-    const V3Sched::CovergroupRefBindings::Bindings* m_cgRefBoundps = nullptr;
+    ثابت V3Sched::CovergroupRefBindings::Bindings* m_cgRefBoundps = اشاره_تهی;
 
     // METHODS
 
-    void iterateLogic(AstNode* nodep) {
+    فراغ iterateLogic(Ast_گره* nodep) {
         UASSERT_OBJ(!m_logicVxp, nodep, "Should not nest");
         // Reset VarUsage and VarAccess
-        AstNode::user2ClearTree();
-        AstNode::user4ClearTree();
-        m_forceReadEdgeIgnores.clear();
-        if (!m_inClocked)
-            V3Sched::util::collectForceReadEdgeIgnores(nodep, m_forceReadEdgeIgnores);
+        Ast_گره::user2_Clear_درخت();
+        Ast_گره::user4_Clear_درخت();
+        m_force_Read_یال_Ignores.clear();
+        إذا (!m_درون_Clocked)
+            V3Sched::util::collect_Force_Read_یال_Ignores(nodep, m_force_Read_یال_Ignores);
         // Create LogicVertex for this logic node
-        m_logicVxp = new OrderLogicVertex{m_graphp, m_scopep, m_domainp, m_hybridp, nodep};
+        m_logicVxp = جديد ترتیب_Logic_رأس{m_graphp, m_scopep, m_domainp, m_hybridp, nodep};
         // Gather variable dependencies based on usage
         iterateChildren(nodep);
-        if (m_parallel) {
+        إذا (m_parallel) {
             // Emit one access record for each variable this logic block accessed
-            for (AstVarScope* const vscp : m_accessedVscps) {
-                const int recorded = vscp->user4();
-                const VAccess access = recorded == (VA_READ | VA_WRITE) ? VAccess::READWRITE
+            لكل (AstVarScope* ثابت vscp : m_accessedVscps) {
+                ثابت صحيح recorded = vscp->user4();
+                ثابت VAccess access = recorded == (VA_READ | VA_WRITE) ? VAccess::READWRITE
                                        : recorded == VA_WRITE           ? VAccess::WRITE
                                                                         : VAccess::READ;
-                m_logicVxp->addVarAccess(vscp, access);
+                m_logicVxp->جمع_کن_Var_Access(vscp, access);
             }
             m_accessedVscps.clear();
         }
         // Finished with this logic
-        m_logicVxp = nullptr;
-        m_forceReadEdgeIgnores.clear();
+        m_logicVxp = اشاره_تهی;
+        m_force_Read_یال_Ignores.clear();
     }
 
-    OrderVarVertex* getVarVertex(AstVarScope* varscp, VarVertexType type) {
-        return m_orderUser(varscp).getVarVertex(m_graphp, varscp, type);
+    ترتیب_Var_رأس* get_Var_رأس(AstVarScope* varscp, Var_رأس_Type type) {
+        أرجع m_ترتیب_User(varscp).get_Var_رأس(m_graphp, varscp, type);
     }
 
     // VISITORS
-    void visit(AstActive* nodep) override {
-        UASSERT_OBJ(!nodep->senTreeStorep(), nodep,
+    فراغ بازدید(Ast_فعال* nodep) override {
+        UASSERT_OBJ(!nodep->sen_درخت_Storep(), nodep,
                     "AstSenTrees should have been made global in V3ActiveTop");
         UASSERT_OBJ(m_scopep, nodep, "AstActive not under AstScope");
         UASSERT_OBJ(!m_logicVxp, nodep, "AstActive under logic");
-        UASSERT_OBJ(!m_inClocked && !m_domainp && !m_hybridp, nodep, "Should not nest");
+        UASSERT_OBJ(!m_درون_Clocked && !m_domainp && !m_hybridp, nodep, "Should not nest");
 
         VL_RESTORER(m_domainp);
         VL_RESTORER(m_hybridp);
-        VL_RESTORER(m_inClocked);
+        VL_RESTORER(m_درون_Clocked);
 
-        const AstSenTree* const senTreep = nodep->sentreep();
+        ثابت Ast_Sen_درخت* ثابت senTreep = nodep->sentreep();
 
-        m_inClocked = senTreep->hasClocked();
+        m_درون_Clocked = senTreep->hasClocked();
 
         // Note: We don't need to analyze the sensitivity list, as currently all sensitivity
         // lists simply reference an entry in a trigger vector, which are all set external to
@@ -173,75 +173,75 @@ class OrderGraphBuilder final : public VNVisitor {
         // Combinational and hybrid logic will have it's domain assigned based on the driver
         // domains. For clocked logic, we already know its domain. Hybrid logic also includes
         // additional sensitivities.
-        if (senTreep->hasHybrid()) {
-            m_hybridp = m_activeDomainp;
+        إذا (senTreep->hasHybrid()) {
+            m_hybridp = m_فعال_Domainp;
             // Mark AstVarScopes that are explicit sensitivities
-            AstNode::user3ClearTree();
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user3(true);
+            Ast_گره::user3_Clear_درخت();
+            senTreep->foreach([](ثابت AstVarRef* refp) {  //
+                refp->varScopep()->user3(درست);
             });
-            m_readTriggersCombLogic = [](const AstVarScope* vscp) { return !vscp->user3(); };
-        } else {
-            if (!senTreep->hasCombo()) m_domainp = m_activeDomainp;
+            m_readTriggersCombLogic = [](ثابت AstVarScope* vscp) { أرجع !vscp->user3(); };
+        } وإلا {
+            إذا (!senTreep->hasCombo()) m_domainp = m_فعال_Domainp;
             // Always triggers
-            m_readTriggersCombLogic = [](const AstVarScope*) { return true; };
+            m_readTriggersCombLogic = [](ثابت AstVarScope*) { أرجع درست; };
         }
 
         // Analyze logic underneath
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    فراغ بازدید(Ast_گره_Var_Ref* nodep) override {
         // As we explicitly not visit (see ignored nodes below) any subtree that is not relevant
         // for ordering, we should be able to assert this:
         UASSERT_OBJ(m_scopep, nodep, "AstVarRef not under scope");
         UASSERT_OBJ(m_logicVxp, nodep, "AstVarRef not under logic");
-        AstVarScope* const varscp = nodep->varScopep();
+        AstVarScope* ثابت varscp = nodep->varScopep();
         UASSERT_OBJ(varscp, nodep, "Var didn't get varscoped in V3Scope.cpp");
         // Reading a covergroup 'ref' formal reads whatever it was bound to at construction.
         // The formal itself is a pointer member fixed at construction, so it is not itself
         // interesting to ordering.
-        const AstVar* const varp = nodep->varp();
-        if (m_cgRefBoundps && varp->covergroupRefMember()) {
+        ثابت AstVar* ثابت varp = nodep->varp();
+        إذا (m_cgRefBoundps && varp->covergroupRefMember()) {
             // Covergroup params are considered const-ref
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "covergroup ref argument is written");
-            for (AstVarScope* const boundp : *m_cgRefBoundps) {
+            لكل (AstVarScope* ثابت boundp : *m_cgRefBoundps) {
                 accountVarAccess(boundp, VAccess::READ, nodep);
             }
-        } else {
+        } وإلا {
             accountVarAccess(varscp, nodep->access(), nodep);
         }
     }
 
     // Record the raw access for the multi-threaded data hazard fixer
-    void recordRawAccess(AstVarScope* varscp, const VAccess& access, AstNode* nodep) {
-        if (!m_parallel) return;
+    فراغ رکورد_Raw_Access(AstVarScope* varscp, ثابت VAccess& access, Ast_گره* nodep) {
+        إذا (!m_parallel) أرجع;
         uint8_t recorded = 0;
-        if (access.isWriteOrRW()) recorded |= VA_WRITE;
-        if (access.isReadOrRW()) recorded |= VA_READ;
+        إذا (access.isWriteOrRW()) recorded |= VA_WRITE;
+        إذا (access.isReadOrRW()) recorded |= VA_READ;
         UASSERT_OBJ(recorded, nodep, "Unknown variable access type");
         // Accumulate access type, record the variable on first access only
-        if (!varscp->user4Or(recorded)) m_accessedVscps.push_back(varscp);
+        إذا (!varscp->user4Or(recorded)) m_accessedVscps.افزودن_پشت(varscp);
     }
 
     // Add the graph edges, and record the raw access, for one access of one variable
-    void accountVarAccess(AstVarScope* varscp, const VAccess& access, AstNode* nodep) {
+    فراغ accountVarAccess(AstVarScope* varscp, ثابت VAccess& access, Ast_گره* nodep) {
         // Variable reference in logic. Add data dependency.
-        recordRawAccess(varscp, access, nodep);
+        رکورد_Raw_Access(varscp, access, nodep);
 
         // Check whether this variable was already generated/consumed in the same logic. We
         // don't want to add extra edges if the logic has many usages of the same variable,
         // so only proceed on first encounter.
-        const bool prevGen = varscp->user2() & VU_GEN;
-        const bool prevCon = varscp->user2() & VU_CON;
+        ثابت منطقي prevGen = varscp->user2() & VU_GEN;
+        ثابت منطقي prevCon = varscp->user2() & VU_CON;
 
         // Compute whether the variable is produced (written) here
-        const bool gen = !prevGen && access.isWriteOrRW() && !varscp->varp()->ignoreSchedWrite();
+        ثابت منطقي gen = !prevGen && access.isWriteOrRW() && !varscp->varp()->ignoreSchedWrite();
 
         // Compute whether the value is consumed (read) here
-        bool con = false;
-        if (!prevCon && access.isReadOrRW()) {
-            con = true;
-            if (prevGen && !m_inClocked) {
+        منطقي con = خطأ;
+        إذا (!prevCon && access.isReadOrRW()) {
+            con = درست;
+            إذا (prevGen && !m_درون_Clocked) {
                 // Dangerous assumption:
                 // If a variable is consumed in the same combinational process that produced it
                 // earlier, consider it something like:
@@ -253,102 +253,102 @@ class OrderGraphBuilder final : public VNVisitor {
                 // TODO: Do this properly with liveness analysis (i.e.: if live, it's consumed)
                 //       Note however that this construct is not nicely synthesizable (yields
                 //       latch?).
-                con = false;
+                con = خطأ;
             }
-            if (!m_inClocked) {
+            إذا (!m_درون_Clocked) {
                 // Ignored reads and references from within covergroups do not
                 // add to the combinational sensitivity of the block
-                if (m_forceReadEdgeIgnores.count(varscp) || m_cgRefBoundps) con = false;
+                إذا (m_force_Read_یال_Ignores.شمار(varscp) || m_cgRefBoundps) con = خطأ;
             }
         }
 
         // Note: See V3OrderGraph.h about the roles of the various vertex types
 
         // Variable is produced
-        if (gen) {
+        إذا (gen) {
             // Update VarUsage
             varscp->user2Or(VU_GEN);
             // Add edges for produced variables
-            if (m_inPost) {
-                if (!varscp->varp()->ignorePostWrite()) {
+            إذا (m_درون_Post) {
+                إذا (!varscp->varp()->ignorePostWrite()) {
                     // Add edge from producing LogicVertex -> produced VarStdVertex
-                    OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
-                    m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
+                    ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
+                    m_graphp->جمع_کن_Hard_یال(m_logicVxp, varVxp, وزن_نرمال);
                 }
-                OrderVarVertex* const postVxp = getVarVertex(varscp, VarVertexType::POST);
+                ترتیب_Var_رأس* ثابت postVxp = get_Var_رأس(varscp, Var_رأس_Type::POST);
                 // Add edge from produced VarPostVertex -> to producing LogicVertex
-                m_graphp->addHardEdge(postVxp, m_logicVxp, WEIGHT_POST);
-            } else if (!m_inClocked) {  // Combinational logic
+                m_graphp->جمع_کن_Hard_یال(postVxp, m_logicVxp, وزن_POST);
+            } وإلا إذا (!m_درون_Clocked) {  // Combinational logic
                 // Add edge from producing LogicVertex -> produced VarStdVertex
-                OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
-                m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
+                ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, varVxp, وزن_نرمال);
                 // Add edge from produced VarPostVertex -> to producing LogicVertex
-                OrderVarVertex* const postVxp = getVarVertex(varscp, VarVertexType::POST);
-                m_graphp->addHardEdge(postVxp, m_logicVxp, WEIGHT_POST);
-            } else if (m_inPre) {  // AstAlwaysPre
+                ترتیب_Var_رأس* ثابت postVxp = get_Var_رأس(varscp, Var_رأس_Type::POST);
+                m_graphp->جمع_کن_Hard_یال(postVxp, m_logicVxp, وزن_POST);
+            } وإلا إذا (m_درون_Pre) {  // AstAlwaysPre
                 // Add edge from producing LogicVertex -> produced VarPordVertex
-                OrderVarVertex* const ordVxp = getVarVertex(varscp, VarVertexType::PORD);
-                m_graphp->addHardEdge(m_logicVxp, ordVxp, WEIGHT_NORMAL);
+                ترتیب_Var_رأس* ثابت ordVxp = get_Var_رأس(varscp, Var_رأس_Type::PORD);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, ordVxp, وزن_نرمال);
                 // Add edge from producing LogicVertex -> produced VarStdVertex
-                OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
-                m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
-            } else {
+                ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, varVxp, وزن_نرمال);
+            } وإلا {
                 // Sequential (clocked) logic
                 // Add edge from produced VarPordVertex -> to producing LogicVertex
-                OrderVarVertex* const ordVxp = getVarVertex(varscp, VarVertexType::PORD);
-                m_graphp->addHardEdge(ordVxp, m_logicVxp, WEIGHT_NORMAL);
+                ترتیب_Var_رأس* ثابت ordVxp = get_Var_رأس(varscp, Var_رأس_Type::PORD);
+                m_graphp->جمع_کن_Hard_یال(ordVxp, m_logicVxp, وزن_نرمال);
                 // Add edge from producing LogicVertex-> to produced VarStdVertex
-                OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
-                m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
+                ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, varVxp, وزن_نرمال);
             }
         }
 
         // Variable is consumed
-        if (con) {
+        إذا (con) {
             // Update VarUsage
             varscp->user2Or(VU_CON);
             // Add edges
-            if (m_inPost) {
+            إذا (m_درون_Post) {
                 // Combinational logic
-                if (!varscp->varp()->ignorePostRead() && m_readTriggersCombLogic(varscp)) {
+                إذا (!varscp->varp()->ignorePostRead() && m_readTriggersCombLogic(varscp)) {
                     // Ignore explicit sensitivities
-                    OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
+                    ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
                     // Add edge from consumed VarStdVertex -> to consuming LogicVertex
-                    m_graphp->addHardEdge(varVxp, m_logicVxp, WEIGHT_MEDIUM);
+                    m_graphp->جمع_کن_Hard_یال(varVxp, m_logicVxp, وزن_MEDIUM);
                 }
-            } else if (!m_inClocked) {  // Combinational logic
-                if (m_readTriggersCombLogic(varscp)) {
+            } وإلا إذا (!m_درون_Clocked) {  // Combinational logic
+                إذا (m_readTriggersCombLogic(varscp)) {
                     // Ignore explicit sensitivities
-                    OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
+                    ترتیب_Var_رأس* ثابت varVxp = get_Var_رأس(varscp, Var_رأس_Type::STD);
                     // Add edge from consumed VarStdVertex -> to consuming LogicVertex
-                    m_graphp->addHardEdge(varVxp, m_logicVxp, WEIGHT_MEDIUM);
+                    m_graphp->جمع_کن_Hard_یال(varVxp, m_logicVxp, وزن_MEDIUM);
                 }
-            } else if (m_inPre) {
+            } وإلا إذا (m_درون_Pre) {
                 // AstAlwaysPre logic
                 // Add edge from consumed VarPreVertex -> to consuming LogicVertex
                 // This one is cutable (vs the producer) as there's only one such consumer,
                 // but may be many producers
-                OrderVarVertex* const preVxp = getVarVertex(varscp, VarVertexType::PRE);
-                m_graphp->addSoftEdge(preVxp, m_logicVxp, WEIGHT_PRE);
-            } else {
+                ترتیب_Var_رأس* ثابت preVxp = get_Var_رأس(varscp, Var_رأس_Type::PRE);
+                m_graphp->جمع_کن_Soft_یال(preVxp, m_logicVxp, وزن_PRE);
+            } وإلا {
                 // Sequential (clocked) logic
                 // Add edge from consuming LogicVertex -> to consumed VarPreVertex
                 // Generation of 'pre' because we want to indicate it should be before
                 // AstAlwaysPre
-                OrderVarVertex* const preVxp = getVarVertex(varscp, VarVertexType::PRE);
-                m_graphp->addHardEdge(m_logicVxp, preVxp, WEIGHT_NORMAL);
+                ترتیب_Var_رأس* ثابت preVxp = get_Var_رأس(varscp, Var_رأس_Type::PRE);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, preVxp, وزن_نرمال);
                 // Add edge from consuming LogicVertex -> to consumed VarPostVertex
-                OrderVarVertex* const postVxp = getVarVertex(varscp, VarVertexType::POST);
-                m_graphp->addHardEdge(m_logicVxp, postVxp, WEIGHT_POST);
+                ترتیب_Var_رأس* ثابت postVxp = get_Var_رأس(varscp, Var_رأس_Type::POST);
+                m_graphp->جمع_کن_Hard_یال(m_logicVxp, postVxp, وزن_POST);
             }
         }
     }
     // A covergroup sample() is not inlined and may read design signals through cross-scope
     // references held by the covergroup. This attributes those references to the calling block.
-    void visit(AstCMethodCall* nodep) override {
+    فراغ بازدید(AstCMethodCall* nodep) override {
         iterateChildren(nodep);
-        AstCFunc* const funcp = nodep->funcp();
-        if (!funcp->isCovergroupSample()) return;
+        AstCFunc* ثابت funcp = nodep->funcp();
+        إذا (!funcp->isCovergroupSample()) أرجع;
         // Since sample is a built-in, we never expect recursion.
         UASSERT_OBJ(!m_cgRefBoundps, nodep, "Covergroup sample() calls another sample()");
         VL_RESTORER(m_cgRefBoundps);
@@ -356,8 +356,8 @@ class OrderGraphBuilder final : public VNVisitor {
         // one that we recorded, use that info. If the call handle isn't something we
         // recorded (eg array-element construction), use the union of references across
         // the covergroup type.
-        const AstVarScope* instp = nullptr;
-        if (const AstVarRef* const fromRefp = VN_CAST(nodep->fromp(), VarRef)) {
+        ثابت AstVarScope* instp = اشاره_تهی;
+        إذا (ثابت AstVarRef* ثابت fromRefp = VN_CAST(nodep->fromp(), VarRef)) {
             instp = fromRefp->varScopep();
         }
         m_cgRefBoundps = &m_cgRefBindings.forSample(instp, VN_AS(funcp->scopep()->modp(), Class));
@@ -365,52 +365,52 @@ class OrderGraphBuilder final : public VNVisitor {
     }
 
     //--- Logic akin to SystemVerilog Processes (AstNodeProcedure)
-    void visit(AstInitial* nodep) override {  // LCOV_EXCL_START
+    فراغ بازدید(AstInitial* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("AstInitial should not need ordering");
     }  // LCOV_EXCL_STOP
-    void visit(AstInitialStatic* nodep) override {  // LCOV_EXCL_START
+    فراغ بازدید(AstInitialStatic* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("AstInitialStatic should not need ordering");
     }  // LCOV_EXCL_STOP
-    void visit(AstInitialAutomatic* nodep) override {  //
+    فراغ بازدید(AstInitialAutomatic* nodep) override {  //
         iterateLogic(nodep);
     }
-    void visit(AstAlways* nodep) override {  //
+    فراغ بازدید(AstAlways* nodep) override {  //
         iterateLogic(nodep);
     }
-    void visit(AstAlwaysPre* nodep) override {
-        UASSERT_OBJ(!m_inPre, nodep, "Should not nest");
-        VL_RESTORER(m_inPre);
-        m_inPre = true;
+    فراغ بازدید(AstAlwaysPre* nodep) override {
+        UASSERT_OBJ(!m_درون_Pre, nodep, "Should not nest");
+        VL_RESTORER(m_درون_Pre);
+        m_درون_Pre = درست;
         iterateLogic(nodep);
     }
-    void visit(AstAlwaysPost* nodep) override {
-        UASSERT_OBJ(!m_inPost, nodep, "Should not nest");
-        VL_RESTORER(m_inPost);
-        m_inPost = true;
+    فراغ بازدید(AstAlwaysPost* nodep) override {
+        UASSERT_OBJ(!m_درون_Post, nodep, "Should not nest");
+        VL_RESTORER(m_درون_Post);
+        m_درون_Post = درست;
         iterateLogic(nodep);
     }
-    void visit(AstAlwaysObserved* nodep) override {  //
+    فراغ بازدید(AstAlwaysObserved* nodep) override {  //
         iterateLogic(nodep);
     }
-    void visit(AstAlwaysReactive* nodep) override {  //
+    فراغ بازدید(AstAlwaysReactive* nodep) override {  //
         iterateLogic(nodep);
     }
-    void visit(AstFinal* nodep) override {  // LCOV_EXCL_START
+    فراغ بازدید(AstFinal* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("AstFinal should not need ordering");
     }  // LCOV_EXCL_STOP
 
     //--- Verilator concoctions
-    void visit(AstCoverToggle* nodep) override {  //
+    فراغ بازدید(AstCoverToggle* nodep) override {  //
         iterateLogic(nodep);
     }
 
     //--- Ignored nodes
-    void visit(AstVar*) override {}
-    void visit(AstVarScope* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
-    void visit(AstCell* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
-    void visit(AstTypeTable* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
-    void visit(AstClass* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
-    void visit(AstCFunc*) override {
+    فراغ بازدید(AstVar*) override {}
+    فراغ بازدید(AstVarScope* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
+    فراغ بازدید(AstCell* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
+    فراغ بازدید(Ast_Type_جدول* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
+    فراغ بازدید(AstClass* nodep) override { nodep->v3fatalSrc("Should not reach V3Order"); }
+    فراغ بازدید(AstCFunc*) override {
         // Calls to DPI exports handled with AstCCall. /* verilator public */ functions are
         // ignored for now (and hence potentially mis-ordered), but could use the same or
         // similar mechanism as DPI exports. Every other impure function (including those
@@ -418,46 +418,46 @@ class OrderGraphBuilder final : public VNVisitor {
     }
 
     //---
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
-    OrderGraphBuilder(const std::vector<V3Sched::LogicByScope*>& coll,
-                      const V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp,
-                      const V3Sched::CovergroupRefBindings& cgRefBindings, bool parallel)
-        : m_graphp{new OrderGraph{trigKit, trigVscp}}
+    ترتیب_گراف_Builder(ثابت std::وکتور<V3Sched::LogicByScope*>& coll,
+                      ثابت V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp,
+                      ثابت V3Sched::CovergroupRefBindings& cgRefBindings, منطقي parallel)
+        : m_graphp{جديد ترتیب_گراف{trigKit, trigVscp}}
         , m_parallel{parallel}
         , m_cgRefBindings{cgRefBindings} {
         // Build the graph
-        for (const V3Sched::LogicByScope* const lbsp : coll) {
-            for (const auto& entry : *lbsp) {
-                m_scopep = entry.m_scopep;
-                m_activeDomainp = m_graphp->domainp(entry.m_triggers);
-                iterate(entry.m_activep);
-                m_scopep = nullptr;
-                m_activeDomainp = nullptr;
+        لكل (ثابت V3Sched::LogicByScope* ثابت lbsp : coll) {
+            لكل (ثابت خودکار& مدخل : *lbsp) {
+                m_scopep = مدخل.m_scopep;
+                m_فعال_Domainp = m_graphp->domainp(مدخل.m_triggers);
+                iterate(مدخل.m_activep);
+                m_scopep = اشاره_تهی;
+                m_فعال_Domainp = اشاره_تهی;
             }
         }
     }
-    ~OrderGraphBuilder() override = default;
+    ~ترتیب_گراف_Builder() override = افتراضي;
 
-public:
+عام:
     // Process the netlist and return the constructed ordering graph. It's 'process' because
     // this visitor does change the tree (removes some nodes related to DPI export trigger).
-    static std::unique_ptr<OrderGraph> apply(const std::vector<V3Sched::LogicByScope*>& coll,
-                                             const V3Sched::TriggerKit& trigKit,
+    ساكن std::unique_ptr<ترتیب_گراف> apply(ثابت std::وکتور<V3Sched::LogicByScope*>& coll,
+                                             ثابت V3Sched::TriggerKit& trigKit,
                                              AstVarScope* trigVscp,
-                                             const V3Sched::CovergroupRefBindings& cgRefBindings,
-                                             bool parallel) {
-        return std::unique_ptr<OrderGraph>{
-            OrderGraphBuilder{coll, trigKit, trigVscp, cgRefBindings, parallel}.m_graphp};
+                                             ثابت V3Sched::CovergroupRefBindings& cgRefBindings,
+                                             منطقي parallel) {
+        أرجع std::unique_ptr<ترتیب_گراف>{
+            ترتیب_گراف_Builder{coll, trigKit, trigVscp, cgRefBindings, parallel}.m_graphp};
     }
 };
 
-std::unique_ptr<OrderGraph>
-V3Order::buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<ترتیب_گراف>
+V3_ترتیب::build_ترتیب_گراف(ثابت V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const std::vector<V3Sched::LogicByScope*>& coll,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,  //
-                         bool parallel) {
-    return OrderGraphBuilder::apply(coll, trigKit, trigVscp, cgRefBindings, parallel);
+                         ثابت std::وکتور<V3Sched::LogicByScope*>& coll,  //
+                         ثابت V3Sched::CovergroupRefBindings& cgRefBindings,  //
+                         منطقي parallel) {
+    أرجع ترتیب_گراف_Builder::apply(coll, trigKit, trigVscp, cgRefBindings, parallel);
 }

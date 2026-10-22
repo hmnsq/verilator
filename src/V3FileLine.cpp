@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 // clang-format off
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Os.h"
-#include "V3String.h"
-#ifndef V3ERROR_NO_GLOBAL_
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3Os.h"
+#ضمن "V3String.h"
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
 # include "V3Global.h"
 # include "V3Control.h"
 # include "V3File.h"
 # include "V3Stats.h"
-#endif
-#include "V3Waiver.h"
+#پایان_اگر
+#ضمن "V3Waiver.h"
 // clang-format on
 
-#include <algorithm>
-#include <iomanip>
-#include <limits>
-#include <unordered_set>
+#ضمن <algorithm>
+#ضمن <iomanip>
+#ضمن <limits>
+#ضمن <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // FileLineSingleton class functions
 
-string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
-    constexpr int size
+string File_سطر_Singleton::filenameLetters(fileNameIdx_t fileno) VL_خالص {
+    constexpr صحيح اندازه
         = 1 + (64 / 4);  // Each letter retires more than 4 bits of a > 64 bit number
-    char out[size];
-    char* op = out + size - 1;
+    حرف بیرون[اندازه];
+    حرف* op = بیرون + اندازه - 1;
     *--op = '\0';  // We build backwards
-    int num = fileno;
-    do {
-        *--op = 'a' + num % 26;
-        num /= 26;
-    } while (num);
-    return op;
+    صحيح رقم = fileno;
+    افعل {
+        *--op = 'a' + رقم % 26;
+        رقم /= 26;
+    } طالما (رقم);
+    أرجع op;
 }
 
 //! Convert filenames to a filenameno
@@ -63,498 +63,498 @@ string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
 
 //! We associate a language with each source file, so we also set the default
 //! for this.
-FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& filename) {
-    const auto pair = m_namemap.emplace(filename, 0);
-    fileNameIdx_t& idx = pair.first->second;
-    if (pair.second) {
-        const size_t nextIdx = m_names.size();
-        UASSERT(nextIdx <= std::numeric_limits<fileNameIdx_t>::max(),
-                "Too many input files (" + cvtToStr(nextIdx) + "+).");
-        idx = static_cast<fileNameIdx_t>(nextIdx);
-        m_names.push_back(filename);
-        m_languages.push_back(V3LangCode::mostRecent());
+File_سطر_Singleton::fileNameIdx_t File_سطر_Singleton::name_مقصد_عدد(ثابت string& filename) {
+    ثابت خودکار pair = m_namemap.emplace(filename, 0);
+    fileNameIdx_t& idx = pair.اولی->دومی;
+    إذا (pair.دومی) {
+        ثابت اندازه_t بعدی_Idx = m_نامها.اندازه();
+        UASSERT(بعدی_Idx <= std::numeric_limits<fileNameIdx_t>::max(),
+                "Too many input files (" + cvt_مقصد_Str(بعدی_Idx) + "+).");
+        idx = static_cast<fileNameIdx_t>(بعدی_Idx);
+        m_نامها.افزودن_پشت(filename);
+        m_languages.افزودن_پشت(V3_Lang_کد::mostRecent());
     }
-    return idx;
+    أرجع idx;
 }
 
-void FileLineSingleton::fileNameNumMapDumpJson(std::ostream& os) {
+فراغ File_سطر_Singleton::file_Name_رقم_Map_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"files\": {";
-    for (const auto& itr : m_namemap) {
-        std::string filename = itr.first;
-        if (filename == V3Options::getStdPackagePath()) {
+    لكل (ثابت خودکار& itr : m_namemap) {
+        std::string filename = itr.اولی;
+        إذا (filename == V3Options::get_Std_Package_مسیر()) {
             filename = "<verilated_std>";
-        } else if (filename == V3Options::getStdWaiverPath()) {
+        } وإلا إذا (filename == V3Options::get_Std_Waiver_مسیر()) {
             filename = "<verilated_std_waiver>";
         }
-        os << sep << '"' << filenameLetters(itr.second) << '"' << ": {\"filename\":\"" << filename
+        os << sep << '"' << filenameLetters(itr.دومی) << '"' << ": {\"filename\":\"" << filename
            << '"' << ", \"realpath\":\""
-           << V3OutFormatter::quoteNameControls(V3Os::filenameRealPath(itr.first)) << '"'
-           << ", \"language\":\"" << numberToLang(itr.second).ascii() << "\"}";
+           << V3_بیرون_Formatter::quoteNameControls(V3Os::filename_Real_مسیر(itr.اولی)) << '"'
+           << ", \"language\":\"" << عدد_مقصد_Lang(itr.دومی).ascii() << "\"}";
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::addMsgEnBitSet(const MsgEnBitSet& bitSet)
-    VL_MT_SAFE_EXCLUDES(m_mutex) {
-    const V3LockGuard lock{m_mutex};
-    const auto pair = m_internedMsgEnIdxs.emplace(bitSet, 0);
-    msgEnSetIdx_t& idx = pair.first->second;
-    if (pair.second) {
-        const size_t nextIdx = m_internedMsgEns.size();
-        UASSERT(nextIdx <= std::numeric_limits<msgEnSetIdx_t>::max(),
-                "Too many unique message enable sets (" + cvtToStr(nextIdx) + "+).");
-        idx = static_cast<msgEnSetIdx_t>(nextIdx);
-        m_internedMsgEns.push_back(bitSet);
+File_سطر_Singleton::پیام_En_مجموعه_Idx_t File_سطر_Singleton::جمع_کن_پیام_En_بیت_مجموعه(ثابت پیام_En_بیت_مجموعه& بیت_مجموعه)
+    VL_MT_امن_EXCLUDES(m_mutex) {
+    ثابت V3_قفل_Guard قفل_2{m_mutex};
+    ثابت خودکار pair = m_interned_پیام_En_Idxs.emplace(بیت_مجموعه, 0);
+    پیام_En_مجموعه_Idx_t& idx = pair.اولی->دومی;
+    إذا (pair.دومی) {
+        ثابت اندازه_t بعدی_Idx = m_interned_پیام_Ens.اندازه();
+        UASSERT(بعدی_Idx <= std::numeric_limits<پیام_En_مجموعه_Idx_t>::max(),
+                "Too many unique message enable sets (" + cvt_مقصد_Str(بعدی_Idx) + "+).");
+        idx = static_cast<پیام_En_مجموعه_Idx_t>(بعدی_Idx);
+        m_interned_پیام_Ens.افزودن_پشت(بیت_مجموعه);
     }
-    return idx;
+    أرجع idx;
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::defaultMsgEnIndex() VL_MT_SAFE {
-    MsgEnBitSet msgEnBitSet;
-    for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-        const V3ErrorCode code{i};
+File_سطر_Singleton::پیام_En_مجموعه_Idx_t File_سطر_Singleton::default_پیام_En_شاخص() VL_MT_امن {
+    پیام_En_بیت_مجموعه پیام_En_بیت_مجموعه_2;
+    لكل (صحيح i = V3_Error_کد::EC_MIN; i < V3_Error_کد::_ENUM_MAX; ++i) {
+        ثابت V3_Error_کد کد{i};
         // "-Wall" and the like only adjust the code subset, so use default enablement there
-        msgEnBitSet.set(MsgEnBitSet::Subset::CODE, code, !code.defaultsOff());
+        پیام_En_بیت_مجموعه_2.مجموعه(پیام_En_بیت_مجموعه::Subset::کد_2, کد, !کد.defaultsOff());
         // The control file subset is only adjusted by the control files, everything enabled by
         // default.  (V3Control also likewise creates with this)
-        msgEnBitSet.set(MsgEnBitSet::Subset::CTRL, code, true);
+        پیام_En_بیت_مجموعه_2.مجموعه(پیام_En_بیت_مجموعه::Subset::CTRL, کد, درست);
     }
-    return addMsgEnBitSet(msgEnBitSet);
+    أرجع جمع_کن_پیام_En_بیت_مجموعه(پیام_En_بیت_مجموعه_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnSetBit(msgEnSetIdx_t setIdx,
-                                                                MsgEnBitSet::Subset subset,
-                                                                V3ErrorCode code, bool value) {
+File_سطر_Singleton::پیام_En_مجموعه_Idx_t File_سطر_Singleton::پیام_En_مجموعه_بیت(پیام_En_مجموعه_Idx_t مجموعه_Idx,
+                                                                پیام_En_بیت_مجموعه::Subset subset,
+                                                                V3_Error_کد کد, منطقي مقدار) {
     // See if state matches existing
-    bool same = true;
-    code.forDelegateCodes([&](V3ErrorCode subcode) {
-        if (msgEn(setIdx).test(subset, subcode) != value) same = false;
+    منطقي same = درست;
+    کد.forDelegateCodes([&](V3_Error_کد subcode) {
+        إذا (پیام_En(مجموعه_Idx).test(subset, subcode) != مقدار) same = خطأ;
     });
-    if (same) return setIdx;
+    إذا (same) أرجع مجموعه_Idx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    code.forDelegateCodes([&](V3ErrorCode subcode) { msgEnBitSet.set(subset, subcode, value); });
-    return addMsgEnBitSet(msgEnBitSet);
+    پیام_En_بیت_مجموعه پیام_En_بیت_مجموعه_2{پیام_En(مجموعه_Idx)};
+    کد.forDelegateCodes([&](V3_Error_کد subcode) { پیام_En_بیت_مجموعه_2.مجموعه(subset, subcode, مقدار); });
+    أرجع جمع_کن_پیام_En_بیت_مجموعه(پیام_En_بیت_مجموعه_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgSetCtrlBitSet(msgEnSetIdx_t setIdx,
-                                                                     const VErrorBitSet& bitset) {
-    const MsgEnBitSet::Subset subset = MsgEnBitSet::Subset::CTRL;
+File_سطر_Singleton::پیام_En_مجموعه_Idx_t File_سطر_Singleton::پیام_مجموعه_Ctrl_بیت_مجموعه(پیام_En_مجموعه_Idx_t مجموعه_Idx,
+                                                                     ثابت VError_بیت_مجموعه& bitset) {
+    ثابت پیام_En_بیت_مجموعه::Subset subset = پیام_En_بیت_مجموعه::Subset::CTRL;
     // See if state matches existing
-    if (msgEn(setIdx).getAll(subset) == bitset) return setIdx;
+    إذا (پیام_En(مجموعه_Idx).getAll(subset) == bitset) أرجع مجموعه_Idx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    msgEnBitSet.setAll(subset, bitset);
-    return addMsgEnBitSet(msgEnBitSet);
+    پیام_En_بیت_مجموعه پیام_En_بیت_مجموعه_2{پیام_En(مجموعه_Idx)};
+    پیام_En_بیت_مجموعه_2.مجموعه_All(subset, bitset);
+    أرجع جمع_کن_پیام_En_بیت_مجموعه(پیام_En_بیت_مجموعه_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsIdx,
-                                                             msgEnSetIdx_t rhsIdx) {
-    const MsgEnBitSet& lhs = msgEn(lhsIdx);
-    const MsgEnBitSet& rhs = msgEn(rhsIdx);
-    const MsgEnBitSet intersection{lhs, rhs};
-    if (intersection == lhs) return lhsIdx;
-    if (intersection == rhs) return rhsIdx;
-    return addMsgEnBitSet(intersection);
+File_سطر_Singleton::پیام_En_مجموعه_Idx_t File_سطر_Singleton::پیام_En_And(پیام_En_مجموعه_Idx_t lhsIdx,
+                                                             پیام_En_مجموعه_Idx_t rhsIdx) {
+    ثابت پیام_En_بیت_مجموعه& lhs = پیام_En(lhsIdx);
+    ثابت پیام_En_بیت_مجموعه& rhs = پیام_En(rhsIdx);
+    ثابت پیام_En_بیت_مجموعه intersection{lhs, rhs};
+    إذا (intersection == lhs) أرجع lhsIdx;
+    إذا (intersection == rhs) أرجع rhsIdx;
+    أرجع جمع_کن_پیام_En_بیت_مجموعه(intersection);
 }
 
 // ######################################################################
 //  VFileContents class functions
 
-void VFileContent::pushText(const string& text) {
+فراغ VFileContent::افزودن_متن(ثابت string& متن) {
     // Similar code in WildcardContents::pushText()
-    if (m_lines.size() == 0) {
-        m_lines.emplace_back("");  // no such thing as line [0]
-        m_lines.emplace_back("");  // start with no leftover
+    إذا (m_سطرها.اندازه() == 0) {
+        m_سطرها.emplace_پشت("");  // no such thing as line [0]
+        m_سطرها.emplace_پشت("");  // start with no leftover
     }
 
     // Any leftover text is stored on largest line (might be "")
-    const string leftover = m_lines.back() + text;
-    m_lines.pop_back();
+    ثابت string leftover = m_سطرها.پشت() + متن;
+    m_سطرها.برداشت_پشت();
 
     // Insert line-by-line
-    string::size_type line_start = 0;
-    while (true) {
-        const string::size_type line_end = leftover.find('\n', line_start);
-        if (line_end != string::npos) {
-            const string oneline(leftover, line_start, line_end - line_start + 1);
-            m_lines.push_back(oneline);  // Keeps newline
-            UINFO(9, "PushStream[ct" << m_id << "+" << (m_lines.size() - 1) << "]: " << oneline);
-            line_start = line_end + 1;
-        } else {
-            break;
+    string::اندازه_type سطر_شروع = 0;
+    طالما (درست) {
+        ثابت string::اندازه_type سطر_انتها = leftover.پیدا_کن('\n', سطر_شروع);
+        إذا (سطر_انتها != string::npos) {
+            ثابت string oneline(leftover, سطر_شروع, سطر_انتها - سطر_شروع + 1);
+            m_سطرها.افزودن_پشت(oneline);  // Keeps newline
+            UINFO(9, "PushStream[ct" << m_id << "+" << (m_سطرها.اندازه() - 1) << "]: " << oneline);
+            سطر_شروع = سطر_انتها + 1;
+        } وإلا {
+            اكسر;
         }
     }
     // Keep leftover for next time
-    m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+    m_سطرها.emplace_پشت(string(leftover, سطر_شروع));  // Might be ""
 }
 
-string VFileContent::getLine(int lineno) const VL_MT_SAFE {
+string VFileContent::get_سطر(صحيح lineno) ثابت VL_MT_امن {
     // Return error text rather than asserting so the user isn't left without a message
     // cppcheck-suppress negativeContainerIndex
-    if (VL_UNCOVERABLE(lineno < 0 || lineno >= (int)m_lines.size())) {
-        if (debug() || v3Global.opt.debugCheck()) {
-            return ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
-        } else {
-            return "";
+    إذا (VL_UNCOVERABLE(lineno < 0 || lineno >= (صحيح)m_سطرها.اندازه())) {
+        إذا (debug() || v3Global.opt.debugCheck()) {
+            أرجع ("%Error-internal-contents-bad-ct" + cvt_مقصد_Str(m_id) + "-ln" + cvt_مقصد_Str(lineno));
+        } وإلا {
+            أرجع "";
         }
     }
-    string text = m_lines[lineno];
-    UINFO(9, "Get Stream[ct" << m_id << "+" << lineno << "]: " << text);
-    return text;
+    string متن = m_سطرها[lineno];
+    UINFO(9, "Get Stream[ct" << m_id << "+" << lineno << "]: " << متن);
+    أرجع متن;
 }
 
-std::ostream& operator<<(std::ostream& os, VFileContent* contentp) {
-    if (!contentp) {
+std::ostream& عملگر<<(std::ostream& os, VFileContent* contentp) {
+    إذا (!contentp) {
         os << "ct0";
-    } else {
+    } وإلا {
         os << contentp->ascii();
     }
-    return os;
+    أرجع os;
 }
 
 // ######################################################################
 //  FileLine class functions
 
-FileLine::~FileLine() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+File_سطر::~File_سطر() {
+    إذا (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
 }
 
-void FileLine::newContent() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
-    m_contentp = new VFileContent;
+فراغ File_سطر::newContent() {
+    إذا (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+    m_contentp = جديد VFileContent;
     m_contentp->refInc();
     m_contentLineno = 1;
 }
 
-string FileLine::lineDirectiveStrg(int enterExit) const {
-    return "`line "s + cvtToStr(lastLineno()) + " \""
-           + V3OutFormatter::quoteNameControls(filename()) + "\" " + cvtToStr(enterExit) + '\n';
+string File_سطر::سطر_Directive_Strg(صحيح enterExit) ثابت {
+    أرجع "`line "s + cvt_مقصد_Str(آخرین_Lineno()) + " \""
+           + V3_بیرون_Formatter::quoteNameControls(filename()) + "\" " + cvt_مقصد_Str(enterExit) + '\n';
 }
 
-void FileLine::lineDirective(const char* textp, int& enterExitRef) {
+فراغ File_سطر::سطر_Directive(ثابت حرف* textp, صحيح& enterExitRef) {
     string newFilename;
-    int newLineno = -1;
-    lineDirectiveParse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
-    if (enterExitRef != -1) {
+    صحيح newLineno = -1;
+    سطر_Directive_Parse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
+    إذا (enterExitRef != -1) {
         filename(newFilename);
         lineno(newLineno);
-    } else {  // Advance line number to account for bogus `line
+    } وإلا {  // Advance line number to account for bogus `line
         linenoInc();
     }
 }
 
-void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                                  int& enterExitRef) {
+فراغ File_سطر::سطر_Directive_Parse(ثابت حرف* textp, string& filenameRef, صحيح& linenoRef,
+                                  صحيح& enterExitRef) {
     // Handle `line directive
     // Does not parse streamNumber/streamLineno as the next input token
     // will come from the same stream as the previous line.
-    do {
+    افعل {
         // Skip `line
-        while (*textp && std::isspace(*textp)) ++textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        طالما (*textp && std::آیا_فاصله(*textp)) ++textp;
+        طالما (*textp && !std::آیا_فاصله(*textp)) ++textp;
+        طالما (*textp && std::آیا_فاصله(*textp)) ++textp;
 
         // Grab linenumber
-        int lineNo;
-        const char* const ln = textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        if (0 == strncmp(ln, "`__LINE__", textp - ln)) {
+        صحيح سطر_No;
+        ثابت حرف* ثابت ln = textp;
+        طالما (*textp && !std::آیا_فاصله(*textp)) ++textp;
+        إذا (0 == مقایسه_رشته(ln, "`__LINE__", textp - ln)) {
             // Special case - see docs - don't change other than accounting for `line itself
-            lineNo = lineno() + 1;
-        } else if (std::isdigit(*ln)) {
-            lineNo = std::atoi(ln);
-        } else {
-            break;  // Fail
+            سطر_No = lineno() + 1;
+        } وإلا إذا (std::آیا_رقم(*ln)) {
+            سطر_No = std::atoi(ln);
+        } وإلا {
+            اكسر;  // Fail
         }
-        while (*textp && (std::isspace(*textp))) ++textp;
+        طالما (*textp && (std::آیا_فاصله(*textp))) ++textp;
 
         // Grab filename
-        if (*textp != '"') break;  // Fail
-        const char* const fn = ++textp;
-        while (*textp && *textp != '"') ++textp;
-        if (*textp != '"') break;  // Fail
-        string errMsg;
-        const string& parsedFilename = VString::unquoteSVString(string{fn, textp}, errMsg);
-        if (!errMsg.empty()) this->v3error(errMsg.c_str());
+        إذا (*textp != '"') اكسر;  // Fail
+        ثابت حرف* ثابت fn = ++textp;
+        طالما (*textp && *textp != '"') ++textp;
+        إذا (*textp != '"') اكسر;  // Fail
+        string err_پیام;
+        ثابت string& parsedFilename = VString::unquoteSVString(string{fn, textp}, err_پیام);
+        إذا (!err_پیام.خالی()) هذا->v3error(err_پیام.c_str());
         ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        طالما (*textp && std::آیا_فاصله(*textp)) ++textp;
 
         // Grab level
-        if (!std::isdigit(*textp)) break;  // Fail
-        const int level = std::atoi(textp);
-        if (level < 0 || level >= 3) break;  // Fail
+        إذا (!std::آیا_رقم(*textp)) اكسر;  // Fail
+        ثابت صحيح level = std::atoi(textp);
+        إذا (level < 0 || level >= 3) اكسر;  // Fail
 
-        linenoRef = lineNo;
+        linenoRef = سطر_No;
         filenameRef = parsedFilename;
         enterExitRef = level;
-        return;
-    } while (false);
+        أرجع;
+    } طالما (خطأ);
 
     // Fail
     v3error("`line was not properly formed with '`line number \"filename\" level'\n");
     enterExitRef = -1;
 }
 
-void FileLine::forwardToken(const char* textp, size_t size, bool trackLines) {
-    static int s_tokenNum = 1;
-    m_tokenNum = s_tokenNum++;
-    for (const char* sp = textp; size && *sp; ++sp, --size) {
-        if (*sp == '\n') {
-            if (trackLines) linenoInc();
-            m_lastColumn = 1;
-        } else if (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
-        } else {  // Tabs are considered one column; hence column means number of chars
-            ++m_lastColumn;
+فراغ File_سطر::forwardToken(ثابت حرف* textp, اندازه_t اندازه, منطقي track_سطرها) {
+    ساكن صحيح s_token_رقم = 1;
+    m_token_رقم = s_token_رقم++;
+    لكل (ثابت حرف* sp = textp; اندازه && *sp; ++sp, --اندازه) {
+        إذا (*sp == '\n') {
+            إذا (track_سطرها) linenoInc();
+            m_آخرین_ستونی = 1;
+        } وإلا إذا (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
+        } وإلا {  // Tabs are considered one column; hence column means number of chars
+            ++m_آخرین_ستونی;
         }
     }
 }
 
-void FileLine::applyIgnores() {
-#ifndef V3ERROR_NO_GLOBAL_
-    V3Control::applyIgnores(this);  // Toggle warnings based on global config file
-#endif
+فراغ File_سطر::applyIgnores() {
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+    V3Control::applyIgnores(هذا);  // Toggle warnings based on global config file
+#پایان_اگر
 }
 
-FileLine* FileLine::copyOrSameFileLineApplied() {
+File_سطر* File_سطر::copy_Or_Same_File_سطر_Applied() {
     applyIgnores();
-    return copyOrSameFileLine();
+    أرجع copy_Or_Same_File_سطر();
 }
 
-FileLine* FileLine::copyOrSameFileLine() {
+File_سطر* File_سطر::copy_Or_Same_File_سطر() {
     // When a fileline is "used" to produce a node, calls this function.
     // Return this, or a copy of this
     // There are often more than one token per line, thus we use the
     // same pointer as long as we're on the same line, file & warn state.
-    static FileLine* s_lastNewp = nullptr;
-    if (s_lastNewp && *s_lastNewp == *this) {  // Compares lineno, filename, etc
-        return s_lastNewp;
+    ساكن File_سطر* s_آخرین_Newp = اشاره_تهی;
+    إذا (s_آخرین_Newp && *s_آخرین_Newp == *هذا) {  // Compares lineno, filename, etc
+        أرجع s_آخرین_Newp;
     }
-    FileLine* const newp = new FileLine{this};
-    s_lastNewp = newp;
-    return newp;
+    File_سطر* ثابت newp = جديد File_سطر{هذا};
+    s_آخرین_Newp = newp;
+    أرجع newp;
 }
 
-string FileLine::filebasename() const VL_MT_SAFE { return V3Os::filenameNonDir(filename()); }
+string File_سطر::filebasename() ثابت VL_MT_امن { أرجع V3Os::filenameNonDir(filename()); }
 
-string FileLine::filebasenameNoExt() const { return V3Os::filenameNonDirExt(filename()); }
+string File_سطر::filebasenameNoExt() ثابت { أرجع V3Os::filenameNonDirExt(filename()); }
 
-string FileLine::firstColumnLetters() const VL_MT_SAFE {
-    const char a = ((firstColumn() / 26) % 26) + 'a';
-    const char b = (firstColumn() % 26) + 'a';
-    return string(1, a) + string(1, b);
+string File_سطر::اولی_ستونی_Letters() ثابت VL_MT_امن {
+    ثابت حرف a = ((اولی_ستونی() / 26) % 26) + 'a';
+    ثابت حرف b = (اولی_ستونی() % 26) + 'a';
+    أرجع string(1, a) + string(1, b);
 }
 
-string FileLine::profileFuncname() const {
+string File_سطر::profileFuncname() ثابت {
     // Return string that is OK as a function name - for profiling
     string name = filebasenameNoExt();
-    string::size_type pos;
-    while ((pos = name.find_first_not_of(
+    string::اندازه_type pos;
+    طالما ((pos = name.پیدا_کن_اولی_not_از(
                 "abcdefghijlkmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789_"))
            != string::npos) {
         name.replace(pos, 1, "_");
     }
-    name += "__l" + cvtToStr(lastLineno());
-    return name;
+    name += "__l" + cvt_مقصد_Str(آخرین_Lineno());
+    أرجع name;
 }
 
-string FileLine::asciiLineCol() const {
-    return (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
-            + "-" + cvtToStr(lastColumn()) + "[" + (m_contentp ? m_contentp->ascii() : "ct0") + "+"
-            + cvtToStr(m_contentLineno) + "]");
+string File_سطر::ascii_سطر_ستون() ثابت {
+    أرجع (cvt_مقصد_Str(اولی_Lineno()) + "-" + cvt_مقصد_Str(آخرین_Lineno()) + ":" + cvt_مقصد_Str(اولی_ستونی())
+            + "-" + cvt_مقصد_Str(آخرین_ستونی()) + "[" + (m_contentp ? m_contentp->ascii() : "ct0") + "+"
+            + cvt_مقصد_Str(m_contentLineno) + "]");
 }
-string FileLine::ascii() const {
+string File_سطر::ascii() ثابت {
     // For most errors especially in the parser the lastLineno is more accurate than firstLineno
-    return filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
+    أرجع filename() + ":" + cvt_مقصد_Str(آخرین_Lineno()) + ":" + cvt_مقصد_Str(اولی_ستونی());
 }
-std::ostream& operator<<(std::ostream& os, FileLine* fileline) {
+std::ostream& عملگر<<(std::ostream& os, File_سطر* fileline) {
     os << fileline->ascii() << ": " << std::hex;
-    return (os);
+    أرجع (os);
 }
 
-string FileLine::warnOffParse(const string& msgs, bool turnOff) {
-    string result;
-    for (const string& msg : VString::split(msgs, ',')) {
-        const V3ErrorCode code{msg};
-        if (!code.hardError()) {
-            warnOff(code, turnOff);
-            continue;
+string File_سطر::warnOffParse(ثابت string& msgs, منطقي turnOff) {
+    string نتیجه;
+    لكل (ثابت string& پیام_2 : VString::تقسیم(msgs, ',')) {
+        ثابت V3_Error_کد کد{پیام_2};
+        إذا (!کد.hardError()) {
+            warnOff(کد, turnOff);
+            استمر;
         }
         // Error if not suppressed
-        if (!v3Global.opt.isFuture(msg)) result = VString::dot(result, ",", msg);
+        إذا (!v3Global.opt.isFuture(پیام_2)) نتیجه = VString::dot(نتیجه, ",", پیام_2);
     }
-    return result;
+    أرجع نتیجه;
 }
 
-bool FileLine::warnIsOff(V3ErrorCode code) const {
-    if (!msgEn().enabled(code)) return true;
-    if (!defaultFileLine().msgEn().enabled(code)) return true;  // Global overrides local
-    return false;
+منطقي File_سطر::warnIsOff(V3_Error_کد کد) ثابت {
+    إذا (!پیام_En().enabled(کد)) أرجع درست;
+    إذا (!default_File_سطر().پیام_En().enabled(کد)) أرجع درست;  // Global overrides local
+    أرجع خطأ;
 }
 
 // cppverilator-suppress constParameter
-void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
+فراغ File_سطر::v3error_انتها(std::ostringstream& sstr, ثابت string& extra)
     VL_RELEASE(V3Error::s().m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
     std::ostringstream nsstr;  // sstr with fileline prefix and context
     std::ostringstream wsstr;  // sstr for waiver (no fileline) with context
-    if (lastLineno()) nsstr << V3Error::warnContextBegin() << this << V3Error::warnContextEnd();
+    إذا (آخرین_Lineno()) nsstr << V3Error::warnContextBegin() << هذا << V3Error::warn_Context_انتها();
     nsstr << sstr.str();
     wsstr << sstr.str();
     nsstr << '\n';
     wsstr << '\n';
     std::ostringstream extrass;  // extra spaced out for prefix
-    if (!extra.empty()) {
-        extrass << V3Error::warnContextBegin() << std::setw(ascii().length()) << " " << ": "
-                << V3Error::warnContextEnd() << extra;
+    إذا (!extra.خالی()) {
+        extrass << V3Error::warnContextBegin() << std::setw(ascii().درازی()) << " " << ": "
+                << V3Error::warn_Context_انتها() << extra;
     }
-    if (warnIsOff(V3Error::s().errorCode())) {
+    إذا (warnIsOff(V3Error::s().error_کد())) {
         V3Error::s().suppressThisWarning();
-    } else {
-        if (!V3Error::s().errorContexted()) {
-            const string add = warnContextPrimary();
-            wsstr << add;
-            nsstr << add;
+    } وإلا {
+        إذا (!V3Error::s().errorContexted()) {
+            ثابت string جمع_کن = warnContextPrimary();
+            wsstr << جمع_کن;
+            nsstr << جمع_کن;
         }
-        const string waiverText = V3Error::stripMetaText(wsstr.str(), false);
-        m_waive = V3Control::waive(this, V3Error::s().errorCode(), waiverText);
-        if (m_waive) {
+        ثابت string waiver_متن = V3Error::strip_Meta_متن(wsstr.str(), خطأ);
+        m_waive = V3Control::waive(هذا, V3Error::s().error_کد(), waiver_متن);
+        إذا (m_waive) {
             V3Error::s().suppressThisWarning();
-        } else {
-            V3Waiver::addEntry(V3Error::s().errorCode(), filename(), waiverText);
+        } وإلا {
+            V3Waiver::جمع_کن_مدخل(V3Error::s().error_کد(), filename(), waiver_متن);
         }
     }
-    V3Error::v3errorEnd(nsstr, extrass.str(), this);
+    V3Error::v3error_انتها(nsstr, extrass.str(), هذا);
 }
 
-string FileLine::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
-               + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+string File_سطر::warn_بیشتر() ثابت VL_REQUIRES(V3Error::s().m_mutex) {
+    إذا (آخرین_Lineno()) {
+        أرجع V3Error::warnContextBegin() + V3Error::warn_بیشتر() + string(ascii().اندازه(), ' ')
+               + ": " + V3Error::warn_Context_انتها();
+    } وإلا {
+        أرجع V3Error::warn_بیشتر();
     }
 }
-string FileLine::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::s().warnRelated(this) + V3Error::warnContextBegin() + V3Error::warnMore()
-               + ascii() + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+string File_سطر::warnOther() ثابت VL_REQUIRES(V3Error::s().m_mutex) {
+    إذا (آخرین_Lineno()) {
+        أرجع V3Error::s().warnRelated(هذا) + V3Error::warnContextBegin() + V3Error::warn_بیشتر()
+               + ascii() + ": " + V3Error::warn_Context_انتها();
+    } وإلا {
+        أرجع V3Error::warn_بیشتر();
     }
 };
 
-string FileLine::source() const VL_MT_SAFE {
-    if (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
-        if (debug() || v3Global.opt.debugCheck()) {
+string File_سطر::منبع() ثابت VL_MT_امن {
+    إذا (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
+        إذا (debug() || v3Global.opt.debugCheck()) {
             // The newline here is to work around the " <line#> | "
-            return "\n%Error: internal tracking of file contents failed";
-        } else {
-            return "";
+            أرجع "\n%Error: internal tracking of file contents failed";
+        } وإلا {
+            أرجع "";
         }
     }  // LCOV_EXCL_STOP
-    return m_contentp->getLine(m_contentLineno);
+    أرجع m_contentp->get_سطر(m_contentLineno);
 }
-string FileLine::sourcePrefix(int toColumn) const VL_MT_SAFE {
-    const std::string src = source();
-    if (toColumn > static_cast<int>(src.length())) toColumn = static_cast<int>(src.length());
-    if (toColumn < 1) return "";
-    return src.substr(0, toColumn - 1);
+string File_سطر::منبع_پیشوند(صحيح مقصد_ستونی) ثابت VL_MT_امن {
+    ثابت std::string src = منبع();
+    إذا (مقصد_ستونی > static_cast<صحيح>(src.درازی())) مقصد_ستونی = static_cast<صحيح>(src.درازی());
+    إذا (مقصد_ستونی < 1) أرجع "";
+    أرجع src.substr(0, مقصد_ستونی - 1);
 }
-string FileLine::prettySource() const VL_MT_SAFE {
-    string out = source();
+string File_سطر::pretty_منبع() ثابت VL_MT_امن {
+    string بیرون = منبع();
     // Drop ignore trailing newline
-    const string::size_type pos = out.find('\n');
-    if (pos != string::npos) out = string(out, 0, pos);
+    ثابت string::اندازه_type pos = بیرون.پیدا_کن('\n');
+    إذا (pos != string::npos) بیرون = string(بیرون, 0, pos);
     // Column tracking counts tabs = 1, so match that when print source
-    return VString::spaceUnprintable(out);
+    أرجع VString::spaceUnprintable(بیرون);
 }
 
-string FileLine::warnContext() const {
-    if (!v3Global.opt.context()) return "";
-    if (firstLineno() == lastLineno() && firstColumn()) {
-        const string sourceLine = prettySource();
-        string out;
+string File_سطر::warnContext() ثابت {
+    إذا (!v3Global.opt.context()) أرجع "";
+    إذا (اولی_Lineno() == آخرین_Lineno() && اولی_ستونی()) {
+        ثابت string منبع_سطر = pretty_منبع();
+        string بیرون;
         // Don't show super-long lines as can fill screen and unlikely to help user
-        if (!sourceLine.empty() && sourceLine.length() < SHOW_SOURCE_MAX_LENGTH
-            && sourceLine.length() >= static_cast<size_t>(lastColumn() - 1)) {
-            string linestr = cvtToStr(firstLineno());
-            while (linestr.size() < 5) linestr = ' ' + linestr;
-            out += linestr + " | " + sourceLine + '\n';
-            out += std::string(linestr.size(), ' ') + " | ";
-            out += string((firstColumn() - 1), ' ') + '^';
+        إذا (!منبع_سطر.خالی() && منبع_سطر.درازی() < SHOW_منبع_MAX_درازی
+            && منبع_سطر.درازی() >= static_cast<اندازه_t>(آخرین_ستونی() - 1)) {
+            string linestr = cvt_مقصد_Str(اولی_Lineno());
+            طالما (linestr.اندازه() < 5) linestr = ' ' + linestr;
+            بیرون += linestr + " | " + منبع_سطر + '\n';
+            بیرون += std::string(linestr.اندازه(), ' ') + " | ";
+            بیرون += string((اولی_ستونی() - 1), ' ') + '^';
             // Can't use UASSERT_OBJ used in warnings already inside the error end handler
-            if (lastColumn() > firstColumn()) {
+            إذا (آخرین_ستونی() > اولی_ستونی()) {
                 // Note lastColumn() can be <= firstColumn() in some weird preproc expansions
-                out += string((lastColumn() - firstColumn() - 1), '~');
+                بیرون += string((آخرین_ستونی() - اولی_ستونی() - 1), '~');
             }
-            out += '\n';
+            بیرون += '\n';
         }
-        return V3Error::warnContextBegin() + out + V3Error::warnContextEnd();
+        أرجع V3Error::warnContextBegin() + بیرون + V3Error::warn_Context_انتها();
     }
-    return "";
+    أرجع "";
 }
 
-string FileLine::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
-    string result;
-    for (FileLine* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
-        if (parentFl->filenameIsGlobal()) break;
-        result += parentFl->warnOther() + "... note: In file included from '"
-                  + parentFl->filebasename() + "'\n";
+string File_سطر::warn_Context_والد() ثابت VL_REQUIRES(V3Error::s().m_mutex) {
+    string نتیجه;
+    لكل (File_سطر* والد_Fl = والد(); والد_Fl; والد_Fl = والد_Fl->والد()) {
+        إذا (والد_Fl->filenameIsGlobal()) اكسر;
+        نتیجه += والد_Fl->warnOther() + "... note: In file included from '"
+                  + والد_Fl->filebasename() + "'\n";
     }
-    return result;
+    أرجع نتیجه;
 }
 
-#ifdef VL_LEAK_CHECKS
-std::unordered_set<FileLine*> fileLineLeakChecks;
+#اگر_تعریف_شده VL_LEAK_CHECKS
+std::unordered_مجموعه<File_سطر*> file_سطر_Leak_Checks;
 
-void* FileLine::operator new(size_t size) {
-    FileLine* const objp = static_cast<FileLine*>(::operator new(size));
-    fileLineLeakChecks.insert(objp);
-    return objp;
+فراغ* File_سطر::عملگر جديد(اندازه_t اندازه) {
+    File_سطر* ثابت objp = static_cast<File_سطر*>(::عملگر جديد(اندازه));
+    file_سطر_Leak_Checks.درج(objp);
+    أرجع objp;
 }
 
-void FileLine::operator delete(void* objp, size_t size) {
-    if (!objp) return;
-    FileLine* const flp = static_cast<FileLine*>(objp);
-    const auto it = fileLineLeakChecks.find(flp);
-    if (it != fileLineLeakChecks.end()) {
-        fileLineLeakChecks.erase(it);
-    } else {
+فراغ File_سطر::عملگر حذف(فراغ* objp, اندازه_t اندازه) {
+    إذا (!objp) أرجع;
+    File_سطر* ثابت flp = static_cast<File_سطر*>(objp);
+    ثابت خودکار it = file_سطر_Leak_Checks.پیدا_کن(flp);
+    إذا (it != file_سطر_Leak_Checks.انتها()) {
+        file_سطر_Leak_Checks.erase(it);
+    } وإلا {
         flp->v3fatalSrc("Deleting FileLine object that was never tracked");
     }
-    ::operator delete(objp);
+    ::عملگر حذف(objp);
 }
-#endif
+#پایان_اگر
 
-void FileLine::stats() {
-#ifndef V3ERROR_NO_GLOBAL_
-    V3Stats::addStatSum("FileLines, Number of filenames",
-                        singleton().m_names.size());  // Max m_filenameno
-    V3Stats::addStatSum("FileLines, Message enable sets",
-                        singleton().m_internedMsgEns.size());  // Max m_msgEnIdx
+فراغ File_سطر::stats() {
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+    V3Stats::جمع_کن_Stat_جمع("FileLines, Number of filenames",
+                        singleton().m_نامها.اندازه());  // Max m_filenameno
+    V3Stats::جمع_کن_Stat_جمع("FileLines, Message enable sets",
+                        singleton().m_interned_پیام_Ens.اندازه());  // Max m_msgEnIdx
     // Don't currently have a good path to recording max line/column,
     // Infrequently useful, alternatively we could keep globals we update as make each FileLine
     // or could use fileLineLeakChecks.
-#endif
+#پایان_اگر
 }
 
-void FileLine::deleteAllRemaining() {
-#ifdef VL_LEAK_CHECKS
+فراغ File_سطر::delete_All_مانده() {
+#اگر_تعریف_شده VL_LEAK_CHECKS
     // FileLines are allocated, but never nicely freed, as it's much faster
     // that way.  Unfortunately this makes our leak checking a big mess, so
     // only when leak checking we'll track them all and cleanup.
-    while (true) {
-        const auto it = fileLineLeakChecks.begin();
-        if (it == fileLineLeakChecks.end()) break;
-        delete *it;
+    طالما (درست) {
+        ثابت خودکار it = file_سطر_Leak_Checks.begin();
+        إذا (it == file_سطر_Leak_Checks.انتها()) اكسر;
+        حذف *it;
         // Operator delete will remove the iterated object from the list.
         // Eventually the list will be empty and terminate the loop.
     }
-    fileLineLeakChecks.clear();
+    file_سطر_Leak_Checks.clear();
     singleton().clear();
-#endif
+#پایان_اگر
 }

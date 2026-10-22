@@ -19,188 +19,188 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Cfg.h"
 
-#include <memory>
+#ضمن <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgLiveVariables final : VNVisitorConst {
+صنف Cfg_زنده_Variables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    بنية بلوک_State final {
         // Variables used in block, before a complete assignment in the same block
-        std::unordered_set<AstVarScope*> m_gen;
+        std::unordered_مجموعه<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
-        std::unordered_set<AstVarScope*> m_kill;
-        std::unordered_set<AstVarScope*> m_liveIn;  // Variables live on entry to the block
-        std::unordered_set<AstVarScope*> m_liveOut;  // Variables live on exit from the block
-        bool m_isOnWorkList = false;  // Block is on work list
-        bool m_wasProcessed = false;  // Already processed at least once
+        std::unordered_مجموعه<AstVarScope*> m_kill;
+        std::unordered_مجموعه<AstVarScope*> m_زنده_درون;  // Variables live on entry to the block
+        std::unordered_مجموعه<AstVarScope*> m_زنده_بیرون;  // Variables live on exit from the block
+        منطقي m_isOnWorkList = خطأ;  // Block is on work list
+        منطقي m_wasProcessed = خطأ;  // Already processed at least once
     };
 
     // STATE
-    const CfgGraph& m_cfg;  // The CFG beign analysed
+    ثابت Cfg_گراف& m_cfg;  // The CFG beign analysed
     // State for each block
-    CfgBlockMap<BlockState> m_blockState{m_cfg.makeBlockMap<BlockState>()};
-    BlockState* m_currp = nullptr;  // State of current block being analysed
-    bool m_abort = false;  // Abort analysis - unhandled construct
+    Cfg_بلوک_Map<بلوک_State> m_بلوک_State{m_cfg.make_بلوک_Map<بلوک_State>()};
+    بلوک_State* m_currp = اشاره_تهی;  // State of current block being analysed
+    منطقي m_abort = خطأ;  // Abort analysis - unhandled construct
 
     // METHODS
 
-    static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+    ساكن منطقي isPacked(ثابت AstVarScope* vscp) {
+        Ast_گره_DType* ثابت dtypep = vscp->dtypep()->skipRefp();
+        إذا (ثابت AstBasicDType* ثابت typep = VN_CAST(dtypep, BasicDType)) {
+            أرجع typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        إذا (VN_IS(dtypep, PackArrayDType)) أرجع درست;
+        إذا (ثابت Ast_گره_UOr_Struct_DType* ثابت typep = VN_CAST(dtypep, گره_UOr_Struct_DType)) {
+            أرجع typep->packed();
         }
-        return false;
+        أرجع خطأ;
     }
 
-    void updateGen(AstNode* nodep) {
+    فراغ updateGen(Ast_گره* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ثابت AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            إذا (refp->access().isWriteOnly()) أرجع خطأ;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ثابت vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            إذا (m_currp->m_kill.شمار(vscp)) أرجع خطأ;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            أرجع خطأ;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    فراغ updateKill(Ast_گره* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ثابت AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            إذا (refp->access().isReadOnly()) أرجع خطأ;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ثابت vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            إذا (vscp->varp()->ignoreSchedWrite()) أرجع درست;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            إذا (!isPacked(vscp)) أرجع خطأ;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            إذا (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) أرجع خطأ;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            أرجع خطأ;
         });
     }
 
-    void single(AstNode* nodep) {
+    فراغ single(Ast_گره* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        إذا (m_abort) أرجع;
         updateGen(nodep);
-        if (m_abort) return;
+        إذا (m_abort) أرجع;
         updateKill(nodep);
     }
 
     // Apply transfer function of block, return true if changed
-    bool transfer(const CfgBlock& bb) {
-        BlockState& state = m_blockState[bb];
+    منطقي transfer(ثابت Cfg_بلوک& bb) {
+        بلوک_State& state = m_بلوک_State[bb];
 
         // liveIn = gen union (liveOut - kill)
-        std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
-            liveIn.insert(varp);
+        std::unordered_مجموعه<AstVarScope*> زنده_درون = state.m_gen;
+        لكل (AstVarScope* ثابت varp : state.m_زنده_بیرون) {
+            إذا (state.m_kill.شمار(varp)) استمر;
+            زنده_درون.درج(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
-        std::swap(liveIn, state.m_liveIn);
-        return true;
+        إذا (زنده_درون == state.m_زنده_درون) أرجع خطأ;
+        std::جابجا(زنده_درون, state.m_زنده_درون);
+        أرجع درست;
     }
 
-    // VISIT
-    void visit(AstNode* nodep) override {  //
+    //بازدید
+    فراغ بازدید(Ast_گره* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
-        m_abort = true;
+        m_abort = درست;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
     }
 
-    void visit(AstAssign* nodep) override { single(nodep); }
-    void visit(AstAssignW* nodep) override { single(nodep); }
-    void visit(AstDisplay* nodep) override { single(nodep); }
-    void visit(AstFinish* nodep) override { single(nodep); }
-    void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
-    void visit(AstStop* nodep) override { single(nodep); }
+    فراغ بازدید(Ast_تخصیص_بده* nodep) override { single(nodep); }
+    فراغ بازدید(Ast_تخصیص_بده_W* nodep) override { single(nodep); }
+    فراغ بازدید(AstDisplay* nodep) override { single(nodep); }
+    فراغ بازدید(Ast_پایان* nodep) override { single(nodep); }
+    فراغ بازدید(Ast_پایان_Fork* nodep) override { single(nodep); }
+    فراغ بازدید(Ast_Stmt_عبارت* nodep) override { single(nodep); }
+    فراغ بازدید(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
-    void visit(AstIf* nodep) override { single(nodep->condp()); }
-    void visit(AstLoopTest* nodep) override { single(nodep->condp()); }
+    فراغ بازدید(AstIf* nodep) override { single(nodep->condp()); }
+    فراغ بازدید(AstLoopTest* nodep) override { single(nodep->condp()); }
 
     // CONSTRUCTOR
-    explicit CfgLiveVariables(const CfgGraph& cfg)
+    صریح Cfg_زنده_Variables(ثابت Cfg_گراف& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+        لكل (ثابت V3_گراف_رأس& vtx : cfg.vertices()) {
+            ثابت Cfg_بلوک& bb = static_cast<ثابت Cfg_بلوک&>(vtx);
+            إذا (m_abort) أرجع;
             VL_RESTORER(m_currp);
-            m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            m_currp = &m_بلوک_State[bb];
+            لكل (Ast_گره* ثابت stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        إذا (m_abort) أرجع;
 
         // Perform the flow analysis
-        std::deque<const CfgBlock*> workList;
-        const auto enqueue = [&](const CfgBlock& bb) {
-            BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
-            state.m_isOnWorkList = true;
-            workList.emplace_back(&bb);
+        std::deque<ثابت Cfg_بلوک*> workList;
+        ثابت خودکار افزودن_به_صف = [&](ثابت Cfg_بلوک& bb) {
+            بلوک_State& state = m_بلوک_State[bb];
+            إذا (state.m_isOnWorkList) أرجع;
+            state.m_isOnWorkList = درست;
+            workList.emplace_پشت(&bb);
         };
 
-        enqueue(cfg.exit());
+        افزودن_به_صف(cfg.خروج());
 
-        while (!workList.empty()) {
-            const CfgBlock* const currp = workList.front();
-            workList.pop_front();
-            BlockState& state = m_blockState[*currp];
-            state.m_isOnWorkList = false;
+        طالما (!workList.خالی()) {
+            ثابت Cfg_بلوک* ثابت currp = workList.front();
+            workList.برداشت_front();
+            بلوک_State& state = m_بلوک_State[*currp];
+            state.m_isOnWorkList = خطأ;
 
             // Compute meet (liveOut = union liveIn of successors)
-            currp->forEachSuccessor([&](const CfgBlock& bb) {
-                auto& liveIn = m_blockState[bb].m_liveIn;
-                state.m_liveOut.insert(liveIn.begin(), liveIn.end());
+            currp->forEachSuccessor([&](ثابت Cfg_بلوک& bb) {
+                خودکار& زنده_درون = m_بلوک_State[bb].m_زنده_درون;
+                state.m_زنده_بیرون.درج(زنده_درون.begin(), زنده_درون.انتها());
             });
 
             // Apply transfer function of block
-            const bool changed = transfer(*currp);
+            ثابت منطقي تغییریافته = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            إذا (تغییریافته || !state.m_wasProcessed) currp->forEachPredecessor(افزودن_به_صف);
             // Mark as done with first visit
-            state.m_wasProcessed = true;
+            state.m_wasProcessed = درست;
         }
     }
 
-public:
-    static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
-        CfgLiveVariables analysis{cfg};
+عام:
+    ساكن std::unique_ptr<std::وکتور<AstVarScope*>> apply(ثابت Cfg_گراف& cfg) {
+        Cfg_زنده_Variables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        إذا (analysis.m_abort) أرجع اشاره_تهی;
         // Gather variables live in to the entry block
-        const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
-        std::vector<AstVarScope*>* const resultp
-            = new std::vector<AstVarScope*>{lin.begin(), lin.end()};
+        ثابت std::unordered_مجموعه<AstVarScope*>& lin = analysis.m_بلوک_State[cfg.enter()].m_زنده_درون;
+        std::وکتور<AstVarScope*>* ثابت resultp
+            = جديد std::وکتور<AstVarScope*>{lin.begin(), lin.انتها()};
         // Sort for stability
-        std::stable_sort(resultp->begin(), resultp->end(),
+        std::stable_مرتب_سازی(resultp->begin(), resultp->انتها(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             أرجع ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        أرجع std::unique_ptr<std::وکتور<AstVarScope*>>{resultp};
     }
 };
 
-std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+std::unique_ptr<std::وکتور<AstVarScope*>> V3Cfg::زنده_Var_Scopes(ثابت Cfg_گراف& cfg) {
+    أرجع Cfg_زنده_Variables::apply(cfg);
 }

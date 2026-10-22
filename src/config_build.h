@@ -19,7 +19,7 @@
 //**********************************************************************
 //**** Version and host name
 
-#include "config_package.h"
+#ضمن "config_package.h"
 
 //**********************************************************************
 //**** Functions
@@ -35,36 +35,36 @@
 // to set them at Verilator runtime.
 
 // clang-format off
-#ifndef DEFENV_SYSTEMC
+#اگر_تعریف_نشده DEFENV_SYSTEMC
 # define DEFENV_SYSTEMC ""
-#endif
-#ifndef DEFENV_SYSTEMC_ARCH
+#پایان_اگر
+#اگر_تعریف_نشده DEFENV_SYSTEMC_ARCH
 # define DEFENV_SYSTEMC_ARCH ""
-#endif
-#ifndef DEFENV_SYSTEMC_INCLUDE
+#پایان_اگر
+#اگر_تعریف_نشده DEFENV_SYSTEMC_INCLUDE
 # define DEFENV_SYSTEMC_INCLUDE ""
-#endif
-#ifndef DEFENV_SYSTEMC_LIBDIR
+#پایان_اگر
+#اگر_تعریف_نشده DEFENV_SYSTEMC_LIBDIR
 # define DEFENV_SYSTEMC_LIBDIR ""
-#endif
-#ifndef DEFENV_VERILATOR_ROOT
-# define DEFENV_VERILATOR_ROOT ""
-#endif
-#ifndef DEFENV_VERILATOR_SOLVER
+#پایان_اگر
+#اگر_تعریف_نشده DEFENV_VERILATOR_ریشه
+# define DEFENV_VERILATOR_ریشه ""
+#پایان_اگر
+#اگر_تعریف_نشده DEFENV_VERILATOR_SOLVER
 # define DEFENV_VERILATOR_SOLVER ""
-#endif
+#پایان_اگر
 // clang-format on
 
 //**********************************************************************
 //**** Compile options
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <string>
+#ضمن <cstdio>
+#ضمن <cstdlib>
+#ضمن <cstring>
+#ضمن <iostream>
+#ضمن <string>
 
-#include <sys/types.h>
+#ضمن <sys/types.h>
 
 // Avoid needing std:: prefixes on some very common items
 using string = std::string;
@@ -75,4 +75,4 @@ using namespace std::literals;  // "<std::string literal>"s; see SF.7 core guide
 //**********************************************************************
 //**** OS and compiler specifics
 
-#include "verilatedos.h"
+#ضمن "verilatedos.h"

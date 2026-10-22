@@ -23,131 +23,131 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Depth.h"
+#ضمن "V3Depth.h"
 
-#include "V3UniqueNames.h"
+#ضمن "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class DepthVisitor final : public VNVisitor {
+صنف عمق_Visitor final : عام VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstCFunc* m_cfuncp = nullptr;  // Current block
-    AstNode* m_stmtp = nullptr;  // Current statement
-    int m_depth = 0;  // How deep in an expression
-    int m_maxdepth = 0;  // Maximum depth in an expression
-    V3UniqueNames m_tempNames;  // For generating unique temporary variable names
+    AstCFunc* m_cfuncp = اشاره_تهی;  // Current block
+    Ast_گره* m_stmtp = اشاره_تهی;  // Current statement
+    صحيح m_عمق = 0;  // How deep in an expression
+    صحيح m_maxdepth = 0;  // Maximum depth in an expression
+    V3_Unique_نامها m_موقت_نامها;  // For generating unique temporary variable names
 
     // METHODS
 
-    void createDeepTemp(AstNodeExpr* nodep) {
+    فراغ create_Deep_موقت(Ast_گره_عبارت* nodep) {
         UINFO(6, "  Deep  " << nodep);
         // UINFOTREE(9, nodep, "", "deep");
-        AstVar* const varp = new AstVar{nodep->fileline(), VVarType::STMTTEMP,
-                                        m_tempNames.get(nodep), nodep->dtypep()};
-        if (m_cfuncp) {
-            m_cfuncp->addVarsp(varp);
-        } else {
+        AstVar* ثابت varp = جديد AstVar{nodep->fileline(), VVarType::STMTTEMP,
+                                        m_موقت_نامها.get(nodep), nodep->dtypep()};
+        إذا (m_cfuncp) {
+            m_cfuncp->جمع_کن_Varsp(varp);
+        } وإلا {
             nodep->v3fatalSrc("Deep expression not under a function");
         }
         // Replace node tree with reference to var
-        AstVarRef* const newp = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+        AstVarRef* ثابت newp = جديد AstVarRef{nodep->fileline(), varp, VAccess::READ};
         nodep->replaceWith(newp);
         // Put assignment before the referencing statement
-        AstAssign* const assp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, nodep};
-        m_stmtp->addHereThisAsNext(assp);
+        Ast_تخصیص_بده* ثابت assp = جديد Ast_تخصیص_بده{
+            nodep->fileline(), جديد AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, nodep};
+        m_stmtp->جمع_کن_اینجا_This_As_بعدی(assp);
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    فراغ بازدید(AstCFunc* nodep) override {
         VL_RESTORER(m_cfuncp);
-        VL_RESTORER(m_depth);
+        VL_RESTORER(m_عمق);
         VL_RESTORER(m_maxdepth);
         m_cfuncp = nodep;
-        m_depth = 0;
+        m_عمق = 0;
         m_maxdepth = 0;
-        m_tempNames.reset();
+        m_موقت_نامها.reset();
         iterateChildren(nodep);
     }
-    void visitStmt(AstNodeStmt* nodep) {
+    فراغ بازدید_Stmt(Ast_گره_Stmt* nodep) {
         VL_RESTORER(m_stmtp);
-        VL_RESTORER(m_depth);
+        VL_RESTORER(m_عمق);
         VL_RESTORER(m_maxdepth);
         m_stmtp = nodep;
-        m_depth = 0;
+        m_عمق = 0;
         m_maxdepth = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeStmt* nodep) override { visitStmt(nodep); }
-    void visit(AstSFormatArg* nodep) override { iterateChildren(nodep); }  // Don't split
+    فراغ بازدید(Ast_گره_Stmt* nodep) override { بازدید_Stmt(nodep); }
+    فراغ بازدید(AstSFormatArg* nodep) override { iterateChildren(nodep); }  // Don't split
     // Operators
-    void visit(AstNodeTermop* nodep) override {}
-    void visit(AstNodeExpr* nodep) override {
+    فراغ بازدید(Ast_گره_Termop* nodep) override {}
+    فراغ بازدید(Ast_گره_عبارت* nodep) override {
         // We have some operator defines that use 2 parens, so += 2.
         {
-            VL_RESTORER(m_depth);
-            m_depth += 2;
-            if (m_depth > m_maxdepth) m_maxdepth = m_depth;
+            VL_RESTORER(m_عمق);
+            m_عمق += 2;
+            إذا (m_عمق > m_maxdepth) m_maxdepth = m_عمق;
             iterateChildren(nodep);
         }
-        if (m_stmtp && (v3Global.opt.compLimitParens() >= 1)  // Else compiler doesn't need it
-            && (m_maxdepth - m_depth) > v3Global.opt.compLimitParens()
-            && !VN_IS(nodep->backp(), NodeStmt)  // Not much point if we're about to use it
+        إذا (m_stmtp && (v3Global.opt.comp_حد_Parens() >= 1)  // Else compiler doesn't need it
+            && (m_maxdepth - m_عمق) > v3Global.opt.comp_حد_Parens()
+            && !VN_IS(nodep->backp(), گره_Stmt)  // Not much point if we're about to use it
         ) {
-            m_maxdepth = m_depth;
-            createDeepTemp(nodep);
+            m_maxdepth = m_عمق;
+            create_Deep_موقت(nodep);
         }
     }
 
     //--------------------
     // Marking of non-static functions (because they might need "this")
     // (Here instead of new visitor after V3Descope just to avoid another visitor)
-    void needNonStaticFunc(AstNode* nodep) {
+    فراغ needNonStaticFunc(Ast_گره* nodep) {
         UASSERT_OBJ(m_cfuncp, nodep, "Non-static accessor not under a function");
         // DPI export implementations are always invoked via the generic DPI dispatcher,
         // which can only ever supply the symbol table pointer, never a scope-specific
         // "this", so they must remain static regardless of what they contain.
-        if (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
+        إذا (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
             UINFO(5, "Mark non-public due to " << nodep);
-            m_cfuncp->isStatic(false);
+            m_cfuncp->isStatic(خطأ);
         }
     }
-    void visit(AstCExprUser* nodep) override {
+    فراغ بازدید(AstCExprUser* nodep) override {
         needNonStaticFunc(nodep);
         iterateChildren(nodep);
     }
-    void visit(AstCStmtUser* nodep) override {
+    فراغ بازدید(AstCStmtUser* nodep) override {
         needNonStaticFunc(nodep);
-        visitStmt(nodep);
+        بازدید_Stmt(nodep);
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstVar*) override {}  // Don't hit varrefs under vars
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit DepthVisitor(AstNetlist* nodep)
-        : m_tempNames{"__Vdeeptemp"} {
+    صریح عمق_Visitor(AstNetlist* nodep)
+        : m_موقت_نامها{"__Vdeeptemp"} {
         iterate(nodep);
         // Extracting expressions can effect purity
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_درخت();
     }
-    ~DepthVisitor() override = default;
+    ~عمق_Visitor() override = افتراضي;
 };
 
 //######################################################################
 // Depth class functions
 
-void V3Depth::depthAll(AstNetlist* nodep) {
+فراغ V3_عمق::عمق_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DepthVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("depth", 0, dumpTreeEitherLevel() >= 6);
+    { عمق_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_درخت("depth", 0, dump_درخت_Either_Level() >= 6);
 }

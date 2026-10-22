@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3Control.h"
+#ضمن "V3Control.h"
 
-#include "V3InstrCount.h"
-#include "V3Os.h"
-#include "V3String.h"
+#ضمن "V3InstrCount.h"
+#ضمن "V3Os.h"
+#ضمن "V3String.h"
 
-#include <memory>
-#include <set>
-#include <unordered_map>
+#ضمن <memory>
+#ضمن <set>
+#ضمن <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -35,293 +35,293 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // as wildcards and are accessed by a resolved name. It rebuilds a name lookup
 // cache of resolved entities. Entities stored in this container need an update
 // function that takes a reference of this type to join multiple entities into one.
-template <typename T>
-class V3ControlWildcardResolver final {
-    mutable V3Mutex m_mutex;  // protects members
+قالب <نام_نوع T>
+صنف V3ControlWildcardResolver final {
+    تغییرپذیر V3Mutex m_mutex;  // protects members
     // Pattern strings (wildcard, or simple name) to entities
-    std::map<const std::string, T> m_mapPatterns VL_GUARDED_BY(m_mutex);
+    std::map<ثابت std::string, T> m_mapPatterns VL_GUARDED_BY(m_mutex);
     // Resolved strings to converged entities - nullptr, iff none of the patterns applies
-    std::map<const std::string, std::unique_ptr<T>> m_mapResolved VL_GUARDED_BY(m_mutex);
+    std::map<ثابت std::string, std::unique_ptr<T>> m_mapResolved VL_GUARDED_BY(m_mutex);
 
-public:
-    V3ControlWildcardResolver() = default;
-    ~V3ControlWildcardResolver() = default;
+عام:
+    V3ControlWildcardResolver() = افتراضي;
+    ~V3ControlWildcardResolver() = افتراضي;
 
     // Update this resolved file's item map by inserting other's (wildcarded filename's) items
-    void update(const V3ControlWildcardResolver& other) VL_MT_SAFE_EXCLUDES(m_mutex)
+    فراغ update(ثابت V3ControlWildcardResolver& other) VL_MT_امن_EXCLUDES(m_mutex)
         VL_EXCLUDES(other.m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const V3LockGuard otherLock{other.m_mutex};
+        ثابت V3_قفل_Guard قفل_2{m_mutex};
+        ثابت V3_قفل_Guard other_قفل{other.m_mutex};
         // Clear the resolved cache, as 'other' might add new patterns that need to be applied as
         // well.
         m_mapResolved.clear();
-        for (const auto& itr : other.m_mapPatterns) m_mapPatterns[itr.first].update(itr.second);
+        لكل (ثابت خودکار& itr : other.m_mapPatterns) m_mapPatterns[itr.اولی].update(itr.دومی);
     }
 
     // Access and create a pattern entry
-    T& at(const string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
+    T& at(ثابت string& name) VL_MT_امن_EXCLUDES(m_mutex) {
+        ثابت V3_قفل_Guard قفل_2{m_mutex};
         // We might be adding a new entry under this, so clear the cache.
         m_mapResolved.clear();
         // Patterns use '/' as separator; normalize Windows backslashes
-        return m_mapPatterns[V3Os::filenameSlashPath(name)];
+        أرجع m_mapPatterns[V3Os::filename_Slash_مسیر(name)];
     }
     // Access an entity and resolve patterns that match it
-    T* resolve(const string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
+    T* resolve(ثابت string& name) VL_MT_امن_EXCLUDES(m_mutex) {
+        ثابت V3_قفل_Guard قفل_2{m_mutex};
         // Lookup if it was resolved before, typically not
-        const auto pair = m_mapResolved.emplace(name, nullptr);
-        std::unique_ptr<T>& entryr = pair.first->second;
+        ثابت خودکار pair = m_mapResolved.emplace(name, اشاره_تهی);
+        std::unique_ptr<T>& entryr = pair.اولی->دومی;
         // Resolve entry when first requested, cache the result
-        if (pair.second) {
+        إذا (pair.دومی) {
             // Inserted: update the entity with all matches in the patterns.
             // Normalize separators so Windows backslash filenames match the
             // slash-separated patterns (normalized when loaded).
-            const string slashName = V3Os::filenameSlashPath(name);
-            for (const auto& patEnt : m_mapPatterns) {
-                if (VString::wildmatch(slashName, patEnt.first)) {
-                    if (!entryr) entryr.reset(new T{});
-                    entryr->update(patEnt.second);
+            ثابت string slashName = V3Os::filename_Slash_مسیر(name);
+            لكل (ثابت خودکار& patEnt : m_mapPatterns) {
+                إذا (VString::wildmatch(slashName, patEnt.اولی)) {
+                    إذا (!entryr) entryr.reset(جديد T{});
+                    entryr->update(patEnt.دومی);
                 }
             }
             // Perform final actions that needed all updates completed
-            if (entryr) entryr->updateFinalize();
+            إذا (entryr) entryr->updateFinalize();
         }
-        return entryr.get();
+        أرجع entryr.get();
     }
 };
 
 // List of attributes for variables
-class V3ControlVar final {
-    std::vector<VAttrType> m_attrs;  // The list of attributes
-public:
+صنف V3ControlVar final {
+    std::وکتور<VAttrType> m_attrs;  // The list of attributes
+عام:
     // Add new attribugte
-    void add(VAttrType attr) { m_attrs.emplace_back(attr); }
+    فراغ جمع_کن(VAttrType attr) { m_attrs.emplace_پشت(attr); }
     // Update from other by copying all attributes
-    void update(const V3ControlVar& other) {
-        m_attrs.reserve(m_attrs.size() + other.m_attrs.size());
-        m_attrs.insert(m_attrs.end(), other.m_attrs.begin(), other.m_attrs.end());
+    فراغ update(ثابت V3ControlVar& other) {
+        m_attrs.reserve(m_attrs.اندازه() + other.m_attrs.اندازه());
+        m_attrs.درج(m_attrs.انتها(), other.m_attrs.begin(), other.m_attrs.انتها());
     }
-    void updateFinalize() {}
+    فراغ updateFinalize() {}
     // Apply all attributes to the variable
-    void apply(AstVar* varp) const {
-        for (const VAttrType attr : m_attrs) {
-            varp->addAttrsp(new AstAttrOf{varp->fileline(), attr});
+    فراغ apply(AstVar* varp) ثابت {
+        لكل (ثابت VAttrType attr : m_attrs) {
+            varp->جمع_کن_Attrsp(جديد Ast_Attr_از{varp->fileline(), attr});
         }
     }
 };
 
-using V3ControlVarResolver = V3ControlWildcardResolver<V3ControlVar>;
+استفاده V3ControlVarResolver = V3ControlWildcardResolver<V3ControlVar>;
 
 //======================================================================
 
-class WildcardContents final {
+صنف WildcardContents final {
     // Not mutex protected, current calling from V3Control::waive is protected by error's mutex
     // MEMBERS
-    std::map<const std::string, bool> m_mapPatterns;  // Pattern match results
-    std::deque<string> m_lines;  // Source text lines
+    std::map<ثابت std::string, منطقي> m_mapPatterns;  // Pattern match results
+    std::deque<string> m_سطرها;  // Source text lines
 
     // METHODS
-    static WildcardContents& s() {  // Singleton
-        static WildcardContents s_s;
-        return s_s;
+    ساكن WildcardContents& s() {  // Singleton
+        ساكن WildcardContents s_s;
+        أرجع s_s;
     }
-    void clearCacheImp() { m_mapPatterns.clear(); }
-    void pushTextImp(const string& text) {
+    فراغ clearCacheImp() { m_mapPatterns.clear(); }
+    فراغ افزودن_متن_Imp(ثابت string& متن) {
         // Similar code in VFileContent::pushText()
         // Any leftover text is stored on largest line (might be "")
-        const string leftover = m_lines.back() + text;
-        m_lines.pop_back();
+        ثابت string leftover = m_سطرها.پشت() + متن;
+        m_سطرها.برداشت_پشت();
 
         // Insert line-by-line
-        string::size_type line_start = 0;
-        while (true) {
-            const string::size_type line_end = leftover.find('\n', line_start);
-            if (line_end != string::npos) {
-                const string oneline(leftover, line_start, line_end - line_start + 1);
-                if (oneline.size() > 1) m_lines.push_back(oneline);  // Keeps newline
-                UINFO(9, "Push[+" << (m_lines.size() - 1) << "]: " << oneline);
-                line_start = line_end + 1;
-            } else {
-                break;
+        string::اندازه_type سطر_شروع = 0;
+        طالما (درست) {
+            ثابت string::اندازه_type سطر_انتها = leftover.پیدا_کن('\n', سطر_شروع);
+            إذا (سطر_انتها != string::npos) {
+                ثابت string oneline(leftover, سطر_شروع, سطر_انتها - سطر_شروع + 1);
+                إذا (oneline.اندازه() > 1) m_سطرها.افزودن_پشت(oneline);  // Keeps newline
+                UINFO(9, "Push[+" << (m_سطرها.اندازه() - 1) << "]: " << oneline);
+                سطر_شروع = سطر_انتها + 1;
+            } وإلا {
+                اكسر;
             }
         }
         // Keep leftover for next time
-        m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+        m_سطرها.emplace_پشت(string(leftover, سطر_شروع));  // Might be ""
         clearCacheImp();
     }
 
-    bool resolveUncachedImp(const string& contentsRegexp) {
-        for (const string& i : m_lines) {
-            if (VString::wildmatch(i, contentsRegexp)) return true;
+    منطقي resolveUncachedImp(ثابت string& contentsRegexp) {
+        لكل (ثابت string& i : m_سطرها) {
+            إذا (VString::wildmatch(i, contentsRegexp)) أرجع درست;
         }
-        return false;
+        أرجع خطأ;
     }
-    bool resolveCachedImp(const string& contentsRegexp) {
+    منطقي resolveCachedImp(ثابت string& contentsRegexp) {
         // Lookup if it was resolved before, typically is
-        if (contentsRegexp.empty()) return true;
-        const auto pair = m_mapPatterns.emplace(contentsRegexp, false);
-        bool& entryr = pair.first->second;
+        إذا (contentsRegexp.خالی()) أرجع درست;
+        ثابت خودکار pair = m_mapPatterns.emplace(contentsRegexp, خطأ);
+        منطقي& entryr = pair.اولی->دومی;
         // Resolve entry when first requested, cache the result
-        if (pair.second) entryr = resolveUncachedImp(contentsRegexp);
-        return entryr;
+        إذا (pair.دومی) entryr = resolveUncachedImp(contentsRegexp);
+        أرجع entryr;
     }
 
-public:
+عام:
     WildcardContents() {
-        m_lines.emplace_back("");  // start with no leftover
+        m_سطرها.emplace_پشت("");  // start with no leftover
     }
-    ~WildcardContents() = default;
+    ~WildcardContents() = افتراضي;
     // Return true iff contentsRegexp in parsed contents
-    static bool resolve(const string& contentsRegexp) {
-        return s().resolveCachedImp(contentsRegexp);
+    ساكن منطقي resolve(ثابت string& contentsRegexp) {
+        أرجع s().resolveCachedImp(contentsRegexp);
     }
     // Add arbitrary text (need not be line-by-line)
-    static void pushText(const string& text) { s().pushTextImp(text); }
+    ساكن فراغ افزودن_متن(ثابت string& متن) { s().افزودن_متن_Imp(متن); }
 };
 
 //######################################################################
 // Function or task: Have variables and properties
 
-class V3ControlFTask final {
+صنف V3ControlFTask final {
     V3ControlVarResolver m_params;  // Parameters in function/task
     V3ControlVarResolver m_ports;  // Ports in function/task
     V3ControlVarResolver m_vars;  // Variables in function/task
-    bool m_noinline = false;  // Don't inline function/task
-    bool m_public = false;  // Public function/task
+    منطقي m_noinline = خطأ;  // Don't inline function/task
+    منطقي m_عمومی = خطأ;  // Public function/task
 
-public:
-    V3ControlFTask() = default;
-    void update(const V3ControlFTask& f) {
+عام:
+    V3ControlFTask() = افتراضي;
+    فراغ update(ثابت V3ControlFTask& f) {
         // Don't overwrite true with false
-        if (f.m_noinline) m_noinline = true;
-        if (f.m_public) m_public = true;
+        إذا (f.m_noinline) m_noinline = درست;
+        إذا (f.m_عمومی) m_عمومی = درست;
         m_params.update(f.m_params);
         m_ports.update(f.m_ports);
         m_vars.update(f.m_vars);
     }
-    void updateFinalize() {}
+    فراغ updateFinalize() {}
 
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlVarResolver& params() { أرجع m_params; }
+    V3ControlVarResolver& ports() { أرجع m_ports; }
+    V3ControlVarResolver& vars() { أرجع m_vars; }
 
-    void setNoInline(bool set) { m_noinline = set; }
-    void setPublic(bool set) { m_public = set; }
+    فراغ مجموعه_No_Inline(منطقي مجموعه) { m_noinline = مجموعه; }
+    فراغ مجموعه_عمومی(منطقي مجموعه) { m_عمومی = مجموعه; }
 
-    void apply(AstNodeFTask* ftaskp) const {
-        if (m_noinline)
-            ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
-        if (m_public)
-            ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::PUBLIC_TASK});
+    فراغ apply(Ast_گره_FTask* ftaskp) ثابت {
+        إذا (m_noinline)
+            ftaskp->جمع_کن_Stmtsp(جديد AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
+        إذا (m_عمومی)
+            ftaskp->جمع_کن_Stmtsp(جديد AstPragma{ftaskp->fileline(), VPragmaType::عمومی_TASK});
     }
 };
 
-using V3ControlFTaskResolver = V3ControlWildcardResolver<V3ControlFTask>;
+استفاده V3ControlFTaskResolver = V3ControlWildcardResolver<V3ControlFTask>;
 
 //######################################################################
 // Modules have tasks, variables, named blocks and properties
 
-class V3ControlModule final {
+صنف V3ControlModule final {
     V3ControlFTaskResolver m_tasks;  // Functions/tasks in module
     V3ControlVarResolver m_params;  // Parameters in module
     V3ControlVarResolver m_ports;  // Ports in module
     V3ControlVarResolver m_vars;  // Variables in module
-    V3Control::FsmRegisterWrapper m_fsmRegisterWrapper;  // FSM wrapper descriptor
-    std::unordered_set<std::string> m_coverageOffBlocks;  // List of block names for coverage_off
-    std::set<VPragmaType> m_modPragmas;  // List of Pragmas for modules
-    bool m_hasFsmRegisterWrapper = false;  // Whether descriptor has been set
-    bool m_inline = false;  // Whether to force the inline
-    bool m_inlineValue = false;  // The inline value (on/off)
+    V3Control::Fsm_ثبات_Wrapper m_fsm_ثبات_Wrapper;  // FSM wrapper descriptor
+    std::unordered_مجموعه<std::string> m_coverage_Off_بلوکها;  // List of block names for coverage_off
+    std::مجموعه<VPragmaType> m_modPragmas;  // List of Pragmas for modules
+    منطقي m_has_Fsm_ثبات_Wrapper = خطأ;  // Whether descriptor has been set
+    منطقي m_inline = خطأ;  // Whether to force the inline
+    منطقي m_inline_مقدار = خطأ;  // The inline value (on/off)
 
-public:
-    V3ControlModule() = default;
+عام:
+    V3ControlModule() = افتراضي;
 
-    void update(const V3ControlModule& m) {
+    فراغ update(ثابت V3ControlModule& m) {
         m_tasks.update(m.m_tasks);
         m_params.update(m.m_params);
         m_ports.update(m.m_ports);
         m_vars.update(m.m_vars);
-        if (m.m_hasFsmRegisterWrapper) {
-            m_fsmRegisterWrapper = m.m_fsmRegisterWrapper;
-            m_hasFsmRegisterWrapper = true;
+        إذا (m.m_has_Fsm_ثبات_Wrapper) {
+            m_fsm_ثبات_Wrapper = m.m_fsm_ثبات_Wrapper;
+            m_has_Fsm_ثبات_Wrapper = درست;
         }
-        for (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.insert(i);
-        if (!m_inline) {
+        لكل (ثابت string& i : m.m_coverage_Off_بلوکها) m_coverage_Off_بلوکها.درج(i);
+        إذا (!m_inline) {
             m_inline = m.m_inline;
-            m_inlineValue = m.m_inlineValue;
+            m_inline_مقدار = m.m_inline_مقدار;
         }
-        for (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
-            m_modPragmas.insert(*it);
+        لكل (خودکار it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
+            m_modPragmas.درج(*it);
         }
     }
-    void updateFinalize() {}
+    فراغ updateFinalize() {}
 
-    V3ControlFTaskResolver& ftasks() { return m_tasks; }
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlFTaskResolver& ftasks() { أرجع m_tasks; }
+    V3ControlVarResolver& params() { أرجع m_params; }
+    V3ControlVarResolver& ports() { أرجع m_ports; }
+    V3ControlVarResolver& vars() { أرجع m_vars; }
 
-    void addCoverageBlockOff(const string& name) { m_coverageOffBlocks.insert(name); }
-    void setInline(bool set) {
-        m_inline = true;
-        m_inlineValue = set;
+    فراغ جمع_کن_Coverage_بلوک_Off(ثابت string& name) { m_coverage_Off_بلوکها.درج(name); }
+    فراغ مجموعه_Inline(منطقي مجموعه) {
+        m_inline = درست;
+        m_inline_مقدار = مجموعه;
     }
-    void setFsmRegisterWrapper(FileLine* fl, const V3Control::FsmRegisterWrapper& desc) {
-        if (m_hasFsmRegisterWrapper) {
+    فراغ مجموعه_Fsm_ثبات_Wrapper(File_سطر* fl, ثابت V3Control::Fsm_ثبات_Wrapper& desc) {
+        إذا (m_has_Fsm_ثبات_Wrapper) {
             fl->v3warn(BADVLTPRAGMA, "Duplicate fsm_register_wrapper descriptor for module "
-                                         << AstNode::prettyNameQ(desc.moduleName)
+                                         << Ast_گره::prettyNameQ(desc.moduleName)
                                          << "; replacing previous descriptor");
         }
-        m_fsmRegisterWrapper = desc;
-        m_hasFsmRegisterWrapper = true;
+        m_fsm_ثبات_Wrapper = desc;
+        m_has_Fsm_ثبات_Wrapper = درست;
     }
-    const V3Control::FsmRegisterWrapper* fsmRegisterWrapperp() const {
-        return m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
+    ثابت V3Control::Fsm_ثبات_Wrapper* fsm_ثبات_Wrapperp() ثابت {
+        أرجع m_has_Fsm_ثبات_Wrapper ? &m_fsm_ثبات_Wrapper : اشاره_تهی;
     }
-    void addModulePragma(VPragmaType pragma) { m_modPragmas.insert(pragma); }
+    فراغ جمع_کن_Module_Pragma(VPragmaType pragma) { m_modPragmas.درج(pragma); }
 
-    void apply(AstNodeModule* modp) {
-        if (m_inline) {
-            const VPragmaType type
-                = m_inlineValue ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
-            AstNode* const nodep = new AstPragma{modp->fileline(), type};
-            modp->addStmtsp(nodep);
+    فراغ apply(Ast_گره_Module* modp) {
+        إذا (m_inline) {
+            ثابت VPragmaType type
+                = m_inline_مقدار ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
+            Ast_گره* ثابت nodep = جديد AstPragma{modp->fileline(), type};
+            modp->جمع_کن_Stmtsp(nodep);
         }
-        for (const auto& itr : m_modPragmas) {
+        لكل (ثابت خودکار& itr : m_modPragmas) {
             // Catch hier param modules to mark their attributes before they are
             // flagged dead in LinkDot.
-            if (itr == VPragmaType::HIER_PARAMS) modp->hierParams(true);
-            AstNode* const nodep = new AstPragma{modp->fileline(), itr};
-            modp->addStmtsp(nodep);
+            إذا (itr == VPragmaType::HIER_PARAMS) modp->hierParams(درست);
+            Ast_گره* ثابت nodep = جديد AstPragma{modp->fileline(), itr};
+            modp->جمع_کن_Stmtsp(nodep);
         }
     }
 
-    void applyBlock(AstGenBlock* nodep) {
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
-                    nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
+    فراغ apply_بلوک(Ast_Gen_بلوک* nodep) {
+        ثابت VPragmaType pragma = VPragmaType::COVERAGE_بلوک_OFF;
+        إذا (!nodep->unnamed()) {
+            لكل (ثابت string& i : m_coverage_Off_بلوکها) {
+                إذا (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+                    nodep->جمع_کن_Itemsp(جديد AstPragma{nodep->fileline(), pragma});
                 }
             }
         }
     }
 
-    void applyBlock(AstNodeBlock* nodep) {
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
-                    nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
+    فراغ apply_بلوک(Ast_گره_بلوک* nodep) {
+        ثابت VPragmaType pragma = VPragmaType::COVERAGE_بلوک_OFF;
+        File_سطر* ثابت flp = nodep->fileline();
+        إذا (!nodep->unnamed()) {
+            لكل (ثابت string& i : m_coverage_Off_بلوکها) {
+                إذا (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+                    nodep->جمع_کن_Stmtsp(جديد AstStmtPragma{flp, جديد AstPragma{flp, pragma}});
                 }
             }
         }
     }
 };
 
-using V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
+استفاده V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
 
 //######################################################################
 // Files have:
@@ -329,152 +329,152 @@ using V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
 //  - Line attributes: Attributes attached to lines
 
 // lint/coverage/tracing on/off
-class V3ControlIgnoresLine final {
-public:
-    const int m_lineMin;  // Minimum line number to make change at
-    const int m_lineMax;  // Maximum line number to make change at (inclusive)
-    const V3ErrorCode m_code;  // Error code
-    const bool m_on;  // True to enable message
-    V3ControlIgnoresLine(V3ErrorCode code, int linemin, int linemax, bool on)
-        : m_lineMin{linemin}
-        , m_lineMax{linemax}
-        , m_code{code}
+صنف V3_Control_Ignores_سطر final {
+عام:
+    ثابت صحيح m_سطر_Min;  // Minimum line number to make change at
+    ثابت صحيح m_سطر_Max;  // Maximum line number to make change at (inclusive)
+    ثابت V3_Error_کد m_کد;  // Error code
+    ثابت منطقي m_on;  // True to enable message
+    V3_Control_Ignores_سطر(V3_Error_کد کد, صحيح linemin, صحيح linemax, منطقي on)
+        : m_سطر_Min{linemin}
+        , m_سطر_Max{linemax}
+        , m_کد{کد}
         , m_on{on} {}
-    ~V3ControlIgnoresLine() = default;
-    bool everyLine() const { return m_lineMin == 0 && m_lineMax == 0; }
-    bool inRange(int lineno) const {
-        return (lineno >= m_lineMin && lineno <= m_lineMax) || everyLine();
+    ~V3_Control_Ignores_سطر() = افتراضي;
+    منطقي every_سطر() ثابت { أرجع m_سطر_Min == 0 && m_سطر_Max == 0; }
+    منطقي درون_Range(صحيح lineno) ثابت {
+        أرجع (lineno >= m_سطر_Min && lineno <= m_سطر_Max) || every_سطر();
     }
 };
-std::ostream& operator<<(std::ostream& os, const V3ControlIgnoresLine& rhs) {
-    return os << rhs.m_lineMin << "-" << rhs.m_lineMax << ", " << rhs.m_code << ", " << rhs.m_on;
+std::ostream& عملگر<<(std::ostream& os, ثابت V3_Control_Ignores_سطر& rhs) {
+    أرجع os << rhs.m_سطر_Min << "-" << rhs.m_سطر_Max << ", " << rhs.m_کد << ", " << rhs.m_on;
 }
 
 // Ignore line settings, index is parse order
 // Single global deque to avoid copying when update()
-static std::vector<V3ControlIgnoresLine> controlIgnLines;
+ساكن std::وکتور<V3_Control_Ignores_سطر> control_Ign_سطرها;
 
-using IgnIndices = std::vector<uint32_t>;  // List of {s_ignLines indces}
+استفاده IgnIndices = std::وکتور<uint32_t>;  // List of {s_ignLines indces}
 
-class VIntervalTree final {
-    struct Entry final {
+صنف VInterval_درخت final {
+    بنية مدخل_2 final {
         // Classic centered interval tree, referencing an index to controlIgnLines
-        int m_center;  // Line number of central point
-        std::unique_ptr<Entry> m_leftp;  // Entry with all its rules/entries < this center
-        std::unique_ptr<Entry> m_rightp;  // Entry with all its rules/entries > this center
+        صحيح m_center;  // Line number of central point
+        std::unique_ptr<مدخل_2> m_leftp;  // Entry with all its rules/entries < this center
+        std::unique_ptr<مدخل_2> m_rightp;  // Entry with all its rules/entries > this center
         IgnIndices m_byMin;  // Rules overlapping center sorted by min line number
         IgnIndices m_byMax;  // Rules overlapping center sorted by max line number
-        explicit Entry(int center)
+        صریح مدخل_2(صحيح center)
             : m_center{center} {}
     };
 
-    std::unique_ptr<Entry> m_rootp;  // Root of interval tree
-    IgnIndices m_everyLines;  // All-line disables
+    std::unique_ptr<مدخل_2> m_rootp;  // Root of interval tree
+    IgnIndices m_every_سطرها;  // All-line disables
 
-private:
-    std::unique_ptr<Entry> buildTree(const IgnIndices& points) {
-        if (points.empty()) return nullptr;
+خاص:
+    std::unique_ptr<مدخل_2> build_درخت(ثابت IgnIndices& points) {
+        إذا (points.خالی()) أرجع اشاره_تهی;
 
-        int minval = std::numeric_limits<int>::max();
-        int maxval = std::numeric_limits<int>::min();
-        for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) {
-                m_everyLines.emplace_back(it);
-                continue;
+        صحيح minval = std::numeric_limits<صحيح>::max();
+        صحيح maxval = std::numeric_limits<صحيح>::min();
+        لكل (ثابت خودکار& it : points) {
+            ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+            إذا (cign.every_سطر()) {
+                m_every_سطرها.emplace_پشت(it);
+                استمر;
             }
-            minval = std::min(minval, cign.m_lineMin);
-            maxval = std::max(maxval, cign.m_lineMax);
+            minval = std::min(minval, cign.m_سطر_Min);
+            maxval = std::max(maxval, cign.m_سطر_Max);
         }
 
-        const int center = minval + (maxval - minval) / 2;
-        auto entp = std::unique_ptr<Entry>(new Entry{center});
+        ثابت صحيح center = minval + (maxval - minval) / 2;
+        خودکار entp = std::unique_ptr<مدخل_2>(جديد مدخل_2{center});
 
-        IgnIndices leftPoints;
-        IgnIndices rightPoints;
-        for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) continue;
+        IgnIndices چپ_Points;
+        IgnIndices راست_Points;
+        لكل (ثابت خودکار& it : points) {
+            ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+            إذا (cign.every_سطر()) استمر;
             // UINFO(9, "Inserting for center " << center << " point " << it);
-            if (cign.m_lineMax < center)
-                leftPoints.emplace_back(it);
-            else if (cign.m_lineMin > center)
-                rightPoints.emplace_back(it);
-            else {
-                entp->m_byMin.push_back(it);
-                entp->m_byMax.push_back(it);
+            إذا (cign.m_سطر_Max < center)
+                چپ_Points.emplace_پشت(it);
+            وإلا إذا (cign.m_سطر_Min > center)
+                راست_Points.emplace_پشت(it);
+            وإلا {
+                entp->m_byMin.افزودن_پشت(it);
+                entp->m_byMax.افزودن_پشت(it);
             }
         }
 
-        std::sort(entp->m_byMin.begin(), entp->m_byMin.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMin < controlIgnLines[b].m_lineMin;
+        std::مرتب_سازی(entp->m_byMin.begin(), entp->m_byMin.انتها(), [](uint32_t a, uint32_t b) {
+            أرجع control_Ign_سطرها[a].m_سطر_Min < control_Ign_سطرها[b].m_سطر_Min;
         });
-        std::sort(entp->m_byMax.begin(), entp->m_byMax.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMax > controlIgnLines[b].m_lineMax;
+        std::مرتب_سازی(entp->m_byMax.begin(), entp->m_byMax.انتها(), [](uint32_t a, uint32_t b) {
+            أرجع control_Ign_سطرها[a].m_سطر_Max > control_Ign_سطرها[b].m_سطر_Max;
         });
 
-        entp->m_leftp = buildTree(leftPoints);
-        entp->m_rightp = buildTree(rightPoints);
-        return entp;
+        entp->m_leftp = build_درخت(چپ_Points);
+        entp->m_rightp = build_درخت(راست_Points);
+        أرجع entp;
     }
 
-    void findTree(int lineno, Entry* entp, IgnIndices& resultsr, int& nextChanger) const {
+    فراغ پیدا_کن_درخت(صحيح lineno, مدخل_2* entp, IgnIndices& resultsr, صحيح& بعدی_Changer) ثابت {
         // UINFO(9, "Find " << lineno << " center " << entp->m_center);
-        if (lineno < entp->m_center) {
-            nextChanger = std::min(nextChanger, entp->m_center);
-            for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMin <= lineno) {
-                    resultsr.emplace_back(it);
-                } else {
-                    nextChanger = std::min(nextChanger, cign.m_lineMin);
-                    break;
+        إذا (lineno < entp->m_center) {
+            بعدی_Changer = std::min(بعدی_Changer, entp->m_center);
+            لكل (ثابت خودکار& it : entp->m_byMin) {
+                ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+                إذا (cign.m_سطر_Min <= lineno) {
+                    resultsr.emplace_پشت(it);
+                } وإلا {
+                    بعدی_Changer = std::min(بعدی_Changer, cign.m_سطر_Min);
+                    اكسر;
                 }
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-        } else if (lineno > entp->m_center) {
-            for (const auto& it : entp->m_byMax) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMax >= lineno) {
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
-                    resultsr.emplace_back(it);
-                } else {
-                    break;
+            إذا (entp->m_leftp) پیدا_کن_درخت(lineno, entp->m_leftp.get(), resultsr, بعدی_Changer);
+        } وإلا إذا (lineno > entp->m_center) {
+            لكل (ثابت خودکار& it : entp->m_byMax) {
+                ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+                إذا (cign.m_سطر_Max >= lineno) {
+                    بعدی_Changer = std::min(بعدی_Changer, cign.m_سطر_Max + 1);
+                    resultsr.emplace_پشت(it);
+                } وإلا {
+                    اكسر;
                 }
             }
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
-        } else {
-            for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                resultsr.emplace_back(it);
-                if (cign.m_lineMax >= lineno)
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
+            إذا (entp->m_rightp) پیدا_کن_درخت(lineno, entp->m_rightp.get(), resultsr, بعدی_Changer);
+        } وإلا {
+            لكل (ثابت خودکار& it : entp->m_byMin) {
+                ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+                resultsr.emplace_پشت(it);
+                إذا (cign.m_سطر_Max >= lineno)
+                    بعدی_Changer = std::min(بعدی_Changer, cign.m_سطر_Max + 1);
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+            إذا (entp->m_leftp) پیدا_کن_درخت(lineno, entp->m_leftp.get(), resultsr, بعدی_Changer);
+            إذا (entp->m_rightp) پیدا_کن_درخت(lineno, entp->m_rightp.get(), resultsr, بعدی_Changer);
         }
     }
 
-public:
+عام:
     // CONSTRUCTORS
-    VIntervalTree() = default;
-    ~VIntervalTree() = default;
+    VInterval_درخت() = افتراضي;
+    ~VInterval_درخت() = افتراضي;
     // METHODS
-    void clear() { m_rootp = nullptr; }
-    void build(const IgnIndices& points) {
+    فراغ clear() { m_rootp = اشاره_تهی; }
+    فراغ build(ثابت IgnIndices& points) {
         clear();
-        m_rootp = buildTree(points);
+        m_rootp = build_درخت(points);
     }
-    void find(int lineno, IgnIndices& resultsr, int& nextChanger) const {
-        resultsr = m_everyLines;
-        nextChanger = std::numeric_limits<int>::max();
+    فراغ پیدا_کن(صحيح lineno, IgnIndices& resultsr, صحيح& بعدی_Changer) ثابت {
+        resultsr = m_every_سطرها;
+        بعدی_Changer = std::numeric_limits<صحيح>::max();
 
-        if (m_rootp) findTree(lineno, m_rootp.get(), resultsr, nextChanger);
+        إذا (m_rootp) پیدا_کن_درخت(lineno, m_rootp.get(), resultsr, بعدی_Changer);
         // Sort indices, so can process in parse order
-        std::sort(resultsr.begin(), resultsr.end());
+        std::مرتب_سازی(resultsr.begin(), resultsr.انتها());
     }
 
-    static void selfTest() {
+    ساكن فراغ selfTest() {
         //            0     10     20     30     40     50
         // i0:        .     10-10  .      .      .      .
         // i1:        .     .      20-20  .      .      .
@@ -482,656 +482,656 @@ public:
         // i3:        .     10------------30     .      .
         // i4:        .     .      20------------40     .
         // i5:(below) 0---------------------------------------0
-        IgnIndices data;
-        std::vector<std::pair<int, int>> points
+        IgnIndices داده;
+        std::وکتور<std::pair<صحيح, صحيح>> points
             = {{10, 10}, {20, 20}, {40, 40}, {10, 30}, {20, 40}};
-        for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+        لكل (ثابت خودکار& it : points) {
+            control_Ign_سطرها.emplace_پشت(
+                V3_Control_Ignores_سطر{V3_Error_کد::I_LINT, it.اولی, it.دومی, درست});
+            داده.emplace_پشت(static_cast<uint32_t>(control_Ign_سطرها.اندازه() - 1));
         }
-        VIntervalTree tree;
-        tree.build(data);
+        VInterval_درخت درخت;
+        درخت.build(داده);
 
         IgnIndices results;
-        int nextChange = 0;
-        tree.find(0, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 0);
-        UASSERT_SELFTEST(nextChange, 10);
-        tree.find(10, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 2);
+        صحيح بعدی_Change = 0;
+        درخت.پیدا_کن(0, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 0);
+        UASSERT_SELFTEST(بعدی_Change, 10);
+        درخت.پیدا_کن(10, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 2);
         UASSERT_SELFTEST(results[0], 0);
         UASSERT_SELFTEST(results[1], 3);
-        UASSERT_SELFTEST(nextChange, 11);
-        tree.find(11, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 1);
+        UASSERT_SELFTEST(بعدی_Change, 11);
+        درخت.پیدا_کن(11, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 1);
         UASSERT_SELFTEST(results[0], 3);
-        UASSERT_SELFTEST(nextChange, 15);  // Center, or would be 20
-        tree.find(20, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 3);
+        UASSERT_SELFTEST(بعدی_Change, 15);  // Center, or would be 20
+        درخت.پیدا_کن(20, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 3);
         UASSERT_SELFTEST(results[0], 1);
         UASSERT_SELFTEST(results[1], 3);
         UASSERT_SELFTEST(results[2], 4);
-        UASSERT_SELFTEST(nextChange, 21);
-        tree.find(21, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 2);
+        UASSERT_SELFTEST(بعدی_Change, 21);
+        درخت.پیدا_کن(21, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
-        UASSERT_SELFTEST(nextChange, 25);  // Center, or would be 30
-        tree.find(30, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 2);
+        UASSERT_SELFTEST(بعدی_Change, 25);  // Center, or would be 30
+        درخت.پیدا_کن(30, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
-        UASSERT_SELFTEST(nextChange, 31);
-        tree.find(40, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 2);
+        UASSERT_SELFTEST(بعدی_Change, 31);
+        درخت.پیدا_کن(40, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 2);
         UASSERT_SELFTEST(results[0], 2);
         UASSERT_SELFTEST(results[1], 4);
-        UASSERT_SELFTEST(nextChange, 41);
-        tree.find(41, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 0);
-        UASSERT_SELFTEST(nextChange, std::numeric_limits<int>::max());
+        UASSERT_SELFTEST(بعدی_Change, 41);
+        درخت.پیدا_کن(41, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 0);
+        UASSERT_SELFTEST(بعدی_Change, std::numeric_limits<صحيح>::max());
         //
         points = {{0, 0}};
-        for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+        لكل (ثابت خودکار& it : points) {
+            control_Ign_سطرها.emplace_پشت(
+                V3_Control_Ignores_سطر{V3_Error_کد::I_LINT, it.اولی, it.دومی, درست});
+            داده.emplace_پشت(static_cast<uint32_t>(control_Ign_سطرها.اندازه() - 1));
         }
-        tree.build(data);
+        درخت.build(داده);
         //
-        tree.find(50, results, nextChange);
-        UASSERT_SELFTEST(results.size(), 1);
+        درخت.پیدا_کن(50, results, بعدی_Change);
+        UASSERT_SELFTEST(results.اندازه(), 1);
         UASSERT_SELFTEST(results[0], 5);
     }
 };
 
 // Some attributes are attached to entities of the occur on a fileline
 // and multiple attributes can be attached to a line
-using V3ControlLineAttribute = std::bitset<VPragmaType::_ENUM_SIZE>;
+استفاده V3_Control_سطر_Attribute = std::bitset<VPragmaType::ENUM_اندازه>;
 
-class WaiverSetting final {
-public:
-    V3ErrorCode m_code;  // Error code
+صنف WaiverSetting final {
+عام:
+    V3_Error_کد m_کد;  // Error code
     string m_contents;  // --contents regexp
-    string m_match;  // --match regexp
-    WaiverSetting(V3ErrorCode code, const string& contents, const string& match)
-        : m_code{code}
+    string m_تطابق;  // --match regexp
+    WaiverSetting(V3_Error_کد کد, ثابت string& contents, ثابت string& تطابق)
+        : m_کد{کد}
         , m_contents{contents}
-        , m_match{match} {}
-    ~WaiverSetting() = default;
-    WaiverSetting& operator=(const WaiverSetting& rhs) = default;
+        , m_تطابق{تطابق} {}
+    ~WaiverSetting() = افتراضي;
+    WaiverSetting& عملگر=(ثابت WaiverSetting& rhs) = افتراضي;
 };
 
 // File entity
-class V3ControlFile final {
-    using LineAttrMap = std::map<int, V3ControlLineAttribute>;  // Map line->bitset of attributes
-    using Waivers = std::vector<WaiverSetting>;  // List of {code,wildcard string}
+صنف V3ControlFile final {
+    استفاده سطر_Attr_Map = std::map<صحيح, V3_Control_سطر_Attribute>;  // Map line->bitset of attributes
+    استفاده Waivers = std::وکتور<WaiverSetting>;  // List of {code,wildcard string}
 
-    LineAttrMap m_lineAttrs;  // Attributes to line mapping
+    سطر_Attr_Map m_سطر_Attrs;  // Attributes to line mapping
     IgnIndices m_ignIndices;  // s_ignLines that apply to this specific file
     Waivers m_waivers;  // Waive messages
-    VIntervalTree m_intervalTree;  // Tree of indices to IgnLines
+    VInterval_درخت m_interval_درخت;  // Tree of indices to IgnLines
 
-    struct {
-        int filenameno = -1;  // Last filename
-        int lineno = -1;  // Last linenumber
-        int nextChange = -1;  // Line number of next change
-    } m_lastIgnore;  // Last ignore line run
+    بنية {
+        صحيح filenameno = -1;  // Last filename
+        صحيح lineno = -1;  // Last linenumber
+        صحيح بعدی_Change = -1;  // Line number of next change
+    } m_آخرین_Ignore;  // Last ignore line run
 
     // Match a given line and attribute to the map, line 0 is any
-    bool lineMatch(int lineno, VPragmaType type) {
-        if (m_lineAttrs.find(0) != m_lineAttrs.end() && m_lineAttrs[0][type]) return true;
-        if (m_lineAttrs.find(lineno) == m_lineAttrs.end()) return false;
-        return m_lineAttrs[lineno][type];
+    منطقي سطر_تطابق(صحيح lineno, VPragmaType type) {
+        إذا (m_سطر_Attrs.پیدا_کن(0) != m_سطر_Attrs.انتها() && m_سطر_Attrs[0][type]) أرجع درست;
+        إذا (m_سطر_Attrs.پیدا_کن(lineno) == m_سطر_Attrs.انتها()) أرجع خطأ;
+        أرجع m_سطر_Attrs[lineno][type];
     }
 
-public:
-    V3ControlFile() = default;
-    void update(const V3ControlFile& file) {
+عام:
+    V3ControlFile() = افتراضي;
+    فراغ update(ثابت V3ControlFile& file) {
         // Copy in all attributes and waivers
-        for (const auto& itr : file.m_lineAttrs) m_lineAttrs[itr.first] |= itr.second;
-        m_waivers.reserve(m_waivers.size() + file.m_waivers.size());
-        m_waivers.insert(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
+        لكل (ثابت خودکار& itr : file.m_سطر_Attrs) m_سطر_Attrs[itr.اولی] |= itr.دومی;
+        m_waivers.reserve(m_waivers.اندازه() + file.m_waivers.اندازه());
+        m_waivers.درج(m_waivers.انتها(), file.m_waivers.begin(), file.m_waivers.انتها());
         // Copy in all ignore references
-        m_ignIndices.reserve(m_ignIndices.size() + file.m_ignIndices.size());
-        m_ignIndices.insert(m_ignIndices.end(), file.m_ignIndices.begin(),
-                            file.m_ignIndices.end());
+        m_ignIndices.reserve(m_ignIndices.اندازه() + file.m_ignIndices.اندازه());
+        m_ignIndices.درج(m_ignIndices.انتها(), file.m_ignIndices.begin(),
+                            file.m_ignIndices.انتها());
         // updateFinalize() will soon build tree
     }
-    void updateFinalize() { m_intervalTree.build(m_ignIndices); }
-    void addLineAttribute(int lineno, VPragmaType attr) { m_lineAttrs[lineno].set(attr); }
-    void addIgnore(V3ErrorCode code, int min, int max, bool on) {
-        controlIgnLines.emplace_back(V3ControlIgnoresLine{code, min, max, on});
-        m_ignIndices.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
-        m_lastIgnore.nextChange = -1;
+    فراغ updateFinalize() { m_interval_درخت.build(m_ignIndices); }
+    فراغ جمع_کن_سطر_Attribute(صحيح lineno, VPragmaType attr) { m_سطر_Attrs[lineno].مجموعه(attr); }
+    فراغ جمع_کن_Ignore(V3_Error_کد کد, صحيح min, صحيح max, منطقي on) {
+        control_Ign_سطرها.emplace_پشت(V3_Control_Ignores_سطر{کد, min, max, on});
+        m_ignIndices.emplace_پشت(static_cast<uint32_t>(control_Ign_سطرها.اندازه() - 1));
+        m_آخرین_Ignore.بعدی_Change = -1;
     }
-    void addIgnoreMatch(V3ErrorCode code, const string& contents, const string& match) {
+    فراغ جمع_کن_Ignore_تطابق(V3_Error_کد کد, ثابت string& contents, ثابت string& تطابق) {
         // Since Verilator 5.031 the error message compared has context, so
         // allow old rules to still match using a final '*'
-        string newMatch = match;
-        if (newMatch.empty() || newMatch.back() != '*') newMatch += '*';
-        m_waivers.emplace_back(code, contents, newMatch);
+        string new_تطابق = تطابق;
+        إذا (new_تطابق.خالی() || new_تطابق.پشت() != '*') new_تطابق += '*';
+        m_waivers.emplace_پشت(کد, contents, new_تطابق);
     }
 
-    void applyBlock(AstGenBlock* nodep) {
+    فراغ apply_بلوک(Ast_Gen_بلوک* nodep) {
         // Apply to block at this line
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (lineMatch(nodep->fileline()->lineno(), pragma)) {
-            nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
+        ثابت VPragmaType pragma = VPragmaType::COVERAGE_بلوک_OFF;
+        إذا (سطر_تطابق(nodep->fileline()->lineno(), pragma)) {
+            nodep->جمع_کن_Itemsp(جديد AstPragma{nodep->fileline(), pragma});
         }
     }
-    void applyBlock(AstNodeBlock* nodep) {
+    فراغ apply_بلوک(Ast_گره_بلوک* nodep) {
         // Apply to block at this line
-        const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
-        if (lineMatch(flp->lineno(), pragma)) {
-            nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
+        ثابت VPragmaType pragma = VPragmaType::COVERAGE_بلوک_OFF;
+        File_سطر* ثابت flp = nodep->fileline();
+        إذا (سطر_تطابق(flp->lineno(), pragma)) {
+            nodep->جمع_کن_Stmtsp(جديد AstStmtPragma{flp, جديد AstPragma{flp, pragma}});
         }
     }
-    void applyCase(AstCase* nodep) {
+    فراغ applyCase(AstCase* nodep) {
         // Apply to this case at this line
-        const int lineno = nodep->fileline()->lineno();
-        if (lineMatch(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
-        if (lineMatch(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
+        ثابت صحيح lineno = nodep->fileline()->lineno();
+        إذا (سطر_تطابق(lineno, VPragmaType::پر_CASE)) nodep->پر_Pragma(درست);
+        إذا (سطر_تطابق(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(درست);
     }
-    void applyIgnores(FileLine* filelinep) {
+    فراغ applyIgnores(File_سطر* filelinep) {
         // HOT routine, called each parsed token line of this filename
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
-            && filelinep->lineno() == m_lastIgnore.lineno)
-            return;  // Short circuit, no change, no debug
+        إذا (filelinep->filenameno() == m_آخرین_Ignore.filenameno
+            && filelinep->lineno() == m_آخرین_Ignore.lineno)
+            أرجع;  // Short circuit, no change, no debug
         // For speed, compute line number of next potential change, and skip if before then
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
-            && filelinep->lineno() < m_lastIgnore.nextChange) {
-            m_lastIgnore.lineno = filelinep->lineno();
+        إذا (filelinep->filenameno() == m_آخرین_Ignore.filenameno
+            && filelinep->lineno() < m_آخرین_Ignore.بعدی_Change) {
+            m_آخرین_Ignore.lineno = filelinep->lineno();
             UINFO(9, "   ApplyIgnores for " << filelinep->ascii() << " (no change predicted)");
-            return;
+            أرجع;
         }
         UINFO(9, "   ApplyIgnores for " << filelinep->ascii());
-        m_lastIgnore.filenameno = filelinep->filenameno();
-        m_lastIgnore.lineno = filelinep->lineno();
-        m_lastIgnore.nextChange = std::numeric_limits<int>::max();
+        m_آخرین_Ignore.filenameno = filelinep->filenameno();
+        m_آخرین_Ignore.lineno = filelinep->lineno();
+        m_آخرین_Ignore.بعدی_Change = std::numeric_limits<صحيح>::max();
 
         // Find all on/offs.  Unlike lint pragmas we calculate the entire
         // bitset of errors to enable, instead of individual enable/disable changes.
         IgnIndices results;
-        m_intervalTree.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
+        m_interval_درخت.پیدا_کن(filelinep->lineno(), results /*ref*/, m_آخرین_Ignore.بعدی_Change /*ref*/);
         // Process all on/offs for lines up to and including the current line
-        VErrorBitSet bitset{VErrorBitSet::AllOnes{}};
-        for (const auto& it : results) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            UASSERT(cign.inRange(filelinep->lineno()),
+        VError_بیت_مجموعه bitset{VError_بیت_مجموعه::AllOnes{}};
+        لكل (ثابت خودکار& it : results) {
+            ثابت V3_Control_Ignores_سطر& cign = control_Ign_سطرها[it];
+            UASSERT(cign.درون_Range(filelinep->lineno()),
                     "Interval tree returned lines outside range");
             UINFO(9, "     Hit " << cign);
-            cign.m_code.forDelegateCodes(
-                [&](V3ErrorCode subcode) { bitset.set(subcode, cign.m_on); });
+            cign.m_کد.forDelegateCodes(
+                [&](V3_Error_کد subcode) { bitset.مجموعه(subcode, cign.m_on); });
         }
 
-        filelinep->warnSetCtrlBitSet(bitset);
-        m_lastIgnore.nextChange = std::max(m_lastIgnore.nextChange, filelinep->lineno() + 1);
+        filelinep->warn_مجموعه_Ctrl_بیت_مجموعه(bitset);
+        m_آخرین_Ignore.بعدی_Change = std::max(m_آخرین_Ignore.بعدی_Change, filelinep->lineno() + 1);
         UINFO(9, "    AppliedIgnores " << filelinep << " next@ln " << std::dec
-                                       << m_lastIgnore.nextChange
+                                       << m_آخرین_Ignore.بعدی_Change
                                        << " Messages: " << bitset.ascii());
     }
-    bool waive(V3ErrorCode code, const string& message) {
-        if (code.hardError()) return false;
-        for (const auto& itr : m_waivers) {
-            if ((code.isUnder(itr.m_code) || (itr.m_code == V3ErrorCode::I_LINT))
-                && VString::wildmatch(message, itr.m_match)
+    منطقي waive(V3_Error_کد کد, ثابت string& پیام) {
+        إذا (کد.hardError()) أرجع خطأ;
+        لكل (ثابت خودکار& itr : m_waivers) {
+            إذا ((کد.isUnder(itr.m_کد) || (itr.m_کد == V3_Error_کد::I_LINT))
+                && VString::wildmatch(پیام, itr.m_تطابق)
                 && WildcardContents::resolve(itr.m_contents)) {
-                return true;
+                أرجع درست;
             }
         }
-        return false;
+        أرجع خطأ;
     }
 };
 
-using V3ControlFileResolver = V3ControlWildcardResolver<V3ControlFile>;
+استفاده V3ControlFileResolver = V3ControlWildcardResolver<V3ControlFile>;
 
 //######################################################################
 // ScopeTrace tracking
 
-class V3ControlScopeTraceEntry final {
-public:
-    const string m_scope;  // Scope or regexp to match
-    const bool m_on;  // True to enable message
-    int m_levels = 0;  // # levels, 0 = all, 1 = only this, ...
+صنف V3_Control_Scope_Trace_مدخل final {
+عام:
+    ثابت string m_scope;  // Scope or regexp to match
+    ثابت منطقي m_on;  // True to enable message
+    صحيح m_سطوح = 0;  // # levels, 0 = all, 1 = only this, ...
     // CONSTRUCTORS
-    V3ControlScopeTraceEntry(const string& scope, bool on, int levels)
+    V3_Control_Scope_Trace_مدخل(ثابت string& scope, منطقي on, صحيح سطوح)
         : m_scope{scope}
         , m_on{on}
-        , m_levels{levels} {}
-    ~V3ControlScopeTraceEntry() = default;
-    bool operator<(const V3ControlScopeTraceEntry& other) const {
-        if (m_on < other.m_on) return true;
-        if (m_on > other.m_on) return false;
-        if (m_levels < other.m_levels) return true;
-        if (m_levels > other.m_levels) return false;
-        return m_scope < other.m_scope;
+        , m_سطوح{سطوح} {}
+    ~V3_Control_Scope_Trace_مدخل() = افتراضي;
+    منطقي عملگر<(ثابت V3_Control_Scope_Trace_مدخل& other) ثابت {
+        إذا (m_on < other.m_on) أرجع درست;
+        إذا (m_on > other.m_on) أرجع خطأ;
+        إذا (m_سطوح < other.m_سطوح) أرجع درست;
+        إذا (m_سطوح > other.m_سطوح) أرجع خطأ;
+        أرجع m_scope < other.m_scope;
     }
 };
 
 // Tracks what matches are known to hit against V3ControlScopeTraceEntries
-class V3ControlScopeTraceEntryMatch final {
-public:
-    const V3ControlScopeTraceEntry* m_entryp;  // Entry the match refers to
-    const string m_scopepart;  // Scope prefix being matched against the entry
-    V3ControlScopeTraceEntryMatch(const V3ControlScopeTraceEntry* entryp, const string& scopepart)
+صنف V3_Control_Scope_Trace_مدخل_تطابق final {
+عام:
+    ثابت V3_Control_Scope_Trace_مدخل* m_entryp;  // Entry the match refers to
+    ثابت string m_scopepart;  // Scope prefix being matched against the entry
+    V3_Control_Scope_Trace_مدخل_تطابق(ثابت V3_Control_Scope_Trace_مدخل* entryp, ثابت string& scopepart)
         : m_entryp{entryp}
         , m_scopepart{scopepart} {}
-    bool operator<(const V3ControlScopeTraceEntryMatch& other) const {
-        if (m_entryp < other.m_entryp) return true;
-        if (m_entryp > other.m_entryp) return false;
-        return m_scopepart < other.m_scopepart;
+    منطقي عملگر<(ثابت V3_Control_Scope_Trace_مدخل_تطابق& other) ثابت {
+        إذا (m_entryp < other.m_entryp) أرجع درست;
+        إذا (m_entryp > other.m_entryp) أرجع خطأ;
+        أرجع m_scopepart < other.m_scopepart;
     }
 };
 
-class V3ControlScopeTraceResolver final {
-    std::vector<V3ControlScopeTraceEntry> m_entries;  // User specified on/offs and levels
-    std::map<V3ControlScopeTraceEntryMatch, bool> m_matchCache;  // Matching entries for speed
+صنف V3ControlScopeTraceResolver final {
+    std::وکتور<V3_Control_Scope_Trace_مدخل> m_entries;  // User specified on/offs and levels
+    std::map<V3_Control_Scope_Trace_مدخل_تطابق, منطقي> m_تطابق_Cache;  // Matching entries for speed
 
-public:
-    void addScopeTraceOn(bool on, const string& scope, int levels) {
-        UINFO(9, "addScopeTraceOn " << on << " '" << scope << "' " << " levels=" << levels);
-        m_entries.emplace_back(V3ControlScopeTraceEntry{scope, on, levels});
-        m_matchCache.clear();
+عام:
+    فراغ جمع_کن_Scope_Trace_On(منطقي on, ثابت string& scope, صحيح سطوح) {
+        UINFO(9, "addScopeTraceOn " << on << " '" << scope << "' " << " levels=" << سطوح);
+        m_entries.emplace_پشت(V3_Control_Scope_Trace_مدخل{scope, on, سطوح});
+        m_تطابق_Cache.clear();
     }
 
-    bool getEntryMatch(const V3ControlScopeTraceEntry* entp, const string& scopepart) {
+    منطقي get_مدخل_تطابق(ثابت V3_Control_Scope_Trace_مدخل* entp, ثابت string& scopepart) {
         // Return if a entry matches the scopepart, with memoization
-        const V3ControlScopeTraceEntryMatch key{entp, scopepart};
-        const auto pair = m_matchCache.emplace(key, false);
-        if (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
-        return pair.first->second;
+        ثابت V3_Control_Scope_Trace_مدخل_تطابق کلید{entp, scopepart};
+        ثابت خودکار pair = m_تطابق_Cache.emplace(کلید, خطأ);
+        إذا (pair.دومی) pair.اولی->دومی = VString::wildmatch(scopepart, entp->m_scope);
+        أرجع pair.اولی->دومی;
     }
 
-    bool getScopeTraceOn(const string& scope) {
+    منطقي getScopeTraceOn(ثابت string& scope) {
         // Apply in the order the user provided them, so they can choose on/off preferences
-        int maxLevel = 1;
-        for (const auto& ch : scope) {
-            if (ch == '.') ++maxLevel;
+        صحيح maxLevel = 1;
+        لكل (ثابت خودکار& ch : scope) {
+            إذا (ch == '.') ++maxLevel;
         }
         UINFO(9, "getScopeTraceOn " << scope << " maxLevel=" << maxLevel);
 
-        bool enabled = true;
-        for (const auto& ent : m_entries) {
+        منطقي enabled = درست;
+        لكل (ثابت خودکار& ent : m_entries) {
             // We apply shortest match first for each rule component
             // (Otherwise the levels would be useless as "--scope top* --levels 1" would
             // always match at every scopepart, and we wouldn't know how to count levels)
-            int partLevel = 1;
-            for (string::size_type partEnd = 0; true;) {
-                partEnd = scope.find('.', partEnd + 1);
-                if (partEnd == string::npos) partEnd = scope.length();
-                const std::string scopepart = scope.substr(0, partEnd);
-                if (getEntryMatch(&ent, scopepart)) {
-                    const bool levelMatch
-                        = !ent.m_levels || (ent.m_levels >= maxLevel - partLevel);
-                    if (levelMatch) enabled = ent.m_on;
+            صحيح partLevel = 1;
+            لكل (string::اندازه_type part_انتها = 0; درست;) {
+                part_انتها = scope.پیدا_کن('.', part_انتها + 1);
+                إذا (part_انتها == string::npos) part_انتها = scope.درازی();
+                ثابت std::string scopepart = scope.substr(0, part_انتها);
+                إذا (get_مدخل_تطابق(&ent, scopepart)) {
+                    ثابت منطقي level_تطابق
+                        = !ent.m_سطوح || (ent.m_سطوح >= maxLevel - partLevel);
+                    إذا (level_تطابق) enabled = ent.m_on;
                     UINFO(9, "getScopeTraceOn-part " << scope << " enabled=" << enabled
                                                      << " @ lev=" << partLevel
-                                                     << (levelMatch ? "[match]" : "[miss]")
+                                                     << (level_تطابق ? "[match]" : "[miss]")
                                                      << " from scopepart=" << scopepart);
-                    break;
+                    اكسر;
                 }
-                if (partEnd == scope.length()) break;
+                إذا (part_انتها == scope.درازی()) اكسر;
                 ++partLevel;
             }
         }
-        return enabled;
+        أرجع enabled;
     }
 };
 
 //######################################################################
 // Resolve modules and files in the design
 
-class V3ControlResolverHierWorkerEntry final {
-    const int m_workers;  // Number of workers requested for the hierarchical block
-    FileLine* const m_flp;  // Location the worker count was specified at
+صنف V3_Control_Resolver_Hier_کارگر_مدخل final {
+    ثابت صحيح m_workers;  // Number of workers requested for the hierarchical block
+    File_سطر* ثابت m_flp;  // Location the worker count was specified at
 
-public:
-    explicit V3ControlResolverHierWorkerEntry(int workers, FileLine* flp)
+عام:
+    صریح V3_Control_Resolver_Hier_کارگر_مدخل(صحيح workers, File_سطر* flp)
         : m_workers{workers}
         , m_flp{flp} {}
-    int workers() const { return m_workers; }
-    FileLine* flp() const { return m_flp; }
+    صحيح workers() ثابت { أرجع m_workers; }
+    File_سطر* flp() ثابت { أرجع m_flp; }
 };
 
-class V3ControlResolver final {
-    enum ProfileDataMode : uint8_t { NONE = 0, MTASK = 1, HIER_DPI = 2 };
+صنف V3ControlResolver final {
+    تعداد Profile_داده_نما : uint8_t { NONE = 0, MTASK = 1, HIER_DPI = 2 };
     V3ControlModuleResolver m_modules;  // Access to module names (with wildcards)
     V3ControlFileResolver m_files;  // Access to file names (with wildcards)
     V3ControlScopeTraceResolver m_scopeTraces;  // Regexp to trace enables
     std::unordered_map<string, std::unordered_map<string, uint64_t>>
-        m_profileData;  // Access to profile_data records
-    uint8_t m_mode = NONE;  // Kind of profile_data records is currently active
-    std::unordered_map<string, V3ControlResolverHierWorkerEntry> m_hierWorkers;
-    FileLine* m_profileFileLine = nullptr;  // Location profile_data was read from
+        m_profile_داده;  // Access to profile_data records
+    uint8_t m_نما = NONE;  // Kind of profile_data records is currently active
+    std::unordered_map<string, V3_Control_Resolver_Hier_کارگر_مدخل> m_hierWorkers;
+    File_سطر* m_profile_File_سطر = اشاره_تهی;  // Location profile_data was read from
 
-    V3ControlResolver() = default;
-    ~V3ControlResolver() = default;
+    V3ControlResolver() = افتراضي;
+    ~V3ControlResolver() = افتراضي;
 
-public:
-    static V3ControlResolver& s() {
-        static V3ControlResolver s_singleton;
-        return s_singleton;
+عام:
+    ساكن V3ControlResolver& s() {
+        ساكن V3ControlResolver s_singleton;
+        أرجع s_singleton;
     }
-    V3ControlModuleResolver& modules() { return m_modules; }
-    V3ControlFileResolver& files() { return m_files; }
-    V3ControlScopeTraceResolver& scopeTraces() { return m_scopeTraces; }
+    V3ControlModuleResolver& modules() { أرجع m_modules; }
+    V3ControlFileResolver& files() { أرجع m_files; }
+    V3ControlScopeTraceResolver& scopeTraces() { أرجع m_scopeTraces; }
 
-    void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
+    فراغ جمع_کن_Profile_داده(File_سطر* fl, ثابت string& hierDpi, uint64_t هزینه) {
         // Empty key for hierarchical DPI wrapper costs.
-        addProfileData(fl, hierDpi, "", cost, HIER_DPI);
+        جمع_کن_Profile_داده(fl, hierDpi, "", هزینه, HIER_DPI);
     }
-    void addProfileData(FileLine* fl, const string& model, const string& key, uint64_t cost,
-                        ProfileDataMode mode = MTASK) {
-        if (!m_profileFileLine) m_profileFileLine = fl;
-        if (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
-        if (mode == MTASK) {
-            m_profileData[model][key] += cost;
-        } else if (mode == HIER_DPI) {
-            m_profileData[model][key] = std::max(m_profileData[model][key], cost);
+    فراغ جمع_کن_Profile_داده(File_سطر* fl, ثابت string& model, ثابت string& کلید, uint64_t هزینه,
+                        Profile_داده_نما نما = MTASK) {
+        إذا (!m_profile_File_سطر) m_profile_File_سطر = fl;
+        إذا (هزینه == 0) هزینه = 1;  // Cost 0 means delete (or no data)
+        إذا (نما == MTASK) {
+            m_profile_داده[model][کلید] += هزینه;
+        } وإلا إذا (نما == HIER_DPI) {
+            m_profile_داده[model][کلید] = std::max(m_profile_داده[model][کلید], هزینه);
         }
-        m_mode |= mode;
+        m_نما |= نما;
     }
-    bool containsMTaskProfileData() const { return m_mode & MTASK; }
-    uint64_t getProfileData(const string& hierDpi) const {
+    منطقي شامل_است_MTask_Profile_داده() ثابت { أرجع m_نما & MTASK; }
+    uint64_t get_Profile_داده(ثابت string& hierDpi) ثابت {
         // Empty key for hierarchical DPI wrapper costs.
-        return getProfileData(hierDpi, "");
+        أرجع get_Profile_داده(hierDpi, "");
     }
-    void addHierWorkers(FileLine* flp, const string& model, int workers) {
+    فراغ جمع_کن_Hier_Workers(File_سطر* flp, ثابت string& model, صحيح workers) {
         m_hierWorkers.emplace(std::piecewise_construct, std::forward_as_tuple(model),
                               std::forward_as_tuple(workers, flp));
     }
-    int getHierWorkers(const string& model) const {
-        const auto mit = m_hierWorkers.find(model);
+    صحيح getHierWorkers(ثابت string& model) ثابت {
+        ثابت خودکار mit = m_hierWorkers.پیدا_کن(model);
         // Assign a single worker if no specified.
-        return mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
+        أرجع mit != m_hierWorkers.cend() ? mit->دومی.workers() : 0;
     }
-    FileLine* getHierWorkersFileLine(const string& model) const {
-        const auto mit = m_hierWorkers.find(model);
-        return mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
+    File_سطر* get_Hier_Workers_File_سطر(ثابت string& model) ثابت {
+        ثابت خودکار mit = m_hierWorkers.پیدا_کن(model);
+        أرجع mit != m_hierWorkers.cend() ? mit->دومی.flp() : v3Global.rootp()->fileline();
     }
-    uint64_t getProfileData(const string& model, const string& key) const {
-        const auto mit = m_profileData.find(model);
-        if (mit == m_profileData.cend()) return 0;
-        const auto it = mit->second.find(key);
-        if (it == mit->second.cend()) return 0;
-        return it->second;
+    uint64_t get_Profile_داده(ثابت string& model, ثابت string& کلید) ثابت {
+        ثابت خودکار mit = m_profile_داده.پیدا_کن(model);
+        إذا (mit == m_profile_داده.cend()) أرجع 0;
+        ثابت خودکار it = mit->دومی.پیدا_کن(کلید);
+        إذا (it == mit->دومی.cend()) أرجع 0;
+        أرجع it->دومی;
     }
-    FileLine* getProfileDataFileLine() const { return m_profileFileLine; }  // Maybe null
-    static uint64_t getCurrentHierBlockCost() {
-        if (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
-            UINFO(9, "Fetching cost from profile info: " << cost);
-            return cost;
+    File_سطر* get_Profile_داده_File_سطر() ثابت { أرجع m_profile_File_سطر; }  // Maybe null
+    ساكن uint64_t get_Current_Hier_بلوک_هزینه() {
+        إذا (uint64_t هزینه = V3Control::get_Profile_داده(v3Global.opt.پیشوند())) {
+            UINFO(9, "Fetching cost from profile info: " << هزینه);
+            أرجع هزینه;
         }
 
         // Without profiling data, sum the regions evaluated on each time step
-        AstNetlist* const netlistp = v3Global.rootp();
-        uint64_t cost = 0;
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            if (eval.slow()) continue;
-            cost += V3InstrCount::count(netlistp->evalFuncp(eval), false);
+        AstNetlist* ثابت netlistp = v3Global.rootp();
+        uint64_t هزینه = 0;
+        لكل (صحيح i = 0; i < VEval::ENUM_انتها; ++i) {
+            ثابت VEval eval{i};
+            إذا (eval.slow()) استمر;
+            هزینه += V3_Instr_شمار::شمار(netlistp->evalFuncp(eval), خطأ);
         }
-        UINFO(9, "Evaluating cost: " << cost);
-        return cost;
+        UINFO(9, "Evaluating cost: " << هزینه);
+        أرجع هزینه;
     }
 };
 
 //######################################################################
 // V3Control
 
-void V3Control::addCaseFull(const string& filename, int lineno) {
+فراغ V3Control::جمع_کن_Case_پر(ثابت string& filename, صحيح lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::FULL_CASE);
+    file.جمع_کن_سطر_Attribute(lineno, VPragmaType::پر_CASE);
 }
-void V3Control::addCaseParallel(const string& filename, int lineno) {
+فراغ V3Control::جمع_کن_Case_Parallel(ثابت string& filename, صحيح lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::PARALLEL_CASE);
+    file.جمع_کن_سطر_Attribute(lineno, VPragmaType::PARALLEL_CASE);
 }
-void V3Control::addCoverageBlockOff(const string& filename, int lineno) {
+فراغ V3Control::جمع_کن_Coverage_بلوک_Off(ثابت string& filename, صحيح lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
+    file.جمع_کن_سطر_Attribute(lineno, VPragmaType::COVERAGE_بلوک_OFF);
 }
-void V3Control::addCoverageBlockOff(const string& module, const string& blockname) {
-    V3ControlResolver::s().modules().at(module).addCoverageBlockOff(blockname);
+فراغ V3Control::جمع_کن_Coverage_بلوک_Off(ثابت string& module, ثابت string& blockname) {
+    V3ControlResolver::s().modules().at(module).جمع_کن_Coverage_بلوک_Off(blockname);
 }
 
-void V3Control::addHierWorkers(FileLine* fl, const string& model, int workers) {
-    V3ControlResolver::s().addHierWorkers(fl, model, workers);
+فراغ V3Control::جمع_کن_Hier_Workers(File_سطر* fl, ثابت string& model, صحيح workers) {
+    V3ControlResolver::s().جمع_کن_Hier_Workers(fl, model, workers);
 }
 
-void V3Control::addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
-                                      const string& q, const string& clock, const string& reset,
-                                      const string& resetValue) {
+فراغ V3Control::جمع_کن_Fsm_ثبات_Wrapper(File_سطر* fl, ثابت string& module, ثابت string& d,
+                                      ثابت string& q, ثابت string& clock, ثابت string& reset,
+                                      ثابت string& reset_مقدار) {
     string missing;
-    if (module.empty()) missing += "-module";
-    if (d.empty()) missing = VString::dot(missing, ", ", "-d");
-    if (q.empty()) missing = VString::dot(missing, ", ", "-q");
-    if (clock.empty()) missing = VString::dot(missing, ", ", "-clock");
-    if (!missing.empty()) {
+    إذا (module.خالی()) missing += "-module";
+    إذا (d.خالی()) missing = VString::dot(missing, ", ", "-d");
+    إذا (q.خالی()) missing = VString::dot(missing, ", ", "-q");
+    إذا (clock.خالی()) missing = VString::dot(missing, ", ", "-clock");
+    إذا (!missing.خالی()) {
         fl->v3error("fsm_register_wrapper missing " << missing);
-        return;
+        أرجع;
     }
 
-    const FsmRegisterWrapper desc{module, d, q, clock, reset, resetValue};
-    V3ControlResolver::s().modules().at(module).setFsmRegisterWrapper(fl, desc);
+    ثابت Fsm_ثبات_Wrapper desc{module, d, q, clock, reset, reset_مقدار};
+    V3ControlResolver::s().modules().at(module).مجموعه_Fsm_ثبات_Wrapper(fl, desc);
 }
 
-void V3Control::addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max) {
-    UINFO(9, "addIgnore " << code << " " << min << "-" << max << " fn=" << filename);
-    if (filename == "*") {  // For "lint_off/lint_on [--rule x]"
-        FileLine::globalWarnOff(code, !on);
-    } else {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
-        V3ControlResolver::s().files().at(filename).addIgnore(code, min, max, on);
+فراغ V3Control::جمع_کن_Ignore(V3_Error_کد کد, منطقي on, ثابت string& filename, صحيح min, صحيح max) {
+    UINFO(9, "addIgnore " << کد << " " << min << "-" << max << " fn=" << filename);
+    إذا (filename == "*") {  // For "lint_off/lint_on [--rule x]"
+        File_سطر::globalWarnOff(کد, !on);
+    } وإلا {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
+        V3ControlResolver::s().files().at(filename).جمع_کن_Ignore(کد, min, max, on);
     }
 }
-void V3Control::addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
-                               const string& match) {
+فراغ V3Control::جمع_کن_Ignore_تطابق(V3_Error_کد کد, ثابت string& filename, ثابت string& contents,
+                               ثابت string& تطابق) {
     // For "lint_off --rule x --file y --match z", no support for lint_on
-    V3ControlResolver::s().files().at(filename).addIgnoreMatch(code, contents, match);
+    V3ControlResolver::s().files().at(filename).جمع_کن_Ignore_تطابق(کد, contents, تطابق);
 }
 
-void V3Control::addInline(FileLine* fl, const string& module, const string& ftask, bool on) {
-    if (ftask.empty()) {
-        V3ControlResolver::s().modules().at(module).setInline(on);
-    } else {
-        if (!on) {
+فراغ V3Control::جمع_کن_Inline(File_سطر* fl, ثابت string& module, ثابت string& ftask, منطقي on) {
+    إذا (ftask.خالی()) {
+        V3ControlResolver::s().modules().at(module).مجموعه_Inline(on);
+    } وإلا {
+        إذا (!on) {
             fl->v3warn(E_UNSUPPORTED, "Unsupported: no_inline for tasks");
-        } else {
-            V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setNoInline(on);
+        } وإلا {
+            V3ControlResolver::s().modules().at(module).ftasks().at(ftask).مجموعه_No_Inline(on);
         }
     }
 }
 
-void V3Control::addModulePragma(const string& module, VPragmaType pragma) {
-    V3ControlResolver::s().modules().at(module).addModulePragma(pragma);
+فراغ V3Control::جمع_کن_Module_Pragma(ثابت string& module, VPragmaType pragma) {
+    V3ControlResolver::s().modules().at(module).جمع_کن_Module_Pragma(pragma);
 }
 
-void V3Control::addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
-    V3ControlResolver::s().addProfileData(fl, hierDpi, cost);
+فراغ V3Control::جمع_کن_Profile_داده(File_سطر* fl, ثابت string& hierDpi, uint64_t هزینه) {
+    V3ControlResolver::s().جمع_کن_Profile_داده(fl, hierDpi, هزینه);
 }
-void V3Control::addProfileData(FileLine* fl, const string& model, const string& key,
-                               uint64_t cost) {
-    V3ControlResolver::s().addProfileData(fl, model, key, cost);
-}
-
-void V3Control::addScopeTraceOn(bool on, const string& scope, int levels) {
-    V3ControlResolver::s().scopeTraces().addScopeTraceOn(on, scope, levels);
+فراغ V3Control::جمع_کن_Profile_داده(File_سطر* fl, ثابت string& model, ثابت string& کلید,
+                               uint64_t هزینه) {
+    V3ControlResolver::s().جمع_کن_Profile_داده(fl, model, کلید, هزینه);
 }
 
-void V3Control::addVarAttr(FileLine* fl, const string& module, const string& ftask,
-                           VarSpecKind kind, const string& pattern, VAttrType attr,
-                           AstSenTree* sensep) {
-    if (sensep) {
-        FileLine* const flp = sensep->fileline();
+فراغ V3Control::جمع_کن_Scope_Trace_On(منطقي on, ثابت string& scope, صحيح سطوح) {
+    V3ControlResolver::s().scopeTraces().جمع_کن_Scope_Trace_On(on, scope, سطوح);
+}
+
+فراغ V3Control::جمع_کن_Var_Attr(File_سطر* fl, ثابت string& module, ثابت string& ftask,
+                           Var_Spec_نوع نوع, ثابت string& الگو_2, VAttrType attr,
+                           Ast_Sen_درخت* sensep) {
+    إذا (sensep) {
+        File_سطر* ثابت flp = sensep->fileline();
         // Historical, not actually needed, only parsed for compatibility, delete it
-        VL_DO_DANGLING(sensep->deleteTree(), sensep);
+        VL_DO_DANGLING(sensep->delete_درخت(), sensep);
         // Used to be only accepted on public_flat_rw
-        if (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
+        إذا (attr != VAttrType::VAR_عمومی_FLAT_RW) {
             flp->v3error("sensitivity not expected for attribute");
-            return;
+            أرجع;
         }
     }
 
-    if (kind != VarSpecKind::VAR) {
-        switch (attr) {
-        case VAttrType::VAR_PUBLIC_FLAT:
-        case VAttrType::VAR_PUBLIC_FLAT_RD:
-        case VAttrType::VAR_PUBLIC_FLAT_RW: break;
-        default:
+    إذا (نوع != Var_Spec_نوع::VAR) {
+        بدل (attr) {
+        حالة VAttrType::VAR_عمومی_FLAT:
+        حالة VAttrType::VAR_عمومی_FLAT_RD:
+        حالة VAttrType::VAR_عمومی_FLAT_RW: اكسر;
+        افتراضي:
             fl->v3error("'"s + attr.ascii() + "' attribute does not accept -param/-port");
-            return;
+            أرجع;
         }
     }
 
     // Semantics: Most of the attributes operate on signals
-    if (pattern.empty()) {
-        if (attr == VAttrType::VAR_PUBLIC) {
-            if (ftask.empty()) {
+    إذا (الگو_2.خالی()) {
+        إذا (attr == VAttrType::VAR_عمومی) {
+            إذا (ftask.خالی()) {
                 // public module, this is the only exception from var here
-                V3ControlResolver::s().modules().at(module).addModulePragma(
-                    VPragmaType::PUBLIC_MODULE);
-            } else {
-                V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setPublic(true);
+                V3ControlResolver::s().modules().at(module).جمع_کن_Module_Pragma(
+                    VPragmaType::عمومی_MODULE);
+            } وإلا {
+                V3ControlResolver::s().modules().at(module).ftasks().at(ftask).مجموعه_عمومی(درست);
             }
-        } else {
+        } وإلا {
             fl->v3error("missing -var");
         }
-    } else {
-        if (attr == VAttrType::VAR_FORCEABLE) {
-            if (module.empty()) {
+    } وإلا {
+        إذا (attr == VAttrType::VAR_FORCEABLE) {
+            إذا (module.خالی()) {
                 fl->v3error("forceable missing -module");
-            } else if (!ftask.empty()) {
+            } وإلا إذا (!ftask.خالی()) {
                 fl->v3error("Signals inside functions/tasks cannot be marked forceable");
-            } else {
-                V3ControlResolver::s().modules().at(module).vars().at(pattern).add(attr);
+            } وإلا {
+                V3ControlResolver::s().modules().at(module).vars().at(الگو_2).جمع_کن(attr);
             }
-        } else {
+        } وإلا {
             V3ControlModule& mod = V3ControlResolver::s().modules().at(module);
             V3ControlVar& controlVar = [&]() -> V3ControlVar& {
-                if (ftask.empty()) {
-                    if (kind == VarSpecKind::PARAM) return mod.params().at(pattern);
-                    if (kind == VarSpecKind::PORT) return mod.ports().at(pattern);
-                    UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                    return mod.vars().at(pattern);
+                إذا (ftask.خالی()) {
+                    إذا (نوع == Var_Spec_نوع::PARAM) أرجع mod.params().at(الگو_2);
+                    إذا (نوع == Var_Spec_نوع::پورت) أرجع mod.ports().at(الگو_2);
+                    UASSERT_OBJ(نوع == Var_Spec_نوع::VAR, fl, "Unexpected VarSpecKind");
+                    أرجع mod.vars().at(الگو_2);
                 }
-                if (kind == VarSpecKind::PARAM) return mod.ftasks().at(ftask).params().at(pattern);
-                if (kind == VarSpecKind::PORT) return mod.ftasks().at(ftask).ports().at(pattern);
-                UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                return mod.ftasks().at(ftask).vars().at(pattern);
+                إذا (نوع == Var_Spec_نوع::PARAM) أرجع mod.ftasks().at(ftask).params().at(الگو_2);
+                إذا (نوع == Var_Spec_نوع::پورت) أرجع mod.ftasks().at(ftask).ports().at(الگو_2);
+                UASSERT_OBJ(نوع == Var_Spec_نوع::VAR, fl, "Unexpected VarSpecKind");
+                أرجع mod.ftasks().at(ftask).vars().at(الگو_2);
             }();
-            controlVar.add(attr);
+            controlVar.جمع_کن(attr);
         }
     }
 }
 
-void V3Control::applyCase(AstCase* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyCase(nodep);
+فراغ V3Control::applyCase(AstCase* nodep) {
+    ثابت string& filename = nodep->fileline()->filename();
+    V3ControlFile* ثابت filep = V3ControlResolver::s().files().resolve(filename);
+    إذا (filep) filep->applyCase(nodep);
 }
 
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
+فراغ V3Control::apply_Coverage_بلوک(Ast_گره_Module* modulep, AstBegin* nodep) {
+    ثابت string& filename = nodep->fileline()->filename();
+    V3ControlFile* ثابت filep = V3ControlResolver::s().files().resolve(filename);
+    إذا (filep) filep->apply_بلوک(nodep);
+    ثابت string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* ثابت modp = V3ControlResolver::s().modules().resolve(modname);
+    إذا (modp) modp->apply_بلوک(nodep);
 }
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep) {
-    const string& filename = nodep->fileline()->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
-}
-
-void V3Control::applyIgnores(FileLine* filelinep) {
-    const string& filename = filelinep->filename();
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyIgnores(filelinep);
+فراغ V3Control::apply_Coverage_بلوک(Ast_گره_Module* modulep, Ast_Gen_بلوک* nodep) {
+    ثابت string& filename = nodep->fileline()->filename();
+    V3ControlFile* ثابت filep = V3ControlResolver::s().files().resolve(filename);
+    إذا (filep) filep->apply_بلوک(nodep);
+    ثابت string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* ثابت modp = V3ControlResolver::s().modules().resolve(modname);
+    إذا (modp) modp->apply_بلوک(nodep);
 }
 
-void V3Control::applyModule(AstNodeModule* modulep) {
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->apply(modulep);
+فراغ V3Control::applyIgnores(File_سطر* filelinep) {
+    ثابت string& filename = filelinep->filename();
+    V3ControlFile* ثابت filep = V3ControlResolver::s().files().resolve(filename);
+    إذا (filep) filep->applyIgnores(filelinep);
 }
 
-void V3Control::applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp) {
-    const string& modname = modulep->prettyDehashOrigOrName();
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (!modp) return;
-    const V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-    if (ftp) ftp->apply(ftaskp);
+فراغ V3Control::applyModule(Ast_گره_Module* modulep) {
+    ثابت string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* ثابت modp = V3ControlResolver::s().modules().resolve(modname);
+    إذا (modp) modp->apply(modulep);
 }
 
-template <typename T_Resolver>
-static void resolveThenApply(T_Resolver& resolver, AstVar* varp) {
-    const std::string name = varp->prettyDehashOrigOrName();
-    if (const V3ControlVar* const vp = resolver.vars().resolve(name)) vp->apply(varp);
-    if (varp->isParam()) {
-        if (const V3ControlVar* const vp = resolver.params().resolve(name)) vp->apply(varp);
+فراغ V3Control::applyFTask(Ast_گره_Module* modulep, Ast_گره_FTask* ftaskp) {
+    ثابت string& modname = modulep->prettyDehashOrigOrName();
+    V3ControlModule* ثابت modp = V3ControlResolver::s().modules().resolve(modname);
+    إذا (!modp) أرجع;
+    ثابت V3ControlFTask* ثابت ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
+    إذا (ftp) ftp->apply(ftaskp);
+}
+
+قالب <نام_نوع T_Resolver>
+ساكن فراغ resolveThenApply(T_Resolver& resolver, AstVar* varp) {
+    ثابت std::string name = varp->prettyDehashOrigOrName();
+    إذا (ثابت V3ControlVar* ثابت vp = resolver.vars().resolve(name)) vp->apply(varp);
+    إذا (varp->isParam()) {
+        إذا (ثابت V3ControlVar* ثابت vp = resolver.params().resolve(name)) vp->apply(varp);
     }
-    if (varp->isIO()) {
-        if (const V3ControlVar* const vp = resolver.ports().resolve(name)) vp->apply(varp);
+    إذا (varp->isIO()) {
+        إذا (ثابت V3ControlVar* ثابت vp = resolver.ports().resolve(name)) vp->apply(varp);
     }
 }
 
-void V3Control::applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+فراغ V3Control::applyVarAttr(ثابت Ast_گره_Module* modulep, ثابت Ast_گره_FTask* ftaskp,
                              AstVar* varp) {
-    V3ControlModule* const modp
+    V3ControlModule* ثابت modp
         = V3ControlResolver::s().modules().resolve(modulep->prettyDehashOrigOrName());
-    if (!modp) return;
-    if (ftaskp) {
-        V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-        if (!ftp) return;
+    إذا (!modp) أرجع;
+    إذا (ftaskp) {
+        V3ControlFTask* ثابت ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
+        إذا (!ftp) أرجع;
         resolveThenApply(*ftp, varp);
-    } else {
+    } وإلا {
         resolveThenApply(*modp, varp);
     }
 }
 
-int V3Control::getHierWorkers(const string& model) {
-    return V3ControlResolver::s().getHierWorkers(model);
+صحيح V3Control::getHierWorkers(ثابت string& model) {
+    أرجع V3ControlResolver::s().getHierWorkers(model);
 }
-FileLine* V3Control::getHierWorkersFileLine(const string& model) {
-    return V3ControlResolver::s().getHierWorkersFileLine(model);
+File_سطر* V3Control::get_Hier_Workers_File_سطر(ثابت string& model) {
+    أرجع V3ControlResolver::s().get_Hier_Workers_File_سطر(model);
 }
-const V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(const string& module) {
-    V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(module);
-    return modp ? modp->fsmRegisterWrapperp() : nullptr;
+ثابت V3Control::Fsm_ثبات_Wrapper* V3Control::get_Fsm_ثبات_Wrapper(ثابت string& module) {
+    V3ControlModule* ثابت modp = V3ControlResolver::s().modules().resolve(module);
+    أرجع modp ? modp->fsm_ثبات_Wrapperp() : اشاره_تهی;
 }
-uint64_t V3Control::getProfileData(const string& hierDpi) {
-    return V3ControlResolver::s().getProfileData(hierDpi);
+uint64_t V3Control::get_Profile_داده(ثابت string& hierDpi) {
+    أرجع V3ControlResolver::s().get_Profile_داده(hierDpi);
 }
-uint64_t V3Control::getProfileData(const string& model, const string& key) {
-    return V3ControlResolver::s().getProfileData(model, key);
+uint64_t V3Control::get_Profile_داده(ثابت string& model, ثابت string& کلید) {
+    أرجع V3ControlResolver::s().get_Profile_داده(model, کلید);
 }
-FileLine* V3Control::getProfileDataFileLine() {
-    return V3ControlResolver::s().getProfileDataFileLine();
+File_سطر* V3Control::get_Profile_داده_File_سطر() {
+    أرجع V3ControlResolver::s().get_Profile_داده_File_سطر();
 }
-bool V3Control::getScopeTraceOn(const string& scope) {
-    return V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
-}
-
-void V3Control::contentsPushText(const string& text) { WildcardContents::pushText(text); }
-
-bool V3Control::containsMTaskProfileData() {
-    return V3ControlResolver::s().containsMTaskProfileData();
-}
-uint64_t V3Control::getCurrentHierBlockCost() {
-    return V3ControlResolver::s().getCurrentHierBlockCost();
+منطقي V3Control::getScopeTraceOn(ثابت string& scope) {
+    أرجع V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
 }
 
-bool V3Control::waive(const FileLine* filelinep, V3ErrorCode code, const string& message) {
-    V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filelinep->filename());
-    if (!filep) return false;
-    return filep->waive(code, message);
+فراغ V3Control::contents_افزودن_متن(ثابت string& متن) { WildcardContents::افزودن_متن(متن); }
+
+منطقي V3Control::شامل_است_MTask_Profile_داده() {
+    أرجع V3ControlResolver::s().شامل_است_MTask_Profile_داده();
+}
+uint64_t V3Control::get_Current_Hier_بلوک_هزینه() {
+    أرجع V3ControlResolver::s().get_Current_Hier_بلوک_هزینه();
 }
 
-void V3Control::selfTest() { VIntervalTree::selfTest(); }
+منطقي V3Control::waive(ثابت File_سطر* filelinep, V3_Error_کد کد, ثابت string& پیام) {
+    V3ControlFile* ثابت filep = V3ControlResolver::s().files().resolve(filelinep->filename());
+    إذا (!filep) أرجع خطأ;
+    أرجع filep->waive(کد, پیام);
+}
+
+فراغ V3Control::selfTest() { VInterval_درخت::selfTest(); }

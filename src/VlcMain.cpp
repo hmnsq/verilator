@@ -15,177 +15,177 @@
 //*************************************************************************
 
 // clang-format off
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کن VL_MT_DISABLED_کد_UNIT 1
 
-#include "config_build.h"
-#ifndef HAVE_CONFIG_PACKAGE
+#ضمن "config_build.h"
+#اگر_تعریف_نشده HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
-#endif
+#پایان_اگر
 // clang-format on
 
-#include "verilatedos.h"
+#ضمن "verilatedos.h"
 
 // Cheat for speed and compile .cpp files into one object TODO: Reconsider
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
-#include "V3Error.cpp"
-#include "V3String.cpp"
-#define V3OPTION_PARSER_NO_VOPTION_BOOL
+#اگر_تعریف_نشده V3ERROR_NO_GLOBAL_
+#تعریف_کن V3ERROR_NO_GLOBAL_
+#پایان_اگر
+#ضمن "V3Error.h"
+ساكن صحيح debug() { أرجع V3Error::debugDefault(); }
+#ضمن "V3Error.cpp"
+#ضمن "V3String.cpp"
+#تعریف_کن V3OPTION_PARSER_NO_VOPTION_BOOL
 // clang-format off
-#include "V3OptionParser.cpp"
-#include "V3Os.cpp"
-#include "VlcTop.cpp"
+#ضمن "V3OptionParser.cpp"
+#ضمن "V3Os.cpp"
+#ضمن "VlcTop.cpp"
 // clang-format on
 
-#include "VlcOptions.h"
-#include "VlcTop.h"
+#ضمن "VlcOptions.h"
+#ضمن "VlcTop.h"
 
-#include <algorithm>
-#include <fstream>
+#ضمن <algorithm>
+#ضمن <fstream>
 
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+فراغ VlcOptions::جمع_کن_Read_File(ثابت string& filename) { m_readFiles.درج(filename); }
 
-string VlcOptions::version() {
+string VlcOptions::نسخه() {
     string ver = PACKAGE_STRING;
-    ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    ver += " rev " + cvt_مقصد_Str(DTVERSION_rev);
+    أرجع ver;
 }
 
-void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
-    string::size_type start = 0;
-    while (true) {
-        const string::size_type comma = m_report.find(',', start);
-        const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
-            m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
-            m_reportHierarchy = true;
-        } else {
+فراغ VlcOptions::parseReportOption() {
+    إذا (m_report.خالی()) أرجع;
+    string::اندازه_type شروع = 0;
+    طالما (درست) {
+        ثابت string::اندازه_type comma = m_report.پیدا_کن(',', شروع);
+        ثابت string نوع = m_report.substr(شروع, comma - شروع);
+        إذا (نوع == "summary") {
+            m_reportSummary = درست;
+        } وإلا إذا (نوع == "hier" || نوع == "hierarchy") {
+            m_reportHierarchy = درست;
+        } وإلا {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
-        start = comma + 1;
+        إذا (comma == string::npos) اكسر;
+        شروع = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+فراغ VlcOptions::parseOptsList(صحيح argc, حرف** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
-    V3OPTION_PARSER_DECL_TAGS;
+    V3_OPTION_PARSER_DECL_برچسبها;
 
-    DECL_OPTION("-annotate", Set, &m_annotateOut);
+    DECL_OPTION("-annotate", مجموعه_2, &m_annotate_بیرون);
     DECL_OPTION("-annotate-all", OnOff, &m_annotateAll);
-    DECL_OPTION("-annotate-min", Set, &m_annotateMin);
+    DECL_OPTION("-annotate-min", مجموعه_2, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
-    DECL_OPTION("-filter-type", Set, &m_filterType);
+    DECL_OPTION("-debugi", CbVal, [](صحيح v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-filter-type", مجموعه_2, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
-    DECL_OPTION("-levels", Set, &m_reportLevels);
+    DECL_OPTION("-levels", مجموعه_2, &m_report_سطوح);
     DECL_OPTION("-rank", OnOff, &m_rank);
-    DECL_OPTION("-report", Set, &m_report);
+    DECL_OPTION("-report", مجموعه_2, &m_report);
     DECL_OPTION("-unlink", OnOff, &m_unlink);
     DECL_OPTION("-V", CbCall, []() {
-        showVersion(true);
-        std::exit(0);
+        show_نسخه(درست);
+        std::خروج(0);
     });
     DECL_OPTION("-version", CbCall, []() {
-        showVersion(false);
-        std::exit(0);
+        show_نسخه(خطأ);
+        std::خروج(0);
     });
-    DECL_OPTION("-write", Set, &m_writeFile);
-    DECL_OPTION("-write-info", Set, &m_writeInfoFile);
+    DECL_OPTION("-write", مجموعه_2, &m_writeFile);
+    DECL_OPTION("-write-info", مجموعه_2, &m_writeInfoFile);
     parser.finalize();
 
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    لكل (صحيح i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        إذا (argv[i][0] == '-') {
+            إذا (ثابت صحيح consumed = parser.parse(i, argc, argv).اولی) {
                 i += consumed;
-            } else {
+            } وإلا {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
-            addReadFile(argv[i]);
+        } وإلا {
+            جمع_کن_Read_File(argv[i]);
             ++i;
         }
     }
     parseReportOption();
 }
 
-void VlcOptions::showVersion(bool verbose) {
-    std::cout << version();
-    std::cout << "\n";
-    if (!verbose) return;
+فراغ VlcOptions::show_نسخه(منطقي verbose) {
+    std::خروجی << نسخه();
+    std::خروجی << "\n";
+    إذا (!verbose) أرجع;
 
-    std::cout << "\n";
-    std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
-    std::cout << "redistribute it and/or modify the Verilator internals under the terms of\n";
-    std::cout << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
-    std::cout << "License Version 2.0.\n";
+    std::خروجی << "\n";
+    std::خروجی << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
+    std::خروجی << "redistribute it and/or modify the Verilator internals under the terms of\n";
+    std::خروجی << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
+    std::خروجی << "License Version 2.0.\n";
 
-    std::cout << "\n";
-    std::cout << "See https://verilator.org for documentation\n";
+    std::خروجی << "\n";
+    std::خروجی << "See https://verilator.org for documentation\n";
 }
 
 //######################################################################
 
-int main(int argc, char** argv) {
+صحيح اصلی(صحيح argc, حرف** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_بالاترین بالاترین;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    بالاترین.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    إذا (بالاترین.opt.readFiles().خالی()) بالاترین.opt.جمع_کن_Read_File("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        ثابت Vl_String_مجموعه& readFiles = بالاترین.opt.readFiles();
+        لكل (ثابت خودکار& filename : readFiles) بالاترین.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+    إذا (debug() >= 9) {
+        بالاترین.tests().dump(درست);
+        بالاترین.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
-        top.printTypeSummary();
+    ثابت منطقي defaultReport = !بالاترین.opt.reportSpecified() && !بالاترین.opt.rank()
+                               && بالاترین.opt.writeFile().خالی() && بالاترین.opt.writeInfoFile().خالی();
+    إذا (بالاترین.opt.reportSpecified()) {
+        إذا (بالاترین.opt.reportSummary()) بالاترین.printTypeSummary();
+        إذا (بالاترین.opt.reportHierarchy()) بالاترین.printHierarchyReport();
+    } وإلا إذا (defaultReport) {
+        بالاترین.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    إذا (!بالاترین.opt.annotate_بیرون().خالی()) بالاترین.annotate(بالاترین.opt.annotate_بیرون());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    إذا (بالاترین.opt.rank()) {
+        بالاترین.rank();
+        بالاترین.tests().dump(خطأ);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    إذا (!بالاترین.opt.writeFile().خالی() || !بالاترین.opt.writeInfoFile().خالی()) {
+        إذا (!بالاترین.opt.writeFile().خالی()) بالاترین.writeCoverage(بالاترین.opt.writeFile());
+        إذا (!بالاترین.opt.writeInfoFile().خالی()) بالاترین.writeInfo(بالاترین.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
-            for (const auto& filename : readFiles) unlink(filename.c_str());
+        إذا (بالاترین.opt.unlink()) {
+            ثابت Vl_String_مجموعه& readFiles = بالاترین.opt.readFiles();
+            لكل (ثابت خودکار& filename : readFiles) unlink(filename.c_str());
         }
     }
 

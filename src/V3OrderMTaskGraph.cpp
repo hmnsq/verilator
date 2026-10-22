@@ -14,160 +14,160 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMTaskGraph.h"
+#ضمن "V3OrderMTaskGraph.h"
 
-#include "V3Global.h"
-#include "V3InstrCount.h"
+#ضمن "V3Global.h"
+#ضمن "V3InstrCount.h"
 
-#include <algorithm>
-#include <memory>
-#include <unordered_set>
+#ضمن <algorithm>
+#ضمن <memory>
+#ضمن <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // LogicMTask
 
-uint32_t LogicMTask::s_nextId = 1;  // Start at 1, for historic reasons
+uint32_t LogicMTask::s_بعدی_Id = 1;  // Start at 1, for historic reasons
 
-LogicMTask::LogicMTask(OrderMTaskGraph& graph, OrderMoveVertex* mVtxp)
-    : V3GraphVertex{&graph} {
-    UASSERT(s_nextId < 0xFFFFFFFFUL, "Too many LogicMTask instances");
-    if (!mVtxp) return;
-    m_mVertices.linkBack(mVtxp);
-    if (const OrderLogicVertex* const olvp = mVtxp->logicp()) {
-        m_cost += V3InstrCount::count(olvp->nodep(), true);
+LogicMTask::LogicMTask(ترتیب_MTask_گراف& گراف, ترتیب_Move_رأس* mVtxp)
+    : V3_گراف_رأس{&گراف} {
+    UASSERT(s_بعدی_Id < 0xFFFFFFFFUL, "Too many LogicMTask instances");
+    إذا (!mVtxp) أرجع;
+    m_mVertices.link_پشت(mVtxp);
+    إذا (ثابت ترتیب_Logic_رأس* ثابت olvp = mVtxp->logicp()) {
+        m_هزینه += V3_Instr_شمار::شمار(olvp->nodep(), درست);
     }
 }
 
 //######################################################################
 // OrderMTaskGraph
 
-OrderMTaskGraph::OrderMTaskGraph(OrderMoveGraph& moveGraph)
-    : m_moveGraph{moveGraph}
-    , m_entryp{new LogicMTask{*this, nullptr}}
-    , m_exitp{new LogicMTask{*this, nullptr}}
-    , m_slowAsserts{v3Global.opt.debugPartition()} {}
+ترتیب_MTask_گراف::ترتیب_MTask_گراف(ترتیب_Move_گراف& move_گراف)
+    : m_move_گراف{move_گراف}
+    , m_entryp{جديد LogicMTask{*هذا, اشاره_تهی}}
+    , m_exitp{جديد LogicMTask{*هذا, اشاره_تهی}}
+    , m_slowAsserts{v3Global.opt.debug_افراز()} {}
 
-bool OrderMTaskGraph::pathExistsImpl(LogicMTask* fromp, LogicMTask* top,
-                                     const MTaskEdge* excludedEdgep) {
+منطقي ترتیب_MTask_گراف::مسیر_Exists_Impl(LogicMTask* fromp, LogicMTask* بالاترین,
+                                     ثابت MTask_یال* excludedEdgep) {
     UDEBUGONLY(UASSERT_OBJ(fromp->m_generation != m_currentGeneration, fromp,
                            "Should not visit an MTask twice in the same search"););
     // Mark visited.
     fromp->m_generation = m_currentGeneration;
 
     // Base case: we found a path.
-    if (fromp == top) return true;
+    إذا (fromp == بالاترین) أرجع درست;
 
     // Base case: fromp is too late, cannot possibly be a prereq for top.
-    if (fromp->cpExclusive<GraphWay::REVERSE>() < top->cpInclusive<GraphWay::REVERSE>()) {
-        return false;
+    إذا (fromp->cpExclusive<گراف_Way::معکوس_2>() < بالاترین->cpInclusive<گراف_Way::معکوس_2>()) {
+        أرجع خطأ;
     }
-    if (fromp->cpInclusive<GraphWay::FORWARD>() > top->cpExclusive<GraphWay::FORWARD>()) {
-        return false;
+    إذا (fromp->cpInclusive<گراف_Way::FORWARD>() > بالاترین->cpExclusive<گراف_Way::FORWARD>()) {
+        أرجع خطأ;
     }
 
     // Recursively look for a path
-    for (const V3GraphEdge& follow : fromp->outEdges()) {
-        if (&follow == excludedEdgep) continue;
-        LogicMTask* const nextp = static_cast<LogicMTask*>(follow.top());
+    لكل (ثابت V3_گراف_یال& follow : fromp->بیرون_یالها()) {
+        إذا (&follow == excludedEdgep) استمر;
+        LogicMTask* ثابت nextp = static_cast<LogicMTask*>(follow.بالاترین());
         // Don't visit the same MTask twice in the same search.
-        if (nextp->m_generation == m_currentGeneration) continue;
-        if (pathExistsImpl(nextp, top, nullptr)) return true;
+        إذا (nextp->m_generation == m_currentGeneration) استمر;
+        إذا (مسیر_Exists_Impl(nextp, بالاترین, اشاره_تهی)) أرجع درست;
     }
-    return false;
+    أرجع خطأ;
 }
 
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::propagatePush(LogicMTask* mtaskp) {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv{way.invert()};
-    const uint64_t inclusiveCp = mtaskp->cpInclusive<way>();
+قالب <گراف_Way::en N_Way>
+فراغ ترتیب_MTask_گراف::propagate_افزودن(LogicMTask* mtaskp) {
+    constexpr گراف_Way way{N_Way};
+    constexpr گراف_Way inv{way.invert()};
+    ثابت uint64_t inclusiveCp = mtaskp->cpInclusive<way>();
 
-    for (V3GraphEdge& graphEdge : mtaskp->edges<way>()) {
-        MTaskEdge& edge = static_cast<MTaskEdge&>(graphEdge);
+    لكل (V3_گراف_یال& گراف_یال : mtaskp->یالها<way>()) {
+        MTask_یال& یال = static_cast<MTask_یال&>(گراف_یال);
 
-        LogicMTask* const relativep = edge.furtherMTaskp<N_Way>();
-        EdgeHeap::Node& edgeHeapNode = edge.m_edgeHeapNode[inv];
-        if (inclusiveCp > edgeHeapNode.key().m_cp) {
-            relativep->m_edgeHeap[inv].increaseKey(&edgeHeapNode, inclusiveCp);
+        LogicMTask* ثابت relativep = یال.furtherMTaskp<N_Way>();
+        یال_انباشته::گره_2& یال_انباشته_گره = یال.m_یال_انباشته_گره[inv];
+        إذا (inclusiveCp > یال_انباشته_گره.کلید().m_cp) {
+            relativep->m_یال_انباشته[inv].increase_کلید(&یال_انباشته_گره, inclusiveCp);
         }
 
-        const uint64_t relativeCp = relativep->cpExclusive<way>();
+        ثابت uint64_t relativeCp = relativep->cpExclusive<way>();
 
-        if (relativeCp >= inclusiveCp) continue;
+        إذا (relativeCp >= inclusiveCp) استمر;
 
         // relativep's critical path is out of step with its longest !wayward edge.
         // Schedule that to be resolved.
-        const uint64_t increment = inclusiveCp - relativeCp;
+        ثابت uint64_t increment = inclusiveCp - relativeCp;
 
-        PropagatePendingHeap::Node*& pendingNodepRef = relativep->m_propagateHeapNodep;
-        if (PropagatePendingHeap::Node* const nodep = pendingNodepRef) {
+        Propagate_Pending_انباشته::گره_2*& pendingNodepRef = relativep->m_propagate_انباشته_Nodep;
+        إذا (Propagate_Pending_انباشته::گره_2* ثابت nodep = pendingNodepRef) {
             // Already in heap. Increase the increment if needed.
-            if (increment > nodep->key().m_increment) {
-                m_pendingHeap.increaseKey(nodep, increment);
+            إذا (increment > nodep->کلید().m_increment) {
+                m_pending_انباشته.increase_کلید(nodep, increment);
             }
-            continue;
+            استمر;
         }
 
         // Add to heap
-        PropagatePendingHeap::Node* const nodep = m_pendingNodePool.alloc();
+        Propagate_Pending_انباشته::گره_2* ثابت nodep = m_pending_گره_Pool.alloc();
         pendingNodepRef = nodep;
-        m_pendingHeap.insert(nodep, {increment, relativep->id(), relativep});
+        m_pending_انباشته.درج(nodep, {increment, relativep->id(), relativep});
     }
 }
 
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::propagateResolve() {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv{way.invert()};
+قالب <گراف_Way::en N_Way>
+فراغ ترتیب_MTask_گراف::propagateResolve() {
+    constexpr گراف_Way way{N_Way};
+    constexpr گراف_Way inv{way.invert()};
 
     // Each pending MTask is keyed on how much its critical path will grow by. Resolving them in
     // decreasing order of that growth means each MTask needs resolving only once: the growth of a
     // wayward MTask is never larger than the growth of the MTask it was pushed from, so once an
     // MTask has been resolved, no larger growth can be pushed onto it later.
-    while (!m_pendingHeap.empty()) {
+    طالما (!m_pending_انباشته.خالی()) {
         // Pop max element from heap
-        PropagatePendingHeap::Node* const maxp = m_pendingHeap.max();
-        m_pendingHeap.remove(maxp);
+        Propagate_Pending_انباشته::گره_2* ثابت maxp = m_pending_انباشته.max();
+        m_pending_انباشته.remove(maxp);
         // Pick up values
-        LogicMTask* const mtaskp = maxp->key().m_mtaskp;
-        const uint64_t cpGrowBy = maxp->key().m_increment;
+        LogicMTask* ثابت mtaskp = maxp->کلید().m_mtaskp;
+        ثابت uint64_t cpGrowBy = maxp->کلید().m_increment;
         // Confirm that we only set each node's CP once. That's an important property of this
         // algorithm, which allows it to be far faster than a recursive one.
         UASSERT_OBJ(mtaskp->m_generation != m_currentGeneration, mtaskp, "Set CP on node twice");
         mtaskp->m_generation = m_currentGeneration;
         // Free the heap node, we are done with it
-        m_pendingNodePool.free(maxp);
-        mtaskp->m_propagateHeapNodep = nullptr;
+        m_pending_گره_Pool.حرر(maxp);
+        mtaskp->m_propagate_انباشته_Nodep = اشاره_تهی;
         // Update the critical path of mtaskp, that was out-of-date with respect to its edges
         uint64_t& cpRef = mtaskp->m_cpExclusive[way];
-        const uint64_t newCp = cpRef + cpGrowBy;
+        ثابت uint64_t newCp = cpRef + cpGrowBy;
         // Check that CP matches that of the longest edge wayward of mtaskp.
-        if (VL_UNLIKELY(m_slowAsserts)) {
-            const uint64_t edgeCp = mtaskp->m_edgeHeap[inv].max()->key().m_cp;
-            UASSERT_OBJ(edgeCp == newCp, mtaskp, "CP doesn't match longest wayward edge");
+        إذا (VL_UNLIKELY(m_slowAsserts)) {
+            ثابت uint64_t یال_Cp = mtaskp->m_یال_انباشته[inv].max()->کلید().m_cp;
+            UASSERT_OBJ(یال_Cp == newCp, mtaskp, "CP doesn't match longest wayward edge");
         }
         cpRef = newCp;
-        propagatePush<N_Way>(mtaskp);
+        propagate_افزودن<N_Way>(mtaskp);
     }
 }
 
-uint64_t OrderMTaskGraph::totalCost() const {
-    uint64_t cost = 0;
-    for (const V3GraphVertex& vtx : vertices()) cost += static_cast<const LogicMTask&>(vtx).cost();
-    return cost;
+uint64_t ترتیب_MTask_گراف::مجموع_هزینه() ثابت {
+    uint64_t هزینه = 0;
+    لكل (ثابت V3_گراف_رأس& vtx : vertices()) هزینه += static_cast<ثابت LogicMTask&>(vtx).هزینه();
+    أرجع هزینه;
 }
 
-void OrderMTaskGraph::addEdge(LogicMTask* fromp, LogicMTask* top) {
-    UASSERT_OBJ(fromp != top, fromp, "Should not create self-edges");
-    UDEBUGONLY(UASSERT_OBJ(!fromp->hasEdgeTo(top), fromp, "Should not create redundant edges"););
+فراغ ترتیب_MTask_گراف::جمع_کن_یال(LogicMTask* fromp, LogicMTask* بالاترین) {
+    UASSERT_OBJ(fromp != بالاترین, fromp, "Should not create self-edges");
+    UDEBUGONLY(UASSERT_OBJ(!fromp->has_یال_مقصد(بالاترین), fromp, "Should not create redundant edges"););
 
     // Create the edge. This inserts it into the edge heap of both endpoints with the correct
     // critical path keys, as the critical paths of the endpoints are still unchanged here.
-    new MTaskEdge{this, fromp, top};
+    جديد MTask_یال{هذا, fromp, بالاترین};
 
     // The path through the new edge might be longer than the current critical path of its
     // endpoints, in which case the critical paths need updating. Note each endpoint is the seed of
@@ -181,15 +181,15 @@ void OrderMTaskGraph::addEdge(LogicMTask* fromp, LogicMTask* top) {
     // edge, so the new relative is the only relative of either seed that can have a stale critical
     // path, and if it does not need updating the propagation does nothing. It would however still
     // walk all edges of the seed to discover that, which is expensive for a high degree seed.
-    if (fromp->cpInclusive<GraphWay::FORWARD>() > top->cpExclusive<GraphWay::FORWARD>()) {
-        propagate<GraphWay::FORWARD>(fromp);
+    إذا (fromp->cpInclusive<گراف_Way::FORWARD>() > بالاترین->cpExclusive<گراف_Way::FORWARD>()) {
+        propagate<گراف_Way::FORWARD>(fromp);
     }
-    if (top->cpInclusive<GraphWay::REVERSE>() > fromp->cpExclusive<GraphWay::REVERSE>()) {
-        propagate<GraphWay::REVERSE>(top);
+    إذا (بالاترین->cpInclusive<گراف_Way::معکوس_2>() > fromp->cpExclusive<گراف_Way::معکوس_2>()) {
+        propagate<گراف_Way::معکوس_2>(بالاترین);
     }
 }
 
-void OrderMTaskGraph::mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp) {
+فراغ ترتیب_MTask_گراف::ادغام_MTasks(LogicMTask* recipientp, LogicMTask* donorp) {
     UASSERT_OBJ(recipientp != donorp, recipientp, "Should not merge an MTask with itself");
 
     // Note we redirect the edges before updating the cost and critical paths of the recipient,
@@ -200,81 +200,81 @@ void OrderMTaskGraph::mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp) {
     // either of the two MTasks it is made of, in both directions.
 
     // Process outgoing edges of donor
-    while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(donorp->outEdges().frontp())) {
-        LogicMTask* const relativep = edgep->toMTaskp();
+    طالما (MTask_یال* ثابت edgep = static_cast<MTask_یال*>(donorp->بیرون_یالها().frontp())) {
+        LogicMTask* ثابت relativep = edgep->مقصد_MTaskp();
 
-        relativep->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+        relativep->remove_Relative_یال<گراف_Way::معکوس_2>(edgep);
 
-        if (relativep == recipientp || recipientp->hasEdgeTo(relativep)) {
+        إذا (relativep == recipientp || recipientp->has_یال_مقصد(relativep)) {
             // This is either the edge connecting the two MTasks, which becomes internal to the
             // merged MTask, or is parallel with an existing edge of the recipient. Drop it.
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-        } else {
+        } وإلا {
             // No existing edge between recipient and relative of donor.
             // Redirect the edge from donor -> relative to recipient -> relative.
             edgep->relinkFromp(recipientp);
-            recipientp->addDependent(relativep);
-            recipientp->stealRelativeEdge<GraphWay::FORWARD>(edgep);
-            relativep->addRelativeEdge<GraphWay::REVERSE>(edgep);
+            recipientp->جمع_کن_Dependent(relativep);
+            recipientp->steal_Relative_یال<گراف_Way::FORWARD>(edgep);
+            relativep->جمع_کن_Relative_یال<گراف_Way::معکوس_2>(edgep);
         }
     }
 
     // Process incoming edges of donor
-    while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(donorp->inEdges().frontp())) {
-        LogicMTask* const relativep = edgep->fromMTaskp();
+    طالما (MTask_یال* ثابت edgep = static_cast<MTask_یال*>(donorp->درون_یالها().frontp())) {
+        LogicMTask* ثابت relativep = edgep->fromMTaskp();
 
         relativep->removeDependent(donorp);
-        relativep->removeRelativeEdge<GraphWay::FORWARD>(edgep);
+        relativep->remove_Relative_یال<گراف_Way::FORWARD>(edgep);
 
-        if (relativep == recipientp || relativep->hasEdgeTo(recipientp)) {
+        إذا (relativep == recipientp || relativep->has_یال_مقصد(recipientp)) {
             // This is either the edge connecting the two MTasks, which becomes internal to the
             // merged MTask, or is parallel with an existing edge of the recipient. Drop it.
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-        } else {
+        } وإلا {
             // No existing edge between recipient and relative of donor.
             // Redirect the edge from relative -> donor to relative -> recipient.
-            edgep->relinkTop(recipientp);
-            relativep->addDependent(recipientp);
-            relativep->addRelativeEdge<GraphWay::FORWARD>(edgep);
-            recipientp->stealRelativeEdge<GraphWay::REVERSE>(edgep);
+            edgep->relink_بالاترین(recipientp);
+            relativep->جمع_کن_Dependent(recipientp);
+            relativep->جمع_کن_Relative_یال<گراف_Way::FORWARD>(edgep);
+            recipientp->steal_Relative_یال<گراف_Way::معکوس_2>(edgep);
         }
     }
 
     // Move the contents of the donor into the recipient, update its cost
-    recipientp->m_mVertices.splice(recipientp->m_mVertices.end(), donorp->m_mVertices);
-    recipientp->m_cost += donorp->m_cost;
+    recipientp->m_mVertices.splice(recipientp->m_mVertices.انتها(), donorp->m_mVertices);
+    recipientp->m_هزینه += donorp->m_هزینه;
 
     // The recipient now holds all edges of the merged MTask, and the critical paths of all its
     // relatives are still up to date, so the critical paths implied by its edges are the critical
     // paths of the merged MTask.
-    const uint64_t newCpFwd = recipientp->cpExclusiveFromEdges<GraphWay::FORWARD>();
-    const uint64_t newCpRev = recipientp->cpExclusiveFromEdges<GraphWay::REVERSE>();
+    ثابت uint64_t newCpFwd = recipientp->cp_Exclusive_From_یالها<گراف_Way::FORWARD>();
+    ثابت uint64_t newCpRev = recipientp->cp_Exclusive_From_یالها<گراف_Way::معکوس_2>();
 
     // Set the new critical paths, then propagate the increases to the relatives. Note this also
     // brings the keys of all edges of the merged MTask up to date in the relatives' edge heaps.
-    recipientp->cpExclusive<GraphWay::FORWARD>(newCpFwd);
-    propagate<GraphWay::FORWARD>(recipientp);
-    recipientp->cpExclusive<GraphWay::REVERSE>(newCpRev);
-    propagate<GraphWay::REVERSE>(recipientp);
+    recipientp->cpExclusive<گراف_Way::FORWARD>(newCpFwd);
+    propagate<گراف_Way::FORWARD>(recipientp);
+    recipientp->cpExclusive<گراف_Way::معکوس_2>(newCpRev);
+    propagate<گراف_Way::معکوس_2>(recipientp);
 
     // Remove the donor from the graph
-    VL_DO_DANGLING(donorp->unlinkDelete(this), donorp);
+    VL_DO_DANGLING(donorp->unlinkDelete(هذا), donorp);
 }
 
-void OrderMTaskGraph::removeTransitiveEdges() {
+فراغ ترتیب_MTask_گراف::remove_متعدی_یالها() {
     // Removing a transitive edge cannot change any critical path, so none need updating here.
     // Only the edge heaps and the dependent sets need maintaining.
-    for (V3GraphVertex& vtx : vertices()) {
-        for (V3GraphEdge* const graphEdgep : vtx.outEdges().unlinkable()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(graphEdgep);
-            LogicMTask* const fromp = edgep->fromMTaskp();
-            LogicMTask* const top = edgep->toMTaskp();
+    لكل (V3_گراف_رأس& vtx : vertices()) {
+        لكل (V3_گراف_یال* ثابت گراف_Edgep : vtx.بیرون_یالها().unlinkable()) {
+            MTask_یال* ثابت edgep = static_cast<MTask_یال*>(گراف_Edgep);
+            LogicMTask* ثابت fromp = edgep->fromMTaskp();
+            LogicMTask* ثابت بالاترین = edgep->مقصد_MTaskp();
             // If the MTasks are also connected by some other path, then this is a transitive edge
-            if (!pathExists(fromp, top, edgep)) continue;
+            إذا (!مسیر_Exists(fromp, بالاترین, edgep)) استمر;
             // Maintain the additional data structures of the OrderMTaskGraph
-            fromp->removeDependent(top);
-            fromp->removeRelativeEdge<GraphWay::FORWARD>(edgep);
-            top->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+            fromp->removeDependent(بالاترین);
+            fromp->remove_Relative_یال<گراف_Way::FORWARD>(edgep);
+            بالاترین->remove_Relative_یال<گراف_Way::معکوس_2>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
@@ -282,52 +282,52 @@ void OrderMTaskGraph::removeTransitiveEdges() {
     validate();
 }
 
-void OrderMTaskGraph::removeEmptyMTasks() {
+فراغ ترتیب_MTask_گراف::remove_خالی_MTasks() {
     // This transform preserves the critical paths as it connects every predecessor of the
     // removed MTask to every successor, and the removed MTask itself has zero cost.
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        LogicMTask* const mtaskp = static_cast<LogicMTask*>(vtxp);
+    لكل (V3_گراف_رأس* ثابت vtxp : vertices().unlinkable()) {
+        LogicMTask* ثابت mtaskp = static_cast<LogicMTask*>(vtxp);
 
         // Keep the entry and exit vertices.
-        if (mtaskp == m_entryp || mtaskp == m_exitp) continue;
+        إذا (mtaskp == m_entryp || mtaskp == m_exitp) استمر;
 
         // Keep any MTask that holds logic
-        bool empty = true;
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
-            if (mVtx.logicp()) {
-                empty = false;
-                break;
+        منطقي خالی = درست;
+        لكل (ثابت ترتیب_Move_رأس& mVtx : mtaskp->رأس_List()) {
+            إذا (mVtx.logicp()) {
+                خالی = خطأ;
+                اكسر;
             }
         }
-        if (!empty) continue;
+        إذا (!خالی) استمر;
 
         // The MTask holding no logic should have zero cost
-        UASSERT_OBJ(!mtaskp->cost(), mtaskp, "MTask holding no logic should have 0 cost");
+        UASSERT_OBJ(!mtaskp->هزینه(), mtaskp, "MTask holding no logic should have 0 cost");
 
         // Connect each predecessor directly to each successor.
-        for (V3GraphEdge& inEdge : mtaskp->inEdges()) {
-            LogicMTask* const fromp = static_cast<MTaskEdge&>(inEdge).fromMTaskp();
-            for (V3GraphEdge& outEdge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<MTaskEdge&>(outEdge).toMTaskp();
-                if (!fromp->hasEdgeTo(top)) addEdge(fromp, top);
+        لكل (V3_گراف_یال& درون_یال : mtaskp->درون_یالها()) {
+            LogicMTask* ثابت fromp = static_cast<MTask_یال&>(درون_یال).fromMTaskp();
+            لكل (V3_گراف_یال& بیرون_یال : mtaskp->بیرون_یالها()) {
+                LogicMTask* ثابت بالاترین = static_cast<MTask_یال&>(بیرون_یال).مقصد_MTaskp();
+                إذا (!fromp->has_یال_مقصد(بالاترین)) جمع_کن_یال(fromp, بالاترین);
             }
         }
 
         // Remove incoming edges of 'mtaskp'
-        while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(mtaskp->inEdges().frontp())) {
-            LogicMTask* const relativep = edgep->fromMTaskp();
+        طالما (MTask_یال* ثابت edgep = static_cast<MTask_یال*>(mtaskp->درون_یالها().frontp())) {
+            LogicMTask* ثابت relativep = edgep->fromMTaskp();
             relativep->removeDependent(mtaskp);
-            relativep->removeRelativeEdge<GraphWay::FORWARD>(edgep);
+            relativep->remove_Relative_یال<گراف_Way::FORWARD>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
         // Remove outgoing edges of 'mtaskp'
-        while (MTaskEdge* const edgep = static_cast<MTaskEdge*>(mtaskp->outEdges().frontp())) {
-            LogicMTask* const relativep = edgep->toMTaskp();
-            relativep->removeRelativeEdge<GraphWay::REVERSE>(edgep);
+        طالما (MTask_یال* ثابت edgep = static_cast<MTask_یال*>(mtaskp->بیرون_یالها().frontp())) {
+            LogicMTask* ثابت relativep = edgep->مقصد_MTaskp();
+            relativep->remove_Relative_یال<گراف_Way::معکوس_2>(edgep);
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
         // Delete the empty MTask
-        VL_DO_DANGLING(mtaskp->unlinkDelete(this), mtaskp);
+        VL_DO_DANGLING(mtaskp->unlinkDelete(هذا), mtaskp);
     }
     // Confirm the above left the maintained state consistent
     validate();
@@ -336,55 +336,55 @@ void OrderMTaskGraph::removeEmptyMTasks() {
 // Check the critical paths in the given direction, and the critical paths cached in the edge heaps
 // in the opposite direction, against those implied by the edges. Note this deliberately iterates
 // the edge lists, rather than consulting the edge heaps, so the heaps are validated, not trusted.
-template <GraphWay::en N_Way>
-void OrderMTaskGraph::validateWay() const {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay inv = way.invert();
-    for (const V3GraphVertex& vtx : vertices()) {
-        const LogicMTask& mtask = *vtx.as<LogicMTask>();
-        uint64_t cpCost = 0;
-        std::unordered_set<const V3GraphVertex*> relatives;
-        for (const V3GraphEdge& graphEdge : mtask.edges<inv>()) {
-            const MTaskEdge& edge = *graphEdge.as<MTaskEdge>();
-            const LogicMTask& relative = *(edge.furtherp<inv>()->template as<LogicMTask>());
+قالب <گراف_Way::en N_Way>
+فراغ ترتیب_MTask_گراف::validateWay() ثابت {
+    constexpr گراف_Way way{N_Way};
+    constexpr گراف_Way inv = way.invert();
+    لكل (ثابت V3_گراف_رأس& vtx : vertices()) {
+        ثابت LogicMTask& mtask = *vtx.as<LogicMTask>();
+        uint64_t cp_هزینه = 0;
+        std::unordered_مجموعه<ثابت V3_گراف_رأس*> relatives;
+        لكل (ثابت V3_گراف_یال& گراف_یال : mtask.یالها<inv>()) {
+            ثابت MTask_یال& یال = *گراف_یال.as<MTask_یال>();
+            ثابت LogicMTask& relative = *(یال.furtherp<inv>()->قالب as<LogicMTask>());
             // Run a few asserts on the graph, while we are iterating through...
-            UASSERT_OBJ(edge.weight() != 0, &mtask, "Should be no cut edges in MTask graph");
+            UASSERT_OBJ(یال.وزن_2() != 0, &mtask, "Should be no cut edges in MTask graph");
             UASSERT_OBJ(&relative != &mtask, &mtask, "Should be no self edges in MTask graph");
-            const bool first = relatives.insert(&relative).second;
-            UASSERT_OBJ(first, &mtask, "Should be no redundant edges in MTask graph");
-            const uint64_t inclusiveCp = relative.cpInclusive<way>();
+            ثابت منطقي اولی = relatives.درج(&relative).دومی;
+            UASSERT_OBJ(اولی, &mtask, "Should be no redundant edges in MTask graph");
+            ثابت uint64_t inclusiveCp = relative.cpInclusive<way>();
             // The critical path cached in the edge heap must match that of the relative
-            UASSERT_OBJ(edge.cachedCp(inv) == inclusiveCp, &mtask,
+            UASSERT_OBJ(یال.cachedCp(inv) == inclusiveCp, &mtask,
                         "Cached critical path does not match the relative");
             // As must the ID it is keyed on, which breaks ties between equal critical paths
-            UASSERT_OBJ(edge.cachedId(inv) == relative.id(), &mtask,
+            UASSERT_OBJ(یال.cachedId(inv) == relative.id(), &mtask,
                         "Cached ID does not match the relative");
-            cpCost = std::max(cpCost, inclusiveCp);
+            cp_هزینه = std::max(cp_هزینه, inclusiveCp);
         }
-        const uint64_t cp = mtask.cpExclusive<way>();
-        UASSERT_OBJ(cp == cpCost, &mtask, "Critical path does not match the edges");
+        ثابت uint64_t cp = mtask.cpExclusive<way>();
+        UASSERT_OBJ(cp == cp_هزینه, &mtask, "Critical path does not match the edges");
         // The edge heap must yield the same, that is: it must return the largest of its keys
-        UASSERT_OBJ(mtask.cpExclusiveFromEdges<N_Way>() == cpCost, &mtask,
+        UASSERT_OBJ(mtask.cp_Exclusive_From_یالها<N_Way>() == cp_هزینه, &mtask,
                     "Edge heap maximum does not match the edges");
     }
 }
 
-void OrderMTaskGraph::validate() const {
-    if (!m_slowAsserts) return;
+فراغ ترتیب_MTask_گراف::validate() ثابت {
+    إذا (!m_slowAsserts) أرجع;
 
-    validateWay<GraphWay::FORWARD>();
-    validateWay<GraphWay::REVERSE>();
+    validateWay<گراف_Way::FORWARD>();
+    validateWay<گراف_Way::معکوس_2>();
 
     // Check the dependents set of each MTask agrees with its out-edges
-    for (const V3GraphVertex& vtx : vertices()) {
-        const LogicMTask& mtask = *vtx.as<LogicMTask>();
-        size_t nDependents = 0;
-        for (const V3GraphEdge& graphEdge : mtask.outEdges()) {
-            LogicMTask* const top = graphEdge.as<MTaskEdge>()->toMTaskp();
-            UASSERT_OBJ(mtask.hasEdgeTo(top), &mtask, "Dependent missing from the dependents set");
+    لكل (ثابت V3_گراف_رأس& vtx : vertices()) {
+        ثابت LogicMTask& mtask = *vtx.as<LogicMTask>();
+        اندازه_t nDependents = 0;
+        لكل (ثابت V3_گراف_یال& گراف_یال : mtask.بیرون_یالها()) {
+            LogicMTask* ثابت بالاترین = گراف_یال.as<MTask_یال>()->مقصد_MTaskp();
+            UASSERT_OBJ(mtask.has_یال_مقصد(بالاترین), &mtask, "Dependent missing from the dependents set");
             ++nDependents;
         }
-        UASSERT_OBJ(mtask.m_dependents.size() == nDependents, &mtask,
+        UASSERT_OBJ(mtask.m_dependents.اندازه() == nDependents, &mtask,
                     "Stale entry in the dependents set");
     }
 }
@@ -392,13 +392,13 @@ void OrderMTaskGraph::validate() const {
 //######################################################################
 // OrderMTaskGraphBuilder
 
-class OrderMTaskGraphBuilder final {
+صنف ترتیب_MTask_گراف_Builder final {
     // NODE STATE
     // Used by V3InstrCount::count within the LogicMTask constructor only
-    const VNUser1InUse m_user1InUse;
+    ثابت VNUser1_درون_Use m_user1_درون_Use;
 
     // MEMBERS
-    OrderMTaskGraph& m_mtaskGraph;  // Output OrderMTaskGraph
+    ترتیب_MTask_گراف& m_mtask_گراف;  // Output OrderMTaskGraph
 
     // METHODS
 
@@ -414,107 +414,107 @@ class OrderMTaskGraphBuilder final {
     // not require more dependency edges than keeping the intermediate vertex. That is, we bypass a
     // variable vertex if fanIn * fanOut <= fanIn + fanOut. This is true if fanIn or fanOut are 1,
     // or if they are both 2. This can significantly reduce the initial size of OrderMTaskGraph.
-    static bool bypassOk(OrderMoveVertex* mvtxp) {
+    ساكن منطقي bypassOk(ترتیب_Move_رأس* mvtxp) {
         // Need to keep all logic vertices
-        if (mvtxp->logicp()) return false;
+        إذا (mvtxp->logicp()) أرجع خطأ;
         // Count fan-in, up to 3
-        unsigned fanIn = 0;
-        auto& inEdges = mvtxp->inEdges();
-        for (auto it = inEdges.begin(); it != inEdges.end(); ++it) {
-            if (++fanIn == 3) break;
+        بیعلامت fan_درون = 0;
+        خودکار& درون_یالها = mvtxp->درون_یالها();
+        لكل (خودکار it = درون_یالها.begin(); it != درون_یالها.انتها(); ++it) {
+            إذا (++fan_درون == 3) اكسر;
         }
         // If fanIn no more than one, bypass
-        if (fanIn <= 1) return true;
+        إذا (fan_درون <= 1) أرجع درست;
         // Count fan-out, up to 3
-        unsigned fanOut = 0;
-        auto& outEdges = mvtxp->outEdges();
-        for (auto it = outEdges.begin(); it != outEdges.end(); ++it) {
-            if (++fanOut == 3) break;
+        بیعلامت fan_بیرون = 0;
+        خودکار& بیرون_یالها = mvtxp->بیرون_یالها();
+        لكل (خودکار it = بیرون_یالها.begin(); it != بیرون_یالها.انتها(); ++it) {
+            إذا (++fan_بیرون == 3) اكسر;
         }
         // If fan-out no more than one, bypass
-        if (fanOut <= 1) return true;
+        إذا (fan_بیرون <= 1) أرجع درست;
         // They can only be (2, 2), (2, 3), (3, 2), (3, 3) at this point, bypass if (2, 2)
-        return fanIn + fanOut == 4;
+        أرجع fan_درون + fan_بیرون == 4;
     }
 
     // Add an edge to the graph, if there is not already an edge between the two vertices.
-    void addEdge(LogicMTask* srcp, LogicMTask* dstp) {
-        if (srcp->hasEdgeTo(dstp)) return;  // Don't create redundant edges.
-        m_mtaskGraph.addEdge(srcp, dstp);
+    فراغ جمع_کن_یال(LogicMTask* srcp, LogicMTask* dstp) {
+        إذا (srcp->has_یال_مقصد(dstp)) أرجع;  // Don't create redundant edges.
+        m_mtask_گراف.جمع_کن_یال(srcp, dstp);
     }
 
     // CONSTRUCTORS
-    explicit OrderMTaskGraphBuilder(OrderMTaskGraph& mtaskGraph)
-        : m_mtaskGraph{mtaskGraph} {
+    صریح ترتیب_MTask_گراف_Builder(ترتیب_MTask_گراف& mtask_گراف)
+        : m_mtask_گراف{mtask_گراف} {
 
         // Create the LogicMTasks for each OrderMoveVertex
-        for (V3GraphVertex& vtx : mtaskGraph.moveGraph().vertices()) {
-            OrderMoveVertex& mVtx = static_cast<OrderMoveVertex&>(vtx);
-            if (bypassOk(&mVtx)) {
-                mVtx.userp(nullptr);  // Set to nullptr to mark as bypassed
-            } else {
-                mVtx.userp(new LogicMTask{mtaskGraph, &mVtx});  // Create vertex and set userp
+        لكل (V3_گراف_رأس& vtx : mtask_گراف.move_گراف().vertices()) {
+            ترتیب_Move_رأس& mVtx = static_cast<ترتیب_Move_رأس&>(vtx);
+            إذا (bypassOk(&mVtx)) {
+                mVtx.userp(اشاره_تهی);  // Set to nullptr to mark as bypassed
+            } وإلا {
+                mVtx.userp(جديد LogicMTask{mtask_گراف, &mVtx});  // Create vertex and set userp
             }
         }
 
-        LogicMTask& entry = *mtaskGraph.entryp();
-        LogicMTask& exit = *mtaskGraph.exitp();
+        LogicMTask& مدخل = *mtask_گراف.entryp();
+        LogicMTask& خروج = *mtask_گراف.exitp();
 
         // Create the MTask dependency edges based on the OrderMoveGraph dependencies
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
+        لكل (V3_گراف_رأس& vtx : mtask_گراف.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
 
             // Entry and exit vertices handled separately
-            if (VL_UNLIKELY((&mtask == &entry) || (&mtask == &exit))) continue;
+            إذا (VL_UNLIKELY((&mtask == &مدخل) || (&mtask == &خروج))) استمر;
 
-            OrderMoveVertex::List& vertexList = mtask.vertexList();
+            ترتیب_Move_رأس::List& رأس_List = mtask.رأس_List();
             // At this point, there should only be one OrderMoveVertex per LogicMTask
-            UASSERT_OBJ(vertexList.hasSingleElement(), &mtask, "Multiple OrderMoveVertex");
-            OrderMoveVertex* const mVtxp = vertexList.frontp();
+            UASSERT_OBJ(رأس_List.hasSingleElement(), &mtask, "Multiple OrderMoveVertex");
+            ترتیب_Move_رأس* ثابت mVtxp = رأس_List.frontp();
             UASSERT_OBJ(mVtxp->userp(), &mtask, "Bypassed OrderMoveVertex should not have MTask");
 
             // Iterate downstream direct dependents
-            for (const V3GraphEdge& dEdge : mVtxp->outEdges()) {
-                V3GraphVertex* const top = dEdge.top();
+            لكل (ثابت V3_گراف_یال& d_یال : mVtxp->بیرون_یالها()) {
+                V3_گراف_رأس* ثابت بالاترین = d_یال.بالاترین();
 
                 // If the opposite end of the edge is not a bypassed vertex, add direct dependency
-                if (LogicMTask* const otherp = static_cast<LogicMTask*>(top->userp())) {
-                    addEdge(&mtask, otherp);
-                    continue;
+                إذا (LogicMTask* ثابت otherp = static_cast<LogicMTask*>(بالاترین->userp())) {
+                    جمع_کن_یال(&mtask, otherp);
+                    استمر;
                 }
 
                 // The opposite end of the edge is a bypassed vertex, add transitive dependencies
-                for (const V3GraphEdge& tEdge : top->outEdges()) {
-                    LogicMTask* const transp = static_cast<LogicMTask*>(tEdge.top()->userp());
+                لكل (ثابت V3_گراف_یال& t_یال : بالاترین->بیرون_یالها()) {
+                    LogicMTask* ثابت transp = static_cast<LogicMTask*>(t_یال.بالاترین()->userp());
                     // The Move graph is bipartite (logic <-> var), and logic is never
                     // bypassed, hence 'transp' must be non-nullptr.
                     UASSERT_OBJ(transp, mVtxp, "This cannot be a bypassed vertex");
-                    addEdge(&mtask, transp);
+                    جمع_کن_یال(&mtask, transp);
                 }
             }
         }
 
         // Create Dependencies to/from the entry/exit vertices, so all vertices are
         // reachable from the entry point and flow to the exit point.
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
+        لكل (V3_گراف_رأس& vtx : mtask_گراف.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            if (VL_UNLIKELY((&mtask == &entry) || (&mtask == &exit))) continue;
+            إذا (VL_UNLIKELY((&mtask == &مدخل) || (&mtask == &خروج))) استمر;
             // Add the entry/exit edges if not otherwise connected
-            if (mtask.inEmpty()) addEdge(&entry, &mtask);
-            if (mtask.outEmpty()) addEdge(&mtask, &exit);
+            إذا (mtask.درون_خالی()) جمع_کن_یال(&مدخل, &mtask);
+            إذا (mtask.بیرون_خالی()) جمع_کن_یال(&mtask, &خروج);
         }
     }
-    ~OrderMTaskGraphBuilder() = default;
-    VL_UNCOPYABLE(OrderMTaskGraphBuilder);
-    VL_UNMOVABLE(OrderMTaskGraphBuilder);
+    ~ترتیب_MTask_گراف_Builder() = افتراضي;
+    VL_UNCOPYABLE(ترتیب_MTask_گراف_Builder);
+    VL_UNMOVABLE(ترتیب_MTask_گراف_Builder);
 
-public:
-    static void apply(OrderMTaskGraph& mtaskGraph) { OrderMTaskGraphBuilder{mtaskGraph}; }
+عام:
+    ساكن فراغ apply(ترتیب_MTask_گراف& mtask_گراف) { ترتیب_MTask_گراف_Builder{mtask_گراف}; }
 };
 
-std::unique_ptr<OrderMTaskGraph> OrderMTaskGraph::build(OrderMoveGraph& moveGraph) {
-    std::unique_ptr<OrderMTaskGraph> resp{new OrderMTaskGraph{moveGraph}};
-    OrderMTaskGraphBuilder::apply(*resp);
+std::unique_ptr<ترتیب_MTask_گراف> ترتیب_MTask_گراف::build(ترتیب_Move_گراف& move_گراف) {
+    std::unique_ptr<ترتیب_MTask_گراف> resp{جديد ترتیب_MTask_گراف{move_گراف}};
+    ترتیب_MTask_گراف_Builder::apply(*resp);
     resp->validate();
-    return resp;
+    أرجع resp;
 }

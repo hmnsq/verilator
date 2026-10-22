@@ -26,60 +26,60 @@
 // effects) inside subroutines as part of the caller's process.
 //*************************************************************************
 
-#ifndef VERILATOR_V3UNDRIVENCAPTURE_H_
-#define VERILATOR_V3UNDRIVENCAPTURE_H_
+#اگر_تعریف_نشده VERILATOR_V3UNDRIVENCAPTURE_H_
+#تعریف_کن VERILATOR_V3UNDRIVENCAPTURE_H_
 
-#include "config_build.h"
+#ضمن "config_build.h"
 
-#include "V3Ast.h"
+#ضمن "V3Ast.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 class AstNetlist;
 
 class V3UndrivenCapture final {
-public:
+عام:
     // DFS computation state for writeSummary propagation.
-    enum class State : uint8_t {
+    تعداد class State : uint8_t {
         UNVISITED,  // Write summary not computed yet
         VISITING,  // Currently computing on the call stack - used to detect cycles
-        DONE  // Write summary computed
+        انجامشده  // Write summary computed
     };
 
-    struct FTaskInfo final {
+    بنية FTaskInfo final {
         // Variables written directly in this task/function body (iteration order)
-        std::vector<AstVar*> directWrites;
+        std::وکتور<AstVar*> مستقیم_Writes;
         // Direct resolved callees from this task/function body (iteration order)
-        std::vector<const AstNodeFTask*> callees;
+        std::وکتور<ثابت Ast_گره_FTask*> callees;
         // 'Write through write' writeSummary for the given task/function.  Meaning ultimately
         // everything that this function/task writes to.
-        std::vector<AstVar*> writeSummary;
+        std::وکتور<AstVar*> writeSummary;
         // State for writeSummary computation.
         State state = State::UNVISITED;
         // Test if already recorded a callee.  Used to 'filter' on insert
         // versus sorting at the end.
-        std::unordered_set<const AstNodeFTask*> calleesSet;
+        std::unordered_مجموعه<ثابت Ast_گره_FTask*> callees_مجموعه;
         // Test if already recorded a direct write.  Used to 'filter' on
         // insert versus sorting at the end.
-        std::unordered_set<AstVar*> directWritesSet;
+        std::unordered_مجموعه<AstVar*> مستقیم_Writes_مجموعه;
     };
 
-private:
+خاص:
     // Per-task/function capture info keyed by resolved AstNodeFTask* identity (FTask = function or
     // task).  The 'graph' of tasks/functions.  Each node has a list of direct callees and
     // a list of variables written in the function body.  There are methods to remove duplicates
     // otherwise this could explode.
-    std::unordered_map<const AstNodeFTask*, FTaskInfo> m_info;
+    std::unordered_map<ثابت Ast_گره_FTask*, FTaskInfo> m_info;
 
     // Collect direct writes and call edges for all tasks/functions.  Run one time when
     // UndrivenCapture is created.  This runs the visitor over the tree.
-    void gather(AstNetlist* netlistp);
+    فراغ gather(AstNetlist* netlistp);
     // Compute (and cache) 'write through write' writeSummary for the given task/function.
-    const std::vector<AstVar*>& computeWriteSummary(const AstNodeFTask* taskp);
+    ثابت std::وکتور<AstVar*>& computeWriteSummary(ثابت Ast_گره_FTask* taskp);
 
-public:
+عام:
     // Build capture database and precompute writeSummary for all discovered tasks/functions.
     explicit V3UndrivenCapture(AstNetlist* netlistp);
 
@@ -87,17 +87,17 @@ public:
     // (creates empty entry if needed).  This returns a vector of variables that a particular
     // task/function writes to, including all variables written by functions called by this
     // task/function, and so on.
-    const std::vector<AstVar*>& writeSummary(const AstNodeFTask* taskp);
+    ثابت std::وکتور<AstVar*>& writeSummary(ثابت Ast_گره_FTask* taskp);
 
     // Used by the capture visitor to record information about tasks/functions and their statements
     // and callees. noteTask() makes sure there is an entry for the given taskp.
-    void noteTask(const AstNodeFTask* taskp);
+    فراغ noteTask(ثابت Ast_گره_FTask* taskp);
     // Inside the body of taskp there is a write to variable varp
-    void noteDirectWrite(const AstNodeFTask* taskp, AstVar* varp);
+    فراغ note_مستقیم_Write(ثابت Ast_گره_FTask* taskp, AstVar* varp);
     // Inside the body of callerp there is a call to calleep, this is needed so we can create a
     // summary that includes all variables written by functions called by this task/function, and
     // so on.
-    void noteCallEdge(const AstNodeFTask* callerp, const AstNodeFTask* calleep);
+    فراغ note_Call_یال(ثابت Ast_گره_FTask* callerp, ثابت Ast_گره_FTask* calleep);
 };
 
-#endif  // VERILATOR_V3UNDRIVENCAPTURE_H_
+#پایان_اگر  // VERILATOR_V3UNDRIVENCAPTURE_H_

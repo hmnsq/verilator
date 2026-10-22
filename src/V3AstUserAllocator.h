@@ -15,105 +15,105 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
-#define VERILATOR_V3ASTUSERALLOCATOR_H_
+#اگر_تعریف_نشده VERILATOR_V3ASTUSERALLOCATOR_H_
+#تعریف_کن VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
+#ضمن "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#ضمن <type_traits>
+#ضمن <utility>
+#ضمن <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
-class AstUserAllocatorBase VL_NOT_FINAL {
+قالب <typename T_گره, typename T_داده, صحيح N_UserN>
+class Ast_User_Allocator_پایه VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_پایه_از<Ast_گره, T_گره>::مقدار, "T_Node must be an AstNode type");
 
-private:
-    std::deque<T_Data> m_allocated;
+خاص:
+    std::deque<T_داده> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_داده* getUserp(ثابت T_گره* nodep) ثابت {
+        إذا VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            ثابت VNUser user = nodep->user1u();
+            أرجع user.مقصد<T_داده*>();
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            ثابت VNUser user = nodep->user2u();
+            أرجع user.مقصد<T_داده*>();
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            ثابت VNUser user = nodep->user3u();
+            أرجع user.مقصد<T_داده*>();
+        } وإلا {
+            ثابت VNUser user = nodep->user4u();
+            أرجع user.مقصد<T_داده*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    فراغ مجموعه_Userp(T_گره* nodep, T_داده* userp) ثابت {
+        إذا VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } وإلا {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
-    AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            VNUser3InUse::check();
-        } else {
-            VNUser4InUse::check();
+محمي:
+    Ast_User_Allocator_پایه() {
+        إذا VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            VNUser1_درون_Use::check();
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            VNUser2_درون_Use::check();
+        } وإلا إذا VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            VNUser3_درون_Use::check();
+        } وإلا {
+            VNUser4_درون_Use::check();
         }
     }
 
-    VL_UNCOPYABLE(AstUserAllocatorBase);
+    VL_UNCOPYABLE(Ast_User_Allocator_پایه);
 
-public:
+عام:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
-        T_Data* userp = getUserp(nodep);
-        if (!userp) {
-            m_allocated.emplace_back(std::forward<Args>(args)...);
-            userp = &m_allocated.back();
-            setUserp(nodep, userp);
+    قالب <typename... آرگومانها_2>
+    T_داده& عملگر()(T_گره* nodep, آرگومانها_2&&... آرگومانها) {
+        T_داده* userp = getUserp(nodep);
+        إذا (!userp) {
+            m_allocated.emplace_پشت(std::forward<آرگومانها_2>(آرگومانها)...);
+            userp = &m_allocated.پشت();
+            مجموعه_Userp(nodep, userp);
         }
-        return *userp;
+        أرجع *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_داده& عملگر()(ثابت T_گره* nodep) ثابت {
+        T_داده* ثابت userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        أرجع *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_داده* tryGet(ثابت T_گره* nodep) ثابت { أرجع getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    فراغ clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+قالب <typename T_گره, typename T_داده>
+class AstUser1Allocator final : عام Ast_User_Allocator_پایه<T_گره, T_داده, 1> {};
+قالب <typename T_گره, typename T_داده>
+class AstUser2Allocator final : عام Ast_User_Allocator_پایه<T_گره, T_داده, 2> {};
+قالب <typename T_گره, typename T_داده>
+class AstUser3Allocator final : عام Ast_User_Allocator_پایه<T_گره, T_داده, 3> {};
+قالب <typename T_گره, typename T_داده>
+class AstUser4Allocator final : عام Ast_User_Allocator_پایه<T_گره, T_داده, 4> {};
 
-#endif  // Guard
+#پایان_اگر  // Guard

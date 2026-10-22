@@ -56,16 +56,16 @@
 //  and check for those errors somewhere before V3Task
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ClassGraph.h"
+#ضمن "V3ClassGraph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class V3ClassGraphVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(V3ClassGraphVertex, V3GraphVertex)
-    friend class ClassGraphBuilderVisitor;
-    enum Virtualization : uint8_t {
+صنف V3_Class_گراف_رأس final : عام V3_گراف_رأس {
+    VL_RTTI_IMPL(V3_Class_گراف_رأس, V3_گراف_رأس)
+    دوست صنف Class_گراف_Builder_Visitor;
+    تعداد Virtualization : uint8_t {
         NON_VIRTUAL = 0,  // Not a virtual member function
         VIRTUAL_IMPLICIT,  // virtual keyword is not next to a function definition the ancestor
                            // class has such virtual function therefore, it is treated as an
@@ -76,140 +76,140 @@ class V3ClassGraphVertex final : public V3GraphVertex {
         // Note: non-virtual inherited function may not be described with this enum - no need for
         // now as well as static functions
     };
-    struct FuncInfo final {
-        AstCFunc* const m_cfuncp;  // pointer to a described function
-        std::unordered_set<AstCFunc*>
+    بنية FuncInfo final {
+        AstCFunc* ثابت m_cfuncp;  // pointer to a described function
+        std::unordered_مجموعه<AstCFunc*>
             m_cache;  // set of functions that may be called due to a virtual call
         Virtualization m_virtualization;  // Whether function is virtual (see Virtualization)
-        bool m_cacheInitialized;  // true when m_cache stores a valid value
-        FuncInfo(AstCFunc* const cfuncp, Virtualization virtualization)
+        منطقي m_cacheInitialized;  // true when m_cache stores a valid value
+        FuncInfo(AstCFunc* ثابت cfuncp, Virtualization virtualization)
             : m_cfuncp{cfuncp}
             , m_virtualization{virtualization}
-            , m_cacheInitialized{false} {}
+            , m_cacheInitialized{خطأ} {}
     };
     std::unordered_map<std::string, FuncInfo>
         m_funcsVirtualization;  // Map from function names to their description
-    const AstClass* const m_classp;  // A class of which the function is a member of
+    ثابت AstClass* ثابت m_classp;  // A class of which the function is a member of
 
-public:
-    explicit V3ClassGraphVertex(V3Graph* const graphp, const AstClass* const classp)
-        : V3GraphVertex{graphp}
+عام:
+    صریح V3_Class_گراف_رأس(V3_گراف* ثابت graphp, ثابت AstClass* ثابت classp)
+        : V3_گراف_رأس{graphp}
         , m_classp{classp} {}
-    ~V3ClassGraphVertex() override = default;
+    ~V3_Class_گراف_رأس() override = افتراضي;
 
-    std::string name() const override { return m_classp->name(); }
+    std::string name() ثابت override { أرجع m_classp->name(); }
 
-    void addFunc(AstCFunc* const cfuncp) {
+    فراغ جمع_کن_Func(AstCFunc* ثابت cfuncp) {
         m_funcsVirtualization.emplace(
             std::piecewise_construct, std::forward_as_tuple(cfuncp->name()),
-            std::forward_as_tuple(cfuncp, cfuncp->isVirtual() ? V3ClassGraphVertex::VIRTUAL
-                                                              : V3ClassGraphVertex::NON_VIRTUAL));
+            std::forward_as_tuple(cfuncp, cfuncp->isVirtual() ? V3_Class_گراف_رأس::VIRTUAL
+                                                              : V3_Class_گراف_رأس::NON_VIRTUAL));
     }
-    void propagateVirt(const V3ClassGraphVertex& from) {
-        for (auto funcs : from.m_funcsVirtualization) {
-            if (funcs.second.m_virtualization == NON_VIRTUAL) continue;
-            auto& vertex
+    فراغ propagateVirt(ثابت V3_Class_گراف_رأس& from) {
+        لكل (خودکار funcs : from.m_funcsVirtualization) {
+            إذا (funcs.دومی.m_virtualization == NON_VIRTUAL) استمر;
+            خودکار& رأس
                 = m_funcsVirtualization
                       .emplace(
-                          std::piecewise_construct, std::forward_as_tuple(funcs.first),
-                          std::forward_as_tuple(nullptr, V3ClassGraphVertex::VIRTUAL_INHERITED))
-                      .first->second;
-            if (vertex.m_virtualization == NON_VIRTUAL) vertex.m_virtualization = VIRTUAL_IMPLICIT;
+                          std::piecewise_construct, std::forward_as_tuple(funcs.اولی),
+                          std::forward_as_tuple(اشاره_تهی, V3_Class_گراف_رأس::VIRTUAL_INHERITED))
+                      .اولی->دومی;
+            إذا (رأس.m_virtualization == NON_VIRTUAL) رأس.m_virtualization = VIRTUAL_IMPLICIT;
         }
     }
-    const std::unordered_set<AstCFunc*>& getCallPossibleCFuncs(const std::string& name) & {
-        auto it = m_funcsVirtualization.find(name);
-        UASSERT_OBJ(it != m_funcsVirtualization.end(), m_classp,
+    ثابت std::unordered_مجموعه<AstCFunc*>& getCallPossibleCFuncs(ثابت std::string& name) & {
+        خودکار it = m_funcsVirtualization.پیدا_کن(name);
+        UASSERT_OBJ(it != m_funcsVirtualization.انتها(), m_classp,
                     "Unexpected call - CFunc with name '" << name << "' not found");
-        FuncInfo& info = it->second;
-        if (!info.m_cacheInitialized) {
-            if (info.m_cfuncp) info.m_cache.insert(info.m_cfuncp);
-            if (info.m_virtualization != V3ClassGraphVertex::NON_VIRTUAL) {
-                for (V3GraphEdge& edge : outEdges()) {
-                    V3ClassGraphVertex* const other = edge.top()->as<V3ClassGraphVertex>();
-                    const std::unordered_set<AstCFunc*> otherCalls
+        FuncInfo& info = it->دومی;
+        إذا (!info.m_cacheInitialized) {
+            إذا (info.m_cfuncp) info.m_cache.درج(info.m_cfuncp);
+            إذا (info.m_virtualization != V3_Class_گراف_رأس::NON_VIRTUAL) {
+                لكل (V3_گراف_یال& یال : بیرون_یالها()) {
+                    V3_Class_گراف_رأس* ثابت other = یال.بالاترین()->as<V3_Class_گراف_رأس>();
+                    ثابت std::unordered_مجموعه<AstCFunc*> otherCalls
                         = other->getCallPossibleCFuncs(name);
-                    info.m_cache.insert(otherCalls.begin(), otherCalls.end());
+                    info.m_cache.درج(otherCalls.begin(), otherCalls.انتها());
                 }
             }
-            info.m_cacheInitialized = true;
+            info.m_cacheInitialized = درست;
         }
-        return info.m_cache;
+        أرجع info.m_cache;
     }
 };
 
-const std::unordered_set<AstCFunc*>&
-V3ClassGraph::getCallPossibleCFuncs(const AstNodeCCall* const callp) const& {
+ثابت std::unordered_مجموعه<AstCFunc*>&
+V3_Class_گراف::getCallPossibleCFuncs(ثابت Ast_گره_CCall* ثابت callp) ثابت& {
     // super references shall have AstNodeCCall::funcp() pointing to the only possible
     // AstCFunc that may be called
-    if (callp->superReference()) return m_emptySet;
-    const auto it = m_memberFuncToClassVertex.find(callp->funcp());
-    if (it == m_memberFuncToClassVertex.end()) {
-        return m_emptySet;  // Not under class return empty set
+    إذا (callp->superReference()) أرجع m_خالی_مجموعه;
+    ثابت خودکار it = m_member_Func_مقصد_Class_رأس.پیدا_کن(callp->funcp());
+    إذا (it == m_member_Func_مقصد_Class_رأس.انتها()) {
+        أرجع m_خالی_مجموعه;  // Not under class return empty set
     }
-    return it->second->getCallPossibleCFuncs(callp->funcp()->name());
+    أرجع it->دومی->getCallPossibleCFuncs(callp->funcp()->name());
 }
 
 // Build a Class graph and returns it in a V3ClassGraph
-class ClassGraphBuilderVisitor final : VNVisitorConst {
-    std::unique_ptr<V3ClassGraph> m_graphp;  // Graph of classes
-    std::unordered_map<const AstClass*, V3ClassGraphVertex*>
-        m_vertexMap;  // Maps classes to their vertices
-    AstClass* m_classp = nullptr;  // Current class
-    V3ClassGraphVertex* m_classVertexp = nullptr;  // vertex corresponding to a current class -
+صنف Class_گراف_Builder_Visitor final : VNVisitorConst {
+    std::unique_ptr<V3_Class_گراف> m_graphp;  // Graph of classes
+    std::unordered_map<ثابت AstClass*, V3_Class_گراف_رأس*>
+        m_رأس_Map;  // Maps classes to their vertices
+    AstClass* m_classp = اشاره_تهی;  // Current class
+    V3_Class_گراف_رأس* m_classVertexp = اشاره_تهی;  // vertex corresponding to a current class -
                                                    // getClassVertex(m_classp) == m_classVertexp
 
-    V3ClassGraphVertex* getClassVertex(const AstClass* const classp) {
-        auto it = m_vertexMap.find(classp);
-        if (it != m_vertexMap.end()) return it->second;
-        return m_vertexMap.emplace(classp, new V3ClassGraphVertex{m_graphp.get(), classp})
-            .first->second;
+    V3_Class_گراف_رأس* get_Class_رأس(ثابت AstClass* ثابت classp) {
+        خودکار it = m_رأس_Map.پیدا_کن(classp);
+        إذا (it != m_رأس_Map.انتها()) أرجع it->دومی;
+        أرجع m_رأس_Map.emplace(classp, جديد V3_Class_گراف_رأس{m_graphp.get(), classp})
+            .اولی->دومی;
     }
 
-    void visit(AstCFunc* const nodep) override {
+    فراغ بازدید(AstCFunc* ثابت nodep) override {
         // Constructors have explicitly added super call (added by V3LinkDot if not added by user),
         // therefore assume that no virtualization happens - only explicit calls
-        if (!m_classp || nodep->isConstructor()) return;
+        إذا (!m_classp || nodep->isConstructor()) أرجع;
         UASSERT_OBJ(m_classVertexp, nodep,
                     "If function is under class m_classVertexp shall be set");
-        m_graphp->m_memberFuncToClassVertex.emplace(nodep, m_classVertexp);
-        m_classVertexp->addFunc(nodep);
+        m_graphp->m_member_Func_مقصد_Class_رأس.emplace(nodep, m_classVertexp);
+        m_classVertexp->جمع_کن_Func(nodep);
     }
-    void visit(AstClassExtends* const nodep) override {
+    فراغ بازدید(AstClassExtends* ثابت nodep) override {
         UASSERT_OBJ(m_classVertexp, nodep,
                     "m_classVertexp shall be set while visiting AstClassExtends");
-        new V3GraphEdge{m_graphp.get(),
-                        getClassVertex(VN_AS(nodep->childDTypep(), ClassRefDType)->classp()),
+        جديد V3_گراف_یال{m_graphp.get(),
+                        get_Class_رأس(VN_AS(nodep->فرزند_DTypep(), ClassRefDType)->classp()),
                         m_classVertexp, 1};
     }
-    void visit(AstNodeModule* const nodep) override {
+    فراغ بازدید(Ast_گره_Module* ثابت nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_classVertexp);
         m_classp = VN_CAST(nodep, Class);
-        if (m_classp) m_classVertexp = getClassVertex(m_classp);
+        إذا (m_classp) m_classVertexp = get_Class_رأس(m_classp);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNode* const nodep) override { iterateChildrenConst(nodep); }
+    فراغ بازدید(Ast_گره* ثابت nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit ClassGraphBuilderVisitor(AstNetlist* const nodep)
-        : m_graphp{new V3ClassGraph} {
+عام:
+    صریح Class_گراف_Builder_Visitor(AstNetlist* ثابت nodep)
+        : m_graphp{جديد V3_Class_گراف} {
         iterateConst(nodep);
 
         // Propagate virtualization
-        m_graphp->order();
-        for (V3GraphVertex& graphVertex : m_graphp->vertices()) {
-            V3ClassGraphVertex* const vertexp = graphVertex.as<V3ClassGraphVertex>();
-            for (V3GraphEdge& outEdge : vertexp->outEdges()) {
-                V3ClassGraphVertex* const successorp = outEdge.top()->as<V3ClassGraphVertex>();
+        m_graphp->ترتیب();
+        لكل (V3_گراف_رأس& گراف_رأس : m_graphp->vertices()) {
+            V3_Class_گراف_رأس* ثابت vertexp = گراف_رأس.as<V3_Class_گراف_رأس>();
+            لكل (V3_گراف_یال& بیرون_یال : vertexp->بیرون_یالها()) {
+                V3_Class_گراف_رأس* ثابت successorp = بیرون_یال.بالاترین()->as<V3_Class_گراف_رأس>();
                 successorp->propagateVirt(*vertexp);
             }
         }
     }
-    ~ClassGraphBuilderVisitor() override = default;
-    std::unique_ptr<V3ClassGraph> takeGraph() && { return std::move(m_graphp); }
+    ~Class_گراف_Builder_Visitor() override = افتراضي;
+    std::unique_ptr<V3_Class_گراف> take_گراف() && { أرجع std::move(m_graphp); }
 };
 
-std::unique_ptr<V3ClassGraph> V3ClassGraph::build(AstNetlist* netlistp) {
-    return ClassGraphBuilderVisitor{netlistp}.takeGraph();
+std::unique_ptr<V3_Class_گراف> V3_Class_گراف::build(AstNetlist* netlistp) {
+    أرجع Class_گراف_Builder_Visitor{netlistp}.take_گراف();
 }

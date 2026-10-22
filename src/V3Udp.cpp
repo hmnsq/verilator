@@ -22,244 +22,244 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Udp.h"
+#ضمن "V3Udp.h"
 
-#include "V3Error.h"
+#ضمن "V3Error.h"
 
-#include <vector>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class UdpVisitor final : public VNVisitor {
-    bool m_inInitial = false;  // Is inside of an initial block
-    AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
-    std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
-    AstPrimitive* m_primp = nullptr;  // The current primitive
-    bool m_isFirstOutput = false;  // Whether the first IO port is output
-    AstVarRef* m_outputInitVerfp = nullptr;  // Initial output value for sequential UDP
-    AstAlways* m_alwaysBlockp = nullptr;  // Main Always block in UDP transform
+صنف UdpVisitor final : عام VNVisitor {
+    منطقي m_درون_Initial = خطأ;  // Is inside of an initial block
+    AstVar* m_o_فیلد_Varp = اشاره_تهی;  // Output filed var of table line
+    std::وکتور<AstVar*> m_درون_داد_Vars;  // All the input vars in the AstPrimitive
+    std::وکتور<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
+    AstPrimitive* m_primp = اشاره_تهی;  // The current primitive
+    منطقي m_is_اولی_Output = خطأ;  // Whether the first IO port is output
+    AstVarRef* m_outputInitVerfp = اشاره_تهی;  // Initial output value for sequential UDP
+    AstAlways* m_alwaysBlockp = اشاره_تهی;  // Main Always block in UDP transform
 
-    void visit(AstInitial* nodep) override {
-        VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+    فراغ بازدید(AstInitial* nodep) override {
+        VL_RESTORER(m_درون_Initial);
+        إذا (m_primp) m_درون_Initial = درست;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+    فراغ بازدید(Ast_تخصیص_بده* nodep) override {
+        إذا (m_درون_Initial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
-    void visit(AstPrimitive* nodep) override {
+    فراغ بازدید(AstPrimitive* nodep) override {
         UASSERT_OBJ(!m_primp, nodep, "Primitives cannot nest");
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
-        VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER(m_is_اولی_Output);
+        VL_RESTORER_CLEAR(m_درون_داد_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
-        m_outputInitVerfp = nullptr;
+        m_outputInitVerfp = اشاره_تهی;
         m_primp = nodep;
-        m_isFirstOutput = false;
+        m_is_اولی_Output = خطأ;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    فراغ بازدید(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
-                } else {
-                    m_outputVars.push_back(nodep);
+        إذا (m_primp) {
+            إذا (nodep->isIO()) {
+                إذا (nodep->is_درون_داد()) {
+                    m_درون_داد_Vars.افزودن_پشت(nodep);
+                } وإلا {
+                    m_outputVars.افزودن_پشت(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
-                    m_isFirstOutput = true;
+                إذا ((m_درون_داد_Vars.اندازه() == 0) && (m_outputVars.اندازه() == 1)) {
+                    m_is_اولی_Output = درست;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
-            m_outputVars.back()->v3error(
-                m_outputVars.size()
+    فراغ بازدید(Ast_Udp_جدول* nodep) override {
+        File_سطر* ثابت fl = nodep->fileline();
+        إذا (m_outputVars.اندازه() != 1) {
+            m_outputVars.پشت()->v3error(
+                m_outputVars.اندازه()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+        إذا (!m_is_اولی_Output && m_outputVars.اندازه()) {
+            m_درون_داد_Vars[0]->v3error("First UDP port must be the output port");
         }
-        m_oFieldVarp = m_outputVars[0];
+        m_o_فیلد_Varp = m_outputVars[0];
 
-        m_alwaysBlockp = new AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        m_alwaysBlockp = جديد AstAlways{fl, VAlwaysKwd::ALWAYS, اشاره_تهی, اشاره_تهی};
+        fl->warnOff(V3_Error_کد::LATCH, درست);
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
+    فراغ بازدید(Ast_Udp_جدول_سطر* nodep) override {
+        File_سطر* ثابت fl = nodep->fileline();
+        إذا (!nodep->udpIsCombo() && !m_o_فیلد_Varp->is_بیت_Logic()) {
+            m_o_فیلد_Varp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error(
+        إذا (nodep->udpIsCombo() && m_o_فیلد_Varp->is_بیت_Logic()) {
+            m_o_فیلد_Varp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_گره* iNodep = nodep->iFieldsp();
+        Ast_گره* oNodep = nodep->oFieldsp();
+        Ast_Sen_درخت* edgetrigp = اشاره_تهی;
 
-        AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
-                                           new AstConst{fl, AstConst::BitTrue{}}};
+        AstLogAnd* logandp = جديد AstLogAnd{fl, جديد AstConst{fl, AstConst::بیت_True{}},
+                                           جديد AstConst{fl, AstConst::بیت_True{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        لكل (AstVar* ثابت varp : m_درون_داد_Vars) {
+            إذا (!iNodep) اكسر;
+            إذا (Ast_Udp_جدول_سطر_Val* linevalp = VN_CAST(iNodep, Udp_جدول_سطر_Val)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                إذا (is_یال_Trig(valName)) {
+                    إذا (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    إذا (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(افزودن_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
-                        fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
-                                           new AstVarRef{fl, varp, VAccess::READ}}};
+                    edgetrigp = جديد Ast_Sen_درخت{
+                        fl, جديد Ast_Sen_قلم{fl, VEdgeType::ET_BOTHEDGE,
+                                           جديد AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
-                    logandp = new AstLogAnd{
-                        fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
-                    logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                إذا (valName == "0" || valName == "f") {
+                    logandp = جديد AstLogAnd{
+                        fl, logandp, جديد AstLogNot{fl, جديد AstVarRef{fl, varp, VAccess::READ}}};
+                } وإلا إذا (valName == "1" || valName == "r") {
+                    logandp = جديد AstLogAnd{fl, logandp, جديد AstVarRef{fl, varp, VAccess::READ}};
+                } وإلا إذا (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    إذا (edgetrigp) VL_DO_DANGLING(افزودن_Deletep(edgetrigp), edgetrigp);
+                    إذا (logandp) VL_DO_DANGLING(افزودن_Deletep(logandp), logandp);
+                    أرجع;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        لكل (ثابت Ast_گره* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        إذا (inputvars != m_درون_داد_Vars.اندازه()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_درون_داد_Vars.اندازه()
                                                                          << ", got " << inputvars);
         }
 
-        string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        string ثابت oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
+        إذا (oValName == "-") {
+            إذا (edgetrigp) VL_DO_DANGLING(افزودن_Deletep(edgetrigp), edgetrigp);
+            إذا (logandp) VL_DO_DANGLING(افزودن_Deletep(logandp), logandp);
+            أرجع;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
-                logandp = new AstLogAnd{
+        إذا (!nodep->udpIsCombo()) {
+            إذا (oNodep->name() == "0") {
+                logandp = جديد AstLogAnd{
                     fl, logandp,
-                    new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+                    جديد AstLogNot{fl, جديد AstVarRef{fl, m_o_فیلد_Varp, VAccess::READ}}};
+            } وإلا إذا (oNodep->name() == "1") {
                 logandp
-                    = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+                    = جديد AstLogAnd{fl, logandp, جديد AstVarRef{fl, m_o_فیلد_Varp, VAccess::READ}};
+            } وإلا إذا (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                إذا (edgetrigp) VL_DO_DANGLING(افزودن_Deletep(edgetrigp), edgetrigp);
+                إذا (logandp) VL_DO_DANGLING(افزودن_Deletep(logandp), logandp);
+                أرجع;
             }
         }
 
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        fl->warnOff(V3_Error_کد::LATCH, درست);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
-        AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        Ast_گره_Stmt* ثابت assignp
+            = new_Output_تخصیص_بده(fl, get_Output_رقم(nodep, oValName), edgetrigp != اشاره_تهی);
+        AstIf* ثابت ifp = جديد AstIf{fl, logandp, assignp};
+        إذا (nodep->udpIsCombo()) {
+            إذا (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
-            m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            m_alwaysBlockp->جمع_کن_Stmtsp(ifp);
+            إذا (edgetrigp) VL_DO_DANGLING(افزودن_Deletep(edgetrigp), edgetrigp);
+            أرجع;
         }
-        if (!isSequentOutputSig(oValName)) {
+        إذا (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
-        m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
+        m_alwaysBlockp->جمع_کن_بعدی(جديد AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstLogAnd* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
-    static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+    ساكن منطقي is_یال_Trig(std::string& valName) {
+        إذا (valName == "x" || valName == "X") أرجع خطأ;
+        إذا (valName == "*") أرجع درست;
+        إذا (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            أرجع درست;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        إذا (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            أرجع درست;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        إذا (valName.اندازه() == 2) {
+            إذا (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            وإلا إذا (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            وإلا إذا (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            أرجع درست;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        إذا (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        أرجع خطأ;
     }
-    static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+    ساكن منطقي isCombOutputSig(ثابت std::string& valName) {
+        أرجع (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
-    static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+    ساكن منطقي isSequentOutputSig(ثابت std::string& valName) {
+        أرجع (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
-        AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+    Ast_گره_Stmt* new_Output_تخصیص_بده(File_سطر* fl, ثابت V3_عدد& بیرون_رقم, منطقي isDelayed) ثابت {
+        AstVarRef* ثابت lhsp = جديد AstVarRef{fl, m_o_فیلد_Varp, VAccess::WRITE};
+        AstConst* ثابت rhsp = جديد AstConst{fl, بیرون_رقم};
+        إذا (isDelayed) أرجع جديد Ast_تخصیص_بده_Dly{fl, lhsp, rhsp};
+        أرجع جديد Ast_تخصیص_بده{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
-        } else {
-            outputNum.setBit(0, 'x');
+    ساكن V3_عدد get_Output_رقم(Ast_گره* nodep, ثابت std::string& فیلد_نامها) {
+        V3_عدد output_رقم{nodep, 1};
+        إذا (فیلد_نامها == "0") {
+            output_رقم.مجموعه_بیت(0, 0);
+        } وإلا إذا (فیلد_نامها == "1") {
+            output_رقم.مجموعه_بیت(0, 1);
+        } وإلا {
+            output_رقم.مجموعه_بیت(0, 'x');
         }
-        return outputNum;
+        أرجع output_رقم;
     }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~UdpVisitor() override = default;
+    صریح UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~UdpVisitor() override = افتراضي;
 };
 
-void V3Udp::udpResolve(AstNetlist* rootp) {
+فراغ V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
-    { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    { ثابت UdpVisitor visitor{rootp}; }  // Destruct before checking
+    V3Global::dump_Check_Global_درخت("udp", 0, dump_درخت_Either_Level() >= 3);
 }

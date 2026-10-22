@@ -45,467 +45,467 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkInc.h"
+#ضمن "V3LinkInc.h"
 
-#include "V3LinkLValue.h"
+#ضمن "V3LinkLValue.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkIncVisitor final : public VNVisitor {
+صنف LinkIncVisitor final : عام VNVisitor {
     // NODE STATE
     //  AstLogAnd/AstLogOr::user1()  -> bool.  True if already lowered
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_درون_Use m_inuser1;
 
     // STATE
-    AstNodeFTask* m_ftaskp = nullptr;  // Function or task we're inside
-    AstNodeModule* m_modp = nullptr;  // Module we're inside
-    int m_modCompoundAssignmentsNum = 0;  // Var name counter
-    AstNode* m_insStmtp = nullptr;  // Where to insert statement
-    bool m_inCovergroup = false;  // Under a covergroup's coverpoint, cross, or option
-    bool m_condEvalContext = false;  // ++/-- is in a conditionally-evaluated position
-    AstNodeExpr* m_incCondp = nullptr;  // Gating condition for ++/-- in short-circuit context
+    Ast_گره_FTask* m_ftaskp = اشاره_تهی;  // Function or task we're inside
+    Ast_گره_Module* m_modp = اشاره_تهی;  // Module we're inside
+    صحيح m_mod_Compound_Assignments_رقم = 0;  // Var name counter
+    Ast_گره* m_insStmtp = اشاره_تهی;  // Where to insert statement
+    منطقي m_درون_Covergroup = خطأ;  // Under a covergroup's coverpoint, cross, or option
+    منطقي m_condEvalContext = خطأ;  // ++/-- is in a conditionally-evaluated position
+    Ast_گره_عبارت* m_incCondp = اشاره_تهی;  // Gating condition for ++/-- in short-circuit context
 
     // METHODS
-    void insertOnTop(AstNode* newp) {
+    فراغ درج_On_بالاترین(Ast_گره* newp) {
         // Add the thing directly under the current TFunc/Module, or class, as a member
         // Must not unlink the statements, as one of them is being iterated
-        if (m_ftaskp) {
+        إذا (m_ftaskp) {
             m_ftaskp->prependStmtsp(newp);
-        } else {
+        } وإلا {
             UASSERT_OBJ(m_modp, newp, "Variable not under FTASK/MODULE");
-            if (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
+            إذا (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
             m_modp->prependStmtsp(newp);
         }
     }
-    void insertBeforeStmt(AstNode* nodep, AstNode* newp) {
+    فراغ درج_Before_Stmt(Ast_گره* nodep, Ast_گره* newp) {
         // Return node that must be visited, if any
         UINFOTREE(9, newp, "", "newstmt");
         UASSERT_OBJ(m_insStmtp, nodep, "Expression not underneath a statement");
-        m_insStmtp->addHereThisAsNext(newp);
+        m_insStmtp->جمع_کن_اینجا_This_As_بعدی(newp);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    فراغ بازدید(Ast_گره_Module* nodep) override {
+        إذا (nodep->dead()) أرجع;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modCompoundAssignmentsNum);
+        VL_RESTORER(m_mod_Compound_Assignments_رقم);
         m_modp = nodep;
-        m_modCompoundAssignmentsNum = 0;
+        m_mod_Compound_Assignments_رقم = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    فراغ بازدید(Ast_گره_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
     // A covergroup's expressions are under no statement, and V3Covergroup moves them to its
     // constructor or sample(), so their variables are members of its class
-    void visitCovergroup(AstNode* nodep) {
+    فراغ بازدید_Covergroup(Ast_گره* nodep) {
         VL_RESTORER(m_ftaskp);
-        VL_RESTORER(m_inCovergroup);
-        m_ftaskp = nullptr;
-        m_inCovergroup = true;
+        VL_RESTORER(m_درون_Covergroup);
+        m_ftaskp = اشاره_تهی;
+        m_درون_Covergroup = درست;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFuncCovItem* nodep) override { visitCovergroup(nodep); }
-    void visit(AstCgOptionAssign* nodep) override { visitCovergroup(nodep); }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    فراغ بازدید(Ast_گره_Func_Cov_قلم* nodep) override { بازدید_Covergroup(nodep); }
+    فراغ بازدید(Ast_Cg_Option_تخصیص_بده* nodep) override { بازدید_Covergroup(nodep); }
+    فراغ بازدید(Ast_گره_Cover_Or_Assert* nodep) override {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
-        iterateAndNextNull(nodep->propp());
-        m_insStmtp = nullptr;
+        iterate_And_بعدی_Null(nodep->propp());
+        m_insStmtp = اشاره_تهی;
         // Note: no iterating over sentreep here as they will be ignored anyway
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
-            iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
-            iterateAndNextNull(intrinsicp->failsp());
+        إذا (AstAssert* ثابت assertp = VN_CAST(nodep, Assert)) {
+            iterate_And_بعدی_Null(assertp->failsp());
+        } وإلا إذا (AstAssertIntrinsic* ثابت intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
+            iterate_And_بعدی_Null(intrinsicp->failsp());
         }
-        iterateAndNextNull(nodep->passsp());
+        iterate_And_بعدی_Null(nodep->passsp());
     }
-    void visit(AstLoop* nodep) override {
+    فراغ بازدید(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        m_insStmtp = nullptr;  // First thing should be new statement
-        iterateAndNextNull(nodep->stmtsp());
-        m_insStmtp = nullptr;  // Next thing should be new statement
+        m_insStmtp = اشاره_تهی;  // First thing should be new statement
+        iterate_And_بعدی_Null(nodep->stmtsp());
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
     }
-    void visit(AstNodeForeach* nodep) override {
+    فراغ بازدید(Ast_گره_Foreach* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
-        m_insStmtp = nullptr;  // First thing should be new statement
+        m_insStmtp = اشاره_تهی;  // First thing should be new statement
         iterateChildren(nodep);
         // Done the loop
-        m_insStmtp = nullptr;  // Next thing should be new statement
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
     }
-    void visit(AstJumpBlock* nodep) override {
+    فراغ بازدید(Ast_Jump_بلوک* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
-        m_insStmtp = nullptr;  // First thing should be new statement
+        m_insStmtp = اشاره_تهی;  // First thing should be new statement
         iterateChildren(nodep);
         // Done the loop
-        m_insStmtp = nullptr;  // Next thing should be new statement
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
     }
-    void visit(AstNodeIf* nodep) override {
+    فراغ بازدید(Ast_گره_If* nodep) override {
         m_insStmtp = nodep;
-        iterateAndNextNull(nodep->condp());
-        m_insStmtp = nullptr;
-        iterateAndNextNull(nodep->thensp());
-        iterateAndNextNull(nodep->elsesp());
-        m_insStmtp = nullptr;
+        iterate_And_بعدی_Null(nodep->condp());
+        m_insStmtp = اشاره_تهی;
+        iterate_And_بعدی_Null(nodep->thensp());
+        iterate_And_بعدی_Null(nodep->elsesp());
+        m_insStmtp = اشاره_تهی;
     }
-    void visit(AstCaseItem* nodep) override {
+    فراغ بازدید(Ast_Case_قلم* nodep) override {
         {
             VL_RESTORER(m_condEvalContext);
-            m_condEvalContext = true;
-            iterateAndNextNull(nodep->condsp());
+            m_condEvalContext = درست;
+            iterate_And_بعدی_Null(nodep->condsp());
         }
-        m_insStmtp = nullptr;  // Next thing should be new statement
-        iterateAndNextNull(nodep->stmtsp());
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
+        iterate_And_بعدی_Null(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
+    فراغ بازدید(AstDelay* nodep) override {
         m_insStmtp = nodep;
-        iterateAndNextNull(nodep->lhsp());
-        m_insStmtp = nullptr;
-        iterateAndNextNull(nodep->stmtsp());
-        m_insStmtp = nullptr;
+        iterate_And_بعدی_Null(nodep->lhsp());
+        m_insStmtp = اشاره_تهی;
+        iterate_And_بعدی_Null(nodep->stmtsp());
+        m_insStmtp = اشاره_تهی;
     }
-    void visit(AstEventControl* nodep) override {
-        m_insStmtp = nullptr;
-        iterateAndNextNull(nodep->stmtsp());
-        m_insStmtp = nullptr;
+    فراغ بازدید(AstEventControl* nodep) override {
+        m_insStmtp = اشاره_تهی;
+        iterate_And_بعدی_Null(nodep->stmtsp());
+        m_insStmtp = اشاره_تهی;
     }
-    void visit(AstWait* nodep) override {
+    فراغ بازدید(AstWait* nodep) override {
         m_insStmtp = nodep;
-        iterateAndNextNull(nodep->condp());
-        m_insStmtp = nullptr;
-        iterateAndNextNull(nodep->stmtsp());
-        m_insStmtp = nullptr;
+        iterate_And_بعدی_Null(nodep->condp());
+        m_insStmtp = اشاره_تهی;
+        iterate_And_بعدی_Null(nodep->stmtsp());
+        m_insStmtp = اشاره_تهی;
     }
-    void visit(AstBegin* nodep) override {
-        m_insStmtp = nullptr;  // Pretend not a statement TODO: parse ++/-- as ExprStmt
+    فراغ بازدید(AstBegin* nodep) override {
+        m_insStmtp = اشاره_تهی;  // Pretend not a statement TODO: parse ++/-- as ExprStmt
         iterateChildren(nodep);
-        m_insStmtp = nullptr;  // Next thing should be new statement
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
     }
-    void visit(AstStmtExpr* nodep) override {
-        AstNodeExpr* const exprp = nodep->exprp();
-        if (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
+    فراغ بازدید(Ast_Stmt_عبارت* nodep) override {
+        Ast_گره_عبارت* ثابت exprp = nodep->exprp();
+        إذا (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
             || VN_IS(exprp, PreDec)) {
             // Repalce this StmtExpr with the expression, visiting it will turn it into a NodeStmt
-            nodep->replaceWith(exprp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            m_insStmtp = nullptr;
+            nodep->replaceWith(exprp->unlink_Fr_پشت());
+            VL_DO_DANGLING(افزودن_Deletep(nodep), nodep);
+            m_insStmtp = اشاره_تهی;
             iterate(exprp);
-            m_insStmtp = nullptr;
-            return;
+            m_insStmtp = اشاره_تهی;
+            أرجع;
         }
-        visit(static_cast<AstNodeStmt*>(nodep));
+        بازدید(static_cast<Ast_گره_Stmt*>(nodep));
     }
-    void visit(AstNodeStmt* nodep) override {
+    فراغ بازدید(Ast_گره_Stmt* nodep) override {
         m_insStmtp = nodep;
         iterateChildren(nodep);
-        m_insStmtp = nullptr;  // Next thing should be new statement
+        m_insStmtp = اشاره_تهی;  // Next thing should be new statement
     }
-    void unsupported_visit(AstNode* nodep) {
+    فراغ unsupported_بازدید(Ast_گره* nodep) {
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
-        m_condEvalContext = true;
+        m_condEvalContext = درست;
         // Not rescuable by short-circuit gating; drop the gate so nested ++/-- errors
-        m_incCondp = nullptr;
+        m_incCondp = اشاره_تهی;
         UINFO(9, "Marking unsupported " << nodep);
         iterateChildren(nodep);
     }
     // Hoist LHS into a BLOCKTEMP so it is evaluated exactly once; otherwise the
     // gated RHS ++/-- could modify a variable the LHS reads.
-    AstNodeExpr* captureLogicalLhsToTemp(AstNodeBiop* const nodep) {
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        const string name = "__VincGate"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
-            fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, lhsp->cloneTree(true)}};
+    Ast_گره_عبارت* capture_Logical_Lhs_مقصد_موقت(Ast_گره_Biop* ثابت nodep) {
+        File_سطر* ثابت fl = nodep->fileline();
+        Ast_گره_عبارت* ثابت lhsp = nodep->lhsp()->unlink_Fr_پشت();
+        ثابت string name = "__VincGate"s + cvt_مقصد_Str(++m_mod_Compound_Assignments_رقم);
+        AstVar* ثابت varp = جديد AstVar{
+            fl, VVarType::BLOCKTEMP, name, VFlag_فرزند_DType{},
+            جديد AstRefDType{fl, AstRefDType::Flag_Type_از_عبارت{}, lhsp->clone_درخت(درست)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
-        insertOnTop(varp);
-        AstNode* tempInitp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
+        إذا (m_ftaskp) varp->funcLocal(درست);
+        درج_On_بالاترین(varp);
+        Ast_گره* موقت_Initp = جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
         // Gate by the enclosing condition so a side-effecting LHS isn't run on short-circuit
-        if (m_incCondp) {
-            tempInitp = new AstIf{fl, m_incCondp->cloneTreePure(true), tempInitp, nullptr};
+        إذا (m_incCondp) {
+            موقت_Initp = جديد AstIf{fl, m_incCondp->clone_درخت_خالص(درست), موقت_Initp, اشاره_تهی};
         }
-        insertBeforeStmt(nodep, tempInitp);
-        nodep->lhsp(new AstVarRef{fl, varp, VAccess::READ});
-        return new AstVarRef{fl, varp, VAccess::READ};
+        درج_Before_Stmt(nodep, موقت_Initp);
+        nodep->lhsp(جديد AstVarRef{fl, varp, VAccess::READ});
+        أرجع جديد AstVarRef{fl, varp, VAccess::READ};
     }
-    void handleShortCircuit(AstNodeBiop* const nodep, bool isOr) {
+    فراغ handleShortCircuit(Ast_گره_Biop* ثابت nodep, منطقي isOr) {
         // insertBeforeStmt retargets the parent iterator; skip on re-visit
-        if (nodep->user1SetOnce()) return;
+        إذا (nodep->user1_مجموعه_Once()) أرجع;
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
-        iterateAndNextNull(nodep->lhsp());
-        m_condEvalContext = true;
-        AstNodeExpr* ownedCondp = nullptr;
+        iterate_And_بعدی_Null(nodep->lhsp());
+        m_condEvalContext = درست;
+        Ast_گره_عبارت* ownedCondp = اشاره_تهی;
         // Gate the RHS by the LHS condition if it evaluates any ++/-- anywhere within
-        if (nodep->rhsp()->exists([](const AstNode* np) {
-                return VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
-                       || VN_IS(np, PostDec) || VN_IS(np, AssignCompound);
+        إذا (nodep->rhsp()->exists([](ثابت Ast_گره* np) {
+                أرجع VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
+                       || VN_IS(np, PostDec) || VN_IS(np, تخصیص_بده_Compound);
             })) {
             // Const LHS or no statement context: clone-and-evaluate-twice is safe
-            AstNodeExpr* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
-                                       ? nodep->lhsp()->cloneTreePure(true)
-                                       : captureLogicalLhsToTemp(nodep);
+            Ast_گره_عبارت* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
+                                       ? nodep->lhsp()->clone_درخت_خالص(درست)
+                                       : capture_Logical_Lhs_مقصد_موقت(nodep);
             // For ||, RHS runs when LHS is false; gate by !LHS
-            if (isOr) lhsRefp = new AstLogNot{nodep->fileline(), lhsRefp};
-            ownedCondp = m_incCondp ? new AstLogAnd{nodep->fileline(),
-                                                    m_incCondp->cloneTreePure(true), lhsRefp}
+            إذا (isOr) lhsRefp = جديد AstLogNot{nodep->fileline(), lhsRefp};
+            ownedCondp = m_incCondp ? جديد AstLogAnd{nodep->fileline(),
+                                                    m_incCondp->clone_درخت_خالص(درست), lhsRefp}
                                     : lhsRefp;
             m_incCondp = ownedCondp;
         }
-        iterateAndNextNull(nodep->rhsp());
-        if (ownedCondp) VL_DO_DANGLING(ownedCondp->deleteTree(), ownedCondp);
+        iterate_And_بعدی_Null(nodep->rhsp());
+        إذا (ownedCondp) VL_DO_DANGLING(ownedCondp->delete_درخت(), ownedCondp);
     }
-    void visit(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/false); }
-    void visit(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/true); }
-    void visit(AstLogEq* nodep) override { unsupported_visit(nodep); }
-    void visit(AstLogIf* nodep) override { unsupported_visit(nodep); }
-    void visit(AstCond* nodep) override { unsupported_visit(nodep); }
-    void visit(AstPropSpec* nodep) override { unsupported_visit(nodep); }
-    void prepost_visit(AstNodeUniop* const nodep) {
+    فراغ بازدید(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/خطأ); }
+    فراغ بازدید(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/درست); }
+    فراغ بازدید(AstLogEq* nodep) override { unsupported_بازدید(nodep); }
+    فراغ بازدید(AstLogIf* nodep) override { unsupported_بازدید(nodep); }
+    فراغ بازدید(AstCond* nodep) override { unsupported_بازدید(nodep); }
+    فراغ بازدید(AstPropSpec* nodep) override { unsupported_بازدید(nodep); }
+    فراغ prepost_بازدید(Ast_گره_Uniop* ثابت nodep) {
         // Not underneath a statement, the increment is one, unless in a covergroup expression,
         // which is under none
-        const bool isStandaloneStmt = !m_insStmtp && !m_inCovergroup;
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
-            && !selbitp->bitp()->isPure()) {
-            prepost_stmt_sel_visit(nodep);
-        } else {
-            if (isStandaloneStmt) {
-                prepost_stmt_visit(nodep);
-            } else {
-                prepost_expr_visit(nodep);
+        ثابت منطقي isStandaloneStmt = !m_insStmtp && !m_درون_Covergroup;
+        Ast_Sel_بیت* ثابت selbitp = VN_CAST(nodep->lhsp(), Sel_بیت);
+        إذا (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), گره_Var_Ref)
+            && !selbitp->bitp()->is_خالص()) {
+            prepost_stmt_sel_بازدید(nodep);
+        } وإلا {
+            إذا (isStandaloneStmt) {
+                prepost_stmt_بازدید(nodep);
+            } وإلا {
+                prepost_عبارت_بازدید(nodep);
             }
         }
     }
-    AstNodeExpr* getOperationp(AstNode* const nodep, AstNodeExpr* const lhsp,
-                               AstNodeExpr* const rhsp) {
-        if (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
-            return new AstSub{nodep->fileline(), lhsp, rhsp};
+    Ast_گره_عبارت* getOperationp(Ast_گره* ثابت nodep, Ast_گره_عبارت* ثابت lhsp,
+                               Ast_گره_عبارت* ثابت rhsp) {
+        إذا (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
+            أرجع جديد AstSub{nodep->fileline(), lhsp, rhsp};
         }
-        if (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
-            return new AstAdd{nodep->fileline(), lhsp, rhsp};
+        إذا (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
+            أرجع جديد Ast_جمع_کن{nodep->fileline(), lhsp, rhsp};
         }
-        if (AstAssignCompound* assignp = VN_CAST(nodep, AssignCompound)) {
-            switch (assignp->operation()) {
-            case AstAssignCompound::operation::Add:
-                return new AstAdd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::And:
-                return new AstAnd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Div:
-                return new AstDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ModDiv:
-                return new AstModDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Mul:
-                return new AstMul{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Or: return new AstOr{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftL:
-                return new AstShiftL{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftR:
-                return new AstShiftR{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftRS:
-                return new AstShiftRS{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Sub:
-                return new AstSub{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Xor:
-                return new AstXor{nodep->fileline(), lhsp, rhsp};
-            default:;  // Error below  // LCOV_EXCL_LINE
+        إذا (Ast_تخصیص_بده_Compound* assignp = VN_CAST(nodep, تخصیص_بده_Compound)) {
+            بدل (assignp->operation()) {
+            حالة Ast_تخصیص_بده_Compound::operation::جمع_کن_2:
+                أرجع جديد Ast_جمع_کن{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::And:
+                أرجع جديد AstAnd{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::Div:
+                أرجع جديد AstDiv{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::ModDiv:
+                أرجع جديد AstModDiv{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::Mul:
+                أرجع جديد AstMul{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::Or: أرجع جديد AstOr{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::لغزش_L:
+                أرجع جديد Ast_لغزش_L{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::لغزش_R:
+                أرجع جديد Ast_لغزش_R{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::لغزش_RS:
+                أرجع جديد Ast_لغزش_RS{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::Sub:
+                أرجع جديد AstSub{nodep->fileline(), lhsp, rhsp};
+            حالة Ast_تخصیص_بده_Compound::operation::Xor:
+                أرجع جديد AstXor{nodep->fileline(), lhsp, rhsp};
+            افتراضي:;  // Error below  // LCOV_EXCL_LINE
             }
         }
         nodep->v3fatalSrc("Unhandled compound assignment operation");
     }
-    void prepost_stmt_sel_visit(AstNodeUniop* const nodep) {
+    فراغ prepost_stmt_sel_بازدید(Ast_گره_Uniop* ثابت nodep) {
         // Special case array[something]++, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
         iterateChildren(nodep);
-        FileLine* fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        File_سطر* fl = nodep->fileline();
+        V3_عدد رقم_One{fl, 32, 1, خطأ};
+        Ast_گره_عبارت* ثابت exprp = جديد AstConst{nodep->fileline(), رقم_One};
 
-        prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
+        prepost_stmt_sel_بازدید(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstAssignCompound* const nodep) {
+    فراغ prepost_stmt_sel_بازدید(Ast_تخصیص_بده_Compound* ثابت nodep) {
         // Special case array[something] += expr, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
+        Ast_گره_عبارت* ثابت exprp = nodep->rhsp()->unlink_Fr_پشت();
 
-        prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
+        prepost_stmt_sel_بازدید(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstNode* const nodep, AstNodeExpr* const lhsp,
-                                AstNodeExpr* const exprp) {
-        AstSelBit* const rdSelbitp = VN_AS(lhsp, SelBit);
-        AstNodeVarRef* const rdFromp = VN_AS(rdSelbitp->fromp()->cloneTreePure(true), NodeVarRef);
+    فراغ prepost_stmt_sel_بازدید(Ast_گره* ثابت nodep, Ast_گره_عبارت* ثابت lhsp,
+                                Ast_گره_عبارت* ثابت exprp) {
+        Ast_Sel_بیت* ثابت rdSelbitp = VN_AS(lhsp, Sel_بیت);
+        Ast_گره_Var_Ref* ثابت rdFromp = VN_AS(rdSelbitp->fromp()->clone_درخت_خالص(درست), گره_Var_Ref);
         rdFromp->access(VAccess::READ);
-        AstNodeExpr* const rdBitp = rdSelbitp->bitp()->unlinkFrBack();
-        AstSelBit* const wrSelbitp = VN_CAST(lhsp, SelBit);
-        AstNodeExpr* const wrFromp = wrSelbitp->fromp()->unlinkFrBack();
-        V3LinkLValue::linkLValueSet(wrFromp);
+        Ast_گره_عبارت* ثابت rdBitp = rdSelbitp->bitp()->unlink_Fr_پشت();
+        Ast_Sel_بیت* ثابت wrSelbitp = VN_CAST(lhsp, Sel_بیت);
+        Ast_گره_عبارت* ثابت wrFromp = wrSelbitp->fromp()->unlink_Fr_پشت();
+        V3LinkLValue::link_LValue_مجموعه(wrFromp);
 
         // Prepare a temporary variable
-        FileLine* const fl = nodep->fileline();
-        const string name = "__VtempIndex"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
-            fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, rdBitp->cloneTree(true)}};
-        if (m_ftaskp) varp->funcLocal(true);
+        File_سطر* ثابت fl = nodep->fileline();
+        ثابت string name = "__VtempIndex"s + cvt_مقصد_Str(++m_mod_Compound_Assignments_رقم);
+        AstVar* ثابت varp = جديد AstVar{
+            fl, VVarType::BLOCKTEMP, name, VFlag_فرزند_DType{},
+            جديد AstRefDType{fl, AstRefDType::Flag_Type_از_عبارت{}, rdBitp->clone_درخت(درست)}};
+        إذا (m_ftaskp) varp->funcLocal(درست);
 
         // Declare the variable
-        insertOnTop(varp);
+        درج_On_بالاترین(varp);
 
         // Define what operation will we be doing
-        AstAssign* const varAssignp
-            = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
-        AstNode* const newp = varAssignp;
+        Ast_تخصیص_بده* ثابت varAssignp
+            = جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
+        Ast_گره* ثابت newp = varAssignp;
 
-        AstNodeExpr* const valuep
-            = new AstSelBit{fl, rdFromp, new AstVarRef{fl, varp, VAccess::READ}};
-        AstNodeExpr* const storeTop
-            = new AstSelBit{fl, wrFromp, new AstVarRef{fl, varp, VAccess::READ}};
+        Ast_گره_عبارت* ثابت valuep
+            = جديد Ast_Sel_بیت{fl, rdFromp, جديد AstVarRef{fl, varp, VAccess::READ}};
+        Ast_گره_عبارت* ثابت store_بالاترین
+            = جديد Ast_Sel_بیت{fl, wrFromp, جديد AstVarRef{fl, varp, VAccess::READ}};
 
-        AstAssign* assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
-        newp->addNext(assignp);
+        Ast_تخصیص_بده* assignp
+            = جديد Ast_تخصیص_بده{nodep->fileline(), store_بالاترین, getOperationp(nodep, valuep, exprp)};
+        newp->جمع_کن_بعدی(assignp);
 
         // if (debug() >= 9) newp->dumpTreeAndNext("-pp-stmt-sel-new: ");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    void prepost_stmt_visit(AstNodeUniop* const nodep) {
+    فراغ prepost_stmt_بازدید(Ast_گره_Uniop* ثابت nodep) {
         iterateChildren(nodep);
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        Ast_گره_عبارت* ثابت store_بالاترین = nodep->lhsp()->clone_درخت_خالص(درست);
+        Ast_گره_عبارت* ثابت valuep = nodep->lhsp()->unlink_Fr_پشت();
+        File_سطر* ثابت fl = nodep->fileline();
+        V3_عدد رقم_One{fl, 32, 1, خطأ};
+        Ast_گره_عبارت* ثابت exprp = جديد AstConst{nodep->fileline(), رقم_One};
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_بازدید(nodep, exprp, store_بالاترین, valuep);
     }
-    void prepost_stmt_visit(AstAssignCompound* const nodep) {
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
+    فراغ prepost_stmt_بازدید(Ast_تخصیص_بده_Compound* ثابت nodep) {
+        Ast_گره_عبارت* ثابت exprp = nodep->rhsp()->unlink_Fr_پشت();
+        Ast_گره_عبارت* ثابت store_بالاترین = nodep->lhsp()->clone_درخت_خالص(درست);
+        Ast_گره_عبارت* ثابت valuep = nodep->lhsp()->unlink_Fr_پشت();
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_بازدید(nodep, exprp, store_بالاترین, valuep);
     }
-    void prepost_stmt_visit(AstNode* const nodep, AstNodeExpr* const exprp,
-                            AstNodeExpr* const storeTop, AstNodeExpr* const valuep) {
-        V3LinkLValue::linkLValueSet(valuep, VAccess::READ);
-        AstAssign* const assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
+    فراغ prepost_stmt_بازدید(Ast_گره* ثابت nodep, Ast_گره_عبارت* ثابت exprp,
+                            Ast_گره_عبارت* ثابت store_بالاترین, Ast_گره_عبارت* ثابت valuep) {
+        V3LinkLValue::link_LValue_مجموعه(valuep, VAccess::READ);
+        Ast_تخصیص_بده* ثابت assignp
+            = جديد Ast_تخصیص_بده{nodep->fileline(), store_بالاترین, getOperationp(nodep, valuep, exprp)};
         nodep->replaceWith(assignp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    void prepost_expr_visit(AstNodeUniop* const nodep) {
+    فراغ prepost_عبارت_بازدید(Ast_گره_Uniop* ثابت nodep) {
         iterateChildren(nodep);
         // In a covergroup, whose expressions are under no statement, the increment forms an
         // expression statement in place, as the parser makes '(x += 1)', so it is evaluated only
         // where and when its expression is
-        if (m_condEvalContext && !m_incCondp && !m_inCovergroup) {
+        إذا (m_condEvalContext && !m_incCondp && !m_درون_Covergroup) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Pre/post increment/decrement operator"
                                          " within a logical expression (&&, ||, ?:, etc.)");
-            return;
+            أرجع;
         }
-        const bool needGating = m_condEvalContext && m_incCondp && !m_inCovergroup;
-        AstNodeExpr* const readp = nodep->lhsp();
-        AstNodeExpr* const writep = nodep->lhsp()->cloneTreePure(true);
-        V3LinkLValue::linkLValueSet(readp, VAccess::READ);
+        ثابت منطقي needGating = m_condEvalContext && m_incCondp && !m_درون_Covergroup;
+        Ast_گره_عبارت* ثابت readp = nodep->lhsp();
+        Ast_گره_عبارت* ثابت writep = nodep->lhsp()->clone_درخت_خالص(درست);
+        V3LinkLValue::link_LValue_مجموعه(readp, VAccess::READ);
 
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const newconstp = new AstConst{nodep->fileline(), numOne};
+        File_سطر* ثابت fl = nodep->fileline();
+        V3_عدد رقم_One{fl, 32, 1, خطأ};
+        Ast_گره_عبارت* ثابت newconstp = جديد AstConst{nodep->fileline(), رقم_One};
 
         // Prepare a temporary variable
-        const string name = "__Vincrement"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
-            fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, readp->cloneTreePure(true)}};
+        ثابت string name = "__Vincrement"s + cvt_مقصد_Str(++m_mod_Compound_Assignments_رقم);
+        AstVar* ثابت varp = جديد AstVar{
+            fl, VVarType::BLOCKTEMP, name, VFlag_فرزند_DType{},
+            جديد AstRefDType{fl, AstRefDType::Flag_Type_از_عبارت{}, readp->clone_درخت_خالص(درست)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
+        إذا (m_ftaskp) varp->funcLocal(درست);
 
         // Declare the variable
-        insertOnTop(varp);
+        درج_On_بالاترین(varp);
 
         // Define what operation will we be doing
-        AstNodeExpr* const operp = getOperationp(nodep, readp->cloneTreePure(true), newconstp);
+        Ast_گره_عبارت* ثابت operp = getOperationp(nodep, readp->clone_درخت_خالص(درست), newconstp);
 
-        AstNode* stmtsp = nullptr;
-        if (needGating) {
+        Ast_گره* stmtsp = اشاره_تهی;
+        إذا (needGating) {
             // Short-circuit context: mutate the variable only when the gate is true.
             // The temp holds the old value, plus the new value for pre-inc/dec.
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
-            AstNode* const incp = new AstAssign{fl, writep, operp};
-            if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
-                incp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                            readp->cloneTreePure(true)});
+            Ast_تخصیص_بده* ثابت assignp = جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_درخت_خالص(درست)};
+            Ast_گره* ثابت incp = جديد Ast_تخصیص_بده{fl, writep, operp};
+            إذا (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+                incp->جمع_کن_بعدی(جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE},
+                                            readp->clone_درخت_خالص(درست)});
             }
-            assignp->addNextHere(new AstIf{fl, m_incCondp->cloneTreePure(true), incp, nullptr});
+            assignp->جمع_کن_بعدی_اینجا(جديد AstIf{fl, m_incCondp->clone_درخت_خالص(درست), incp, اشاره_تهی});
             stmtsp = assignp;
-        } else if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+        } وإلا إذا (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
             // PreInc/PreDec operations
             // Immediately after declaration - increment it by one
-            AstAssign* const assignp
-                = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, operp};
+            Ast_تخصیص_بده* ثابت assignp
+                = جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, operp};
             // Immediately after incrementing - assign it to the original variable
-            assignp->addNext(new AstAssign{fl, writep, new AstVarRef{fl, varp, VAccess::READ}});
+            assignp->جمع_کن_بعدی(جديد Ast_تخصیص_بده{fl, writep, جديد AstVarRef{fl, varp, VAccess::READ}});
             stmtsp = assignp;
-        } else {
+        } وإلا {
             // PostInc/PostDec operations
             // Assign the original variable to the temporary one
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
+            Ast_تخصیص_بده* ثابت assignp = جديد Ast_تخصیص_بده{fl, جديد AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_درخت_خالص(درست)};
             // Increment the original variable by one
-            assignp->addNext(new AstAssign{fl, writep, operp});
+            assignp->جمع_کن_بعدی(جديد Ast_تخصیص_بده{fl, writep, operp});
             stmtsp = assignp;
         }
 
         // Replace the node with the temporary, after the statements
-        AstNodeExpr* newp = new AstVarRef{readp->fileline(), varp, VAccess::READ};
-        if (m_inCovergroup) {
-            newp = new AstExprStmt{fl, stmtsp, newp};
-        } else {
-            insertBeforeStmt(nodep, stmtsp);
+        Ast_گره_عبارت* newp = جديد AstVarRef{readp->fileline(), varp, VAccess::READ};
+        إذا (m_درون_Covergroup) {
+            newp = جديد Ast_عبارت_Stmt{fl, stmtsp, newp};
+        } وإلا {
+            درج_Before_Stmt(nodep, stmtsp);
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    void visit(AstPreInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPreDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstAssignCompound* nodep) override {
-        visit(static_cast<AstNodeStmt*>(nodep));
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
-            && !selbitp->bitp()->isPure()) {
-            prepost_stmt_sel_visit(nodep);
-        } else {
-            prepost_stmt_visit(nodep);
+    فراغ بازدید(AstPreInc* nodep) override { prepost_بازدید(nodep); }
+    فراغ بازدید(AstPostInc* nodep) override { prepost_بازدید(nodep); }
+    فراغ بازدید(AstPreDec* nodep) override { prepost_بازدید(nodep); }
+    فراغ بازدید(AstPostDec* nodep) override { prepost_بازدید(nodep); }
+    فراغ بازدید(Ast_تخصیص_بده_Compound* nodep) override {
+        بازدید(static_cast<Ast_گره_Stmt*>(nodep));
+        Ast_Sel_بیت* ثابت selbitp = VN_CAST(nodep->lhsp(), Sel_بیت);
+        إذا (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), گره_Var_Ref)
+            && !selbitp->bitp()->is_خالص()) {
+            prepost_stmt_sel_بازدید(nodep);
+        } وإلا {
+            prepost_stmt_بازدید(nodep);
         }
     }
-    void visit(AstGenFor* nodep) override { iterateChildren(nodep); }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(AstGenFor* nodep) override { iterateChildren(nodep); }
+    فراغ بازدید(Ast_گره* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit LinkIncVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkIncVisitor() override = default;
+    صریح LinkIncVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~LinkIncVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkInc::linkIncrements(AstNetlist* nodep) {
+فراغ V3LinkInc::linkIncrements(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkIncVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkinc", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("linkinc", 0, dump_درخت_Either_Level() >= 3);
 }
