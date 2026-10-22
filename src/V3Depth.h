@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DEPTH_H_
-#define VERILATOR_V3DEPTH_H_
+#که_نه_تعریف_شوی VERILATOR_V3_ژوروالی_H
+#تعریف_کړه VERILATOR_V3_ژوروالی_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Depth final {
-public:
-    static void depthAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ژوروالی final {
+عام:
+    ساكن فراغ ژوروالی_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

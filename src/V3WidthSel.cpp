@@ -26,74 +26,74 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Const.h"
-#include "V3Width.h"
+#ضمن "V3Const.h"
+#ضمن "V3Width.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Width state, as a visitor of each AstNode
 
-class WidthSelVisitor final : public VNVisitor {
+صنف پلنوالی_Sel_Visitor final : عام VNVisitor {
     // IMPORTANT
     //**** This is not a normal visitor, in that all iteration is instead
     //  done by the caller (V3Width).  This avoids duplicating much of the
     //  complicated GenCase/GenFor/Cell/Function call logic that all depends
     //  on if widthing top-down or just for parameters.
-#define iterateChildren DO_NOT_iterateChildern_IN_V3WidthSel
+#تعریف_کړه iterateChildren DO_NOT_iterate_Childern_دننه_V3_پلنوالی_Sel
 
     // METHODS
 
-    void checkConstantOrReplace(AstNode* nodep, const string& message) {
+    فراغ checkConstantOrReplace(Ast_غوټه* nodep, ثابت string& پیغام) {
         // See also V3Width::checkConstantOrReplace
         // Note can't call V3Const::constifyParam(nodep) here, as constify may change nodep on us!
-        if (!VN_IS(nodep, Const)) {
-            nodep->v3error(message);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        إذا (!VN_IS(nodep, Const)) {
+            nodep->v3error(پیغام);
+            nodep->replaceWith(جديد AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
     }
 
     // RETURN TYPE
-    struct FromData final {
-        AstNodeDType* const m_errp;  // Node that was found, for error reporting if not known type
-        AstNodeDType* const m_dtypep;  // Data type for the 'from' slice
+    بنية From_معلومات final {
+        Ast_غوټه_DType* ثابت m_errp;  // Node that was found, for error reporting if not known type
+        Ast_غوټه_DType* ثابت m_dtypep;  // Data type for the 'from' slice
         VNumRange m_fromRange;  // Numeric range bounds for the 'from' slice
-        FromData(AstNodeDType* errp, AstNodeDType* dtypep, const VNumRange& fromRange)
+        From_معلومات(Ast_غوټه_DType* errp, Ast_غوټه_DType* dtypep, ثابت VNumRange& fromRange)
             : m_errp{errp}
             , m_dtypep{dtypep}
             , m_fromRange{fromRange} {}
-        ~FromData() = default;
+        ~From_معلومات() = افتراضي;
     };
-    static FromData fromDataForArray(AstNode* nodep, AstNode* basefromp) {
+    ساكن From_معلومات from_معلومات_For_Array(Ast_غوټه* nodep, Ast_غوټه* basefromp) {
         // What is the data type and information for this SEL-ish's from()?
         UINFO(9, "  fromData start ddtypep = " << basefromp);
         VNumRange fromRange;  // constructs to isRanged(false)
-        while (basefromp) {
-            if (VN_IS(basefromp, AttrOf)) {
-                basefromp = VN_AS(basefromp, AttrOf)->fromp();
-                continue;
+        طالما (basefromp) {
+            إذا (VN_IS(basefromp, Attr_د)) {
+                basefromp = VN_AS(basefromp, Attr_د)->fromp();
+                استمر;
             }
-            break;
+            اكسر;
         }
         UASSERT_OBJ(basefromp && basefromp->dtypep(), nodep, "Select with no from dtype");
-        AstNodeDType* const ddtypep = basefromp->dtypep()->skipRefp();
-        AstNodeDType* const errp = ddtypep;
+        Ast_غوټه_DType* ثابت ddtypep = basefromp->dtypep()->skipRefp();
+        Ast_غوټه_DType* ثابت errp = ddtypep;
         UINFO(9, "  fromData.ddtypep = " << ddtypep);
-        if (const AstNodeArrayDType* const adtypep = VN_CAST(ddtypep, NodeArrayDType)) {
+        إذا (ثابت Ast_غوټه_Array_DType* ثابت adtypep = VN_CAST(ddtypep, غوټه_Array_DType)) {
             fromRange = adtypep->declRange();
-        } else if (VN_IS(ddtypep, AssocArrayDType)) {
-        } else if (VN_IS(ddtypep, WildcardArrayDType)) {
-        } else if (VN_IS(ddtypep, DynArrayDType)) {
-        } else if (VN_IS(ddtypep, QueueDType)) {
-        } else if (const AstNodeUOrStructDType* const adtypep
-                   = VN_CAST(ddtypep, NodeUOrStructDType)) {
+        } وإلا إذا (VN_IS(ddtypep, AssocArrayDType)) {
+        } وإلا إذا (VN_IS(ddtypep, WildcardArrayDType)) {
+        } وإلا إذا (VN_IS(ddtypep, DynArrayDType)) {
+        } وإلا إذا (VN_IS(ddtypep, کتار_DType)) {
+        } وإلا إذا (ثابت Ast_غوټه_UOr_Struct_DType* ثابت adtypep
+                   = VN_CAST(ddtypep, غوټه_UOr_Struct_DType)) {
             fromRange = adtypep->declRange();
-        } else if (const AstBasicDType* const adtypep = VN_CAST(ddtypep, BasicDType)) {
-            if (adtypep->isString() && VN_IS(nodep, SelBit)) {
-            } else if (adtypep->isRanged()) {
+        } وإلا إذا (ثابت AstBasicDType* ثابت adtypep = VN_CAST(ddtypep, BasicDType)) {
+            إذا (adtypep->isString() && VN_IS(nodep, Sel_بټ)) {
+            } وإلا إذا (adtypep->isRanged()) {
                 UASSERT_OBJ(
                     !(adtypep->rangep()
                       && (!VN_IS(adtypep->rangep()->leftp(), Const)
@@ -101,119 +101,119 @@ class WidthSelVisitor final : public VNVisitor {
                     nodep,
                     "Non-constant variable range; errored earlier");  // in constifyParam(bfdtypep)
                 fromRange = adtypep->declRange();
-            } else {
+            } وإلا {
                 nodep->v3error("Illegal bit or array select; type does not have a bit range, or "
                                << "bad dimension: data type is " << errp->prettyDTypeNameQ());
             }
-        } else {
+        } وإلا {
             nodep->v3error("Illegal bit or array select; type already selected, or bad dimension: "
                            << "data type is " << errp->prettyDTypeNameQ());
         }
-        return FromData(errp, ddtypep, fromRange);
+        أرجع From_معلومات(errp, ddtypep, fromRange);
     }
 
-    AstNodeExpr* newSubNeg(AstNodeExpr* lhsp, int32_t rhs) {
+    Ast_غوټه_بیان* newSubNeg(Ast_غوټه_بیان* lhsp, int32_t rhs) {
         // Return lhs-rhs, but if rhs is negative use an add, so we won't
         // have to deal with signed math and related 32bit sign extension problems
-        if (rhs == 0) {
-            return lhsp;
-        } else if (VN_IS(lhsp, Const)) {
+        إذا (rhs == 0) {
+            أرجع lhsp;
+        } وإلا إذا (VN_IS(lhsp, Const)) {
             // Optional vs just making add/sub below, but saves constification some work
-            V3Number num(lhsp, lhsp->width());
-            num.opSub(VN_AS(lhsp, Const)->num(), V3Number(lhsp, 32, rhs));
-            num.isSigned(lhsp->isSigned());
-            return new AstConst{lhsp->fileline(), num};
-        } else if (rhs > 0) {
-            AstNodeExpr* const newp
-                = new AstSub{lhsp->fileline(), lhsp,
-                             new AstConst(lhsp->fileline(), AstConst::Unsized32{}, rhs)};
+            V3_شمېره عدد(lhsp, lhsp->پلنوالی());
+            عدد.opSub(VN_AS(lhsp, Const)->عدد(), V3_شمېره(lhsp, 32, rhs));
+            عدد.isSigned(lhsp->isSigned());
+            أرجع جديد AstConst{lhsp->fileline(), عدد};
+        } وإلا إذا (rhs > 0) {
+            Ast_غوټه_بیان* ثابت newp
+                = جديد AstSub{lhsp->fileline(), lhsp,
+                             جديد AstConst(lhsp->fileline(), AstConst::Unsized32{}, rhs)};
             // We must make sure sub gets sign of original value, not from the constant
             newp->dtypeFrom(lhsp);
-            return newp;
-        } else {  // rhs < 0;
-            AstNodeExpr* const newp
-                = new AstAdd{lhsp->fileline(), lhsp,
-                             new AstConst(lhsp->fileline(), AstConst::Unsized32{}, -rhs)};
+            أرجع newp;
+        } وإلا {  // rhs < 0;
+            Ast_غوټه_بیان* ثابت newp
+                = جديد Ast_جمع_کړه{lhsp->fileline(), lhsp,
+                             جديد AstConst(lhsp->fileline(), AstConst::Unsized32{}, -rhs)};
             // We must make sure sub gets sign of original value, not from the constant
             newp->dtypeFrom(lhsp);
-            return newp;
+            أرجع newp;
         }
     }
-    AstNodeExpr* newSubNeg(int32_t lhs, AstNodeExpr* rhsp) {
+    Ast_غوټه_بیان* newSubNeg(int32_t lhs, Ast_غوټه_بیان* rhsp) {
         // Return lhs-rhs
         // We must make sure sub gets sign of original value
-        AstNodeExpr* const newp = new AstSub{
-            rhsp->fileline(), new AstConst(rhsp->fileline(), AstConst::Unsized32{}, lhs), rhsp};
+        Ast_غوټه_بیان* ثابت newp = جديد AstSub{
+            rhsp->fileline(), جديد AstConst(rhsp->fileline(), AstConst::Unsized32{}, lhs), rhsp};
         newp->dtypeFrom(rhsp);  // Important as AstSub default is lhs's sign
-        return newp;
+        أرجع newp;
     }
 
-    AstNodeExpr* newSubLsbOf(AstNodeExpr* underp, const VNumRange& fromRange) {
+    Ast_غوټه_بیان* new_Sub_Lsb_د(Ast_غوټه_بیان* underp, ثابت VNumRange& fromRange) {
         // Account for a variable's LSB in bit selections
         // Will likely become SUB(underp, lsb_of_signal).
         // Don't report WIDTH warnings etc here, as may be inside a
         // generate branch that will be deleted.
         // SUB #'s Not needed when LSB==0 and MSB>=0 (ie [0:-13] must still get added!)
-        if (!fromRange.ranged()) {
+        إذا (!fromRange.ranged()) {
             // vector without range, or 0 lsb is ok, for example a INTEGER x; y = x[21:0];
-            return underp;
-        } else {
-            if (fromRange.ascending()) {
+            أرجع underp;
+        } وإلا {
+            إذا (fromRange.ascending()) {
                 // reg [1:3] was swapped to [3:1] (lsbEndianedp==3) and needs a SUB(3,under)
-                return newSubNeg(fromRange.hi(), underp);
-            } else {
+                أرجع newSubNeg(fromRange.hi(), underp);
+            } وإلا {
                 // reg [3:1] needs a SUB(under,1)
-                return newSubNeg(underp, fromRange.lo());
+                أرجع newSubNeg(underp, fromRange.lo());
             }
         }
     }
-    AstNodeExpr* newMulConst(FileLine* fl, uint32_t elwidth, AstNodeExpr* indexp) {
-        AstNodeExpr* extendp;
-        const int widthMin = std::max(V3Number::log2b(elwidth) + 1, indexp->widthMin());
-        if (indexp->width() > 32) {
-            extendp = new AstSel{fl, indexp, 0, 32, widthMin};
-        } else {
-            extendp = new AstExtend{fl, indexp, 32, widthMin};
+    Ast_غوټه_بیان* newMulConst(File_کرښه* fl, uint32_t elwidth, Ast_غوټه_بیان* indexp) {
+        Ast_غوټه_بیان* extendp;
+        ثابت صحيح پلنوالی_Min = std::max(V3_شمېره::log2b(elwidth) + 1, indexp->پلنوالی_Min());
+        إذا (indexp->پلنوالی() > 32) {
+            extendp = جديد AstSel{fl, indexp, 0, 32, پلنوالی_Min};
+        } وإلا {
+            extendp = جديد AstExtend{fl, indexp, 32, پلنوالی_Min};
         }
-        AstNodeExpr* const mulp
-            = new AstMul{fl, new AstConst{fl, AstConst::Unsized32{}, elwidth},
+        Ast_غوټه_بیان* ثابت mulp
+            = جديد AstMul{fl, جديد AstConst{fl, AstConst::Unsized32{}, elwidth},
                          // Extend needed as index might be e.g. 3 bits but constant e.g. 5 bits
                          extendp};
-        return mulp;
+        أرجع mulp;
     }
 
-    AstNodeDType* sliceDType(AstPackArrayDType* nodep, int msb, int lsb) {
+    Ast_غوټه_DType* ټوټه_DType(AstPackArrayDType* nodep, صحيح msb, صحيح lsb) {
         // Return slice needed for msb/lsb, either as original dtype or a new slice dtype
-        if (nodep->declRange().elements() == (msb - lsb + 1)  // Extracting whole of original array
+        إذا (nodep->declRange().elements() == (msb - lsb + 1)  // Extracting whole of original array
             && nodep->declRange().lo() == lsb) {
-            return nodep;
-        } else {
+            أرجع nodep;
+        } وإلا {
             // Need a slice data type, which is an array of the extracted
             // type, but with (presumably) different size
-            const VNumRange newRange{msb, lsb, nodep->declRange().ascending()};
-            AstNodeDType* const vardtypep
-                = new AstPackArrayDType{nodep->fileline(),
+            ثابت VNumRange newRange{msb, lsb, nodep->declRange().ascending()};
+            Ast_غوټه_DType* ثابت vardtypep
+                = جديد AstPackArrayDType{nodep->fileline(),
                                         nodep->subDTypep(),  // Need to strip off array reference
-                                        new AstRange{nodep->fileline(), newRange}};
-            v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
-            return vardtypep;
+                                        جديد AstRange{nodep->fileline(), newRange}};
+            v3Global.rootp()->typeTablep()->جمع_کړه_Typesp(vardtypep);
+            أرجع vardtypep;
         }
     }
 
-    AstNodeExpr* selQueueBackness(AstNode* nodep) {
-        if (VN_IS(nodep, Unbounded)) {  // e.g. "[$]"
-            return new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
-        } else if (VN_IS(nodep, Sub) && VN_IS(VN_CAST(nodep, Sub)->lhsp(), Unbounded)) {
+    Ast_غوټه_بیان* sel_کتار_Backness(Ast_غوټه* nodep) {
+        إذا (VN_IS(nodep, Unbounded)) {  // e.g. "[$]"
+            أرجع جديد AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
+        } وإلا إذا (VN_IS(nodep, Sub) && VN_IS(VN_CAST(nodep, Sub)->lhsp(), Unbounded)) {
             // e.g. "q[$ - 1]", where 1 is subnodep
-            AstNodeExpr* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlinkFrBack();
-            return subrhsp;
-        } else {
-            return nullptr;
+            Ast_غوټه_بیان* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlink_Fr_شا();
+            أرجع subrhsp;
+        } وإلا {
+            أرجع تش_اشاره;
         }
     }
 
-    void warnTri(AstNode* nodep) {
-        if (VN_IS(nodep, Const) && VN_AS(nodep, Const)->num().isFourState()) {
+    فراغ warnTri(Ast_غوټه* nodep) {
+        إذا (VN_IS(nodep, Const) && VN_AS(nodep, Const)->عدد().isFourState()) {
             nodep->v3error(
                 "Selection index is constantly unknown or tristated: " << nodep->name());
         }
@@ -222,151 +222,151 @@ class WidthSelVisitor final : public VNVisitor {
     // VISITORS
     // If adding new visitors, ensure V3Width's visit(TYPE) calls into here
 
-    void visit(AstSelBit* nodep) override {
+    فراغ لیدنه(Ast_Sel_بټ* nodep) override {
         // Select of a non-width specified part of an array, i.e. "array[2]"
         // This select style has a lsb and msb (no user specified width)
         UINFO(6, "SELBIT " << nodep);
         UINFOTREE(9, nodep->backp(), "", "SELBT0");
         // lhsp/rhsp do not need to be constant
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->bitp()->unlinkFrBack();  // bit we're extracting
+        Ast_غوټه_بیان* ثابت fromp = nodep->fromp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت rhsp = nodep->bitp()->unlink_Fr_شا();  // bit we're extracting
         UINFOTREE(9, nodep, "", "SELBT2");
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
+        ثابت From_معلومات fromdata = from_معلومات_For_Array(nodep, fromp);
+        Ast_غوټه_DType* ثابت ddtypep = fromdata.m_dtypep;
+        ثابت VNumRange fromRange = fromdata.m_fromRange;
         UINFO(6, "  ddtypep " << ddtypep);
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(ddtypep, UnpackArrayDType)) {
+        إذا (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(ddtypep, UnpackArrayDType)) {
             // SELBIT(array, index) -> ARRAYSEL(array, index)
-            AstNodeExpr* subp = rhsp;
-            if (fromRange.lo() != 0 || fromRange.hi() < 0) {
+            Ast_غوټه_بیان* subp = rhsp;
+            إذا (fromRange.lo() != 0 || fromRange.hi() < 0) {
                 subp = newSubNeg(subp, fromRange.lo());
             }
-            AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, subp};
+            AstArraySel* ثابت newp = جديد AstArraySel{nodep->fileline(), fromp, subp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (ثابت AstPackArrayDType* ثابت adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELBIT(array, index) -> SEL(array, index*width-of-subindex, width-of-subindex)
-            AstNodeExpr* subp = rhsp;
-            if (fromRange.ascending()) {
+            Ast_غوټه_بیان* subp = rhsp;
+            إذا (fromRange.ascending()) {
                 subp = newSubNeg(fromRange.hi(), subp);
-            } else {
+            } وإلا {
                 subp = newSubNeg(subp, fromRange.lo());
             }
-            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->width() % fromRange.elements()) != 0),
+            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->پلنوالی() % fromRange.elements()) != 0),
                         adtypep,
-                        "Array extraction with width miscomputed " << adtypep->width() << "/"
+                        "Array extraction with width miscomputed " << adtypep->پلنوالی() << "/"
                                                                    << fromRange.elements());
             // cppcheck-suppress zerodivcond
-            const int elwidth = adtypep->width() / fromRange.elements();
-            AstSel* const newp = new AstSel{
+            ثابت صحيح elwidth = adtypep->پلنوالی() / fromRange.elements();
+            AstSel* ثابت newp = جديد AstSel{
                 nodep->fileline(), fromp, newMulConst(nodep->fileline(), elwidth, subp), elwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
+            newp->decl_El_پلنوالی(elwidth);
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
-            if (VN_IS(adtypep->subDTypep(), BasicDType)) {
+            إذا (VN_IS(adtypep->subDTypep(), BasicDType)) {
                 // IEEE 1800-2023 7.4.1 Packed arrays says:
                 //   The individual elements of the array are unsigned
                 //   unless they are of a named type declared as signed.
-                newp->dtypep()->numeric(VSigning::fromBool(false));
+                newp->dtypep()->numeric(VSigning::fromBool(خطأ));
             }
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstAssocArrayDType* const adtypep = VN_CAST(ddtypep, AssocArrayDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (ثابت AstAssocArrayDType* ثابت adtypep = VN_CAST(ddtypep, AssocArrayDType)) {
             // SELBIT(array, index) -> ASSOCSEL(array, index)
-            AstAssocSel* const newp = new AstAssocSel{nodep->fileline(), fromp, rhsp};
+            AstAssocSel* ثابت newp = جديد AstAssocSel{nodep->fileline(), fromp, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstWildcardArrayDType* const adtypep
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (ثابت AstWildcardArrayDType* ثابت adtypep
                    = VN_CAST(ddtypep, WildcardArrayDType)) {
             // SELBIT(array, index) -> WILDCARDSEL(array, index)
-            AstWildcardSel* const newp = new AstWildcardSel{nodep->fileline(), fromp, rhsp};
+            AstWildcardSel* ثابت newp = جديد AstWildcardSel{nodep->fileline(), fromp, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstDynArrayDType* const adtypep = VN_CAST(ddtypep, DynArrayDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (ثابت AstDynArrayDType* ثابت adtypep = VN_CAST(ddtypep, DynArrayDType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
-            const VCMethod method
+            ثابت VCMethod لاره
                 = nodep->access().isWriteOrRW() ? VCMethod::ARRAY_AT_WRITE : VCMethod::ARRAY_AT;
-            AstCMethodHard* const newp
-                = new AstCMethodHard{nodep->fileline(), fromp, method, rhsp};
+            AstCMethodHard* ثابت newp
+                = جديد AstCMethodHard{nodep->fileline(), fromp, لاره, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstQueueDType* const adtypep = VN_CAST(ddtypep, QueueDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (ثابت Ast_کتار_DType* ثابت adtypep = VN_CAST(ddtypep, کتار_DType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
             AstCMethodHard* newp;
-            if (AstNodeExpr* const backnessp = selQueueBackness(rhsp)) {
-                const VCMethod method = nodep->access().isWriteOrRW()
-                                            ? VCMethod::DYN_AT_WRITE_APPEND_BACK
-                                            : VCMethod::ARRAY_AT_BACK;
-                newp = new AstCMethodHard{nodep->fileline(), fromp, method, backnessp};
-            } else {
-                const VCMethod method = nodep->access().isWriteOrRW()
+            إذا (Ast_غوټه_بیان* ثابت backnessp = sel_کتار_Backness(rhsp)) {
+                ثابت VCMethod لاره = nodep->access().isWriteOrRW()
+                                            ? VCMethod::DYN_AT_WRITE_APPEND_شا
+                                            : VCMethod::ARRAY_AT_شا;
+                newp = جديد AstCMethodHard{nodep->fileline(), fromp, لاره, backnessp};
+            } وإلا {
+                ثابت VCMethod لاره = nodep->access().isWriteOrRW()
                                             ? VCMethod::DYN_AT_WRITE_APPEND
                                             : VCMethod::ARRAY_AT;
-                newp = new AstCMethodHard{nodep->fileline(), fromp, method, rhsp};
+                newp = جديد AstCMethodHard{nodep->fileline(), fromp, لاره, rhsp};
             }
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType) && ddtypep->isString()) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (VN_IS(ddtypep, BasicDType) && ddtypep->isString()) {
             // SELBIT(string, index) -> GETC(string, index)
-            AstNodeExpr* exprp = fromp;
-            while (true) {
-                if (AstMemberSel* const memberselp = VN_CAST(exprp, MemberSel)) {
+            Ast_غوټه_بیان* exprp = fromp;
+            طالما (ریښتیا) {
+                إذا (AstMemberSel* ثابت memberselp = VN_CAST(exprp, MemberSel)) {
                     exprp = memberselp->fromp();
-                } else if (AstStructSel* const structselp = VN_CAST(exprp, StructSel)) {
+                } وإلا إذا (AstStructSel* ثابت structselp = VN_CAST(exprp, StructSel)) {
                     exprp = structselp->fromp();
-                } else {
-                    break;
+                } وإلا {
+                    اكسر;
                 }
             }
-            const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef);
-            AstNodeExpr* newp;
-            if (!varrefp || varrefp->access().isReadOnly()) {
-                newp = new AstGetcN{nodep->fileline(), fromp, rhsp};
-            } else {
-                newp = new AstGetcRefN{nodep->fileline(), fromp, rhsp};
+            ثابت Ast_غوټه_Var_Ref* ثابت varrefp = VN_CAST(exprp, غوټه_Var_Ref);
+            Ast_غوټه_بیان* newp;
+            إذا (!varrefp || varrefp->access().isReadOnly()) {
+                newp = جديد AstGetcN{nodep->fileline(), fromp, rhsp};
+            } وإلا {
+                newp = جديد AstGetcRefN{nodep->fileline(), fromp, rhsp};
             }
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (VN_IS(ddtypep, BasicDType)) {
             // SELBIT(range, index) -> SEL(array, index, 1)
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp, newSubLsbOf(rhsp, fromRange), 1};
+            AstSel* ثابت newp
+                = جديد AstSel{nodep->fileline(), fromp, new_Sub_Lsb_د(rhsp, fromRange), 1};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {  // A bit from the packed struct
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (VN_IS(ddtypep, غوټه_UOr_Struct_DType)) {  // A bit from the packed struct
             // SELBIT(range, index) -> SEL(array, index, 1)
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp, newSubLsbOf(rhsp, fromRange), 1};
+            AstSel* ثابت newp
+                = جديد AstSel{nodep->fileline(), fromp, new_Sub_Lsb_د(rhsp, fromRange), 1};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal bit or array select; type already selected, or bad dimension: "
                            << "data type is" << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        إذا (!rhsp->backp()) VL_DO_DANGLING(ټېل_Deletep(rhsp), rhsp);
     }
-    void visit(AstSelExtract* nodep) override {
+    فراغ لیدنه(Ast_Sel_ایستل* nodep) override {
         // Select of a range specified part of an array, i.e. "array[2:3]"
         // SELEXTRACT(from,msb,lsb) -> SEL(from, lsb, 1+msb-lsb)
         // This select style has a (msb or lsb) and width
@@ -376,277 +376,277 @@ class WidthSelVisitor final : public VNVisitor {
         V3Const::constifyParamsNoWarnEdit(nodep->leftp());  // May relink pointed to node
         V3Const::constifyParamsNoWarnEdit(nodep->rightp());  // May relink pointed to node
         // UINFOTREE(9, nodep, "", "SELEX3");
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
-        if (VN_IS(ddtypep, QueueDType)) {
-            AstNodeExpr* const qleftp = nodep->leftp()->unlinkFrBack();
-            AstNodeExpr* const qrightp = nodep->rightp()->unlinkFrBack();
-            AstNodeExpr* const qleftBacknessp = selQueueBackness(qleftp);
-            AstNodeExpr* const qrightBacknessp = selQueueBackness(qrightp);
+        Ast_غوټه_بیان* ثابت fromp = nodep->fromp()->unlink_Fr_شا();
+        ثابت From_معلومات fromdata = from_معلومات_For_Array(nodep, fromp);
+        Ast_غوټه_DType* ثابت ddtypep = fromdata.m_dtypep;
+        ثابت VNumRange fromRange = fromdata.m_fromRange;
+        إذا (VN_IS(ddtypep, کتار_DType)) {
+            Ast_غوټه_بیان* ثابت qleftp = nodep->leftp()->unlink_Fr_شا();
+            Ast_غوټه_بیان* ثابت qrightp = nodep->rightp()->unlink_Fr_شا();
+            Ast_غوټه_بیان* ثابت qleftBacknessp = sel_کتار_Backness(qleftp);
+            Ast_غوټه_بیان* ثابت qrightBacknessp = sel_کتار_Backness(qrightp);
             // Use special methods to refer to back rather than math using
             // queue size, this allows a single queue reference, to support
             // for equations in side effects that select the queue to
             // operate upon.
-            const VCMethod method = (qleftBacknessp    ? VCMethod::DYN_SLICE_BACK_BACK
-                                     : qrightBacknessp ? VCMethod::DYN_SLICE_FRONT_BACK
-                                                       : VCMethod::DYN_SLICE);
-            AstCMethodHard* const newp = new AstCMethodHard{nodep->fileline(), fromp, method};
-            if (qleftBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qleftp), qleftp);
-                newp->addPinsp(qleftBacknessp);
-            } else {
-                newp->addPinsp(qleftp);
+            ثابت VCMethod لاره = (qleftBacknessp    ? VCMethod::DYN_ټوټه_شا_شا
+                                     : qrightBacknessp ? VCMethod::DYN_ټوټه_FRONT_شا
+                                                       : VCMethod::DYN_ټوټه);
+            AstCMethodHard* ثابت newp = جديد AstCMethodHard{nodep->fileline(), fromp, لاره};
+            إذا (qleftBacknessp) {
+                VL_DO_DANGLING(ټېل_Deletep(qleftp), qleftp);
+                newp->جمع_کړه_Pinsp(qleftBacknessp);
+            } وإلا {
+                newp->جمع_کړه_Pinsp(qleftp);
             }
-            if (qrightBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qrightp), qrightp);
-                newp->addPinsp(qrightBacknessp);
-            } else {
-                newp->addPinsp(qrightp);
+            إذا (qrightBacknessp) {
+                VL_DO_DANGLING(ټېل_Deletep(qrightp), qrightp);
+                newp->جمع_کړه_Pinsp(qrightBacknessp);
+            } وإلا {
+                newp->جمع_کړه_Pinsp(qrightp);
             }
             newp->dtypep(ddtypep);
-            newp->didWidth(true);
-            newp->protect(false);
+            newp->did_پلنوالی(ریښتیا);
+            newp->protect(خطأ);
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            أرجع;
         }
         // Non-queue
         checkConstantOrReplace(nodep->leftp(),
                                "First value of [a:b] isn't a constant, maybe you want +: or -:");
         checkConstantOrReplace(nodep->rightp(),
                                "Second value of [a:b] isn't a constant, maybe you want +: or -:");
-        AstNodeExpr* const msbp = nodep->leftp()->unlinkFrBack();
-        AstNodeExpr* const lsbp = nodep->rightp()->unlinkFrBack();
-        int32_t msb = VN_AS(msbp, Const)->toSInt();
-        int32_t lsb = VN_AS(lsbp, Const)->toSInt();
-        const int32_t elem = (msb > lsb) ? (msb - lsb + 1) : (lsb - msb + 1);
-        if (VN_IS(ddtypep, UnpackArrayDType)) {
+        Ast_غوټه_بیان* ثابت msbp = nodep->leftp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت lsbp = nodep->rightp()->unlink_Fr_شا();
+        int32_t msb = VN_AS(msbp, Const)->منزل_SInt();
+        int32_t lsb = VN_AS(lsbp, Const)->منزل_SInt();
+        ثابت int32_t elem = (msb > lsb) ? (msb - lsb + 1) : (lsb - msb + 1);
+        إذا (VN_IS(ddtypep, UnpackArrayDType)) {
             // Slice extraction
-            if (fromRange.elements() == elem
+            إذا (fromRange.elements() == elem
                 && fromRange.lo() == lsb) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (fromRange.elements() == 1) {  // Extracting single element
-                AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, lsbp};
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            } وإلا إذا (fromRange.elements() == 1) {  // Extracting single element
+                AstArraySel* ثابت newp = جديد AstArraySel{nodep->fileline(), fromp, lsbp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {  // Slice
-                AstSliceSel* const newp
-                    = new AstSliceSel{nodep->fileline(), fromp,
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            } وإلا {  //ټوټه
+                Ast_ټوټه_Sel* ثابت newp
+                    = جديد Ast_ټوټه_Sel{nodep->fileline(), fromp,
                                       VNumRange{msb - fromRange.lo(), lsb - fromRange.lo()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
             }
-        } else if (AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+        } وإلا إذا (AstPackArrayDType* ثابت adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELEXTRACT(array, msb, lsb) -> SEL(array,
             //             lsb*width-of-subindex, width-of-subindex*(msb-lsb))
-            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->width() % fromRange.elements()) != 0),
+            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->پلنوالی() % fromRange.elements()) != 0),
                         adtypep,
-                        "Array extraction with width miscomputed " << adtypep->width() << "/"
+                        "Array extraction with width miscomputed " << adtypep->پلنوالی() << "/"
                                                                    << fromRange.elements());
             // Below code assumes descending bit range; just works out if we swap
-            if (fromRange.ascending()) std::swap(msb, lsb);
-            if (lsb > msb) {
+            إذا (fromRange.ascending()) std::بدلون(msb, lsb);
+            إذا (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
                         << "] Slice range has ascending bit ordering, perhaps you wanted [" << lsb
                         << ":" << msb << "]");
-                std::swap(msb, lsb);
+                std::بدلون(msb, lsb);
             }
-            const int elwidth = adtypep->width() / fromRange.elements();
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp,
-                             newMulConst(nodep->fileline(), elwidth, newSubLsbOf(lsbp, fromRange)),
+            ثابت صحيح elwidth = adtypep->پلنوالی() / fromRange.elements();
+            AstSel* ثابت newp
+                = جديد AstSel{nodep->fileline(), fromp,
+                             newMulConst(nodep->fileline(), elwidth, new_Sub_Lsb_د(lsbp, fromRange)),
                              (msb - lsb + 1) * elwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
-            newp->dtypeFrom(sliceDType(adtypep, msb, lsb));
+            newp->decl_El_پلنوالی(elwidth);
+            newp->dtypeFrom(ټوټه_DType(adtypep, msb, lsb));
             // UINFOTREE(9, newp, "", "EXTBTn");
-            UASSERT_OBJ(newp->widthMin() == newp->widthConst(), nodep, "Width mismatch");
+            UASSERT_OBJ(newp->پلنوالی_Min() == newp->پلنوالی_Const(), nodep, "Width mismatch");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (VN_IS(ddtypep, BasicDType)) {
             // Below code assumes descending bit range; just works out if we swap
-            if (fromRange.ascending()) std::swap(msb, lsb);
-            if (lsb > msb) {
+            إذا (fromRange.ascending()) std::بدلون(msb, lsb);
+            إذا (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
                         << "] Slice range has ascending bit ordering, perhaps you wanted [" << lsb
                         << ":" << msb << "]");
-                std::swap(msb, lsb);
+                std::بدلون(msb, lsb);
             }
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newSubLsbOf(lsbp, fromRange),
+            AstSel* ثابت newp = جديد AstSel{nodep->fileline(), fromp, new_Sub_Lsb_د(lsbp, fromRange),
                                             msb + 1 - lsb};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (VN_IS(ddtypep, غوټه_UOr_Struct_DType)) {
             // Classes don't have an ascending range
-            if (lsb > msb) {
+            إذا (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
                         << "] Slice range has ascending bit ordering, perhaps you wanted [" << lsb
                         << ":" << msb << "]");
-                std::swap(msb, lsb);
+                std::بدلون(msb, lsb);
             }
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newSubLsbOf(lsbp, fromRange),
+            AstSel* ثابت newp = جديد AstSel{nodep->fileline(), fromp, new_Sub_Lsb_د(lsbp, fromRange),
                                             msb + 1 - lsb};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal range select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             UINFO(1, "    Related ddtype: " << ddtypep);
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!msbp->backp()) VL_DO_DANGLING(pushDeletep(msbp), msbp);
-        if (!lsbp->backp()) VL_DO_DANGLING(pushDeletep(lsbp), lsbp);
+        إذا (!fromp->backp()) VL_DO_DANGLING(ټېل_Deletep(fromp), fromp);
+        إذا (!msbp->backp()) VL_DO_DANGLING(ټېل_Deletep(msbp), msbp);
+        إذا (!lsbp->backp()) VL_DO_DANGLING(ټېل_Deletep(lsbp), lsbp);
     }
 
-    void replaceSelPlusMinus(AstNodePreSel* nodep) {
+    فراغ replaceSelPlusMinus(Ast_غوټه_Pre_Sel* nodep) {
         // Select of a range specified with +: or -:, i.e. "array[2+:3], [2-:3]"
         // This select style has a lsb and width
         UINFO(6, "SELPLUS/MINUS " << nodep);
         // Below 2 lines may change nodep->widthp()
         UINFOTREE(9, nodep, "", "SELPM0");
-        V3Width::widthParamsEdit(nodep->rhsp());  // constifyEdit doesn't ensure widths finished
+        V3_پلنوالی::پلنوالی_Params_Edit(nodep->rhsp());  // constifyEdit doesn't ensure widths finished
         V3Const::constifyEdit(nodep->rhsp());  // May relink pointed to node, ok if not const
         V3Const::constifyParamsEdit(nodep->thsp());  // May relink pointed to node
         checkConstantOrReplace(nodep->thsp(),
                                "Width of :+ or :- bit slice range isn't a constant");
         UINFOTREE(9, nodep, "", "SELPM3");
         // Now replace it with an AstSel
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const widthp = nodep->thsp()->unlinkFrBack();
+        Ast_غوټه_بیان* ثابت fromp = nodep->fromp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت rhsp = nodep->rhsp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت widthp = nodep->thsp()->unlink_Fr_شا();
         warnTri(rhsp);
-        const int width = VN_AS(widthp, Const)->toSInt();
-        if (width > (1 << 28)) {
+        ثابت صحيح پلنوالی = VN_AS(widthp, Const)->منزل_SInt();
+        إذا (پلنوالی > (1 << 28)) {
             nodep->v3error("Width of :+ or :- is huge; vector of over 1 billion bits: "
                            << widthp->prettyName());
         }
-        if (width < 0) nodep->v3error("Width of :+ or :- is < 0: " << widthp->prettyName());
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        const AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
-        if (VN_IS(ddtypep, UnpackArrayDType)) {
+        إذا (پلنوالی < 0) nodep->v3error("Width of :+ or :- is < 0: " << widthp->prettyName());
+        ثابت From_معلومات fromdata = from_معلومات_For_Array(nodep, fromp);
+        ثابت Ast_غوټه_DType* ثابت ddtypep = fromdata.m_dtypep;
+        ثابت VNumRange fromRange = fromdata.m_fromRange;
+        إذا (VN_IS(ddtypep, UnpackArrayDType)) {
             // Slice +: and -: extraction
-            if (fromRange.elements() == width && VN_IS(rhsp, Const)
-                && VN_AS(rhsp, Const)->toSInt()
+            إذا (fromRange.elements() == پلنوالی && VN_IS(rhsp, Const)
+                && VN_AS(rhsp, Const)->منزل_SInt()
                        == fromRange.lo()) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (fromRange.elements() == 1) {  // Extracting single element
-                AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, rhsp};
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            } وإلا إذا (fromRange.elements() == 1) {  // Extracting single element
+                AstArraySel* ثابت newp = جديد AstArraySel{nodep->fileline(), fromp, rhsp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (VN_IS(rhsp, Const)) {  // Slice
-                const int32_t rhs = VN_AS(rhsp, Const)->toSInt();
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            } وإلا إذا (VN_IS(rhsp, Const)) {  //ټوټه
+                ثابت int32_t rhs = VN_AS(rhsp, Const)->منزل_SInt();
                 // down array: lsb/lo +: width
                 // down array: msb/hi -: width
                 // up array:   msb/lo +: width
                 // up array:   lsb/hi -: width
-                const int32_t msb
-                    = (VN_IS(nodep, SelPlus) ? rhs + width - 1 : rhs) - fromRange.lo();
-                const int32_t lsb
-                    = (VN_IS(nodep, SelPlus) ? rhs : rhs - width + 1) - fromRange.lo();
-                AstSliceSel* const newp = new AstSliceSel{
+                ثابت int32_t msb
+                    = (VN_IS(nodep, SelPlus) ? rhs + پلنوالی - 1 : rhs) - fromRange.lo();
+                ثابت int32_t lsb
+                    = (VN_IS(nodep, SelPlus) ? rhs : rhs - پلنوالی + 1) - fromRange.lo();
+                Ast_ټوټه_Sel* ثابت newp = جديد Ast_ټوټه_Sel{
                     nodep->fileline(), fromp, VNumRange{msb, lsb, fromRange.ascending()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+            } وإلا {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: Slice of non-constant bounds");
             }
-        } else if (VN_IS(ddtypep, BasicDType) || VN_IS(ddtypep, PackArrayDType)
-                   || (VN_IS(ddtypep, NodeUOrStructDType)
-                       && VN_AS(ddtypep, NodeUOrStructDType)->packedUnsup())) {
-            int elwidth = 1;
-            int newwidth = width;
-            if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
-                elwidth = adtypep->width() / fromRange.elements();
-                newwidth = width * elwidth;
+        } وإلا إذا (VN_IS(ddtypep, BasicDType) || VN_IS(ddtypep, PackArrayDType)
+                   || (VN_IS(ddtypep, غوټه_UOr_Struct_DType)
+                       && VN_AS(ddtypep, غوټه_UOr_Struct_DType)->packedUnsup())) {
+            صحيح elwidth = 1;
+            صحيح newwidth = پلنوالی;
+            إذا (ثابت AstPackArrayDType* ثابت adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+                elwidth = adtypep->پلنوالی() / fromRange.elements();
+                newwidth = پلنوالی * elwidth;
             }
-            AstNodeExpr* newlsbp = nullptr;
-            if (VN_IS(nodep, SelPlus)) {
-                if (fromRange.ascending()) {
+            Ast_غوټه_بیان* newlsbp = تش_اشاره;
+            إذا (VN_IS(nodep, SelPlus)) {
+                إذا (fromRange.ascending()) {
                     // SELPLUS(from,lsb,width) -> SEL(from, (vector_msb-width+1)-sel, width)
-                    newlsbp = newSubNeg((fromRange.hi() - width + 1), rhsp);
-                } else {
+                    newlsbp = newSubNeg((fromRange.hi() - پلنوالی + 1), rhsp);
+                } وإلا {
                     // SELPLUS(from,lsb,width) -> SEL(from, lsb-vector_lsb, width)
                     newlsbp = newSubNeg(rhsp, fromRange.lo());
                 }
-            } else if (VN_IS(nodep, SelMinus)) {
-                if (fromRange.ascending()) {
+            } وإلا إذا (VN_IS(nodep, SelMinus)) {
+                إذا (fromRange.ascending()) {
                     // SELMINUS(from,msb,width) -> SEL(from, msb-[bit])
                     newlsbp = newSubNeg(fromRange.hi(), rhsp);
-                } else {
+                } وإلا {
                     // SELMINUS(from,msb,width) -> SEL(from, msb-(width-1)-lsb#)
-                    newlsbp = newSubNeg(rhsp, fromRange.lo() + (width - 1));
+                    newlsbp = newSubNeg(rhsp, fromRange.lo() + (پلنوالی - 1));
                 }
-            } else {
+            } وإلا {
                 nodep->v3fatalSrc("Bad Case");
             }
-            if (elwidth != 1) newlsbp = newMulConst(nodep->fileline(), elwidth, newlsbp);
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newlsbp, newwidth};
+            إذا (elwidth != 1) newlsbp = newMulConst(nodep->fileline(), elwidth, newlsbp);
+            AstSel* ثابت newp = جديد AstSel{nodep->fileline(), fromp, newlsbp, newwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
+            newp->decl_El_پلنوالی(elwidth);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELNEW");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal +: or -: select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        if (!widthp->backp()) VL_DO_DANGLING(pushDeletep(widthp), widthp);
+        إذا (!fromp->backp()) VL_DO_DANGLING(ټېل_Deletep(fromp), fromp);
+        إذا (!rhsp->backp()) VL_DO_DANGLING(ټېل_Deletep(rhsp), rhsp);
+        إذا (!widthp->backp()) VL_DO_DANGLING(ټېل_Deletep(widthp), widthp);
     }
-    void visit(AstSelPlus* nodep) override { replaceSelPlusMinus(nodep); }
-    void visit(AstSelMinus* nodep) override { replaceSelPlusMinus(nodep); }
+    فراغ لیدنه(AstSelPlus* nodep) override { replaceSelPlusMinus(nodep); }
+    فراغ لیدنه(AstSelMinus* nodep) override { replaceSelPlusMinus(nodep); }
     // If adding new visitors, ensure V3Width's visit(TYPE) calls into here
 
     //--------------------
     // Default
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_LINE
+    فراغ لیدنه(Ast_غوټه* nodep) override {  // LCOV_EXCL_LINE
         // See notes above; we never iterate
         nodep->v3fatalSrc("Shouldn't iterate in V3WidthSel");
     }
 
-public:
+عام:
     // CONSTRUCTORS
-    WidthSelVisitor() = default;
-    ~WidthSelVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    پلنوالی_Sel_Visitor() = افتراضي;
+    ~پلنوالی_Sel_Visitor() override = افتراضي;
+    Ast_غوټه* mainAcceptEdit(Ast_غوټه* nodep) { أرجع iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 // Width class functions
 
-AstNode* V3Width::widthSelNoIterEdit(AstNode* nodep) {
+Ast_غوټه* V3_پلنوالی::پلنوالی_Sel_No_Iter_Edit(Ast_غوټه* nodep) {
     UINFO(4, __FUNCTION__ << ": " << nodep);
-    WidthSelVisitor visitor;
+    پلنوالی_Sel_Visitor visitor;
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    أرجع nodep;
 }
 
-#undef iterateChildren
+#تعریف_لغوه iterateChildren

@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCOPT_H_
-#define VERILATOR_V3FUNCOPT_H_
+#که_نه_تعریف_شوی VERILATOR_V3FUNCOPT_H_
+#تعریف_کړه VERILATOR_V3FUNCOPT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3FuncOpt final {
-public:
-    static void funcOptAll(AstNetlist* nodep);
+عام:
+    ساكن فراغ funcOptAll(AstNetlist* nodep);
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

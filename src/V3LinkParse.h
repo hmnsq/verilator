@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKPARSE_H_
-#define VERILATOR_V3LINKPARSE_H_
+#که_نه_تعریف_شوی VERILATOR_V3LINKPARSE_H_
+#تعریف_کړه VERILATOR_V3LINKPARSE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LinkParse final {
-public:
-    static void linkParse(AstNetlist* rootp) VL_MT_DISABLED;
+عام:
+    ساكن فراغ linkParse(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

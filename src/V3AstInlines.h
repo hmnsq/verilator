@@ -14,222 +14,222 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTINLINES_H_
-#define VERILATOR_V3ASTINLINES_H_
+#که_نه_تعریف_شوی VERILATOR_V3ASTINLINES_H_
+#تعریف_کړه VERILATOR_V3ASTINLINES_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
-#endif
+#که_نه_تعریف_شوی VERILATOR_V3AST_H_
+#تېروتنه "Use V3Ast.h as the include"
+#ضمن "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
+#د_که_پای
 
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
-bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+صحيح Ast_غوټه::پلنوالی() ثابت VL_MT_STABLE { أرجع dtypep() ? dtypep()->پلنوالی() : 0; }
+صحيح Ast_غوټه::پلنوالی_Min() ثابت VL_MT_STABLE { أرجع dtypep() ? dtypep()->پلنوالی_Min() : 0; }
+bool Ast_غوټه::width1() ثابت {  // V3Const uses to know it can optimize
+    أرجع dtypep() && dtypep()->پلنوالی() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+صحيح Ast_غوټه::پلنوالی_Instrs() ثابت {
+    أرجع (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->پلنوالی_ټکي() : 1));
 }
-bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+bool Ast_غوټه::isCHandle() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
-bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+bool Ast_غوټه::isDouble() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
-bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+bool Ast_غوټه::isString() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
-bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+bool Ast_غوټه::isEvent() ثابت VL_MT_STABLE {
+    أرجع dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool Ast_غوټه::isSigned() ثابت VL_MT_STABLE { أرجع dtypep() && dtypep()->isSigned(); }
 
-bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+bool Ast_غوټه::is_Class_Handle_ارزښت() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->عدد().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
-bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+bool Ast_غوټه::isNull() ثابت { أرجع VN_IS(this, Const) && VN_AS(this, Const)->عدد().isNull(); }
+bool Ast_غوټه::isZero() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->عدد().isEqZero());
 }
-bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+bool Ast_غوټه::isNeqZero() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->عدد().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
-bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+bool Ast_غوټه::isOne() ثابت { أرجع (VN_IS(this, Const) && VN_AS(this, Const)->عدد().isEqOne()); }
+bool Ast_غوټه::isAllOnes() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
-bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+bool Ast_غوټه::isAllOnesV() ثابت {
+    أرجع (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
-bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+bool Ast_غوټه::same_ونه(ثابت Ast_غوټه* node2p) ثابت {
+    أرجع same_ونه_Iter(this, node2p, true, false);
 }
-bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+bool Ast_غوټه::same_Gate_ونه(ثابت Ast_غوټه* node2p) ثابت {
+    أرجع same_ونه_Iter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+صحيح Ast_غوټه_Array_DType::کیڼ_2() ثابت VL_MT_STABLE { أرجع rangep()->کیڼ_Const(); }
+صحيح Ast_غوټه_Array_DType::ښی_2() ثابت VL_MT_STABLE { أرجع rangep()->ښی_Const(); }
+صحيح Ast_غوټه_Array_DType::hi() ثابت VL_MT_STABLE { أرجع rangep()->hiConst(); }
+صحيح Ast_غوټه_Array_DType::lo() ثابت VL_MT_STABLE { أرجع rangep()->loConst(); }
+صحيح Ast_غوټه_Array_DType::elementsConst() ثابت VL_MT_STABLE { أرجع rangep()->elementsConst(); }
+VNumRange Ast_غوټه_Array_DType::declRange() ثابت VL_MT_STABLE { أرجع VNumRange{کیڼ_2(), ښی_2()}; }
 
-AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
+AstFuncRef::AstFuncRef(File_کرښه* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(File_کرښه* fl, صحيح کیڼ_2, صحيح ښی_2)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(left)});
-    rightp(new AstConst{fl, static_cast<uint32_t>(right)});
+    leftp(new AstConst{fl, static_cast<uint32_t>(کیڼ_2)});
+    rightp(new AstConst{fl, static_cast<uint32_t>(ښی_2)});
 }
-AstRange::AstRange(FileLine* fl, const VNumRange& range)
+AstRange::AstRange(File_کرښه* fl, ثابت VNumRange& range)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
-    rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
+    leftp(new AstConst{fl, static_cast<uint32_t>(range.کیڼ_2())});
+    rightp(new AstConst{fl, static_cast<uint32_t>(range.ښی_2())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح AstRange::کیڼ_Const() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(leftp(), Const);
+    أرجع (constp ? constp->منزل_SInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح AstRange::ښی_Const() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(rightp(), Const);
+    أرجع (constp ? constp->منزل_SInt() : 0);
 }
 
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
+AstPackArrayDType::AstPackArrayDType(File_کرښه* fl, VFlag_ماشوم_DType, Ast_غوټه_DType* dtp,
                                      AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
-    childDTypep(dtp);  // Only for parser
+    ماشوم_DTypep(dtp);  // Only for parser
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ثابت صحيح پلنوالی = subDTypep()->پلنوالی() * rangep->elementsConst();
+    پلنوالی_Force(پلنوالی, پلنوالی);
 }
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+AstPackArrayDType::AstPackArrayDType(File_کرښه* fl, Ast_غوټه_DType* dtp, AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ثابت صحيح پلنوالی = subDTypep()->پلنوالی() * rangep->elementsConst();
+    پلنوالی_Force(پلنوالی, پلنوالی);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+صحيح Ast_کتار_DType::boundConst() ثابت VL_MT_STABLE {
+    ثابت AstConst* ثابت constp = VN_CAST(boundp(), Const);
+    أرجع (constp ? constp->منزل_SInt() : 0);
 }
 
-AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
+AstTaskRef::AstTaskRef(File_کرښه* fl, AstTask* taskp, AstArg* argsp)
     : ASTGEN_SUPER_TaskRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
-    dtypeSetVoid();
+    dtype_سېټ_Void();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+صحيح AstBasicDType::hi() ثابت { أرجع (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+صحيح AstBasicDType::lo() ثابت { أرجع (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+صحيح AstBasicDType::elements() ثابت {
+    أرجع (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
-bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+bool AstBasicDType::ascending() ثابت {
+    أرجع (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool Ast_فعال::hasClocked() ثابت { أرجع m_sentreep->hasClocked(); }
+bool Ast_فعال::hasCombo() ثابت { أرجع m_sentreep->hasCombo(); }
+bool Ast_فعال::hasInitial() ثابت { أرجع m_sentreep->hasInitial(); }
+bool Ast_فعال::hasStatic() ثابت { أرجع m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool Ast_غوټه_Module::isDollarUnit() ثابت { أرجع this == v3Global.rootp()->dollarUnitPkgp(); }
+bool Ast_غوټه_Module::isConstPool() ثابت { أرجع this == v3Global.rootp()->constPoolPkgp(); }
 
-AstAlways::AstAlways(AstAssignW* assignp)
+AstAlways::AstAlways(Ast_ټاکل_W* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
-    , m_keyword{VAlwaysKwd::CONT_ASSIGN} {}
+    , m_keyword{VAlwaysKwd::CONT_ټاکل} {}
 
-AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp)
+AstElabDisplay::AstElabDisplay(File_کرښه* fl, VDisplayType dispType, Ast_غوټه_بیان* exprsp)
     : ASTGEN_SUPER_ElabDisplay(fl) {
-    addFmtp(new AstSFormatF{fl, "", true, exprsp});
+    جمع_کړه_Fmtp(new AstSFormatF{fl, "", true, exprsp});
     m_displayType = dispType;
 }
 
-bool AstVar::sameNode(const AstNode* samep) const {
-    const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+bool AstVar::same_غوټه(ثابت Ast_غوټه* samep) ثابت {
+    ثابت AstVar* ثابت asamep = VN_DBG_AS(samep, Var);
+    أرجع m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
 
-AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp)
-    : ASTGEN_SUPER_MatchMasked(fl) {
+Ast_سمون_Masked::Ast_سمون_Masked(File_کرښه* fl, Ast_غوټه_بیان* lhsp, AstVarRef* matchp)
+    : ASTGEN_SUPER_سمون_Masked(fl) {
     this->lhsp(lhsp);
     this->matchp(matchp);
-    dtypeSetUInt32();
+    dtype_سېټ_UInt32();
 }
 
-AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_کرښه* fl, AstVar* varp, ثابت VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    إذا (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } وإلا إذا (varp) {
         m_name = varp->name();
     }
 }
-AstVarRef::AstVarRef(FileLine* fl, AstNodeModule* pkgp, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_کرښه* fl, Ast_غوټه_Module* pkgp, AstVar* varp, ثابت VAccess& access)
     : AstVarRef{fl, varp, access} {
     classOrPackagep(pkgp);
 }
 // This form only allowed post-link (see above)
-AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
+AstVarRef::AstVarRef(File_کرښه* fl, AstVarScope* varscp, ثابت VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varscp->varp(), access) {
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() ثابت { أرجع varp() ? varp()->name() : nameThis(); }
 
-bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+bool AstVarRef::same_غوټه(ثابت AstVarRef* samep) ثابت {
+    إذا (varScopep()) أرجع (varScopep() == samep->varScopep() && access() == samep->access());
+    أرجع (self_اشاره_ګر() == samep->self_اشاره_ګر() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
-            && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
+            && (varp() && samep->varp() && varp()->same_غوټه(samep->varp())));
 }
-bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+bool AstVarRef::sameNoLvalue(ثابت AstVarRef* samep) ثابت {
+    إذا (varScopep()) أرجع (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
-            && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
-            && varp()->sameNode(samep->varp()));
+    أرجع (self_اشاره_ګر() == samep->self_اشاره_ګر() && classOrPackagep() == samep->classOrPackagep()
+            && (!self_اشاره_ګر().is_تشه() || !samep->self_اشاره_ګر().is_تشه())
+            && varp()->same_غوټه(samep->varp()));
 }
 
-AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access)
+AstVarXRef::AstVarXRef(File_کرښه* fl, AstVar* varp, ثابت string& dotted, ثابت VAccess& access)
     : ASTGEN_SUPER_VarXRef(fl, varp, access)
     , m_name{varp->name()}
     , m_dotted{dotted} {
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+Ast_Stmt_بیان* Ast_غوټه_بیان::makeStmt() { أرجع new Ast_Stmt_بیان{fileline(), this}; }
 
-AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+Ast_Cons_Array_توکی* AstConsArray::itemsp() ثابت VL_MT_STABLE {
+    أرجع VN_DBG_AS(op2p(), Cons_Array_توکی);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
-inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+مضمن Ast_غوټه_Module* پیدا_کړه_پلار_Module(Ast_غوټه* nodep) {
+    لكل (Ast_غوټه* curp = nodep; curp; curp = curp->backp()) {
+        إذا (Ast_غوټه_Module* ثابت modp = VN_CAST(curp, غوټه_Module)) أرجع modp;
     }
-    return nullptr;
+    أرجع nullptr;
 }
 
-#endif  // Guard
+#د_که_پای  // Guard

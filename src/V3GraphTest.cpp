@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ضمن "V3Global.h"
+#ضمن "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -28,84 +28,84 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Test class
 
-class V3GraphTest VL_NOT_FINAL {
-protected:
+صنف V3_ګراف_Test VL_NOT_FINAL {
+محمي:
     // MEMBERS
-    V3Graph m_graph;
+    V3_ګراف m_ګراف;
 
     // METHODS - for children
-    virtual void runTest() = 0;  // Run the test
-    virtual string name() = 0;  // Name of the test
+    مجازي فراغ پرلپسې_Test() = 0;  // Run the test
+    مجازي string name() = 0;  // Name of the test
 
     // Utilities
-    void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+    فراغ dumpSelf() {
+        إذا (dump_ګراف_Level() >= 9) m_ګراف.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
-public:
-    V3GraphTest() = default;
-    virtual ~V3GraphTest() = default;
+عام:
+    V3_ګراف_Test() = افتراضي;
+    مجازي ~V3_ګراف_Test() = افتراضي;
 
-    void run() { runTest(); }
+    فراغ پرلپسې() { پرلپسې_Test(); }
 };
 
 //######################################################################
 //######################################################################
 // Vertices and nodes
 
-class V3GraphTestVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(V3GraphTestVertex, V3GraphVertex)
-    const string m_name;
+صنف V3_ګراف_Test_راس VL_NOT_FINAL : عام V3_ګراف_راس {
+    VL_RTTI_IMPL(V3_ګراف_Test_راس, V3_ګراف_راس)
+    ثابت string m_name;
 
-public:
-    V3GraphTestVertex(V3Graph* graphp, const string& name)
-        : V3GraphVertex{graphp}
+عام:
+    V3_ګراف_Test_راس(V3_ګراف* graphp, ثابت string& name)
+        : V3_ګراف_راس{graphp}
         , m_name{name} {}
-    ~V3GraphTestVertex() override = default;
+    ~V3_ګراف_Test_راس() override = افتراضي;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ثابت override VL_MT_STABLE { أرجع m_name; }
 };
 
-class V3GraphTestVarVertex final : public V3GraphTestVertex {
-public:
-    V3GraphTestVarVertex(V3Graph* graphp, const string& name)
-        : V3GraphTestVertex{graphp, name} {}
-    ~V3GraphTestVarVertex() override = default;
+صنف V3_ګراف_Test_Var_راس final : عام V3_ګراف_Test_راس {
+عام:
+    V3_ګراف_Test_Var_راس(V3_ګراف* graphp, ثابت string& name)
+        : V3_ګراف_Test_راس{graphp, name} {}
+    ~V3_ګراف_Test_Var_راس() override = افتراضي;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() ثابت override { أرجع "blue"; }
 };
 
 //######################################################################
 //######################################################################
 // Test vertices and nodes
 
-class V3GraphTestStrong final : public V3GraphTest {
-public:
-    string name() override { return "strong"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+صنف V3_ګراف_Test_Strong final : عام V3_ګراف_Test {
+عام:
+    string name() override { أرجع "strong"; }
+    فراغ پرلپسې_Test() override {
+        V3_ګراف* gp = &m_ګراف;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        V3GraphTestVertex* q = new V3GraphTestVarVertex{gp, "q"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g3, g2, 2, true};
-        new V3GraphEdge{gp, g2, g3, 2, true};
-        new V3GraphEdge{gp, g1, q, 2, true};
-        new V3GraphEdge{gp, g2, q, 2, true};
-        new V3GraphEdge{gp, g3, q, 2, true};
+        V3_ګراف_Test_راس* i = جديد V3_ګراف_Test_Var_راس{gp, "*INPUTS*"};
+        V3_ګراف_Test_راس* a = جديد V3_ګراف_Test_Var_راس{gp, "a"};
+        V3_ګراف_Test_راس* b = جديد V3_ګراف_Test_Var_راس{gp, "b"};
+        V3_ګراف_Test_راس* g1 = جديد V3_ګراف_Test_Var_راس{gp, "g1"};
+        V3_ګراف_Test_راس* g2 = جديد V3_ګراف_Test_Var_راس{gp, "g2"};
+        V3_ګراف_Test_راس* g3 = جديد V3_ګراف_Test_Var_راس{gp, "g3"};
+        V3_ګراف_Test_راس* q = جديد V3_ګراف_Test_Var_راس{gp, "q"};
+        جديد V3_ګراف_څنډه{gp, i, a, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, a, b, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g1, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g2, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g3, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g1, a, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g3, g2, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g2, g3, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g1, q, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g2, q, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g3, q, 2, ریښتیا};
 
-        gp->stronglyConnected(&V3GraphEdge::followAlwaysTrue);
+        gp->stronglyConnected(&V3_ګراف_څنډه::followAlwaysTrue);
         dumpSelf();
 
         UASSERT(i->color() != a->color() && a->color() != g2->color() && g2->color() != q->color(),
@@ -117,56 +117,56 @@ public:
     }
 };
 
-class V3GraphTestAcyc final : public V3GraphTest {
-public:
-    string name() override { return "acyc"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+صنف V3_ګراف_Test_Acyc final : عام V3_ګراف_Test {
+عام:
+    string name() override { أرجع "acyc"; }
+    فراغ پرلپسې_Test() override {
+        V3_ګراف* gp = &m_ګراف;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g2, a, 2, true};
-        new V3GraphEdge{gp, g3, a, 2, true};
+        V3_ګراف_Test_راس* i = جديد V3_ګراف_Test_Var_راس{gp, "*INPUTS*"};
+        V3_ګراف_Test_راس* a = جديد V3_ګراف_Test_Var_راس{gp, "a"};
+        V3_ګراف_Test_راس* b = جديد V3_ګراف_Test_Var_راس{gp, "b"};
+        V3_ګراف_Test_راس* g1 = جديد V3_ګراف_Test_Var_راس{gp, "g1"};
+        V3_ګراف_Test_راس* g2 = جديد V3_ګراف_Test_Var_راس{gp, "g2"};
+        V3_ګراف_Test_راس* g3 = جديد V3_ګراف_Test_Var_راس{gp, "g3"};
+        جديد V3_ګراف_څنډه{gp, i, a, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, a, b, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g1, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g2, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, b, g3, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g1, a, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g2, a, 2, ریښتیا};
+        جديد V3_ګراف_څنډه{gp, g3, a, 2, ریښتیا};
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ګراف_څنډه::followAlwaysTrue);
+        gp->ترتیب();
         dumpSelf();
     }
 };
 
-class V3GraphTestVars final : public V3GraphTest {
-public:
-    string name() override { return "vars"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+صنف V3_ګراف_Test_Vars final : عام V3_ګراف_Test {
+عام:
+    string name() override { أرجع "vars"; }
+    فراغ پرلپسې_Test() override {
+        V3_ګراف* ثابت gp = &m_ګراف;
 
-        V3GraphTestVertex* const clk = new V3GraphTestVarVertex{gp, "$clk"};
+        V3_ګراف_Test_راس* ثابت clk = جديد V3_ګراف_Test_Var_راس{gp, "$clk"};
 
-        V3GraphTestVertex* const a = new V3GraphTestVarVertex{gp, "$a"};
-        V3GraphTestVertex* const a_dly = new V3GraphTestVarVertex{gp, "$a_dly"};
-        V3GraphTestVertex* const a_dlyblk = new V3GraphTestVarVertex{gp, "$a_dlyblk"};
-        V3GraphTestVertex* const b = new V3GraphTestVarVertex{gp, "$b"};
-        V3GraphTestVertex* const b_dly = new V3GraphTestVarVertex{gp, "$b_dly"};
-        V3GraphTestVertex* const b_dlyblk = new V3GraphTestVarVertex{gp, "$b_dlyblk"};
-        V3GraphTestVertex* const c = new V3GraphTestVarVertex{gp, "$c"};
-        V3GraphTestVertex* const i = new V3GraphTestVarVertex{gp, "$i"};
+        V3_ګراف_Test_راس* ثابت a = جديد V3_ګراف_Test_Var_راس{gp, "$a"};
+        V3_ګراف_Test_راس* ثابت a_dly = جديد V3_ګراف_Test_Var_راس{gp, "$a_dly"};
+        V3_ګراف_Test_راس* ثابت a_dlyblk = جديد V3_ګراف_Test_Var_راس{gp, "$a_dlyblk"};
+        V3_ګراف_Test_راس* ثابت b = جديد V3_ګراف_Test_Var_راس{gp, "$b"};
+        V3_ګراف_Test_راس* ثابت b_dly = جديد V3_ګراف_Test_Var_راس{gp, "$b_dly"};
+        V3_ګراف_Test_راس* ثابت b_dlyblk = جديد V3_ګراف_Test_Var_راس{gp, "$b_dlyblk"};
+        V3_ګراف_Test_راس* ثابت c = جديد V3_ګراف_Test_Var_راس{gp, "$c"};
+        V3_ګراف_Test_راس* ثابت i = جديد V3_ګراف_Test_Var_راس{gp, "$i"};
 
-        V3GraphTestVertex* const ap = new V3GraphTestVarVertex{gp, "$a_pre"};
-        V3GraphTestVertex* const bp = new V3GraphTestVarVertex{gp, "$b_pre"};
-        V3GraphTestVertex* const cp = new V3GraphTestVarVertex{gp, "$c_pre"};
+        V3_ګراف_Test_راس* ثابت ap = جديد V3_ګراف_Test_Var_راس{gp, "$a_pre"};
+        V3_ګراف_Test_راس* ثابت bp = جديد V3_ګراف_Test_Var_راس{gp, "$b_pre"};
+        V3_ګراف_Test_راس* ثابت cp = جديد V3_ګراف_Test_Var_راس{gp, "$c_pre"};
 
-        V3GraphTestVertex* n;
+        V3_ګراف_Test_راس* n;
 
         // Logical order between clk, and posedge blocks
         //   implemented by special CLK prod/cons?
@@ -179,68 +179,68 @@ public:
         // Desired order between different _DLY blocks so we can elim temporaries
         //   implemented by cutable "pre" signal dependencies
 
-        n = new V3GraphTestVertex{gp, "*INPUTS*"};
+        n = جديد V3_ګراف_Test_راس{gp, "*INPUTS*"};
         {
-            new V3GraphEdge{gp, n, clk, 2};
-            new V3GraphEdge{gp, n, i, 2};
+            جديد V3_ګراف_څنډه{gp, n, clk, 2};
+            جديد V3_ګراف_څنډه{gp, n, i, 2};
         }
 
-        V3GraphTestVertex* const posedge = n = new V3GraphTestVertex{gp, "*posedge clk*"};
-        { new V3GraphEdge{gp, clk, n, 2}; }
+        V3_ګراف_Test_راس* ثابت posedge = n = جديد V3_ګراف_Test_راس{gp, "*posedge clk*"};
+        { جديد V3_ګراف_څنډه{gp, clk, n, 2}; }
 
         // AlwaysPre's     VarRefs on LHS:  generate special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume 'pre' (required to save cutable tests)
-        n = new V3GraphTestVertex{gp, "a_dly<PRE=a"};
+        n = جديد V3_ګراف_Test_راس{gp, "a_dly<PRE=a"};
         {
-            new V3GraphEdge{gp, n, a_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, a_dly, 2};
-            new V3GraphEdge{gp, ap, n, 2, true};  // DESIRED delayed ordering (inp is required)
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, n, a_dlyblk, 2};  // Block ordering
+            جديد V3_ګراف_څنډه{gp, n, a_dly, 2};
+            جديد V3_ګراف_څنډه{gp, ap, n, 2, ریښتیا};  // DESIRED delayed ordering (inp is required)
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<PRE=b"};
+        n = جديد V3_ګراف_Test_راس{gp, "b_dly<PRE=b"};
         {
-            new V3GraphEdge{gp, n, b_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, bp, n, 2, true};  // DESIRED delayed ordering
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, n, b_dlyblk, 2};  // Block ordering
+            جديد V3_ګراف_څنډه{gp, n, b_dly, 2};
+            جديد V3_ګراف_څنډه{gp, bp, n, 2, ریښتیا};  // DESIRED delayed ordering
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
 
         // AssignDly's     VarRefs on LHS:  consume special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  generate 'pre' signals (cutable)
         //    SenItems:    consume CLOCK dependency
-        n = new V3GraphTestVertex{gp, "a_dly<=b|c"};
+        n = جديد V3_ګراف_Test_راس{gp, "a_dly<=b|c"};
         {
-            new V3GraphEdge{gp, a_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, a_dly, 2};
+            جديد V3_ګراف_څنډه{gp, a_dlyblk, n, 2};  // Block ordering in
+            جديد V3_ګراف_څنډه{gp, n, a_dly, 2};
             // Note we don't include ap as we're generating a_dly
-            new V3GraphEdge{gp, n, bp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, n, cp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, n, bp, 2};  // DESIRED delayed usage
+            جديد V3_ګراف_څنډه{gp, n, cp, 2};  // DESIRED delayed usage
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<=a"};
+        n = جديد V3_ګراف_Test_راس{gp, "b_dly<=a"};
         {
-            new V3GraphEdge{gp, b_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, n, ap, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, b_dlyblk, n, 2};  // Block ordering in
+            جديد V3_ګراف_څنډه{gp, n, b_dly, 2};
+            جديد V3_ګراف_څنډه{gp, n, ap, 2};  // DESIRED delayed usage
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
 
         // AlwaysPost's
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume normal
-        n = new V3GraphTestVertex{gp, "a=POST=a_dly"};
+        n = جديد V3_ګراف_Test_راس{gp, "a=POST=a_dly"};
         {
-            new V3GraphEdge{gp, n, a, 3};
-            new V3GraphEdge{gp, a_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, n, a, 3};
+            جديد V3_ګراف_څنډه{gp, a_dly, n, 3};
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b=POST=b_dly"};
+        n = جديد V3_ګراف_Test_راس{gp, "b=POST=b_dly"};
         {
-            new V3GraphEdge{gp, n, b, 3};
-            new V3GraphEdge{gp, b_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            جديد V3_ګراف_څنډه{gp, n, b, 3};
+            جديد V3_ګراف_څنډه{gp, b_dly, n, 3};
+            جديد V3_ګراف_څنډه{gp, posedge, n, 2};
         }
 
         // COMBO
@@ -248,18 +248,18 @@ public:
         // Outbound are cutable, as we may need to evaluate multiple times
 
         {
-            n = new V3GraphTestVertex{gp, "c=a|b|i"};
-            new V3GraphEdge{gp, n, c, 1, true};
-            new V3GraphEdge{gp, a, n, 1, false};
-            new V3GraphEdge{gp, b, n, 1, false};
-            new V3GraphEdge{gp, i, n, 1, false};
+            n = جديد V3_ګراف_Test_راس{gp, "c=a|b|i"};
+            جديد V3_ګراف_څنډه{gp, n, c, 1, ریښتیا};
+            جديد V3_ګراف_څنډه{gp, a, n, 1, خطأ};
+            جديد V3_ګراف_څنډه{gp, b, n, 1, خطأ};
+            جديد V3_ګراف_څنډه{gp, i, n, 1, خطأ};
         }
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ګراف_څنډه::followAlwaysTrue);
+        gp->ترتیب();
 
         // Test debug function
-        gp->dumpEdges(std::cout, *ap);
+        gp->dump_څنډې(std::وتنه, *ap);
 
         dumpSelf();
     }
@@ -267,40 +267,40 @@ public:
 
 //======================================================================
 
-class V3GraphTestImport final : public V3GraphTest {
+صنف V3_ګراف_Test_Import final : عام V3_ګراف_Test {
 
-#ifdef GRAPH_IMPORT
-    void dotImport();
-#else
-    void dotImport() {}
-#endif
+#که_تعریف_شوی ګراف_IMPORT
+    فراغ dotImport();
+#وإلا
+    فراغ dotImport() {}
+#د_که_پای
 
-public:
-    string name() override { return "import"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+عام:
+    string name() override { أرجع "import"; }
+    فراغ پرلپسې_Test() override {
+        V3_ګراف* ثابت gp = &m_ګراف;
         dotImport();
         dumpSelf();
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
+        gp->acyclic(&V3_ګراف_څنډه::followAlwaysTrue);
         dumpSelf();
-        gp->rank(&V3GraphEdge::followAlwaysTrue);
+        gp->rank(&V3_ګراف_څنډه::followAlwaysTrue);
         dumpSelf();
     }
 };
 
 // clang-format off
-#ifdef GRAPH_IMPORT
+#که_تعریف_شوی ګراف_IMPORT
 # include "graph_export.cpp"
-#endif
+#د_که_پای
 // clang-format on
 
 //======================================================================
 
-void V3Graph::selfTest() {
+فراغ V3_ګراف::selfTest() {
     // Execute all of the tests
     UINFO(2, __FUNCTION__ << ":");
-    { V3GraphTestStrong{}.run(); }
-    { V3GraphTestAcyc{}.run(); }
-    { V3GraphTestVars{}.run(); }
-    { V3GraphTestImport{}.run(); }
+    { V3_ګراف_Test_Strong{}.پرلپسې(); }
+    { V3_ګراف_Test_Acyc{}.پرلپسې(); }
+    { V3_ګراف_Test_Vars{}.پرلپسې(); }
+    { V3_ګراف_Test_Import{}.پرلپسې(); }
 }

@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITV_H_
-#define VERILATOR_V3EMITV_H_
+#که_نه_تعریف_شوی VERILATOR_V3EMITV_H_
+#تعریف_کړه VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_غوټه;
+class Ast_Sen_ونه;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+عام:
+    ساكن فراغ verilog_For_ونه(ثابت Ast_غوټه* nodep, std::ostream& os = std::cout);
+    ساكن فراغ debug_Verilog_For_ونه(ثابت Ast_غوټه* nodep, std::ostream& os);
+    ساكن std::string debug_Verilog_For_ونه(ثابت Ast_غوټه* nodep);
+    ساكن فراغ emitvFiles();
+    ساكن فراغ debugEmitV(ثابت string& filename);
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

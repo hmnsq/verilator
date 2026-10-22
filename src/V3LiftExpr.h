@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIFTEXPR_H_
-#define VERILATOR_V3LIFTEXPR_H_
+#که_نه_تعریف_شوی VERILATOR_V3LIFTEXPR_H_
+#تعریف_کړه VERILATOR_V3LIFTEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3LiftExpr final {
-public:
-    static void liftExprAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_Lift_بیان final {
+عام:
+    ساكن فراغ lift_بیان_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

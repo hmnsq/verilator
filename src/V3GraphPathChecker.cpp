@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3GraphPathChecker.h"
+#ضمن "V3GraphPathChecker.h"
 
-#include "V3Global.h"
-#include "V3GraphStream.h"
+#ضمن "V3Global.h"
+#ضمن "V3GraphStream.h"
 
 //######################################################################
 // GraphPCNode
 
-struct GraphPCNode final {
+بنية ګراف_PCNode final {
     // User data for each node in GraphPathChecker.
     //
     // Like the LogicMTasks's, store before and after CPs for the nodes in
@@ -35,118 +35,118 @@ struct GraphPCNode final {
     //
     // Unlike the LogicMTasks's, we have no cost info for the generic graph
     // accepted by GraphPathChecker, so assume each node has unit cost.
-    std::array<uint32_t, GraphWay::NUM_WAYS> m_cp = {};
+    std::array<uint32_t, ګراف_Way::عدد_WAYS> m_cp = {};
 
     // Detect if we've seen this node before in a given recursive
     // operation. We'll use this in pathExistsInternal() to avoid checking
     // the same node twice, and again in updateHalfCriticalPath() to assert
     // there are no cycles.
-    uint64_t m_seenAtGeneration = 0;
+    uint64_t m_کتل_شوی_At_Generation = 0;
 
     // CONSTRUCTORS
-    GraphPCNode() = default;
-    ~GraphPCNode() = default;
+    ګراف_PCNode() = افتراضي;
+    ~ګراف_PCNode() = افتراضي;
 };
 
 //######################################################################
 // GraphPathChecker implementation
 
-template <GraphWay::en N_Way>
-void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
-    constexpr GraphWay way{N_Way};
-    constexpr GraphWay rev = way.invert();
-    GraphStreamUnordered order(m_graphp, way);
-    while (const V3GraphVertex* const vertexp = order.nextp()) {
-        unsigned critPathCost = 0;
-        for (const V3GraphEdge& edge : vertexp->edges<rev>()) {
-            if (!m_edgeFuncp(&edge)) continue;
+کينډۍ <ګراف_Way::en N_Way>
+فراغ ګراف_لار_Checker::initHalfCriticalPaths(منطقي checkOnly) {
+    constexpr ګراف_Way way{N_Way};
+    constexpr ګراف_Way rev = way.invert();
+    ګراف_بهیر_Unordered ترتیب(m_graphp, way);
+    طالما (ثابت V3_ګراف_راس* ثابت vertexp = ترتیب.nextp()) {
+        بینښه crit_لار_لګښت = 0;
+        لكل (ثابت V3_ګراف_څنډه& څنډه : vertexp->څنډې<rev>()) {
+            إذا (!m_څنډه_Funcp(&څنډه)) استمر;
 
-            const V3GraphVertex* wrelativep = edge.furtherp<rev>();
-            const GraphPCNode* const wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
-            critPathCost = std::max(critPathCost, wrelUserp->m_cp[way] + 1);
+            ثابت V3_ګراف_راس* wrelativep = څنډه.furtherp<rev>();
+            ثابت ګراف_PCNode* ثابت wrelUserp = static_cast<ګراف_PCNode*>(wrelativep->userp());
+            crit_لار_لګښت = std::max(crit_لار_لګښت, wrelUserp->m_cp[way] + 1);
         }
 
-        GraphPCNode* const ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
-        if (checkOnly) {
-            UASSERT_OBJ(ourUserp->m_cp[way] == critPathCost, vertexp,
+        ګراف_PCNode* ثابت ourUserp = static_cast<ګراف_PCNode*>(vertexp->userp());
+        إذا (checkOnly) {
+            UASSERT_OBJ(ourUserp->m_cp[way] == crit_لار_لګښت, vertexp,
                         "Validation of critical paths failed");
-        } else {
-            ourUserp->m_cp[way] = critPathCost;
+        } وإلا {
+            ourUserp->m_cp[way] = crit_لار_لګښت;
         }
     }
 }
 
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::FORWARD>(bool);
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(bool);
+کينډۍ فراغ ګراف_لار_Checker::initHalfCriticalPaths<ګراف_Way::FORWARD>(منطقي);
+کينډۍ فراغ ګراف_لار_Checker::initHalfCriticalPaths<ګراف_Way::سرچپه_2>(منطقي);
 
-GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-    : GraphAlg<V3Graph>{graphp, edgeFuncp} {
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+ګراف_لار_Checker::ګراف_لار_Checker(V3_ګراف* graphp, V3_څنډه_Func_P څنډه_Funcp)
+    : ګراف_Alg<V3_ګراف>{graphp, څنډه_Funcp} {
+    لكل (V3_ګراف_راس& vtx : graphp->vertices()) {
         // Setup tracking structure for each node.  If delete a vertex
         // there would be a leak, but ok as accept only const V3Graph*'s.
-        vtx.userp(new GraphPCNode);
+        vtx.userp(جديد ګراف_PCNode);
     }
     // Init critical paths in userp() for each vertex
-    initHalfCriticalPaths<GraphWay::FORWARD>(false);
-    initHalfCriticalPaths<GraphWay::REVERSE>(false);
+    initHalfCriticalPaths<ګراف_Way::FORWARD>(خطأ);
+    initHalfCriticalPaths<ګراف_Way::سرچپه_2>(خطأ);
 }
 
-GraphPathChecker::~GraphPathChecker() {
+ګراف_لار_Checker::~ګراف_لار_Checker() {
     // Free every GraphPCNode
-    for (V3GraphVertex& vtx : m_graphp->vertices()) {
-        const GraphPCNode* const nodep = static_cast<GraphPCNode*>(vtx.userp());
-        VL_DO_DANGLING(delete nodep, nodep);
-        vtx.userp(nullptr);
+    لكل (V3_ګراف_راس& vtx : m_graphp->vertices()) {
+        ثابت ګراف_PCNode* ثابت nodep = static_cast<ګراف_PCNode*>(vtx.userp());
+        VL_DO_DANGLING(ړنګول nodep, nodep);
+        vtx.userp(تش_اشاره);
     }
 }
 
-bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                                          unsigned* costp) {
-    GraphPCNode* const auserp = static_cast<GraphPCNode*>(ap->userp());
-    const GraphPCNode* const buserp = static_cast<GraphPCNode*>(bp->userp());
+منطقي ګراف_لار_Checker::لار_Exists_دننی(ثابت V3_ګراف_راس* ap, ثابت V3_ګراف_راس* bp,
+                                          بینښه* costp) {
+    ګراف_PCNode* ثابت auserp = static_cast<ګراف_PCNode*>(ap->userp());
+    ثابت ګراف_PCNode* ثابت buserp = static_cast<ګراف_PCNode*>(bp->userp());
 
     // If have already searched this node on the current search, don't
     // recurse through it again. Since we're still searching, we must not
     // have found a path on the first go either.
-    if (auserp->m_seenAtGeneration == m_generation) {
-        if (costp) *costp = 0;
-        return false;
+    إذا (auserp->m_کتل_شوی_At_Generation == m_generation) {
+        إذا (costp) *costp = 0;
+        أرجع خطأ;
     }
-    auserp->m_seenAtGeneration = m_generation;
+    auserp->m_کتل_شوی_At_Generation = m_generation;
 
-    if (costp) *costp = 1;  // count 'a' toward the search cost
+    إذا (costp) *costp = 1;  // count 'a' toward the search cost
 
-    if (ap == bp) return true;
+    إذا (ap == bp) أرجع ریښتیا;
 
     // Rule out an a->b path based on their CPs
-    if (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) return false;
-    if (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) return false;
+    إذا (auserp->m_cp[ګراف_Way::سرچپه_2] < buserp->m_cp[ګراف_Way::سرچپه_2] + 1) أرجع خطأ;
+    إذا (buserp->m_cp[ګراف_Way::FORWARD] < auserp->m_cp[ګراف_Way::FORWARD] + 1) أرجع خطأ;
 
     // Slow path; visit some extended family
-    bool foundPath = false;
-    for (const V3GraphEdge& edge : ap->outEdges()) {
-        if (!m_edgeFuncp(&edge)) continue;
+    منطقي وموندل_لار = خطأ;
+    لكل (ثابت V3_ګراف_څنډه& څنډه : ap->بهر_څنډې()) {
+        إذا (!m_څنډه_Funcp(&څنډه)) استمر;
 
-        unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
-        if (costp) *costp += childCost;
+        بینښه ماشوم_لګښت;
+        إذا (لار_Exists_دننی(څنډه.سر(), bp, &ماشوم_لګښت)) وموندل_لار = ریښتیا;
+        إذا (costp) *costp += ماشوم_لګښت;
     }
 
-    return foundPath;
+    أرجع وموندل_لار;
 }
 
-bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
+منطقي ګراف_لار_Checker::لار_Exists_From(ثابت V3_ګراف_راس* fromp, ثابت V3_ګراف_راس* سر) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    أرجع لار_Exists_دننی(fromp, سر);
 }
 
-bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
-    const V3GraphVertex* fromp = edgep->fromp();
-    const V3GraphVertex* top = edgep->top();
+منطقي ګراف_لار_Checker::is_متعدي_څنډه(ثابت V3_ګراف_څنډه* edgep) {
+    ثابت V3_ګراف_راس* fromp = edgep->fromp();
+    ثابت V3_ګراف_راس* سر = edgep->سر();
     incGeneration();
-    for (const V3GraphEdge& fromOut : fromp->outEdges()) {
-        if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+    لكل (ثابت V3_ګراف_څنډه& from_بهر : fromp->بهر_څنډې()) {
+        إذا (&from_بهر == edgep) استمر;
+        إذا (لار_Exists_دننی(from_بهر.سر(), سر)) أرجع ریښتیا;
     }
-    return false;
+    أرجع خطأ;
 }

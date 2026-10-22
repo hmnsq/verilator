@@ -24,93 +24,93 @@
 //          SenItems: Convert pos/negedge of non-simple signals to temporaries
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkResolve.h"
+#ضمن "V3LinkResolve.h"
 
-#include "V3String.h"
-#include "V3Task.h"
+#ضمن "V3String.h"
+#ضمن "V3Task.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Link state, as a visitor of each AstNode
 
-class LinkResolveVisitor final : public VNVisitor {
+صنف LinkResolveVisitor final : عام VNVisitor {
     // NODE STATE
     //  Entire netlist:
     //   AstCaseItem::user2()   // bool     Moved default caseitems
     //   AstNodeFTaskRef::user2()  // bool  Processing - to check for recursion
-    const VNUser2InUse m_inuser2;
+    ثابت VNUser2_دننه_Use m_inuser2;
 
     // STATE
     // Below state needs to be preserved between each module call.
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstClass* m_classp = nullptr;  // Class we're inside
-    AstNodeFTask* m_ftaskp = nullptr;  // Function or task we're inside
-    int m_senitemCvtNum = 0;  // Temporary signal counter
+    Ast_غوټه_Module* m_modp = تش_اشاره;  // Current module
+    AstClass* m_classp = تش_اشاره;  // Class we're inside
+    Ast_غوټه_FTask* m_ftaskp = تش_اشاره;  // Function or task we're inside
+    صحيح m_senitem_Cvt_عدد = 0;  // Temporary signal counter
     std::deque<AstGenFor*> m_underGenFors;  // Stack of GenFor underneath
-    bool m_underGenerate = false;  // Under GenFor/GenIf
+    منطقي m_underGenerate = خطأ;  // Under GenFor/GenIf
 
     // VISITORS
     // TODO: Most of these visitors are here for historical reasons.
     // TODO: ExpectDescriptor can move to data type resolution, and the rest
     // TODO: could move to V3LinkParse to get them out of the way of elaboration
     // TODO: Some also can move to V3LinkWidth, to happen once post-LinkDot
-    void visit(AstNodeModule* nodep) override {
+    فراغ لیدنه(Ast_غوټه_Module* nodep) override {
         // Module: Create sim table for entire module and iterate
         UINFO(8, "MODULE " << nodep);
-        if (nodep->dead()) return;
+        إذا (nodep->dead()) أرجع;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_senitemCvtNum);
+        VL_RESTORER(m_senitem_Cvt_عدد);
         m_modp = nodep;
-        m_senitemCvtNum = 0;
+        m_senitem_Cvt_عدد = 0;
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    فراغ لیدنه(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         m_classp = nodep;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isParam()) varp->varType(VVarType::MEMBER);
+        لكل (Ast_غوټه* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            إذا (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                إذا (!varp->isParam()) varp->varType(VVarType::MEMBER);
             }
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstInitialAutomatic* nodep) override {
+    فراغ لیدنه(AstInitialAutomatic* nodep) override {
         iterateChildren(nodep);
         // Initial assignments under function/tasks can just be simple
         // assignments without the initial
-        if (m_ftaskp) {
-            nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        إذا (m_ftaskp) {
+            nodep->replaceWith(nodep->stmtsp()->unlink_Fr_شا_With_بل());
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
     }
-    void visit(AstVar* nodep) override {
+    فراغ لیدنه(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_ftaskp) nodep->funcLocal(true);
-        if (nodep->isSigModPublic()) {
-            nodep->sigModPublic(false);  // We're done with this attribute
-            m_modp->modPublic(true);  // Avoid flattening if signals are exposed
+        إذا (m_ftaskp) nodep->funcLocal(ریښتیا);
+        إذا (nodep->is_Sig_Mod_عامه()) {
+            nodep->sig_Mod_عامه(خطأ);  // We're done with this attribute
+            m_modp->mod_عامه(ریښتیا);  // Avoid flattening if signals are exposed
         }
     }
 
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->varp()) {  // Else due to dead code, might not have var pointer
+    فراغ لیدنه(Ast_غوټه_Var_Ref* nodep) override {
+        إذا (nodep->varp()) {  // Else due to dead code, might not have var pointer
             // VarRef: Resolve its reference
-            nodep->varp()->usedParam(true);
+            nodep->varp()->کارول_شوی_Param(ریښتیا);
             // Look for where genvar is valid
-            bool ok = false;
+            منطقي ok = خطأ;
             // cppcheck-suppress constVariablePointer
-            for (AstGenFor* const forp : m_underGenFors) {
-                if (ok) break;
-                if (forp->initsp())
-                    forp->initsp()->foreach([&](const AstVarRef* refp) {  //
-                        if (refp->varp() == nodep->varp()) ok = true;
+            لكل (AstGenFor* ثابت forp : m_underGenFors) {
+                إذا (ok) اكسر;
+                إذا (forp->initsp())
+                    forp->initsp()->foreach([&](ثابت AstVarRef* refp) {  //
+                        إذا (refp->varp() == nodep->varp()) ok = ریښتیا;
                     });
             }
-            if (nodep->varp()->isGenVar() && !ok) {
+            إذا (nodep->varp()->isGenVar() && !ok) {
                 nodep->v3error("Genvar "
                                << nodep->prettyNameQ()
                                << " used outside generate for loop (IEEE 1800-2023 27.4)");
@@ -119,186 +119,186 @@ class LinkResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    فراغ لیدنه(Ast_غوټه_FTask* nodep) override {
         // Note AstLet is handled specifically elsewhere
         // NodeTask: Remember its name for later resolution
-        if (m_underGenerate) nodep->underGenerate(true);
+        إذا (m_underGenerate) nodep->underGenerate(ریښتیا);
         // Remember the existing symbol table scope
-        if (m_classp) nodep->classMethod(true);
+        إذا (m_classp) nodep->class_لاره(ریښتیا);
         // V3LinkDot moved the isExternDef into the class, the extern proto was
         // checked to exist, and now isn't needed
-        nodep->isExternDef(false);
-        if (nodep->isExternProto()) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+        nodep->isExternDef(خطأ);
+        إذا (nodep->isExternProto()) {
+            VL_DO_DANGLING(nodep->unlink_Fr_شا()->delete_ونه(), nodep);
+            أرجع;
         }
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
 
-        if (nodep->lifetime().isAutomatic() && nodep->fvarp()) {
+        إذا (nodep->lifetime().isAutomatic() && nodep->fvarp()) {
             // Must clear automatic function output variable on function invocation
-            AstVar* const fvarp = VN_AS(nodep->fvarp(), Var);
-            AstNode* const crstp = new AstAssign{
-                fvarp->fileline(), new AstVarRef{fvarp->fileline(), fvarp, VAccess::WRITE},
-                new AstCReset{fvarp->fileline(), fvarp, false}};
-            fvarp->noCReset(true);
+            AstVar* ثابت fvarp = VN_AS(nodep->fvarp(), Var);
+            Ast_غوټه* ثابت crstp = جديد Ast_ټاکل{
+                fvarp->fileline(), جديد AstVarRef{fvarp->fileline(), fvarp, VAccess::WRITE},
+                جديد AstCReset{fvarp->fileline(), fvarp, خطأ}};
+            fvarp->noCReset(ریښتیا);
             nodep->prependStmtsp(crstp);
         }
         iterateChildren(nodep);
-        if (nodep->dpiExport()) nodep->scopeNamep(new AstScopeName{nodep->fileline(), false});
+        إذا (nodep->dpiExport()) nodep->scopeNamep(جديد AstScopeName{nodep->fileline(), خطأ});
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    فراغ لیدنه(Ast_غوټه_FTask_Ref* nodep) override {
         iterateChildren(nodep);
-        if (AstLet* letp = VN_CAST(nodep->taskp(), Let)) {
+        إذا (AstLet* letp = VN_CAST(nodep->taskp(), Let)) {
             UINFO(7, "letSubstitute() " << nodep << " <- " << letp);
-            if (letp->user2()) {
+            إذا (letp->user2()) {
                 nodep->v3error("Recursive let substitution " << letp->prettyNameQ());
-                nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                nodep->replaceWith(جديد AstConst{nodep->fileline(), AstConst::بټ_False_Erroring{}});
+                VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+                أرجع;
             }
-            letp->user2(true);
-            if (VN_IS(nodep->backp(), StmtExpr)) {
+            letp->user2(ریښتیا);
+            إذا (VN_IS(nodep->backp(), Stmt_بیان)) {
                 nodep->v3error("Expected statement, not let substitution " << letp->prettyNameQ());
             }
             // UINFOTREE(9, letp, "", "let-let");
             // UINFOTREE(9, nodep, "", "let-ref");
             // cppcheck-suppress constVariablePointer
-            AstStmtExpr* const letStmtp = VN_AS(letp->stmtsp(), StmtExpr);
-            AstNodeExpr* const newp = letStmtp->exprp()->cloneTree(false);
-            const V3TaskConnects tconnects = V3Task::taskConnects(nodep, letp->stmtsp());
-            std::map<const AstVar*, AstNodeExpr*> portToExprs;
-            for (const auto& tconnect : tconnects) {
-                const AstVar* const portp = tconnect.first;
-                const AstArg* const argp = tconnect.second;
-                AstNodeExpr* const pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
-                portToExprs.emplace(portp, pinp);
+            Ast_Stmt_بیان* ثابت letStmtp = VN_AS(letp->stmtsp(), Stmt_بیان);
+            Ast_غوټه_بیان* ثابت newp = letStmtp->exprp()->clone_ونه(خطأ);
+            ثابت V3TaskConnects tconnects = V3Task::taskConnects(nodep, letp->stmtsp());
+            std::map<ثابت AstVar*, Ast_غوټه_بیان*> پورټ_منزل_Exprs;
+            لكل (ثابت خپلکاری& tconnect : tconnects) {
+                ثابت AstVar* ثابت portp = tconnect.لومړی;
+                ثابت AstArg* ثابت argp = tconnect.دوهم;
+                Ast_غوټه_بیان* ثابت pinp = argp->exprp();
+                إذا (!pinp) استمر;  // Argument error we'll find later
+                پورټ_منزل_Exprs.emplace(portp, pinp);
             }
             // Replace VarRefs of arguments with the argument values
             newp->foreach([&](AstVarRef* refp) {  //
-                const auto it = portToExprs.find(refp->varp());
-                if (it != portToExprs.end()) {
-                    AstNodeExpr* const pinp = it->second;
+                ثابت خپلکاری it = پورټ_منزل_Exprs.پیدا_کړه(refp->varp());
+                إذا (it != پورټ_منزل_Exprs.پای_ټکی()) {
+                    Ast_غوټه_بیان* ثابت pinp = it->دوهم;
                     UINFO(9, "let pin subst " << refp << " <- " << pinp);
                     // Side effects are copied into pins, to match other simulators
-                    refp->replaceWith(pinp->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(refp), refp);
+                    refp->replaceWith(pinp->clone_ونه(خطأ));
+                    VL_DO_DANGLING(ټېل_Deletep(refp), refp);
                 }
             });
             // UINFOTREE(9, newp, "", "let-new");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
             // Iterate to expand further now, so we can look for recursions
-            visit(newp);
-            letp->user2(false);
-            return;
+            لیدنه(newp);
+            letp->user2(خطأ);
+            أرجع;
         }
     }
 
-    void visit(AstLet* nodep) override {
+    فراغ لیدنه(AstLet* nodep) override {
         // Lets have been (or about to be) substituted, we can remove
-        nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->unlink_Fr_شا();
+        VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
     }
 
-    void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::COVERAGE_BLOCK_OFF) {
+    فراغ لیدنه(AstStmtPragma* nodep) override {
+        إذا (nodep->pragp()->pragType() == VPragmaType::COVERAGE_بلاک_OFF) {
             // Strip pragma if not needed, may optimize better without
-            if (!v3Global.opt.coverageLine() && !v3Global.opt.coverageBranch()) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+            إذا (!v3Global.opt.coverage_کرښه() && !v3Global.opt.coverageBranch()) {
+                VL_DO_DANGLING(ټېل_Deletep(nodep->unlink_Fr_شا()), nodep);
+                أرجع;
             }
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstPragma* nodep) override {
-        if (nodep->pragType() == VPragmaType::HIER_BLOCK) {
+    فراغ لیدنه(AstPragma* nodep) override {
+        إذا (nodep->pragType() == VPragmaType::HIER_بلاک) {
             UASSERT_OBJ(m_modp, nodep, "HIER_BLOCK not under a module");
             // If this is hierarchical mode which is to lib-create,
             // sub modules do not have hier_block meta comment in the source code.
             // But .vlt files may still mark a module which is actually a lib-create wrapper
             // hier_block. AstNodeModule::hierBlock() can be true only when --hierarchical is
             // specified.
-            m_modp->hierBlock(v3Global.opt.hierarchical());
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::PUBLIC_MODULE) {
+            m_modp->hier_بلاک(v3Global.opt.پوړیز());
+            nodep->unlink_Fr_شا();
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (nodep->pragType() == VPragmaType::عامه_MODULE) {
             UASSERT_OBJ(m_modp, nodep, "PUBLIC_MODULE not under a module");
-            m_modp->modPublic(true);
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::PUBLIC_TASK) {
+            m_modp->mod_عامه(ریښتیا);
+            nodep->unlink_Fr_شا();
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (nodep->pragType() == VPragmaType::عامه_TASK) {
             UASSERT_OBJ(m_ftaskp, nodep, "PUBLIC_TASK not under a task");
-            m_ftaskp->taskPublic(true);
-            m_modp->modPublic(true);  // Need to get to the task...
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::VERILATOR_LIB) {
+            m_ftaskp->task_عامه(ریښتیا);
+            m_modp->mod_عامه(ریښتیا);  // Need to get to the task...
+            nodep->unlink_Fr_شا();
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا إذا (nodep->pragType() == VPragmaType::VERILATOR_LIB) {
             UASSERT_OBJ(m_modp, nodep, "VERILATOR_LIB not under a module");
-            m_modp->verilatorLib(true);
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+            m_modp->verilatorLib(ریښتیا);
+            nodep->unlink_Fr_شا();
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
+        } وإلا {
             iterateChildren(nodep);
         }
     }
 
-    string expectFormat(AstNode* nodep, const string& format, AstNode* argp, bool isScan) {
+    string expectFormat(Ast_غوټه* nodep, ثابت string& format, Ast_غوټه* argp, منطقي is_لټون) {
         // Check display arguments, return new format string
         string newFormat;
-        bool inPct = false;
-        bool inIgnore = false;
+        منطقي دننه_Pct = خطأ;
+        منطقي دننه_Ignore = خطأ;
         string fmt;
         string parseFormat = format;
-        while (!parseFormat.empty() || argp) {
-            for (const char ch : parseFormat) {
-                if (!inPct && ch == '%') {
-                    inPct = true;
-                    inIgnore = false;
+        طالما (!parseFormat.تشه() || argp) {
+            لكل (ثابت حرف ch : parseFormat) {
+                إذا (!دننه_Pct && ch == '%') {
+                    دننه_Pct = ریښتیا;
+                    دننه_Ignore = خطأ;
                     fmt = ch;
-                } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+                } وإلا إذا (دننه_Pct && (std::که_عدد(ch) || ch == '.' || ch == '-')) {
                     fmt += ch;
-                } else if (inPct) {
-                    inPct = false;
+                } وإلا إذا (دننه_Pct) {
+                    دننه_Pct = خطأ;
                     fmt += ch;
-                    switch (std::tolower(ch)) {
-                    case '%':  // %% - just output a %
-                        break;
-                    case '*':
-                        inPct = true;
-                        inIgnore = true;
-                        break;
-                    case 'm':  // %m - auto insert "name"
-                        if (isScan) {
+                    بدل (std::tolower(ch)) {
+                    حالة '%':  // %% - just output a %
+                        اكسر;
+                    حالة '*':
+                        دننه_Pct = ریښتیا;
+                        دننه_Ignore = ریښتیا;
+                        اكسر;
+                    حالة 'm':  // %m - auto insert "name"
+                        إذا (is_لټون) {
                             nodep->v3warn(E_UNSUPPORTED, "Unsupported: %m in $fscanf");
                             fmt = "";
                         }
-                        break;
-                    case 'l':  // %l - auto insert "library"
-                        if (isScan) {
+                        اكسر;
+                    حالة 'l':  // %l - auto insert "library"
+                        إذا (is_لټون) {
                             nodep->v3warn(E_UNSUPPORTED, "Unsupported: %l in $fscanf");
                             fmt = "";
                         }
-                        if (m_modp)
-                            fmt = AstNode::prettyName(m_modp->libname()) + "."
+                        إذا (m_modp)
+                            fmt = Ast_غوټه::prettyName(m_modp->libname()) + "."
                                   + m_modp->prettyName();
-                        break;
-                    default:  // Most operators, just move to next argument
-                        if (!V3Number::displayedFmtHasArg(ch, isScan)) {
+                        اكسر;
+                    افتراضي:  // Most operators, just move to next argument
+                        إذا (!V3_شمېره::displayedFmtHasArg(ch, is_لټون)) {
                             nodep->v3error("Unknown $display-like format code: '%" << ch << "'");
-                        } else if (!inIgnore) {
-                            if (!argp) {
+                        } وإلا إذا (!دننه_Ignore) {
+                            إذا (!argp) {
                                 nodep->v3error("Missing arguments for $display-like format");
-                            } else {
+                            } وإلا {
                                 argp = argp->nextp();
                             }
                         }
-                        break;
+                        اكسر;
                     }  // switch
                     newFormat += fmt;
-                } else {
+                } وإلا {
                     newFormat += ch;
                 }
             }
@@ -306,158 +306,158 @@ class LinkResolveVisitor final : public VNVisitor {
             // Find additional arguments (without format) or additional format strings
             parseFormat = "";
 
-            if (isScan) break;
-            while (argp) {
-                const AstConst* const constp = VN_CAST(argp, Const);
-                const bool isFromString = (constp) ? constp->num().isFromString() : false;
-                if (!isFromString) {
+            إذا (is_لټون) اكسر;
+            طالما (argp) {
+                ثابت AstConst* ثابت constp = VN_CAST(argp, Const);
+                ثابت منطقي isFromString = (constp) ? constp->عدد().isFromString() : خطأ;
+                إذا (!isFromString) {
                     newFormat.append("%?");  // V3Width to figure it out
                     argp = argp->nextp();
-                } else {  // New format string
-                    parseFormat += constp->num().toString();
-                    AstNode* const nextp = argp->nextp();
-                    argp->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(argp), argp);
+                } وإلا {  // New format string
+                    parseFormat += constp->عدد().منزل_String();
+                    Ast_غوټه* ثابت nextp = argp->nextp();
+                    argp->unlink_Fr_شا();
+                    VL_DO_DANGLING(ټېل_Deletep(argp), argp);
                     argp = nextp;
-                    break;  // And continue at top of parsing the new parseFormat
+                    اكسر;  // And continue at top of parsing the new parseFormat
                 }
             }
         }
-        return newFormat;
+        أرجع newFormat;
     }
 
-    static void expectDescriptor(AstNode* /*nodep*/, const AstNodeVarRef* filep) {
+    ساكن فراغ expectDescriptor(Ast_غوټه* /*nodep*/, ثابت Ast_غوټه_Var_Ref* filep) {
         // This might fail on complex expressions like arrays
         // We use attrFileDescr() only for lint suppression, so that's ok
-        if (filep && filep->varp()) filep->varp()->attrFileDescr(true);
+        إذا (filep && filep->varp()) filep->varp()->attrFileDescr(ریښتیا);
     }
 
-    void visit(AstFClose* nodep) override {
+    فراغ لیدنه(AstFClose* nodep) override {
         iterateChildren(nodep);
-        expectDescriptor(nodep, VN_CAST(nodep->filep(), NodeVarRef));
+        expectDescriptor(nodep, VN_CAST(nodep->filep(), غوټه_Var_Ref));
     }
-    void visit(AstFError* nodep) override {
+    فراغ لیدنه(AstFError* nodep) override {
         iterateChildren(nodep);
-        expectDescriptor(nodep, VN_CAST(nodep->filep(), NodeVarRef));
+        expectDescriptor(nodep, VN_CAST(nodep->filep(), غوټه_Var_Ref));
     }
-    void visit(AstFEof* nodep) override {
+    فراغ لیدنه(AstFEof* nodep) override {
         iterateChildren(nodep);
-        expectDescriptor(nodep, VN_CAST(nodep->filep(), NodeVarRef));
+        expectDescriptor(nodep, VN_CAST(nodep->filep(), غوټه_Var_Ref));
     }
-    void visit(AstFRead* nodep) override {
+    فراغ لیدنه(AstFRead* nodep) override {
         iterateChildren(nodep);
-        expectDescriptor(nodep, VN_CAST(nodep->filep(), NodeVarRef));
+        expectDescriptor(nodep, VN_CAST(nodep->filep(), غوټه_Var_Ref));
     }
-    void visit(AstFScanF* nodep) override {
+    فراغ لیدنه(AstFScanF* nodep) override {
         iterateChildren(nodep);
-        expectFormat(nodep, nodep->text(), nodep->exprsp(), true);
+        expectFormat(nodep, nodep->متن(), nodep->exprsp(), ریښتیا);
     }
-    void visit(AstSScanF* nodep) override {
+    فراغ لیدنه(AstSScanF* nodep) override {
         iterateChildren(nodep);
-        expectFormat(nodep, nodep->text(), nodep->exprsp(), true);
+        expectFormat(nodep, nodep->متن(), nodep->exprsp(), ریښتیا);
     }
-    void visit(AstSFormatF* nodep) override {
-        if (nodep->user2SetOnce()) return;
+    فراغ لیدنه(AstSFormatF* nodep) override {
+        إذا (nodep->user2_سېټ_Once()) أرجع;
         iterateChildren(nodep);
         // Cleanup old-school displays without format arguments
         // Similar code in V3Const::visit(AstSFormatF)
-        if (nodep->exprFormat()) {
-            if (VN_IS(nodep->exprsp(), Const)
-                && VN_AS(nodep->exprsp(), Const)->num().isFromString()) {
-                AstConst* const fmtp = VN_AS(nodep->exprsp()->unlinkFrBack(), Const);
-                nodep->text(fmtp->num().toString());
-                nodep->exprFormat(false);
-                VL_DO_DANGLING(pushDeletep(fmtp), fmtp);
+        إذا (nodep->بیان_Format_2()) {
+            إذا (VN_IS(nodep->exprsp(), Const)
+                && VN_AS(nodep->exprsp(), Const)->عدد().isFromString()) {
+                AstConst* ثابت fmtp = VN_AS(nodep->exprsp()->unlink_Fr_شا(), Const);
+                nodep->متن(fmtp->عدد().منزل_String());
+                nodep->بیان_Format_2(خطأ);
+                VL_DO_DANGLING(ټېل_Deletep(fmtp), fmtp);
             }
         }
-        if (nodep->optionalFormat()) {  // e.g. $display, $swrite; _not_ $sformat/$sformatf
-            nodep->optionalFormat(false);
-            nodep->exprFormat(false);
+        إذا (nodep->optionalFormat()) {  // e.g. $display, $swrite; _not_ $sformat/$sformatf
+            nodep->optionalFormat(خطأ);
+            nodep->بیان_Format_2(خطأ);
         }
-        if ((VN_IS(nodep->backp(), Display)
+        إذا ((VN_IS(nodep->backp(), Display)
              && VN_AS(nodep->backp(), Display)->displayType().needScopeTracking())
             || nodep->formatScopeTracking()) {
-            nodep->scopeNamep(new AstScopeName{nodep->fileline(), true});
+            nodep->scopeNamep(جديد AstScopeName{nodep->fileline(), ریښتیا});
         }
-        if (!nodep->exprFormat()) {
-            const string newFormat = expectFormat(nodep, nodep->text(), nodep->exprsp(), false);
-            nodep->text(newFormat);
+        إذا (!nodep->بیان_Format_2()) {
+            ثابت string newFormat = expectFormat(nodep, nodep->متن(), nodep->exprsp(), خطأ);
+            nodep->متن(newFormat);
         }
     }
 
-    void visit(AstUdpTable* nodep) override {
+    فراغ لیدنه(Ast_Udp_جدول* nodep) override {
         UINFO(5, "UDPTABLE  " << nodep);
-        if (!v3Global.opt.bboxUnsup()) {
+        إذا (!v3Global.opt.bboxUnsup()) {
             // We don't warn until V3Inst, so that UDPs that are in libraries and
             // never used won't result in any warnings.
-        } else {
+        } وإلا {
             // Massive hack, just tie off all outputs so our analysis can proceed
-            const AstVar* varoutp = nullptr;
-            for (AstNode* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                    if (varp->isReadOnly()) {
-                    } else if (varp->isWritable()) {
-                        if (varoutp) {
+            ثابت AstVar* varoutp = تش_اشاره;
+            لكل (Ast_غوټه* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                إذا (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                    إذا (varp->isReadOnly()) {
+                    } وإلا إذا (varp->isWritable()) {
+                        إذا (varoutp) {
                             varp->v3error("Multiple outputs not allowed in udp modules");
                         }
                         varoutp = varp;
                         // Tie off
-                        AstAssignW* const ap
-                            = new AstAssignW{varp->fileline(),
-                                             new AstVarRef{varp->fileline(), varp, VAccess::WRITE},
-                                             new AstConst{varp->fileline(), AstConst::BitFalse{}}};
-                        m_modp->addStmtsp(new AstAlways{ap});
-                    } else {
+                        Ast_ټاکل_W* ثابت ap
+                            = جديد Ast_ټاکل_W{varp->fileline(),
+                                             جديد AstVarRef{varp->fileline(), varp, VAccess::WRITE},
+                                             جديد AstConst{varp->fileline(), AstConst::بټ_False{}}};
+                        m_modp->جمع_کړه_Stmtsp(جديد AstAlways{ap});
+                    } وإلا {
                         varp->v3error("Only inputs and outputs are allowed in udp modules");
                     }
                 }
             }
-            nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->unlink_Fr_شا();
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstSystemCSection* nodep) override {
-        switch (nodep->sectionType()) {
+    فراغ لیدنه(AstSystemCSection* nodep) override {
+        بدل (nodep->sectionType()) {
         // Constructor, desctructor or special class info means the module must remain public
-        case VSystemCSectionType::CTOR:
-        case VSystemCSectionType::DTOR:
-        case VSystemCSectionType::INT: m_modp->modPublic(true); break;
-        default: break;
+        حالة VSystemCSectionType::CTOR:
+        حالة VSystemCSectionType::DTOR:
+        حالة VSystemCSectionType::INT: m_modp->mod_عامه(ریښتیا); اكسر;
+        افتراضي: اكسر;
         }
         // Has no children
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
+    فراغ لیدنه(AstIfaceRefDType* nodep) override {
         // LinkDot checked modports, now remove references to them
         // Keeping them later caused problems with InstDeArray,
         // as it needed to make new modport arrays and such
-        nodep->modportp(nullptr);
+        nodep->modportp(تش_اشاره);
         iterateChildren(nodep);
     }
     //  void visit(AstModport* nodep) override { ... }
     // We keep Modport's themselves around for JSON dump purposes
 
-    void visit(AstGenFor* nodep) override {
+    فراغ لیدنه(AstGenFor* nodep) override {
         VL_RESTORER(m_underGenerate);
-        m_underGenerate = true;
-        m_underGenFors.emplace_back(nodep);
+        m_underGenerate = ریښتیا;
+        m_underGenFors.emplace_شا(nodep);
         iterateChildren(nodep);
-        UASSERT_OBJ(!m_underGenFors.empty(), nodep, "Underflow");
-        m_underGenFors.pop_back();
+        UASSERT_OBJ(!m_underGenFors.تشه(), nodep, "Underflow");
+        m_underGenFors.راوباسه_شا();
     }
-    void visit(AstGenIf* nodep) override {
+    فراغ لیدنه(AstGenIf* nodep) override {
         VL_RESTORER(m_underGenerate);
-        m_underGenerate = true;
+        m_underGenerate = ریښتیا;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit LinkResolveVisitor(AstNetlist* rootp) { iterate(rootp); }
-    ~LinkResolveVisitor() override = default;
+    څرګند LinkResolveVisitor(AstNetlist* rootp) { iterate(rootp); }
+    ~LinkResolveVisitor() override = افتراضي;
 };
 
 //######################################################################
@@ -465,42 +465,42 @@ public:
 //      Recurses cells backwards, so we can pick up those things that propagate
 //      from child cells up to the top module.
 
-class LinkBotupVisitor final : public VNVisitorConst {
+صنف LinkBotupVisitor final : عام VNVisitorConst {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_غوټه_Module* m_modp = تش_اشاره;  // Current module
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    فراغ لیدنه(AstNetlist* nodep) override {
         // Iterate modules backwards, in bottom-up order.
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    فراغ لیدنه(Ast_غوټه_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCell* nodep) override {
+    فراغ لیدنه(AstCell* nodep) override {
         // Parent module inherits child's publicity
-        if (nodep->modp()->modPublic()) m_modp->modPublic(true);
+        إذا (nodep->modp()->mod_عامه()) m_modp->mod_عامه(ریښتیا);
         //** No iteration for speed
     }
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ لیدنه(Ast_غوټه_بیان*) override {}  // Accelerate
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit LinkBotupVisitor(AstNetlist* rootp) { iterateConst(rootp); }
-    ~LinkBotupVisitor() override = default;
+    څرګند LinkBotupVisitor(AstNetlist* rootp) { iterateConst(rootp); }
+    ~LinkBotupVisitor() override = افتراضي;
 };
 
 //######################################################################
 // V3LinkResolve class functions
 
-void V3LinkResolve::linkResolve(AstNetlist* rootp) {
+فراغ V3LinkResolve::linkResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
     {
-        const LinkResolveVisitor visitor{rootp};
+        ثابت LinkResolveVisitor visitor{rootp};
         LinkBotupVisitor{rootp};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkresolve", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_ونه("linkresolve", 0, dump_ونه_Either_Level() >= 6);
 }

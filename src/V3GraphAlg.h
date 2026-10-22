@@ -14,33 +14,33 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHALG_H_
-#define VERILATOR_V3GRAPHALG_H_
+#که_نه_تعریف_شوی VERILATOR_V3GRAPHALG_H_
+#تعریف_کړه VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ضمن "V3Global.h"
+#ضمن "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
-class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+کينډۍ <typename T_ګراف = V3_ګراف>  // Or sometimes const V3Graph
+class ګراف_Alg VL_NOT_FINAL {
+محمي:
+    T_ګراف* ثابت m_graphp;  // Graph we're operating upon
+    ثابت V3_څنډه_Func_P m_څنډه_Funcp;  // Function that says we follow this edge
     // CONSTRUCTORS
-    GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
+    ګراف_Alg(T_ګراف* graphp, V3_څنډه_Func_P څنډه_Funcp)
         : m_graphp{graphp}
-        , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+        , m_څنډه_Funcp{څنډه_Funcp} {}
+    ~ګراف_Alg() = افتراضي;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool follow_څنډه(V3_ګراف_څنډه* edgep) { أرجع (edgep->وزن_2() && (m_څنډه_Funcp)(edgep)); }
 };
 
 //============================================================================
 
-#endif  // Guard
+#د_که_پای  // Guard

@@ -34,204 +34,204 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitV.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
+#ضمن "V3EmitV.h"
+#ضمن "V3Graph.h"
+#ضمن "V3Sched.h"
 
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#ضمن <tuple>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+نطاق V3Sched {
 
-namespace {
+نطاق {
 
-class SchedSenVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedSenVertex, V3GraphVertex)
-    const AstSenItem* const m_senItemp;
+صنف Sched_Sen_راس final : عام V3_ګراف_راس {
+    VL_RTTI_IMPL(Sched_Sen_راس, V3_ګراف_راس)
+    ثابت Ast_Sen_توکی* ثابت m_senItemp;
 
-public:
-    SchedSenVertex(V3Graph* graphp, const AstSenItem* senItemp)
-        : V3GraphVertex{graphp}
+عام:
+    Sched_Sen_راس(V3_ګراف* graphp, ثابت Ast_Sen_توکی* senItemp)
+        : V3_ګراف_راس{graphp}
         , m_senItemp{senItemp} {}
 
     // LCOV_EXCL_START // Debug code
-    string name() const override {
+    string name() ثابت override {
         std::ostringstream os;
-        V3EmitV::verilogForTree(const_cast<AstSenItem*>(m_senItemp), os);
-        return os.str();
+        V3EmitV::verilog_For_ونه(const_cast<Ast_Sen_توکی*>(m_senItemp), os);
+        أرجع os.str();
     }
-    string dotShape() const override { return "doubleoctagon"; }
-    string dotColor() const override { return "red"; }
+    string dotShape() ثابت override { أرجع "doubleoctagon"; }
+    string dotColor() ثابت override { أرجع "red"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedLogicVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedLogicVertex, V3GraphVertex)
-    AstScope* const m_scopep;
-    AstSenTree* const m_senTreep;
-    AstNode* const m_logicp;
+صنف Sched_Logic_راس final : عام V3_ګراف_راس {
+    VL_RTTI_IMPL(Sched_Logic_راس, V3_ګراف_راس)
+    AstScope* ثابت m_scopep;
+    Ast_Sen_ونه* ثابت m_senTreep;
+    Ast_غوټه* ثابت m_logicp;
 
-public:
-    SchedLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep, AstNode* logicp)
-        : V3GraphVertex{graphp}
+عام:
+    Sched_Logic_راس(V3_ګراف* graphp, AstScope* scopep, Ast_Sen_ونه* senTreep, Ast_غوټه* logicp)
+        : V3_ګراف_راس{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
         , m_logicp{logicp} {}
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
+    AstScope* scopep() ثابت { أرجع m_scopep; }
+    Ast_Sen_ونه* senTreep() ثابت { أرجع m_senTreep; }
+    Ast_غوټه* logicp() ثابت { أرجع m_logicp; }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE {
-        return m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
+    string name() ثابت override VL_MT_STABLE {
+        أرجع m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
     };
-    string dotShape() const override { return "rectangle"; }
+    string dotShape() ثابت override { أرجع "rectangle"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedVarVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedVarVertex, V3GraphVertex)
-    const AstVarScope* const m_vscp;
+صنف Sched_Var_راس final : عام V3_ګراف_راس {
+    VL_RTTI_IMPL(Sched_Var_راس, V3_ګراف_راس)
+    ثابت AstVarScope* ثابت m_vscp;
 
-public:
-    SchedVarVertex(V3Graph* graphp, AstVarScope* vscp)
-        : V3GraphVertex{graphp}
+عام:
+    Sched_Var_راس(V3_ګراف* graphp, AstVarScope* vscp)
+        : V3_ګراف_راس{graphp}
         , m_vscp{vscp} {}
 
-    AstVar* varp() const { return m_vscp->varp(); }
+    AstVar* varp() ثابت { أرجع m_vscp->varp(); }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
+    string name() ثابت override VL_MT_STABLE { أرجع m_vscp->name(); }
+    string dotShape() ثابت override {
+        أرجع m_vscp->scopep()->is_سر() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
     }
-    string dotColor() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "green" : "black";
+    string dotColor() ثابت override {
+        أرجع m_vscp->scopep()->is_سر() && m_vscp->varp()->isNonOutput() ? "green" : "black";
     }
     // LCOV_EXCL_STOP
 };
 
-class SchedGraphBuilder final : public VNVisitor {
+صنف Sched_ګراف_Builder final : عام VNVisitor {
     // NODE STATE
     // AstVarScope::user1p() -> SchedVarVertex
     // AstSenItem::user1p() -> SchedSenVertex
     // AstVarScope::user2() -> bool: Read of this AstVarScope triggers this logic.
     //                         Used only for hybrid logic.
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    ثابت VNUser1_دننه_Use m_user1_دننه_Use;
+    ثابت VNUser2_دننه_Use m_user2_دننه_Use;
 
     // STATE
-    V3Graph* const m_graphp = new V3Graph;  // The dataflow graph being built
+    V3_ګراف* ثابت m_graphp = جديد V3_ګراف;  // The dataflow graph being built
     // The vertices associated with a unique AstSenItem
-    std::unordered_map<VNRef<AstSenItem>, SchedSenVertex*> m_senVertices;
-    AstScope* m_scopep = nullptr;  // AstScope of the current AstActive
-    AstSenTree* m_senTreep = nullptr;  // AstSenTree of the current AstActive
+    std::unordered_map<VNRef<Ast_Sen_توکی>, Sched_Sen_راس*> m_senVertices;
+    AstScope* m_scopep = تش_اشاره;  // AstScope of the current AstActive
+    Ast_Sen_ونه* m_senTreep = تش_اشاره;  // AstSenTree of the current AstActive
     // Predicate for whether a read of the given variable triggers this block
-    std::function<bool(AstVarScope*)> m_readTriggersThisLogic;
+    std::function<منطقي(AstVarScope*)> m_readTriggersThisLogic;
     // The DPI export trigger variable, if any
-    AstVarScope* const m_dpiExportTriggerp = v3Global.rootp()->dpiExportTriggerp();
+    AstVarScope* ثابت m_dpiExportTriggerp = v3Global.rootp()->dpiExportTriggerp();
 
-    SchedVarVertex* getVarVertex(AstVarScope* vscp) const {
-        if (!vscp->user1p()) {
-            SchedVarVertex* const vtxp = new SchedVarVertex{m_graphp, vscp};
+    Sched_Var_راس* get_Var_راس(AstVarScope* vscp) ثابت {
+        إذا (!vscp->user1p()) {
+            Sched_Var_راس* ثابت vtxp = جديد Sched_Var_راس{m_graphp, vscp};
             // If this variable can be written via a DPI export, add a source edge from the
             // DPI export trigger vertex. This ensures calls to DPI exports that might write a
             // clock end up in the 'act' region.
-            if (vscp->varp()->isWrittenByDpi()) {
-                new V3GraphEdge{m_graphp, getVarVertex(m_dpiExportTriggerp), vtxp, 1};
+            إذا (vscp->varp()->isWrittenByDpi()) {
+                جديد V3_ګراف_څنډه{m_graphp, get_Var_راس(m_dpiExportTriggerp), vtxp, 1};
             }
             vscp->user1p(vtxp);
         }
-        return vscp->user1u().to<SchedVarVertex*>();
+        أرجع vscp->user1u().منزل<Sched_Var_راس*>();
     }
 
-    SchedSenVertex* getSenVertex(AstSenItem* senItemp) {
-        if (!senItemp->user1p()) {
+    Sched_Sen_راس* get_Sen_راس(Ast_Sen_توکی* senItemp) {
+        إذا (!senItemp->user1p()) {
             // There is a unique SchedSenVertex for each globally unique AstSenItem. Multiple
             // AstSenTree might use the same AstSenItem (e.g.: posedge clk1 or rst, posedge clk2 or
             // rst), so we use a hash map to get the unique SchedSenVertex. (Note: This creates
             // separate vertices for ET_CHANGED and ET_HYBRID over the same expression, but that is
             // OK for now).
-            const auto pair = m_senVertices.emplace(*senItemp, nullptr);
+            ثابت خپلکاری pair = m_senVertices.emplace(*senItemp, تش_اشاره);
             // If it does not exist, create it
-            if (pair.second) {
+            إذا (pair.دوهم) {
                 // Create the vertex
-                SchedSenVertex* const vtxp = new SchedSenVertex{m_graphp, senItemp};
+                Sched_Sen_راس* ثابت vtxp = جديد Sched_Sen_راس{m_graphp, senItemp};
 
                 // Connect up the variable references
-                if (senItemp->sensp()) {
+                إذا (senItemp->sensp()) {
                     senItemp->sensp()->foreach([&](AstVarRef* refp) {
-                        new V3GraphEdge{m_graphp, getVarVertex(refp->varScopep()), vtxp, 1};
+                        جديد V3_ګراف_څنډه{m_graphp, get_Var_راس(refp->varScopep()), vtxp, 1};
                     });
                 }
 
                 // Store back to hash map so we can find it next time
-                pair.first->second = vtxp;
+                pair.لومړی->دوهم = vtxp;
             }
 
             // Cache sensitivity vertex
-            senItemp->user1p(pair.first->second);
+            senItemp->user1p(pair.لومړی->دوهم);
         }
-        return senItemp->user1u().to<SchedSenVertex*>();
+        أرجع senItemp->user1u().منزل<Sched_Sen_راس*>();
     }
 
-    void visitLogic(AstNode* nodep) {
+    فراغ لیدنه_Logic(Ast_غوټه* nodep) {
         UASSERT_OBJ(m_senTreep, nodep, "Should be under AstActive");
 
-        SchedLogicVertex* const logicVtxp
-            = new SchedLogicVertex{m_graphp, m_scopep, m_senTreep, nodep};
+        Sched_Logic_راس* ثابت logicVtxp
+            = جديد Sched_Logic_راس{m_graphp, m_scopep, m_senTreep, nodep};
 
         // Clocked or hybrid logic has explicit sensitivity, so add edge from sensitivity vertex
-        if (!m_senTreep->hasCombo()) {
-            m_senTreep->foreach([this, nodep, logicVtxp](AstSenItem* senItemp) {
+        إذا (!m_senTreep->hasCombo()) {
+            m_senTreep->foreach([هذا, nodep, logicVtxp](Ast_Sen_توکی* senItemp) {
                 UASSERT_OBJ(senItemp->isClocked() || senItemp->isHybrid(), nodep,
                             "Non-clocked SenItem under clocked SenTree");
-                V3GraphVertex* const eventVtxp = getSenVertex(senItemp);
-                new V3GraphEdge{m_graphp, eventVtxp, logicVtxp, 10};
+                V3_ګراف_راس* ثابت eventVtxp = get_Sen_راس(senItemp);
+                جديد V3_ګراف_څنډه{m_graphp, eventVtxp, logicVtxp, 10};
             });
         }
 
         // Add edges based on references
-        V3Sched::util::VarScopeSet forceReadEdgeIgnores;
-        V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
-        nodep->foreach([this, logicVtxp, &forceReadEdgeIgnores](const AstVarRef* vrefp) {
-            AstVarScope* const vscp = vrefp->varScopep();
-            if (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
-                && !forceReadEdgeIgnores.count(vscp)) {
-                new V3GraphEdge{m_graphp, getVarVertex(vscp), logicVtxp, 10};
+        V3Sched::util::Var_Scope_سېټ force_Read_څنډه_Ignores;
+        V3Sched::util::collect_Force_Read_څنډه_Ignores(nodep, force_Read_څنډه_Ignores);
+        nodep->foreach([هذا, logicVtxp, &force_Read_څنډه_Ignores](ثابت AstVarRef* vrefp) {
+            AstVarScope* ثابت vscp = vrefp->varScopep();
+            إذا (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
+                && !force_Read_څنډه_Ignores.شمېر(vscp)) {
+                جديد V3_ګراف_څنډه{m_graphp, get_Var_راس(vscp), logicVtxp, 10};
             }
-            if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
-                new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(vscp), 10};
+            إذا (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
+                جديد V3_ګراف_څنډه{m_graphp, logicVtxp, get_Var_راس(vscp), 10};
             }
         });
 
         // If the logic calls a 'context' DPI import, it might fire the DPI Export trigger
-        if (m_dpiExportTriggerp) {
-            nodep->foreach([this, logicVtxp](const AstCCall* callp) {
-                if (!callp->funcp()->dpiImportWrapper()) return;
-                if (!callp->funcp()->dpiContext()) return;
-                new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(m_dpiExportTriggerp), 10};
+        إذا (m_dpiExportTriggerp) {
+            nodep->foreach([هذا, logicVtxp](ثابت AstCCall* callp) {
+                إذا (!callp->funcp()->dpiImportWrapper()) أرجع;
+                إذا (!callp->funcp()->dpiContext()) أرجع;
+                جديد V3_ګراف_څنډه{m_graphp, logicVtxp, get_Var_راس(m_dpiExportTriggerp), 10};
             });
         }
     }
 
     // VISIT methods
-    void visit(AstActive* nodep) override {
-        AstSenTree* const senTreep = nodep->sentreep();
+    فراغ لیدنه(Ast_فعال* nodep) override {
+        Ast_Sen_ونه* ثابت senTreep = nodep->sentreep();
         UASSERT_OBJ(senTreep->hasClocked() || senTreep->hasCombo() || senTreep->hasHybrid(), nodep,
                     "Unhandled");
         UASSERT_OBJ(!m_senTreep, nodep, "Should not nest");
 
         // Mark explicit sensitivities as not triggering these blocks
-        if (senTreep->hasHybrid()) {
-            AstNode::user2ClearTree();
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user2(true);
+        إذا (senTreep->hasHybrid()) {
+            Ast_غوټه::user2_Clear_ونه();
+            senTreep->foreach([](ثابت AstVarRef* refp) {  //
+                refp->varScopep()->user2(ریښتیا);
             });
         }
 
@@ -240,99 +240,99 @@ class SchedGraphBuilder final : public VNVisitor {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeProcedure* nodep) override { visitLogic(nodep); }
-    void visit(AstNodeAssign* nodep) override { visitLogic(nodep); }
-    void visit(AstCoverToggle* nodep) override { visitLogic(nodep); }
+    فراغ لیدنه(Ast_غوټه_Procedure* nodep) override { لیدنه_Logic(nodep); }
+    فراغ لیدنه(Ast_غوټه_ټاکل* nodep) override { لیدنه_Logic(nodep); }
+    فراغ لیدنه(AstCoverToggle* nodep) override { لیدنه_Logic(nodep); }
 
     // Pre and Post logic are handled separately
-    void visit(AstAlwaysPre* nodep) override {}
-    void visit(AstAlwaysPost* nodep) override {}
+    فراغ لیدنه(AstAlwaysPre* nodep) override {}
+    فراغ لیدنه(AstAlwaysPost* nodep) override {}
 
     // LCOV_EXCL_START
     // Ignore
-    void visit(AstInitialStatic* nodep) override { nodep->v3fatalSrc("Should not need ordering"); }
-    void visit(AstInitial* nodep) override {  //
+    فراغ لیدنه(AstInitialStatic* nodep) override { nodep->v3fatalSrc("Should not need ordering"); }
+    فراغ لیدنه(AstInitial* nodep) override {  //
         nodep->v3fatalSrc("Should not need ordering");
     }
-    void visit(AstFinal* nodep) override {  //
+    فراغ لیدنه(AstFinal* nodep) override {  //
         nodep->v3fatalSrc("Should not need ordering");
     }
 
     // Default - Any other AstActive content not handled above will hit this
-    void visit(AstNode* nodep) override {  //
+    فراغ لیدنه(Ast_غوټه* nodep) override {  //
         nodep->v3fatalSrc("Should be handled above");
     }
     // LCOV_EXCL_STOP
 
-    SchedGraphBuilder(const LogicByScope& clockedLogic, const LogicByScope& combinationalLogic,
-                      const LogicByScope& hybridLogic) {
+    Sched_ګراف_Builder(ثابت LogicByScope& clockedLogic, ثابت LogicByScope& combinationalLogic,
+                      ثابت LogicByScope& hybridLogic) {
         // Build the data flow graph
-        const auto iter = [this](const LogicByScope& lbs) {
-            for (const auto& entry : lbs) {
-                m_scopep = entry.m_scopep;
-                iterate(entry.m_activep);
-                m_scopep = nullptr;
+        ثابت خپلکاری iter = [هذا](ثابت LogicByScope& lbs) {
+            لكل (ثابت خپلکاری& ثبت : lbs) {
+                m_scopep = ثبت.m_scopep;
+                iterate(ثبت.m_activep);
+                m_scopep = تش_اشاره;
             }
         };
         // Clocked logic is never triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return false; };
+        m_readTriggersThisLogic = [](AstVarScope*) { أرجع خطأ; };
         iter(clockedLogic);
         // Combinational logic is always triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return true; };
+        m_readTriggersThisLogic = [](AstVarScope*) { أرجع ریښتیا; };
         iter(combinationalLogic);
         // Hybrid logic is triggered by all reads, except for reads of the explicit sensitivities
-        m_readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user2(); };
+        m_readTriggersThisLogic = [](AstVarScope* vscp) { أرجع !vscp->user2(); };
         iter(hybridLogic);
     }
 
-public:
+عام:
     // Build the dataflow graph for partitioning
-    static std::unique_ptr<V3Graph> build(const LogicByScope& clockedLogic,
-                                          const LogicByScope& combinationalLogic,
-                                          const LogicByScope& hybridLogic) {
-        const SchedGraphBuilder visitor{clockedLogic, combinationalLogic, hybridLogic};
-        return std::unique_ptr<V3Graph>{visitor.m_graphp};
+    ساكن std::unique_ptr<V3_ګراف> build(ثابت LogicByScope& clockedLogic,
+                                          ثابت LogicByScope& combinationalLogic,
+                                          ثابت LogicByScope& hybridLogic) {
+        ثابت Sched_ګراف_Builder visitor{clockedLogic, combinationalLogic, hybridLogic};
+        أرجع std::unique_ptr<V3_ګراف>{visitor.m_graphp};
     }
 };
 
-void colorActiveRegion(V3Graph& graph) {
+فراغ color_فعال_Region(V3_ګراف& ګراف) {
     // Work queue for depth first traversal
-    std::vector<V3GraphVertex*> queue{};
+    std::ویکټور<V3_ګراف_راس*> کتار{};
 
     // Trace from all SchedSenVertex
-    for (V3GraphVertex& vtx : graph.vertices()) {
-        if (const auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
-            queue.push_back(activeEventVtxp);
+    لكل (V3_ګراف_راس& vtx : ګراف.vertices()) {
+        إذا (ثابت خپلکاری فعال_Event_Vtxp = vtx.cast<Sched_Sen_راس>()) {
+            کتار.ټېل_شا(فعال_Event_Vtxp);
         }
     }
 
     // Depth first traversal
-    while (!queue.empty()) {
+    طالما (!کتار.تشه()) {
         // Pop next work item
-        V3GraphVertex& vtx = *queue.back();
-        queue.pop_back();
+        V3_ګراف_راس& vtx = *کتار.شا();
+        کتار.راوباسه_شا();
         // If not first encounter, move on
-        if (vtx.color() != 0) continue;
+        إذا (vtx.color() != 0) استمر;
 
         // Mark vertex as being in active region
         vtx.color(1);
 
         // Enqueue all parent vertices that feed this vertex.
-        for (V3GraphEdge& edge : vtx.inEdges()) queue.push_back(edge.fromp());
+        لكل (V3_ګراف_څنډه& څنډه : vtx.دننه_څنډې()) کتار.ټېل_شا(څنډه.fromp());
 
         // Mark top level ports that drive a sensitivity list
-        if (SchedVarVertex* const vvtxp = vtx.cast<SchedVarVertex>()) {
-            AstVar* const varp = vvtxp->varp();
-            if (varp->isPrimaryIO()) varp->setPrimaryClock();
+        إذا (Sched_Var_راس* ثابت vvtxp = vtx.cast<Sched_Var_راس>()) {
+            AstVar* ثابت varp = vvtxp->varp();
+            إذا (varp->isPrimaryIO()) varp->سېټ_Primary_Clock();
         }
 
         // If this is a logic vertex, also enqueue all variable vertices that are driven from this
         // logic. This will ensure that if a variable is set in the active region, then all
         // settings of that variable will be in the active region.
-        if (vtx.is<SchedLogicVertex>()) {
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                UASSERT(edge.top()->is<SchedVarVertex>(), "Should be var vertex");
-                queue.push_back(edge.top());
+        إذا (vtx.is<Sched_Logic_راس>()) {
+            لكل (V3_ګراف_څنډه& څنډه : vtx.بهر_څنډې()) {
+                UASSERT(څنډه.سر()->is<Sched_Var_راس>(), "Should be var vertex");
+                کتار.ټېل_شا(څنډه.سر());
             }
         }
     }
@@ -340,84 +340,84 @@ void colorActiveRegion(V3Graph& graph) {
 
 }  // namespace
 
-LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLogic,
+LogicRegions برخه_کول(LogicByScope& clockedLogic, LogicByScope& combinationalLogic,
                        LogicByScope& hybridLogic) {
     UINFO(2, __FUNCTION__ << ":");
 
     // Build the graph
-    const std::unique_ptr<V3Graph> graphp
-        = SchedGraphBuilder::build(clockedLogic, combinationalLogic, hybridLogic);
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched");
+    ثابت std::unique_ptr<V3_ګراف> graphp
+        = Sched_ګراف_Builder::build(clockedLogic, combinationalLogic, hybridLogic);
+    إذا (dump_ګراف_Level() >= 6) graphp->dumpDotFilePrefixed("sched");
 
     // Partition into Active and NBA regions
-    colorActiveRegion(*(graphp.get()));
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", true);
+    color_فعال_Region(*(graphp.get()));
+    إذا (dump_ګراف_Level() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", ریښتیا);
 
-    LogicRegions result;
+    LogicRegions پایله;
 
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (const auto lvtxp = vtx.cast<SchedLogicVertex>()) {
+    لكل (V3_ګراف_راس& vtx : graphp->vertices()) {
+        إذا (ثابت خپلکاری lvtxp = vtx.cast<Sched_Logic_راس>()) {
             // Move to 'act'/'nba' based on coloring by default ...
-            bool toAct = lvtxp->color();
+            منطقي منزل_Act = lvtxp->color();
             // ... however, if a #0 delay is possible, then the 'inact' region is required,
             // in which case **EVERYTHING** that is not a Post block needs to go to 'act'.
             // This severely limits downstream optimizations (e.g. V3LifePost), and severely
             // reduces available parallelism in 'nba' for multi-threaded execution.
-            if (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = true;
-            LogicByScope& lbs = toAct ? result.m_act : result.m_nba;
-            AstNode* const logicp = lvtxp->logicp();
-            logicp->unlinkFrBack();
-            lbs.add(lvtxp->scopep(), lvtxp->senTreep(), logicp);
+            إذا (v3Global.کاروي_Zero_Delay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) منزل_Act = ریښتیا;
+            LogicByScope& lbs = منزل_Act ? پایله.m_act : پایله.m_nba;
+            Ast_غوټه* ثابت logicp = lvtxp->logicp();
+            logicp->unlink_Fr_شا();
+            lbs.جمع_کړه(lvtxp->scopep(), lvtxp->senTreep(), logicp);
         }
     }
 
     // Partition the Pre logic
     {
-        const VNUser1InUse user1InUse;  // AstVarScope::user1() -> bool: read in Active region
-        const VNUser2InUse user2InUse;  // AstVarScope::user2() -> bool: written in Active region
+        ثابت VNUser1_دننه_Use user1_دننه_Use;  // AstVarScope::user1() -> bool: read in Active region
+        ثابت VNUser2_دننه_Use user2_دننه_Use;  // AstVarScope::user2() -> bool: written in Active region
 
-        const auto markVars = [](AstNode* nodep) {
-            nodep->foreach([](const AstNodeVarRef* vrefp) {
-                AstVarScope* const vscp = vrefp->varScopep();
-                if (vrefp->access().isReadOrRW()) vscp->user1(true);
-                if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
-                    vscp->user2(true);
+        ثابت خپلکاری markVars = [](Ast_غوټه* nodep) {
+            nodep->foreach([](ثابت Ast_غوټه_Var_Ref* vrefp) {
+                AstVarScope* ثابت vscp = vrefp->varScopep();
+                إذا (vrefp->access().isReadOrRW()) vscp->user1(ریښتیا);
+                إذا (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
+                    vscp->user2(ریښتیا);
             });
         };
 
-        for (const auto& entry : result.m_act) {
-            AstActive* const activep = entry.m_activep;
+        لكل (ثابت خپلکاری& ثبت : پایله.m_act) {
+            Ast_فعال* ثابت activep = ثبت.m_activep;
             markVars(activep->sentreep());
             markVars(activep);
         }
 
         // AstAlwaysPre and AstAlwaysPost should only appear under a clocked
         // AstActive, and should be the only thing left at this point.
-        for (const auto& entry : clockedLogic) {
-            AstScope* const scopep = entry.m_scopep;
-            AstActive* const activep = entry.m_activep;
-            for (AstNode *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
+        لكل (ثابت خپلکاری& ثبت : clockedLogic) {
+            AstScope* ثابت scopep = ثبت.m_scopep;
+            Ast_فعال* ثابت activep = ثبت.m_activep;
+            لكل (Ast_غوټه *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
-                if (AstAlwaysPre* const logicp = VN_CAST(nodep, AlwaysPre)) {
-                    bool toActiveRegion = false;
-                    logicp->foreach([&](const AstNodeVarRef* vrefp) {
-                        AstVarScope* const vscp = vrefp->varScopep();
-                        if (vrefp->access().isReadOnly()) {
+                إذا (AstAlwaysPre* ثابت logicp = VN_CAST(nodep, AlwaysPre)) {
+                    منطقي منزل_فعال_Region = خطأ;
+                    logicp->foreach([&](ثابت Ast_غوټه_Var_Ref* vrefp) {
+                        AstVarScope* ثابت vscp = vrefp->varScopep();
+                        إذا (vrefp->access().isReadOnly()) {
                             // Variable only read in Pre, and is written in active region
-                            if (vscp->user2()) toActiveRegion = true;
-                        } else {
+                            إذا (vscp->user2()) منزل_فعال_Region = ریښتیا;
+                        } وإلا {
                             // Variable written in Pre, and referenced in active region
-                            if (vscp->user1() || vscp->user2()) toActiveRegion = true;
+                            إذا (vscp->user1() || vscp->user2()) منزل_فعال_Region = ریښتیا;
                         }
                     });
-                    LogicByScope& lbs = toActiveRegion ? result.m_pre : result.m_nba;
-                    logicp->unlinkFrBack();
-                    lbs.add(scopep, activep->sentreep(), logicp);
-                } else {
+                    LogicByScope& lbs = منزل_فعال_Region ? پایله.m_pre : پایله.m_nba;
+                    logicp->unlink_Fr_شا();
+                    lbs.جمع_کړه(scopep, activep->sentreep(), logicp);
+                } وإلا {
                     UASSERT_OBJ(VN_IS(nodep, AlwaysPost), nodep,
                                 "Unexpected node type " << nodep->typeName());
-                    nodep->unlinkFrBack();
-                    result.m_nba.add(scopep, activep->sentreep(), nodep);
+                    nodep->unlink_Fr_شا();
+                    پایله.m_nba.جمع_کړه(scopep, activep->sentreep(), nodep);
                 }
             }
         }
@@ -428,7 +428,7 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
     combinationalLogic.deleteActives();
     hybridLogic.deleteActives();
 
-    return result;
+    أرجع پایله;
 }
 
 }  // namespace V3Sched

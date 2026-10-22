@@ -14,30 +14,30 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3EmitCFunc.h"
+#ضمن "V3EmitCFunc.h"
 
-#include <map>
-#include <vector>
+#ضمن <map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // EmitCFunc
 
-bool EmitCFunc::emitSimpleOk(AstNodeExpr* nodep) {
+منطقي EmitCFunc::emitSimpleOk(Ast_غوټه_بیان* nodep) {
     // Can we put out a simple (A + B) instead of VL_ADD_III(A,B)?
-    if (nodep->emitSimpleOperator() == "") return false;
-    if (nodep->isWide()) return false;
-    if (nodep->op1p() && nodep->op1p()->isWide()) return false;
-    if (nodep->op2p() && nodep->op2p()->isWide()) return false;
-    if (nodep->op3p() && nodep->op3p()->isWide()) return false;
-    return true;
+    إذا (nodep->emitSimpleOperator() == "") أرجع خطأ;
+    إذا (nodep->isWide()) أرجع خطأ;
+    إذا (nodep->op1p() && nodep->op1p()->isWide()) أرجع خطأ;
+    إذا (nodep->op2p() && nodep->op2p()->isWide()) أرجع خطأ;
+    إذا (nodep->op3p() && nodep->op3p()->isWide()) أرجع خطأ;
+    أرجع ریښتیا;
 }
 
-void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, AstNode* rhsp,
-                           AstNode* thsp) {
+فراغ EmitCFunc::emitOpName(Ast_غوټه* nodep, ثابت string& format, Ast_غوټه* lhsp, Ast_غوټه* rhsp,
+                           Ast_غوټه* thsp) {
     // Look at emitOperator() format for term/uni/dual/triops,
     // and write out appropriate text.
     //  %n*     node
@@ -51,323 +51,323 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
     //  %k      Potential line break
     //  %P      Wide temporary name
     //  ,       Commas suppressed if the previous field is suppressed
-    string out;
+    string بهر;
     putnbs(nodep, "");
 
-    bool needComma = false;
-    bool usesQueue = false;
-    string nextComma;
-    auto commaOut = [&out, &nextComma]() {
-        if (!nextComma.empty()) {
-            out += nextComma;
-            nextComma = "";
+    منطقي needComma = خطأ;
+    منطقي کاروي_کتار = خطأ;
+    string بل_Comma;
+    خپلکاری comma_بهر = [&بهر, &بل_Comma]() {
+        إذا (!بل_Comma.تشه()) {
+            بهر += بل_Comma;
+            بل_Comma = "";
         }
     };
 
-    auto putOut = [this, &out]() {
-        if (!out.empty()) puts(out);
-        out = "";
+    خپلکاری put_بهر = [هذا, &بهر]() {
+        إذا (!بهر.تشه()) puts(بهر);
+        بهر = "";
     };
 
-    for (string::const_iterator pos = format.begin(); pos != format.end(); ++pos) {
-        if (pos[0] == ',') {
+    لكل (string::const_iterator pos = format.begin(); pos != format.پای_ټکی(); ++pos) {
+        إذا (pos[0] == ',') {
             // Remember we need to add one, but don't do yet to avoid ",)"
-            if (needComma) {
-                if (pos[1] == ' ') {
-                    nextComma = ", ";
-                } else {
-                    nextComma = ",";
+            إذا (needComma) {
+                إذا (pos[1] == ' ') {
+                    بل_Comma = ", ";
+                } وإلا {
+                    بل_Comma = ",";
                 }
-                needComma = false;
+                needComma = خطأ;
             }
-            if (pos[1] == ' ') ++pos;  // Must do even if no nextComma
-        } else if (pos[0] == '%') {
+            إذا (pos[1] == ' ') ++pos;  // Must do even if no nextComma
+        } وإلا إذا (pos[0] == '%') {
             ++pos;
-            bool detail = false;
-            AstNode* detailp = nullptr;
-            switch (pos[0]) {
-            case '%': out += '%'; break;
-            case 'k':
-                putOut();
+            منطقي detail = خطأ;
+            Ast_غوټه* detailp = تش_اشاره;
+            بدل (pos[0]) {
+            حالة '%': بهر += '%'; اكسر;
+            حالة 'k':
+                put_بهر();
                 putbs("");
-                break;
-            case 'n':
-                detail = true;
+                اكسر;
+            حالة 'n':
+                detail = ریښتیا;
                 detailp = nodep;
-                break;
-            case 'l':
-                detail = true;
+                اكسر;
+            حالة 'l':
+                detail = ریښتیا;
                 detailp = lhsp;
-                break;
-            case 'r':
-                detail = true;
+                اكسر;
+            حالة 'r':
+                detail = ریښتیا;
                 detailp = rhsp;
-                break;
-            case 't':
-                detail = true;
+                اكسر;
+            حالة 't':
+                detail = ریښتیا;
                 detailp = thsp;
-                break;
-            case 'P':
-                if (nodep->isWide() && !usesQueue) {
-                    UASSERT_OBJ(m_wideTempRefp, nodep,
+                اكسر;
+            حالة 'P':
+                إذا (nodep->isWide() && !کاروي_کتار) {
+                    UASSERT_OBJ(m_wide_لنډمهاله_Refp, nodep,
                                 "Wide op " << nodep->prettyTypeName()
                                            << " w/ no temp, perhaps missing op in V3EmitC?");
-                    commaOut();
-                    putOut();
-                    if (!m_wideTempRefp->selfPointer().isEmpty()) {
-                        emitDereference(m_wideTempRefp,
-                                        m_wideTempRefp->selfPointerProtect(m_useSelfForThis));
+                    comma_بهر();
+                    put_بهر();
+                    إذا (!m_wide_لنډمهاله_Refp->self_اشاره_ګر().is_تشه()) {
+                        emitDereference(m_wide_لنډمهاله_Refp,
+                                        m_wide_لنډمهاله_Refp->self_اشاره_ګر_Protect(m_useSelfForThis));
                     }
-                    out += varName(m_wideTempRefp->varp());
-                    m_wideTempRefp = nullptr;
-                    needComma = true;
-                } else if (usesQueue) {
-                    commaOut();
-                    putOut();
-                    iterateAndNextConstNull(nodep->backp()->op2p());
-                    needComma = true;
+                    بهر += varName(m_wide_لنډمهاله_Refp->varp());
+                    m_wide_لنډمهاله_Refp = تش_اشاره;
+                    needComma = ریښتیا;
+                } وإلا إذا (کاروي_کتار) {
+                    comma_بهر();
+                    put_بهر();
+                    iterate_And_بل_Const_Null(nodep->backp()->op2p());
+                    needComma = ریښتیا;
                 }
 
-                break;
-            default: nodep->v3fatalSrc("Unknown emitOperator format code: %" << pos[0]); break;
+                اكسر;
+            افتراضي: nodep->v3fatalSrc("Unknown emitOperator format code: %" << pos[0]); اكسر;
             }
-            if (detail) {
+            إذا (detail) {
                 // Get next letter of %[nlrt]
                 ++pos;
-                switch (pos[0]) {
-                case 'q':
-                    putOut();
+                بدل (pos[0]) {
+                حالة 'q':
+                    put_بهر();
                     // If we are assigning this to a queue we need to get the return type
-                    if (VN_IS(detailp->backp(), Assign)
-                        && VN_IS(detailp->backp()->op2p()->dtypep()->skipRefp(), QueueDType)) {
+                    إذا (VN_IS(detailp->backp(), ټاکل)
+                        && VN_IS(detailp->backp()->op2p()->dtypep()->skipRefp(), کتار_DType)) {
                         puts("R");  // R for queue
-                        usesQueue = true;
-                    } else if (VN_IS(detailp->dtypep()->skipRefp(), QueueDType)
-                               || VN_IS(detailp->dtypep()->skipRefp(), StreamDType)) {
+                        کاروي_کتار = ریښتیا;
+                    } وإلا إذا (VN_IS(detailp->dtypep()->skipRefp(), کتار_DType)
+                               || VN_IS(detailp->dtypep()->skipRefp(), بهیر_DType)) {
                         puts("R");  // R for queue
-                    } else {
+                    } وإلا {
                         emitIQW(detailp);
                     }
-                    break;
-                case 'w':
-                    commaOut();
-                    out += cvtToStr(detailp->widthMin());
-                    needComma = true;
-                    break;
-                case 'W':
-                    if (lhsp->isWide()) {
-                        commaOut();
-                        out += cvtToStr(lhsp->widthWords());
-                        needComma = true;
-                    } else if (VN_IS(lhsp, StreamR)) {
-                        commaOut();
-                        out += cvtToStr(rhsp->widthWords());
-                        needComma = true;
+                    اكسر;
+                حالة 'w':
+                    comma_بهر();
+                    بهر += cvt_منزل_Str(detailp->پلنوالی_Min());
+                    needComma = ریښتیا;
+                    اكسر;
+                حالة 'W':
+                    إذا (lhsp->isWide()) {
+                        comma_بهر();
+                        بهر += cvt_منزل_Str(lhsp->پلنوالی_ټکي());
+                        needComma = ریښتیا;
+                    } وإلا إذا (VN_IS(lhsp, بهیر_R)) {
+                        comma_بهر();
+                        بهر += cvt_منزل_Str(rhsp->پلنوالی_ټکي());
+                        needComma = ریښتیا;
                     }
-                    break;
-                case 'i':
-                    commaOut();
+                    اكسر;
+                حالة 'i':
+                    comma_بهر();
                     UASSERT_OBJ(detailp, nodep, "emitOperator() references undef node");
-                    putOut();
-                    iterateAndNextConstNull(detailp);
-                    needComma = true;
-                    break;
-                default:
+                    put_بهر();
+                    iterate_And_بل_Const_Null(detailp);
+                    needComma = ریښتیا;
+                    اكسر;
+                افتراضي:
                     nodep->v3fatalSrc("Unknown emitOperator format code: %[nlrt]" << pos[0]);
-                    break;
+                    اكسر;
                 }
             }
-        } else if (pos[0] == ')') {
-            nextComma = "";
-            out += ')';
-        } else if (pos[0] == '(') {
-            commaOut();
-            needComma = false;
-            out += '(';
-        } else {
+        } وإلا إذا (pos[0] == ')') {
+            بل_Comma = "";
+            بهر += ')';
+        } وإلا إذا (pos[0] == '(') {
+            comma_بهر();
+            needComma = خطأ;
+            بهر += '(';
+        } وإلا {
             // Normal text
-            if (std::isalnum(pos[0])) needComma = true;
-            commaOut();
-            out += pos[0];
+            إذا (std::که_توری_یا_عدد(pos[0])) needComma = ریښتیا;
+            comma_بهر();
+            بهر += pos[0];
         }
     }
-    putOut();
+    put_بهر();
 }
 
-bool EmitCFunc::displayEmitHeader(AstNode* nodep) {
-    bool isStmt = false;
-    if (const AstFScanF* const dispp = VN_CAST(nodep, FScanF)) {
-        isStmt = false;
+منطقي EmitCFunc::display_Emit_سرلیک(Ast_غوټه* nodep) {
+    منطقي isStmt = خطأ;
+    إذا (ثابت AstFScanF* ثابت dispp = VN_CAST(nodep, FScanF)) {
+        isStmt = خطأ;
         putns(nodep, "VL_FSCANF_INX(");
         iterateConst(dispp->filep());
         puts(",");
-    } else if (const AstSScanF* const dispp = VN_CAST(nodep, SScanF)) {
-        isStmt = false;
+    } وإلا إذا (ثابت AstSScanF* ثابت dispp = VN_CAST(nodep, SScanF)) {
+        isStmt = خطأ;
         putns(nodep, "VL_SSCANF_I");
         emitIQW(dispp->fromp());
         puts("NX(");
-        puts(cvtToStr(dispp->fromp()->widthMin()));
+        puts(cvt_منزل_Str(dispp->fromp()->پلنوالی_Min()));
         puts(",");
         iterateConst(dispp->fromp());
         puts(",");
-    } else if (const AstDisplay* const dispp = VN_CAST(nodep, Display)) {
-        isStmt = true;
-        if (dispp->filep()) {
+    } وإلا إذا (ثابت AstDisplay* ثابت dispp = VN_CAST(nodep, Display)) {
+        isStmt = ریښتیا;
+        إذا (dispp->filep()) {
             putns(nodep, "VL_FWRITEF_NX(");
             iterateConst(dispp->filep());
             puts(",");
-        } else {
+        } وإلا {
             putns(nodep, "VL_WRITEF_NX(");
         }
-    } else if (const AstSFormat* const dispp = VN_CAST(nodep, SFormat)) {
-        isStmt = true;
+    } وإلا إذا (ثابت AstSFormat* ثابت dispp = VN_CAST(nodep, SFormat)) {
+        isStmt = ریښتیا;
         puts("VL_SFORMAT_NX(");
-        if (!dispp->lhsp()->dtypep()->isString()) {
-            puts(cvtToStr(dispp->lhsp()->widthMin()));
+        إذا (!dispp->lhsp()->dtypep()->isString()) {
+            puts(cvt_منزل_Str(dispp->lhsp()->پلنوالی_Min()));
             putbs(",");
         }
         iterateConst(dispp->lhsp());
         emitDatap(dispp->lhsp());
         putbs(",");
-    } else if (VN_IS(nodep, SFormatF)) {
-        isStmt = false;
+    } وإلا إذا (VN_IS(nodep, SFormatF)) {
+        isStmt = خطأ;
         putns(nodep, "VL_SFORMATF_N_NX(");
-    } else {
+    } وإلا {
         nodep->v3fatalSrc("Unknown displayEmit node type");
     }
-    return isStmt;
+    أرجع isStmt;
 }
 
-void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullptr for AstScan
-                            const string& vformat, AstNode* exprsp, bool isScan) {
+فراغ EmitCFunc::display_غوټه(Ast_غوټه* nodep, AstSFormatF* fmtp,  // fmtp is nullptr for AstScan
+                            ثابت string& vformat, Ast_غوټه* exprsp, منطقي is_لټون) {
     // Check format, if it exists
-    const bool exprFormat = fmtp && fmtp->exprFormat();
-    bool needsScope = exprFormat;
-    bool needsTimescale = exprFormat;
-    int formatArgs = 0;
-    if (!exprFormat) {
+    ثابت منطقي بیان_Format_2 = fmtp && fmtp->بیان_Format_2();
+    منطقي needsScope = بیان_Format_2;
+    منطقي needsTimescale = بیان_Format_2;
+    صحيح format_دلیلونه = 0;
+    إذا (!بیان_Format_2) {
         // Check display and argument count to head-off later runtime issues
-        bool inPct = false;
-        bool ignore = false;
-        for (char ch : vformat) {
+        منطقي دننه_Pct = خطأ;
+        منطقي ignore = خطأ;
+        لكل (حرف ch : vformat) {
             // UINFO(1, "Parse '" << *pos << "'  IP" << inPct << " List " << cvtToHex(elistp));
-            if (!inPct && ch == '%') {
-                inPct = true;
-                ignore = false;
-            } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
-            } else if (!inPct) {  // Normal text
-            } else {  // Format character
-                inPct = false;
+            إذا (!دننه_Pct && ch == '%') {
+                دننه_Pct = ریښتیا;
+                ignore = خطأ;
+            } وإلا إذا (دننه_Pct && (std::که_عدد(ch) || ch == '.' || ch == '-')) {
+            } وإلا إذا (!دننه_Pct) {  // Normal text
+            } وإلا {  // Format character
+                دننه_Pct = خطأ;
                 ch = std::tolower(ch);
-                switch (ch) {
-                case '%': break;
-                case '*':
-                    inPct = true;  // Get more digits
-                    ignore = true;
-                    break;
-                case 'm': needsScope = true; break;
-                case 't':
-                    needsTimescale = true;
-                    ++formatArgs;
-                    break;
-                default:
-                    if (!ignore && V3Number::displayedFmtHasArg(ch, isScan)) ++formatArgs;
-                    break;
+                بدل (ch) {
+                حالة '%': اكسر;
+                حالة '*':
+                    دننه_Pct = ریښتیا;  // Get more digits
+                    ignore = ریښتیا;
+                    اكسر;
+                حالة 'm': needsScope = ریښتیا; اكسر;
+                حالة 't':
+                    needsTimescale = ریښتیا;
+                    ++format_دلیلونه;
+                    اكسر;
+                افتراضي:
+                    إذا (!ignore && V3_شمېره::displayedFmtHasArg(ch, is_لټون)) ++format_دلیلونه;
+                    اكسر;
                 }
             }
         }
     }
 
-    if (vformat.empty() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
-        return;  // NOP
+    إذا (vformat.تشه() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
+        أرجع;  // NOP
 
-    const bool isStmt = displayEmitHeader(nodep);
+    ثابت منطقي isStmt = display_Emit_سرلیک(nodep);
 
-    if (exprFormat) {
+    إذا (بیان_Format_2) {
         UASSERT_OBJ(exprsp, nodep, "Missing format expression");
         iterateConst(exprsp);
         emitDatap(exprsp);
         exprsp = exprsp->nextp();
-    } else {
+    } وإلا {
         ofp()->putsQuoted(vformat);
     }
 
-    int exprArgs = 0;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) ++exprArgs;
-    if (VL_UNCOVERABLE(!exprFormat && exprArgs != formatArgs)) {  // LCOV_EXCL_START
+    صحيح بیان_دلیلونه = 0;
+    لكل (Ast_غوټه* argp = exprsp; argp; argp = argp->nextp()) ++بیان_دلیلونه;
+    إذا (VL_UNCOVERABLE(!بیان_Format_2 && بیان_دلیلونه != format_دلیلونه)) {  // LCOV_EXCL_START
         // expectDisplay() checks this first, so probably internal error if found here
         nodep->v3error("Internal: Missing or extra arguments for $display-like format, "
-                       << " expression had " << exprArgs << ", format had " << formatArgs);
+                       << " expression had " << بیان_دلیلونه << ", format had " << format_دلیلونه);
     }  // LCOV_EXCL_STOP
 
     // argc for error check. Also MSVC++ requires va_args to not be off a reference
-    int argc = 0;
-    if (needsScope) ++argc;
-    if (needsTimescale) ++argc;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    صحيح argc = 0;
+    إذا (needsScope) ++argc;
+    إذا (needsTimescale) ++argc;
+    لكل (Ast_غوټه* argp = exprsp; argp; argp = argp->nextp()) {
         ++argc;
-        const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-        if (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
+        ثابت AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+        إذا (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
     }
-    ofp()->puts("," + std::to_string(argc));
+    ofp()->puts("," + std::منزل_string(argc));
 
-    if (needsScope) {
-        AstScopeName* const scopenamep = fmtp ? fmtp->scopeNamep() : nullptr;
+    إذا (needsScope) {
+        AstScopeName* ثابت scopenamep = fmtp ? fmtp->scopeNamep() : تش_اشاره;
         UASSERT_OBJ(scopenamep, nodep, "Display with %m but no AstScopeName");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::SCOPE}.ascii() + "'");
-        if (scopenamep->selfRelative()) {
+        إذا (scopenamep->selfRelative()) {
             // vlNamep is catName(name(), instance), so starts with '.' when the model is unnamed
-            const string namep = string{m_useSelfForThis ? "vlSelf" : "this"} + "->vlNamep";
+            ثابت string namep = string{m_useSelfForThis ? "vlSelf" : "this"} + "->vlNamep";
             ofp()->puts(",(vlSymsp->name()[0] ? " + namep + " : " + namep + " + 1),");
             ofp()->putsQuoted(scopenamep->scopeAttr());
-        } else {
+        } وإلا {
             ofp()->puts(",vlSymsp->name(),");
             ofp()->putsQuoted(scopenamep->scopePrettySymName());
         }
     }
 
-    if (needsTimescale) {
+    إذا (needsTimescale) {
         VTimescale timeunit = VTimescale::NONE;
-        if (const AstDisplay* const anodep = VN_CAST(nodep, Display)) {
+        إذا (ثابت AstDisplay* ثابت anodep = VN_CAST(nodep, Display)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSFormat* const anodep = VN_CAST(nodep, SFormat)) {
+        } وإلا إذا (ثابت AstSFormat* ثابت anodep = VN_CAST(nodep, SFormat)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSScanF* const anodep = VN_CAST(nodep, SScanF)) {
+        } وإلا إذا (ثابت AstSScanF* ثابت anodep = VN_CAST(nodep, SScanF)) {
             timeunit = anodep->timeunit();
-        } else if (const AstSFormatF* const anodep = VN_CAST(nodep, SFormatF)) {
+        } وإلا إذا (ثابت AstSFormatF* ثابت anodep = VN_CAST(nodep, SFormatF)) {
             timeunit = anodep->timeunit();
         }
         UASSERT_OBJ(!timeunit.isNone(), nodep,
                     "Use of %t must be under AstDisplay, AstSFormat, or AstSFormatF, or "
                     "SScanF, and timeunit set");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::TIMEUNIT}.ascii() + "'");
-        ofp()->puts(","s + cvtToStr((int)timeunit.powerOfTen()));
+        ofp()->puts(","s + cvt_منزل_Str((صحيح)timeunit.power_د_Ten()));
     }
 
     // Arguments
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    لكل (Ast_غوټه* argp = exprsp; argp; argp = argp->nextp()) {
         ofp()->indentInc();
         ofp()->putbs("");
-        AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-        AstNode* const subargp = fargp ? fargp->exprp() : argp;
-        const VFormatAttr formatAttr = AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep());
+        AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+        Ast_غوټه* ثابت subargp = fargp ? fargp->exprp() : argp;
+        ثابت VFormatAttr formatAttr = AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep());
         puts(", '"s + formatAttr.ascii() + '\'');
-        if (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
-            puts("," + cvtToStr(subargp->widthMin()));
-        const bool addrof = isScan || formatAttr.isString() || formatAttr.isComplex();
-        const bool wideEnum = formatAttr.isEnum() && subargp->isWide();
+        إذا (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
+            puts("," + cvt_منزل_Str(subargp->پلنوالی_Min()));
+        ثابت منطقي addrof = is_لټون || formatAttr.isString() || formatAttr.isComplex();
+        ثابت منطقي wideEnum = formatAttr.isEnum() && subargp->isWide();
         puts(",");
-        if (wideEnum) puts("static_cast<const EData*>(");
-        if (addrof) puts("&(");
-        if (VN_IS(subargp, StreamR))
-            emitStreamR(
-                VN_CAST(subargp, StreamR),
+        إذا (wideEnum) puts("static_cast<const EData*>(");
+        إذا (addrof) puts("&(");
+        إذا (VN_IS(subargp, بهیر_R))
+            emit_بهیر_R(
+                VN_CAST(subargp, بهیر_R),
                 nodep);  // This has to be done here because streamR doesn't know what it returns
-        else { iterateConst(subargp); }
-        if (addrof) puts(")");
-        if (!addrof) emitDatap(argp);
-        if (wideEnum) puts(")");
-        if (formatAttr.isEnum()) {
+        وإلا { iterateConst(subargp); }
+        إذا (addrof) puts(")");
+        إذا (!addrof) emitDatap(argp);
+        إذا (wideEnum) puts(")");
+        إذا (formatAttr.isEnum()) {
             puts(", '"s + VFormatAttr{VFormatAttr::STRING}.ascii() + "', &(");
             iterateConst(fargp->namep());
             puts(")");
@@ -376,289 +376,289 @@ void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullp
     }
 
     // End
-    if (isStmt) {
+    إذا (isStmt) {
         puts(");\n");
-    } else {
+    } وإلا {
         puts(") ");
     }
 }
 
-void EmitCFunc::emitCCallArgs(const AstNodeCCall* nodep, const string& selfPointer,
-                              bool inProcess) {
+فراغ EmitCFunc::emit_CCall_دلیلونه(ثابت Ast_غوټه_CCall* nodep, ثابت string& self_اشاره_ګر,
+                              منطقي دننه_Process) {
     putns(nodep, "(");
-    bool comma = false;
-    if (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
-        UASSERT_OBJ(!selfPointer.empty(), nodep, "Call to loose method without self pointer");
-        puts(selfPointer);
-        comma = true;
+    منطقي comma = خطأ;
+    إذا (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
+        UASSERT_OBJ(!self_اشاره_ګر.تشه(), nodep, "Call to loose method without self pointer");
+        puts(self_اشاره_ګر);
+        comma = ریښتیا;
     }
-    if (nodep->funcp()->needProcess()) {
-        if (comma) puts(", ");
-        if (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
+    إذا (nodep->funcp()->needProcess()) {
+        إذا (comma) puts(", ");
+        إذا (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
             puts("vlProcess");
-        } else if (inProcess) {
+        } وإلا إذا (دننه_Process) {
             puts("std::make_shared<VlProcess>(vlProcess)");
-        } else {
+        } وإلا {
             puts("std::make_shared<VlProcess>()");
         }
-        comma = true;
+        comma = ریښتیا;
     }
-    if (!nodep->argTypes().empty()) {
-        if (comma) puts(", ");
+    إذا (!nodep->argTypes().تشه()) {
+        إذا (comma) puts(", ");
         puts(nodep->argTypes());
-        comma = true;
+        comma = ریښتیا;
     }
-    putCommaIterateNext(nodep->argsp(), comma);
+    put_Comma_Iterate_بل(nodep->argsp(), comma);
     puts(")");
 }
 
-std::string EmitCFunc::dereferenceString(const std::string& pointer) const {
-    if (pointer[0] == '(' && pointer[1] == '&') {
+std::string EmitCFunc::dereferenceString(ثابت std::string& اشاره_ګر) ثابت {
+    إذا (اشاره_ګر[0] == '(' && اشاره_ګر[1] == '&') {
         // remove "address of" followed by immediate dereference
         // Note: this relies on only the form '(&OBJECT)' being used by Verilator
-        return pointer.substr(2, pointer.length() - 3) + '.';
-    } else {
-        if (pointer == "vlSelf" && m_usevlSelfRef) {
-            return "vlSelfRef.";
-        } else {
-            return pointer + "->";
+        أرجع اشاره_ګر.substr(2, اشاره_ګر.اوږدتیا() - 3) + '.';
+    } وإلا {
+        إذا (اشاره_ګر == "vlSelf" && m_usevlSelfRef) {
+            أرجع "vlSelfRef.";
+        } وإلا {
+            أرجع اشاره_ګر + "->";
         }
     }
 }
-void EmitCFunc::emitDereference(AstNode* nodep, const string& pointer) {
-    putns(nodep, dereferenceString(pointer));
+فراغ EmitCFunc::emitDereference(Ast_غوټه* nodep, ثابت string& اشاره_ګر) {
+    putns(nodep, dereferenceString(اشاره_ګر));
 }
 
-void EmitCFunc::emitCvtPackStr(AstNode* nodep) {
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+فراغ EmitCFunc::emitCvtPackStr(Ast_غوټه* nodep) {
+    إذا (ثابت AstConst* ثابت constp = VN_CAST(nodep, Const)) {
         emitConstantString(constp);
-    } else if (VN_IS(nodep->dtypep(), StreamDType)) {
+    } وإلا إذا (VN_IS(nodep->dtypep(), بهیر_DType)) {
         putnbs(nodep, "VL_CVT_PACK_STR_ND(");
-        iterateAndNextConstNull(nodep);
+        iterate_And_بل_Const_Null(nodep);
         puts(")");
-    } else {
+    } وإلا {
         putnbs(nodep, "VL_CVT_PACK_STR_N");
         emitIQW(nodep);
         puts("(");
-        if (nodep->isWide()) {
+        إذا (nodep->isWide()) {
             // Note argument width, not node width (which is always 32)
-            puts(cvtToStr(nodep->widthWords()));
+            puts(cvt_منزل_Str(nodep->پلنوالی_ټکي()));
             puts(", ");
         }
-        iterateAndNextConstNull(nodep);
+        iterate_And_بل_Const_Null(nodep);
         puts(")");
     }
 }
 
-void EmitCFunc::emitConstant(AstConst* nodep) {
+فراغ EmitCFunc::emitConstant(AstConst* nodep) {
     // Put out constant set to the specified variable, or given variable in a string
-    const V3Number& num = nodep->num();
-    if (num.isFourState()) {
+    ثابت V3_شمېره& عدد = nodep->عدد();
+    إذا (عدد.isFourState()) {
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: 4-state numbers in this context");
-        return;
+        أرجع;
     }
-    putns(nodep, num.emitC());
+    putns(nodep, عدد.emitC());
 }
 
-void EmitCFunc::emitConstantString(const AstConst* nodep) {
+فراغ EmitCFunc::emitConstantString(ثابت AstConst* nodep) {
     // Const might be a Verilog array-type string, but need to always output std::string
     putnbs(nodep, "std::string{");
-    const string str = nodep->num().toString();
-    if (!str.empty()) putsQuoted(str);
+    ثابت string str = nodep->عدد().منزل_String();
+    إذا (!str.تشه()) putsQuoted(str);
     puts("}");
 }
 
-void EmitCFunc::emitVarReset(const string& prefix, AstVar* varp, bool constructing) {
+فراغ EmitCFunc::emitVarReset(ثابت string& مختاړی, AstVar* varp, منطقي constructing) {
     // 'constructing' indicates that the object was just constructed, so if it is a string or
     // something that starts off clear already, no need to clear it again
-    AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-    const string vlSelf = VSelfPointerText::replaceThis(m_useSelfForThis, "this->");
-    const string varNameProtected
-        = ((VN_IS(m_modp, Class) || varp->isFuncLocal()) || !prefix.empty())
+    Ast_غوټه_DType* ثابت dtypep = varp->dtypep()->skipRefp();
+    ثابت string vlSelf = VSelf_اشاره_ګر_متن::replaceThis(m_useSelfForThis, "this->");
+    ثابت string varNameProtected
+        = ((VN_IS(m_modp, Class) || varp->isFuncLocal()) || !مختاړی.تشه())
               ? varName(varp)
               : vlSelf + varName(varp);
-    const string newPrefix = prefix + varNameProtected;
-    if (varp->isIO() && m_modp->isTop() && optSystemC()) {
+    ثابت string new_مختاړی = مختاړی + varNameProtected;
+    إذا (varp->isIO() && m_modp->is_سر() && optSystemC()) {
         // System C top I/O doesn't need loading, as the lower level subinst code does it.}
-    } else if (varp->isParam()) {
+    } وإلا إذا (varp->isParam()) {
         UASSERT_OBJ(varp->valuep(), varp, "No init for a param?");
         // If a simple CONST value we initialize it using an enum
         // If an ARRAYINIT we initialize it using an initial block similar to a signal
         // puts("// parameter "+varp->nameProtect()+" = "+varp->valuep()->name()+"\n");
-    } else {
+    } وإلا {
         putns(varp,
-              emitVarResetRecurse(varp, constructing, newPrefix, dtypep, 0, "", varp->valuep()));
+              emitVarResetRecurse(varp, constructing, new_مختاړی, dtypep, 0, "", varp->valuep()));
     }
 }
 
-string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
-                                      const string& varNameProtected, AstNodeDType* dtypep,
-                                      int depth, const string& suffix, const AstNode* valuep) {
+string EmitCFunc::emitVarResetRecurse(ثابت AstVar* varp, منطقي constructing,
+                                      ثابت string& varNameProtected, Ast_غوټه_DType* dtypep,
+                                      صحيح ژوروالی, ثابت string& suffix, ثابت Ast_غوټه* valuep) {
     dtypep = dtypep->skipRefp();
-    AstBasicDType* const basicp = dtypep->basicp();
+    AstBasicDType* ثابت basicp = dtypep->basicp();
     // Returns string to do resetting, empty to do nothing (which caller should handle)
-    if (AstAssocArrayDType* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
+    إذا (AstAssocArrayDType* ثابت adtypep = VN_CAST(dtypep, AssocArrayDType)) {
         // Access std::array as C array
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        ثابت string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        أرجع pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (AstWildcardArrayDType* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
+                                     ژوروالی + 1, suffix + ".atDefault()", تش_اشاره);
+    } وإلا إذا (AstWildcardArrayDType* ثابت adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
         // Access std::array as C array
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        ثابت string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        أرجع pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, CDType)) {
-        return "";  // Constructor does it
-    } else if (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
-        return "";  // Covergroup constructor creates the runtime and assigns the pointer
-    } else if (const AstClassRefDType* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
-        return adtypep->rawPointer() ? varNameProtected + suffix + " = nullptr;\n" : "";
-    } else if (VN_IS(dtypep, IfaceRefDType)) {
-        return varNameProtected + suffix + " = nullptr;\n";
-    } else if (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+                                     ژوروالی + 1, suffix + ".atDefault()", تش_اشاره);
+    } وإلا إذا (VN_IS(dtypep, CDType)) {
+        أرجع "";  // Constructor does it
+    } وإلا إذا (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
+        أرجع "";  // Covergroup constructor creates the runtime and assigns the pointer
+    } وإلا إذا (ثابت AstClassRefDType* ثابت adtypep = VN_CAST(dtypep, ClassRefDType)) {
+        أرجع adtypep->raw_اشاره_ګر() ? varNameProtected + suffix + " = nullptr;\n" : "";
+    } وإلا إذا (VN_IS(dtypep, IfaceRefDType)) {
+        أرجع varNameProtected + suffix + " = nullptr;\n";
+    } وإلا إذا (ثابت AstDynArrayDType* ثابت adtypep = VN_CAST(dtypep, DynArrayDType)) {
+        ثابت string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        أرجع pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
-        const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+                                     ژوروالی + 1, suffix + ".atDefault()", تش_اشاره);
+    } وإلا إذا (ثابت Ast_کتار_DType* ثابت adtypep = VN_CAST(dtypep, کتار_DType)) {
+        ثابت string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
+        أرجع pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                     depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, SampleQueueDType)) {
-        return "";
-    } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+                                     ژوروالی + 1, suffix + ".atDefault()", تش_اشاره);
+    } وإلا إذا (VN_IS(dtypep, Sample_کتار_DType)) {
+        أرجع "";
+    } وإلا إذا (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         UASSERT_OBJ(adtypep->hi() >= adtypep->lo(), varp,
                     "Should have swapped msb & lsb earlier.");
-        const AstNodeDType* const elementp = adtypep->subDTypep()->skipRefp();
-        if (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
+        ثابت Ast_غوټه_DType* ثابت elementp = adtypep->subDTypep()->skipRefp();
+        إذا (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
             // Scoped reset has no array-index input or mutable RNG state. Initialize one
             // element, then fill in the optimized runtime even when this code is cold.
-            const string first
+            ثابت string لومړی
                 = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                      depth + 1, suffix + "[0]", nullptr);
-            const string array = varNameProtected + suffix;
-            return first + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
-                   + cvtToStr(adtypep->elementsConst()) + ");\n";
+                                      ژوروالی + 1, suffix + "[0]", تش_اشاره);
+            ثابت string array = varNameProtected + suffix;
+            أرجع لومړی + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
+                   + cvt_منزل_Str(adtypep->elementsConst()) + ");\n";
         }
-        const string ivar = "__Vi"s + cvtToStr(depth);
-        const string pre = ("for (int " + ivar + " = " + cvtToStr(0) + "; " + ivar + " < "
-                            + cvtToStr(adtypep->elementsConst()) + "; ++" + ivar + ") {\n");
-        const string below
+        ثابت string ivar = "__Vi"s + cvt_منزل_Str(ژوروالی);
+        ثابت string pre = ("for (int " + ivar + " = " + cvt_منزل_Str(0) + "; " + ivar + " < "
+                            + cvt_منزل_Str(adtypep->elementsConst()) + "; ++" + ivar + ") {\n");
+        ثابت string لاندې
             = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
-                                  depth + 1, suffix + "[" + ivar + "]", nullptr);
-        const string post = "}\n";
-        return below.empty() ? "" : pre + below + post;
-    } else if (VN_IS(dtypep, NodeUOrStructDType) && !VN_AS(dtypep, NodeUOrStructDType)->packed()) {
-        const AstNodeUOrStructDType* const sdtypep = VN_AS(dtypep, NodeUOrStructDType);
+                                  ژوروالی + 1, suffix + "[" + ivar + "]", تش_اشاره);
+        ثابت string post = "}\n";
+        أرجع لاندې.تشه() ? "" : pre + لاندې + post;
+    } وإلا إذا (VN_IS(dtypep, غوټه_UOr_Struct_DType) && !VN_AS(dtypep, غوټه_UOr_Struct_DType)->packed()) {
+        ثابت Ast_غوټه_UOr_Struct_DType* ثابت sdtypep = VN_AS(dtypep, غوټه_UOr_Struct_DType);
         string literal;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        لكل (ثابت AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const std::string line = emitVarResetRecurse(
+            ثابت std::string کرښه = emitVarResetRecurse(
                 varp, constructing, varNameProtected + suffix + "." + itemp->nameProtect(),
-                itemp->dtypep(), depth + 1, "", itemp->valuep());
-            if (!line.empty()) literal += line;
+                itemp->dtypep(), ژوروالی + 1, "", itemp->valuep());
+            إذا (!کرښه.تشه()) literal += کرښه;
         }
-        return literal;
-    } else if (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
-        if (constructing) return "";  // String's constructor deals with it
-        return varNameProtected + suffix + ".clear();\n";
-    } else if (basicp && basicp->isForkSync()) {
-        return "";
-    } else if (basicp && basicp->isProcessRef()) {
-        return "";
-    } else if (basicp && basicp->isDelayScheduler()) {
-        return "";
-    } else if (basicp && basicp->isTriggerScheduler()) {
-        return "";
-    } else if (basicp && basicp->isDynamicTriggerScheduler()) {
-        return "";
-    } else if (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
-        return "";
-    } else if (basicp && basicp->isCovergroupInstHandle()) {
+        أرجع literal;
+    } وإلا إذا (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
+        إذا (constructing) أرجع "";  // String's constructor deals with it
+        أرجع varNameProtected + suffix + ".clear();\n";
+    } وإلا إذا (basicp && basicp->isForkSync()) {
+        أرجع "";
+    } وإلا إذا (basicp && basicp->isProcessRef()) {
+        أرجع "";
+    } وإلا إذا (basicp && basicp->isDelayScheduler()) {
+        أرجع "";
+    } وإلا إذا (basicp && basicp->isTriggerScheduler()) {
+        أرجع "";
+    } وإلا إذا (basicp && basicp->isDynamicTriggerScheduler()) {
+        أرجع "";
+    } وإلا إذا (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
+        أرجع "";
+    } وإلا إذا (basicp && basicp->isCovergroupInstHandle()) {
         // The handle's own constructor deals with it.
-        return "";
-    } else if (basicp && (basicp->isEvent())) {
-        return "VlAssignableEvent{};\n";
-    } else if (basicp) {
-        const bool zeroit
+        أرجع "";
+    } وإلا إذا (basicp && (basicp->isEvent())) {
+        أرجع "VlAssignableEvent{};\n";
+    } وإلا إذا (basicp) {
+        ثابت منطقي zeroit
             = (varp->attrFileDescr()  // Zero so we don't do file IO if never $fopen
                || varp->isFuncLocal()  // Randomization too slow
                || (basicp && basicp->isZeroInit())
-               || (v3Global.opt.underlineZero() && !varp->name().empty() && varp->name()[0] == '_')
-               || (varp->varType().isTemp() && !varp->isXTemp())
+               || (v3Global.opt.underlineZero() && !varp->name().تشه() && varp->name()[0] == '_')
+               || (varp->varType().is_لنډمهاله() && !varp->isXTemp())
                || (varp->isXTemp()
-                       ? (v3Global.opt.xAssign() != "unique")
+                       ? (v3Global.opt.x_ټاکل() != "unique")
                        : (v3Global.opt.xInitial() == "fast" || v3Global.opt.xInitial() == "0")));
-        const bool slow = !varp->isFuncLocal() && !varp->isClassMember();
-        splitSizeInc(1);
-        if (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
-            string out;
-            if (valuep) {
-                const AstConst* const constp = VN_AS(valuep, Const);
+        ثابت منطقي slow = !varp->isFuncLocal() && !varp->isClassMember();
+        وېشل_اندازه_Inc(1);
+        إذا (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
+            string بهر;
+            إذا (valuep) {
+                ثابت AstConst* ثابت constp = VN_AS(valuep, Const);
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
-                for (int w = 0; w < dtypep->widthWords(); ++w) {
-                    out += varNameProtected + suffix + "[" + cvtToStr(w) + "] = ";
-                    out += cvtToStr(constp->num().edataWord(w)) + "U;\n";
+                لكل (صحيح w = 0; w < dtypep->پلنوالی_ټکي(); ++w) {
+                    بهر += varNameProtected + suffix + "[" + cvt_منزل_Str(w) + "] = ";
+                    بهر += cvt_منزل_Str(constp->عدد().edata_کلمه(w)) + "U;\n";
                 }
-            } else {
-                out += zeroit ? (slow ? "VL_ZERO_RESET_W(" : "VL_ZERO_W(")
+            } وإلا {
+                بهر += zeroit ? (slow ? "VL_ZERO_RESET_W(" : "VL_ZERO_W(")
                               : (varp->isXTemp() ? "VL_SCOPED_RAND_RESET_ASSIGN_W("
                                                  : "VL_SCOPED_RAND_RESET_W(");
-                out += cvtToStr(dtypep->widthMin());
-                out += ", " + varNameProtected + suffix;
-                if (!zeroit) {
+                بهر += cvt_منزل_Str(dtypep->پلنوالی_Min());
+                بهر += ", " + varNameProtected + suffix;
+                إذا (!zeroit) {
                     emitVarResetScopeHash();
-                    const uint64_t salt = VString::hashMurmur(varp->prettyName());
-                    out += ", ";
-                    out += m_classOrPackage ? m_classOrPackageHash : "__VscopeHash";
-                    out += ", ";
-                    out += std::to_string(salt);
-                    out += "ull";
+                    ثابت uint64_t salt = VString::hashMurmur(varp->prettyName());
+                    بهر += ", ";
+                    بهر += m_classOrPackage ? m_classOrPackageHash : "__VscopeHash";
+                    بهر += ", ";
+                    بهر += std::منزل_string(salt);
+                    بهر += "ull";
                 }
-                out += ");\n";
+                بهر += ");\n";
             }
-            return out;
-        } else {
-            string out = varNameProtected + suffix;
-            if (valuep) {
-                out += " = ";
+            أرجع بهر;
+        } وإلا {
+            string بهر = varNameProtected + suffix;
+            إذا (valuep) {
+                بهر += " = ";
                 // TODO cleanup code shared between here, V3EmitCConstInit.h,
                 // EmitCFunc::emitVarReset, EmitCFunc::emitConstant
-                const AstConst* const constp = VN_AS(valuep, Const);
+                ثابت AstConst* ثابت constp = VN_AS(valuep, Const);
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
-                out += cvtToStr(constp->num().edataWord(0)) + "U;\n";
-                out += ";\n";
-            } else if (zeroit) {
-                out += " = 0;\n";
-            } else {
+                بهر += cvt_منزل_Str(constp->عدد().edata_کلمه(0)) + "U;\n";
+                بهر += ";\n";
+            } وإلا إذا (zeroit) {
+                بهر += " = 0;\n";
+            } وإلا {
                 emitVarResetScopeHash();
-                const uint64_t salt = VString::hashMurmur(varp->prettyName());
-                out += " = VL_SCOPED_RAND_RESET_";
-                if (varp->isXTemp()) out += "ASSIGN_";
-                out += dtypep->charIQWN();
-                out += "(" + cvtToStr(dtypep->widthMin()) + ", "
+                ثابت uint64_t salt = VString::hashMurmur(varp->prettyName());
+                بهر += " = VL_SCOPED_RAND_RESET_";
+                إذا (varp->isXTemp()) بهر += "ASSIGN_";
+                بهر += dtypep->charIQWN();
+                بهر += "(" + cvt_منزل_Str(dtypep->پلنوالی_Min()) + ", "
                        + (m_classOrPackage ? m_classOrPackageHash : "__VscopeHash") + ", "
-                       + std::to_string(salt) + "ull);\n";
+                       + std::منزل_string(salt) + "ull);\n";
             }
-            return out;
+            أرجع بهر;
         }
-    } else {  // LCOV_EXCL_BR_LINE
+    } وإلا {  // LCOV_EXCL_BR_LINE
         v3fatalSrc("Unknown node type in reset generator: " << varp->prettyTypeName());
     }
-    return "";
+    أرجع "";
 }
 
-void EmitCFunc::emitVarResetScopeHash() {
-    if (VL_LIKELY(m_createdScopeHash)) { return; }
-    if (m_classOrPackage) {
+فراغ EmitCFunc::emitVarResetScopeHash() {
+    إذا (VL_LIKELY(m_createdScopeHash)) { أرجع; }
+    إذا (m_classOrPackage) {
         m_classOrPackageHash
-            = std::to_string(VString::hashMurmur(m_classOrPackage->name())) + "ULL";
-    } else {
+            = std::منزل_string(VString::hashMurmur(m_classOrPackage->name())) + "ULL";
+    } وإلا {
         puts(string("const uint64_t __VscopeHash = VL_MURMUR64_HASH(")
              + (m_useSelfForThis ? "vlSelf" : "this") + "->vlNamep);\n");
     }
-    m_createdScopeHash = true;
+    m_createdScopeHash = ریښتیا;
 }

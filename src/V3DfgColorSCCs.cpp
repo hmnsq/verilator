@@ -20,153 +20,153 @@
 //
 //*************************************************************************
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#ضمن "V3Dfg.h"
+#ضمن "V3DfgPasses.h"
 
-#include <limits>
-#include <vector>
+#ضمن <limits>
+#ضمن <vector>
 
-class ColorStronglyConnectedComponents final {
-    static_assert(sizeof(uint32_t[2]) == sizeof(uint64_t), "Incorrect overlay size");
+صنف ColorStronglyConnectedComponents final {
+    static_assert(حجم(uint32_t[2]) == حجم(uint64_t), "Incorrect overlay size");
 
     // CONSTANTS
-    static constexpr uint32_t UNASSIGNED = std::numeric_limits<uint32_t>::max();
+    ساكن constexpr uint32_t UNASSIGNED = std::numeric_limits<uint32_t>::max();
 
     // STATE
-    const DfgGraph& m_dfg;  // The input graph
+    ثابت Dfg_ګراف& m_dfg;  // The input graph
     DfgUserMap<uint64_t>& m_map;  // The result map we are computing - also used for traversal
     uint32_t m_nonTrivialSCCs = 0;  // Number of non-trivial SCCs in the graph
-    uint32_t m_index = 0;  // Visitation index counter
-    std::vector<const DfgVertex*> m_stack;  // The stack used by the algorithm
+    uint32_t m_شاخص = 0;  // Visitation index counter
+    std::ویکټور<ثابت Dfg_راس*> m_ډېری;  // The stack used by the algorithm
 
     // METHODS
     // Use the bottom 32-bit word as the component number
-    uint32_t& component(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
+    uint32_t& component(ثابت Dfg_راس& vtx) {  //
+        أرجع reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
     }
     // Use the top 32-bit word as the visitation index
-    uint32_t& index(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
+    uint32_t& شاخص(ثابت Dfg_راس& vtx) {  //
+        أرجع reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
     }
 
-    void visitColorSCCs(const DfgVertex& vtx) {
-        UDEBUGONLY(UASSERT_OBJ(index(vtx) == UNASSIGNED, &vtx, "Already visited vertex"););
+    فراغ لیدنه_Color_SCCs(ثابت Dfg_راس& vtx) {
+        UDEBUGONLY(UASSERT_OBJ(شاخص(vtx) == UNASSIGNED, &vtx, "Already visited vertex"););
 
         // Visiting vertex
-        const size_t rootIndex = index(vtx) = ++m_index;
+        ثابت اندازه_t ریښه_شاخص = شاخص(vtx) = ++m_شاخص;
 
         // Visit children
-        vtx.foreachSink([&](const DfgVertex& child) {
+        vtx.foreachSink([&](ثابت Dfg_راس& ماشوم) {
             // If the child has not yet been visited, then continue traversal
-            if (index(child) == UNASSIGNED) visitColorSCCs(child);
+            إذا (شاخص(ماشوم) == UNASSIGNED) لیدنه_Color_SCCs(ماشوم);
             // If the child is not in an SCC
-            if (component(child) == UNASSIGNED) {
-                if (index(vtx) > index(child)) index(vtx) = index(child);
+            إذا (component(ماشوم) == UNASSIGNED) {
+                إذا (شاخص(vtx) > شاخص(ماشوم)) شاخص(vtx) = شاخص(ماشوم);
             }
-            return false;
+            أرجع خطأ;
         });
 
-        if (index(vtx) == rootIndex) {
+        إذا (شاخص(vtx) == ریښه_شاخص) {
             // This is the 'root' of an SCC
 
             // A trivial SCC contains only a single vertex
-            const bool isTrivial = m_stack.empty() || index(*m_stack.back()) < rootIndex;
+            ثابت منطقي isTrivial = m_ډېری.تشه() || شاخص(*m_ډېری.شا()) < ریښه_شاخص;
             // We also need a separate component for vertices that drive themselves (which can
             // happen for input like 'assign a = a'), as we want to extract them (they are cyclic).
-            const bool drivesSelf = vtx.foreachSink([&](const DfgVertex& sink) {  //
-                return &vtx == &sink;
+            ثابت منطقي drivesSelf = vtx.foreachSink([&](ثابت Dfg_راس& sink) {  //
+                أرجع &vtx == &sink;
             });
 
-            if (!isTrivial || drivesSelf) {
+            إذا (!isTrivial || drivesSelf) {
                 // Allocate new component
                 ++m_nonTrivialSCCs;
                 component(vtx) = m_nonTrivialSCCs;
-                while (!m_stack.empty()) {
+                طالما (!m_ډېری.تشه()) {
                     // Only higher nodes belong to the same SCC
-                    if (index(*m_stack.back()) < rootIndex) break;
-                    component(*m_stack.back()) = m_nonTrivialSCCs;
-                    m_stack.pop_back();
+                    إذا (شاخص(*m_ډېری.شا()) < ریښه_شاخص) اكسر;
+                    component(*m_ډېری.شا()) = m_nonTrivialSCCs;
+                    m_ډېری.راوباسه_شا();
                 }
-            } else {
+            } وإلا {
                 // Trivial SCC (and does not drive itself), so acyclic. Keep it in original graph.
                 component(vtx) = 0;
             }
-        } else {
+        } وإلا {
             // Not the root of an SCC
-            m_stack.push_back(&vtx);
+            m_ډېری.ټېل_شا(&vtx);
         }
     }
 
-    void colorSCCs() {
+    فراغ colorSCCs() {
         // We know constant nodes have no input edges, so they cannot be part
         // of a non-trivial SCC. Mark them as such without any real traversals.
-        for (const DfgConst& vtx : m_dfg.constVertices()) {
-            index(vtx) = 0;
+        لكل (ثابت DfgConst& vtx : m_dfg.constVertices()) {
+            شاخص(vtx) = 0;
             component(vtx) = 0;
         }
 
         // We know ast references have no output or input edges
-        for (const DfgVertexAst& vtx : m_dfg.astVertices()) {
-            index(vtx) = 0;
+        لكل (ثابت Dfg_راس_Ast& vtx : m_dfg.astVertices()) {
+            شاخص(vtx) = 0;
             component(vtx) = 0;
         }
 
         // Initialize state of variable vertices
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
+        لكل (ثابت Dfg_راس_Var& vtx : m_dfg.varVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
-                index(vtx) = 0;
+            إذا ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
+                شاخص(vtx) = 0;
                 component(vtx) = 0;
-                continue;
+                استمر;
             }
-            index(vtx) = UNASSIGNED;
+            شاخص(vtx) = UNASSIGNED;
             component(vtx) = UNASSIGNED;
         }
 
         // Initialize state of operation vertices
-        for (const DfgVertex& vtx : m_dfg.opVertices()) {
+        لكل (ثابت Dfg_راس& vtx : m_dfg.opVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if (!vtx.nInputs() || !vtx.hasSinks()) {
-                index(vtx) = 0;
+            إذا (!vtx.nInputs() || !vtx.hasSinks()) {
+                شاخص(vtx) = 0;
                 component(vtx) = 0;
-                continue;
+                استمر;
             }
-            index(vtx) = UNASSIGNED;
+            شاخص(vtx) = UNASSIGNED;
             component(vtx) = UNASSIGNED;
         }
 
         // Start traversals through not yet visited variables
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+        لكل (ثابت Dfg_راس_Var& vtx : m_dfg.varVertices()) {
+            إذا (شاخص(vtx) == UNASSIGNED) لیدنه_Color_SCCs(vtx);
         }
 
         // Start traversals through not yet visited operations
-        for (const DfgVertex& vtx : m_dfg.opVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+        لكل (ثابت Dfg_راس& vtx : m_dfg.opVertices()) {
+            إذا (شاخص(vtx) == UNASSIGNED) لیدنه_Color_SCCs(vtx);
         }
     }
 
-    explicit ColorStronglyConnectedComponents(const DfgGraph& dfg, DfgUserMap<uint64_t>& map)
+    څرګند ColorStronglyConnectedComponents(ثابت Dfg_ګراف& dfg, DfgUserMap<uint64_t>& map)
         : m_dfg{dfg}
         , m_map{map} {
-        UASSERT(dfg.size() < UNASSIGNED, "Graph too big " << dfg.name());
+        UASSERT(dfg.اندازه() < UNASSIGNED, "Graph too big " << dfg.name());
         // Yet another implementation of Pearce's algorithm.
         colorSCCs();
         // Re-assign mapped values
-        m_dfg.forEachVertex([&](const DfgVertex& vtx) {
-            const uint64_t c = component(vtx);
+        m_dfg.for_Each_راس([&](ثابت Dfg_راس& vtx) {
+            ثابت uint64_t c = component(vtx);
             map[vtx] = c;
         });
     }
 
-public:
+عام:
     // See declaration of  V3DfgPasses::colorStronglyConnectedComponents
-    static uint32_t apply(const DfgGraph& dfg, DfgUserMap<uint64_t>& map) {
-        return ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
+    ساكن uint32_t apply(ثابت Dfg_ګراف& dfg, DfgUserMap<uint64_t>& map) {
+        أرجع ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
     }
 };
 
-uint32_t V3DfgPasses::colorStronglyConnectedComponents(const DfgGraph& dfg,
+uint32_t V3DfgPasses::colorStronglyConnectedComponents(ثابت Dfg_ګراف& dfg,
                                                        DfgUserMap<uint64_t>& map) {
-    return ColorStronglyConnectedComponents::apply(dfg, map);
+    أرجع ColorStronglyConnectedComponents::apply(dfg, map);
 }

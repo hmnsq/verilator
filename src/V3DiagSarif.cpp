@@ -14,182 +14,182 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DiagSarif.h"
+#ضمن "V3DiagSarif.h"
 
-#include "V3File.h"
-#include "V3Os.h"
+#ضمن "V3File.h"
+#ضمن "V3Os.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-class V3DiagSarifImp final {
+صنف V3DiagSarifImp final {
     // MEMBERS
-    std::deque<VErrorMessage> m_messages;
-    std::set<V3ErrorCode> m_codes;
-    std::map<V3ErrorCode, int> m_codeIndex;
+    std::deque<VError_پیغام> m_messages;
+    std::سېټ<V3_Error_کوډ> m_codes;
+    std::map<V3_Error_کوډ, صحيح> m_کوډ_شاخص;
 
     // METHODS
-    void calculate() {
-        for (const VErrorMessage& msgr : m_messages)
-            if (msgr.code().isNamed()) m_codes.emplace(msgr.code());
-        int i = 0;
-        for (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
+    فراغ calculate() {
+        لكل (ثابت VError_پیغام& msgr : m_messages)
+            إذا (msgr.کوډ().isNamed()) m_codes.emplace(msgr.کوډ());
+        صحيح i = 0;
+        لكل (ثابت V3_Error_کوډ& کوډ : m_codes) m_کوډ_شاخص[کوډ] = i++;
     }
 
-    void putRules(V3OutJsonFile& of) const {
-        for (const V3ErrorCode& code : m_codes) {
-            of.begin().put("id", code.ascii()).put("helpUri", code.url()).end();
+    فراغ put_قواعد(V3_بهر_Json_File& د) ثابت {
+        لكل (ثابت V3_Error_کوډ& کوډ : m_codes) {
+            د.begin().put("id", کوډ.ascii()).put("helpUri", کوډ.url()).پای_ټکی();
         }
     }
 
-    void putText(V3OutJsonFile& of, const string& clean, const string& formatted) const {
-        const string markdown = "```\n" + formatted + "\n```\n";
-        of.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
+    فراغ put_متن(V3_بهر_Json_File& د, ثابت string& clean, ثابت string& formatted) ثابت {
+        ثابت string markdown = "```\n" + formatted + "\n```\n";
+        د.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
     }
 
-    void putLocation(V3OutJsonFile& of, const FileLine* fl) const {
-        const string filename = V3Os::filenameRealPath(fl->filename());
-        of.begin("physicalLocation");
-        of.begin("artifactLocation");
-        if (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
-            of.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
-        } else {
-            of.put("uri", "file://" + filename);
+    فراغ putLocation(V3_بهر_Json_File& د, ثابت File_کرښه* fl) ثابت {
+        ثابت string filename = V3Os::filename_Real_لار(fl->filename());
+        د.begin("physicalLocation");
+        د.begin("artifactLocation");
+        إذا (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
+            د.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
+        } وإلا {
+            د.put("uri", "file://" + filename);
         }
-        of.end()
+        د.پای_ټکی()
             .begin("region")
             .put("sourceLanguage", "systemverilog")
-            .put("startLine", fl->firstLineno())
-            .put("startColumn", fl->firstColumn());
-        if (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
-        of.put("endColumn", fl->lastColumn());
-        of.begin("snippit", '{');
-        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), false));
-        of.end();  // snippit
-        of.end();  // region
-        of.end();  // artifactLocation
+            .put("startLine", fl->لومړی_Lineno())
+            .put("startColumn", fl->لومړی_ستنه());
+        إذا (fl->لومړی_Lineno() != fl->وروستی_Lineno()) د.put("endLine", fl->وروستی_Lineno());
+        د.put("endColumn", fl->وروستی_ستنه());
+        د.begin("snippit", '{');
+        put_متن(د, fl->pretty_سرچینه(), V3Error::strip_Meta_متن(fl->warnContextPrimary(), خطأ));
+        د.پای_ټکی();  // snippit
+        د.پای_ټکی();  // region
+        د.پای_ټکی();  // artifactLocation
     }
 
-    string substrToNextRelated(const string& str) {
-        const size_t pos = str.find("__WARNRELATED(", 0);
-        return (pos == std::string::npos) ? str : str.substr(0, pos);
+    string substr_منزل_بل_Related(ثابت string& str) {
+        ثابت اندازه_t pos = str.پیدا_کړه("__WARNRELATED(", 0);
+        أرجع (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
-    void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
-        of.begin();
-        of.put("level", msg.code().severityInfo()             ? "none"
-                        : V3Error::isError(msg.code(), false) ? "error"
+    فراغ put_پایله(V3_بهر_Json_File& د, ثابت VError_پیغام& پیغام_2) {
+        د.begin();
+        د.put("level", پیغام_2.کوډ().severityInfo()             ? "none"
+                        : V3Error::isError(پیغام_2.کوډ(), خطأ) ? "error"
                                                               : "warning");
 
-        string text = msg.text();
+        string متن = پیغام_2.متن();
         // UINFO(9, "Result raw text " << text);
 
         // We put the entire message including relatedLocations text
         // into the primary message text, because viewers such as
         // https://microsoft.github.io/sarif-web-component/
         // currently appear to ignore relatedLocations.
-        const string first_clean = V3Error::stripMetaText(text, true);
-        const string first_fmt = V3Error::stripMetaText(text, false);
+        ثابت string لومړی_clean = V3Error::strip_Meta_متن(متن, ریښتیا);
+        ثابت string لومړی_fmt = V3Error::strip_Meta_متن(متن, خطأ);
 
-        of.begin("message");
-        putText(of, first_clean, first_fmt);
-        of.end();
-        if (const FileLine* const fl = msg.fileline()) {
-            of.begin("locations", '[').begin();
-            putLocation(of, fl);
-            of.end();
-            of.end();
+        د.begin("message");
+        put_متن(د, لومړی_clean, لومړی_fmt);
+        د.پای_ټکی();
+        إذا (ثابت File_کرښه* ثابت fl = پیغام_2.fileline()) {
+            د.begin("locations", '[').begin();
+            putLocation(د, fl);
+            د.پای_ټکی();
+            د.پای_ټکی();
         }
 
-        if (text.find("__WARNRELATED(") != std::string::npos) {
-            of.begin("relatedLocations", '[');
-            size_t pos = 0;
-            while ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
-                const size_t start = pos + std::strlen("__WARNRELATED(");
-                size_t end = start;
-                while (end < text.size() && text[end] != ')') ++end;
-                const size_t index = std::atoi(text.substr(start, end + 1).c_str());
-                if (end < text.size()) end += std::strlen(")");
-                text = text.substr(end, text.size());
-                UASSERT_STATIC(index < msg.filelines().size(),
+        إذا (متن.پیدا_کړه("__WARNRELATED(") != std::string::npos) {
+            د.begin("relatedLocations", '[');
+            اندازه_t pos = 0;
+            طالما ((pos = متن.پیدا_کړه("__WARNRELATED(", pos)) != std::string::npos) {
+                ثابت اندازه_t پیل = pos + std::مزي_اوږدوالی("__WARNRELATED(");
+                اندازه_t پای_ټکی = پیل;
+                طالما (پای_ټکی < متن.اندازه() && متن[پای_ټکی] != ')') ++پای_ټکی;
+                ثابت اندازه_t شاخص = std::atoi(متن.substr(پیل, پای_ټکی + 1).c_str());
+                إذا (پای_ټکی < متن.اندازه()) پای_ټکی += std::مزي_اوږدوالی(")");
+                متن = متن.substr(پای_ټکی, متن.اندازه());
+                UASSERT_STATIC(شاخص < پیغام_2.filelines().اندازه(),
                                "Error message warnRelated without fileline");
 
-                const string related_clean
-                    = V3Error::stripMetaText(substrToNextRelated(text), true);
-                const string related_fmt
-                    = V3Error::stripMetaText(substrToNextRelated(text), false);
-                const FileLine* fl = msg.filelines()[index];
-                of.begin().begin("message");
-                putText(of, related_clean, related_fmt);
-                of.end();  // message
-                putLocation(of, fl);
-                of.end();
+                ثابت string related_clean
+                    = V3Error::strip_Meta_متن(substr_منزل_بل_Related(متن), ریښتیا);
+                ثابت string related_fmt
+                    = V3Error::strip_Meta_متن(substr_منزل_بل_Related(متن), خطأ);
+                ثابت File_کرښه* fl = پیغام_2.filelines()[شاخص];
+                د.begin().begin("message");
+                put_متن(د, related_clean, related_fmt);
+                د.پای_ټکی();  //پیغام
+                putLocation(د, fl);
+                د.پای_ټکی();
             }
-            of.end();
+            د.پای_ټکی();
         }
 
-        if (msg.code().isNamed())
-            of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
+        إذا (پیغام_2.کوډ().isNamed())
+            د.put("ruleId", پیغام_2.کوډ().ascii()).put("ruleIndex", m_کوډ_شاخص[پیغام_2.کوډ()]);
 
-        of.end();
+        د.پای_ټکی();
     }
 
     // STATIC FUNCTIONS
-public:
-    static V3DiagSarifImp& s() {
-        static V3DiagSarifImp s_s;
-        return s_s;
+عام:
+    ساكن V3DiagSarifImp& s() {
+        ساكن V3DiagSarifImp s_s;
+        أرجع s_s;
     }
 
-    void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
+    فراغ ټېل_پیغام(ثابت VError_پیغام& پیغام_2) { m_messages.ټېل_شا(پیغام_2); }
 
-    void output(bool success) {
-        V3OutJsonFile of{v3Global.opt.diagnosticsSarifOutput()};
+    فراغ output(منطقي success) {
+        V3_بهر_Json_File د{v3Global.opt.diagnosticsSarifOutput()};
         calculate();
 
-        of.put("$schema", "https://json.schemastore.org/sarif-2.1.0-rtm.5.json")
+        د.put("$schema", "https://json.schemastore.org/sarif-2.1.0-rtm.5.json")
             .put("version", "2.1.0");
 
-        of.begin("runs", '[').begin();
+        د.begin("runs", '[').begin();
 
-        of.begin("tool")
+        د.begin("tool")
             .begin("driver")
             .put("name", "Verilator")
-            .put("version", VString::replaceSubstr(V3Options::version(), "Verilator ", ""))
+            .put("version", VString::replaceSubstr(V3Options::نسخه(), "Verilator ", ""))
             .put("informationUri", "https://verilator.org");
 
-        of.begin("rules", '[');
-        putRules(of);
-        of.end()  // rules
-            .end()  // driver
-            .end();  //tool
+        د.begin("rules", '[');
+        put_قواعد(د);
+        د.پای_ټکی()  //قواعد
+            .پای_ټکی()  // driver
+            .پای_ټکی();  //tool
 
-        of.begin("invocations", '[')
+        د.begin("invocations", '[')
             .begin()
-            .put("commandLine", v3Global.opt.allArgsString())
+            .put("commandLine", v3Global.opt.all_دلیلونه_String())
             .put("executionSuccessful", success)
-            .end()
-            .end();
+            .پای_ټکی()
+            .پای_ټکی();
 
-        of.begin("results", '[');
-        for (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
-        of.end();
+        د.begin("results", '[');
+        لكل (ثابت VError_پیغام& msgr : m_messages) put_پایله(د, msgr);
+        د.پای_ټکی();
 
-        of.end();  // runs ]
-        of.end();  // runs }
+        د.پای_ټکی();  // runs ]
+        د.پای_ټکی();  // runs }
     }
 };
 
-void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
-    if (!v3Global.opt.diagnosticsSarif()) return;
-    V3DiagSarifImp::s().pushMessage(msg);
+فراغ V3DiagSarif::ټېل_پیغام(ثابت VError_پیغام& پیغام_2) VL_MT_DISABLED {
+    إذا (!v3Global.opt.diagnosticsSarif()) أرجع;
+    V3DiagSarifImp::s().ټېل_پیغام(پیغام_2);
 }
 
-void V3DiagSarif::output(bool success) {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+فراغ V3DiagSarif::output(منطقي success) {
+    إذا (!v3Global.opt.diagnosticsSarif()) أرجع;
     UINFO(2, __FUNCTION__ << ":");
     V3DiagSarifImp::s().output(success);
 }

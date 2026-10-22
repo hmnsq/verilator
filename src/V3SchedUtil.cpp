@@ -18,122 +18,122 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitCBase.h"
-#include "V3EmitV.h"
-#include "V3Order.h"
-#include "V3Sched.h"
-#include "V3SenExprBuilder.h"
-#include "V3Stats.h"
+#ضمن "V3EmitCBase.h"
+#ضمن "V3EmitV.h"
+#ضمن "V3Order.h"
+#ضمن "V3Sched.h"
+#ضمن "V3SenExprBuilder.h"
+#ضمن "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
-namespace util {
+نطاق V3Sched {
+نطاق util {
 
-AstCFunc* makeSubFunction(AstNetlist* netlistp, const string& name, bool slow) {
-    AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-    AstCFunc* const funcp = new AstCFunc{netlistp->fileline(), name, scopeTopp, ""};
-    funcp->dontCombine(true);
-    funcp->isStatic(false);
-    funcp->isLoose(true);
+AstCFunc* makeSubFunction(AstNetlist* netlistp, ثابت string& name, منطقي slow) {
+    AstScope* ثابت scopeTopp = netlistp->سر_Scopep()->scopep();
+    AstCFunc* ثابت funcp = جديد AstCFunc{netlistp->fileline(), name, scopeTopp, ""};
+    funcp->dontCombine(ریښتیا);
+    funcp->isStatic(خطأ);
+    funcp->isLoose(ریښتیا);
     funcp->slow(slow);
-    funcp->isConst(false);
-    funcp->declPrivate(true);
-    scopeTopp->addBlocksp(funcp);
-    return funcp;
+    funcp->isConst(خطأ);
+    funcp->decl_شخصي(ریښتیا);
+    scopeTopp->جمع_کړه_Blocksp(funcp);
+    أرجع funcp;
 }
 
-AstVarScope* newArgument(AstCFunc* funcp, AstNodeDType* dtypep, const string& name,
+AstVarScope* new_دلیل(AstCFunc* funcp, Ast_غوټه_DType* dtypep, ثابت string& name,
                          VDirection direction) {
-    FileLine* const flp = funcp->fileline();
-    AstScope* const scopep = funcp->scopep();
-    AstVar* const varp = new AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
-    varp->funcLocal(true);
+    File_کرښه* ثابت flp = funcp->fileline();
+    AstScope* ثابت scopep = funcp->scopep();
+    AstVar* ثابت varp = جديد AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
+    varp->funcLocal(ریښتیا);
     varp->direction(direction);
-    funcp->addArgsp(varp);
-    AstVarScope* const vscp = new AstVarScope{flp, scopep, varp};
-    scopep->addVarsp(vscp);
-    return vscp;
+    funcp->جمع_کړه_Argsp(varp);
+    AstVarScope* ثابت vscp = جديد AstVarScope{flp, scopep, varp};
+    scopep->جمع_کړه_Varsp(vscp);
+    أرجع vscp;
 }
 
-AstNodeStmt* setVar(AstVarScope* vscp, uint32_t val) {
-    FileLine* const flp = vscp->fileline();
-    AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::WRITE};
-    AstConst* const valp = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
-    valp->num().setLong(val);
-    return new AstAssign{flp, refp, valp};
+Ast_غوټه_Stmt* سېټ_Var(AstVarScope* vscp, uint32_t val) {
+    File_کرښه* ثابت flp = vscp->fileline();
+    AstVarRef* ثابت refp = جديد AstVarRef{flp, vscp, VAccess::WRITE};
+    AstConst* ثابت valp = جديد AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
+    valp->عدد().سېټ_Long(val);
+    أرجع جديد Ast_ټاکل{flp, refp, valp};
 }
 
-AstNodeStmt* incrementVar(AstVarScope* vscp) {
-    FileLine* const flp = vscp->fileline();
-    AstVarRef* const wrefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-    AstVarRef* const rrefp = new AstVarRef{flp, vscp, VAccess::READ};
-    AstConst* const onep = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
-    onep->num().setLong(1);
-    return new AstAssign{flp, wrefp, new AstAdd{flp, rrefp, onep}};
+Ast_غوټه_Stmt* incrementVar(AstVarScope* vscp) {
+    File_کرښه* ثابت flp = vscp->fileline();
+    AstVarRef* ثابت wrefp = جديد AstVarRef{flp, vscp, VAccess::WRITE};
+    AstVarRef* ثابت rrefp = جديد AstVarRef{flp, vscp, VAccess::READ};
+    AstConst* ثابت onep = جديد AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
+    onep->عدد().سېټ_Long(1);
+    أرجع جديد Ast_ټاکل{flp, wrefp, جديد Ast_جمع_کړه{flp, rrefp, onep}};
 }
 
-AstNodeStmt* callVoidFunc(AstCFunc* funcp) {
-    if (!funcp) return nullptr;
-    AstCCall* const callp = new AstCCall{funcp->fileline(), funcp};
-    callp->dtypeSetVoid();
-    return callp->makeStmt();
+Ast_غوټه_Stmt* callVoidFunc(AstCFunc* funcp) {
+    إذا (!funcp) أرجع تش_اشاره;
+    AstCCall* ثابت callp = جديد AstCCall{funcp->fileline(), funcp};
+    callp->dtype_سېټ_Void();
+    أرجع callp->makeStmt();
 }
 
-static AstCFunc* splitCheckCreateNewSubFunc(AstCFunc* ofuncp) {
-    static std::map<AstCFunc*, uint32_t> s_funcNums;  // What split number to attach to a function
-    const uint32_t funcNum = s_funcNums[ofuncp]++;
-    const std::string name = ofuncp->name() + "__" + cvtToStr(funcNum);
-    AstScope* const scopep = ofuncp->scopep();
-    AstCFunc* const subFuncp = new AstCFunc{ofuncp->fileline(), name, scopep};
-    scopep->addBlocksp(subFuncp);
-    subFuncp->dontCombine(true);
+ساكن AstCFunc* وېشل_Check_Create_New_Sub_Func(AstCFunc* ofuncp) {
+    ساكن std::map<AstCFunc*, uint32_t> s_funcNums;  // What split number to attach to a function
+    ثابت uint32_t func_عدد = s_funcNums[ofuncp]++;
+    ثابت std::string name = ofuncp->name() + "__" + cvt_منزل_Str(func_عدد);
+    AstScope* ثابت scopep = ofuncp->scopep();
+    AstCFunc* ثابت subFuncp = جديد AstCFunc{ofuncp->fileline(), name, scopep};
+    scopep->جمع_کړه_Blocksp(subFuncp);
+    subFuncp->dontCombine(ریښتیا);
     subFuncp->isStatic(ofuncp->isStatic());
-    subFuncp->isLoose(true);
+    subFuncp->isLoose(ریښتیا);
     subFuncp->slow(ofuncp->slow());
-    subFuncp->declPrivate(ofuncp->declPrivate());
-    if (ofuncp->needProcess()) subFuncp->setNeedProcess();
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
-        AstVar* const clonep = argp->cloneTree(false);
-        subFuncp->addArgsp(clonep);
-        AstVarScope* const vscp = new AstVarScope{clonep->fileline(), scopep, clonep};
-        scopep->addVarsp(vscp);
+    subFuncp->decl_شخصي(ofuncp->decl_شخصي());
+    إذا (ofuncp->needProcess()) subFuncp->سېټ_Need_Process();
+    لكل (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+        AstVar* ثابت clonep = argp->clone_ونه(خطأ);
+        subFuncp->جمع_کړه_Argsp(clonep);
+        AstVarScope* ثابت vscp = جديد AstVarScope{clonep->fileline(), scopep, clonep};
+        scopep->جمع_کړه_Varsp(vscp);
         argp->user3p(vscp);
     }
-    return subFuncp;
+    أرجع subFuncp;
 };
 
-void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
-                             const std::unordered_map<const AstVar*, AstVarScope*>& argVscps) {
-    FileLine* const flp = subFuncp->fileline();
-    AstCCall* const callp = new AstCCall{subFuncp->fileline(), subFuncp};
-    callp->dtypeSetVoid();
+فراغ وېشل_Check_پای_Sub_Func(AstCFunc* ofuncp, AstCFunc* subFuncp,
+                             ثابت std::unordered_map<ثابت AstVar*, AstVarScope*>& argVscps) {
+    File_کرښه* ثابت flp = subFuncp->fileline();
+    AstCCall* ثابت callp = جديد AstCCall{subFuncp->fileline(), subFuncp};
+    callp->dtype_سېټ_Void();
     // Pass arguments through to subfunction
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    لكل (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         UASSERT_OBJ(argp->direction() == VDirection::CONSTREF, argp, "Unexpected direction");
-        callp->addArgsp(new AstVarRef{flp, argVscps.at(argp), VAccess::READ});
+        callp->جمع_کړه_Argsp(جديد AstVarRef{flp, argVscps.at(argp), VAccess::READ});
     }
 
-    bool containsAwait = false;
-    subFuncp->foreach([&](AstNode* nodep) {
+    منطقي لري_Await = خطأ;
+    subFuncp->foreach([&](Ast_غوټه* nodep) {
         // Record if it has a CAwait
-        if (VN_IS(nodep, CAwait)) containsAwait = true;
+        إذا (VN_IS(nodep, CAwait)) لري_Await = ریښتیا;
         // Redirect references to arguments to the clone in the sub-function
-        if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            if (AstVarScope* const vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
+        إذا (AstVarRef* ثابت refp = VN_CAST(nodep, VarRef)) {
+            إذا (AstVarScope* ثابت vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
                 refp->varp(vscp->varp());
                 refp->varScopep(vscp);
             }
         }
     });
 
-    if (ofuncp->isCoroutine() && containsAwait) {  // Wrap call with co_await
+    إذا (ofuncp->isCoroutine() && لري_Await) {  // Wrap call with co_await
         subFuncp->rtnType("VlCoroutine");
-        ofuncp->addStmtsp(new AstCAwait{flp, callp});
-    } else {
-        ofuncp->addStmtsp(callp->makeStmt());
+        ofuncp->جمع_کړه_Stmtsp(جديد AstCAwait{flp, callp});
+    } وإلا {
+        ofuncp->جمع_کړه_Stmtsp(callp->makeStmt());
     }
 }
 
@@ -142,84 +142,84 @@ void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
 // storage. A function-local AstVar declared among the top level statements must therefore end up
 // in the same sub-function as every reference to it, otherwise the emitted C++ refers to an
 // undeclared identifier (and the AstVar can be deleted from under the still-live references).
-static std::vector<bool> splitCheckBreakable(const AstCFunc* ofuncp) {
+ساكن std::ویکټور<منطقي> وېشل_Check_Breakable(ثابت AstCFunc* ofuncp) {
     // Gather the top level statements, and where each locally declared variable is declared
-    std::vector<const AstNode*> stmtps;
-    std::unordered_map<const AstVar*, size_t> declIdx;  // Local var -> index it is declared at
-    for (const AstNode* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.size());
-        stmtps.push_back(nodep);
+    std::ویکټور<ثابت Ast_غوټه*> stmtps;
+    std::unordered_map<ثابت AstVar*, اندازه_t> declIdx;  // Local var -> index it is declared at
+    لكل (ثابت Ast_غوټه* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        إذا (ثابت AstVar* ثابت varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.اندازه());
+        stmtps.ټېل_شا(nodep);
     }
 
     // Find the last statement referencing each locally declared variable
-    std::vector<size_t> lastUse(stmtps.size());
-    for (size_t i = 0; i < stmtps.size(); ++i) {
-        lastUse[i] = i;  // A declaration is live at least where it is declared
-        stmtps[i]->foreach([&](const AstNodeVarRef* refp) {
-            const auto it = declIdx.find(refp->varp());  // 'end()' if not one of our locals
-            if (it != declIdx.end()) lastUse[it->second] = std::max(lastUse[it->second], i);
+    std::ویکټور<اندازه_t> وروستی_Use(stmtps.اندازه());
+    لكل (اندازه_t i = 0; i < stmtps.اندازه(); ++i) {
+        وروستی_Use[i] = i;  // A declaration is live at least where it is declared
+        stmtps[i]->foreach([&](ثابت Ast_غوټه_Var_Ref* refp) {
+            ثابت خپلکاری it = declIdx.پیدا_کړه(refp->varp());  // 'end()' if not one of our locals
+            إذا (it != declIdx.پای_ټکی()) وروستی_Use[it->دوهم] = std::max(وروستی_Use[it->دوهم], i);
         });
     }
 
     // A break before statement 'i' is allowed only if no local declared before 'i' is still live
-    std::vector<bool> breakable(stmtps.size(), true);
-    size_t liveEnd = 0;  // Last index any so far declared local is referenced at
-    for (size_t i = 0; i < stmtps.size(); ++i) {
-        breakable[i] = liveEnd < i;
-        if (VN_IS(stmtps[i], Var)) liveEnd = std::max(liveEnd, lastUse[i]);
+    std::ویکټور<منطقي> breakable(stmtps.اندازه(), ریښتیا);
+    اندازه_t ژوندی_پای_ټکی = 0;  // Last index any so far declared local is referenced at
+    لكل (اندازه_t i = 0; i < stmtps.اندازه(); ++i) {
+        breakable[i] = ژوندی_پای_ټکی < i;
+        إذا (VN_IS(stmtps[i], Var)) ژوندی_پای_ټکی = std::max(ژوندی_پای_ټکی, وروستی_Use[i]);
     }
-    return breakable;
+    أرجع breakable;
 }
 
 // Split large function according to --output-split-cfuncs
-void splitCheck(AstCFunc* const ofuncp) {
-    if (!ofuncp) return;
+فراغ وېشل_Check(AstCFunc* ثابت ofuncp) {
+    إذا (!ofuncp) أرجع;
     UASSERT_OBJ(!ofuncp->varsp(), ofuncp, "Can't split function with local variables");
-    if (!v3Global.opt.outputSplitCFuncs() || !ofuncp->stmtsp()) return;
-    if (ofuncp->nodeCount() < v3Global.opt.outputSplitCFuncs()) return;
+    إذا (!v3Global.opt.output_وېشل_CFuncs() || !ofuncp->stmtsp()) أرجع;
+    إذا (ofuncp->غوټه_شمېر() < v3Global.opt.output_وېشل_CFuncs()) أرجع;
 
     // Statement boundaries that would separate a local declaration from a reference to it
-    const std::vector<bool> breakable = splitCheckBreakable(ofuncp);
+    ثابت std::ویکټور<منطقي> breakable = وېشل_Check_Breakable(ofuncp);
 
     // Need to find the AstVarScopes for the function arguments. They should be in the same Scope.
-    std::unordered_map<const AstVar*, AstVarScope*> argVscps;
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
-        UASSERT_OBJ(argVscps.size() < 2, argp, "There should be at most 2 arguments, or O(n^2)");
-        bool found = false;
-        for (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
+    std::unordered_map<ثابت AstVar*, AstVarScope*> argVscps;
+    لكل (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+        UASSERT_OBJ(argVscps.اندازه() < 2, argp, "There should be at most 2 arguments, or O(n^2)");
+        منطقي وموندل = خطأ;
+        لكل (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
             nextp = VN_AS(vscp->nextp(), VarScope);
-            if (vscp->varp() != argp) continue;
+            إذا (vscp->varp() != argp) استمر;
             argVscps[argp] = vscp;
-            found = true;
-            break;
+            وموندل = ریښتیا;
+            اكسر;
         }
-        UASSERT_OBJ(found, argp, "Can't find VarScope for function argument");
+        UASSERT_OBJ(وموندل, argp, "Can't find VarScope for function argument");
     }
 
     // AstVar::user3p(): AstVarScope for function argument in clone
-    const VNUser3InUse user3InUse;
+    ثابت VNUser3_دننه_Use user3_دننه_Use;
 
-    size_t size = 0;
-    AstCFunc* subFuncp = nullptr;
+    اندازه_t اندازه = 0;
+    AstCFunc* subFuncp = تش_اشاره;
 
     // Move statements one by one to the new sub-functions
-    AstNode* stmtsp = ofuncp->stmtsp()->unlinkFrBackWithNext();
-    for (size_t index = 0; AstNode* const itemp = stmtsp; ++index) {
+    Ast_غوټه* stmtsp = ofuncp->stmtsp()->unlink_Fr_شا_With_بل();
+    لكل (اندازه_t شاخص = 0; Ast_غوټه* ثابت itemp = stmtsp; ++شاخص) {
         stmtsp = stmtsp->nextp();
-        if (stmtsp) stmtsp->unlinkFrBackWithNext();
-        const size_t itemSize = static_cast<size_t>(itemp->nodeCount());
-        size += itemSize;
+        إذا (stmtsp) stmtsp->unlink_Fr_شا_With_بل();
+        ثابت اندازه_t توکی_اندازه = static_cast<اندازه_t>(itemp->غوټه_شمېر());
+        اندازه += توکی_اندازه;
 
-        if (size > static_cast<size_t>(v3Global.opt.outputSplitCFuncs()) && breakable[index]) {
-            if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
-            subFuncp = nullptr;
-            size = itemSize;
+        إذا (اندازه > static_cast<اندازه_t>(v3Global.opt.output_وېشل_CFuncs()) && breakable[شاخص]) {
+            إذا (subFuncp) وېشل_Check_پای_Sub_Func(ofuncp, subFuncp, argVscps);
+            subFuncp = تش_اشاره;
+            اندازه = توکی_اندازه;
         }
 
-        if (!subFuncp) subFuncp = splitCheckCreateNewSubFunc(ofuncp);
-        subFuncp->addStmtsp(itemp);
+        إذا (!subFuncp) subFuncp = وېشل_Check_Create_New_Sub_Func(ofuncp);
+        subFuncp->جمع_کړه_Stmtsp(itemp);
     }
-    if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
+    إذا (subFuncp) وېشل_Check_پای_Sub_Func(ofuncp, subFuncp, argVscps);
 }
 
 }  // namespace util

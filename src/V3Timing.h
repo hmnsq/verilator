@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#ifndef _V3TIMING_H_
-#define _V3TIMING_H_
+#که_نه_تعریف_شوی _V3TIMING_H_
+#تعریف_کړه _V3TIMING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
+#ضمن "V3Ast.h"
 
 //============================================================================
 
 class V3Timing final {
-public:
-    static void timingAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ timingAll(AstNetlist* nodep) VL_MT_DISABLED;
     // Scale a delay in the given time unit to time precision ticks, rounding real delays; #1step
     // is one tick
-    static AstNodeExpr* delayToTicks(AstNodeExpr* valuep, VTimescale timeunit) VL_MT_DISABLED;
+    ساكن Ast_غوټه_بیان* delay_منزل_Ticks(Ast_غوټه_بیان* valuep, VTimescale timeunit) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

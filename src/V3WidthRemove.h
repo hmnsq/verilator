@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHREMOVE_H_
-#define VERILATOR_V3WIDTHREMOVE_H_
+#که_نه_تعریف_شوی VERILATOR_V3WIDTHREMOVE_H_
+#تعریف_کړه VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Error.h"
 
 // clang-format off
-#ifndef VERILATOR_V3WIDTH_CPP_
+#که_نه_تعریف_شوی VERILATOR_V3_پلنوالی_CPP
 # error "V3WidthRemove for V3Width internal use only"
-#endif
+#د_که_پای
 // clang-format on
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class پلنوالی_Remove_Visitor final : عام VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    فراغ replace_With_Signed_نسخه(Ast_غوټه* nodep, Ast_غوټه* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    فراغ لیدنه(AstSigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_نسخه(nodep, nodep->lhsp()->unlink_Fr_شا()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    فراغ لیدنه(AstUnsigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_نسخه(nodep, nodep->lhsp()->unlink_Fr_شا()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    پلنوالی_Remove_Visitor() = افتراضي;
+    ~پلنوالی_Remove_Visitor() override = افتراضي;
+    Ast_غوټه* mainAcceptEdit(Ast_غوټه* nodep) { أرجع iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 
-#endif  // Guard
+#د_که_پای  // Guard

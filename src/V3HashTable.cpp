@@ -14,130 +14,130 @@
 //
 //*************************************************************************
 
-#include "V3HashTable.h"
+#ضمن "V3HashTable.h"
 
-#include "V3Error.h"
+#ضمن "V3Error.h"
 
-#include <array>
-#include <functional>
-#include <map>
-#include <set>
-#include <string>
-#include <type_traits>
-#include <utility>
+#ضمن <array>
+#ضمن <functional>
+#ضمن <map>
+#ضمن <set>
+#ضمن <string>
+#ضمن <type_traits>
+#ضمن <utility>
 
-namespace V3HashTableInternals {
+نطاق V3_Hash_جدول_Internals {
 
 // Entries that fill a table of the given capacity to its maximum load, so one more grows it
-constexpr size_t maxLoad(size_t capacity) { return capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
+constexpr اندازه_t max_بارول(اندازه_t ظرفیت) { أرجع ظرفیت * بارول_ضریب_عدد / بارول_ضریب_DEN; }
 
 // Enough entries to grow the smallest table twice, that is, to fill four times the minimum
-constexpr size_t GROWS_TWICE = maxLoad(4 * MIN_CAPACITY);
-static_assert(GROWS_TWICE > maxLoad(2 * MIN_CAPACITY),
+constexpr اندازه_t GROWS_TWICE = max_بارول(4 * MIN_ظرفیت);
+static_assert(GROWS_TWICE > max_بارول(2 * MIN_ظرفیت),
               "SelfTest: 'GROWS_TWICE' must overflow a table twice the minimum");
 
 //######################################################################
 // Set key by value
 
-void testValueKeys() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+فراغ test_ارزښت_کلیګانې() {
+    بنية ارزښت_2 final {
+        اندازه_t m_hash = 0;  // Hash of this entry
+        اندازه_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value& value) const { return operator()(value.m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت ارزښت_2& ارزښت) ثابت { أرجع چلوونکی()(ارزښت.m_hash, 0); }
+        اندازه_t چلوونکی()(اندازه_t hash, اندازه_t) ثابت { أرجع hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value& a, const Value& b) const {
-            return operator()(a, b.m_hash, b.m_id);
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت ارزښت_2& a, ثابت ارزښت_2& b) ثابت {
+            أرجع چلوونکی()(a, b.m_hash, b.m_id);
         }
-        bool operator()(const Value& value, size_t hash, size_t id) const {
-            return value.m_hash == hash && value.m_id == id;
+        منطقي چلوونکی()(ثابت ارزښت_2& ارزښت, اندازه_t hash, اندازه_t id) ثابت {
+            أرجع ارزښت.m_hash == hash && ارزښت.m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<ارزښت_2, Hash, Equal>;
 
     // Entries that are added are found, entries that are not are not
     {
-        const Value value{1, 0};
-        const Value equal{1, 0};  // Equal to 'value', and hashes the same
-        Set set;
-        UASSERT_SELFTEST(set.empty(), true);  // Starts empty
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.find(value) == set.end(), true);  // And finds nothing
-        const std::pair<Set::iterator, bool> added = set.insert(value);
-        UASSERT_SELFTEST(added.second, true);  // Added, as it was absent
-        UASSERT_SELFTEST(added.first->m_id, value.m_id);  // The iterator is at the entry
-        UASSERT_SELFTEST(&*added.first != &value, true);  // Which is a copy of the argument
-        UASSERT_SELFTEST(set.size(), 1);  // And is the only one
-        UASSERT_SELFTEST(set.empty(), false);  // So the set is no longer empty
+        ثابت ارزښت_2 ارزښت{1, 0};
+        ثابت ارزښت_2 equal{1, 0};  // Equal to 'value', and hashes the same
+        سېټ_2 سېټ;
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Starts empty
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // So iterates nothing
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // And finds nothing
+        ثابت std::pair<سېټ_2::iterator, منطقي> added = سېټ.ورننباسه(ارزښت);
+        UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Added, as it was absent
+        UASSERT_SELFTEST(added.لومړی->m_id, ارزښت.m_id);  // The iterator is at the entry
+        UASSERT_SELFTEST(&*added.لومړی != &ارزښت, ریښتیا);  // Which is a copy of the argument
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // And is the only one
+        UASSERT_SELFTEST(سېټ.تشه(), خطأ);  // So the set is no longer empty
         {
-            const Set::iterator it = set.find(value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found by itself
-            UASSERT_SELFTEST(&*it, &*added.first);  // At the entry held
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Found by itself
+            UASSERT_SELFTEST(&*it, &*added.لومړی);  // At the entry held
         }
         {
-            const Set::iterator it = set.find(equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // And by an equal entry
-            UASSERT_SELFTEST(&*it, &*added.first);  // At that same entry
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(equal);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And by an equal entry
+            UASSERT_SELFTEST(&*it, &*added.لومړی);  // At that same entry
         }
         {
-            const Set::iterator it = set.find(1, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // And by its parts
-            UASSERT_SELFTEST(&*it, &*added.first);  // At that same entry again
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(1, اندازه_t{0});
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And by its parts
+            UASSERT_SELFTEST(&*it, &*added.لومړی);  // At that same entry again
         }
-        UASSERT_SELFTEST(set.find(1, size_t{1}) == set.end(), true);  // Hash same, id not
-        UASSERT_SELFTEST(set.find(2, size_t{0}) == set.end(), true);  // Id same, hash not
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(1, اندازه_t{1}) == سېټ.پای_ټکی(), ریښتیا);  // Hash same, id not
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(2, اندازه_t{0}) == سېټ.پای_ټکی(), ریښتیا);  // Id same, hash not
         // Adding an equal entry returns the one in the set, and does not add
-        const std::pair<Set::iterator, bool> again = set.insert(equal);
-        UASSERT_SELFTEST(again.second, false);  // Not added, as an equal is present
-        UASSERT_SELFTEST(&*again.first, &*added.first);  // At the entry already held
-        UASSERT_SELFTEST(set.size(), 1);  // Still just the one entry
+        ثابت std::pair<سېټ_2::iterator, منطقي> again = سېټ.ورننباسه(equal);
+        UASSERT_SELFTEST(again.دوهم, خطأ);  // Not added, as an equal is present
+        UASSERT_SELFTEST(&*again.لومړی, &*added.لومړی);  // At the entry already held
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // Still just the one entry
         // Erasing through an iterator removes the entry it is at
         {
-            const Set::iterator it = set.find(value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.empty(), true);  // Empty again
-        UASSERT_SELFTEST(set.find(value) == set.end(), true);  // So the entry is gone
-        UASSERT_SELFTEST(set.contains(value), false);  // As 'contains' agrees
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Empty again
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // So the entry is gone
+        UASSERT_SELFTEST(سېټ.لري(ارزښت), خطأ);  // As 'contains' agrees
         // Erase by key removes whatever that key finds
-        UASSERT_SELFTEST(set.erase(value), false);  // Nothing to erase, so says so
-        set.insert(value);
-        UASSERT_SELFTEST(set.erase(equal), true);  // An equal key erases the entry held
-        UASSERT_SELFTEST(set.empty(), true);  // Which leaves the set empty
+        UASSERT_SELFTEST(سېټ.erase(ارزښت), خطأ);  // Nothing to erase, so says so
+        سېټ.ورننباسه(ارزښت);
+        UASSERT_SELFTEST(سېټ.erase(equal), ریښتیا);  // An equal key erases the entry held
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Which leaves the set empty
         // And by a key spelled as the parts of an entry
-        set.insert(value);
-        UASSERT_SELFTEST(set.erase(1, size_t{0}), true);  // Those parts find and erase it
-        UASSERT_SELFTEST(set.empty(), true);  // Empty once more
+        سېټ.ورننباسه(ارزښت);
+        UASSERT_SELFTEST(سېټ.erase(1, اندازه_t{0}), ریښتیا);  // Those parts find and erase it
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Empty once more
     }
 
     // Colliding entries are all kept and stay reachable, including after the table grows
     {
-        constexpr size_t N = GROWS_TWICE;
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            const std::pair<Set::iterator, bool> added = set.insert(Value{7, i});
-            UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
+        constexpr اندازه_t N = GROWS_TWICE;
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            ثابت std::pair<سېټ_2::iterator, منطقي> added = سېټ.ورننباسه(ارزښت_2{7, i});
+            UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Ids differ, so each is added
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them, in the one probe run
-        for (size_t i = 0; i < N; ++i) {
-            const Set::iterator it = set.find(size_t{7}, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // The growth lost nothing
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // All of them, in the one probe run
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The growth lost nothing
             UASSERT_SELFTEST(it->m_id, i);  // And is the entry asked for
         }
         // Iterating visits every entry exactly once
-        std::array<bool, N> seen{};
-        size_t n = 0;
-        for (const Value& entry : set) {
-            UASSERT_SELFTEST(entry.m_hash, size_t{7});  // Only entries added
-            UASSERT_SELFTEST(seen[entry.m_id], false);  // Each of them exactly once
-            seen[entry.m_id] = true;
+        std::array<منطقي, N> کتل_شوی{};
+        اندازه_t n = 0;
+        لكل (ثابت ارزښت_2& ثبت : سېټ) {
+            UASSERT_SELFTEST(ثبت.m_hash, اندازه_t{7});  // Only entries added
+            UASSERT_SELFTEST(کتل_شوی[ثبت.m_id], خطأ);  // Each of them exactly once
+            کتل_شوی[ثبت.m_id] = ریښتیا;
             ++n;
         }
         UASSERT_SELFTEST(n, N);  // And every one of them
@@ -147,263 +147,263 @@ void testValueKeys() {
 //######################################################################
 // Set key by pointer
 
-void testPointerKeys() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+فراغ test_اشاره_ګر_کلیګانې() {
+    بنية ارزښت_2 final {
+        اندازه_t m_hash = 0;  // Hash of this entry
+        اندازه_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت ارزښت_2* valuep) ثابت { أرجع چلوونکی()(valuep->m_hash, 0); }
+        اندازه_t چلوونکی()(اندازه_t hash, اندازه_t) ثابت { أرجع hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت ارزښت_2* ap, ثابت ارزښت_2* bp) ثابت {
+            أرجع چلوونکی()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        منطقي چلوونکی()(ثابت ارزښت_2* valuep, اندازه_t hash, اندازه_t id) ثابت {
+            أرجع valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<ارزښت_2*, Hash, Equal>;
 
     // Entries that are added are found, entries that are not are not
     {
-        Value value{1, 0};
-        Value equal{1, 0};  // Equal to 'value', and hashes the same
-        Set set;
-        UASSERT_SELFTEST(set.empty(), true);  // Starts empty
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // And finds nothing
-        const std::pair<Set::iterator, bool> added = set.insert(&value);
-        UASSERT_SELFTEST(added.second, true);  // Added, as it was absent
-        UASSERT_SELFTEST(*added.first, &value);  // The iterator is at the new entry
-        UASSERT_SELFTEST(set.size(), 1);  // Which is the only one
-        UASSERT_SELFTEST(set.empty(), false);  // So the set is no longer empty
+        ارزښت_2 ارزښت{1, 0};
+        ارزښت_2 equal{1, 0};  // Equal to 'value', and hashes the same
+        سېټ_2 سېټ;
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Starts empty
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // So iterates nothing
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(&ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // And finds nothing
+        ثابت std::pair<سېټ_2::iterator, منطقي> added = سېټ.ورننباسه(&ارزښت);
+        UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Added, as it was absent
+        UASSERT_SELFTEST(*added.لومړی, &ارزښت);  // The iterator is at the new entry
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // Which is the only one
+        UASSERT_SELFTEST(سېټ.تشه(), خطأ);  // So the set is no longer empty
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found by itself
-            UASSERT_SELFTEST(*it, &value);  // At the entry held
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Found by itself
+            UASSERT_SELFTEST(*it, &ارزښت);  // At the entry held
         }
         {
-            const Set::iterator it = set.find(&equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // And by an equal entry
-            UASSERT_SELFTEST(*it, &value);  // At that same entry
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&equal);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And by an equal entry
+            UASSERT_SELFTEST(*it, &ارزښت);  // At that same entry
         }
         {
-            const Set::iterator it = set.find(1, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // And by its parts
-            UASSERT_SELFTEST(*it, &value);  // At that same entry again
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(1, اندازه_t{0});
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And by its parts
+            UASSERT_SELFTEST(*it, &ارزښت);  // At that same entry again
         }
-        UASSERT_SELFTEST(set.find(1, size_t{1}) == set.end(), true);  // Hash same, id not
-        UASSERT_SELFTEST(set.find(2, size_t{0}) == set.end(), true);  // Id same, hash not
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(1, اندازه_t{1}) == سېټ.پای_ټکی(), ریښتیا);  // Hash same, id not
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(2, اندازه_t{0}) == سېټ.پای_ټکی(), ریښتیا);  // Id same, hash not
         // Adding an equal entry returns the one in the set, and does not add
-        const std::pair<Set::iterator, bool> again = set.insert(&equal);
-        UASSERT_SELFTEST(again.second, false);  // Not added, as an equal is present
-        UASSERT_SELFTEST(*again.first, &value);  // The iterator is at the stored one
-        UASSERT_SELFTEST(set.size(), 1);  // Still just the one entry
+        ثابت std::pair<سېټ_2::iterator, منطقي> again = سېټ.ورننباسه(&equal);
+        UASSERT_SELFTEST(again.دوهم, خطأ);  // Not added, as an equal is present
+        UASSERT_SELFTEST(*again.لومړی, &ارزښت);  // The iterator is at the stored one
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // Still just the one entry
         // Given the distinct but equal '&equal', 'find' still yields the stored '&value'
         {
-            const Set::iterator it = set.find(&equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found, as they compare equal
-            UASSERT_SELFTEST(*it, &value);  // But it is the stored one
-            UASSERT_SELFTEST(*it == &equal, false);  // Not the one asked for
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&equal);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Found, as they compare equal
+            UASSERT_SELFTEST(*it, &ارزښت);  // But it is the stored one
+            UASSERT_SELFTEST(*it == &equal, خطأ);  // Not the one asked for
         }
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // The entry is still there
-            UASSERT_SELFTEST(*it, &value);  // And is the one stored
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The entry is still there
+            UASSERT_SELFTEST(*it, &ارزښت);  // And is the one stored
         }
         // Erasing the very entry held does remove it
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(*it, &value);  // And is the object asked for
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+            UASSERT_SELFTEST(*it, &ارزښت);  // And is the object asked for
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.empty(), true);  // Empty again
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // So the entry is gone
-        UASSERT_SELFTEST(set.contains(&value), false);  // As 'contains' agrees
-        UASSERT_SELFTEST(set.empty(), true);  // And no lookup added anything
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Empty again
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(&ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // So the entry is gone
+        UASSERT_SELFTEST(سېټ.لري(&ارزښت), خطأ);  // As 'contains' agrees
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // And no lookup added anything
         // Erase by key makes no such check, so it removes whatever the key finds, here
         // the stored '&value' when given the equal '&equal'
-        UASSERT_SELFTEST(set.erase(&value), false);  // Nothing to erase, so says so
-        set.insert(&value);
-        UASSERT_SELFTEST(set.erase(&equal), true);  // The equal key erases the stored one
-        UASSERT_SELFTEST(set.empty(), true);  // Which leaves the set empty
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // And unreachable
+        UASSERT_SELFTEST(سېټ.erase(&ارزښت), خطأ);  // Nothing to erase, so says so
+        سېټ.ورننباسه(&ارزښت);
+        UASSERT_SELFTEST(سېټ.erase(&equal), ریښتیا);  // The equal key erases the stored one
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Which leaves the set empty
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(&ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // And unreachable
         // And by a key spelled as the parts of an entry
-        set.insert(&value);
-        UASSERT_SELFTEST(set.erase(1, size_t{0}), true);  // Those parts find and erase it
-        UASSERT_SELFTEST(set.empty(), true);  // Empty once more
+        سېټ.ورننباسه(&ارزښت);
+        UASSERT_SELFTEST(سېټ.erase(1, اندازه_t{0}), ریښتیا);  // Those parts find and erase it
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Empty once more
     }
 
     // Erasing leaves the other entries reachable, whichever is erased, including when
     // entries with equal hashes are all in the one probe run
-    for (size_t erase = 0; erase < 4; ++erase) {
-        for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {  // Wraps too
-            std::array<Value, 4> values{Value{hash, 0}, Value{hash, 1},  //
-                                        Value{hash, 2}, Value{hash, 3}};
-            Set set;
-            for (Value& value : values) set.insert(&value);
-            UASSERT_SELFTEST(set.size(), 4);  // All distinct, so all added
+    لكل (اندازه_t erase = 0; erase < 4; ++erase) {
+        لكل (ثابت اندازه_t hash : {اندازه_t{0}, اندازه_t{7}, ~اندازه_t{0}}) {  // Wraps too
+            std::array<ارزښت_2, 4> ارزښتونه{ارزښت_2{hash, 0}, ارزښت_2{hash, 1},  //
+                                        ارزښت_2{hash, 2}, ارزښت_2{hash, 3}};
+            سېټ_2 سېټ;
+            لكل (ارزښت_2& ارزښت : ارزښتونه) سېټ.ورننباسه(&ارزښت);
+            UASSERT_SELFTEST(سېټ.اندازه(), 4);  // All distinct, so all added
             {
-                const Set::iterator it = set.find(&values[erase]);
-                UASSERT_SELFTEST(it != set.end(), true);  // The one to erase is present
-                UASSERT_SELFTEST(*it, &values[erase]);  // And is the object held
-                set.erase(it);
+                ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښتونه[erase]);
+                UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The one to erase is present
+                UASSERT_SELFTEST(*it, &ارزښتونه[erase]);  // And is the object held
+                سېټ.erase(it);
             }
-            UASSERT_SELFTEST(set.size(), 3);  // Exactly one was erased
-            UASSERT_SELFTEST(set.find(&values[erase]) == set.end(), true);  // That one
-            for (size_t i = 0; i < values.size(); ++i) {
-                if (i == erase) continue;
-                const Set::iterator it = set.find(hash, i);
-                UASSERT_SELFTEST(it != set.end(), true);  // The others are all there
-                UASSERT_SELFTEST(*it, &values[i]);  // Each at the entry inserted
+            UASSERT_SELFTEST(سېټ.اندازه(), 3);  // Exactly one was erased
+            UASSERT_SELFTEST(سېټ.پیدا_کړه(&ارزښتونه[erase]) == سېټ.پای_ټکی(), ریښتیا);  // That one
+            لكل (اندازه_t i = 0; i < ارزښتونه.اندازه(); ++i) {
+                إذا (i == erase) استمر;
+                ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(hash, i);
+                UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The others are all there
+                UASSERT_SELFTEST(*it, &ارزښتونه[i]);  // Each at the entry inserted
             }
         }
     }
 
     // Growing leaves all entries reachable, including when their run wraps around the end
     // of the table. Note this needs enough entries to actually grow, so do not reserve here.
-    for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {
-        std::array<Value, GROWS_TWICE> many{};
-        Set set;
-        for (size_t i = 0; i < many.size(); ++i) {
-            many[i] = Value{hash, i};
-            set.insert(&many[i]);
+    لكل (ثابت اندازه_t hash : {اندازه_t{0}, اندازه_t{7}, ~اندازه_t{0}}) {
+        std::array<ارزښت_2, GROWS_TWICE> many{};
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < many.اندازه(); ++i) {
+            many[i] = ارزښت_2{hash, i};
+            سېټ.ورننباسه(&many[i]);
         }
-        UASSERT_SELFTEST(set.size(), many.size());  // All of them were added
-        for (size_t i = 0; i < many.size(); ++i) {
-            const Set::iterator it = set.find(hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // And all survived the growth
+        UASSERT_SELFTEST(سېټ.اندازه(), many.اندازه());  // All of them were added
+        لكل (اندازه_t i = 0; i < many.اندازه(); ++i) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(hash, i);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And all survived the growth
             UASSERT_SELFTEST(*it, &many[i]);  // Each at the entry inserted
         }
     }
 
     // Entries that collide but are not equal are both kept, and erase removes only the one
     {
-        Value value{1, 0};
-        Value other{1, 1};  // Not equal to 'value', but lands on the same slot
-        Set set;
-        set.reserve(2);
-        set.insert(&value);
-        set.insert(&other);
-        UASSERT_SELFTEST(set.size(), 2);  // Both kept, despite the collision
+        ارزښت_2 ارزښت{1, 0};
+        ارزښت_2 other{1, 1};  // Not equal to 'value', but lands on the same slot
+        سېټ_2 سېټ;
+        سېټ.reserve(2);
+        سېټ.ورننباسه(&ارزښت);
+        سېټ.ورننباسه(&other);
+        UASSERT_SELFTEST(سېټ.اندازه(), 2);  // Both kept, despite the collision
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // The first of the run is there
-            UASSERT_SELFTEST(*it, &value);  // And is that entry
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The first of the run is there
+            UASSERT_SELFTEST(*it, &ارزښت);  // And is that entry
         }
         {
-            const Set::iterator it = set.find(&other);
-            UASSERT_SELFTEST(it != set.end(), true);  // As is the one behind it
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&other);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // As is the one behind it
             UASSERT_SELFTEST(*it, &other);  // Which probing reached past the first
         }
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(*it, &value);  // And is the object held
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+            UASSERT_SELFTEST(*it, &ارزښت);  // And is the object held
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 1);  // Only one was erased
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // Namely that one
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // Only one was erased
+        UASSERT_SELFTEST(سېټ.پیدا_کړه(&ارزښت) == سېټ.پای_ټکی(), ریښتیا);  // Namely that one
         {
-            const Set::iterator it = set.find(&other);
-            UASSERT_SELFTEST(it != set.end(), true);  // The collider stays
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&other);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The collider stays
             UASSERT_SELFTEST(*it, &other);  // Shifted back over the hole left
         }
     }
 
     // Reserving avoids growing, and all entries survive either way
-    for (const bool doReserve : {false, true}) {
-        std::array<Value, 8> values{};
-        Set set;
-        if (doReserve) set.reserve(values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
-            values[i] = Value{static_cast<size_t>(i * 1234567), i};
-            set.insert(&values[i]);
+    لكل (ثابت منطقي doReserve : {خطأ, ریښتیا}) {
+        std::array<ارزښت_2, 8> ارزښتونه{};
+        سېټ_2 سېټ;
+        إذا (doReserve) سېټ.reserve(ارزښتونه.اندازه());
+        لكل (اندازه_t i = 0; i < ارزښتونه.اندازه(); ++i) {
+            ارزښتونه[i] = ارزښت_2{static_cast<اندازه_t>(i * 1234567), i};
+            سېټ.ورننباسه(&ارزښتونه[i]);
         }
-        for (Value& value : values) {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Each entry survives
-            UASSERT_SELFTEST(*it, &value);  // And is the one inserted
+        لكل (ارزښت_2& ارزښت : ارزښتونه) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(&ارزښت);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Each entry survives
+            UASSERT_SELFTEST(*it, &ارزښت);  // And is the one inserted
         }
-        UASSERT_SELFTEST(set.size(), values.size());  // And none was added twice
+        UASSERT_SELFTEST(سېټ.اندازه(), ارزښتونه.اندازه());  // And none was added twice
     }
 
     // 'insertLazy' creates only on a miss, including when that grows the table
     {
-        constexpr size_t N = GROWS_TWICE;
-        std::array<Value, N> values{};
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            values[i] = Value{7, i};  // All of them hash the same
-            const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* { return &values[i]; });
-            UASSERT_SELFTEST(pair.second, true);  // Created, as it was absent
-            UASSERT_SELFTEST(*pair.first, &values[i]);  // And is what the factory made
+        constexpr اندازه_t N = GROWS_TWICE;
+        std::array<ارزښت_2, N> ارزښتونه{};
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            ارزښتونه[i] = ارزښت_2{7, i};  // All of them hash the same
+            ثابت std::pair<سېټ_2::iterator, منطقي> pair
+                = سېټ.ورننباسه_Lazy(اندازه_t{7}, i, [&]() -> ارزښت_2* { أرجع &ارزښتونه[i]; });
+            UASSERT_SELFTEST(pair.دوهم, ریښتیا);  // Created, as it was absent
+            UASSERT_SELFTEST(*pair.لومړی, &ارزښتونه[i]);  // And is what the factory made
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them were added
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // All of them were added
         // They are all present now, so nothing is created
-        for (size_t i = 0; i < N; ++i) {
-            bool created = false;
-            const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* {
-                      created = true;  // LCOV_EXCL_START
-                      return &values[i];  // LCOV_EXCL_STOP
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            منطقي created = خطأ;
+            ثابت std::pair<سېټ_2::iterator, منطقي> pair
+                = سېټ.ورننباسه_Lazy(اندازه_t{7}, i, [&]() -> ارزښت_2* {
+                      created = ریښتیا;  // LCOV_EXCL_START
+                      أرجع &ارزښتونه[i];  // LCOV_EXCL_STOP
                   });
-            UASSERT_SELFTEST(created, false);  // The factory was never called
-            UASSERT_SELFTEST(pair.second, false);  // As the lookup hit
-            UASSERT_SELFTEST(*pair.first, &values[i]);  // On the stored entry
+            UASSERT_SELFTEST(created, خطأ);  // The factory was never called
+            UASSERT_SELFTEST(pair.دوهم, خطأ);  // As the lookup hit
+            UASSERT_SELFTEST(*pair.لومړی, &ارزښتونه[i]);  // On the stored entry
         }
-        UASSERT_SELFTEST(set.size(), N);  // And the set is unchanged
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // And the set is unchanged
     }
 
     // Iterating visits every entry exactly once
     {
-        std::array<Value, 20> values{};
-        std::array<bool, 20> seen{};
-        Set set;
-        for (size_t i = 0; i < values.size(); ++i) {
-            values[i] = Value{i / 2, i};  // Pairs of them collide
-            set.insert(&values[i]);
+        std::array<ارزښت_2, 20> ارزښتونه{};
+        std::array<منطقي, 20> کتل_شوی{};
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < ارزښتونه.اندازه(); ++i) {
+            ارزښتونه[i] = ارزښت_2{i / 2, i};  // Pairs of them collide
+            سېټ.ورننباسه(&ارزښتونه[i]);
         }
-        size_t n = 0;
-        for (Value* const valuep : set) {
-            UASSERT_SELFTEST(valuep->m_id < seen.size(), true);  // Only entries added
-            UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each of them exactly once
-            seen[valuep->m_id] = true;
+        اندازه_t n = 0;
+        لكل (ارزښت_2* ثابت valuep : سېټ) {
+            UASSERT_SELFTEST(valuep->m_id < کتل_شوی.اندازه(), ریښتیا);  // Only entries added
+            UASSERT_SELFTEST(کتل_شوی[valuep->m_id], خطأ);  // Each of them exactly once
+            کتل_شوی[valuep->m_id] = ریښتیا;
             ++n;
         }
-        UASSERT_SELFTEST(n, values.size());  // And every one of them
+        UASSERT_SELFTEST(n, ارزښتونه.اندازه());  // And every one of them
     }
 }
 
 //######################################################################
 // Entries held by value, which are constructed and destroyed in step with the slots
 
-void testEntryLifetime() {
-    size_t alive = 0;  // Number of live entries, which the entries themselves count
+فراغ test_ثبت_Lifetime() {
+    اندازه_t alive = 0;  // Number of live entries, which the entries themselves count
 
     // A test entry that is not default constructible, nor assignable, and that counts how
     // many are alive. A move makes another live entry, so the count tracks the occupied
     // slots however the container shuffles them about.
-    class NoDefault final {
-        size_t* m_alivep;  // Where the live entries are counted
-        size_t m_hash;  // Hash of this entry
-        size_t m_id;  // Entries with equal ids are equal
+    صنف NoDefault final {
+        اندازه_t* m_alivep;  // Where the live entries are counted
+        اندازه_t m_hash;  // Hash of this entry
+        اندازه_t m_id;  // Entries with equal ids are equal
 
-    public:
-        NoDefault(size_t* alivep, size_t hash, size_t id)
+    عام:
+        NoDefault(اندازه_t* alivep, اندازه_t hash, اندازه_t id)
             : m_alivep{alivep}
             , m_hash{hash}
             , m_id{id} {
             ++*m_alivep;
         }
-        NoDefault(const NoDefault& that)
+        NoDefault(ثابت NoDefault& that)
             : m_alivep{that.m_alivep}
             , m_hash{that.m_hash}
             , m_id{that.m_id} {
@@ -416,111 +416,111 @@ void testEntryLifetime() {
             ++*m_alivep;
         }
         ~NoDefault() { --*m_alivep; }
-        NoDefault& operator=(const NoDefault&) = delete;
-        NoDefault& operator=(NoDefault&&) = delete;
+        NoDefault& چلوونکی=(ثابت NoDefault&) = ړنګول;
+        NoDefault& چلوونکی=(NoDefault&&) = ړنګول;
 
-        size_t hash() const { return m_hash; }
-        size_t id() const { return m_id; }
-        bool operator==(const NoDefault& that) const { return m_id == that.m_id; }
+        اندازه_t hash() ثابت { أرجع m_hash; }
+        اندازه_t id() ثابت { أرجع m_id; }
+        منطقي چلوونکی==(ثابت NoDefault& that) ثابت { أرجع m_id == that.m_id; }
     };
 
-    static_assert(!std::is_default_constructible<NoDefault>::value,
+    static_assert(!std::is_default_constructible<NoDefault>::ارزښت,
                   "SelfTest: 'NoDefault' must not be default constructible");
-    static_assert(!std::is_copy_assignable<NoDefault>::value,
+    static_assert(!std::is_copy_assignable<NoDefault>::ارزښت,
                   "SelfTest: 'NoDefault' must not be copy assignable");
-    static_assert(!std::is_move_assignable<NoDefault>::value,
+    static_assert(!std::is_move_assignable<NoDefault>::ارزښت,
                   "SelfTest: 'NoDefault' must not be move assignable");
-    static_assert(std::is_move_constructible<NoDefault>::value,
+    static_assert(std::is_move_constructible<NoDefault>::ارزښت,
                   "SelfTest: 'NoDefault' must be move constructible, to exercise moving");
 
-    struct Hash final {
-        size_t operator()(const NoDefault& value) const { return value.hash(); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت NoDefault& ارزښت) ثابت { أرجع ارزښت.hash(); }
+        اندازه_t چلوونکی()(اندازه_t hash, اندازه_t) ثابت { أرجع hash; }
     };
 
-    struct Equal final {
-        bool operator()(const NoDefault& a, const NoDefault& b) const {
-            return operator()(a, b.hash(), b.id());
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت NoDefault& a, ثابت NoDefault& b) ثابت {
+            أرجع چلوونکی()(a, b.hash(), b.id());
         }
-        bool operator()(const NoDefault& a, size_t, size_t id) const { return a.id() == id; }
+        منطقي چلوونکی()(ثابت NoDefault& a, اندازه_t, اندازه_t id) ثابت { أرجع a.id() == id; }
     };
 
-    using Set = V3HashSet<NoDefault, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<NoDefault, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr اندازه_t N = GROWS_TWICE;
     UASSERT_SELFTEST(alive, 0);  // Nothing built yet
     {
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            const std::pair<Set::iterator, bool> added = set.insert(NoDefault{&alive, 7, i});
-            UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            ثابت std::pair<سېټ_2::iterator, منطقي> added = سېټ.ورننباسه(NoDefault{&alive, 7, i});
+            UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Ids differ, so each is added
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them are in
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
         // All of them hash the same, so they are all in the one probe run
-        for (size_t i = 0; i < N; ++i) {
-            const Set::iterator it = set.find(size_t{7}, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // Reachable through the run
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Reachable through the run
             UASSERT_SELFTEST(it->id(), i);  // And is the entry asked for
         }
         // A rejected insert constructs no entry: the argument is only copied on a miss
         {
-            const std::pair<Set::iterator, bool> dup = set.insert(NoDefault{&alive, 7, 0});
-            UASSERT_SELFTEST(dup.second, false);  // Not added, as an equal is present
-            UASSERT_SELFTEST(dup.first->id(), 0);  // The iterator is at the stored one
+            ثابت std::pair<سېټ_2::iterator, منطقي> dup = سېټ.ورننباسه(NoDefault{&alive, 7, 0});
+            UASSERT_SELFTEST(dup.دوهم, خطأ);  // Not added, as an equal is present
+            UASSERT_SELFTEST(dup.لومړی->id(), 0);  // The iterator is at the stored one
         }
-        UASSERT_SELFTEST(set.size(), N);  // Nothing was added
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // Nothing was added
         UASSERT_SELFTEST(alive, N);  // And no copy of the argument was kept
         {
-            const Set::iterator it = set.find(size_t{7}, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(it->id(), size_t{0});  // And is the entry asked for
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, اندازه_t{0});
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+            UASSERT_SELFTEST(it->id(), اندازه_t{0});  // And is the entry asked for
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), N - 1);  // One fewer entry
+        UASSERT_SELFTEST(سېټ.اندازه(), N - 1);  // One fewer entry
         UASSERT_SELFTEST(alive, N - 1);  // And one fewer live object
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Namely that one
+        UASSERT_SELFTEST(سېټ.لري(اندازه_t{7}, اندازه_t{0}), خطأ);  // Namely that one
         // Erasing the rest keeps the live entries in step with the slots, all the way down.
         // They all collide, so every erase shifts entries back over the hole.
-        for (size_t i = 1; i < N; ++i) {
+        لكل (اندازه_t i = 1; i < N; ++i) {
             {
-                const Set::iterator it = set.find(size_t{7}, i);
-                UASSERT_SELFTEST(it != set.end(), true);  // Still reachable
+                ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+                UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Still reachable
                 UASSERT_SELFTEST(it->id(), i);  // And is the entry asked for
-                set.erase(it);
+                سېټ.erase(it);
             }
-            UASSERT_SELFTEST(set.size(), N - 1 - i);  // The count follows the erases
+            UASSERT_SELFTEST(سېټ.اندازه(), N - 1 - i);  // The count follows the erases
             UASSERT_SELFTEST(alive, N - 1 - i);  // As do the live entries
-            for (size_t j = i + 1; j < N; ++j) {
-                UASSERT_SELFTEST(set.contains(size_t{7}, j), true);  // Shifted, not lost
+            لكل (اندازه_t j = i + 1; j < N; ++j) {
+                UASSERT_SELFTEST(سېټ.لري(اندازه_t{7}, j), ریښتیا);  // Shifted, not lost
             }
         }
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // Erased down to empty
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // Erased down to empty
         UASSERT_SELFTEST(alive, 0);  // With every entry destroyed
         // Clearing destroys every entry at once, and leaves a usable, empty set
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        لكل (اندازه_t i = 0; i < N; ++i) سېټ.ورننباسه(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Filled up again
-        set.clear();
-        UASSERT_SELFTEST(set.size(), 0);  // Nothing left
-        UASSERT_SELFTEST(set.empty(), true);  // Says so
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // Iterates nothing
+        سېټ.clear();
+        UASSERT_SELFTEST(سېټ.اندازه(), 0);  // Nothing left
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Says so
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // Iterates nothing
         UASSERT_SELFTEST(alive, 0);  // With every entry destroyed
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Nor finds any
-        set.clear();  // Clearing an empty set does nothing
-        UASSERT_SELFTEST(set.empty(), true);  // Still empty
+        UASSERT_SELFTEST(سېټ.لري(اندازه_t{7}, اندازه_t{0}), خطأ);  // Nor finds any
+        سېټ.clear();  // Clearing an empty set does nothing
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Still empty
         // Leave entries in the set, so its destructor has some to destroy
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        لكل (اندازه_t i = 0; i < N; ++i) سېټ.ورننباسه(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Live as the set goes out of scope
     }
     // The set is gone, so every entry it still held has been destroyed
     UASSERT_SELFTEST(alive, 0);  // Leaking none of them
     // Clearing a set that never allocated a table does nothing
     {
-        Set set;
-        set.clear();
-        UASSERT_SELFTEST(set.empty(), true);  // Still empty
-        set.insert(NoDefault{&alive, 7, 0});
-        UASSERT_SELFTEST(set.size(), 1);  // And still usable
+        سېټ_2 سېټ;
+        سېټ.clear();
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // Still empty
+        سېټ.ورننباسه(NoDefault{&alive, 7, 0});
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // And still usable
     }
     UASSERT_SELFTEST(alive, 0);  // Leaking nothing
 }
@@ -528,72 +528,72 @@ void testEntryLifetime() {
 //######################################################################
 // A table can be moved, handing over the entries and leaving an empty table behind
 
-void testMove() {
-    size_t alive = 0;  // Number of live entries, which the entries themselves count
+فراغ testMove() {
+    اندازه_t alive = 0;  // Number of live entries, which the entries themselves count
 
     // A test entry that counts the live ones, so a move that copied an entry, dropped
     // one, or destroyed one twice, shows up in the count
-    struct Counted final {
-        size_t* m_alivep;  // Where the live entries are counted
-        size_t m_id;  // Entries with equal ids are equal
+    بنية Counted final {
+        اندازه_t* m_alivep;  // Where the live entries are counted
+        اندازه_t m_id;  // Entries with equal ids are equal
 
-        Counted(size_t* alivep, size_t id)
+        Counted(اندازه_t* alivep, اندازه_t id)
             : m_alivep{alivep}
             , m_id{id} {
             ++*m_alivep;
         }
-        Counted(const Counted& that)
+        Counted(ثابت Counted& that)
             : Counted{that.m_alivep, that.m_id} {}
         Counted(Counted&& that)
             : Counted{that.m_alivep, that.m_id} {}
         ~Counted() { --*m_alivep; }
-        Counted& operator=(const Counted&) = delete;
-        Counted& operator=(Counted&&) = delete;
+        Counted& چلوونکی=(ثابت Counted&) = ړنګول;
+        Counted& چلوونکی=(Counted&&) = ړنګول;
     };
 
-    struct Hash final {
-        size_t operator()(const Counted& entry) const { return operator()(entry.m_id); }
-        size_t operator()(size_t id) const { return id; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت Counted& ثبت) ثابت { أرجع چلوونکی()(ثبت.m_id); }
+        اندازه_t چلوونکی()(اندازه_t id) ثابت { أرجع id; }
     };
 
-    struct Equal final {
-        bool operator()(const Counted& a, const Counted& b) const { return operator()(a, b.m_id); }
-        bool operator()(const Counted& a, size_t id) const { return a.m_id == id; }
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت Counted& a, ثابت Counted& b) ثابت { أرجع چلوونکی()(a, b.m_id); }
+        منطقي چلوونکی()(ثابت Counted& a, اندازه_t id) ثابت { أرجع a.m_id == id; }
     };
 
-    using Set = V3HashSet<Counted, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<Counted, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr اندازه_t N = GROWS_TWICE;
     {
-        Set set;
-        for (size_t i = 0; i < N; ++i) set.insert(Counted{&alive, i});
-        UASSERT_SELFTEST(set.size(), N);  // All of them are in
+        سېټ_2 سېټ;
+        لكل (اندازه_t i = 0; i < N; ++i) سېټ.ورننباسه(Counted{&alive, i});
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
 
         // Move construction takes the entries, making and destroying none
-        Set moved{std::move(set)};
-        UASSERT_SELFTEST(moved.size(), N);  // Which the target now holds
+        سېټ_2 moved{std::move(سېټ)};
+        UASSERT_SELFTEST(moved.اندازه(), N);  // Which the target now holds
         UASSERT_SELFTEST(alive, N);  // With no entry made or destroyed
-        UASSERT_SELFTEST(set.empty(), true);  // And the source no longer holds them
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So it iterates nothing
-        for (size_t i = 0; i < N; ++i) {
-            UASSERT_SELFTEST(moved.contains(i), true);  // Every entry came across
-            UASSERT_SELFTEST(set.contains(i), false);  // And none stayed behind
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // And the source no longer holds them
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // So it iterates nothing
+        لكل (اندازه_t i = 0; i < N; ++i) {
+            UASSERT_SELFTEST(moved.لري(i), ریښتیا);  // Every entry came across
+            UASSERT_SELFTEST(سېټ.لري(i), خطأ);  // And none stayed behind
         }
 
         // The moved from table is empty rather than broken, so it can be filled again
-        UASSERT_SELFTEST(set.insert(Counted{&alive, N}).second, true);  // It took an entry
-        UASSERT_SELFTEST(set.size(), 1);  // Which is all it holds
-        UASSERT_SELFTEST(set.empty(), false);  // So it is no longer empty
+        UASSERT_SELFTEST(سېټ.ورننباسه(Counted{&alive, N}).دوهم, ریښتیا);  // It took an entry
+        UASSERT_SELFTEST(سېټ.اندازه(), 1);  // Which is all it holds
+        UASSERT_SELFTEST(سېټ.تشه(), خطأ);  // So it is no longer empty
         UASSERT_SELFTEST(alive, N + 1);  // And is one more live entry
 
         // Move assignment destroys what the target held, then takes the source's
-        set = std::move(moved);
-        UASSERT_SELFTEST(set.size(), N);  // The target holds the moved entries
+        سېټ = std::move(moved);
+        UASSERT_SELFTEST(سېټ.اندازه(), N);  // The target holds the moved entries
         UASSERT_SELFTEST(alive, N);  // The entry it held itself was destroyed
-        UASSERT_SELFTEST(set.contains(N), false);  // Namely that one
-        UASSERT_SELFTEST(moved.empty(), true);  // And the source is empty again
-        for (size_t i = 0; i < N; ++i) UASSERT_SELFTEST(set.contains(i), true);  // The rest moved
+        UASSERT_SELFTEST(سېټ.لري(N), خطأ);  // Namely that one
+        UASSERT_SELFTEST(moved.تشه(), ریښتیا);  // And the source is empty again
+        لكل (اندازه_t i = 0; i < N; ++i) UASSERT_SELFTEST(سېټ.لري(i), ریښتیا);  // The rest moved
     }
     // Both tables are gone, so every entry either still held has been destroyed
     UASSERT_SELFTEST(alive, 0);  // Leaking none of them
@@ -602,104 +602,104 @@ void testMove() {
 //######################################################################
 // Entries that cannot be copied, only moved
 
-void testMoveOnlyEntries() {
+فراغ testMoveOnlyEntries() {
     // Only 'insertLazy' can add one of these, as 'insert' would copy it, and any copy the
     // container made of an entry would stop this compiling.
-    class MoveOnly final {
-        size_t m_id;  // Entries with equal ids are equal
+    صنف MoveOnly final {
+        اندازه_t m_id;  // Entries with equal ids are equal
 
-    public:
-        explicit MoveOnly(size_t id)
+    عام:
+        څرګند MoveOnly(اندازه_t id)
             : m_id{id} {}
-        MoveOnly(MoveOnly&&) = default;
-        MoveOnly(const MoveOnly&) = delete;
-        MoveOnly& operator=(const MoveOnly&) = delete;
-        MoveOnly& operator=(MoveOnly&&) = delete;
-        ~MoveOnly() = default;
+        MoveOnly(MoveOnly&&) = افتراضي;
+        MoveOnly(ثابت MoveOnly&) = ړنګول;
+        MoveOnly& چلوونکی=(ثابت MoveOnly&) = ړنګول;
+        MoveOnly& چلوونکی=(MoveOnly&&) = ړنګول;
+        ~MoveOnly() = افتراضي;
 
-        size_t id() const { return m_id; }
+        اندازه_t id() ثابت { أرجع m_id; }
     };
 
-    static_assert(!std::is_copy_constructible<MoveOnly>::value,
+    static_assert(!std::is_copy_constructible<MoveOnly>::ارزښت,
                   "SelfTest: 'MoveOnly' must not be copy constructible");
-    static_assert(std::is_move_constructible<MoveOnly>::value,
+    static_assert(std::is_move_constructible<MoveOnly>::ارزښت,
                   "SelfTest: 'MoveOnly' must be move constructible");
 
-    struct Hash final {
+    بنية Hash final {
         // Every entry hashes the same, so they all end up in the one probe run
-        size_t operator()(const MoveOnly& value) const { return operator()(value.id()); }
-        size_t operator()(size_t) const { return 7; }
+        اندازه_t چلوونکی()(ثابت MoveOnly& ارزښت) ثابت { أرجع چلوونکی()(ارزښت.id()); }
+        اندازه_t چلوونکی()(اندازه_t) ثابت { أرجع 7; }
     };
 
-    struct Equal final {
-        bool operator()(const MoveOnly& a, const MoveOnly& b) const {
-            return operator()(a, b.id());
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت MoveOnly& a, ثابت MoveOnly& b) ثابت {
+            أرجع چلوونکی()(a, b.id());
         }
-        bool operator()(const MoveOnly& a, size_t id) const { return a.id() == id; }
+        منطقي چلوونکی()(ثابت MoveOnly& a, اندازه_t id) ثابت { أرجع a.id() == id; }
     };
 
-    using Set = V3HashSet<MoveOnly, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<MoveOnly, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
-    Set set;
-    for (size_t i = 0; i < N; ++i) {
-        const std::pair<Set::iterator, bool> added
-            = set.insertLazy(i, [i] { return MoveOnly{i}; });
-        UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
-        UASSERT_SELFTEST(added.first->id(), i);  // Moved into the slot, never copied
+    constexpr اندازه_t N = GROWS_TWICE;
+    سېټ_2 سېټ;
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت std::pair<سېټ_2::iterator, منطقي> added
+            = سېټ.ورننباسه_Lazy(i, [i] { أرجع MoveOnly{i}; });
+        UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Ids differ, so each is added
+        UASSERT_SELFTEST(added.لومړی->id(), i);  // Moved into the slot, never copied
     }
-    UASSERT_SELFTEST(set.size(), N);  // All of them are in
+    UASSERT_SELFTEST(سېټ.اندازه(), N);  // All of them are in
     // They all collide, so erasing every other one shifts the rest back over the holes
-    for (size_t i = 0; i < N; i += 2) {
-        const Set::iterator it = set.find(i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-        set.erase(it);
+    لكل (اندازه_t i = 0; i < N; i += 2) {
+        ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(i);
+        UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+        سېټ.erase(it);
     }
-    UASSERT_SELFTEST(set.size(), N / 2);  // Half of them are gone
-    for (size_t i = 0; i < N; ++i) {
-        const bool erased = (i % 2) == 0;
-        UASSERT_SELFTEST(set.contains(i), !erased);  // And it is the right half
+    UASSERT_SELFTEST(سېټ.اندازه(), N / 2);  // Half of them are gone
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت منطقي erased = (i % 2) == 0;
+        UASSERT_SELFTEST(سېټ.لري(i), !erased);  // And it is the right half
     }
 }
 
 //######################################################################
 // Stateful functors, which the two argument constructor moves in
 
-void testStatefulFunctors() {
+فراغ testStatefulFunctors() {
     // Hashing and comparison that both depend on a mask the functor holds, so the set only
     // works if it keeps the instances it was handed
-    class Hash final {
-        size_t m_mask;  // Only these bits of an entry matter
+    صنف Hash final {
+        اندازه_t m_ماسک;  // Only these bits of an entry matter
 
-    public:
-        explicit Hash(size_t mask)
-            : m_mask{mask} {}
-        size_t operator()(size_t value) const { return value & m_mask; }
+    عام:
+        څرګند Hash(اندازه_t ماسک)
+            : m_ماسک{ماسک} {}
+        اندازه_t چلوونکی()(اندازه_t ارزښت) ثابت { أرجع ارزښت & m_ماسک; }
     };
 
-    class Equal final {
-        size_t m_mask;  // Only these bits of an entry matter
+    صنف Equal final {
+        اندازه_t m_ماسک;  // Only these bits of an entry matter
 
-    public:
-        explicit Equal(size_t mask)
-            : m_mask{mask} {}
-        bool operator()(size_t a, size_t b) const { return (a & m_mask) == (b & m_mask); }
+    عام:
+        څرګند Equal(اندازه_t ماسک)
+            : m_ماسک{ماسک} {}
+        منطقي چلوونکی()(اندازه_t a, اندازه_t b) ثابت { أرجع (a & m_ماسک) == (b & m_ماسک); }
     };
 
     // Neither is default constructible, so the set cannot make its own
-    static_assert(!std::is_default_constructible<Hash>::value,
+    static_assert(!std::is_default_constructible<Hash>::ارزښت,
                   "SelfTest: 'Hash' must not be default constructible");
-    static_assert(!std::is_default_constructible<Equal>::value,
+    static_assert(!std::is_default_constructible<Equal>::ارزښت,
                   "SelfTest: 'Equal' must not be default constructible");
 
     // Only the low two bits matter, so the 16 entries fall into 4 classes
-    V3HashSet<size_t, Hash, Equal> set{Hash{3}, Equal{3}};
-    for (size_t i = 0; i < 16; ++i) set.insert(i);
-    UASSERT_SELFTEST(set.size(), 4);  // So the set kept the functors it was given
+    V3_Hash_سېټ<اندازه_t, Hash, Equal> سېټ{Hash{3}, Equal{3}};
+    لكل (اندازه_t i = 0; i < 16; ++i) سېټ.ورننباسه(i);
+    UASSERT_SELFTEST(سېټ.اندازه(), 4);  // So the set kept the functors it was given
     // Every entry finds the first one added of its class, which is the class itself
-    for (size_t i = 0; i < 16; ++i) {
-        const V3HashSet<size_t, Hash, Equal>::iterator it = set.find(i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Its class is present
+    لكل (اندازه_t i = 0; i < 16; ++i) {
+        ثابت V3_Hash_سېټ<اندازه_t, Hash, Equal>::iterator it = سېټ.پیدا_کړه(i);
+        UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Its class is present
         UASSERT_SELFTEST(*it, (i & 3));  // Represented by the first one added
     }
 }
@@ -708,77 +708,77 @@ void testStatefulFunctors() {
 // Backward shift deletion moves back exactly the entries whose probe run crosses the
 // hole: an entry standing at its home position past the hole must stay put
 
-void testBackwardShiftDeletion() {
+فراغ test_Backward_ښويدنه_Deletion() {
     // A test entry with an explicit hash, so probe runs can be laid out at will
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Entries with equal ids are equal
+    بنية ارزښت_2 final {
+        اندازه_t m_hash = 0;  // Hash of this entry
+        اندازه_t m_id = 0;  // Entries with equal ids are equal
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت ارزښت_2* valuep) ثابت { أرجع چلوونکی()(valuep->m_hash, 0); }
+        اندازه_t چلوونکی()(اندازه_t hash, اندازه_t) ثابت { أرجع hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت ارزښت_2* ap, ثابت ارزښت_2* bp) ثابت {
+            أرجع چلوونکی()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        منطقي چلوونکی()(ثابت ارزښت_2* valuep, اندازه_t hash, اندازه_t id) ثابت {
+            أرجع valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<ارزښت_2*, Hash, Equal>;
 
     // One probe run of four entries with alternating home positions 'h' and 'h + 1',
     // occupying four adjacent slots. Erasing the first leaves a hole: the second sits
     // at its own home and must not be moved into it, while the third and fourth have
     // their runs broken by the hole and must be moved back.
-    for (const size_t h : {size_t{0}, size_t{5}, ~size_t{0}}) {  // Wraps too
-        std::array<Value, 4> values{Value{h, 0}, Value{h + 1, 1},  //
-                                    Value{h, 2}, Value{h + 1, 3}};
-        Set set;
-        for (Value& value : values) set.insert(&value);
-        UASSERT_SELFTEST(set.size(), 4);  // The run holds all four
+    لكل (ثابت اندازه_t h : {اندازه_t{0}, اندازه_t{5}, ~اندازه_t{0}}) {  // Wraps too
+        std::array<ارزښت_2, 4> ارزښتونه{ارزښت_2{h, 0}, ارزښت_2{h + 1, 1},  //
+                                    ارزښت_2{h, 2}, ارزښت_2{h + 1, 3}};
+        سېټ_2 سېټ;
+        لكل (ارزښت_2& ارزښت : ارزښتونه) سېټ.ورننباسه(&ارزښت);
+        UASSERT_SELFTEST(سېټ.اندازه(), 4);  // The run holds all four
 
         // Erase the entry at the head of the run
         {
-            const Set::iterator it = set.find(h, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(h, اندازه_t{0});
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Present before the erase
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 3);  // One fewer entry
-        UASSERT_SELFTEST(set.contains(h, size_t{0}), false);  // Namely that one
+        UASSERT_SELFTEST(سېټ.اندازه(), 3);  // One fewer entry
+        UASSERT_SELFTEST(سېټ.لري(h, اندازه_t{0}), خطأ);  // Namely that one
         // Whether moved back or left in place, every entry must remain reachable
-        for (size_t i = 1; i < values.size(); ++i) {
-            const Set::iterator it = set.find(values[i].m_hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // The shift lost nothing
-            UASSERT_SELFTEST(*it, &values[i]);  // And moved back the right entries
+        لكل (اندازه_t i = 1; i < ارزښتونه.اندازه(); ++i) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(ارزښتونه[i].m_hash, i);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // The shift lost nothing
+            UASSERT_SELFTEST(*it, &ارزښتونه[i]);  // And moved back the right entries
         }
 
         // Erase the entry that stayed at its home position, shifting the last one again
         {
-            const Set::iterator it = set.find(h + 1, size_t{1});
-            UASSERT_SELFTEST(it != set.end(), true);  // Left where the first erase found it
-            set.erase(it);
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(h + 1, اندازه_t{1});
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Left where the first erase found it
+            سېټ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 2);  // Two are left
-        for (size_t i = 2; i < values.size(); ++i) {
-            const Set::iterator it = set.find(values[i].m_hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // Both still reachable
-            UASSERT_SELFTEST(*it, &values[i]);  // And are the entries they were
+        UASSERT_SELFTEST(سېټ.اندازه(), 2);  // Two are left
+        لكل (اندازه_t i = 2; i < ارزښتونه.اندازه(); ++i) {
+            ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(ارزښتونه[i].m_hash, i);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Both still reachable
+            UASSERT_SELFTEST(*it, &ارزښتونه[i]);  // And are the entries they were
         }
         // Iterating visits exactly the remaining entries
-        std::array<bool, 4> seen{};
-        for (const Value* const valuep : set) {
-            UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each entry once
-            seen[valuep->m_id] = true;
+        std::array<منطقي, 4> کتل_شوی{};
+        لكل (ثابت ارزښت_2* ثابت valuep : سېټ) {
+            UASSERT_SELFTEST(کتل_شوی[valuep->m_id], خطأ);  // Each entry once
+            کتل_شوی[valuep->m_id] = ریښتیا;
         }
-        UASSERT_SELFTEST(seen[0], false);  // Erased first
-        UASSERT_SELFTEST(seen[1], false);  // Erased second
-        UASSERT_SELFTEST(seen[2], true);  // Moved back over the first hole
-        UASSERT_SELFTEST(seen[3], true);  // And back again over the second
+        UASSERT_SELFTEST(کتل_شوی[0], خطأ);  // Erased first
+        UASSERT_SELFTEST(کتل_شوی[1], خطأ);  // Erased second
+        UASSERT_SELFTEST(کتل_شوی[2], ریښتیا);  // Moved back over the first hole
+        UASSERT_SELFTEST(کتل_شوی[3], ریښتیا);  // And back again over the second
     }
 }
 
@@ -786,81 +786,81 @@ void testBackwardShiftDeletion() {
 // Entries stay in place unless the table grows or an entry is erased, as only those
 // two invalidate iterators
 
-void testReferenceStability() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+فراغ testReferenceStability() {
+    بنية ارزښت_2 final {
+        اندازه_t m_hash = 0;  // Hash of this entry
+        اندازه_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    بنية Hash final {
+        اندازه_t چلوونکی()(ثابت ارزښت_2* valuep) ثابت { أرجع چلوونکی()(valuep->m_hash, 0); }
+        اندازه_t چلوونکی()(اندازه_t hash, اندازه_t) ثابت { أرجع hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    بنية Equal final {
+        منطقي چلوونکی()(ثابت ارزښت_2* ap, ثابت ارزښت_2* bp) ثابت {
+            أرجع چلوونکی()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        منطقي چلوونکی()(ثابت ارزښت_2* valuep, اندازه_t hash, اندازه_t id) ثابت {
+            أرجع valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<ارزښت_2*, Hash, Equal>;
 
     // A reserved but still empty set finds nothing and iterates nothing
     {
-        Set set;
-        set.reserve(8);
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Room, but no entry
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.empty(), true);  // And holds nothing
+        سېټ_2 سېټ;
+        سېټ.reserve(8);
+        UASSERT_SELFTEST(سېټ.لري(اندازه_t{7}, اندازه_t{0}), خطأ);  // Room, but no entry
+        UASSERT_SELFTEST(سېټ.begin() == سېټ.پای_ټکی(), ریښتیا);  // So iterates nothing
+        UASSERT_SELFTEST(سېټ.تشه(), ریښتیا);  // And holds nothing
     }
 
     // 'N' is exactly what the reservation must hold, so this also checks the boundary
     // arithmetic of 'reserve' against that of the growth check. It is more than an
     // unreserved table holds without growing, so the reservation is doing the work.
-    constexpr size_t N = maxLoad(2 * MIN_CAPACITY);
-    static_assert(N > maxLoad(MIN_CAPACITY), "SelfTest: 'N' must need more than a new table");
-    std::array<Value, N> values{};
-    std::array<Value* const*, N> entrypps{};  // Where each entry is stored, as inserted
-    Set set;
-    set.reserve(N);
+    constexpr اندازه_t N = max_بارول(2 * MIN_ظرفیت);
+    static_assert(N > max_بارول(MIN_ظرفیت), "SelfTest: 'N' must need more than a new table");
+    std::array<ارزښت_2, N> ارزښتونه{};
+    std::array<ارزښت_2* ثابت*, N> entrypps{};  // Where each entry is stored, as inserted
+    سېټ_2 سېټ;
+    سېټ.reserve(N);
     // All entries collide, so every insertion probes through the whole existing run
-    for (size_t i = 0; i < N; ++i) {
-        values[i] = Value{7, i};
-        const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
-        UASSERT_SELFTEST(pair.second, true);  // Ids differ, so each is added
-        entrypps[i] = &*pair.first;
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ارزښتونه[i] = ارزښت_2{7, i};
+        ثابت std::pair<سېټ_2::iterator, منطقي> pair = سېټ.ورننباسه(&ارزښتونه[i]);
+        UASSERT_SELFTEST(pair.دوهم, ریښتیا);  // Ids differ, so each is added
+        entrypps[i] = &*pair.لومړی;
     }
     // The set was reserved, so no insertion grew the table, and no entry has moved
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+        UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Every entry is still there
         UASSERT_SELFTEST(&*it, entrypps[i]);  // In the slot it was put in
     }
     // Inserting entries that are present adds nothing and moves nothing
-    for (size_t i = 0; i < N; ++i) {
-        const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
-        UASSERT_SELFTEST(pair.second, false);  // Rejected, as it is present
-        UASSERT_SELFTEST(&*pair.first, entrypps[i]);  // And nothing moved
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت std::pair<سېټ_2::iterator, منطقي> pair = سېټ.ورننباسه(&ارزښتونه[i]);
+        UASSERT_SELFTEST(pair.دوهم, خطأ);  // Rejected, as it is present
+        UASSERT_SELFTEST(&*pair.لومړی, entrypps[i]);  // And nothing moved
     }
-    UASSERT_SELFTEST(set.size(), N);  // No duplicate was added
+    UASSERT_SELFTEST(سېټ.اندازه(), N);  // No duplicate was added
     // Growing an occupied set through 'reserve' keeps every entry
-    set.reserve(8 * N);
-    UASSERT_SELFTEST(set.size(), N);  // Rehashing dropped nothing
-    std::array<Value* const*, N> grownpps{};  // Where each entry is after the growth
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // And left every entry reachable
+    سېټ.reserve(8 * N);
+    UASSERT_SELFTEST(سېټ.اندازه(), N);  // Rehashing dropped nothing
+    std::array<ارزښت_2* ثابت*, N> grownpps{};  // Where each entry is after the growth
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+        UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // And left every entry reachable
         grownpps[i] = &*it;
     }
     // Reserving room that is there already leaves the table alone, so nothing moves
-    set.reserve(N);
-    UASSERT_SELFTEST(set.size(), N);  // The smaller request changed nothing
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
+    سېټ.reserve(N);
+    UASSERT_SELFTEST(سېټ.اندازه(), N);  // The smaller request changed nothing
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت سېټ_2::iterator it = سېټ.پیدا_کړه(اندازه_t{7}, i);
+        UASSERT_SELFTEST(it != سېټ.پای_ټکی(), ریښتیا);  // Every entry is still there
         UASSERT_SELFTEST(&*it, grownpps[i]);  // In the slot the growth left it in
     }
 }
@@ -869,192 +869,192 @@ void testReferenceStability() {
 // A pseudo random workload checked against std::set or std::map as the reference model
 
 // Only a few distinct hashes, so probe runs are long and every erase shifts entries
-struct ClusteredHash final {
-    size_t operator()(size_t value) const { return value & 0x7; }
+بنية ClusteredHash final {
+    اندازه_t چلوونکی()(اندازه_t ارزښت) ثابت { أرجع ارزښت & 0x7; }
 };
 
 // Hashes spread by a large odd multiplier, so most probe runs are short
-struct SpreadHash final {
-    size_t operator()(size_t value) const {
-        return static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
+بنية خپرېدنه_Hash final {
+    اندازه_t چلوونکی()(اندازه_t ارزښت) ثابت {
+        أرجع static_cast<اندازه_t>(ارزښت * 0x9e3779b97f4a7c15ULL);
     }
 };
 
 // Drive a set through a deterministic pseudo random workload of insertions, erasures,
 // and lookups, checking every step against a std::set holding the same entries
-template <typename T_Hash>
-void testSetAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+کينډۍ <ډول_نوم T_Hash>
+فراغ test_سېټ_Against_Model() {
+    بنية Equal final {
+        منطقي چلوونکی()(اندازه_t a, اندازه_t b) ثابت { أرجع a == b; }
     };
 
-    using Set = V3HashSet<size_t, T_Hash, Equal>;
+    کارول سېټ_2 = V3_Hash_سېټ<اندازه_t, T_Hash, Equal>;
 
-    constexpr size_t UNIVERSE = 64;  // Entries drawn from a small range, so lookups hit
-    constexpr size_t STEPS = 10000;  // Number of operations applied
+    constexpr اندازه_t UNIVERSE = 64;  // Entries drawn from a small range, so lookups hit
+    constexpr اندازه_t ګامونه = 10000;  // Number of operations applied
 
     // A simple linear congruential generator, with a fixed seed so failures reproduce
     uint64_t state = 0x123456789abcdef0ULL;
-    const auto nextRand = [&state]() -> size_t {
+    ثابت خپلکاری بل_Rand = [&state]() -> اندازه_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        أرجع static_cast<اندازه_t>(state >> 32);
     };
 
-    Set set;
-    std::set<size_t> model;
+    سېټ_2 سېټ;
+    std::سېټ<اندازه_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
-        const size_t id = nextRand() % UNIVERSE;
-        switch (nextRand() % 4) {
-        case 0: {  // Insert a copy
-            const std::pair<typename Set::iterator, bool> pair = set.insert(id);
-            UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
-            UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+    لكل (اندازه_t ګام = 0; ګام < ګامونه; ++ګام) {
+        ثابت اندازه_t id = بل_Rand() % UNIVERSE;
+        بدل (بل_Rand() % 4) {
+        حالة 0: {  // Insert a copy
+            ثابت std::pair<ډول_نوم سېټ_2::iterator, منطقي> pair = سېټ.ورننباسه(id);
+            UASSERT_SELFTEST(pair.دوهم, model.ورننباسه(id).دوهم);  // As the model
+            UASSERT_SELFTEST(*pair.لومړی, id);  // At the entry asked for
+            اكسر;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
-            bool created = false;
-            const std::pair<typename Set::iterator, bool> pair
-                = set.insertLazy(id, [&]() -> size_t {
-                      created = true;
-                      return id;
+        حالة 1: {  // Insert lazily, which must create only on a miss
+            منطقي created = خطأ;
+            ثابت std::pair<ډول_نوم سېټ_2::iterator, منطقي> pair
+                = سېټ.ورننباسه_Lazy(id, [&]() -> اندازه_t {
+                      created = ریښتیا;
+                      أرجع id;
                   });
-            UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
-            UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
-            UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+            UASSERT_SELFTEST(pair.دوهم, created);  // Created only on a miss
+            UASSERT_SELFTEST(pair.دوهم, model.ورننباسه(id).دوهم);  // As the model
+            UASSERT_SELFTEST(*pair.لومړی, id);  // At the entry asked for
+            اكسر;
         }
-        case 2: {  // Erase, if present
-            const typename Set::iterator it = set.find(id);
-            UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) {
-                set.erase(it);
+        حالة 2: {  // Erase, if present
+            ثابت ډول_نوم سېټ_2::iterator it = سېټ.پیدا_کړه(id);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), model.شمېر(id) != 0);  // As the model
+            إذا (it != سېټ.پای_ټکی()) {
+                سېټ.erase(it);
                 model.erase(id);
             }
-            break;
+            اكسر;
         }
-        default: {  // Look up only
-            const typename Set::iterator it = set.find(id);
-            UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
-            break;
+        افتراضي: {  // Look up only
+            ثابت ډول_نوم سېټ_2::iterator it = سېټ.پیدا_کړه(id);
+            UASSERT_SELFTEST(it != سېټ.پای_ټکی(), model.شمېر(id) != 0);  // As the model
+            إذا (it != سېټ.پای_ټکی()) UASSERT_SELFTEST(*it, id);  // And is the entry
+            اكسر;
         }
         }
-        UASSERT_SELFTEST(set.size(), model.size());  // Every step, not just at the end
+        UASSERT_SELFTEST(سېټ.اندازه(), model.اندازه());  // Every step, not just at the end
     }
 
     // Check the final content exhaustively
-    for (size_t id = 0; id < UNIVERSE; ++id) {
-        UASSERT_SELFTEST(set.contains(id), model.count(id) != 0);  // Present iff modelled
+    لكل (اندازه_t id = 0; id < UNIVERSE; ++id) {
+        UASSERT_SELFTEST(سېټ.لري(id), model.شمېر(id) != 0);  // Present iff modelled
     }
     // And that iterating visits exactly the model content, each entry once
-    std::array<bool, UNIVERSE> seen{};
-    size_t n = 0;
-    for (const size_t entry : set) {
-        UASSERT_SELFTEST(entry < UNIVERSE, true);  // Nothing out of thin air
-        UASSERT_SELFTEST(model.count(entry) != 0, true);  // Only what was inserted
-        UASSERT_SELFTEST(seen[entry], false);  // Each entry once
-        seen[entry] = true;
+    std::array<منطقي, UNIVERSE> کتل_شوی{};
+    اندازه_t n = 0;
+    لكل (ثابت اندازه_t ثبت : سېټ) {
+        UASSERT_SELFTEST(ثبت < UNIVERSE, ریښتیا);  // Nothing out of thin air
+        UASSERT_SELFTEST(model.شمېر(ثبت) != 0, ریښتیا);  // Only what was inserted
+        UASSERT_SELFTEST(کتل_شوی[ثبت], خطأ);  // Each entry once
+        کتل_شوی[ثبت] = ریښتیا;
         ++n;
     }
-    UASSERT_SELFTEST(n, model.size());  // And all of them
+    UASSERT_SELFTEST(n, model.اندازه());  // And all of them
 }
 
 //######################################################################
 // A hash table used as a map, whose entries are plain key and value pairs
 
-void testMap() {
+فراغ testMap() {
     // The key extractor means the hash and equality see only keys, never entries, so
     // the standard functors do, and they are what V3HashMap defaults to
-    using Map = V3HashMap<std::string, int>;
-    using Entry = Map::Entry;
+    کارول Map = V3HashMap<std::string, صحيح>;
+    کارول ثبت_2 = Map::ثبت_2;
 
     // A map entry is a plain pair, so a caller never meets an internal type
-    static_assert(std::is_same<Entry, std::pair<std::string, int>>::value,
+    static_assert(std::is_same<ثبت_2, std::pair<std::string, صحيح>>::ارزښت,
                   "SelfTest: a map entry must be a plain pair");
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr اندازه_t N = GROWS_TWICE;
     Map map;
-    for (size_t i = 0; i < N; ++i) {
-        const std::string key = "key" + std::to_string(i);
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت std::string کلی = "key" + std::منزل_string(i);
         // 'insertLazy' calls the factory only on a miss, so a hit builds no entry
-        const std::pair<Map::iterator, bool> pair
-            = map.insertLazy(key, [&]() -> Entry { return {key, static_cast<int>(i)}; });
-        UASSERT_SELFTEST(pair.second, true);  // Keys differ, so each is added
+        ثابت std::pair<Map::iterator, منطقي> pair
+            = map.ورننباسه_Lazy(کلی, [&]() -> ثبت_2 { أرجع {کلی, static_cast<صحيح>(i)}; });
+        UASSERT_SELFTEST(pair.دوهم, ریښتیا);  // Keys differ, so each is added
     }
-    UASSERT_SELFTEST(map.size(), N);  // All of them are in
+    UASSERT_SELFTEST(map.اندازه(), N);  // All of them are in
 
     // A bare key finds the entry, with no Entry built to look it up
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // The key alone finds it
-        UASSERT_SELFTEST(it->second, static_cast<int>(i));  // With the value given
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت Map::iterator it = map.پیدا_کړه("key" + std::منزل_string(i));
+        UASSERT_SELFTEST(it != map.پای_ټکی(), ریښتیا);  // The key alone finds it
+        UASSERT_SELFTEST(it->دوهم, static_cast<صحيح>(i));  // With the value given
     }
 
     // A value can be changed by erasing the entry and inserting it again
-    for (size_t i = 0; i < N; ++i) {
-        const std::string key = "key" + std::to_string(i);
-        map.erase(map.find(key));
-        UASSERT_SELFTEST(map.insert({key, static_cast<int>(i) + 100}).second, true);  // Anew
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت std::string کلی = "key" + std::منزل_string(i);
+        map.erase(map.پیدا_کړه(کلی));
+        UASSERT_SELFTEST(map.ورننباسه({کلی, static_cast<صحيح>(i) + 100}).دوهم, ریښتیا);  // Anew
     }
-    UASSERT_SELFTEST(map.size(), N);  // The same keys, so the map has not grown
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // Each key is still there
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 100);  // With its new value
+    UASSERT_SELFTEST(map.اندازه(), N);  // The same keys, so the map has not grown
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت Map::iterator it = map.پیدا_کړه("key" + std::منزل_string(i));
+        UASSERT_SELFTEST(it != map.پای_ټکی(), ریښتیا);  // Each key is still there
+        UASSERT_SELFTEST(it->دوهم, static_cast<صحيح>(i) + 100);  // With its new value
     }
 
     // Or a value is changed in place, via 'value()', which leaves the key alone
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() += 100;
-    UASSERT_SELFTEST(map.size(), N);  // The map is unchanged otherwise
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // Each key still finds its entry
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 200);  // With its new value
+    لكل (اندازه_t i = 0; i < N; ++i) map.پیدا_کړه("key" + std::منزل_string(i)).ارزښت() += 100;
+    UASSERT_SELFTEST(map.اندازه(), N);  // The map is unchanged otherwise
+    لكل (اندازه_t i = 0; i < N; ++i) {
+        ثابت Map::iterator it = map.پیدا_کړه("key" + std::منزل_string(i));
+        UASSERT_SELFTEST(it != map.پای_ټکی(), ریښتیا);  // Each key still finds its entry
+        UASSERT_SELFTEST(it->دوهم, static_cast<صحيح>(i) + 200);  // With its new value
     }
     // And back, as the checks below expect the earlier values
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() -= 100;
+    لكل (اندازه_t i = 0; i < N; ++i) map.پیدا_کړه("key" + std::منزل_string(i)).ارزښت() -= 100;
 
     // Adding a key that is present changes nothing
     {
-        const std::string key = "key0";
-        bool created = false;
-        const std::pair<Map::iterator, bool> pair = map.insertLazy(key, [&]() -> Entry {
-            created = true;  // LCOV_EXCL_START
-            return {key, 0};  // LCOV_EXCL_STOP
+        ثابت std::string کلی = "key0";
+        منطقي created = خطأ;
+        ثابت std::pair<Map::iterator, منطقي> pair = map.ورننباسه_Lazy(کلی, [&]() -> ثبت_2 {
+            created = ریښتیا;  // LCOV_EXCL_START
+            أرجع {کلی, 0};  // LCOV_EXCL_STOP
         });
-        UASSERT_SELFTEST(created, false);  // The factory was never called
-        UASSERT_SELFTEST(pair.second, false);  // As the key is present
-        UASSERT_SELFTEST(pair.first->second, 100);  // Holding its old value
+        UASSERT_SELFTEST(created, خطأ);  // The factory was never called
+        UASSERT_SELFTEST(pair.دوهم, خطأ);  // As the key is present
+        UASSERT_SELFTEST(pair.لومړی->دوهم, 100);  // Holding its old value
     }
-    UASSERT_SELFTEST(map.size(), N);  // And nothing was added
+    UASSERT_SELFTEST(map.اندازه(), N);  // And nothing was added
 
     // 'insert' adds a key and a value as a plain pair, as std::unordered_map::insert does
     {
-        const std::pair<Map::iterator, bool> added = map.insert({std::string{"fresh"}, 5});
-        UASSERT_SELFTEST(added.second, true);  // Added, as the key is new
-        UASSERT_SELFTEST(added.first->second, 5);  // With the value given
-        const std::pair<Map::iterator, bool> again = map.insert({std::string{"fresh"}, 6});
-        UASSERT_SELFTEST(again.second, false);  // Rejected, as the key is present
-        UASSERT_SELFTEST(again.first->second, 5);  // And the value is untouched
+        ثابت std::pair<Map::iterator, منطقي> added = map.ورننباسه({std::string{"fresh"}, 5});
+        UASSERT_SELFTEST(added.دوهم, ریښتیا);  // Added, as the key is new
+        UASSERT_SELFTEST(added.لومړی->دوهم, 5);  // With the value given
+        ثابت std::pair<Map::iterator, منطقي> again = map.ورننباسه({std::string{"fresh"}, 6});
+        UASSERT_SELFTEST(again.دوهم, خطأ);  // Rejected, as the key is present
+        UASSERT_SELFTEST(again.لومړی->دوهم, 5);  // And the value is untouched
     }
-    UASSERT_SELFTEST(map.size(), N + 1);  // Just the one entry was added
+    UASSERT_SELFTEST(map.اندازه(), N + 1);  // Just the one entry was added
     {
-        const Map::iterator it = map.find(std::string{"fresh"});
-        UASSERT_SELFTEST(it != map.end(), true);  // Present before the erase
-        UASSERT_SELFTEST(it->second, 5);  // Still holding the first value
+        ثابت Map::iterator it = map.پیدا_کړه(std::string{"fresh"});
+        UASSERT_SELFTEST(it != map.پای_ټکی(), ریښتیا);  // Present before the erase
+        UASSERT_SELFTEST(it->دوهم, 5);  // Still holding the first value
         map.erase(it);
     }
-    UASSERT_SELFTEST(map.size(), N);  // Back to the earlier content
+    UASSERT_SELFTEST(map.اندازه(), N);  // Back to the earlier content
 
     // Erasing by key removes just that entry, and says whether it did
-    UASSERT_SELFTEST(map.erase(std::string{"absent"}), false);  // No such key
-    UASSERT_SELFTEST(map.size(), N);  // So nothing was erased
-    UASSERT_SELFTEST(map.erase(std::string{"key0"}), true);  // That key is present
-    UASSERT_SELFTEST(map.size(), N - 1);  // And just the one entry went
-    UASSERT_SELFTEST(map.contains(std::string{"key0"}), false);  // Namely that one
-    for (size_t i = 1; i < N; ++i) {
-        UASSERT_SELFTEST(map.contains("key" + std::to_string(i)), true);  // Others intact
+    UASSERT_SELFTEST(map.erase(std::string{"absent"}), خطأ);  // No such key
+    UASSERT_SELFTEST(map.اندازه(), N);  // So nothing was erased
+    UASSERT_SELFTEST(map.erase(std::string{"key0"}), ریښتیا);  // That key is present
+    UASSERT_SELFTEST(map.اندازه(), N - 1);  // And just the one entry went
+    UASSERT_SELFTEST(map.لري(std::string{"key0"}), خطأ);  // Namely that one
+    لكل (اندازه_t i = 1; i < N; ++i) {
+        UASSERT_SELFTEST(map.لري("key" + std::منزل_string(i)), ریښتیا);  // Others intact
     }
 }
 
@@ -1063,112 +1063,112 @@ void testMap() {
 
 // Drive a map through a deterministic pseudo random workload of insertions, erasures,
 // value changes and lookups, checking every step against a std::map holding the same
-template <typename T_Hash>
-void testMapAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+کينډۍ <ډول_نوم T_Hash>
+فراغ testMapAgainstModel() {
+    بنية Equal final {
+        منطقي چلوونکی()(اندازه_t a, اندازه_t b) ثابت { أرجع a == b; }
     };
 
-    using Map = V3HashMap<size_t, size_t, T_Hash, Equal>;
-    using Entry = typename Map::Entry;
+    کارول Map = V3HashMap<اندازه_t, اندازه_t, T_Hash, Equal>;
+    کارول ثبت_2 = ډول_نوم Map::ثبت_2;
 
-    constexpr size_t UNIVERSE = 64;  // Keys drawn from a small range, so lookups hit
-    constexpr size_t STEPS = 10000;  // Number of operations applied
+    constexpr اندازه_t UNIVERSE = 64;  // Keys drawn from a small range, so lookups hit
+    constexpr اندازه_t ګامونه = 10000;  // Number of operations applied
 
     // A simple linear congruential generator, with a fixed seed so failures reproduce
     uint64_t state = 0x0fedcba987654321ULL;
-    const auto nextRand = [&state]() -> size_t {
+    ثابت خپلکاری بل_Rand = [&state]() -> اندازه_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        أرجع static_cast<اندازه_t>(state >> 32);
     };
 
     Map map;
-    std::map<size_t, size_t> model;
+    std::map<اندازه_t, اندازه_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
-        const size_t key = nextRand() % UNIVERSE;
-        const size_t val = step;  // Distinct every step, so a stale value is visible
-        switch (nextRand() % 5) {
-        case 0: {  // Insert a whole entry
-            const std::pair<typename Map::iterator, bool> pair = map.insert({key, val});
-            UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
-            UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+    لكل (اندازه_t ګام = 0; ګام < ګامونه; ++ګام) {
+        ثابت اندازه_t کلی = بل_Rand() % UNIVERSE;
+        ثابت اندازه_t val = ګام;  // Distinct every step, so a stale value is visible
+        بدل (بل_Rand() % 5) {
+        حالة 0: {  // Insert a whole entry
+            ثابت std::pair<ډول_نوم Map::iterator, منطقي> pair = map.ورننباسه({کلی, val});
+            UASSERT_SELFTEST(pair.دوهم, model.ورننباسه({کلی, val}).دوهم);  // Ditto
+            UASSERT_SELFTEST(pair.لومړی->لومړی, کلی);  // At the key asked for
+            اكسر;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
-            bool created = false;
-            const std::pair<typename Map::iterator, bool> pair
-                = map.insertLazy(key, [&]() -> Entry {
-                      created = true;
-                      return {key, val};
+        حالة 1: {  // Insert lazily, which must create only on a miss
+            منطقي created = خطأ;
+            ثابت std::pair<ډول_نوم Map::iterator, منطقي> pair
+                = map.ورننباسه_Lazy(کلی, [&]() -> ثبت_2 {
+                      created = ریښتیا;
+                      أرجع {کلی, val};
                   });
-            UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
-            UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
-            UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+            UASSERT_SELFTEST(pair.دوهم, created);  // Created only on a miss
+            UASSERT_SELFTEST(pair.دوهم, model.ورننباسه({کلی, val}).دوهم);  // Ditto
+            UASSERT_SELFTEST(pair.لومړی->لومړی, کلی);  // At the key asked for
+            اكسر;
         }
-        case 2: {  // Erase by key, if present
-            UASSERT_SELFTEST(map.erase(key), model.erase(key) != 0);  // As model
-            break;
+        حالة 2: {  // Erase by key, if present
+            UASSERT_SELFTEST(map.erase(کلی), model.erase(کلی) != 0);  // As model
+            اكسر;
         }
-        case 3: {  // Change a value, which is erasing the entry and inserting it again
-            const typename Map::iterator it = map.find(key);
-            if (it != map.end()) {
+        حالة 3: {  // Change a value, which is erasing the entry and inserting it again
+            ثابت ډول_نوم Map::iterator it = map.پیدا_کړه(کلی);
+            إذا (it != map.پای_ټکی()) {
                 map.erase(it);
-                UASSERT_SELFTEST(map.insert({key, val}).second, true);  // The key is free
-                model[key] = val;
+                UASSERT_SELFTEST(map.ورننباسه({کلی, val}).دوهم, ریښتیا);  // The key is free
+                model[کلی] = val;
             }
-            break;
+            اكسر;
         }
-        default: {  // Look up only
-            const typename Map::iterator it = map.find(key);
-            UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // As the model
-            if (it != map.end()) {
-                UASSERT_SELFTEST(it->first, key);  // At the key asked for
-                UASSERT_SELFTEST(it->second, model.at(key));  // With its value
+        افتراضي: {  // Look up only
+            ثابت ډول_نوم Map::iterator it = map.پیدا_کړه(کلی);
+            UASSERT_SELFTEST(it != map.پای_ټکی(), model.شمېر(کلی) != 0);  // As the model
+            إذا (it != map.پای_ټکی()) {
+                UASSERT_SELFTEST(it->لومړی, کلی);  // At the key asked for
+                UASSERT_SELFTEST(it->دوهم, model.at(کلی));  // With its value
             }
-            break;
+            اكسر;
         }
         }
-        UASSERT_SELFTEST(map.size(), model.size());  // Every step, not just at the end
+        UASSERT_SELFTEST(map.اندازه(), model.اندازه());  // Every step, not just at the end
     }
 
     // Check the final content exhaustively, values included
-    for (size_t key = 0; key < UNIVERSE; ++key) {
-        const typename Map::iterator it = map.find(key);
-        UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // Present iff modelled
-        if (it != map.end()) {
-            UASSERT_SELFTEST(it->second, model.at(key));  // With the right value
+    لكل (اندازه_t کلی = 0; کلی < UNIVERSE; ++کلی) {
+        ثابت ډول_نوم Map::iterator it = map.پیدا_کړه(کلی);
+        UASSERT_SELFTEST(it != map.پای_ټکی(), model.شمېر(کلی) != 0);  // Present iff modelled
+        إذا (it != map.پای_ټکی()) {
+            UASSERT_SELFTEST(it->دوهم, model.at(کلی));  // With the right value
         }
     }
     // And that iterating visits exactly the model content, each entry once
-    std::array<bool, UNIVERSE> seen{};
-    size_t n = 0;
-    for (const Entry& entry : map) {
-        UASSERT_SELFTEST(entry.first < UNIVERSE, true);  // Nothing out of thin air
-        UASSERT_SELFTEST(model.count(entry.first) != 0, true);  // Only what was inserted
-        UASSERT_SELFTEST(entry.second, model.at(entry.first));  // With the right value
-        UASSERT_SELFTEST(seen[entry.first], false);  // Each entry once
-        seen[entry.first] = true;
+    std::array<منطقي, UNIVERSE> کتل_شوی{};
+    اندازه_t n = 0;
+    لكل (ثابت ثبت_2& ثبت : map) {
+        UASSERT_SELFTEST(ثبت.لومړی < UNIVERSE, ریښتیا);  // Nothing out of thin air
+        UASSERT_SELFTEST(model.شمېر(ثبت.لومړی) != 0, ریښتیا);  // Only what was inserted
+        UASSERT_SELFTEST(ثبت.دوهم, model.at(ثبت.لومړی));  // With the right value
+        UASSERT_SELFTEST(کتل_شوی[ثبت.لومړی], خطأ);  // Each entry once
+        کتل_شوی[ثبت.لومړی] = ریښتیا;
         ++n;
     }
-    UASSERT_SELFTEST(n, model.size());  // And all of them
+    UASSERT_SELFTEST(n, model.اندازه());  // And all of them
 }
 
-void selfTest() {
-    testValueKeys();
-    testPointerKeys();
-    testEntryLifetime();
+فراغ selfTest() {
+    test_ارزښت_کلیګانې();
+    test_اشاره_ګر_کلیګانې();
+    test_ثبت_Lifetime();
     testMove();
     testMoveOnlyEntries();
     testStatefulFunctors();
-    testBackwardShiftDeletion();
+    test_Backward_ښويدنه_Deletion();
     testReferenceStability();
-    testSetAgainstModel<ClusteredHash>();
-    testSetAgainstModel<SpreadHash>();
+    test_سېټ_Against_Model<ClusteredHash>();
+    test_سېټ_Against_Model<خپرېدنه_Hash>();
     testMap();
     testMapAgainstModel<ClusteredHash>();
-    testMapAgainstModel<SpreadHash>();
+    testMapAgainstModel<خپرېدنه_Hash>();
 }
 
 }  // namespace V3HashTableInternals

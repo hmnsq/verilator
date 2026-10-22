@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#ضمن "V3Clock.h"
 
-#include "V3Const.h"
+#ضمن "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+صنف Convert_Write_Refs_منزل_Read final : عام VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_غوټه_بیان* m_پایله = تش_اشاره;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    څرګند Convert_Write_Refs_منزل_Read(Ast_غوټه_بیان* nodep) {
+        m_پایله = VN_AS(iterateSubtreeReturnEdits(nodep), غوټه_بیان);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    فراغ لیدنه(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        إذا (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                جديد AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(ټېل_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+عام:
+    ساكن Ast_غوټه_بیان* اصلي(Ast_غوټه_بیان* nodep) { أرجع Convert_Write_Refs_منزل_Read{nodep}.m_پایله; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+صنف ClockVisitor final : عام VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    فراغ لیدنه(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* ثابت incp = nodep->incp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت origp = nodep->origp()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت changeWrp = nodep->changep()->unlink_Fr_شا();
+        Ast_غوټه_بیان* ثابت changeRdp = Convert_Write_Refs_منزل_Read::اصلي(changeWrp->clone_ونه(خطأ));
+        Ast_غوټه_بیان* comparedp = تش_اشاره;
+        incp->toggleExprp(origp->clone_ونه(خطأ));
+        incp->toggleCovExprp(changeRdp->clone_ونه(خطأ));
+        File_کرښه* ثابت flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        إذا (ثابت AstBasicDType* ثابت bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            إذا (!bdtypep->isOpaque()) {
+                Ast_غوټه_بیان* ثابت zp = جديد AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = جديد AstNeq{flp, zp, جديد AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        إذا (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* ثابت newp = جديد AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->جمع_کړه_Thensp(جديد Ast_ټاکل{flp, changeWrp, origp->clone_ونه(خطأ)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ونه(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    فراغ لیدنه(Ast_Sen_ونه* nodep) override {
+        VL_DO_DANGLING(ټېل_Deletep(nodep->unlink_Fr_شا()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    څرګند ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    ~ClockVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+فراغ V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ونه("clock", 0, dump_ونه_Either_Level() >= 3);
 }

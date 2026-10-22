@@ -15,19 +15,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHSTREAM_H_
-#define VERILATOR_V3GRAPHSTREAM_H_
+#که_نه_تعریف_شوی VERILATOR_V3GRAPHSTREAM_H_
+#تعریف_کړه VERILATOR_V3GRAPHSTREAM_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Graph.h"
+#ضمن "V3Graph.h"
 
-#include <functional>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#ضمن <functional>
+#ضمن <map>
+#ضمن <set>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 //######################################################################
 // GraphStream
@@ -40,94 +40,94 @@
 // not generally safe. If you want a raw pointer compare, see
 // GraphStreamUnordered below.
 
-template <typename T_Compare>
-class GraphStream final {
+کينډۍ <typename T_Compare>
+class ګراف_بهیر final {
     // TYPES
     class VxHolder final {
-    public:
+    عام:
         // MEMBERS
-        const V3GraphVertex* const m_vxp;  // [mtask] Vertex
-        const uint32_t m_pos;  // Sort position
-        uint32_t m_numBlockingEdges;  // Number of blocking edges
+        ثابت V3_ګراف_راس* ثابت m_vxp;  // [mtask] Vertex
+        ثابت uint32_t m_pos;  // Sort position
+        uint32_t m_عدد_Blocking_څنډې;  // Number of blocking edges
         // CONSTRUCTORS
-        VxHolder(const V3GraphVertex* vxp, uint32_t pos, uint32_t numBlockingEdges)
+        VxHolder(ثابت V3_ګراف_راس* vxp, uint32_t pos, uint32_t عدد_Blocking_څنډې)
             : m_vxp{vxp}
             , m_pos{pos}
-            , m_numBlockingEdges{numBlockingEdges} {}
+            , m_عدد_Blocking_څنډې{عدد_Blocking_څنډې} {}
         // METHODS
-        const V3GraphVertex* vertexp() const { return m_vxp; }
+        ثابت V3_ګراف_راس* vertexp() ثابت { أرجع m_vxp; }
         // Decrement blocking edges count, return true if the vertex is
         // newly unblocked
         bool unblock() {
-            UASSERT_OBJ(m_numBlockingEdges > 0, vertexp(), "Underflow of blocking edges");
-            --m_numBlockingEdges;
-            return (m_numBlockingEdges == 0);
+            UASSERT_OBJ(m_عدد_Blocking_څنډې > 0, vertexp(), "Underflow of blocking edges");
+            --m_عدد_Blocking_څنډې;
+            أرجع (m_عدد_Blocking_څنډې == 0);
         }
     };
 
     class VxHolderCmp final {
-    public:
+    عام:
         // MEMBERS
-        const T_Compare m_lessThan;  // Sorting functor
+        ثابت T_Compare m_lessThan;  // Sorting functor
         // CONSTRUCTORS
-        explicit VxHolderCmp(const T_Compare& lessThan)
+        explicit VxHolderCmp(ثابت T_Compare& lessThan)
             : m_lessThan{lessThan} {}
         // METHODS
-        bool operator()(const VxHolder& a, const VxHolder& b) const {
-            if (m_lessThan.operator()(a.vertexp(), b.vertexp())) return true;
-            if (m_lessThan.operator()(b.vertexp(), a.vertexp())) return false;
-            return a.m_pos < b.m_pos;
+        bool چلوونکی()(ثابت VxHolder& a, ثابت VxHolder& b) ثابت {
+            إذا (m_lessThan.چلوونکی()(a.vertexp(), b.vertexp())) أرجع true;
+            إذا (m_lessThan.چلوونکی()(b.vertexp(), a.vertexp())) أرجع false;
+            أرجع a.m_pos < b.m_pos;
         }
 
-    private:
+    خاص:
         VL_UNCOPYABLE(VxHolderCmp);
     };
 
-    using ReadyVertices = std::set<VxHolder, VxHolderCmp&>;
+    using ReadyVertices = std::سېټ<VxHolder, VxHolderCmp&>;
 
     // MEMBERS
     VxHolderCmp m_vxHolderCmp;  // Vertext comparison functor
     ReadyVertices m_readyVertices;  // List of ready vertices
-    std::map<const V3GraphVertex*, VxHolder> m_waitingVertices;  // List of waiting vertices
-    typename ReadyVertices::iterator m_last;  // Previously returned element
-    const GraphWay m_way;  // FORWARD or REVERSE order of traversal
+    std::map<ثابت V3_ګراف_راس*, VxHolder> m_انتظار_Vertices;  // List of waiting vertices
+    typename ReadyVertices::iterator m_وروستی;  // Previously returned element
+    ثابت ګراف_Way m_way;  // FORWARD or REVERSE order of traversal
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit GraphStream(const V3Graph* graphp, GraphWay way = GraphWay::FORWARD,
-                         const T_Compare& lessThan = T_Compare())
+    explicit ګراف_بهیر(ثابت V3_ګراف* graphp, ګراف_Way way = ګراف_Way::FORWARD,
+                         ثابت T_Compare& lessThan = T_Compare())
         // NOTE: Perhaps REVERSE way should also reverse the sense of the
         // lessThan function? For now the only usage of REVERSE is not
         // sensitive to its lessThan at all, so it doesn't matter.
         : m_vxHolderCmp{lessThan}
         , m_readyVertices{m_vxHolderCmp}
-        , m_last{m_readyVertices.end()}
+        , m_وروستی{m_readyVertices.پای_ټکی()}
         , m_way{way} {
         uint32_t pos = 0;
-        for (const V3GraphVertex& vtx : graphp->vertices()) {
+        لكل (ثابت V3_ګراف_راس& vtx : graphp->vertices()) {
             // Every vertex initially is waiting, or ready.
-            if (way == GraphWay::FORWARD) {
-                if (vtx.inEmpty()) {
-                    const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
-                } else {
-                    const uint32_t depCount = vtx.inEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
-                    m_waitingVertices.emplace(&vtx, newVx);
+            إذا (way == ګراف_Way::FORWARD) {
+                إذا (vtx.دننه_تشه()) {
+                    ثابت VxHolder newVx{&vtx, pos++, 0};
+                    m_readyVertices.ورننباسه(newVx);
+                } وإلا {
+                    ثابت uint32_t dep_شمېر = vtx.دننه_څنډې().اندازه();
+                    ثابت VxHolder newVx{&vtx, pos++, dep_شمېر};
+                    m_انتظار_Vertices.emplace(&vtx, newVx);
                 }
-            } else {  // REVERSE
-                if (vtx.outEmpty()) {
-                    const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
-                } else {
-                    const uint32_t depCount = vtx.outEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
-                    m_waitingVertices.emplace(&vtx, newVx);
+            } وإلا {  //سرچپه
+                إذا (vtx.بهر_تشه()) {
+                    ثابت VxHolder newVx{&vtx, pos++, 0};
+                    m_readyVertices.ورننباسه(newVx);
+                } وإلا {
+                    ثابت uint32_t dep_شمېر = vtx.بهر_څنډې().اندازه();
+                    ثابت VxHolder newVx{&vtx, pos++, dep_شمېر};
+                    m_انتظار_Vertices.emplace(&vtx, newVx);
                 }
             }
         }
     }
-    ~GraphStream() = default;
+    ~ګراف_بهیر() = افتراضي;
 
     // METHODS
 
@@ -154,137 +154,137 @@ public:
     // nextp() returns them in the original graph order (presumably also
     // good locality.) V3Order.cpp relies on this to order the logic
     // vertices within a given mtask without jumping over domains too much.
-    const V3GraphVertex* nextp() {
-        const V3GraphVertex* resultp = nullptr;
+    ثابت V3_ګراف_راس* nextp() {
+        ثابت V3_ګراف_راس* resultp = nullptr;
 
         typename ReadyVertices::iterator curIt;
-        if (m_last == m_readyVertices.end()) {
+        إذا (m_وروستی == m_readyVertices.پای_ټکی()) {
             // First call to nextp()
             curIt = m_readyVertices.begin();
-        } else {
+        } وإلا {
             // Subsequent call to nextp()
-            curIt = m_last;
+            curIt = m_وروستی;
             ++curIt;
             // Remove previously-returned element
-            m_readyVertices.erase(m_last);
+            m_readyVertices.erase(m_وروستی);
             // Wrap curIt. Expect to wrap, and make another pass, to find
             // newly-ready elements that could have appeared ahead of the
             // m_last iterator
-            if (curIt == m_readyVertices.end()) curIt = m_readyVertices.begin();
+            إذا (curIt == m_readyVertices.پای_ټکی()) curIt = m_readyVertices.begin();
         }
 
-        if (curIt != m_readyVertices.end()) {
+        إذا (curIt != m_readyVertices.پای_ټکی()) {
             resultp = curIt->vertexp();
             unblockDeps(resultp);
-        } else {
+        } وإلا {
             // No ready vertices; waiting should be empty too, otherwise we
             // were fed a graph with cycles (which is not supported.)
-            UASSERT(m_waitingVertices.empty(), "DGS fed non-DAG");
+            UASSERT(m_انتظار_Vertices.تشه(), "DGS fed non-DAG");
         }
 
-        m_last = curIt;
-        return resultp;
+        m_وروستی = curIt;
+        أرجع resultp;
     }
 
-private:
-    void unblockDeps(const V3GraphVertex* vertexp) {
-        if (m_way == GraphWay::FORWARD) {
-            for (const V3GraphEdge& edgep : vertexp->outEdges()) {
-                const V3GraphVertex* const toVertexp = edgep.top();
+خاص:
+    فراغ unblockDeps(ثابت V3_ګراف_راس* vertexp) {
+        إذا (m_way == ګراف_Way::FORWARD) {
+            لكل (ثابت V3_ګراف_څنډه& edgep : vertexp->بهر_څنډې()) {
+                ثابت V3_ګراف_راس* ثابت منزل_Vertexp = edgep.سر();
 
-                const auto it = m_waitingVertices.find(toVertexp);
-                UASSERT_OBJ(it != m_waitingVertices.end(), toVertexp,
+                ثابت خپلکاری it = m_انتظار_Vertices.پیدا_کړه(منزل_Vertexp);
+                UASSERT_OBJ(it != m_انتظار_Vertices.پای_ټکی(), منزل_Vertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
-                    m_waitingVertices.erase(it);
+                إذا (it->دوهم.unblock()) {
+                    m_readyVertices.ورننباسه(it->دوهم);
+                    m_انتظار_Vertices.erase(it);
                 }
             }
-        } else {
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                const V3GraphVertex* const fromVertexp = edge.fromp();
+        } وإلا {
+            لكل (ثابت V3_ګراف_څنډه& څنډه : vertexp->دننه_څنډې()) {
+                ثابت V3_ګراف_راس* ثابت fromVertexp = څنډه.fromp();
 
-                const auto it = m_waitingVertices.find(fromVertexp);
-                UASSERT_OBJ(it != m_waitingVertices.end(), fromVertexp,
+                ثابت خپلکاری it = m_انتظار_Vertices.پیدا_کړه(fromVertexp);
+                UASSERT_OBJ(it != m_انتظار_Vertices.پای_ټکی(), fromVertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
-                    m_waitingVertices.erase(it);
+                إذا (it->دوهم.unblock()) {
+                    m_readyVertices.ورننباسه(it->دوهم);
+                    m_انتظار_Vertices.erase(it);
                 }
             }
         }
     }
 
-    VL_UNCOPYABLE(GraphStream);
+    VL_UNCOPYABLE(ګراف_بهیر);
 };
 
 //=================================================================================================
 // GraphStreamUnordered is similar to GraphStream, but iterates un-ordered vertices (those that are
 // not ordered by dependencies) in an arbitrary order. Iteration order is still deterministic.
 
-class GraphStreamUnordered final {
+class ګراف_بهیر_Unordered final {
     // MEMBERS
-    const GraphWay m_way;  // Direction of traversal
-    size_t m_nextIndex = 0;  // Which index to return from m_nextVertices next
-    std::vector<const V3GraphVertex*> m_nextVertices;  // List of ready vertices returned next
-    std::vector<const V3GraphVertex*> m_readyVertices;  // List of other ready vertices
+    ثابت ګراف_Way m_way;  // Direction of traversal
+    اندازه_t m_بل_شاخص = 0;  // Which index to return from m_nextVertices next
+    std::ویکټور<ثابت V3_ګراف_راس*> m_بل_Vertices;  // List of ready vertices returned next
+    std::ویکټور<ثابت V3_ګراف_راس*> m_readyVertices;  // List of other ready vertices
 
-public:
+عام:
     // CONSTRUCTORS
-    VL_UNCOPYABLE(GraphStreamUnordered);
-    explicit GraphStreamUnordered(V3Graph* graphp, GraphWay way = GraphWay::FORWARD)
+    VL_UNCOPYABLE(ګراف_بهیر_Unordered);
+    explicit ګراف_بهیر_Unordered(V3_ګراف* graphp, ګراف_Way way = ګراف_Way::FORWARD)
         : m_way{way} {
-        if (m_way == GraphWay::FORWARD) {
-            init<GraphWay::FORWARD>(graphp);
-        } else {
-            init<GraphWay::REVERSE>(graphp);
+        إذا (m_way == ګراف_Way::FORWARD) {
+            init<ګراف_Way::FORWARD>(graphp);
+        } وإلا {
+            init<ګراف_Way::سرچپه_2>(graphp);
         }
     }
-    ~GraphStreamUnordered() = default;
+    ~ګراف_بهیر_Unordered() = افتراضي;
 
     // METHODS
 
     // Each call to nextp() returns a unique vertex in the graph, in dependency order. Dependencies
     // alone do not specify a total ordering. Un-ordered vertices are returned in an arbitrary but
     // deterministic order.
-    const V3GraphVertex* nextp() {
-        if (VL_UNLIKELY(m_nextIndex == m_nextVertices.size())) {
-            if (VL_UNLIKELY(m_readyVertices.empty())) return nullptr;
-            m_nextIndex = 0;
+    ثابت V3_ګراف_راس* nextp() {
+        إذا (VL_UNLIKELY(m_بل_شاخص == m_بل_Vertices.اندازه())) {
+            إذا (VL_UNLIKELY(m_readyVertices.تشه())) أرجع nullptr;
+            m_بل_شاخص = 0;
             // Use swap to avoid reallocation
-            m_nextVertices.swap(m_readyVertices);
+            m_بل_Vertices.بدلون(m_readyVertices);
             m_readyVertices.clear();
         }
-        const V3GraphVertex* const resultp = m_nextVertices[m_nextIndex++];
-        if (m_way == GraphWay::FORWARD) return unblock<GraphWay::FORWARD>(resultp);
-        return unblock<GraphWay::REVERSE>(resultp);
+        ثابت V3_ګراف_راس* ثابت resultp = m_بل_Vertices[m_بل_شاخص++];
+        إذا (m_way == ګراف_Way::FORWARD) أرجع unblock<ګراف_Way::FORWARD>(resultp);
+        أرجع unblock<ګراف_Way::سرچپه_2>(resultp);
     }
 
-private:
-    template <uint8_t N_Way>  //
-    VL_ATTR_NOINLINE void init(V3Graph* graphp) {
-        constexpr GraphWay way{N_Way};
+خاص:
+    کينډۍ <uint8_t N_Way>  //
+    VL_ATTR_NOINLINE فراغ init(V3_ګراف* graphp) {
+        constexpr ګراف_Way way{N_Way};
         // Assign every vertex without an incoming edge to ready, others to waiting
-        for (V3GraphVertex& vertex : graphp->vertices()) {
-            const uint32_t nDeps = vertex.edges<way.invert()>().size();
-            vertex.color(nDeps);  // Using color instead of user, as user might be used by client
-            if (VL_UNLIKELY(nDeps == 0)) m_nextVertices.push_back(&vertex);
+        لكل (V3_ګراف_راس& راس : graphp->vertices()) {
+            ثابت uint32_t nDeps = راس.څنډې<way.invert()>().اندازه();
+            راس.color(nDeps);  // Using color instead of user, as user might be used by client
+            إذا (VL_UNLIKELY(nDeps == 0)) m_بل_Vertices.ټېل_شا(&راس);
         }
     }
 
-    template <uint8_t N_Way>  //
-    VL_ATTR_NOINLINE const V3GraphVertex* unblock(const V3GraphVertex* resultp) {
-        constexpr GraphWay way{N_Way};
-        for (const V3GraphEdge& edge : resultp->edges<way>()) {
-            V3GraphVertex* const vertexp = edge.furtherp<way>();
-#if VL_DEBUG
+    کينډۍ <uint8_t N_Way>  //
+    VL_ATTR_NOINLINE ثابت V3_ګراف_راس* unblock(ثابت V3_ګراف_راس* resultp) {
+        constexpr ګراف_Way way{N_Way};
+        لكل (ثابت V3_ګراف_څنډه& څنډه : resultp->څنډې<way>()) {
+            V3_ګراف_راس* ثابت vertexp = څنډه.furtherp<way>();
+#إذا VL_DEBUG
             UASSERT_OBJ(vertexp->color() != 0, vertexp, "Should not be on waiting list");
-#endif
+#د_که_پای
             vertexp->color(vertexp->color() - 1);
-            if (!vertexp->color()) m_readyVertices.push_back(vertexp);
+            إذا (!vertexp->color()) m_readyVertices.ټېل_شا(vertexp);
         }
-        return resultp;  // Returning input so we can tail call this method
+        أرجع resultp;  // Returning input so we can tail call this method
     }
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

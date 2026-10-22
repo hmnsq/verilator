@@ -53,266 +53,266 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CFG_H_
-#define VERILATOR_V3CFG_H_
+#که_نه_تعریف_شوی VERILATOR_V3CFG_H_
+#تعریف_کړه VERILATOR_V3CFG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Graph.h"
 
-#include <functional>
-#include <limits>
-#include <memory>
-#include <vector>
+#ضمن <functional>
+#ضمن <limits>
+#ضمن <memory>
+#ضمن <vector>
 
 //######################################################################
 // Control Flow Graph (CFG) and related data structures
 
-class CfgGraph;
-class CfgBlock;
-class CfgEdge;
+class Cfg_ګراف;
+class Cfg_بلاک;
+class Cfg_څنډه;
 
-template <typename T_Key, typename T_Value>
+کينډۍ <typename T_کلی, typename T_ارزښت>
 class CfgMap;
-template <typename T_Value>
-class CfgBlockMap;
-template <typename T_Value>
-class CfgEdgeMap;
+کينډۍ <typename T_ارزښت>
+class Cfg_بلاک_Map;
+کينډۍ <typename T_ارزښت>
+class Cfg_څنډه_Map;
 
 //######################################################################
 // CfgBlock - A basic block (verticies of the control flow graph)
 
-class CfgBlock final : public V3GraphVertex {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_بلاک final : عام V3_ګراف_راس {
+    ملګری class Cfg_ګراف;
+    کينډۍ <typename T_کلی, typename T_ارزښت>
+    ملګری class CfgMap;
+    ملګری class CfgBuilder;
 
     // STATE
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgBlock is under
-    size_t m_rpoNumber = 0;  // Reverse post-order number and unique ID of this CfgBlock
+    Cfg_ګراف* ثابت m_cfgp;  // The control flow graph this CfgBlock is under
+    اندازه_t m_rpo_شمېره = 0;  // Reverse post-order number and unique ID of this CfgBlock
 
     // V3GraphEdge::user() is set to the unique id by CfgBuilder
-    std::vector<AstNodeStmt*> m_stmtps;  // statements in this CfgBlock
+    std::ویکټور<Ast_غوټه_Stmt*> m_stmtps;  // statements in this CfgBlock
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline explicit CfgBlock(CfgGraph* cfgp);
-    ~CfgBlock() override = default;
+    مضمن explicit Cfg_بلاک(Cfg_ګراف* cfgp);
+    ~Cfg_بلاک() override = افتراضي;
 
-public:
+عام:
     // PUBLIC METHODS
 
     // ID (reverse post-order number) of this block
-    inline size_t id();
-    inline size_t id() const;
+    مضمن اندازه_t id();
+    مضمن اندازه_t id() ثابت;
 
     // Is this the entry block of the CFG?
-    bool isEnter() const { return inEmpty(); }
+    bool isEnter() ثابت { أرجع دننه_تشه(); }
     // Is this the exit block of the CFG?
-    bool isExit() const { return outEmpty(); }
+    bool isExit() ثابت { أرجع بهر_تشه(); }
     // Is this a branching block (multiple successors)?
-    bool isBranch() const { return outEdges().hasMultipleElements(); }
+    bool isBranch() ثابت { أرجع بهر_څنډې().has_مضرب_Elements(); }
     // Is this a control flow convergence block (multiple predecessors)?
-    bool isJoin() const { return inEdges().hasMultipleElements(); }
+    bool isJoin() ثابت { أرجع دننه_څنډې().has_مضرب_Elements(); }
     // Is this a join of exactly 2 paths?
-    bool isTwoWayJoin() const { return inEdges().hasTwoElements(); }
+    bool isTwoWayJoin() ثابت { أرجع دننه_څنډې().hasTwoElements(); }
 
     // The edge going to the taken (or uncinditional) successor, or nullptr if exit block
-    inline CfgEdge* takenEdgep();
-    inline const CfgEdge* takenEdgep() const;
+    مضمن Cfg_څنډه* اخیستل_شوی_Edgep();
+    مضمن ثابت Cfg_څنډه* اخیستل_شوی_Edgep() ثابت;
     // The edge going to the untaken successor, or nullptr if not a branch, or exit block
-    inline CfgEdge* untknEdgep();
-    inline const CfgEdge* untknEdgep() const;
+    مضمن Cfg_څنډه* untknEdgep();
+    مضمن ثابت Cfg_څنډه* untknEdgep() ثابت;
     // The taken successor block, or nullptr if exit block
-    inline CfgBlock* takenp();
-    inline const CfgBlock* takenp() const;
+    مضمن Cfg_بلاک* takenp();
+    مضمن ثابت Cfg_بلاک* takenp() ثابت;
     // The untakens successor block, or nullptr if not a branch, or exit block
-    inline CfgBlock* untknp();
-    inline const CfgBlock* untknp() const;
+    مضمن Cfg_بلاک* untknp();
+    مضمن ثابت Cfg_بلاک* untknp() ثابت;
 
     // The first predecessor edge, or nullptr if enter block
-    inline CfgEdge* firstPredecessorEdgep();
-    inline const CfgEdge* firstPredecessorEdgep() const;
+    مضمن Cfg_څنډه* لومړی_Predecessor_Edgep();
+    مضمن ثابت Cfg_څنډه* لومړی_Predecessor_Edgep() ثابت;
     // The last predecessor edge, or nullptr if enter block
-    inline CfgEdge* lastPredecessorEdgep();
-    inline const CfgEdge* lastPredecessorEdgep() const;
+    مضمن Cfg_څنډه* وروستی_Predecessor_Edgep();
+    مضمن ثابت Cfg_څنډه* وروستی_Predecessor_Edgep() ثابت;
     // The first predecessor block, or nullptr if enter block
-    inline CfgBlock* firstPredecessorp();
-    inline const CfgBlock* firstPredecessorp() const;
+    مضمن Cfg_بلاک* لومړی_Predecessorp();
+    مضمن ثابت Cfg_بلاک* لومړی_Predecessorp() ثابت;
     // The last predecessor block, or nullptr if enter block
-    inline CfgBlock* lastPredecessorp();
-    inline const CfgBlock* lastPredecessorp() const;
+    مضمن Cfg_بلاک* وروستی_Predecessorp();
+    مضمن ثابت Cfg_بلاک* وروستی_Predecessorp() ثابت;
 
     // Statements in this CfgBlock
-    const std::vector<AstNodeStmt*>& stmtps() const { return m_stmtps; }
+    ثابت std::ویکټور<Ast_غوټه_Stmt*>& stmtps() ثابت { أرجع m_stmtps; }
 
     // Ordering is done on reverese post-order numbering. For loop-free graph
     // this ensures that a block that compares less than another is not a
     // successor of the other block (it is an ancestor, or sibling).
-    bool operator<(const CfgBlock& that) const { return id() < that.id(); }
-    bool operator>(const CfgBlock& that) const { return id() > that.id(); }
-    bool operator==(const CfgBlock& that) const { return this == &that; }
+    bool چلوونکی<(ثابت Cfg_بلاک& that) ثابت { أرجع id() < that.id(); }
+    bool چلوونکی>(ثابت Cfg_بلاک& that) ثابت { أرجع id() > that.id(); }
+    bool چلوونکی==(ثابت Cfg_بلاک& that) ثابت { أرجع this == &that; }
 
     // Iterators
-    void forEachSuccessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
+    فراغ forEachSuccessor(std::function<فراغ(ثابت Cfg_بلاک&)> f) ثابت {
+        لكل (ثابت V3_ګراف_څنډه& څنډه : بهر_څنډې()) f(*static_cast<Cfg_بلاک*>(څنډه.سر()));
     }
-    void forEachPredecessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
+    فراغ forEachPredecessor(std::function<فراغ(ثابت Cfg_بلاک&)> f) ثابت {
+        لكل (ثابت V3_ګراف_څنډه& څنډه : دننه_څنډې()) f(*static_cast<Cfg_بلاک*>(څنډه.fromp()));
     }
 
     // Source location for debugging
-    FileLine* fileline() const override {
-        return !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
+    File_کرښه* fileline() ثابت override {
+        أرجع !m_stmtps.تشه() ? m_stmtps.front()->fileline() : nullptr;
     }
 
     // For Graphviz dumps only
-    std::string name() const override;
-    std::string dotShape() const override;
-    std::string dotRank() const override;
+    std::string name() ثابت override;
+    std::string dotShape() ثابت override;
+    std::string dotRank() ثابت override;
 };
 
 //######################################################################
 // CfgEdge - An edges of the control flow graph
 
-class CfgEdge final : public V3GraphEdge {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
+class Cfg_څنډه final : عام V3_ګراف_څنډه {
+    ملګری class Cfg_ګراف;
+    کينډۍ <typename T_کلی, typename T_ارزښت>
+    ملګری class CfgMap;
 
     // STATE - Immutable after construction, set by CfgBuilder
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgEdge is under
-    size_t m_id = 0;  // Unique ID of this vertex
+    Cfg_ګراف* ثابت m_cfgp;  // The control flow graph this CfgEdge is under
+    اندازه_t m_id = 0;  // Unique ID of this vertex
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline CfgEdge(CfgGraph* graphp, CfgBlock* srcp, CfgBlock* dstp);
-    ~CfgEdge() override = default;
+    مضمن Cfg_څنډه(Cfg_ګراف* graphp, Cfg_بلاک* srcp, Cfg_بلاک* dstp);
+    ~Cfg_څنډه() override = افتراضي;
 
-public:
+عام:
     // METHODS
 
     // Unique ID of this CfgEdge - no particular meaning
-    inline size_t id();
-    inline size_t id() const;
+    مضمن اندازه_t id();
+    مضمن اندازه_t id() ثابت;
 
     // Source/destination CfgBlock
-    const CfgBlock* srcp() const { return static_cast<const CfgBlock*>(fromp()); }
-    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(top()); }
-    CfgBlock* srcp() { return static_cast<CfgBlock*>(fromp()); }
-    CfgBlock* dstp() { return static_cast<CfgBlock*>(top()); }
+    ثابت Cfg_بلاک* srcp() ثابت { أرجع static_cast<ثابت Cfg_بلاک*>(fromp()); }
+    ثابت Cfg_بلاک* dstp() ثابت { أرجع static_cast<ثابت Cfg_بلاک*>(سر()); }
+    Cfg_بلاک* srcp() { أرجع static_cast<Cfg_بلاک*>(fromp()); }
+    Cfg_بلاک* dstp() { أرجع static_cast<Cfg_بلاک*>(سر()); }
 
     // For Graphviz dumps only
-    std::string dotLabel() const override;
+    std::string dotLabel() ثابت override;
 };
 
 //######################################################################
 // CfgGraph - The control flow graph
 
-class CfgGraph final : public V3Graph {
-    friend class CfgBlock;
-    friend class CfgEdge;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_ګراف final : عام V3_ګراف {
+    ملګری class Cfg_بلاک;
+    ملګری class Cfg_څنډه;
+    کينډۍ <typename T_کلی, typename T_ارزښت>
+    ملګری class CfgMap;
+    ملګری class CfgBuilder;
 
     // STATE
-    size_t m_nEdits = 0;  // Edit count of this graph
-    size_t m_nLastOrdered = 0;  // Last edit count blocks were ordered
-    CfgBlock* m_enterp = nullptr;  // The singular entry vertex
-    CfgBlock* m_exitp = nullptr;  // The singular exit vertex
-    size_t m_nBlocks = 0;  // Number of CfgBlocks in this CfgGraph
-    size_t m_nEdges = 0;  // Number of CfgEdges in this CfgGraph
+    اندازه_t m_nEdits = 0;  // Edit count of this graph
+    اندازه_t m_n_وروستی_Ordered = 0;  // Last edit count blocks were ordered
+    Cfg_بلاک* m_enterp = nullptr;  // The singular entry vertex
+    Cfg_بلاک* m_exitp = nullptr;  // The singular exit vertex
+    اندازه_t m_n_بلاکونه = 0;  // Number of CfgBlocks in this CfgGraph
+    اندازه_t m_n_څنډې = 0;  // Number of CfgEdges in this CfgGraph
 
     // PRIVATE METHODS
 
     // Compute reverse post-order enumeration of blocks, and sort them
     // accordingly. Assign blocks, and edge IDs. Invalidates all previous IDs.
-    void rpoBlocks();
+    فراغ rpo_بلاکونه();
 
     // Add a new CfgBlock to this graph
-    CfgBlock* addBlock() {
+    Cfg_بلاک* جمع_کړه_بلاک() {
         ++m_nEdits;
-        ++m_nBlocks;
-        return new CfgBlock{this};
+        ++m_n_بلاکونه;
+        أرجع new Cfg_بلاک{this};
     }
 
     // Add a new taken (or unconditional) CfgEdge to this CFG
-    void addTakenEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    فراغ جمع_کړه_اخیستل_شوی_څنډه(Cfg_بلاک* srcp, Cfg_بلاک* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(!srcp->takenEdgep(), srcp, "Taken edge should be added first");
+        UASSERT_OBJ(!srcp->اخیستل_شوی_Edgep(), srcp, "Taken edge should be added first");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_څنډې;
+        new Cfg_څنډه{this, srcp, dstp};
     }
 
     // Add a new untaken CfgEdge to this CFG
-    void addUntknEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    فراغ جمع_کړه_Untkn_څنډه(Cfg_بلاک* srcp, Cfg_بلاک* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(srcp->takenEdgep(), srcp, "Untaken edge should be added second");
+        UASSERT_OBJ(srcp->اخیستل_شوی_Edgep(), srcp, "Untaken edge should be added second");
         UASSERT_OBJ(srcp->takenp() != dstp, srcp, "Untaken branch targets the same block");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_څنډې;
+        new Cfg_څنډه{this, srcp, dstp};
     }
 
-    size_t idOf(const CfgBlock* bbp) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return bbp->m_rpoNumber;
+    اندازه_t id_د(ثابت Cfg_بلاک* bbp) ثابت {
+        UASSERT_OBJ(m_nEdits == m_n_وروستی_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        أرجع bbp->m_rpo_شمېره;
     }
 
-    size_t idOf(const CfgEdge* edgep) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return edgep->m_id;
+    اندازه_t id_د(ثابت Cfg_څنډه* edgep) ثابت {
+        UASSERT_OBJ(m_nEdits == m_n_وروستی_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        أرجع edgep->m_id;
     }
 
     // Implementation for insertTwoWayJoins
-    CfgBlock* getOrCreateTwoWayJoinFor(CfgBlock* bbp);
+    Cfg_بلاک* getOrCreateTwoWayJoinFor(Cfg_بلاک* bbp);
 
     // CONSTRUCTOR - use CfgGraph::build, which might fail, so this can't be public
-    CfgGraph() = default;
+    Cfg_ګراف() = افتراضي;
 
-public:
-    ~CfgGraph() override = default;
+عام:
+    ~Cfg_ګراف() override = افتراضي;
 
     // STATIC FUNCTIONS
 
     // Build CFG for the given list of statements
-    static std::unique_ptr<CfgGraph> build(AstNode* stmtsp);
+    ساكن std::unique_ptr<Cfg_ګراف> build(Ast_غوټه* stmtsp);
 
     // PUBLIC METHODS
 
     // Accessors
-    const CfgBlock& enter() const { return *m_enterp; }
-    const CfgBlock& exit() const { return *m_exitp; }
+    ثابت Cfg_بلاک& enter() ثابت { أرجع *m_enterp; }
+    ثابت Cfg_بلاک& وتل() ثابت { أرجع *m_exitp; }
 
     // Number of basic blocks in this graph
-    size_t nBlocks() const { return m_nBlocks; }
+    اندازه_t n_بلاکونه() ثابت { أرجع m_n_بلاکونه; }
     // Number of control flow edges in this graph
-    size_t nEdges() const { return m_nEdges; }
+    اندازه_t n_څنډې() ثابت { أرجع m_n_څنډې; }
 
     // Create a CfgBlock map for this graph
-    template <typename T_Value>
-    inline CfgBlockMap<T_Value> makeBlockMap() const;
+    کينډۍ <typename T_ارزښت>
+    مضمن Cfg_بلاک_Map<T_ارزښت> make_بلاک_Map() ثابت;
     // Create a CfgEdgeMap map for this graph
-    template <typename T_Value>
-    inline CfgEdgeMap<T_Value> makeEdgeMap() const;
+    کينډۍ <typename T_ارزښت>
+    مضمن Cfg_څنډه_Map<T_ارزښت> make_څنډه_Map() ثابت;
 
     // Returns true iff the graph contains a loop (back-edge)
-    bool containsLoop() const;
+    bool لري_Loop() ثابت;
 
     //------------------------------------------------------------------
     // The following methods mutate this CFG and invalidate CfgBlock and
@@ -320,101 +320,101 @@ public:
     // query instances.
 
     // Remove empty blocks, combine sequential blocks. Keeps the enter/exit block, even if empty.
-    void minimize();
+    فراغ minimize();
 
     // Insert empty blocks to fix critical edges (edges that have a source with
     // multiple successors, and a destination with multiple predecessors)
-    void breakCriticalEdges();
+    فراغ break_Critical_څنډې();
 
-    bool insertTwoWayJoins();
+    bool ورننباسه_Two_Way_Joins();
 };
 
 //######################################################################
 // CfgMap - Map from CfgBlock or CfgEdge to generic values
 
-template <typename T_Key, typename T_Value>
+کينډۍ <typename T_کلی, typename T_ارزښت>
 class CfgMap VL_NOT_FINAL {
     // As opposed to a std::map/std::unordered_map, all entries are value
     // initialized at construction, and the map is always dense. This can
     // be improved if necessary but is sufficient for our current purposes.
 
-    const CfgGraph* m_cfgp;  // The control flow graph this map is for
-    size_t m_created;  // Edit count of CFG this map was created at
-    std::vector<T_Value> m_map;  // The map, stored as a vector
+    ثابت Cfg_ګراف* m_cfgp;  // The control flow graph this map is for
+    اندازه_t m_created;  // Edit count of CFG this map was created at
+    std::ویکټور<T_ارزښت> m_map;  // The map, stored as a vector
 
-protected:
+محمي:
     // CONSTRUCTOR
-    explicit CfgMap(const CfgGraph* cfgp, size_t size)
+    explicit CfgMap(ثابت Cfg_ګراف* cfgp, اندازه_t اندازه)
         : m_cfgp{cfgp}
         , m_created{cfgp->m_nEdits}
-        , m_map{size} {}
+        , m_map{اندازه} {}
 
-public:
+عام:
     // Can create an empty map
     CfgMap()
         : m_cfgp{nullptr}
         , m_created{0} {}
 
     // Copyable, movable
-    CfgMap(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap(CfgMap<T_Key, T_Value>&&) = default;
-    CfgMap<T_Key, T_Value>& operator=(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap<T_Key, T_Value>& operator=(CfgMap<T_Key, T_Value>&&) = default;
+    CfgMap(ثابت CfgMap<T_کلی, T_ارزښت>&) = افتراضي;
+    CfgMap(CfgMap<T_کلی, T_ارزښت>&&) = افتراضي;
+    CfgMap<T_کلی, T_ارزښت>& چلوونکی=(ثابت CfgMap<T_کلی, T_ارزښت>&) = افتراضي;
+    CfgMap<T_کلی, T_ارزښت>& چلوونکی=(CfgMap<T_کلی, T_ارزښت>&&) = افتراضي;
 
-    T_Value& operator[](const T_Key& key) {
+    T_ارزښت& چلوونکی[](ثابت T_کلی& کلی) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == کلی.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        أرجع m_map.at(کلی.id());
     }
-    const T_Value& operator[](const T_Key& key) const {
+    ثابت T_ارزښت& چلوونکی[](ثابت T_کلی& کلی) ثابت {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == کلی.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        أرجع m_map.at(کلی.id());
     }
-    T_Value& operator[](const T_Key* keyp) {
+    T_ارزښت& چلوونکی[](ثابت T_کلی* keyp) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        أرجع m_map.at(keyp->id());
     }
-    const T_Value& operator[](const T_Key* keyp) const {
+    ثابت T_ارزښت& چلوونکی[](ثابت T_کلی* keyp) ثابت {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        أرجع m_map.at(keyp->id());
     }
 };
 
-template <typename T_Value>
-class CfgBlockMap final : public CfgMap<CfgBlock, T_Value> {
-    friend class CfgGraph;
+کينډۍ <typename T_ارزښت>
+class Cfg_بلاک_Map final : عام CfgMap<Cfg_بلاک, T_ارزښت> {
+    ملګری class Cfg_ګراف;
     // CONSTRUCTOR - Create one via CfgGraph::makeBlockMap
-    explicit CfgBlockMap(const CfgGraph* cfgp)
-        : CfgMap<CfgBlock, T_Value>{cfgp, cfgp->nBlocks()} {}
+    explicit Cfg_بلاک_Map(ثابت Cfg_ګراف* cfgp)
+        : CfgMap<Cfg_بلاک, T_ارزښت>{cfgp, cfgp->n_بلاکونه()} {}
 
-public:
+عام:
     // Can create an empty map
-    CfgBlockMap() = default;
+    Cfg_بلاک_Map() = افتراضي;
     // Copyable, movable
-    CfgBlockMap(const CfgBlockMap&) = default;
-    CfgBlockMap(CfgBlockMap&&) = default;
-    CfgBlockMap& operator=(const CfgBlockMap&) = default;
-    CfgBlockMap& operator=(CfgBlockMap&&) = default;
+    Cfg_بلاک_Map(ثابت Cfg_بلاک_Map&) = افتراضي;
+    Cfg_بلاک_Map(Cfg_بلاک_Map&&) = افتراضي;
+    Cfg_بلاک_Map& چلوونکی=(ثابت Cfg_بلاک_Map&) = افتراضي;
+    Cfg_بلاک_Map& چلوونکی=(Cfg_بلاک_Map&&) = افتراضي;
 };
 
-template <typename T_Value>
-class CfgEdgeMap final : public CfgMap<CfgEdge, T_Value> {
-    friend class CfgGraph;
+کينډۍ <typename T_ارزښت>
+class Cfg_څنډه_Map final : عام CfgMap<Cfg_څنډه, T_ارزښت> {
+    ملګری class Cfg_ګراف;
     // CONSTRUCTOR - Create one via CfgGraph::makeEdgeMap
-    explicit CfgEdgeMap(const CfgGraph* cfgp)
-        : CfgMap<CfgEdge, T_Value>{cfgp, cfgp->nEdges()} {}
+    explicit Cfg_څنډه_Map(ثابت Cfg_ګراف* cfgp)
+        : CfgMap<Cfg_څنډه, T_ارزښت>{cfgp, cfgp->n_څنډې()} {}
 
-public:
+عام:
     // Can create an empty map
-    CfgEdgeMap() = default;
+    Cfg_څنډه_Map() = افتراضي;
     // Copyable, movable
-    CfgEdgeMap(const CfgEdgeMap&) = default;
-    CfgEdgeMap(CfgEdgeMap&&) = default;
-    CfgEdgeMap& operator=(const CfgEdgeMap&) = default;
-    CfgEdgeMap& operator=(CfgEdgeMap&&) = default;
+    Cfg_څنډه_Map(ثابت Cfg_څنډه_Map&) = افتراضي;
+    Cfg_څنډه_Map(Cfg_څنډه_Map&&) = افتراضي;
+    Cfg_څنډه_Map& چلوونکی=(ثابت Cfg_څنډه_Map&) = افتراضي;
+    Cfg_څنډه_Map& چلوونکی=(Cfg_څنډه_Map&&) = افتراضي;
 };
 
 //######################################################################
@@ -422,134 +422,134 @@ public:
 
 // --- CfgBlock ---
 
-CfgBlock::CfgBlock(CfgGraph* cfgp)
-    : V3GraphVertex{cfgp}
+Cfg_بلاک::Cfg_بلاک(Cfg_ګراف* cfgp)
+    : V3_ګراف_راس{cfgp}
     , m_cfgp{cfgp} {}
 
-size_t CfgBlock::id() { return m_cfgp->idOf(this); }
-size_t CfgBlock::id() const { return m_cfgp->idOf(this); }
+اندازه_t Cfg_بلاک::id() { أرجع m_cfgp->id_د(this); }
+اندازه_t Cfg_بلاک::id() ثابت { أرجع m_cfgp->id_د(this); }
 
 // Successor edges
-CfgEdge* CfgBlock::takenEdgep() {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<CfgEdge*>(outEdges().frontp());
+Cfg_څنډه* Cfg_بلاک::اخیستل_شوی_Edgep() {  // It's always the first edge
+    أرجع isExit() ? nullptr : static_cast<Cfg_څنډه*>(بهر_څنډې().frontp());
 }
-const CfgEdge* CfgBlock::takenEdgep() const {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<const CfgEdge*>(outEdges().frontp());
+ثابت Cfg_څنډه* Cfg_بلاک::اخیستل_شوی_Edgep() ثابت {  // It's always the first edge
+    أرجع isExit() ? nullptr : static_cast<ثابت Cfg_څنډه*>(بهر_څنډې().frontp());
 }
-CfgEdge* CfgBlock::untknEdgep() {  // It's always the second (last) edge
-    return isBranch() ? static_cast<CfgEdge*>(outEdges().backp()) : nullptr;
+Cfg_څنډه* Cfg_بلاک::untknEdgep() {  // It's always the second (last) edge
+    أرجع isBranch() ? static_cast<Cfg_څنډه*>(بهر_څنډې().backp()) : nullptr;
 }
-const CfgEdge* CfgBlock::untknEdgep() const {  // It's always the second (last) edge
-    return isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
+ثابت Cfg_څنډه* Cfg_بلاک::untknEdgep() ثابت {  // It's always the second (last) edge
+    أرجع isBranch() ? static_cast<ثابت Cfg_څنډه*>(بهر_څنډې().backp()) : nullptr;
 }
-CfgBlock* CfgBlock::takenp() {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+Cfg_بلاک* Cfg_بلاک::takenp() {
+    أرجع isExit() ? nullptr : static_cast<Cfg_بلاک*>(بهر_څنډې().frontp()->سر());
 }
-const CfgBlock* CfgBlock::takenp() const {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+ثابت Cfg_بلاک* Cfg_بلاک::takenp() ثابت {
+    أرجع isExit() ? nullptr : static_cast<Cfg_بلاک*>(بهر_څنډې().frontp()->سر());
 }
-CfgBlock* CfgBlock::untknp() {
-    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
+Cfg_بلاک* Cfg_بلاک::untknp() {
+    أرجع isBranch() ? static_cast<Cfg_بلاک*>(بهر_څنډې().backp()->سر()) : nullptr;
 }
-const CfgBlock* CfgBlock::untknp() const {
-    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
+ثابت Cfg_بلاک* Cfg_بلاک::untknp() ثابت {
+    أرجع isBranch() ? static_cast<ثابت Cfg_بلاک*>(بهر_څنډې().backp()->سر()) : nullptr;
 }
 
 // Predecessor edges
-CfgEdge* CfgBlock::firstPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().frontp());
+Cfg_څنډه* Cfg_بلاک::لومړی_Predecessor_Edgep() {  //
+    أرجع static_cast<Cfg_څنډه*>(دننه_څنډې().frontp());
 }
-const CfgEdge* CfgBlock::firstPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().frontp());
+ثابت Cfg_څنډه* Cfg_بلاک::لومړی_Predecessor_Edgep() ثابت {  //
+    أرجع static_cast<ثابت Cfg_څنډه*>(دننه_څنډې().frontp());
 }
-CfgEdge* CfgBlock::lastPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().backp());
+Cfg_څنډه* Cfg_بلاک::وروستی_Predecessor_Edgep() {  //
+    أرجع static_cast<Cfg_څنډه*>(دننه_څنډې().backp());
 }
-const CfgEdge* CfgBlock::lastPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().backp());
+ثابت Cfg_څنډه* Cfg_بلاک::وروستی_Predecessor_Edgep() ثابت {  //
+    أرجع static_cast<ثابت Cfg_څنډه*>(دننه_څنډې().backp());
 }
-CfgBlock* CfgBlock::firstPredecessorp() {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+Cfg_بلاک* Cfg_بلاک::لومړی_Predecessorp() {  //
+    أرجع isEnter() ? nullptr : لومړی_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::firstPredecessorp() const {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+ثابت Cfg_بلاک* Cfg_بلاک::لومړی_Predecessorp() ثابت {  //
+    أرجع isEnter() ? nullptr : لومړی_Predecessor_Edgep()->srcp();
 }
-CfgBlock* CfgBlock::lastPredecessorp() {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+Cfg_بلاک* Cfg_بلاک::وروستی_Predecessorp() {  //
+    أرجع isEnter() ? nullptr : وروستی_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::lastPredecessorp() const {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+ثابت Cfg_بلاک* Cfg_بلاک::وروستی_Predecessorp() ثابت {  //
+    أرجع isEnter() ? nullptr : وروستی_Predecessor_Edgep()->srcp();
 }
 
 // --- CfgEdge ---
 
-CfgEdge::CfgEdge(CfgGraph* cfgp, CfgBlock* srcp, CfgBlock* dstp)
-    : V3GraphEdge{cfgp, srcp, dstp, 1, false}
+Cfg_څنډه::Cfg_څنډه(Cfg_ګراف* cfgp, Cfg_بلاک* srcp, Cfg_بلاک* dstp)
+    : V3_ګراف_څنډه{cfgp, srcp, dstp, 1, false}
     , m_cfgp{cfgp} {}
 
-size_t CfgEdge::id() { return m_cfgp->idOf(this); }
-size_t CfgEdge::id() const { return m_cfgp->idOf(this); }
+اندازه_t Cfg_څنډه::id() { أرجع m_cfgp->id_د(this); }
+اندازه_t Cfg_څنډه::id() ثابت { أرجع m_cfgp->id_د(this); }
 
 // --- CfgGraph ---
 
-template <typename T_Value>
-CfgBlockMap<T_Value> CfgGraph::makeBlockMap() const {
-    return CfgBlockMap<T_Value>{this};
+کينډۍ <typename T_ارزښت>
+Cfg_بلاک_Map<T_ارزښت> Cfg_ګراف::make_بلاک_Map() ثابت {
+    أرجع Cfg_بلاک_Map<T_ارزښت>{this};
 }
-template <typename T_Value>
-CfgEdgeMap<T_Value> CfgGraph::makeEdgeMap() const {
-    return CfgEdgeMap<T_Value>{this};
+کينډۍ <typename T_ارزښت>
+Cfg_څنډه_Map<T_ارزښت> Cfg_ګراف::make_څنډه_Map() ثابت {
+    أرجع Cfg_څنډه_Map<T_ارزښت>{this};
 }
 
 //######################################################################
 // CfgDominatorTree
 
-class CfgDominatorTree final {
+class Cfg_Dominator_ونه final {
     // STATE
-    CfgBlockMap<const CfgBlock*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
+    Cfg_بلاک_Map<ثابت Cfg_بلاک*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
 
     // PRIVATE METHODS
 
     // Part of algorithm to compute m_bb2Idom, see consructor
-    const CfgBlock* intersect(const CfgBlock* ap, const CfgBlock* bp);
+    ثابت Cfg_بلاک* intersect(ثابت Cfg_بلاک* ap, ثابت Cfg_بلاک* bp);
 
-public:
+عام:
     // CONSTRUCTOR
-    explicit CfgDominatorTree(const CfgGraph& cfg);
+    explicit Cfg_Dominator_ونه(ثابت Cfg_ګراف& cfg);
     // Can create an empty map
-    CfgDominatorTree() = default;
+    Cfg_Dominator_ونه() = افتراضي;
     // Copyable, movable
-    CfgDominatorTree(const CfgDominatorTree&) = default;
-    CfgDominatorTree(CfgDominatorTree&&) = default;
-    CfgDominatorTree& operator=(const CfgDominatorTree&) = default;
-    CfgDominatorTree& operator=(CfgDominatorTree&&) = default;
+    Cfg_Dominator_ونه(ثابت Cfg_Dominator_ونه&) = افتراضي;
+    Cfg_Dominator_ونه(Cfg_Dominator_ونه&&) = افتراضي;
+    Cfg_Dominator_ونه& چلوونکی=(ثابت Cfg_Dominator_ونه&) = افتراضي;
+    Cfg_Dominator_ونه& چلوونکی=(Cfg_Dominator_ونه&&) = افتراضي;
 
     // PUBLIC METHODS
 
     // Return unique CfgBlock that dominates both of the given blocks, but does
     // not strictly dominate any other block that dominates both blocks. It
     // will return 'ap' or 'bp' if one dominates the other (or are the same)
-    const CfgBlock* closestCommonDominator(const CfgBlock* ap, const CfgBlock* bp) const {
-        while (ap != bp) {
-            if (*ap < *bp) {
+    ثابت Cfg_بلاک* closestCommonDominator(ثابت Cfg_بلاک* ap, ثابت Cfg_بلاک* bp) ثابت {
+        طالما (ap != bp) {
+            إذا (*ap < *bp) {
                 bp = m_bb2Idom[bp];
-            } else {
+            } وإلا {
                 ap = m_bb2Idom[ap];
             }
         }
-        return ap;
+        أرجع ap;
     }
 
     // Returns true if 'ap' dominates 'bp'
-    bool dominates(const CfgBlock* const ap, const CfgBlock* bp) {
+    bool dominates(ثابت Cfg_بلاک* ثابت ap, ثابت Cfg_بلاک* bp) {
         // Walk up the dominator tree from 'bp' until reaching 'ap' or the root
-        while (true) {
+        طالما (true) {
             // True if 'ap' is above (or same as) 'bp'
-            if (ap == bp) return true;
+            إذا (ap == bp) أرجع true;
             // Step up the dominator tree
             bp = m_bb2Idom[bp];
             // False if reached the root
-            if (!bp) return false;
+            إذا (!bp) أرجع false;
         }
     }
 };
@@ -564,8 +564,8 @@ namespace V3Cfg {
 // failed due to unhandled statements involved in the CFG. The analysis is
 // conservative and may return variables that are not actually live on entry.
 // On success, returns a vector of AstVarScope nodes that might be live on entry.
-std::unique_ptr<std::vector<AstVarScope*>> liveVarScopes(const CfgGraph&);
+std::unique_ptr<std::ویکټور<AstVarScope*>> ژوندی_Var_Scopes(ثابت Cfg_ګراف&);
 
 }  //namespace V3Cfg
 
-#endif  // VERILATOR_V3CFG_H_
+#د_که_پای  // VERILATOR_V3CFG_H_

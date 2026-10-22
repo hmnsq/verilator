@@ -16,67 +16,67 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3UNIQUENAMES_H_
-#define VERILATOR_V3UNIQUENAMES_H_
+#که_نه_تعریف_شوی VERILATOR_V3UNIQUENAMES_H_
+#تعریف_کړه VERILATOR_V3UNIQUENAMES_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Hasher.h"
+#ضمن "V3Hasher.h"
 
-#include <map>
-#include <string>
+#ضمن <map>
+#ضمن <string>
 
-class V3UniqueNames final {
-    std::string m_prefix;  // Prefix to attach to all names
+class V3_Unique_نومونه final {
+    std::string m_مختاړی;  // Prefix to attach to all names
 
-    std::map<std::string, unsigned> m_multiplicity;  // Suffix number for given key
+    std::map<std::string, بینښه> m_multiplicity;  // Suffix number for given key
 
-    bool m_addSuffix = true;  // Ad suffix or not
+    bool m_جمع_کړه_Suffix = true;  // Ad suffix or not
 
-public:
-    V3UniqueNames() = default;
-    explicit V3UniqueNames(const std::string& prefix, bool addSuffix = true)
-        : m_prefix{prefix}
-        , m_addSuffix{addSuffix} {
-        if (!m_prefix.empty()) {
-            UASSERT(VString::startsWith(m_prefix, "__V"), "Prefix must start with '__V'");
-            UASSERT(!VString::endsWith(m_prefix, "_"), "Prefix must not end with '_'");
+عام:
+    V3_Unique_نومونه() = افتراضي;
+    explicit V3_Unique_نومونه(ثابت std::string& مختاړی, bool جمع_کړه_Suffix = true)
+        : m_مختاړی{مختاړی}
+        , m_جمع_کړه_Suffix{جمع_کړه_Suffix} {
+        إذا (!m_مختاړی.تشه()) {
+            UASSERT(VString::startsWith(m_مختاړی, "__V"), "Prefix must start with '__V'");
+            UASSERT(!VString::پایونه_With(m_مختاړی, "_"), "Prefix must not end with '_'");
         }
     }
 
     // Return argument, prepended with the prefix if any, then appended with a unique suffix each
     // time we are called with the same argument.
-    std::string get(const std::string& name) {
-        if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+    std::string get(ثابت std::string& name) {
+        إذا (!m_جمع_کړه_Suffix) {
+            إذا (m_multiplicity.شمېر(name) == 0) {
                 m_multiplicity[name] = 0;
-                return name;
+                أرجع name;
             }
-            return get(name + "__" + cvtToStr(m_multiplicity[name]++));
+            أرجع get(name + "__" + cvt_منزل_Str(m_multiplicity[name]++));
         }
         // NORMAL mode
-        const unsigned num = m_multiplicity[name]++;
-        std::string result;
-        if (!m_prefix.empty()) {
-            result += m_prefix;
-            result += "_";
+        ثابت بینښه عدد = m_multiplicity[name]++;
+        std::string پایله;
+        إذا (!m_مختاړی.تشه()) {
+            پایله += m_مختاړی;
+            پایله += "_";
         }
-        result += name;
-        result += "__";
-        result += cvtToStr(num);
-        return result;
+        پایله += name;
+        پایله += "__";
+        پایله += cvt_منزل_Str(عدد);
+        أرجع پایله;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
-    std::string get(const AstNode* nodep) {
-        if (nodep == nullptr) { return get(""); }
-        return get(V3Hasher::uncachedHash(nodep).toString());
+    std::string get(ثابت Ast_غوټه* nodep) {
+        إذا (nodep == nullptr) { أرجع get(""); }
+        أرجع get(V3Hasher::uncachedHash(nodep).منزل_String());
     }
 
     // Reset to initial state (as if just constructed)
-    void reset() { m_multiplicity.clear(); }
+    فراغ reset() { m_multiplicity.clear(); }
 };
 
-#endif  // Guard
+#د_که_پای  // Guard

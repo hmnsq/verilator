@@ -22,23 +22,23 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Covergroup.h"
+#ضمن "V3Covergroup.h"
 
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#ضمن "V3Const.h"
+#ضمن "V3Error.h"
+#ضمن "V3File.h"
+#ضمن "V3MemberMap.h"
+#ضمن "V3UniqueNames.h"
 
-#include <bitset>
-#include <cmath>
-#include <deque>
-#include <set>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#ضمن <bitset>
+#ضمن <cmath>
+#ضمن <deque>
+#ضمن <set>
+#ضمن <tuple>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -46,50 +46,50 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Embedded covergroup assignment validation; and in the same pass over the netlist, the
 // type_option variables through which SystemVerilog may set type_option.merge_instances
 
-class CovergroupAssignValidVisitor final : public VNVisitorConst {
+صنف Covergroup_ټاکل_Valid_Visitor final : عام VNVisitorConst {
     VMemberMap m_memberMap;
-    std::map<const AstVar*, const AstNodeFTask*>
+    std::map<ثابت AstVar*, ثابت Ast_غوټه_FTask*>
         m_constructors;  // Implicit instance -> constructor
-    std::set<const AstVar*> m_mergeableTypeOptions;  // See mergeableTypeOptions()
-    const AstNodeFTask* m_ftaskp = nullptr;
-    bool m_collecting = true;
-    bool m_valid = true;
+    std::سېټ<ثابت AstVar*> m_mergeableTypeOptions;  // See mergeableTypeOptions()
+    ثابت Ast_غوټه_FTask* m_ftaskp = تش_اشاره;
+    منطقي m_collecting = ریښتیا;
+    منطقي m_valid = ریښتیا;
 
-    void visit(AstClass* nodep) override {
+    فراغ لیدنه(AstClass* nodep) override {
         VL_RESTORER(m_ftaskp);
-        m_ftaskp = nullptr;
-        if (m_collecting) {
-            const AstNodeFTask* const constructorp
-                = VN_CAST(m_memberMap.findMember(nodep, "new"), NodeFTask);
-            for (const AstNode* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
-                const AstVar* const varp = VN_CAST(itemp, Var);
+        m_ftaskp = تش_اشاره;
+        إذا (m_collecting) {
+            ثابت Ast_غوټه_FTask* ثابت constructorp
+                = VN_CAST(m_memberMap.پیدا_کړه_Member(nodep, "new"), غوټه_FTask);
+            لكل (ثابت Ast_غوټه* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
+                ثابت AstVar* ثابت varp = VN_CAST(itemp, Var);
                 // Only the implicit instance is restricted, not explicitly typed aliases.
-                if (!varp || !varp->isClassMember() || varp->isDeclTyped()) continue;
-                const AstClassRefDType* const refp
+                إذا (!varp || !varp->isClassMember() || varp->isDeclTyped()) استمر;
+                ثابت AstClassRefDType* ثابت refp
                     = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                if (refp && refp->classp()->covergroupEnclosingClassp() == nodep) {
+                إذا (refp && refp->classp()->covergroupEnclosingClassp() == nodep) {
                     m_constructors.emplace(varp, constructorp);
                 }
             }
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    فراغ لیدنه(Ast_غوټه_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_collecting) {
-            const AstVar* varp = nullptr;
-            if (const AstNodeVarRef* const refp = VN_CAST(nodep->lhsp(), NodeVarRef)) {
+    فراغ لیدنه(Ast_غوټه_ټاکل* nodep) override {
+        إذا (!m_collecting) {
+            ثابت AstVar* varp = تش_اشاره;
+            إذا (ثابت Ast_غوټه_Var_Ref* ثابت refp = VN_CAST(nodep->lhsp(), غوټه_Var_Ref)) {
                 varp = refp->varp();
-            } else if (const AstMemberSel* const selp = VN_CAST(nodep->lhsp(), MemberSel)) {
+            } وإلا إذا (ثابت AstMemberSel* ثابت selp = VN_CAST(nodep->lhsp(), MemberSel)) {
                 varp = selp->varp();
             }
-            const auto it = m_constructors.find(varp);
-            if (it != m_constructors.end() && (!m_ftaskp || m_ftaskp != it->second)) {
-                m_valid = false;
+            ثابت خپلکاری it = m_constructors.پیدا_کړه(varp);
+            إذا (it != m_constructors.پای_ټکی() && (!m_ftaskp || m_ftaskp != it->دوهم)) {
+                m_valid = خطأ;
                 nodep->v3error("Embedded covergroup variable "
                                << varp->prettyNameQ()
                                << " may only be assigned in the enclosing class's 'new' method "
@@ -98,110 +98,110 @@ class CovergroupAssignValidVisitor final : public VNVisitorConst {
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    فراغ لیدنه(Ast_غوټه_Var_Ref* nodep) override {
         // Type options may be set at any time (IEEE 1800-2023 19.7.1), so SystemVerilog may set
         // type_option.merge_instances with any use of a type_option but a read of another
         // member, as not every write is marked yet (std::randomize)
-        if (m_collecting && nodep->varp()->name() == "type_option") {
-            const AstStructSel* const selp = VN_CAST(nodep->backp(), StructSel);
-            if (!selp || selp->fromp() != nodep || selp->name() == "merge_instances"
+        إذا (m_collecting && nodep->varp()->name() == "type_option") {
+            ثابت AstStructSel* ثابت selp = VN_CAST(nodep->backp(), StructSel);
+            إذا (!selp || selp->fromp() != nodep || selp->name() == "merge_instances"
                 || !nodep->access().isReadOnly()) {
-                m_mergeableTypeOptions.insert(nodep->varp());
+                m_mergeableTypeOptions.ورننباسه(nodep->varp());
             }
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit CovergroupAssignValidVisitor(AstNetlist* nodep) {
+عام:
+    څرګند Covergroup_ټاکل_Valid_Visitor(AstNetlist* nodep) {
         // Uses can precede their enclosing class in the tree.
         iterateConst(nodep);
-        m_collecting = false;
-        if (!m_constructors.empty()) iterateConst(nodep);
+        m_collecting = خطأ;
+        إذا (!m_constructors.تشه()) iterateConst(nodep);
     }
-    bool valid() const { return m_valid; }
+    منطقي valid() ثابت { أرجع m_valid; }
     // type_option variables through which SystemVerilog may set type_option.merge_instances, so
     // that covergroups are tested with optionVar(true)
-    const std::set<const AstVar*>& mergeableTypeOptions() const { return m_mergeableTypeOptions; }
+    ثابت std::سېټ<ثابت AstVar*>& mergeableTypeOptions() ثابت { أرجع m_mergeableTypeOptions; }
 };
 
 //######################################################################
 // Covergroup expression validation visitor
 
-class CovergroupExprValidVisitor final : public VNVisitor {
-    const std::set<const AstVar*>& m_sampleMembers;
-    const std::set<const AstVar*>& m_constructorRefMembers;
-    bool m_inCoverageExpression = false;
-    bool m_sampleFormalAllowed = false;
+صنف Covergroup_بیان_Valid_Visitor final : عام VNVisitor {
+    ثابت std::سېټ<ثابت AstVar*>& m_sampleMembers;
+    ثابت std::سېټ<ثابت AstVar*>& m_constructorRefMembers;
+    منطقي m_دننه_Coverage_افاده = خطأ;
+    منطقي m_sampleFormalAllowed = خطأ;
 
-    void scanSampleExpression(AstNode* nodep) {
-        if (!nodep) return;
+    فراغ لټون_Sample_افاده(Ast_غوټه* nodep) {
+        إذا (!nodep) أرجع;
         VL_RESTORER(m_sampleFormalAllowed);
-        m_sampleFormalAllowed = true;
-        iterateAndNextNull(nodep);
+        m_sampleFormalAllowed = ریښتیا;
+        iterate_And_بل_Null(nodep);
     }
 
-    void scanCoverageExpression(AstNode* nodep) {
-        if (!nodep) return;
-        VL_RESTORER(m_inCoverageExpression);
-        m_inCoverageExpression = true;
-        iterateAndNextNull(nodep);
+    فراغ لټون_Coverage_افاده(Ast_غوټه* nodep) {
+        إذا (!nodep) أرجع;
+        VL_RESTORER(m_دننه_Coverage_افاده);
+        m_دننه_Coverage_افاده = ریښتیا;
+        iterate_And_بل_Null(nodep);
     }
 
-    void visit(AstCoverpoint* nodep) override {
-        scanSampleExpression(nodep->exprp());
-        scanSampleExpression(nodep->iffp());
-        iterateAndNextNull(nodep->binsp());
-        iterateAndNextNull(nodep->optionsp());
+    فراغ لیدنه(AstCoverpoint* nodep) override {
+        لټون_Sample_افاده(nodep->exprp());
+        لټون_Sample_افاده(nodep->iffp());
+        iterate_And_بل_Null(nodep->binsp());
+        iterate_And_بل_Null(nodep->optionsp());
     }
-    void visit(AstCoverCross* nodep) override {
-        iterateAndNextNull(nodep->itemsp());
-        scanSampleExpression(nodep->iffp());
-        iterateAndNextNull(nodep->optionsp());
-        iterateAndNextNull(nodep->binsp());
+    فراغ لیدنه(AstCoverCross* nodep) override {
+        iterate_And_بل_Null(nodep->itemsp());
+        لټون_Sample_افاده(nodep->iffp());
+        iterate_And_بل_Null(nodep->optionsp());
+        iterate_And_بل_Null(nodep->binsp());
     }
-    void visit(AstCoverCrossBin* nodep) override {
-        iterateAndNextNull(nodep->selectp());
-        scanSampleExpression(nodep->iffp());
+    فراغ لیدنه(AstCoverCrossBin* nodep) override {
+        iterate_And_بل_Null(nodep->selectp());
+        لټون_Sample_افاده(nodep->iffp());
     }
-    void visit(AstCoverCrossWith* nodep) override {
-        iterateAndNextNull(nodep->selectp());
-        scanCoverageExpression(nodep->filterp());
-        scanCoverageExpression(nodep->countp());
+    فراغ لیدنه(AstCoverCrossWith* nodep) override {
+        iterate_And_بل_Null(nodep->selectp());
+        لټون_Coverage_افاده(nodep->filterp());
+        لټون_Coverage_افاده(nodep->countp());
     }
-    void visit(AstCoverBinsof* nodep) override { scanCoverageExpression(nodep->rangesp()); }
-    void visit(AstCoverBin* nodep) override {
-        scanCoverageExpression(nodep->rangesp());
-        scanSampleExpression(nodep->iffp());
-        scanCoverageExpression(nodep->arraySizep());
-        scanCoverageExpression(nodep->transp());
+    فراغ لیدنه(AstCoverBinsof* nodep) override { لټون_Coverage_افاده(nodep->rangesp()); }
+    فراغ لیدنه(AstCoverBin* nodep) override {
+        لټون_Coverage_افاده(nodep->rangesp());
+        لټون_Sample_افاده(nodep->iffp());
+        لټون_Coverage_افاده(nodep->arraySizep());
+        لټون_Coverage_افاده(nodep->transp());
     }
-    void visit(AstVarRef* nodep) override {
-        if (!m_sampleFormalAllowed && m_sampleMembers.count(nodep->varp())) {
+    فراغ لیدنه(AstVarRef* nodep) override {
+        إذا (!m_sampleFormalAllowed && m_sampleMembers.شمېر(nodep->varp())) {
             nodep->v3error("Covergroup sample formal argument "
                            << nodep->varp()->prettyNameQ()
                            << " may only be used in a coverpoint or conditional guard "
                               "expression (IEEE 1800-2023 19.8.1).");
         }
-        if (m_inCoverageExpression && m_constructorRefMembers.count(nodep->varp())) {
+        إذا (m_دننه_Coverage_افاده && m_constructorRefMembers.شمېر(nodep->varp())) {
             nodep->v3error("Ref covergroup constructor formal argument "
                            << nodep->varp()->prettyNameQ()
                            << " may not be used in a covergroup expression "
                               "(IEEE 1800-2023 19.5).");
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (m_inCoverageExpression && nodep->taskp()) {
-            bool invalidDirection = false;
-            for (AstNode* stmtp = nodep->taskp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                const AstVar* const varp = VN_CAST(stmtp, Var);
-                if (varp && varp->isIO() && varp->isWritable()) {
-                    invalidDirection = true;
-                    break;
+    فراغ لیدنه(Ast_غوټه_FTask_Ref* nodep) override {
+        إذا (m_دننه_Coverage_افاده && nodep->taskp()) {
+            منطقي invalidDirection = خطأ;
+            لكل (Ast_غوټه* stmtp = nodep->taskp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ثابت AstVar* ثابت varp = VN_CAST(stmtp, Var);
+                إذا (varp && varp->isIO() && varp->isWritable()) {
+                    invalidDirection = ریښتیا;
+                    اكسر;
                 }
             }
-            if (invalidDirection) {
+            إذا (invalidDirection) {
                 nodep->v3error("Function " << nodep->taskp()->prettyNameQ()
                                            << " called in a covergroup expression has an "
                                               "output, inout, or non-const ref argument "
@@ -210,14 +210,14 @@ class CovergroupExprValidVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
-    CovergroupExprValidVisitor(const std::set<const AstVar*>& sampleMembers,
-                               const std::set<const AstVar*>& constructorRefMembers)
+عام:
+    Covergroup_بیان_Valid_Visitor(ثابت std::سېټ<ثابت AstVar*>& sampleMembers,
+                               ثابت std::سېټ<ثابت AstVar*>& constructorRefMembers)
         : m_sampleMembers{sampleMembers}
         , m_constructorRefMembers{constructorRefMembers} {}
-    void scan(AstNode* nodep) { iterate(nodep); }
+    فراغ لټون(Ast_غوټه* nodep) { iterate(nodep); }
 };
 
 //######################################################################
@@ -227,162 +227,162 @@ public:
 // domain.  Bounds are coverpoint values at FunctionalCoverageVisitor::runWidth(),
 // sign-extended like a CrossValueRange's.
 
-class BinRun final {
-public:
+صنف Bin_پرلپسې final {
+عام:
     // MEMBERS
-    uint32_t m_count;  // Number of bins
-    V3Number m_lo;  // Lowest value of the first bin
-    V3Number m_stride;  // Number of values of each bin but the last
-    V3Number m_hi;  // Highest value of the last bin
-    bool m_empty = false;  // A single bin without a value of the coverpoint type
+    uint32_t m_شمېر;  // Number of bins
+    V3_شمېره m_lo;  // Lowest value of the first bin
+    V3_شمېره m_stride;  // Number of values of each bin but the last
+    V3_شمېره m_hi;  // Highest value of the last bin
+    منطقي m_تشه = خطأ;  // A single bin without a value of the coverpoint type
     uint32_t m_declared = 0;  // Runtime index of the first bin, once generated
 
     // CONSTRUCTORS
-    BinRun(AstNode* nodep, int width, uint32_t count)
-        : m_count{count}
-        , m_lo{nodep, width}
-        , m_stride{nodep, width, 1}
-        , m_hi{nodep, width} {}
+    Bin_پرلپسې(Ast_غوټه* nodep, صحيح پلنوالی, uint32_t شمېر)
+        : m_شمېر{شمېر}
+        , m_lo{nodep, پلنوالی}
+        , m_stride{nodep, پلنوالی, 1}
+        , m_hi{nodep, پلنوالی} {}
 };
 
 //######################################################################
 // Functional coverage visitor
 
-class FunctionalCoverageVisitor final : public VNVisitor {
+صنف FunctionalCoverageVisitor final : عام VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstCoverpoint::user1p()  -> AstVar*.  Previous-value variable for transition bins
     //  AstCoverpoint::user2()   -> bool.  Had a bins declaration ignored, so no automatic bins
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ثابت VNUser1_دننه_Use m_inuser1;
+    ثابت VNUser2_دننه_Use m_inuser2;
 
     // STATE
-    std::set<AstCoverpoint*>
+    std::سېټ<AstCoverpoint*>
         m_runtimePoints;  // Points needing value metadata and live-bin mapping
-    std::set<AstCoverCross*> m_runtimeCrosses;  // Crosses over finalized live-bin dimensions
+    std::سېټ<AstCoverCross*> m_runtimeCrosses;  // Crosses over finalized live-bin dimensions
     std::map<AstVar*, AstVar*> m_excludedVars;  // Sample-time state-exclusion flags
-    AstClass* m_covergroupp = nullptr;  // Current covergroup being processed
-    AstNodeModule* m_unitp = nullptr;  // Design unit declaring the current class, outside classes
-    AstClass* m_enclosingClassp = nullptr;  // Class lexically enclosing the covergroup, if any
-    AstVar* m_embeddedVarp = nullptr;  // Embedded covergroup member of m_enclosingClassp, if any
+    AstClass* m_covergroupp = تش_اشاره;  // Current covergroup being processed
+    Ast_غوټه_Module* m_unitp = تش_اشاره;  // Design unit declaring the current class, outside classes
+    AstClass* m_enclosingClassp = تش_اشاره;  // Class lexically enclosing the covergroup, if any
+    AstVar* m_embeddedVarp = تش_اشاره;  // Embedded covergroup member of m_enclosingClassp, if any
     std::string m_covergroupName;  // Current covergroup's type name, see covergroupTypeName()
-    AstFunc* m_sampleFuncp = nullptr;  // Current sample() function
-    AstIf* m_cpGuardp = nullptr;  // Current coverpoint's iff guard, holding its sampling
-    AstFunc* m_constructorp = nullptr;  // Current constructor
-    std::vector<AstCoverpoint*> m_coverpoints;  // Coverpoints in current covergroup
+    AstFunc* m_sampleFuncp = تش_اشاره;  // Current sample() function
+    AstIf* m_cpGuardp = تش_اشاره;  // Current coverpoint's iff guard, holding its sampling
+    AstFunc* m_constructorp = تش_اشاره;  // Current constructor
+    std::ویکټور<AstCoverpoint*> m_coverpoints;  // Coverpoints in current covergroup
     std::map<std::string, AstCoverpoint*> m_coverpointMap;  // Name -> coverpoint for fast lookup
-    std::vector<AstCoverCross*> m_coverCrosses;  // Cross coverage items in current covergroup
-    std::vector<AstCgOptionAssign*> m_cgOptions;  // Covergroup-level options, before lowering
-    uint32_t m_cgTypeWeight = 1;  // The covergroup's type_option.weight, a constant
-    bool m_cgMergeInstances = false;  // The covergroup's type_option.merge_instances, a constant
+    std::ویکټور<AstCoverCross*> m_coverCrosses;  // Cross coverage items in current covergroup
+    std::ویکټور<Ast_Cg_Option_ټاکل*> m_cgOptions;  // Covergroup-level options, before lowering
+    uint32_t m_cg_Type_وزن = 1;  // The covergroup's type_option.weight, a constant
+    منطقي m_cg_یوځای_Instances = خطأ;  // The covergroup's type_option.merge_instances, a constant
     // The covergroup's type_option.merge_instances is, or SystemVerilog may make it, true
-    bool m_cgMayMerge = false;
+    منطقي m_cg_May_یوځای = خطأ;
     // type_option members through which SystemVerilog may set type_option.merge_instances,
     // see CovergroupAssignValidVisitor::mergeableTypeOptions()
-    const std::set<const AstVar*>& m_mergeableTypeOptions;
-    int m_cgAtLeast = 1;  // Covergroup option.at_least
+    ثابت std::سېټ<ثابت AstVar*>& m_mergeableTypeOptions;
+    صحيح m_cg_At_لږترلږه = 1;  // Covergroup option.at_least
 
-    struct EmbeddedEventTrigger final {
-        FileLine* eventFl;  // Clocking-event source location
-        AstVar* baseVarp;  // Base enclosing-class member in the event expression
+    بنية EmbeddedEventTrigger final {
+        File_کرښه* eventFl;  // Clocking-event source location
+        AstVar* بنسټ_Varp;  // Base enclosing-class member in the event expression
         AstVar* memberVarp;  // Selected member in a 'base.member' expression, or nullptr
-        VEdgeType edgeType;  // Clocking-event edge qualifier
+        VEdgeType څنډه_Type;  // Clocking-event edge qualifier
         AstVar* prevVarp;  // Member containing the previous event value, or nullptr
-        EmbeddedEventTrigger(FileLine* eventFl, AstVar* baseVarp, AstVar* memberVarp,
-                             VEdgeType edgeType)
+        EmbeddedEventTrigger(File_کرښه* eventFl, AstVar* بنسټ_Varp, AstVar* memberVarp,
+                             VEdgeType څنډه_Type)
             : eventFl{eventFl}
-            , baseVarp{baseVarp}
+            , بنسټ_Varp{بنسټ_Varp}
             , memberVarp{memberVarp}
-            , edgeType{edgeType}
-            , prevVarp{nullptr} {}
+            , څنډه_Type{څنډه_Type}
+            , prevVarp{تش_اشاره} {}
     };
 
-    std::set<std::string> m_crossedCpNames;  // Coverpoints referenced by a cross
+    std::سېټ<std::string> m_crossed_Cp_نومونه;  // Coverpoints referenced by a cross
     std::map<std::string, AstVar*> m_cpVarMap;  // Coverpoint name -> its VlCoverpoint member
-    struct BinRuns final {
-        std::vector<BinRun> runs;  // Runs of an array or automatic bins declaration, in order
-        uint32_t count = 0;  // Bins across all runs
-        bool unsupported = false;  // Too many bins, or invalid: the declaration is ignored
+    بنية BinRuns final {
+        std::ویکټور<Bin_پرلپسې> runs;  // Runs of an array or automatic bins declaration, in order
+        uint32_t شمېر = 0;  // Bins across all runs
+        منطقي unsupported = خطأ;  // Too many bins, or invalid: the declaration is ignored
         // The value of each bin, which names it, of a wildcard array; else the bins are indexed
-        std::vector<std::string> values;
+        std::ویکټور<std::string> ارزښتونه;
         // Too many values of an ignore or illegal wildcard array, which is then one bin
-        bool single = false;
+        منطقي single = خطأ;
     };
-    struct CrossBinValues final {
+    بنية Cross_Bin_ارزښتونه final {
         AstCoverBin* binp;  // Declaration owning this Normal bin
-        AstNodeExpr* valuep;  // Individual array-bin value, or nullptr for a scalar bin
-        const BinRun* runp = nullptr;  // Run computing the bin's values, if any
+        Ast_غوټه_بیان* valuep;  // Individual array-bin value, or nullptr for a scalar bin
+        ثابت Bin_پرلپسې* runp = تش_اشاره;  // Run computing the bin's values, if any
         uint32_t element = 0;  // Index of the bin within runp
     };
-    struct BinSpan final {
-        uint32_t first = 0;  // First Normal index of the bin declaration
-        uint32_t count = 0;  // Number of Normal bins of the declaration
+    بنية Bin_پراختیا final {
+        uint32_t لومړی = 0;  // First Normal index of the bin declaration
+        uint32_t شمېر = 0;  // Number of Normal bins of the declaration
         uint32_t declared = 0;  // First runtime bin index, across all bin kinds
         int32_t sized = -1;  // Index of the sized array, placed at construction; or -1
     };
-    struct CoverpointBins final {
-        uint32_t total = 0;  // Number of Normal bins
-        AstNodeExpr* exprp = nullptr;  // Sampled expression, for the value domain
-        bool crossed = false;  // Feeds a cross, which needs 'values'
-        std::vector<CrossBinValues> values;  // Values in runtime Normal-bin index order
-        std::unordered_map<std::string, BinSpan> spans;  // Declared bin name -> index span
-        BinSpan implicitAuto{0, 0, 0};  // Implicit automatic bins, each named 'auto_<i>'
-        std::deque<BinRun> runs;  // Runs 'values' refers to
+    بنية CoverpointBins final {
+        uint32_t ټول = 0;  // Number of Normal bins
+        Ast_غوټه_بیان* exprp = تش_اشاره;  // Sampled expression, for the value domain
+        منطقي crossed = خطأ;  // Feeds a cross, which needs 'values'
+        std::ویکټور<Cross_Bin_ارزښتونه> ارزښتونه;  // Values in runtime Normal-bin index order
+        std::unordered_map<std::string, Bin_پراختیا> spans;  // Declared bin name -> index span
+        Bin_پراختیا implicitAuto{0, 0, 0};  // Implicit automatic bins, each named 'auto_<i>'
+        std::deque<Bin_پرلپسې> runs;  // Runs 'values' refers to
     };
     std::map<AstVar*, CoverpointBins> m_cpBins;  // Runtime coverpoint -> binsof index ranges
     // Names of the bins declarations each coverpoint ignored, which binsof selects as no bins
-    std::map<const AstCoverpoint*, std::vector<std::string>> m_droppedBins;
+    std::map<ثابت AstCoverpoint*, std::ویکټور<std::string>> m_droppedBins;
     // Prefixes of the constructor temporaries of constructed bins, as coverpoint and bin names
     // alone may repeat: coverpoint 'a_' bins 'b', and coverpoint 'a' bins '_b'
-    V3UniqueNames m_sizedNames{"__Vsized"};
-    std::vector<AstNodeExpr*> m_detachedValues;  // Array-bin values m_cpBins refers to
-    std::set<AstCoverCross*>
+    V3_Unique_نومونه m_sized_نومونه{"__Vsized"};
+    std::ویکټور<Ast_غوټه_بیان*> m_detached_ارزښتونه;  // Array-bin values m_cpBins refers to
+    std::سېټ<AstCoverCross*>
         m_droppedCrosses;  // Crosses with a bare-variable item: drop (COVERIGN)
     std::map<uint32_t, AstCoverpointDType*> m_cpDTypes;  // Hit-list bound -> interned dtype
-    using CrossShape = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint64_t, bool>;
+    کارول CrossShape = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint64_t, منطقي>;
     std::map<CrossShape, AstCoverCrossDType*> m_cxDTypes;
-    AstVar* m_cgInstVarp = nullptr;  // __Vcg_inst handle member of the current covergroup
+    AstVar* m_cgInstVarp = تش_اشاره;  // __Vcg_inst handle member of the current covergroup
 
     VMemberMap m_memberMap;  // Member names cached for fast lookup
 
     // METHODS
     // The covergroup's 'option' or static 'type_option' member (V3LinkParse creates both)
-    AstVar* optionVar(bool typeOption) {
-        AstVar* const varp = VN_AS(
-            m_memberMap.findMember(m_covergroupp, typeOption ? "type_option" : "option"), Var);
+    AstVar* optionVar(منطقي typeOption) {
+        AstVar* ثابت varp = VN_AS(
+            m_memberMap.پیدا_کړه_Member(m_covergroupp, typeOption ? "type_option" : "option"), Var);
         UASSERT_OBJ(varp, m_covergroupp, "Covergroup missing option member");
-        return varp;
+        أرجع varp;
     }
 
     // 'option.<member>' or 'type_option.<member>', per optionVarp
-    AstStructSel* newOptionSel(FileLine* fl, AstVar* optionVarp, const std::string& member,
+    AstStructSel* newOptionSel(File_کرښه* fl, AstVar* optionVarp, ثابت std::string& member,
                                VAccess access) {
-        const AstMemberDType* const memberp
-            = VN_AS(m_memberMap.findMember(optionVarp->dtypep()->skipRefp(), member), MemberDType);
+        ثابت AstMemberDType* ثابت memberp
+            = VN_AS(m_memberMap.پیدا_کړه_Member(optionVarp->dtypep()->skipRefp(), member), MemberDType);
         UASSERT_OBJ(memberp, optionVarp, "Coverage option structure missing '" << member << "'");
-        AstNodeExpr* const fromp = optionVarp->lifetime().isStatic()
-                                       ? new AstVarRef{fl, optionVarp, access}
+        Ast_غوټه_بیان* ثابت fromp = optionVarp->lifetime().isStatic()
+                                       ? جديد AstVarRef{fl, optionVarp, access}
                                        : memberRef(fl, optionVarp, access);
-        AstStructSel* const selp = new AstStructSel{fl, fromp, member};
-        selp->dtypep(memberp->subDTypep()->skipRefToEnump());
-        selp->didWidth(true);
-        return selp;
+        AstStructSel* ثابت selp = جديد AstStructSel{fl, fromp, member};
+        selp->dtypep(memberp->subDTypep()->skip_Ref_منزل_Enump());
+        selp->did_پلنوالی(ریښتیا);
+        أرجع selp;
     }
 
     // A constant option.at_least; a negative count of hits has no meaning, so takes the default
-    static int constAtLeast(const AstConst* constp) {
-        const int value = constp->toSInt();
-        if (value >= 0) return value;
+    ساكن صحيح const_At_لږترلږه(ثابت AstConst* constp) {
+        ثابت صحيح ارزښت = constp->منزل_SInt();
+        إذا (ارزښت >= 0) أرجع ارزښت;
         constp->v3warn(COVERIGN, "Ignoring negative 'option.at_least'; using 1");
-        return 1;
+        أرجع 1;
     }
 
     // An option's constant value, or nullptr after a warning, as non-constant is unsupported
-    static const AstConst* constOption(const AstNode* valuep, VCoverOptionType optType) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) return constp;
+    ساكن ثابت AstConst* constOption(ثابت Ast_غوټه* valuep, VCoverOptionType optType) {
+        إذا (ثابت AstConst* ثابت constp = VN_CAST(valuep, Const)) أرجع constp;
         valuep->v3warn(COVERIGN, "Ignoring unsupported: non-constant 'option."
                                      << optType.ascii() << "'; using default value");
-        return nullptr;
+        أرجع تش_اشاره;
     }
 
     // Store the covergroup-level options (IEEE 1800-2023 19.7) where SystemVerilog and the
@@ -392,178 +392,178 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // static member.  Without its own type_option.merge_instances, a covergroup has the
     // default of --coverage-merge-instances.  A constant option.at_least is the default of
     // the coverpoints and crosses.
-    void lowerCovergroupOptions() {
-        bool mergeSet = false;  // The covergroup sets type_option.merge_instances
-        m_cgAtLeast = 1;
-        for (AstCgOptionAssign* const optp : m_cgOptions) {
-            if (optp->optType() == VCoverOptionType::AT_LEAST) {
-                if (const AstConst* const constp = constOption(optp->valuep(), optp->optType())) {
-                    m_cgAtLeast = constAtLeast(constp);
+    فراغ ښکتنی_Covergroup_Options() {
+        منطقي یوځای_سېټ = خطأ;  // The covergroup sets type_option.merge_instances
+        m_cg_At_لږترلږه = 1;
+        لكل (Ast_Cg_Option_ټاکل* ثابت optp : m_cgOptions) {
+            إذا (optp->optType() == VCoverOptionType::AT_لږترلږه) {
+                إذا (ثابت AstConst* ثابت constp = constOption(optp->valuep(), optp->optType())) {
+                    m_cg_At_لږترلږه = const_At_لږترلږه(constp);
                 }
-                VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
-                continue;
+                VL_DO_DANGLING(ټېل_Deletep(optp->unlink_Fr_شا()), optp);
+                استمر;
             }
-            FileLine* const fl = optp->fileline();
+            File_کرښه* ثابت fl = optp->fileline();
             // V3Width left the type options constant, and type_option.weight non-negative
-            const AstConst* const constp = VN_CAST(optp->valuep(), Const);
+            ثابت AstConst* ثابت constp = VN_CAST(optp->valuep(), Const);
             std::string member = "weight";
-            if (optp->optType() == VCoverOptionType::MERGE_INSTANCES) {
+            إذا (optp->optType() == VCoverOptionType::یوځای_INSTANCES) {
                 member = "merge_instances";
-                m_cgMergeInstances = !constp->num().isEqZero();
-                mergeSet = true;
-            } else if (optp->optType() == VCoverOptionType::GET_INST_COVERAGE) {
+                m_cg_یوځای_Instances = !constp->عدد().isEqZero();
+                یوځای_سېټ = ریښتیا;
+            } وإلا إذا (optp->optType() == VCoverOptionType::GET_INST_COVERAGE) {
                 member = "get_inst_coverage";
-            } else {
-                UASSERT_OBJ(optp->optType() == VCoverOptionType::WEIGHT, optp,
+            } وإلا {
+                UASSERT_OBJ(optp->optType() == VCoverOptionType::وزن, optp,
                             "Unexpected covergroup option reaching V3Covergroup");
-                if (optp->typeOption()) m_cgTypeWeight = constp->toUInt();
+                إذا (optp->typeOption()) m_cg_Type_وزن = constp->منزل_UInt();
             }
-            AstAssign* const assignp = new AstAssign{
+            Ast_ټاکل* ثابت assignp = جديد Ast_ټاکل{
                 fl, newOptionSel(fl, optionVar(optp->typeOption()), member, VAccess::WRITE),
-                optp->valuep()->unlinkFrBack()};
-            if (optp->typeOption()) {
-                m_covergroupp->addMembersp(new AstInitialStatic{fl, assignp});
-                VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
-            } else {
+                optp->valuep()->unlink_Fr_شا()};
+            إذا (optp->typeOption()) {
+                m_covergroupp->جمع_کړه_Membersp(جديد AstInitialStatic{fl, assignp});
+                VL_DO_DANGLING(ټېل_Deletep(optp->unlink_Fr_شا()), optp);
+            } وإلا {
                 optp->replaceWith(assignp);
-                VL_DO_DANGLING(pushDeletep(optp), optp);
+                VL_DO_DANGLING(ټېل_Deletep(optp), optp);
             }
         }
         m_cgOptions.clear();
-        if (!mergeSet && v3Global.opt.coverageMergeInstances()) {
-            FileLine* const fl = m_covergroupp->fileline();
-            m_covergroupp->addMembersp(new AstInitialStatic{
-                fl, new AstAssign{
-                        fl, newOptionSel(fl, optionVar(true), "merge_instances", VAccess::WRITE),
-                        new AstConst{fl, AstConst::BitTrue{}}}});
-            m_cgMergeInstances = true;
+        إذا (!یوځای_سېټ && v3Global.opt.coverage_یوځای_Instances()) {
+            File_کرښه* ثابت fl = m_covergroupp->fileline();
+            m_covergroupp->جمع_کړه_Membersp(جديد AstInitialStatic{
+                fl, جديد Ast_ټاکل{
+                        fl, newOptionSel(fl, optionVar(ریښتیا), "merge_instances", VAccess::WRITE),
+                        جديد AstConst{fl, AstConst::بټ_True{}}}});
+            m_cg_یوځای_Instances = ریښتیا;
         }
-        m_cgMayMerge = m_cgMergeInstances || m_mergeableTypeOptions.count(optionVar(true));
+        m_cg_May_یوځای = m_cg_یوځای_Instances || m_mergeableTypeOptions.شمېر(optionVar(ریښتیا));
     }
 
     // The weight of an item in the coverage database, which merges the instances: its
     // type_option.weight if the covergroup merges them too (IEEE 1800-2023 19.11.3); else its
     // option.weight if a constant, and so of every instance; else its type_option.weight
-    uint32_t itemDatabaseWeight(AstNode* optionsp) const {
-        const AstNodeExpr* weightp = nullptr;  // The option.weight in effect
-        uint32_t typeWeight = 1;
-        for (AstNode* nodep = optionsp; nodep; nodep = nodep->nextp()) {
-            const AstCoverOption* const optp = VN_AS(nodep, CoverOption);
-            if (!(optp->optType() == VCoverOptionType::WEIGHT)) continue;
+    uint32_t توکی_Database_وزن(Ast_غوټه* optionsp) ثابت {
+        ثابت Ast_غوټه_بیان* weightp = تش_اشاره;  // The option.weight in effect
+        uint32_t type_وزن = 1;
+        لكل (Ast_غوټه* nodep = optionsp; nodep; nodep = nodep->nextp()) {
+            ثابت AstCoverOption* ثابت optp = VN_AS(nodep, CoverOption);
+            إذا (!(optp->optType() == VCoverOptionType::وزن)) استمر;
             // V3Width left type_option.weight a non-negative constant
-            if (optp->typeOption()) {
-                typeWeight = VN_AS(optp->valuep(), Const)->toUInt();
-            } else {
+            إذا (optp->typeOption()) {
+                type_وزن = VN_AS(optp->valuep(), Const)->منزل_UInt();
+            } وإلا {
                 weightp = optp->valuep();
             }
         }
-        if (m_cgMergeInstances) return typeWeight;
-        if (!weightp) return 1;
-        if (const AstConst* const constp = VN_CAST(weightp, Const)) return constp->toUInt();
-        return typeWeight;
+        إذا (m_cg_یوځای_Instances) أرجع type_وزن;
+        إذا (!weightp) أرجع 1;
+        إذا (ثابت AstConst* ثابت constp = VN_CAST(weightp, Const)) أرجع constp->منزل_UInt();
+        أرجع type_وزن;
     }
 
     // Configure an item's option.weight, its weight in instance coverage (IEEE 1800-2023
     // 19.11), and, if the covergroup may merge its instances, its type_option.weight, its
     // weight in type coverage then (19.11.3).
-    void generateItemWeight(FileLine* fl, AstVar* itemVarp, AstNode* optionsp) {
-        for (AstNode* nodep = optionsp; nodep; nodep = nodep->nextp()) {
-            const AstCoverOption* const optp = VN_AS(nodep, CoverOption);
-            if (!(optp->optType() == VCoverOptionType::WEIGHT)) continue;
-            if (!optp->typeOption()) {
-                m_constructorp->addStmtsp(
-                    itemCall(fl, itemVarp, VCMethod::COVERGROUP_WEIGHT,
-                             {optp->valuep()->cloneTree(false), fileLineDebug(optp->fileline())})
+    فراغ generate_توکی_وزن(File_کرښه* fl, AstVar* توکی_Varp, Ast_غوټه* optionsp) {
+        لكل (Ast_غوټه* nodep = optionsp; nodep; nodep = nodep->nextp()) {
+            ثابت AstCoverOption* ثابت optp = VN_AS(nodep, CoverOption);
+            إذا (!(optp->optType() == VCoverOptionType::وزن)) استمر;
+            إذا (!optp->typeOption()) {
+                m_constructorp->جمع_کړه_Stmtsp(
+                    توکی_Call(fl, توکی_Varp, VCMethod::COVERGROUP_وزن,
+                             {optp->valuep()->clone_ونه(خطأ), file_کرښه_Debug(optp->fileline())})
                         ->makeStmt());
-            } else if (m_cgMayMerge) {
+            } وإلا إذا (m_cg_May_یوځای) {
                 // V3Width left type_option.weight a non-negative constant
-                m_constructorp->addStmtsp(itemCall(fl, itemVarp, VCMethod::COVERGROUP_TYPE_WEIGHT,
-                                                   {optp->valuep()->cloneTree(false)})
+                m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, توکی_Varp, VCMethod::COVERGROUP_TYPE_وزن,
+                                                   {optp->valuep()->clone_ونه(خطأ)})
                                               ->makeStmt());
             }
         }
     }
 
-    void processCovergroup() {
+    فراغ processCovergroup() {
         UINFO(4, "Processing covergroup: " << m_covergroupp->name() << " with "
-                                           << m_coverpoints.size() << " coverpoints and "
-                                           << m_coverCrosses.size() << " crosses");
+                                           << m_coverpoints.اندازه() << " coverpoints and "
+                                           << m_coverCrosses.اندازه() << " crosses");
 
-        m_crossedCpNames.clear();
+        m_crossed_Cp_نومونه.clear();
         m_cpVarMap.clear();
         m_cpBins.clear();
         m_droppedBins.clear();
-        m_sizedNames.reset();
+        m_sized_نومونه.reset();
         m_runtimePoints.clear();
         m_runtimeCrosses.clear();
         m_excludedVars.clear();
         m_droppedCrosses.clear();
-        m_cgInstVarp = nullptr;
-        m_cgTypeWeight = 1;
-        m_cgMergeInstances = false;
-        m_cgMayMerge = false;
+        m_cgInstVarp = تش_اشاره;
+        m_cg_Type_وزن = 1;
+        m_cg_یوځای_Instances = خطأ;
+        m_cg_May_یوځای = خطأ;
 
-        lowerCovergroupOptions();
+        ښکتنی_Covergroup_Options();
 
         // Scan every cross item to record the coverpoints it references (the cross dimensions)
         // and to flag any cross naming a bare variable -- a would-be implicit coverpoint, which
         // Verilator does not synthesize.  An unresolvable item drops only that one cross (with a
         // COVERIGN in generateCrossCode), leaving the rest of the covergroup intact.
-        for (AstCoverCross* crossp : m_coverCrosses) {
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (refp->exprp()) continue;  // hierarchical ref: dropped in generateCrossCode
-                if (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
-                    m_droppedCrosses.insert(crossp);  // bare variable: drop this cross only
-                } else {
-                    m_crossedCpNames.insert(refp->name());
+        لكل (AstCoverCross* crossp : m_coverCrosses) {
+            لكل (Ast_غوټه* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ثابت AstCoverpointRef* ثابت refp = VN_AS(itemp, CoverpointRef);
+                إذا (refp->exprp()) استمر;  // hierarchical ref: dropped in generateCrossCode
+                إذا (m_coverpointMap.پیدا_کړه(refp->name()) == m_coverpointMap.پای_ټکی()) {
+                    m_droppedCrosses.ورننباسه(crossp);  // bare variable: drop this cross only
+                } وإلا {
+                    m_crossed_Cp_نومونه.ورننباسه(refp->name());
                 }
             }
         }
 
-        std::vector<AstNode*> pending;
-        std::map<AstCoverpoint*, std::vector<AstCoverCross*>> consumers;
-        std::map<AstCoverCross*, std::vector<AstCoverpoint*>> inputs;
-        for (AstCoverpoint* const cpp : m_coverpoints) {
-            checkBinNames(cpp);
+        std::ویکټور<Ast_غوټه*> pending;
+        std::map<AstCoverpoint*, std::ویکټور<AstCoverCross*>> consumers;
+        std::map<AstCoverCross*, std::ویکټور<AstCoverpoint*>> inputs;
+        لكل (AstCoverpoint* ثابت cpp : m_coverpoints) {
+            check_Bin_نومونه(cpp);
             checkConstructedBins(cpp);
-            if (!cpp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()) continue;
+            إذا (!cpp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()) استمر;
             // Bins without values leave the report (IEEE 1800-2023 19.11.1), exclusions or not.
             // Constructed bins get their values when the covergroup is constructed.
-            if (!coverpointHasStateExclusions(cpp) && !coverpointHasEmptyBins(cpp)
+            إذا (!coverpointHasStateExclusions(cpp) && !coverpoint_Has_تشه_Bins(cpp)
                 && !coverpointHasConstructedBins(cpp)) {
-                continue;
+                استمر;
             }
-            m_runtimePoints.insert(cpp);
-            pending.push_back(cpp);
+            m_runtimePoints.ورننباسه(cpp);
+            pending.ټېل_شا(cpp);
         }
-        for (AstCoverCross* const crossp : m_coverCrosses) {
-            if (m_droppedCrosses.count(crossp)) continue;
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (refp->exprp()) continue;
-                const auto point = m_coverpointMap.find(refp->name());
-                if (point != m_coverpointMap.end()) {
-                    consumers[point->second].push_back(crossp);
-                    inputs[crossp].push_back(point->second);
+        لكل (AstCoverCross* ثابت crossp : m_coverCrosses) {
+            إذا (m_droppedCrosses.شمېر(crossp)) استمر;
+            لكل (Ast_غوټه* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ثابت AstCoverpointRef* ثابت refp = VN_AS(itemp, CoverpointRef);
+                إذا (refp->exprp()) استمر;
+                ثابت خپلکاری ټکی = m_coverpointMap.پیدا_کړه(refp->name());
+                إذا (ټکی != m_coverpointMap.پای_ټکی()) {
+                    consumers[ټکی->دوهم].ټېل_شا(crossp);
+                    inputs[crossp].ټېل_شا(ټکی->دوهم);
                 }
             }
             // The values of a filter's bin tuples are known when the covergroup is constructed
-            if (crossp->exists([](const AstCoverCrossWith*) { return true; })) {
+            إذا (crossp->exists([](ثابت AstCoverCrossWith*) { أرجع ریښتیا; })) {
                 m_runtimeCrosses.emplace(crossp);
-                pending.push_back(crossp);
+                pending.ټېل_شا(crossp);
             }
         }
-        for (size_t next = 0; next < pending.size(); ++next) {
-            if (AstCoverpoint* const pointp = VN_CAST(pending[next], Coverpoint)) {
-                for (AstCoverCross* const crossp : consumers[pointp]) {
-                    if (m_runtimeCrosses.emplace(crossp).second) pending.push_back(crossp);
+        لكل (اندازه_t بل = 0; بل < pending.اندازه(); ++بل) {
+            إذا (AstCoverpoint* ثابت pointp = VN_CAST(pending[بل], Coverpoint)) {
+                لكل (AstCoverCross* ثابت crossp : consumers[pointp]) {
+                    إذا (m_runtimeCrosses.emplace(crossp).دوهم) pending.ټېل_شا(crossp);
                 }
-            } else {
-                for (AstCoverpoint* const pointp : inputs[VN_AS(pending[next], CoverCross)]) {
-                    if (pointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()
-                        && m_runtimePoints.emplace(pointp).second) {
-                        pending.push_back(pointp);
+            } وإلا {
+                لكل (AstCoverpoint* ثابت pointp : inputs[VN_AS(pending[بل], CoverCross)]) {
+                    إذا (pointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()
+                        && m_runtimePoints.emplace(pointp).دوهم) {
+                        pending.ټېل_شا(pointp);
                     }
                 }
             }
@@ -574,155 +574,155 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         generateInstanceAttach();
 
         // For each coverpoint, generate sampling code
-        for (AstCoverpoint* cpp : m_coverpoints) generateCoverpointCode(cpp);
+        لكل (AstCoverpoint* cpp : m_coverpoints) generate_Coverpoint_کوډ(cpp);
 
         // For each cross, generate sampling code
-        for (AstCoverCross* crossp : m_coverCrosses) generateCrossCode(crossp);
+        لكل (AstCoverCross* crossp : m_coverCrosses) generate_Cross_کوډ(crossp);
 
         // Every cross has been built, so runtime points only need their exclusions from here.
-        for (AstCoverpoint* const cpp : m_coverpoints) {
-            if (!m_runtimePoints.count(cpp)) continue;
-            m_constructorp->addStmtsp(itemCall(cpp->fileline(), m_cpVarMap.at(cpp->name()),
-                                               VCMethod::COVERGROUP_VALUE_RELEASE)
+        لكل (AstCoverpoint* ثابت cpp : m_coverpoints) {
+            إذا (!m_runtimePoints.شمېر(cpp)) استمر;
+            m_constructorp->جمع_کړه_Stmtsp(توکی_Call(cpp->fileline(), m_cpVarMap.at(cpp->name()),
+                                               VCMethod::COVERGROUP_ارزښت_RELEASE)
                                           ->makeStmt());
         }
-        for (AstNodeExpr* valuep : m_detachedValues) VL_DO_DANGLING(pushDeletep(valuep), valuep);
-        m_detachedValues.clear();
+        لكل (Ast_غوټه_بیان* valuep : m_detached_ارزښتونه) VL_DO_DANGLING(ټېل_Deletep(valuep), valuep);
+        m_detached_ارزښتونه.clear();
 
         // Generate coverage computation code (even for empty covergroups).  Bin registration
         // with the coverage database is handled per coverpoint/cross by their runtime
         // registerBins() calls (emitted in generateCoverpoint/generateCross).
-        generateCoverageComputationCode();
+        generate_Coverage_Computation_کوډ();
     }
 
-    static constexpr size_t VALUE_LIST_ENTRIES = 256;  // Metadata entries per constructor call
+    ساكن constexpr اندازه_t ارزښت_LIST_ENTRIES = 256;  // Metadata entries per constructor call
 
     // The value of a constant count, of bins or value tuples: -1 if it is negative, and
     // saturated above the largest limit
-    static int64_t constCount(const AstConst* constp) {
-        const V3Number& num = constp->num();
-        if (constp->isSigned() && num.isNegative()) return -1;
-        return num.mostSetBitP1() > 32 ? INT64_MAX : static_cast<int64_t>(num.toUQuad());
+    ساكن int64_t const_شمېر(ثابت AstConst* constp) {
+        ثابت V3_شمېره& عدد = constp->عدد();
+        إذا (constp->isSigned() && عدد.isNegative()) أرجع -1;
+        أرجع عدد.most_سېټ_بټ_P1() > 32 ? INT64_MAX : static_cast<int64_t>(عدد.منزل_UQuad());
     }
 
     // Whether a count, 'whatp', is integral and, if constant, positive, as the standard's clause
     // 'clausep' requires; else errors
-    static bool checkCount(const AstNodeExpr* countp, const char* whatp, const char* clausep) {
-        const AstConst* const constp = VN_CAST(countp, Const);
-        if (!countp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+    ساكن منطقي check_شمېر(ثابت Ast_غوټه_بیان* countp, ثابت حرف* whatp, ثابت حرف* clausep) {
+        ثابت AstConst* ثابت constp = VN_CAST(countp, Const);
+        إذا (!countp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             countp->v3error(whatp << " must be integral (IEEE 1800-2023 " << clausep << ")");
-            return false;
-        } else if (constp && (constp->num().isFourState() || constCount(constp) < 1)) {
+            أرجع خطأ;
+        } وإلا إذا (constp && (constp->عدد().isFourState() || const_شمېر(constp) < 1)) {
             countp->v3error(whatp << " must be >= 1, got "
-                                  << (constp->num().isFourState() ? constp->num().ascii(false)
-                                                                  : constp->num().toDecimalS())
+                                  << (constp->عدد().isFourState() ? constp->عدد().ascii(خطأ)
+                                                                  : constp->عدد().منزل_Decimal_S())
                                   << " (IEEE 1800-2023 " << clausep << ")");
-            return false;
+            أرجع خطأ;
         }
-        return true;
+        أرجع ریښتیا;
     }
 
     // The number of bins requested by a valid 'bins auto[N]', or 0
-    static uint32_t autoBinsRequested(const AstCoverBin* binp) {
-        const AstConst* const constp = VN_CAST(binp->arraySizep(), Const);
-        if (!constp) return 0;
-        const int64_t count = constCount(constp);
-        return count < 1 || count > v3Global.opt.coverageMaxBins() ? 0
-                                                                   : static_cast<uint32_t>(count);
+    ساكن uint32_t autoBinsRequested(ثابت AstCoverBin* binp) {
+        ثابت AstConst* ثابت constp = VN_CAST(binp->arraySizep(), Const);
+        إذا (!constp) أرجع 0;
+        ثابت int64_t شمېر = const_شمېر(constp);
+        أرجع شمېر < 1 || شمېر > v3Global.opt.coverageMaxBins() ? 0
+                                                                   : static_cast<uint32_t>(شمېر);
     }
 
     // True for a 'bins auto[N]' declaration, or the implicit automatic bins of a coverpoint
-    static bool isAutoBins(const AstCoverBin* binp) {
-        return binp->binsType() == VCoverBinsType::BINS_AUTO
+    ساكن منطقي isAutoBins(ثابت AstCoverBin* binp) {
+        أرجع binp->binsType() == VCoverBinsType::BINS_AUTO
                || binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT;
     }
 
     // True for a sized array of bins, 'bins b[N] = {...}', whose values an integral coverpoint
     // distributes over N bins when the covergroup is constructed (IEEE 1800-2023 19.5.1)
-    static bool isSizedArray(const AstCoverBin* binp) {
-        return binp->arraySizep() && !isAutoBins(binp);
+    ساكن منطقي isSizedArray(ثابت AstCoverBin* binp) {
+        أرجع binp->arraySizep() && !isAutoBins(binp);
     }
 
     // The 'with' filter of a bin, if any (IEEE 1800-2023 19.5.1.1)
-    static AstCoverWith* binWith(const AstCoverBin* binp) {
-        return VN_CAST(binp->rangesp(), CoverWith);
+    ساكن AstCoverWith* binWith(ثابت AstCoverBin* binp) {
+        أرجع VN_CAST(binp->rangesp(), CoverWith);
     }
 
     // True for bins whose values the covergroup constructor computes: a sized array, or bins of
     // the values a 'with' filter keeps
-    static bool isConstructedBins(const AstCoverBin* binp) {
-        return isSizedArray(binp) || binWith(binp);
+    ساكن منطقي isConstructedBins(ثابت AstCoverBin* binp) {
+        أرجع isSizedArray(binp) || binWith(binp);
     }
 
     // The range list of a bin's values, or of the candidates of its 'with' filter; null for all
     // of the coverpoint's values, which a filter of the coverpoint's name has
-    static AstNode* binRangesp(const AstCoverBin* binp) {
-        const AstCoverWith* const withp = binWith(binp);
-        if (!withp) return binp->rangesp();
-        return VN_IS(withp->subp(), CoverpointRef) ? nullptr : withp->subp();
+    ساكن Ast_غوټه* binRangesp(ثابت AstCoverBin* binp) {
+        ثابت AstCoverWith* ثابت withp = binWith(binp);
+        إذا (!withp) أرجع binp->rangesp();
+        أرجع VN_IS(withp->subp(), CoverpointRef) ? تش_اشاره : withp->subp();
     }
 
     // Report and delete a bins declaration of a name that another of its coverpoint has
-    void checkBinNames(AstCoverpoint* coverpointp) {
-        std::set<std::string> names;
-        for (AstNode* nodep = coverpointp->binsp(); nodep;) {
-            AstCoverBin* const binp = VN_AS(nodep, CoverBin);
+    فراغ check_Bin_نومونه(AstCoverpoint* coverpointp) {
+        std::سېټ<std::string> نومونه;
+        لكل (Ast_غوټه* nodep = coverpointp->binsp(); nodep;) {
+            AstCoverBin* ثابت binp = VN_AS(nodep, CoverBin);
             nodep = nodep->nextp();
-            if (names.emplace(binp->name()).second) continue;
+            إذا (نومونه.emplace(binp->name()).دوهم) استمر;
             binp->v3error("Duplicate bin " << binp->prettyNameQ() << " in coverpoint "
                                            << coverpointp->prettyNameQ()
                                            << " (IEEE 1800-2023 3.13)");
-            VL_DO_DANGLING(pushDeletep(binp->unlinkFrBack()), binp);
+            VL_DO_DANGLING(ټېل_Deletep(binp->unlink_Fr_شا()), binp);
         }
     }
 
     // Delete an ignored bins declaration, which binsof then selects as no bins
-    void dropBins(const AstCoverpoint* coverpointp, AstCoverBin* binp) {
-        m_droppedBins[coverpointp].push_back(binp->name());
-        VL_DO_DANGLING(pushDeletep(binp->unlinkFrBack()), binp);
+    فراغ dropBins(ثابت AstCoverpoint* coverpointp, AstCoverBin* binp) {
+        m_droppedBins[coverpointp].ټېل_شا(binp->name());
+        VL_DO_DANGLING(ټېل_Deletep(binp->unlink_Fr_شا()), binp);
     }
 
     // Check the size of a sized array of bins, which drops an invalid array.  A real coverpoint's
     // are unsupported, and treated as arrays of a bin per value.  False unless it stays sized.
-    bool checkBinsArraySize(const AstCoverpoint* coverpointp, AstCoverBin* binp, bool integral) {
-        AstNodeExpr* const sizep = binp->arraySizep();
-        if (VN_IS(sizep, Unbounded)) {  // A parameter of '$'; see bins_orBraE
+    منطقي check_Bins_Array_اندازه(ثابت AstCoverpoint* coverpointp, AstCoverBin* binp, منطقي integral) {
+        Ast_غوټه_بیان* ثابت sizep = binp->arraySizep();
+        إذا (VN_IS(sizep, Unbounded)) {  // A parameter of '$'; see bins_orBraE
             binp->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)");
-        } else if (checkCount(sizep, "Bins array size", "19.5.1")) {
-            if (integral) return true;
+        } وإلا إذا (check_شمېر(sizep, "Bins array size", "19.5.1")) {
+            إذا (integral) أرجع ریښتیا;
             binp->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size of a real "
                                    "coverpoint (treated as '[]')");
-            VL_DO_DANGLING(pushDeletep(sizep->unlinkFrBack()), sizep);
-            return false;
+            VL_DO_DANGLING(ټېل_Deletep(sizep->unlink_Fr_شا()), sizep);
+            أرجع خطأ;
         }
         dropBins(coverpointp, binp);
-        return false;
+        أرجع خطأ;
     }
 
     // Check the bins of a coverpoint whose values the constructor computes, dropping invalid
     // ones.  A wildcard array of too many ranges of values is ignored, or if ignore or illegal,
     // treated as one bin; filtering too many ranges of values ignores the bins.
-    void checkConstructedBins(AstCoverpoint* coverpointp) {
-        const bool integral = coverpointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked();
-        for (AstNode* nodep = coverpointp->binsp(); nodep;) {
-            AstCoverBin* const binp = VN_AS(nodep, CoverBin);
+    فراغ checkConstructedBins(AstCoverpoint* coverpointp) {
+        ثابت منطقي integral = coverpointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked();
+        لكل (Ast_غوټه* nodep = coverpointp->binsp(); nodep;) {
+            AstCoverBin* ثابت binp = VN_AS(nodep, CoverBin);
             nodep = nodep->nextp();
-            if (!isConstructedBins(binp)) continue;
-            if (isSizedArray(binp) && !checkBinsArraySize(coverpointp, binp, integral)) continue;
-            if (!binp->isWildcard()
+            إذا (!isConstructedBins(binp)) استمر;
+            إذا (isSizedArray(binp) && !check_Bins_Array_اندازه(coverpointp, binp, integral)) استمر;
+            إذا (!binp->isWildcard()
                 || sizedWildcardRuns(binp, coverpointp->exprp())
                        <= v3Global.opt.coverageMaxBins()) {
-                if (binWith(binp) && withCandidatesOver(binp, coverpointp->exprp())) {
+                إذا (binWith(binp) && withCandidatesOver(binp, coverpointp->exprp())) {
                     binp->v3warn(COVERIGN, "Unsupported: 'with' filter of more than 2**32 "
                                            "candidate values; bin "
                                                << binp->prettyNameQ() << " ignored");
-                    if (binp->binsType().binIsNormal()) coverpointp->user2(true);
+                    إذا (binp->binsType().bin_Is_نورمال()) coverpointp->user2(ریښتیا);
                     dropBins(coverpointp, binp);
                 }
-                continue;
+                استمر;
             }
             // An ignore or illegal array still excludes or checks its values, as one bin
-            const bool single = !binp->binsType().binIsNormal() && !binWith(binp);
+            ثابت منطقي single = !binp->binsType().bin_Is_نورمال() && !binWith(binp);
             binp->v3warn(COVERIGN,
                          "Unsupported: " << (binWith(binp) ? "'with' filter of wildcard '"
                                                            : "sized wildcard array '")
@@ -731,15 +731,15 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                          << v3Global.opt.coverageMaxBins()
                                          << " ranges of values; bin " << binp->prettyNameQ()
                                          << (single ? " treated as one bin" : " ignored") << "\n"
-                                         << binp->warnMore()
+                                         << binp->warn_نور()
                                          << "... Suggest a larger --coverage-max-bins");
-            if (single) {
-                AstNodeExpr* const sizep = binp->arraySizep();
-                VL_DO_DANGLING(pushDeletep(sizep->unlinkFrBack()), sizep);
-                binp->isArray(false);
-                continue;
+            إذا (single) {
+                Ast_غوټه_بیان* ثابت sizep = binp->arraySizep();
+                VL_DO_DANGLING(ټېل_Deletep(sizep->unlink_Fr_شا()), sizep);
+                binp->isArray(خطأ);
+                استمر;
             }
-            if (binp->binsType().binIsNormal()) coverpointp->user2(true);
+            إذا (binp->binsType().bin_Is_نورمال()) coverpointp->user2(ریښتیا);
             dropBins(coverpointp, binp);
         }
     }
@@ -747,90 +747,90 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // True if a 'with' filter would be evaluated for more than 2**32 candidate values, known
     // now for the coverpoint's name, or for a range list of constants: each is evaluated once
     // but for an array 'b[N]', which keeps their order and duplicates (see withBegin())
-    static bool withCandidatesOver(AstCoverBin* binp, AstNodeExpr* exprp) {
-        const int width = runWidth(exprp);
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        if (!binRangesp(binp)) runs = coverpointValues(binp, exprp);
-        const auto constant
-            = [](const AstNode* nodep) { return VN_IS(nodep, Const) || VN_IS(nodep, Unbounded); };
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
+    ساكن منطقي withCandidatesOver(AstCoverBin* binp, Ast_غوټه_بیان* exprp) {
+        ثابت صحيح پلنوالی = پرلپسې_پلنوالی(exprp);
+        std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> runs;
+        إذا (!binRangesp(binp)) runs = coverpoint_ارزښتونه(binp, exprp);
+        ثابت خپلکاری constant
+            = [](ثابت Ast_غوټه* nodep) { أرجع VN_IS(nodep, Const) || VN_IS(nodep, Unbounded); };
+        لكل (Ast_غوټه* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            ثابت AstInsideRange* ثابت irp = VN_CAST(rangep, InsideRange);
             // Else known when constructed
-            if (irp ? !constant(irp->lhsp()) || !constant(irp->rhsp()) : !VN_IS(rangep, Const)) {
-                return false;
+            إذا (irp ? !constant(irp->lhsp()) || !constant(irp->rhsp()) : !VN_IS(rangep, Const)) {
+                أرجع خطأ;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, binp->isWildcard(), range)
-                || crossRangeEmpty(range)) {
-                continue;
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, exprp)};
+            إذا (!resolve_ارزښت(rangep, exprp, ریښتیا, binp->isWildcard(), range)
+                || cross_Range_تشه(range)) {
+                استمر;
             }
-            std::vector<std::pair<V3Number, V3Number>> found{{range.lo, range.hi}};
-            if (range.wildcard) {  // checkConstructedBins bounded the runs
-                found.clear();
-                crossRangeRuns(range, v3Global.opt.coverageMaxBins(), found);
+            std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> وموندل{{range.lo, range.hi}};
+            إذا (range.wildcard) {  // checkConstructedBins bounded the runs
+                وموندل.clear();
+                crossRangeRuns(range, v3Global.opt.coverageMaxBins(), وموندل);
             }
-            for (const std::pair<V3Number, V3Number>& run : found) {
-                runs.emplace_back(V3Number{rangep, width, run.first},
-                                  V3Number{rangep, width, run.second});
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : وموندل) {
+                runs.emplace_شا(V3_شمېره{rangep, پلنوالی, پرلپسې.لومړی},
+                                  V3_شمېره{rangep, پلنوالی, پرلپسې.دوهم});
             }
         }
-        if (!isSizedArray(binp)) {  // The union of the values
-            std::sort(runs.begin(), runs.end(), [](const auto& lhs, const auto& rhs) {
-                return crossValueLess(lhs.first, rhs.first);
+        إذا (!isSizedArray(binp)) {  // The union of the values
+            std::ترتیبول(runs.begin(), runs.پای_ټکی(), [](ثابت خپلکاری& lhs, ثابت خپلکاری& rhs) {
+                أرجع cross_ارزښت_Less(lhs.لومړی, rhs.لومړی);
             });
-            std::vector<std::pair<V3Number, V3Number>> merged;
-            for (const std::pair<V3Number, V3Number>& run : runs) {
-                if (merged.empty() || crossValueLess(merged.back().second, run.first)) {
-                    merged.push_back(run);
-                } else if (crossValueLess(merged.back().second, run.second)) {
-                    merged.back().second = run.second;
+            std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> merged;
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : runs) {
+                إذا (merged.تشه() || cross_ارزښت_Less(merged.شا().دوهم, پرلپسې.لومړی)) {
+                    merged.ټېل_شا(پرلپسې);
+                } وإلا إذا (cross_ارزښت_Less(merged.شا().دوهم, پرلپسې.دوهم)) {
+                    merged.شا().دوهم = پرلپسې.دوهم;
                 }
             }
             runs = std::move(merged);
         }
-        uint64_t count = 0;
-        for (const std::pair<V3Number, V3Number>& run : runs) {
-            V3Number span{exprp, width};
-            span.opSub(run.second, run.first);
-            if (span.mostSetBitP1() > 32) return true;  // More than 2**32 values
-            count += span.toUQuad() + 1;
-            if (count > (uint64_t{1} << 32)) return true;
+        uint64_t شمېر = 0;
+        لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : runs) {
+            V3_شمېره پراختیا{exprp, پلنوالی};
+            پراختیا.opSub(پرلپسې.دوهم, پرلپسې.لومړی);
+            إذا (پراختیا.most_سېټ_بټ_P1() > 32) أرجع ریښتیا;  // More than 2**32 values
+            شمېر += پراختیا.منزل_UQuad() + 1;
+            إذا (شمېر > (uint64_t{1} << 32)) أرجع ریښتیا;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // The ranges of values the wildcard patterns of a sized wildcard array, or of a 'with'
     // filter's candidates, give, counted up to more than --coverage-max-bins
-    static size_t sizedWildcardRuns(const AstCoverBin* binp, AstNodeExpr* exprp) {
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            if (!VN_IS(rangep, Const)) continue;  // A range, or a value known at construction
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (resolveValue(rangep, exprp, true, true, range) && !crossRangeEmpty(range)) {
+    ساكن اندازه_t sizedWildcardRuns(ثابت AstCoverBin* binp, Ast_غوټه_بیان* exprp) {
+        std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> runs;
+        لكل (Ast_غوټه* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            إذا (!VN_IS(rangep, Const)) استمر;  // A range, or a value known at construction
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, exprp)};
+            إذا (resolve_ارزښت(rangep, exprp, ریښتیا, ریښتیا, range) && !cross_Range_تشه(range)) {
                 crossRangeRuns(range, v3Global.opt.coverageMaxBins(), runs);
             }
         }
-        return runs.size();
+        أرجع runs.اندازه();
     }
 
     // Check the automatic bins declarations of a coverpoint.  Each stays one declaration, which
     // generates as a partition of the coverpoint domain (see autoBinRuns).
-    void checkAutomaticBins(AstCoverpoint* coverpointp, const AstNodeExpr* exprp) {
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (cbinp->binsType() != VCoverBinsType::BINS_AUTO) continue;
-            const AstConst* const constp = VN_CAST(cbinp->arraySizep(), Const);
-            if (!constp) {
+    فراغ checkAutomaticBins(AstCoverpoint* coverpointp, ثابت Ast_غوټه_بیان* exprp) {
+        لكل (Ast_غوټه* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ثابت cbinp = VN_AS(binp, CoverBin);
+            إذا (cbinp->binsType() != VCoverBinsType::BINS_AUTO) استمر;
+            ثابت AstConst* ثابت constp = VN_CAST(cbinp->arraySizep(), Const);
+            إذا (!constp) {
                 cbinp->v3error("Automatic bins array size must be a constant");
-            } else if (constCount(constp) < 1) {
+            } وإلا إذا (const_شمېر(constp) < 1) {
                 cbinp->v3error("Automatic bins array size must be >= 1, got "
-                               << constp->num().toDecimalS());
-            } else if (constCount(constp) > v3Global.opt.coverageMaxBins()) {
+                               << constp->عدد().منزل_Decimal_S());
+            } وإلا إذا (const_شمېر(constp) > v3Global.opt.coverageMaxBins()) {
                 cbinp->v3error("Automatic bins array size of "
-                               << constp->num().toDecimalU() << " exceeds limit of "
+                               << constp->عدد().منزل_Decimal_U() << " exceeds limit of "
                                << v3Global.opt.coverageMaxBins() << '\n'
-                               << cbinp->warnMore() << "... Suggest a larger --coverage-max-bins");
-            } else if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+                               << cbinp->warn_نور() << "... Suggest a larger --coverage-max-bins");
+            } وإلا إذا (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
                 cbinp->v3error("Automatic bins are not allowed on a coverpoint of a non-integral "
                                "expression (IEEE 1800-2023 19.5.3).");
             }
@@ -840,176 +840,176 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Extract all option values of a coverpoint or cross in a single pass.
     // atLeastOut: option.at_least (default the covergroup's)
     // autoBinMaxOut: option.auto_bin_max (coverpoint overrides covergroup, default 64)
-    void extractItemOptions(AstNode* optionsp, int& atLeastOut, int& autoBinMaxOut) {
-        atLeastOut = m_cgAtLeast;
-        autoBinMaxOut = -1;  // -1 = not set at coverpoint level
-        for (AstNode* optionp = optionsp; optionp; optionp = optionp->nextp()) {
-            AstCoverOption* const optp = VN_AS(optionp, CoverOption);
+    فراغ ایستل_توکی_Options(Ast_غوټه* optionsp, صحيح& at_لږترلږه_بهر, صحيح& auto_Bin_Max_بهر) {
+        at_لږترلږه_بهر = m_cg_At_لږترلږه;
+        auto_Bin_Max_بهر = -1;  // -1 = not set at coverpoint level
+        لكل (Ast_غوټه* optionp = optionsp; optionp; optionp = optionp->nextp()) {
+            AstCoverOption* ثابت optp = VN_AS(optionp, CoverOption);
             // Weights may be non-constant; generateItemWeight() handles them.  A cross keeps
             // its unsupported options, which V3LinkParse warned of.
-            if (!(optp->optType() == VCoverOptionType::AT_LEAST
+            إذا (!(optp->optType() == VCoverOptionType::AT_لږترلږه
                   || optp->optType() == VCoverOptionType::AUTO_BIN_MAX)) {
-                continue;
+                استمر;
             }
-            const AstConst* const constp = constOption(optp->valuep(), optp->optType());
-            if (!constp) continue;
-            if (optp->optType() == VCoverOptionType::AT_LEAST) {
-                atLeastOut = constAtLeast(constp);
-            } else {
-                autoBinMaxOut = constp->toSInt();
+            ثابت AstConst* ثابت constp = constOption(optp->valuep(), optp->optType());
+            إذا (!constp) استمر;
+            إذا (optp->optType() == VCoverOptionType::AT_لږترلږه) {
+                at_لږترلږه_بهر = const_At_لږترلږه(constp);
+            } وإلا {
+                auto_Bin_Max_بهر = constp->منزل_SInt();
             }
         }
         // Fall back to covergroup-level auto_bin_max if not set at coverpoint level
-        if (autoBinMaxOut < 0) {
-            if (m_covergroupp->cgAutoBinMax() >= 0) {
-                autoBinMaxOut = m_covergroupp->cgAutoBinMax();
-            } else {
-                autoBinMaxOut = 64;  // Default per IEEE 1800-2023 Table 19-1
+        إذا (auto_Bin_Max_بهر < 0) {
+            إذا (m_covergroupp->cgAutoBinMax() >= 0) {
+                auto_Bin_Max_بهر = m_covergroupp->cgAutoBinMax();
+            } وإلا {
+                auto_Bin_Max_بهر = 64;  // Default per IEEE 1800-2023 Table 19-1
             }
         }
     }
 
     // IEEE 1800-2023 19.5.2: an enum coverpoint has one automatic bin per enumeration value
-    void createEnumAutoBins(AstCoverpoint* coverpointp, AstNodeExpr* exprp,
-                            const AstEnumDType* enump) {
-        FileLine* const fl = coverpointp->fileline();
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            AstConst* const lop = newValueConst(fl, VN_AS(itemp->valuep(), Const)->num(), exprp);
-            AstInsideRange* const rangep = new AstInsideRange{fl, lop, lop->cloneTree(false)};
+    فراغ createEnumAutoBins(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp,
+                            ثابت AstEnumDType* enump) {
+        File_کرښه* ثابت fl = coverpointp->fileline();
+        لكل (ثابت Ast_Enum_توکی* itemp = enump->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_توکی)) {
+            AstConst* ثابت lop = new_ارزښت_Const(fl, VN_AS(itemp->valuep(), Const)->عدد(), exprp);
+            AstInsideRange* ثابت rangep = جديد AstInsideRange{fl, lop, lop->clone_ونه(خطأ)};
             rangep->dtypeFrom(exprp);
-            coverpointp->addBinsp(
-                new AstCoverBin{fl, "auto[" + itemp->name() + "]", rangep, false, false});
+            coverpointp->جمع_کړه_Binsp(
+                جديد AstCoverBin{fl, "auto[" + itemp->name() + "]", rangep, خطأ, خطأ});
         }
     }
 
     // IEEE 1800-2023 19.5.3/19.11.1: partition first, then apply exclusions.  The partition is one
     // automatic bins declaration, generated as a run like 'bins auto[N]' but numbering its bins.
-    void createImplicitAutoBins(AstCoverpoint* coverpointp, AstNodeExpr* exprp, int autoBinMax) {
-        if (coverpointp->user2()) return;  // Declared bins, ignored, leave no bins
-        for (AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const VCoverBinsType kind = VN_AS(nodep, CoverBin)->binsType();
-            if (kind != VCoverBinsType::BINS_IGNORE && kind != VCoverBinsType::BINS_ILLEGAL)
-                return;
+    فراغ createImplicitAutoBins(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp, صحيح autoBinMax) {
+        إذا (coverpointp->user2()) أرجع;  // Declared bins, ignored, leave no bins
+        لكل (Ast_غوټه* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ثابت VCoverBinsType ډول = VN_AS(nodep, CoverBin)->binsType();
+            إذا (ډول != VCoverBinsType::BINS_IGNORE && ډول != VCoverBinsType::BINS_ILLEGAL)
+                أرجع;
         }
-        if (const AstEnumDType* const enump
-            = VN_CAST(exprp->dtypep()->skipRefToEnump(), EnumDType)) {
+        إذا (ثابت AstEnumDType* ثابت enump
+            = VN_CAST(exprp->dtypep()->skip_Ref_منزل_Enump(), EnumDType)) {
             createEnumAutoBins(coverpointp, exprp, enump);
-            return;
+            أرجع;
         }
-        const int width = exprp->width();
-        uint32_t count = width < 31 ? std::min<uint32_t>(uint32_t{1} << width, autoBinMax)
+        ثابت صحيح پلنوالی = exprp->پلنوالی();
+        uint32_t شمېر = پلنوالی < 31 ? std::min<uint32_t>(uint32_t{1} << پلنوالی, autoBinMax)
                                     : static_cast<uint32_t>(autoBinMax);
-        if (!count) return;
-        if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+        إذا (!شمېر) أرجع;
+        إذا (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             coverpointp->v3error("Coverpoint of a non-integral expression requires explicit bins "
                                  "(IEEE 1800-2023 19.5.3).");
-            return;
+            أرجع;
         }
-        if (count > v3Global.opt.coverageMaxBins()) {
+        إذا (شمېر > v3Global.opt.coverageMaxBins()) {
             coverpointp->v3warn(COVERIGN, "Unsupported: more than "
                                               << v3Global.opt.coverageMaxBins()
                                               << " automatic bins from 'option.auto_bin_max'; "
                                                  "using "
                                               << v3Global.opt.coverageMaxBins() << ".\n"
-                                              << coverpointp->warnMore()
+                                              << coverpointp->warn_نور()
                                               << "... Suggest a larger --coverage-max-bins");
-            count = v3Global.opt.coverageMaxBins();
+            شمېر = v3Global.opt.coverageMaxBins();
         }
-        FileLine* const fl = coverpointp->fileline();
-        coverpointp->addBinsp(new AstCoverBin{fl, "auto", new AstConst{fl, count},
+        File_کرښه* ثابت fl = coverpointp->fileline();
+        coverpointp->جمع_کړه_Binsp(جديد AstCoverBin{fl, "auto", جديد AstConst{fl, شمېر},
                                               VCoverBinsType::BINS_AUTO_IMPLICIT});
     }
 
     // Sanitize generated names to be valid C++ identifiers
-    static string sanitizeGeneratedName(string name) {
-        std::replace(name.begin(), name.end(), '[', '_');
-        std::replace(name.begin(), name.end(), ']', '_');
-        return name;
+    ساكن string sanitizeGeneratedName(string name) {
+        std::replace(name.begin(), name.پای_ټکی(), '[', '_');
+        std::replace(name.begin(), name.پای_ټکی(), ']', '_');
+        أرجع name;
     }
 
     // Capture an iff guard in a function-local temporary so it is evaluated once per sample()
-    AstVarRef* captureIffToTemp(AstNodeExpr* iffp, const string& tempName) {
-        FileLine* const fl = iffp->fileline();
-        AstVar* const iffVarp
-            = new AstVar{fl, VVarType::BLOCKTEMP, tempName, iffp->findBitDType()};
-        iffVarp->funcLocal(true);
-        m_sampleFuncp->addStmtsp(iffVarp);
-        iffp->unlinkFrBack();
-        m_sampleFuncp->addStmtsp(
-            new AstAssign{fl, new AstVarRef{fl, iffVarp, VAccess::WRITE}, iffp});
-        return new AstVarRef{fl, iffVarp, VAccess::READ};
+    AstVarRef* capture_Iff_منزل_لنډمهاله(Ast_غوټه_بیان* iffp, ثابت string& لنډمهاله_Name) {
+        File_کرښه* ثابت fl = iffp->fileline();
+        AstVar* ثابت iffVarp
+            = جديد AstVar{fl, VVarType::BLOCKTEMP, لنډمهاله_Name, iffp->پیدا_کړه_بټ_DType()};
+        iffVarp->funcLocal(ریښتیا);
+        m_sampleFuncp->جمع_کړه_Stmtsp(iffVarp);
+        iffp->unlink_Fr_شا();
+        m_sampleFuncp->جمع_کړه_Stmtsp(
+            جديد Ast_ټاکل{fl, جديد AstVarRef{fl, iffVarp, VAccess::WRITE}, iffp});
+        أرجع جديد AstVarRef{fl, iffVarp, VAccess::READ};
     }
 
     // Add a statement sampling the current coverpoint to sample(), under its iff guard if any
-    void addSampleStmt(AstNode* stmtp) {
-        if (m_cpGuardp) {
-            m_cpGuardp->addThensp(stmtp);
-        } else {
-            m_sampleFuncp->addStmtsp(stmtp);
+    فراغ جمع_کړه_Sample_Stmt(Ast_غوټه* stmtp) {
+        إذا (m_cpGuardp) {
+            m_cpGuardp->جمع_کړه_Thensp(stmtp);
+        } وإلا {
+            m_sampleFuncp->جمع_کړه_Stmtsp(stmtp);
         }
     }
 
     // Create previous value variable for transition tracking
-    AstVar* createPrevValueVar(AstCoverpoint* coverpointp, AstNodeExpr* exprp) {
+    AstVar* create_Prev_ارزښت_Var(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp) {
         // Check if already created
-        if (AstVar* const prevVarp = VN_CAST(coverpointp->user1p(), Var)) return prevVarp;
+        إذا (AstVar* ثابت prevVarp = VN_CAST(coverpointp->user1p(), Var)) أرجع prevVarp;
 
         // Create variable to store previous sampled value
-        const string varName = "__Vprev_" + coverpointp->name();
+        ثابت string varName = "__Vprev_" + coverpointp->name();
         AstVar* prevVarp
-            = new AstVar{coverpointp->fileline(), VVarType::MEMBER, varName, exprp->dtypep()};
-        m_covergroupp->addMembersp(prevVarp);
+            = جديد AstVar{coverpointp->fileline(), VVarType::MEMBER, varName, exprp->dtypep()};
+        m_covergroupp->جمع_کړه_Membersp(prevVarp);
 
         UINFO(4, "    Created previous value variable: " << varName);
 
         // Initialize to zero in constructor
-        AstNodeExpr* const initExprp
-            = new AstConst{prevVarp->fileline(), AstConst::WidthedValue{}, prevVarp->width(), 0};
-        AstNodeStmt* const initStmtp = new AstAssign{
-            prevVarp->fileline(), new AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
+        Ast_غوټه_بیان* ثابت initExprp
+            = جديد AstConst{prevVarp->fileline(), AstConst::Widthed_ارزښت{}, prevVarp->پلنوالی(), 0};
+        Ast_غوټه_Stmt* ثابت initStmtp = جديد Ast_ټاکل{
+            prevVarp->fileline(), جديد AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
             initExprp};
-        m_constructorp->addStmtsp(initStmtp);
+        m_constructorp->جمع_کړه_Stmtsp(initStmtp);
 
         coverpointp->user1p(prevVarp);
-        return prevVarp;
+        أرجع prevVarp;
     }
 
     // Create state position variable for multi-value transition bins
     // Tracks position in sequence: 0=not started, 1=seen first item, etc.
     AstVar* createSequenceStateVar(AstCoverpoint* coverpointp, AstCoverBin* binp) {
         // Create variable to track sequence position
-        const string varName = "__Vseqpos_" + coverpointp->name() + "_" + binp->name();
+        ثابت string varName = "__Vseqpos_" + coverpointp->name() + "_" + binp->name();
         // Use 8-bit integer for state position (sequences rarely > 255 items)
         AstVar* stateVarp
-            = new AstVar{binp->fileline(), VVarType::MEMBER, varName, VFlagLogicPacked{}, 8};
-        m_covergroupp->addMembersp(stateVarp);
+            = جديد AstVar{binp->fileline(), VVarType::MEMBER, varName, VFlagLogicPacked{}, 8};
+        m_covergroupp->جمع_کړه_Membersp(stateVarp);
 
         UINFO(4, "    Created sequence state variable: " << varName);
 
         // Initialize to 0 (not started) in constructor
-        AstNodeStmt* const initStmtp = new AstAssign{
-            stateVarp->fileline(), new AstVarRef{stateVarp->fileline(), stateVarp, VAccess::WRITE},
-            new AstConst{stateVarp->fileline(), AstConst::WidthedValue{}, 8, 0}};
-        m_constructorp->addStmtsp(initStmtp);
+        Ast_غوټه_Stmt* ثابت initStmtp = جديد Ast_ټاکل{
+            stateVarp->fileline(), جديد AstVarRef{stateVarp->fileline(), stateVarp, VAccess::WRITE},
+            جديد AstConst{stateVarp->fileline(), AstConst::Widthed_ارزښت{}, 8, 0}};
+        m_constructorp->جمع_کړه_Stmtsp(initStmtp);
 
-        return stateVarp;
+        أرجع stateVarp;
     }
 
-    void generateCoverpointCode(AstCoverpoint* coverpointp) {
+    فراغ generate_Coverpoint_کوډ(AstCoverpoint* coverpointp) {
         UINFO(4, "  Generating code for coverpoint: " << coverpointp->name());
 
         // Get the coverpoint expression
-        AstNodeExpr* exprp = coverpointp->exprp();
+        Ast_غوټه_بیان* exprp = coverpointp->exprp();
 
         // Check automatic bins before processing
         checkAutomaticBins(coverpointp, exprp);
 
         // Extract all coverpoint options in a single pass
-        int atLeastValue;
-        int autoBinMax;
-        extractItemOptions(coverpointp->optionsp(), atLeastValue, autoBinMax);
-        UINFO(6, "    Coverpoint at_least = " << atLeastValue << " auto_bin_max = " << autoBinMax);
+        صحيح at_لږترلږه_ارزښت;
+        صحيح autoBinMax;
+        ایستل_توکی_Options(coverpointp->optionsp(), at_لږترلږه_ارزښت, autoBinMax);
+        UINFO(6, "    Coverpoint at_least = " << at_لږترلږه_ارزښت << " auto_bin_max = " << autoBinMax);
 
         // Create implicit automatic bins if no regular bins exist
         createImplicitAutoBins(coverpointp, exprp, autoBinMax);
@@ -1017,131 +1017,131 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // A false iff guard disables sampling of the coverpoint (IEEE 1800-2023 19.5), so
         // neither is its expression evaluated, nor are its bins or transition state updated
         VL_RESTORER(m_cpGuardp);
-        if (AstNodeExpr* const iffp = coverpointp->iffp()) {
-            m_cpGuardp = new AstIf{iffp->fileline(), iffp->unlinkFrBack()};
+        إذا (Ast_غوټه_بیان* ثابت iffp = coverpointp->iffp()) {
+            m_cpGuardp = جديد AstIf{iffp->fileline(), iffp->unlink_Fr_شا()};
         }
 
-        AstVar* const valueVarp = new AstVar{
+        AstVar* ثابت ارزښت_Varp = جديد AstVar{
             coverpointp->fileline(), VVarType::BLOCKTEMP,
             "__VcpValue_" + sanitizeGeneratedName(coverpointp->name()), exprp->dtypep()};
-        valueVarp->funcLocal(true);
-        m_sampleFuncp->addStmtsp(valueVarp);
-        exprp->unlinkFrBack();
-        addSampleStmt(new AstAssign{
+        ارزښت_Varp->funcLocal(ریښتیا);
+        m_sampleFuncp->جمع_کړه_Stmtsp(ارزښت_Varp);
+        exprp->unlink_Fr_شا();
+        جمع_کړه_Sample_Stmt(جديد Ast_ټاکل{
             coverpointp->fileline(),
-            new AstVarRef{coverpointp->fileline(), valueVarp, VAccess::WRITE}, exprp});
-        coverpointp->exprp(new AstVarRef{coverpointp->fileline(), valueVarp, VAccess::READ});
+            جديد AstVarRef{coverpointp->fileline(), ارزښت_Varp, VAccess::WRITE}, exprp});
+        coverpointp->exprp(جديد AstVarRef{coverpointp->fileline(), ارزښت_Varp, VAccess::READ});
         exprp = coverpointp->exprp();
 
         // Every coverpoint routes through the VlCoverpoint runtime.  Transition coverpoints are
         // included: their per-value matching is still generated as a state machine in sample()
         // (see generateCoverpoint), but the bin hit is recorded in the runtime bin
         // rather than a bare counter.
-        generateCoverpoint(coverpointp, exprp, atLeastValue);
+        generateCoverpoint(coverpointp, exprp, at_لږترلږه_ارزښت);
         // Sampling follows what generateCoverpoint added unguarded, such as clearing the hit list
-        if (m_cpGuardp) m_sampleFuncp->addStmtsp(m_cpGuardp);
+        إذا (m_cpGuardp) m_sampleFuncp->جمع_کړه_Stmtsp(m_cpGuardp);
     }
 
     // Build the condition under which a default bin matches: NOT(OR of all normal bins).
-    AstNodeExpr* buildDefaultCondition(AstCoverpoint* coverpointp, AstNodeExpr* exprp,
-                                       FileLine* fl) {
-        AstNodeExpr* anyBinMatchp = nullptr;
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT
+    Ast_غوټه_بیان* buildDefaultCondition(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp,
+                                       File_کرښه* fl) {
+        Ast_غوټه_بیان* anyBinMatchp = تش_اشاره;
+        لكل (Ast_غوټه* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ثابت cbinp = VN_AS(binp, CoverBin);
+            إذا (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT
                 || cbinp->binsType() == VCoverBinsType::BINS_IGNORE
                 || cbinp->binsType() == VCoverBinsType::BINS_ILLEGAL)
-                continue;
+                استمر;
             // The values of constructed bins are known at construction; see emitSizedSample
-            if (isConstructedBins(cbinp)) continue;
-            if (isAutoBins(cbinp)) {
+            إذا (isConstructedBins(cbinp)) استمر;
+            إذا (isAutoBins(cbinp)) {
                 // Automatic bins partition the whole domain, leaving no default value
-                if (anyBinMatchp) VL_DO_DANGLING(pushDeletep(anyBinMatchp), anyBinMatchp);
-                return new AstConst{fl, AstConst::BitFalse{}};
+                إذا (anyBinMatchp) VL_DO_DANGLING(ټېل_Deletep(anyBinMatchp), anyBinMatchp);
+                أرجع جديد AstConst{fl, AstConst::بټ_False{}};
             }
-            AstNodeExpr* const binCondp = buildBinCondition(cbinp, exprp);
+            Ast_غوټه_بیان* ثابت binCondp = buildBinCondition(cbinp, exprp);
             UASSERT_OBJ(binCondp, cbinp,
                         "buildBinCondition returned nullptr for non-ignore/non-illegal bin");
-            anyBinMatchp = anyBinMatchp ? new AstOr{fl, anyBinMatchp, binCondp} : binCondp;
+            anyBinMatchp = anyBinMatchp ? جديد AstOr{fl, anyBinMatchp, binCondp} : binCondp;
         }
-        return anyBinMatchp ? static_cast<AstNodeExpr*>(new AstNot{fl, anyBinMatchp})
-                            : static_cast<AstNodeExpr*>(new AstConst{fl, AstConst::BitTrue{}});
+        أرجع anyBinMatchp ? static_cast<Ast_غوټه_بیان*>(جديد AstNot{fl, anyBinMatchp})
+                            : static_cast<Ast_غوټه_بیان*>(جديد AstConst{fl, AstConst::بټ_True{}});
     }
 
     //====================================================================
     // VlCoverpoint conversion
 
-    static bool coverpointHasStateExclusions(const AstCoverpoint* coverpointp) {
-        for (const AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const AstCoverBin* const binp = VN_AS(nodep, CoverBin);
-            if (!binp->transp() && binp->rangesp()
+    ساكن منطقي coverpointHasStateExclusions(ثابت AstCoverpoint* coverpointp) {
+        لكل (ثابت Ast_غوټه* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ثابت AstCoverBin* ثابت binp = VN_AS(nodep, CoverBin);
+            إذا (!binp->transp() && binp->rangesp()
                 && (binp->binsType() == VCoverBinsType::BINS_IGNORE
                     || binp->binsType() == VCoverBinsType::BINS_ILLEGAL)) {
-                return true;
+                أرجع ریښتیا;
             }
         }
-        return false;
+        أرجع خطأ;
     }
 
-    static bool coverpointHasConstructedBins(const AstCoverpoint* coverpointp) {
-        for (const AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            if (isConstructedBins(VN_AS(nodep, CoverBin))) return true;
+    ساكن منطقي coverpointHasConstructedBins(ثابت AstCoverpoint* coverpointp) {
+        لكل (ثابت Ast_غوټه* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            إذا (isConstructedBins(VN_AS(nodep, CoverBin))) أرجع ریښتیا;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // True if a Normal state bin, or an array-bin element, has no value of the coverpoint's
     // type (IEEE 1800-2023 19.5.7).  Array ranges enumerate in-type values, so cannot vanish.
-    static bool coverpointHasEmptyBins(const AstCoverpoint* coverpointp) {
-        AstNodeExpr* const exprp = coverpointp->exprp();
-        for (AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const AstCoverBin* const binp = VN_AS(nodep, CoverBin);
-            if (!binp->binsType().binIsNormal() || binp->transp() || !binp->rangesp()) continue;
+    ساكن منطقي coverpoint_Has_تشه_Bins(ثابت AstCoverpoint* coverpointp) {
+        Ast_غوټه_بیان* ثابت exprp = coverpointp->exprp();
+        لكل (Ast_غوټه* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ثابت AstCoverBin* ثابت binp = VN_AS(nodep, CoverBin);
+            إذا (!binp->binsType().bin_Is_نورمال() || binp->transp() || !binp->rangesp()) استمر;
             // A wildcard array has a bin for each value its elements match, so none empty, and
             // the constructor creates no bin without values of a 'with' filter
-            if ((binp->isArray() && binp->isWildcard()) || binWith(binp)) continue;
-            bool empty = true;
-            for (AstNode* valuep = binp->rangesp(); valuep; valuep = valuep->nextp()) {
-                if (binp->isArray() && VN_IS(valuep, InsideRange)) continue;
-                CrossValueRange range{valuep, resolveWidth(valuep, exprp)};
-                const bool none = resolveValue(valuep, exprp, true, binp->isWildcard(), range)
-                                  && crossRangeEmpty(range);
-                if (binp->isArray() && none) return true;
-                empty &= none;
+            إذا ((binp->isArray() && binp->isWildcard()) || binWith(binp)) استمر;
+            منطقي تشه = ریښتیا;
+            لكل (Ast_غوټه* valuep = binp->rangesp(); valuep; valuep = valuep->nextp()) {
+                إذا (binp->isArray() && VN_IS(valuep, InsideRange)) استمر;
+                Cross_ارزښت_Range range{valuep, resolve_پلنوالی(valuep, exprp)};
+                ثابت منطقي none = resolve_ارزښت(valuep, exprp, ریښتیا, binp->isWildcard(), range)
+                                  && cross_Range_تشه(range);
+                إذا (binp->isArray() && none) أرجع ریښتیا;
+                تشه &= none;
             }
-            if (empty && !binp->isArray()) return true;
+            إذا (تشه && !binp->isArray()) أرجع ریښتیا;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // True if a coverpoint has any transition bin.  Used to decide whether sample() emits the
     // end-of-sample previous-value update that transition matching needs.
-    static bool coverpointHasTransition(AstCoverpoint* coverpointp) {
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            if (VN_AS(binp, CoverBin)->transp()) return true;
+    ساكن منطقي coverpointHasTransition(AstCoverpoint* coverpointp) {
+        لكل (Ast_غوټه* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            إذا (VN_AS(binp, CoverBin)->transp()) أرجع ریښتیا;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // The interned AstBasicDType for one of the covergroup runtime keywords.
-    static AstBasicDType* basicDType(FileLine* fl, VBasicDTypeKwd kwd) {
-        return v3Global.rootp()->typeTablep()->findBasicDType(fl, kwd);
+    ساكن AstBasicDType* basicDType(File_کرښه* fl, VBasicDTypeKwd kwd) {
+        أرجع v3Global.rootp()->typeTablep()->پیدا_کړه_Basic_DType(fl, kwd);
     }
 
     // Get (or create) the coverpoint dtype for a hit-list bound, interned so each distinct bound
     // yields one node.
-    AstCoverpointDType* coverpointDType(FileLine* fl, uint32_t hitBound) {
-        AstCoverpointDType*& typep = m_cpDTypes[hitBound];
-        if (!typep) {
-            typep = new AstCoverpointDType{fl, hitBound};
-            v3Global.rootp()->typeTablep()->addTypesp(typep);
+    AstCoverpointDType* coverpointDType(File_کرښه* fl, uint32_t موندنه_Bound) {
+        AstCoverpointDType*& typep = m_cpDTypes[موندنه_Bound];
+        إذا (!typep) {
+            typep = جديد AstCoverpointDType{fl, موندنه_Bound};
+            v3Global.rootp()->typeTablep()->جمع_کړه_Typesp(typep);
         }
-        return typep;
+        أرجع typep;
     }
 
     // The key of the covergroup's type in the coverage registry, which get_coverage() queries
-    std::string covergroupProtectedName() const {
-        return VIdProtect::protectWordsIf(m_covergroupName, v3Global.opt.protectIds());
+    std::string covergroupProtectedName() ثابت {
+        أرجع VIdProtect::protect_ټکي_If(m_covergroupName, v3Global.opt.protectIds());
     }
 
     // The name of the covergroup's type, which keys the coverage registry and database: as
@@ -1149,113 +1149,113 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // specializations, and alike in each Verilator run of a hierarchical design.  As design units
     // of distinct libraries may share a name, one of a library other than the default is prefixed
     // by its library, as '%l' prints it (IEEE 1800-2023 33.4).
-    std::string covergroupTypeName() const {
+    std::string covergroupTypeName() ثابت {
         UASSERT_OBJ(m_unitp, m_covergroupp, "Covergroup declared outside of a design unit");
-        const std::string& libname = m_unitp->libname();
-        const std::string name = m_covergroupp->dtypeName(true);
-        return libname == "work" ? name : libname + "." + name;
+        ثابت std::string& libname = m_unitp->libname();
+        ثابت std::string name = m_covergroupp->dtypeName(ریښتیا);
+        أرجع libname == "work" ? name : libname + "." + name;
     }
 
     // Emit the covergroup's instance handle member and the constructor statement that creates
     // its node in the per-context coverage registry.  Runs before any coverpoint or cross is
     // generated, so their runtimes can be added to the node as they are created.
-    void generateInstanceAttach() {
-        FileLine* const fl = m_covergroupp->fileline();
+    فراغ generateInstanceAttach() {
+        File_کرښه* ثابت fl = m_covergroupp->fileline();
         // V3LinkParse synthesizes a 'new' for every covergroup; the item generators below already
         // rely on that, and this attach runs even for a covergroup with no coverpoints at all.
         UASSERT_OBJ(m_constructorp, m_covergroupp, "Covergroup missing synthesized constructor");
-        m_cgInstVarp = new AstVar{fl, VVarType::MEMBER, "__Vcg_inst",
+        m_cgInstVarp = جديد AstVar{fl, VVarType::MEMBER, "__Vcg_inst",
                                   basicDType(fl, VBasicDTypeKwd::COVERGROUP_INSTHANDLE)};
-        m_covergroupp->addMembersp(m_cgInstVarp);
+        m_covergroupp->جمع_کړه_Membersp(m_cgInstVarp);
 
-        m_constructorp->addStmtsp(
-            itemCall(fl, m_cgInstVarp, VCMethod::COVERGROUP_ATTACH,
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, m_cgInstVarp, VCMethod::COVERGROUP_ATTACH,
                      {ctext(fl, "vlSymsp->_vm_contextp__->covergroupRegistryp()"
                                 "->newCovergroupInst("
                                     + quoted(covergroupProtectedName())
-                                    + (m_cgMayMerge ? ", true" : ", false") + ")")},
-                     /*usePtr=*/false)
+                                    + (m_cg_May_یوځای ? ", true" : ", false") + ")")},
+                     /*usePtr=*/خطأ)
                 ->makeStmt());
         // The node reads option.weight in place, so procedural assignments take effect
-        AstCExpr* const weightAddrp = new AstCExpr{fl, "&"};
-        weightAddrp->add(newOptionSel(fl, optionVar(false), "weight", VAccess::READ));
-        m_constructorp->addStmtsp(itemCall(fl, m_cgInstVarp, VCMethod::COVERGROUP_LEND_WEIGHT,
-                                           {weightAddrp, fileLineDebug(fl)}, /*usePtr=*/false)
+        AstCExpr* ثابت وزن_Addrp = جديد AstCExpr{fl, "&"};
+        وزن_Addrp->جمع_کړه(newOptionSel(fl, optionVar(خطأ), "weight", VAccess::READ));
+        m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, m_cgInstVarp, VCMethod::COVERGROUP_LEND_وزن,
+                                           {وزن_Addrp, file_کرښه_Debug(fl)}, /*usePtr=*/خطأ)
                                       ->makeStmt());
     }
 
     // A '__Vcg_inst.p()-><method>()' call on the covergroup's instance node
-    AstCMethodHard* instanceCall(FileLine* fl, VCMethod method) {
+    AstCMethodHard* instanceCall(File_کرښه* fl, VCMethod لاره) {
         // '__Vcg_inst.p()' -- a value handle, so '.' not '->'
-        AstCMethodHard* const instp
-            = new AstCMethodHard{fl, memberRef(fl, m_cgInstVarp), VCMethod::COVERGROUP_INST_P};
-        instp->usePtr(false);
-        instp->dtypeSetVoid();  // Opaque receiver; only ever the 'fromp' of the call below
-        AstCMethodHard* const callp = new AstCMethodHard{fl, instp, method};
-        callp->usePtr(true);
-        return callp;
+        AstCMethodHard* ثابت instp
+            = جديد AstCMethodHard{fl, memberRef(fl, m_cgInstVarp), VCMethod::COVERGROUP_INST_P};
+        instp->usePtr(خطأ);
+        instp->dtype_سېټ_Void();  // Opaque receiver; only ever the 'fromp' of the call below
+        AstCMethodHard* ثابت callp = جديد AstCMethodHard{fl, instp, لاره};
+        callp->usePtr(ریښتیا);
+        أرجع callp;
     }
 
     // Emit 'this->__Vcp_x = this->__Vcg_inst.p()->addCoverpoint<K>();' (or addCross), which
     // creates the item runtime in the instance node and borrows a pointer to it.
-    AstAssign* makeItemCreate(FileLine* fl, AstVar* itemVarp, VCMethod method) {
-        AstCMethodHard* const createp = instanceCall(fl, method);
-        createp->dtypep(itemVarp->dtypep());
-        return new AstAssign{fl, memberRef(fl, itemVarp, VAccess::WRITE), createp};
+    Ast_ټاکل* make_توکی_Create(File_کرښه* fl, AstVar* توکی_Varp, VCMethod لاره) {
+        AstCMethodHard* ثابت createp = instanceCall(fl, لاره);
+        createp->dtypep(توکی_Varp->dtypep());
+        أرجع جديد Ast_ټاکل{fl, memberRef(fl, توکی_Varp, VAccess::WRITE), createp};
     }
 
     // Constant bounds of one rangesp() element (an InsideRange or a single Const).  Each bound is
     // the raw AST node -- an AstConst or an AstUnbounded ('$') -- with the const/unbounded view
     // derived on demand, so there is one source of truth per bound.  After a successful
     // constRangeBounds() neither node is null; a single Const has both bounds aliasing one node.
-    struct RangeBounds final {
-        AstNode* loNodep = nullptr;  // low bound: AstConst or AstUnbounded
-        AstNode* hiNodep = nullptr;  // high bound: AstConst or AstUnbounded
-        bool loUnbounded() const { return VN_IS(loNodep, Unbounded); }
-        bool hiUnbounded() const { return VN_IS(hiNodep, Unbounded); }
-        AstConst* loConstp() const { return VN_CAST(loNodep, Const); }
-        AstConst* hiConstp() const { return VN_CAST(hiNodep, Const); }
+    بنية RangeBounds final {
+        Ast_غوټه* loNodep = تش_اشاره;  // low bound: AstConst or AstUnbounded
+        Ast_غوټه* hiNodep = تش_اشاره;  // high bound: AstConst or AstUnbounded
+        منطقي loUnbounded() ثابت { أرجع VN_IS(loNodep, Unbounded); }
+        منطقي hiUnbounded() ثابت { أرجع VN_IS(hiNodep, Unbounded); }
+        AstConst* loConstp() ثابت { أرجع VN_CAST(loNodep, Const); }
+        AstConst* hiConstp() ثابت { أرجع VN_CAST(hiNodep, Const); }
     };
 
     // Decode one rangesp() element into its constant bounds.  Returns false if rp is neither an
     // InsideRange nor a single Const, or if a present bound is non-constant or 4-state.  '$'
     // bounds are left as AstUnbounded (not resolved) -- the caller applies its own policy.
     // Centralizes the InsideRange/Const/Unbounded decode shared by the hit-list-bound paths.
-    static bool constRangeBounds(AstNode* rp, RangeBounds& rb) {
-        if (AstInsideRange* const irp = VN_CAST(rp, InsideRange)) {
+    ساكن منطقي constRangeBounds(Ast_غوټه* rp, RangeBounds& rb) {
+        إذا (AstInsideRange* ثابت irp = VN_CAST(rp, InsideRange)) {
             rb.loNodep = irp->lhsp();
             rb.hiNodep = irp->rhsp();
-        } else if (AstConst* const cp = VN_CAST(rp, Const)) {
+        } وإلا إذا (AstConst* ثابت cp = VN_CAST(rp, Const)) {
             rb.loNodep = rb.hiNodep = cp;
-        } else {
-            return false;
+        } وإلا {
+            أرجع خطأ;
         }
         // Each bound must be a constant unless it is '$'; reject non-const and 4-state.
-        AstConst* const lc = rb.loConstp();
-        AstConst* const hc = rb.hiConstp();
-        if ((!lc && !rb.loUnbounded()) || (!hc && !rb.hiUnbounded())) return false;
-        if ((lc && lc->num().isFourState()) || (hc && hc->num().isFourState())) return false;
-        return true;
+        AstConst* ثابت lc = rb.loConstp();
+        AstConst* ثابت hc = rb.hiConstp();
+        إذا ((!lc && !rb.loUnbounded()) || (!hc && !rb.hiUnbounded())) أرجع خطأ;
+        إذا ((lc && lc->عدد().isFourState()) || (hc && hc->عدد().isFourState())) أرجع خطأ;
+        أرجع ریښتیا;
     }
 
     // Collect the covered value intervals of a single (non-array) Normal bin.  Returns false
     // if any range isn't a constant/open InsideRange or single Const (e.g. wildcard, non-const).
-    static bool extractRangeIntervals(AstCoverBin* cbinp, uint64_t maxVal,
-                                      std::vector<std::pair<uint64_t, uint64_t>>& out) {
-        if (!cbinp->rangesp()) return false;
-        for (AstNode* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
+    ساكن منطقي ایستل_Range_Intervals(AstCoverBin* cbinp, uint64_t maxVal,
+                                      std::ویکټور<std::pair<uint64_t, uint64_t>>& بهر) {
+        إذا (!cbinp->rangesp()) أرجع خطأ;
+        لكل (Ast_غوټه* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
             RangeBounds rb;
-            if (!constRangeBounds(rp, rb)) return false;
-            if ((rb.loConstp() && rb.loConstp()->width() > 64)
-                || (rb.hiConstp() && rb.hiConstp()->width() > 64)) {
-                return false;  // Use the safe slot-count bound for wide values.
+            إذا (!constRangeBounds(rp, rb)) أرجع خطأ;
+            إذا ((rb.loConstp() && rb.loConstp()->پلنوالی() > 64)
+                || (rb.hiConstp() && rb.hiConstp()->پلنوالی() > 64)) {
+                أرجع خطأ;  // Use the safe slot-count bound for wide values.
             }
-            const uint64_t lo = rb.loUnbounded() ? 0 : rb.loConstp()->toUQuad();
-            const uint64_t hi = rb.hiUnbounded() ? maxVal : rb.hiConstp()->toUQuad();
-            if (lo > hi) return false;
-            out.emplace_back(lo, hi);
+            ثابت uint64_t lo = rb.loUnbounded() ? 0 : rb.loConstp()->منزل_UQuad();
+            ثابت uint64_t hi = rb.hiUnbounded() ? maxVal : rb.hiConstp()->منزل_UQuad();
+            إذا (lo > hi) أرجع خطأ;
+            بهر.emplace_شا(lo, hi);
         }
-        return true;
+        أرجع ریښتیا;
     }
 
     // Append one Normal bin's cross-slot interval-sets to `bins` and bump `slotCount` by an upper
@@ -1263,46 +1263,46 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // enumerable (the caller then falls back to the always-safe slot count).  A non-array bin
     // is one slot covering the union of its intervals; the bins of an array element or of an
     // automatic bins declaration hold disjoint values, so the element or declaration counts once.
-    bool appendBinCrossSlots(AstCoverBin* cbinp, uint64_t maxVal, AstNodeExpr* exprp,
-                             std::vector<std::vector<std::pair<uint64_t, uint64_t>>>& bins,
-                             int& slotCount) {
-        if (isAutoBins(cbinp)) {
-            ++slotCount;
-            bins.push_back({{0, maxVal}});
-            return exprp->width() <= 64;
+    منطقي appendBinCrossSlots(AstCoverBin* cbinp, uint64_t maxVal, Ast_غوټه_بیان* exprp,
+                             std::ویکټور<std::ویکټور<std::pair<uint64_t, uint64_t>>>& bins,
+                             صحيح& خونه_شمېر) {
+        إذا (isAutoBins(cbinp)) {
+            ++خونه_شمېر;
+            bins.ټېل_شا({{0, maxVal}});
+            أرجع exprp->پلنوالی() <= 64;
         }
-        if (binWith(cbinp)) {
+        إذا (binWith(cbinp)) {
             // A value is in one bin of a filter's, but of a sized array, in one for each range
             // list element holding it; the coverpoint's name is one element
-            int elements = 0;
-            for (const AstNode* rp = binRangesp(cbinp); rp && isSizedArray(cbinp);
+            صحيح elements = 0;
+            لكل (ثابت Ast_غوټه* rp = binRangesp(cbinp); rp && isSizedArray(cbinp);
                  rp = rp->nextp()) {
                 ++elements;
             }
-            slotCount += std::max(1, elements);
-            return false;
+            خونه_شمېر += std::max(1, elements);
+            أرجع خطأ;
         }
-        if (cbinp->isArray() && cbinp->isWildcard() && !cbinp->arraySizep()) {
+        إذا (cbinp->isArray() && cbinp->isWildcard() && !cbinp->arraySizep()) {
             // A value is in at most one bin of a wildcard array: one slot covering its values.
             // Signed values are sign-extended, not unsigned intervals (see computeHitListBound)
-            ++slotCount;
-            if (exprp->isSigned() || exprp->width() > 64) return false;
-            const BinRuns runs = wildcardBinRuns(cbinp, exprp, false);
-            if (runs.unsupported) return false;
-            std::vector<std::pair<uint64_t, uint64_t>> ivs;
-            for (const BinRun& run : runs.runs) {
-                ivs.emplace_back(run.m_lo.toUQuad(), run.m_hi.toUQuad());
+            ++خونه_شمېر;
+            إذا (exprp->isSigned() || exprp->پلنوالی() > 64) أرجع خطأ;
+            ثابت BinRuns runs = wildcardBinRuns(cbinp, exprp, خطأ);
+            إذا (runs.unsupported) أرجع خطأ;
+            std::ویکټور<std::pair<uint64_t, uint64_t>> ivs;
+            لكل (ثابت Bin_پرلپسې& پرلپسې : runs.runs) {
+                ivs.emplace_شا(پرلپسې.m_lo.منزل_UQuad(), پرلپسې.m_hi.منزل_UQuad());
             }
-            bins.push_back(std::move(ivs));
-            return true;
+            bins.ټېل_شا(std::move(ivs));
+            أرجع ریښتیا;
         }
-        if (cbinp->isArray()) return appendArrayBinCrossSlots(cbinp, exprp, bins, slotCount);
+        إذا (cbinp->isArray()) أرجع appendArrayBinCrossSlots(cbinp, exprp, bins, خونه_شمېر);
         // Non-array bin: one slot covering the union of its intervals.
-        ++slotCount;
-        std::vector<std::pair<uint64_t, uint64_t>> ivs;
-        if (cbinp->isWildcard() || !extractRangeIntervals(cbinp, maxVal, ivs)) return false;
-        bins.push_back(std::move(ivs));
-        return true;
+        ++خونه_شمېر;
+        std::ویکټور<std::pair<uint64_t, uint64_t>> ivs;
+        إذا (cbinp->isWildcard() || !ایستل_Range_Intervals(cbinp, maxVal, ivs)) أرجع خطأ;
+        bins.ټېل_شا(std::move(ivs));
+        أرجع ریښتیا;
     }
 
     // Append the cross slots of an array Normal bin: each element is a slot covering its
@@ -1311,149 +1311,149 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Elements of a signed coverpoint, non-constant elements, and elements with values beyond
     // 64 bits can't be enumerated, so they count one slot but lose exactness.  Returns false if
     // any element wasn't enumerable to exact values.
-    bool appendArrayBinCrossSlots(AstCoverBin* cbinp, AstNodeExpr* exprp,
-                                  std::vector<std::vector<std::pair<uint64_t, uint64_t>>>& bins,
-                                  int& slotCount) {
+    منطقي appendArrayBinCrossSlots(AstCoverBin* cbinp, Ast_غوټه_بیان* exprp,
+                                  std::ویکټور<std::ویکټور<std::pair<uint64_t, uint64_t>>>& bins,
+                                  صحيح& خونه_شمېر) {
         // Signed values resolve sign-extended, not as unsigned intervals, and wildcard patterns
         // are not intervals
-        bool exact = !exprp->isSigned() && !cbinp->isWildcard();
-        for (AstNode* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
-            ++slotCount;
+        منطقي exact = !exprp->isSigned() && !cbinp->isWildcard();
+        لكل (Ast_غوټه* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
+            ++خونه_شمېر;
             RangeBounds rb;
-            CrossValueRange range{rp, resolveWidth(rp, exprp)};
-            if (!exact || !constRangeBounds(rp, rb)
-                || !resolveValue(rp, exprp, true, false, range)) {
-                exact = false;
-                continue;
+            Cross_ارزښت_Range range{rp, resolve_پلنوالی(rp, exprp)};
+            إذا (!exact || !constRangeBounds(rp, rb)
+                || !resolve_ارزښت(rp, exprp, ریښتیا, خطأ, range)) {
+                exact = خطأ;
+                استمر;
             }
-            if (crossRangeEmpty(range)) continue;  // Its bin, if any, holds no value
-            if (range.hi.mostSetBitP1() > 64) {
-                exact = false;
-                continue;
+            إذا (cross_Range_تشه(range)) استمر;  // Its bin, if any, holds no value
+            إذا (range.hi.most_سېټ_بټ_P1() > 64) {
+                exact = خطأ;
+                استمر;
             }
-            bins.push_back({{range.lo.toUQuad(), range.hi.toUQuad()}});
+            bins.ټېل_شا({{range.lo.منزل_UQuad(), range.hi.منزل_UQuad()}});
         }
-        return exact;
+        أرجع exact;
     }
 
     // Compute the hit-list bound for a coverpoint: the maximum number of Normal
     // bins one sample value can match.  Non-cross-fed coverpoints don't feed a cross, so
     // their hit list is unused -> 1.  Otherwise compute the exact max bin overlap; fall back
     // to the (always-safe) Normal-slot count when any bin isn't statically analyzable.
-    int computeHitListBound(AstCoverpoint* coverpointp, AstNodeExpr* exprp, bool crossFed) {
-        if (!crossFed) return 1;
-        const int width = exprp->width();
-        const uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
+    صحيح compute_موندنه_List_Bound(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp, منطقي crossFed) {
+        إذا (!crossFed) أرجع 1;
+        ثابت صحيح پلنوالی = exprp->پلنوالی();
+        ثابت uint64_t maxVal = (پلنوالی >= 64) ? UINT64_MAX : ((1ULL << پلنوالی) - 1);
         // One entry per Normal bin (cross slot): its covered intervals.
-        std::vector<std::vector<std::pair<uint64_t, uint64_t>>> bins;
-        int slotCount = 0;  // == runtime m_normal; the safe fallback bound
+        std::ویکټور<std::ویکټور<std::pair<uint64_t, uint64_t>>> bins;
+        صحيح خونه_شمېر = 0;  // == runtime m_normal; the safe fallback bound
         // Unsigned intervals cannot establish overlap between differently sized signed values.
-        bool exact = !exprp->isSigned();
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (!cbinp->binsType().binIsNormal())
-                continue;  // ignore/illegal/default: not hit-listed
-            if (!appendBinCrossSlots(cbinp, maxVal, exprp, bins, slotCount)) exact = false;
+        منطقي exact = !exprp->isSigned();
+        لكل (Ast_غوټه* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ثابت cbinp = VN_AS(binp, CoverBin);
+            إذا (!cbinp->binsType().bin_Is_نورمال())
+                استمر;  // ignore/illegal/default: not hit-listed
+            إذا (!appendBinCrossSlots(cbinp, maxVal, exprp, bins, خونه_شمېر)) exact = خطأ;
         }
-        if (!exact) return std::max(1, slotCount);
-        if (bins.empty()) return 1;
+        إذا (!exact) أرجع std::max(1, خونه_شمېر);
+        إذا (bins.تشه()) أرجع 1;
         // Max overlap occurs at some interval start; count covering bins at each lo.
-        std::vector<uint64_t> pts;
-        for (const auto& b : bins)
-            for (const auto& iv : b) pts.push_back(iv.first);
-        std::sort(pts.begin(), pts.end());
-        pts.erase(std::unique(pts.begin(), pts.end()), pts.end());
-        int maxOverlap = 1;
-        for (const uint64_t p : pts) {
-            int cnt = 0;
-            for (const auto& b : bins) {
-                for (const auto& iv : b) {
-                    if (iv.first <= p && p <= iv.second) {
+        std::ویکټور<uint64_t> pts;
+        لكل (ثابت خپلکاری& b : bins)
+            لكل (ثابت خپلکاری& iv : b) pts.ټېل_شا(iv.لومړی);
+        std::ترتیبول(pts.begin(), pts.پای_ټکی());
+        pts.erase(std::unique(pts.begin(), pts.پای_ټکی()), pts.پای_ټکی());
+        صحيح maxOverlap = 1;
+        لكل (ثابت uint64_t p : pts) {
+            صحيح cnt = 0;
+            لكل (ثابت خپلکاری& b : bins) {
+                لكل (ثابت خپلکاری& iv : b) {
+                    إذا (iv.لومړی <= p && p <= iv.دوهم) {
                         ++cnt;
-                        break;  // count each bin at most once
+                        اكسر;  // count each bin at most once
                     }
                 }
             }
-            if (cnt > maxOverlap) maxOverlap = cnt;
+            إذا (cnt > maxOverlap) maxOverlap = cnt;
         }
-        return maxOverlap;
+        أرجع maxOverlap;
     }
 
     // A 'this->m_member' reference for embedding in an AstCStmt
-    AstVarRef* memberRef(FileLine* fl, AstVar* varp, VAccess access = VAccess::READ) {
-        AstVarRef* const refp = new AstVarRef{fl, varp, access};
-        refp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-        return refp;
+    AstVarRef* memberRef(File_کرښه* fl, AstVar* varp, VAccess access = VAccess::READ) {
+        AstVarRef* ثابت refp = جديد AstVarRef{fl, varp, access};
+        refp->self_اشاره_ګر(VSelf_اشاره_ګر_متن{VSelf_اشاره_ګر_متن::This{}});
+        أرجع refp;
     }
 
     // A 'this->m_member-><method>(args...)' call on one member.  usePtr is false only for
     // __Vcg_inst, which is a value handle; the item members are borrowed pointers into the
     // instance node.  Numeric arguments are AstConst; the rest are C++ text that has no AST
     // form (see ctext).
-    AstCMethodHard* itemCall(FileLine* fl, AstVar* varp, VCMethod method,
-                             const std::vector<AstNodeExpr*>& args = {}, bool usePtr = true) {
-        AstCMethodHard* const callp = new AstCMethodHard{fl, memberRef(fl, varp), method};
-        for (AstNodeExpr* const argp : args) callp->addPinsp(argp);
+    AstCMethodHard* توکی_Call(File_کرښه* fl, AstVar* varp, VCMethod لاره,
+                             ثابت std::ویکټور<Ast_غوټه_بیان*>& دلیلونه = {}, منطقي usePtr = ریښتیا) {
+        AstCMethodHard* ثابت callp = جديد AstCMethodHard{fl, memberRef(fl, varp), لاره};
+        لكل (Ast_غوټه_بیان* ثابت argp : دلیلونه) callp->جمع_کړه_Pinsp(argp);
         callp->usePtr(usePtr);
-        callp->dtypeSetVoid();
-        return callp;
+        callp->dtype_سېټ_Void();
+        أرجع callp;
     }
 
     // An unsigned integer argument.
-    static AstConst* cnum(FileLine* fl, uint32_t value) { return new AstConst{fl, value}; }
+    ساكن AstConst* cnum(File_کرښه* fl, uint32_t ارزښت) { أرجع جديد AstConst{fl, ارزښت}; }
 
     // A literal C++ argument with no AST equivalent: a 'const char*' string literal (an SV
     // string AstConst emits '"..."s', a std::string temporary the runtime cannot borrow), a
     // VlCovBinKind enum token, a constant selection-word initializer list, a VlFileLineDebug, or
     // a '__V' temporary declared by the enclosing AstCStmt.
-    static AstCExpr* ctext(FileLine* fl, const std::string& text) {
-        return new AstCExpr{fl, text};
+    ساكن AstCExpr* ctext(File_کرښه* fl, ثابت std::string& متن) {
+        أرجع جديد AstCExpr{fl, متن};
     }
 
     // A C++ string literal.  Escapes control characters as the emitter does elsewhere -- bin
     // names and filenames reach the generated code verbatim when --protect-ids is off, and an
     // SV escaped identifier may hold a quote or backslash.
-    static std::string quoted(const std::string& text) {
-        return "\"" + V3OutFormatter::quoteNameControls(text) + "\"";
+    ساكن std::string quoted(ثابت std::string& متن) {
+        أرجع "\"" + V3_بهر_Formatter::quoteNameControls(متن) + "\"";
     }
 
     // A 'VlFileLineDebug' argument: where the runtime reports an error about fl's construct
-    static AstCExpr* fileLineDebug(FileLine* fl) {
-        const std::string filename
+    ساكن AstCExpr* file_کرښه_Debug(File_کرښه* fl) {
+        ثابت std::string filename
             = VIdProtect::protectIf(fl->filename(), v3Global.opt.protectIds());
-        return ctext(fl, "VlFileLineDebug{" + quoted(filename) + ", "
-                             + std::to_string(fl->lineno()) + "}");
+        أرجع ctext(fl, "VlFileLineDebug{" + quoted(filename) + ", "
+                             + std::منزل_string(fl->lineno()) + "}");
     }
 
     // Check that an element of an array bin (bins b[] = {values/ranges}) is a two-state
     // constant value or range; false if not, after reporting it if 'report'.
-    static bool checkArrayBinElement(AstCoverBin* arrayBinp, AstNode* rangep, bool report = true) {
-        if (const AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-            const AstConst* const minp = VN_CAST(irp->lhsp(), Const);
-            const AstConst* const maxp = VN_CAST(irp->rhsp(), Const);
-            if ((!minp && !VN_IS(irp->lhsp(), Unbounded))
+    ساكن منطقي checkArrayBinElement(AstCoverBin* arrayBinp, Ast_غوټه* rangep, منطقي report = ریښتیا) {
+        إذا (ثابت AstInsideRange* ثابت irp = VN_CAST(rangep, InsideRange)) {
+            ثابت AstConst* ثابت minp = VN_CAST(irp->lhsp(), Const);
+            ثابت AstConst* ثابت maxp = VN_CAST(irp->rhsp(), Const);
+            إذا ((!minp && !VN_IS(irp->lhsp(), Unbounded))
                 || (!maxp && !VN_IS(irp->rhsp(), Unbounded))) {
-                if (report) {
+                إذا (report) {
                     arrayBinp->v3error("Non-constant expression in array bins range; "
                                        "range bounds must be constants (IEEE 1800-2023 19.5)");
                 }
-                return false;
+                أرجع خطأ;
             }
-            if ((minp && minp->num().isFourState()) || (maxp && maxp->num().isFourState())) {
-                if (report) {
+            إذا ((minp && minp->عدد().isFourState()) || (maxp && maxp->عدد().isFourState())) {
+                إذا (report) {
                     arrayBinp->v3error("Four-state (x/z) value in array bins range bound; "
                                        "range bounds must be two-state constants");
                 }
-                return false;
+                أرجع خطأ;
             }
-        } else if (!VN_IS(rangep, Const)) {
-            if (report) {
+        } وإلا إذا (!VN_IS(rangep, Const)) {
+            إذا (report) {
                 arrayBinp->v3error("Non-constant expression in array bins value list; "
                                    "values must be constants (IEEE 1800-2023 19.5)");
             }
-            return false;
+            أرجع خطأ;
         }
-        return true;
+        أرجع ریښتیا;
     }
 
     // Individual equality targets of an array bin (bins b[] = {values/ranges}) of a real
@@ -1462,72 +1462,72 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // covers [lo:maxVal] and '[$:hi]' covers [0:hi].  One target is produced per value; ranges
     // whose resolved size would exceed --coverage-max-real-bins (e.g. an open '[lo:$]') are
     // unsupported -- emits COVERIGN, sets unsupportedOut, yields nothing.
-    std::vector<AstNodeExpr*> extractArrayValues(AstCoverBin* arrayBinp, AstNodeExpr* exprp,
-                                                 bool& unsupportedOut) {
-        unsupportedOut = false;
-        const int width = exprp->width();
-        const uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
-        std::vector<AstNodeExpr*> values;
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+    std::ویکټور<Ast_غوټه_بیان*> ایستل_Array_ارزښتونه(AstCoverBin* arrayBinp, Ast_غوټه_بیان* exprp,
+                                                 منطقي& unsupported_بهر) {
+        unsupported_بهر = خطأ;
+        ثابت صحيح پلنوالی = exprp->پلنوالی();
+        ثابت uint64_t maxVal = (پلنوالی >= 64) ? UINT64_MAX : ((1ULL << پلنوالی) - 1);
+        std::ویکټور<Ast_غوټه_بیان*> ارزښتونه;
+        لكل (Ast_غوټه* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep)) return values;
-            if (AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-                const bool loUnb = VN_IS(irp->lhsp(), Unbounded);
-                const bool hiUnb = VN_IS(irp->rhsp(), Unbounded);
-                const uint64_t lo = loUnb ? 0 : VN_AS(irp->lhsp(), Const)->toUQuad();
-                const uint64_t hi = hiUnb ? maxVal : VN_AS(irp->rhsp(), Const)->toUQuad();
-                if (hi < lo) continue;  // empty range contributes no bins
+            إذا (!checkArrayBinElement(arrayBinp, rangep)) أرجع ارزښتونه;
+            إذا (AstInsideRange* ثابت irp = VN_CAST(rangep, InsideRange)) {
+                ثابت منطقي loUnb = VN_IS(irp->lhsp(), Unbounded);
+                ثابت منطقي hiUnb = VN_IS(irp->rhsp(), Unbounded);
+                ثابت uint64_t lo = loUnb ? 0 : VN_AS(irp->lhsp(), Const)->منزل_UQuad();
+                ثابت uint64_t hi = hiUnb ? maxVal : VN_AS(irp->rhsp(), Const)->منزل_UQuad();
+                إذا (hi < lo) استمر;  // empty range contributes no bins
                 // Guard against a '$'-bounded or otherwise huge range exploding the bin count.
-                const uint64_t span = hi - lo;  // == valueCount - 1 (no overflow: hi >= lo)
-                if (span >= v3Global.opt.coverageMaxRealBins()
-                    || values.size() + span + 1 > v3Global.opt.coverageMaxRealBins()) {
+                ثابت uint64_t پراختیا = hi - lo;  // == valueCount - 1 (no overflow: hi >= lo)
+                إذا (پراختیا >= v3Global.opt.coverageMaxRealBins()
+                    || ارزښتونه.اندازه() + پراختیا + 1 > v3Global.opt.coverageMaxRealBins()) {
                     arrayBinp->v3warn(COVERIGN,
                                       "Unsupported: array 'bins' of a real coverpoint "
                                       "covering more than "
                                           << v3Global.opt.coverageMaxRealBins() << " values; bin "
                                           << arrayBinp->prettyNameQ() << " ignored.\n"
-                                          << arrayBinp->warnMore()
+                                          << arrayBinp->warn_نور()
                                           << "... Suggest a larger --coverage-max-real-bins");
-                    unsupportedOut = true;
-                    for (AstNodeExpr* const vp : values) VL_DO_DANGLING(pushDeletep(vp), vp);
-                    values.clear();
-                    return values;
+                    unsupported_بهر = ریښتیا;
+                    لكل (Ast_غوټه_بیان* ثابت vp : ارزښتونه) VL_DO_DANGLING(ټېل_Deletep(vp), vp);
+                    ارزښتونه.clear();
+                    أرجع ارزښتونه;
                 }
-                for (uint64_t v = lo; v <= hi; ++v)
-                    values.push_back(new AstConst{irp->fileline(), AstConst::WidthedValue{}, width,
+                لكل (uint64_t v = lo; v <= hi; ++v)
+                    ارزښتونه.ټېل_شا(جديد AstConst{irp->fileline(), AstConst::Widthed_ارزښت{}, پلنوالی,
                                                   static_cast<uint32_t>(v)});
-            } else {
-                values.push_back(VN_AS(rangep->cloneTree(false), NodeExpr));
+            } وإلا {
+                ارزښتونه.ټېل_شا(VN_AS(rangep->clone_ونه(خطأ), غوټه_بیان));
             }
         }
-        return values;
+        أرجع ارزښتونه;
     }
 
-    static int runWidth(const AstNodeExpr* exprp) { return exprp->width() + 1; }
+    ساكن صحيح پرلپسې_پلنوالی(ثابت Ast_غوټه_بیان* exprp) { أرجع exprp->پلنوالی() + 1; }
 
     // Automatic bins partition the coverpoint domain in value order (IEEE 1800-2023 19.5.3): N
     // bins, capped at the number of values, each hold 2^width / N values, and the last bin also
     // holds the remainder.  False for an invalid declaration, already reported.
-    bool autoBinRuns(AstCoverBin* binp, AstNodeExpr* exprp, BinRuns& out) {
-        const uint32_t requested = autoBinsRequested(binp);
-        if (!requested || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) return false;
-        const int width = exprp->width();
-        const int arithmeticWidth = runWidth(exprp);
-        const uint32_t count
-            = width < 32
-                  ? static_cast<uint32_t>(std::min<uint64_t>(uint64_t{1} << width, requested))
+    منطقي autoBinRuns(AstCoverBin* binp, Ast_غوټه_بیان* exprp, BinRuns& بهر) {
+        ثابت uint32_t requested = autoBinsRequested(binp);
+        إذا (!requested || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) أرجع خطأ;
+        ثابت صحيح پلنوالی = exprp->پلنوالی();
+        ثابت صحيح arithmetic_پلنوالی = پرلپسې_پلنوالی(exprp);
+        ثابت uint32_t شمېر
+            = پلنوالی < 32
+                  ? static_cast<uint32_t>(std::min<uint64_t>(uint64_t{1} << پلنوالی, requested))
                   : requested;
-        BinRun run{binp, arithmeticWidth, count};
-        V3Number total{binp, arithmeticWidth};
-        total.setBit(width, 1);
-        run.m_stride.opDiv(total, V3Number{binp, arithmeticWidth, count});
-        const CrossValueRange domain
-            = crossValueDomain(binp, width, exprp->isSigned(), arithmeticWidth);
-        run.m_lo = domain.lo;
-        run.m_hi = domain.hi;
-        out.runs.push_back(std::move(run));
-        out.count = count;
-        return true;
+        Bin_پرلپسې پرلپسې{binp, arithmetic_پلنوالی, شمېر};
+        V3_شمېره ټول{binp, arithmetic_پلنوالی};
+        ټول.سېټ_بټ(پلنوالی, 1);
+        پرلپسې.m_stride.opDiv(ټول, V3_شمېره{binp, arithmetic_پلنوالی, شمېر});
+        ثابت Cross_ارزښت_Range domain
+            = cross_ارزښت_Domain(binp, پلنوالی, exprp->isSigned(), arithmetic_پلنوالی);
+        پرلپسې.m_lo = domain.lo;
+        پرلپسې.m_hi = domain.hi;
+        بهر.runs.ټېل_شا(std::move(پرلپسې));
+        بهر.شمېر = شمېر;
+        أرجع ریښتیا;
     }
 
     // The elements of an array bin (bins b[] = {values/ranges}), in order, as runs of
@@ -1535,51 +1535,51 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // 1800-2023 19.5.7), while a singleton names a bin even without such a value.  Errors on a
     // non-constant element.  More than --coverage-max-bins bins (e.g. an open '[lo:$]' range over
     // a wide coverpoint) are unsupported -- emits COVERIGN, and sets unsupported.
-    BinRuns arrayBinRuns(AstCoverBin* arrayBinp, AstNodeExpr* exprp) {
-        BinRuns out;
-        const int width = runWidth(exprp);
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+    BinRuns arrayBinRuns(AstCoverBin* arrayBinp, Ast_غوټه_بیان* exprp) {
+        BinRuns بهر;
+        ثابت صحيح پلنوالی = پرلپسې_پلنوالی(exprp);
+        لكل (Ast_غوټه* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep)) return out;
-            const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            bool empty = true;
-            if (!resolveValue(rangep, exprp, true, false, range)) {
+            إذا (!checkArrayBinElement(arrayBinp, rangep)) أرجع بهر;
+            ثابت AstInsideRange* ثابت irp = VN_CAST(rangep, InsideRange);
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, exprp)};
+            منطقي تشه = ریښتیا;
+            إذا (!resolve_ارزښت(rangep, exprp, ریښتیا, خطأ, range)) {
                 rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                               "of an integral coverpoint.");
-            } else {
-                empty = crossRangeEmpty(range);
+            } وإلا {
+                تشه = cross_Range_تشه(range);
             }
-            if (empty && irp) continue;  // A range without values contributes no bins
-            BinRun run{rangep, width, 1};
-            run.m_empty = empty;
-            uint64_t count = 1;
-            if (!empty) {
-                run.m_lo.opAssign(range.lo);
-                run.m_hi.opAssign(range.hi);
-                V3Number span{rangep, width};
-                span.opSub(run.m_hi, run.m_lo);
+            إذا (تشه && irp) استمر;  // A range without values contributes no bins
+            Bin_پرلپسې پرلپسې{rangep, پلنوالی, 1};
+            پرلپسې.m_تشه = تشه;
+            uint64_t شمېر = 1;
+            إذا (!تشه) {
+                پرلپسې.m_lo.op_ټاکل(range.lo);
+                پرلپسې.m_hi.op_ټاکل(range.hi);
+                V3_شمېره پراختیا{rangep, پلنوالی};
+                پراختیا.opSub(پرلپسې.m_hi, پرلپسې.m_lo);
                 // Wider spans exceed any limit
-                count = span.mostSetBitP1() > 32 ? UINT64_MAX : span.toUQuad() + 1;
+                شمېر = پراختیا.most_سېټ_بټ_P1() > 32 ? UINT64_MAX : پراختیا.منزل_UQuad() + 1;
             }
-            if (count > v3Global.opt.coverageMaxBins() - out.count) {
+            إذا (شمېر > v3Global.opt.coverageMaxBins() - بهر.شمېر) {
                 arrayBinp->v3warn(COVERIGN, "Unsupported: array 'bins' covering more than "
                                                 << v3Global.opt.coverageMaxBins()
                                                 << " values (e.g. an open '[lo:$]' range over "
                                                    "a wide coverpoint); bin "
                                                 << arrayBinp->prettyNameQ() << " ignored\n"
-                                                << arrayBinp->warnMore()
+                                                << arrayBinp->warn_نور()
                                                 << "... Suggest a larger --coverage-max-bins");
-                out.runs.clear();
-                out.count = 0;
-                out.unsupported = true;
-                return out;
+                بهر.runs.clear();
+                بهر.شمېر = 0;
+                بهر.unsupported = ریښتیا;
+                أرجع بهر;
             }
-            run.m_count = static_cast<uint32_t>(count);
-            out.count += run.m_count;
-            out.runs.push_back(std::move(run));
+            پرلپسې.m_شمېر = static_cast<uint32_t>(شمېر);
+            بهر.شمېر += پرلپسې.m_شمېر;
+            بهر.runs.ټېل_شا(std::move(پرلپسې));
         }
-        return out;
+        أرجع بهر;
     }
 
     // The bins of a wildcard array (wildcard bins b[] = {...}): one for each coverpoint value
@@ -1587,412 +1587,412 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // (19.5.1), as runs of single-value bins.  Errors on a non-constant element.  More than
     // --coverage-max-bins values are unsupported -- emits COVERIGN, and sets unsupported, and for
     // an ignore or illegal array, single.  'report' false omits these diagnostics.
-    static BinRuns wildcardBinRuns(AstCoverBin* arrayBinp, AstNodeExpr* exprp, bool report) {
-        BinRuns out;
-        const int width = runWidth(exprp);
-        const V3Number one{arrayBinp, width, 1};
+    ساكن BinRuns wildcardBinRuns(AstCoverBin* arrayBinp, Ast_غوټه_بیان* exprp, منطقي report) {
+        BinRuns بهر;
+        ثابت صحيح پلنوالی = پرلپسې_پلنوالی(exprp);
+        ثابت V3_شمېره one{arrayBinp, پلنوالی, 1};
         // Disjoint runs of the values, in value order, each value once
-        std::vector<std::pair<V3Number, V3Number>> spans;
-        uint64_t count = 0;  // Values of 'spans'
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+        std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> spans;
+        uint64_t شمېر = 0;  // Values of 'spans'
+        لكل (Ast_غوټه* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep, report)) {
-                out.unsupported = true;
-                return out;
+            إذا (!checkArrayBinElement(arrayBinp, rangep, report)) {
+                بهر.unsupported = ریښتیا;
+                أرجع بهر;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, true, range)) {
-                if (report) {
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, exprp)};
+            إذا (!resolve_ارزښت(rangep, exprp, ریښتیا, ریښتیا, range)) {
+                إذا (report) {
                     rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a "
                                                   "coverage bin of an integral coverpoint.");
                 }
-                continue;
+                استمر;
             }
-            if (crossRangeEmpty(range)) continue;
-            std::vector<std::pair<V3Number, V3Number>> found;
-            crossRangeRuns(range, v3Global.opt.coverageMaxBins(), found);
-            for (const std::pair<V3Number, V3Number>& run : found) {
+            إذا (cross_Range_تشه(range)) استمر;
+            std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> وموندل;
+            crossRangeRuns(range, v3Global.opt.coverageMaxBins(), وموندل);
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : وموندل) {
                 // Coverpoint values, sign-extended in both widths
-                spans.emplace_back(V3Number{rangep, width, run.first},
-                                   V3Number{rangep, width, run.second});
+                spans.emplace_شا(V3_شمېره{rangep, پلنوالی, پرلپسې.لومړی},
+                                   V3_شمېره{rangep, پلنوالی, پرلپسې.دوهم});
             }
-            std::sort(spans.begin(), spans.end(), [](const auto& lhs, const auto& rhs) {
-                return crossValueLess(lhs.first, rhs.first);
+            std::ترتیبول(spans.begin(), spans.پای_ټکی(), [](ثابت خپلکاری& lhs, ثابت خپلکاری& rhs) {
+                أرجع cross_ارزښت_Less(lhs.لومړی, rhs.لومړی);
             });
-            std::vector<std::pair<V3Number, V3Number>> merged;
-            for (const std::pair<V3Number, V3Number>& span : spans) {
+            std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> merged;
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پراختیا : spans) {
                 // Adjacent or overlapping values join a run; 'first - 1' cannot overflow
-                V3Number before{rangep, width};
-                before.opSub(span.first, one);
-                if (merged.empty() || crossValueLess(merged.back().second, before)) {
-                    merged.push_back(span);
-                } else if (crossValueLess(merged.back().second, span.second)) {
-                    merged.back().second = span.second;
+                V3_شمېره before{rangep, پلنوالی};
+                before.opSub(پراختیا.لومړی, one);
+                إذا (merged.تشه() || cross_ارزښت_Less(merged.شا().دوهم, before)) {
+                    merged.ټېل_شا(پراختیا);
+                } وإلا إذا (cross_ارزښت_Less(merged.شا().دوهم, پراختیا.دوهم)) {
+                    merged.شا().دوهم = پراختیا.دوهم;
                 }
             }
-            count = 0;
-            for (const std::pair<V3Number, V3Number>& span : merged) {
-                V3Number size{rangep, width};
-                size.opSub(span.second, span.first);
+            شمېر = 0;
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پراختیا : merged) {
+                V3_شمېره اندازه{rangep, پلنوالی};
+                اندازه.opSub(پراختیا.دوهم, پراختیا.لومړی);
                 // Beyond 2^32 values exceed any limit
-                count += size.mostSetBitP1() > 32 ? uint64_t{1} << 33 : size.toUQuad() + 1;
-                if (count > v3Global.opt.coverageMaxBins()) break;
+                شمېر += اندازه.most_سېټ_بټ_P1() > 32 ? uint64_t{1} << 33 : اندازه.منزل_UQuad() + 1;
+                إذا (شمېر > v3Global.opt.coverageMaxBins()) اكسر;
             }
             spans = std::move(merged);
-            if (count > v3Global.opt.coverageMaxBins()) {
+            إذا (شمېر > v3Global.opt.coverageMaxBins()) {
                 // An ignore or illegal array still excludes or checks its values, as one bin
-                out.single = !arrayBinp->binsType().binIsNormal();
-                if (report) {
+                بهر.single = !arrayBinp->binsType().bin_Is_نورمال();
+                إذا (report) {
                     arrayBinp->v3warn(
                         COVERIGN, "Unsupported: wildcard array '"
                                       << arrayBinp->binsType().verilogKwd()
                                       << "' of more than --coverage-max-bins of "
                                       << v3Global.opt.coverageMaxBins() << " values; bin "
                                       << arrayBinp->prettyNameQ()
-                                      << (out.single ? " treated as one bin" : " ignored") << "\n"
-                                      << arrayBinp->warnMore()
+                                      << (بهر.single ? " treated as one bin" : " ignored") << "\n"
+                                      << arrayBinp->warn_نور()
                                       << "... Suggest a larger --coverage-max-bins");
                 }
-                out.unsupported = true;
-                return out;
+                بهر.unsupported = ریښتیا;
+                أرجع بهر;
             }
         }
-        for (const std::pair<V3Number, V3Number>& span : spans) {
-            out.runs.emplace_back(arrayBinp, width, 0);
-            BinRun& run = out.runs.back();
-            run.m_lo = span.first;
-            run.m_hi = span.second;
+        لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پراختیا : spans) {
+            بهر.runs.emplace_شا(arrayBinp, پلنوالی, 0);
+            Bin_پرلپسې& پرلپسې = بهر.runs.شا();
+            پرلپسې.m_lo = پراختیا.لومړی;
+            پرلپسې.m_hi = پراختیا.دوهم;
             // A bin for each value, named by it in the coverpoint's type
-            V3Number value = span.first;
-            while (true) {
-                const V3Number typed{arrayBinp, exprp->width(), value};
-                out.values.push_back(exprp->isSigned() ? typed.toDecimalS() : typed.toDecimalU());
-                ++run.m_count;
-                if (value.isCaseEq(span.second)) break;
-                V3Number next{arrayBinp, width};
-                value = next.opAdd(value, one);
+            V3_شمېره ارزښت = پراختیا.لومړی;
+            طالما (ریښتیا) {
+                ثابت V3_شمېره typed{arrayBinp, exprp->پلنوالی(), ارزښت};
+                بهر.ارزښتونه.ټېل_شا(exprp->isSigned() ? typed.منزل_Decimal_S() : typed.منزل_Decimal_U());
+                ++پرلپسې.m_شمېر;
+                إذا (ارزښت.isCaseEq(پراختیا.دوهم)) اكسر;
+                V3_شمېره بل{arrayBinp, پلنوالی};
+                ارزښت = بل.op_جمع_کړه(ارزښت, one);
             }
         }
-        out.count = static_cast<uint32_t>(count);
-        return out;
+        بهر.شمېر = static_cast<uint32_t>(شمېر);
+        أرجع بهر;
     }
 
     // The runs of an automatic bins declaration, or of an array bin of an integral coverpoint.
     // False for other bins, which do not generate as runs, including a wildcard array then one
     // bin (see BinRuns::single).
-    bool binRunsFor(AstCoverBin* binp, AstNodeExpr* exprp, BinRuns& out) {
-        if (isAutoBins(binp)) {
-            if (!autoBinRuns(binp, exprp, out)) out.unsupported = true;
-            return true;
+    منطقي binRunsFor(AstCoverBin* binp, Ast_غوټه_بیان* exprp, BinRuns& بهر) {
+        إذا (isAutoBins(binp)) {
+            إذا (!autoBinRuns(binp, exprp, بهر)) بهر.unsupported = ریښتیا;
+            أرجع ریښتیا;
         }
-        if (binp->isArray() && binp->isWildcard()) {
-            if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-                AstNodeExpr* const falsep = wildcardTypeError(binp, exprp);
-                VL_DO_DANGLING(pushDeletep(falsep), falsep);
-                out.unsupported = true;
-            } else {
-                out = wildcardBinRuns(binp, exprp, true);
-                if (out.single) {
-                    binp->isArray(false);  // Generates as one bin
-                    return false;
+        إذا (binp->isArray() && binp->isWildcard()) {
+            إذا (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+                Ast_غوټه_بیان* ثابت falsep = wildcardTypeError(binp, exprp);
+                VL_DO_DANGLING(ټېل_Deletep(falsep), falsep);
+                بهر.unsupported = ریښتیا;
+            } وإلا {
+                بهر = wildcardBinRuns(binp, exprp, ریښتیا);
+                إذا (بهر.single) {
+                    binp->isArray(خطأ);  // Generates as one bin
+                    أرجع خطأ;
                 }
             }
-            return true;
+            أرجع ریښتیا;
         }
-        if (!binp->isArray() || binp->transp() || binp->isWildcard()
+        إذا (!binp->isArray() || binp->transp() || binp->isWildcard()
             || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            return false;
+            أرجع خطأ;
         }
-        out = arrayBinRuns(binp, exprp);
-        return true;
+        بهر = arrayBinRuns(binp, exprp);
+        أرجع ریښتیا;
     }
 
     // Emit a 'this->m_cp->addSingleNamer/addArrayNamer(...)' statement for one bin whose first
     // runtime bin index is 'declared'; or with 'valueNames', those naming each bin of an array
-    AstNodeStmt* makeNamer(AstVar* cpVarp, AstCoverBin* binp, int64_t count, uint32_t declared,
-                           const std::vector<AstNodeExpr*>& values = {},
-                           const std::vector<std::string>& valueNames = {}) {
-        FileLine* const fl = binp->fileline();
+    Ast_غوټه_Stmt* makeNamer(AstVar* cpVarp, AstCoverBin* binp, int64_t شمېر, uint32_t declared,
+                           ثابت std::ویکټور<Ast_غوټه_بیان*>& ارزښتونه = {},
+                           ثابت std::ویکټور<std::string>& ارزښت_نومونه = {}) {
+        File_کرښه* ثابت fl = binp->fileline();
         CoverpointBins& bins = m_cpBins.at(cpVarp);
-        const uint32_t normalCount
-            = binp->binsType().binIsNormal() ? static_cast<uint32_t>(count < 0 ? 1 : count) : 0;
-        const BinSpan span{bins.total, normalCount, declared};
-        if (binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT) {
-            bins.implicitAuto = span;  // Selected by bin, see implicitAutoBinSpan
-        } else {
-            bins.spans.emplace(binp->name(), span);
+        ثابت uint32_t نورمال_شمېر
+            = binp->binsType().bin_Is_نورمال() ? static_cast<uint32_t>(شمېر < 0 ? 1 : شمېر) : 0;
+        ثابت Bin_پراختیا پراختیا{bins.ټول, نورمال_شمېر, declared};
+        إذا (binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT) {
+            bins.implicitAuto = پراختیا;  // Selected by bin, see implicitAutoBinSpan
+        } وإلا {
+            bins.spans.emplace(binp->name(), پراختیا);
         }
-        bins.total += normalCount;
-        for (uint32_t i = 0; bins.crossed && i < normalCount; ++i) {
-            bins.values.push_back({binp, values.empty() ? nullptr : values[i]});
+        bins.ټول += نورمال_شمېر;
+        لكل (uint32_t i = 0; bins.crossed && i < نورمال_شمېر; ++i) {
+            bins.ارزښتونه.ټېل_شا({binp, ارزښتونه.تشه() ? تش_اشاره : ارزښتونه[i]});
         }
         // Under --protect-ids the filename and bin name flow into the coverage database
         // verbatim, so obfuscate them exactly as line/toggle coverage points are (whole-
         // unit filename, per-word bin name).  A no-op when --protect-ids is off.
-        const bool prot = v3Global.opt.protectIds();
-        const bool single = count < 0;
-        if (!valueNames.empty()) {
+        ثابت منطقي prot = v3Global.opt.protectIds();
+        ثابت منطقي single = شمېر < 0;
+        إذا (!ارزښت_نومونه.تشه()) {
             // A bin of a wildcard array is named by its value (IEEE 1800-2023 19.5.1)
-            AstNodeStmt* stmtsp = nullptr;
-            for (const std::string& value : valueNames) {
-                const std::string name
-                    = VIdProtect::protectWordsIf(binp->name(), prot) + "[" + value + "]";
-                stmtsp = AstNode::addNext(
+            Ast_غوټه_Stmt* stmtsp = تش_اشاره;
+            لكل (ثابت std::string& ارزښت : ارزښت_نومونه) {
+                ثابت std::string name
+                    = VIdProtect::protect_ټکي_If(binp->name(), prot) + "[" + ارزښت + "]";
+                stmtsp = Ast_غوټه::جمع_کړه_بل(
                     stmtsp,
-                    itemCall(fl, cpVarp, VCMethod::COVERGROUP_ADD_SINGLE_NAMER,
-                             {ctext(fl, binp->binsType().binSetEnum()), ctext(fl, quoted(name)),
+                    توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_جمع_کړه_SINGLE_NAMER,
+                             {ctext(fl, binp->binsType().bin_سېټ_Enum()), ctext(fl, quoted(name)),
                               ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                               cnum(fl, static_cast<uint32_t>(fl->lineno())),
-                              cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})
+                              cnum(fl, static_cast<uint32_t>(fl->لومړی_ستنه()))})
                         ->makeStmt());
             }
-            return stmtsp;
+            أرجع stmtsp;
         }
-        std::vector<AstNodeExpr*> args{ctext(fl, binp->binsType().binSetEnum())};
-        if (!single) args.push_back(cnum(fl, static_cast<uint32_t>(count)));  // value array bin
-        args.push_back(ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))));
-        args.push_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
-        return itemCall(fl, cpVarp,
-                        single ? VCMethod::COVERGROUP_ADD_SINGLE_NAMER
+        std::ویکټور<Ast_غوټه_بیان*> دلیلونه{ctext(fl, binp->binsType().bin_سېټ_Enum())};
+        إذا (!single) دلیلونه.ټېل_شا(cnum(fl, static_cast<uint32_t>(شمېر)));  // value array bin
+        دلیلونه.ټېل_شا(ctext(fl, quoted(VIdProtect::protect_ټکي_If(binp->name(), prot))));
+        دلیلونه.ټېل_شا(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
+        دلیلونه.ټېل_شا(cnum(fl, static_cast<uint32_t>(fl->lineno())));
+        دلیلونه.ټېل_شا(cnum(fl, static_cast<uint32_t>(fl->لومړی_ستنه())));
+        أرجع توکی_Call(fl, cpVarp,
+                        single ? VCMethod::COVERGROUP_جمع_کړه_SINGLE_NAMER
                         : binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT
-                            ? VCMethod::COVERGROUP_ADD_NUMBERED_NAMER
-                            : VCMethod::COVERGROUP_ADD_ARRAY_NAMER,
-                        args)
+                            ? VCMethod::COVERGROUP_جمع_کړه_NUMBERED_NAMER
+                            : VCMethod::COVERGROUP_جمع_کړه_ARRAY_NAMER,
+                        دلیلونه)
             ->makeStmt();
     }
 
     // Emit 'if (iff && cond) m_cp.incrementBin(idx);' (or recordHit, + illegal action) in sample()
     // Where a bin's hit is recorded in the runtime VlCoverpoint member.
-    struct ConvBinTarget final {
+    بنية Conv_Bin_موخه final {
         AstVar* cpVarp;  // the __Vcp_<coverpoint> member
         uint32_t idx;  // bin index within that coverpoint
-        bool isNormal;  // Normal -> incrementBin (count + cross hit list); else recordHit (count)
+        منطقي is_نورمال;  // Normal -> incrementBin (count + cross hit list); else recordHit (count)
     };
 
     // Emit 'this->m_cp.incrementBin(idx);' (Normal) or '.recordHit(idx);'
     // (ignore/illegal/default).
-    AstNodeStmt* makeRuntimeBinHit(FileLine* fl, AstVar* cpVarp, AstNodeExpr* idxp,
-                                   bool isNormal) {
-        return itemCall(fl, cpVarp,
-                        isNormal ? VCMethod::COVERGROUP_INCREMENT_BIN
-                                 : VCMethod::COVERGROUP_RECORD_HIT,
+    Ast_غوټه_Stmt* make_Runtime_Bin_موندنه(File_کرښه* fl, AstVar* cpVarp, Ast_غوټه_بیان* idxp,
+                                   منطقي is_نورمال) {
+        أرجع توکی_Call(fl, cpVarp,
+                        is_نورمال ? VCMethod::COVERGROUP_INCREMENT_BIN
+                                 : VCMethod::COVERGROUP_ریکارډ_موندنه,
                         {idxp})
             ->makeStmt();
     }
-    AstNodeStmt* makeRuntimeBinHit(FileLine* fl, const ConvBinTarget& tgt) {
-        return makeRuntimeBinHit(fl, tgt.cpVarp, cnum(fl, static_cast<uint32_t>(tgt.idx)),
-                                 tgt.isNormal);
+    Ast_غوټه_Stmt* make_Runtime_Bin_موندنه(File_کرښه* fl, ثابت Conv_Bin_موخه& tgt) {
+        أرجع make_Runtime_Bin_موندنه(fl, tgt.cpVarp, cnum(fl, static_cast<uint32_t>(tgt.idx)),
+                                 tgt.is_نورمال);
     }
 
     // The condition under which a bin counts a sample: condp, and the bin's iff, and for a
     // Normal or default state bin, that the value is not excluded
-    AstNodeExpr* binCondition(AstCoverBin* binp, AstVar* cpVarp, AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        if (binp->iffp()) condp = new AstLogAnd{fl, binp->iffp()->cloneTree(false), condp};
-        const auto excluded = m_excludedVars.find(cpVarp);
-        if (excluded != m_excludedVars.end() && !binp->transp()
-            && (binp->binsType().binIsNormal()
+    Ast_غوټه_بیان* binCondition(AstCoverBin* binp, AstVar* cpVarp, Ast_غوټه_بیان* condp) {
+        File_کرښه* ثابت fl = binp->fileline();
+        إذا (binp->iffp()) condp = جديد AstLogAnd{fl, binp->iffp()->clone_ونه(خطأ), condp};
+        ثابت خپلکاری excluded = m_excludedVars.پیدا_کړه(cpVarp);
+        إذا (excluded != m_excludedVars.پای_ټکی() && !binp->transp()
+            && (binp->binsType().bin_Is_نورمال()
                 || binp->binsType() == VCoverBinsType::BINS_DEFAULT)) {
-            condp = new AstLogAnd{
-                fl, new AstNot{fl, new AstVarRef{fl, excluded->second, VAccess::READ}}, condp};
+            condp = جديد AstLogAnd{
+                fl, جديد AstNot{fl, جديد AstVarRef{fl, excluded->دوهم, VAccess::READ}}, condp};
         }
-        return condp;
+        أرجع condp;
     }
 
-    void emitConvHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                       AstNodeExpr* idxp, AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        AstNode* actionp = makeRuntimeBinHit(fl, cpVarp, idxp, binp->binsType().binIsNormal());
-        if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
-            actionp->addNext(makeIllegalBinAction(fl, "Illegal bin " + binp->prettyNameQ()
+    فراغ emit_Conv_موندنه_If(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                       Ast_غوټه_بیان* idxp, Ast_غوټه_بیان* condp) {
+        File_کرښه* ثابت fl = binp->fileline();
+        Ast_غوټه* actionp = make_Runtime_Bin_موندنه(fl, cpVarp, idxp, binp->binsType().bin_Is_نورمال());
+        إذا (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+            actionp->جمع_کړه_بل(makeIllegalBinAction(fl, "Illegal bin " + binp->prettyNameQ()
                                                           + " hit in coverpoint "
                                                           + coverpointp->prettyNameQ()));
         }
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for coverpoint");
-        addSampleStmt(new AstIf{fl, binCondition(binp, cpVarp, condp), actionp, nullptr});
+        جمع_کړه_Sample_Stmt(جديد AstIf{fl, binCondition(binp, cpVarp, condp), actionp, تش_اشاره});
     }
 
     // Emit the sample() code of sized array 'sized': count the value in its bins holding it when
     // enabled, as other bins are, and for default bins note in matchedp whether any holds it
-    void emitSizedSample(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                         AstNodeExpr* exprp, uint32_t sized, AstVar* matchedp) {
-        FileLine* const fl = binp->fileline();
-        AstNodeExpr* enabledp = binCondition(binp, cpVarp, new AstConst{fl, AstConst::BitTrue{}});
+    فراغ emitSizedSample(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                         Ast_غوټه_بیان* exprp, uint32_t sized, AstVar* matchedp) {
+        File_کرښه* ثابت fl = binp->fileline();
+        Ast_غوټه_بیان* enabledp = binCondition(binp, cpVarp, جديد AstConst{fl, AstConst::بټ_True{}});
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for coverpoint");
-        const bool illegal = binp->binsType() == VCoverBinsType::BINS_ILLEGAL;
-        if (illegal) {
+        ثابت منطقي illegal = binp->binsType() == VCoverBinsType::BINS_ILLEGAL;
+        إذا (illegal) {
             // The illegal action reads the condition too, which is evaluated once, as the guard
             // may have side effects
-            AstVar* const varp
-                = new AstVar{fl, VVarType::BLOCKTEMP,
+            AstVar* ثابت varp
+                = جديد AstVar{fl, VVarType::BLOCKTEMP,
                              "__VcpEnabled_" + sanitizeGeneratedName(coverpointp->name()) + "_"
-                                 + cvtToStr(sized),
-                             binp->findBitDType()};
-            varp->funcLocal(true);
-            m_sampleFuncp->addStmtsp(varp);
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, enabledp});
-            enabledp = new AstVarRef{fl, varp, VAccess::READ};
+                                 + cvt_منزل_Str(sized),
+                             binp->پیدا_کړه_بټ_DType()};
+            varp->funcLocal(ریښتیا);
+            m_sampleFuncp->جمع_کړه_Stmtsp(varp);
+            جمع_کړه_Sample_Stmt(جديد Ast_ټاکل{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, enabledp});
+            enabledp = جديد AstVarRef{fl, varp, VAccess::READ};
         }
-        AstCMethodHard* const callp
-            = itemCall(fl, cpVarp,
+        AstCMethodHard* ثابت callp
+            = توکی_Call(fl, cpVarp,
                        exprp->isWide() ? VCMethod::COVERGROUP_SIZED_SAMPLE_W
                                        : VCMethod::COVERGROUP_SIZED_SAMPLE,
-                       {cnum(fl, sized), exprp->cloneTree(false), enabledp});
-        callp->dtypeSetBit();
-        if (illegal) {
-            addSampleStmt(new AstIf{fl, new AstLogAnd{fl, callp, enabledp->cloneTree(false)},
+                       {cnum(fl, sized), exprp->clone_ونه(خطأ), enabledp});
+        callp->dtype_سېټ_بټ();
+        إذا (illegal) {
+            جمع_کړه_Sample_Stmt(جديد AstIf{fl, جديد AstLogAnd{fl, callp, enabledp->clone_ونه(خطأ)},
                                     makeIllegalBinAction(fl, "Illegal bin " + binp->prettyNameQ()
                                                                  + " hit in coverpoint "
                                                                  + coverpointp->prettyNameQ())});
-        } else if (matchedp && binp->binsType().binIsNormal()) {
-            addSampleStmt(
-                new AstAssign{fl, new AstVarRef{fl, matchedp, VAccess::WRITE},
-                              new AstOr{fl, new AstVarRef{fl, matchedp, VAccess::READ}, callp}});
-        } else {
-            addSampleStmt(callp->makeStmt());
+        } وإلا إذا (matchedp && binp->binsType().bin_Is_نورمال()) {
+            جمع_کړه_Sample_Stmt(
+                جديد Ast_ټاکل{fl, جديد AstVarRef{fl, matchedp, VAccess::WRITE},
+                              جديد AstOr{fl, جديد AstVarRef{fl, matchedp, VAccess::READ}, callp}});
+        } وإلا {
+            جمع_کړه_Sample_Stmt(callp->makeStmt());
         }
     }
 
     // A variable local to the constructor
-    AstVar* constructorTemp(FileLine* fl, const string& name, AstNodeDType* dtypep) {
-        AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, name, dtypep};
-        varp->funcLocal(true);
-        m_constructorp->addStmtsp(varp);
-        return varp;
+    AstVar* constructor_لنډمهاله(File_کرښه* fl, ثابت string& name, Ast_غوټه_DType* dtypep) {
+        AstVar* ثابت varp = جديد AstVar{fl, VVarType::BLOCKTEMP, name, dtypep};
+        varp->funcLocal(ریښتیا);
+        m_constructorp->جمع_کړه_Stmtsp(varp);
+        أرجع varp;
     }
 
     // Truncate or extend, as its signedness sets, a value to a type
-    static AstNodeExpr* resizeValue(AstNodeExpr* valuep, AstNodeDType* dtypep) {
-        FileLine* const fl = valuep->fileline();
-        if (valuep->width() > dtypep->width()) {
-            valuep = new AstSel{fl, valuep, 0, dtypep->width()};
-        } else if (valuep->width() < dtypep->width()) {
+    ساكن Ast_غوټه_بیان* resize_ارزښت(Ast_غوټه_بیان* valuep, Ast_غوټه_DType* dtypep) {
+        File_کرښه* ثابت fl = valuep->fileline();
+        إذا (valuep->پلنوالی() > dtypep->پلنوالی()) {
+            valuep = جديد AstSel{fl, valuep, 0, dtypep->پلنوالی()};
+        } وإلا إذا (valuep->پلنوالی() < dtypep->پلنوالی()) {
             valuep = valuep->isSigned()
-                         ? static_cast<AstNodeExpr*>(new AstExtendS{fl, valuep, dtypep->width()})
-                         : new AstExtend{fl, valuep, dtypep->width()};
+                         ? static_cast<Ast_غوټه_بیان*>(جديد AstExtendS{fl, valuep, dtypep->پلنوالی()})
+                         : جديد AstExtend{fl, valuep, dtypep->پلنوالی()};
         }
         valuep->dtypep(dtypep);
-        return valuep;
+        أرجع valuep;
     }
 
     // The runtime arguments of a count, which the constructor evaluates once into a temporary:
     // its value, a count wider than 64 bits saturated over any limit, and whether it is positive
-    std::pair<AstNodeExpr*, AstNodeExpr*> newCountArgs(FileLine* fl, const string& name,
-                                                       AstNodeExpr* exprp) {
-        AstVar* const countp = constructorTemp(fl, name, exprp->dtypep());
-        m_constructorp->addStmtsp(
-            new AstAssign{fl, new AstVarRef{fl, countp, VAccess::WRITE}, exprp->cloneTree(false)});
-        const auto countRef = [&]() { return new AstVarRef{fl, countp, VAccess::READ}; };
-        AstConst* const zerop = new AstConst{fl, AstConst::DTyped{}, countp->dtypep()};
-        AstNodeExpr* const positivep
-            = countp->isSigned() ? static_cast<AstNodeExpr*>(new AstGtS{fl, countRef(), zerop})
-                                 : new AstNeq{fl, countRef(), zerop};
-        AstNodeExpr* valuep = resizeValue(countRef(), countp->findUInt64DType());
-        if (countp->width() > VL_QUADSIZE) {
-            valuep = new AstCond{
+    std::pair<Ast_غوټه_بیان*, Ast_غوټه_بیان*> new_شمېر_دلیلونه(File_کرښه* fl, ثابت string& name,
+                                                       Ast_غوټه_بیان* exprp) {
+        AstVar* ثابت countp = constructor_لنډمهاله(fl, name, exprp->dtypep());
+        m_constructorp->جمع_کړه_Stmtsp(
+            جديد Ast_ټاکل{fl, جديد AstVarRef{fl, countp, VAccess::WRITE}, exprp->clone_ونه(خطأ)});
+        ثابت خپلکاری شمېر_Ref = [&]() { أرجع جديد AstVarRef{fl, countp, VAccess::READ}; };
+        AstConst* ثابت zerop = جديد AstConst{fl, AstConst::DTyped{}, countp->dtypep()};
+        Ast_غوټه_بیان* ثابت positivep
+            = countp->isSigned() ? static_cast<Ast_غوټه_بیان*>(جديد AstGtS{fl, شمېر_Ref(), zerop})
+                                 : جديد AstNeq{fl, شمېر_Ref(), zerop};
+        Ast_غوټه_بیان* valuep = resize_ارزښت(شمېر_Ref(), countp->پیدا_کړه_UInt64_DType());
+        إذا (countp->پلنوالی() > VL_QUADSIZE) {
+            valuep = جديد AstCond{
                 fl,
-                new AstRedOr{
-                    fl, new AstSel{fl, countRef(), VL_QUADSIZE, countp->width() - VL_QUADSIZE}},
-                new AstConst{fl, AstConst::Unsized64{}, std::numeric_limits<uint64_t>::max()},
+                جديد AstRedOr{
+                    fl, جديد AstSel{fl, شمېر_Ref(), VL_QUADSIZE, countp->پلنوالی() - VL_QUADSIZE}},
+                جديد AstConst{fl, AstConst::Unsized64{}, std::numeric_limits<uint64_t>::max()},
                 valuep};
-            valuep->dtypeSetUInt64();
+            valuep->dtype_سېټ_UInt64();
         }
-        return {valuep, positivep};
+        أرجع {valuep, positivep};
     }
     // The runtime arguments of a constant count
-    static std::pair<AstNodeExpr*, AstNodeExpr*> newCountArgs(FileLine* fl, uint64_t count) {
-        return {new AstConst{fl, AstConst::Unsized64{}, count},
-                new AstConst{fl, AstConst::BitTrue{}}};
+    ساكن std::pair<Ast_غوټه_بیان*, Ast_غوټه_بیان*> new_شمېر_دلیلونه(File_کرښه* fl, uint64_t شمېر) {
+        أرجع {جديد AstConst{fl, AstConst::Unsized64{}, شمېر},
+                جديد AstConst{fl, AstConst::بټ_True{}}};
     }
 
     // The values of a coverpoint, which its name denotes (IEEE 1800-2023 19.5.1.1), as runs in
     // value order: an enumerated type's values (6.19), else all values of its type.  Bounds
     // are at runWidth(), sign-extended like a CrossValueRange's.
-    static std::vector<std::pair<V3Number, V3Number>> coverpointValues(AstNode* nodep,
-                                                                       AstNodeExpr* exprp) {
-        const int width = runWidth(exprp);
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        const AstEnumDType* const enump = VN_CAST(exprp->dtypep()->skipRefToEnump(), EnumDType);
-        if (!enump) {
-            const CrossValueRange domain
-                = crossValueDomain(nodep, exprp->width(), exprp->isSigned(), width);
-            runs.emplace_back(domain.lo, domain.hi);
-            return runs;
+    ساكن std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> coverpoint_ارزښتونه(Ast_غوټه* nodep,
+                                                                       Ast_غوټه_بیان* exprp) {
+        ثابت صحيح پلنوالی = پرلپسې_پلنوالی(exprp);
+        std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> runs;
+        ثابت AstEnumDType* ثابت enump = VN_CAST(exprp->dtypep()->skip_Ref_منزل_Enump(), EnumDType);
+        إذا (!enump) {
+            ثابت Cross_ارزښت_Range domain
+                = cross_ارزښت_Domain(nodep, exprp->پلنوالی(), exprp->isSigned(), پلنوالی);
+            runs.emplace_شا(domain.lo, domain.hi);
+            أرجع runs;
         }
-        std::vector<V3Number> values;
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            const V3Number& num = VN_AS(itemp->valuep(), Const)->num();
-            if (num.isFourState()) continue;  // Not a coverpoint value (19.5.7)
-            values.emplace_back(nodep, width);
-            if (exprp->isSigned()) {
-                values.back().opExtendS(num, num.width());
-            } else {
-                values.back().opAssign(num);
+        std::ویکټور<V3_شمېره> ارزښتونه;
+        لكل (ثابت Ast_Enum_توکی* itemp = enump->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_توکی)) {
+            ثابت V3_شمېره& عدد = VN_AS(itemp->valuep(), Const)->عدد();
+            إذا (عدد.isFourState()) استمر;  // Not a coverpoint value (19.5.7)
+            ارزښتونه.emplace_شا(nodep, پلنوالی);
+            إذا (exprp->isSigned()) {
+                ارزښتونه.شا().opExtendS(عدد, عدد.پلنوالی());
+            } وإلا {
+                ارزښتونه.شا().op_ټاکل(عدد);
             }
         }
-        std::sort(values.begin(), values.end(), crossValueLess);
-        const V3Number one{nodep, width, 1};
-        for (const V3Number& value : values) {
-            V3Number next{nodep, width};
-            if (!runs.empty() && next.opAdd(runs.back().second, one).isCaseEq(value)) {
-                runs.back().second = value;
-            } else {
-                runs.emplace_back(value, value);
+        std::ترتیبول(ارزښتونه.begin(), ارزښتونه.پای_ټکی(), cross_ارزښت_Less);
+        ثابت V3_شمېره one{nodep, پلنوالی, 1};
+        لكل (ثابت V3_شمېره& ارزښت : ارزښتونه) {
+            V3_شمېره بل{nodep, پلنوالی};
+            إذا (!runs.تشه() && بل.op_جمع_کړه(runs.شا().دوهم, one).isCaseEq(ارزښت)) {
+                runs.شا().دوهم = ارزښت;
+            } وإلا {
+                runs.emplace_شا(ارزښت, ارزښت);
             }
         }
-        return runs;
+        أرجع runs;
     }
 
     // Emit the constructor code building the bins 'binp' whose values it computes: the values of
     // each element that are coverpoint values (IEEE 1800-2023 19.5.7), those a 'with' filter
     // keeps (19.5.1.1), then its bins
-    void generateConstructedBins(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                                 AstNodeExpr* exprp) {
-        FileLine* const fl = binp->fileline();
-        const string prefix
-            = m_sizedNames.get(sanitizeGeneratedName(coverpointp->name() + "__" + binp->name()));
+    فراغ generateConstructedBins(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                                 Ast_غوټه_بیان* exprp) {
+        File_کرښه* ثابت fl = binp->fileline();
+        ثابت string مختاړی
+            = m_sized_نومونه.get(sanitizeGeneratedName(coverpointp->name() + "__" + binp->name()));
         // The count, and whether it is positive; one of a filter's scalar bin, or bin per value
-        const std::pair<AstNodeExpr*, AstNodeExpr*> count
-            = binp->arraySizep() ? newCountArgs(fl, prefix + "_count", binp->arraySizep())
-                                 : newCountArgs(fl, 1);
-        AstCoverWith* const withp = binWith(binp);
-        if (withp && !binRangesp(binp)) {  // The coverpoint's name: all of its values
-            for (const std::pair<V3Number, V3Number>& run : coverpointValues(binp, exprp)) {
-                m_constructorp->addStmtsp(itemCall(fl, cpVarp,
+        ثابت std::pair<Ast_غوټه_بیان*, Ast_غوټه_بیان*> شمېر
+            = binp->arraySizep() ? new_شمېر_دلیلونه(fl, مختاړی + "_count", binp->arraySizep())
+                                 : new_شمېر_دلیلونه(fl, 1);
+        AstCoverWith* ثابت withp = binWith(binp);
+        إذا (withp && !binRangesp(binp)) {  // The coverpoint's name: all of its values
+            لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : coverpoint_ارزښتونه(binp, exprp)) {
+                m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cpVarp,
                                                    exprp->isWide()
                                                        ? VCMethod::COVERGROUP_SIZED_RANGE_W
                                                        : VCMethod::COVERGROUP_SIZED_RANGE,
-                                                   {newValueConst(fl, run.first, exprp),
-                                                    newValueConst(fl, run.second, exprp)})
+                                                   {new_ارزښت_Const(fl, پرلپسې.لومړی, exprp),
+                                                    new_ارزښت_Const(fl, پرلپسې.دوهم, exprp)})
                                               ->makeStmt());
             }
         }
         uint32_t element = 0;
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            if (VN_IS(rangep, Unbounded)) {  // A parameter of '$'
+        لكل (Ast_غوټه* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            إذا (VN_IS(rangep, Unbounded)) {  // A parameter of '$'
                 binp->v3error("Bins value may not be '$', which may only bound a range "
                               "(IEEE 1800-2023 6.20.7)");
-                continue;
+                استمر;
             }
-            generateSizedElement(cpVarp, binp, rangep, exprp, prefix + "_" + cvtToStr(element++));
+            generateSizedElement(cpVarp, binp, rangep, exprp, مختاړی + "_" + cvt_منزل_Str(element++));
         }
-        if (withp) generateWithFilter(binp, withp, cpVarp, exprp, prefix);
-        std::vector<AstNodeExpr*> args{ctext(fl, binp->binsType().binSetEnum()), count.first,
-                                       count.second};
+        إذا (withp) generateWithFilter(binp, withp, cpVarp, exprp, مختاړی);
+        std::ویکټور<Ast_غوټه_بیان*> دلیلونه{ctext(fl, binp->binsType().bin_سېټ_Enum()), شمېر.لومړی,
+                                       شمېر.دوهم};
         // A filter's bins have the limit it began with
-        if (!withp) args.push_back(cnum(fl, v3Global.opt.coverageMaxBins()));
-        const bool prot = v3Global.opt.protectIds();
-        args.push_back(ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))));
-        args.push_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
-        m_constructorp->addStmtsp(
-            itemCall(fl, cpVarp,
-                     withp ? VCMethod::COVERGROUP_WITH_FINISH : VCMethod::COVERGROUP_SIZED_FINISH,
-                     args)
+        إذا (!withp) دلیلونه.ټېل_شا(cnum(fl, v3Global.opt.coverageMaxBins()));
+        ثابت منطقي prot = v3Global.opt.protectIds();
+        دلیلونه.ټېل_شا(ctext(fl, quoted(VIdProtect::protect_ټکي_If(binp->name(), prot))));
+        دلیلونه.ټېل_شا(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
+        دلیلونه.ټېل_شا(cnum(fl, static_cast<uint32_t>(fl->lineno())));
+        دلیلونه.ټېل_شا(cnum(fl, static_cast<uint32_t>(fl->لومړی_ستنه())));
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cpVarp,
+                     withp ? VCMethod::COVERGROUP_WITH_پای : VCMethod::COVERGROUP_SIZED_پای,
+                     دلیلونه)
                 ->makeStmt());
     }
 
@@ -2012,452 +2012,452 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     //       }
     //       if (run) more = withRun(first, last);
     //   }
-    void generateWithFilter(AstCoverBin* binp, AstCoverWith* withp, AstVar* cpVarp,
-                            AstNodeExpr* exprp, const string& prefix) {
-        FileLine* const fl = withp->fileline();
-        const bool wide = exprp->isWide();
-        const string grouping = !binp->isArray()     ? "Single"
+    فراغ generateWithFilter(AstCoverBin* binp, AstCoverWith* withp, AstVar* cpVarp,
+                            Ast_غوټه_بیان* exprp, ثابت string& مختاړی) {
+        File_کرښه* ثابت fl = withp->fileline();
+        ثابت منطقي wide = exprp->isWide();
+        ثابت string grouping = !binp->isArray()     ? "Single"
                                 : binp->arraySizep() ? "Fixed"
                                                      : "Values";
-        m_constructorp->addStmtsp(itemCall(fl, cpVarp, VCMethod::COVERGROUP_WITH_BEGIN,
+        m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_WITH_BEGIN,
                                            {ctext(fl, "VlCovBinGrouping::" + grouping),
                                             cnum(fl, v3Global.opt.coverageMaxBins())})
                                       ->makeStmt());
         // The candidates count in the coverpoint's width, and the filter reads each as 'item',
         // of the coverpoint's type, so that a filter changing 'item' cannot change the loop
-        AstNodeDType* const valueDTypep = exprp->dtypep();
-        AstVar* const valuep = constructorTemp(fl, prefix + "_value", valueDTypep);
-        AstVar* const lastp = constructorTemp(fl, prefix + "_last", valueDTypep);
-        AstVar* const firstp = constructorTemp(fl, prefix + "_first", valueDTypep);
-        AstVar* const runp = constructorTemp(fl, prefix + "_run", binp->findBitDType());
-        AstVar* const morep = constructorTemp(fl, prefix + "_more", binp->findBitDType());
-        AstVar* const itemp = withp->itemp()->unlinkFrBack();
-        itemp->name(prefix + "_item");
-        m_constructorp->addStmtsp(itemp);
-        const auto ref = [&](AstVar* varp) { return new AstVarRef{fl, varp, VAccess::READ}; };
-        const auto assign = [&](AstVar* varp, AstNodeExpr* rhsp) -> AstNode* {
-            return new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, rhsp};
+        Ast_غوټه_DType* ثابت ارزښت_DTypep = exprp->dtypep();
+        AstVar* ثابت valuep = constructor_لنډمهاله(fl, مختاړی + "_value", ارزښت_DTypep);
+        AstVar* ثابت lastp = constructor_لنډمهاله(fl, مختاړی + "_last", ارزښت_DTypep);
+        AstVar* ثابت firstp = constructor_لنډمهاله(fl, مختاړی + "_first", ارزښت_DTypep);
+        AstVar* ثابت runp = constructor_لنډمهاله(fl, مختاړی + "_run", binp->پیدا_کړه_بټ_DType());
+        AstVar* ثابت morep = constructor_لنډمهاله(fl, مختاړی + "_more", binp->پیدا_کړه_بټ_DType());
+        AstVar* ثابت itemp = withp->itemp()->unlink_Fr_شا();
+        itemp->name(مختاړی + "_item");
+        m_constructorp->جمع_کړه_Stmtsp(itemp);
+        ثابت خپلکاری ref = [&](AstVar* varp) { أرجع جديد AstVarRef{fl, varp, VAccess::READ}; };
+        ثابت خپلکاری ټاکل_2 = [&](AstVar* varp, Ast_غوټه_بیان* rhsp) -> Ast_غوټه* {
+            أرجع جديد Ast_ټاکل{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, rhsp};
         };
-        const auto flag = [&](AstVar* varp, bool value) {
-            return assign(varp, value ? new AstConst{fl, AstConst::BitTrue{}}
-                                      : new AstConst{fl, AstConst::BitFalse{}});
+        ثابت خپلکاری flag = [&](AstVar* varp, منطقي ارزښت) {
+            أرجع ټاکل_2(varp, ارزښت ? جديد AstConst{fl, AstConst::بټ_True{}}
+                                      : جديد AstConst{fl, AstConst::بټ_False{}});
         };
-        const auto bound = [&](VCMethod narrow, VCMethod wideMethod, AstVar* varp) -> AstNode* {
-            if (wide) {
-                return itemCall(fl, cpVarp, wideMethod, {new AstVarRef{fl, varp, VAccess::WRITE}})
+        ثابت خپلکاری bound = [&](VCMethod narrow, VCMethod wide_لاره, AstVar* varp) -> Ast_غوټه* {
+            إذا (wide) {
+                أرجع توکی_Call(fl, cpVarp, wide_لاره, {جديد AstVarRef{fl, varp, VAccess::WRITE}})
                     ->makeStmt();
             }
-            AstCMethodHard* const callp = itemCall(fl, cpVarp, narrow);
-            callp->dtypeSetUInt64();
-            return assign(varp, resizeValue(callp, valueDTypep));
+            AstCMethodHard* ثابت callp = توکی_Call(fl, cpVarp, narrow);
+            callp->dtype_سېټ_UInt64();
+            أرجع ټاکل_2(varp, resize_ارزښت(callp, ارزښت_DTypep));
         };
-        const auto keep = [&](AstNodeExpr* lop, AstNodeExpr* hip) {
-            AstCMethodHard* const callp = itemCall(
-                fl, cpVarp, wide ? VCMethod::COVERGROUP_WITH_RUN_W : VCMethod::COVERGROUP_WITH_RUN,
+        ثابت خپلکاری keep = [&](Ast_غوټه_بیان* lop, Ast_غوټه_بیان* hip) {
+            AstCMethodHard* ثابت callp = توکی_Call(
+                fl, cpVarp, wide ? VCMethod::COVERGROUP_WITH_پرلپسې_W : VCMethod::COVERGROUP_WITH_پرلپسې,
                 {lop, hip});
-            callp->dtypeSetBit();
-            return assign(morep, callp);
+            callp->dtype_سېټ_بټ();
+            أرجع ټاکل_2(morep, callp);
         };
-        const auto step = [&](bool up) {
-            AstConst* const onep = new AstConst{fl, AstConst::WidthedValue{}, exprp->width(), 1};
-            AstNodeExpr* const stepp
-                = up ? static_cast<AstNodeExpr*>(new AstAdd{fl, ref(valuep), onep})
-                     : new AstSub{fl, ref(valuep), onep};
-            stepp->dtypep(valueDTypep);
-            return stepp;
+        ثابت خپلکاری ګام = [&](منطقي پورته) {
+            AstConst* ثابت onep = جديد AstConst{fl, AstConst::Widthed_ارزښت{}, exprp->پلنوالی(), 1};
+            Ast_غوټه_بیان* ثابت stepp
+                = پورته ? static_cast<Ast_غوټه_بیان*>(جديد Ast_جمع_کړه{fl, ref(valuep), onep})
+                     : جديد AstSub{fl, ref(valuep), onep};
+            stepp->dtypep(ارزښت_DTypep);
+            أرجع stepp;
         };
-        AstLoop* const innerp = new AstLoop{fl};
-        innerp->addStmtsp(assign(itemp, ref(valuep)));
-        innerp->addStmtsp(new AstIf{
-            fl, withp->filterp()->unlinkFrBack(),
-            new AstIf{fl, new AstNot{fl, ref(runp)},
-                      assign(firstp, ref(valuep))->addNext(flag(runp, true))},
-            new AstIf{fl, ref(runp), keep(ref(firstp), step(false))->addNext(flag(runp, false))}});
-        innerp->addStmtsp(new AstLoopTest{
-            fl, innerp, new AstLogAnd{fl, ref(morep), new AstNeq{fl, ref(valuep), ref(lastp)}}});
-        innerp->addStmtsp(assign(valuep, step(true)));
-        AstLoop* const outerp = new AstLoop{fl};
-        AstCMethodHard* const nextp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_WITH_NEXT);
-        nextp->dtypeSetBit();
-        outerp->addStmtsp(new AstLoopTest{fl, outerp, nextp});
-        outerp->addStmtsp(
+        AstLoop* ثابت innerp = جديد AstLoop{fl};
+        innerp->جمع_کړه_Stmtsp(ټاکل_2(itemp, ref(valuep)));
+        innerp->جمع_کړه_Stmtsp(جديد AstIf{
+            fl, withp->filterp()->unlink_Fr_شا(),
+            جديد AstIf{fl, جديد AstNot{fl, ref(runp)},
+                      ټاکل_2(firstp, ref(valuep))->جمع_کړه_بل(flag(runp, ریښتیا))},
+            جديد AstIf{fl, ref(runp), keep(ref(firstp), ګام(خطأ))->جمع_کړه_بل(flag(runp, خطأ))}});
+        innerp->جمع_کړه_Stmtsp(جديد AstLoopTest{
+            fl, innerp, جديد AstLogAnd{fl, ref(morep), جديد AstNeq{fl, ref(valuep), ref(lastp)}}});
+        innerp->جمع_کړه_Stmtsp(ټاکل_2(valuep, ګام(ریښتیا)));
+        AstLoop* ثابت outerp = جديد AstLoop{fl};
+        AstCMethodHard* ثابت nextp = توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_WITH_بل);
+        nextp->dtype_سېټ_بټ();
+        outerp->جمع_کړه_Stmtsp(جديد AstLoopTest{fl, outerp, nextp});
+        outerp->جمع_کړه_Stmtsp(
             bound(VCMethod::COVERGROUP_WITH_LO, VCMethod::COVERGROUP_WITH_LO_W, valuep));
-        outerp->addStmtsp(
+        outerp->جمع_کړه_Stmtsp(
             bound(VCMethod::COVERGROUP_WITH_HI, VCMethod::COVERGROUP_WITH_HI_W, lastp));
-        outerp->addStmtsp(flag(runp, false));
-        outerp->addStmtsp(innerp);
-        outerp->addStmtsp(new AstIf{fl, ref(runp), keep(ref(firstp), ref(lastp))});
-        m_constructorp->addStmtsp(flag(morep, true));
-        m_constructorp->addStmtsp(outerp);
+        outerp->جمع_کړه_Stmtsp(flag(runp, خطأ));
+        outerp->جمع_کړه_Stmtsp(innerp);
+        outerp->جمع_کړه_Stmtsp(جديد AstIf{fl, ref(runp), keep(ref(firstp), ref(lastp))});
+        m_constructorp->جمع_کړه_Stmtsp(flag(morep, ریښتیا));
+        m_constructorp->جمع_کړه_Stmtsp(outerp);
     }
 
     // Emit 'sizedRange(lo, hi)' for the coverpoint values of an element of bins 'binp', whose
     // values the constructor computes: resolved now if constant, else when constructed by
     // clipping to the coverpoint's values.  A wildcard pattern's values give a range for each
     // run of them.  'prefix' names its temporaries.
-    void generateSizedElement(AstVar* cpVarp, const AstCoverBin* binp, AstNode* rangep,
-                              AstNodeExpr* exprp, const string& prefix) {
-        FileLine* const fl = rangep->fileline();
-        const VCMethod method = exprp->isWide() ? VCMethod::COVERGROUP_SIZED_RANGE_W
+    فراغ generateSizedElement(AstVar* cpVarp, ثابت AstCoverBin* binp, Ast_غوټه* rangep,
+                              Ast_غوټه_بیان* exprp, ثابت string& مختاړی) {
+        File_کرښه* ثابت fl = rangep->fileline();
+        ثابت VCMethod لاره = exprp->isWide() ? VCMethod::COVERGROUP_SIZED_RANGE_W
                                                 : VCMethod::COVERGROUP_SIZED_RANGE;
-        const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
-        AstNodeExpr* const lowp = irp ? irp->lhsp() : VN_AS(rangep, NodeExpr);
-        AstNodeExpr* const highp = irp ? irp->rhsp() : nullptr;
-        const auto unbounded
-            = [](const AstNodeExpr* boundp) { return !boundp || VN_IS(boundp, Unbounded); };
-        const auto constant
-            = [&](const AstNodeExpr* boundp) { return unbounded(boundp) || VN_IS(boundp, Const); };
-        const auto integral = [&](const AstNodeExpr* boundp) {
-            return unbounded(boundp) || boundp->dtypep()->skipRefp()->isIntegralOrPacked();
+        ثابت AstInsideRange* ثابت irp = VN_CAST(rangep, InsideRange);
+        Ast_غوټه_بیان* ثابت lowp = irp ? irp->lhsp() : VN_AS(rangep, غوټه_بیان);
+        Ast_غوټه_بیان* ثابت highp = irp ? irp->rhsp() : تش_اشاره;
+        ثابت خپلکاری unbounded
+            = [](ثابت Ast_غوټه_بیان* boundp) { أرجع !boundp || VN_IS(boundp, Unbounded); };
+        ثابت خپلکاری constant
+            = [&](ثابت Ast_غوټه_بیان* boundp) { أرجع unbounded(boundp) || VN_IS(boundp, Const); };
+        ثابت خپلکاری integral = [&](ثابت Ast_غوټه_بیان* boundp) {
+            أرجع unbounded(boundp) || boundp->dtypep()->skipRefp()->isIntegralOrPacked();
         };
-        if (constant(lowp) && constant(highp)) {
-            const auto fourState = [](const AstNodeExpr* boundp) {
-                const AstConst* const constp = VN_CAST(boundp, Const);
-                return constp && constp->num().isFourState();
+        إذا (constant(lowp) && constant(highp)) {
+            ثابت خپلکاری fourState = [](ثابت Ast_غوټه_بیان* boundp) {
+                ثابت AstConst* ثابت constp = VN_CAST(boundp, Const);
+                أرجع constp && constp->عدد().isFourState();
             };
-            if (irp && (fourState(lowp) || fourState(highp))) {
+            إذا (irp && (fourState(lowp) || fourState(highp))) {
                 rangep->v3error("Four-state (x/z) value in "
                                 << (binp->isArray() ? "array bins" : "bin")
                                 << " range bound; range bounds must be two-state constants");
-                return;
+                أرجع;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, binp->isWildcard(), range)) {
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, exprp)};
+            إذا (!resolve_ارزښت(rangep, exprp, ریښتیا, binp->isWildcard(), range)) {
                 rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                               "of an integral coverpoint.");
-            } else if (!crossRangeEmpty(range)) {
-                std::vector<std::pair<V3Number, V3Number>> runs{{range.lo, range.hi}};
-                if (range.wildcard) {  // checkConstructedBins bounded the runs
+            } وإلا إذا (!cross_Range_تشه(range)) {
+                std::ویکټور<std::pair<V3_شمېره, V3_شمېره>> runs{{range.lo, range.hi}};
+                إذا (range.wildcard) {  // checkConstructedBins bounded the runs
                     runs.clear();
                     crossRangeRuns(range, v3Global.opt.coverageMaxBins(), runs);
                 }
-                for (const std::pair<V3Number, V3Number>& run : runs) {
-                    m_constructorp->addStmtsp(itemCall(fl, cpVarp, method,
-                                                       {newValueConst(fl, run.first, exprp),
-                                                        newValueConst(fl, run.second, exprp)})
+                لكل (ثابت std::pair<V3_شمېره, V3_شمېره>& پرلپسې : runs) {
+                    m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cpVarp, لاره,
+                                                       {new_ارزښت_Const(fl, پرلپسې.لومړی, exprp),
+                                                        new_ارزښت_Const(fl, پرلپسې.دوهم, exprp)})
                                                   ->makeStmt());
                 }
             }
-            return;
+            أرجع;
         }
-        if (!integral(lowp) || !integral(highp)) {
+        إذا (!integral(lowp) || !integral(highp)) {
             rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                           "of an integral coverpoint.");
-            return;
+            أرجع;
         }
         // Compare values and the coverpoint's domain signed, in a width holding all of them
-        const auto boundWidth
-            = [&](const AstNodeExpr* boundp) { return unbounded(boundp) ? 0 : boundp->width(); };
-        const int width = std::max({exprp->width(), boundWidth(lowp), boundWidth(highp)}) + 1;
-        const CrossValueRange domain
-            = crossValueDomain(rangep, exprp->width(), exprp->isSigned(), width);
-        AstVar* const lop = constructorTemp(fl, prefix + "_lo", exprp->dtypep());
-        lop->dtypeSetBitSized(width, VSigning::SIGNED);
-        AstVar* const hip = constructorTemp(fl, prefix + "_hi", lop->dtypep());
-        const auto bound = [&](AstNodeExpr* boundp, const V3Number& limit) -> AstNodeExpr* {
-            if (unbounded(boundp)) {
-                AstConst* const limitp = new AstConst{fl, limit};
+        ثابت خپلکاری bound_پلنوالی
+            = [&](ثابت Ast_غوټه_بیان* boundp) { أرجع unbounded(boundp) ? 0 : boundp->پلنوالی(); };
+        ثابت صحيح پلنوالی = std::max({exprp->پلنوالی(), bound_پلنوالی(lowp), bound_پلنوالی(highp)}) + 1;
+        ثابت Cross_ارزښت_Range domain
+            = cross_ارزښت_Domain(rangep, exprp->پلنوالی(), exprp->isSigned(), پلنوالی);
+        AstVar* ثابت lop = constructor_لنډمهاله(fl, مختاړی + "_lo", exprp->dtypep());
+        lop->dtype_سېټ_بټ_Sized(پلنوالی, VSigning::SIGNED);
+        AstVar* ثابت hip = constructor_لنډمهاله(fl, مختاړی + "_hi", lop->dtypep());
+        ثابت خپلکاری bound = [&](Ast_غوټه_بیان* boundp, ثابت V3_شمېره& حد) -> Ast_غوټه_بیان* {
+            إذا (unbounded(boundp)) {
+                AstConst* ثابت limitp = جديد AstConst{fl, حد};
                 limitp->dtypeFrom(lop);
-                return limitp;
+                أرجع limitp;
             }
-            AstNodeExpr* valuep = boundp->cloneTree(false);
+            Ast_غوټه_بیان* valuep = boundp->clone_ونه(خطأ);
             // A value no wider than a signed coverpoint has its type (see crossRangeBound)
-            if (exprp->isSigned() && boundp->width() <= exprp->width()) {
-                valuep = resizeValue(valuep, exprp->dtypep());
+            إذا (exprp->isSigned() && boundp->پلنوالی() <= exprp->پلنوالی()) {
+                valuep = resize_ارزښت(valuep, exprp->dtypep());
             }
-            return resizeValue(valuep, lop->dtypep());
+            أرجع resize_ارزښت(valuep, lop->dtypep());
         };
-        const auto ref = [&](AstVar* varp, VAccess access = VAccess::READ) {
-            return new AstVarRef{fl, varp, access};
+        ثابت خپلکاری ref = [&](AstVar* varp, VAccess access = VAccess::READ) {
+            أرجع جديد AstVarRef{fl, varp, access};
         };
-        m_constructorp->addStmtsp(
-            new AstAssign{fl, ref(lop, VAccess::WRITE), bound(lowp, domain.lo)});
-        m_constructorp->addStmtsp(
-            new AstAssign{fl, ref(hip, VAccess::WRITE), irp ? bound(highp, domain.hi) : ref(lop)});
-        AstConst* const minp = new AstConst{fl, domain.lo};
-        AstConst* const maxp = new AstConst{fl, domain.hi};
+        m_constructorp->جمع_کړه_Stmtsp(
+            جديد Ast_ټاکل{fl, ref(lop, VAccess::WRITE), bound(lowp, domain.lo)});
+        m_constructorp->جمع_کړه_Stmtsp(
+            جديد Ast_ټاکل{fl, ref(hip, VAccess::WRITE), irp ? bound(highp, domain.hi) : ref(lop)});
+        AstConst* ثابت minp = جديد AstConst{fl, domain.lo};
+        AstConst* ثابت maxp = جديد AstConst{fl, domain.hi};
         minp->dtypeFrom(lop);
         maxp->dtypeFrom(lop);
-        AstCond* const lowerp
-            = new AstCond{fl, new AstLtS{fl, ref(lop), minp}, minp->cloneTree(false), ref(lop)};
-        AstCond* const upperp
-            = new AstCond{fl, new AstGtS{fl, ref(hip), maxp}, maxp->cloneTree(false), ref(hip)};
+        AstCond* ثابت lowerp
+            = جديد AstCond{fl, جديد AstLtS{fl, ref(lop), minp}, minp->clone_ونه(خطأ), ref(lop)};
+        AstCond* ثابت upperp
+            = جديد AstCond{fl, جديد AstGtS{fl, ref(hip), maxp}, maxp->clone_ونه(خطأ), ref(hip)};
         lowerp->dtypeFrom(lop);
         upperp->dtypeFrom(lop);
-        m_constructorp->addStmtsp(new AstAssign{fl, ref(lop, VAccess::WRITE), lowerp});
-        m_constructorp->addStmtsp(new AstAssign{fl, ref(hip, VAccess::WRITE), upperp});
-        m_constructorp->addStmtsp(new AstIf{fl, new AstLteS{fl, ref(lop), ref(hip)},
-                                            itemCall(fl, cpVarp, method,
-                                                     {resizeValue(ref(lop), exprp->dtypep()),
-                                                      resizeValue(ref(hip), exprp->dtypep())})
+        m_constructorp->جمع_کړه_Stmtsp(جديد Ast_ټاکل{fl, ref(lop, VAccess::WRITE), lowerp});
+        m_constructorp->جمع_کړه_Stmtsp(جديد Ast_ټاکل{fl, ref(hip, VAccess::WRITE), upperp});
+        m_constructorp->جمع_کړه_Stmtsp(جديد AstIf{fl, جديد AstLteS{fl, ref(lop), ref(hip)},
+                                            توکی_Call(fl, cpVarp, لاره,
+                                                     {resize_ارزښت(ref(lop), exprp->dtypep()),
+                                                      resize_ارزښت(ref(hip), exprp->dtypep())})
                                                 ->makeStmt()});
     }
 
     // The runtime index of the bin of a run holding the coverpoint value, which is in the run:
     // declared + (value - lo) / stride, capped at the last bin, which holds any remainder.
-    static AstNodeExpr* runBinIndex(FileLine* fl, AstNodeExpr* exprp, const BinRun& run) {
-        if (run.m_count == 1) return cnum(fl, run.m_declared);
-        const int width = exprp->width();
+    ساكن Ast_غوټه_بیان* پرلپسې_Bin_شاخص(File_کرښه* fl, Ast_غوټه_بیان* exprp, ثابت Bin_پرلپسې& پرلپسې) {
+        إذا (پرلپسې.m_شمېر == 1) أرجع cnum(fl, پرلپسې.m_declared);
+        ثابت صحيح پلنوالی = exprp->پلنوالی();
         // A run spans at most 2^width values, so offsets in it are unsigned width-bit numbers
-        AstNodeExpr* indexp
-            = new AstSub{fl, exprp->cloneTree(false), newValueConst(fl, run.m_lo, exprp)};
-        indexp->dtypeSetBitSized(width, VSigning::UNSIGNED);
-        V3Number stride{fl, width, 0};
-        stride.opAssign(run.m_stride);
-        if (stride.countOnes() != 1) {
-            indexp = new AstDiv{fl, indexp, new AstConst{fl, stride}};
-        } else if (!stride.isEqOne()) {
-            indexp = new AstShiftR{fl, indexp, new AstConst{fl, stride.mostSetBitP1() - 1}};
+        Ast_غوټه_بیان* indexp
+            = جديد AstSub{fl, exprp->clone_ونه(خطأ), new_ارزښت_Const(fl, پرلپسې.m_lo, exprp)};
+        indexp->dtype_سېټ_بټ_Sized(پلنوالی, VSigning::UNSIGNED);
+        V3_شمېره stride{fl, پلنوالی, 0};
+        stride.op_ټاکل(پرلپسې.m_stride);
+        إذا (stride.شمېر_Ones() != 1) {
+            indexp = جديد AstDiv{fl, indexp, جديد AstConst{fl, stride}};
+        } وإلا إذا (!stride.isEqOne()) {
+            indexp = جديد Ast_ښويدنه_R{fl, indexp, جديد AstConst{fl, stride.most_سېټ_بټ_P1() - 1}};
         }
         // Compare the run's values with those of count bins of stride values, without overflow
-        const int extWidth = run.m_lo.width() + 1;
-        V3Number lo{fl, extWidth, 0};
-        lo.opExtendS(run.m_lo, run.m_lo.width());
-        V3Number span{fl, extWidth, 0};
-        span.opExtendS(run.m_hi, run.m_hi.width());
-        span.opSub(V3Number{span}, lo);
-        V3Number covered{fl, extWidth, 0};
-        covered.opAssign(run.m_stride);
-        covered.opMul(V3Number{covered}, V3Number{fl, extWidth, run.m_count});
-        V3Number hasRemainder{fl, 1, 0};
-        if (!hasRemainder.opGte(span, covered).isEqZero()) {
-            AstConst* const lastp = new AstConst{fl, V3Number{fl, width, run.m_count - 1}};
-            indexp = new AstCond{fl, new AstGt{fl, indexp->cloneTree(false), lastp},
-                                 lastp->cloneTree(false), indexp};
+        ثابت صحيح ext_پلنوالی = پرلپسې.m_lo.پلنوالی() + 1;
+        V3_شمېره lo{fl, ext_پلنوالی, 0};
+        lo.opExtendS(پرلپسې.m_lo, پرلپسې.m_lo.پلنوالی());
+        V3_شمېره پراختیا{fl, ext_پلنوالی, 0};
+        پراختیا.opExtendS(پرلپسې.m_hi, پرلپسې.m_hi.پلنوالی());
+        پراختیا.opSub(V3_شمېره{پراختیا}, lo);
+        V3_شمېره covered{fl, ext_پلنوالی, 0};
+        covered.op_ټاکل(پرلپسې.m_stride);
+        covered.opMul(V3_شمېره{covered}, V3_شمېره{fl, ext_پلنوالی, پرلپسې.m_شمېر});
+        V3_شمېره hasRemainder{fl, 1, 0};
+        إذا (!hasRemainder.opGte(پراختیا, covered).isEqZero()) {
+            AstConst* ثابت lastp = جديد AstConst{fl, V3_شمېره{fl, پلنوالی, پرلپسې.m_شمېر - 1}};
+            indexp = جديد AstCond{fl, جديد AstGt{fl, indexp->clone_ونه(خطأ), lastp},
+                                 lastp->clone_ونه(خطأ), indexp};
         }
-        if (width < VL_IDATASIZE) {
-            indexp = new AstExtend{fl, indexp, VL_IDATASIZE};
-        } else if (width > VL_IDATASIZE) {
-            indexp = new AstSel{fl, indexp, 0, VL_IDATASIZE};
+        إذا (پلنوالی < VL_IDATASIZE) {
+            indexp = جديد AstExtend{fl, indexp, VL_IDATASIZE};
+        } وإلا إذا (پلنوالی > VL_IDATASIZE) {
+            indexp = جديد AstSel{fl, indexp, 0, VL_IDATASIZE};
         }
-        return new AstAdd{fl, cnum(fl, run.m_declared), indexp};
+        أرجع جديد Ast_جمع_کړه{fl, cnum(fl, پرلپسې.m_declared), indexp};
     }
 
     // Emit the sample() hit of a run of bins, whose code does not grow with its number of bins:
     //   if (iff && lo <= value && value <= hi) m_cp.incrementBin(<runBinIndex>);
-    void emitRunHit(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                    AstNodeExpr* exprp, const BinRun& run) {
-        FileLine* const fl = binp->fileline();
-        AstConst* const lop = newValueConst(fl, run.m_lo, exprp);
-        AstNodeExpr* condp = nullptr;
-        if (run.m_lo.isCaseEq(run.m_hi)) {
-            condp = new AstEq{fl, exprp->cloneTree(false), lop};
-        } else {
-            AstConst* const hip = newValueConst(fl, run.m_hi, exprp);
+    فراغ emit_پرلپسې_موندنه(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                    Ast_غوټه_بیان* exprp, ثابت Bin_پرلپسې& پرلپسې) {
+        File_کرښه* ثابت fl = binp->fileline();
+        AstConst* ثابت lop = new_ارزښت_Const(fl, پرلپسې.m_lo, exprp);
+        Ast_غوټه_بیان* condp = تش_اشاره;
+        إذا (پرلپسې.m_lo.isCaseEq(پرلپسې.m_hi)) {
+            condp = جديد AstEq{fl, exprp->clone_ونه(خطأ), lop};
+        } وإلا {
+            AstConst* ثابت hip = new_ارزښت_Const(fl, پرلپسې.m_hi, exprp);
             condp = makeRangeCondition(fl, exprp, lop, hip);
-            VL_DO_DANGLING(pushDeletep(lop), lop);
-            VL_DO_DANGLING(pushDeletep(hip), hip);
+            VL_DO_DANGLING(ټېل_Deletep(lop), lop);
+            VL_DO_DANGLING(ټېل_Deletep(hip), hip);
         }
-        emitConvHitIf(coverpointp, binp, cpVarp, runBinIndex(fl, exprp, run), condp);
+        emit_Conv_موندنه_If(coverpointp, binp, cpVarp, پرلپسې_Bin_شاخص(fl, exprp, پرلپسې), condp);
     }
 
     // Emit a transition bin's hit action into sample():
     //   if (cond) { m_cp.incrementBin/recordHit(idx); [illegal: $error; $stop] }
     // Used by the transition generators so a completed sequence records into the runtime bin.
-    void addConvTransHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, const ConvBinTarget& tgt,
-                           AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        AstNode* actionp = makeRuntimeBinHit(fl, tgt);
-        if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
-            actionp->addNext(makeIllegalBinAction(
+    فراغ جمع_کړه_Conv_Trans_موندنه_If(AstCoverpoint* coverpointp, AstCoverBin* binp, ثابت Conv_Bin_موخه& tgt,
+                           Ast_غوټه_بیان* condp) {
+        File_کرښه* ثابت fl = binp->fileline();
+        Ast_غوټه* actionp = make_Runtime_Bin_موندنه(fl, tgt);
+        إذا (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+            actionp->جمع_کړه_بل(makeIllegalBinAction(
                 fl, "Illegal transition bin " + binp->prettyNameQ() + " hit in coverpoint "
                         + coverpointp->prettyNameQ()));
         }
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for transition bin");
-        addSampleStmt(new AstIf{fl, condp, actionp, nullptr});
+        جمع_کړه_Sample_Stmt(جديد AstIf{fl, condp, actionp, تش_اشاره});
     }
 
     // Route a coverpoint through a VlCoverpoint member: emit the member, its sample()
     // increments, the constructor configuration (init + namers), and registration.
-    void generateCoverpoint(AstCoverpoint* coverpointp, AstNodeExpr* exprp, int atLeastValue) {
-        FileLine* const fl = coverpointp->fileline();
-        const bool dynamic = m_runtimePoints.count(coverpointp);
+    فراغ generateCoverpoint(AstCoverpoint* coverpointp, Ast_غوټه_بیان* exprp, صحيح at_لږترلږه_ارزښت) {
+        File_کرښه* ثابت fl = coverpointp->fileline();
+        ثابت منطقي dynamic = m_runtimePoints.شمېر(coverpointp);
         UINFO(4, "  Generating VlCoverpoint member: " << coverpointp->name());
 
         // Size the hit list to the gen-time max bin overlap (1 unless cross-fed with
         // overlapping ranges), so no cross hit is ever dropped and storage is minimal.
-        const bool crossFed = m_crossedCpNames.count(coverpointp->name()) != 0;
-        const int hitBound = computeHitListBound(coverpointp, exprp, crossFed);
-        UINFO(6, "    Hit-list bound (max bin overlap) = " << hitBound);
-        AstVar* const cpVarp = new AstVar{fl, VVarType::MEMBER, "__Vcp_" + coverpointp->name(),
-                                          coverpointDType(fl, static_cast<uint32_t>(hitBound))};
-        m_covergroupp->addMembersp(cpVarp);
+        ثابت منطقي crossFed = m_crossed_Cp_نومونه.شمېر(coverpointp->name()) != 0;
+        ثابت صحيح موندنه_Bound = compute_موندنه_List_Bound(coverpointp, exprp, crossFed);
+        UINFO(6, "    Hit-list bound (max bin overlap) = " << موندنه_Bound);
+        AstVar* ثابت cpVarp = جديد AstVar{fl, VVarType::MEMBER, "__Vcp_" + coverpointp->name(),
+                                          coverpointDType(fl, static_cast<uint32_t>(موندنه_Bound))};
+        m_covergroupp->جمع_کړه_Membersp(cpVarp);
         m_cpVarMap[coverpointp->name()] = cpVarp;
         m_cpBins.emplace(cpVarp, CoverpointBins{});
         m_cpBins.at(cpVarp).exprp = exprp;
         m_cpBins.at(cpVarp).crossed = crossFed;
         // Create the runtime in the instance node first; everything below configures it.
-        m_constructorp->addStmtsp(makeItemCreate(fl, cpVarp, VCMethod::COVERGROUP_ADD_COVERPOINT));
-        generateItemWeight(fl, cpVarp, coverpointp->optionsp());
+        m_constructorp->جمع_کړه_Stmtsp(make_توکی_Create(fl, cpVarp, VCMethod::COVERGROUP_جمع_کړه_COVERPOINT));
+        generate_توکی_وزن(fl, cpVarp, coverpointp->optionsp());
 
         // A cross reads this coverpoint's hit list, so clear it at the start of the
         // coverpoint's sample() contribution (before any incrementBin appends to it), even
         // when the iff guard disables sampling.
-        if (crossFed) {
+        إذا (crossFed) {
             UASSERT_OBJ(m_sampleFuncp, coverpointp, "sample() CFunc not set for clearHitList");
-            m_sampleFuncp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_CLEAR_HIT_LIST)->makeStmt());
+            m_sampleFuncp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_CLEAR_موندنه_LIST)->makeStmt());
         }
-        if (dynamic && coverpointHasStateExclusions(coverpointp)) {
-            AstVar* const excludedp
-                = new AstVar{fl, VVarType::BLOCKTEMP,
+        إذا (dynamic && coverpointHasStateExclusions(coverpointp)) {
+            AstVar* ثابت excludedp
+                = جديد AstVar{fl, VVarType::BLOCKTEMP,
                              "__VcpExcluded_" + sanitizeGeneratedName(coverpointp->name()),
-                             coverpointp->findBitDType()};
-            excludedp->funcLocal(true);
-            m_sampleFuncp->addStmtsp(excludedp);
-            AstCMethodHard* const callp
-                = itemCall(fl, cpVarp,
-                           exprp->isWide() ? VCMethod::COVERGROUP_VALUE_EXCLUDED_W
-                                           : VCMethod::COVERGROUP_VALUE_EXCLUDED,
-                           {exprp->cloneTree(false)});
-            callp->dtypeSetBit();
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, excludedp, VAccess::WRITE}, callp});
+                             coverpointp->پیدا_کړه_بټ_DType()};
+            excludedp->funcLocal(ریښتیا);
+            m_sampleFuncp->جمع_کړه_Stmtsp(excludedp);
+            AstCMethodHard* ثابت callp
+                = توکی_Call(fl, cpVarp,
+                           exprp->isWide() ? VCMethod::COVERGROUP_ارزښت_EXCLUDED_W
+                                           : VCMethod::COVERGROUP_ارزښت_EXCLUDED,
+                           {exprp->clone_ونه(خطأ)});
+            callp->dtype_سېټ_بټ();
+            جمع_کړه_Sample_Stmt(جديد Ast_ټاکل{fl, جديد AstVarRef{fl, excludedp, VAccess::WRITE}, callp});
             m_excludedVars.emplace(cpVarp, excludedp);
         }
 
         // Walk bins (non-default, then default), assigning sequential indices that match the
         // namer append order; emit sample increments and collect namer statements.  Constructed
         // bins follow them all, placed when the coverpoint is constructed.
-        std::vector<AstNodeStmt*> namerStmts;
-        std::vector<AstCoverBin*> defaultBins;
-        std::vector<AstCoverBin*> sizedBins;
-        std::vector<std::tuple<AstCoverBin*, uint32_t, AstNodeExpr*>> metadata;
-        std::vector<const BinRun*> runMetadata;
+        std::ویکټور<Ast_غوټه_Stmt*> namerStmts;
+        std::ویکټور<AstCoverBin*> defaultBins;
+        std::ویکټور<AstCoverBin*> sizedBins;
+        std::ویکټور<std::tuple<AstCoverBin*, uint32_t, Ast_غوټه_بیان*>> metadata;
+        std::ویکټور<ثابت Bin_پرلپسې*> پرلپسې_Metadata;
         uint64_t idx = 0;  // Runtime index of the next bin; 32-bit once checked below
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            const int errorsBefore = dynamic ? V3Error::errorCount() : 0;
-            if (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT) {
-                defaultBins.push_back(cbinp);
-                continue;
+        لكل (Ast_غوټه* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ثابت cbinp = VN_AS(binp, CoverBin);
+            ثابت صحيح errorsBefore = dynamic ? V3Error::error_شمېر() : 0;
+            إذا (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT) {
+                defaultBins.ټېل_شا(cbinp);
+                استمر;
             }
-            if (isConstructedBins(cbinp)) {
+            إذا (isConstructedBins(cbinp)) {
                 UASSERT_OBJ(dynamic, cbinp, "Constructed bins without value metadata");
-                BinSpan span;
-                span.sized = static_cast<int32_t>(sizedBins.size());
-                m_cpBins.at(cpVarp).spans.emplace(cbinp->name(), span);
-                sizedBins.push_back(cbinp);
-                continue;
+                Bin_پراختیا پراختیا;
+                پراختیا.sized = static_cast<int32_t>(sizedBins.اندازه());
+                m_cpBins.at(cpVarp).spans.emplace(cbinp->name(), پراختیا);
+                sizedBins.ټېل_شا(cbinp);
+                استمر;
             }
-            if (cbinp->transp()) {
+            إذا (cbinp->transp()) {
                 // Transition bin (incl. array transition 'bins t[] = (a=>b),(c=>d)' and
                 // illegal_bins/ignore_bins transitions).  All sequences of one transition bin
                 // share a bin name and merge in the coverage DB to a single point, so model
                 // them as one runtime bin incremented by any matching sequence.  The sequence
                 // matching is generated as a state machine, with the hit routed to this bin's
                 // runtime slot.
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
-                const ConvBinTarget tgt{cpVarp, static_cast<uint32_t>(idx),
-                                        cbinp->binsType().binIsNormal()};
-                for (AstNode* sp = cbinp->transp(); sp; sp = sp->nextp())
-                    generateSingleTransitionCode(coverpointp, cbinp, exprp, tgt,
-                                                 VN_AS(sp, CoverTransSet));
-                if (dynamic && V3Error::errorCount() == errorsBefore) {
-                    metadata.emplace_back(cbinp, static_cast<uint32_t>(idx), nullptr);
+                namerStmts.ټېل_شا(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
+                ثابت Conv_Bin_موخه tgt{cpVarp, static_cast<uint32_t>(idx),
+                                        cbinp->binsType().bin_Is_نورمال()};
+                لكل (Ast_غوټه* sp = cbinp->transp(); sp; sp = sp->nextp())
+                    generate_Single_Transition_کوډ(coverpointp, cbinp, exprp, tgt,
+                                                 VN_AS(sp, Cover_Trans_سېټ));
+                إذا (dynamic && V3Error::error_شمېر() == errorsBefore) {
+                    metadata.emplace_شا(cbinp, static_cast<uint32_t>(idx), تش_اشاره);
                 }
                 ++idx;
-                continue;
+                استمر;
             }
             BinRuns plan;
-            if (binRunsFor(cbinp, exprp, plan)) {
+            إذا (binRunsFor(cbinp, exprp, plan)) {
                 // Array elements and automatic bins generate as runs, so neither sample() nor
                 // the constructor grows with their number of bins.
-                if (plan.unsupported) {  // bin ignored or invalid; reserve no slot
-                    m_droppedBins[coverpointp].push_back(cbinp->name());
-                    continue;
+                إذا (plan.unsupported) {  // bin ignored or invalid; reserve no slot
+                    m_droppedBins[coverpointp].ټېل_شا(cbinp->name());
+                    استمر;
                 }
                 CoverpointBins& bins = m_cpBins.at(cpVarp);
-                const uint32_t firstValue = bins.total;
-                const uint32_t firstDeclared = static_cast<uint32_t>(idx);
-                namerStmts.push_back(
-                    makeNamer(cpVarp, cbinp, plan.count, firstDeclared, {}, plan.values));
-                for (BinRun& run : plan.runs) {
-                    run.m_declared = static_cast<uint32_t>(idx);
-                    bins.runs.push_back(std::move(run));
-                    const BinRun& stored = bins.runs.back();
-                    if (bins.crossed && cbinp->binsType().binIsNormal()) {
-                        const uint32_t first = firstValue + stored.m_declared - firstDeclared;
-                        for (uint32_t element = 0; element < stored.m_count; ++element) {
-                            bins.values[first + element].runp = &stored;
-                            bins.values[first + element].element = element;
+                ثابت uint32_t لومړی_ارزښت = bins.ټول;
+                ثابت uint32_t لومړی_Declared = static_cast<uint32_t>(idx);
+                namerStmts.ټېل_شا(
+                    makeNamer(cpVarp, cbinp, plan.شمېر, لومړی_Declared, {}, plan.ارزښتونه));
+                لكل (Bin_پرلپسې& پرلپسې : plan.runs) {
+                    پرلپسې.m_declared = static_cast<uint32_t>(idx);
+                    bins.runs.ټېل_شا(std::move(پرلپسې));
+                    ثابت Bin_پرلپسې& stored = bins.runs.شا();
+                    إذا (bins.crossed && cbinp->binsType().bin_Is_نورمال()) {
+                        ثابت uint32_t لومړی = لومړی_ارزښت + stored.m_declared - لومړی_Declared;
+                        لكل (uint32_t element = 0; element < stored.m_شمېر; ++element) {
+                            bins.ارزښتونه[لومړی + element].runp = &stored;
+                            bins.ارزښتونه[لومړی + element].element = element;
                         }
                     }
-                    if (!stored.m_empty) {
-                        emitRunHit(coverpointp, cbinp, cpVarp, exprp, stored);
-                        if (dynamic && V3Error::errorCount() == errorsBefore) {
-                            runMetadata.push_back(&stored);
+                    إذا (!stored.m_تشه) {
+                        emit_پرلپسې_موندنه(coverpointp, cbinp, cpVarp, exprp, stored);
+                        إذا (dynamic && V3Error::error_شمېر() == errorsBefore) {
+                            پرلپسې_Metadata.ټېل_شا(&stored);
                         }
                     }
-                    idx += stored.m_count;
+                    idx += stored.m_شمېر;
                 }
-                continue;
+                استمر;
             }
-            if (cbinp->isArray()) {  // value array of a real coverpoint: b[0]..b[N-1]
+            إذا (cbinp->isArray()) {  // value array of a real coverpoint: b[0]..b[N-1]
                 // Only integral coverpoints have runtime value metadata (m_runtimePoints)
                 UASSERT_OBJ(!dynamic, cbinp, "Runtime value metadata for a real coverpoint");
-                bool unsupported = false;
-                std::vector<AstNodeExpr*> values = extractArrayValues(cbinp, exprp, unsupported);
-                if (unsupported) {  // bin ignored (COVERIGN emitted); reserve no slot
-                    m_droppedBins[coverpointp].push_back(cbinp->name());
-                    continue;
+                منطقي unsupported = خطأ;
+                std::ویکټور<Ast_غوټه_بیان*> ارزښتونه = ایستل_Array_ارزښتونه(cbinp, exprp, unsupported);
+                إذا (unsupported) {  // bin ignored (COVERIGN emitted); reserve no slot
+                    m_droppedBins[coverpointp].ټېل_شا(cbinp->name());
+                    استمر;
                 }
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, static_cast<int64_t>(values.size()),
-                                               static_cast<uint32_t>(idx), values));
-                for (AstNodeExpr* valuep : values) {
+                namerStmts.ټېل_شا(makeNamer(cpVarp, cbinp, static_cast<int64_t>(ارزښتونه.اندازه()),
+                                               static_cast<uint32_t>(idx), ارزښتونه));
+                لكل (Ast_غوټه_بیان* valuep : ارزښتونه) {
                     // The cross selections of this covergroup still read the value.
-                    m_detachedValues.push_back(valuep);
-                    emitConvHitIf(coverpointp, cbinp, cpVarp,
+                    m_detached_ارزښتونه.ټېل_شا(valuep);
+                    emit_Conv_موندنه_If(coverpointp, cbinp, cpVarp,
                                   cnum(cbinp->fileline(), static_cast<uint32_t>(idx)),
-                                  buildValueCondition(cbinp, exprp, valuep));
+                                  build_ارزښت_Condition(cbinp, exprp, valuep));
                     ++idx;
                 }
-            } else {
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
+            } وإلا {
+                namerStmts.ټېل_شا(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
                 // buildBinCondition is null for 'ignore_bins = default' (no ranges); the bin
                 // still gets a reserved slot (recorded, never incremented).
-                if (AstNodeExpr* const condp = buildBinCondition(cbinp, exprp))
-                    emitConvHitIf(coverpointp, cbinp, cpVarp,
+                إذا (Ast_غوټه_بیان* ثابت condp = buildBinCondition(cbinp, exprp))
+                    emit_Conv_موندنه_If(coverpointp, cbinp, cpVarp,
                                   cnum(cbinp->fileline(), static_cast<uint32_t>(idx)), condp);
-                if (dynamic && V3Error::errorCount() == errorsBefore) {
-                    metadata.emplace_back(cbinp, static_cast<uint32_t>(idx), nullptr);
+                إذا (dynamic && V3Error::error_شمېر() == errorsBefore) {
+                    metadata.emplace_شا(cbinp, static_cast<uint32_t>(idx), تش_اشاره);
                 }
                 ++idx;
             }
         }
         // A cross selecting an ignored bins declaration selects no bins
-        for (const std::string& name : m_droppedBins[coverpointp]) {
-            m_cpBins.at(cpVarp).spans.emplace(name, BinSpan{});
+        لكل (ثابت std::string& name : m_droppedBins[coverpointp]) {
+            m_cpBins.at(cpVarp).spans.emplace(name, Bin_پراختیا{});
         }
         // A value a constructed bin holds is no default bin's; only sampling tells which do
-        AstVar* sizedMatchedp = nullptr;
-        if (!defaultBins.empty()
-            && std::any_of(sizedBins.begin(), sizedBins.end(), [](const AstCoverBin* binp) {
-                   return binp->binsType().binIsNormal();
+        AstVar* sizedMatchedp = تش_اشاره;
+        إذا (!defaultBins.تشه()
+            && std::any_د(sizedBins.begin(), sizedBins.پای_ټکی(), [](ثابت AstCoverBin* binp) {
+                   أرجع binp->binsType().bin_Is_نورمال();
                })) {
-            sizedMatchedp = new AstVar{fl, VVarType::BLOCKTEMP,
+            sizedMatchedp = جديد AstVar{fl, VVarType::BLOCKTEMP,
                                        "__VcpSized_" + sanitizeGeneratedName(coverpointp->name()),
-                                       coverpointp->findBitDType()};
-            sizedMatchedp->funcLocal(true);
-            m_sampleFuncp->addStmtsp(sizedMatchedp);
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, sizedMatchedp, VAccess::WRITE},
-                                        new AstConst{fl, AstConst::BitFalse{}}});
+                                       coverpointp->پیدا_کړه_بټ_DType()};
+            sizedMatchedp->funcLocal(ریښتیا);
+            m_sampleFuncp->جمع_کړه_Stmtsp(sizedMatchedp);
+            جمع_کړه_Sample_Stmt(جديد Ast_ټاکل{fl, جديد AstVarRef{fl, sizedMatchedp, VAccess::WRITE},
+                                        جديد AstConst{fl, AstConst::بټ_False{}}});
         }
-        for (uint32_t sized = 0; sized < sizedBins.size(); ++sized) {
+        لكل (uint32_t sized = 0; sized < sizedBins.اندازه(); ++sized) {
             emitSizedSample(coverpointp, sizedBins[sized], cpVarp, exprp, sized, sizedMatchedp);
         }
-        for (AstCoverBin* const defBinp : defaultBins) {
-            FileLine* const dfl = defBinp->fileline();
-            namerStmts.push_back(makeNamer(cpVarp, defBinp, -1, static_cast<uint32_t>(idx)));
-            AstNodeExpr* condp = buildDefaultCondition(coverpointp, exprp, dfl);
-            if (sizedMatchedp) {
-                condp = new AstLogAnd{
-                    dfl, new AstNot{dfl, new AstVarRef{dfl, sizedMatchedp, VAccess::READ}}, condp};
+        لكل (AstCoverBin* ثابت defBinp : defaultBins) {
+            File_کرښه* ثابت dfl = defBinp->fileline();
+            namerStmts.ټېل_شا(makeNamer(cpVarp, defBinp, -1, static_cast<uint32_t>(idx)));
+            Ast_غوټه_بیان* condp = buildDefaultCondition(coverpointp, exprp, dfl);
+            إذا (sizedMatchedp) {
+                condp = جديد AstLogAnd{
+                    dfl, جديد AstNot{dfl, جديد AstVarRef{dfl, sizedMatchedp, VAccess::READ}}, condp};
             }
-            emitConvHitIf(coverpointp, defBinp, cpVarp, cnum(dfl, static_cast<uint32_t>(idx)),
+            emit_Conv_موندنه_If(coverpointp, defBinp, cpVarp, cnum(dfl, static_cast<uint32_t>(idx)),
                           condp);
             ++idx;
         }
-        if (idx > std::numeric_limits<uint32_t>::max()) {
+        إذا (idx > std::numeric_limits<uint32_t>::max()) {
             // The runtime indexes bins with 32 bits; stop before generating a model
             coverpointp->v3warn(E_UNSUPPORTED, "Unsupported: coverpoint with more than "
                                                    << std::numeric_limits<uint32_t>::max()
@@ -2467,347 +2467,347 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // Transition coverpoints track the previous sampled value; update it once at the end of
         // this coverpoint's sample() contribution (the prev var was created on demand by the
         // transition matching above).
-        if (coverpointHasTransition(coverpointp)) {
-            AstVar* const prevVarp = VN_AS(coverpointp->user1p(), Var);
-            addSampleStmt(
-                new AstAssign{coverpointp->fileline(),
-                              new AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
-                              exprp->cloneTree(false)});
+        إذا (coverpointHasTransition(coverpointp)) {
+            AstVar* ثابت prevVarp = VN_AS(coverpointp->user1p(), Var);
+            جمع_کړه_Sample_Stmt(
+                جديد Ast_ټاکل{coverpointp->fileline(),
+                              جديد AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
+                              exprp->clone_ونه(خطأ)});
         }
 
         // Constructor: init (allocates), namers, then registration (under --coverage).
         // Under --protect-ids the hierarchy and page string reach the coverage database
         // verbatim, so obfuscate them like line/toggle points (per-word hierarchy, whole-
         // unit page).  No-ops when --protect-ids is off.
-        const bool prot = v3Global.opt.protectIds();
-        const std::string hier
-            = VIdProtect::protectWordsIf(m_covergroupName + "." + coverpointp->name(), prot);
-        m_constructorp->addStmtsp(
-            itemCall(fl, cpVarp, VCMethod::COVERGROUP_INIT,
-                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(atLeastValue)),
+        ثابت منطقي prot = v3Global.opt.protectIds();
+        ثابت std::string hier
+            = VIdProtect::protect_ټکي_If(m_covergroupName + "." + coverpointp->name(), prot);
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_INIT,
+                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(at_لږترلږه_ارزښت)),
                       cnum(fl, static_cast<uint32_t>(idx))})
                 ->makeStmt());
-        for (AstNodeStmt* const ns : namerStmts) m_constructorp->addStmtsp(ns);
-        if (dynamic) {
-            m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_VALUE_TYPE,
-                         {cnum(fl, exprp->width()), cnum(fl, exprp->isSigned())})
+        لكل (Ast_غوټه_Stmt* ثابت ns : namerStmts) m_constructorp->جمع_کړه_Stmtsp(ns);
+        إذا (dynamic) {
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_TYPE,
+                         {cnum(fl, exprp->پلنوالی()), cnum(fl, exprp->isSigned())})
                     ->makeStmt());
-            ValueLists lists;
-            for (const auto& entry : metadata) {
-                collectValueMetadata(lists, exprp, std::get<0>(entry), std::get<1>(entry),
-                                     std::get<2>(entry));
+            ارزښت_Lists lists;
+            لكل (ثابت خپلکاری& ثبت : metadata) {
+                collect_ارزښت_Metadata(lists, exprp, std::get<0>(ثبت), std::get<1>(ثبت),
+                                     std::get<2>(ثبت));
             }
-            for (const BinRun* const runp : runMetadata) collectRunMetadata(lists, exprp, *runp);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_RANGES, lists.m_ranges);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_RUNS, lists.m_runs);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_PATTERNS, lists.m_patterns);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_TRANSITIONS, lists.m_transitions);
-            for (AstCoverBin* const binp : sizedBins) {
+            لكل (ثابت Bin_پرلپسې* ثابت runp : پرلپسې_Metadata) collect_پرلپسې_Metadata(lists, exprp, *runp);
+            emit_ارزښت_List(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_RANGES, lists.m_ranges);
+            emit_ارزښت_List(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_RUNS, lists.m_runs);
+            emit_ارزښت_List(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_PATTERNS, lists.m_patterns);
+            emit_ارزښت_List(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_TRANSITIONS, lists.m_transitions);
+            لكل (AstCoverBin* ثابت binp : sizedBins) {
                 generateConstructedBins(coverpointp, binp, cpVarp, exprp);
             }
-            m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_VALUE_FINALIZE)->makeStmt());
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_ارزښت_FINALIZE)->makeStmt());
         }
-        if (v3Global.opt.coverage()) {
-            const std::string page
+        إذا (v3Global.opt.coverage()) {
+            ثابت std::string پاڼه
                 = VIdProtect::protectIf("v_covergroup/" + m_covergroupName, prot);
-            m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_REGISTER_BINS,
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_ثبتوونکی_BINS,
                          {ctext(fl, "vlSymsp->_vm_contextp__->coveragep()"),
-                          ctext(fl, quoted(page)),
-                          cnum(fl, itemDatabaseWeight(coverpointp->optionsp())),
-                          cnum(fl, m_cgTypeWeight)})
+                          ctext(fl, quoted(پاڼه)),
+                          cnum(fl, توکی_Database_وزن(coverpointp->optionsp())),
+                          cnum(fl, m_cg_Type_وزن)})
                     ->makeStmt());
         }
     }
 
     // Generate state machine code for multi-value transition sequences
     // Handles transitions like (1 => 2 => 3 => 4)
-    void generateMultiValueTransitionCode(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                          AstNodeExpr* exprp, const ConvBinTarget& tgt,
-                                          const std::vector<AstCoverTransItem*>& items) {
+    فراغ generate_Multi_ارزښت_Transition_کوډ(AstCoverpoint* coverpointp, AstCoverBin* binp,
+                                          Ast_غوټه_بیان* exprp, ثابت Conv_Bin_موخه& tgt,
+                                          ثابت std::ویکټور<Ast_Cover_Trans_توکی*>& توکي) {
         UINFO(4, "    Generating multi-value transition state machine for: " << binp->name());
-        UINFO(4, "      Sequence length: " << items.size() << " items");
+        UINFO(4, "      Sequence length: " << توکي.اندازه() << " items");
 
         // Create state position variable
-        AstVar* const stateVarp = createSequenceStateVar(coverpointp, binp);
+        AstVar* ثابت stateVarp = createSequenceStateVar(coverpointp, binp);
 
         // Build case statement with N cases (one for each state 0 to N-1)
         // State 0: Not started, looking for first item
         // State 1 to N-1: In progress, looking for next item
 
-        AstCase* const casep
-            = new AstCase{binp->fileline(), VCaseType::CT_CASE,
-                          new AstVarRef{stateVarp->fileline(), stateVarp, VAccess::READ}, nullptr};
+        AstCase* ثابت casep
+            = جديد AstCase{binp->fileline(), VCaseType::CT_CASE,
+                          جديد AstVarRef{stateVarp->fileline(), stateVarp, VAccess::READ}, تش_اشاره};
 
         // Generate each case item in the switch statement
-        for (size_t state = 0; state < items.size(); ++state) {
-            AstCaseItem* caseItemp = generateTransitionStateCase(coverpointp, binp, exprp, tgt,
-                                                                 stateVarp, items, state);
-            casep->addItemsp(caseItemp);
+        لكل (اندازه_t state = 0; state < توکي.اندازه(); ++state) {
+            Ast_Case_توکی* caseItemp = generateTransitionStateCase(coverpointp, binp, exprp, tgt,
+                                                                 stateVarp, توکي, state);
+            casep->جمع_کړه_Itemsp(caseItemp);
         }
 
         // Add default case (reset to state 0) to prevent CASEINCOMPLETE warnings,
         // since the state variable is wider than the number of valid states.
-        AstCaseItem* const defaultItemp = new AstCaseItem{
-            binp->fileline(), nullptr,
-            new AstAssign{binp->fileline(),
-                          new AstVarRef{binp->fileline(), stateVarp, VAccess::WRITE},
-                          new AstConst{binp->fileline(), AstConst::WidthedValue{}, 8, 0}}};
-        casep->addItemsp(defaultItemp);
+        Ast_Case_توکی* ثابت defaultItemp = جديد Ast_Case_توکی{
+            binp->fileline(), تش_اشاره,
+            جديد Ast_ټاکل{binp->fileline(),
+                          جديد AstVarRef{binp->fileline(), stateVarp, VAccess::WRITE},
+                          جديد AstConst{binp->fileline(), AstConst::Widthed_ارزښت{}, 8, 0}}};
+        casep->جمع_کړه_Itemsp(defaultItemp);
 
-        addSampleStmt(casep);
+        جمع_کړه_Sample_Stmt(casep);
         UINFO(4, "      Successfully added multi-value transition state machine");
     }
 
     // Generate code for a single state in the transition state machine
     // Returns the case item for this state
-    AstCaseItem* generateTransitionStateCase(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                             AstNodeExpr* exprp, const ConvBinTarget& tgt,
+    Ast_Case_توکی* generateTransitionStateCase(AstCoverpoint* coverpointp, AstCoverBin* binp,
+                                             Ast_غوټه_بیان* exprp, ثابت Conv_Bin_موخه& tgt,
                                              AstVar* stateVarp,
-                                             const std::vector<AstCoverTransItem*>& items,
-                                             size_t state) {
-        FileLine* const fl = binp->fileline();
+                                             ثابت std::ویکټور<Ast_Cover_Trans_توکی*>& توکي,
+                                             اندازه_t state) {
+        File_کرښه* ثابت fl = binp->fileline();
 
         // Build condition for current value matching expected item at this state
-        AstNodeExpr* const matchCondp = buildTransitionItemCondition(items[state], exprp);
+        Ast_غوټه_بیان* ثابت سمون_Condp = build_Transition_توکی_Condition(توکي[state], exprp);
 
-        AstNodeStmt* matchActionp = nullptr;
+        Ast_غوټه_Stmt* سمون_Actionp = تش_اشاره;
 
-        if (state == items.size() - 1) {
+        إذا (state == توکي.اندازه() - 1) {
             // Last state: sequence complete!  Record the hit in the runtime VlCoverpoint.
-            matchActionp = makeRuntimeBinHit(fl, tgt);
+            سمون_Actionp = make_Runtime_Bin_موندنه(fl, tgt);
 
             // For illegal_bins, add error message
-            if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
-                const string errMsg = "Illegal transition bin " + binp->prettyNameQ()
+            إذا (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+                ثابت string err_پیغام = "Illegal transition bin " + binp->prettyNameQ()
                                       + " hit in coverpoint " + coverpointp->prettyNameQ();
-                matchActionp = matchActionp->addNext(makeIllegalBinAction(fl, errMsg));
+                سمون_Actionp = سمون_Actionp->جمع_کړه_بل(makeIllegalBinAction(fl, err_پیغام));
             }
 
             // Reset state to 0
-            matchActionp = matchActionp->addNext(
-                new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::WidthedValue{}, 8, 0}});
-        } else {
+            سمون_Actionp = سمون_Actionp->جمع_کړه_بل(
+                جديد Ast_ټاکل{fl, جديد AstVarRef{fl, stateVarp, VAccess::WRITE},
+                              جديد AstConst{fl, AstConst::Widthed_ارزښت{}, 8, 0}});
+        } وإلا {
             // Intermediate state: advance to next state
-            matchActionp = new AstAssign{
-                fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                new AstConst{fl, AstConst::WidthedValue{}, 8, static_cast<uint32_t>(state + 1)}};
+            سمون_Actionp = جديد Ast_ټاکل{
+                fl, جديد AstVarRef{fl, stateVarp, VAccess::WRITE},
+                جديد AstConst{fl, AstConst::Widthed_ارزښت{}, 8, static_cast<uint32_t>(state + 1)}};
         }
 
         // Build restart logic: check if current value matches first item
         // If so, restart sequence from state 1 (even if we're in middle of sequence)
-        AstNodeStmt* noMatchActionp = nullptr;
-        if (state > 0) {
+        Ast_غوټه_Stmt* no_سمون_Actionp = تش_اشاره;
+        إذا (state > 0) {
             // Check if current value matches first item (restart condition)
-            AstNodeExpr* const restartCondp = buildTransitionItemCondition(items[0], exprp);
+            Ast_غوټه_بیان* ثابت restartCondp = build_Transition_توکی_Condition(توکي[0], exprp);
 
-            UASSERT_OBJ(restartCondp, items[0],
+            UASSERT_OBJ(restartCondp, توکي[0],
                         "buildTransitionItemCondition returned nullptr for restart");
 
             // Restart to state 1
-            AstNodeStmt* restartActionp
-                = new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                                new AstConst{fl, AstConst::WidthedValue{}, 8, 1}};
+            Ast_غوټه_Stmt* restartActionp
+                = جديد Ast_ټاکل{fl, جديد AstVarRef{fl, stateVarp, VAccess::WRITE},
+                                جديد AstConst{fl, AstConst::Widthed_ارزښت{}, 8, 1}};
 
             // Reset to state 0 (else branch)
-            AstNodeStmt* resetActionp
-                = new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                                new AstConst{fl, AstConst::WidthedValue{}, 8, 0}};
+            Ast_غوټه_Stmt* resetActionp
+                = جديد Ast_ټاکل{fl, جديد AstVarRef{fl, stateVarp, VAccess::WRITE},
+                                جديد AstConst{fl, AstConst::Widthed_ارزښت{}, 8, 0}};
 
-            noMatchActionp = new AstIf{fl, restartCondp, restartActionp, resetActionp};
+            no_سمون_Actionp = جديد AstIf{fl, restartCondp, restartActionp, resetActionp};
         }
         // For state 0, no action needed if no match (stay in state 0)
 
         // Combine into if-else
-        AstNodeStmt* const stmtp = new AstIf{fl, matchCondp, matchActionp, noMatchActionp};
+        Ast_غوټه_Stmt* ثابت stmtp = جديد AstIf{fl, سمون_Condp, سمون_Actionp, no_سمون_Actionp};
 
         // Create case item for this state value
-        AstCaseItem* const caseItemp = new AstCaseItem{
-            fl, new AstConst{fl, AstConst::WidthedValue{}, 8, static_cast<uint32_t>(state)},
+        Ast_Case_توکی* ثابت caseItemp = جديد Ast_Case_توکی{
+            fl, جديد AstConst{fl, AstConst::Widthed_ارزښت{}, 8, static_cast<uint32_t>(state)},
             stmtp};
 
-        return caseItemp;
+        أرجع caseItemp;
     }
 
     // Create: $error(msg); $stop;  Used when an illegal bin is hit.
-    AstNodeStmt* makeIllegalBinAction(FileLine* fl, const string& errMsg) {
-        AstDisplay* const errorp
-            = new AstDisplay{fl, VDisplayType::DT_ERROR, errMsg, nullptr, nullptr};
+    Ast_غوټه_Stmt* makeIllegalBinAction(File_کرښه* fl, ثابت string& err_پیغام) {
+        AstDisplay* ثابت errorp
+            = جديد AstDisplay{fl, VDisplayType::DT_ERROR, err_پیغام, تش_اشاره, تش_اشاره};
         errorp->fmtp()->timeunit(m_covergroupp->timeunit());
-        static_cast<AstNode*>(errorp)->addNext(new AstStop{fl, true});
-        return errorp;
+        static_cast<Ast_غوټه*>(errorp)->جمع_کړه_بل(جديد AstStop{fl, ریښتیا});
+        أرجع errorp;
     }
 
     // Preserve the coverpoint's width and signedness after V3Width.
-    static AstConst* newValueConst(FileLine* fl, const V3Number& value, const AstNodeExpr* exprp) {
-        V3Number narrowed{fl, exprp->width(), 0};
-        narrowed.opAssign(value);
-        AstConst* const constp = new AstConst{fl, narrowed};
+    ساكن AstConst* new_ارزښت_Const(File_کرښه* fl, ثابت V3_شمېره& ارزښت, ثابت Ast_غوټه_بیان* exprp) {
+        V3_شمېره narrowed{fl, exprp->پلنوالی(), 0};
+        narrowed.op_ټاکل(ارزښت);
+        AstConst* ثابت constp = جديد AstConst{fl, narrowed};
         constp->dtypeFrom(exprp);
-        return constp;
+        أرجع constp;
     }
 
     // A real copy of a real or integral range bound, for comparing with a real coverpoint.
-    static AstConst* newRealConst(AstConst* constp) {
-        if (constp->num().isDouble()) return constp->cloneTree(false);
-        V3Number real{&constp->num(), 64};
-        real.opIToRD(constp->num(), constp->isSigned());
-        return new AstConst{constp->fileline(), real};
+    ساكن AstConst* newRealConst(AstConst* constp) {
+        إذا (constp->عدد().isDouble()) أرجع constp->clone_ونه(خطأ);
+        V3_شمېره real{&constp->عدد(), 64};
+        real.opIToRD(constp->عدد(), constp->isSigned());
+        أرجع جديد AstConst{constp->fileline(), real};
     }
 
     // Clone a constant node, widening to targetWidth if needed (zero-extend).
     // Used to ensure comparisons use matching widths after V3Width has run.
-    static AstConst* widenConst(FileLine* fl, AstConst* constp, int targetWidth) {
-        if (constp->width() == targetWidth) return constp->cloneTree(false);
-        V3Number num{fl, targetWidth, 0};
-        num.opAssign(constp->num());
-        return new AstConst{fl, num};
+    ساكن AstConst* widenConst(File_کرښه* fl, AstConst* constp, صحيح موخه_پلنوالی) {
+        إذا (constp->پلنوالی() == موخه_پلنوالی) أرجع constp->clone_ونه(خطأ);
+        V3_شمېره عدد{fl, موخه_پلنوالی, 0};
+        عدد.op_ټاکل(constp->عدد());
+        أرجع جديد AstConst{fl, عدد};
     }
 
     // Build a range condition: minp <= exprp <= maxp.
     // Uses signed comparisons if exprp is signed; omits trivially-true domain bounds.
     // All arguments are non-owning; clones exprp/minp/maxp as needed.
-    AstNodeExpr* makeRangeCondition(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* minp,
-                                    AstNodeExpr* maxp) {
-        const int exprWidth = exprp->widthMin();
-        AstConst* const minConstp = VN_AS(minp, Const);
-        AstConst* const maxConstp = VN_AS(maxp, Const);
-        if (exprp->isDouble()) {
+    Ast_غوټه_بیان* makeRangeCondition(File_کرښه* fl, Ast_غوټه_بیان* exprp, Ast_غوټه_بیان* minp,
+                                    Ast_غوټه_بیان* maxp) {
+        ثابت صحيح بیان_پلنوالی = exprp->پلنوالی_Min();
+        AstConst* ثابت minConstp = VN_AS(minp, Const);
+        AstConst* ثابت maxConstp = VN_AS(maxp, Const);
+        إذا (exprp->isDouble()) {
             // A real coverpoint has no finite domain bounds to omit.
-            return new AstAnd{fl,
-                              new AstGteD{fl, exprp->cloneTree(false), newRealConst(minConstp)},
-                              new AstLteD{fl, exprp->cloneTree(false), newRealConst(maxConstp)}};
+            أرجع جديد AstAnd{fl,
+                              جديد AstGteD{fl, exprp->clone_ونه(خطأ), newRealConst(minConstp)},
+                              جديد AstLteD{fl, exprp->clone_ونه(خطأ), newRealConst(maxConstp)}};
         }
         // Widen constants to match expression width so post-V3Width nodes use correct macros
-        AstConst* const minWidep = widenConst(fl, minConstp, exprWidth);
-        AstConst* const maxWidep = widenConst(fl, maxConstp, exprWidth);
-        V3Number minimum{fl, exprWidth, 0};
-        V3Number maximum{fl, exprWidth, 0};
-        maximum.setAllBits1();
-        if (exprp->isSigned()) {
-            minimum.setBit(exprWidth - 1, 1);
-            maximum.setBit(exprWidth - 1, 0);
+        AstConst* ثابت minWidep = widenConst(fl, minConstp, بیان_پلنوالی);
+        AstConst* ثابت maxWidep = widenConst(fl, maxConstp, بیان_پلنوالی);
+        V3_شمېره minimum{fl, بیان_پلنوالی, 0};
+        V3_شمېره اعظمي{fl, بیان_پلنوالی, 0};
+        اعظمي.سېټ_All_Bits1();
+        إذا (exprp->isSigned()) {
+            minimum.سېټ_بټ(بیان_پلنوالی - 1, 1);
+            اعظمي.سېټ_بټ(بیان_پلنوالی - 1, 0);
         }
-        AstNodeExpr* lowerp = nullptr;
-        AstNodeExpr* upperp = nullptr;
-        if (minWidep->num().isCaseEq(minimum)) {
-            VL_DO_DANGLING(pushDeletep(minWidep), minWidep);
-        } else {
-            lowerp = exprp->isSigned() ? static_cast<AstNodeExpr*>(
-                                             new AstGteS{fl, exprp->cloneTree(false), minWidep})
-                                       : static_cast<AstNodeExpr*>(
-                                             new AstGte{fl, exprp->cloneTree(false), minWidep});
+        Ast_غوټه_بیان* lowerp = تش_اشاره;
+        Ast_غوټه_بیان* upperp = تش_اشاره;
+        إذا (minWidep->عدد().isCaseEq(minimum)) {
+            VL_DO_DANGLING(ټېل_Deletep(minWidep), minWidep);
+        } وإلا {
+            lowerp = exprp->isSigned() ? static_cast<Ast_غوټه_بیان*>(
+                                             جديد AstGteS{fl, exprp->clone_ونه(خطأ), minWidep})
+                                       : static_cast<Ast_غوټه_بیان*>(
+                                             جديد AstGte{fl, exprp->clone_ونه(خطأ), minWidep});
         }
-        if (maxWidep->num().isCaseEq(maximum)) {
-            VL_DO_DANGLING(pushDeletep(maxWidep), maxWidep);
-        } else {
-            upperp = exprp->isSigned() ? static_cast<AstNodeExpr*>(
-                                             new AstLteS{fl, exprp->cloneTree(false), maxWidep})
-                                       : static_cast<AstNodeExpr*>(
-                                             new AstLte{fl, exprp->cloneTree(false), maxWidep});
+        إذا (maxWidep->عدد().isCaseEq(اعظمي)) {
+            VL_DO_DANGLING(ټېل_Deletep(maxWidep), maxWidep);
+        } وإلا {
+            upperp = exprp->isSigned() ? static_cast<Ast_غوټه_بیان*>(
+                                             جديد AstLteS{fl, exprp->clone_ونه(خطأ), maxWidep})
+                                       : static_cast<Ast_غوټه_بیان*>(
+                                             جديد AstLte{fl, exprp->clone_ونه(خطأ), maxWidep});
         }
-        if (lowerp && upperp) return new AstAnd{fl, lowerp, upperp};
-        if (lowerp) return lowerp;
-        if (upperp) return upperp;
-        return new AstConst{fl, AstConst::BitTrue{}};
+        إذا (lowerp && upperp) أرجع جديد AstAnd{fl, lowerp, upperp};
+        إذا (lowerp) أرجع lowerp;
+        إذا (upperp) أرجع upperp;
+        أرجع جديد AstConst{fl, AstConst::بټ_True{}};
     }
 
     // Build a one-sided comparison for an open-ended bin range whose other bound is '$'.
     // '$' denotes the coverpoint domain extreme, so {[lo:$]} == (expr >= lo) and
     // {[$:hi]} == (expr <= hi).
-    AstNodeExpr* makeOpenRangeCondition(FileLine* fl, AstNodeExpr* exprp, AstConst* boundp,
-                                        bool isLowerBound) {
-        AstConst* const widep = widenConst(fl, boundp, exprp->widthMin());
-        if (isLowerBound) {
-            if (exprp->isSigned()) return new AstGteS{fl, exprp->cloneTree(false), widep};
-            return new AstGte{fl, exprp->cloneTree(false), widep};
+    Ast_غوټه_بیان* makeOpenRangeCondition(File_کرښه* fl, Ast_غوټه_بیان* exprp, AstConst* boundp,
+                                        منطقي is_ښکتنی_Bound) {
+        AstConst* ثابت widep = widenConst(fl, boundp, exprp->پلنوالی_Min());
+        إذا (is_ښکتنی_Bound) {
+            إذا (exprp->isSigned()) أرجع جديد AstGteS{fl, exprp->clone_ونه(خطأ), widep};
+            أرجع جديد AstGte{fl, exprp->clone_ونه(خطأ), widep};
         }
-        if (exprp->isSigned()) return new AstLteS{fl, exprp->cloneTree(false), widep};
-        return new AstLte{fl, exprp->cloneTree(false), widep};
+        إذا (exprp->isSigned()) أرجع جديد AstLteS{fl, exprp->clone_ونه(خطأ), widep};
+        أرجع جديد AstLte{fl, exprp->clone_ونه(خطأ), widep};
     }
 
     // Build condition for a single transition item.
     // Returns expression that checks if exprp matches the item's value/range list.
     // Overload for when the expression is a variable read -- creates and manages the VarRef
     // internally, so callers don't need to construct a temporary node.
-    AstNodeExpr* buildTransitionItemCondition(AstCoverTransItem* itemp, AstVar* varp) {
-        AstNodeExpr* varRefp = new AstVarRef{varp->fileline(), varp, VAccess::READ};
-        AstNodeExpr* const condp = buildTransitionItemCondition(itemp, varRefp);
-        VL_DO_DANGLING(pushDeletep(varRefp), varRefp);
-        return condp;
+    Ast_غوټه_بیان* build_Transition_توکی_Condition(Ast_Cover_Trans_توکی* itemp, AstVar* varp) {
+        Ast_غوټه_بیان* varRefp = جديد AstVarRef{varp->fileline(), varp, VAccess::READ};
+        Ast_غوټه_بیان* ثابت condp = build_Transition_توکی_Condition(itemp, varRefp);
+        VL_DO_DANGLING(ټېل_Deletep(varRefp), varRefp);
+        أرجع condp;
     }
 
     // Non-owning: exprp is cloned internally; caller retains ownership of exprp.
-    AstNodeExpr* buildTransitionItemCondition(AstCoverTransItem* itemp, AstNodeExpr* exprp) {
-        AstNodeExpr* condp = nullptr;
+    Ast_غوټه_بیان* build_Transition_توکی_Condition(Ast_Cover_Trans_توکی* itemp, Ast_غوټه_بیان* exprp) {
+        Ast_غوټه_بیان* condp = تش_اشاره;
 
-        for (AstNode* valp = itemp->valuesp(); valp; valp = valp->nextp()) {
-            AstNodeExpr* singleCondp = nullptr;
+        لكل (Ast_غوټه* valp = itemp->valuesp(); valp; valp = valp->nextp()) {
+            Ast_غوټه_بیان* singleCondp = تش_اشاره;
             valp = V3Const::constifyEdit(valp);
-            AstConst* const constp = VN_CAST(valp, Const);
-            if (!constp) {
+            AstConst* ثابت constp = VN_CAST(valp, Const);
+            إذا (!constp) {
                 valp->v3error("Non-constant expression in transition bin; "
                               "values must be constants (IEEE 1800-2023 19.5)");
-                return new AstConst{valp->fileline(), AstConst::BitFalseErroring{}};
+                أرجع جديد AstConst{valp->fileline(), AstConst::بټ_False_Erroring{}};
             }
             singleCondp
-                = new AstEq{constp->fileline(), exprp->cloneTree(false), constp->cloneTree(false)};
-            if (condp) {
-                condp = new AstOr{itemp->fileline(), condp, singleCondp};
-            } else {
+                = جديد AstEq{constp->fileline(), exprp->clone_ونه(خطأ), constp->clone_ونه(خطأ)};
+            إذا (condp) {
+                condp = جديد AstOr{itemp->fileline(), condp, singleCondp};
+            } وإلا {
                 condp = singleCondp;
             }
         }
 
-        return condp;
+        أرجع condp;
     }
 
     // Generate code for a single transition sequence (used by both regular and array bins)
-    void generateSingleTransitionCode(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                      AstNodeExpr* exprp, const ConvBinTarget& tgt,
-                                      AstCoverTransSet* transSetp) {
+    فراغ generate_Single_Transition_کوډ(AstCoverpoint* coverpointp, AstCoverBin* binp,
+                                      Ast_غوټه_بیان* exprp, ثابت Conv_Bin_موخه& tgt,
+                                      Ast_Cover_Trans_سېټ* transSetp) {
         UINFO(4, "      Generating code for transition sequence");
 
         // Get or create previous value variable
-        AstVar* const prevVarp = createPrevValueVar(coverpointp, exprp);
+        AstVar* ثابت prevVarp = create_Prev_ارزښت_Var(coverpointp, exprp);
 
         UASSERT_OBJ(
             transSetp, binp,
             "Transition bin has no transition set (transp() was checked before calling this)");
 
         // Get transition items (the sequence: item1 => item2 => item3)
-        std::vector<AstCoverTransItem*> items;
-        for (AstNode* itemp = transSetp->itemsp(); itemp; itemp = itemp->nextp())
-            items.push_back(VN_AS(itemp, CoverTransItem));
+        std::ویکټور<Ast_Cover_Trans_توکی*> توکي;
+        لكل (Ast_غوټه* itemp = transSetp->itemsp(); itemp; itemp = itemp->nextp())
+            توکي.ټېل_شا(VN_AS(itemp, Cover_Trans_توکی));
 
-        if (items.empty()) {
+        إذا (توکي.تشه()) {
             binp->v3error("Transition set without items");
-            return;
+            أرجع;
         }
 
-        if (items.size() == 1) {
+        إذا (توکي.اندازه() == 1) {
             // Single item transition not valid (need at least 2 values for =>)
             binp->v3error("Transition requires at least two values");
-            return;
-        } else if (items.size() == 2) {
+            أرجع;
+        } وإلا إذا (توکي.اندازه() == 2) {
             // Simple two-value transition: (val1 => val2)
             // Use optimized direct comparison (no state machine needed)
-            AstNodeExpr* const cond1p = buildTransitionItemCondition(items[0], prevVarp);
-            AstNodeExpr* const cond2p = buildTransitionItemCondition(items[1], exprp);
+            Ast_غوټه_بیان* ثابت cond1p = build_Transition_توکی_Condition(توکي[0], prevVarp);
+            Ast_غوټه_بیان* ثابت cond2p = build_Transition_توکی_Condition(توکي[1], exprp);
 
             // Combine: prev matches val1 AND current matches val2
-            AstNodeExpr* fullCondp = new AstAnd{binp->fileline(), cond1p, cond2p};
+            Ast_غوټه_بیان* ډک_Condp = جديد AstAnd{binp->fileline(), cond1p, cond2p};
 
-            addConvTransHitIf(coverpointp, binp, tgt, fullCondp);
+            جمع_کړه_Conv_Trans_موندنه_If(coverpointp, binp, tgt, ډک_Condp);
 
             UINFO(4, "        Successfully added 2-value transition if statement");
-        } else {
+        } وإلا {
             // Multi-value sequence (a => b => c => ...)
             // Use state machine to track position in sequence
-            generateMultiValueTransitionCode(coverpointp, binp, exprp, tgt, items);
+            generate_Multi_ارزښت_Transition_کوډ(coverpointp, binp, exprp, tgt, توکي);
         }
     }
 
@@ -2815,674 +2815,674 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // and the temporary array stay literal text -- a CMethodHard is one call, not a block --
     // but callp itself carries the member, method and '->'.  Construction only: init() copies
     // the array into the cross, so sample() reads it from there and needs no array at all.
-    AstCStmt* makeCrossCpsCall(FileLine* fl, const std::vector<AstVar*>& cpVars,
+    AstCStmt* makeCrossCpsCall(File_کرښه* fl, ثابت std::ویکټور<AstVar*>& cpVars,
                                AstCMethodHard* callp) {
-        AstCStmt* const cs = new AstCStmt{fl};
-        cs->add("{ VlCoverpoint* __Vcx_cps[] = {");
-        for (size_t d = 0; d < cpVars.size(); ++d) {
-            if (d != 0) cs->add(", ");
-            cs->add(memberRef(fl, cpVars[d]));
+        AstCStmt* ثابت cs = جديد AstCStmt{fl};
+        cs->جمع_کړه("{ VlCoverpoint* __Vcx_cps[] = {");
+        لكل (اندازه_t d = 0; d < cpVars.اندازه(); ++d) {
+            إذا (d != 0) cs->جمع_کړه(", ");
+            cs->جمع_کړه(memberRef(fl, cpVars[d]));
         }
-        cs->add("}; ");
-        cs->add(callp);
-        cs->add("; }");
-        return cs;
+        cs->جمع_کړه("}; ");
+        cs->جمع_کړه(callp);
+        cs->جمع_کړه("; }");
+        أرجع cs;
     }
 
     // Assign the per-bin flags individually: one-bit SV results have integer C++ storage types,
     // which may narrow in a bool initializer list but convert implicitly in assignments.
-    AstCStmt* makeCrossIffsCall(FileLine* fl, const std::vector<AstCoverCrossBin*>& bins,
+    AstCStmt* makeCrossIffsCall(File_کرښه* fl, ثابت std::ویکټور<AstCoverCrossBin*>& bins,
                                 AstCMethodHard* callp) {
-        AstCStmt* const cs = new AstCStmt{fl};
-        cs->add("{ bool __Vcx_iffs[" + cvtToStr(bins.size()) + "]; ");
-        for (size_t i = 0; i < bins.size(); ++i) {
-            const AstCoverCrossBin* const binp = bins[i];
-            cs->add("__Vcx_iffs[" + cvtToStr(i) + "] = ");
-            cs->add(binp->iffp() ? binp->iffp()->cloneTree(false)
-                                 : new AstConst{fl, AstConst::BitTrue{}});
-            cs->add("; ");
+        AstCStmt* ثابت cs = جديد AstCStmt{fl};
+        cs->جمع_کړه("{ bool __Vcx_iffs[" + cvt_منزل_Str(bins.اندازه()) + "]; ");
+        لكل (اندازه_t i = 0; i < bins.اندازه(); ++i) {
+            ثابت AstCoverCrossBin* ثابت binp = bins[i];
+            cs->جمع_کړه("__Vcx_iffs[" + cvt_منزل_Str(i) + "] = ");
+            cs->جمع_کړه(binp->iffp() ? binp->iffp()->clone_ونه(خطأ)
+                                 : جديد AstConst{fl, AstConst::بټ_True{}});
+            cs->جمع_کړه("; ");
         }
-        cs->add(callp);
-        cs->add("; }");
-        return cs;
+        cs->جمع_کړه(callp);
+        cs->جمع_کړه("; }");
+        أرجع cs;
     }
 
-    using CrossSelection = std::vector<uint64_t>;
-    struct ResolvedCrossBin final {
+    کارول CrossSelection = std::ویکټور<uint64_t>;
+    بنية ResolvedCrossBin final {
         AstCoverCrossBin* binp;
         CrossSelection selection;
     };
-    struct CrossLayout final {
+    بنية CrossLayout final {
         uint32_t tuples = 0;
         uint32_t autoBins = 0;
-        uint64_t binWords = 0;
-        bool valid = true;
-        std::vector<ResolvedCrossBin> bins;
+        uint64_t bin_ټکي = 0;
+        منطقي valid = ریښتیا;
+        std::ویکټور<ResolvedCrossBin> bins;
     };
-    struct CrossSelectionContext final {
+    بنية CrossSelectionContext final {
         AstCoverCross* crossp;  // Cross whose tuple space is being selected
-        const std::vector<AstVar*>& cpVars;  // Feeding coverpoints in dimension order
-        const std::map<std::string, uint32_t>& dimensions;  // Coverpoint name -> dimension
+        ثابت std::ویکټور<AstVar*>& cpVars;  // Feeding coverpoints in dimension order
+        ثابت std::map<std::string, uint32_t>& dimensions;  // Coverpoint name -> dimension
         uint32_t tuples;  // Size of the Cartesian product
-        std::vector<uint32_t> strides;  // Flat-index stride per dimension
-        bool valid = true;  // False if this explicit bin cannot be implemented
+        std::ویکټور<uint32_t> strides;  // Flat-index stride per dimension
+        منطقي valid = ریښتیا;  // False if this explicit bin cannot be implemented
     };
-    struct CrossBinsofTarget final {
-        const CoverpointBins* m_binsp = nullptr;  // Declared bins; null after a reported error
+    بنية Cross_Binsof_موخه final {
+        ثابت CoverpointBins* m_binsp = تش_اشاره;  // Declared bins; null after a reported error
         uint32_t m_dimension = 0;  // Coverpoint index within the cross
-        uint32_t m_first = 0;  // First declared normal bin in the selected span
-        uint32_t m_count = 0;  // Number of declared normal bins in the selected span
-        uint32_t m_declaredFirst = 0;  // First runtime bin index of the selected span
-        uint32_t m_declaredEnd = UINT32_MAX;  // One past the last runtime bin index
+        uint32_t m_لومړی = 0;  // First declared normal bin in the selected span
+        uint32_t m_شمېر = 0;  // Number of declared normal bins in the selected span
+        uint32_t m_declared_لومړی = 0;  // First runtime bin index of the selected span
+        uint32_t m_declared_پای_ټکی = UINT32_MAX;  // One past the last runtime bin index
         int32_t m_sized = -1;  // Index of the sized array holding the selected bins; or -1
     };
-    struct CrossValueRange final {
-        V3Number lo;  // Inclusive lower bound, sign-extended to the comparison width
-        V3Number hi;  // Inclusive upper bound
-        V3Number pattern;  // Allowed bit values; all X for an ordinary interval
-        bool wildcard = false;  // A wildcard singleton rather than an exact four-state value
+    بنية Cross_ارزښت_Range final {
+        V3_شمېره lo;  // Inclusive lower bound, sign-extended to the comparison width
+        V3_شمېره hi;  // Inclusive upper bound
+        V3_شمېره نمونه_2;  // Allowed bit values; all X for an ordinary interval
+        منطقي wildcard = خطأ;  // A wildcard singleton rather than an exact four-state value
 
-        CrossValueRange(AstNode* nodep, int width)
-            : lo{nodep, width}
-            , hi{nodep, width}
-            , pattern{nodep, width} {
-            pattern.setAllBitsX();
+        Cross_ارزښت_Range(Ast_غوټه* nodep, صحيح پلنوالی)
+            : lo{nodep, پلنوالی}
+            , hi{nodep, پلنوالی}
+            , نمونه_2{nodep, پلنوالی} {
+            نمونه_2.سېټ_All_بټونه_X();
         }
     };
 
-    static std::vector<AstNode*> crossBinValues(const CrossBinValues& bin) {
-        if (bin.valuep) return {bin.valuep};
-        std::vector<AstNode*> values;
-        if (bin.binp->transp()) {
+    ساكن std::ویکټور<Ast_غوټه*> cross_Bin_ارزښتونه(ثابت Cross_Bin_ارزښتونه& bin) {
+        إذا (bin.valuep) أرجع {bin.valuep};
+        std::ویکټور<Ast_غوټه*> ارزښتونه;
+        إذا (bin.binp->transp()) {
             // IEEE 1800-2023 19.6.1: binsof uses the last value of each transition.
-            for (AstNode* setp = bin.binp->transp(); setp; setp = setp->nextp()) {
-                AstCoverTransItem* lastp = VN_AS(setp, CoverTransSet)->itemsp();
-                while (lastp->nextp()) lastp = VN_AS(lastp->nextp(), CoverTransItem);
-                for (AstNode* valuep = lastp->valuesp(); valuep; valuep = valuep->nextp()) {
-                    values.push_back(valuep);
+            لكل (Ast_غوټه* setp = bin.binp->transp(); setp; setp = setp->nextp()) {
+                Ast_Cover_Trans_توکی* lastp = VN_AS(setp, Cover_Trans_سېټ)->itemsp();
+                طالما (lastp->nextp()) lastp = VN_AS(lastp->nextp(), Cover_Trans_توکی);
+                لكل (Ast_غوټه* valuep = lastp->valuesp(); valuep; valuep = valuep->nextp()) {
+                    ارزښتونه.ټېل_شا(valuep);
                 }
             }
-        } else {
-            for (AstNode* valuep = bin.binp->rangesp(); valuep; valuep = valuep->nextp()) {
-                values.push_back(valuep);
+        } وإلا {
+            لكل (Ast_غوټه* valuep = bin.binp->rangesp(); valuep; valuep = valuep->nextp()) {
+                ارزښتونه.ټېل_شا(valuep);
             }
         }
-        return values;
+        أرجع ارزښتونه;
     }
 
     // The values of the element-th bin of a run, sign-extended to 'width'
-    static CrossValueRange runBinRange(AstNode* nodep, const BinRun& run, uint32_t element,
-                                       int width) {
-        const int runw = run.m_lo.width();
-        V3Number offset{nodep, runw};
-        offset.opMul(run.m_stride, V3Number{nodep, runw, element});
-        V3Number lo{nodep, runw};
-        lo.opAdd(run.m_lo, offset);
-        V3Number hi = run.m_hi;
-        if (element + 1 < run.m_count) {
-            offset.opSub(run.m_stride, V3Number{nodep, runw, 1});
-            hi.opAdd(lo, offset);
+    ساكن Cross_ارزښت_Range پرلپسې_Bin_Range(Ast_غوټه* nodep, ثابت Bin_پرلپسې& پرلپسې, uint32_t element,
+                                       صحيح پلنوالی) {
+        ثابت صحيح runw = پرلپسې.m_lo.پلنوالی();
+        V3_شمېره دننه_واټن{nodep, runw};
+        دننه_واټن.opMul(پرلپسې.m_stride, V3_شمېره{nodep, runw, element});
+        V3_شمېره lo{nodep, runw};
+        lo.op_جمع_کړه(پرلپسې.m_lo, دننه_واټن);
+        V3_شمېره hi = پرلپسې.m_hi;
+        إذا (element + 1 < پرلپسې.m_شمېر) {
+            دننه_واټن.opSub(پرلپسې.m_stride, V3_شمېره{nodep, runw, 1});
+            hi.op_جمع_کړه(lo, دننه_واټن);
         }
-        CrossValueRange range{nodep, width};
+        Cross_ارزښت_Range range{nodep, پلنوالی};
         range.lo.opExtendS(lo, runw);
         range.hi.opExtendS(hi, runw);
-        return range;
+        أرجع range;
     }
 
-    static int crossRangeWidth(AstNode* nodep) {
-        if (const AstInsideRange* const rangep = VN_CAST(nodep, InsideRange)) {
-            return std::max(rangep->lhsp()->width(), rangep->rhsp()->width());
+    ساكن صحيح cross_Range_پلنوالی(Ast_غوټه* nodep) {
+        إذا (ثابت AstInsideRange* ثابت rangep = VN_CAST(nodep, InsideRange)) {
+            أرجع std::max(rangep->lhsp()->پلنوالی(), rangep->rhsp()->پلنوالی());
         }
-        return nodep->width();
+        أرجع nodep->پلنوالی();
     }
 
-    static bool crossValueLess(const V3Number& lhs, const V3Number& rhs) {
-        V3Number result{&lhs};
-        return !result.opLtS(lhs, rhs).isEqZero();
+    ساكن منطقي cross_ارزښت_Less(ثابت V3_شمېره& lhs, ثابت V3_شمېره& rhs) {
+        V3_شمېره پایله{&lhs};
+        أرجع !پایله.opLtS(lhs, rhs).isEqZero();
     }
 
     // Round a real bound inward to the nearest coverpoint value (IEEE 1800-2023 19.5.7).  Sets
     // 'empty' if the domain has no value on the bound's side.
-    static void crossRealBound(const AstConst* constp, AstNodeExpr* exprp, bool upper,
-                               const CrossValueRange& domain, V3Number& result, bool& empty) {
-        const double value = constp->num().toDouble();
-        const double bound = upper ? std::floor(value) : std::ceil(value);
+    ساكن فراغ crossRealBound(ثابت AstConst* constp, Ast_غوټه_بیان* exprp, منطقي پاسنی,
+                               ثابت Cross_ارزښت_Range& domain, V3_شمېره& پایله, منطقي& تشه) {
+        ثابت مزدوج ارزښت = constp->عدد().منزل_Double();
+        ثابت مزدوج bound = پاسنی ? std::floor(ارزښت) : std::ceil(ارزښت);
         // Powers of two are exact, so the integral bound compares exactly with the domain edges.
-        const double limit
-            = std::ldexp(1.0, exprp->isSigned() ? exprp->width() - 1 : exprp->width());
-        const double minimum = exprp->isSigned() ? -limit : 0.0;
-        if (std::isnan(bound) || (upper ? bound < minimum : bound >= limit)) {
-            empty = true;
-            result = domain.lo;
-        } else if (bound < minimum) {
-            result = domain.lo;
-        } else if (bound >= limit) {
-            result = domain.hi;
-        } else {
-            V3Number real{&result, 64};
-            real.setDouble(bound);
-            result.opRToIRoundS(real);
+        ثابت مزدوج حد
+            = std::ldexp(1.0, exprp->isSigned() ? exprp->پلنوالی() - 1 : exprp->پلنوالی());
+        ثابت مزدوج minimum = exprp->isSigned() ? -حد : 0.0;
+        إذا (std::isnan(bound) || (پاسنی ? bound < minimum : bound >= حد)) {
+            تشه = ریښتیا;
+            پایله = domain.lo;
+        } وإلا إذا (bound < minimum) {
+            پایله = domain.lo;
+        } وإلا إذا (bound >= حد) {
+            پایله = domain.hi;
+        } وإلا {
+            V3_شمېره real{&پایله, 64};
+            real.سېټ_Double(bound);
+            پایله.opRToIRoundS(real);
         }
     }
 
-    static bool crossRangeBound(AstNode* nodep, AstNodeExpr* exprp, bool upper, bool binValue,
-                                const CrossValueRange& domain, V3Number& result, bool& empty) {
-        if (VN_IS(nodep, Unbounded)) {
-            V3Number limit{nodep, exprp->width()};
-            if (upper) limit.setAllBits1();
-            if (exprp->isSigned()) {
-                limit.setBit(exprp->width() - 1, !upper);
-                result.opExtendS(limit, limit.width());
-            } else {
-                result.opAssign(limit);
+    ساكن منطقي crossRangeBound(Ast_غوټه* nodep, Ast_غوټه_بیان* exprp, منطقي پاسنی, منطقي bin_ارزښت,
+                                ثابت Cross_ارزښت_Range& domain, V3_شمېره& پایله, منطقي& تشه) {
+        إذا (VN_IS(nodep, Unbounded)) {
+            V3_شمېره حد{nodep, exprp->پلنوالی()};
+            إذا (پاسنی) حد.سېټ_All_Bits1();
+            إذا (exprp->isSigned()) {
+                حد.سېټ_بټ(exprp->پلنوالی() - 1, !پاسنی);
+                پایله.opExtendS(حد, حد.پلنوالی());
+            } وإلا {
+                پایله.op_ټاکل(حد);
             }
-            return true;
+            أرجع ریښتیا;
         }
-        const AstConst* const constp = VN_CAST(nodep, Const);
-        if (!constp) return false;
-        if (constp->num().isDouble()) {
-            crossRealBound(constp, exprp, upper, domain, result, empty);
-            return true;
+        ثابت AstConst* ثابت constp = VN_CAST(nodep, Const);
+        إذا (!constp) أرجع خطأ;
+        إذا (constp->عدد().isDouble()) {
+            crossRealBound(constp, exprp, پاسنی, domain, پایله, تشه);
+            أرجع ریښتیا;
         }
-        if (constp->num().isString()) return false;
-        if (binValue && exprp->isSigned() && constp->width() <= exprp->width()) {
+        إذا (constp->عدد().isString()) أرجع خطأ;
+        إذا (bin_ارزښت && exprp->isSigned() && constp->پلنوالی() <= exprp->پلنوالی()) {
             // Bin bit patterns use the coverpoint's effective type (IEEE 1800-2023 19.5.7).
             // Wider values and intersect filters retain their values for domain clipping.
-            V3Number value{nodep, exprp->width()};
-            if (constp->isSigned()) {
-                value.opExtendS(constp->num(), constp->width());
-            } else {
-                value.opAssign(constp->num());
+            V3_شمېره ارزښت{nodep, exprp->پلنوالی()};
+            إذا (constp->isSigned()) {
+                ارزښت.opExtendS(constp->عدد(), constp->پلنوالی());
+            } وإلا {
+                ارزښت.op_ټاکل(constp->عدد());
             }
-            result.opExtendS(value, value.width());
-        } else if (constp->isSigned()) {
-            result.opExtendS(constp->num(), constp->width());
-        } else {
-            result.opAssign(constp->num());
+            پایله.opExtendS(ارزښت, ارزښت.پلنوالی());
+        } وإلا إذا (constp->isSigned()) {
+            پایله.opExtendS(constp->عدد(), constp->پلنوالی());
+        } وإلا {
+            پایله.op_ټاکل(constp->عدد());
         }
-        return true;
+        أرجع ریښتیا;
     }
 
-    static CrossValueRange crossValueDomain(AstNode* nodep, int valueWidth, bool isSigned,
-                                            int width) {
-        CrossValueRange domain{nodep, width};
-        V3Number lo{nodep, valueWidth};
-        V3Number hi{nodep, valueWidth};
-        hi.setAllBits1();
-        if (isSigned) {
-            lo.setBit(valueWidth - 1, 1);
-            hi.setBit(valueWidth - 1, 0);
-            domain.lo.opExtendS(lo, valueWidth);
-            domain.hi.opExtendS(hi, valueWidth);
-        } else {
-            domain.lo.opAssign(lo);
-            domain.hi.opAssign(hi);
+    ساكن Cross_ارزښت_Range cross_ارزښت_Domain(Ast_غوټه* nodep, صحيح ارزښت_پلنوالی, منطقي isSigned,
+                                            صحيح پلنوالی) {
+        Cross_ارزښت_Range domain{nodep, پلنوالی};
+        V3_شمېره lo{nodep, ارزښت_پلنوالی};
+        V3_شمېره hi{nodep, ارزښت_پلنوالی};
+        hi.سېټ_All_Bits1();
+        إذا (isSigned) {
+            lo.سېټ_بټ(ارزښت_پلنوالی - 1, 1);
+            hi.سېټ_بټ(ارزښت_پلنوالی - 1, 0);
+            domain.lo.opExtendS(lo, ارزښت_پلنوالی);
+            domain.hi.opExtendS(hi, ارزښت_پلنوالی);
+        } وإلا {
+            domain.lo.op_ټاکل(lo);
+            domain.hi.op_ټاکل(hi);
         }
-        return domain;
+        أرجع domain;
     }
 
-    static void intersectCrossRange(CrossValueRange& range, const CrossValueRange& other) {
-        if (crossValueLess(range.lo, other.lo)) range.lo = other.lo;
-        if (crossValueLess(other.hi, range.hi)) range.hi = other.hi;
+    ساكن فراغ intersectCrossRange(Cross_ارزښت_Range& range, ثابت Cross_ارزښت_Range& other) {
+        إذا (cross_ارزښت_Less(range.lo, other.lo)) range.lo = other.lo;
+        إذا (cross_ارزښت_Less(other.hi, range.hi)) range.hi = other.hi;
     }
 
-    static bool crossValueRange(AstNode* nodep, AstNodeExpr* exprp, bool binValue, bool wildcard,
-                                const CrossValueRange& domain, CrossValueRange& range) {
-        bool empty = false;
-        const AstConst* const constp = VN_CAST(nodep, Const);
-        if (const AstInsideRange* const rangep = VN_CAST(nodep, InsideRange)) {
-            if (!crossRangeBound(rangep->lhsp(), exprp, false, binValue, domain, range.lo, empty)
-                || !crossRangeBound(rangep->rhsp(), exprp, true, binValue, domain, range.hi, empty)
+    ساكن منطقي cross_ارزښت_Range(Ast_غوټه* nodep, Ast_غوټه_بیان* exprp, منطقي bin_ارزښت, منطقي wildcard,
+                                ثابت Cross_ارزښت_Range& domain, Cross_ارزښت_Range& range) {
+        منطقي تشه = خطأ;
+        ثابت AstConst* ثابت constp = VN_CAST(nodep, Const);
+        إذا (ثابت AstInsideRange* ثابت rangep = VN_CAST(nodep, InsideRange)) {
+            إذا (!crossRangeBound(rangep->lhsp(), exprp, خطأ, bin_ارزښت, domain, range.lo, تشه)
+                || !crossRangeBound(rangep->rhsp(), exprp, ریښتیا, bin_ارزښت, domain, range.hi, تشه)
                 || range.lo.isFourState() || range.hi.isFourState()) {
-                return false;
+                أرجع خطأ;
             }
-        } else if (constp && constp->num().isDouble()) {
+        } وإلا إذا (constp && constp->عدد().isDouble()) {
             // A real value participates only if integral; it has no wildcard bits.
-            crossRealBound(constp, exprp, false, domain, range.lo, empty);
-            crossRealBound(constp, exprp, true, domain, range.hi, empty);
-        } else {
-            if (!crossRangeBound(nodep, exprp, false, binValue, domain, range.lo, empty)) {
-                return false;
+            crossRealBound(constp, exprp, خطأ, domain, range.lo, تشه);
+            crossRealBound(constp, exprp, ریښتیا, domain, range.hi, تشه);
+        } وإلا {
+            إذا (!crossRangeBound(nodep, exprp, خطأ, bin_ارزښت, domain, range.lo, تشه)) {
+                أرجع خطأ;
             }
-            if (binValue && exprp->isSigned() && constp && !constp->isSigned()
-                && constp->width() > exprp->width()) {
-                bool representable = true;
-                for (int bit = exprp->width(); bit < constp->width(); ++bit) {
-                    representable &= !constp->num().bitIs1(bit);
+            إذا (bin_ارزښت && exprp->isSigned() && constp && !constp->isSigned()
+                && constp->پلنوالی() > exprp->پلنوالی()) {
+                منطقي representable = ریښتیا;
+                لكل (صحيح بټ_2 = exprp->پلنوالی(); بټ_2 < constp->پلنوالی(); ++بټ_2) {
+                    representable &= !constp->عدد().بټ_Is1(بټ_2);
                 }
-                if (representable) {
-                    V3Number value{nodep, exprp->width()};
-                    value.opAssign(constp->num());
-                    range.lo.opExtendS(value, value.width());
+                إذا (representable) {
+                    V3_شمېره ارزښت{nodep, exprp->پلنوالی()};
+                    ارزښت.op_ټاکل(constp->عدد());
+                    range.lo.opExtendS(ارزښت, ارزښت.پلنوالی());
                 }
             }
             range.hi = range.lo;
             range.wildcard = wildcard;
-            if (wildcard) {
-                range.pattern = range.lo;
+            إذا (wildcard) {
+                range.نمونه_2 = range.lo;
                 range.lo = domain.lo;
                 range.hi = domain.hi;
-                if (constp && constp->isSigned()) {
+                إذا (constp && constp->isSigned()) {
                     // Replicated X sign bits are correlated, not independent wildcards.
                     // The source domain preserves expansion-before-casting (19.5.7).
                     intersectCrossRange(
-                        range, crossValueDomain(nodep, constp->width(), true, domain.lo.width()));
+                        range, cross_ارزښت_Domain(nodep, constp->پلنوالی(), ریښتیا, domain.lo.پلنوالی()));
                 }
             }
         }
-        if (empty) {
+        إذا (تشه) {
             range.lo = domain.hi;
             range.hi = domain.lo;
-            return true;
+            أرجع ریښتیا;
         }
-        if (!range.lo.isFourState()) intersectCrossRange(range, domain);
-        if (range.wildcard && exprp->isSigned()) {
-            const int sign = exprp->width() - 1;
-            if (constp && !constp->isSigned() && constp->width() > exprp->width()) {
+        إذا (!range.lo.isFourState()) intersectCrossRange(range, domain);
+        إذا (range.wildcard && exprp->isSigned()) {
+            ثابت صحيح sign = exprp->پلنوالی() - 1;
+            إذا (constp && !constp->isSigned() && constp->پلنوالی() > exprp->پلنوالی()) {
                 // Unsigned equality preserves every target bit pattern if discarded bits are zero.
-                for (int bit = exprp->width(); bit < constp->width(); ++bit) {
-                    if (constp->num().bitIs1(bit)) {
+                لكل (صحيح بټ_2 = exprp->پلنوالی(); بټ_2 < constp->پلنوالی(); ++بټ_2) {
+                    إذا (constp->عدد().بټ_Is1(بټ_2)) {
                         range.lo = domain.hi;
                         range.hi = domain.lo;
-                        return true;
+                        أرجع ریښتیا;
                     }
                 }
-                for (int bit = exprp->width(); bit < range.pattern.width(); ++bit) {
-                    if (range.pattern.bitIsXZ(sign))
-                        range.pattern.setBit(bit, 'x');
-                    else
-                        range.pattern.setBit(bit, range.pattern.bitIs1(sign));
+                لكل (صحيح بټ_2 = exprp->پلنوالی(); بټ_2 < range.نمونه_2.پلنوالی(); ++بټ_2) {
+                    إذا (range.نمونه_2.بټ_Is_XZ(sign))
+                        range.نمونه_2.سېټ_بټ(بټ_2, 'x');
+                    وإلا
+                        range.نمونه_2.سېټ_بټ(بټ_2, range.نمونه_2.بټ_Is1(sign));
                 }
-                return true;
+                أرجع ریښتیا;
             }
             // Discarded high bits constrain the target sign, rather than becoming don't-cares.
-            for (int bit = exprp->width(); bit < range.pattern.width(); ++bit) {
-                if (range.pattern.bitIsXZ(bit)) continue;
-                const bool value = range.pattern.bitIs1(bit);
-                if (!range.pattern.bitIsXZ(sign) && range.pattern.bitIs1(sign) != value) {
+            لكل (صحيح بټ_2 = exprp->پلنوالی(); بټ_2 < range.نمونه_2.پلنوالی(); ++بټ_2) {
+                إذا (range.نمونه_2.بټ_Is_XZ(بټ_2)) استمر;
+                ثابت منطقي ارزښت = range.نمونه_2.بټ_Is1(بټ_2);
+                إذا (!range.نمونه_2.بټ_Is_XZ(sign) && range.نمونه_2.بټ_Is1(sign) != ارزښت) {
                     range.lo = domain.hi;
                     range.hi = domain.lo;
-                    break;
+                    اكسر;
                 }
-                range.pattern.setBit(sign, value);
+                range.نمونه_2.سېټ_بټ(sign, ارزښت);
             }
         }
-        return true;
+        أرجع ریښتیا;
     }
 
-    enum CrossRangeState : uint8_t {
+    تعداد CrossRangeState : uint8_t {
         CROSS_INSIDE_BOUNDS = 0,  // Prefix is strictly inside the interval
-        CROSS_AT_LOWER = 1,
-        CROSS_AT_UPPER = 2,
-        CROSS_AT_BOUNDS = CROSS_AT_LOWER | CROSS_AT_UPPER,
-        CROSS_NO_MATCH = 4  // Prefix cannot match the interval/pattern
+        CROSS_AT_ښکتنی = 1,
+        CROSS_AT_پاسنی = 2,
+        CROSS_AT_BOUNDS = CROSS_AT_ښکتنی | CROSS_AT_پاسنی,
+        CROSS_NO_سمون = 4  // Prefix cannot match the interval/pattern
     };
 
-    static CrossRangeState crossRangeStep(const CrossValueRange& range, CrossRangeState state,
-                                          int bit, int value) {
-        if (state == CROSS_NO_MATCH) return CROSS_NO_MATCH;
+    ساكن CrossRangeState cross_Range_ګام(ثابت Cross_ارزښت_Range& range, CrossRangeState state,
+                                          صحيح بټ_2, صحيح ارزښت) {
+        إذا (state == CROSS_NO_سمون) أرجع CROSS_NO_سمون;
         // Flipping the sign bit makes signed order lexicographic.
-        const bool sign = bit == range.pattern.width() - 1;
-        if (!range.pattern.bitIsXZ(bit) && value != (range.pattern.bitIs1(bit) ^ sign)) {
-            return CROSS_NO_MATCH;
+        ثابت منطقي sign = بټ_2 == range.نمونه_2.پلنوالی() - 1;
+        إذا (!range.نمونه_2.بټ_Is_XZ(بټ_2) && ارزښت != (range.نمونه_2.بټ_Is1(بټ_2) ^ sign)) {
+            أرجع CROSS_NO_سمون;
         }
-        const int low = range.lo.bitIs1(bit) ^ sign;
-        const int high = range.hi.bitIs1(bit) ^ sign;
-        if (((state & CROSS_AT_LOWER) && value < low)
-            || ((state & CROSS_AT_UPPER) && value > high)) {
-            return CROSS_NO_MATCH;
+        ثابت صحيح ټیټ = range.lo.بټ_Is1(بټ_2) ^ sign;
+        ثابت صحيح لوړ = range.hi.بټ_Is1(بټ_2) ^ sign;
+        إذا (((state & CROSS_AT_ښکتنی) && ارزښت < ټیټ)
+            || ((state & CROSS_AT_پاسنی) && ارزښت > لوړ)) {
+            أرجع CROSS_NO_سمون;
         }
-        return static_cast<CrossRangeState>(
-            ((state & CROSS_AT_LOWER) && value == low ? CROSS_AT_LOWER : CROSS_INSIDE_BOUNDS)
-            | ((state & CROSS_AT_UPPER) && value == high ? CROSS_AT_UPPER : CROSS_INSIDE_BOUNDS));
+        أرجع static_cast<CrossRangeState>(
+            ((state & CROSS_AT_ښکتنی) && ارزښت == ټیټ ? CROSS_AT_ښکتنی : CROSS_INSIDE_BOUNDS)
+            | ((state & CROSS_AT_پاسنی) && ارزښت == لوړ ? CROSS_AT_پاسنی : CROSS_INSIDE_BOUNDS));
     }
 
-    static bool crossWildcardIntersects(const CrossValueRange& range) {
-        unsigned states = 1U << CROSS_AT_BOUNDS;
-        for (int bit = range.pattern.width() - 1; bit >= 0 && states; --bit) {
-            unsigned next = 0;
-            for (const CrossRangeState state :
-                 {CROSS_INSIDE_BOUNDS, CROSS_AT_LOWER, CROSS_AT_UPPER, CROSS_AT_BOUNDS}) {
-                if (!(states & (1U << state))) continue;
-                for (int value = 0; value < 2; ++value) {
-                    const CrossRangeState equal = crossRangeStep(range, state, bit, value);
-                    if (equal != CROSS_NO_MATCH) next |= 1U << equal;
+    ساكن منطقي crossWildcardIntersects(ثابت Cross_ارزښت_Range& range) {
+        بینښه حالتونه = 1U << CROSS_AT_BOUNDS;
+        لكل (صحيح بټ_2 = range.نمونه_2.پلنوالی() - 1; بټ_2 >= 0 && حالتونه; --بټ_2) {
+            بینښه بل = 0;
+            لكل (ثابت CrossRangeState state :
+                 {CROSS_INSIDE_BOUNDS, CROSS_AT_ښکتنی, CROSS_AT_پاسنی, CROSS_AT_BOUNDS}) {
+                إذا (!(حالتونه & (1U << state))) استمر;
+                لكل (صحيح ارزښت = 0; ارزښت < 2; ++ارزښت) {
+                    ثابت CrossRangeState equal = cross_Range_ګام(range, state, بټ_2, ارزښت);
+                    إذا (equal != CROSS_NO_سمون) بل |= 1U << equal;
                 }
             }
-            states = next;
+            حالتونه = بل;
         }
-        return states != 0;
+        أرجع حالتونه != 0;
     }
 
     // The least value at least 'from' with the non-x bits of 'pattern', in unsigned order; false
     // if none.  A bit scan, which does not enumerate the pattern's x bits.
-    static bool nextPatternValue(const V3Number& pattern, const V3Number& from, V3Number& result) {
-        result.opAssign(from);
-        int carry = -1;  // Lowest x bit above the bit scanned where 'from' has a 0
-        for (int bit = from.width() - 1; bit >= 0; --bit) {
-            if (pattern.bitIsXZ(bit)) {
-                if (!from.bitIs1(bit)) carry = bit;
-                continue;
+    ساكن منطقي بل_نمونه_ارزښت(ثابت V3_شمېره& نمونه_2, ثابت V3_شمېره& from, V3_شمېره& پایله) {
+        پایله.op_ټاکل(from);
+        صحيح لېږد = -1;  // Lowest x bit above the bit scanned where 'from' has a 0
+        لكل (صحيح بټ_2 = from.پلنوالی() - 1; بټ_2 >= 0; --بټ_2) {
+            إذا (نمونه_2.بټ_Is_XZ(بټ_2)) {
+                إذا (!from.بټ_Is1(بټ_2)) لېږد = بټ_2;
+                استمر;
             }
-            if (pattern.bitIs1(bit) == from.bitIs1(bit)) continue;
-            if (from.bitIs1(bit)) {  // Only a greater prefix, an x bit above raised, can match
-                if (carry < 0) return false;
-                bit = carry;
+            إذا (نمونه_2.بټ_Is1(بټ_2) == from.بټ_Is1(بټ_2)) استمر;
+            إذا (from.بټ_Is1(بټ_2)) {  // Only a greater prefix, an x bit above raised, can match
+                إذا (لېږد < 0) أرجع خطأ;
+                بټ_2 = لېږد;
             }
             // Then the least such value: the pattern's bits, with x bits of zero
-            result.setBit(bit, 1);
-            while (--bit >= 0) result.setBit(bit, pattern.bitIs1(bit));
-            return true;
+            پایله.سېټ_بټ(بټ_2, 1);
+            طالما (--بټ_2 >= 0) پایله.سېټ_بټ(بټ_2, نمونه_2.بټ_Is1(بټ_2));
+            أرجع ریښتیا;
         }
-        return true;
+        أرجع ریښتیا;
     }
 
     // Append to 'runs' the maximal runs of consecutive values of 'range' that its pattern
     // matches, in value order, until there are more than 'limit'.  A match continues through
     // the pattern's trailing x bits only, which the next value's carry leaves.
-    static void crossRangeRuns(const CrossValueRange& range, size_t limit,
-                               std::vector<std::pair<V3Number, V3Number>>& runs) {
+    ساكن فراغ crossRangeRuns(ثابت Cross_ارزښت_Range& range, اندازه_t حد,
+                               std::ویکټور<std::pair<V3_شمېره, V3_شمېره>>& runs) {
         // Values order signed, which is the unsigned order of values with the sign bit flipped
-        const int sign = range.lo.width() - 1;
-        const auto flipped = [sign](V3Number value) {
-            if (!value.bitIsXZ(sign)) value.setBit(sign, !value.bitIs1(sign));
-            return value;
+        ثابت صحيح sign = range.lo.پلنوالی() - 1;
+        ثابت خپلکاری flipped = [sign](V3_شمېره ارزښت) {
+            إذا (!ارزښت.بټ_Is_XZ(sign)) ارزښت.سېټ_بټ(sign, !ارزښت.بټ_Is1(sign));
+            أرجع ارزښت;
         };
-        const V3Number pattern = flipped(range.pattern);
-        const V3Number hi = flipped(range.hi);
-        const V3Number one{&hi, hi.width(), 1};
-        V3Number trailing{&hi, hi.width()};
-        for (int bit = 0; bit <= sign && pattern.bitIsXZ(bit); ++bit) trailing.setBit(bit, 1);
-        V3Number from = flipped(range.lo);
-        V3Number first{&hi, hi.width()};
-        V3Number last{&hi, hi.width()};
-        V3Number less{&hi};
-        while (runs.size() <= limit && nextPatternValue(pattern, from, first)
-               && less.opLt(hi, first).isEqZero()) {
-            last.opOr(first, trailing);
-            if (!less.opLt(hi, last).isEqZero()) last = hi;
-            runs.emplace_back(flipped(first), flipped(last));
-            if (last.isCaseEq(hi)) break;
-            from.opAdd(last, one);
+        ثابت V3_شمېره نمونه_2 = flipped(range.نمونه_2);
+        ثابت V3_شمېره hi = flipped(range.hi);
+        ثابت V3_شمېره one{&hi, hi.پلنوالی(), 1};
+        V3_شمېره trailing{&hi, hi.پلنوالی()};
+        لكل (صحيح بټ_2 = 0; بټ_2 <= sign && نمونه_2.بټ_Is_XZ(بټ_2); ++بټ_2) trailing.سېټ_بټ(بټ_2, 1);
+        V3_شمېره from = flipped(range.lo);
+        V3_شمېره لومړی{&hi, hi.پلنوالی()};
+        V3_شمېره وروستی{&hi, hi.پلنوالی()};
+        V3_شمېره less{&hi};
+        طالما (runs.اندازه() <= حد && بل_نمونه_ارزښت(نمونه_2, from, لومړی)
+               && less.opLt(hi, لومړی).isEqZero()) {
+            وروستی.opOr(لومړی, trailing);
+            إذا (!less.opLt(hi, وروستی).isEqZero()) وروستی = hi;
+            runs.emplace_شا(flipped(لومړی), flipped(وروستی));
+            إذا (وروستی.isCaseEq(hi)) اكسر;
+            from.op_جمع_کړه(وروستی, one);
         }
     }
 
     // True if no coverpoint value participates in a resolved value or range.  A value with x
     // or z bits participates only as a wildcard pattern (IEEE 1800-2023 19.5.7).
-    static bool crossRangeEmpty(const CrossValueRange& range) {
-        if (range.lo.isFourState()) return true;
-        return crossValueLess(range.hi, range.lo)
+    ساكن منطقي cross_Range_تشه(ثابت Cross_ارزښت_Range& range) {
+        إذا (range.lo.isFourState()) أرجع ریښتیا;
+        أرجع cross_ارزښت_Less(range.hi, range.lo)
                || (range.wildcard && !crossWildcardIntersects(range));
     }
 
     // Comparison width that holds both the coverpoint's and a bin or intersect value's range.
-    static int resolveWidth(AstNode* nodep, const AstNodeExpr* exprp) {
-        return std::max(exprp->width(), crossRangeWidth(nodep)) + 1;
+    ساكن صحيح resolve_پلنوالی(Ast_غوټه* nodep, ثابت Ast_غوټه_بیان* exprp) {
+        أرجع std::max(exprp->پلنوالی(), cross_Range_پلنوالی(nodep)) + 1;
     }
 
     // Resolve a bin or intersect value to coverpoint values (IEEE 1800-2023 19.5.7), in the
     // width 'range' was created with.  False if the value is not a constant integral or real.
-    static bool resolveValue(AstNode* nodep, AstNodeExpr* exprp, bool binValue, bool wildcard,
-                             CrossValueRange& range) {
-        const CrossValueRange domain
-            = crossValueDomain(nodep, exprp->width(), exprp->isSigned(), range.lo.width());
-        return crossValueRange(nodep, exprp, binValue, wildcard, domain, range);
+    ساكن منطقي resolve_ارزښت(Ast_غوټه* nodep, Ast_غوټه_بیان* exprp, منطقي bin_ارزښت, منطقي wildcard,
+                             Cross_ارزښت_Range& range) {
+        ثابت Cross_ارزښت_Range domain
+            = cross_ارزښت_Domain(nodep, exprp->پلنوالی(), exprp->isSigned(), range.lo.پلنوالی());
+        أرجع cross_ارزښت_Range(nodep, exprp, bin_ارزښت, wildcard, domain, range);
     }
 
-    static bool crossRangesIntersect(const CrossValueRange& bin, const CrossValueRange& filter) {
+    ساكن منطقي crossRangesIntersect(ثابت Cross_ارزښت_Range& bin, ثابت Cross_ارزښت_Range& filter) {
         // Values with x or z bits do not participate, even in an identical filter.
-        if (bin.lo.isFourState() || filter.lo.isFourState()) return false;
-        CrossValueRange match = bin;
-        intersectCrossRange(match, filter);
-        return !crossValueLess(match.hi, match.lo)
-               && (!bin.wildcard || crossWildcardIntersects(match));
+        إذا (bin.lo.isFourState() || filter.lo.isFourState()) أرجع خطأ;
+        Cross_ارزښت_Range سمون = bin;
+        intersectCrossRange(سمون, filter);
+        أرجع !cross_ارزښت_Less(سمون.hi, سمون.lo)
+               && (!bin.wildcard || crossWildcardIntersects(سمون));
     }
 
-    static void unsupportedCrossRange(AstCoverBinsof* selectp, bool& valid) {
+    ساكن فراغ unsupportedCrossRange(AstCoverBinsof* selectp, منطقي& valid) {
         selectp->v3warn(COVERIGN, "Unsupported: non-constant or non-integral 'intersect' value, "
                                   "or four-state range bound.");
-        valid = false;
+        valid = خطأ;
     }
 
-    static bool crossValueMatchesFilters(AstCoverBinsof* selectp, AstNode* valuep,
-                                         AstNodeExpr* exprp, const AstCoverBin* binp,
-                                         const CrossValueRange& domain,
-                                         const std::vector<CrossValueRange>& filters,
-                                         bool& valid) {
-        CrossValueRange range{valuep, domain.lo.width()};
-        if (!crossValueRange(valuep, exprp, true, binp->isWildcard(), domain, range)) {
+    ساكن منطقي cross_ارزښت_Matches_Filters(AstCoverBinsof* selectp, Ast_غوټه* valuep,
+                                         Ast_غوټه_بیان* exprp, ثابت AstCoverBin* binp,
+                                         ثابت Cross_ارزښت_Range& domain,
+                                         ثابت std::ویکټور<Cross_ارزښت_Range>& filters,
+                                         منطقي& valid) {
+        Cross_ارزښت_Range range{valuep, domain.lo.پلنوالی()};
+        إذا (!cross_ارزښت_Range(valuep, exprp, ریښتیا, binp->isWildcard(), domain, range)) {
             unsupportedCrossRange(selectp, valid);
-            return false;
+            أرجع خطأ;
         }
-        for (const CrossValueRange& filter : filters) {
-            if (crossRangesIntersect(range, filter)) return true;
+        لكل (ثابت Cross_ارزښت_Range& filter : filters) {
+            إذا (crossRangesIntersect(range, filter)) أرجع ریښتیا;
         }
-        return false;
+        أرجع خطأ;
     }
 
-    std::vector<bool> selectCoverpointBins(AstCoverBinsof* selectp, const CoverpointBins& bins,
-                                           uint32_t first, uint32_t count, bool& valid) {
-        if (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+    std::ویکټور<منطقي> selectCoverpointBins(AstCoverBinsof* selectp, ثابت CoverpointBins& bins,
+                                           uint32_t لومړی, uint32_t شمېر, منطقي& valid) {
+        إذا (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             unsupportedCrossRange(selectp, valid);
-            return {};
+            أرجع {};
         }
-        std::vector<bool> selected(bins.total, false);
-        std::vector<std::vector<AstNode*>> values;
-        int width = bins.exprp->width();
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
-            width = std::max(width, crossRangeWidth(rangep));
+        std::ویکټور<منطقي> selected(bins.ټول, خطأ);
+        std::ویکټور<std::ویکټور<Ast_غوټه*>> ارزښتونه;
+        صحيح پلنوالی = bins.exprp->پلنوالی();
+        لكل (Ast_غوټه* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+            پلنوالی = std::max(پلنوالی, cross_Range_پلنوالی(rangep));
         }
-        if (selectp->rangesp()) {
-            values.reserve(count);
-            for (uint32_t i = first; i < first + count; ++i) {
+        إذا (selectp->rangesp()) {
+            ارزښتونه.reserve(شمېر);
+            لكل (uint32_t i = لومړی; i < لومړی + شمېر; ++i) {
                 // A run's values are in the coverpoint type, whose width 'width' covers
-                values.push_back(bins.values[i].runp ? std::vector<AstNode*>{}
-                                                     : crossBinValues(bins.values[i]));
-                for (AstNode* const valuep : values.back()) {
-                    width = std::max(width, crossRangeWidth(valuep));
+                ارزښتونه.ټېل_شا(bins.ارزښتونه[i].runp ? std::ویکټور<Ast_غوټه*>{}
+                                                     : cross_Bin_ارزښتونه(bins.ارزښتونه[i]));
+                لكل (Ast_غوټه* ثابت valuep : ارزښتونه.شا()) {
+                    پلنوالی = std::max(پلنوالی, cross_Range_پلنوالی(valuep));
                 }
             }
         }
         // One extra bit preserves both unsigned maxima and negative signed bounds.
-        ++width;
-        const CrossValueRange domain
-            = crossValueDomain(selectp, bins.exprp->width(), bins.exprp->isSigned(), width);
-        std::vector<CrossValueRange> filters;
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
-            CrossValueRange filter{rangep, width};
-            if (!crossValueRange(rangep, bins.exprp, false, false, domain, filter)) {
+        ++پلنوالی;
+        ثابت Cross_ارزښت_Range domain
+            = cross_ارزښت_Domain(selectp, bins.exprp->پلنوالی(), bins.exprp->isSigned(), پلنوالی);
+        std::ویکټور<Cross_ارزښت_Range> filters;
+        لكل (Ast_غوټه* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+            Cross_ارزښت_Range filter{rangep, پلنوالی};
+            إذا (!cross_ارزښت_Range(rangep, bins.exprp, خطأ, خطأ, domain, filter)) {
                 unsupportedCrossRange(selectp, valid);
-                return {};
+                أرجع {};
             }
-            filters.push_back(std::move(filter));
+            filters.ټېل_شا(std::move(filter));
         }
-        for (uint32_t i = first; i < first + count; ++i) {
-            if (!selectp->rangesp()) {
-                selected[i] = true;
-                continue;
+        لكل (uint32_t i = لومړی; i < لومړی + شمېر; ++i) {
+            إذا (!selectp->rangesp()) {
+                selected[i] = ریښتیا;
+                استمر;
             }
-            if (const BinRun* const runp = bins.values[i].runp) {
-                const CrossValueRange range
-                    = runBinRange(selectp, *runp, bins.values[i].element, width);
-                selected[i] = std::any_of(filters.begin(), filters.end(),
-                                          [&](const CrossValueRange& filter) {
-                                              return crossRangesIntersect(range, filter);
+            إذا (ثابت Bin_پرلپسې* ثابت runp = bins.ارزښتونه[i].runp) {
+                ثابت Cross_ارزښت_Range range
+                    = پرلپسې_Bin_Range(selectp, *runp, bins.ارزښتونه[i].element, پلنوالی);
+                selected[i] = std::any_د(filters.begin(), filters.پای_ټکی(),
+                                          [&](ثابت Cross_ارزښت_Range& filter) {
+                                              أرجع crossRangesIntersect(range, filter);
                                           });
-                continue;
+                استمر;
             }
-            for (AstNode* const valuep : values[i - first]) {
-                selected[i] = crossValueMatchesFilters(
-                    selectp, valuep, bins.exprp, bins.values[i].binp, domain, filters, valid);
-                if (!valid) return {};
-                if (selected[i]) break;
+            لكل (Ast_غوټه* ثابت valuep : ارزښتونه[i - لومړی]) {
+                selected[i] = cross_ارزښت_Matches_Filters(
+                    selectp, valuep, bins.exprp, bins.ارزښتونه[i].binp, domain, filters, valid);
+                إذا (!valid) أرجع {};
+                إذا (selected[i]) اكسر;
             }
         }
-        if (selectp->isNegated()) {
-            for (uint32_t i = 0; i < bins.total; ++i) selected[i] = !selected[i];
+        إذا (selectp->isNegated()) {
+            لكل (uint32_t i = 0; i < bins.ټول; ++i) selected[i] = !selected[i];
         }
-        return selected;
+        أرجع selected;
     }
 
     // Constructor-time value metadata of one coverpoint, as C++ list entries
-    struct ValueLists final {
-        std::vector<std::string> m_ranges;  // Bin, then low and high words
-        std::vector<std::string> m_runs;  // First bin, count, then low, span, and high words
-        std::vector<std::string> m_patterns;  // Bin, then value, mask, low, and high words
-        std::vector<std::string> m_transitions;  // Transition bin
+    بنية ارزښت_Lists final {
+        std::ویکټور<std::string> m_ranges;  // Bin, then low and high words
+        std::ویکټور<std::string> m_runs;  // First bin, count, then low, span, and high words
+        std::ویکټور<std::string> m_patterns;  // Bin, then value, mask, low, and high words
+        std::ویکټور<std::string> m_transitions;  // Transition bin
     };
 
     // Append a value's words, in the coverpoint's width, to a C++ list entry.
-    static void appendWords(std::string& text, const V3Number& value, const AstNodeExpr* exprp) {
-        V3Number narrowed{&value, exprp->width()};
-        narrowed.opAssign(value);
-        for (int word = 0; word < exprp->widthWords(); ++word) {
-            text += ", " + cvtToStr(narrowed.edataWord(word)) + "U";
+    ساكن فراغ append_ټکي(std::string& متن, ثابت V3_شمېره& ارزښت, ثابت Ast_غوټه_بیان* exprp) {
+        V3_شمېره narrowed{&ارزښت, exprp->پلنوالی()};
+        narrowed.op_ټاکل(ارزښت);
+        لكل (صحيح کلمه = 0; کلمه < exprp->پلنوالی_ټکي(); ++کلمه) {
+            متن += ", " + cvt_منزل_Str(narrowed.edata_کلمه(کلمه)) + "U";
         }
     }
 
-    void collectValueMetadata(ValueLists& lists, AstNodeExpr* exprp, AstCoverBin* binp,
-                              uint32_t index, AstNodeExpr* valuep) {
-        const std::string bin = cvtToStr(index) + "U";
-        if (binp->transp()) lists.m_transitions.push_back(bin);
-        for (AstNode* const sourcep : crossBinValues({binp, valuep})) {
-            CrossValueRange range{sourcep, resolveWidth(sourcep, exprp)};
-            if (!resolveValue(sourcep, exprp, true, binp->isWildcard(), range)) {
+    فراغ collect_ارزښت_Metadata(ارزښت_Lists& lists, Ast_غوټه_بیان* exprp, AstCoverBin* binp,
+                              uint32_t شاخص, Ast_غوټه_بیان* valuep) {
+        ثابت std::string bin = cvt_منزل_Str(شاخص) + "U";
+        إذا (binp->transp()) lists.m_transitions.ټېل_شا(bin);
+        لكل (Ast_غوټه* ثابت sourcep : cross_Bin_ارزښتونه({binp, valuep})) {
+            Cross_ارزښت_Range range{sourcep, resolve_پلنوالی(sourcep, exprp)};
+            إذا (!resolve_ارزښت(sourcep, exprp, ریښتیا, binp->isWildcard(), range)) {
                 // Sampling already resolved every state bin value, so only transitions remain.
                 sourcep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a transition "
                                                "bin of a coverpoint with exclusions.");
-                continue;
+                استمر;
             }
-            if (crossRangeEmpty(range)) continue;
-            std::string entry = bin;
-            if (range.wildcard) {
-                V3Number value{sourcep, exprp->width()};
-                V3Number mask{sourcep, exprp->width()};
-                mask.opBitsNonXZ(range.pattern);
-                value.opBitsOne(range.pattern);
-                appendWords(entry, value, exprp);
-                appendWords(entry, mask, exprp);
+            إذا (cross_Range_تشه(range)) استمر;
+            std::string ثبت = bin;
+            إذا (range.wildcard) {
+                V3_شمېره ارزښت{sourcep, exprp->پلنوالی()};
+                V3_شمېره ماسک{sourcep, exprp->پلنوالی()};
+                ماسک.op_بټونه_Non_XZ(range.نمونه_2);
+                ارزښت.op_بټونه_One(range.نمونه_2);
+                append_ټکي(ثبت, ارزښت, exprp);
+                append_ټکي(ثبت, ماسک, exprp);
             }
-            appendWords(entry, range.lo, exprp);
-            appendWords(entry, range.hi, exprp);
-            (range.wildcard ? lists.m_patterns : lists.m_ranges).push_back(entry);
+            append_ټکي(ثبت, range.lo, exprp);
+            append_ټکي(ثبت, range.hi, exprp);
+            (range.wildcard ? lists.m_patterns : lists.m_ranges).ټېل_شا(ثبت);
         }
     }
 
     // Describe a run with one entry, from which the runtime computes the values of its bins.
-    static void collectRunMetadata(ValueLists& lists, AstNodeExpr* exprp, const BinRun& run) {
-        V3Number span{exprp, run.m_stride.width(), 0};
-        span.opSub(run.m_stride, V3Number{exprp, run.m_stride.width(), 1});
-        std::string entry = cvtToStr(run.m_declared) + "U, " + cvtToStr(run.m_count) + "U";
-        appendWords(entry, run.m_lo, exprp);
-        appendWords(entry, span, exprp);
-        appendWords(entry, run.m_hi, exprp);
-        lists.m_runs.push_back(entry);
+    ساكن فراغ collect_پرلپسې_Metadata(ارزښت_Lists& lists, Ast_غوټه_بیان* exprp, ثابت Bin_پرلپسې& پرلپسې) {
+        V3_شمېره پراختیا{exprp, پرلپسې.m_stride.پلنوالی(), 0};
+        پراختیا.opSub(پرلپسې.m_stride, V3_شمېره{exprp, پرلپسې.m_stride.پلنوالی(), 1});
+        std::string ثبت = cvt_منزل_Str(پرلپسې.m_declared) + "U, " + cvt_منزل_Str(پرلپسې.m_شمېر) + "U";
+        append_ټکي(ثبت, پرلپسې.m_lo, exprp);
+        append_ټکي(ثبت, پراختیا, exprp);
+        append_ټکي(ثبت, پرلپسې.m_hi, exprp);
+        lists.m_runs.ټېل_شا(ثبت);
     }
 
     // Emit one batched metadata list, bounding the size of each call's temporary list.
-    void emitValueList(FileLine* fl, AstVar* cpVarp, VCMethod method,
-                       const std::vector<std::string>& entries) {
-        for (size_t first = 0; first < entries.size(); first += VALUE_LIST_ENTRIES) {
-            const size_t end = std::min(entries.size(), first + VALUE_LIST_ENTRIES);
-            std::string text = "{" + entries[first];
-            for (size_t i = first + 1; i < end; ++i) text += ", " + entries[i];
-            m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, method, {ctext(fl, text + "}")})->makeStmt());
+    فراغ emit_ارزښت_List(File_کرښه* fl, AstVar* cpVarp, VCMethod لاره,
+                       ثابت std::ویکټور<std::string>& entries) {
+        لكل (اندازه_t لومړی = 0; لومړی < entries.اندازه(); لومړی += ارزښت_LIST_ENTRIES) {
+            ثابت اندازه_t پای_ټکی = std::min(entries.اندازه(), لومړی + ارزښت_LIST_ENTRIES);
+            std::string متن = "{" + entries[لومړی];
+            لكل (اندازه_t i = لومړی + 1; i < پای_ټکی; ++i) متن += ", " + entries[i];
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cpVarp, لاره, {ctext(fl, متن + "}")})->makeStmt());
         }
     }
 
-    static bool checkCrossRef(const AstCoverCrossRef* refp, const AstCoverCross* crossp) {
-        if (refp->name() == crossp->name()) return true;
+    ساكن منطقي checkCrossRef(ثابت AstCoverCrossRef* refp, ثابت AstCoverCross* crossp) {
+        إذا (refp->name() == crossp->name()) أرجع ریښتیا;
         refp->v3error("Cross selection "
                       << refp->prettyNameQ() << " may only name its enclosing cross "
                       << crossp->prettyNameQ() << " (IEEE 1800-2023 19.6.1.2).");
-        return false;
+        أرجع خطأ;
     }
 
-    static bool checkCrossBinName(const AstCoverCrossBin* binp, std::set<std::string>& names) {
-        if (names.emplace(binp->name()).second) return true;
+    ساكن منطقي checkCrossBinName(ثابت AstCoverCrossBin* binp, std::سېټ<std::string>& نومونه) {
+        إذا (نومونه.emplace(binp->name()).دوهم) أرجع ریښتیا;
         binp->v3error("Duplicate cross bin " << binp->prettyNameQ()
                                              << " (IEEE 1800-2023 19.6.1).");
-        return false;
+        أرجع خطأ;
     }
 
     // The span of the implicit automatic bin reported as 'name' ('auto_<i>', see
     // createImplicitAutoBins), found without naming each of its bins
-    static bool implicitAutoBinSpan(const CoverpointBins& bins, const std::string& name,
-                                    BinSpan& span) {
-        const std::string prefix = "auto_";
-        if (!VString::startsWith(name, prefix)) return false;
-        const std::string digits = name.substr(prefix.size());
-        const unsigned long index = std::strtoul(digits.c_str(), nullptr, 10);
+    ساكن منطقي implicit_Auto_Bin_پراختیا(ثابت CoverpointBins& bins, ثابت std::string& name,
+                                    Bin_پراختیا& پراختیا) {
+        ثابت std::string مختاړی = "auto_";
+        إذا (!VString::startsWith(name, مختاړی)) أرجع خطأ;
+        ثابت std::string digits = name.substr(مختاړی.اندازه());
+        ثابت بینښه اوږد شاخص = std::strtoul(digits.c_str(), تش_اشاره, 10);
         // Only the reported spelling names the bin, not e.g. 'auto_01' or 'auto_x'
-        if (index >= bins.implicitAuto.count || digits != cvtToStr(index)) return false;
-        const uint32_t offset = static_cast<uint32_t>(index);
-        span = BinSpan{bins.implicitAuto.first + offset, 1, bins.implicitAuto.declared + offset};
-        return true;
+        إذا (شاخص >= bins.implicitAuto.شمېر || digits != cvt_منزل_Str(شاخص)) أرجع خطأ;
+        ثابت uint32_t دننه_واټن = static_cast<uint32_t>(شاخص);
+        پراختیا = Bin_پراختیا{bins.implicitAuto.لومړی + دننه_واټن, 1, bins.implicitAuto.declared + دننه_واټن};
+        أرجع ریښتیا;
     }
 
-    CrossBinsofTarget
-    resolveBinsofTarget(const AstCoverBinsof* selectp, const AstCoverCross* crossp,
-                        const std::vector<AstVar*>& cpVars,
-                        const std::map<std::string, uint32_t>& dimensions) const {
-        const auto dim = dimensions.find(selectp->pointp()->name());
-        if (dim == dimensions.end()) {
+    Cross_Binsof_موخه
+    resolve_Binsof_موخه(ثابت AstCoverBinsof* selectp, ثابت AstCoverCross* crossp,
+                        ثابت std::ویکټور<AstVar*>& cpVars,
+                        ثابت std::map<std::string, uint32_t>& dimensions) ثابت {
+        ثابت خپلکاری dim = dimensions.پیدا_کړه(selectp->pointp()->name());
+        إذا (dim == dimensions.پای_ټکی()) {
             selectp->v3error("binsof coverpoint "
                              << selectp->pointp()->prettyNameQ() << " is not an item of cross "
                              << crossp->prettyNameQ() << " (IEEE 1800-2023 19.6.1).");
-            return {};
+            أرجع {};
         }
-        const CoverpointBins& bins = m_cpBins.at(cpVars[dim->second]);
-        CrossBinsofTarget target{&bins, dim->second, 0, bins.total};
-        if (!selectp->name().empty()) {
-            const auto bin = bins.spans.find(selectp->name());
-            BinSpan span{0, 0, 0};
-            if (bin != bins.spans.end()) {
-                span = bin->second;
-            } else if (!implicitAutoBinSpan(bins, selectp->name(), span)) {
+        ثابت CoverpointBins& bins = m_cpBins.at(cpVars[dim->دوهم]);
+        Cross_Binsof_موخه موخه{&bins, dim->دوهم, 0, bins.ټول};
+        إذا (!selectp->name().تشه()) {
+            ثابت خپلکاری bin = bins.spans.پیدا_کړه(selectp->name());
+            Bin_پراختیا پراختیا{0, 0, 0};
+            إذا (bin != bins.spans.پای_ټکی()) {
+                پراختیا = bin->دوهم;
+            } وإلا إذا (!implicit_Auto_Bin_پراختیا(bins, selectp->name(), پراختیا)) {
                 selectp->v3error("Cannot find bin " << selectp->prettyNameQ() << " in coverpoint "
                                                     << selectp->pointp()->prettyNameQ()
                                                     << " (IEEE 1800-2023 19.6.1).");
-                return {};
+                أرجع {};
             }
-            target.m_first = span.first;
-            target.m_count = span.count;
-            target.m_declaredFirst = span.declared;
-            target.m_declaredEnd = span.declared + span.count;
-            target.m_sized = span.sized;
+            موخه.m_لومړی = پراختیا.لومړی;
+            موخه.m_شمېر = پراختیا.شمېر;
+            موخه.m_declared_لومړی = پراختیا.declared;
+            موخه.m_declared_پای_ټکی = پراختیا.declared + پراختیا.شمېر;
+            موخه.m_sized = پراختیا.sized;
         }
-        return target;
+        أرجع موخه;
     }
 
     // The variables a 'with' filter reads, each by its first reference
-    using CrossFilterReads = std::map<const AstVar*, AstVarRef*>;
+    کارول CrossFilterReads = std::map<ثابت AstVar*, AstVarRef*>;
 
     // Whether a 'with' filter has a count of value tuples, of 'matches' other than '$'
-    static bool countsValueTuples(const AstCoverCrossWith* withp) {
-        return withp->countp() && !VN_IS(withp->countp(), Unbounded);
+    ساكن منطقي counts_ارزښت_Tuples(ثابت AstCoverCrossWith* withp) {
+        أرجع withp->countp() && !VN_IS(withp->countp(), Unbounded);
     }
 
     // Whether the runtime knows the values of the cross items a 'with' filter reads, or to count
     // value tuples, of all items, of integral coverpoints; else warns
-    static bool crossFilterSupported(const AstCoverCrossWith* withp,
-                                     const CrossFilterReads& reads) {
-        for (const AstVar* varp = withp->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            if (varp->dtypep()->skipRefp()->isIntegralOrPacked()) continue;
-            const auto it = reads.find(varp);
-            if (it != reads.end()) {
-                it->second->v3warn(COVERIGN, "Unsupported: cross bin 'with' filter reading the "
+    ساكن منطقي crossFilterSupported(ثابت AstCoverCrossWith* withp,
+                                     ثابت CrossFilterReads& reads) {
+        لكل (ثابت AstVar* varp = withp->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            إذا (varp->dtypep()->skipRefp()->isIntegralOrPacked()) استمر;
+            ثابت خپلکاری it = reads.پیدا_کړه(varp);
+            إذا (it != reads.پای_ټکی()) {
+                it->دوهم->v3warn(COVERIGN, "Unsupported: cross bin 'with' filter reading the "
                                              "value of non-integral coverpoint "
-                                                 << it->second->prettyNameQ());
-                return false;
+                                                 << it->دوهم->prettyNameQ());
+                أرجع خطأ;
             }
-            if (countsValueTuples(withp)) {
+            إذا (counts_ارزښت_Tuples(withp)) {
                 withp->countp()->v3warn(COVERIGN, "Unsupported: cross bin 'matches' count of "
                                                   "value tuples of non-integral coverpoint "
                                                       << varp->prettyNameQ());
-                return false;
+                أرجع خطأ;
             }
         }
-        return true;
+        أرجع ریښتیا;
     }
 
     // Emit the constructor code selecting, of the bin tuples of the selection, those with enough
@@ -3497,168 +3497,168 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     //   withEnd();
     // The dimensions are those of the items read, or to count value tuples, of all items: the
     // filter's result for a value tuple of the items it reads repeats for each of the others'.
-    void generateCrossFilter(const AstCoverCrossWith* withp, const CrossFilterReads& reads,
-                             const AstCoverCrossBin* binp, const AstCoverCross* crossp,
-                             AstVar* cxp, const std::map<string, uint32_t>& dimensions,
-                             uint32_t items) {
-        FileLine* const fl = withp->fileline();
-        const string prefix
-            = m_sizedNames.get(sanitizeGeneratedName(crossp->name() + "__" + binp->name()));
-        const bool counting = countsValueTuples(withp);
+    فراغ generateCrossFilter(ثابت AstCoverCrossWith* withp, ثابت CrossFilterReads& reads,
+                             ثابت AstCoverCrossBin* binp, ثابت AstCoverCross* crossp,
+                             AstVar* cxp, ثابت std::map<string, uint32_t>& dimensions,
+                             uint32_t توکي) {
+        File_کرښه* ثابت fl = withp->fileline();
+        ثابت string مختاړی
+            = m_sized_نومونه.get(sanitizeGeneratedName(crossp->name() + "__" + binp->name()));
+        ثابت منطقي counting = counts_ارزښت_Tuples(withp);
         // The count, 0 for all
-        const std::pair<AstNodeExpr*, AstNodeExpr*> count
-            = counting ? newCountArgs(fl, prefix + "_count", withp->countp())
-                       : newCountArgs(fl, withp->countp() ? 0 : 1);
-        AstLoop* const loopp = new AstLoop{fl};
-        AstCMethodHard* const nextp = itemCall(fl, cxp, VCMethod::COVERGROUP_WITH_NEXT);
-        nextp->dtypeSetBit();
-        loopp->addStmtsp(new AstLoopTest{fl, loopp, nextp});
+        ثابت std::pair<Ast_غوټه_بیان*, Ast_غوټه_بیان*> شمېر
+            = counting ? new_شمېر_دلیلونه(fl, مختاړی + "_count", withp->countp())
+                       : new_شمېر_دلیلونه(fl, withp->countp() ? 0 : 1);
+        AstLoop* ثابت loopp = جديد AstLoop{fl};
+        AstCMethodHard* ثابت nextp = توکی_Call(fl, cxp, VCMethod::COVERGROUP_WITH_بل);
+        nextp->dtype_سېټ_بټ();
+        loopp->جمع_کړه_Stmtsp(جديد AstLoopTest{fl, loopp, nextp});
         string dims;
-        for (uint32_t dim = 0; counting && dim < items; ++dim) {
-            dims += (dims.empty() ? "" : ", ") + cvtToStr(dim) + "U";
+        لكل (uint32_t dim = 0; counting && dim < توکي; ++dim) {
+            dims += (dims.تشه() ? "" : ", ") + cvt_منزل_Str(dim) + "U";
         }
-        while (AstVar* const varp = withp->varsp()) {
-            varp->unlinkFrBack();
-            if (!reads.count(varp)) {
-                VL_DO_DANGLING(pushDeletep(varp), varp);
-                continue;
+        طالما (AstVar* ثابت varp = withp->varsp()) {
+            varp->unlink_Fr_شا();
+            إذا (!reads.شمېر(varp)) {
+                VL_DO_DANGLING(ټېل_Deletep(varp), varp);
+                استمر;
             }
-            const auto dimIt = dimensions.find(varp->name());
-            UASSERT_OBJ(dimIt != dimensions.end(), varp, "Cross 'with' candidate not of an item");
-            const uint32_t dim = dimIt->second;
-            if (!counting) dims += (dims.empty() ? "" : ", ") + cvtToStr(dim) + "U";
-            varp->name(prefix + "_" + sanitizeGeneratedName(varp->name()));
-            m_constructorp->addStmtsp(varp);
-            if (varp->isWide()) {
-                loopp->addStmtsp(itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_VALUE_W,
-                                          {cnum(fl, dim), new AstVarRef{fl, varp, VAccess::WRITE}})
+            ثابت خپلکاری dimIt = dimensions.پیدا_کړه(varp->name());
+            UASSERT_OBJ(dimIt != dimensions.پای_ټکی(), varp, "Cross 'with' candidate not of an item");
+            ثابت uint32_t dim = dimIt->دوهم;
+            إذا (!counting) dims += (dims.تشه() ? "" : ", ") + cvt_منزل_Str(dim) + "U";
+            varp->name(مختاړی + "_" + sanitizeGeneratedName(varp->name()));
+            m_constructorp->جمع_کړه_Stmtsp(varp);
+            إذا (varp->isWide()) {
+                loopp->جمع_کړه_Stmtsp(توکی_Call(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_ارزښت_W,
+                                          {cnum(fl, dim), جديد AstVarRef{fl, varp, VAccess::WRITE}})
                                      ->makeStmt());
-            } else {
-                AstCMethodHard* const valuep
-                    = itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_VALUE, {cnum(fl, dim)});
-                valuep->dtypeSetUInt64();
-                AstNodeDType* const dtypep = varp->findLogicDType(
-                    varp->width(), varp->width(),
+            } وإلا {
+                AstCMethodHard* ثابت valuep
+                    = توکی_Call(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_ارزښت, {cnum(fl, dim)});
+                valuep->dtype_سېټ_UInt64();
+                Ast_غوټه_DType* ثابت dtypep = varp->پیدا_کړه_Logic_DType(
+                    varp->پلنوالی(), varp->پلنوالی(),
                     varp->isSigned() ? VSigning::SIGNED : VSigning::UNSIGNED);
-                loopp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                               resizeValue(valuep, dtypep)});
+                loopp->جمع_کړه_Stmtsp(جديد Ast_ټاکل{fl, جديد AstVarRef{fl, varp, VAccess::WRITE},
+                                               resize_ارزښت(valuep, dtypep)});
             }
         }
-        loopp->addStmtsp(itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_TEST,
-                                  {withp->filterp()->unlinkFrBack()})
+        loopp->جمع_کړه_Stmtsp(توکی_Call(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_TEST,
+                                  {withp->filterp()->unlink_Fr_شا()})
                              ->makeStmt());
-        const bool prot = v3Global.opt.protectIds();
-        m_constructorp->addStmtsp(
-            itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_BEGIN,
-                     {ctext(fl, "{" + dims + "}"), count.first, count.second,
-                      ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))),
+        ثابت منطقي prot = v3Global.opt.protectIds();
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_BEGIN,
+                     {ctext(fl, "{" + dims + "}"), شمېر.لومړی, شمېر.دوهم,
+                      ctext(fl, quoted(VIdProtect::protect_ټکي_If(binp->name(), prot))),
                       ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                       cnum(fl, static_cast<uint32_t>(fl->lineno()))})
                 ->makeStmt());
-        m_constructorp->addStmtsp(loopp);
-        m_constructorp->addStmtsp(
-            itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_END)->makeStmt());
+        m_constructorp->جمع_کړه_Stmtsp(loopp);
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_پای_ټکی)->makeStmt());
     }
 
-    bool generateRuntimeSelection(AstNode* nodep, const AstCoverCrossBin* binp,
+    منطقي generateRuntimeSelection(Ast_غوټه* nodep, ثابت AstCoverCrossBin* binp,
                                   AstCoverCross* crossp, AstVar* cxp,
-                                  const std::vector<AstVar*>& cpVars,
-                                  const std::map<string, uint32_t>& dimensions) {
-        FileLine* const fl = nodep->fileline();
-        if (const AstCoverCrossRef* const refp = VN_CAST(nodep, CoverCrossRef)) {
-            if (!checkCrossRef(refp, crossp)) return false;
-            m_constructorp->addStmtsp(
-                itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_ALL)->makeStmt());
-            return true;
+                                  ثابت std::ویکټور<AstVar*>& cpVars,
+                                  ثابت std::map<string, uint32_t>& dimensions) {
+        File_کرښه* ثابت fl = nodep->fileline();
+        إذا (ثابت AstCoverCrossRef* ثابت refp = VN_CAST(nodep, CoverCrossRef)) {
+            إذا (!checkCrossRef(refp, crossp)) أرجع خطأ;
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cxp, VCMethod::COVERGROUP_SELECT_ALL)->makeStmt());
+            أرجع ریښتیا;
         }
-        if (const AstCoverCrossSelect* const opp = VN_CAST(nodep, CoverCrossSelect)) {
-            if (!generateRuntimeSelection(opp->lhsp(), binp, crossp, cxp, cpVars, dimensions)
+        إذا (ثابت AstCoverCrossSelect* ثابت opp = VN_CAST(nodep, CoverCrossSelect)) {
+            إذا (!generateRuntimeSelection(opp->lhsp(), binp, crossp, cxp, cpVars, dimensions)
                 || !generateRuntimeSelection(opp->rhsp(), binp, crossp, cxp, cpVars, dimensions)) {
-                return false;
+                أرجع خطأ;
             }
-            m_constructorp->addStmtsp(itemCall(fl, cxp,
+            m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cxp,
                                                opp->isOr() ? VCMethod::COVERGROUP_SELECT_OR
                                                            : VCMethod::COVERGROUP_SELECT_AND)
                                           ->makeStmt());
-            return true;
+            أرجع ریښتیا;
         }
-        if (const AstCoverCrossWith* const withp = VN_CAST(nodep, CoverCrossWith)) {
+        إذا (ثابت AstCoverCrossWith* ثابت withp = VN_CAST(nodep, CoverCrossWith)) {
             CrossFilterReads reads;
             withp->filterp()->foreach([&](AstVarRef* refp) { reads.emplace(refp->varp(), refp); });
             // The count of 'matches' is a positive integer, or '$' (IEEE 1800-2023 19.6.1.2)
-            if ((countsValueTuples(withp)
-                 && !checkCount(withp->countp(), "Cross bin 'matches' count", "19.6.1.2"))
+            إذا ((counts_ارزښت_Tuples(withp)
+                 && !check_شمېر(withp->countp(), "Cross bin 'matches' count", "19.6.1.2"))
                 || !crossFilterSupported(withp, reads)
                 || !generateRuntimeSelection(withp->selectp(), binp, crossp, cxp, cpVars,
                                              dimensions)) {
-                return false;
+                أرجع خطأ;
             }
             generateCrossFilter(withp, reads, binp, crossp, cxp, dimensions,
-                                static_cast<uint32_t>(cpVars.size()));
-            return true;
+                                static_cast<uint32_t>(cpVars.اندازه()));
+            أرجع ریښتیا;
         }
-        AstCoverBinsof* const selectp = VN_AS(nodep, CoverBinsof);
-        const CrossBinsofTarget target = resolveBinsofTarget(selectp, crossp, cpVars, dimensions);
-        if (!target.m_binsp) return false;
-        const CoverpointBins& bins = *target.m_binsp;
-        if (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            bool valid = true;
+        AstCoverBinsof* ثابت selectp = VN_AS(nodep, CoverBinsof);
+        ثابت Cross_Binsof_موخه موخه = resolve_Binsof_موخه(selectp, crossp, cpVars, dimensions);
+        إذا (!موخه.m_binsp) أرجع خطأ;
+        ثابت CoverpointBins& bins = *موخه.m_binsp;
+        إذا (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+            منطقي valid = ریښتیا;
             unsupportedCrossRange(selectp, valid);
-            return false;
+            أرجع خطأ;
         }
-        AstNodeExpr* firstp;
-        AstNodeExpr* endp;
-        if (target.m_sized < 0) {
-            firstp = cnum(fl, target.m_declaredFirst);
-            endp = cnum(fl, target.m_declaredEnd);
-        } else {  // A sized array, whose bins the coverpoint's construction placed
-            AstVar* const cpVarp = cpVars[target.m_dimension];
-            const uint32_t sized = static_cast<uint32_t>(target.m_sized);
-            firstp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_SIZED_FIRST, {cnum(fl, sized)});
-            endp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_SIZED_END, {cnum(fl, sized)});
-            firstp->dtypeSetUInt32();
-            endp->dtypeSetUInt32();
+        Ast_غوټه_بیان* firstp;
+        Ast_غوټه_بیان* endp;
+        إذا (موخه.m_sized < 0) {
+            firstp = cnum(fl, موخه.m_declared_لومړی);
+            endp = cnum(fl, موخه.m_declared_پای_ټکی);
+        } وإلا {  // A sized array, whose bins the coverpoint's construction placed
+            AstVar* ثابت cpVarp = cpVars[موخه.m_dimension];
+            ثابت uint32_t sized = static_cast<uint32_t>(موخه.m_sized);
+            firstp = توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_SIZED_لومړی, {cnum(fl, sized)});
+            endp = توکی_Call(fl, cpVarp, VCMethod::COVERGROUP_SIZED_پای_ټکی, {cnum(fl, sized)});
+            firstp->dtype_سېټ_UInt32();
+            endp->dtype_سېټ_UInt32();
         }
-        m_constructorp->addStmtsp(
-            itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_DIM,
-                     {cnum(fl, target.m_dimension), firstp, endp, cnum(fl, selectp->isNegated()),
-                      cnum(fl, selectp->rangesp() != nullptr)})
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cxp, VCMethod::COVERGROUP_SELECT_DIM,
+                     {cnum(fl, موخه.m_dimension), firstp, endp, cnum(fl, selectp->isNegated()),
+                      cnum(fl, selectp->rangesp() != تش_اشاره)})
                 ->makeStmt());
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
-            CrossValueRange range{rangep, resolveWidth(rangep, bins.exprp)};
-            if (!resolveValue(rangep, bins.exprp, false, false, range)) {
-                bool valid = true;
+        لكل (Ast_غوټه* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+            Cross_ارزښت_Range range{rangep, resolve_پلنوالی(rangep, bins.exprp)};
+            إذا (!resolve_ارزښت(rangep, bins.exprp, خطأ, خطأ, range)) {
+                منطقي valid = ریښتیا;
                 unsupportedCrossRange(selectp, valid);
-                return false;
+                أرجع خطأ;
             }
-            if (crossRangeEmpty(range)) continue;
-            m_constructorp->addStmtsp(itemCall(fl, cxp,
+            إذا (cross_Range_تشه(range)) استمر;
+            m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cxp,
                                                bins.exprp->isWide()
                                                    ? VCMethod::COVERGROUP_SELECT_RANGE_W
                                                    : VCMethod::COVERGROUP_SELECT_RANGE,
-                                               {newValueConst(fl, range.lo, bins.exprp),
-                                                newValueConst(fl, range.hi, bins.exprp)})
+                                               {new_ارزښت_Const(fl, range.lo, bins.exprp),
+                                                new_ارزښت_Const(fl, range.hi, bins.exprp)})
                                           ->makeStmt());
         }
-        m_constructorp->addStmtsp(
-            itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_DIM_END)->makeStmt());
-        return true;
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(fl, cxp, VCMethod::COVERGROUP_SELECT_DIM_پای_ټکی)->makeStmt());
+        أرجع ریښتیا;
     }
 
-    std::vector<AstCoverCrossBin*>
+    std::ویکټور<AstCoverCrossBin*>
     generateRuntimeCrossBins(AstCoverCross* crossp, AstVar* cxp,
-                             const std::vector<AstVar*>& cpVars,
-                             const std::map<string, uint32_t>& dimensions) {
-        std::vector<AstCoverCrossBin*> bins;
-        std::set<string> names;
-        for (AstNode* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
-            AstCoverCrossBin* const binp = VN_AS(itemp, CoverCrossBin);
-            if (!checkCrossBinName(binp, names)) continue;
-            FileLine* const fl = binp->fileline();
+                             ثابت std::ویکټور<AstVar*>& cpVars,
+                             ثابت std::map<string, uint32_t>& dimensions) {
+        std::ویکټور<AstCoverCrossBin*> bins;
+        std::سېټ<string> نومونه;
+        لكل (Ast_غوټه* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
+            AstCoverCrossBin* ثابت binp = VN_AS(itemp, CoverCrossBin);
+            إذا (!checkCrossBinName(binp, نومونه)) استمر;
+            File_کرښه* ثابت fl = binp->fileline();
             // Generate the selection apart, so that an unsupported one leaves no code, which
             // could leave its state for the next bin
-            AstFunc* const selectionp = new AstFunc{fl, "", nullptr, nullptr};
-            bool supported;
+            AstFunc* ثابت selectionp = جديد AstFunc{fl, "", تش_اشاره, تش_اشاره};
+            منطقي supported;
             {
                 VL_RESTORER(m_constructorp);
                 m_constructorp = selectionp;
@@ -3666,288 +3666,288 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                                      dimensions);
             }
             // A supported selection has code
-            if (supported) m_constructorp->addStmtsp(selectionp->stmtsp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(pushDeletep(selectionp), selectionp);
-            if (!supported) continue;
-            const bool protect = v3Global.opt.protectIds();
-            m_constructorp->addStmtsp(
-                itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_BIN,
-                         {ctext(fl, binp->binsType().binSetEnum()),
-                          ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), protect))),
+            إذا (supported) m_constructorp->جمع_کړه_Stmtsp(selectionp->stmtsp()->unlink_Fr_شا_With_بل());
+            VL_DO_DANGLING(ټېل_Deletep(selectionp), selectionp);
+            إذا (!supported) استمر;
+            ثابت منطقي protect = v3Global.opt.protectIds();
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cxp, VCMethod::COVERGROUP_SELECT_BIN,
+                         {ctext(fl, binp->binsType().bin_سېټ_Enum()),
+                          ctext(fl, quoted(VIdProtect::protect_ټکي_If(binp->name(), protect))),
                           ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), protect))),
-                          cnum(fl, fl->lineno()), cnum(fl, fl->firstColumn()),
-                          cnum(fl, static_cast<uint32_t>(bins.size()))})
+                          cnum(fl, fl->lineno()), cnum(fl, fl->لومړی_ستنه()),
+                          cnum(fl, static_cast<uint32_t>(bins.اندازه()))})
                     ->makeStmt());
-            bins.push_back(binp);
+            bins.ټېل_شا(binp);
         }
-        m_constructorp->addStmtsp(
-            itemCall(crossp->fileline(), cxp, VCMethod::COVERGROUP_FINALIZE_BINS)->makeStmt());
-        return bins;
+        m_constructorp->جمع_کړه_Stmtsp(
+            توکی_Call(crossp->fileline(), cxp, VCMethod::COVERGROUP_FINALIZE_BINS)->makeStmt());
+        أرجع bins;
     }
 
-    static void setCrossSelectionRange(CrossSelection& selection, uint64_t first, uint64_t end) {
-        while (first < end) {
-            const unsigned bit = first % 64;
-            const unsigned bits = std::min<uint64_t>(64 - bit, end - first);
-            selection[VL_BITWORD_Q(first)]
-                |= (bits == 64 ? ~uint64_t{0} : (uint64_t{1} << bits) - 1) << bit;
-            first += bits;
+    ساكن فراغ سېټ_Cross_Selection_Range(CrossSelection& selection, uint64_t لومړی, uint64_t پای_ټکی) {
+        طالما (لومړی < پای_ټکی) {
+            ثابت بینښه بټ_2 = لومړی % 64;
+            ثابت بینښه بټونه = std::min<uint64_t>(64 - بټ_2, پای_ټکی - لومړی);
+            selection[VL_BITWORD_Q(لومړی)]
+                |= (بټونه == 64 ? ~uint64_t{0} : (uint64_t{1} << بټونه) - 1) << بټ_2;
+            لومړی += بټونه;
         }
     }
 
-    CrossSelection crossSelection(AstNode* nodep, CrossSelectionContext& ctx) {
-        if (const AstCoverCrossRef* const refp = VN_CAST(nodep, CoverCrossRef)) {
-            if (!checkCrossRef(refp, ctx.crossp)) {
-                ctx.valid = false;
-                return {};
+    CrossSelection crossSelection(Ast_غوټه* nodep, CrossSelectionContext& ctx) {
+        إذا (ثابت AstCoverCrossRef* ثابت refp = VN_CAST(nodep, CoverCrossRef)) {
+            إذا (!checkCrossRef(refp, ctx.crossp)) {
+                ctx.valid = خطأ;
+                أرجع {};
             }
-            CrossSelection result(
+            CrossSelection پایله(
                 VL_BITWORD_Q(static_cast<uint64_t>(ctx.tuples) + VL_QUADSIZE - 1), 0);
-            setCrossSelectionRange(result, 0, ctx.tuples);
-            return result;
+            سېټ_Cross_Selection_Range(پایله, 0, ctx.tuples);
+            أرجع پایله;
         }
-        if (AstCoverCrossSelect* const opp = VN_CAST(nodep, CoverCrossSelect)) {
+        إذا (AstCoverCrossSelect* ثابت opp = VN_CAST(nodep, CoverCrossSelect)) {
             CrossSelection lhs = crossSelection(opp->lhsp(), ctx);
-            const CrossSelection rhs = crossSelection(opp->rhsp(), ctx);
-            if (!ctx.valid) return {};
-            for (size_t i = 0; i < lhs.size(); ++i) {
+            ثابت CrossSelection rhs = crossSelection(opp->rhsp(), ctx);
+            إذا (!ctx.valid) أرجع {};
+            لكل (اندازه_t i = 0; i < lhs.اندازه(); ++i) {
                 lhs[i] = opp->isOr() ? lhs[i] | rhs[i] : lhs[i] & rhs[i];
             }
-            return lhs;
+            أرجع lhs;
         }
-        AstCoverBinsof* const selectp = VN_AS(nodep, CoverBinsof);
-        const CrossBinsofTarget target
-            = resolveBinsofTarget(selectp, ctx.crossp, ctx.cpVars, ctx.dimensions);
-        if (!target.m_binsp) {
-            ctx.valid = false;
-            return {};
+        AstCoverBinsof* ثابت selectp = VN_AS(nodep, CoverBinsof);
+        ثابت Cross_Binsof_موخه موخه
+            = resolve_Binsof_موخه(selectp, ctx.crossp, ctx.cpVars, ctx.dimensions);
+        إذا (!موخه.m_binsp) {
+            ctx.valid = خطأ;
+            أرجع {};
         }
-        const CoverpointBins& bins = *target.m_binsp;
+        ثابت CoverpointBins& bins = *موخه.m_binsp;
         // Coverpoints with sized arrays are runtime points, so feed only runtime crosses
-        UASSERT_OBJ(target.m_sized < 0, selectp, "Sized bin array selected by a static cross");
-        const std::vector<bool> selected
-            = selectCoverpointBins(selectp, bins, target.m_first, target.m_count, ctx.valid);
-        if (!ctx.valid) return {};
-        CrossSelection result(VL_BITWORD_Q(static_cast<uint64_t>(ctx.tuples) + VL_QUADSIZE - 1),
+        UASSERT_OBJ(موخه.m_sized < 0, selectp, "Sized bin array selected by a static cross");
+        ثابت std::ویکټور<منطقي> selected
+            = selectCoverpointBins(selectp, bins, موخه.m_لومړی, موخه.m_شمېر, ctx.valid);
+        إذا (!ctx.valid) أرجع {};
+        CrossSelection پایله(VL_BITWORD_Q(static_cast<uint64_t>(ctx.tuples) + VL_QUADSIZE - 1),
                               0);
-        const uint64_t stride = ctx.strides[target.m_dimension];
-        const uint64_t period = stride * bins.total;
-        for (uint64_t base = 0; base < ctx.tuples; base += period) {
-            for (uint32_t i = 0; i < bins.total;) {
-                if (!selected[i]) {
+        ثابت uint64_t stride = ctx.strides[موخه.m_dimension];
+        ثابت uint64_t period = stride * bins.ټول;
+        لكل (uint64_t بنسټ = 0; بنسټ < ctx.tuples; بنسټ += period) {
+            لكل (uint32_t i = 0; i < bins.ټول;) {
+                إذا (!selected[i]) {
                     ++i;
-                    continue;
+                    استمر;
                 }
-                const uint32_t begin = i++;
-                while (i < bins.total && selected[i]) ++i;
-                setCrossSelectionRange(result, base + begin * stride, base + i * stride);
+                ثابت uint32_t begin = i++;
+                طالما (i < bins.ټول && selected[i]) ++i;
+                سېټ_Cross_Selection_Range(پایله, بنسټ + begin * stride, بنسټ + i * stride);
             }
         }
-        return result;
+        أرجع پایله;
     }
 
     // Size the Cartesian product of the declared Normal bins, with each dimension's flat-index
     // stride.  Live runtime bins only shrink it.  Warns and returns false if it is too large.
-    bool crossShape(AstCoverCross* crossp, const std::vector<AstVar*>& cpVars,
-                    std::vector<uint32_t>& strides, uint32_t& tuples) const {
-        uint64_t product = std::any_of(cpVars.begin(), cpVars.end(),
-                                       [this](AstVar* varp) { return !m_cpBins.at(varp).total; })
+    منطقي crossShape(AstCoverCross* crossp, ثابت std::ویکټور<AstVar*>& cpVars,
+                    std::ویکټور<uint32_t>& strides, uint32_t& tuples) ثابت {
+        uint64_t حاصل_ضرب = std::any_د(cpVars.begin(), cpVars.پای_ټکی(),
+                                       [هذا](AstVar* varp) { أرجع !m_cpBins.at(varp).ټول; })
                                ? 0
                                : 1;
-        strides.resize(cpVars.size());
-        for (size_t d = cpVars.size(); d > 0; --d) {
-            strides[d - 1] = static_cast<uint32_t>(product);
-            product *= m_cpBins.at(cpVars[d - 1]).total;
-            if (product > UINT32_MAX) {
+        strides.resize(cpVars.اندازه());
+        لكل (اندازه_t d = cpVars.اندازه(); d > 0; --d) {
+            strides[d - 1] = static_cast<uint32_t>(حاصل_ضرب);
+            حاصل_ضرب *= m_cpBins.at(cpVars[d - 1]).ټول;
+            إذا (حاصل_ضرب > UINT32_MAX) {
                 crossp->v3warn(COVERIGN,
                                "Unsupported: cross coverage with more than 2^32-1 tuples.");
-                return false;
+                أرجع خطأ;
             }
         }
-        tuples = static_cast<uint32_t>(product);
-        return true;
+        tuples = static_cast<uint32_t>(حاصل_ضرب);
+        أرجع ریښتیا;
     }
 
-    CrossLayout resolveCrossLayout(AstCoverCross* crossp, const std::vector<AstVar*>& cpVars,
-                                   const std::map<std::string, uint32_t>& dimensions) {
+    CrossLayout resolveCrossLayout(AstCoverCross* crossp, ثابت std::ویکټور<AstVar*>& cpVars,
+                                   ثابت std::map<std::string, uint32_t>& dimensions) {
         CrossLayout layout;
         CrossSelectionContext ctx{crossp, cpVars, dimensions, 0, {}};
-        if (!crossShape(crossp, cpVars, ctx.strides, ctx.tuples)) {
-            layout.valid = false;
-            return layout;
+        إذا (!crossShape(crossp, cpVars, ctx.strides, ctx.tuples)) {
+            layout.valid = خطأ;
+            أرجع layout;
         }
         layout.tuples = ctx.tuples;
         CrossSelection occupied;
         CrossSelection excluded;
-        std::set<std::string> names;
-        for (AstNode* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
-            AstCoverCrossBin* const binp = VN_AS(itemp, CoverCrossBin);
-            if (!checkCrossBinName(binp, names)) continue;
-            ctx.valid = true;
+        std::سېټ<std::string> نومونه;
+        لكل (Ast_غوټه* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
+            AstCoverCrossBin* ثابت binp = VN_AS(itemp, CoverCrossBin);
+            إذا (!checkCrossBinName(binp, نومونه)) استمر;
+            ctx.valid = ریښتیا;
             CrossSelection selection = crossSelection(binp->selectp(), ctx);
-            if (!ctx.valid || std::all_of(selection.begin(), selection.end(), [](uint64_t word) {
-                    return word == 0;
+            إذا (!ctx.valid || std::all_د(selection.begin(), selection.پای_ټکی(), [](uint64_t کلمه) {
+                    أرجع کلمه == 0;
                 })) {
-                continue;
+                استمر;
             }
-            if (occupied.empty()) {
-                occupied.resize(selection.size(), 0);
-                excluded.resize(selection.size(), 0);
+            إذا (occupied.تشه()) {
+                occupied.resize(selection.اندازه(), 0);
+                excluded.resize(selection.اندازه(), 0);
             }
-            for (size_t i = 0; i < selection.size(); ++i) {
+            لكل (اندازه_t i = 0; i < selection.اندازه(); ++i) {
                 occupied[i] |= selection[i];
-                if (!binp->binsType().binIsNormal()) excluded[i] |= selection[i];
+                إذا (!binp->binsType().bin_Is_نورمال()) excluded[i] |= selection[i];
             }
-            layout.bins.push_back({binp, std::move(selection)});
+            layout.bins.ټېل_شا({binp, std::move(selection)});
         }
-        if (!layout.bins.empty()) {
+        إذا (!layout.bins.تشه()) {
             // IEEE 1800-2023 19.6.2/19.6.3: exclusions also remove tuples from named
             // bins, independently of declaration order and sampling guards.
-            for (ResolvedCrossBin& resolved : layout.bins) {
-                for (size_t i = 0; i < resolved.selection.size(); ++i) {
-                    if (resolved.binp->binsType().binIsNormal()) {
+            لكل (ResolvedCrossBin& resolved : layout.bins) {
+                لكل (اندازه_t i = 0; i < resolved.selection.اندازه(); ++i) {
+                    إذا (resolved.binp->binsType().bin_Is_نورمال()) {
                         resolved.selection[i] &= ~excluded[i];
                     }
-                    if (resolved.selection[i]) ++layout.binWords;
+                    إذا (resolved.selection[i]) ++layout.bin_ټکي;
                 }
             }
-            layout.bins.erase(std::remove_if(layout.bins.begin(), layout.bins.end(),
-                                             [](const ResolvedCrossBin& resolved) {
-                                                 return std::all_of(
+            layout.bins.erase(std::remove_if(layout.bins.begin(), layout.bins.پای_ټکی(),
+                                             [](ثابت ResolvedCrossBin& resolved) {
+                                                 أرجع std::all_د(
                                                      resolved.selection.begin(),
-                                                     resolved.selection.end(),
-                                                     [](uint64_t word) { return word == 0; });
+                                                     resolved.selection.پای_ټکی(),
+                                                     [](uint64_t کلمه) { أرجع کلمه == 0; });
                                              }),
-                              layout.bins.end());
+                              layout.bins.پای_ټکی());
             layout.autoBins = layout.tuples;
-            for (const uint64_t word : occupied) {
-                layout.autoBins -= static_cast<uint32_t>(std::bitset<VL_QUADSIZE>{word}.count());
+            لكل (ثابت uint64_t کلمه : occupied) {
+                layout.autoBins -= static_cast<uint32_t>(std::bitset<VL_QUADSIZE>{کلمه}.شمېر());
             }
         }
-        return layout;
+        أرجع layout;
     }
 
-    AstCoverCrossDType* crossDType(FileLine* fl, uint32_t dimensions, const CrossLayout& layout,
-                                   bool dynamic = false) {
-        const uint32_t bins = static_cast<uint32_t>(layout.bins.size());
-        const CrossShape shape{dimensions,      layout.tuples,   bins,
-                               layout.autoBins, layout.binWords, dynamic};
+    AstCoverCrossDType* crossDType(File_کرښه* fl, uint32_t dimensions, ثابت CrossLayout& layout,
+                                   منطقي dynamic = خطأ) {
+        ثابت uint32_t bins = static_cast<uint32_t>(layout.bins.اندازه());
+        ثابت CrossShape shape{dimensions,      layout.tuples,   bins,
+                               layout.autoBins, layout.bin_ټکي, dynamic};
         AstCoverCrossDType*& typep = m_cxDTypes[shape];
-        if (!typep) {
-            typep = new AstCoverCrossDType{
-                fl, dimensions, layout.tuples, bins, layout.autoBins, layout.binWords, dynamic};
-            v3Global.rootp()->typeTablep()->addTypesp(typep);
+        إذا (!typep) {
+            typep = جديد AstCoverCrossDType{
+                fl, dimensions, layout.tuples, bins, layout.autoBins, layout.bin_ټکي, dynamic};
+            v3Global.rootp()->typeTablep()->جمع_کړه_Typesp(typep);
         }
-        return typep;
+        أرجع typep;
     }
 
-    std::vector<AstCoverCrossBin*> generateCrossBins(AstCoverCross* crossp, AstVar* cxVarp,
-                                                     const CrossLayout& layout) {
-        std::vector<AstCoverCrossBin*> bins;
-        for (const ResolvedCrossBin& resolved : layout.bins) {
-            AstCoverCrossBin* const binp = resolved.binp;
-            const CrossSelection& selection = resolved.selection;
-            FileLine* const fl = binp->fileline();
-            const bool prot = v3Global.opt.protectIds();
-            std::string mask = "{";
-            for (size_t i = 0; i < selection.size(); ++i) {
-                if (i) mask += ", ";
-                mask += std::to_string(selection[i]) + "ULL";
+    std::ویکټور<AstCoverCrossBin*> generateCrossBins(AstCoverCross* crossp, AstVar* cxVarp,
+                                                     ثابت CrossLayout& layout) {
+        std::ویکټور<AstCoverCrossBin*> bins;
+        لكل (ثابت ResolvedCrossBin& resolved : layout.bins) {
+            AstCoverCrossBin* ثابت binp = resolved.binp;
+            ثابت CrossSelection& selection = resolved.selection;
+            File_کرښه* ثابت fl = binp->fileline();
+            ثابت منطقي prot = v3Global.opt.protectIds();
+            std::string ماسک = "{";
+            لكل (اندازه_t i = 0; i < selection.اندازه(); ++i) {
+                إذا (i) ماسک += ", ";
+                ماسک += std::منزل_string(selection[i]) + "ULL";
             }
-            mask += "}";
-            m_constructorp->addStmtsp(
-                itemCall(fl, cxVarp, VCMethod::COVERGROUP_ADD_BIN,
-                         {ctext(fl, binp->binsType().binSetEnum()), ctext(fl, mask),
-                          ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))),
+            ماسک += "}";
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(fl, cxVarp, VCMethod::COVERGROUP_جمع_کړه_BIN,
+                         {ctext(fl, binp->binsType().bin_سېټ_Enum()), ctext(fl, ماسک),
+                          ctext(fl, quoted(VIdProtect::protect_ټکي_If(binp->name(), prot))),
                           ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                           cnum(fl, static_cast<uint32_t>(fl->lineno())),
-                          cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})
+                          cnum(fl, static_cast<uint32_t>(fl->لومړی_ستنه()))})
                     ->makeStmt());
-            bins.push_back(binp);
+            bins.ټېل_شا(binp);
         }
-        if (!bins.empty()) {
-            m_constructorp->addStmtsp(
-                itemCall(crossp->fileline(), cxVarp, VCMethod::COVERGROUP_FINALIZE_BINS)
+        إذا (!bins.تشه()) {
+            m_constructorp->جمع_کړه_Stmtsp(
+                توکی_Call(crossp->fileline(), cxVarp, VCMethod::COVERGROUP_FINALIZE_BINS)
                     ->makeStmt());
         }
-        return bins;
+        أرجع bins;
     }
 
     // Route a cross through a VlCoverCross member: emit the member, its constructor init +
     // registration, and the sample() call.  The feeding coverpoints are already generated
     // (their hit lists drive the cross). Each explicit bin adds one configuration call.
-    void generateCross(AstCoverCross* crossp) {
-        FileLine* const fl = crossp->fileline();
-        const bool dynamic = m_runtimeCrosses.count(crossp);
+    فراغ generateCross(AstCoverCross* crossp) {
+        File_کرښه* ثابت fl = crossp->fileline();
+        ثابت منطقي dynamic = m_runtimeCrosses.شمېر(crossp);
         UINFO(4, "  Generating VlCoverCross member: " << crossp->name());
 
-        if (AstNodeExpr* const iffp = crossp->iffp()) {
+        إذا (Ast_غوټه_بیان* ثابت iffp = crossp->iffp()) {
             crossp->iffp(
-                captureIffToTemp(iffp, "__VcrossIff_" + sanitizeGeneratedName(crossp->name())));
+                capture_Iff_منزل_لنډمهاله(iffp, "__VcrossIff_" + sanitizeGeneratedName(crossp->name())));
         }
 
         // Resolve and unlink the coverpoint refs, in dimension order.  Every ref resolves to a
         // known coverpoint (a cross with an unresolvable item was dropped earlier).
-        std::vector<AstVar*> cpVars;
+        std::ویکټور<AstVar*> cpVars;
         std::map<std::string, uint32_t> dimensions;
-        for (AstNode* itemp = crossp->itemsp(); itemp;) {
-            AstNode* const nextp = itemp->nextp();
-            AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-            const auto it = m_cpVarMap.find(refp->name());
-            UASSERT_OBJ(it != m_cpVarMap.end(), crossp, "Cross references an unknown coverpoint");
-            dimensions.emplace(refp->name(), static_cast<uint32_t>(cpVars.size()));
-            cpVars.push_back(it->second);
-            VL_DO_DANGLING(pushDeletep(refp->unlinkFrBack()), refp);
+        لكل (Ast_غوټه* itemp = crossp->itemsp(); itemp;) {
+            Ast_غوټه* ثابت nextp = itemp->nextp();
+            AstCoverpointRef* ثابت refp = VN_AS(itemp, CoverpointRef);
+            ثابت خپلکاری it = m_cpVarMap.پیدا_کړه(refp->name());
+            UASSERT_OBJ(it != m_cpVarMap.پای_ټکی(), crossp, "Cross references an unknown coverpoint");
+            dimensions.emplace(refp->name(), static_cast<uint32_t>(cpVars.اندازه()));
+            cpVars.ټېل_شا(it->دوهم);
+            VL_DO_DANGLING(ټېل_Deletep(refp->unlink_Fr_شا()), refp);
             itemp = nextp;
         }
-        const int dims = static_cast<int>(cpVars.size());
+        ثابت صحيح dims = static_cast<صحيح>(cpVars.اندازه());
         CrossLayout layout;
-        if (dynamic) {
+        إذا (dynamic) {
             // The runtime sizes the layout from live bins; only check the declared bound here.
-            std::vector<uint32_t> strides;
+            std::ویکټور<uint32_t> strides;
             uint32_t tuples = 0;
             layout.valid = crossShape(crossp, cpVars, strides, tuples);
-        } else {
+        } وإلا {
             layout = resolveCrossLayout(crossp, cpVars, dimensions);
         }
-        if (!layout.valid) return;
+        إذا (!layout.valid) أرجع;
 
-        AstVar* const cxVarp
-            = new AstVar{fl, VVarType::MEMBER, "__Vcx_" + crossp->name(),
+        AstVar* ثابت cxVarp
+            = جديد AstVar{fl, VVarType::MEMBER, "__Vcx_" + crossp->name(),
                          crossDType(fl, static_cast<uint32_t>(dims), layout, dynamic)};
-        m_covergroupp->addMembersp(cxVarp);
-        m_constructorp->addStmtsp(makeItemCreate(fl, cxVarp,
-                                                 dynamic ? VCMethod::COVERGROUP_ADD_CROSS_DYN
-                                                         : VCMethod::COVERGROUP_ADD_CROSS));
-        generateItemWeight(fl, cxVarp, crossp->optionsp());
-        int atLeastValue;
-        int autoBinMax;  // Not a cross option
-        extractItemOptions(crossp->optionsp(), atLeastValue, autoBinMax);
+        m_covergroupp->جمع_کړه_Membersp(cxVarp);
+        m_constructorp->جمع_کړه_Stmtsp(make_توکی_Create(fl, cxVarp,
+                                                 dynamic ? VCMethod::COVERGROUP_جمع_کړه_CROSS_DYN
+                                                         : VCMethod::COVERGROUP_جمع_کړه_CROSS));
+        generate_توکی_وزن(fl, cxVarp, crossp->optionsp());
+        صحيح at_لږترلږه_ارزښت;
+        صحيح autoBinMax;  // Not a cross option
+        ایستل_توکی_Options(crossp->optionsp(), at_لږترلږه_ارزښت, autoBinMax);
 
         // Constructor: init (after the coverpoints, which generate earlier) then registration.
         // Obfuscate the hierarchy/filename/page under --protect-ids as for coverpoints above.
-        const bool prot = v3Global.opt.protectIds();
-        const std::string hier
-            = VIdProtect::protectWordsIf(m_covergroupName + "." + crossp->name(), prot);
-        m_constructorp->addStmtsp(makeCrossCpsCall(
+        ثابت منطقي prot = v3Global.opt.protectIds();
+        ثابت std::string hier
+            = VIdProtect::protect_ټکي_If(m_covergroupName + "." + crossp->name(), prot);
+        m_constructorp->جمع_کړه_Stmtsp(makeCrossCpsCall(
             fl, cpVars,
-            itemCall(fl, cxVarp, VCMethod::COVERGROUP_INIT,
-                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(atLeastValue)),
+            توکی_Call(fl, cxVarp, VCMethod::COVERGROUP_INIT,
+                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(at_لږترلږه_ارزښت)),
                       cnum(fl, static_cast<uint32_t>(dims)), ctext(fl, "__Vcx_cps"),
                       ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                       cnum(fl, static_cast<uint32_t>(fl->lineno())),
-                      cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})));
-        const std::vector<AstCoverCrossBin*> bins
+                      cnum(fl, static_cast<uint32_t>(fl->لومړی_ستنه()))})));
+        ثابت std::ویکټور<AstCoverCrossBin*> bins
             = dynamic ? generateRuntimeCrossBins(crossp, cxVarp, cpVars, dimensions)
                       : generateCrossBins(crossp, cxVarp, layout);
-        if (v3Global.opt.coverage()) {
-            const std::string page
+        إذا (v3Global.opt.coverage()) {
+            ثابت std::string پاڼه
                 = VIdProtect::protectIf("v_covergroup/" + m_covergroupName, prot);
-            m_constructorp->addStmtsp(itemCall(fl, cxVarp, VCMethod::COVERGROUP_REGISTER_BINS,
+            m_constructorp->جمع_کړه_Stmtsp(توکی_Call(fl, cxVarp, VCMethod::COVERGROUP_ثبتوونکی_BINS,
                                                {ctext(fl, "vlSymsp->_vm_contextp__->coveragep()"),
-                                                ctext(fl, quoted(page)),
-                                                cnum(fl, itemDatabaseWeight(crossp->optionsp())),
-                                                cnum(fl, m_cgTypeWeight)})
+                                                ctext(fl, quoted(پاڼه)),
+                                                cnum(fl, توکی_Database_وزن(crossp->optionsp())),
+                                                cnum(fl, m_cg_Type_وزن)})
                                           ->makeStmt());
         }
 
@@ -3955,24 +3955,24 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         UASSERT_OBJ(m_sampleFuncp, crossp, "sample() CFunc not set for cross");
         // The cross remembers its feeding coverpoints, so sample() needs no cps array;
         // per-bin iff guards still need a temporary array, hence the block form.
-        const bool hasIffs
-            = std::any_of(bins.begin(), bins.end(),
-                          [](const AstCoverCrossBin* binp) { return binp->iffp() != nullptr; });
-        AstNodeStmt* const samplep
-            = !hasIffs ? static_cast<AstNodeStmt*>(
-                             itemCall(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE)->makeStmt())
-                       : static_cast<AstNodeStmt*>(makeCrossIffsCall(
+        ثابت منطقي hasIffs
+            = std::any_د(bins.begin(), bins.پای_ټکی(),
+                          [](ثابت AstCoverCrossBin* binp) { أرجع binp->iffp() != تش_اشاره; });
+        Ast_غوټه_Stmt* ثابت samplep
+            = !hasIffs ? static_cast<Ast_غوټه_Stmt*>(
+                             توکی_Call(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE)->makeStmt())
+                       : static_cast<Ast_غوټه_Stmt*>(makeCrossIffsCall(
                              fl, bins,
-                             itemCall(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE_IFFS,
+                             توکی_Call(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE_IFFS,
                                       {ctext(fl, "__Vcx_iffs")})));
-        if (AstNodeExpr* const iffp = crossp->iffp()) {
-            m_sampleFuncp->addStmtsp(new AstIf{fl, iffp->cloneTree(false), samplep});
-        } else {
-            m_sampleFuncp->addStmtsp(samplep);
+        إذا (Ast_غوټه_بیان* ثابت iffp = crossp->iffp()) {
+            m_sampleFuncp->جمع_کړه_Stmtsp(جديد AstIf{fl, iffp->clone_ونه(خطأ), samplep});
+        } وإلا {
+            m_sampleFuncp->جمع_کړه_Stmtsp(samplep);
         }
     }
 
-    void generateCrossCode(AstCoverCross* crossp) {
+    فراغ generate_Cross_کوډ(AstCoverCross* crossp) {
         UINFO(4, "  Generating code for cross: " << crossp->name());
 
         // Non-standard hierarchical/dotted cross item (e.g. 'cross a.b'): an implicit coverpoint
@@ -3981,12 +3981,12 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // this cross.  When support is added the implicit coverpoint should be synthesized
         // upstream (V3LinkParse) as a real AstCoverpoint so it flows through the normal coverpoint
         // path - by here coverpoint lowering has already run.
-        for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-            const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-            if (refp->exprp()) {
+        لكل (Ast_غوټه* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+            ثابت AstCoverpointRef* ثابت refp = VN_AS(itemp, CoverpointRef);
+            إذا (refp->exprp()) {
                 refp->v3warn(COVERIGN,
                              "Unsupported: cross of hierarchical reference (implicit coverpoint)");
-                return;
+                أرجع;
             }
         }
 
@@ -3994,153 +3994,153 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // synthesize) is dropped entirely with a COVERIGN warning -- it produces no coverage
         // either way -- but only this cross is dropped; its sibling crosses are still generated
         // and the real coverpoints it referenced remain as independent coverpoints.
-        if (m_droppedCrosses.count(crossp)) {
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
+        إذا (m_droppedCrosses.شمېر(crossp)) {
+            لكل (Ast_غوټه* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ثابت AstCoverpointRef* ثابت refp = VN_AS(itemp, CoverpointRef);
+                إذا (m_coverpointMap.پیدا_کړه(refp->name()) == m_coverpointMap.پای_ټکی()) {
                     refp->v3warn(COVERIGN, "Unsupported: cross of "
                                                << refp->prettyNameQ()
                                                << " which is not a coverpoint (implicit "
                                                   "coverpoint)");
-                    break;
+                    اكسر;
                 }
             }
-            return;
+            أرجع;
         }
 
         // Every cross that isn't dropped routes through a VlCoverCross member.
         generateCross(crossp);
     }
 
-    AstNodeExpr* buildBinCondition(AstCoverBin* binp, AstNodeExpr* exprp) {
+    Ast_غوټه_بیان* buildBinCondition(AstCoverBin* binp, Ast_غوټه_بیان* exprp) {
         // Get the range list from the bin
-        AstNode* const rangep = binp->rangesp();
-        if (!rangep) return nullptr;
+        Ast_غوټه* ثابت rangep = binp->rangesp();
+        إذا (!rangep) أرجع تش_اشاره;
 
         // Integral values resolve to the coverpoint's type, as its runtime metadata does
-        const bool integral = exprp->dtypep()->skipRefp()->isIntegralOrPacked();
+        ثابت منطقي integral = exprp->dtypep()->skipRefp()->isIntegralOrPacked();
         // No value form of a wildcard bin is allowed on a real coverpoint (IEEE 1800-2023 19.5.4)
-        if (binp->isWildcard() && !integral) return wildcardTypeError(binp, exprp);
+        إذا (binp->isWildcard() && !integral) أرجع wildcardTypeError(binp, exprp);
 
         // Build condition by OR-ing all ranges together
-        AstNodeExpr* fullCondp = nullptr;
+        Ast_غوټه_بیان* ډک_Condp = تش_اشاره;
 
-        for (AstNode* currRangep = rangep; currRangep; currRangep = currRangep->nextp()) {
-            AstNodeExpr* rangeCondp = nullptr;
+        لكل (Ast_غوټه* currRangep = rangep; currRangep; currRangep = currRangep->nextp()) {
+            Ast_غوټه_بیان* rangeCondp = تش_اشاره;
             currRangep = V3Const::constifyEdit(currRangep);
 
-            if (AstInsideRange* irp = VN_CAST(currRangep, InsideRange)) {
-                AstNodeExpr* const minExprp = irp->lhsp();
-                AstNodeExpr* const maxExprp = irp->rhsp();
-                AstConst* const minConstp = VN_CAST(minExprp, Const);
-                AstConst* const maxConstp = VN_CAST(maxExprp, Const);
-                const bool loUnbounded = VN_IS(minExprp, Unbounded);
-                const bool hiUnbounded = VN_IS(maxExprp, Unbounded);
-                if (loUnbounded || hiUnbounded) {
+            إذا (AstInsideRange* irp = VN_CAST(currRangep, InsideRange)) {
+                Ast_غوټه_بیان* ثابت minExprp = irp->lhsp();
+                Ast_غوټه_بیان* ثابت maxExprp = irp->rhsp();
+                AstConst* ثابت minConstp = VN_CAST(minExprp, Const);
+                AstConst* ثابت maxConstp = VN_CAST(maxExprp, Const);
+                ثابت منطقي loUnbounded = VN_IS(minExprp, Unbounded);
+                ثابت منطقي hiUnbounded = VN_IS(maxExprp, Unbounded);
+                إذا (loUnbounded || hiUnbounded) {
                     // Open-ended range: '$' is the coverpoint domain min/max, so the
                     // range reduces to a single inequality (e.g. {[10:$]} -> expr >= 10).
-                    AstConst* const boundp = hiUnbounded ? minConstp : maxConstp;
-                    if (loUnbounded && hiUnbounded) {
-                        rangeCondp = new AstConst{irp->fileline(), AstConst::BitTrue{}};
-                    } else if (!boundp) {
+                    AstConst* ثابت boundp = hiUnbounded ? minConstp : maxConstp;
+                    إذا (loUnbounded && hiUnbounded) {
+                        rangeCondp = جديد AstConst{irp->fileline(), AstConst::بټ_True{}};
+                    } وإلا إذا (!boundp) {
                         irp->v3error("Non-constant expression in bin range; "
                                      "range bounds must be constants (IEEE 1800-2023 19.5)");
-                        if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                        return nullptr;
-                    } else if (boundp->num().isFourState()) {
+                        إذا (ډک_Condp) VL_DO_DANGLING(ټېل_Deletep(ډک_Condp), ډک_Condp);
+                        أرجع تش_اشاره;
+                    } وإلا إذا (boundp->عدد().isFourState()) {
                         irp->v3error("Four-state (x/z) value in bin range bound; "
                                      "range bounds must be two-state constants");
-                        if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                        return nullptr;
-                    } else if (integral) {
-                        rangeCondp = buildValueCondition(binp, exprp, irp);
-                    } else {
+                        إذا (ډک_Condp) VL_DO_DANGLING(ټېل_Deletep(ډک_Condp), ډک_Condp);
+                        أرجع تش_اشاره;
+                    } وإلا إذا (integral) {
+                        rangeCondp = build_ارزښت_Condition(binp, exprp, irp);
+                    } وإلا {
                         rangeCondp = makeOpenRangeCondition(irp->fileline(), exprp, boundp,
                                                             /*isLowerBound=*/hiUnbounded);
                     }
-                } else if (!minConstp || !maxConstp) {
+                } وإلا إذا (!minConstp || !maxConstp) {
                     irp->v3error("Non-constant expression in bin range; "
                                  "range bounds must be constants (IEEE 1800-2023 19.5)");
-                    if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                    return nullptr;
-                } else if (minConstp->num().isFourState() || maxConstp->num().isFourState()) {
+                    إذا (ډک_Condp) VL_DO_DANGLING(ټېل_Deletep(ډک_Condp), ډک_Condp);
+                    أرجع تش_اشاره;
+                } وإلا إذا (minConstp->عدد().isFourState() || maxConstp->عدد().isFourState()) {
                     irp->v3error("Four-state (x/z) value in bin range bound; "
                                  "range bounds must be two-state constants");
-                    if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                    return nullptr;
-                } else if (integral) {
-                    rangeCondp = buildValueCondition(binp, exprp, irp);
-                } else {
+                    إذا (ډک_Condp) VL_DO_DANGLING(ټېل_Deletep(ډک_Condp), ډک_Condp);
+                    أرجع تش_اشاره;
+                } وإلا إذا (integral) {
+                    rangeCondp = build_ارزښت_Condition(binp, exprp, irp);
+                } وإلا {
                     rangeCondp = makeRangeCondition(irp->fileline(), exprp, minExprp, maxExprp);
                 }
-            } else if (AstConst* constp = VN_CAST(currRangep, Const)) {
-                rangeCondp = buildValueCondition(binp, exprp, constp);
-            } else {
+            } وإلا إذا (AstConst* constp = VN_CAST(currRangep, Const)) {
+                rangeCondp = build_ارزښت_Condition(binp, exprp, constp);
+            } وإلا {
                 currRangep->v3error("Non-constant expression in bin range; values must be "
                                     "constants (IEEE 1800-2023 19.5)");
-                if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                return nullptr;
+                إذا (ډک_Condp) VL_DO_DANGLING(ټېل_Deletep(ډک_Condp), ډک_Condp);
+                أرجع تش_اشاره;
             }
 
             UASSERT_OBJ(rangeCondp, binp, "rangeCondp is null after building range condition");
-            fullCondp
-                = fullCondp ? new AstOr{binp->fileline(), fullCondp, rangeCondp} : rangeCondp;
+            ډک_Condp
+                = ډک_Condp ? جديد AstOr{binp->fileline(), ډک_Condp, rangeCondp} : rangeCondp;
         }
 
-        return fullCondp;
+        أرجع ډک_Condp;
     }
 
     // Wildcard bits have no meaning for a non-integral coverpoint.
-    static AstNodeExpr* wildcardTypeError(AstCoverBin* binp, AstNodeExpr* exprp) {
-        const AstNodeDType* const dtypep = exprp->dtypep()->skipRefp();
+    ساكن Ast_غوټه_بیان* wildcardTypeError(AstCoverBin* binp, Ast_غوټه_بیان* exprp) {
+        ثابت Ast_غوټه_DType* ثابت dtypep = exprp->dtypep()->skipRefp();
         exprp->v3error("Cannot use a wildcard bin on a coverpoint of type "
                        << dtypep->prettyDTypeNameQ() << " (IEEE 1800-2023 19.5.4).\n"
                        << exprp->warnContextPrimary() << '\n'
                        << binp->warnOther() << "... Location of wildcard bin\n"
                        << binp->warnContextSecondary());
-        return new AstConst{binp->fileline(), AstConst::BitFalse{}};
+        أرجع جديد AstConst{binp->fileline(), AstConst::بټ_False{}};
     }
 
     // Match one bin value, range, or wildcard pattern.  Integral coverpoints first resolve the
     // value to their type (IEEE 1800-2023 19.5.7).  Non-owning: clones what it uses.
-    AstNodeExpr* buildValueCondition(AstCoverBin* binp, AstNodeExpr* exprp, AstNode* valuep) {
-        FileLine* const fl = valuep->fileline();
-        if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            return new AstEq{fl, exprp->cloneTree(false),
-                             VN_AS(valuep, NodeExpr)->cloneTree(false)};
+    Ast_غوټه_بیان* build_ارزښت_Condition(AstCoverBin* binp, Ast_غوټه_بیان* exprp, Ast_غوټه* valuep) {
+        File_کرښه* ثابت fl = valuep->fileline();
+        إذا (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+            أرجع جديد AstEq{fl, exprp->clone_ونه(خطأ),
+                             VN_AS(valuep, غوټه_بیان)->clone_ونه(خطأ)};
         }
-        CrossValueRange range{valuep, resolveWidth(valuep, exprp)};
-        if (!resolveValue(valuep, exprp, true, binp->isWildcard(), range)) {
+        Cross_ارزښت_Range range{valuep, resolve_پلنوالی(valuep, exprp)};
+        إذا (!resolve_ارزښت(valuep, exprp, ریښتیا, binp->isWildcard(), range)) {
             valuep->v3warn(E_UNSUPPORTED,
                            "Unsupported: non-integral value in a coverage bin of an "
                            "integral coverpoint.");
-            return new AstConst{fl, AstConst::BitFalse{}};
+            أرجع جديد AstConst{fl, AstConst::بټ_False{}};
         }
-        if (crossRangeEmpty(range)) return new AstConst{fl, AstConst::BitFalse{}};
-        AstConst* const lop = newValueConst(fl, range.lo, exprp);
-        AstConst* const hip = newValueConst(fl, range.hi, exprp);
-        AstNodeExpr* condp = nullptr;
-        if (lop->num().isCaseEq(hip->num())) {
-            condp = new AstEq{fl, exprp->cloneTree(false), lop};
-        } else {
+        إذا (cross_Range_تشه(range)) أرجع جديد AstConst{fl, AstConst::بټ_False{}};
+        AstConst* ثابت lop = new_ارزښت_Const(fl, range.lo, exprp);
+        AstConst* ثابت hip = new_ارزښت_Const(fl, range.hi, exprp);
+        Ast_غوټه_بیان* condp = تش_اشاره;
+        إذا (lop->عدد().isCaseEq(hip->عدد())) {
+            condp = جديد AstEq{fl, exprp->clone_ونه(خطأ), lop};
+        } وإلا {
             condp = makeRangeCondition(fl, exprp, lop, hip);
-            VL_DO_DANGLING(pushDeletep(lop), lop);
+            VL_DO_DANGLING(ټېل_Deletep(lop), lop);
         }
-        VL_DO_DANGLING(pushDeletep(hip), hip);
-        if (!range.wildcard) return condp;
+        VL_DO_DANGLING(ټېل_Deletep(hip), hip);
+        إذا (!range.wildcard) أرجع condp;
         // Match the pattern's value bits within the source-value bounds.
-        V3Number mask{valuep, exprp->width()};
-        V3Number value{valuep, exprp->width()};
-        mask.opBitsNonXZ(range.pattern);
-        value.opBitsOne(range.pattern);
-        AstConst* const maskConstp = newValueConst(fl, mask, exprp);
-        AstConst* const valueConstp = newValueConst(fl, value, exprp);
-        AstNodeExpr* const exprMasked = new AstAnd{fl, exprp->cloneTree(false), maskConstp};
-        AstNodeExpr* const valueMasked = new AstAnd{fl, valueConstp, maskConstp->cloneTree(false)};
-        return new AstLogAnd{fl, condp, new AstEq{fl, exprMasked, valueMasked}};
+        V3_شمېره ماسک{valuep, exprp->پلنوالی()};
+        V3_شمېره ارزښت{valuep, exprp->پلنوالی()};
+        ماسک.op_بټونه_Non_XZ(range.نمونه_2);
+        ارزښت.op_بټونه_One(range.نمونه_2);
+        AstConst* ثابت ماسک_Constp = new_ارزښت_Const(fl, ماسک, exprp);
+        AstConst* ثابت ارزښت_Constp = new_ارزښت_Const(fl, ارزښت, exprp);
+        Ast_غوټه_بیان* ثابت بیان_Masked = جديد AstAnd{fl, exprp->clone_ونه(خطأ), ماسک_Constp};
+        Ast_غوټه_بیان* ثابت ارزښت_Masked = جديد AstAnd{fl, ارزښت_Constp, ماسک_Constp->clone_ونه(خطأ)};
+        أرجع جديد AstLogAnd{fl, condp, جديد AstEq{fl, بیان_Masked, ارزښت_Masked}};
     }
 
-    void generateCoverageComputationCode() {
+    فراغ generate_Coverage_Computation_کوډ() {
         UINFO(4, "  Generating coverage computation code");
 
         // Invalidate cache: addMembersp() calls in generateCoverpointCode/generateCrossCode
@@ -4151,373 +4151,373 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // option.weight (IEEE 1800-2023 19.11).  The instance node holds their runtimes.  With
         // the instances merged, get_coverage() instead, unless option.get_inst_coverage
         // (Table 19-1).
-        AstFunc* const getInstCoveragep
-            = VN_AS(m_memberMap.findMember(m_covergroupp, "get_inst_coverage"), Func);
-        FileLine* const instFl = getInstCoveragep->fileline();
-        AstCMethodHard* const instCallp = instanceCall(instFl, VCMethod::COVERGROUP_COVERAGE);
-        instCallp->dtypeSetDouble();
-        AstNodeExpr* instValuep = instCallp;
-        if (m_cgMayMerge) {
-            AstNodeExpr* const mergedp = new AstLogAnd{
-                instFl, newOptionSel(instFl, optionVar(true), "merge_instances", VAccess::READ),
-                new AstLogNot{instFl, newOptionSel(instFl, optionVar(false), "get_inst_coverage",
+        AstFunc* ثابت getInstCoveragep
+            = VN_AS(m_memberMap.پیدا_کړه_Member(m_covergroupp, "get_inst_coverage"), Func);
+        File_کرښه* ثابت instFl = getInstCoveragep->fileline();
+        AstCMethodHard* ثابت instCallp = instanceCall(instFl, VCMethod::COVERGROUP_COVERAGE);
+        instCallp->dtype_سېټ_Double();
+        Ast_غوټه_بیان* instValuep = instCallp;
+        إذا (m_cg_May_یوځای) {
+            Ast_غوټه_بیان* ثابت mergedp = جديد AstLogAnd{
+                instFl, newOptionSel(instFl, optionVar(ریښتیا), "merge_instances", VAccess::READ),
+                جديد AstLogNot{instFl, newOptionSel(instFl, optionVar(خطأ), "get_inst_coverage",
                                                    VAccess::READ)}};
-            instValuep = new AstCond{instFl, mergedp, typeCoverageCall(instFl), instCallp};
+            instValuep = جديد AstCond{instFl, mergedp, typeCoverageCall(instFl), instCallp};
         }
-        getInstCoveragep->addStmtsp(new AstAssign{
-            instFl, new AstVarRef{instFl, VN_AS(getInstCoveragep->fvarp(), Var), VAccess::WRITE},
+        getInstCoveragep->جمع_کړه_Stmtsp(جديد Ast_ټاکل{
+            instFl, جديد AstVarRef{instFl, VN_AS(getInstCoveragep->fvarp(), Var), VAccess::WRITE},
             instValuep});
 
         // get_coverage(): the average of the covergroup's instances, weighted by their
         // option.weight, or with type_option.merge_instances, the coverage of the union of their
         // bins (IEEE 1800-2023 19.11.3).  Static, so the registry finds the instances.
-        AstFunc* const getCoveragep
-            = VN_AS(m_memberMap.findMember(m_covergroupp, "get_coverage"), Func);
-        FileLine* const typeFl = getCoveragep->fileline();
-        getCoveragep->addStmtsp(new AstAssign{
-            typeFl, new AstVarRef{typeFl, VN_AS(getCoveragep->fvarp(), Var), VAccess::WRITE},
+        AstFunc* ثابت getCoveragep
+            = VN_AS(m_memberMap.پیدا_کړه_Member(m_covergroupp, "get_coverage"), Func);
+        File_کرښه* ثابت typeFl = getCoveragep->fileline();
+        getCoveragep->جمع_کړه_Stmtsp(جديد Ast_ټاکل{
+            typeFl, جديد AstVarRef{typeFl, VN_AS(getCoveragep->fvarp(), Var), VAccess::WRITE},
             typeCoverageCall(typeFl)});
     }
 
     // The registry call computing the covergroup's type coverage, per its type options
-    AstCMethodHard* typeCoverageCall(FileLine* fl) {
-        AstCExpr* const registryp = ctext(fl, "vlSymsp->_vm_contextp__->covergroupRegistryp()");
-        registryp->dtypeSetVoid();  // Opaque receiver; only ever the 'fromp' of the call below
-        AstCMethodHard* const callp
-            = new AstCMethodHard{fl, registryp, VCMethod::COVERGROUP_TYPE_COVERAGE};
-        callp->addPinsp(ctext(fl, quoted(covergroupProtectedName())));
-        callp->addPinsp(newOptionSel(fl, optionVar(true), "weight", VAccess::READ));
-        callp->addPinsp(newOptionSel(fl, optionVar(true), "merge_instances", VAccess::READ));
-        callp->addPinsp(fileLineDebug(m_covergroupp->fileline()));
-        callp->usePtr(true);
-        callp->dtypeSetDouble();
-        return callp;
+    AstCMethodHard* typeCoverageCall(File_کرښه* fl) {
+        AstCExpr* ثابت registryp = ctext(fl, "vlSymsp->_vm_contextp__->covergroupRegistryp()");
+        registryp->dtype_سېټ_Void();  // Opaque receiver; only ever the 'fromp' of the call below
+        AstCMethodHard* ثابت callp
+            = جديد AstCMethodHard{fl, registryp, VCMethod::COVERGROUP_TYPE_COVERAGE};
+        callp->جمع_کړه_Pinsp(ctext(fl, quoted(covergroupProtectedName())));
+        callp->جمع_کړه_Pinsp(newOptionSel(fl, optionVar(ریښتیا), "weight", VAccess::READ));
+        callp->جمع_کړه_Pinsp(newOptionSel(fl, optionVar(ریښتیا), "merge_instances", VAccess::READ));
+        callp->جمع_کړه_Pinsp(file_کرښه_Debug(m_covergroupp->fileline()));
+        callp->usePtr(ریښتیا);
+        callp->dtype_سېټ_Double();
+        أرجع callp;
     }
 
     // VISITORS
-    static bool isEnclosingInstanceVar(const AstVar* varp) {
-        return varp->isClassMember() && !varp->lifetime().isStatic() && !varp->isParam();
+    ساكن منطقي isEnclosingInstanceVar(ثابت AstVar* varp) {
+        أرجع varp->isClassMember() && !varp->lifetime().isStatic() && !varp->isParam();
     }
 
-    void rewriteThisRef(AstThisRef* refp, AstVar* handleVarp) {
-        const AstClassRefDType* const refDTypep
+    فراغ rewriteThisRef(AstThisRef* refp, AstVar* handleVarp) {
+        ثابت AstClassRefDType* ثابت refDTypep
             = VN_CAST(refp->dtypep()->skipRefp(), ClassRefDType);
         UASSERT_OBJ(refDTypep && refDTypep->classp() == m_covergroupp, refp,
                     "Unexpected this reference in embedded covergroup");
-        AstNodeExpr* const newp = new AstVarRef{refp->fileline(), handleVarp, VAccess::READ};
+        Ast_غوټه_بیان* ثابت newp = جديد AstVarRef{refp->fileline(), handleVarp, VAccess::READ};
         refp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ټېل_Deletep(refp), refp);
     }
 
-    void rewriteVarRef(AstVarRef* refp, AstVar* handleVarp) {
-        FileLine* const fl = refp->fileline();
+    فراغ rewriteVarRef(AstVarRef* refp, AstVar* handleVarp) {
+        File_کرښه* ثابت fl = refp->fileline();
         // As V3LinkLValue does, the handle of a written member select is marked written
-        AstMemberSel* const selp
-            = new AstMemberSel{fl, new AstVarRef{fl, handleVarp, refp->access()}, refp->varp()};
+        AstMemberSel* ثابت selp
+            = جديد AstMemberSel{fl, جديد AstVarRef{fl, handleVarp, refp->access()}, refp->varp()};
         selp->access(refp->access());
         refp->replaceWith(selp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ټېل_Deletep(refp), refp);
     }
 
-    void rewriteFuncRef(AstFuncRef* refp, AstVar* handleVarp) {
-        FileLine* const fl = refp->fileline();
-        AstArg* const argsp = refp->argsp() ? refp->argsp()->unlinkFrBackWithNext() : nullptr;
-        AstMethodCall* const callp = new AstMethodCall{
-            fl, new AstVarRef{fl, handleVarp, VAccess::READ}, refp->name(), argsp};
+    فراغ rewriteFuncRef(AstFuncRef* refp, AstVar* handleVarp) {
+        File_کرښه* ثابت fl = refp->fileline();
+        AstArg* ثابت argsp = refp->argsp() ? refp->argsp()->unlink_Fr_شا_With_بل() : تش_اشاره;
+        Ast_لاره_Call* ثابت callp = جديد Ast_لاره_Call{
+            fl, جديد AstVarRef{fl, handleVarp, VAccess::READ}, refp->name(), argsp};
         callp->taskp(refp->taskp());
         callp->dtypeFrom(refp);
         refp->replaceWith(callp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ټېل_Deletep(refp), refp);
     }
 
     // True if funcp is an instance method of the enclosing class or one of its bases
-    bool isEnclosingInstanceFunc(const AstNodeFTask* funcp) const {
-        if (!funcp->classMethod() || funcp->isStatic()) return false;
-        return AstClass::isClassExtendedFrom(m_enclosingClassp, VN_AS(funcp->aboveLoopp(), Class));
+    منطقي isEnclosingInstanceFunc(ثابت Ast_غوټه_FTask* funcp) ثابت {
+        إذا (!funcp->class_لاره() || funcp->isStatic()) أرجع خطأ;
+        أرجع AstClass::isClassExtendedFrom(m_enclosingClassp, VN_AS(funcp->aboveLoopp(), Class));
     }
 
-    bool isEmbeddedCovergroupVar(const AstVar* varp) const {
-        if (!varp || !varp->isClassMember() || varp->isDeclTyped()) return false;
-        const AstClassRefDType* const refp = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-        return refp && refp->classp() == m_covergroupp;
+    منطقي isEmbeddedCovergroupVar(ثابت AstVar* varp) ثابت {
+        إذا (!varp || !varp->isClassMember() || varp->isDeclTyped()) أرجع خطأ;
+        ثابت AstClassRefDType* ثابت refp = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
+        أرجع refp && refp->classp() == m_covergroupp;
     }
 
-    AstVar* findEmbeddedCovergroupVar() const {
-        if (!m_enclosingClassp) return nullptr;
-        for (AstNode* itemp = m_enclosingClassp->membersp(); itemp; itemp = itemp->nextp()) {
-            if (AstVar* const varp = VN_CAST(itemp, Var)) {
-                if (isEmbeddedCovergroupVar(varp)) return varp;
+    AstVar* پیدا_کړه_Embedded_Covergroup_Var() ثابت {
+        إذا (!m_enclosingClassp) أرجع تش_اشاره;
+        لكل (Ast_غوټه* itemp = m_enclosingClassp->membersp(); itemp; itemp = itemp->nextp()) {
+            إذا (AstVar* ثابت varp = VN_CAST(itemp, Var)) {
+                إذا (isEmbeddedCovergroupVar(varp)) أرجع varp;
             }
         }
         // V3LinkParse always creates an implicit variable for an embedded covergroup.
-        return nullptr;  // LCOV_EXCL_LINE
+        أرجع تش_اشاره;  // LCOV_EXCL_LINE
     }
 
-    std::vector<AstNodeAssign*> findCovergroupConstructions() {
-        std::vector<AstNodeAssign*> foundps;
-        if (!m_embeddedVarp) return foundps;
-        AstFunc* const enclosingNewp
-            = VN_CAST(m_memberMap.findMember(m_enclosingClassp, "new"), Func);
-        if (!enclosingNewp) return foundps;
-        enclosingNewp->foreach([&](AstNodeAssign* asgnp) {
-            const AstNew* const newp = VN_CAST(asgnp->rhsp(), New);
-            const AstVarRef* const lhsRefp = VN_CAST(asgnp->lhsp(), VarRef);
-            if (!newp || !lhsRefp || lhsRefp->varp() != m_embeddedVarp) return;
-            const AstClassRefDType* const refp = VN_CAST(newp->dtypep(), ClassRefDType);
-            if (refp && refp->classp() == m_covergroupp) foundps.push_back(asgnp);
+    std::ویکټور<Ast_غوټه_ټاکل*> پیدا_کړه_Covergroup_Constructions() {
+        std::ویکټور<Ast_غوټه_ټاکل*> foundps;
+        إذا (!m_embeddedVarp) أرجع foundps;
+        AstFunc* ثابت enclosingNewp
+            = VN_CAST(m_memberMap.پیدا_کړه_Member(m_enclosingClassp, "new"), Func);
+        إذا (!enclosingNewp) أرجع foundps;
+        enclosingNewp->foreach([&](Ast_غوټه_ټاکل* asgnp) {
+            ثابت AstNew* ثابت newp = VN_CAST(asgnp->rhsp(), New);
+            ثابت AstVarRef* ثابت lhsRefp = VN_CAST(asgnp->lhsp(), VarRef);
+            إذا (!newp || !lhsRefp || lhsRefp->varp() != m_embeddedVarp) أرجع;
+            ثابت AstClassRefDType* ثابت refp = VN_CAST(newp->dtypep(), ClassRefDType);
+            إذا (refp && refp->classp() == m_covergroupp) foundps.ټېل_شا(asgnp);
         });
-        return foundps;
+        أرجع foundps;
     }
 
-    std::set<const AstVar*> enclosingInstanceVars() const {
-        std::set<const AstVar*> vars;
-        if (m_enclosingClassp) {
-            m_enclosingClassp->foreachMember([&](AstClass* const, AstVar* const varp) {
-                if (isEnclosingInstanceVar(varp)) vars.insert(varp);
+    std::سېټ<ثابت AstVar*> enclosingInstanceVars() ثابت {
+        std::سېټ<ثابت AstVar*> vars;
+        إذا (m_enclosingClassp) {
+            m_enclosingClassp->foreachMember([&](AstClass* ثابت, AstVar* ثابت varp) {
+                إذا (isEnclosingInstanceVar(varp)) vars.ورننباسه(varp);
             });
         }
-        return vars;
+        أرجع vars;
     }
 
-    bool hasEnclosingEventRef(AstCovergroup* cgp) const {
-        if (!m_embeddedVarp || !cgp->eventp()) return false;
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
-        bool found = false;
+    منطقي hasEnclosingEventRef(AstCovergroup* cgp) ثابت {
+        إذا (!m_embeddedVarp || !cgp->eventp()) أرجع خطأ;
+        ثابت std::سېټ<ثابت AstVar*> enclosingVars = enclosingInstanceVars();
+        منطقي وموندل = خطأ;
         cgp->eventp()->foreach([&](AstVarRef* refp) {
-            if (enclosingVars.count(refp->varp())) found = true;
+            إذا (enclosingVars.شمېر(refp->varp())) وموندل = ریښتیا;
         });
-        return found;
+        أرجع وموندل;
     }
 
-    static bool parseEmbeddedEventExpr(AstNodeExpr* exprp, AstVar*& baseVarp,
+    ساكن منطقي parse_Embedded_Event_بیان(Ast_غوټه_بیان* exprp, AstVar*& بنسټ_Varp,
                                        AstVar*& memberVarp) {
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            baseVarp = refp->varp();
-            memberVarp = nullptr;
-            return true;
+        إذا (AstVarRef* ثابت refp = VN_CAST(exprp, VarRef)) {
+            بنسټ_Varp = refp->varp();
+            memberVarp = تش_اشاره;
+            أرجع ریښتیا;
         }
-        AstMemberSel* const selp = VN_CAST(exprp, MemberSel);
-        if (!selp) return false;
-        AstVarRef* const baseRefp = VN_CAST(selp->fromp(), VarRef);
-        if (!baseRefp) return false;
-        baseVarp = baseRefp->varp();
+        AstMemberSel* ثابت selp = VN_CAST(exprp, MemberSel);
+        إذا (!selp) أرجع خطأ;
+        AstVarRef* ثابت بنسټ_Refp = VN_CAST(selp->fromp(), VarRef);
+        إذا (!بنسټ_Refp) أرجع خطأ;
+        بنسټ_Varp = بنسټ_Refp->varp();
         memberVarp = selp->varp();
-        return true;
+        أرجع ریښتیا;
     }
 
-    bool isEventLvalue(AstNodeExpr* exprp, const EmbeddedEventTrigger& trigger) const {
-        if (AstSel* const selp = VN_CAST(exprp, Sel)) exprp = selp->fromp();
-        AstVar* baseVarp = nullptr;
-        AstVar* memberVarp = nullptr;
-        if (!parseEmbeddedEventExpr(exprp, baseVarp, memberVarp)) return false;
-        return baseVarp == trigger.baseVarp && memberVarp == trigger.memberVarp;
+    منطقي isEventLvalue(Ast_غوټه_بیان* exprp, ثابت EmbeddedEventTrigger& trigger) ثابت {
+        إذا (AstSel* ثابت selp = VN_CAST(exprp, Sel)) exprp = selp->fromp();
+        AstVar* بنسټ_Varp = تش_اشاره;
+        AstVar* memberVarp = تش_اشاره;
+        إذا (!parse_Embedded_Event_بیان(exprp, بنسټ_Varp, memberVarp)) أرجع خطأ;
+        أرجع بنسټ_Varp == trigger.بنسټ_Varp && memberVarp == trigger.memberVarp;
     }
 
-    AstNodeExpr* newEventRead(FileLine* fl, const EmbeddedEventTrigger& trigger) const {
-        AstNodeExpr* const basep = new AstVarRef{fl, trigger.baseVarp, VAccess::READ};
-        if (!trigger.memberVarp) return basep;
-        AstMemberSel* const selp = new AstMemberSel{fl, basep, trigger.memberVarp};
+    Ast_غوټه_بیان* newEventRead(File_کرښه* fl, ثابت EmbeddedEventTrigger& trigger) ثابت {
+        Ast_غوټه_بیان* ثابت basep = جديد AstVarRef{fl, trigger.بنسټ_Varp, VAccess::READ};
+        إذا (!trigger.memberVarp) أرجع basep;
+        AstMemberSel* ثابت selp = جديد AstMemberSel{fl, basep, trigger.memberVarp};
         selp->access(VAccess::READ);
-        return selp;
+        أرجع selp;
     }
 
-    string eventPrevName(const EmbeddedEventTrigger& trigger, size_t triggerIndex) const {
-        string name = "__Vcg_prev_" + m_embeddedVarp->name() + "_" + std::to_string(triggerIndex)
-                      + "_" + trigger.baseVarp->name();
-        if (trigger.memberVarp) name += "_" + trigger.memberVarp->name();
-        return name;
+    string eventPrevName(ثابت EmbeddedEventTrigger& trigger, اندازه_t trigger_شاخص) ثابت {
+        string name = "__Vcg_prev_" + m_embeddedVarp->name() + "_" + std::منزل_string(trigger_شاخص)
+                      + "_" + trigger.بنسټ_Varp->name();
+        إذا (trigger.memberVarp) name += "_" + trigger.memberVarp->name();
+        أرجع name;
     }
 
-    AstNodeExpr* newEmbeddedVarNonNull(FileLine* fl) const {
-        return new AstNeq{fl, new AstVarRef{fl, m_embeddedVarp, VAccess::READ},
-                          new AstConst{fl, AstConst::Null{}}};
+    Ast_غوټه_بیان* newEmbeddedVarNonNull(File_کرښه* fl) ثابت {
+        أرجع جديد AstNeq{fl, جديد AstVarRef{fl, m_embeddedVarp, VAccess::READ},
+                          جديد AstConst{fl, AstConst::Null{}}};
     }
 
-    AstNodeStmt* newSampleStmt(FileLine* fl) const {
-        AstMethodCall* const callp = new AstMethodCall{
-            fl, new AstVarRef{fl, m_embeddedVarp, VAccess::READ}, "sample", nullptr};
+    Ast_غوټه_Stmt* newSampleStmt(File_کرښه* fl) ثابت {
+        Ast_لاره_Call* ثابت callp = جديد Ast_لاره_Call{
+            fl, جديد AstVarRef{fl, m_embeddedVarp, VAccess::READ}, "sample", تش_اشاره};
         callp->taskp(m_sampleFuncp);
-        callp->dtypeSetVoid();
-        return callp->makeStmt();
+        callp->dtype_سېټ_Void();
+        أرجع callp->makeStmt();
     }
 
-    void installEmbeddedEventFork(AstSenTree* eventp,
-                                  const std::vector<AstNodeAssign*>& constructps) {
+    فراغ installEmbeddedEventFork(Ast_Sen_ونه* eventp,
+                                  ثابت std::ویکټور<Ast_غوټه_ټاکل*>& constructps) {
         // IEEE 1800-2023 19.3 samples coverpoints whenever their clocking event occurs. A
         // per-instance event cannot use V3Active's static sensitivity path, so spawn
         // 'fork forever begin @(event); cg.sample(); end join_none' after each construction.
-        for (AstNodeAssign* const constructp : constructps) {
-            FileLine* const fl = constructp->fileline();
-            AstLoop* const loopp = new AstLoop{fl};
-            loopp->addStmtsp(new AstEventControl{fl, eventp->cloneTree(false), nullptr});
-            loopp->addStmtsp(new AstIf{fl, newEmbeddedVarNonNull(fl), newSampleStmt(fl)});
-            AstFork* const forkp = new AstFork{fl, VJoinType::JOIN_NONE};
-            forkp->immediateStart(true);
-            forkp->addForksp(new AstBegin{fl, "", loopp, true});
-            constructp->addNextHere(forkp);
+        لكل (Ast_غوټه_ټاکل* ثابت constructp : constructps) {
+            File_کرښه* ثابت fl = constructp->fileline();
+            AstLoop* ثابت loopp = جديد AstLoop{fl};
+            loopp->جمع_کړه_Stmtsp(جديد AstEventControl{fl, eventp->clone_ونه(خطأ), تش_اشاره});
+            loopp->جمع_کړه_Stmtsp(جديد AstIf{fl, newEmbeddedVarNonNull(fl), newSampleStmt(fl)});
+            AstFork* ثابت forkp = جديد AstFork{fl, VJoinType::JOIN_NONE};
+            forkp->سمدستي_پیل(ریښتیا);
+            forkp->جمع_کړه_Forksp(جديد AstBegin{fl, "", loopp, ریښتیا});
+            constructp->جمع_کړه_بل_دلته(forkp);
         }
-        VL_DO_DANGLING(pushDeletep(eventp), eventp);
+        VL_DO_DANGLING(ټېل_Deletep(eventp), eventp);
     }
 
-    AstNodeExpr* newEventReadyCondition(FileLine* fl, const EmbeddedEventTrigger& trigger) const {
-        AstNodeExpr* const curp = newEventRead(fl, trigger);
-        AstNodeExpr* const prevp = new AstVarRef{fl, trigger.prevVarp, VAccess::READ};
-        AstNodeExpr* edgep = nullptr;
+    Ast_غوټه_بیان* newEventReadyCondition(File_کرښه* fl, ثابت EmbeddedEventTrigger& trigger) ثابت {
+        Ast_غوټه_بیان* ثابت curp = newEventRead(fl, trigger);
+        Ast_غوټه_بیان* ثابت prevp = جديد AstVarRef{fl, trigger.prevVarp, VAccess::READ};
+        Ast_غوټه_بیان* edgep = تش_اشاره;
         // IEEE 1800-2023 9.4.2 detects edge-qualified events only on the expression's LSB,
         // while an implicit change event observes the complete expression.
-        if (trigger.edgeType == VEdgeType::ET_POSEDGE) {
-            edgep = new AstSel{fl, new AstAnd{fl, curp, new AstNot{fl, prevp}}, 0, 1};
-        } else if (trigger.edgeType == VEdgeType::ET_NEGEDGE) {
-            edgep = new AstSel{fl, new AstAnd{fl, new AstNot{fl, curp}, prevp}, 0, 1};
-        } else if (trigger.edgeType == VEdgeType::ET_BOTHEDGE) {
-            edgep = new AstSel{fl, new AstXor{fl, curp, prevp}, 0, 1};
-        } else {
-            edgep = new AstNeq{fl, curp, prevp};
+        إذا (trigger.څنډه_Type == VEdgeType::ET_POSEDGE) {
+            edgep = جديد AstSel{fl, جديد AstAnd{fl, curp, جديد AstNot{fl, prevp}}, 0, 1};
+        } وإلا إذا (trigger.څنډه_Type == VEdgeType::ET_NEGEDGE) {
+            edgep = جديد AstSel{fl, جديد AstAnd{fl, جديد AstNot{fl, curp}, prevp}, 0, 1};
+        } وإلا إذا (trigger.څنډه_Type == VEdgeType::ET_BOTHEDGE) {
+            edgep = جديد AstSel{fl, جديد AstXor{fl, curp, prevp}, 0, 1};
+        } وإلا {
+            edgep = جديد AstNeq{fl, curp, prevp};
         }
-        return new AstLogAnd{fl, newEmbeddedVarNonNull(fl), edgep};
+        أرجع جديد AstLogAnd{fl, newEmbeddedVarNonNull(fl), edgep};
     }
 
-    std::vector<EmbeddedEventTrigger> collectEmbeddedEventTriggers(AstCovergroup* cgp) {
-        std::vector<EmbeddedEventTrigger> triggers;
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
-        for (AstNode* senp = cgp->eventp()->sensesp(); senp; senp = senp->nextp()) {
-            AstSenItem* const itemp = VN_AS(senp, SenItem);
-            AstVar* baseVarp = nullptr;
-            AstVar* memberVarp = nullptr;
-            if (!parseEmbeddedEventExpr(itemp->sensp(), baseVarp, memberVarp)
-                || !enclosingVars.count(baseVarp)) {
-                return {};
+    std::ویکټور<EmbeddedEventTrigger> collectEmbeddedEventTriggers(AstCovergroup* cgp) {
+        std::ویکټور<EmbeddedEventTrigger> triggers;
+        ثابت std::سېټ<ثابت AstVar*> enclosingVars = enclosingInstanceVars();
+        لكل (Ast_غوټه* senp = cgp->eventp()->sensesp(); senp; senp = senp->nextp()) {
+            Ast_Sen_توکی* ثابت itemp = VN_AS(senp, Sen_توکی);
+            AstVar* بنسټ_Varp = تش_اشاره;
+            AstVar* memberVarp = تش_اشاره;
+            إذا (!parse_Embedded_Event_بیان(itemp->sensp(), بنسټ_Varp, memberVarp)
+                || !enclosingVars.شمېر(بنسټ_Varp)) {
+                أرجع {};
             }
-            triggers.emplace_back(itemp->fileline(), baseVarp, memberVarp, itemp->edgeType());
+            triggers.emplace_شا(itemp->fileline(), بنسټ_Varp, memberVarp, itemp->څنډه_Type());
         }
-        return triggers;
+        أرجع triggers;
     }
 
-    void installEmbeddedEventTriggers(std::vector<EmbeddedEventTrigger>& triggers,
-                                      const std::vector<AstNodeAssign*>& constructps) {
+    فراغ installEmbeddedEventTriggers(std::ویکټور<EmbeddedEventTrigger>& triggers,
+                                      ثابت std::ویکټور<Ast_غوټه_ټاکل*>& constructps) {
         // Without --timing, approximate a per-instance event by sampling after assignments
         // within the enclosing class. External writes and exact scheduling cannot be observed.
-        if (constructps.empty()) return;
-        for (size_t triggerIndex = 0; triggerIndex < triggers.size(); ++triggerIndex) {
-            EmbeddedEventTrigger& trigger = triggers[triggerIndex];
-            std::vector<AstNodeAssign*> assignps;
-            m_enclosingClassp->foreach([&](AstNodeAssign* asgnp) {
-                if (isEventLvalue(asgnp->lhsp(), trigger)) assignps.push_back(asgnp);
+        إذا (constructps.تشه()) أرجع;
+        لكل (اندازه_t trigger_شاخص = 0; trigger_شاخص < triggers.اندازه(); ++trigger_شاخص) {
+            EmbeddedEventTrigger& trigger = triggers[trigger_شاخص];
+            std::ویکټور<Ast_غوټه_ټاکل*> assignps;
+            m_enclosingClassp->foreach([&](Ast_غوټه_ټاکل* asgnp) {
+                إذا (isEventLvalue(asgnp->lhsp(), trigger)) assignps.ټېل_شا(asgnp);
             });
-            if (assignps.empty()) {
+            إذا (assignps.تشه()) {
                 trigger.eventFl->v3warn(
                     COVERIGN, "Unsupported: 'covergroup' clocking event signal has no assignment "
                               "within the enclosing class; no coverage sampled. Use --timing for "
                               "full support.");
-                continue;
+                استمر;
             }
-            AstNodeDType* const dtypep
-                = trigger.memberVarp ? trigger.memberVarp->dtypep() : trigger.baseVarp->dtypep();
-            AstVar* const prevVarp = new AstVar{trigger.eventFl, VVarType::MEMBER,
-                                                eventPrevName(trigger, triggerIndex), dtypep};
-            m_enclosingClassp->addMembersp(prevVarp);
+            Ast_غوټه_DType* ثابت dtypep
+                = trigger.memberVarp ? trigger.memberVarp->dtypep() : trigger.بنسټ_Varp->dtypep();
+            AstVar* ثابت prevVarp = جديد AstVar{trigger.eventFl, VVarType::MEMBER,
+                                                eventPrevName(trigger, trigger_شاخص), dtypep};
+            m_enclosingClassp->جمع_کړه_Membersp(prevVarp);
             trigger.prevVarp = prevVarp;
-            for (AstNodeAssign* const asgnp : assignps) {
-                FileLine* const fl = asgnp->fileline();
-                AstIf* const ifp
-                    = new AstIf{fl, newEventReadyCondition(fl, trigger), newSampleStmt(fl)};
-                ifp->addNextHere(new AstAssign{fl,
-                                               new AstVarRef{fl, trigger.prevVarp, VAccess::WRITE},
+            لكل (Ast_غوټه_ټاکل* ثابت asgnp : assignps) {
+                File_کرښه* ثابت fl = asgnp->fileline();
+                AstIf* ثابت ifp
+                    = جديد AstIf{fl, newEventReadyCondition(fl, trigger), newSampleStmt(fl)};
+                ifp->جمع_کړه_بل_دلته(جديد Ast_ټاکل{fl,
+                                               جديد AstVarRef{fl, trigger.prevVarp, VAccess::WRITE},
                                                newEventRead(fl, trigger)});
-                asgnp->addNextHere(ifp);
+                asgnp->جمع_کړه_بل_دلته(ifp);
             }
         }
     }
 
-    void deleteCoverageItems() {
-        for (AstCoverpoint* const cpp : m_coverpoints) {
-            VL_DO_DANGLING(pushDeletep(cpp->unlinkFrBack()), cpp);
+    فراغ delete_Coverage_توکي() {
+        لكل (AstCoverpoint* ثابت cpp : m_coverpoints) {
+            VL_DO_DANGLING(ټېل_Deletep(cpp->unlink_Fr_شا()), cpp);
         }
-        for (AstCoverCross* const crossp : m_coverCrosses) {
-            VL_DO_DANGLING(pushDeletep(crossp->unlinkFrBack()), crossp);
+        لكل (AstCoverCross* ثابت crossp : m_coverCrosses) {
+            VL_DO_DANGLING(ټېل_Deletep(crossp->unlink_Fr_شا()), crossp);
         }
         // Options not lowered: the covergroup was not processed
-        for (AstCgOptionAssign* const optp : m_cgOptions) {
-            VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
+        لكل (Ast_Cg_Option_ټاکل* ثابت optp : m_cgOptions) {
+            VL_DO_DANGLING(ټېل_Deletep(optp->unlink_Fr_شا()), optp);
         }
         m_cgOptions.clear();
     }
 
-    class FormalRefVisitor final : public VNVisitor {
-        const std::map<const AstVar*, AstVar*>& m_replacements;
+    صنف FormalRefVisitor final : عام VNVisitor {
+        ثابت std::map<ثابت AstVar*, AstVar*>& m_replacements;
 
-        void visit(AstVarRef* nodep) override {
-            const auto it = m_replacements.find(nodep->varp());
-            if (it == m_replacements.end()) return;
-            nodep->varp(it->second);
+        فراغ لیدنه(AstVarRef* nodep) override {
+            ثابت خپلکاری it = m_replacements.پیدا_کړه(nodep->varp());
+            إذا (it == m_replacements.پای_ټکی()) أرجع;
+            nodep->varp(it->دوهم);
         }
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
+        فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-    public:
-        explicit FormalRefVisitor(const std::map<const AstVar*, AstVar*>& replacements)
+    عام:
+        څرګند FormalRefVisitor(ثابت std::map<ثابت AstVar*, AstVar*>& replacements)
             : m_replacements{replacements} {}
-        void scan(AstNode* nodep) { iterate(nodep); }
+        فراغ لټون(Ast_غوټه* nodep) { iterate(nodep); }
     };
 
-    void validateCovergroupExpressions() {
-        std::set<const AstVar*> sampleMembers;
-        std::set<const AstVar*> constructorRefMembers;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO() || (!varp->isRef() && !varp->isConstRef())) continue;
-            const AstVar* const memberp
-                = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
+    فراغ validateCovergroupExpressions() {
+        std::سېټ<ثابت AstVar*> sampleMembers;
+        std::سېټ<ثابت AstVar*> constructorRefMembers;
+        لكل (Ast_غوټه* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ثابت AstVar* ثابت varp = VN_CAST(stmtp, Var);
+            إذا (!varp || !varp->isIO() || (!varp->isRef() && !varp->isConstRef())) استمر;
+            ثابت AstVar* ثابت memberp
+                = VN_CAST(m_memberMap.پیدا_کړه_Member(m_covergroupp, varp->name()), Var);
             UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                         "Covergroup constructor argument missing persistent member");
-            constructorRefMembers.insert(varp);
-            constructorRefMembers.insert(memberp);
+            constructorRefMembers.ورننباسه(varp);
+            constructorRefMembers.ورننباسه(memberp);
         }
-        for (AstNode* stmtp = m_sampleFuncp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) continue;
-            const AstVar* const memberp
-                = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
+        لكل (Ast_غوټه* stmtp = m_sampleFuncp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ثابت AstVar* ثابت varp = VN_CAST(stmtp, Var);
+            إذا (!varp || !varp->isIO()) استمر;
+            ثابت AstVar* ثابت memberp
+                = VN_CAST(m_memberMap.پیدا_کړه_Member(m_covergroupp, varp->name()), Var);
             UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                         "Covergroup sample argument missing persistent member");
-            sampleMembers.insert(memberp);
+            sampleMembers.ورننباسه(memberp);
         }
-        CovergroupExprValidVisitor{sampleMembers, constructorRefMembers}.scan(m_constructorp);
+        Covergroup_بیان_Valid_Visitor{sampleMembers, constructorRefMembers}.لټون(m_constructorp);
     }
 
-    void rebindFormalRefs() {
-        std::map<const AstVar*, AstVar*> replacements;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) continue;
-                AstVar* const memberp
-                    = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
+    فراغ rebindFormalRefs() {
+        std::map<ثابت AstVar*, AstVar*> replacements;
+        لكل (Ast_غوټه* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            إذا (ثابت AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                إذا (!varp->isIO()) استمر;
+                AstVar* ثابت memberp
+                    = VN_CAST(m_memberMap.پیدا_کړه_Member(m_covergroupp, varp->name()), Var);
                 UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                             "Covergroup constructor argument missing persistent member");
                 replacements.emplace(varp, memberp);
             }
         }
-        size_t expectedBindings = 0;
-        for (const auto& pair : replacements) {
-            if (pair.first->isRef() || pair.first->isConstRef()) ++expectedBindings;
+        اندازه_t expectedBindings = 0;
+        لكل (ثابت خپلکاری& pair : replacements) {
+            إذا (pair.لومړی->isRef() || pair.لومړی->isConstRef()) ++expectedBindings;
         }
-        size_t rewrittenBindings = 0;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
-            if (AstAssign* const assignp = VN_CAST(stmtp, Assign)) {
-                AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-                AstVarRef* const rhsp = VN_CAST(assignp->rhsp(), VarRef);
-                if (lhsp && rhsp
+        اندازه_t rewrittenBindings = 0;
+        لكل (Ast_غوټه* stmtp = m_constructorp->stmtsp(); stmtp;) {
+            Ast_غوټه* ثابت nextp = stmtp->nextp();
+            إذا (Ast_ټاکل* ثابت assignp = VN_CAST(stmtp, ټاکل)) {
+                AstVarRef* ثابت lhsp = VN_CAST(assignp->lhsp(), VarRef);
+                AstVarRef* ثابت rhsp = VN_CAST(assignp->rhsp(), VarRef);
+                إذا (lhsp && rhsp
                     && (lhsp->varp()->declDirection() == VDirection::REF
                         || lhsp->varp()->declDirection() == VDirection::CONSTREF)) {
-                    const auto it = replacements.find(rhsp->varp());
-                    UASSERT_OBJ(it != replacements.end() && it->second == lhsp->varp(), assignp,
+                    ثابت خپلکاری it = replacements.پیدا_کړه(rhsp->varp());
+                    UASSERT_OBJ(it != replacements.پای_ټکی() && it->دوهم == lhsp->varp(), assignp,
                                 "Unexpected covergroup reference binding assignment");
-                    AstCExpr* const bindp = new AstCExpr{assignp->fileline(), ""};
-                    bindp->add(lhsp->unlinkFrBack());
-                    bindp->add(" = &");
-                    bindp->add(rhsp->unlinkFrBack());
+                    AstCExpr* ثابت bindp = جديد AstCExpr{assignp->fileline(), ""};
+                    bindp->جمع_کړه(lhsp->unlink_Fr_شا());
+                    bindp->جمع_کړه(" = &");
+                    bindp->جمع_کړه(rhsp->unlink_Fr_شا());
                     assignp->replaceWith(bindp->makeStmt());
-                    VL_DO_DANGLING(pushDeletep(assignp), assignp);
+                    VL_DO_DANGLING(ټېل_Deletep(assignp), assignp);
                     ++rewrittenBindings;
                 }
             }
@@ -4526,11 +4526,11 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         UASSERT_OBJ(rewrittenBindings == expectedBindings, m_constructorp,
                     "Covergroup reference argument missing binding");
         FormalRefVisitor visitor{replacements};
-        for (AstCoverpoint* const cpp : m_coverpoints) visitor.scan(cpp);
-        for (AstCoverCross* const crossp : m_coverCrosses) visitor.scan(crossp);
+        لكل (AstCoverpoint* ثابت cpp : m_coverpoints) visitor.لټون(cpp);
+        لكل (AstCoverCross* ثابت crossp : m_coverCrosses) visitor.لټون(crossp);
     }
 
-    AstVarRef* installEnclosingBackPointer(const std::vector<AstNodeAssign*>& constructps) {
+    AstVarRef* install_Enclosing_شا_اشاره_ګر(ثابت std::ویکټور<Ast_غوټه_ټاکل*>& constructps) {
         // Simple-case support for embedded covergroups (IEEE 1800-2023 19.4) whose
         // coverpoints reference members of the enclosing class ("Class members can be used
         // in coverpoint expressions").  The covergroup is lowered into a sibling class with
@@ -4539,87 +4539,87 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // route member references through it, and pass it into the constructor so
         // coverage initialization can read enclosing members. Returns an invalid
         // reference if an outer class member cannot be reached; otherwise returns an empty result.
-        if (!m_enclosingClassp) return nullptr;  // Offending refs require an enclosing class
+        إذا (!m_enclosingClassp) أرجع تش_اشاره;  // Offending refs require an enclosing class
 
-        AstVarRef* invalidp = nullptr;
-        AstNode* offenderp = nullptr;
-        std::set<const AstVar*> ownVars;
-        for (AstNode* itemp = m_covergroupp->membersp(); itemp; itemp = itemp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(itemp, Var)) ownVars.insert(varp);
+        AstVarRef* invalidp = تش_اشاره;
+        Ast_غوټه* offenderp = تش_اشاره;
+        std::سېټ<ثابت AstVar*> ownVars;
+        لكل (Ast_غوټه* itemp = m_covergroupp->membersp(); itemp; itemp = itemp->nextp()) {
+            إذا (ثابت AstVar* ثابت varp = VN_CAST(itemp, Var)) ownVars.ورننباسه(varp);
         }
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
-        std::vector<AstVarRef*> refsToRewrite;
-        std::vector<AstThisRef*> thisRefsToRewrite;
-        std::vector<AstFuncRef*> funcRefsToRewrite;
-        const auto scan = [&](AstNode* rootp) {
+        ثابت std::سېټ<ثابت AstVar*> enclosingVars = enclosingInstanceVars();
+        std::ویکټور<AstVarRef*> refs_منزل_Rewrite;
+        std::ویکټور<AstThisRef*> this_Refs_منزل_Rewrite;
+        std::ویکټور<AstFuncRef*> func_Refs_منزل_Rewrite;
+        ثابت خپلکاری لټون = [&](Ast_غوټه* rootp) {
             rootp->foreach([&](AstVarRef* refp) {
-                if (invalidp) return;
-                const AstVar* const varp = refp->varp();
-                if (!isEnclosingInstanceVar(varp) || ownVars.count(varp)) return;
-                if (!enclosingVars.count(varp)) {
+                إذا (invalidp) أرجع;
+                ثابت AstVar* ثابت varp = refp->varp();
+                إذا (!isEnclosingInstanceVar(varp) || ownVars.شمېر(varp)) أرجع;
+                إذا (!enclosingVars.شمېر(varp)) {
                     invalidp = refp;
-                    return;
+                    أرجع;
                 }
-                refsToRewrite.push_back(refp);
-                if (!offenderp) offenderp = refp;
+                refs_منزل_Rewrite.ټېل_شا(refp);
+                إذا (!offenderp) offenderp = refp;
             });
-            if (invalidp) return;
+            إذا (invalidp) أرجع;
             rootp->foreach([&](AstThisRef* refp) {
-                const AstClassRefDType* const refDTypep
+                ثابت AstClassRefDType* ثابت refDTypep
                     = VN_CAST(refp->dtypep()->skipRefp(), ClassRefDType);
-                if (refDTypep && refDTypep->classp() == m_covergroupp) {
-                    thisRefsToRewrite.push_back(refp);
-                    if (!offenderp) offenderp = refp;
+                إذا (refDTypep && refDTypep->classp() == m_covergroupp) {
+                    this_Refs_منزل_Rewrite.ټېل_شا(refp);
+                    إذا (!offenderp) offenderp = refp;
                 }
             });
             rootp->foreach([&](AstFuncRef* refp) {
-                if (!isEnclosingInstanceFunc(refp->taskp())) return;
-                funcRefsToRewrite.push_back(refp);
-                if (!offenderp) offenderp = refp;
+                إذا (!isEnclosingInstanceFunc(refp->taskp())) أرجع;
+                func_Refs_منزل_Rewrite.ټېل_شا(refp);
+                إذا (!offenderp) offenderp = refp;
             });
         };
-        for (AstCoverpoint* const cpp : m_coverpoints) scan(cpp);
-        for (AstCoverCross* const crossp : m_coverCrosses) scan(crossp);
-        for (AstCgOptionAssign* const optp : m_cgOptions) scan(optp);
-        if (invalidp || !offenderp) return invalidp;
+        لكل (AstCoverpoint* ثابت cpp : m_coverpoints) لټون(cpp);
+        لكل (AstCoverCross* ثابت crossp : m_coverCrosses) لټون(crossp);
+        لكل (Ast_Cg_Option_ټاکل* ثابت optp : m_cgOptions) لټون(optp);
+        إذا (invalidp || !offenderp) أرجع invalidp;
 
         UASSERT_OBJ(m_embeddedVarp, m_covergroupp, "Embedded covergroup variable not found");
         // Commit: add the back-pointer member, rewrite the references, initialize the handle.
-        FileLine* const fl = m_covergroupp->fileline();
-        AstClassRefDType* const enclDTypep = new AstClassRefDType{fl, m_enclosingClassp, nullptr};
-        enclDTypep->rawPointer(true);
-        v3Global.rootp()->typeTablep()->addTypesp(enclDTypep);
-        AstVar* const handleVarp
-            = new AstVar{fl, VVarType::MEMBER, "__Vcg_enclosingp", enclDTypep};
-        m_covergroupp->addMembersp(handleVarp);
-        AstVar* const argumentp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vcg_parentp", enclDTypep};
-        argumentp->direction(VDirection::INPUT);
-        argumentp->declDirection(VDirection::INPUT);
-        argumentp->funcLocal(true);
-        argumentp->noReset(true);
+        File_کرښه* ثابت fl = m_covergroupp->fileline();
+        AstClassRefDType* ثابت enclDTypep = جديد AstClassRefDType{fl, m_enclosingClassp, تش_اشاره};
+        enclDTypep->raw_اشاره_ګر(ریښتیا);
+        v3Global.rootp()->typeTablep()->جمع_کړه_Typesp(enclDTypep);
+        AstVar* ثابت handleVarp
+            = جديد AstVar{fl, VVarType::MEMBER, "__Vcg_enclosingp", enclDTypep};
+        m_covergroupp->جمع_کړه_Membersp(handleVarp);
+        AstVar* ثابت argumentp = جديد AstVar{fl, VVarType::BLOCKTEMP, "__Vcg_parentp", enclDTypep};
+        argumentp->direction(VDirection::ننوت);
+        argumentp->declDirection(VDirection::ننوت);
+        argumentp->funcLocal(ریښتیا);
+        argumentp->noReset(ریښتیا);
         argumentp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        m_constructorp->addStmtsp(argumentp);
-        m_constructorp->prependStmtsp(new AstAssign{fl, memberRef(fl, handleVarp, VAccess::WRITE),
-                                                    new AstVarRef{fl, argumentp, VAccess::READ}});
+        m_constructorp->جمع_کړه_Stmtsp(argumentp);
+        m_constructorp->prependStmtsp(جديد Ast_ټاکل{fl, memberRef(fl, handleVarp, VAccess::WRITE),
+                                                    جديد AstVarRef{fl, argumentp, VAccess::READ}});
 
         // Route each enclosing-member reference through the back-pointer: 'm' -> 'h.m'.
-        for (AstVarRef* const refp : refsToRewrite) { rewriteVarRef(refp, handleVarp); }
-        for (AstThisRef* const refp : thisRefsToRewrite) { rewriteThisRef(refp, handleVarp); }
-        for (AstFuncRef* const refp : funcRefsToRewrite) { rewriteFuncRef(refp, handleVarp); }
+        لكل (AstVarRef* ثابت refp : refs_منزل_Rewrite) { rewriteVarRef(refp, handleVarp); }
+        لكل (AstThisRef* ثابت refp : this_Refs_منزل_Rewrite) { rewriteThisRef(refp, handleVarp); }
+        لكل (AstFuncRef* ثابت refp : func_Refs_منزل_Rewrite) { rewriteFuncRef(refp, handleVarp); }
 
         // Append a named hidden argument to preserve positional and defaulted user arguments.
-        for (AstNodeAssign* const constructp : constructps) {
-            FileLine* const cfl = constructp->fileline();
-            AstCExpr* const thisp = new AstCExpr{cfl, "this"};
+        لكل (Ast_غوټه_ټاکل* ثابت constructp : constructps) {
+            File_کرښه* ثابت cfl = constructp->fileline();
+            AstCExpr* ثابت thisp = جديد AstCExpr{cfl, "this"};
             thisp->dtypep(enclDTypep);
-            VN_AS(constructp->rhsp(), New)->addArgsp(new AstArg{cfl, argumentp->name(), thisp});
+            VN_AS(constructp->rhsp(), New)->جمع_کړه_Argsp(جديد AstArg{cfl, argumentp->name(), thisp});
         }
-        return nullptr;
+        أرجع تش_اشاره;
     }
 
-    void visit(AstClass* nodep) override {
+    فراغ لیدنه(AstClass* nodep) override {
         UINFO(9, "Visiting class: " << nodep->name() << " isCovergroup=" << nodep->isCovergroup());
-        if (nodep->isCovergroup()) {
+        إذا (nodep->isCovergroup()) {
             VL_RESTORER(m_covergroupp);
             VL_RESTORER(m_embeddedVarp);
             VL_RESTORER(m_sampleFuncp);
@@ -4630,100 +4630,100 @@ class FunctionalCoverageVisitor final : public VNVisitor {
             VL_RESTORER_CLEAR(m_cgOptions);
             VL_RESTORER_CLEAR(m_covergroupName);
             m_covergroupp = nodep;
-            m_embeddedVarp = findEmbeddedCovergroupVar();
+            m_embeddedVarp = پیدا_کړه_Embedded_Covergroup_Var();
             m_covergroupName = covergroupTypeName();
-            m_sampleFuncp = nullptr;
-            m_constructorp = nullptr;
-            std::vector<EmbeddedEventTrigger> embeddedEventTriggers;
-            AstSenTree* embeddedEventForkp = nullptr;
+            m_sampleFuncp = تش_اشاره;
+            m_constructorp = تش_اشاره;
+            std::ویکټور<EmbeddedEventTrigger> embeddedEventTriggers;
+            Ast_Sen_ونه* embeddedEventForkp = تش_اشاره;
 
             // Extract and store the clocking event from AstCovergroup node
             // The parser creates this node to preserve the event information
-            bool hasUnsupportedEvent = false;
-            for (AstNode* itemp = nodep->membersp(); itemp;) {
-                AstNode* const nextp = itemp->nextp();
-                if (AstCovergroup* const cgp = VN_CAST(itemp, Covergroup)) {
+            منطقي hasUnsupportedEvent = خطأ;
+            لكل (Ast_غوټه* itemp = nodep->membersp(); itemp;) {
+                Ast_غوټه* ثابت nextp = itemp->nextp();
+                إذا (AstCovergroup* ثابت cgp = VN_CAST(itemp, Covergroup)) {
                     // Store the event in the global map for V3Active to retrieve later
                     // V3LinkParse only creates this sentinel AstCovergroup node when a clocking
                     // event exists, so cgp->eventp() is always non-null here.
                     UASSERT_OBJ(cgp->eventp(), cgp,
                                 "Sentinel AstCovergroup in class must have non-null eventp");
-                    if (hasEnclosingEventRef(cgp)) {
+                    إذا (hasEnclosingEventRef(cgp)) {
                         UASSERT_OBJ(m_embeddedVarp, cgp,
                                     "Embedded covergroup event has no instance variable");
-                        if (v3Global.opt.timing().isSetTrue()) {
-                            embeddedEventForkp = cgp->eventp()->unlinkFrBack();
-                        } else {
+                        إذا (v3Global.opt.timing().is_سېټ_True()) {
+                            embeddedEventForkp = cgp->eventp()->unlink_Fr_شا();
+                        } وإلا {
                             embeddedEventTriggers = collectEmbeddedEventTriggers(cgp);
-                            if (embeddedEventTriggers.empty()) {
+                            إذا (embeddedEventTriggers.تشه()) {
                                 cgp->v3warn(COVERIGN,
                                             "Unsupported: 'covergroup' clocking event on complex "
                                             "member expression; use --timing for full support.");
-                                hasUnsupportedEvent = true;
+                                hasUnsupportedEvent = ریښتیا;
                             }
                         }
-                        VL_DO_DANGLING(pushDeletep(cgp->unlinkFrBack()), cgp);
+                        VL_DO_DANGLING(ټېل_Deletep(cgp->unlink_Fr_شا()), cgp);
                         itemp = nextp;
-                        continue;
+                        استمر;
                     }
                     // V3Active handles events that do not depend on an enclosing instance.
                     UINFO(4, "Keeping covergroup event node for V3Active: " << nodep->name());
                     itemp = nextp;
-                    continue;
+                    استمر;
                 }
                 itemp = nextp;
             }
 
             // Find the sample() method and constructor
-            m_sampleFuncp = VN_CAST(m_memberMap.findMember(nodep, "sample"), Func);
+            m_sampleFuncp = VN_CAST(m_memberMap.پیدا_کړه_Member(nodep, "sample"), Func);
             // V3LinkParse always synthesizes a sample() method for every covergroup, and the
             // sampling-code generation below dereferences m_sampleFuncp unconditionally.
             UASSERT_OBJ(m_sampleFuncp, nodep, "Covergroup missing synthesized sample() method");
-            m_sampleFuncp->isCovergroupSample(true);
-            m_constructorp = VN_CAST(m_memberMap.findMember(nodep, "new"), Func);
+            m_sampleFuncp->isCovergroupSample(ریښتیا);
+            m_constructorp = VN_CAST(m_memberMap.پیدا_کړه_Member(nodep, "new"), Func);
             UINFO(9, "Found sample() method: " << (m_sampleFuncp ? "yes" : "no"));
             UINFO(9, "Found constructor: " << (m_constructorp ? "yes" : "no"));
 
             // If covergroup has unsupported clocking event, skip processing it
             // but still clean up coverpoints so they don't reach downstream passes
-            if (hasUnsupportedEvent) {
+            إذا (hasUnsupportedEvent) {
                 iterateChildren(nodep);
                 validateCovergroupExpressions();
                 rebindFormalRefs();
-                deleteCoverageItems();
-                if (embeddedEventForkp) {
-                    VL_DO_DANGLING(pushDeletep(embeddedEventForkp), embeddedEventForkp);
+                delete_Coverage_توکي();
+                إذا (embeddedEventForkp) {
+                    VL_DO_DANGLING(ټېل_Deletep(embeddedEventForkp), embeddedEventForkp);
                 }
-                return;
+                أرجع;
             }
 
             iterateChildren(nodep);
             validateCovergroupExpressions();
             rebindFormalRefs();
-            const std::vector<AstNodeAssign*> constructps = findCovergroupConstructions();
+            ثابت std::ویکټور<Ast_غوټه_ټاکل*> constructps = پیدا_کړه_Covergroup_Constructions();
 
             // Embedded covergroups (IEEE 1800-2023 19.4): coverpoints, iff expressions, and
             // crosses may reference members of the enclosing class. The covergroup is lowered
             // into a sibling class with no implicit handle to the enclosing instance. Install
             // an explicit back-pointer and route the references through it.
-            if (AstVarRef* const invalidp = installEnclosingBackPointer(constructps)) {
+            إذا (AstVarRef* ثابت invalidp = install_Enclosing_شا_اشاره_ګر(constructps)) {
                 invalidp->v3error("Non-static member "
                                   << invalidp->varp()->prettyNameQ()
                                   << " of an outer class requires an explicit "
                                      "object handle (IEEE 1800-2023 8.23).");
-                deleteCoverageItems();
-                if (embeddedEventForkp) {
-                    VL_DO_DANGLING(pushDeletep(embeddedEventForkp), embeddedEventForkp);
+                delete_Coverage_توکي();
+                إذا (embeddedEventForkp) {
+                    VL_DO_DANGLING(ټېل_Deletep(embeddedEventForkp), embeddedEventForkp);
                 }
-                return;
+                أرجع;
             }
             installEmbeddedEventTriggers(embeddedEventTriggers, constructps);
-            if (embeddedEventForkp) installEmbeddedEventFork(embeddedEventForkp, constructps);
+            إذا (embeddedEventForkp) installEmbeddedEventFork(embeddedEventForkp, constructps);
             processCovergroup();
             // Remove lowered coverpoints/crosses from the class - they have been
             // fully translated into C++ code and must not reach downstream passes
-            deleteCoverageItems();
-        } else {
+            delete_Coverage_توکي();
+        } وإلا {
             // Track the lexically enclosing class so a nested covergroup can resolve
             // references to the enclosing object's members (installEnclosingBackPointer).
             VL_RESTORER(m_enclosingClassp);
@@ -4732,50 +4732,50 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstCoverpoint* nodep) override {
+    فراغ لیدنه(AstCoverpoint* nodep) override {
         UINFO(9, "Found coverpoint: " << nodep->name());
-        m_coverpoints.push_back(nodep);
+        m_coverpoints.ټېل_شا(nodep);
         m_coverpointMap.emplace(nodep->name(), nodep);
         iterateChildren(nodep);
     }
 
-    void visit(AstCoverCross* nodep) override {
+    فراغ لیدنه(AstCoverCross* nodep) override {
         UINFO(9, "Found cross: " << nodep->name());
-        m_coverCrosses.push_back(nodep);
+        m_coverCrosses.ټېل_شا(nodep);
         iterateChildren(nodep);
     }
 
     // V3Width leaves only the covergroup-level options lowerCovergroupOptions() takes
-    void visit(AstCgOptionAssign* nodep) override { m_cgOptions.push_back(nodep); }
+    فراغ لیدنه(Ast_Cg_Option_ټاکل* nodep) override { m_cgOptions.ټېل_شا(nodep); }
 
     // A package, interface, or module, so the design unit declaring the classes within
-    void visit(AstNodeModule* nodep) override {
+    فراغ لیدنه(Ast_غوټه_Module* nodep) override {
         VL_RESTORER(m_unitp);
         m_unitp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ لیدنه(Ast_غوټه* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
     FunctionalCoverageVisitor(AstNetlist* nodep,
-                              const std::set<const AstVar*>& mergeableTypeOptions)
+                              ثابت std::سېټ<ثابت AstVar*>& mergeableTypeOptions)
         : m_mergeableTypeOptions{mergeableTypeOptions} {
         iterate(nodep);
     }
-    ~FunctionalCoverageVisitor() override = default;
+    ~FunctionalCoverageVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Functional coverage class functions
 
-void V3Covergroup::covergroup(AstNetlist* nodep) {
+فراغ V3Covergroup::covergroup(AstNetlist* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
-    const CovergroupAssignValidVisitor validVisitor{nodep};
-    if (!validVisitor.valid()) V3Error::abortIfErrors();
+    ثابت Covergroup_ټاکل_Valid_Visitor validVisitor{nodep};
+    إذا (!validVisitor.valid()) V3Error::abortIfErrors();
     {  // Destruct before checking
         FunctionalCoverageVisitor{nodep, validVisitor.mergeableTypeOptions()};
     }
-    V3Global::dumpCheckGlobalTree("coveragefunc", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ونه("coveragefunc", 0, dump_ونه_Either_Level() >= 3);
 }

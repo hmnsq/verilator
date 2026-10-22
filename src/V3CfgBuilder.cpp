@@ -18,51 +18,51 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
-#include "V3EmitV.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Cfg.h"
+#ضمن "V3EmitV.h"
 
-#include <deque>
-#include <unordered_map>
-#include <unordered_set>
+#ضمن <deque>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgBuilder final : public VNVisitorConst {
+صنف CfgBuilder final : عام VNVisitorConst {
     // STATE
     // The graph being built, or nullptr if failed to build one
-    std::unique_ptr<CfgGraph> m_cfgp{new CfgGraph};
+    std::unique_ptr<Cfg_ګراف> m_cfgp{جديد Cfg_ګراف};
     // Current basic block to add statements to
-    CfgBlock* m_currBBp = nullptr;
+    Cfg_بلاک* m_currBBp = تش_اشاره;
     // Continuation block for given JumpBlock
-    std::unordered_map<AstJumpBlock*, CfgBlock*> m_jumpBlockContp;
+    std::unordered_map<Ast_Jump_بلاک*, Cfg_بلاک*> m_jump_بلاک_Contp;
     // Continuation block for given Loop
-    std::unordered_map<AstLoop*, CfgBlock*> m_loopContp;
+    std::unordered_map<AstLoop*, Cfg_بلاک*> m_loopContp;
 
     // METHODS
 
     // Add the given statement to the current CfgBlock
-    void addStmt(AstNodeStmt* nodep) { m_currBBp->m_stmtps.emplace_back(nodep); }
+    فراغ جمع_کړه_Stmt(Ast_غوټه_Stmt* nodep) { m_currBBp->m_stmtps.emplace_شا(nodep); }
 
     // Used to handle statements not representable in the CFG
-    void nonRepresentable(AstNodeStmt*) {
-        if (!m_cfgp) return;
+    فراغ nonRepresentable(Ast_غوټه_Stmt*) {
+        إذا (!m_cfgp) أرجع;
         m_cfgp.reset();
     }
 
     // Used to handle simple (non-branching) statements in the CFG
-    void simpleStatement(AstNodeStmt* nodep, bool representable = true) {
-        if (!m_cfgp) return;
+    فراغ simpleStatement(Ast_غوټه_Stmt* nodep, منطقي representable = ریښتیا) {
+        إذا (!m_cfgp) أرجع;
         // If non-representable, reset graph
-        if (!representable) {
+        إذا (!representable) {
             m_cfgp.reset();
-            return;
+            أرجع;
         }
         // Just add to current block
-        addStmt(nodep);
+        جمع_کړه_Stmt(nodep);
     }
 
     // VISITORS
@@ -72,176 +72,176 @@ class CfgBuilder final : public VNVisitorConst {
     // instance we will only handle select statemetns that cover the requied
     // use cases, and in the base case we conservatively assume the statement
     // is non-representable. More visits can be added case by case if needed.
-    void visit(AstNode* nodep) override {
-        if (!m_cfgp) return;
+    فراغ لیدنه(Ast_غوټه* nodep) override {
+        إذا (!m_cfgp) أرجع;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
         m_cfgp.reset();
     }
 
     // Non-representable statements
-    void visit(AstAssignDly* nodep) override { nonRepresentable(nodep); }
-    void visit(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
-    void visit(AstDelay* nodep) override { nonRepresentable(nodep); }
+    فراغ لیدنه(Ast_ټاکل_Dly* nodep) override { nonRepresentable(nodep); }
+    فراغ لیدنه(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
+    فراغ لیدنه(AstDelay* nodep) override { nonRepresentable(nodep); }
 
     // Representable non control-flow statements
-    void visit(AstAssign* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstAssignW* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstComment*) override {}  // ignore entirely
-    void visit(AstDisplay* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinish* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinishFork* nodep) override { simpleStatement(nodep); }
-    void visit(AstStmtExpr* nodep) override { simpleStatement(nodep); }
-    void visit(AstStop* nodep) override { simpleStatement(nodep); }
+    فراغ لیدنه(Ast_ټاکل* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    فراغ لیدنه(Ast_ټاکل_W* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    فراغ لیدنه(AstComment*) override {}  // ignore entirely
+    فراغ لیدنه(AstDisplay* nodep) override { simpleStatement(nodep); }
+    فراغ لیدنه(Ast_پای* nodep) override { simpleStatement(nodep); }
+    فراغ لیدنه(Ast_پای_Fork* nodep) override { simpleStatement(nodep); }
+    فراغ لیدنه(Ast_Stmt_بیان* nodep) override { simpleStatement(nodep); }
+    فراغ لیدنه(AstStop* nodep) override { simpleStatement(nodep); }
 
     // Representable control flow statements
-    void visit(AstIf* nodep) override {
-        if (!m_cfgp) return;
+    فراغ لیدنه(AstIf* nodep) override {
+        إذا (!m_cfgp) أرجع;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        جمع_کړه_Stmt(nodep);
 
         // Create then/else/continuation blocks
-        CfgBlock* const thenBBp = m_cfgp->addBlock();
-        CfgBlock* const elseBBp = m_cfgp->addBlock();
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, thenBBp);
-        m_cfgp->addUntknEdge(m_currBBp, elseBBp);
+        Cfg_بلاک* ثابت thenBBp = m_cfgp->جمع_کړه_بلاک();
+        Cfg_بلاک* ثابت elseBBp = m_cfgp->جمع_کړه_بلاک();
+        Cfg_بلاک* ثابت contBBp = m_cfgp->جمع_کړه_بلاک();
+        m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, thenBBp);
+        m_cfgp->جمع_کړه_Untkn_څنډه(m_currBBp, elseBBp);
 
         // Build then branch
         m_currBBp = thenBBp;
-        iterateAndNextConstNull(nodep->thensp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_بل_Const_Null(nodep->thensp());
+        إذا (!m_cfgp) أرجع;
+        إذا (m_currBBp) m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, contBBp);
 
         // Build else branch
         m_currBBp = elseBBp;
-        iterateAndNextConstNull(nodep->elsesp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_بل_Const_Null(nodep->elsesp());
+        إذا (!m_cfgp) أرجع;
+        إذا (m_currBBp) m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoop* nodep) override {
+    فراغ لیدنه(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (!m_cfgp) return;
+        إذا (!m_cfgp) أرجع;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_loopContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstLoop visited twice");
+        Cfg_بلاک* ثابت contBBp = m_cfgp->جمع_کړه_بلاک();
+        ثابت منطقي new_ثبت = m_loopContp.emplace(nodep, contBBp).دوهم;
+        UASSERT_OBJ(new_ثبت, nodep, "AstLoop visited twice");
 
         // Create the body block
-        CfgBlock* const bodyBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        Cfg_بلاک* ثابت bodyBBp = m_cfgp->جمع_کړه_بلاک();
+        m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, bodyBBp);
 
         // Build the body
         m_currBBp = bodyBBp;
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        iterate_And_بل_Const_Null(nodep->stmtsp());
+        إذا (!m_cfgp) أرجع;
+        إذا (m_currBBp) m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, bodyBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_cfgp) return;
+    فراغ لیدنه(AstLoopTest* nodep) override {
+        إذا (!m_cfgp) أرجع;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        جمع_کړه_Stmt(nodep);
 
         // Create continuation blocks
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, contBBp);
-        m_cfgp->addUntknEdge(m_currBBp, m_loopContp.at(nodep->loopp()));
+        Cfg_بلاک* ثابت contBBp = m_cfgp->جمع_کړه_بلاک();
+        m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, contBBp);
+        m_cfgp->جمع_کړه_Untkn_څنډه(m_currBBp, m_loopContp.at(nodep->loopp()));
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpBlock* nodep) override {
-        if (!m_cfgp) return;
+    فراغ لیدنه(Ast_Jump_بلاک* nodep) override {
+        إذا (!m_cfgp) أرجع;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_jumpBlockContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twice");
+        Cfg_بلاک* ثابت contBBp = m_cfgp->جمع_کړه_بلاک();
+        ثابت منطقي new_ثبت = m_jump_بلاک_Contp.emplace(nodep, contBBp).دوهم;
+        UASSERT_OBJ(new_ثبت, nodep, "AstJumpBlock visited twice");
 
         // Build the body
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_بل_Const_Null(nodep->stmtsp());
+        إذا (!m_cfgp) أرجع;
+        إذا (m_currBBp) m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_cfgp) return;
+    فراغ لیدنه(AstJumpGo* nodep) override {
+        إذا (!m_cfgp) أرجع;
 
         // Non-representable if not last in statement list (V3Const will fix this later)
-        if (nodep->nextp()) {
+        إذا (nodep->nextp()) {
             m_cfgp.reset();
-            return;
+            أرجع;
         }
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Make current block go to the continuation of the JumpBlock
-        m_cfgp->addTakenEdge(m_currBBp, m_jumpBlockContp.at(nodep->blockp()));
+        m_cfgp->جمع_کړه_اخیستل_شوی_څنډه(m_currBBp, m_jump_بلاک_Contp.at(nodep->blockp()));
 
         // There should be no statements after a JumpGo!
-        m_currBBp = nullptr;
+        m_currBBp = تش_اشاره;
     }
 
     // CONSTRUCTOR
-    explicit CfgBuilder(AstNode* stmtsp) {
+    څرګند CfgBuilder(Ast_غوټه* stmtsp) {
         // Build the graph, starting from the entry block
-        m_currBBp = m_cfgp->addBlock();
+        m_currBBp = m_cfgp->جمع_کړه_بلاک();
         m_cfgp->m_enterp = m_currBBp;
         // Visit each statement to build the control flow graph
-        iterateAndNextConstNull(stmtsp);
+        iterate_And_بل_Const_Null(stmtsp);
         // If failed, stop now
-        if (!m_cfgp) return;
+        إذا (!m_cfgp) أرجع;
         // The final block is the exit block
         m_cfgp->m_exitp = m_currBBp;
         // Some blocks might not have predecessors if they are unreachable, remove them
         {
-            std::vector<V3GraphVertex*> unreachableps;
-            for (V3GraphVertex* const vtxp : m_cfgp->vertices().unlinkable()) {
-                if (vtxp == m_cfgp->m_enterp) continue;
-                if (vtxp == m_cfgp->m_exitp) continue;
-                UASSERT_OBJ(!vtxp->outEmpty(), vtxp, "Block with no successor other than exit");
-                if (vtxp->inEmpty()) unreachableps.emplace_back(vtxp);
+            std::ویکټور<V3_ګراف_راس*> unreachableps;
+            لكل (V3_ګراف_راس* ثابت vtxp : m_cfgp->vertices().unlinkable()) {
+                إذا (vtxp == m_cfgp->m_enterp) استمر;
+                إذا (vtxp == m_cfgp->m_exitp) استمر;
+                UASSERT_OBJ(!vtxp->بهر_تشه(), vtxp, "Block with no successor other than exit");
+                إذا (vtxp->دننه_تشه()) unreachableps.emplace_شا(vtxp);
             }
-            while (!unreachableps.empty()) {
-                V3GraphVertex* const vtxp = unreachableps.back();
-                unreachableps.pop_back();
-                for (const V3GraphEdge& edge : vtxp->outEdges()) {
-                    --m_cfgp->m_nEdges;
-                    if (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
+            طالما (!unreachableps.تشه()) {
+                V3_ګراف_راس* ثابت vtxp = unreachableps.شا();
+                unreachableps.راوباسه_شا();
+                لكل (ثابت V3_ګراف_څنډه& څنډه : vtxp->بهر_څنډې()) {
+                    --m_cfgp->m_n_څنډې;
+                    إذا (څنډه.سر()->دننه_Size1()) unreachableps.emplace_شا(څنډه.سر());
                 }
-                --m_cfgp->m_nBlocks;
+                --m_cfgp->m_n_بلاکونه;
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_cfgp.get()), vtxp);
             }
         }
         // Dump the initial graph
-        if (dumpGraphLevel() >= 9) {
-            m_cfgp->rpoBlocks();
+        إذا (dump_ګراف_Level() >= 9) {
+            m_cfgp->rpo_بلاکونه();
             m_cfgp->dumpDotFilePrefixed("cfg-builder-initial");
         }
         // Minimize it
         m_cfgp->minimize();
         // Dump the final graph
-        if (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
+        إذا (dump_ګراف_Level() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
     }
 
-public:
-    static std::unique_ptr<CfgGraph> apply(AstNode* stmtsp) {
-        return std::move(CfgBuilder{stmtsp}.m_cfgp);
+عام:
+    ساكن std::unique_ptr<Cfg_ګراف> apply(Ast_غوټه* stmtsp) {
+        أرجع std::move(CfgBuilder{stmtsp}.m_cfgp);
     }
 };
 
-std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { return CfgBuilder::apply(stmtsp); }
+std::unique_ptr<Cfg_ګراف> Cfg_ګراف::build(Ast_غوټه* stmtsp) { أرجع CfgBuilder::apply(stmtsp); }

@@ -14,36 +14,36 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ERROR_H_
-#define VERILATOR_V3ERROR_H_
+#که_نه_تعریف_شوی VERILATOR_V3ERROR_H_
+#تعریف_کړه VERILATOR_V3ERROR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Hash.h"
-#include "V3Mutex.h"
+#ضمن "V3Hash.h"
+#ضمن "V3Mutex.h"
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3String.h"
+#ضمن "V3String.h"
 
-#include <array>
-#include <bitset>
-#include <cassert>
-#include <cctype>
-#include <deque>
-#include <map>
-#include <set>
-#include <sstream>
+#ضمن <array>
+#ضمن <bitset>
+#ضمن <cassert>
+#ضمن <cctype>
+#ضمن <deque>
+#ضمن <map>
+#ضمن <set>
+#ضمن <sstream>
 
 class V3Error;
-class FileLine;
+class File_کرښه;
 
 //######################################################################
 
-class V3ErrorCode final {
-public:
+class V3_Error_کوډ final {
+عام:
     // clang-format off
-    enum en: uint8_t  {
+    تعداد en: uint8_t  {
         EC_MIN=0,       // Keep first
         //
         EC_INFO,        // General information out
@@ -51,7 +51,7 @@ public:
         EC_FATALMANY,   // Kill the program, due to too many errors, suppress with --quiet-exit
         EC_FATALSRC,    // Kill the program, for internal source errors
         EC_ERROR,       // General error out, can't suppress
-        EC_FIRST_NAMED,  // Just a code so the program knows where to start info/errors
+        EC_لومړی_NAMED,  // Just a code so the program knows where to start info/errors
         // Boolean information we track per-line, but aren't errors
         I_CELLDEFINE,   // Inside cell define from `celldefine/`endcelldefine
         I_COVERAGE,     // Coverage is on/off from /*verilator coverage_on/off*/
@@ -72,7 +72,7 @@ public:
         E_UNSUPPORTED,  // Error: Unsupported (generally)
         //
         // Warning codes:
-        EC_FIRST_WARN,  // Just a code so the program knows where to start warnings
+        EC_لومړی_WARN,  // Just a code so the program knows where to start warnings
         //
         ALWCOMBORDER,   // Always_comb with unordered statements
         ALWNEVER,       // Always will never execute
@@ -182,7 +182,7 @@ public:
         UNPACKED,       // Unsupported unpacked
         UNSATCONSTR,    // Unsatisfied constraint
         UNSIGNED,       // Comparison is constant due to unsigned arithmetic
-        UNUSED,         // Unused genvar, parameter or signal message (Backward Compatibility)
+        ناکارول_شوی_2,         // Unused genvar, parameter or signal message (Backward Compatibility)
         UNUSEDGENVAR,   // No receivers for genvar
         UNUSEDLOOP,     // Loop is unused
         UNUSEDPARAM,    // No receivers for parameters
@@ -193,7 +193,7 @@ public:
         USERWARN,       // Elaboration time $warning
         VARHIDDEN,      // Hiding variable
         WAITCONST,      // Wait condition is constant
-        WIDTH,          // Width mismatch
+        پلنوالی_2,          // Width mismatch
         WIDTHCONCAT,    // Unsized numbers/parameters in concatenations
         WIDTHDIGITS,    // Mismatch between literal size and its value width in bits
         WIDTHEXPAND,    // Width mismatch- lhs > rhs
@@ -205,20 +205,20 @@ public:
         // ***Add new elements below also***
     };
     // clang-format on
-    enum en m_e;
-    V3ErrorCode()
+    تعداد en m_e;
+    V3_Error_کوډ()
         : m_e{EC_MIN} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr V3ErrorCode(en _e)
+    constexpr V3_Error_کوډ(en _e)
         : m_e{_e} {}
-    explicit V3ErrorCode(const char* msgp);  // Matching code or ERROR
-    explicit V3ErrorCode(const std::string& msg)
-        : V3ErrorCode{msg.c_str()} {}
-    explicit V3ErrorCode(int _e)
+    explicit V3_Error_کوډ(ثابت حرف* msgp);  // Matching code or ERROR
+    explicit V3_Error_کوډ(ثابت std::string& پیغام_2)
+        : V3_Error_کوډ{پیغام_2.c_str()} {}
+    explicit V3_Error_کوډ(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const VL_MT_SAFE {
-        static const char* const names[] = {
+    constexpr چلوونکی en() ثابت VL_MT_خوندي { أرجع m_e; }
+    ثابت حرف* ascii() ثابت VL_MT_خوندي {
+        ساكن ثابت حرف* ثابت نومونه[] = {
             // Leading spaces indicate it can't be disabled.
             " MIN", " INFO", " FATAL", " FATALMANY", " FATALSRC", " ERROR", " FIRST_NAMED",
             // Boolean
@@ -250,31 +250,31 @@ public:
             "USERERROR", "USERFATAL", "USERINFO", "USERWARN", "VARHIDDEN", "WAITCONST", "WIDTH",
             "WIDTHCONCAT", "WIDTHDIGITS", "WIDTHEXPAND", "WIDTHTRUNC", "WIDTHXZEXPAND", "ZERODLY",
             "ZEROREPL", " MAX"};
-        return names[m_e];
+        أرجع نومونه[m_e];
     }
     // Warnings that default to off
-    bool defaultsOff() const VL_MT_SAFE {
-        return (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
+    bool defaultsOff() ثابت VL_MT_خوندي {
+        أرجع (m_e == IMPERFECTSCH || m_e == I_CELLDEFINE || m_e == I_ERRORING || styleError());
     }
     // Warnings that warn about nasty side effects
-    bool dangerous() const VL_MT_SAFE { return (m_e == COMBDLY); }
+    bool dangerous() ثابت VL_MT_خوندي { أرجع (m_e == COMBDLY); }
     // Insuppressible error codes that should always stop elaboration
-    bool hardError() const VL_MT_SAFE {
-        return (m_e != EC_INFO && m_e < V3ErrorCode::EC_FIRST_WARN);
+    bool hardError() ثابت VL_MT_خوندي {
+        أرجع (m_e != EC_INFO && m_e < V3_Error_کوډ::EC_لومړی_WARN);
     }
     // Warning is fatal error, don't continue
-    bool severityFatal() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::EC_FATAL || m_e == V3ErrorCode::EC_FATALMANY
-               || m_e == V3ErrorCode::EC_FATALSRC;
+    bool severityFatal() ثابت VL_MT_خوندي {
+        أرجع m_e == V3_Error_کوډ::EC_FATAL || m_e == V3_Error_کوډ::EC_FATALMANY
+               || m_e == V3_Error_کوډ::EC_FATALSRC;
     }
     // Warning is -Info informational
-    bool severityInfo() const VL_MT_SAFE {
-        return m_e == V3ErrorCode::USERINFO || m_e == V3ErrorCode::EC_INFO;
+    bool severityInfo() ثابت VL_MT_خوندي {
+        أرجع m_e == V3_Error_کوډ::USERINFO || m_e == V3_Error_کوډ::EC_INFO;
     }
     // Warnings we'll present to the user as errors
     // Later -Werror- options may make more of these.
-    bool pretendError() const VL_MT_SAFE {
-        return (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
+    bool pretendError() ثابت VL_MT_خوندي {
+        أرجع (m_e == ASSIGNIN || m_e == BADSTDPRAGMA || m_e == BADVLTPRAGMA || m_e == BLKANDNBLK
                 || m_e == BLKLOOPINIT || m_e == CONTASSREG || m_e == ENCAPSULATED
                 || m_e == ENDLABEL || m_e == ENUMITEMWIDTH || m_e == ENUMVALUE || m_e == FINALDLY
                 || m_e == HIERPARAM || m_e == FUNCTIMECTL || m_e == IMPURE || m_e == MODMISSING
@@ -283,24 +283,24 @@ public:
                 || m_e == SUPERNFIRST || m_e == ZEROREPL);
     }
     // Warnings to mention manual
-    bool mentionManual() const VL_MT_SAFE {
-        return (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
+    bool mentionManual() ثابت VL_MT_خوندي {
+        أرجع (pretendError() || m_e == EC_FATALSRC || m_e == SIDEEFFECT || m_e == SYMRSVDWORD
                 || m_e == ZERODLY);
     }
     // Warnings that are lint only; includes all style warnings
-    bool lintError() const VL_MT_SAFE {
-        return (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
+    bool lintError() ثابت VL_MT_خوندي {
+        أرجع (styleError() || m_e == ALWCOMBORDER || m_e == ASCRANGE || m_e == ASSIGNEQEXPR
                 || m_e == BSSPACE || m_e == CASEINCOMPLETE || m_e == CASEOVERLAP
                 || m_e == CASEWITHX || m_e == CASEX || m_e == CASTCONST || m_e == CMPCONST
                 || m_e == COLONPLUS || m_e == IMPLICIT || m_e == IMPLICITSTATIC || m_e == LATCH
                 || m_e == MISINDENT || m_e == NEWERSTD || m_e == PREPROCZERO || m_e == PINMISSING
-                || m_e == REALCVT || m_e == STATICVAR || m_e == UNSIGNED || m_e == WIDTH
+                || m_e == REALCVT || m_e == STATICVAR || m_e == UNSIGNED || m_e == پلنوالی_2
                 || m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
                 || m_e == WIDTHXZEXPAND);
     }
     // Warnings that are style only
-    bool styleError() const VL_MT_SAFE {
-        return (m_e == ASSIGNDLY  // More than style, but for backward compatibility
+    bool styleError() ثابت VL_MT_خوندي {
+        أرجع (m_e == ASSIGNDLY  // More than style, but for backward compatibility
                 || m_e == BLKSEQ || m_e == DECLFILENAME || m_e == DEFPARAM || m_e == EOFNEWLINE
                 || m_e == GENUNNAMED || m_e == IMPORTSTAR || m_e == INCABSPATH
                 || m_e == MULTIDRIVENPROC || m_e == PINCONNECTEMPTY || m_e == PINNOCONNECT
@@ -308,145 +308,145 @@ public:
                 || m_e == UNDRIVEN || m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP
                 || m_e == UNUSEDPARAM || m_e == UNUSEDSIGNAL || m_e == VARHIDDEN);
     }
-    bool isNamed() const { return m_e >= EC_FIRST_NAMED; }
+    bool isNamed() ثابت { أرجع m_e >= EC_لومړی_NAMED; }
 
-private:
-    V3ErrorCode renamedTo() const {
+خاص:
+    V3_Error_کوډ renamed_منزل() ثابت {
         // Return a new error this error has been renamed to
-        if (m_e == LITENDIAN) return V3ErrorCode{ASCRANGE};
-        return V3ErrorCode{EC_MIN};  // Not renamed; see isRenamed()
+        إذا (m_e == LITENDIAN) أرجع V3_Error_کوډ{ASCRANGE};
+        أرجع V3_Error_کوډ{EC_MIN};  // Not renamed; see isRenamed()
     }
-    bool isRenamed() const { return renamedTo() != V3ErrorCode{EC_MIN}; }
+    bool isRenamed() ثابت { أرجع renamed_منزل() != V3_Error_کوډ{EC_MIN}; }
 
-public:
+عام:
     // Call given callable on all error codes that result from given code.
     // Deals with codes which imply disabling multiple other codes.
-    void forDelegateCodes(std::function<void(V3ErrorCode code)> action) const {
+    فراغ forDelegateCodes(std::function<فراغ(V3_Error_کوډ کوډ)> action) ثابت {
         // If add to this switch, also update isUnder()
-        switch (m_e) {
-        case V3ErrorCode::E_UNSUPPORTED:
-            action(V3ErrorCode{E_UNSUPPORTED});
-            action(V3ErrorCode{COVERIGN});
-            action(V3ErrorCode{SPECIFYIGN});
-            return;
-        case V3ErrorCode::I_LINT:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-                const V3ErrorCode subcode{i};
-                if (subcode.lintError()) action(subcode);
+        بدل (m_e) {
+        حالة V3_Error_کوډ::E_UNSUPPORTED:
+            action(V3_Error_کوډ{E_UNSUPPORTED});
+            action(V3_Error_کوډ{COVERIGN});
+            action(V3_Error_کوډ{SPECIFYIGN});
+            أرجع;
+        حالة V3_Error_کوډ::I_LINT:
+            لكل (صحيح i = V3_Error_کوډ::EC_MIN; i < V3_Error_کوډ::_ENUM_MAX; ++i) {
+                ثابت V3_Error_کوډ subcode{i};
+                إذا (subcode.lintError()) action(subcode);
             }
-            return;
-        case V3ErrorCode::I_STYLE:
-            for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-                const V3ErrorCode subcode{i};
-                if (subcode.styleError()) action(subcode);
+            أرجع;
+        حالة V3_Error_کوډ::I_STYLE:
+            لكل (صحيح i = V3_Error_کوډ::EC_MIN; i < V3_Error_کوډ::_ENUM_MAX; ++i) {
+                ثابت V3_Error_کوډ subcode{i};
+                إذا (subcode.styleError()) action(subcode);
             }
-            return;
-        case V3ErrorCode::UNUSED:
-            action(V3ErrorCode{UNUSEDGENVAR});
-            action(V3ErrorCode{UNUSEDLOOP});
-            action(V3ErrorCode{UNUSEDPARAM});
-            action(V3ErrorCode{UNUSEDSIGNAL});
-            return;
-        case V3ErrorCode::WIDTH:
-            action(V3ErrorCode{WIDTHDIGITS});
-            action(V3ErrorCode{WIDTHEXPAND});
-            action(V3ErrorCode{WIDTHTRUNC});
-            action(V3ErrorCode{WIDTHXZEXPAND});
-            return;
-        default: action(*this);
+            أرجع;
+        حالة V3_Error_کوډ::ناکارول_شوی_2:
+            action(V3_Error_کوډ{UNUSEDGENVAR});
+            action(V3_Error_کوډ{UNUSEDLOOP});
+            action(V3_Error_کوډ{UNUSEDPARAM});
+            action(V3_Error_کوډ{UNUSEDSIGNAL});
+            أرجع;
+        حالة V3_Error_کوډ::پلنوالی_2:
+            action(V3_Error_کوډ{WIDTHDIGITS});
+            action(V3_Error_کوډ{WIDTHEXPAND});
+            action(V3_Error_کوډ{WIDTHTRUNC});
+            action(V3_Error_کوډ{WIDTHXZEXPAND});
+            أرجع;
+        افتراضي: action(*this);
         }
     }
-    bool isUnder(V3ErrorCode other) const {
+    bool isUnder(V3_Error_کوډ other) ثابت {
         // Reverse of forDelegateCodes, return true if this' code is under another
-        if (VL_LIKELY(other == m_e)) return true;
-        switch (other) {
-        case V3ErrorCode::E_UNSUPPORTED:
-            return m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
-        case V3ErrorCode::I_LINT: return lintError();
-        case V3ErrorCode::I_STYLE: return styleError();
-        case V3ErrorCode::UNUSED:
-            return m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
+        إذا (VL_LIKELY(other == m_e)) أرجع true;
+        بدل (other) {
+        حالة V3_Error_کوډ::E_UNSUPPORTED:
+            أرجع m_e == E_UNSUPPORTED || m_e == COVERIGN || m_e == SPECIFYIGN;
+        حالة V3_Error_کوډ::I_LINT: أرجع lintError();
+        حالة V3_Error_کوډ::I_STYLE: أرجع styleError();
+        حالة V3_Error_کوډ::ناکارول_شوی_2:
+            أرجع m_e == UNUSEDGENVAR || m_e == UNUSEDLOOP || m_e == UNUSEDPARAM
                    || m_e == UNUSEDSIGNAL;
-        case V3ErrorCode::WIDTH:
-            return m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
+        حالة V3_Error_کوډ::پلنوالی_2:
+            أرجع m_e == WIDTHDIGITS || m_e == WIDTHEXPAND || m_e == WIDTHTRUNC
                    || m_e == WIDTHXZEXPAND;
-        default: return false;
+        افتراضي: أرجع false;
         }
     }
-    string url() const;
+    string url() ثابت;
 };
-constexpr bool operator==(const V3ErrorCode& lhs, const V3ErrorCode& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool چلوونکی==(ثابت V3_Error_کوډ& lhs, ثابت V3_Error_کوډ& rhs) {
+    أرجع lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const V3ErrorCode& lhs, V3ErrorCode::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(V3ErrorCode::en lhs, const V3ErrorCode& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const V3ErrorCode& rhs) {
-    return os << rhs.ascii();
+constexpr bool چلوونکی==(ثابت V3_Error_کوډ& lhs, V3_Error_کوډ::en rhs) { أرجع lhs.m_e == rhs; }
+constexpr bool چلوونکی==(V3_Error_کوډ::en lhs, ثابت V3_Error_کوډ& rhs) { أرجع lhs == rhs.m_e; }
+مضمن std::ostream& چلوونکی<<(std::ostream& os, ثابت V3_Error_کوډ& rhs) {
+    أرجع os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Store a single bit for each error code
-class VErrorBitSet final {
-    std::bitset<V3ErrorCode::_ENUM_MAX> m_bitset;  // Enable for each code
-    VErrorBitSet(const VErrorBitSet& lhs, const VErrorBitSet& rhs)
+class VError_بټ_سېټ final {
+    std::bitset<V3_Error_کوډ::_ENUM_MAX> m_bitset;  // Enable for each code
+    VError_بټ_سېټ(ثابت VError_بټ_سېټ& lhs, ثابت VError_بټ_سېټ& rhs)
         : m_bitset{lhs.m_bitset & rhs.m_bitset} {}
 
-public:
+عام:
     class AllOnes {};
-    VErrorBitSet() = default;
-    explicit VErrorBitSet(AllOnes) { m_bitset.set(); }
-    ~VErrorBitSet() = default;
-    bool test(V3ErrorCode code) const { return m_bitset[code]; }
-    void set(V3ErrorCode code, bool flag) { m_bitset[code] = flag; }
-    V3Hash hash() const {
-        const size_t hashCode = std::hash<std::bitset<V3ErrorCode::_ENUM_MAX>>()(m_bitset);
-        return V3Hash{static_cast<uint64_t>(hashCode)};
+    VError_بټ_سېټ() = افتراضي;
+    explicit VError_بټ_سېټ(AllOnes) { m_bitset.سېټ(); }
+    ~VError_بټ_سېټ() = افتراضي;
+    bool test(V3_Error_کوډ کوډ) ثابت { أرجع m_bitset[کوډ]; }
+    فراغ سېټ(V3_Error_کوډ کوډ, bool flag) { m_bitset[کوډ] = flag; }
+    V3Hash hash() ثابت {
+        ثابت اندازه_t hash_کوډ = std::hash<std::bitset<V3_Error_کوډ::_ENUM_MAX>>()(m_bitset);
+        أرجع V3Hash{static_cast<uint64_t>(hash_کوډ)};
     }
-    VErrorBitSet operator&(const VErrorBitSet& rhs) const { return VErrorBitSet{*this, rhs}; }
-    bool operator==(const VErrorBitSet& rhs) const { return m_bitset == rhs.m_bitset; }
-    string ascii() const {  // LCOV_EXCL_START
-        string result;
-        for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-            if (!test(V3ErrorCode{i})) result += " !"s + V3ErrorCode{i}.ascii();
+    VError_بټ_سېټ چلوونکی&(ثابت VError_بټ_سېټ& rhs) ثابت { أرجع VError_بټ_سېټ{*this, rhs}; }
+    bool چلوونکی==(ثابت VError_بټ_سېټ& rhs) ثابت { أرجع m_bitset == rhs.m_bitset; }
+    string ascii() ثابت {  // LCOV_EXCL_START
+        string پایله;
+        لكل (صحيح i = V3_Error_کوډ::EC_MIN; i < V3_Error_کوډ::_ENUM_MAX; ++i) {
+            إذا (!test(V3_Error_کوډ{i})) پایله += " !"s + V3_Error_کوډ{i}.ascii();
         }
-        return result;
+        أرجع پایله;
     }  // LCOV_EXCL_STOP
 };
 
 // ######################################################################
 
-class VErrorMessage final {
+class VError_پیغام final {
     // TYPES
-    using FileLines = std::deque<const FileLine*>;
+    using File_کرښې = std::deque<ثابت File_کرښه*>;
     // MEMBERS
-    V3ErrorCode m_code;  // Which warning
-    string m_text;  // Warning message text
-    FileLine* m_fileline;  // Primary warning fileline
-    FileLines m_filelines;  // Additional referenced filelines
-public:
+    V3_Error_کوډ m_کوډ;  // Which warning
+    string m_متن;  // Warning message text
+    File_کرښه* m_fileline;  // Primary warning fileline
+    File_کرښې m_filelines;  // Additional referenced filelines
+عام:
     // CONSTRUCTORS
-    VErrorMessage() { clear(); }
-    ~VErrorMessage() = default;
-    void clear() { init(V3ErrorCode::EC_MIN); }
-    void init(V3ErrorCode code) {
-        m_code = code;
-        m_text = "";
+    VError_پیغام() { clear(); }
+    ~VError_پیغام() = افتراضي;
+    فراغ clear() { init(V3_Error_کوډ::EC_MIN); }
+    فراغ init(V3_Error_کوډ کوډ) {
+        m_کوډ = کوډ;
+        m_متن = "";
         m_fileline = nullptr;
         m_filelines.clear();
     }
     // ACCESSORS
-    V3ErrorCode code() const { return m_code; }
-    bool isClear() const { return m_code == V3ErrorCode::EC_MIN; }
-    string text() const { return m_text; }
-    void text(const string& msg) { m_text = msg; }
-    FileLine* fileline() const { return m_fileline; }
-    void fileline(FileLine* fl) { m_fileline = fl; }
-    FileLines filelines() const { return m_filelines; }
+    V3_Error_کوډ کوډ() ثابت { أرجع m_کوډ; }
+    bool isClear() ثابت { أرجع m_کوډ == V3_Error_کوډ::EC_MIN; }
+    string متن() ثابت { أرجع m_متن; }
+    فراغ متن(ثابت string& پیغام_2) { m_متن = پیغام_2; }
+    File_کرښه* fileline() ثابت { أرجع m_fileline; }
+    فراغ fileline(File_کرښه* fl) { m_fileline = fl; }
+    File_کرښې filelines() ثابت { أرجع m_filelines; }
     // Returns identifier for use in warnRelated()
-    int pushFileline(const FileLine* fl) {
-        m_filelines.emplace_back(fl);
-        return m_filelines.size() - 1;
+    صحيح ټېل_Fileline(ثابت File_کرښه* fl) {
+        m_filelines.emplace_شا(fl);
+        أرجع m_filelines.اندازه() - 1;
     }
 };
 
@@ -455,97 +455,97 @@ public:
 class V3ErrorGuarded final {
     // Should only be used by V3ErrorGuarded::m_mutex is already locked
     // contains guarded members
-    friend class V3Error;
+    ملګری class V3Error;
 
-public:
-    using MessagesSet = std::set<std::string>;
-    using ErrorExitCb = void (*)(void);
+عام:
+    using Messages_سېټ = std::سېټ<std::string>;
+    using ErrorExitCb = فراغ (*)(فراغ);
 
-private:
-    static constexpr unsigned MAX_ERRORS = 50;  // Fatal after this may errors
+خاص:
+    ساكن constexpr بینښه MAX_ERRORS = 50;  // Fatal after this may errors
 
     // MEMBERS
     // Tell user to see manual, 0=not yet, 1=doit, 2=disable
     bool m_tellManual VL_GUARDED_BY(m_mutex) = false;
-    bool m_tellInternal VL_GUARDED_BY(m_mutex) = false;
-    VErrorMessage m_message VL_GUARDED_BY(m_mutex);  // Message being formed
+    bool m_tell_دننی VL_GUARDED_BY(m_mutex) = false;
+    VError_پیغام m_پیغام VL_GUARDED_BY(m_mutex);  // Message being formed
     bool m_errorSuppressed VL_GUARDED_BY(m_mutex)
         = false;  // Error being formed should be suppressed
-    MessagesSet m_messages VL_GUARDED_BY(m_mutex);  // Errors outputted, to remove dups
+    Messages_سېټ m_messages VL_GUARDED_BY(m_mutex);  // Errors outputted, to remove dups
     ErrorExitCb m_errorExitCb VL_GUARDED_BY(m_mutex)
         = nullptr;  // Callback when error occurs for dumping
     bool m_errorContexted VL_GUARDED_BY(m_mutex) = false;  // Error being formed got context
-    int m_warnCount VL_GUARDED_BY(m_mutex) = 0;  // Warning count
-    int m_errCount VL_GUARDED_BY(m_mutex) = 0;  // Error count
+    صحيح m_warn_شمېر VL_GUARDED_BY(m_mutex) = 0;  // Warning count
+    صحيح m_err_شمېر VL_GUARDED_BY(m_mutex) = 0;  // Error count
     // Pretend this warning is an error
-    VErrorBitSet m_pretendError VL_GUARDED_BY(m_mutex);
+    VError_بټ_سېټ m_pretendError VL_GUARDED_BY(m_mutex);
     // Told user specifics about this warning
-    VErrorBitSet m_describedEachWarn VL_GUARDED_BY(m_mutex);
+    VError_بټ_سېټ m_describedEachWarn VL_GUARDED_BY(m_mutex);
     // Debug about suppressed this warning
-    VErrorBitSet m_showedSuppressed VL_GUARDED_BY(m_mutex);
-    int m_debugDefault = 0;  // Option: --debugi Default debugging level
-    int m_errorLimit VL_GUARDED_BY(m_mutex)
+    VError_بټ_سېټ m_showedSuppressed VL_GUARDED_BY(m_mutex);
+    صحيح m_debugDefault = 0;  // Option: --debugi Default debugging level
+    صحيح m_error_حد VL_GUARDED_BY(m_mutex)
         = MAX_ERRORS;  // Option: --error-limit Number of errors before exit
     bool m_warnFatal VL_GUARDED_BY(m_mutex) = true;  // Option: --warnFatal Warnings are fatal
     std::ostringstream m_errorStr VL_GUARDED_BY(m_mutex);  // Error string being formed
 
     // METHODS
-    void v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex);
-    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { return m_errorStr; }
-    void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    فراغ v3errorPrep(V3_Error_کوډ کوډ) VL_REQUIRES(m_mutex);
+    std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { أرجع m_errorStr; }
+    فراغ v3error_پای_ټکی(ثابت std::ostringstream& sstr, ثابت string& extra, File_کرښه* fileline)
         VL_REQUIRES(m_mutex);
-    void v3errorEndGuts(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    فراغ v3error_پای_ټکی_Guts(ثابت std::ostringstream& sstr, ثابت string& extra, File_کرښه* fileline)
         VL_REQUIRES(m_mutex);
 
-public:
+عام:
     V3RecursiveMutex m_mutex;  // Make sure only single thread is in class
 
-    string msgPrefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
-    string warnMoreSpaces() VL_REQUIRES(m_mutex);
-    void execErrorExitCb() VL_REQUIRES(m_mutex) {
-        if (m_errorExitCb) m_errorExitCb();
+    string پیغام_مختاړی() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
+    string warn_نور_Spaces() VL_REQUIRES(m_mutex);
+    فراغ execErrorExitCb() VL_REQUIRES(m_mutex) {
+        إذا (m_errorExitCb) m_errorExitCb();
     }
-    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { return m_errorExitCb; }
-    void errorExitCb(ErrorExitCb cb) VL_REQUIRES(m_mutex) { m_errorExitCb = cb; }
-    bool isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex);
-    void vlAbortOrExit() VL_REQUIRES(m_mutex);
-    void errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
-    void incWarnings() VL_REQUIRES(m_mutex) { ++m_warnCount; }
-    void incErrors() VL_REQUIRES(m_mutex) { ++m_errCount; }
-    int errorCount() const VL_REQUIRES(m_mutex) { return m_errCount; }
-    bool isErrorOrWarn() const VL_REQUIRES(m_mutex) {
-        return errorCount() || (warnFatal() && warnCount());
+    ErrorExitCb errorExitCb() VL_REQUIRES(m_mutex) { أرجع m_errorExitCb; }
+    فراغ errorExitCb(ErrorExitCb cb) VL_REQUIRES(m_mutex) { m_errorExitCb = cb; }
+    bool isError(V3_Error_کوډ کوډ, bool supp) VL_REQUIRES(m_mutex);
+    فراغ vlAbortOrExit() VL_REQUIRES(m_mutex);
+    فراغ errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
+    فراغ incWarnings() VL_REQUIRES(m_mutex) { ++m_warn_شمېر; }
+    فراغ incErrors() VL_REQUIRES(m_mutex) { ++m_err_شمېر; }
+    صحيح error_شمېر() ثابت VL_REQUIRES(m_mutex) { أرجع m_err_شمېر; }
+    bool isErrorOrWarn() ثابت VL_REQUIRES(m_mutex) {
+        أرجع error_شمېر() || (warnFatal() && warn_شمېر());
     }
-    bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { return m_pretendError.test(code); }
-    void pretendError(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
-        code.forDelegateCodes([this, flag](V3ErrorCode subcode)
-                                  VL_REQUIRES(m_mutex) { m_pretendError.set(subcode, flag); });
+    bool pretendError(V3_Error_کوډ کوډ) VL_REQUIRES(m_mutex) { أرجع m_pretendError.test(کوډ); }
+    فراغ pretendError(V3_Error_کوډ کوډ, bool flag) VL_REQUIRES(m_mutex) {
+        کوډ.forDelegateCodes([this, flag](V3_Error_کوډ subcode)
+                                  VL_REQUIRES(m_mutex) { m_pretendError.سېټ(subcode, flag); });
     }
-    int debugDefault() const VL_MT_SAFE { return m_debugDefault; }
-    void debugDefault(int level) VL_MT_UNSAFE { m_debugDefault = level; }
-    int errorLimit() const VL_REQUIRES(m_mutex) { return m_errorLimit; }
-    void errorLimit(int level) VL_REQUIRES(m_mutex) { m_errorLimit = level; }
-    bool warnFatal() const VL_REQUIRES(m_mutex) { return m_warnFatal; }
-    void warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
-    V3ErrorCode errorCode() const VL_REQUIRES(m_mutex) { return m_message.code(); }
-    bool errorContexted() VL_REQUIRES(m_mutex) { return m_errorContexted; }
-    int warnCount() const VL_REQUIRES(m_mutex) { return m_warnCount; }
-    bool errorSuppressed() const VL_REQUIRES(m_mutex) { return m_errorSuppressed; }
-    void errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
-    bool describedEachWarn(V3ErrorCode code) VL_REQUIRES(m_mutex) {
-        return m_describedEachWarn.test(code);
+    صحيح debugDefault() ثابت VL_MT_خوندي { أرجع m_debugDefault; }
+    فراغ debugDefault(صحيح level) VL_MT_UNSAFE { m_debugDefault = level; }
+    صحيح error_حد() ثابت VL_REQUIRES(m_mutex) { أرجع m_error_حد; }
+    فراغ error_حد(صحيح level) VL_REQUIRES(m_mutex) { m_error_حد = level; }
+    bool warnFatal() ثابت VL_REQUIRES(m_mutex) { أرجع m_warnFatal; }
+    فراغ warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
+    V3_Error_کوډ error_کوډ() ثابت VL_REQUIRES(m_mutex) { أرجع m_پیغام.کوډ(); }
+    bool errorContexted() VL_REQUIRES(m_mutex) { أرجع m_errorContexted; }
+    صحيح warn_شمېر() ثابت VL_REQUIRES(m_mutex) { أرجع m_warn_شمېر; }
+    bool errorSuppressed() ثابت VL_REQUIRES(m_mutex) { أرجع m_errorSuppressed; }
+    فراغ errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
+    bool describedEachWarn(V3_Error_کوډ کوډ) VL_REQUIRES(m_mutex) {
+        أرجع m_describedEachWarn.test(کوډ);
     }
-    void describedEachWarn(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
-        m_describedEachWarn.set(code, flag);
+    فراغ describedEachWarn(V3_Error_کوډ کوډ, bool flag) VL_REQUIRES(m_mutex) {
+        m_describedEachWarn.سېټ(کوډ, flag);
     }
-    void suppressThisWarning() VL_REQUIRES(m_mutex);
-    string warnRelated(const FileLine* fl) VL_REQUIRES(m_mutex) {
-        const int id = m_message.pushFileline(fl);
-        return "__WARNRELATED("s + std::to_string(id) + ")";
+    فراغ suppressThisWarning() VL_REQUIRES(m_mutex);
+    string warnRelated(ثابت File_کرښه* fl) VL_REQUIRES(m_mutex) {
+        ثابت صحيح id = m_پیغام.ټېل_Fileline(fl);
+        أرجع "__WARNRELATED("s + std::منزل_string(id) + ")";
     }
     string warnContextNone() VL_REQUIRES(m_mutex) {
         errorContexted(true);
-        return "";
+        أرجع "";
     }
 };
 
@@ -554,144 +554,144 @@ public:
 class V3Error final {
     // Static members only
 
-public:
+عام:
     V3Error() = delete;
-    static V3ErrorGuarded& s() VL_MT_SAFE {  // Singleton
-        static V3ErrorGuarded s_s;
-        return s_s;
+    ساكن V3ErrorGuarded& s() VL_MT_خوندي {  // Singleton
+        ساكن V3ErrorGuarded s_s;
+        أرجع s_s;
     }
 
     // ACCESSORS
-    static void debugDefault(int level) VL_MT_UNSAFE { s().debugDefault(level); }
-    static int debugDefault() VL_MT_SAFE { return s().debugDefault(); }
-    static void errorLimit(int level) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        s().errorLimit(level);
+    ساكن فراغ debugDefault(صحيح level) VL_MT_UNSAFE { s().debugDefault(level); }
+    ساكن صحيح debugDefault() VL_MT_خوندي { أرجع s().debugDefault(); }
+    ساكن فراغ error_حد(صحيح level) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        s().error_حد(level);
     }
-    static int errorLimit() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorLimit();
+    ساكن صحيح error_حد() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().error_حد();
     }
-    static void warnFatal(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ warnFatal(bool flag) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().warnFatal(flag);
     }
-    static bool warnFatal() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnFatal();
+    ساكن bool warnFatal() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().warnFatal();
     }
     // returns %Error/%Warn
-    static string msgPrefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().msgPrefix();
+    ساكن string پیغام_مختاړی() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().پیغام_مختاړی();
     }
-    static int errorCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCount();
+    ساكن صحيح error_شمېر() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().error_شمېر();
     }
-    static bool pretendError(V3ErrorCode code) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().pretendError(code);
+    ساكن bool pretendError(V3_Error_کوډ کوډ) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().pretendError(کوډ);
     }
-    static int warnCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnCount();
+    ساكن صحيح warn_شمېر() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().warn_شمېر();
     }
-    static bool errorContexted() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorContexted();
+    ساكن bool errorContexted() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().errorContexted();
     }
-    static void errorContexted(bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ errorContexted(bool flag) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().errorContexted(flag);
     }
-    static void describedEachWarn(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        s().describedEachWarn(code, flag);
+    ساكن فراغ describedEachWarn(V3_Error_کوډ کوډ, bool flag) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        s().describedEachWarn(کوډ, flag);
     }
     // METHODS
-    static void incErrors() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ incErrors() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().incErrors();
     }
-    static void incWarnings() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ incWarnings() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().incWarnings();
     }
-    static void init();
-    static bool isError(V3ErrorCode code, bool supp) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isError(code, supp);
+    ساكن فراغ init();
+    ساكن bool isError(V3_Error_کوډ کوډ, bool supp) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().isError(کوډ, supp);
     }
-    static bool isErrorOrWarn() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().isErrorOrWarn();
+    ساكن bool isErrorOrWarn() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().isErrorOrWarn();
     }
-    static void abortIfErrors() {
-        if (errorCount()) abortIfWarnings();
+    ساكن فراغ abortIfErrors() {
+        إذا (error_شمېر()) abortIfWarnings();
     }
-    static void abortIfWarnings();
+    ساكن فراغ abortIfWarnings();
     // Suppress next %Warn if user has it off
-    static void suppressThisWarning() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ suppressThisWarning() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().suppressThisWarning();
     }
-    static void pretendError(V3ErrorCode code, bool flag) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        s().pretendError(code, flag);
+    ساكن فراغ pretendError(V3_Error_کوډ کوډ, bool flag) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        s().pretendError(کوډ, flag);
     }
-    static string lineStr(const char* filename, int lineno) VL_PURE;
-    static string stripMetaText(const string& text, bool stripMeta) VL_PURE;
-    static V3ErrorCode errorCode() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCode();
+    ساكن string کرښه_Str(ثابت حرف* filename, صحيح lineno) VL_خالص;
+    ساكن string strip_Meta_متن(ثابت string& متن, bool stripMeta) VL_خالص;
+    ساكن V3_Error_کوډ error_کوډ() VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
+        أرجع s().error_کوډ();
     }
-    static void errorExitCb(V3ErrorGuarded::ErrorExitCb cb) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
-        const V3RecursiveLockGuard guard{s().m_mutex};
+    ساكن فراغ errorExitCb(V3ErrorGuarded::ErrorExitCb cb) VL_MT_خوندي_EXCLUDES(s().m_mutex) {
+        ثابت V3_Recursive_قلف_Guard guard{s().m_mutex};
         s().errorExitCb(cb);
     }
 
     // When printing an error/warning, print prefix for multiline message
-    static constexpr const char* WARN_MORE = "__WARNMORE__";
-    static string warnMore() VL_MT_SAFE { return WARN_MORE; }
+    ساكن constexpr ثابت حرف* WARN_نور = "__WARNMORE__";
+    ساكن string warn_نور() VL_MT_خوندي { أرجع WARN_نور; }
     // When printing an error/warning, mark beginning of context information (can nest)
-    static constexpr const char* WARN_CONTEXT_BEGIN = "__WARNBEGIN__";
-    static string warnContextBegin() VL_MT_SAFE { return WARN_CONTEXT_BEGIN; }
+    ساكن constexpr ثابت حرف* WARN_CONTEXT_BEGIN = "__WARNBEGIN__";
+    ساكن string warnContextBegin() VL_MT_خوندي { أرجع WARN_CONTEXT_BEGIN; }
     // When printing an error/warning, mark end of context information (can nest)
-    static constexpr const char* WARN_CONTEXT_END = "__WARNEND__";
-    static string warnContextEnd() VL_MT_SAFE { return WARN_CONTEXT_END; }
+    ساكن constexpr ثابت حرف* WARN_CONTEXT_پای_ټکی = "__WARNEND__";
+    ساكن string warn_Context_پای_ټکی() VL_MT_خوندي { أرجع WARN_CONTEXT_پای_ټکی; }
     // This function marks place in error message from which point message
     // should be printed after information on the error code.
     // The post-processing is done in v3errorEnd function.
-    static string warnAdditionalInfo() VL_MT_SAFE { return "__WARNADDITIONALINFO__"; }
+    ساكن string warnAdditionalInfo() VL_MT_خوندي { أرجع "__WARNADDITIONALINFO__"; }
     /// When building an error, don't show context info
-    static string warnContextNone() {
+    ساكن string warnContextNone() {
         V3Error::errorContexted(true);
-        return "";
+        أرجع "";
     }
 
     // Internals for v3error()/v3fatal() macros only
     // Error end takes the string stream to output, be careful to seek() as needed
-    static std::ostringstream& v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+    ساكن std::ostringstream& v3errorPrep(V3_Error_کوډ کوډ) VL_ACQUIRE(s().m_mutex);
+    ساكن std::ostringstream& v3error_Prep_File_کرښه(V3_Error_کوډ کوډ, ثابت حرف* file, صحيح کرښه)
         VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { return s().v3errorStr(); }
+    ساكن std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { أرجع s().v3errorStr(); }
     // static, but often overridden in classes.
-    static void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    ساكن فراغ v3error_پای_ټکی(ثابت std::ostringstream& sstr, ثابت string& extra, File_کرښه* fileline)
         VL_RELEASE(s().m_mutex);
-    static void vlAbort();
+    ساكن فراغ vlAbort();
 };
 
 // Global versions, so that if the class doesn't define an operator, we get the functions anyway.
-void v3errorEnd(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) VL_MT_SAFE;
-void v3errorEndFatal(std::ostringstream& sstr)
-    VL_RELEASE(V3Error::s().m_mutex) VL_MT_SAFE VL_ATTR_NORETURN;
+فراغ v3error_پای_ټکی(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) VL_MT_خوندي;
+فراغ v3error_پای_ټکی_Fatal(std::ostringstream& sstr)
+    VL_RELEASE(V3Error::s().m_mutex) VL_MT_خوندي VL_ATTR_NORETURN;
 
-#ifdef VL_MT_DISABLED_CODE_UNIT
-#define VL_MT_DISABLED_CODE_UNIT_DEFINED 1
-#else
-#define VL_MT_DISABLED_CODE_UNIT_DEFINED 0
-#endif
+#که_تعریف_شوی VL_MT_DISABLED_کوډ_UNIT
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT_DEFINED 1
+#وإلا
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT_DEFINED 0
+#د_که_پای
 
 // Theses allow errors using << operators: v3error("foo"<<"bar");
 // Careful, you can't put () around msg, as you would in most macro definitions.
@@ -699,169 +699,169 @@ void v3errorEndFatal(std::ostringstream& sstr)
 // single statement can be arbitrary until C++17, thus make it possible to execute
 // V3Error::v3errorPrep that acquires the lock after functions in the msg may require it. So we use
 // the comma operator (,) to guarantee the execution order here.
-#define v3errorBuildMessage(prep, msg) \
-    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << msg))
-#define v3warnCode(code, msg) v3errorEnd(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warnCodeFatal(code, msg) \
-    v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warn(code, msg) v3warnCode(V3ErrorCode::code, msg)
-#define v3info(msg) v3warnCode(V3ErrorCode::EC_INFO, msg)
-#define v3error(msg) v3warnCode(V3ErrorCode::EC_ERROR, msg)
-#define v3fatal(msg) v3warnCodeFatal(V3ErrorCode::EC_FATAL, msg)
+#تعریف_کړه v3error_Build_پیغام(prep, پیغام_2) \
+    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << پیغام_2))
+#تعریف_کړه v3warn_کوډ(کوډ, پیغام_2) v3error_پای_ټکی(v3error_Build_پیغام(V3Error::v3errorPrep(کوډ), پیغام_2))
+#تعریف_کړه v3warn_کوډ_Fatal(کوډ, پیغام_2) \
+    v3error_پای_ټکی_Fatal(v3error_Build_پیغام(V3Error::v3errorPrep(کوډ), پیغام_2))
+#تعریف_کړه v3warn(کوډ, پیغام_2) v3warn_کوډ(V3_Error_کوډ::کوډ, پیغام_2)
+#تعریف_کړه v3info(پیغام_2) v3warn_کوډ(V3_Error_کوډ::EC_INFO, پیغام_2)
+#تعریف_کړه v3error(پیغام_2) v3warn_کوډ(V3_Error_کوډ::EC_ERROR, پیغام_2)
+#تعریف_کړه v3fatal(پیغام_2) v3warn_کوډ_Fatal(V3_Error_کوډ::EC_FATAL, پیغام_2)
 // Fatal exit; used instead of fatal() if message gets suppressed with --quiet-exit
-#define v3fatalMany(msg) v3warnCodeFatal(V3ErrorCode::EC_FATALMANY, msg)
+#تعریف_کړه v3fatalMany(پیغام_2) v3warn_کوډ_Fatal(V3_Error_کوډ::EC_FATALMANY, پیغام_2)
 // Fatal exit; used instead of fatal() to mention the source code line
-#define v3fatalSrc(msg) \
-    v3errorEndFatal(v3errorBuildMessage( \
-        V3Error::v3errorPrepFileLine(V3ErrorCode::EC_FATALSRC, __FILE__, __LINE__), msg))
+#تعریف_کړه v3fatalSrc(پیغام_2) \
+    v3error_پای_ټکی_Fatal(v3error_Build_پیغام( \
+        V3Error::v3error_Prep_File_کرښه(V3_Error_کوډ::EC_FATALSRC, __FILE__, __LINE__), پیغام_2))
 // Use this when normal v3fatal is called in static method that overrides fileline.
-#define v3fatalStatic(msg) \
-    ::v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(V3ErrorCode::EC_FATAL), msg))
+#تعریف_کړه v3fatalStatic(پیغام_2) \
+    ::v3error_پای_ټکی_Fatal(v3error_Build_پیغام(V3Error::v3errorPrep(V3_Error_کوډ::EC_FATAL), پیغام_2))
 
 /// Print a message when debug() >= level.  stmsg is stream; e.g. use as '"foo=" << foo'
 //
 // Requires debug() function to exist in current scope, to hack this in temporarily:
 // auto debug = []() -> bool { return V3Error::debugDefault(); };
-#define UINFO(level, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+#تعریف_کړه UINFO(level, stmsg) \
+    افعل { \
+        إذا (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream ss; \
-            ss << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; \
-            if (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
+            ss << "- " << V3Error::کرښه_Str(__FILE__, __LINE__) << stmsg; \
+            إذا (ss.str()[ss.str().اندازه() - 1] != '\n') ss << '\n'; \
             std::cout << ss.str(); \
         } \
-    } while (false)
+    } طالما (false)
 
 /// Print the prefix of UINFO, but no newline.  No level argument, as
 /// always need an if() at the caller site to determine if rest of the line
 /// gets printed or not
-#define UINFO_PREFIX(stmsg) \
-    do { std::cout << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; } while (false)
+#تعریف_کړه UINFO_مختاړی(stmsg) \
+    افعل { std::cout << "- " << V3Error::کرښه_Str(__FILE__, __LINE__) << stmsg; } طالما (false)
 
 /// Based on debug level, call UINFO then dumpTree on nodep, using given message prefix
 /// If uinfo_msg = "", suppress the first UINFO
 /// If dumptree_msg = "", use the uinfo_msg; note any uinfo_msg side effects will happen twice.
-#define UINFOTREE(level, nodep, uinfo_msg, dumptree_msg) \
-    do { \
-        if (VL_UNCOVERABLE(debug() >= (level))) { \
+#تعریف_کړه UINFOTREE(level, nodep, uinfo_پیغام, dumptree_پیغام) \
+    افعل { \
+        إذا (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream us; \
-            us << uinfo_msg; \
-            if (!us.str().empty()) UINFO(level, us.str()); \
-            if (nodep) { \
+            us << uinfo_پیغام; \
+            إذا (!us.str().تشه()) UINFO(level, us.str()); \
+            إذا (nodep) { \
                 std::ostringstream ss; \
-                ss << dumptree_msg; \
-                if (ss.str().empty()) ss << uinfo_msg; \
-                nodep->dumpTree("- " + V3Error::lineStr(__FILE__, __LINE__) + ss.str() + " - "); \
+                ss << dumptree_پیغام; \
+                إذا (ss.str().تشه()) ss << uinfo_پیغام; \
+                nodep->dump_ونه("- " + V3Error::کرښه_Str(__FILE__, __LINE__) + ss.str() + " - "); \
             } \
         } \
-    } while (false)
+    } طالما (false)
 
 /// Compile statements only when debug build
-#ifdef VL_DEBUG
-#define UDEBUGONLY(stmts) \
-    do { stmts } while (false)
-#else
-#define UDEBUGONLY(stmts) \
-    do { \
-        if (false) { stmts } \
-    } while (false)
-#endif
+#که_تعریف_شوی VL_DEBUG
+#تعریف_کړه UDEBUGONLY(stmts) \
+    افعل { stmts } طالما (false)
+#وإلا
+#تعریف_کړه UDEBUGONLY(stmts) \
+    افعل { \
+        إذا (false) { stmts } \
+    } طالما (false)
+#د_که_پای
 
 /// Assert without error location, generally UASSERT_OBJ preferred
-#define UASSERT(condition, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
-    } while (false)
+#تعریف_کړه UASSERT(condition, stmsg) \
+    افعل { \
+        إذا (VL_UNCOVERABLE(!(condition))) v3fatalSrc(stmsg); \
+    } طالما (false)
 /// Assert with object to provide error location
-#define UASSERT_OBJ(condition, obj, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
-    } while (false)
+#تعریف_کړه UASSERT_OBJ(condition, obj, stmsg) \
+    افعل { \
+        إذا (VL_UNCOVERABLE(!(condition))) (obj)->v3fatalSrc(stmsg); \
+    } طالما (false)
 // For use in V3Ast static functions only
-#define UASSERT_STATIC(condition, stmsg) \
-    do { \
-        if (VL_UNCOVERABLE(!(condition))) { \
+#تعریف_کړه UASSERT_STATIC(condition, stmsg) \
+    افعل { \
+        إذا (VL_UNCOVERABLE(!(condition))) { \
             std::cerr << "Internal Error: " << __FILE__ << ":" << std::dec << __LINE__ << ":" \
                       << (stmsg) << std::endl; \
             V3Error::vlAbort(); \
         } \
-    } while (false)
+    } طالما (false)
 /// Check self test values for expected value.  Safe from side-effects.
-#define UASSERT_SELFTEST(got, exp) \
-    do { \
-        const auto g = (got); \
-        const decltype(g) e{exp}; \
+#تعریف_کړه UASSERT_SELFTEST(got, توانیز_تابع) \
+    افعل { \
+        ثابت خپلکاری g = (got); \
+        ثابت decltype(g) e{توانیز_تابع}; \
         UASSERT(g == e, "Self-test failed '" #got "==" #exp "'" \
                         " got=" \
                             << g << " expected=" << e); \
-    } while (false)
+    } طالما (false)
 
 // Error that call not supported; only for some Ast functions
-#define V3ERROR_NA \
-    do { \
+#تعریف_کړه V3ERROR_NA \
+    افعل { \
         v3error("Internal: Unexpected Call"); \
         v3fatalSrc("Unexpected Call"); \
-    } while (false)
+    } طالما (false)
 
 /// Throw fatal and return a value. The return value will never really be
 /// needed, but required to avoid compiler error.
-#define V3ERROR_NA_RETURN(value) \
+#تعریف_کړه V3ERROR_NA_RETURN(ارزښت) \
     V3ERROR_NA; \
-    return value
+    أرجع ارزښت
 
 // Helper macros for VL_DEFINE_DEBUG_FUNCTIONS
 // Takes an optional "name" (as __VA_ARGS__)
-#define VL_DEFINE_DEBUG(...) \
-    VL_ATTR_UNUSED static int debug##__VA_ARGS__() VL_MT_SAFE { \
+#تعریف_کړه VL_DEFINE_DEBUG(...) \
+    VL_ATTR_ناکارول_شوی ساكن صحيح debug##__VA_ARGS__() VL_MT_خوندي { \
         /* Don't complain this function is unused */ \
-        (void)&debug##__VA_ARGS__; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
-            std::string tag{VL_STRINGIFY(__VA_ARGS__)}; \
-            if (!tag.empty()) tag[0] = std::tolower(tag[0]); \
-            const unsigned debugTag = v3Global.opt.debugLevel(tag); \
-            const unsigned debugSrc = v3Global.opt.debugSrcLevel(__FILE__); \
-            const unsigned debugLevel = debugTag >= debugSrc ? debugTag : debugSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(debugLevel); \
-            s_level = static_cast<int>(debugLevel); \
+        (فراغ)&debug##__VA_ARGS__; \
+        ساكن صحيح s_level = -1; \
+        إذا (VL_UNLIKELY(s_level < 0)) { \
+            std::string نښان{VL_STRINGIFY(__VA_ARGS__)}; \
+            إذا (!نښان.تشه()) نښان[0] = std::tolower(نښان[0]); \
+            ثابت بینښه debug_نښان = v3Global.opt.debugLevel(نښان); \
+            ثابت بینښه debugSrc = v3Global.opt.debugSrcLevel(__FILE__); \
+            ثابت بینښه debugLevel = debug_نښان >= debugSrc ? debug_نښان : debugSrc; \
+            إذا (!v3Global.opt.شته()) أرجع static_cast<صحيح>(debugLevel); \
+            s_level = static_cast<صحيح>(debugLevel); \
         } \
-        return s_level; \
+        أرجع s_level; \
     } \
     static_assert(true, "")
 
 // Takes an optional "name" (as __VA_ARGS__)
-#define VL_DEFINE_DUMP(func, tag) \
-    VL_ATTR_UNUSED static int dump##func() VL_MT_SAFE { \
+#تعریف_کړه VL_DEFINE_DUMP(func, نښان) \
+    VL_ATTR_ناکارول_شوی ساكن صحيح dump##func() VL_MT_خوندي { \
         /* Don't complain this function is unused */ \
-        (void)&dump##func; \
-        static int s_level = -1; \
-        if (VL_UNLIKELY(s_level < 0)) { \
-            const unsigned dumpTag = v3Global.opt.dumpLevel(tag); \
-            const unsigned dumpSrc = v3Global.opt.dumpSrcLevel(__FILE__); \
-            const unsigned dumpLevel = dumpTag >= dumpSrc ? dumpTag : dumpSrc; \
-            if (!v3Global.opt.available()) return static_cast<int>(dumpLevel); \
-            s_level = static_cast<int>(dumpLevel); \
+        (فراغ)&dump##func; \
+        ساكن صحيح s_level = -1; \
+        إذا (VL_UNLIKELY(s_level < 0)) { \
+            ثابت بینښه dump_نښان = v3Global.opt.dumpLevel(نښان); \
+            ثابت بینښه dumpSrc = v3Global.opt.dumpSrcLevel(__FILE__); \
+            ثابت بینښه dumpLevel = dump_نښان >= dumpSrc ? dump_نښان : dumpSrc; \
+            إذا (!v3Global.opt.شته()) أرجع static_cast<صحيح>(dumpLevel); \
+            s_level = static_cast<صحيح>(dumpLevel); \
         } \
-        return s_level; \
+        أرجع s_level; \
     } \
     static_assert(true, "")
 
 // Define debug*() and dump*() routines. This needs to be added to every compilation unit so that
 // --debugi-<tag/srcfile> and --dumpi-<tag/srcfile> can be used to control debug prints and dumping
-#define VL_DEFINE_DEBUG_FUNCTIONS \
+#تعریف_کړه VL_DEFINE_DEBUG_FUNCTIONS \
     VL_DEFINE_DEBUG(); /* Define 'int debug()' for --debugi */ \
     VL_DEFINE_DUMP(Level, ""); /* Define 'int dumpLevel()' for --dumpi */ \
     VL_DEFINE_DUMP(DfgLevel, "dfg"); /* Define 'int dumpDfgLevel()' for --dumpi-level */ \
-    VL_DEFINE_DUMP(GraphLevel, "graph"); /* Define 'int dumpGraphLevel()' for dumpi-graph */ \
-    VL_DEFINE_DUMP(TreeLevel, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
-    VL_DEFINE_DUMP(TreeJsonLevel, \
+    VL_DEFINE_DUMP(ګراف_Level, "graph"); /* Define 'int dumpGraphLevel()' for dumpi-graph */ \
+    VL_DEFINE_DUMP(ونه_Level, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
+    VL_DEFINE_DUMP(ونه_Json_Level, \
                    "tree-json"); /* Define 'int dumpTreeJsonLevel()' for dumpi-tree-json */ \
-    VL_ATTR_UNUSED static int dumpTreeEitherLevel() { \
-        /* Don't complain this function is unused */ (void)&dumpTreeEitherLevel; \
-        return dumpTreeJsonLevel() >= dumpTreeLevel() ? dumpTreeJsonLevel() : dumpTreeLevel(); \
+    VL_ATTR_ناکارول_شوی ساكن صحيح dump_ونه_Either_Level() { \
+        /* Don't complain this function is unused */ (فراغ)&dump_ونه_Either_Level; \
+        أرجع dump_ونه_Json_Level() >= dump_ونه_Level() ? dump_ونه_Json_Level() : dump_ونه_Level(); \
     } \
     static_assert(true, "")
 
 //----------------------------------------------------------------------
 
-#endif  // Guard
+#د_که_پای  // Guard

@@ -14,285 +14,285 @@
 //
 //*************************************************************************
 
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-#define VL_MT_DISABLED_CODE_UNIT 1
+#که_نه_تعریف_شوی V3OPTION_PARSER_NO_VOPTION_BOOL
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT 1
 
-#include "V3Global.h"
-#include "V3Options.h"
-#endif
-#include "V3Error.h"
-#include "V3OptionParser.h"
-#include "V3String.h"
+#ضمن "V3Global.h"
+#ضمن "V3Options.h"
+#د_که_پای
+#ضمن "V3Error.h"
+#ضمن "V3OptionParser.h"
+#ضمن "V3String.h"
 
 //######################################################################
 // V3OptionParser::Impl
-struct V3OptionParser::Impl final {
+بنية V3OptionParser::Impl final {
     // TYPES
 
     // Setting for isOnOffAllowed() and isPartialMatchAllowed()
-    enum class en : uint8_t {
+    تعداد صنف en : uint8_t {
         NONE,  // "-opt"
         FONOFF,  // "-fopt" and "-fno-opt"
         ONOFF,  // "-opt" and "-no-opt"
-        VALUE  // "-opt val"
+        ارزښت_3  // "-opt val"
     };
     // Base class of actual action classes
-    template <en N_Mode, bool N_Allow_Partial_Match = false>
-    class ActionBase VL_NOT_FINAL : public ActionIfs {
-        bool m_notForRerun = false;  // This option is not needed for rerun with --dump-inputs
-        bool m_undocumented = false;  // This option is not documented
-    public:
-        bool isValueNeeded() const override final { return N_Mode == en::VALUE; }
-        bool isFOnOffAllowed() const override final { return N_Mode == en::FONOFF; }
-        bool isNotForRerun() const override final { return m_notForRerun; }
-        bool isOnOffAllowed() const override final { return N_Mode == en::ONOFF; }
-        bool isPartialMatchAllowed() const override final { return N_Allow_Partial_Match; }
-        bool isUndocumented() const override { return m_undocumented; }
+    کينډۍ <en N_ډېرپېښ, منطقي N_Allow_Partial_سمون = خطأ>
+    صنف Action_بنسټ VL_NOT_FINAL : عام ActionIfs {
+        منطقي m_notForRerun = خطأ;  // This option is not needed for rerun with --dump-inputs
+        منطقي m_undocumented = خطأ;  // This option is not documented
+    عام:
+        منطقي is_ارزښت_Needed() ثابت override final { أرجع N_ډېرپېښ == en::ارزښت_3; }
+        منطقي isFOnOffAllowed() ثابت override final { أرجع N_ډېرپېښ == en::FONOFF; }
+        منطقي isNotForRerun() ثابت override final { أرجع m_notForRerun; }
+        منطقي isOnOffAllowed() ثابت override final { أرجع N_ډېرپېښ == en::ONOFF; }
+        منطقي is_Partial_سمون_Allowed() ثابت override final { أرجع N_Allow_Partial_سمون; }
+        منطقي isUndocumented() ثابت override { أرجع m_undocumented; }
         ActionIfs& undocumented() override {
-            m_undocumented = true;
-            return *this;
+            m_undocumented = ریښتیا;
+            أرجع *هذا;
         }
         ActionIfs& notForRerun() override {
-            m_notForRerun = true;
-            return *this;
+            m_notForRerun = ریښتیا;
+            أرجع *هذا;
         }
     };
 
     // Actual action classes
-    template <typename T>
-    class ActionSet;  // "-opt" for bool-ish, "-opt val" for int and string
-    template <typename N_Bool>
-    class ActionFOnOff;  // "-fopt" and "-fno-opt" for bool-ish
-    template <typename N_Bool>
-    class ActionOnOff;  // "-opt" and "-no-opt" for bool-ish
-    class ActionCbCall;  // Callback without argument for "-opt"
-    class ActionCbFOnOff;  // Callback for "-fopt" and "-fno-opt"
-    class ActionCbOnOff;  // Callback for "-opt" and "-no-opt"
-    template <typename T>
-    class ActionCbVal;  // Callback for "-opt val"
-    class ActionCbPartialMatch;  // Callback "-O3" for "-O"
-    class ActionCbPartialMatchVal;  // Callback "-debugi-V3Options 3" for "-debugi-"
+    کينډۍ <ډول_نوم T>
+    صنف Action_سېټ;  // "-opt" for bool-ish, "-opt val" for int and string
+    کينډۍ <ډول_نوم N_Bool>
+    صنف ActionFOnOff;  // "-fopt" and "-fno-opt" for bool-ish
+    کينډۍ <ډول_نوم N_Bool>
+    صنف ActionOnOff;  // "-opt" and "-no-opt" for bool-ish
+    صنف ActionCbCall;  // Callback without argument for "-opt"
+    صنف ActionCbFOnOff;  // Callback for "-fopt" and "-fno-opt"
+    صنف ActionCbOnOff;  // Callback for "-opt" and "-no-opt"
+    کينډۍ <ډول_نوم T>
+    صنف ActionCbVal;  // Callback for "-opt val"
+    صنف Action_Cb_Partial_سمون;  // Callback "-O3" for "-O"
+    صنف Action_Cb_Partial_سمون_Val;  // Callback "-debugi-V3Options 3" for "-debugi-"
 
     // MEMBERS
-    std::map<const string, std::unique_ptr<ActionIfs>> m_options;  // All actions for option
-    bool m_isFinalized{false};  // Becomes after finalize() is called
+    std::map<ثابت string, std::unique_ptr<ActionIfs>> m_options;  // All actions for option
+    منطقي m_isFinalized{خطأ};  // Becomes after finalize() is called
     VSpellCheck m_spellCheck;  // Suggests closest option when not found
 };
 
 //######################################################################
 // Action classes in V3OptionParser::Impl
 
-#define V3OPTION_PARSER_DEF_ACT_CLASS(className, type, body, enType) \
-    template <> \
-    class V3OptionParser::Impl::className<type> final : public ActionBase<enType> { \
-        type* const m_valp; /* Pointer to an option variable*/ \
+#تعریف_کړه V3OPTION_PARSER_DEF_ACT_CLASS(className, type, body, enType) \
+    کينډۍ <> \
+    صنف V3OptionParser::Impl::className<type> final : عام Action_بنسټ<enType> { \
+        type* ثابت m_valp; /* Pointer to an option variable*/ \
 \
-    public: \
-        explicit className(type* valp) \
+    عام: \
+        څرګند className(type* valp) \
             : m_valp(valp) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        فراغ exec(ثابت حرف* optp, ثابت حرف* argp) override { body; } \
     }
 
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, bool, *m_valp = true, en::NONE);
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, VOptionBool, m_valp->setTrueOrFalse(true), en::NONE);
-#endif
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, int, *m_valp = std::atoi(argp), en::VALUE);
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::VALUE);
+V3OPTION_PARSER_DEF_ACT_CLASS(Action_سېټ, منطقي, *m_valp = ریښتیا, en::NONE);
+#که_نه_تعریف_شوی V3OPTION_PARSER_NO_VOPTION_BOOL
+V3OPTION_PARSER_DEF_ACT_CLASS(Action_سېټ, VOptionBool, m_valp->سېټ_True_Or_False(ریښتیا), en::NONE);
+#د_که_پای
+V3OPTION_PARSER_DEF_ACT_CLASS(Action_سېټ, صحيح, *m_valp = std::atoi(argp), en::ارزښت_3);
+V3OPTION_PARSER_DEF_ACT_CLASS(Action_سېټ, string, *m_valp = argp, en::ارزښت_3);
 
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, bool, *m_valp = !hasPrefixFNo(optp), en::FONOFF);
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, bool, *m_valp = !hasPrefixNo(optp), en::ONOFF);
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, VOptionBool, m_valp->setTrueOrFalse(!hasPrefixNo(optp)),
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, منطقي, *m_valp = !has_مختاړی_FNo(optp), en::FONOFF);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, منطقي, *m_valp = !has_مختاړی_No(optp), en::ONOFF);
+#که_نه_تعریف_شوی V3OPTION_PARSER_NO_VOPTION_BOOL
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, VOptionBool, m_valp->سېټ_True_Or_False(!has_مختاړی_No(optp)),
                               en::ONOFF);
-#endif
-#undef V3OPTION_PARSER_DEF_ACT_CLASS
+#د_که_پای
+#تعریف_لغوه V3OPTION_PARSER_DEF_ACT_CLASS
 
-#define V3OPTION_PARSER_DEF_ACT_CB_CLASS(className, funcType, body, ...) \
-    class V3OptionParser::Impl::className final : public ActionBase<__VA_ARGS__> { \
+#تعریف_کړه V3OPTION_PARSER_DEF_ACT_CB_CLASS(className, funcType, body, ...) \
+    صنف V3OptionParser::Impl::className final : عام Action_بنسټ<__VA_ARGS__> { \
         std::function<funcType> m_cb; /* Callback function */ \
 \
-    public: \
-        using CbType = std::function<funcType>; \
-        explicit className(CbType cb) \
+    عام: \
+        کارول CbType = std::function<funcType>; \
+        څرګند className(CbType cb) \
             : m_cb(std::move(cb)) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        فراغ exec(ثابت حرف* optp, ثابت حرف* argp) override { body; } \
     }
 
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbCall, void(void), m_cb(), en::NONE);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbFOnOff, void(bool), m_cb(!hasPrefixFNo(optp)),
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbCall, فراغ(فراغ), m_cb(), en::NONE);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbFOnOff, فراغ(منطقي), m_cb(!has_مختاړی_FNo(optp)),
                                  en::FONOFF);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, void(bool), m_cb(!hasPrefixNo(optp)), en::ONOFF);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, void(const char*), m_cb(optp), en::NONE,
-                                 true);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, void(const char*, const char*),
-                                 m_cb(optp, argp), en::VALUE, true);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, فراغ(منطقي), m_cb(!has_مختاړی_No(optp)), en::ONOFF);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(Action_Cb_Partial_سمون, فراغ(ثابت حرف*), m_cb(optp), en::NONE,
+                                 ریښتیا);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(Action_Cb_Partial_سمون_Val, فراغ(ثابت حرف*, ثابت حرف*),
+                                 m_cb(optp, argp), en::ارزښت_3, ریښتیا);
 
-template <>
-class V3OptionParser::Impl::ActionCbVal<int> final : public ActionBase<en::VALUE> {
-    std::function<void(int)> m_cb;  // Callback function
+کينډۍ <>
+صنف V3OptionParser::Impl::ActionCbVal<صحيح> final : عام Action_بنسټ<en::ارزښت_3> {
+    std::function<فراغ(صحيح)> m_cb;  // Callback function
 
-public:
-    using CbType = std::function<void(int)>;
-    explicit ActionCbVal(CbType cb)
+عام:
+    کارول CbType = std::function<فراغ(صحيح)>;
+    څرګند ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(std::atoi(argp)); }
+    فراغ exec(ثابت حرف* optp, ثابت حرف* argp) override { m_cb(std::atoi(argp)); }
 };
 
-template <>
-class V3OptionParser::Impl::ActionCbVal<const char*> final : public ActionBase<en::VALUE> {
-    std::function<void(const char*)> m_cb;
+کينډۍ <>
+صنف V3OptionParser::Impl::ActionCbVal<ثابت حرف*> final : عام Action_بنسټ<en::ارزښت_3> {
+    std::function<فراغ(ثابت حرف*)> m_cb;
 
-public:
-    using CbType = std::function<void(const char*)>;
-    explicit ActionCbVal(CbType cb)
+عام:
+    کارول CbType = std::function<فراغ(ثابت حرف*)>;
+    څرګند ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(argp); }
+    فراغ exec(ثابت حرف* optp, ثابت حرف* argp) override { m_cb(argp); }
 };
 
-#undef V3OPTION_PARSER_DEF_ACT_CB_CLASS
+#تعریف_لغوه V3OPTION_PARSER_DEF_ACT_CB_CLASS
 
 //######################################################################
 // Member functions of V3OptionParser
 
-V3OptionParser::ActionIfs* V3OptionParser::find(const char* optp) {
-    const auto it = m_pimpl->m_options.find(optp);
-    if (it != m_pimpl->m_options.end()) return it->second.get();  // Exact match
-    for (auto&& act : m_pimpl->m_options) {
-        if (act.second->isFOnOffAllowed()) {  // Find starts with "-fno"
-            if (const char* const nop
-                = VString::startsWith(optp, "-fno-") ? (optp + std::strlen("-fno-")) : nullptr) {
-                if (act.first.substr(std::strlen("-f"), std::string::npos)
+V3OptionParser::ActionIfs* V3OptionParser::پیدا_کړه(ثابت حرف* optp) {
+    ثابت خپلکاری it = m_pimpl->m_options.پیدا_کړه(optp);
+    إذا (it != m_pimpl->m_options.پای_ټکی()) أرجع it->دوهم.get();  // Exact match
+    لكل (خپلکاری&& act : m_pimpl->m_options) {
+        إذا (act.دوهم->isFOnOffAllowed()) {  // Find starts with "-fno"
+            إذا (ثابت حرف* ثابت nop
+                = VString::startsWith(optp, "-fno-") ? (optp + std::مزي_اوږدوالی("-fno-")) : تش_اشاره) {
+                إذا (act.لومړی.substr(std::مزي_اوږدوالی("-f"), std::string::npos)
                     == nop) {  // [-f]opt = [-fno-]opt
-                    return act.second.get();
+                    أرجع act.دوهم.get();
                 }
             }
         }
-        if (act.second->isOnOffAllowed()) {  // Find starts with "-no"
-            if (const char* const nop
-                = VString::startsWith(optp, "-no") ? (optp + std::strlen("-no")) : nullptr) {
-                if (act.first == nop || act.first == ("-"s + nop)) return act.second.get();
+        إذا (act.دوهم->isOnOffAllowed()) {  // Find starts with "-no"
+            إذا (ثابت حرف* ثابت nop
+                = VString::startsWith(optp, "-no") ? (optp + std::مزي_اوږدوالی("-no")) : تش_اشاره) {
+                إذا (act.لومړی == nop || act.لومړی == ("-"s + nop)) أرجع act.دوهم.get();
             }
-        } else if (act.second->isPartialMatchAllowed()) {
-            if (VString::startsWith(optp, act.first)) return act.second.get();
+        } وإلا إذا (act.دوهم->is_Partial_سمون_Allowed()) {
+            إذا (VString::startsWith(optp, act.لومړی)) أرجع act.دوهم.get();
         }
     }
-    return nullptr;
+    أرجع تش_اشاره;
 }
 
-template <typename T_Act, typename T_Arg>
-V3OptionParser::ActionIfs& V3OptionParser::add(const std::string& opt, T_Arg arg) {
+کينډۍ <ډول_نوم T_Act, ډول_نوم T_Arg>
+V3OptionParser::ActionIfs& V3OptionParser::جمع_کړه(ثابت std::string& opt, T_Arg arg) {
     UASSERT(!m_pimpl->m_isFinalized, "Cannot add after finalize() is called");
-    std::unique_ptr<T_Act> act{new T_Act{std::move(arg)}};
-    UASSERT(opt.size() >= 2, opt << " is too short");
+    std::unique_ptr<T_Act> act{جديد T_Act{std::move(arg)}};
+    UASSERT(opt.اندازه() >= 2, opt << " is too short");
     UASSERT(opt[0] == '-' || opt[0] == '+', opt << " does not start with either '-' or '+'");
     UASSERT(!(opt[0] == '-' && opt[1] == '-'), "Option must have single '-', but " << opt);
-    const auto insertedResult = m_pimpl->m_options.emplace(opt, std::move(act));
-    UASSERT(insertedResult.second, opt << " is already registered");
-    return *insertedResult.first->second;
+    ثابت خپلکاری inserted_پایله = m_pimpl->m_options.emplace(opt, std::move(act));
+    UASSERT(inserted_پایله.دوهم, opt << " is already registered");
+    أرجع *inserted_پایله.لومړی->دوهم;
 }
 
-bool V3OptionParser::hasPrefixFNo(const char* strp) {
+منطقي V3OptionParser::has_مختاړی_FNo(ثابت حرف* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-fno");
+    إذا (strp[1] == '-') ++strp;
+    أرجع VString::startsWith(strp, "-fno");
 }
 
-bool V3OptionParser::hasPrefixNo(const char* strp) {
+منطقي V3OptionParser::has_مختاړی_No(ثابت حرف* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-no");
+    إذا (strp[1] == '-') ++strp;
+    أرجع VString::startsWith(strp, "-no");
 }
 
-std::pair<int, bool> V3OptionParser::parse(int idx, int argc, char* argv[]) {
+std::pair<صحيح, منطقي> V3OptionParser::parse(صحيح idx, صحيح argc, حرف* argv[]) {
     UASSERT(m_pimpl->m_isFinalized, "finalize() must be called before parse()");
-    const char* optp = argv[idx];
-    if (optp[0] == '-' && optp[1] == '-') ++optp;
-    ActionIfs* const actp = find(optp);
-    if (!actp) return {0, false};
-    if (!actp->isValueNeeded()) {
-        actp->exec(optp, nullptr);
-        return {1, !actp->isNotForRerun()};
+    ثابت حرف* optp = argv[idx];
+    إذا (optp[0] == '-' && optp[1] == '-') ++optp;
+    ActionIfs* ثابت actp = پیدا_کړه(optp);
+    إذا (!actp) أرجع {0, خطأ};
+    إذا (!actp->is_ارزښت_Needed()) {
+        actp->exec(optp, تش_اشاره);
+        أرجع {1, !actp->isNotForRerun()};
     }
-    if (idx + 1 < argc) {
+    إذا (idx + 1 < argc) {
         actp->exec(optp, argv[idx + 1]);
-        return {2, !actp->isNotForRerun()};
+        أرجع {2, !actp->isNotForRerun()};
     }
-    return {0, false};
+    أرجع {0, خطأ};
 }
 
-string V3OptionParser::getSuggestion(const char* str) const {
-    return m_pimpl->m_spellCheck.bestCandidateMsg(str);
+string V3OptionParser::getSuggestion(ثابت حرف* str) ثابت {
+    أرجع m_pimpl->m_spellCheck.غوره_Candidate_پیغام(str);
 }
 
-void V3OptionParser::addSuggestionCandidate(const string& s) {
-    m_pimpl->m_spellCheck.pushCandidate(s);
+فراغ V3OptionParser::جمع_کړه_Suggestion_Candidate(ثابت string& s) {
+    m_pimpl->m_spellCheck.ټېل_Candidate(s);
 }
 
-void V3OptionParser::finalize() {
+فراغ V3OptionParser::finalize() {
     UASSERT(!m_pimpl->m_isFinalized, "finalize() must not be called twice");
-    for (auto&& opt : m_pimpl->m_options) {
-        if (opt.second->isUndocumented()) continue;
-        m_pimpl->m_spellCheck.pushCandidate(opt.first);
-        if (opt.second->isFOnOffAllowed()) {
-            m_pimpl->m_spellCheck.pushCandidate(
-                "-fno-" + opt.first.substr(std::strlen("-f"), std::string::npos));
+    لكل (خپلکاری&& opt : m_pimpl->m_options) {
+        إذا (opt.دوهم->isUndocumented()) استمر;
+        m_pimpl->m_spellCheck.ټېل_Candidate(opt.لومړی);
+        إذا (opt.دوهم->isFOnOffAllowed()) {
+            m_pimpl->m_spellCheck.ټېل_Candidate(
+                "-fno-" + opt.لومړی.substr(std::مزي_اوږدوالی("-f"), std::string::npos));
         }
-        if (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.pushCandidate("-no" + opt.first);
+        إذا (opt.دوهم->isOnOffAllowed()) m_pimpl->m_spellCheck.ټېل_Candidate("-no" + opt.لومړی);
     }
-    m_pimpl->m_isFinalized = true;
+    m_pimpl->m_isFinalized = ریښتیا;
 }
 
-void V3OptionParser::dumpOptions() {
-    for (const auto& opt : m_pimpl->m_spellCheck.candidates()) {
-        std::cout << "OPTION: \"" + opt + "\"\n";
+فراغ V3OptionParser::dumpOptions() {
+    لكل (ثابت خپلکاری& opt : m_pimpl->m_spellCheck.candidates()) {
+        std::وتنه << "OPTION: \"" + opt + "\"\n";
     }
 }
 
 V3OptionParser::V3OptionParser()
-    : m_pimpl{new Impl{}} {}
+    : m_pimpl{جديد Impl{}} {}
 
-V3OptionParser::~V3OptionParser() = default;
+V3OptionParser::~V3OptionParser() = افتراضي;
 
 //######################################################################
 // Member functions of V3OptionParser::AppendHelper
 
-#define V3OPTION_PARSER_DEF_OP(actKind, argType, actType) \
-    V3OptionParser::ActionIfs& V3OptionParser::AppendHelper::operator()( \
-        const char* optp, actKind, argType arg) const { \
-        return m_parser.add<Impl::actType>(optp, arg); \
+#تعریف_کړه V3OPTION_PARSER_DEF_OP(act_ډول, argType, actType) \
+    V3OptionParser::ActionIfs& V3OptionParser::AppendHelper::چلوونکی()( \
+        ثابت حرف* optp, act_ډول, argType arg) ثابت { \
+        أرجع m_parser.جمع_کړه<Impl::actType>(optp, arg); \
     }
-V3OPTION_PARSER_DEF_OP(Set, bool*, ActionSet<bool>)
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-V3OPTION_PARSER_DEF_OP(Set, VOptionBool*, ActionSet<VOptionBool>)
-#endif
-V3OPTION_PARSER_DEF_OP(Set, int*, ActionSet<int>)
-V3OPTION_PARSER_DEF_OP(Set, string*, ActionSet<string>)
-V3OPTION_PARSER_DEF_OP(FOnOff, bool*, ActionFOnOff<bool>)
-V3OPTION_PARSER_DEF_OP(OnOff, bool*, ActionOnOff<bool>)
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
+V3OPTION_PARSER_DEF_OP(سېټ_2, منطقي*, Action_سېټ<منطقي>)
+#که_نه_تعریف_شوی V3OPTION_PARSER_NO_VOPTION_BOOL
+V3OPTION_PARSER_DEF_OP(سېټ_2, VOptionBool*, Action_سېټ<VOptionBool>)
+#د_که_پای
+V3OPTION_PARSER_DEF_OP(سېټ_2, صحيح*, Action_سېټ<صحيح>)
+V3OPTION_PARSER_DEF_OP(سېټ_2, string*, Action_سېټ<string>)
+V3OPTION_PARSER_DEF_OP(FOnOff, منطقي*, ActionFOnOff<منطقي>)
+V3OPTION_PARSER_DEF_OP(OnOff, منطقي*, ActionOnOff<منطقي>)
+#که_نه_تعریف_شوی V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_OP(OnOff, VOptionBool*, ActionOnOff<VOptionBool>)
-#endif
+#د_که_پای
 V3OPTION_PARSER_DEF_OP(CbCall, Impl::ActionCbCall::CbType, ActionCbCall)
 V3OPTION_PARSER_DEF_OP(CbFOnOff, Impl::ActionCbFOnOff::CbType, ActionCbFOnOff)
 V3OPTION_PARSER_DEF_OP(CbOnOff, Impl::ActionCbOnOff::CbType, ActionCbOnOff)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<int>::CbType, ActionCbVal<int>)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<const char*>::CbType, ActionCbVal<const char*>)
-#undef V3OPTION_PARSER_DEF_OP
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<صحيح>::CbType, ActionCbVal<صحيح>)
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<ثابت حرف*>::CbType, ActionCbVal<ثابت حرف*>)
+#تعریف_لغوه V3OPTION_PARSER_DEF_OP
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatch,
-                                         Impl::ActionCbPartialMatch::CbType cb) const {
-    const size_t prefixLen = std::strlen(optp);
-    const auto wrap = [prefixLen, cb](const char* optp) { cb(optp + prefixLen); };
-    return m_parser.add<Impl::ActionCbPartialMatch>(optp, std::move(wrap));
+V3OptionParser::AppendHelper::چلوونکی()(ثابت حرف* optp, Cb_Partial_سمون,
+                                         Impl::Action_Cb_Partial_سمون::CbType cb) ثابت {
+    ثابت اندازه_t مختاړی_Len = std::مزي_اوږدوالی(optp);
+    ثابت خپلکاری wrap = [مختاړی_Len, cb](ثابت حرف* optp) { cb(optp + مختاړی_Len); };
+    أرجع m_parser.جمع_کړه<Impl::Action_Cb_Partial_سمون>(optp, std::move(wrap));
 }
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatchVal,
-                                         Impl::ActionCbPartialMatchVal::CbType cb) const {
-    const size_t prefixLen = std::strlen(optp);
-    const auto wrap
-        = [prefixLen, cb](const char* optp, const char* argp) { cb(optp + prefixLen, argp); };
-    return m_parser.add<Impl::ActionCbPartialMatchVal>(optp, std::move(wrap));
+V3OptionParser::AppendHelper::چلوونکی()(ثابت حرف* optp, Cb_Partial_سمون_Val,
+                                         Impl::Action_Cb_Partial_سمون_Val::CbType cb) ثابت {
+    ثابت اندازه_t مختاړی_Len = std::مزي_اوږدوالی(optp);
+    ثابت خپلکاری wrap
+        = [مختاړی_Len, cb](ثابت حرف* optp, ثابت حرف* argp) { cb(optp + مختاړی_Len, argp); };
+    أرجع m_parser.جمع_کړه<Impl::Action_Cb_Partial_سمون_Val>(optp, std::move(wrap));
 }

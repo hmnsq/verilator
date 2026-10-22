@@ -14,299 +14,299 @@
 //
 //*************************************************************************
 
-#include "V3Ast.h"
-#include "V3Const.h"
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3ParseImp.h"  // Defines YYTYPE; before including bison header
+#ضمن "V3Ast.h"
+#ضمن "V3Const.h"
+#ضمن "V3Control.h"
+#ضمن "V3Global.h"
+#ضمن "V3ParseImp.h"  // Defines YYTYPE; before including bison header
 
-#include <stack>
-#include <vector>
+#ضمن <stack>
+#ضمن <vector>
 
 class V3ParseGrammar final {
-public:
+عام:
     AstVar* m_varAttrp = nullptr;  // Current variable for attribute adding
     AstRange* m_gateRangep = nullptr;  // Current range for gate declarations
-    AstNode* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
+    Ast_غوټه* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
     AstCase* m_caseAttrp = nullptr;  // Current case statement for attribute adding
-    AstNodeDType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
-    AstNodeDType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
+    Ast_غوټه_DType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
+    Ast_غوټه_DType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
     VRandAttr m_memRand;  // 'rand'/'randc' qualifier for next member declaration
     AstDelay* m_netDelayp = nullptr;  // Pointer to delay for next signal declaration
     AstStrengthSpec* m_netStrengthp = nullptr;  // Pointer to strength for next net declaration
-    FileLine* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
+    File_کرښه* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
     AstPin* m_instParamp = nullptr;  // Parameters for instantiations
     string m_instModule;  // Name of module referenced for instantiations
     VVarType m_varDecl = VVarType::UNKNOWN;  // Type for next signal declaration (reg/wire/etc)
     VDirection m_varIO = VDirection::NONE;  // Direction for next signal declaration (reg/wire/etc)
     VLifetime m_varLifetime;  // Static/Automatic for next signal
-    V3Control::VarSpecKind m_vltVarSpecKind = V3Control::VarSpecKind::VAR;
+    V3Control::Var_Spec_ډول m_vlt_Var_Spec_ډول = V3Control::Var_Spec_ډول::VAR;
     bool m_impliedDecl = false;  // Allow implied wire declarations
     bool m_varDeclTyped = false;  // Var got reg/wire for dedup check
     bool m_pinAnsi = false;  // In ANSI parameter or port list
     bool m_tracingParse = true;  // Tracing disable for parser
-    bool m_inImplements = false;  // Is inside class implements list
+    bool m_دننه_Implements = false;  // Is inside class implements list
     bool m_insideProperty = false;  // Is inside property declaration
     bool m_specifyignWarned = false;  // Issued a SPECIFYIGN warning
-    bool m_typedPropertyPort = false;  // Typed property port occurred on port lists
-    bool m_modportImpExpActive
+    bool m_typed_Property_پورټ = false;  // Typed property port occurred on port lists
+    bool m_modport_Imp_Exp_فعال
         = false;  // Standalone ID is a tf_identifier instead of port_identifier
-    bool m_modportImpExpLastIsExport
+    bool m_modport_Imp_Exp_وروستی_Is_Export
         = false;  // Last import_export statement in modportPortsDecl is an export
-    AstNode* m_modportProtoTasksp
+    Ast_غوټه* m_modportProtoTasksp
         = nullptr;  // Prototype tasks from modport import/export with prototype
 
-    int m_pinNum = -1;  // Pin number currently parsing
-    std::stack<int> m_pinStack;  // Queue of pin numbers being parsed
+    صحيح m_pin_عدد = -1;  // Pin number currently parsing
+    std::ډېری<صحيح> m_pin_ډېری;  // Queue of pin numbers being parsed
 
-    static int s_typeImpNum;  // Implicit type number, incremented each module
+    ساكن صحيح s_type_Imp_عدد;  // Implicit type number, incremented each module
 
     // CONSTRUCTORS
-    V3ParseGrammar() = default;
-    static V3ParseGrammar* singletonp() {
-        static V3ParseGrammar singleton;
-        return &singleton;
+    V3ParseGrammar() = افتراضي;
+    ساكن V3ParseGrammar* singletonp() {
+        ساكن V3ParseGrammar singleton;
+        أرجع &singleton;
     }
 
     // METHODS
-    AstArg* argWrapList(AstNodeExpr* nodep) VL_MT_DISABLED;
-    bool allTracingOn(const FileLine* fl) const {
-        return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+    AstArg* argWrapList(Ast_غوټه_بیان* nodep) VL_MT_DISABLED;
+    bool allTracingOn(ثابت File_کرښه* fl) ثابت {
+        أرجع v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
     }
-    AstRange* scrubRange(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstRange* scrubRangeMulti(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstNodePreSel* scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED;
-    AstNodeDType* createArray(AstNodeDType* basep, AstNodeRange* rangep,
+    AstRange* scrubRange(Ast_غوټه_Range* rangep) VL_MT_DISABLED;
+    AstRange* scrubRangeMulti(Ast_غوټه_Range* rangep) VL_MT_DISABLED;
+    Ast_غوټه_Pre_Sel* scrubSel(Ast_غوټه_بیان* fromp, Ast_غوټه_Pre_Sel* selp) VL_MT_DISABLED;
+    Ast_غوټه_DType* createArray(Ast_غوټه_DType* basep, Ast_غوټه_Range* rangep,
                               bool isPacked) VL_MT_DISABLED;
-    AstVar* createVariable(FileLine* fileline, const string& name, AstNodeRange* arrayp,
-                           AstNode* attrsp) VL_MT_DISABLED;
-    AstAssignW* createSupplyExpr(FileLine* fileline, const string& name, int value) VL_MT_DISABLED;
-    std::string textQuoted(FileLine* fileline, const std::string& text) {
-        return singletonp()->unquoteString(fileline, text);
+    AstVar* createVariable(File_کرښه* fileline, ثابت string& name, Ast_غوټه_Range* arrayp,
+                           Ast_غوټه* attrsp) VL_MT_DISABLED;
+    Ast_ټاکل_W* create_Supply_بیان(File_کرښه* fileline, ثابت string& name, صحيح ارزښت) VL_MT_DISABLED;
+    std::string متن_Quoted(File_کرښه* fileline, ثابت std::string& متن) {
+        أرجع singletonp()->unquoteString(fileline, متن);
     }
-    AstNode* createCell(FileLine* fileline, const string& name, AstPin* pinlistp,
-                        AstNodeRange* rangelistp) {
+    Ast_غوټه* createCell(File_کرښه* fileline, ثابت string& name, AstPin* pinlistp,
+                        Ast_غوټه_Range* rangelistp) {
         // Must clone m_instParamp as may be comma'ed list of instances
-        AstCell* const nodep = new AstCell{
+        AstCell* ثابت nodep = new AstCell{
             fileline,
             singletonp()->m_instModuleFl,
             name,
             singletonp()->m_instModule,
             pinlistp,
-            (singletonp()->m_instParamp ? singletonp()->m_instParamp->cloneTree(true) : nullptr),
+            (singletonp()->m_instParamp ? singletonp()->m_instParamp->clone_ونه(true) : nullptr),
             singletonp()->scrubRangeMulti(rangelistp)};
         nodep->trace(singletonp()->allTracingOn(fileline));
-        return nodep;
+        أرجع nodep;
     }
-    static AstNode* createPatternKey(AstNodeExpr* exprp) {
+    ساكن Ast_غوټه* create_نمونه_کلی(Ast_غوټه_بیان* exprp) {
         // Assignment pattern key.  A bare identifier may name a structure
         // member rather than a constant, so pass it on as a Text node for
         // V3LinkDot to resolve; anything else is a constant expression.
-        if (const AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
-            if (!refp->lhsp() && !refp->ftaskrefp()) {
-                AstNode* const textp = new AstText{refp->fileline(), refp->name()};
-                VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return textp;
+        إذا (ثابت AstParseRef* ثابت refp = VN_CAST(exprp, ParseRef)) {
+            إذا (!refp->lhsp() && !refp->ftaskrefp()) {
+                Ast_غوټه* ثابت textp = new Ast_متن{refp->fileline(), refp->name()};
+                VL_DO_DANGLING(exprp->delete_ونه(), exprp);
+                أرجع textp;
             }
         }
-        return exprp;
+        أرجع exprp;
     }
-    AstDisplay* createDisplayError(FileLine* fileline) {
+    AstDisplay* createDisplayError(File_کرښه* fileline) {
         AstDisplay* nodep = new AstDisplay{fileline, VDisplayType::DT_ERROR, "", nullptr, nullptr};
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstStop{fileline, false});
-        return nodep;
+        Ast_غوټه::جمع_کړه_بل<Ast_غوټه, Ast_غوټه>(nodep, new AstStop{fileline, false});
+        أرجع nodep;
     }
     // Apply the array marker of a bins declaration of values: '[]' creates a bin per value, and
     // '[N]' N bins holding the values (IEEE 1800-2023 19.5.1)
-    static AstCoverBin* coverBinArray(AstCoverBin* binp, AstNodeExpr* sizep) {
-        if (!sizep) return binp;
+    ساكن AstCoverBin* coverBinArray(AstCoverBin* binp, Ast_غوټه_بیان* sizep) {
+        إذا (!sizep) أرجع binp;
         binp->isArray(true);
-        if (VN_IS(sizep, Unbounded)) {
-            VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        } else {
+        إذا (VN_IS(sizep, Unbounded)) {
+            VL_DO_DANGLING(sizep->delete_ونه(), sizep);
+        } وإلا {
             binp->arraySizep(sizep);
         }
-        return binp;
+        أرجع binp;
     }
     // The array marker of another bins declaration, which supports only '[]'; true if present
-    static bool coverBinArrayUnsized(AstNodeExpr* sizep) {
-        if (!sizep) return false;
-        if (!VN_IS(sizep, Unbounded)) {
+    ساكن bool coverBinArrayUnsized(Ast_غوټه_بیان* sizep) {
+        إذا (!sizep) أرجع false;
+        إذا (!VN_IS(sizep, Unbounded)) {
             sizep->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size (treated as '[]')");
         }
-        VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        return true;
+        VL_DO_DANGLING(sizep->delete_ونه(), sizep);
+        أرجع true;
     }
-    AstNodeExpr* createGatePin(AstNodeExpr* exprp) {
-        AstRange* const rangep = m_gateRangep;
-        if (!rangep) return exprp;
-        return new AstGatePin{rangep->fileline(), exprp, rangep->cloneTree(true)};
+    Ast_غوټه_بیان* createGatePin(Ast_غوټه_بیان* exprp) {
+        AstRange* ثابت rangep = m_gateRangep;
+        إذا (!rangep) أرجع exprp;
+        أرجع new AstGatePin{rangep->fileline(), exprp, rangep->clone_ونه(true)};
     }
-    AstSenTree* createSenTreeChanged(FileLine* fl, AstNodeExpr* exprp) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
+    Ast_Sen_ونه* create_Sen_ونه_بدل_شوی(File_کرښه* fl, Ast_غوټه_بیان* exprp) {
+        أرجع new Ast_Sen_ونه{fl, new Ast_Sen_توکی{fl, VEdgeType::ET_بدل_شوی, exprp}};
     }
-    AstSenTree* createSenTreeDotStar(FileLine* fl) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
+    Ast_Sen_ونه* create_Sen_ونه_Dot_ستوری(File_کرښه* fl) {
+        أرجع new Ast_Sen_ونه{fl, new Ast_Sen_توکی{fl, VEdgeType::ET_COMBO_ستوری, nullptr}};
     }
-    AstNodeExpr* createGlobalClockParseRef(FileLine* fl) {
-        return new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
+    Ast_غوټه_بیان* createGlobalClockParseRef(File_کرښه* fl) {
+        أرجع new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
     }
-    AstSenTree* createGlobalClockSenTree(FileLine* fl) {
-        return createSenTreeChanged(fl, createGlobalClockParseRef(fl));
+    Ast_Sen_ونه* create_Global_Clock_Sen_ونه(File_کرښه* fl) {
+        أرجع create_Sen_ونه_بدل_شوی(fl, createGlobalClockParseRef(fl));
     }
-    AstNode* createNettype(FileLine* fl, const string& name) {
+    Ast_غوټه* createNettype(File_کرښه* fl, ثابت string& name) {
         // As nettypes are unsupported, we just alias to logic
-        AstTypedef* const nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
+        AstTypedef* ثابت nodep = new AstTypedef{fl, name, nullptr, VFlag_ماشوم_DType{},
                                                  new AstBasicDType{fl, VFlagLogicPacked{}, 1}};
-        V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        V3ParseImp::parsep()->نښان_Nodep(nodep);
+        أرجع nodep;
     }
-    AstNode* createTypedef(FileLine* fl, const string& name, AstNode* attrsp, AstNodeDType* basep,
-                           AstNodeRange* rangep) {
-        AstTypedef* const nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
+    Ast_غوټه* createTypedef(File_کرښه* fl, ثابت string& name, Ast_غوټه* attrsp, Ast_غوټه_DType* basep,
+                           Ast_غوټه_Range* rangep) {
+        AstTypedef* ثابت nodep = new AstTypedef{fl, name, attrsp, VFlag_ماشوم_DType{},
                                                  singletonp()->createArray(basep, rangep, false)};
-        V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        V3ParseImp::parsep()->نښان_Nodep(nodep);
+        أرجع nodep;
     }
-    AstNode* createTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType) {
-        AstTypedefFwd* const nodep = new AstTypedefFwd{fl, name, fwdType};
-        V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+    Ast_غوټه* createTypedefFwd(File_کرښه* fl, ثابت string& name, ثابت VFwdType& fwdType) {
+        AstTypedefFwd* ثابت nodep = new AstTypedefFwd{fl, name, fwdType};
+        V3ParseImp::parsep()->نښان_Nodep(nodep);
+        أرجع nodep;
     }
-    static void endLabel(FileLine* fl, const AstNode* nodep, const string* endnamep) {
-        endLabel(fl, nodep->prettyName(), endnamep);
+    ساكن فراغ پای_ټکی_Label(File_کرښه* fl, ثابت Ast_غوټه* nodep, ثابت string* endnamep) {
+        پای_ټکی_Label(fl, nodep->prettyName(), endnamep);
     }
-    static void endLabel(FileLine* fl, const string& name, const string* endnamep) {
-        if (fl && endnamep && *endnamep != "" && name != *endnamep
-            && name != AstNode::prettyName(*endnamep)) {
+    ساكن فراغ پای_ټکی_Label(File_کرښه* fl, ثابت string& name, ثابت string* endnamep) {
+        إذا (fl && endnamep && *endnamep != "" && name != *endnamep
+            && name != Ast_غوټه::prettyName(*endnamep)) {
             fl->v3warn(ENDLABEL, "End label '" << *endnamep << "' does not match begin label '"
                                                << name << "'");
         }
     }
-    void setDType(AstNodeDType* dtypep) {
-        if (m_varDTypep) {
+    فراغ سېټ_DType(Ast_غوټه_DType* dtypep) {
+        إذا (m_varDTypep) {
             UASSERT_OBJ(!m_varDTypep->backp(), m_varDTypep, "Should not link directly");
-            VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
+            VL_DO_CLEAR(m_varDTypep->delete_ونه(), m_varDTypep = nullptr);
         }
         m_varDTypep = dtypep;
     }
-    void setNetDelay(AstDelay* netDelayp) {
-        if (m_netDelayp) {
+    فراغ سېټ_Net_Delay(AstDelay* netDelayp) {
+        إذا (m_netDelayp) {
             UASSERT_OBJ(!m_netDelayp->backp(), m_netDelayp, "Should not link directly");
-            VL_DO_CLEAR(m_netDelayp->deleteTree(), m_netDelayp = nullptr);
+            VL_DO_CLEAR(m_netDelayp->delete_ونه(), m_netDelayp = nullptr);
         }
         m_netDelayp = netDelayp;
     }
-    void setNetStrength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
-    void pinPush() {
-        m_pinStack.push(m_pinNum);
-        m_pinNum = 1;
+    فراغ سېټ_Net_Strength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
+    فراغ pin_ټېل() {
+        m_pin_ډېری.ټېل(m_pin_عدد);
+        m_pin_عدد = 1;
     }
-    void pinPop(FileLine* fl) {
-        if (VL_UNCOVERABLE(m_pinStack.empty())) fl->v3fatalSrc("Underflow of pin stack");
-        m_pinNum = m_pinStack.top();
-        m_pinStack.pop();
+    فراغ pin_راوباسه(File_کرښه* fl) {
+        إذا (VL_UNCOVERABLE(m_pin_ډېری.تشه())) fl->v3fatalSrc("Underflow of pin stack");
+        m_pin_عدد = m_pin_ډېری.سر();
+        m_pin_ډېری.راوباسه();
     }
-    AstNodeDType* addRange(AstBasicDType* dtypep, AstNodeRange* rangesp, bool isPacked) {
+    Ast_غوټه_DType* جمع_کړه_Range(AstBasicDType* dtypep, Ast_غوټه_Range* rangesp, bool isPacked) {
         // If dtypep isn't basic, don't use this, call createArray() instead
-        if (!rangesp) return dtypep;
+        إذا (!rangesp) أرجع dtypep;
 
         // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
         // then [1:1] becomes the basicdtype range; everything else is arraying
         // the final [5:5][4:4] will be passed in another call to createArray
-        AstNodeRange* rangearraysp = nullptr;
-        if (dtypep->isRanged()) {
+        Ast_غوټه_Range* rangearraysp = nullptr;
+        إذا (dtypep->isRanged()) {
             rangearraysp = rangesp;  // Already a range; everything is an array
-        } else {
-            AstNodeRange* finalp = rangesp;
-            while (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
-            if (finalp != rangesp) {
-                finalp->unlinkFrBack();
+        } وإلا {
+            Ast_غوټه_Range* finalp = rangesp;
+            طالما (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
+            إذا (finalp != rangesp) {
+                finalp->unlink_Fr_شا();
                 rangearraysp = rangesp;
             }
-            if (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
-                if (dtypep->implicit()) {
+            إذا (AstRange* ثابت finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
+                إذا (dtypep->implicit()) {
                     // It's no longer implicit but a wire logic type
-                    AstBasicDType* const newp = new AstBasicDType{
+                    AstBasicDType* ثابت newp = new AstBasicDType{
                         dtypep->fileline(), VBasicDTypeKwd::LOGIC, dtypep->numeric(),
-                        dtypep->width(), dtypep->widthMin()};
-                    VL_DO_DANGLING(dtypep->deleteTree(), dtypep);
+                        dtypep->پلنوالی(), dtypep->پلنوالی_Min()};
+                    VL_DO_DANGLING(dtypep->delete_ونه(), dtypep);
                     dtypep = newp;
                 }
                 dtypep->rangep(finalRangep);
             }
         }
-        return createArray(dtypep, rangearraysp, isPacked);
+        أرجع createArray(dtypep, rangearraysp, isPacked);
     }
-    string unquoteString(FileLine* fileline, const std::string& text) VL_MT_DISABLED;
-    void checkDpiVer(FileLine* fileline, const string& str) {
-        if (str != "DPI-C" && !v3Global.opt.bboxSys())
+    string unquoteString(File_کرښه* fileline, ثابت std::string& متن) VL_MT_DISABLED;
+    فراغ checkDpiVer(File_کرښه* fileline, ثابت string& str) {
+        إذا (str != "DPI-C" && !v3Global.opt.bboxSys())
             fileline->v3warn(E_UNSUPPORTED, "Unsupported DPI type '"
                                                 << str
                                                 << "': Use 'DPI-C' (IEEE 1800-2023 35.5.4)");
     }
     // Given a list of clocking declarations, put them in clocking items
-    AstClockingItem* makeClockingItemList(FileLine* flp, const VDirection direction,
-                                          AstNodeExpr* skewp, AstNode* const clockingDeclps) {
-        AstClockingItem* itemsp = nullptr;
-        for (AstNode *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
+    Ast_Clocking_توکی* make_Clocking_توکی_List(File_کرښه* flp, ثابت VDirection direction,
+                                          Ast_غوټه_بیان* skewp, Ast_غوټه* ثابت clockingDeclps) {
+        Ast_Clocking_توکی* itemsp = nullptr;
+        لكل (Ast_غوټه *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (nextp) nextp->unlinkFrBackWithNext();
-            if (itemsp && skewp) skewp = skewp->cloneTree(false);
-            AstClockingItem* itemp = new AstClockingItem{flp, direction, skewp, nodep};
-            itemsp = AstNode::addNextNull(itemsp, itemp);
+            إذا (nextp) nextp->unlink_Fr_شا_With_بل();
+            إذا (itemsp && skewp) skewp = skewp->clone_ونه(false);
+            Ast_Clocking_توکی* itemp = new Ast_Clocking_توکی{flp, direction, skewp, nodep};
+            itemsp = Ast_غوټه::جمع_کړه_بل_Null(itemsp, itemp);
         }
-        return itemsp;
+        أرجع itemsp;
     }
 
-    void setScopedSigAttr(AstNode* attrsp) {
-        if (m_scopedSigAttr) {  // clearing set attribute
+    فراغ سېټ_Scoped_Sig_Attr(Ast_غوټه* attrsp) {
+        إذا (m_scopedSigAttr) {  // clearing set attribute
             UASSERT_OBJ(!m_scopedSigAttr->backp(), m_scopedSigAttr, "Should not link directly");
-            VL_DO_DANGLING(m_scopedSigAttr->deleteTree(), m_scopedSigAttr);
+            VL_DO_DANGLING(m_scopedSigAttr->delete_ونه(), m_scopedSigAttr);
         }
         m_scopedSigAttr = attrsp;
     }
 
-    void createScopedSigAttr(VAttrType vattrT) {
-        setScopedSigAttr(new AstAttrOf{V3ParseImp::parsep()->lexFileline(), vattrT});
+    فراغ createScopedSigAttr(VAttrType vattrT) {
+        سېټ_Scoped_Sig_Attr(new Ast_Attr_د{V3ParseImp::parsep()->lexFileline(), vattrT});
     }
 
-    AstNode* cloneScopedSigAttr() const {
-        return m_scopedSigAttr ? m_scopedSigAttr->cloneTree(true) : nullptr;
+    Ast_غوټه* cloneScopedSigAttr() ثابت {
+        أرجع m_scopedSigAttr ? m_scopedSigAttr->clone_ونه(true) : nullptr;
     }
 
-    void createGenericIface(AstNode* const nodep, AstNodeRange* const rangep,
-                            AstNode* sigAttrListp, FileLine* const modportFileline = nullptr,
-                            const string& modportstrp = "") {
+    فراغ createGenericIface(Ast_غوټه* ثابت nodep, Ast_غوټه_Range* ثابت rangep,
+                            Ast_غوټه* sigAttrListp, File_کرښه* ثابت modportFileline = nullptr,
+                            ثابت string& modportstrp = "") {
         m_varDecl = VVarType::GPARAM;
         m_varIO = VDirection::NONE;
-        setDType(new AstParseTypeDType{nodep->fileline(), VFwdType::GENERIC_INTERFACE});
+        سېټ_DType(new AstParseTypeDType{nodep->fileline(), VFwdType::GENERIC_INTERFACE});
         m_varDeclTyped = true;
-        const std::string uniqueName = "__VGIfaceParam" + nodep->name();
-        AstNode::addNext(nodep,
+        ثابت std::string uniqueName = "__VGIfaceParam" + nodep->name();
+        Ast_غوټه::جمع_کړه_بل(nodep,
                          createVariable(nodep->fileline(), uniqueName, nullptr,
-                                        sigAttrListp ? sigAttrListp->cloneTree(true) : nullptr));
+                                        sigAttrListp ? sigAttrListp->clone_ونه(true) : nullptr));
         m_varDecl = VVarType::IFACEREF;
-        AstIfaceGenericDType* const refdtypep
+        AstIfaceGenericDType* ثابت refdtypep
             = new AstIfaceGenericDType{nodep->fileline(), modportFileline, modportstrp};
-        setDType(refdtypep);
+        سېټ_DType(refdtypep);
         m_varDeclTyped = true;
-        m_varIO = VDirection::INPUT;
-        AstNode::addNext(nodep,
+        m_varIO = VDirection::ننوت;
+        Ast_غوټه::جمع_کړه_بل(nodep,
                          createVariable(nodep->fileline(), nodep->name(), rangep, sigAttrListp));
         m_varDecl = VVarType::VAR;
     }
 
     // Wrap all statements in the given list in an AstBegin (except those already an AstBegin)
-    static AstBegin* wrapInBegin(AstNodeStmt* stmtsp) {
+    ساكن AstBegin* wrap_دننه_Begin(Ast_غوټه_Stmt* stmtsp) {
         AstBegin* resp = nullptr;
-        for (AstNodeStmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeStmt);
-            if (nextp) nextp->unlinkFrBackWithNext();
+        لكل (Ast_غوټه_Stmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), غوټه_Stmt);
+            إذا (nextp) nextp->unlink_Fr_شا_With_بل();
             AstBegin* beginp = VN_CAST(nodep, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
-            resp = AstNode::addNext(resp, beginp);
+            إذا (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
+            resp = Ast_غوټه::جمع_کړه_بل(resp, beginp);
         }
-        return resp;
+        أرجع resp;
     }
 };

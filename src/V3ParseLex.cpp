@@ -14,48 +14,48 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کړه VL_MT_DISABLED_کوډ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3ParseImp.h"
+#ضمن "V3ParseImp.h"
 
-#include <fstream>
+#ضمن <fstream>
 
 //======================================================================
 // Build in LEX script
 
-#define yyFlexLexer V3LexerBase
-#include "V3Lexer.yy.cpp"
-#undef yyFlexLexer
+#تعریف_کړه yyFlexLexer V3_Lexer_بنسټ
+#ضمن "V3Lexer.yy.cpp"
+#تعریف_لغوه yyFlexLexer
 
 //######################################################################
 // Lex-derived class
 
 /// Override the base lexer class so we can add some access functions
-class V3Lexer final : public V3LexerBase {
-public:
+صنف V3Lexer final : عام V3_Lexer_بنسټ {
+عام:
     // CONSTRUCTORS
     V3Lexer()
-        : V3LexerBase{nullptr} {}
-    ~V3Lexer() override = default;
+        : V3_Lexer_بنسټ{تش_اشاره} {}
+    ~V3Lexer() override = افتراضي;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    فراغ unputString(ثابت حرف* textp, اندازه_t اوږدتیا) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        ثابت حرف* cp = textp;
+        لكل (cp += اوږدتیا - 1; اوږدتیا--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
-    parsep()->m_lexerp->unputString(textp, length);
+فراغ V3ParseImp::lexUnputString(ثابت حرف* textp, اندازه_t اوږدتیا) {
+    parsep()->m_lexerp->unputString(textp, اوږدتیا);
 }
 
-void V3ParseImp::yylexReadTok() {
+فراغ V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
-    parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    parsep()->lexFileline()->پیل_Token();
+    ثابت صحيح token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -63,12 +63,12 @@ void V3ParseImp::yylexReadTok() {
 //######################################################################
 // Read class functions
 
-void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
-    m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+فراغ V3ParseImp::lexNew() {
+    إذا (m_lexerp) ړنګول m_lexerp;  // Restart from clean slate.
+    m_lexerp = جديد V3Lexer;
+    إذا (debugFlex() >= 9) m_lexerp->سېټ_debug(~0);
 }
 
-void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+فراغ V3ParseImp::lexDestroy() {
+    إذا (m_lexerp) VL_DO_CLEAR(ړنګول m_lexerp, m_lexerp = تش_اشاره);
 }

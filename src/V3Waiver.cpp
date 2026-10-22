@@ -14,70 +14,70 @@
 //
 //*************************************************************************
 
-#include "verilatedos.h"
+#ضمن "verilatedos.h"
 
-#include "V3Waiver.h"
+#ضمن "V3Waiver.h"
 
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Options.h"
+#ضمن "V3File.h"
+#ضمن "V3Global.h"
+#ضمن "V3Options.h"
 
-#include <memory>
-#include <sstream>
+#ضمن <memory>
+#ضمن <sstream>
 
-void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, const std::string& msg)
-    VL_MT_SAFE_EXCLUDES(s_mutex) {
-    if (filename == V3Options::getStdPackagePath()) return;
-    if (filename == V3Options::getStdWaiverPath()) return;
-    const V3LockGuard lock{s_mutex};
+فراغ V3Waiver::جمع_کړه_ثبت(V3_Error_کوډ error_کوډ, ثابت std::string& filename, ثابت std::string& پیغام_2)
+    VL_MT_خوندي_EXCLUDES(s_mutex) {
+    إذا (filename == V3Options::get_Std_Package_لار()) أرجع;
+    إذا (filename == V3Options::get_Std_Waiver_لار()) أرجع;
+    ثابت V3_قلف_Guard قلف_2{s_mutex};
 
-    string trimmsg = msg;
-    if (!v3Global.opt.waiverMultiline()) {
-        const size_t pos = trimmsg.find('\n');
+    string trimmsg = پیغام_2;
+    إذا (!v3Global.opt.waiverMultiline()) {
+        ثابت اندازه_t pos = trimmsg.پیدا_کړه('\n');
         trimmsg.resize(pos);
-        if (pos != std::string::npos) trimmsg += '*';
+        إذا (pos != std::string::npos) trimmsg += '*';
     }
     {  // Remove line numbers and context "\n [0-9] | ", "\n  ^[~]+"
-        string result;
-        for (const char* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
-            while (*cp == ' ' || isdigit(*cp)) ++cp;
-            if (*cp == '|') ++cp;
+        string پایله;
+        لكل (ثابت حرف* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
+            طالما (*cp == ' ' || که_عدد(*cp)) ++cp;
+            إذا (*cp == '|') ++cp;
             // ^~~~~
-            while (*cp == ' ' || *cp == '^') ++cp;
-            while (*cp == '~') ++cp;
-            while (*cp && *cp != '\n') result += *cp++;
-            while (*cp == '\n') result += *cp++;
+            طالما (*cp == ' ' || *cp == '^') ++cp;
+            طالما (*cp == '~') ++cp;
+            طالما (*cp && *cp != '\n') پایله += *cp++;
+            طالما (*cp == '\n') پایله += *cp++;
         }
-        trimmsg = result;
+        trimmsg = پایله;
     }
     trimmsg += '*';
     {  // "\n"->"*", " *"->"*", "* "->"*"
-        string result;
-        string add;
-        result.reserve(trimmsg.size());
-        for (const char& c : trimmsg) {
-            if (c == '*' || !std::isprint(c)) {
-                add = "*";
-            } else if (c == ' ') {
-                if (add != "*") add += c;
-            } else {
-                result += add + c;
-                add = "";
+        string پایله;
+        string جمع_کړه;
+        پایله.reserve(trimmsg.اندازه());
+        لكل (ثابت حرف& c : trimmsg) {
+            إذا (c == '*' || !std::isprint(c)) {
+                جمع_کړه = "*";
+            } وإلا إذا (c == ' ') {
+                إذا (جمع_کړه != "*") جمع_کړه += c;
+            } وإلا {
+                پایله += جمع_کړه + c;
+                جمع_کړه = "";
             }
         }
-        result += add;
-        trimmsg = result;
+        پایله += جمع_کړه;
+        trimmsg = پایله;
     }
 
-    std::stringstream entry;
-    entry << "lint_off -rule " << errorCode.ascii() << " -file \"*"
+    std::stringstream ثبت;
+    ثبت << "lint_off -rule " << error_کوډ.ascii() << " -file \"*"
           << VString::quoteBackslash(filename) << "\" -match \"" << trimmsg << "\"";
-    s_waiverList.push_back(entry.str());
+    s_waiverList.ټېل_شا(ثبت.str());
 }
 
-void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+فراغ V3Waiver::اكتب(ثابت std::string& filename) VL_MT_خوندي_EXCLUDES(s_mutex) {
+    ثابت std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    إذا (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     *ofp << "// DESCR"
             "IPTION: Verilator output: Waivers generated with --waiver-output\n\n";
@@ -89,11 +89,11 @@ void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
     *ofp << "//   2. Keep the waiver permanently if you are sure it is okay\n";
     *ofp << "//   3. Keep the waiver temporarily to suppress the output\n\n";
 
-    const V3LockGuard lock{s_mutex};
+    ثابت V3_قلف_Guard قلف_2{s_mutex};
 
-    if (s_waiverList.empty()) *ofp << "// No waivers needed - great!\n";
+    إذا (s_waiverList.تشه()) *ofp << "// No waivers needed - great!\n";
 
-    for (const auto& i : s_waiverList) *ofp << "// " << i << "\n\n";
+    لكل (ثابت خپلکاری& i : s_waiverList) *ofp << "// " << i << "\n\n";
 }
 
 V3Mutex V3Waiver::s_mutex;
