@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    จำนวนเต็ม m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    จำนวนเต็ม m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -63,27 +63,27 @@ public:
     ~VlcOptions() = default;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
+    void parseOptsList(จำนวนเต็ม argc, var_na** argv) VL_MT_DISABLED;
     void addReadFile(const string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    const VlStringSet& readFiles() const { คืน m_readFiles; }
+    string annotateOut() const { คืน m_annotateOut; }
+    bool annotateAll() const { คืน m_annotateAll; }
+    จำนวนเต็ม annotateMin() const { คืน m_annotateMin; }
+    bool countOk(uint64_t count) const { คืน count >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() const { คืน m_annotatePoints; }
+    bool includeResetArcs() const { คืน m_includeResetArcs; }
+    จำนวนเต็ม reportLevels() const { คืน m_reportLevels; }
+    bool reportSpecified() const { คืน !m_report.empty(); }
+    bool reportSummary() const { คืน m_reportSummary; }
+    bool reportHierarchy() const { คืน m_reportHierarchy; }
+    bool rank() const { คืน m_rank; }
+    bool unlink() const { คืน m_unlink; }
+    string writeFile() const { คืน m_writeFile; }
+    string writeInfoFile() const { คืน m_writeInfoFile; }
+    bool isTypeMatch(const var_na* name) const {
+        คืน VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)

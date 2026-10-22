@@ -44,25 +44,25 @@ class EmitCConstPool final : public EmitCConstInit {
         UASSERT(!ofp(), "Output file should not be open");
 
         std::vector<const AstVar*> varps;
-        for (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
+        สำหรับ (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ถ้า (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
         }
 
-        if (varps.empty()) return;  // Constant pool is empty, so we are done
+        ถ้า (varps.empty()) คืน;  // Constant pool is empty, so we are done
 
         stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) {  //
-            return ap->name() < bp->name();
+            คืน ap->name() < bp->name();
         });
 
-        for (const AstVar* varp : varps) {
-            if (splitNeeded()) {
+        สำหรับ (const AstVar* varp : varps) {
+            ถ้า (splitNeeded()) {
                 // Splitting file, so using parallel build.
                 v3Global.useParallelBuild(true);
                 // Close old file
                 closeOutputFile();
             }
 
-            if (!ofp()) {
+            ถ้า (!ofp()) {
                 openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, false,
                                         "Constant pool");
                 puts("\n");
@@ -72,16 +72,16 @@ class EmitCConstPool final : public EmitCConstInit {
             puts("\n");
             putns(varp, "extern ");
             // Literal types should be constinit (no code generation needed)
-            if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+            ถ้า (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
             putns(varp, "const ");
             emitVarDefn(varp);
             // Account for file splitting
             varp->valuep()->foreach([this](const AstConst* constp) {
-                if (constp->num().isString()) {
+                ถ้า (constp->num().isString()) {
                     splitSizeInc(AstNode::INSTR_COUNT_STR);
-                } else if (constp->isWide()) {
+                } มิฉะนั้น ถ้า (constp->isWide()) {
                     splitSizeInc(constp->widthWords());
-                } else {
+                } มิฉะนั้น {
                     splitSizeInc(1);
                 }
             });
@@ -90,7 +90,7 @@ class EmitCConstPool final : public EmitCConstInit {
             ++m_emitted[varp->valuep()->type()];
         }
 
-        if (ofp()) closeOutputFile();
+        ถ้า (ofp()) closeOutputFile();
     }
 
     // VISITORS
@@ -105,7 +105,7 @@ public:
             V3Stats::addStat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
         };
         addStat(VNType::Const);
-        for (int t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
+        สำหรับ (จำนวนเต็ม t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
             addStat(static_cast<VNType::en>(t));
         }
     }

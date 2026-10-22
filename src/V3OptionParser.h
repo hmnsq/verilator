@@ -57,28 +57,28 @@ public:
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    sa_nracanaa Impl;
 
 private:
     // MEMBERS
     const std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
+    ActionIfs* find(const var_na* optp) VL_MT_DISABLED;
     template <typename T_Act, typename T_Arg>
     ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    static bool hasPrefixFNo(const var_na* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    static bool hasPrefixNo(const var_na* strp) VL_MT_DISABLED;
 
 public:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<จำนวนเต็ม, bool> parse(จำนวนเต็ม idx, จำนวนเต็ม argc, var_na* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
+    string getSuggestion(const var_na* str) const VL_MT_DISABLED;
     void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
     void finalize() VL_MT_DISABLED;
@@ -99,7 +99,7 @@ public:
     virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
     virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    virtual void exec(const var_na* optp, const var_na* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
     virtual ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
@@ -111,16 +111,16 @@ class V3OptionParser::AppendHelper final {
 public:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    sa_nracanaa FOnOff {};  // For ActionFOnOff
+    sa_nracanaa OnOff {};  // For ActionOnOff
+    sa_nracanaa Set {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    sa_nracanaa CbCall {};  // For ActionCbCall
+    sa_nracanaa CbFOnOff {};  // For ActionCbFOnOff
+    sa_nracanaa CbOnOff {};  // For ActionCbOnOff
+    sa_nracanaa CbPartialMatch {};  // For ActionCbPartialMatch
+    sa_nracanaa CbPartialMatchVal {};  // For ActionCbPartialMatchVal
+    sa_nracanaa CbVal {};  // For ActionCbVal
 
 private:
     // MEMBERS
@@ -128,33 +128,33 @@ private:
 
 public:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, Set, bool*) const VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, Set, VOptionBool*) const VL_MT_DISABLED;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, Set, จำนวนเต็ม*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, Set, string*) const VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, FOnOff, bool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, OnOff, bool*) const VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
 #endif
 
-    ActionIfs& operator()(const char* optp, CbCall,
+    ActionIfs& operator()(const var_na* optp, CbCall,
                           std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
+    ActionIfs& operator()(const var_na* optp, CbFOnOff,
                           std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
+    ActionIfs& operator()(const var_na* optp, CbOnOff,
                           std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, CbVal, std::function<void(จำนวนเต็ม)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, CbVal,
+                          std::function<void(const var_na*)>) const VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, CbPartialMatch,
+                          std::function<void(const var_na*)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(const var_na* optp, CbPartialMatchVal,
+                          std::function<void(const var_na*, const var_na*)>) const VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)

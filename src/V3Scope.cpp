@@ -72,8 +72,8 @@ class ScopeVisitor final : public VNVisitor {
     // Count module instantiations, visiting cells the same way the traversal below does
     static void countInstantiations(AstNodeModule* modp) {
         modp->user3Inc();
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstCell* const cellp = VN_CAST(stmtp, Cell)) {
+        สำหรับ (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ถ้า (const AstCell* const cellp = VN_CAST(stmtp, Cell)) {
                 countInstantiations(cellp->modp());
             }
         }
@@ -84,22 +84,22 @@ class ScopeVisitor final : public VNVisitor {
     template <typename T_Node>
     T_Node* cloneOrMove(T_Node* nodep) {
         T_Node* clonep;
-        if (m_last) {
+        ถ้า (m_last) {
             nodep->unlinkFrBack();
             clonep = nodep;
-        } else {
+        } มิฉะนั้น {
             clonep = nodep->cloneTree(false);
         }
         nodep->user2p(clonep);
         m_scopep->addBlocksp(clonep);
-        return clonep;
+        คืน clonep;
     }
 
     void cleanupVarRefs() {
-        for (const auto& itr : m_varRefScopes) {
+        สำหรับ (const auto& itr : m_varRefScopes) {
             AstVarRef* const nodep = itr.first;
             AstScope* scopep = itr.second;
-            if (nodep->classOrPackagep()
+            ถ้า (nodep->classOrPackagep()
                 && !VN_IS(nodep->classOrPackagep(),
                           Module)) {  // Module scopes are not in m_classOrPackageScopes
                 const auto it2 = m_classOrPackageScopes.find(nodep->classOrPackagep());
@@ -111,11 +111,11 @@ class ScopeVisitor final : public VNVisitor {
             // Search up the scope hierarchy for the variable
             AstVarScope* varscp = nullptr;
             AstScope* searchScopep = scopep;
-            while (searchScopep) {
+            ขณะ (searchScopep) {
                 const auto it3 = m_varScopes.find(std::make_pair(nodep->varp(), searchScopep));
-                if (it3 != m_varScopes.end()) {
+                ถ้า (it3 != m_varScopes.end()) {
                     varscp = it3->second;
-                    break;
+                    bha_nga;
                 }
                 searchScopep = searchScopep->aboveScopep();
             }
@@ -127,9 +127,9 @@ class ScopeVisitor final : public VNVisitor {
     // VISITORS
     void visit(AstNetlist* nodep) override {
         AstNodeModule* const modp = nodep->topModulep();
-        if (!modp) {
+        ถ้า (!modp) {
             nodep->v3error("No top level module found");
-            return;
+            คืน;
         }
         // Operate starting at the top of the hierarchy
         m_aboveCellp = nullptr;
@@ -138,19 +138,19 @@ class ScopeVisitor final : public VNVisitor {
         iterate(modp);
         // Defer attachment until all instances are visited so cell collection and child
         // iteration do not rescan a growing list of completed scopes.
-        for (AstScope* const scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
+        สำหรับ (AstScope* const scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
         cleanupVarRefs();
     }
     void visit(AstNodeModule* nodep) override {
         VL_RESTORER(m_libTopNameLen);
         // Create required blocks and add to module
         string scopename;
-        if (!m_aboveScopep) {
+        ถ้า (!m_aboveScopep) {
             scopename = "TOP";
-        } else {
+        } มิฉะนั้น {
             scopename = m_aboveScopep->name() + "." + m_aboveCellp->name();
             // The top module is the only module directly under 'TOP'
-            if (!v3Global.opt.libCreate().empty() && m_aboveScopep->isTop()
+            ถ้า (!v3Global.opt.libCreate().empty() && m_aboveScopep->isTop()
                 && VN_IS(nodep, Module)) {
                 m_libTopNameLen = scopename.size();
             }
@@ -163,16 +163,16 @@ class ScopeVisitor final : public VNVisitor {
             (m_aboveCellp ? static_cast<AstNode*>(m_aboveCellp) : static_cast<AstNode*>(nodep))
                 ->fileline(),
             nodep, scopename, m_aboveScopep, m_aboveCellp};
-        if (VN_IS(nodep, Package)) m_classOrPackageScopes.emplace(nodep, m_scopep);
+        ถ้า (VN_IS(nodep, Package)) m_classOrPackageScopes.emplace(nodep, m_scopep);
 
         // Get list of cells before we edit, to avoid excess visits (issue #6059)
         std::deque<AstCell*> cells;
-        for (AstNode* cellnextp = nodep->stmtsp(); cellnextp; cellnextp = cellnextp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(cellnextp, Cell)) cells.push_back(cellp);
+        สำหรับ (AstNode* cellnextp = nodep->stmtsp(); cellnextp; cellnextp = cellnextp->nextp()) {
+            ถ้า (AstCell* const cellp = VN_CAST(cellnextp, Cell)) cells.push_back(cellp);
         }
 
         // Now for each child cell, iterate the module this cell points to
-        for (AstCell* const cellp : cells) {
+        สำหรับ (AstCell* const cellp : cells) {
             VL_RESTORER(m_scopep);  // Protects m_scopep set in called module
             // which is "above" in this code, but later in code execution order
             VL_RESTORER(m_aboveCellp);
@@ -183,7 +183,7 @@ class ScopeVisitor final : public VNVisitor {
                 AstNodeModule* const modp = cellp->modp();
                 UASSERT_OBJ(modp, cellp, "Unlinked mod");
                 iterate(modp);  // Recursive call to visit(AstNodeModule)
-                if (VN_IS(modp, Iface)) {
+                ถ้า (VN_IS(modp, Iface)) {
                     // Remember newly created scope
                     cellp->user2p(m_scopep);
                 }
@@ -194,9 +194,9 @@ class ScopeVisitor final : public VNVisitor {
         UINFO(4, " back AT " << scopename << "  " << nodep);
         AstNode::user1ClearTree();
         m_modp = nodep;
-        if (m_modp->isTop()) {
+        ถ้า (m_modp->isTop()) {
             v3Global.rootp()->createTopScope(m_scopep);
-        } else {
+        } มิฉะนั้น {
             m_scopes.push_back(m_scopep);
         }
 
@@ -222,9 +222,9 @@ class ScopeVisitor final : public VNVisitor {
         m_modp = nodep;
 
         string scopename;
-        if (!m_aboveScopep) {
+        ถ้า (!m_aboveScopep) {
             scopename = "TOP";
-        } else {
+        } มิฉะนั้น {
             scopename = m_aboveScopep->name() + "." + nodep->name();
         }
 
@@ -244,7 +244,7 @@ class ScopeVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstCellInline* nodep) override {  //
-        if (!v3Global.opt.vpi()) return;
+        ถ้า (!v3Global.opt.vpi()) คืน;
         m_scopep->addInlinesp(
             new AstCellInlineScope{nodep->fileline(), nodep->name(), nodep->origModName()});
     }
@@ -293,8 +293,8 @@ class ScopeVisitor final : public VNVisitor {
         AstNodeFTask* const clonep = [&]() {
             VL_RESTORER(m_last);
             // Only one scope will be created, so avoid pointless cloning
-            if (nodep->classMethod()) m_last = true;
-            return cloneOrMove(nodep);
+            ถ้า (nodep->classMethod()) m_last = true;
+            คืน cloneOrMove(nodep);
         }();
         clonep->user2p(clonep);  // For recursive self-references after cloneTree
         // We iterate under the *clone*
@@ -302,15 +302,15 @@ class ScopeVisitor final : public VNVisitor {
     }
     void visit(AstVar* nodep) override {
         // Make new scope variable
-        if (!nodep->user1p()) {
+        ถ้า (!nodep->user1p()) {
             AstScope* scopep = m_scopep;
-            if (const AstIfaceRefDType* const ifrefp = VN_CAST(nodep->dtypep(), IfaceRefDType)) {
+            ถ้า (const AstIfaceRefDType* const ifrefp = VN_CAST(nodep->dtypep(), IfaceRefDType)) {
                 // Attach every non-virtual interface variable its inner scope
-                if (ifrefp->cellp()) scopep = VN_AS(ifrefp->cellp()->user2p(), Scope);
+                ถ้า (ifrefp->cellp()) scopep = VN_AS(ifrefp->cellp()->user2p(), Scope);
             }
             AstVarScope* const varscp = new AstVarScope{nodep->fileline(), scopep, nodep};
             UINFO(6, "   New scope " << varscp);
-            if (m_aboveCellp && !m_aboveCellp->isTrace()) varscp->trace(false);
+            ถ้า (m_aboveCellp && !m_aboveCellp->isTrace()) varscp->trace(false);
             nodep->user1p(varscp);
             UASSERT_OBJ(m_scopep, nodep, "No scope for var");
             m_varScopes.emplace(std::make_pair(nodep, m_scopep), varscp);
@@ -333,7 +333,7 @@ class ScopeVisitor final : public VNVisitor {
         std::string scopeName = m_scopep->name();
         // Drop the "l2-name" (name of the top module) for library builds, otherwise
         // would get "top.u_lib.lib.foo" instead of correct hierarchical path "top.u_lib.foo"
-        if (m_libTopNameLen) scopeName = "TOP" + scopeName.substr(m_libTopNameLen);
+        ถ้า (m_libTopNameLen) scopeName = "TOP" + scopeName.substr(m_libTopNameLen);
         const string prefix = "__DOT__"s + scopeName;
         // TOP and above will be the user's name().
         // Note 'TOP.' is stripped by scopePrettyName
@@ -373,10 +373,10 @@ class ScopeCleanupVisitor final : public VNVisitor {
     }
 
     virtual void movedDeleteOrIterate(AstNode* nodep) {
-        if (m_scopep) {
+        ถ้า (m_scopep) {
             // The new block; repair varrefs
             iterateChildren(nodep);
-        } else {
+        } มิฉะนั้น {
             // A block that was just moved under a scope, Kill it.
             // Certain nodes can be referenced later in this pass, notably
             // an FTaskRef needs to access the FTask to find the cloned task
@@ -398,14 +398,14 @@ class ScopeCleanupVisitor final : public VNVisitor {
     void visit(AstNodeFTaskRef* nodep) override {
         // The crossrefs are dealt with in V3LinkDot
         UINFO(9, "   Old pkg-taskref " << nodep);
-        if (nodep->classOrPackagep()) {
+        ถ้า (nodep->classOrPackagep()) {
             // Point to the clone
             UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked");
             AstNodeFTask* const newp = VN_AS(nodep->taskp()->user2p(), NodeFTask);
             UASSERT_OBJ(newp, nodep, "No clone for package function");
             nodep->taskp(newp);
             UINFO(9, "   New pkg-taskref " << nodep);
-        } else if (!VN_IS(nodep, MethodCall)) {
+        } มิฉะนั้น ถ้า (!VN_IS(nodep, MethodCall)) {
             nodep->taskp(nullptr);
             VIsCached::clearCacheTree();
             UINFO(9, "   New pkg-taskref " << nodep);

@@ -44,23 +44,23 @@ class OrderMoveVertex final : public V3GraphVertex {
     V3ListLinks<OrderMoveVertex> m_links;  // List links to store instances of this class
 
     // METHODS
-    std::string dotColor() const override { return logicp() ? logicp()->dotColor() : "yellow"; }
+    std::string dotColor() const override { คืน logicp() ? logicp()->dotColor() : "yellow"; }
 
     std::string name() const override VL_MT_STABLE {
         std::string nm;
-        if (!logicp()) {
+        ถ้า (!logicp()) {
             nm = "var";
-        } else {
+        } มิฉะนั้น {
             nm = logicp()->name() + "\\n";
             nm += "MV:";
             nm += +" d=" + cvtToHex(logicp()->domainp());
             nm += +" s=" + cvtToHex(logicp()->scopep());
         }
-        if (userp()) nm += "\nu=" + cvtToHex(userp());
-        return nm;
+        ถ้า (userp()) nm += "\nu=" + cvtToHex(userp());
+        คืน nm;
     }
 
-    V3ListLinks<OrderMoveVertex>& links() { return m_links; }
+    V3ListLinks<OrderMoveVertex>& links() { คืน m_links; }
 
 public:
     // List type to store instances of this class
@@ -72,8 +72,8 @@ public:
     ~OrderMoveVertex() override = default;
     VL_UNCOPYABLE(OrderMoveVertex);
 
-    OrderLogicVertex* logicp() const VL_MT_STABLE { return m_logicp; }
-    OrderMoveDomScope& domScope() const { return m_domScope; }
+    OrderLogicVertex* logicp() const VL_MT_STABLE { คืน m_logicp; }
+    OrderMoveDomScope& domScope() const { คืน m_domScope; }
 };
 
 //======================================================================
@@ -88,7 +88,7 @@ public:
     explicit OrderMoveGraph(OrderGraph& orderGraph)
         : m_orderGraph{orderGraph} {}
 
-    OrderGraph& orderGraph() const { return m_orderGraph; }
+    OrderGraph& orderGraph() const { คืน m_orderGraph; }
 
     // Build an OrderMoveGraph from an OrderGraph
     static std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
@@ -118,18 +118,18 @@ class OrderMoveDomScope final {
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
-        struct Hash final {
+        sa_nracanaa Hash final {
             size_t operator()(const DomScopeMapKey& key) const {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
                 V3Hash hash{key.m_domainp};
                 hash += key.m_scopep;
-                return hash.value();
+                คืน hash.value();
             }
         };
 
-        struct Equal final {
+        sa_nracanaa Equal final {
             bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
-                return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
+                คืน a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
@@ -139,7 +139,7 @@ class OrderMoveDomScope final {
     // Map from Domain/Scope to the corresponding DomScope instance
     static DomScopeMap s_dsMap;
 
-    V3ListLinks<OrderMoveDomScope>& links() { return m_links; }
+    V3ListLinks<OrderMoveDomScope>& links() { คืน m_links; }
 
 public:
     // List type to store instances of this class
@@ -147,7 +147,7 @@ public:
 
     // STATIC MEMBERS
     static OrderMoveDomScope& getOrCreate(const OrderDomain* domainp, const AstScope* scopep) {
-        return s_dsMap
+        คืน s_dsMap
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(domainp, scopep),  //
                      std::forward_as_tuple(domainp, scopep))
@@ -164,11 +164,11 @@ public:
     VL_UNMOVABLE(OrderMoveDomScope);
 
     // MEMBERS
-    OrderMoveVertex::List& readyVertices() { return m_readyVertices; }
-    const OrderDomain* domainp() const { return m_domainp; }
-    const AstScope* scopep() const { return m_scopep; }
+    OrderMoveVertex::List& readyVertices() { คืน m_readyVertices; }
+    const OrderDomain* domainp() const { คืน m_domainp; }
+    const AstScope* scopep() const { คืน m_scopep; }
 
-    bool isOnList() const { return m_isOnList; }
+    bool isOnList() const { คืน m_isOnList; }
     void isOnList(bool value) { m_isOnList = value; }
 };
 
@@ -184,26 +184,26 @@ class OrderMoveGraphSerializer final {
 
     void ready(OrderMoveVertex* vtxp) {
         UASSERT_OBJ(!vtxp->user(), vtxp, "'ready' called on vertex with pending dependencies");
-        if (vtxp->logicp()) {
+        ถ้า (vtxp->logicp()) {
             // Add this vertex to the ready list of its DomScope
             OrderMoveDomScope& domScope = vtxp->domScope();
             domScope.readyVertices().linkBack(vtxp);
             // Add the DomScope to the global ready list if not there yet
-            if (!domScope.isOnList()) {
+            ถ้า (!domScope.isOnList()) {
                 domScope.isOnList(true);
                 m_readyDomScopeps.linkBack(&domScope);
             }
-        } else {  // This is a bit nonsense at this point, but equivalent to the old version
+        } มิฉะนั้น {  // This is a bit nonsense at this point, but equivalent to the old version
             // Remove dependency on vertex we are returning. This might add vertices to
             // currReadyList.
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
+            สำหรับ (V3GraphEdge& edge : vtxp->outEdges()) {
                 // The dependent variable
                 OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
                 // Update number of dependencies
                 const uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
                 // If no more dependencies, mark it ready
-                if (!nDeps) ready(dVtxp);
+                ถ้า (!nDeps) ready(dVtxp);
             }
         }
     }
@@ -212,7 +212,7 @@ public:
     // CONSTRUCTOR
     explicit OrderMoveGraphSerializer(OrderMoveGraph& moveGraph) {
         // Set V3GraphVertex::user() to the number of incoming edges (upstream dependencies)
-        for (V3GraphVertex& vtx : moveGraph.vertices()) {
+        สำหรับ (V3GraphVertex& vtx : moveGraph.vertices()) {
             const uint32_t nDeps = vtx.inEdges().size();
             vtx.user(nDeps);
         }
@@ -224,9 +224,9 @@ public:
     void addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
 
     OrderMoveVertex* getNext() {
-        if (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
+        ถ้า (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
         // If nothing is ready, we are done
-        if (!m_nextDomScopep) return nullptr;
+        ถ้า (!m_nextDomScopep) คืน nullptr;
         OrderMoveDomScope& currDomScope = *m_nextDomScopep;
 
         OrderMoveVertex::List& currReadyList = currDomScope.readyVertices();
@@ -236,36 +236,36 @@ public:
         OrderMoveVertex* mVtxp = currReadyList.unlinkFront();
 
         // Nonsesne, but what we used to do
-        if (currReadyList.empty()) {
+        ถ้า (currReadyList.empty()) {
             currDomScope.isOnList(false);
             m_readyDomScopeps.unlink(&currDomScope);
         }
 
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
-        for (V3GraphEdge& edge : mVtxp->outEdges()) {
+        สำหรับ (V3GraphEdge& edge : mVtxp->outEdges()) {
             // The dependent variable
             OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
             // Update number of dependencies
             const uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
             // If no more dependencies, mark it ready
-            if (!nDeps) ready(dVtxp);
+            ถ้า (!nDeps) ready(dVtxp);
         }
 
         // If no more ready vertices in the current DomScope, prefer to continue with a new scope
         // under the same domain.
-        if (currReadyList.empty()) {
+        ถ้า (currReadyList.empty()) {
             m_nextDomScopep = nullptr;
-            for (OrderMoveDomScope& domScope : m_readyDomScopeps) {
-                if (domScope.domainp() == currDomScope.domainp()) {
+            สำหรับ (OrderMoveDomScope& domScope : m_readyDomScopeps) {
+                ถ้า (domScope.domainp() == currDomScope.domainp()) {
                     m_nextDomScopep = &domScope;
-                    break;
+                    bha_nga;
                 }
             }
         }
 
         // Finally yield the selected vertex
-        return mVtxp;
+        คืน mVtxp;
     }
 };
 

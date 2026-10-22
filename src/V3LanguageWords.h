@@ -28,7 +28,7 @@ class V3LanguageWords final {
     // List of common reserved keywords
 private:
     using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+    sa_nracanaa Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
         void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
@@ -38,22 +38,22 @@ private:
 public:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
+    static const_iterator begin() { คืน s().s_kwdMap.begin(); }
+    static const_iterator end() { คืน s().s_kwdMap.end(); }
     static string isKeyword(const string& kwd) {
         const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+        ถ้า (it == s().s_kwdMap.end()) คืน "";
+        คืน it->second;
     }
 
 private:
     static Singleton& s() {
         static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+        คืน s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+anta_hstha void V3LanguageWords::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");

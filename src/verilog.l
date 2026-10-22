@@ -32,7 +32,7 @@
 #define PARSEP V3ParseImp::parsep()
 
 #define YY_INPUT(buf, result, max_size) \
-    do { result = PARSEP->flexPpInputToLex(buf, max_size); } while (false)
+    do { result = PARSEP->flexPpInputToLex(buf, max_size); } ขณะ (false)
 
 //======================================================================
 
@@ -46,37 +46,37 @@
     do { \
         FL_FWD; \
         yylval.fl = CRELINE(); \
-    } while (false)
+    } ขณะ (false)
 
 #define STR \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(AstNode::encodeName(str)); \
-    } while (false)
+    } ขณะ (false)
 
 #define STR_FILEPATH \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(str); \
-    } while (false)
+    } ขณะ (false)
 
 #define ERROR_RSVD_WORD(language) \
     do { \
         yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: " << language \
                                                          << " reserved word not implemented: '" \
                                                          << yytext << "'"); \
-    } while (0)
+    } ขณะ (0)
 
 //======================================================================
 
-static double lexParseDouble(FileLine* fl, const char* textp, size_t length) {
+static dviguu_na lexParseDouble(FileLine* fl, const var_na* textp, size_t length) {
     const string text = std::string{textp, length};
     bool success = false;
-    const double d = VString::parseDouble(text, &success);
+    const dviguu_na d = VString::parseDouble(text, &success);
     // Below never fails, instead can't lex the number
-    if (VL_UNCOVERABLE(!success))
+    ถ้า (VL_UNCOVERABLE(!success))
         fl->v3error("Syntax error parsing real: '" << textp << "'");  // LCOV_EXCL_LINE
-    return d;
+    คืน d;
 }
 
 // clang-format off
@@ -118,10 +118,10 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <FILEPATH>{
   {ws}            { FL_FWD; FL_BRK; }
   {crnl}          { FL_FWD; FL_BRK; }
-  "-incdir"       { FL; return yINCDIR; }
-  ";"             { yy_pop_state(); return ';'; }
-  ","             { FL; return ','; }
-  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; return yaSTRING; }
+  "-incdir"       { FL; คืน yINCDIR; }
+  ";"             { yy_pop_state(); คืน ';'; }
+  ","             { FL; คืน ','; }
+  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; คืน yaSTRING; }
 }
 
   /************************************************************************/
@@ -130,70 +130,70 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
 
-  "clock_enable"        { FL; return yVLT_CLOCK_ENABLE; }
-  "clocker"             { FL; return yVLT_CLOCKER; }
-  "coverage_block_off"  { FL; return yVLT_COVERAGE_BLOCK_OFF; }
-  "coverage_off"        { FL; return yVLT_COVERAGE_OFF; }
-  "coverage_on"         { FL; return yVLT_COVERAGE_ON; }
-  "forceable"           { FL; return yVLT_FORCEABLE; }
-  "fsm_register_wrapper" { FL; return yVLT_FSM_REGISTER_WRAPPER; }
-  "full_case"           { FL; return yVLT_FULL_CASE; }
-  "hier_block"          { FL; return yVLT_HIER_BLOCK; }
-  "hier_params"         { FL; return yVLT_HIER_PARAMS; }
-  "hier_workers"        { FL; return yVLT_HIER_WORKERS; }
-  "inline"              { FL; return yVLT_INLINE; }
-  "isolate_assignments" { FL; return yVLT_ISOLATE_ASSIGNMENTS; }
-  "lint_off"            { FL; return yVLT_LINT_OFF; }
-  "lint_on"             { FL; return yVLT_LINT_ON; }
-  "no_clocker"          { FL; return yVLT_NO_CLOCKER; }
-  "no_inline"           { FL; return yVLT_NO_INLINE; }
-  "parallel_case"       { FL; return yVLT_PARALLEL_CASE; }
-  "profile_data"        { FL; return yVLT_PROFILE_DATA; }
-  "public"              { FL; return yVLT_PUBLIC; }
-  "public_flat"         { FL; return yVLT_PUBLIC_FLAT; }
-  "public_flat_rd"      { FL; return yVLT_PUBLIC_FLAT_RD; }
-  "public_flat_rw"      { FL; return yVLT_PUBLIC_FLAT_RW; }
-  "public_module"       { FL; return yVLT_PUBLIC_MODULE; }
-  "sc_biguint"          { FL; return yVLT_SC_BIGUINT; }
-  "sc_bv"               { FL; return yVLT_SC_BV; }
-  "sformat"             { FL; return yVLT_SFORMAT; }
-  "split_var"           { FL; return yVLT_SPLIT_VAR; }
-  "timing_off"          { FL; return yVLT_TIMING_OFF; }
-  "timing_on"           { FL; return yVLT_TIMING_ON; }
-  "tracing_off"         { FL; return yVLT_TRACING_OFF; }
-  "tracing_on"          { FL; return yVLT_TRACING_ON; }
-  "verilator_lib"       { FL; return yVLT_VERILATOR_LIB; }
+  "clock_enable"        { FL; คืน yVLT_CLOCK_ENABLE; }
+  "clocker"             { FL; คืน yVLT_CLOCKER; }
+  "coverage_block_off"  { FL; คืน yVLT_COVERAGE_BLOCK_OFF; }
+  "coverage_off"        { FL; คืน yVLT_COVERAGE_OFF; }
+  "coverage_on"         { FL; คืน yVLT_COVERAGE_ON; }
+  "forceable"           { FL; คืน yVLT_FORCEABLE; }
+  "fsm_register_wrapper" { FL; คืน yVLT_FSM_REGISTER_WRAPPER; }
+  "full_case"           { FL; คืน yVLT_FULL_CASE; }
+  "hier_block"          { FL; คืน yVLT_HIER_BLOCK; }
+  "hier_params"         { FL; คืน yVLT_HIER_PARAMS; }
+  "hier_workers"        { FL; คืน yVLT_HIER_WORKERS; }
+  "inline"              { FL; คืน yVLT_INLINE; }
+  "isolate_assignments" { FL; คืน yVLT_ISOLATE_ASSIGNMENTS; }
+  "lint_off"            { FL; คืน yVLT_LINT_OFF; }
+  "lint_on"             { FL; คืน yVLT_LINT_ON; }
+  "no_clocker"          { FL; คืน yVLT_NO_CLOCKER; }
+  "no_inline"           { FL; คืน yVLT_NO_INLINE; }
+  "parallel_case"       { FL; คืน yVLT_PARALLEL_CASE; }
+  "profile_data"        { FL; คืน yVLT_PROFILE_DATA; }
+  "public"              { FL; คืน yVLT_PUBLIC; }
+  "public_flat"         { FL; คืน yVLT_PUBLIC_FLAT; }
+  "public_flat_rd"      { FL; คืน yVLT_PUBLIC_FLAT_RD; }
+  "public_flat_rw"      { FL; คืน yVLT_PUBLIC_FLAT_RW; }
+  "public_module"       { FL; คืน yVLT_PUBLIC_MODULE; }
+  "sc_biguint"          { FL; คืน yVLT_SC_BIGUINT; }
+  "sc_bv"               { FL; คืน yVLT_SC_BV; }
+  "sformat"             { FL; คืน yVLT_SFORMAT; }
+  "split_var"           { FL; คืน yVLT_SPLIT_VAR; }
+  "timing_off"          { FL; คืน yVLT_TIMING_OFF; }
+  "timing_on"           { FL; คืน yVLT_TIMING_ON; }
+  "tracing_off"         { FL; คืน yVLT_TRACING_OFF; }
+  "tracing_on"          { FL; คืน yVLT_TRACING_ON; }
+  "verilator_lib"       { FL; คืน yVLT_VERILATOR_LIB; }
 
-  -?"-block"            { FL; return yVLT_D_BLOCK; }
-  -?"-contents"         { FL; return yVLT_D_CONTENTS; }
-  -?"-cost"             { FL; return yVLT_D_COST; }
-  -?"-clock"            { FL; return yVLT_D_CLOCK; }
-  -?"-d"                { FL; return yVLT_D_D; }
-  -?"-file"             { FL; return yVLT_D_FILE; }
-  -?"-function"         { FL; return yVLT_D_FUNCTION; }
-  -?"-hier-dpi"         { FL; return yVLT_D_HIER_DPI; }
-  -?"-levels"           { FL; return yVLT_D_LEVELS; }
-  -?"-lines"            { FL; return yVLT_D_LINES; }
-  -?"-match"            { FL; return yVLT_D_MATCH; }
-  -?"-model"            { FL; return yVLT_D_MODEL; }
-  -?"-module"           { FL; return yVLT_D_MODULE; }
-  -?"-mtask"            { FL; return yVLT_D_MTASK; }
-  -?"-param"            { FL; return yVLT_D_PARAM; }
-  -?"-port"             { FL; return yVLT_D_PORT; }
-  -?"-rule"             { FL; return yVLT_D_RULE; }
-  -?"-q"                { FL; return yVLT_D_Q; }
-  -?"-reset"            { FL; return yVLT_D_RESET; }
-  -?"-reset_value"      { FL; return yVLT_D_RESET_VALUE; }
-  -?"-scope"            { FL; return yVLT_D_SCOPE; }
-  -?"-task"             { FL; return yVLT_D_TASK; }
-  -?"-var"              { FL; return yVLT_D_VAR; }
-  -?"-workers"          { FL; return yVLT_D_WORKERS; }
+  -?"-block"            { FL; คืน yVLT_D_BLOCK; }
+  -?"-contents"         { FL; คืน yVLT_D_CONTENTS; }
+  -?"-cost"             { FL; คืน yVLT_D_COST; }
+  -?"-clock"            { FL; คืน yVLT_D_CLOCK; }
+  -?"-d"                { FL; คืน yVLT_D_D; }
+  -?"-file"             { FL; คืน yVLT_D_FILE; }
+  -?"-function"         { FL; คืน yVLT_D_FUNCTION; }
+  -?"-hier-dpi"         { FL; คืน yVLT_D_HIER_DPI; }
+  -?"-levels"           { FL; คืน yVLT_D_LEVELS; }
+  -?"-lines"            { FL; คืน yVLT_D_LINES; }
+  -?"-match"            { FL; คืน yVLT_D_MATCH; }
+  -?"-model"            { FL; คืน yVLT_D_MODEL; }
+  -?"-module"           { FL; คืน yVLT_D_MODULE; }
+  -?"-mtask"            { FL; คืน yVLT_D_MTASK; }
+  -?"-param"            { FL; คืน yVLT_D_PARAM; }
+  -?"-port"             { FL; คืน yVLT_D_PORT; }
+  -?"-rule"             { FL; คืน yVLT_D_RULE; }
+  -?"-q"                { FL; คืน yVLT_D_Q; }
+  -?"-reset"            { FL; คืน yVLT_D_RESET; }
+  -?"-reset_value"      { FL; คืน yVLT_D_RESET_VALUE; }
+  -?"-scope"            { FL; คืน yVLT_D_SCOPE; }
+  -?"-task"             { FL; คืน yVLT_D_TASK; }
+  -?"-var"              { FL; คืน yVLT_D_VAR; }
+  -?"-workers"          { FL; คืน yVLT_D_WORKERS; }
 
   /* Reachable by attr_event_control */
-  "edge"                { FL; return yEDGE; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "or"                  { FL; return yOR; }
-  "posedge"             { FL; return yPOSEDGE; }
+  "edge"                { FL; คืน yEDGE; }
+  "negedge"             { FL; คืน yNEGEDGE; }
+  "or"                  { FL; คืน yOR; }
+  "posedge"             { FL; คืน yPOSEDGE; }
 }
 
   /************************************************************************/
@@ -202,296 +202,296 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
   /*     Extensions to Verilog set, some specified by PSL */
-  "$c"[0-9]*            { FL; return yD_C; }      /*Verilator only*/
-  "$cpure"[0-9]*        { FL; return yD_CPURE; }  /*Verilator only*/
+  "$c"[0-9]*            { FL; คืน yD_C; }      /*Verilator only*/
+  "$cpure"[0-9]*        { FL; คืน yD_CPURE; }  /*Verilator only*/
   /*     System Tasks */
-  "$acos"               { FL; return yD_ACOS; }
-  "$acosh"              { FL; return yD_ACOSH; }
-  "$asin"               { FL; return yD_ASIN; }
-  "$asinh"              { FL; return yD_ASINH; }
-  "$atan"               { FL; return yD_ATAN; }
-  "$atan2"              { FL; return yD_ATAN2; }
-  "$atanh"              { FL; return yD_ATANH; }
-  "$bitstoreal"         { FL; return yD_BITSTOREAL; }
-  "$bitstoshortreal"    { FL; return yD_BITSTOSHORTREAL; }
-  "$cast"               { FL; return yD_CAST; }
-  "$ceil"               { FL; return yD_CEIL; }
-  "$cos"                { FL; return yD_COS; }
-  "$cosh"               { FL; return yD_COSH; }
-  "$display"            { FL; return yD_DISPLAY; }
-  "$displayb"           { FL; return yD_DISPLAYB; }
-  "$displayh"           { FL; return yD_DISPLAYH; }
-  "$displayo"           { FL; return yD_DISPLAYO; }
-  "$dist_chi_square"    { FL; return yD_DIST_CHI_SQUARE; }
-  "$dist_erlang"        { FL; return yD_DIST_ERLANG; }
-  "$dist_exponential"   { FL; return yD_DIST_EXPONENTIAL; }
-  "$dist_normal"        { FL; return yD_DIST_NORMAL; }
-  "$dist_poisson"       { FL; return yD_DIST_POISSON; }
-  "$dist_t"             { FL; return yD_DIST_T; }
-  "$dist_uniform"       { FL; return yD_DIST_UNIFORM; }
-  "$dumpall"            { FL; return yD_DUMPALL; }
-  "$dumpfile"           { FL; return yD_DUMPFILE; }
-  "$dumpflush"          { FL; return yD_DUMPFLUSH; }
-  "$dumplimit"          { FL; return yD_DUMPLIMIT; }
-  "$dumpoff"            { FL; return yD_DUMPOFF; }
-  "$dumpon"             { FL; return yD_DUMPON; }
-  "$dumpports"          { FL; return yD_DUMPPORTS; }
-  "$dumpportsall"       { FL; return yD_DUMPALL; }
-  "$dumpportsflush"     { FL; return yD_DUMPFLUSH; }
-  "$dumpportslimit"     { FL; return yD_DUMPLIMIT; }
-  "$dumpportsoff"       { FL; return yD_DUMPOFF; }
-  "$dumpportson"        { FL; return yD_DUMPON; }
-  "$dumpvars"           { FL; return yD_DUMPVARS; }
-  "$exit"               { FL; return yD_EXIT; }
-  "$exp"                { FL; return yD_EXP; }
-  "$fclose"             { FL; return yD_FCLOSE; }
-  "$fdisplay"           { FL; return yD_FDISPLAY; }
-  "$fdisplayb"          { FL; return yD_FDISPLAYB; }
-  "$fdisplayh"          { FL; return yD_FDISPLAYH; }
-  "$fdisplayo"          { FL; return yD_FDISPLAYO; }
-  "$feof"               { FL; return yD_FEOF; }
-  "$ferror"             { FL; return yD_FERROR; }
-  "$fflush"             { FL; return yD_FFLUSH; }
-  "$fgetc"              { FL; return yD_FGETC; }
-  "$fgets"              { FL; return yD_FGETS; }
-  "$finish"             { FL; return yD_FINISH; }
-  "$floor"              { FL; return yD_FLOOR; }
-  "$fmonitor"           { FL; return yD_FMONITOR; }
-  "$fmonitorb"          { FL; return yD_FMONITORB; }
-  "$fmonitorh"          { FL; return yD_FMONITORH; }
-  "$fmonitoro"          { FL; return yD_FMONITORO; }
-  "$fopen"              { FL; return yD_FOPEN; }
-  "$fread"              { FL; return yD_FREAD; }
-  "$frewind"            { FL; return yD_FREWIND; }
-  "$fscanf"             { FL; return yD_FSCANF; }
-  "$fseek"              { FL; return yD_FSEEK; }
-  "$fstrobe"            { FL; return yD_FSTROBE; }
-  "$fstrobeb"           { FL; return yD_FSTROBEB; }
-  "$fstrobeh"           { FL; return yD_FSTROBEH; }
-  "$fstrobeo"           { FL; return yD_FSTROBEO; }
-  "$ftell"              { FL; return yD_FTELL; }
-  "$fullskew"           { FL; return yaTIMINGSPEC; }
-  "$fwrite"             { FL; return yD_FWRITE; }
-  "$fwriteb"            { FL; return yD_FWRITEB; }
-  "$fwriteh"            { FL; return yD_FWRITEH; }
-  "$fwriteo"            { FL; return yD_FWRITEO; }
-  "$global_clock"       { FL; return yD_GLOBAL_CLOCK; }
-  "$hold"               { FL; return yaTIMINGSPEC; }
-  "$hypot"              { FL; return yD_HYPOT; }
-  "$itor"               { FL; return yD_ITOR; }
-  "$ln"                 { FL; return yD_LN; }
-  "$log10"              { FL; return yD_LOG10; }
-  "$monitor"            { FL; return yD_MONITOR; }
-  "$monitorb"           { FL; return yD_MONITORB; }
-  "$monitorh"           { FL; return yD_MONITORH; }
-  "$monitoro"           { FL; return yD_MONITORO; }
-  "$monitoroff"         { FL; return yD_MONITOROFF; }
-  "$monitoron"          { FL; return yD_MONITORON; }
-  "$nochange"           { FL; return yaTIMINGSPEC; }
-  "$period"             { FL; return yaTIMINGSPEC; }
-  "$pow"                { FL; return yD_POW; }
-  "$printtimescale"     { FL; return yD_PRINTTIMESCALE; }
+  "$acos"               { FL; คืน yD_ACOS; }
+  "$acosh"              { FL; คืน yD_ACOSH; }
+  "$asin"               { FL; คืน yD_ASIN; }
+  "$asinh"              { FL; คืน yD_ASINH; }
+  "$atan"               { FL; คืน yD_ATAN; }
+  "$atan2"              { FL; คืน yD_ATAN2; }
+  "$atanh"              { FL; คืน yD_ATANH; }
+  "$bitstoreal"         { FL; คืน yD_BITSTOREAL; }
+  "$bitstoshortreal"    { FL; คืน yD_BITSTOSHORTREAL; }
+  "$cast"               { FL; คืน yD_CAST; }
+  "$ceil"               { FL; คืน yD_CEIL; }
+  "$cos"                { FL; คืน yD_COS; }
+  "$cosh"               { FL; คืน yD_COSH; }
+  "$display"            { FL; คืน yD_DISPLAY; }
+  "$displayb"           { FL; คืน yD_DISPLAYB; }
+  "$displayh"           { FL; คืน yD_DISPLAYH; }
+  "$displayo"           { FL; คืน yD_DISPLAYO; }
+  "$dist_chi_square"    { FL; คืน yD_DIST_CHI_SQUARE; }
+  "$dist_erlang"        { FL; คืน yD_DIST_ERLANG; }
+  "$dist_exponential"   { FL; คืน yD_DIST_EXPONENTIAL; }
+  "$dist_normal"        { FL; คืน yD_DIST_NORMAL; }
+  "$dist_poisson"       { FL; คืน yD_DIST_POISSON; }
+  "$dist_t"             { FL; คืน yD_DIST_T; }
+  "$dist_uniform"       { FL; คืน yD_DIST_UNIFORM; }
+  "$dumpall"            { FL; คืน yD_DUMPALL; }
+  "$dumpfile"           { FL; คืน yD_DUMPFILE; }
+  "$dumpflush"          { FL; คืน yD_DUMPFLUSH; }
+  "$dumplimit"          { FL; คืน yD_DUMPLIMIT; }
+  "$dumpoff"            { FL; คืน yD_DUMPOFF; }
+  "$dumpon"             { FL; คืน yD_DUMPON; }
+  "$dumpports"          { FL; คืน yD_DUMPPORTS; }
+  "$dumpportsall"       { FL; คืน yD_DUMPALL; }
+  "$dumpportsflush"     { FL; คืน yD_DUMPFLUSH; }
+  "$dumpportslimit"     { FL; คืน yD_DUMPLIMIT; }
+  "$dumpportsoff"       { FL; คืน yD_DUMPOFF; }
+  "$dumpportson"        { FL; คืน yD_DUMPON; }
+  "$dumpvars"           { FL; คืน yD_DUMPVARS; }
+  "$exit"               { FL; คืน yD_EXIT; }
+  "$exp"                { FL; คืน yD_EXP; }
+  "$fclose"             { FL; คืน yD_FCLOSE; }
+  "$fdisplay"           { FL; คืน yD_FDISPLAY; }
+  "$fdisplayb"          { FL; คืน yD_FDISPLAYB; }
+  "$fdisplayh"          { FL; คืน yD_FDISPLAYH; }
+  "$fdisplayo"          { FL; คืน yD_FDISPLAYO; }
+  "$feof"               { FL; คืน yD_FEOF; }
+  "$ferror"             { FL; คืน yD_FERROR; }
+  "$fflush"             { FL; คืน yD_FFLUSH; }
+  "$fgetc"              { FL; คืน yD_FGETC; }
+  "$fgets"              { FL; คืน yD_FGETS; }
+  "$finish"             { FL; คืน yD_FINISH; }
+  "$floor"              { FL; คืน yD_FLOOR; }
+  "$fmonitor"           { FL; คืน yD_FMONITOR; }
+  "$fmonitorb"          { FL; คืน yD_FMONITORB; }
+  "$fmonitorh"          { FL; คืน yD_FMONITORH; }
+  "$fmonitoro"          { FL; คืน yD_FMONITORO; }
+  "$fopen"              { FL; คืน yD_FOPEN; }
+  "$fread"              { FL; คืน yD_FREAD; }
+  "$frewind"            { FL; คืน yD_FREWIND; }
+  "$fscanf"             { FL; คืน yD_FSCANF; }
+  "$fseek"              { FL; คืน yD_FSEEK; }
+  "$fstrobe"            { FL; คืน yD_FSTROBE; }
+  "$fstrobeb"           { FL; คืน yD_FSTROBEB; }
+  "$fstrobeh"           { FL; คืน yD_FSTROBEH; }
+  "$fstrobeo"           { FL; คืน yD_FSTROBEO; }
+  "$ftell"              { FL; คืน yD_FTELL; }
+  "$fullskew"           { FL; คืน yaTIMINGSPEC; }
+  "$fwrite"             { FL; คืน yD_FWRITE; }
+  "$fwriteb"            { FL; คืน yD_FWRITEB; }
+  "$fwriteh"            { FL; คืน yD_FWRITEH; }
+  "$fwriteo"            { FL; คืน yD_FWRITEO; }
+  "$global_clock"       { FL; คืน yD_GLOBAL_CLOCK; }
+  "$hold"               { FL; คืน yaTIMINGSPEC; }
+  "$hypot"              { FL; คืน yD_HYPOT; }
+  "$itor"               { FL; คืน yD_ITOR; }
+  "$ln"                 { FL; คืน yD_LN; }
+  "$log10"              { FL; คืน yD_LOG10; }
+  "$monitor"            { FL; คืน yD_MONITOR; }
+  "$monitorb"           { FL; คืน yD_MONITORB; }
+  "$monitorh"           { FL; คืน yD_MONITORH; }
+  "$monitoro"           { FL; คืน yD_MONITORO; }
+  "$monitoroff"         { FL; คืน yD_MONITOROFF; }
+  "$monitoron"          { FL; คืน yD_MONITORON; }
+  "$nochange"           { FL; คืน yaTIMINGSPEC; }
+  "$period"             { FL; คืน yaTIMINGSPEC; }
+  "$pow"                { FL; คืน yD_POW; }
+  "$printtimescale"     { FL; คืน yD_PRINTTIMESCALE; }
   "$psprintf"           { FL; yylval.fl->v3warn(NONSTD, "Non-standard system function '" << yytext << "';"
                                                 " suggest use standard '$sformatf' (IEEE 1800-2023 21.3.3)");
-                          return yD_SFORMATF; }
-  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$random"             { FL; return yD_RANDOM; }
-  "$readmemb"           { FL; return yD_READMEMB; }
-  "$readmemh"           { FL; return yD_READMEMH; }
-  "$realtime"           { FL; return yD_REALTIME; }
-  "$realtobits"         { FL; return yD_REALTOBITS; }
-  "$recovery"           { FL; return yaTIMINGSPEC; }
-  "$recrem"             { FL; return yaTIMINGSPEC; }
-  "$removal"            { FL; return yaTIMINGSPEC; }
-  "$rewind"             { FL; return yD_REWIND; }
-  "$rtoi"               { FL; return yD_RTOI; }
-  "$sampled"            { FL; return yD_SAMPLED; }
-  "$sdf_annotate"       { FL; return yD_SDF_ANNOTATE; }
-  "$setup"              { FL; return yaTIMINGSPEC; }
-  "$setuphold"          { FL; return yD_SETUPHOLD; }
-  "$sformat"            { FL; return yD_SFORMAT; }
-  "$sformatf"           { FL; return yD_SFORMATF; }
-  "$shortrealtobits"    { FL; return yD_SHORTREALTOBITS; }
-  "$sin"                { FL; return yD_SIN; }
-  "$sinh"               { FL; return yD_SINH; }
-  "$skew"               { FL; return yaTIMINGSPEC; }
-  "$sqrt"               { FL; return yD_SQRT; }
-  "$sscanf"             { FL; return yD_SSCANF; }
-  "$stacktrace"         { FL; return yD_STACKTRACE; }
-  "$stime"              { FL; return yD_STIME; }
-  "$stop"               { FL; return yD_STOP; }
-  "$strobe"             { FL; return yD_STROBE; }
-  "$strobeb"            { FL; return yD_STROBEB; }
-  "$strobeh"            { FL; return yD_STROBEH; }
-  "$strobeo"            { FL; return yD_STROBEO; }
-  "$swrite"             { FL; return yD_SWRITE; }
-  "$swriteb"            { FL; return yD_SWRITEB; }
-  "$swriteh"            { FL; return yD_SWRITEH; }
-  "$swriteo"            { FL; return yD_SWRITEO; }
-  "$system"             { FL; return yD_SYSTEM; }
-  "$tan"                { FL; return yD_TAN; }
-  "$tanh"               { FL; return yD_TANH; }
-  "$test$plusargs"      { FL; return yD_TESTPLUSARGS; }
-  "$time"               { FL; return yD_TIME; }
-  "$timeformat"         { FL; return yD_TIMEFORMAT; }
-  "$timeprecision"      { FL; return yD_TIMEPRECISION; }
-  "$timeskew"           { FL; return yaTIMINGSPEC; }
-  "$timeunit"           { FL; return yD_TIMEUNIT; }
-  "$typename"           { FL; return yD_TYPENAME; }
-  "$ungetc"             { FL; return yD_UNGETC; }
-  "$urandom"            { FL; return yD_URANDOM; }
-  "$urandom_range"      { FL; return yD_URANDOM_RANGE; }
-  "$value$plusargs"     { FL; return yD_VALUEPLUSARGS; }
-  "$width"              { FL; return yaTIMINGSPEC; }
-  "$write"              { FL; return yD_WRITE; }
-  "$writeb"             { FL; return yD_WRITEB; }
-  "$writeh"             { FL; return yD_WRITEH; }
-  "$writememb"          { FL; return yD_WRITEMEMB; }
-  "$writememh"          { FL; return yD_WRITEMEMH; }
-  "$writeo"             { FL; return yD_WRITEO; }
+                          คืน yD_SFORMATF; }
+  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); คืน yaD_PLI; }
+  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); คืน yaD_PLI; }
+  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); คืน yaD_PLI; }
+  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); คืน yaD_PLI; }
+  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); คืน yaD_PLI; }
+  "$random"             { FL; คืน yD_RANDOM; }
+  "$readmemb"           { FL; คืน yD_READMEMB; }
+  "$readmemh"           { FL; คืน yD_READMEMH; }
+  "$realtime"           { FL; คืน yD_REALTIME; }
+  "$realtobits"         { FL; คืน yD_REALTOBITS; }
+  "$recovery"           { FL; คืน yaTIMINGSPEC; }
+  "$recrem"             { FL; คืน yaTIMINGSPEC; }
+  "$removal"            { FL; คืน yaTIMINGSPEC; }
+  "$rewind"             { FL; คืน yD_REWIND; }
+  "$rtoi"               { FL; คืน yD_RTOI; }
+  "$sampled"            { FL; คืน yD_SAMPLED; }
+  "$sdf_annotate"       { FL; คืน yD_SDF_ANNOTATE; }
+  "$setup"              { FL; คืน yaTIMINGSPEC; }
+  "$setuphold"          { FL; คืน yD_SETUPHOLD; }
+  "$sformat"            { FL; คืน yD_SFORMAT; }
+  "$sformatf"           { FL; คืน yD_SFORMATF; }
+  "$shortrealtobits"    { FL; คืน yD_SHORTREALTOBITS; }
+  "$sin"                { FL; คืน yD_SIN; }
+  "$sinh"               { FL; คืน yD_SINH; }
+  "$skew"               { FL; คืน yaTIMINGSPEC; }
+  "$sqrt"               { FL; คืน yD_SQRT; }
+  "$sscanf"             { FL; คืน yD_SSCANF; }
+  "$stacktrace"         { FL; คืน yD_STACKTRACE; }
+  "$stime"              { FL; คืน yD_STIME; }
+  "$stop"               { FL; คืน yD_STOP; }
+  "$strobe"             { FL; คืน yD_STROBE; }
+  "$strobeb"            { FL; คืน yD_STROBEB; }
+  "$strobeh"            { FL; คืน yD_STROBEH; }
+  "$strobeo"            { FL; คืน yD_STROBEO; }
+  "$swrite"             { FL; คืน yD_SWRITE; }
+  "$swriteb"            { FL; คืน yD_SWRITEB; }
+  "$swriteh"            { FL; คืน yD_SWRITEH; }
+  "$swriteo"            { FL; คืน yD_SWRITEO; }
+  "$system"             { FL; คืน yD_SYSTEM; }
+  "$tan"                { FL; คืน yD_TAN; }
+  "$tanh"               { FL; คืน yD_TANH; }
+  "$test$plusargs"      { FL; คืน yD_TESTPLUSARGS; }
+  "$time"               { FL; คืน yD_TIME; }
+  "$timeformat"         { FL; คืน yD_TIMEFORMAT; }
+  "$timeprecision"      { FL; คืน yD_TIMEPRECISION; }
+  "$timeskew"           { FL; คืน yaTIMINGSPEC; }
+  "$timeunit"           { FL; คืน yD_TIMEUNIT; }
+  "$typename"           { FL; คืน yD_TYPENAME; }
+  "$ungetc"             { FL; คืน yD_UNGETC; }
+  "$urandom"            { FL; คืน yD_URANDOM; }
+  "$urandom_range"      { FL; คืน yD_URANDOM_RANGE; }
+  "$value$plusargs"     { FL; คืน yD_VALUEPLUSARGS; }
+  "$width"              { FL; คืน yaTIMINGSPEC; }
+  "$write"              { FL; คืน yD_WRITE; }
+  "$writeb"             { FL; คืน yD_WRITEB; }
+  "$writeh"             { FL; คืน yD_WRITEH; }
+  "$writememb"          { FL; คืน yD_WRITEMEMB; }
+  "$writememh"          { FL; คืน yD_WRITEMEMH; }
+  "$writeo"             { FL; คืน yD_WRITEO; }
   /*     Keywords */
-  "always"              { FL; return yALWAYS; }
-  "and"                 { FL; return yAND; }
-  "assign"              { FL; return yASSIGN; }
-  "begin"               { FL; return yBEGIN; }
-  "buf"                 { FL; return yBUF; }
-  "bufif0"              { FL; return yBUFIF0; }
-  "bufif1"              { FL; return yBUFIF1; }
-  "case"                { FL; return yCASE; }
-  "casex"               { FL; return yCASEX; }
-  "casez"               { FL; return yCASEZ; }
-  "cmos"                { FL; return yCMOS; }
-  "deassign"            { FL; return yDEASSIGN; }
-  "default"             { FL; return yDEFAULT; }
-  "defparam"            { FL; return yDEFPARAM; }
-  "disable"             { FL; return yDISABLE; }
-  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); return yEDGE; }
-  "edge"                { FL; return yEDGE; }
-  "else"                { FL; return yELSE; }
-  "end"                 { FL; return yEND; }
-  "endcase"             { FL; return yENDCASE; }
-  "endfunction"         { FL; return yENDFUNCTION; }
-  "endmodule"           { FL; return yENDMODULE; }
-  "endprimitive"        { FL; return yENDPRIMITIVE; }
-  "endspecify"          { FL; return yENDSPECIFY; }
+  "always"              { FL; คืน yALWAYS; }
+  "and"                 { FL; คืน yAND; }
+  "assign"              { FL; คืน yASSIGN; }
+  "begin"               { FL; คืน yBEGIN; }
+  "buf"                 { FL; คืน yBUF; }
+  "bufif0"              { FL; คืน yBUFIF0; }
+  "bufif1"              { FL; คืน yBUFIF1; }
+  "case"                { FL; คืน yCASE; }
+  "casex"               { FL; คืน yCASEX; }
+  "casez"               { FL; คืน yCASEZ; }
+  "cmos"                { FL; คืน yCMOS; }
+  "deassign"            { FL; คืน yDEASSIGN; }
+  "default"             { FL; คืน yDEFAULT; }
+  "defparam"            { FL; คืน yDEFPARAM; }
+  "disable"             { FL; คืน yDISABLE; }
+  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); คืน yEDGE; }
+  "edge"                { FL; คืน yEDGE; }
+  "else"                { FL; คืน yELSE; }
+  "end"                 { FL; คืน yEND; }
+  "endcase"             { FL; คืน yENDCASE; }
+  "endfunction"         { FL; คืน yENDFUNCTION; }
+  "endmodule"           { FL; คืน yENDMODULE; }
+  "endprimitive"        { FL; คืน yENDPRIMITIVE; }
+  "endspecify"          { FL; คืน yENDSPECIFY; }
   "endtable"            { FL; yylval.fl->v3error("Syntax error: 'endtable' outside of 'table'"); FL_BRK; }
-  "endtask"             { FL; return yENDTASK; }
-  "event"               { FL; return yEVENT; }
-  "for"                 { FL; return yFOR; }
-  "force"               { FL; return yFORCE; }
-  "foreach"             { FL; return yFOREACH; }
-  "forever"             { FL; return yFOREVER; }
-  "fork"                { FL; return yFORK; }
-  "function"            { FL; return yFUNCTION; }
-  "highz0"              { FL; return yHIGHZ0; }
-  "highz1"              { FL; return yHIGHZ1; }
-  "if"                  { FL; return yIF; }
-  "initial"             { FL; return yINITIAL; }
-  "inout"               { FL; return yINOUT; }
-  "input"               { FL; return yINPUT; }
-  "integer"             { FL; return yINTEGER; }
-  "join"                { FL; return yJOIN; }
-  "large"               { FL; return ygenSTRENGTH; }
-  "macromodule"         { FL; return yMODULE; }
-  "medium"              { FL; return ygenSTRENGTH; }
-  "module"              { FL; return yMODULE; }
-  "nand"                { FL; return yNAND; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "nmos"                { FL; return yNMOS; }
-  "nor"                 { FL; return yNOR; }
-  "not"                 { FL; return yNOT; }
-  "notif0"              { FL; return yNOTIF0; }
-  "notif1"              { FL; return yNOTIF1; }
-  "or"                  { FL; return yOR; }
-  "output"              { FL; return yOUTPUT; }
-  "parameter"           { FL; return yPARAMETER; }
-  "pmos"                { FL; return yPMOS; }
-  "posedge"             { FL; return yPOSEDGE; }
-  "primitive"           { FL; return yPRIMITIVE; }
-  "pull0"               { FL; return yPULL0; }
-  "pull1"               { FL; return yPULL1; }
-  "pulldown"            { FL; return yPULLDOWN; }
-  "pullup"              { FL; return yPULLUP; }
-  "rcmos"               { FL; return yRCMOS; }
-  "real"                { FL; return yREAL; }
-  "realtime"            { FL; return yREALTIME; }
-  "reg"                 { FL; return yREG; }
-  "release"             { FL; return yRELEASE; }
-  "repeat"              { FL; return yREPEAT; }
-  "rnmos"               { FL; return yRNMOS; }
-  "rpmos"               { FL; return yRPMOS; }
-  "rtran"               { FL; return yRTRAN; }
-  "rtranif0"            { FL; return yRTRANIF0; }
-  "rtranif1"            { FL; return yRTRANIF1; }
-  "scalared"            { FL; return ySCALARED; }
-  "small"               { FL; return ygenSTRENGTH; }
-  "specify"             { FL; return ySPECIFY; }
-  "specparam"           { FL; return ySPECPARAM; }
-  "strong0"             { FL; return ySTRONG0; }
-  "strong1"             { FL; return ySTRONG1; }
-  "supply0"             { FL; return ySUPPLY0; }
-  "supply1"             { FL; return ySUPPLY1; }
-  "table"               { FL; yy_push_state(TABLE); return yTABLE; }
-  "task"                { FL; return yTASK; }
-  "time"                { FL; return yTIME; }
-  "tran"                { FL; return yTRAN; }
-  "tranif0"             { FL; return yTRANIF0; }
-  "tranif1"             { FL; return yTRANIF1; }
-  "tri"                 { FL; return yTRI; }
-  "tri0"                { FL; return yTRI0; }
-  "tri1"                { FL; return yTRI1; }
-  "triand"              { FL; return yTRIAND; }
-  "trior"               { FL; return yTRIOR; }
-  "trireg"              { FL; return yTRIREG; }
-  "vectored"            { FL; return yVECTORED; }
-  "wait"                { FL; return yWAIT; }
-  "wand"                { FL; return yWAND; }
-  "weak0"               { FL; return yWEAK0; }
-  "weak1"               { FL; return yWEAK1; }
-  "while"               { FL; return yWHILE; }
-  "wire"                { FL; return yWIRE; }
-  "wor"                 { FL; return yWOR; }
-  "xnor"                { FL; return yXNOR; }
-  "xor"                 { FL; return yXOR; }
+  "endtask"             { FL; คืน yENDTASK; }
+  "event"               { FL; คืน yEVENT; }
+  "for"                 { FL; คืน yFOR; }
+  "force"               { FL; คืน yFORCE; }
+  "foreach"             { FL; คืน yFOREACH; }
+  "forever"             { FL; คืน yFOREVER; }
+  "fork"                { FL; คืน yFORK; }
+  "function"            { FL; คืน yFUNCTION; }
+  "highz0"              { FL; คืน yHIGHZ0; }
+  "highz1"              { FL; คืน yHIGHZ1; }
+  "if"                  { FL; คืน yIF; }
+  "initial"             { FL; คืน yINITIAL; }
+  "inout"               { FL; คืน yINOUT; }
+  "input"               { FL; คืน yINPUT; }
+  "integer"             { FL; คืน yINTEGER; }
+  "join"                { FL; คืน yJOIN; }
+  "large"               { FL; คืน ygenSTRENGTH; }
+  "macromodule"         { FL; คืน yMODULE; }
+  "medium"              { FL; คืน ygenSTRENGTH; }
+  "module"              { FL; คืน yMODULE; }
+  "nand"                { FL; คืน yNAND; }
+  "negedge"             { FL; คืน yNEGEDGE; }
+  "nmos"                { FL; คืน yNMOS; }
+  "nor"                 { FL; คืน yNOR; }
+  "not"                 { FL; คืน yNOT; }
+  "notif0"              { FL; คืน yNOTIF0; }
+  "notif1"              { FL; คืน yNOTIF1; }
+  "or"                  { FL; คืน yOR; }
+  "output"              { FL; คืน yOUTPUT; }
+  "parameter"           { FL; คืน yPARAMETER; }
+  "pmos"                { FL; คืน yPMOS; }
+  "posedge"             { FL; คืน yPOSEDGE; }
+  "primitive"           { FL; คืน yPRIMITIVE; }
+  "pull0"               { FL; คืน yPULL0; }
+  "pull1"               { FL; คืน yPULL1; }
+  "pulldown"            { FL; คืน yPULLDOWN; }
+  "pullup"              { FL; คืน yPULLUP; }
+  "rcmos"               { FL; คืน yRCMOS; }
+  "real"                { FL; คืน yREAL; }
+  "realtime"            { FL; คืน yREALTIME; }
+  "reg"                 { FL; คืน yREG; }
+  "release"             { FL; คืน yRELEASE; }
+  "repeat"              { FL; คืน yREPEAT; }
+  "rnmos"               { FL; คืน yRNMOS; }
+  "rpmos"               { FL; คืน yRPMOS; }
+  "rtran"               { FL; คืน yRTRAN; }
+  "rtranif0"            { FL; คืน yRTRANIF0; }
+  "rtranif1"            { FL; คืน yRTRANIF1; }
+  "scalared"            { FL; คืน ySCALARED; }
+  "small"               { FL; คืน ygenSTRENGTH; }
+  "specify"             { FL; คืน ySPECIFY; }
+  "specparam"           { FL; คืน ySPECPARAM; }
+  "strong0"             { FL; คืน ySTRONG0; }
+  "strong1"             { FL; คืน ySTRONG1; }
+  "supply0"             { FL; คืน ySUPPLY0; }
+  "supply1"             { FL; คืน ySUPPLY1; }
+  "table"               { FL; yy_push_state(TABLE); คืน yTABLE; }
+  "task"                { FL; คืน yTASK; }
+  "time"                { FL; คืน yTIME; }
+  "tran"                { FL; คืน yTRAN; }
+  "tranif0"             { FL; คืน yTRANIF0; }
+  "tranif1"             { FL; คืน yTRANIF1; }
+  "tri"                 { FL; คืน yTRI; }
+  "tri0"                { FL; คืน yTRI0; }
+  "tri1"                { FL; คืน yTRI1; }
+  "triand"              { FL; คืน yTRIAND; }
+  "trior"               { FL; คืน yTRIOR; }
+  "trireg"              { FL; คืน yTRIREG; }
+  "vectored"            { FL; คืน yVECTORED; }
+  "wait"                { FL; คืน yWAIT; }
+  "wand"                { FL; คืน yWAND; }
+  "weak0"               { FL; คืน yWEAK0; }
+  "weak1"               { FL; คืน yWEAK1; }
+  "while"               { FL; คืน yWHILE; }
+  "wire"                { FL; คืน yWIRE; }
+  "wor"                 { FL; คืน yWOR; }
+  "xnor"                { FL; คืน yXNOR; }
+  "xor"                 { FL; คืน yXOR; }
 }
 
   /* Verilog 2001 */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$signed"             { FL; return yD_SIGNED; }
-  "$unsigned"           { FL; return yD_UNSIGNED; }
+  "$signed"             { FL; คืน yD_SIGNED; }
+  "$unsigned"           { FL; คืน yD_UNSIGNED; }
   /*     Keywords */
-  "automatic"           { FL; return yAUTOMATIC; }
-  "endgenerate"         { FL; return yENDGENERATE; }
-  "generate"            { FL; return yGENERATE; }
-  "genvar"              { FL; return yGENVAR; }
-  "ifnone"              { FL; return yaTIMINGSPEC; }
-  "localparam"          { FL; return yLOCALPARAM; }
-  "noshowcancelled"     { FL; return yaTIMINGSPEC; }
-  "pulsestyle_ondetect" { FL; return yaTIMINGSPEC; }
-  "pulsestyle_onevent"  { FL; return yaTIMINGSPEC; }
-  "showcancelled"       { FL; return yaTIMINGSPEC; }
-  "signed"              { FL; return ySIGNED; }
-  "unsigned"            { FL; return yUNSIGNED; }
+  "automatic"           { FL; คืน yAUTOMATIC; }
+  "endgenerate"         { FL; คืน yENDGENERATE; }
+  "generate"            { FL; คืน yGENERATE; }
+  "genvar"              { FL; คืน yGENVAR; }
+  "ifnone"              { FL; คืน yaTIMINGSPEC; }
+  "localparam"          { FL; คืน yLOCALPARAM; }
+  "noshowcancelled"     { FL; คืน yaTIMINGSPEC; }
+  "pulsestyle_ondetect" { FL; คืน yaTIMINGSPEC; }
+  "pulsestyle_onevent"  { FL; คืน yaTIMINGSPEC; }
+  "showcancelled"       { FL; คืน yaTIMINGSPEC; }
+  "signed"              { FL; คืน ySIGNED; }
+  "unsigned"            { FL; คืน yUNSIGNED; }
 }
 
   /* Verilog 2001 Config */
 <V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     Generic unsupported keywords */
-  "cell"                { FL; return yCELL; }
-  "config"              { FL; return yCONFIG; }
-  "design"              { FL; return yDESIGN; }
-  "endconfig"           { FL; return yENDCONFIG; }
-  "incdir"              { FL; yy_push_state(FILEPATH); return yINCDIR; }
+  "cell"                { FL; คืน yCELL; }
+  "config"              { FL; คืน yCONFIG; }
+  "design"              { FL; คืน yDESIGN; }
+  "endconfig"           { FL; คืน yENDCONFIG; }
+  "incdir"              { FL; yy_push_state(FILEPATH); คืน yINCDIR; }
   "include"             { FL;
-                          if (PARSEP->inLibMap()) {
+                          ถ้า (PARSEP->inLibMap()) {
                                 yy_push_state(FILEPATH);
-                                return yINCLUDE;
-                          } else {
+                                คืน yINCLUDE;
+                          } มิฉะนั้น {
                                 yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: IEEE 1800-2001-config lib.map"
                                                                  " reserved word not implemented: 'include'\n"
                                                                  << yylval.fl->warnMore() << "... Suggest unless in a lib.map file,"
@@ -499,218 +499,218 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                 FL_BRK;
                           }
                         }
-  "instance"            { FL; return yINSTANCE; }
-  "liblist"             { FL; return yLIBLIST; }
-  "library"             { FL; yy_push_state(FILEPATH); return yLIBRARY; }
-  "use"                 { FL; return yUSE; }
+  "instance"            { FL; คืน yINSTANCE; }
+  "liblist"             { FL; คืน yLIBLIST; }
+  "library"             { FL; yy_push_state(FILEPATH); คืน yLIBRARY; }
+  "use"                 { FL; คืน yUSE; }
 }
 
   /* Verilog 2005 */
 <V05,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$clog2"              { FL; return yD_CLOG2; }
+  "$clog2"              { FL; คืน yD_CLOG2; }
   /*     Keywords */
-  "uwire"               { FL; return yWIRE; }
+  "uwire"               { FL; คืน yWIRE; }
 }
 
   /* System Verilog 2005 */
 <S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$bits"               { FL; return yD_BITS; }
-  "$changed"            { FL; return yD_CHANGED; }
-  "$changed_gclk"       { FL; return yD_CHANGED_GCLK; }
-  "$changing_gclk"      { FL; return yD_CHANGING_GCLK; }
-  "$countbits"          { FL; return yD_COUNTBITS; }
-  "$countones"          { FL; return yD_COUNTONES; }
-  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$dimensions"         { FL; return yD_DIMENSIONS; }
-  "$error"              { FL; return yD_ERROR; }
-  "$falling_gclk"       { FL; return yD_FALLING_GCLK; }
-  "$fatal"              { FL; return yD_FATAL; }
-  "$fell"               { FL; return yD_FELL; }
-  "$fell_gclk"          { FL; return yD_FELL_GCLK; }
-  "$future_gclk"        { FL; return yD_FUTURE_GCLK; }
-  "$get_initial_random_seed" { FL; return yD_GET_INITIAL_RANDOM_SEED; }
-  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$high"               { FL; return yD_HIGH; }
-  "$increment"          { FL; return yD_INCREMENT; }
-  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$inferred_disable"   { FL; return yD_INFERRED_DISABLE; }
-  "$info"               { FL; return yD_INFO; }
-  "$isunbounded"        { FL; return yD_ISUNBOUNDED; }
-  "$isunknown"          { FL; return yD_ISUNKNOWN; }
-  "$left"               { FL; return yD_LEFT; }
-  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$low"                { FL; return yD_LOW; }
-  "$onehot"             { FL; return yD_ONEHOT; }
-  "$onehot0"            { FL; return yD_ONEHOT0; }
-  "$past"               { FL; return yD_PAST; }
-  "$past_gclk"          { FL; return yD_PAST_GCLK; }
-  "$right"              { FL; return yD_RIGHT; }
-  "$rising_gclk"        { FL; return yD_RISING_GCLK; }
-  "$root"               { FL; return yD_ROOT; }
-  "$rose"               { FL; return yD_ROSE; }
-  "$rose_gclk"          { FL; return yD_ROSE_GCLK; }
-  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$size"               { FL; return yD_SIZE; }
-  "$stable"             { FL; return yD_STABLE; }
-  "$stable_gclk"        { FL; return yD_STABLE_GCLK; }
-  "$steady_gclk"        { FL; return yD_STEADY_GCLK; }
-  "$unpacked_dimensions" { FL; return yD_UNPACKED_DIMENSIONS; }
-  "$warning"            { FL; return yD_WARNING; }
+  "$bits"               { FL; คืน yD_BITS; }
+  "$changed"            { FL; คืน yD_CHANGED; }
+  "$changed_gclk"       { FL; คืน yD_CHANGED_GCLK; }
+  "$changing_gclk"      { FL; คืน yD_CHANGING_GCLK; }
+  "$countbits"          { FL; คืน yD_COUNTBITS; }
+  "$countones"          { FL; คืน yD_COUNTONES; }
+  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$dimensions"         { FL; คืน yD_DIMENSIONS; }
+  "$error"              { FL; คืน yD_ERROR; }
+  "$falling_gclk"       { FL; คืน yD_FALLING_GCLK; }
+  "$fatal"              { FL; คืน yD_FATAL; }
+  "$fell"               { FL; คืน yD_FELL; }
+  "$fell_gclk"          { FL; คืน yD_FELL_GCLK; }
+  "$future_gclk"        { FL; คืน yD_FUTURE_GCLK; }
+  "$get_initial_random_seed" { FL; คืน yD_GET_INITIAL_RANDOM_SEED; }
+  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$high"               { FL; คืน yD_HIGH; }
+  "$increment"          { FL; คืน yD_INCREMENT; }
+  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$inferred_disable"   { FL; คืน yD_INFERRED_DISABLE; }
+  "$info"               { FL; คืน yD_INFO; }
+  "$isunbounded"        { FL; คืน yD_ISUNBOUNDED; }
+  "$isunknown"          { FL; คืน yD_ISUNKNOWN; }
+  "$left"               { FL; คืน yD_LEFT; }
+  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$low"                { FL; คืน yD_LOW; }
+  "$onehot"             { FL; คืน yD_ONEHOT; }
+  "$onehot0"            { FL; คืน yD_ONEHOT0; }
+  "$past"               { FL; คืน yD_PAST; }
+  "$past_gclk"          { FL; คืน yD_PAST_GCLK; }
+  "$right"              { FL; คืน yD_RIGHT; }
+  "$rising_gclk"        { FL; คืน yD_RISING_GCLK; }
+  "$root"               { FL; คืน yD_ROOT; }
+  "$rose"               { FL; คืน yD_ROSE; }
+  "$rose_gclk"          { FL; คืน yD_ROSE_GCLK; }
+  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); คืน yaD_PLI; }
+  "$size"               { FL; คืน yD_SIZE; }
+  "$stable"             { FL; คืน yD_STABLE; }
+  "$stable_gclk"        { FL; คืน yD_STABLE_GCLK; }
+  "$steady_gclk"        { FL; คืน yD_STEADY_GCLK; }
+  "$unpacked_dimensions" { FL; คืน yD_UNPACKED_DIMENSIONS; }
+  "$warning"            { FL; คืน yD_WARNING; }
   /*     SV2005 Keywords */
   /* Note assert_strobe was in SystemVerilog 3.1, but removed for SystemVerilog 2005 */
-  "$unit"               { FL; return yD_UNIT; }  /* Yes, a keyword, not task */
-  "alias"               { FL; return yALIAS; }
-  "always_comb"         { FL; return yALWAYS_COMB; }
-  "always_ff"           { FL; return yALWAYS_FF; }
-  "always_latch"        { FL; return yALWAYS_LATCH; }
-  "assert"              { FL; return yASSERT; }
-  "assume"              { FL; return yASSUME; }
-  "before"              { FL; return yBEFORE; }
-  "bind"                { FL; return yBIND; }
-  "bins"                { FL; return yBINS; }
-  "binsof"              { FL; return yBINSOF; }
-  "bit"                 { FL; return yBIT; }
-  "break"               { FL; return yBREAK; }
-  "byte"                { FL; return yBYTE; }
-  "chandle"             { FL; return yCHANDLE; }
-  "class"               { FL; return yCLASS; }
-  "clocking"            { FL; return yCLOCKING; }
-  "const"               { FL; return yCONST__LEX; }
-  "constraint"          { FL; return yCONSTRAINT; }
-  "context"             { FL; return yCONTEXT; }
-  "continue"            { FL; return yCONTINUE; }
-  "cover"               { FL; return yCOVER; }
-  "covergroup"          { FL; return yCOVERGROUP; }
-  "coverpoint"          { FL; return yCOVERPOINT; }
-  "cross"               { FL; return yCROSS; }
-  "dist"                { FL; return yDIST; }
-  "do"                  { FL; return yDO; }
-  "endclass"            { FL; return yENDCLASS; }
-  "endclocking"         { FL; return yENDCLOCKING; }
-  "endgroup"            { FL; return yENDGROUP; }
-  "endinterface"        { FL; return yENDINTERFACE; }
-  "endpackage"          { FL; return yENDPACKAGE; }
-  "endprogram"          { FL; return yENDPROGRAM; }
-  "endproperty"         { FL; return yENDPROPERTY; }
-  "endsequence"         { FL; return yENDSEQUENCE; }
-  "enum"                { FL; return yENUM; }
-  "expect"              { FL; return yEXPECT; }
-  "export"              { FL; return yEXPORT; }
-  "extends"             { FL; return yEXTENDS; }
-  "extern"              { FL; return yEXTERN; }
-  "final"               { FL; return yFINAL; }
-  "first_match"         { FL; return yFIRST_MATCH; }
-  "forkjoin"            { FL; return yFORKJOIN; }
-  "iff"                 { FL; return yIFF; }
-  "ignore_bins"         { FL; return yIGNORE_BINS; }
-  "illegal_bins"        { FL; return yILLEGAL_BINS; }
-  "import"              { FL; return yIMPORT; }
-  "inside"              { FL; return yINSIDE; }
-  "int"                 { FL; return yINT; }
-  "interface"           { FL; return yINTERFACE; }
-  "intersect"           { FL; return yINTERSECT; }
-  "join_any"            { FL; return yJOIN_ANY; }
-  "join_none"           { FL; return yJOIN_NONE; }
-  "local"               { FL; return yLOCAL__LEX; }
-  "logic"               { FL; return yLOGIC; }
-  "longint"             { FL; return yLONGINT; }
-  "matches"             { FL; return yMATCHES; }
-  "modport"             { FL; return yMODPORT; }
-  "new"                 { FL; return yNEW__LEX; }
-  "null"                { FL; return yNULL; }
-  "package"             { FL; return yPACKAGE; }
-  "packed"              { FL; return yPACKED; }
-  "priority"            { FL; return yPRIORITY; }
-  "program"             { FL; return yPROGRAM; }
-  "property"            { FL; return yPROPERTY; }
-  "protected"           { FL; return yPROTECTED; }
-  "pure"                { FL; return yPURE; }
-  "rand"                { FL; return yRAND; }
-  "randc"               { FL; return yRANDC; }
-  "randcase"            { FL; return yRANDCASE; }
-  "randomize"           { FL; return yRANDOMIZE; }
-  "randsequence"        { FL; return yRANDSEQUENCE; }
-  "ref"                 { FL; return yREF; }
-  "restrict"            { FL; return yRESTRICT; }
-  "return"              { FL; return yRETURN; }
-  "sequence"            { FL; return ySEQUENCE; }
-  "shortint"            { FL; return ySHORTINT; }
-  "shortreal"           { FL; return ySHORTREAL; }
-  "solve"               { FL; return ySOLVE; }
-  "static"              { FL; return ySTATIC__LEX; }
-  "string"              { FL; return ySTRING; }
-  "struct"              { FL; return ySTRUCT; }
-  "super"               { FL; return ySUPER; }
-  "tagged"              { FL; return yTAGGED__LEX; }
-  "this"                { FL; return yTHIS; }
-  "throughout"          { FL; return yTHROUGHOUT; }
-  "timeprecision"       { FL; return yTIMEPRECISION; }
-  "timeunit"            { FL; return yTIMEUNIT; }
-  "type"                { FL; return yTYPE__LEX; }
-  "typedef"             { FL; return yTYPEDEF; }
-  "union"               { FL; return yUNION; }
-  "unique"              { FL; return yUNIQUE; }
-  "var"                 { FL; return yVAR; }
-  "virtual"             { FL; return yVIRTUAL__LEX; }
-  "void"                { FL; return yVOID; }
-  "wait_order"          { FL; return yWAIT_ORDER; }
-  "wildcard"            { FL; return yWILDCARD; }
-  "with"                { FL; return yWITH__LEX; }
-  "within"              { FL; return yWITHIN; }
+  "$unit"               { FL; คืน yD_UNIT; }  /* Yes, a keyword, not task */
+  "alias"               { FL; คืน yALIAS; }
+  "always_comb"         { FL; คืน yALWAYS_COMB; }
+  "always_ff"           { FL; คืน yALWAYS_FF; }
+  "always_latch"        { FL; คืน yALWAYS_LATCH; }
+  "assert"              { FL; คืน yASSERT; }
+  "assume"              { FL; คืน yASSUME; }
+  "before"              { FL; คืน yBEFORE; }
+  "bind"                { FL; คืน yBIND; }
+  "bins"                { FL; คืน yBINS; }
+  "binsof"              { FL; คืน yBINSOF; }
+  "bit"                 { FL; คืน yBIT; }
+  "break"               { FL; คืน yBREAK; }
+  "byte"                { FL; คืน yBYTE; }
+  "chandle"             { FL; คืน yCHANDLE; }
+  "class"               { FL; คืน yCLASS; }
+  "clocking"            { FL; คืน yCLOCKING; }
+  "const"               { FL; คืน yCONST__LEX; }
+  "constraint"          { FL; คืน yCONSTRAINT; }
+  "context"             { FL; คืน yCONTEXT; }
+  "continue"            { FL; คืน yCONTINUE; }
+  "cover"               { FL; คืน yCOVER; }
+  "covergroup"          { FL; คืน yCOVERGROUP; }
+  "coverpoint"          { FL; คืน yCOVERPOINT; }
+  "cross"               { FL; คืน yCROSS; }
+  "dist"                { FL; คืน yDIST; }
+  "do"                  { FL; คืน yDO; }
+  "endclass"            { FL; คืน yENDCLASS; }
+  "endclocking"         { FL; คืน yENDCLOCKING; }
+  "endgroup"            { FL; คืน yENDGROUP; }
+  "endinterface"        { FL; คืน yENDINTERFACE; }
+  "endpackage"          { FL; คืน yENDPACKAGE; }
+  "endprogram"          { FL; คืน yENDPROGRAM; }
+  "endproperty"         { FL; คืน yENDPROPERTY; }
+  "endsequence"         { FL; คืน yENDSEQUENCE; }
+  "enum"                { FL; คืน yENUM; }
+  "expect"              { FL; คืน yEXPECT; }
+  "export"              { FL; คืน yEXPORT; }
+  "extends"             { FL; คืน yEXTENDS; }
+  "extern"              { FL; คืน yEXTERN; }
+  "final"               { FL; คืน yFINAL; }
+  "first_match"         { FL; คืน yFIRST_MATCH; }
+  "forkjoin"            { FL; คืน yFORKJOIN; }
+  "iff"                 { FL; คืน yIFF; }
+  "ignore_bins"         { FL; คืน yIGNORE_BINS; }
+  "illegal_bins"        { FL; คืน yILLEGAL_BINS; }
+  "import"              { FL; คืน yIMPORT; }
+  "inside"              { FL; คืน yINSIDE; }
+  "int"                 { FL; คืน yINT; }
+  "interface"           { FL; คืน yINTERFACE; }
+  "intersect"           { FL; คืน yINTERSECT; }
+  "join_any"            { FL; คืน yJOIN_ANY; }
+  "join_none"           { FL; คืน yJOIN_NONE; }
+  "local"               { FL; คืน yLOCAL__LEX; }
+  "logic"               { FL; คืน yLOGIC; }
+  "longint"             { FL; คืน yLONGINT; }
+  "matches"             { FL; คืน yMATCHES; }
+  "modport"             { FL; คืน yMODPORT; }
+  "new"                 { FL; คืน yNEW__LEX; }
+  "null"                { FL; คืน yNULL; }
+  "package"             { FL; คืน yPACKAGE; }
+  "packed"              { FL; คืน yPACKED; }
+  "priority"            { FL; คืน yPRIORITY; }
+  "program"             { FL; คืน yPROGRAM; }
+  "property"            { FL; คืน yPROPERTY; }
+  "protected"           { FL; คืน yPROTECTED; }
+  "pure"                { FL; คืน yPURE; }
+  "rand"                { FL; คืน yRAND; }
+  "randc"               { FL; คืน yRANDC; }
+  "randcase"            { FL; คืน yRANDCASE; }
+  "randomize"           { FL; คืน yRANDOMIZE; }
+  "randsequence"        { FL; คืน yRANDSEQUENCE; }
+  "ref"                 { FL; คืน yREF; }
+  "restrict"            { FL; คืน yRESTRICT; }
+  "return"              { FL; คืน yRETURN; }
+  "sequence"            { FL; คืน ySEQUENCE; }
+  "shortint"            { FL; คืน ySHORTINT; }
+  "shortreal"           { FL; คืน ySHORTREAL; }
+  "solve"               { FL; คืน ySOLVE; }
+  "static"              { FL; คืน ySTATIC__LEX; }
+  "string"              { FL; คืน ySTRING; }
+  "struct"              { FL; คืน ySTRUCT; }
+  "super"               { FL; คืน ySUPER; }
+  "tagged"              { FL; คืน yTAGGED__LEX; }
+  "this"                { FL; คืน yTHIS; }
+  "throughout"          { FL; คืน yTHROUGHOUT; }
+  "timeprecision"       { FL; คืน yTIMEPRECISION; }
+  "timeunit"            { FL; คืน yTIMEUNIT; }
+  "type"                { FL; คืน yTYPE__LEX; }
+  "typedef"             { FL; คืน yTYPEDEF; }
+  "union"               { FL; คืน yUNION; }
+  "unique"              { FL; คืน yUNIQUE; }
+  "var"                 { FL; คืน yVAR; }
+  "virtual"             { FL; คืน yVIRTUAL__LEX; }
+  "void"                { FL; คืน yVOID; }
+  "wait_order"          { FL; คืน yWAIT_ORDER; }
+  "wildcard"            { FL; คืน yWILDCARD; }
+  "with"                { FL; คืน yWITH__LEX; }
+  "within"              { FL; คืน yWITHIN; }
 }
 
   /* SystemVerilog 2009 */
 <S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertfailoff"      { FL; return yD_ASSERTFAILOFF; }
-  "$assertfailon"       { FL; return yD_ASSERTFAILON; }
-  "$assertkill"         { FL; return yD_ASSERTKILL; }
-  "$assertnonvacuouson" { FL; return yD_ASSERTNONVACUOUSON; }
-  "$assertoff"          { FL; return yD_ASSERTOFF; }
-  "$asserton"           { FL; return yD_ASSERTON; }
-  "$assertpassoff"      { FL; return yD_ASSERTPASSOFF; }
-  "$assertpasson"       { FL; return yD_ASSERTPASSON; }
-  "$assertvacuousoff"   { FL; return yD_ASSERTVACUOUSOFF; }
+  "$assertfailoff"      { FL; คืน yD_ASSERTFAILOFF; }
+  "$assertfailon"       { FL; คืน yD_ASSERTFAILON; }
+  "$assertkill"         { FL; คืน yD_ASSERTKILL; }
+  "$assertnonvacuouson" { FL; คืน yD_ASSERTNONVACUOUSON; }
+  "$assertoff"          { FL; คืน yD_ASSERTOFF; }
+  "$asserton"           { FL; คืน yD_ASSERTON; }
+  "$assertpassoff"      { FL; คืน yD_ASSERTPASSOFF; }
+  "$assertpasson"       { FL; คืน yD_ASSERTPASSON; }
+  "$assertvacuousoff"   { FL; คืน yD_ASSERTVACUOUSOFF; }
   /*     Keywords */
-  "accept_on"           { FL; return yACCEPT_ON; }
-  "checker"             { FL; return yCHECKER; }
-  "endchecker"          { FL; return yENDCHECKER; }
-  "eventually"          { FL; return yEVENTUALLY; }
-  "global"              { FL; return yGLOBAL__LEX; }
-  "implies"             { FL; return yIMPLIES; }
-  "let"                 { FL; return yLET; }
-  "nexttime"            { FL; return yNEXTTIME; }
-  "reject_on"           { FL; return yREJECT_ON; }
-  "s_always"            { FL; return yS_ALWAYS; }
-  "s_eventually"        { FL; return yS_EVENTUALLY; }
-  "s_nexttime"          { FL; return yS_NEXTTIME; }
-  "s_until"             { FL; return yS_UNTIL; }
-  "s_until_with"        { FL; return yS_UNTIL_WITH; }
-  "strong"              { FL; return ySTRONG; }
-  "sync_accept_on"      { FL; return ySYNC_ACCEPT_ON; }
-  "sync_reject_on"      { FL; return ySYNC_REJECT_ON; }
-  "unique0"             { FL; return yUNIQUE0; }
-  "until"               { FL; return yUNTIL; }
-  "until_with"          { FL; return yUNTIL_WITH; }
-  "untyped"             { FL; return yUNTYPED; }
-  "weak"                { FL; return yWEAK; }
+  "accept_on"           { FL; คืน yACCEPT_ON; }
+  "checker"             { FL; คืน yCHECKER; }
+  "endchecker"          { FL; คืน yENDCHECKER; }
+  "eventually"          { FL; คืน yEVENTUALLY; }
+  "global"              { FL; คืน yGLOBAL__LEX; }
+  "implies"             { FL; คืน yIMPLIES; }
+  "let"                 { FL; คืน yLET; }
+  "nexttime"            { FL; คืน yNEXTTIME; }
+  "reject_on"           { FL; คืน yREJECT_ON; }
+  "s_always"            { FL; คืน yS_ALWAYS; }
+  "s_eventually"        { FL; คืน yS_EVENTUALLY; }
+  "s_nexttime"          { FL; คืน yS_NEXTTIME; }
+  "s_until"             { FL; คืน yS_UNTIL; }
+  "s_until_with"        { FL; คืน yS_UNTIL_WITH; }
+  "strong"              { FL; คืน ySTRONG; }
+  "sync_accept_on"      { FL; คืน ySYNC_ACCEPT_ON; }
+  "sync_reject_on"      { FL; คืน ySYNC_REJECT_ON; }
+  "unique0"             { FL; คืน yUNIQUE0; }
+  "until"               { FL; คืน yUNTIL; }
+  "until_with"          { FL; คืน yUNTIL_WITH; }
+  "untyped"             { FL; คืน yUNTYPED; }
+  "weak"                { FL; คืน yWEAK; }
 }
 
   /* System Verilog 2012 */
 <S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertcontrol"      { FL; return yD_ASSERTCTL; }
+  "$assertcontrol"      { FL; คืน yD_ASSERTCTL; }
   /*     Keywords */
-  "implements"          { FL; return yIMPLEMENTS; }
-  "interconnect"        { FL; return yINTERCONNECT; }
-  "nettype"             { FL; return yNETTYPE; }
-  "soft"                { FL; return ySOFT; }
+  "implements"          { FL; คืน yIMPLEMENTS; }
+  "interconnect"        { FL; คืน yINTERCONNECT; }
+  "nettype"             { FL; คืน yNETTYPE; }
+  "soft"                { FL; คืน ySOFT; }
 }
 
   /* System Verilog 2017 */
@@ -718,7 +718,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Default PLI rule */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "$"[a-zA-Z0-9_$]+     { FL; STR; return yaD_PLI; }
+  "$"[a-zA-Z0-9_$]+     { FL; STR; คืน yaD_PLI; }
 }
 
   /************************************************************************/
@@ -737,20 +737,20 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "aliasparam"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analog"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analysis"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "asin"               { FL; return yD_ASIN; }
-   "asinh"              { FL; return yD_ASINH; }
+   "asin"               { FL; คืน yD_ASIN; }
+   "asinh"              { FL; คืน yD_ASINH; }
    "assert"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "atan"               { FL; return yD_ATAN; }
-   "atan2"              { FL; return yD_ATAN2; }
-   "atanh"              { FL; return yD_ATANH; }
+   "atan"               { FL; คืน yD_ATAN; }
+   "atan2"              { FL; คืน yD_ATAN2; }
+   "atanh"              { FL; คืน yD_ATANH; }
    "branch"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ceil"               { FL; return yD_CEIL; }
+   "ceil"               { FL; คืน yD_CEIL; }
    "connect"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectmodule"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectrules"       { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "continuous"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "cos"                { FL; return yD_COS; }
-   "cosh"               { FL; return yD_COSH; }
+   "cos"                { FL; คืน yD_COS; }
+   "cosh"               { FL; คืน yD_COSH; }
    "cross"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -764,14 +764,14 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "endnature"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "endparamset"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "exclude"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "exp"                { FL; return yD_EXP; }
+   "exp"                { FL; คืน yD_EXP; }
    "final_step"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "flicker_noise"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "floor"              { FL; return yD_FLOOR; }
+   "floor"              { FL; คืน yD_FLOOR; }
    "flow"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "from"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ground"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "hypot"              { FL; return yD_HYPOT; }
+   "hypot"              { FL; คืน yD_HYPOT; }
    "idt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idtmod"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -783,8 +783,8 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "laplace_zp"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "last_crossing"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "limexp"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ln"                 { FL; return yD_LN; }
-   "log"                { FL; return yD_LOG10; }
+   "ln"                 { FL; คืน yD_LN; }
+   "log"                { FL; คืน yD_LOG10; }
    "max"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "merged"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "min"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -793,21 +793,21 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "noise_table"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "paramset"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "potential"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "pow"                { FL; return yD_POW; }
+   "pow"                { FL; คืน yD_POW; }
    "resolveto"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sin"                { FL; return yD_SIN; }
-   "sinh"               { FL; return yD_SINH; }
+   "sin"                { FL; คืน yD_SIN; }
+   "sinh"               { FL; คืน yD_SINH; }
    "slew"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "split"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sqrt"               { FL; return yD_SQRT; }
-   "string"             { FL; return ySTRING; }
-   "tan"                { FL; return yD_TAN; }
-   "tanh"               { FL; return yD_TANH; }
+   "sqrt"               { FL; คืน yD_SQRT; }
+   "string"             { FL; คืน ySTRING; }
+   "tan"                { FL; คืน yD_TAN; }
+   "tanh"               { FL; คืน yD_TANH; }
    "timer"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "transition"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "units"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "white_noise"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "wreal"              { FL; return yWREAL; }
+   "wreal"              { FL; คืน yWREAL; }
    "zi_nd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_np"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_zd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -820,64 +820,64 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* Converted from //{cmt}verilator ...{cmt} by preprocessor */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   "/*verilator"{ws}*"*/"                { FL_FWD; FL_BRK; }  /* Ignore empty comments, may be `endif // verilator */
-  "/*verilator clock_enable*/"          { FL; return yVL_CLOCK_ENABLE; }
-  "/*verilator clocker*/"               { FL; return yVL_CLOCKER; }
-  "/*verilator coverage_block_off*/"    { FL; return yVL_COVERAGE_BLOCK_OFF; }
+  "/*verilator clock_enable*/"          { FL; คืน yVL_CLOCK_ENABLE; }
+  "/*verilator clocker*/"               { FL; คืน yVL_CLOCKER; }
+  "/*verilator coverage_block_off*/"    { FL; คืน yVL_COVERAGE_BLOCK_OFF; }
   "/*verilator coverage_off*/"          { FL_FWD; PARSEP->lexFileline()->coverageOn(false); FL_BRK; }
   "/*verilator coverage_on*/"           { FL_FWD; PARSEP->lexFileline()->coverageOn(true); FL_BRK; }
-  "/*verilator dpi_c_decl*/"            { FL; return yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
-  "/*verilator forceable*/"             { FL; return yVL_FORCEABLE; }
-  "/*verilator full_case*/"             { FL; return yVL_FULL_CASE; }
-  "/*verilator hier_block*/"            { FL; return yVL_HIER_BLOCK; }
-  "/*verilator inline_module*/"         { FL; return yVL_INLINE_MODULE; }
-  "/*verilator isolate_assignments*/"   { FL; return yVL_ISOLATE_ASSIGNMENTS; }
+  "/*verilator dpi_c_decl*/"            { FL; คืน yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
+  "/*verilator forceable*/"             { FL; คืน yVL_FORCEABLE; }
+  "/*verilator full_case*/"             { FL; คืน yVL_FULL_CASE; }
+  "/*verilator hier_block*/"            { FL; คืน yVL_HIER_BLOCK; }
+  "/*verilator inline_module*/"         { FL; คืน yVL_INLINE_MODULE; }
+  "/*verilator isolate_assignments*/"   { FL; คืน yVL_ISOLATE_ASSIGNMENTS; }
   "/*verilator lint_off"[^*]*"*/"       { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, true); FL_BRK; }
   "/*verilator lint_on"[^*]*"*/"        { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, false); FL_BRK; }
   "/*verilator lint_restore*/"          { FL; PARSEP->lexVerilatorCmtLintRestore(PARSEP->lexFileline()); FL_BRK; }
   "/*verilator lint_save*/"             { FL; PARSEP->lexVerilatorCmtLintSave(PARSEP->lexFileline()); FL_BRK; }
-  "/*verilator no_clocker*/"            { FL; return yVL_NO_CLOCKER; }
-  "/*verilator no_inline_module*/"      { FL; return yVL_NO_INLINE_MODULE; }
-  "/*verilator no_inline_task*/"        { FL; return yVL_NO_INLINE_TASK; }
-  "/*verilator parallel_case*/"         { FL; return yVL_PARALLEL_CASE; }
-  "/*verilator public*/"                { FL; return yVL_PUBLIC; }
-  "/*verilator public_flat*/"           { FL; return yVL_PUBLIC_FLAT; }
-  "/*verilator public_flat_on*/"        { FL; return yVL_PUBLIC_FLAT_ON; }
-  "/*verilator public_flat_rd*/"        { FL; return yVL_PUBLIC_FLAT_RD; }
-  "/*verilator public_flat_rd_on*/"     { FL; return yVL_PUBLIC_FLAT_RD_ON; }
-  "/*verilator public_flat_rw*/"        { FL; return yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
-  "/*verilator public_flat_rw_on*/"     { FL; return yVL_PUBLIC_FLAT_RW_ON; }
-  "/*verilator public_flat_rw_on_sns*/" { FL; return yVL_PUBLIC_FLAT_RW_ON_SNS; }
-  "/*verilator public_module*/"         { FL; return yVL_PUBLIC_MODULE; }
-  "/*verilator public_on*/"             { FL; return yVL_PUBLIC_ON; }
-  "/*verilator public_off*/"            { FL; return yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
-  "/*verilator sc_biguint*/"            { FL; return yVL_SC_BIGUINT; }
-  "/*verilator sc_bv*/"                 { FL; return yVL_SC_BV; }
+  "/*verilator no_clocker*/"            { FL; คืน yVL_NO_CLOCKER; }
+  "/*verilator no_inline_module*/"      { FL; คืน yVL_NO_INLINE_MODULE; }
+  "/*verilator no_inline_task*/"        { FL; คืน yVL_NO_INLINE_TASK; }
+  "/*verilator parallel_case*/"         { FL; คืน yVL_PARALLEL_CASE; }
+  "/*verilator public*/"                { FL; คืน yVL_PUBLIC; }
+  "/*verilator public_flat*/"           { FL; คืน yVL_PUBLIC_FLAT; }
+  "/*verilator public_flat_on*/"        { FL; คืน yVL_PUBLIC_FLAT_ON; }
+  "/*verilator public_flat_rd*/"        { FL; คืน yVL_PUBLIC_FLAT_RD; }
+  "/*verilator public_flat_rd_on*/"     { FL; คืน yVL_PUBLIC_FLAT_RD_ON; }
+  "/*verilator public_flat_rw*/"        { FL; คืน yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
+  "/*verilator public_flat_rw_on*/"     { FL; คืน yVL_PUBLIC_FLAT_RW_ON; }
+  "/*verilator public_flat_rw_on_sns*/" { FL; คืน yVL_PUBLIC_FLAT_RW_ON_SNS; }
+  "/*verilator public_module*/"         { FL; คืน yVL_PUBLIC_MODULE; }
+  "/*verilator public_on*/"             { FL; คืน yVL_PUBLIC_ON; }
+  "/*verilator public_off*/"            { FL; คืน yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
+  "/*verilator sc_biguint*/"            { FL; คืน yVL_SC_BIGUINT; }
+  "/*verilator sc_bv*/"                 { FL; คืน yVL_SC_BV; }
   "/*verilator sc_clock*/"              { FL; yylval.fl->v3warn(DEPRECATED, "sc_clock is ignored"); FL_BRK; }
-  "/*verilator sformat*/"               { FL; return yVL_SFORMAT; }
-  "/*verilator split_var*/"             { FL; return yVL_SPLIT_VAR; }
+  "/*verilator sformat*/"               { FL; คืน yVL_SFORMAT; }
+  "/*verilator split_var*/"             { FL; คืน yVL_SPLIT_VAR; }
   /* Experimental Verilator-specific FSM coverage controls. These names were
    * chosen to match the current extractor behavior, not a published synthesis
    * or simulator pragma standard, so they may evolve as we settle on longer-
    * term compatibility/aliasing.
    */
-  "/*verilator fsm_arc_include_cond*/"  { FL; return yVL_FSM_ARC_INCL_COND; }
-  "/*verilator fsm_arc_include_cond_auto*/"         { FL; return yVL_FSM_ARC_INCL_COND_AUTO; }
-  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; return yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
-  "/*verilator fsm_arc_include_cond_full*/"         { FL; return yVL_FSM_ARC_INCL_COND_FULL; }
+  "/*verilator fsm_arc_include_cond*/"  { FL; คืน yVL_FSM_ARC_INCL_COND; }
+  "/*verilator fsm_arc_include_cond_auto*/"         { FL; คืน yVL_FSM_ARC_INCL_COND_AUTO; }
+  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; คืน yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
+  "/*verilator fsm_arc_include_cond_full*/"         { FL; คืน yVL_FSM_ARC_INCL_COND_FULL; }
   "/*verilator fsm_reset_arc*/"         { FL; yylval.fl->v3warn(DEPRECATED, "/*verilator fsm_reset_arc*/ is deprecated and aliases /*verilator fsm_state*/");
-                                          return yVL_FSM_STATE; }
-  "/*verilator fsm_state*/"             { FL; return yVL_FSM_STATE; }
-  "/*verilator fsm_state_auto*/"        { FL; return yVL_FSM_STATE_AUTO; }
-  "/*verilator fsm_state_auto_expand*/" { FL; return yVL_FSM_STATE_AUTO_EXPAND; }
-  "/*verilator fsm_state_full*/"        { FL; return yVL_FSM_STATE_FULL; }
+                                          คืน yVL_FSM_STATE; }
+  "/*verilator fsm_state*/"             { FL; คืน yVL_FSM_STATE; }
+  "/*verilator fsm_state_auto*/"        { FL; คืน yVL_FSM_STATE_AUTO; }
+  "/*verilator fsm_state_auto_expand*/" { FL; คืน yVL_FSM_STATE_AUTO_EXPAND; }
+  "/*verilator fsm_state_full*/"        { FL; คืน yVL_FSM_STATE_FULL; }
   "/*verilator tag"[^*]*"*/"            { FL; yylval.strp = PARSEP->newString(V3ParseImp::lexParseTag(yytext));
-                                          return yVL_TAG; }
+                                          คืน yVL_TAG; }
   "/*verilator timing_off*/"            { FL_FWD; PARSEP->lexFileline()->timingOn(false); FL_BRK; }
   "/*verilator timing_on*/"             { FL_FWD; PARSEP->lexFileline()->timingOn(true); FL_BRK; }
   "/*verilator tracing_off*/"           { FL_FWD; PARSEP->lexFileline()->tracingOn(false); FL_BRK; }
   "/*verilator tracing_on*/"            { FL_FWD; PARSEP->lexFileline()->tracingOn(true); FL_BRK; }
-  "/*verilator unroll_disable*/"        { FL; return yVL_UNROLL_DISABLE; }
-  "/*verilator unroll_full*/"           { FL; return yVL_UNROLL_FULL; }
+  "/*verilator unroll_disable*/"        { FL; คืน yVL_UNROLL_DISABLE; }
+  "/*verilator unroll_full*/"           { FL; คืน yVL_UNROLL_FULL; }
 
   "/**/"                                { FL_FWD; FL_BRK; }
   "/*"[^*]+"*/"                         { FL; V3ParseImp::lexVerilatorCmtBad(yylval.fl, yytext); FL_BRK; }
@@ -887,33 +887,33 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Single character operator thingies */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "{"                   { FL; return yytext[0]; }
-  "}"                   { FL; return yytext[0]; }
-  "!"                   { FL; return yytext[0]; }
-  "#"                   { FL; return yytext[0]; }
-  "$"                   { FL; return yytext[0]; }
-  "%"                   { FL; return yytext[0]; }
-  "&"                   { FL; return yytext[0]; }
-  "("                   { FL; return yytext[0]; }
-  ")"                   { FL; return yytext[0]; }
-  "*"                   { FL; return yytext[0]; }
-  "+"                   { FL; return yytext[0]; }
-  ","                   { FL; return yytext[0]; }
-  "-"                   { FL; return yytext[0]; }
-  "."                   { FL; return yytext[0]; }
-  "/"                   { FL; return yytext[0]; }
-  ":"                   { FL; return yytext[0]; }
-  ";"                   { FL; return yytext[0]; }
-  "<"                   { FL; return yytext[0]; }
-  "="                   { FL; return yytext[0]; }
-  ">"                   { FL; return yytext[0]; }
-  "?"                   { FL; return yytext[0]; }
-  "@"                   { FL; return yytext[0]; }
-  "["                   { FL; return yytext[0]; }
-  "]"                   { FL; return yytext[0]; }
-  "^"                   { FL; return yytext[0]; }
-  "|"                   { FL; return yytext[0]; }
-  "~"                   { FL; return yytext[0]; }
+  "{"                   { FL; คืน yytext[0]; }
+  "}"                   { FL; คืน yytext[0]; }
+  "!"                   { FL; คืน yytext[0]; }
+  "#"                   { FL; คืน yytext[0]; }
+  "$"                   { FL; คืน yytext[0]; }
+  "%"                   { FL; คืน yytext[0]; }
+  "&"                   { FL; คืน yytext[0]; }
+  "("                   { FL; คืน yytext[0]; }
+  ")"                   { FL; คืน yytext[0]; }
+  "*"                   { FL; คืน yytext[0]; }
+  "+"                   { FL; คืน yytext[0]; }
+  ","                   { FL; คืน yytext[0]; }
+  "-"                   { FL; คืน yytext[0]; }
+  "."                   { FL; คืน yytext[0]; }
+  "/"                   { FL; คืน yytext[0]; }
+  ":"                   { FL; คืน yytext[0]; }
+  ";"                   { FL; คืน yytext[0]; }
+  "<"                   { FL; คืน yytext[0]; }
+  "="                   { FL; คืน yytext[0]; }
+  ">"                   { FL; คืน yytext[0]; }
+  "?"                   { FL; คืน yytext[0]; }
+  "@"                   { FL; คืน yytext[0]; }
+  "["                   { FL; คืน yytext[0]; }
+  "]"                   { FL; คืน yytext[0]; }
+  "^"                   { FL; คืน yytext[0]; }
+  "|"                   { FL; คืน yytext[0]; }
+  "~"                   { FL; คืน yytext[0]; }
 }
 
   /************************************************************************/
@@ -921,139 +921,139 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Verilog 1995 Operators */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "&&"                  { FL; return yP_ANDAND; }
-  "||"                  { FL; return yP_OROR; }
-  "<="                  { FL; return yP_LTE; }
-  ">="                  { FL; return yP_GTE; }
-  "<<"                  { FL; return yP_SLEFT; }
-  ">>"                  { FL; return yP_SRIGHT; }
-  "=="                  { FL; return yP_EQUAL; }
-  "!="                  { FL; return yP_NOTEQUAL; }
-  "==="                 { FL; return yP_CASEEQUAL; }
-  "!=="                 { FL; return yP_CASENOTEQUAL; }
-  "^~"                  { FL; return yP_XNOR; }
-  "~^"                  { FL; return yP_XNOR; }
-  "~&"                  { FL; return yP_NAND; }
-  "~|"                  { FL; return yP_NOR; }
-  "->"                  { FL; return yP_MINUSGT; }
-  "=>"                  { FL; return yP_EQGT; }
-  "*>"                  { FL; return yP_ASTGT; }
-  "&&&"                 { FL; return yP_ANDANDAND; }
+  "&&"                  { FL; คืน yP_ANDAND; }
+  "||"                  { FL; คืน yP_OROR; }
+  "<="                  { FL; คืน yP_LTE; }
+  ">="                  { FL; คืน yP_GTE; }
+  "<<"                  { FL; คืน yP_SLEFT; }
+  ">>"                  { FL; คืน yP_SRIGHT; }
+  "=="                  { FL; คืน yP_EQUAL; }
+  "!="                  { FL; คืน yP_NOTEQUAL; }
+  "==="                 { FL; คืน yP_CASEEQUAL; }
+  "!=="                 { FL; คืน yP_CASENOTEQUAL; }
+  "^~"                  { FL; คืน yP_XNOR; }
+  "~^"                  { FL; คืน yP_XNOR; }
+  "~&"                  { FL; คืน yP_NAND; }
+  "~|"                  { FL; คืน yP_NOR; }
+  "->"                  { FL; คืน yP_MINUSGT; }
+  "=>"                  { FL; คืน yP_EQGT; }
+  "*>"                  { FL; คืน yP_ASTGT; }
+  "&&&"                 { FL; คืน yP_ANDANDAND; }
 }
 
   /* Verilog 2001 Operators */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "<<<"                 { FL; return yP_SLEFT; }
-  ">>>"                 { FL; return yP_SSRIGHT; }
-  "**"                  { FL; return yP_POW; }
-  "+:"                  { FL; return yP_PLUSCOLON; }
-  "-:"                  { FL; return yP_MINUSCOLON; }
-  ".*"                  { FL; return yP_DOTSTAR; }
+  "<<<"                 { FL; คืน yP_SLEFT; }
+  ">>>"                 { FL; คืน yP_SSRIGHT; }
+  "**"                  { FL; คืน yP_POW; }
+  "+:"                  { FL; คืน yP_PLUSCOLON; }
+  "-:"                  { FL; คืน yP_MINUSCOLON; }
+  ".*"                  { FL; คืน yP_DOTSTAR; }
   ":+"                  { FL; yyless(1);
                           yylval.fl->v3warn(COLONPLUS, "Perhaps instead of ':+' the intent was '+:'?");
-                          return ':'; }
+                          คืน ':'; }
 }
 
   /* SystemVerilog Operators */
 <S05,S09,S12,S17,S23,SAX>{
-  "'"                   { FL; return yP_TICK; }
-  "'{"                  { FL; return yP_TICKBRA; }
-  "==?"                 { FL; return yP_WILDEQUAL; }
-  "!=?"                 { FL; return yP_WILDNOTEQUAL; }
-  "++"                  { FL; return yP_PLUSPLUS; }
-  "--"                  { FL; return yP_MINUSMINUS; }
-  "+="                  { FL; return yP_PLUSEQ; }
-  "-="                  { FL; return yP_MINUSEQ; }
-  "*="                  { FL; return yP_TIMESEQ; }
-  "/="                  { FL; return yP_DIVEQ; }
-  "%="                  { FL; return yP_MODEQ; }
-  "&="                  { FL; return yP_ANDEQ; }
-  "|="                  { FL; return yP_OREQ; }
-  "^="                  { FL; return yP_XOREQ; }
-  "<<="                 { FL; return yP_SLEFTEQ; }
-  ">>="                 { FL; return yP_SRIGHTEQ; }
-  "<<<="                { FL; return yP_SLEFTEQ; }
-  ">>>="                { FL; return yP_SSRIGHTEQ; }
-  "->>"                 { FL; return yP_MINUSGTGT; }
-  "##"                  { FL; return yP_POUNDPOUND; }
-  "#-#"                 { FL; return yP_POUNDMINUSPD; }
-  "#=#"                 { FL; return yP_POUNDEQPD; }
-  "@@"                  { FL; return yP_ATAT; }
-  "::"                  { FL; return yP_COLONCOLON; }
-  ":="                  { FL; return yP_COLONEQ; }
-  ":/"/[^\/\*]          { FL; return yP_COLONDIV; }  /* : then comment is not ":/" */
-  "|->"                 { FL; return yP_ORMINUSGT; }
-  "|=>"                 { FL; return yP_OREQGT; }
+  "'"                   { FL; คืน yP_TICK; }
+  "'{"                  { FL; คืน yP_TICKBRA; }
+  "==?"                 { FL; คืน yP_WILDEQUAL; }
+  "!=?"                 { FL; คืน yP_WILDNOTEQUAL; }
+  "++"                  { FL; คืน yP_PLUSPLUS; }
+  "--"                  { FL; คืน yP_MINUSMINUS; }
+  "+="                  { FL; คืน yP_PLUSEQ; }
+  "-="                  { FL; คืน yP_MINUSEQ; }
+  "*="                  { FL; คืน yP_TIMESEQ; }
+  "/="                  { FL; คืน yP_DIVEQ; }
+  "%="                  { FL; คืน yP_MODEQ; }
+  "&="                  { FL; คืน yP_ANDEQ; }
+  "|="                  { FL; คืน yP_OREQ; }
+  "^="                  { FL; คืน yP_XOREQ; }
+  "<<="                 { FL; คืน yP_SLEFTEQ; }
+  ">>="                 { FL; คืน yP_SRIGHTEQ; }
+  "<<<="                { FL; คืน yP_SLEFTEQ; }
+  ">>>="                { FL; คืน yP_SSRIGHTEQ; }
+  "->>"                 { FL; คืน yP_MINUSGTGT; }
+  "##"                  { FL; คืน yP_POUNDPOUND; }
+  "#-#"                 { FL; คืน yP_POUNDMINUSPD; }
+  "#=#"                 { FL; คืน yP_POUNDEQPD; }
+  "@@"                  { FL; คืน yP_ATAT; }
+  "::"                  { FL; คืน yP_COLONCOLON; }
+  ":="                  { FL; คืน yP_COLONEQ; }
+  ":/"/[^\/\*]          { FL; คืน yP_COLONDIV; }  /* : then comment is not ":/" */
+  "|->"                 { FL; คืน yP_ORMINUSGT; }
+  "|=>"                 { FL; คืน yP_OREQGT; }
   /* Some simulators allow whitespace here. Grr */
-  "["{ws}*"*"           { FL; return yP_BRASTAR; }
-  "["{ws}*"+"{ws}*"]"   { FL; return yP_BRAPLUSKET; }
-  "["{ws}*"->"          { FL; return yP_BRAMINUSGT; }
-  "["{ws}*"="           { FL; return yP_BRAEQ; }
+  "["{ws}*"*"           { FL; คืน yP_BRASTAR; }
+  "["{ws}*"+"{ws}*"]"   { FL; คืน yP_BRAPLUSKET; }
+  "["{ws}*"->"          { FL; คืน yP_BRAMINUSGT; }
+  "["{ws}*"="           { FL; คืน yP_BRAEQ; }
 }
 
   /* SystemVerilog 2009 Operators */
 <S09,S12,S17,S23,SAX,VLT>{
-  "<->"                 { FL; return yP_LTMINUSGT; }
+  "<->"                 { FL; คืน yP_LTMINUSGT; }
 }
 
   /* SystemVerilog 2023 Operators */
 <S23,SAX,VLT>{
-  "+/-"                 { FL; return yP_PLUSSLASHMINUS; }
-  "+%-"                 { FL; return yP_PLUSPCTMINUS; }
+  "+/-"                 { FL; คืน yP_PLUSSLASHMINUS; }
+  "+%-"                 { FL; คืน yP_PLUSPCTMINUS; }
 }
 
   /* Identifiers and numbers */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   {escid}               { FL; yylval.strp = PARSEP->newString
                                   (AstNode::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
-                          return yaID__LEX;
+                          คืน yaID__LEX;
                         }
   {id}                  { FL; yylval.strp = PARSEP->newString(AstNode::encodeName(std::string{yytext}));
-                          return yaID__LEX;
+                          คืน yaID__LEX;
                         }
   \"[^\"\\]*\"          { FL; yylval.strp = PARSEP->newString(yytext+1, yyleng-2);
-                          return yaSTRING;
+                          คืน yaSTRING;
                         }
   \"                    { yy_push_state(STRING); PARSEP->lexString().clear(); }
   \"\"\"                { yy_push_state(QQQ); PARSEP->lexString().clear(); }
   {vnum}                {
                           /* "# 1'b0" is a delay value so must lex as "#" "1" "'b0" */
-                          if (PARSEP->lexPrevToken()=='#') {
-                              int shortlen = 0;
-                              if (std::isdigit(yytext[shortlen])) {
-                                  while (std::isdigit(yytext[shortlen])
+                          ถ้า (PARSEP->lexPrevToken()=='#') {
+                              จำนวนเต็ม shortlen = 0;
+                              ถ้า (std::isdigit(yytext[shortlen])) {
+                                  ขณะ (std::isdigit(yytext[shortlen])
                                          || yytext[shortlen]=='_') ++shortlen;
                               }
-                              if (shortlen) {
+                              ถ้า (shortlen) {
                                   // Push rest past numbers for later parse
                                   PARSEP->lexUnputString(yytext + shortlen, yyleng - shortlen);
                                   // Return is stuff before the tick
                                   yyleng = shortlen;
                                   yytext[yyleng] = '\0';
-                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                                  return yaINTNUM;
+                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                                  คืน yaINTNUM;
                               }
                           }
-                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (var_na*)yytext);
+                          คืน yaINTNUM;
                         }
   [0-9][_0-9]*          {
-                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                          คืน yaINTNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)([eE][-+]?[_0-9]+)? {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          คืน yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?([eE][-+]?[_0-9]+) {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          คืน yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?(fs|ps|ns|us|ms|s) {
                           FL; yylval.cdouble = V3ParseImp::lexParseTimenum(yytext);
-                          return yaTIMENUM;
+                          คืน yaTIMENUM;
                         }
-  1step                 { FL; return y1STEP; }
+  1step                 { FL; คืน y1STEP; }
 }
 
   /************************************************************************/
@@ -1069,7 +1069,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"", 1, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          คืน yaSTRING; }
 <STRING>{word}          { PARSEP->lexString().append(yytext, yyleng); }
 <STRING>.               { PARSEP->lexString().append(yytext, yyleng); }
 
@@ -1085,7 +1085,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"\"\"", 3, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          คืน yaSTRING; }
 <QQQ>\"                 { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>{word}             { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>.                  { PARSEP->lexString().append(yytext, yyleng); }
@@ -1108,24 +1108,24 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /************************************************************************/
   /* Tables */
-<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* edge_symbol */
-<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* level_symbol, next_state */
-<TABLE>":"                              { FL; return yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
-<TABLE>";"                              { FL; return yaTABLE_LINEEND; }
-<TABLE>[\(\)]                           { FL; return yytext[0]; }
+<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); คืน yaTABLE_FIELD; }  /* edge_symbol */
+<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); คืน yaTABLE_FIELD; }  /* level_symbol, next_state */
+<TABLE>":"                              { FL; คืน yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
+<TABLE>";"                              { FL; คืน yaTABLE_LINEEND; }
+<TABLE>[\(\)]                           { FL; คืน yytext[0]; }
 <TABLE>{ws}|(\\){0,1}{crnl}             { FL_FWD; FL_BRK; }
 <TABLE>"`line"{ws}+[^\n\r]*{crnl}       { FL_FWD; PARSEP->lexPpline(yytext); FL_BRK; }
 <TABLE>"//"[^\n]*                       { FL_FWD; FL_BRK; }  /* Throw away single line comments */
-<TABLE>"endtable"                       { FL; yy_pop_state(); return yENDTABLE; }
+<TABLE>"endtable"                       { FL; yy_pop_state(); คืน yENDTABLE; }
 <TABLE><<EOF>>                          { FL; yylval.fl->v3error("EOF in 'table'");
                                               yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
 
 <EDGEDESC>{
-  01|10|[01][zZxX]|[zZxX][01]  { FL; return yaEDGEDESC; }
+  01|10|[01][zZxX]|[zZxX][01]  { FL; คืน yaEDGEDESC; }
 }
-<EDGEDESC>","|"["         { FL; return yytext[0]; }
+<EDGEDESC>","|"["         { FL; คืน yytext[0]; }
 <EDGEDESC>{ws}            { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
-<EDGEDESC>"]"             { FL; yy_pop_state(); return yytext[0]; }
+<EDGEDESC>"]"             { FL; yy_pop_state(); คืน yytext[0]; }
 
   /************************************************************************/
   /* Preprocessor */
@@ -1161,7 +1161,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`noremove_gatenames"                 { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`noremove_netnames"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`nosuppress_faults"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
-  "`nounconnected_drive"                { FL; return yaT_NOUNCONNECTED; }
+  "`nounconnected_drive"                { FL; คืน yaT_NOUNCONNECTED; }
   "`portcoerce"                         { FL_FWD; FL_BRK; }
   "`pragma"{ws}*[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog 2005
   "`protect"                            { FL_FWD; FL_BRK; }
@@ -1172,13 +1172,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                           v3Global.rootp()->timeInit();
                                           PARSEP->lexFileline()->celldefineOn(false);
                                           PARSEP->unconnectedDrive(VOptionBool::OPT_DEFAULT_FALSE);
-                                          return yaT_RESETALL; }  // Rest handled by preproc
+                                          คืน yaT_RESETALL; }  // Rest handled by preproc
   "`suppress_faults"                    { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`timescale"{ws}+[^\n\r]*             { FL; PARSEP->lexTimescaleParse(yylval.fl,
                                                                         yytext + std::strlen("`timescale"));
                                           FL_BRK; }
-  "`unconnected_drive"{ws}+"pull0"      { FL; return yaT_UNCONNECTED_PULL0; }
-  "`unconnected_drive"{ws}+"pull1"      { FL; return yaT_UNCONNECTED_PULL1; }
+  "`unconnected_drive"{ws}+"pull0"      { FL; คืน yaT_UNCONNECTED_PULL0; }
+  "`unconnected_drive"{ws}+"pull1"      { FL; คืน yaT_UNCONNECTED_PULL1; }
   "`unconnected_drive"                  { FL; yylval.fl->v3error("Bad `unconnected_drive syntax"); FL_BRK; }
   "`uselib"{ws}+[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
 
@@ -1195,9 +1195,9 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_push_state(S23); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
   "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_push_state(SAX); PARSEP->lexPushKeywords(YY_START); FL_BRK; }  /*Latest SV*/
   "`end_keywords"                               { FL;
-                                                  if (!PARSEP->lexPopKeywords()) {
+                                                  ถ้า (!PARSEP->lexPopKeywords()) {
                                                       yylval.fl->v3error("`end_keywords when not inside `begin_keywords block");
-                                                  } else { yy_pop_state(); }
+                                                  } มิฉะนั้น { yy_pop_state(); }
                                                   FL_BRK; }
 
   /* Verilator */
@@ -1220,13 +1220,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* If add to this list also add to V3LanguageWords.h */
 }
 
-<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDR; }
-<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDRP; }
-<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCINT; }
-<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMP; }
-<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMPH; }
-<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCCTOR; }
-<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCDTOR; }
+<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCHDR; }
+<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCHDRP; }
+<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCINT; }
+<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCIMP; }
+<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCIMPH; }
+<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCCTOR; }
+<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); คืน yaSCDTOR; }
 
   /* Pick up text-type data */
 <SYSCHDR,SYSCHDRP,SYSCINT,SYSCIMP,SYSCIMPH,SYSCCTOR,SYSCDTOR>{
@@ -1240,7 +1240,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   "`"[a-zA-Z_0-9]+      { FL; V3ParseImp::lexErrorPreprocDirective(yylval.fl, yytext); FL_BRK; }
   "//"[^\n]*            { FL_FWD; FL_BRK; }  /* throw away single line comments */
-  .                     { FL; return yytext[0]; }  /* return single char ops. */
+  .                     { FL; คืน yytext[0]; }  /* return single char ops. */
 }
 
   /* Catch all - absolutely last */
@@ -1252,4 +1252,4 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 // Avoid code here as cl format misindents
 // For implementation functions see V3ParseImp.cpp
 
-int V3ParseImp::stateVerilogRecent() { return STATE_VERILOG_RECENT; }
+จำนวนเต็ม V3ParseImp::stateVerilogRecent() { คืน STATE_VERILOG_RECENT; }

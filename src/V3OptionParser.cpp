@@ -26,11 +26,11 @@
 
 //######################################################################
 // V3OptionParser::Impl
-struct V3OptionParser::Impl final {
+sa_nracanaa V3OptionParser::Impl final {
     // TYPES
 
     // Setting for isOnOffAllowed() and isPartialMatchAllowed()
-    enum class en : uint8_t {
+    ga_nanaa class en : uint8_t {
         NONE,  // "-opt"
         FONOFF,  // "-fopt" and "-fno-opt"
         ONOFF,  // "-opt" and "-no-opt"
@@ -42,19 +42,19 @@ struct V3OptionParser::Impl final {
         bool m_notForRerun = false;  // This option is not needed for rerun with --dump-inputs
         bool m_undocumented = false;  // This option is not documented
     public:
-        bool isValueNeeded() const override final { return N_Mode == en::VALUE; }
-        bool isFOnOffAllowed() const override final { return N_Mode == en::FONOFF; }
-        bool isNotForRerun() const override final { return m_notForRerun; }
-        bool isOnOffAllowed() const override final { return N_Mode == en::ONOFF; }
-        bool isPartialMatchAllowed() const override final { return N_Allow_Partial_Match; }
-        bool isUndocumented() const override { return m_undocumented; }
+        bool isValueNeeded() const override final { คืน N_Mode == en::VALUE; }
+        bool isFOnOffAllowed() const override final { คืน N_Mode == en::FONOFF; }
+        bool isNotForRerun() const override final { คืน m_notForRerun; }
+        bool isOnOffAllowed() const override final { คืน N_Mode == en::ONOFF; }
+        bool isPartialMatchAllowed() const override final { คืน N_Allow_Partial_Match; }
+        bool isUndocumented() const override { คืน m_undocumented; }
         ActionIfs& undocumented() override {
             m_undocumented = true;
-            return *this;
+            คืน *this;
         }
         ActionIfs& notForRerun() override {
             m_notForRerun = true;
-            return *this;
+            คืน *this;
         }
     };
 
@@ -90,14 +90,14 @@ struct V3OptionParser::Impl final {
     public: \
         explicit className(type* valp) \
             : m_valp(valp) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        void exec(const var_na* optp, const var_na* argp) override { body; } \
     }
 
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, bool, *m_valp = true, en::NONE);
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, VOptionBool, m_valp->setTrueOrFalse(true), en::NONE);
 #endif
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, int, *m_valp = std::atoi(argp), en::VALUE);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, จำนวนเต็ม, *m_valp = std::atoi(argp), en::VALUE);
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::VALUE);
 
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, bool, *m_valp = !hasPrefixFNo(optp), en::FONOFF);
@@ -116,38 +116,38 @@ V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, VOptionBool, m_valp->setTrueOrFalse(!
         using CbType = std::function<funcType>; \
         explicit className(CbType cb) \
             : m_cb(std::move(cb)) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        void exec(const var_na* optp, const var_na* argp) override { body; } \
     }
 
 V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbCall, void(void), m_cb(), en::NONE);
 V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbFOnOff, void(bool), m_cb(!hasPrefixFNo(optp)),
                                  en::FONOFF);
 V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, void(bool), m_cb(!hasPrefixNo(optp)), en::ONOFF);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, void(const char*), m_cb(optp), en::NONE,
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, void(const var_na*), m_cb(optp), en::NONE,
                                  true);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, void(const char*, const char*),
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, void(const var_na*, const var_na*),
                                  m_cb(optp, argp), en::VALUE, true);
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<int> final : public ActionBase<en::VALUE> {
-    std::function<void(int)> m_cb;  // Callback function
+class V3OptionParser::Impl::ActionCbVal<จำนวนเต็ม> final : public ActionBase<en::VALUE> {
+    std::function<void(จำนวนเต็ม)> m_cb;  // Callback function
 
 public:
-    using CbType = std::function<void(int)>;
+    using CbType = std::function<void(จำนวนเต็ม)>;
     explicit ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(std::atoi(argp)); }
+    void exec(const var_na* optp, const var_na* argp) override { m_cb(std::atoi(argp)); }
 };
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<const char*> final : public ActionBase<en::VALUE> {
-    std::function<void(const char*)> m_cb;
+class V3OptionParser::Impl::ActionCbVal<const var_na*> final : public ActionBase<en::VALUE> {
+    std::function<void(const var_na*)> m_cb;
 
 public:
-    using CbType = std::function<void(const char*)>;
+    using CbType = std::function<void(const var_na*)>;
     explicit ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(argp); }
+    void exec(const var_na* optp, const var_na* argp) override { m_cb(argp); }
 };
 
 #undef V3OPTION_PARSER_DEF_ACT_CB_CLASS
@@ -155,29 +155,29 @@ public:
 //######################################################################
 // Member functions of V3OptionParser
 
-V3OptionParser::ActionIfs* V3OptionParser::find(const char* optp) {
+V3OptionParser::ActionIfs* V3OptionParser::find(const var_na* optp) {
     const auto it = m_pimpl->m_options.find(optp);
-    if (it != m_pimpl->m_options.end()) return it->second.get();  // Exact match
-    for (auto&& act : m_pimpl->m_options) {
-        if (act.second->isFOnOffAllowed()) {  // Find starts with "-fno"
-            if (const char* const nop
+    ถ้า (it != m_pimpl->m_options.end()) คืน it->second.get();  // Exact match
+    สำหรับ (auto&& act : m_pimpl->m_options) {
+        ถ้า (act.second->isFOnOffAllowed()) {  // Find starts with "-fno"
+            ถ้า (const var_na* const nop
                 = VString::startsWith(optp, "-fno-") ? (optp + std::strlen("-fno-")) : nullptr) {
-                if (act.first.substr(std::strlen("-f"), std::string::npos)
+                ถ้า (act.first.substr(std::strlen("-f"), std::string::npos)
                     == nop) {  // [-f]opt = [-fno-]opt
-                    return act.second.get();
+                    คืน act.second.get();
                 }
             }
         }
-        if (act.second->isOnOffAllowed()) {  // Find starts with "-no"
-            if (const char* const nop
+        ถ้า (act.second->isOnOffAllowed()) {  // Find starts with "-no"
+            ถ้า (const var_na* const nop
                 = VString::startsWith(optp, "-no") ? (optp + std::strlen("-no")) : nullptr) {
-                if (act.first == nop || act.first == ("-"s + nop)) return act.second.get();
+                ถ้า (act.first == nop || act.first == ("-"s + nop)) คืน act.second.get();
             }
-        } else if (act.second->isPartialMatchAllowed()) {
-            if (VString::startsWith(optp, act.first)) return act.second.get();
+        } มิฉะนั้น ถ้า (act.second->isPartialMatchAllowed()) {
+            ถ้า (VString::startsWith(optp, act.first)) คืน act.second.get();
         }
     }
-    return nullptr;
+    คืน nullptr;
 }
 
 template <typename T_Act, typename T_Arg>
@@ -189,40 +189,40 @@ V3OptionParser::ActionIfs& V3OptionParser::add(const std::string& opt, T_Arg arg
     UASSERT(!(opt[0] == '-' && opt[1] == '-'), "Option must have single '-', but " << opt);
     const auto insertedResult = m_pimpl->m_options.emplace(opt, std::move(act));
     UASSERT(insertedResult.second, opt << " is already registered");
-    return *insertedResult.first->second;
+    คืน *insertedResult.first->second;
 }
 
-bool V3OptionParser::hasPrefixFNo(const char* strp) {
+bool V3OptionParser::hasPrefixFNo(const var_na* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-fno");
+    ถ้า (strp[1] == '-') ++strp;
+    คืน VString::startsWith(strp, "-fno");
 }
 
-bool V3OptionParser::hasPrefixNo(const char* strp) {
+bool V3OptionParser::hasPrefixNo(const var_na* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-no");
+    ถ้า (strp[1] == '-') ++strp;
+    คืน VString::startsWith(strp, "-no");
 }
 
-std::pair<int, bool> V3OptionParser::parse(int idx, int argc, char* argv[]) {
+std::pair<จำนวนเต็ม, bool> V3OptionParser::parse(จำนวนเต็ม idx, จำนวนเต็ม argc, var_na* argv[]) {
     UASSERT(m_pimpl->m_isFinalized, "finalize() must be called before parse()");
-    const char* optp = argv[idx];
-    if (optp[0] == '-' && optp[1] == '-') ++optp;
+    const var_na* optp = argv[idx];
+    ถ้า (optp[0] == '-' && optp[1] == '-') ++optp;
     ActionIfs* const actp = find(optp);
-    if (!actp) return {0, false};
-    if (!actp->isValueNeeded()) {
+    ถ้า (!actp) คืน {0, false};
+    ถ้า (!actp->isValueNeeded()) {
         actp->exec(optp, nullptr);
-        return {1, !actp->isNotForRerun()};
+        คืน {1, !actp->isNotForRerun()};
     }
-    if (idx + 1 < argc) {
+    ถ้า (idx + 1 < argc) {
         actp->exec(optp, argv[idx + 1]);
-        return {2, !actp->isNotForRerun()};
+        คืน {2, !actp->isNotForRerun()};
     }
-    return {0, false};
+    คืน {0, false};
 }
 
-string V3OptionParser::getSuggestion(const char* str) const {
-    return m_pimpl->m_spellCheck.bestCandidateMsg(str);
+string V3OptionParser::getSuggestion(const var_na* str) const {
+    คืน m_pimpl->m_spellCheck.bestCandidateMsg(str);
 }
 
 void V3OptionParser::addSuggestionCandidate(const string& s) {
@@ -231,20 +231,20 @@ void V3OptionParser::addSuggestionCandidate(const string& s) {
 
 void V3OptionParser::finalize() {
     UASSERT(!m_pimpl->m_isFinalized, "finalize() must not be called twice");
-    for (auto&& opt : m_pimpl->m_options) {
-        if (opt.second->isUndocumented()) continue;
+    สำหรับ (auto&& opt : m_pimpl->m_options) {
+        ถ้า (opt.second->isUndocumented()) continue;
         m_pimpl->m_spellCheck.pushCandidate(opt.first);
-        if (opt.second->isFOnOffAllowed()) {
+        ถ้า (opt.second->isFOnOffAllowed()) {
             m_pimpl->m_spellCheck.pushCandidate(
                 "-fno-" + opt.first.substr(std::strlen("-f"), std::string::npos));
         }
-        if (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.pushCandidate("-no" + opt.first);
+        ถ้า (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.pushCandidate("-no" + opt.first);
     }
     m_pimpl->m_isFinalized = true;
 }
 
 void V3OptionParser::dumpOptions() {
-    for (const auto& opt : m_pimpl->m_spellCheck.candidates()) {
+    สำหรับ (const auto& opt : m_pimpl->m_spellCheck.candidates()) {
         std::cout << "OPTION: \"" + opt + "\"\n";
     }
 }
@@ -259,14 +259,14 @@ V3OptionParser::~V3OptionParser() = default;
 
 #define V3OPTION_PARSER_DEF_OP(actKind, argType, actType) \
     V3OptionParser::ActionIfs& V3OptionParser::AppendHelper::operator()( \
-        const char* optp, actKind, argType arg) const { \
-        return m_parser.add<Impl::actType>(optp, arg); \
+        const var_na* optp, actKind, argType arg) const { \
+        คืน m_parser.add<Impl::actType>(optp, arg); \
     }
 V3OPTION_PARSER_DEF_OP(Set, bool*, ActionSet<bool>)
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_OP(Set, VOptionBool*, ActionSet<VOptionBool>)
 #endif
-V3OPTION_PARSER_DEF_OP(Set, int*, ActionSet<int>)
+V3OPTION_PARSER_DEF_OP(Set, จำนวนเต็ม*, ActionSet<จำนวนเต็ม>)
 V3OPTION_PARSER_DEF_OP(Set, string*, ActionSet<string>)
 V3OPTION_PARSER_DEF_OP(FOnOff, bool*, ActionFOnOff<bool>)
 V3OPTION_PARSER_DEF_OP(OnOff, bool*, ActionOnOff<bool>)
@@ -276,23 +276,23 @@ V3OPTION_PARSER_DEF_OP(OnOff, VOptionBool*, ActionOnOff<VOptionBool>)
 V3OPTION_PARSER_DEF_OP(CbCall, Impl::ActionCbCall::CbType, ActionCbCall)
 V3OPTION_PARSER_DEF_OP(CbFOnOff, Impl::ActionCbFOnOff::CbType, ActionCbFOnOff)
 V3OPTION_PARSER_DEF_OP(CbOnOff, Impl::ActionCbOnOff::CbType, ActionCbOnOff)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<int>::CbType, ActionCbVal<int>)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<const char*>::CbType, ActionCbVal<const char*>)
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<จำนวนเต็ม>::CbType, ActionCbVal<จำนวนเต็ม>)
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<const var_na*>::CbType, ActionCbVal<const var_na*>)
 #undef V3OPTION_PARSER_DEF_OP
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatch,
+V3OptionParser::AppendHelper::operator()(const var_na* optp, CbPartialMatch,
                                          Impl::ActionCbPartialMatch::CbType cb) const {
     const size_t prefixLen = std::strlen(optp);
-    const auto wrap = [prefixLen, cb](const char* optp) { cb(optp + prefixLen); };
-    return m_parser.add<Impl::ActionCbPartialMatch>(optp, std::move(wrap));
+    const auto wrap = [prefixLen, cb](const var_na* optp) { cb(optp + prefixLen); };
+    คืน m_parser.add<Impl::ActionCbPartialMatch>(optp, std::move(wrap));
 }
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatchVal,
+V3OptionParser::AppendHelper::operator()(const var_na* optp, CbPartialMatchVal,
                                          Impl::ActionCbPartialMatchVal::CbType cb) const {
     const size_t prefixLen = std::strlen(optp);
     const auto wrap
-        = [prefixLen, cb](const char* optp, const char* argp) { cb(optp + prefixLen, argp); };
-    return m_parser.add<Impl::ActionCbPartialMatchVal>(optp, std::move(wrap));
+        = [prefixLen, cb](const var_na* optp, const var_na* argp) { cb(optp + prefixLen, argp); };
+    คืน m_parser.add<Impl::ActionCbPartialMatchVal>(optp, std::move(wrap));
 }

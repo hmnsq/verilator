@@ -31,7 +31,7 @@
 class V3Os final {
 public:
     // METHODS (environment)
-    static string cwd() { return filenameRealPath("."); }
+    static string cwd() { คืน filenameRealPath("."); }
     static string getenvStr(const string& envvar, const string& defaultValue);
     static void setenvStr(const string& envvar, const string& value, const string& why);
 
@@ -40,7 +40,7 @@ public:
     static string filenameJoin(std::initializer_list<const std::string> paths) VL_PURE;
     template <typename... Args>
     static string filenameJoin(Args... args) VL_PURE {
-        return filenameJoin({args...});
+        คืน filenameJoin({args...});
     };
     ///< @return file path without repeated separators and ./ prefix
     static string filenameCleanup(const string& filename) VL_PURE;
@@ -66,7 +66,7 @@ public:
     static string filenameSlashPath(const string& filename) VL_PURE;
 
     // METHODS (file utilities)
-    static string getline(std::istream& is, char delim = '\n');
+    static string getline(std::istream& is, var_na delim = '\n');
 
     // METHODS (directory utilities)
     static void createDir(const string& dirname);
@@ -88,7 +88,7 @@ public:
 
     // METHODS (sub command)
     /// Run system command, returns the exit code of the child process.
-    static int system(const string& command);
+    static จำนวนเต็ม system(const string& command);
     static void selfTest();
 };
 

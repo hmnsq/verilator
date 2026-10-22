@@ -63,15 +63,15 @@ class LocalizeVisitor final : public VNVisitor {
     // METHODS
     bool isOptimizable(AstVarScope* nodep) {
         // Don't want to malloc/free the backing store all the time
-        if (VN_IS(nodep->dtypep(), NBACommitQueueDType)) return false;
+        ถ้า (VN_IS(nodep->dtypep(), NBACommitQueueDType)) คืน false;
         // Do not localize strings. They result in unnecessary initialization
         // and bloated code size due to destructor calls when unused.
         // TODO: Local variables should be pushed into the narrowest scope rather
         // than emitted at the top of the function. See discussion in #6969.
-        if (nodep->dtypep()->skipRefp()->isString()) return false;
+        ถ้า (nodep->dtypep()->skipRefp()->isString()) คืน false;
         // Variables used in super constructor call can't be localized, because
         // in C++ there is no way to declare them before base class constructor call
-        return ((!nodep->user1()  // Not marked as not optimizable, or ...
+        คืน ((!nodep->user1()  // Not marked as not optimizable, or ...
                                   // .. a block temp used in a single CFunc
                  || (nodep->varp()->varType() == VVarType::BLOCKTEMP
                      && m_accessors(nodep).size() == 1))
@@ -80,24 +80,24 @@ class LocalizeVisitor final : public VNVisitor {
     }
 
     static bool existsNonLeaf(const std::unordered_set<AstCFunc*>& funcps) {
-        for (const AstCFunc* const funcp : funcps) {
-            if (funcp->user1()) return true;
+        สำหรับ (const AstCFunc* const funcp : funcps) {
+            ถ้า (funcp->user1()) คืน true;
         }
-        return false;
+        คืน false;
     }
 
     void moveVarScopes() {
-        for (AstVarScope* const nodep : m_varScopeps) {
-            if (!isOptimizable(nodep)) continue;  // Not optimizable
+        สำหรับ (AstVarScope* const nodep : m_varScopeps) {
+            ถ้า (!isOptimizable(nodep)) continue;  // Not optimizable
 
             const std::unordered_set<AstCFunc*>& funcps = m_accessors(nodep);
-            if (funcps.empty()) continue;  // No referencing functions at all
+            ถ้า (funcps.empty()) continue;  // No referencing functions at all
 
             // If more than one referencing function, but not all are leaf
             // functions, then don't localize, as one of the referencing
             // functions might be calling another, which the current analysis
             // cannot cope with. This should be rare (introduced by V3Depth).
-            if (funcps.size() > 1 && existsNonLeaf(funcps)) continue;
+            ถ้า (funcps.size() > 1 && existsNonLeaf(funcps)) continue;
 
             UINFO(4, "Localizing " << nodep);
             ++m_statLocVars;
@@ -108,7 +108,7 @@ class LocalizeVisitor final : public VNVisitor {
 
             // In each referencing function, create a replacement local variable
             AstVar* const oldVarp = nodep->varp();
-            for (AstCFunc* const funcp : funcps) {
+            สำหรับ (AstCFunc* const funcp : funcps) {
                 // Create the new local variable.
                 const string newName
                     = nodep->scopep() == funcp->scopep()
@@ -123,7 +123,7 @@ class LocalizeVisitor final : public VNVisitor {
 
                 // Fix up all the references within this function
                 const auto er = m_references(funcp).equal_range(nodep);
-                for (auto it = er.first; it != er.second; ++it) {
+                สำหรับ (auto it = er.first; it != er.second; ++it) {
                     AstVarRef* const refp = it->second;
                     refp->varScopep(nullptr);
                     refp->varp(newVarp);
@@ -170,10 +170,10 @@ class LocalizeVisitor final : public VNVisitor {
         // For now we only consider an assignment that is directly under the function, (in
         // particular: not under an AstIf, or other kind of branch). This could be improved with
         // proper data flow analysis.
-        if (m_nodeDepth == 0) {
+        ถ้า (m_nodeDepth == 0) {
             // Check if simple "VARREF = ..." assignment, i.e.: this assignment sets the whole
             // variable (and in particular, it is not assigned only in part).
-            if (const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
+            ถ้า (const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
                 // Mark this VarScope as assigned in this function
                 refp->varScopep()->user2(1);
             }
@@ -183,7 +183,7 @@ class LocalizeVisitor final : public VNVisitor {
     }
 
     void visit(AstVarScope* nodep) override {
-        if (!nodep->varp()->isPrimaryIO()  // Not an IO the user wants to interact with
+        ถ้า (!nodep->varp()->isPrimaryIO()  // Not an IO the user wants to interact with
             && !nodep->varp()->isSigPublic()  // Not something the user wants to interact with
             && !nodep->varp()->isFuncLocal()  // Not already a function local (e.g.: argument)
             && !nodep->varp()->isClassMember()  // Statically exists in design hierarchy
@@ -208,10 +208,10 @@ class LocalizeVisitor final : public VNVisitor {
         // Remember the reference so we can fix it up later (we always need this as well)
         m_references(m_cfuncp).emplace(varScopep, nodep);
 
-        if (!varScopep->user1()) {  // Check if already marked as not optimizable
+        ถ้า (!varScopep->user1()) {  // Check if already marked as not optimizable
             // Note: we only check read variables, as it's ok to localize (and in fact discard)
             // any variables that are only written but never read.
-            if (nodep->access().isReadOrRW() && !varScopep->user2()) {
+            ถ้า (nodep->access().isReadOrRW() && !varScopep->user2()) {
                 // Variable is read, but is not known to have been assigned in this function. Mark
                 // as not optimizable.
                 UINFO(4, "Not optimizable (not written): " << nodep);

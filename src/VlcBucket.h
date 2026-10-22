@@ -36,21 +36,21 @@ class VlcBuckets final {
     uint64_t m_dataSize = 0;  ///< Current entries in m_datap
     uint64_t m_bucketsCovered = 0;  ///< Num buckets with sufficient coverage
 
-    static uint64_t covBit(uint64_t point) { return 1ULL << (point & 63); }
-    uint64_t allocSize() const { return sizeof(uint64_t) * m_dataSize / 64; }
+    static uint64_t covBit(uint64_t point) { คืน 1ULL << (point & 63); }
+    uint64_t allocSize() const { คืน parimaa_na(uint64_t) * m_dataSize / 64; }
     void allocate(uint64_t point) {
         const uint64_t oldsize = m_dataSize;
-        if (m_dataSize < point) m_dataSize = (point + 64) & ~63ULL;  // Keep power of two
+        ถ้า (m_dataSize < point) m_dataSize = (point + 64) & ~63ULL;  // Keep power of two
         m_dataSize *= 2;
         // UINFO(9, "Realloc " << allocSize() << " for " << point << "  " << cvtToHex(m_datap));
         uint64_t* const newp = static_cast<uint64_t*>(std::realloc(m_datap, allocSize()));
-        if (VL_UNCOVERABLE(!newp)) {
+        ถ้า (VL_UNCOVERABLE(!newp)) {
             // cppcheck-suppress doubleFree  // cppcheck 1.90 bug - realloc doesn't free on fail
             free(m_datap);  // LCOV_EXCL_LINE
             v3fatal("Out of memory increasing buckets");  // LCOV_EXCL_LINE
         }
         m_datap = newp;
-        for (uint64_t i = oldsize; i < m_dataSize; i += 64) m_datap[i / 64] = 0;
+        สำหรับ (uint64_t i = oldsize; i < m_dataSize; i += 64) m_datap[i / 64] = 0;
     }
 
 public:
@@ -62,54 +62,54 @@ public:
     }
 
     // ACCESSORS
-    static uint64_t sufficient() { return 1; }
-    uint64_t bucketsCovered() const { return m_bucketsCovered; }
+    static uint64_t sufficient() { คืน 1; }
+    uint64_t bucketsCovered() const { คืน m_bucketsCovered; }
 
     // METHODS
     void addData(uint64_t point, uint64_t hits) {
-        if (hits >= sufficient()) {
+        ถ้า (hits >= sufficient()) {
             // UINFO(9, "     addData " << point << " " << hits << " size=" << m_dataSize);
-            if (point >= m_dataSize) allocate(point);
+            ถ้า (point >= m_dataSize) allocate(point);
             m_datap[point / 64] |= covBit(point);
             m_bucketsCovered++;
         }
     }
     void clearHits(uint64_t point) const {
-        if (point >= m_dataSize) return;
+        ถ้า (point >= m_dataSize) คืน;
         m_datap[point / 64] &= ~covBit(point);
     }
     bool exists(uint64_t point) const {
-        if (point >= m_dataSize) return false;
-        return (m_datap[point / 64] & covBit(point)) ? true : false;
+        ถ้า (point >= m_dataSize) คืน false;
+        คืน (m_datap[point / 64] & covBit(point)) ? true : false;
     }
     uint64_t hits(uint64_t point) const {
-        if (point >= m_dataSize) return 0;
-        return (m_datap[point / 64] & covBit(point)) ? 1 : 0;
+        ถ้า (point >= m_dataSize) คืน 0;
+        คืน (m_datap[point / 64] & covBit(point)) ? 1 : 0;
     }
     uint64_t popCount() const {
         uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) ++pop;
+        สำหรับ (uint64_t i = 0; i < m_dataSize; ++i) {
+            ถ้า (hits(i)) ++pop;
         }
-        return pop;
+        คืน pop;
     }
     uint64_t dataPopCount(const VlcBuckets& remaining) const {
         uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && remaining.hits(i)) ++pop;
+        สำหรับ (uint64_t i = 0; i < m_dataSize; ++i) {
+            ถ้า (hits(i) && remaining.hits(i)) ++pop;
         }
-        return pop;
+        คืน pop;
     }
     void orData(const VlcBuckets& ordata) {
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && ordata.hits(i)) clearHits(i);
+        สำหรับ (uint64_t i = 0; i < m_dataSize; ++i) {
+            ถ้า (hits(i) && ordata.hits(i)) clearHits(i);
         }
     }
 
     void dump() const {
         std::cout << "#     ";
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) std::cout << "," << i;
+        สำหรับ (uint64_t i = 0; i < m_dataSize; ++i) {
+            ถ้า (hits(i)) std::cout << "," << i;
         }
         std::cout << "\n";
     }
