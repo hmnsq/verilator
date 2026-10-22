@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ACTIVETOP_H_
-#define VERILATOR_V3ACTIVETOP_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3ACTIVETOP_H_
+#تعریف_کرو VERILATOR_V3ACTIVETOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3ActiveTop final {
-public:
-    static void activeTopAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_فعال_چوٹی final {
+عوامی:
+    ساکن خالی فعال_چوٹی_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

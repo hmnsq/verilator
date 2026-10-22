@@ -14,74 +14,74 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HASH_H_
-#define VERILATOR_V3HASH_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3HASH_H_
+#تعریف_کرو VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#شامل "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#شامل <cstdint>
+#شامل <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_قدر;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    ساکن uint32_t combine(uint32_t a, uint32_t b) {
+        واپس a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_قدر{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_قدر{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_قدر{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(ثابت std::string& val);
+    explicit V3Hash(دوہرا val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(ثابت خالی* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t قدر() ثابت VL_MT_محفوظ { واپس m_قدر; }
+    std::string مقصد_String() ثابت VL_MT_محفوظ;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool عامل==(ثابت V3Hash& rh) ثابت { واپس m_قدر == rh.m_قدر; }
+    bool عامل!=(ثابت V3Hash& rh) ثابت { واپس m_قدر != rh.m_قدر; }
+    bool عامل<(ثابت V3Hash& rh) ثابت { واپس m_قدر < rh.m_قدر; }
 
     // '+' combines hashes
-    template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    سانچہ <typename T>
+    V3Hash عامل+(T that) ثابت {
+        واپس V3Hash{combine(m_قدر, V3Hash{that}.m_قدر)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash عامل+(ثابت std::string& that) ثابت {
+        واپس V3Hash{combine(m_قدر, V3Hash{that}.m_قدر)};
     }
 
     // '+=' combines in place
-    template <typename T>
-    V3Hash& operator+=(T that) {
-        return *this = *this + that;
+    سانچہ <typename T>
+    V3Hash& عامل+=(T that) {
+        واپس *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& عامل+=(ثابت std::string& that) { واپس *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& عامل<<(std::ostream& os, ثابت V3Hash& rhs) VL_MT_محفوظ;
 
-template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+سانچہ <>
+ساخت std::hash<V3Hash> {
+    std::سائز_t عامل()(ثابت V3Hash& h) ثابت noexcept { واپس h.قدر(); }
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

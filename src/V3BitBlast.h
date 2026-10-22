@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3BITBLAST_H_
-#define VERILATOR_V3BITBLAST_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3BITBLAST_H_
+#تعریف_کرو VERILATOR_V3BITBLAST_H_
 
-#include "verilatedos.h"
+#شامل "verilatedos.h"
 
 //============================================================================
 
 class AstNetlist;
 
-class V3BitBlast final {
-public:
-    static void bitBlastAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ثنائی_ہندسہ_Blast final {
+عوامی:
+    ساکن خالی ثنائی_ہندسہ_Blast_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

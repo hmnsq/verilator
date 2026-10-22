@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TABLE_H_
-#define VERILATOR_V3TABLE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3_جدول_H
+#تعریف_کرو VERILATOR_V3_جدول_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Table final {
-public:
-    static void tableAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_جدول final {
+عوامی:
+    ساکن خالی جدول_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

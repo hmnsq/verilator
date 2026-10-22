@@ -14,61 +14,61 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کرو VL_MT_DISABLED_رمز_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3ParseImp.h"
+#شامل "V3ParseImp.h"
 
-#include <fstream>
+#شامل <fstream>
 
 //======================================================================
 // Build in LEX script
 
-#define yyFlexLexer V3LexerBase
-#include "V3Lexer.yy.cpp"
-#undef yyFlexLexer
+#تعریف_کرو yyFlexLexer V3_Lexer_بنیاد
+#شامل "V3Lexer.yy.cpp"
+#تعریف_منسوخ yyFlexLexer
 
 //######################################################################
 // Lex-derived class
 
 /// Override the base lexer class so we can add some access functions
-class V3Lexer final : public V3LexerBase {
-public:
+جماعت V3Lexer final : عوامی V3_Lexer_بنیاد {
+عوامی:
     // CONSTRUCTORS
     V3Lexer()
-        : V3LexerBase{nullptr} {}
-    ~V3Lexer() override = default;
+        : V3_Lexer_بنیاد{خالی_اشاریہ} {}
+    ~V3Lexer() override = طےشدہ;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    خالی unputString(ثابت حرف* textp, سائز_t لمبائی_2) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        ثابت حرف* cp = textp;
+        برائے (cp += لمبائی_2 - 1; لمبائی_2--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
-    parsep()->m_lexerp->unputString(textp, length);
+خالی V3ParseImp::lexUnputString(ثابت حرف* textp, سائز_t لمبائی_2) {
+    parsep()->m_lexerp->unputString(textp, لمبائی_2);
 }
 
-void V3ParseImp::yylexReadTok() {
+خالی V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
-    parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
-    m_lexPrevToken = token;  // Save so can find '#' to parse following number
+    parsep()->lexFileline()->آغاز_Token();
+    ثابت صحیح token = parsep()->m_lexerp->yylex();
+    m_lex_پچھلا_Token = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
 
 //######################################################################
 // Read class functions
 
-void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
-    m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+خالی V3ParseImp::lexNew() {
+    اگر (m_lexerp) حذف m_lexerp;  // Restart from clean slate.
+    m_lexerp = نیا V3Lexer;
+    اگر (debugFlex() >= 9) m_lexerp->سیٹ_debug(~0);
 }
 
-void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+خالی V3ParseImp::lexDestroy() {
+    اگر (m_lexerp) VL_DO_CLEAR(حذف m_lexerp, m_lexerp = خالی_اشاریہ);
 }

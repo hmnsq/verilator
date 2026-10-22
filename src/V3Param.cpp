@@ -50,107 +50,107 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Param.h"
+#شامل "V3Param.h"
 
-#include "V3Case.h"
-#include "V3Const.h"
-#include "V3EmitV.h"
-#include "V3HierBlock.h"
-#include "V3LinkDotIfaceCapture.h"
-#include "V3MemberMap.h"
-#include "V3Os.h"
-#include "V3Parse.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
-#include "V3Unroll.h"
-#include "V3Width.h"
+#شامل "V3Case.h"
+#شامل "V3Const.h"
+#شامل "V3EmitV.h"
+#شامل "V3HierBlock.h"
+#شامل "V3LinkDotIfaceCapture.h"
+#شامل "V3MemberMap.h"
+#شامل "V3Os.h"
+#شامل "V3Parse.h"
+#شامل "V3Simulate.h"
+#شامل "V3Stats.h"
+#شامل "V3Unroll.h"
+#شامل "V3Width.h"
 
-#include <cctype>
-#include <cstdlib>
-#include <deque>
-#include <map>
-#include <memory>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#شامل <cctype>
+#شامل <cstdlib>
+#شامل <deque>
+#شامل <map>
+#شامل <memory>
+#شامل <set>
+#شامل <unordered_map>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Walk a class-typed node through typedef/RefDType chains to its ClassRefDType, or null.
-static AstClassRefDType* classRefDTypeOfNode(AstNode* nodep) {
-    while (AstTypedef* const tdp = VN_CAST(nodep, Typedef)) nodep = tdp->subDTypep();
-    AstNodeDType* const dtp = VN_CAST(nodep, NodeDType);
-    return dtp ? VN_CAST(dtp->skipRefOrNullp(), ClassRefDType) : nullptr;
+ساکن AstClassRefDType* class_Ref_DType_کا_گرہ(Ast_گرہ* nodep) {
+    جب (AstTypedef* ثابت tdp = VN_CAST(nodep, Typedef)) nodep = tdp->subDTypep();
+    Ast_گرہ_DType* ثابت dtp = VN_CAST(nodep, گرہ_DType);
+    واپس dtp ? VN_CAST(dtp->skipRefOrNullp(), ClassRefDType) : خالی_اشاریہ;
 }
 
 //######################################################################
 // Hierarchical block and parameter db (modules without parameters are also handled)
 
-class ParameterizedHierBlocks final {
-    using HierBlockOptsByOrigName = std::multimap<std::string, const V3HierarchicalBlockOption*>;
-    using HierMapIt = HierBlockOptsByOrigName::const_iterator;
-    using HierBlockModMap = std::map<const std::string, AstNodeModule*>;
-    using ParamConstMap = std::map<const std::string, std::unique_ptr<AstConst>>;
-    using GParamsMap = std::map<const std::string, AstVar*>;  // key:parameter name value:parameter
+جماعت Parameterized_Hier_بلاکیں final {
+    استعمال Hier_بلاک_Opts_By_Orig_Name = std::multimap<std::string, ثابت V3_درجہ_وار_بلاک_Option*>;
+    استعمال HierMapIt = Hier_بلاک_Opts_By_Orig_Name::const_iterator;
+    استعمال Hier_بلاک_Mod_Map = std::map<ثابت std::string, Ast_گرہ_Module*>;
+    استعمال ParamConstMap = std::map<ثابت std::string, std::unique_ptr<AstConst>>;
+    استعمال GParamsMap = std::map<ثابت std::string, AstVar*>;  // key:parameter name value:parameter
 
     // MEMBERS
-    const bool m_hierSubRun;  // Is in sub-run for hierarchical verilation
+    ثابت منطقی m_hier_Sub_تسلسل;  // Is in sub-run for hierarchical verilation
     // key:Original module name, value:HiearchyBlockOption*
     // If a module is parameterized, the module is uniquified to overridden parameters.
     // This is why HierBlockOptsByOrigName is multimap.
-    HierBlockOptsByOrigName m_hierBlockOptsByOrigName;
+    Hier_بلاک_Opts_By_Orig_Name m_hier_بلاک_Opts_By_Orig_Name;
     // key:mangled module name, value:AstNodeModule*
-    HierBlockModMap m_hierBlockMod;
+    Hier_بلاک_Mod_Map m_hier_بلاک_Mod;
     // Overridden parameters of the hierarchical block
-    std::map<const V3HierarchicalBlockOption*, ParamConstMap> m_hierParams;
+    std::map<ثابت V3_درجہ_وار_بلاک_Option*, ParamConstMap> m_hierParams;
     // Parameter variables of hierarchical blocks
-    std::map<const std::string, GParamsMap> m_modParams;
+    std::map<ثابت std::string, GParamsMap> m_modParams;
     // Formals declared without a type, whose type is that of the assigned value
-    std::set<const AstVar*> m_untypedParams;
+    std::سیٹ<ثابت AstVar*> m_untypedParams;
 
     // METHODS
 
-public:
-    ParameterizedHierBlocks(const V3HierBlockOptSet& hierOpts, AstNetlist* nodep)
+عوامی:
+    Parameterized_Hier_بلاکیں(ثابت V3_Hier_بلاک_Opt_سیٹ& hierOpts, AstNetlist* nodep)
         // A type parameter file only describes a child's own types; the final consolidation
         // run has none, but must still substitute the libraries it consumes.
-        : m_hierSubRun{!v3Global.opt.hierBlocks().empty() || v3Global.opt.hierChild()} {
-        for (const auto& hierOpt : hierOpts) {
-            m_hierBlockOptsByOrigName.emplace(hierOpt.second.origName(), &hierOpt.second);
-            const V3HierarchicalBlockOption::ParamStrMap& params = hierOpt.second.params();
-            ParamConstMap& consts = m_hierParams[&hierOpt.second];
-            for (V3HierarchicalBlockOption::ParamStrMap::const_iterator pIt = params.begin();
-                 pIt != params.end(); ++pIt) {
+        : m_hier_Sub_تسلسل{!v3Global.opt.hier_بلاکیں().خالی_خانے() || v3Global.opt.hier_بچہ()} {
+        برائے (ثابت خودکار& hierOpt : hierOpts) {
+            m_hier_بلاک_Opts_By_Orig_Name.emplace(hierOpt.دوسرا.origName(), &hierOpt.دوسرا);
+            ثابت V3_درجہ_وار_بلاک_Option::ParamStrMap& params = hierOpt.دوسرا.params();
+            ParamConstMap& consts = m_hierParams[&hierOpt.دوسرا];
+            برائے (V3_درجہ_وار_بلاک_Option::ParamStrMap::const_iterator pIt = params.begin();
+                 pIt != params.انتہا(); ++pIt) {
                 std::unique_ptr<AstConst> constp{AstConst::parseParamLiteral(
-                    new FileLine{FileLine::builtInFilename()}, pIt->second)};
-                UASSERT(constp, pIt->second << " is not a valid parameter literal");
-                const bool inserted = consts.emplace(pIt->first, std::move(constp)).second;
-                UASSERT(inserted, pIt->first << " is already added");
+                    نیا File_سطر{File_سطر::built_اندر_Filename()}, pIt->دوسرا)};
+                UASSERT(constp, pIt->دوسرا << " is not a valid parameter literal");
+                ثابت منطقی inserted = consts.emplace(pIt->پہلا, std::move(constp)).دوسرا;
+                UASSERT(inserted, pIt->پہلا << " is already added");
             }
             // origName may be already registered, but it's fine.
-            m_modParams.insert({hierOpt.second.origName(), {}});
+            m_modParams.داخل_کرو({hierOpt.دوسرا.origName(), {}});
         }
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            if (hierOpts.find(modp->prettyName()) != hierOpts.end()) {
-                m_hierBlockMod.emplace(modp->name(), modp);
+        برائے (Ast_گرہ_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), گرہ_Module)) {
+            اگر (hierOpts.ڈھونڈو(modp->prettyName()) != hierOpts.انتہا()) {
+                m_hier_بلاک_Mod.emplace(modp->name(), modp);
             }
             // Recursive hierarchical module may change its name, so we have to match its origName.
             // Collect values from recursive cloned module as parameters in the top module could be
             // overridden.
-            const string actualModName = modp->recursiveClone() ? modp->origName() : modp->name();
-            const auto defParamIt = m_modParams.find(actualModName);
-            if (defParamIt != m_modParams.end()) {
+            ثابت string actualModName = modp->recursiveClone() ? modp->origName() : modp->name();
+            ثابت خودکار defParamIt = m_modParams.ڈھونڈو(actualModName);
+            اگر (defParamIt != m_modParams.انتہا()) {
                 // modp is the original of parameterized hierarchical block
-                for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                        if (varp->isGParam()) defParamIt->second.emplace(varp->name(), varp);
+                برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                        اگر (varp->isGParam()) defParamIt->دوسرا.emplace(varp->name(), varp);
                         // Recorded before V3Param resolves the type from the assigned value.
-                        const AstBasicDType* const dtypep
-                            = VN_CAST(varp->childDTypep(), BasicDType);
-                        if (varp->isGParam() && dtypep && dtypep->implicit()) {
+                        ثابت AstBasicDType* ثابت dtypep
+                            = VN_CAST(varp->بچہ_DTypep(), BasicDType);
+                        اگر (varp->isGParam() && dtypep && dtypep->implicit()) {
                             m_untypedParams.emplace(varp);
                         }
                     }
@@ -158,116 +158,116 @@ public:
             }
         }
     }
-    bool hierSubRun() const { return m_hierSubRun; }
-    bool isHierBlock(const string& origName) const {
-        return m_hierBlockOptsByOrigName.find(origName) != m_hierBlockOptsByOrigName.end();
+    منطقی hier_Sub_تسلسل() ثابت { واپس m_hier_Sub_تسلسل; }
+    منطقی is_Hier_بلاک(ثابت string& origName) ثابت {
+        واپس m_hier_بلاک_Opts_By_Orig_Name.ڈھونڈو(origName) != m_hier_بلاک_Opts_By_Orig_Name.انتہا();
     }
-    AstNodeModule* findByParams(const string& origName, AstPin* firstPinp,
-                                const AstNodeModule* modp) {
-        UASSERT(isHierBlock(origName), origName << " is not hierarchical block");
+    Ast_گرہ_Module* ڈھونڈو_By_Params(ثابت string& origName, AstPin* پہلا_Pinp,
+                                ثابت Ast_گرہ_Module* modp) {
+        UASSERT(is_Hier_بلاک(origName), origName << " is not hierarchical block");
         // This module is a hierarchical block. Need to replace it by the --lib-create wrapper.
-        const std::pair<HierMapIt, HierMapIt> candidates
-            = m_hierBlockOptsByOrigName.equal_range(origName);
-        const auto paramsIt = m_modParams.find(origName);
-        UASSERT_OBJ(paramsIt != m_modParams.end(), modp, origName << " must be registered");
+        ثابت std::pair<HierMapIt, HierMapIt> candidates
+            = m_hier_بلاک_Opts_By_Orig_Name.equal_range(origName);
+        ثابت خودکار paramsIt = m_modParams.ڈھونڈو(origName);
+        UASSERT_OBJ(paramsIt != m_modParams.انتہا(), modp, origName << " must be registered");
         // An untyped parameter takes the type of its value, but libraries are distinguished
         // only by parameter values. This is a pin whose value equals that of a library or the
         // default, but whose type differs.
-        const AstPin* typeMismatchPinp = nullptr;
+        ثابت AstPin* typeMismatchPinp = خالی_اشاریہ;
         HierMapIt hierIt;
-        for (hierIt = candidates.first; hierIt != candidates.second; ++hierIt) {
-            bool found = true;
-            size_t paramIdx = 0;
-            const ParamConstMap& params = m_hierParams[hierIt->second];
-            UASSERT(params.size() == hierIt->second->params().size(), "not match");
-            for (AstPin* pinp = firstPinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->exprp()) continue;
-                if (const AstVar* const modvarp = pinp->modVarp()) {
-                    AstConst* const constp = VN_AS(pinp->exprp(), Const);
+        برائے (hierIt = candidates.پہلا; hierIt != candidates.دوسرا; ++hierIt) {
+            منطقی ملا = سچ;
+            سائز_t paramIdx = 0;
+            ثابت ParamConstMap& params = m_hierParams[hierIt->دوسرا];
+            UASSERT(params.سائز() == hierIt->دوسرا->params().سائز(), "not match");
+            برائے (AstPin* pinp = پہلا_Pinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (!pinp->exprp()) جاری;
+                اگر (ثابت AstVar* ثابت modvarp = pinp->modVarp()) {
+                    AstConst* ثابت constp = VN_AS(pinp->exprp(), Const);
                     UASSERT_OBJ(constp, pinp,
                                 "parameter for a hierarchical block must have been constified");
-                    const auto paramIt = paramsIt->second.find(modvarp->name());
-                    UASSERT_OBJ(paramIt != paramsIt->second.end(), modvarp, "must be registered");
-                    const bool untyped = m_untypedParams.count(paramIt->second);
-                    AstConst* const defValuep = VN_CAST(paramIt->second->valuep(), Const);
-                    if (defValuep && areSame(constp, defValuep)) {
-                        if (!untyped || constp->sameValueType(defValuep)) {
+                    ثابت خودکار paramIt = paramsIt->دوسرا.ڈھونڈو(modvarp->name());
+                    UASSERT_OBJ(paramIt != paramsIt->دوسرا.انتہا(), modvarp, "must be registered");
+                    ثابت منطقی untyped = m_untypedParams.گنتی(paramIt->دوسرا);
+                    AstConst* ثابت defValuep = VN_CAST(paramIt->دوسرا->valuep(), Const);
+                    اگر (defValuep && areSame(constp, defValuep)) {
+                        اگر (!untyped || constp->same_قدر_Type(defValuep)) {
                             UINFO(5, "Setting default value of " << constp << " to " << modvarp);
-                            continue;  // Skip this parameter because setting the same value
+                            جاری;  // Skip this parameter because setting the same value
                         }
                         typeMismatchPinp = pinp;
                     }
-                    const auto pIt = vlstd::as_const(params).find(modvarp->name());
+                    ثابت خودکار pIt = vlstd::as_const(params).ڈھونڈو(modvarp->name());
                     UINFO(5, "Comparing " << modvarp->name() << " " << constp);
-                    if (pIt == params.end() || paramIdx >= params.size()
-                        || !areSame(constp, pIt->second.get())) {
-                        found = false;
-                        break;
+                    اگر (pIt == params.انتہا() || paramIdx >= params.سائز()
+                        || !areSame(constp, pIt->دوسرا.get())) {
+                        ملا = جھوٹ;
+                        توڑو;
                     }
-                    if (untyped && !constp->sameValueType(pIt->second.get())) {
+                    اگر (untyped && !constp->same_قدر_Type(pIt->دوسرا.get())) {
                         typeMismatchPinp = pinp;
-                        found = false;
-                        break;
+                        ملا = جھوٹ;
+                        توڑو;
                     }
                     UINFO(5, "Matched " << modvarp->name() << " " << constp << " and "
-                                        << pIt->second.get());
+                                        << pIt->دوسرا.get());
                     ++paramIdx;
                 }
             }
-            if (found && paramIdx == hierIt->second->params().size()) break;
+            اگر (ملا && paramIdx == hierIt->دوسرا->params().سائز()) توڑو;
         }
-        if (hierIt == candidates.second && typeMismatchPinp) {
+        اگر (hierIt == candidates.دوسرا && typeMismatchPinp) {
             typeMismatchPinp->v3warn(
                 E_UNSUPPORTED, "Unsupported: Untyped parameter "
                                    << typeMismatchPinp->modVarp()->prettyNameQ()
-                                   << " of hierarchical block " << AstNode::prettyNameQ(origName)
+                                   << " of hierarchical block " << Ast_گرہ::prettyNameQ(origName)
                                    << " given equal values of different width or"
                                       " signedness");
-            return nullptr;
+            واپس خالی_اشاریہ;
         }
-        UASSERT_OBJ(hierIt != candidates.second, firstPinp, "No --lib-create wrapper found");
+        UASSERT_OBJ(hierIt != candidates.دوسرا, پہلا_Pinp, "No --lib-create wrapper found");
         // parameter settings will be removed in the bottom of caller visitCell().
-        const HierBlockModMap::const_iterator modIt
-            = m_hierBlockMod.find(hierIt->second->mangledName());
-        UASSERT_OBJ(modIt != m_hierBlockMod.end(), firstPinp,
-                    hierIt->second->mangledName() << " is not found");
+        ثابت Hier_بلاک_Mod_Map::const_iterator modIt
+            = m_hier_بلاک_Mod.ڈھونڈو(hierIt->دوسرا->mangledName());
+        UASSERT_OBJ(modIt != m_hier_بلاک_Mod.انتہا(), پہلا_Pinp,
+                    hierIt->دوسرا->mangledName() << " is not found");
 
-        const auto it = vlstd::as_const(m_hierBlockMod).find(hierIt->second->mangledName());
-        if (it == m_hierBlockMod.end()) return nullptr;
-        return it->second;
+        ثابت خودکار it = vlstd::as_const(m_hier_بلاک_Mod).ڈھونڈو(hierIt->دوسرا->mangledName());
+        اگر (it == m_hier_بلاک_Mod.انتہا()) واپس خالی_اشاریہ;
+        واپس it->دوسرا;
     }
-    static bool areSame(AstConst* pinValuep, AstConst* hierOptParamp) {
-        if (pinValuep->isString()) {
-            return pinValuep->num().toString() == hierOptParamp->num().toString();
+    ساکن منطقی areSame(AstConst* pinValuep, AstConst* hierOptParamp) {
+        اگر (pinValuep->isString()) {
+            واپس pinValuep->عدد().مقصد_String() == hierOptParamp->عدد().مقصد_String();
         }
 
-        if (hierOptParamp->isDouble()) {
-            double var;
-            if (pinValuep->isDouble()) {
-                var = pinValuep->num().toDouble();
-            } else {  // Cast from integer to real
-                V3Number varNum{pinValuep, V3Number::Double{}, 0.0};
-                varNum.opIToRD(pinValuep->num());
-                var = varNum.toDouble();
+        اگر (hierOptParamp->isDouble()) {
+            دوہرا var;
+            اگر (pinValuep->isDouble()) {
+                var = pinValuep->عدد().مقصد_Double();
+            } ورنہ {  // Cast from integer to real
+                V3_نمبر var_عدد{pinValuep, V3_نمبر::Double{}, 0.0};
+                var_عدد.opIToRD(pinValuep->عدد());
+                var = var_عدد.مقصد_Double();
             }
-            return V3Number::epsilonEqual(var, hierOptParamp->num().toDouble());
-        } else {  // Now integer type is assumed
+            واپس V3_نمبر::epsilonEqual(var, hierOptParamp->عدد().مقصد_Double());
+        } ورنہ {  // Now integer type is assumed
             // Bitwidth of hierOptParamp is accurate because V3Width already calculated in the
             // previous run. Bitwidth of pinValuep is before width analysis, so pinValuep is casted
             // to hierOptParamp width.
-            V3Number varNum{pinValuep, hierOptParamp->num().width()};
-            if (pinValuep->isDouble()) {  // Need to cast to int
+            V3_نمبر var_عدد{pinValuep, hierOptParamp->عدد().چوڑائی()};
+            اگر (pinValuep->isDouble()) {  // Need to cast to int
                 // Parameter is actually an integral type, but passed value is floating point.
                 // Conversion from real to integer uses rounding in V3Width.cpp
-                varNum.opRToIRoundS(pinValuep->num());
-            } else if (pinValuep->isSigned()) {
-                varNum.opExtendS(pinValuep->num(), pinValuep->num().width());
-            } else {
-                varNum.opAssign(pinValuep->num());
+                var_عدد.opRToIRoundS(pinValuep->عدد());
+            } ورنہ اگر (pinValuep->isSigned()) {
+                var_عدد.opExtendS(pinValuep->عدد(), pinValuep->عدد().چوڑائی());
+            } ورنہ {
+                var_عدد.op_تفویض(pinValuep->عدد());
             }
-            V3Number isEq{pinValuep, 1};
-            isEq.opEq(varNum, hierOptParamp->num());
-            return isEq.isNeqZero();
+            V3_نمبر isEq{pinValuep, 1};
+            isEq.opEq(var_عدد, hierOptParamp->عدد());
+            واپس isEq.isNeqZero();
         }
     }
 };
@@ -275,7 +275,7 @@ public:
 //######################################################################
 // Remove parameters from cells and build new modules
 
-class ParamProcessor final {
+جماعت ParamProcessor final {
     // NODE STATE - Local
     //   AstVar::user3()        // int    Global parameter number (for naming new module)
     //                          //        (0=not processed, 1=iterated, but no number,
@@ -291,575 +291,575 @@ class ParamProcessor final {
     //   AstIfaceRefDType::user2()      // bool   True if visited
     //   AstClassRefDType::user2()      // bool   True if visited
     //   AstNodeModule:user4p() // AstNodeModule* Parametrized copy with default parameters
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    ثابت VNUser2_اندر_Use m_inuser2;
+    ثابت VNUser3_اندر_Use m_inuser3;
+    ثابت VNUser4_اندر_Use m_inuser4;
     // User1 used by constant function simulations
 
     // TYPES
     // Note may have duplicate entries
-    using IfaceRefRefs = std::deque<std::pair<AstIfaceRefDType*, AstIfaceRefDType*>>;
+    استعمال IfaceRefRefs = std::deque<std::pair<AstIfaceRefDType*, AstIfaceRefDType*>>;
 
     // STATE
-    using CloneMap = std::unordered_map<const AstNode*, AstNode*>;
-    struct ModInfo final {
-        AstNodeModule* const m_modp;  // Module with specified name
+    استعمال CloneMap = std::unordered_map<ثابت Ast_گرہ*, Ast_گرہ*>;
+    ساخت ModInfo final {
+        Ast_گرہ_Module* ثابت m_modp;  // Module with specified name
         CloneMap m_cloneMap;  // Map of old-varp -> new cloned varp
-        explicit ModInfo(AstNodeModule* modp)
+        صریح ModInfo(Ast_گرہ_Module* modp)
             : m_modp{modp} {}
     };
-    std::map<const std::string, ModInfo> m_modNameMap;  // Hash of created module flavors by name
+    std::map<ثابت std::string, ModInfo> m_modNameMap;  // Hash of created module flavors by name
 
-    std::map<const std::string, std::string>
+    std::map<ثابت std::string, std::string>
         m_longMap;  // Hash of very long names to unique identity number
-    std::set<std::string> m_longSuffixes;  // Digest suffixes used by m_longMap
+    std::سیٹ<std::string> m_longSuffixes;  // Digest suffixes used by m_longMap
 
     // All module names that are loaded from source code
     // Generated modules by this visitor is not included
-    VStringSet m_allModuleNames;
+    VString_سیٹ m_all_Module_نام;
 
     CloneMap m_originalParams;  // Map between parameters of copied parameteized classes and their
                                 // original nodes
 
-    std::map<const std::string, std::string> m_valueNames;  // Parameter value text to its name
-    std::set<std::string> m_valueSuffixes;  // Digest suffixes used by m_valueNames
+    std::map<ثابت std::string, std::string> m_قدر_نام;  // Parameter value text to its name
+    std::سیٹ<std::string> m_قدر_Suffixes;  // Digest suffixes used by m_valueNames
     // Number of digest hex digits in a name. With 8 digits, a collision between names made in
     // different runs, such as those of different hierarchical blocks, is unlikely. Within one
     // run, digestSuffix resolves a collision by lengthening the later text's suffix, which can
     // then differ between runs.
-    static constexpr std::string::size_type DIGEST_DIGITS = 8;
+    ساکن constexpr std::string::سائز_type DIGEST_DIGITS = 8;
 
-    const AstNodeModule* m_modp = nullptr;  // Current module being processed
+    ثابت Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Current module being processed
 
     // Database to get lib-create wrapper that matches parameters in hierarchical Verilation
-    ParameterizedHierBlocks m_hierBlocks;
+    Parameterized_Hier_بلاکیں m_hier_بلاکیں;
     // Default parameter values key:parameter name, value:default value (can be nullptr)
-    using DefaultValueMap = std::map<std::string, AstNode*>;
+    استعمال Default_قدر_Map = std::map<std::string, Ast_گرہ*>;
     // Default parameter values of hierarchical blocks
-    std::map<AstNodeModule*, DefaultValueMap> m_defaultParameterValues;
+    std::map<Ast_گرہ_Module*, Default_قدر_Map> m_default_Parameter_اقدار;
     // Module -> a defparam in it or below it, or nullptr (see nestedDefparamp)
-    std::map<const AstNodeModule*, const AstPin*> m_nestedDefparamps;
+    std::map<ثابت Ast_گرہ_Module*, ثابت AstPin*> m_nestedDefparamps;
     VNDeleter m_deleter;  // Used to delay deletion of nodes
     // Class default type paramater dependencies
-    std::vector<std::pair<AstParamTypeDType*, int>> m_classTypeParams;
-    std::unordered_map<AstParamTypeDType*, int> m_paramIndex;
+    std::سمتیہ<std::pair<AstParamTypeDType*, صحیح>> m_classTypeParams;
+    std::unordered_map<AstParamTypeDType*, صحیح> m_param_اشاریہ;
 
     // Guard against infinite recursion in classTypeMatchesDefaultClone slow path
-    std::unordered_set<const AstClass*> m_defaultCloneInProgress;
+    std::unordered_سیٹ<ثابت AstClass*> m_default_Clone_اندر_پیش_رفت;
 
-    std::vector<AstClass*> m_specializedClassps;  // Classes specialized since last drained
+    std::سمتیہ<AstClass*> m_specializedClassps;  // Classes specialized since last drained
 
     // member names cached for fast lookup
     VMemberMap m_memberMap;
 
     // METHODS
 
-    static void makeSmallNames(AstNodeModule* modp) {
-        std::vector<int> usedLetter;
-        usedLetter.resize(256);
+    ساکن خالی make_Small_نام(Ast_گرہ_Module* modp) {
+        std::سمتیہ<صحیح> مستعمل_Letter;
+        مستعمل_Letter.resize(256);
         // Pass 1, assign first letter to each gparam's name
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isGParam() || varp->isIfaceRef()) {
-                    char ch = varp->name()[0];
-                    ch = std::toupper(ch);
-                    if (ch < 'A' || ch > 'Z') ch = 'Z';
-                    varp->user3(usedLetter[static_cast<int>(ch)] * 256 + ch);
-                    usedLetter[static_cast<int>(ch)]++;
+        برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                اگر (varp->isGParam() || varp->isIfaceRef()) {
+                    حرف ch = varp->name()[0];
+                    ch = std::بڑا_حرف(ch);
+                    اگر (ch < 'A' || ch > 'Z') ch = 'Z';
+                    varp->user3(مستعمل_Letter[static_cast<صحیح>(ch)] * 256 + ch);
+                    مستعمل_Letter[static_cast<صحیح>(ch)]++;
                 }
-            } else if (AstParamTypeDType* const typep = VN_CAST(stmtp, ParamTypeDType)) {
-                const char ch = 'T';
-                typep->user3(usedLetter[static_cast<int>(ch)] * 256 + ch);
-                usedLetter[static_cast<int>(ch)]++;
+            } ورنہ اگر (AstParamTypeDType* ثابت typep = VN_CAST(stmtp, ParamTypeDType)) {
+                ثابت حرف ch = 'T';
+                typep->user3(مستعمل_Letter[static_cast<صحیح>(ch)] * 256 + ch);
+                مستعمل_Letter[static_cast<صحیح>(ch)]++;
             }
         }
     }
-    static string paramSmallName(AstNodeModule* modp, AstNode* varp) {
-        if (varp->user3() <= 1) makeSmallNames(modp);
-        int index = varp->user3() / 256;
-        const char ch = varp->user3() & 255;
-        string st = cvtToStr(ch);
-        while (index) {
-            st += cvtToStr(static_cast<char>((index % 25) + 'A'));
-            index /= 26;
+    ساکن string paramSmallName(Ast_گرہ_Module* modp, Ast_گرہ* varp) {
+        اگر (varp->user3() <= 1) make_Small_نام(modp);
+        صحیح اشاریہ = varp->user3() / 256;
+        ثابت حرف ch = varp->user3() & 255;
+        string st = cvt_مقصد_Str(ch);
+        جب (اشاریہ) {
+            st += cvt_مقصد_Str(static_cast<حرف>((اشاریہ % 25) + 'A'));
+            اشاریہ /= 26;
         }
-        return st;
+        واپس st;
     }
 
-    static bool isAggregateParamValue(const AstNode* nodep) {
-        return VN_IS(nodep, ConsArray) || VN_IS(nodep, ConsStruct);
+    ساکن منطقی is_Aggregate_Param_قدر(ثابت Ast_گرہ* nodep) {
+        واپس VN_IS(nodep, ConsArray) || VN_IS(nodep, ConsStruct);
     }
 
-    static string paramValueString(const AstNode* nodep) {
-        if (const AstRefDType* const refp = VN_CAST(nodep, RefDType)) {
-            nodep = refp->skipRefToNonRefp();
+    ساکن string param_قدر_String(ثابت Ast_گرہ* nodep) {
+        اگر (ثابت AstRefDType* ثابت refp = VN_CAST(nodep, RefDType)) {
+            nodep = refp->skip_Ref_مقصد_Non_Refp();
         }
-        string key = nodep->name();
-        if (const AstIfaceRefDType* const ifrtp = VN_CAST(nodep, IfaceRefDType)) {
-            if (ifrtp->cellp() && ifrtp->cellp()->modp()) {
-                key = ifrtp->cellp()->modp()->name();
-            } else if (ifrtp->ifacep()) {
-                key = ifrtp->ifacep()->name();
-            } else {
+        string کلید = nodep->name();
+        اگر (ثابت AstIfaceRefDType* ثابت ifrtp = VN_CAST(nodep, IfaceRefDType)) {
+            اگر (ifrtp->cellp() && ifrtp->cellp()->modp()) {
+                کلید = ifrtp->cellp()->modp()->name();
+            } ورنہ اگر (ifrtp->ifacep()) {
+                کلید = ifrtp->ifacep()->name();
+            } ورنہ {
                 nodep->v3fatalSrc("Can't parameterize interface without module name");
             }
-        } else if (const AstNodeUOrStructDType* const dtypep
-                   = VN_CAST(nodep, NodeUOrStructDType)) {
-            key += " ";
-            key += dtypep->verilogKwd();
-            key += " {";
-            for (const AstNode* memberp = dtypep->membersp(); memberp;
+        } ورنہ اگر (ثابت Ast_گرہ_UOr_Struct_DType* ثابت dtypep
+                   = VN_CAST(nodep, گرہ_UOr_Struct_DType)) {
+            کلید += " ";
+            کلید += dtypep->verilogKwd();
+            کلید += " {";
+            برائے (ثابت Ast_گرہ* memberp = dtypep->membersp(); memberp;
                  memberp = memberp->nextp()) {
-                key += paramValueString(memberp);
-                key += ";";
+                کلید += param_قدر_String(memberp);
+                کلید += ";";
             }
-            key += "}";
-        } else if (const AstMemberDType* const dtypep = VN_CAST(nodep, MemberDType)) {
-            key += " ";
-            key += paramValueString(dtypep->subDTypep());
-        } else if (const AstBasicDType* const dtypep = VN_CAST(nodep, BasicDType)) {
-            if (dtypep->isSigned()) key += " signed";
-            if (dtypep->isRanged()) {
-                key += "[" + cvtToStr(dtypep->left()) + ":" + cvtToStr(dtypep->right()) + "]";
+            کلید += "}";
+        } ورنہ اگر (ثابت AstMemberDType* ثابت dtypep = VN_CAST(nodep, MemberDType)) {
+            کلید += " ";
+            کلید += param_قدر_String(dtypep->subDTypep());
+        } ورنہ اگر (ثابت AstBasicDType* ثابت dtypep = VN_CAST(nodep, BasicDType)) {
+            اگر (dtypep->isSigned()) کلید += " signed";
+            اگر (dtypep->isRanged()) {
+                کلید += "[" + cvt_مقصد_Str(dtypep->بائیں()) + ":" + cvt_مقصد_Str(dtypep->دائیں()) + "]";
             }
-        } else if (const AstPackArrayDType* const dtypep = VN_CAST(nodep, PackArrayDType)) {
-            key += "[";
-            key += cvtToStr(dtypep->left());
-            key += ":";
-            key += cvtToStr(dtypep->right());
-            key += "] ";
-            key += paramValueString(dtypep->subDTypep());
-        } else if (const AstPattern* const patp = VN_CAST(nodep, Pattern)) {
+        } ورنہ اگر (ثابت AstPackArrayDType* ثابت dtypep = VN_CAST(nodep, PackArrayDType)) {
+            کلید += "[";
+            کلید += cvt_مقصد_Str(dtypep->بائیں());
+            کلید += ":";
+            کلید += cvt_مقصد_Str(dtypep->دائیں());
+            کلید += "] ";
+            کلید += param_قدر_String(dtypep->subDTypep());
+        } ورنہ اگر (ثابت Ast_نمونہ* ثابت patp = VN_CAST(nodep, نمونہ)) {
             // A parameter override pattern, keyed before the specialized module types it
-            key += "'{";
-            for (const AstPatMember* memp = VN_AS(patp->itemsp(), PatMember); memp;
+            کلید += "'{";
+            برائے (ثابت AstPatMember* memp = VN_AS(patp->itemsp(), PatMember); memp;
                  memp = VN_AS(memp->nextp(), PatMember)) {
-                if (memp->isDefault()) key += "default";
-                if (const AstText* const textp = VN_CAST(memp->keyp(), Text)) {
-                    key += textp->text();
-                } else if (memp->keyp()) {
-                    key += paramValueString(memp->keyp());
+                اگر (memp->isDefault()) کلید += "default";
+                اگر (ثابت Ast_متن* ثابت textp = VN_CAST(memp->keyp(), متن_2)) {
+                    کلید += textp->متن();
+                } ورنہ اگر (memp->keyp()) {
+                    کلید += param_قدر_String(memp->keyp());
                 }
-                key += ":";
-                if (memp->repp()) key += paramValueString(memp->repp()) + "x";
-                for (const AstNodeExpr* valuep = memp->lhssp(); valuep;
-                     valuep = VN_AS(valuep->nextp(), NodeExpr)) {
-                    key += paramValueString(valuep) + ";";
+                کلید += ":";
+                اگر (memp->repp()) کلید += param_قدر_String(memp->repp()) + "x";
+                برائے (ثابت Ast_گرہ_اظہاریہ* valuep = memp->lhssp(); valuep;
+                     valuep = VN_AS(valuep->nextp(), گرہ_اظہاریہ)) {
+                    کلید += param_قدر_String(valuep) + ";";
                 }
-                key += ",";
+                کلید += ",";
             }
-            key += "}";
-        } else if (const AstConsArray* const consArrayp = VN_CAST(nodep, ConsArray)) {
+            کلید += "}";
+        } ورنہ اگر (ثابت AstConsArray* ثابت consArrayp = VN_CAST(nodep, ConsArray)) {
             // Include the indices and the default, as with a default the items may be sparse
-            key += "{";
-            for (const AstConsArrayItem* itemp = consArrayp->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-                key += cvtToStr(itemp->index()) + ":" + paramValueString(itemp->valuep()) + ",";
+            کلید += "{";
+            برائے (ثابت Ast_Cons_Array_شے* itemp = consArrayp->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Cons_Array_شے)) {
+                کلید += cvt_مقصد_Str(itemp->اشاریہ()) + ":" + param_قدر_String(itemp->valuep()) + ",";
             }
-            if (consArrayp->defaultp()) {
-                key += "default:" + paramValueString(consArrayp->defaultp()) + ",";
+            اگر (consArrayp->defaultp()) {
+                کلید += "default:" + param_قدر_String(consArrayp->defaultp()) + ",";
             }
-            key += "}";
-        } else if (const AstConsStruct* const consp = VN_CAST(nodep, ConsStruct)) {
-            key += "{";
-            for (const AstConsStructItem* itemp = consp->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-                key += paramValueString(itemp->valuep());
-                key += ",";
+            کلید += "}";
+        } ورنہ اگر (ثابت AstConsStruct* ثابت consp = VN_CAST(nodep, ConsStruct)) {
+            کلید += "{";
+            برائے (ثابت Ast_Cons_Struct_شے* itemp = consp->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Cons_Struct_شے)) {
+                کلید += param_قدر_String(itemp->valuep());
+                کلید += ",";
             }
-            key += "}";
-        } else if (const AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
+            کلید += "}";
+        } ورنہ اگر (ثابت AstClassRefDType* ثابت classRefp = VN_CAST(nodep, ClassRefDType)) {
             // For parameterized class types, use the original class name (without specialization
             // suffix) plus the actual type parameter values. This ensures equivalent class types
             // get the same string representation regardless of which AST node is used.
-            if (classRefp->classp()) {
-                const string& className = classRefp->classp()->name();
-                const string& origName = classRefp->classp()->origName();
-                const bool isSpecialized = (className != origName);
+            اگر (classRefp->classp()) {
+                ثابت string& className = classRefp->classp()->name();
+                ثابت string& origName = classRefp->classp()->origName();
+                ثابت منطقی isSpecialized = (className != origName);
                 UINFO(9, "paramValueString ClassRefDType: name="
                              << className << " origName=" << origName
                              << " isSpecialized=" << isSpecialized
                              << " hasParams=" << (classRefp->paramsp() ? "Y" : "N")
                              << " classHasGParam=" << classRefp->classp()->hasGParam());
 
-                if (classRefp->paramsp()) {
+                اگر (classRefp->paramsp()) {
                     // ClassRefDType should have been deparameterized (paramsp
                     // consumed) before cellPinCleanup calls paramValueString.
                     classRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                         "ClassRefDType still has paramsp in paramValueString");
-                } else if (isSpecialized) {
+                } ورنہ اگر (isSpecialized) {
                     // Already specialized class (e.g., c1__Tz1_TBz1) - use full name
                     // This ensures different specializations are distinguished
-                    key = className;
-                } else {
+                    کلید = className;
+                } ورنہ {
                     // Unspecialized class with no params - use origName
-                    key = origName;
+                    کلید = origName;
                 }
-            } else {
+            } ورنہ {
                 // classp() should always be set; unresolved class refs
                 // would have errored in LinkDot.
                 classRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                     "ClassRefDType has null classp in paramValueString");
             }
-        } else if (const AstUnpackArrayDType* const dtypep = VN_CAST(nodep, UnpackArrayDType)) {
+        } ورنہ اگر (ثابت AstUnpackArrayDType* ثابت dtypep = VN_CAST(nodep, UnpackArrayDType)) {
             // Name containers by their elements as above, not by prettyDTypeName(), which names
             // classes by parameter values that may be yet to be resolved
-            key = paramElemString(dtypep->subDTypep()) + "$" + cvtToStr(dtypep->declRange());
-        } else if (const AstQueueDType* const dtypep = VN_CAST(nodep, QueueDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[$";
-            if (dtypep->boundConst()) key += ":" + cvtToStr(dtypep->boundConst());
-            key += "]";
-        } else if (const AstDynArrayDType* const dtypep = VN_CAST(nodep, DynArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[]";
-        } else if (const AstAssocArrayDType* const dtypep = VN_CAST(nodep, AssocArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$["
-                  + paramElemString(dtypep->keyDTypep()) + "]";
-        } else if (const AstWildcardArrayDType* const dtypep
+            کلید = paramElemString(dtypep->subDTypep()) + "$" + cvt_مقصد_Str(dtypep->declRange());
+        } ورنہ اگر (ثابت Ast_قطار_DType* ثابت dtypep = VN_CAST(nodep, قطار_DType)) {
+            کلید = paramElemString(dtypep->subDTypep()) + "$[$";
+            اگر (dtypep->boundConst()) کلید += ":" + cvt_مقصد_Str(dtypep->boundConst());
+            کلید += "]";
+        } ورنہ اگر (ثابت AstDynArrayDType* ثابت dtypep = VN_CAST(nodep, DynArrayDType)) {
+            کلید = paramElemString(dtypep->subDTypep()) + "$[]";
+        } ورنہ اگر (ثابت AstAssocArrayDType* ثابت dtypep = VN_CAST(nodep, AssocArrayDType)) {
+            کلید = paramElemString(dtypep->subDTypep()) + "$["
+                  + paramElemString(dtypep->کلید_DTypep()) + "]";
+        } ورنہ اگر (ثابت AstWildcardArrayDType* ثابت dtypep
                    = VN_CAST(nodep, WildcardArrayDType)) {
-            key = paramElemString(dtypep->subDTypep()) + "$[*]";
-        } else if (const AstEnumDType* const dtypep = VN_CAST(nodep, EnumDType)) {
+            کلید = paramElemString(dtypep->subDTypep()) + "$[*]";
+        } ورنہ اگر (ثابت AstEnumDType* ثابت dtypep = VN_CAST(nodep, EnumDType)) {
             // With the items, as prettyDTypeName() omits them, yet a specialization of a class
             // may declare an enumeration of the same name with other values
-            key += " enum {";
-            for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                const AstConst* const constp = VN_CAST(itemp->valuep(), Const);
-                key += itemp->name() + "=" + (constp ? constp->num().ascii() : "?") + ";";
+            کلید += " enum {";
+            برائے (ثابت Ast_Enum_شے* itemp = dtypep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Enum_شے)) {
+                ثابت AstConst* ثابت constp = VN_CAST(itemp->valuep(), Const);
+                کلید += itemp->name() + "=" + (constp ? constp->عدد().ascii() : "?") + ";";
             }
-            key += "}";
-        } else if (const AstNodeDType* const dtypep = VN_CAST(nodep, NodeDType)) {
-            key += dtypep->prettyDTypeName(true);
+            کلید += "}";
+        } ورنہ اگر (ثابت Ast_گرہ_DType* ثابت dtypep = VN_CAST(nodep, گرہ_DType)) {
+            کلید += dtypep->prettyDTypeName(سچ);
         }
-        UASSERT_OBJ(!key.empty(), nodep, "Parameter yielded no value string");
-        return key;
+        UASSERT_OBJ(!کلید.خالی_خانے(), nodep, "Parameter yielded no value string");
+        واپس کلید;
     }
     // As paramValueString(), for the element or key type of a container
-    static string paramElemString(const AstNodeDType* dtypep) {
+    ساکن string paramElemString(ثابت Ast_گرہ_DType* dtypep) {
         // Unlike at the top of a value, a class may be yet to be specialized, so just name it
-        const AstClassRefDType* const classRefp
-            = VN_CAST(dtypep->skipRefToNonRefp(), ClassRefDType);
-        if (classRefp && classRefp->paramsp()) return classRefp->prettyDTypeName(true);
-        return paramValueString(dtypep);
+        ثابت AstClassRefDType* ثابت classRefp
+            = VN_CAST(dtypep->skip_Ref_مقصد_Non_Refp(), ClassRefDType);
+        اگر (classRefp && classRefp->paramsp()) واپس classRefp->prettyDTypeName(سچ);
+        واپس param_قدر_String(dtypep);
     }
 
     // Return a name suffix for 'text' from its SHA-512 digest. Hierarchical blocks are
     // Verilated in separate runs, where a counter would restart, but the digest is the same in
     // every run. Use the shortest digest prefix of at least DIGEST_DIGITS digits that is not
     // already in 'usedr', and add it to 'usedr'.
-    static string digestSuffix(const string& text, std::set<string>& usedr) {
-        const string hex = VHashSha512{text}.digestHex();
+    ساکن string digestSuffix(ثابت string& متن, std::سیٹ<string>& usedr) {
+        ثابت string hex = VHashSha512{متن}.digestHex();
         // Force collisions of the prefixes -- for testing only
-        string::size_type digits = v3Global.opt.debugCollision() ? 1 : DIGEST_DIGITS;
-        while (digits < hex.size() && !usedr.insert(hex.substr(0, digits)).second) ++digits;
-        return hex.substr(0, digits);
+        string::سائز_type digits = v3Global.opt.debugCollision() ? 1 : DIGEST_DIGITS;
+        جب (digits < hex.سائز() && !usedr.داخل_کرو(hex.substr(0, digits)).دوسرا) ++digits;
+        واپس hex.substr(0, digits);
     }
-    string paramValueNumber(AstNode* nodep) {
+    string param_قدر_نمبر(Ast_گرہ* nodep) {
         // All call sites resolve through skipRefToNonRefp() or pass non-DType
         // nodes, so nodep should never be a bare RefDType here.
-        if (VN_IS(nodep, RefDType)) {  // LCOV_EXCL_LINE
+        اگر (VN_IS(nodep, RefDType)) {  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Unexpected RefDType in paramValueNumber");  // LCOV_EXCL_LINE
         }
         // Name the value by its text, which is the same for equal values or types in every run.
         // V3Hasher is unsuitable, as it hashes node pointers, which can differ for equal types.
         // V3Hash of a string is unsuitable, as std::hash varies between C++ libraries.
-        const string text = paramValueString(nodep);
-        const auto pair = m_valueNames.emplace(text, "");
-        if (pair.second) pair.first->second = "z" + digestSuffix(text, m_valueSuffixes);
-        return pair.first->second;
+        ثابت string متن = param_قدر_String(nodep);
+        ثابت خودکار pair = m_قدر_نام.emplace(متن, "");
+        اگر (pair.دوسرا) pair.پہلا->دوسرا = "z" + digestSuffix(متن, m_قدر_Suffixes);
+        واپس pair.پہلا->دوسرا;
     }
-    string moduleCalcName(const AstNodeModule* srcModp, const string& longname) {
+    string moduleCalcName(ثابت Ast_گرہ_Module* srcModp, ثابت string& longname) {
         string newname = longname;
-        if (longname.length() > 30) {
-            const auto pair = m_longMap.emplace(longname, "");
-            if (pair.second) {
+        اگر (longname.لمبائی_2() > 30) {
+            ثابت خودکار pair = m_longMap.emplace(longname, "");
+            اگر (pair.دوسرا) {
                 // We use all upper case above, so lower here can't conflict
-                pair.first->second
+                pair.پہلا->دوسرا
                     = srcModp->name() + "__pi" + digestSuffix(longname, m_longSuffixes);
             }
-            newname = pair.first->second;
+            newname = pair.پہلا->دوسرا;
         }
         UINFO(4, "Name: " << srcModp->name() << "->" << longname << "->" << newname);
-        return newname;
+        واپس newname;
     }
-    static AstNodeDType* arraySubDTypep(AstNodeDType* nodep) {
+    ساکن Ast_گرہ_DType* arraySubDTypep(Ast_گرہ_DType* nodep) {
         // If an unpacked array, return the subDTypep under it
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(nodep, UnpackArrayDType)) {
-            return adtypep->subDTypep();
+        اگر (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(nodep, UnpackArrayDType)) {
+            واپس adtypep->subDTypep();
         }
         // We have not resolved parameter of the child yet, so still
         // have BracketArrayDType's. We'll presume it'll end up as assignment
         // compatible (or V3Width will complain).
-        if (const AstBracketArrayDType* const adtypep = VN_CAST(nodep, BracketArrayDType)) {
-            return adtypep->subDTypep();
+        اگر (ثابت AstBracketArrayDType* ثابت adtypep = VN_CAST(nodep, BracketArrayDType)) {
+            واپس adtypep->subDTypep();
         }
-        return nullptr;
+        واپس خالی_اشاریہ;
     }
     // Peel all unpacked-array layers to reach the innermost subDTypep.
     // Used for multi-dim iface arrays where port dtype is nested UnpackArrayDType.
-    static AstNodeDType* arraySubDTypeDeepp(AstNodeDType* nodep) {
-        while (AstNodeDType* const subp = arraySubDTypep(nodep)) nodep = subp;
-        return nodep;
+    ساکن Ast_گرہ_DType* arraySubDTypeDeepp(Ast_گرہ_DType* nodep) {
+        جب (Ast_گرہ_DType* ثابت subp = arraySubDTypep(nodep)) nodep = subp;
+        واپس nodep;
     }
-    static bool isString(AstNodeDType* nodep) {
-        if (AstBasicDType* const basicp = VN_CAST(nodep->skipRefToNonRefp(), BasicDType))
-            return basicp->isString();
-        return false;
+    ساکن منطقی isString(Ast_گرہ_DType* nodep) {
+        اگر (AstBasicDType* ثابت basicp = VN_CAST(nodep->skip_Ref_مقصد_Non_Refp(), BasicDType))
+            واپس basicp->isString();
+        واپس جھوٹ;
     }
-    void collectPins(CloneMap* clonemapp, AstNodeModule* modp, bool originalIsCopy) {
+    خالی collectPins(CloneMap* clonemapp, Ast_گرہ_Module* modp, منطقی originalIsCopy) {
         // Grab all I/O so we can remap our pins later
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstNode* originalParamp = nullptr;
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
+        برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ثابت Ast_گرہ* originalParamp = خالی_اشاریہ;
+            اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                اگر (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
                     // Cloning saved a pointer to the new node for us, so just follow that link.
                     originalParamp = varp->clonep();
                 }
-            } else if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                if (ptp->isGParam()) originalParamp = ptp->clonep();
+            } ورنہ اگر (AstParamTypeDType* ثابت ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                اگر (ptp->isGParam()) originalParamp = ptp->clonep();
             }
-            if (originalIsCopy) originalParamp = m_originalParams[originalParamp];
-            if (originalParamp) clonemapp->emplace(originalParamp, stmtp);
+            اگر (originalIsCopy) originalParamp = m_originalParams[originalParamp];
+            اگر (originalParamp) clonemapp->emplace(originalParamp, stmtp);
         }
     }
-    void relinkPins(const CloneMap* clonemapp, AstPin* startpinp) {
-        for (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->modVarp()) {
+    خالی relinkPins(ثابت CloneMap* clonemapp, AstPin* startpinp) {
+        برائے (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            اگر (pinp->modVarp()) {
                 // Find it in the clone structure
                 // UINFO(8,"Clone find 0x"<<hex<<(uint32_t)pinp->modVarp());
-                const auto cloneiter = clonemapp->find(pinp->modVarp());
-                UASSERT_OBJ(cloneiter != clonemapp->end(), pinp,
+                ثابت خودکار cloneiter = clonemapp->ڈھونڈو(pinp->modVarp());
+                UASSERT_OBJ(cloneiter != clonemapp->انتہا(), pinp,
                             "Couldn't find pin in clone list");
-                pinp->modVarp(VN_AS(cloneiter->second, Var));
-            } else if (pinp->modPTypep()) {
-                const auto cloneiter = clonemapp->find(pinp->modPTypep());
-                UASSERT_OBJ(cloneiter != clonemapp->end(), pinp,
+                pinp->modVarp(VN_AS(cloneiter->دوسرا, Var));
+            } ورنہ اگر (pinp->modPTypep()) {
+                ثابت خودکار cloneiter = clonemapp->ڈھونڈو(pinp->modPTypep());
+                UASSERT_OBJ(cloneiter != clonemapp->انتہا(), pinp,
                             "Couldn't find pin in clone list");
-                pinp->modPTypep(VN_AS(cloneiter->second, ParamTypeDType));
-            } else {
+                pinp->modPTypep(VN_AS(cloneiter->دوسرا, ParamTypeDType));
+            } ورنہ {
                 pinp->v3fatalSrc("Not linked?");
             }
         }
     }
-    void relinkPinsByName(AstPin* startpinp, AstNodeModule* modp) {
-        std::map<const string, AstVar*> nameToPin;
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
-                    nameToPin.emplace(varp->name(), varp);
+    خالی relinkPinsByName(AstPin* startpinp, Ast_گرہ_Module* modp) {
+        std::map<ثابت string, AstVar*> name_مقصد_Pin;
+        برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                اگر (varp->isIO() || varp->isGParam() || varp->isIfaceRef()) {
+                    name_مقصد_Pin.emplace(varp->name(), varp);
                 }
             }
         }
-        for (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (const AstVar* const varp = pinp->modVarp()) {
-                const auto varIt = vlstd::as_const(nameToPin).find(varp->name());
-                UASSERT_OBJ(varIt != nameToPin.end(), varp,
+        برائے (AstPin* pinp = startpinp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            اگر (ثابت AstVar* ثابت varp = pinp->modVarp()) {
+                ثابت خودکار varIt = vlstd::as_const(name_مقصد_Pin).ڈھونڈو(varp->name());
+                UASSERT_OBJ(varIt != name_مقصد_Pin.انتہا(), varp,
                             "Not found in " << modp->prettyNameQ());
-                pinp->modVarp(varIt->second);
+                pinp->modVarp(varIt->دوسرا);
             }
         }
     }
-    static bool hasDescendantDefparams(const AstNodeModule* modp,
-                                       std::set<const AstNodeModule*>& visited) {
-        if (!visited.insert(modp).second) return false;
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstCell* const cellp = VN_CAST(stmtp, Cell);
-            if (!cellp) continue;
-            for (AstPin* pinp = cellp->paramsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->paramPath().empty()) {
-                    visited.erase(modp);
-                    return true;
+    ساکن منطقی hasDescendantDefparams(ثابت Ast_گرہ_Module* modp,
+                                       std::سیٹ<ثابت Ast_گرہ_Module*>& دیکھا) {
+        اگر (!دیکھا.داخل_کرو(modp).دوسرا) واپس جھوٹ;
+        برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstCell* ثابت cellp = VN_CAST(stmtp, Cell);
+            اگر (!cellp) جاری;
+            برائے (AstPin* pinp = cellp->paramsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (!pinp->param_راستہ().خالی_خانے()) {
+                    دیکھا.erase(modp);
+                    واپس سچ;
                 }
             }
-            if (AstNodeModule* const childModp = cellp->modp()) {
-                if (hasDescendantDefparams(childModp, visited)) {
-                    visited.erase(modp);
-                    return true;
+            اگر (Ast_گرہ_Module* ثابت بچہ_Modp = cellp->modp()) {
+                اگر (hasDescendantDefparams(بچہ_Modp, دیکھا)) {
+                    دیکھا.erase(modp);
+                    واپس سچ;
                 }
             }
         }
-        visited.erase(modp);
-        return false;
+        دیکھا.erase(modp);
+        واپس جھوٹ;
     }
-    static bool hasDescendantDefparams(const AstNodeModule* modp) {
-        std::set<const AstNodeModule*> visited;
-        return hasDescendantDefparams(modp, visited);
+    ساکن منطقی hasDescendantDefparams(ثابت Ast_گرہ_Module* modp) {
+        std::سیٹ<ثابت Ast_گرہ_Module*> دیکھا;
+        واپس hasDescendantDefparams(modp, دیکھا);
     }
     // Return a defparam in the module or below it. Unlike hasDescendantDefparams, also look
     // inside generate constructs. Memoized, so each module is searched once.
-    const AstPin* nestedDefparamp(const AstNodeModule* modp) {
-        const auto pair = m_nestedDefparamps.emplace(modp, nullptr);
-        if (!pair.second) return pair.first->second;  // Searched, or being searched
-        const AstPin* foundp = nullptr;
-        modp->exists([&](const AstCell* cellp) {
-            for (const AstPin* pinp = cellp->paramsp(); pinp && !foundp;
+    ثابت AstPin* nestedDefparamp(ثابت Ast_گرہ_Module* modp) {
+        ثابت خودکار pair = m_nestedDefparamps.emplace(modp, خالی_اشاریہ);
+        اگر (!pair.دوسرا) واپس pair.پہلا->دوسرا;  // Searched, or being searched
+        ثابت AstPin* foundp = خالی_اشاریہ;
+        modp->exists([&](ثابت AstCell* cellp) {
+            برائے (ثابت AstPin* pinp = cellp->paramsp(); pinp && !foundp;
                  pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->paramPath().empty()) foundp = pinp;
+                اگر (!pinp->param_راستہ().خالی_خانے()) foundp = pinp;
             }
-            if (!foundp && cellp->modp()) foundp = nestedDefparamp(cellp->modp());
-            return foundp != nullptr;
+            اگر (!foundp && cellp->modp()) foundp = nestedDefparamp(cellp->modp());
+            واپس foundp != خالی_اشاریہ;
         });
-        pair.first->second = foundp;
-        return foundp;
+        pair.پہلا->دوسرا = foundp;
+        واپس foundp;
     }
     // Check if parameter setting during instantiation is simple enough for hierarchical Verilation
-    void checkSupportedParam(AstNodeModule* modp, AstPin* pinp) const {
+    خالی checkSupportedParam(Ast_گرہ_Module* modp, AstPin* pinp) ثابت {
         // ConsArray is not supported because that can not be set via -G
         // option.
-        if (pinp->modVarp()) {
-            bool supported = false;
-            if (const AstConst* const constp = VN_CAST(pinp->exprp(), Const)) {
-                supported = true;
-                if (constp->num().isString()
-                    && !V3HierBlock::stringParamPassable(constp->num().toString())) {
+        اگر (pinp->modVarp()) {
+            منطقی supported = جھوٹ;
+            اگر (ثابت AstConst* ثابت constp = VN_CAST(pinp->exprp(), Const)) {
+                supported = سچ;
+                اگر (constp->عدد().isString()
+                    && !V3_Hier_بلاک::stringParamPassable(constp->عدد().مقصد_String())) {
                     pinp->v3warn(E_UNSUPPORTED, "Unsupported: String value of hierarchical block"
                                                 " parameter with newline, double quote, '/*',"
                                                 " or whitespace before '//'");
                 }
             }
-            if (!supported) {
+            اگر (!supported) {
                 pinp->v3error(
-                    AstNode::prettyNameQ(modp->origName())
+                    Ast_گرہ::prettyNameQ(modp->origName())
                     << " has hier_block metacomment, hierarchical Verilation"
                     << " supports only integer/floating point/string and type param parameters");
             }
-        } else if (const AstParamTypeDType* const typep = pinp->modPTypep()) {
+        } ورنہ اگر (ثابت AstParamTypeDType* ثابت typep = pinp->modPTypep()) {
             // Libraries are found by comparing values only
             pinp->v3warn(E_UNSUPPORTED, "Unsupported: Setting type parameter "
                                             << typep->prettyNameQ() << " of hierarchical block "
-                                            << AstNode::prettyNameQ(modp->origName()));
+                                            << Ast_گرہ::prettyNameQ(modp->origName()));
         }
     }
-    bool moduleExists(const string& modName) const {
-        if (m_allModuleNames.find(modName) != m_allModuleNames.end()) return true;
-        if (m_modNameMap.find(modName) != m_modNameMap.end()) return true;
-        return false;
+    منطقی moduleExists(ثابت string& modName) ثابت {
+        اگر (m_all_Module_نام.ڈھونڈو(modName) != m_all_Module_نام.انتہا()) واپس سچ;
+        اگر (m_modNameMap.ڈھونڈو(modName) != m_modNameMap.انتہا()) واپس سچ;
+        واپس جھوٹ;
     }
 
-    string parameterizedHierBlockName(AstNodeModule* modp, AstPin* paramPinsp) {
+    string parameterized_Hier_بلاک_Name(Ast_گرہ_Module* modp, AstPin* paramPinsp) {
         // Create a unique name in the following steps
         //  - Make a long name that includes all parameters, that appear
         //    in the alphabetical order.
         //  - Hash the long name to get valid Verilog symbol
-        UASSERT_OBJ(modp->hierBlock(), modp, "should be used for hierarchical block");
+        UASSERT_OBJ(modp->hier_بلاک(), modp, "should be used for hierarchical block");
 
-        std::map<string, AstNode*> pins;
+        std::map<string, Ast_گرہ*> pins;
 
         AstPin* pinp = paramPinsp;
-        while (pinp) {
+        جب (pinp) {
             checkSupportedParam(modp, pinp);
-            if (const AstVar* const varp = pinp->modVarp()) {
-                if (!pinp->exprp()) continue;
-                if (varp->isGParam()) pins.emplace(varp->name(), pinp->exprp());
-            } else if (VN_IS(pinp->exprp(), BasicDType) || VN_IS(pinp->exprp(), NodeDType)) {
+            اگر (ثابت AstVar* ثابت varp = pinp->modVarp()) {
+                اگر (!pinp->exprp()) جاری;
+                اگر (varp->isGParam()) pins.emplace(varp->name(), pinp->exprp());
+            } ورنہ اگر (VN_IS(pinp->exprp(), BasicDType) || VN_IS(pinp->exprp(), گرہ_DType)) {
                 pins.emplace(pinp->name(), pinp->exprp());
             }
             pinp = VN_AS(pinp->nextp(), Pin);
         }
 
-        const auto pair = m_defaultParameterValues.emplace(
+        ثابت خودکار pair = m_default_Parameter_اقدار.emplace(
             std::piecewise_construct, std::forward_as_tuple(modp), std::forward_as_tuple());
-        if (pair.second) {  // Not cached yet, so check parameters
+        اگر (pair.دوسرا) {  // Not cached yet, so check parameters
             // A separately compiled library cannot receive defparams aimed into its body
-            if (const AstPin* const defparamp = nestedDefparamp(modp)) {
+            اگر (ثابت AstPin* ثابت defparamp = nestedDefparamp(modp)) {
                 defparamp->v3warn(E_UNSUPPORTED, "Unsupported: defparam inside hierarchical block "
-                                                     << AstNode::prettyNameQ(modp->origName()));
+                                                     << Ast_گرہ::prettyNameQ(modp->origName()));
             }
             // Using map with key=string so that we can scan it in deterministic order
-            DefaultValueMap params;
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                    if (varp->isGParam()) {
-                        AstConst* const constp = VN_CAST(varp->valuep(), Const);
+            Default_قدر_Map params;
+            برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                    اگر (varp->isGParam()) {
+                        AstConst* ثابت constp = VN_CAST(varp->valuep(), Const);
                         // constp can be nullptr if the parameter is not used to instantiate sub
                         // module. varp->valuep() is not constified yet in the case.
                         // nullptr means that the parameter is using some default value.
                         params.emplace(varp->name(), constp);
                     }
-                } else if (AstParamTypeDType* const p = VN_CAST(stmtp, ParamTypeDType)) {
-                    AstNode* const dtypep = static_cast<AstNode*>(p->skipRefp());
+                } ورنہ اگر (AstParamTypeDType* ثابت p = VN_CAST(stmtp, ParamTypeDType)) {
+                    Ast_گرہ* ثابت dtypep = static_cast<Ast_گرہ*>(p->skipRefp());
                     params.emplace(p->name(), dtypep);
                 }
             }
-            pair.first->second = std::move(params);
+            pair.پہلا->دوسرا = std::move(params);
         }
-        const auto paramsIt = pair.first;
-        if (paramsIt->second.empty()) return modp->origName();  // modp has no parameter
+        ثابت خودکار paramsIt = pair.پہلا;
+        اگر (paramsIt->دوسرا.خالی_خانے()) واپس modp->origName();  // modp has no parameter
 
         string longname = modp->origName();
-        for (auto&& defaultValue : paramsIt->second) {
-            const auto pinIt = pins.find(defaultValue.first);
+        برائے (خودکار&& default_قدر : paramsIt->دوسرا) {
+            ثابت خودکار pinIt = pins.ڈھونڈو(default_قدر.پہلا);
             // If the pin does not have a value assigned, use the default one.
-            const AstNode* const nodep = pinIt == pins.end() ? defaultValue.second : pinIt->second;
+            ثابت Ast_گرہ* ثابت nodep = pinIt == pins.انتہا() ? default_قدر.دوسرا : pinIt->دوسرا;
             // This longname is not valid as verilog symbol, but ok, because it will be hashed
-            longname += "_" + defaultValue.first + "=";
+            longname += "_" + default_قدر.پہلا + "=";
             // constp can be nullptr
 
-            if (const AstConst* const p = VN_CAST(nodep, Const)) {
+            اگر (ثابت AstConst* ثابت p = VN_CAST(nodep, Const)) {
                 // Treat modules parameterized with the same values but with different type as the
                 // same.
-                longname += p->num().ascii(false);
-            } else if (nodep) {
+                longname += p->عدد().ascii(جھوٹ);
+            } ورنہ اگر (nodep) {
                 std::stringstream type;
-                V3EmitV::verilogForTree(nodep, type);
+                V3EmitV::verilog_For_درخت(nodep, type);
                 longname += type.str();
             }
         }
         UINFO(9, "       module params longname: " << longname);
 
-        const auto iter = m_longMap.find(longname);
-        if (iter != m_longMap.end()) return iter->second;  // Already calculated
+        ثابت خودکار iter = m_longMap.ڈھونڈو(longname);
+        اگر (iter != m_longMap.انتہا()) واپس iter->دوسرا;  // Already calculated
 
         VHashSha512 hash;
         // Calculate hash using longname
         // The hash is used as the module suffix to find a module name that is unique in the design
-        hash.insert(longname);
-        while (true) {
+        hash.داخل_کرو(longname);
+        جب (سچ) {
             // Copy VHashSha512 just in case of hash collision
             VHashSha512 hashStrGen = hash;
             // Hex string must be a safe suffix for any symbol
-            const string hashStr = hashStrGen.digestHex();
-            for (string::size_type i = 1; i < hashStr.size(); ++i) {
+            ثابت string hashStr = hashStrGen.digestHex();
+            برائے (string::سائز_type i = 1; i < hashStr.سائز(); ++i) {
                 string newName = modp->origName();
                 // Don't use '__' not to be encoded when this module is loaded later by Verilator
-                if (newName.at(newName.size() - 1) != '_') newName += '_';
+                اگر (newName.at(newName.سائز() - 1) != '_') newName += '_';
                 newName += hashStr.substr(0, i);
-                if (!moduleExists(newName)) {
+                اگر (!moduleExists(newName)) {
                     m_longMap.emplace(longname, newName);
-                    return newName;
+                    واپس newName;
                 }
             }
             // Hash collision. maybe just v3error is practically enough
-            hash.insert(V3Os::trueRandom(64));
+            hash.داخل_کرو(V3Os::trueRandom(64));
         }
     }
-    void replaceRefsRecurse(AstNode* const nodep, const AstClass* const oldClassp,
-                            AstClass* const newClassp) {
+    خالی replaceRefsRecurse(Ast_گرہ* ثابت nodep, ثابت AstClass* ثابت oldClassp,
+                            AstClass* ثابت newClassp) {
         // Self references linked in the first pass of V3LinkDot.cpp should point to the default
         // instance.
-        if (AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
-            if (classRefp->classp() == oldClassp) classRefp->classp(newClassp);
-        } else if (AstClassOrPackageRef* const classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
-            if (classRefp->classOrPackageSkipp() == oldClassp)
+        اگر (AstClassRefDType* ثابت classRefp = VN_CAST(nodep, ClassRefDType)) {
+            اگر (classRefp->classp() == oldClassp) classRefp->classp(newClassp);
+        } ورنہ اگر (AstClassOrPackageRef* ثابت classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+            اگر (classRefp->classOrPackageSkipp() == oldClassp)
                 classRefp->classOrPackagep(newClassp);
-        } else if (AstTypedef* const typedefp = VN_CAST(nodep, Typedef)) {
+        } ورنہ اگر (AstTypedef* ثابت typedefp = VN_CAST(nodep, Typedef)) {
             // Update typedefs that refer to the old class to point to the new class
-            if (typedefp->subDTypep()) {
-                if (AstClassRefDType* const classRefp
+            اگر (typedefp->subDTypep()) {
+                اگر (AstClassRefDType* ثابت classRefp
                     = VN_CAST(typedefp->subDTypep(), ClassRefDType)) {
-                    if (classRefp->classp() == oldClassp) { classRefp->classp(newClassp); }
+                    اگر (classRefp->classp() == oldClassp) { classRefp->classp(newClassp); }
                 }
             }
-        } else if (AstNodeFTaskRef* const ftaskRefp = VN_CAST(nodep, NodeFTaskRef)) {
+        } ورنہ اگر (Ast_گرہ_FTask_Ref* ثابت ftaskRefp = VN_CAST(nodep, گرہ_FTask_Ref)) {
             // Also update FuncRef/TaskRef packagep to point to new class
             // This fixes static method calls through typedefs in parameterized classes
-            if (ftaskRefp->classOrPackagep() == oldClassp) ftaskRefp->classOrPackagep(newClassp);
+            اگر (ftaskRefp->classOrPackagep() == oldClassp) ftaskRefp->classOrPackagep(newClassp);
             // Also update taskp if it points to a function in the old class.
             // AstNodeFTask::classOrPackagep() (op2) holds a parse-time
             // Dot/ClassOrPackageRef for extern declarations, which is deleted
             // in LinkDot::moveExternFuncDecl before V3Param runs. For inline
             // class methods op2 is nullptr. So this should never match.
-            if (AstNodeFTask* const oldTaskp = ftaskRefp->taskp()) {
-                if (oldTaskp->classOrPackagep() == oldClassp) {
+            اگر (Ast_گرہ_FTask* ثابت oldTaskp = ftaskRefp->taskp()) {
+                اگر (oldTaskp->classOrPackagep() == oldClassp) {
                     oldTaskp->v3fatalSrc(  // LCOV_EXCL_LINE
                         "FTask classOrPackagep unexpectedly matches old class "
                         << oldClassp->prettyNameQ());
@@ -867,195 +867,195 @@ class ParamProcessor final {
             }
         }
 
-        if (nodep->op1p()) replaceRefsRecurse(nodep->op1p(), oldClassp, newClassp);
-        if (nodep->op2p()) replaceRefsRecurse(nodep->op2p(), oldClassp, newClassp);
-        if (nodep->op3p()) replaceRefsRecurse(nodep->op3p(), oldClassp, newClassp);
-        if (nodep->op4p()) replaceRefsRecurse(nodep->op4p(), oldClassp, newClassp);
-        if (nodep->nextp()) replaceRefsRecurse(nodep->nextp(), oldClassp, newClassp);
+        اگر (nodep->op1p()) replaceRefsRecurse(nodep->op1p(), oldClassp, newClassp);
+        اگر (nodep->op2p()) replaceRefsRecurse(nodep->op2p(), oldClassp, newClassp);
+        اگر (nodep->op3p()) replaceRefsRecurse(nodep->op3p(), oldClassp, newClassp);
+        اگر (nodep->op4p()) replaceRefsRecurse(nodep->op4p(), oldClassp, newClassp);
+        اگر (nodep->nextp()) replaceRefsRecurse(nodep->nextp(), oldClassp, newClassp);
     }
 
     // Helper visitor to update VarXRefs to use variables from specialized interfaces.
     // When a module with interface ports is cloned and the port's interface is remapped
     // to a specialized version, VarXRefs that access members of the old interface need
     // to be updated to reference the corresponding members in the new interface.
-    class VarXRefRelinkVisitor final : public VNVisitor {
-        AstNodeModule* m_modp;  // The cloned module we're updating
-        std::unordered_map<AstVar*, AstNodeModule*> m_varModuleMap;  // Cache var->module lookups
+    جماعت VarXRefRelinkVisitor final : عوامی VNVisitor {
+        Ast_گرہ_Module* m_modp;  // The cloned module we're updating
+        std::unordered_map<AstVar*, Ast_گرہ_Module*> m_varModuleMap;  // Cache var->module lookups
 
-    public:
-        explicit VarXRefRelinkVisitor(AstNodeModule* newModp)
+    عوامی:
+        صریح VarXRefRelinkVisitor(Ast_گرہ_Module* newModp)
             : m_modp{newModp} {
             iterate(newModp);
         }
 
-    private:
+    نجی:
         // Find which module a variable belongs to, using cache to avoid repeated backp() walks
-        AstNodeModule* findVarModule(AstVar* varp) {
-            const auto it = m_varModuleMap.find(varp);
-            if (it != m_varModuleMap.end()) return it->second;
-            AstNodeModule* varModp = nullptr;
-            for (AstNode* np = varp; np; np = np->backp()) {
-                if (AstNodeModule* const modp = VN_CAST(np, NodeModule)) {
+        Ast_گرہ_Module* ڈھونڈو_Var_Module(AstVar* varp) {
+            ثابت خودکار it = m_varModuleMap.ڈھونڈو(varp);
+            اگر (it != m_varModuleMap.انتہا()) واپس it->دوسرا;
+            Ast_گرہ_Module* varModp = خالی_اشاریہ;
+            برائے (Ast_گرہ* np = varp; np; np = np->backp()) {
+                اگر (Ast_گرہ_Module* ثابت modp = VN_CAST(np, گرہ_Module)) {
                     varModp = modp;
-                    break;
+                    توڑو;
                 }
             }
             m_varModuleMap[varp] = varModp;
-            return varModp;
+            واپس varModp;
         }
 
-        void visit(AstVarXRef* nodep) override {
-            AstVar* const varp = nodep->varp();
-            if (!varp) {
+        خالی دورہ(AstVarXRef* nodep) override {
+            AstVar* ثابت varp = nodep->varp();
+            اگر (!varp) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
             // Get the dotted prefix (port name) from the VarXRef
             // dotted() format: "portname" or "portname.subpath" or empty
-            const string& dotted = nodep->dotted();
-            if (dotted.empty()) {
+            ثابت string& dotted = nodep->dotted();
+            اگر (dotted.خالی_خانے()) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
-            const size_t dotPos = dotted.find('.');
-            const string portName = (dotPos == string::npos) ? dotted : dotted.substr(0, dotPos);
-            if (portName.empty()) {
+            ثابت سائز_t dotPos = dotted.ڈھونڈو('.');
+            ثابت string پورٹ_Name = (dotPos == string::npos) ? dotted : dotted.substr(0, dotPos);
+            اگر (پورٹ_Name.خالی_خانے()) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
             // Find the interface port variable in the cloned module
-            AstVar* portVarp = nullptr;
-            for (AstNode* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varChkp = VN_CAST(stmtp, Var)) {
-                    if (varChkp->name() == portName && varChkp->isIfaceRef()) {
-                        portVarp = varChkp;
-                        break;
+            AstVar* پورٹ_Varp = خالی_اشاریہ;
+            برائے (Ast_گرہ* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                اگر (AstVar* ثابت varChkp = VN_CAST(stmtp, Var)) {
+                    اگر (varChkp->name() == پورٹ_Name && varChkp->isIfaceRef()) {
+                        پورٹ_Varp = varChkp;
+                        توڑو;
                     }
                 }
             }
-            if (!portVarp) {
+            اگر (!پورٹ_Varp) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
             // Get the interface module from the port's dtype
-            AstIfaceRefDType* const irefp = VN_CAST(portVarp->subDTypep(), IfaceRefDType);
-            if (!irefp) {
+            AstIfaceRefDType* ثابت irefp = VN_CAST(پورٹ_Varp->subDTypep(), IfaceRefDType);
+            اگر (!irefp) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
-            AstNodeModule* const newIfacep = irefp->ifaceViaCellp();
-            if (!newIfacep) {
+            Ast_گرہ_Module* ثابت newIfacep = irefp->iface_بذریعہ_Cellp();
+            اگر (!newIfacep) {
                 iterateChildren(nodep);
-                return;
+                واپس;
             }
 
             // Find which module the variable currently belongs to (cached)
-            AstNodeModule* const varModp = findVarModule(varp);
+            Ast_گرہ_Module* ثابت varModp = ڈھونڈو_Var_Module(varp);
 
             // If variable is in a different module than the port's interface, remap it
-            if (varModp && varModp != newIfacep) {
-                for (AstNode* stmtp = newIfacep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const newVarp = VN_CAST(stmtp, Var)) {
-                        if (newVarp->name() == varp->name()) {
+            اگر (varModp && varModp != newIfacep) {
+                برائے (Ast_گرہ* stmtp = newIfacep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    اگر (AstVar* ثابت newVarp = VN_CAST(stmtp, Var)) {
+                        اگر (newVarp->name() == varp->name()) {
                             UINFO(9, "VarXRef relink " << varp->name() << " in " << varModp->name()
                                                        << " -> " << newIfacep->name());
                             nodep->varp(newVarp);
-                            break;
+                            توڑو;
                         }
                     }
                 }
             }
             iterateChildren(nodep);
         }
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
+        خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
     };
 
     // Retarget the captured references in newModp to its specialized interfaces.
-    void fixupCrossModuleRefDTypes(AstNodeModule* newModp) {
-        if (!V3LinkDotIfaceCapture::enabled()) return;
+    خالی fixupCrossModuleRefDTypes(Ast_گرہ_Module* newModp) {
+        اگر (!V3LinkDotIfaceCapture::enabled()) واپس;
         UINFO(9, "iface capture clone fixup: " << newModp->prettyNameQ());
-        int fixedCount = 0;
+        صحیح fixed_گنتی = 0;
         // References in a class nested in newModp (e.g. a covergroup) are included.
         newModp->foreach([&](AstRefDType* refp) {
-            const VIfaceCaptureTag* const tagp = V3LinkDotIfaceCapture::captureTag(refp);
-            if (!tagp) return;
+            ثابت VIface_Capture_لیبل* ثابت tagp = V3LinkDotIfaceCapture::capture_لیبل(refp);
+            اگر (!tagp) واپس;
 
-            AstNodeModule* const correctModp
-                = V3LinkDotIfaceCapture::followCellPath(newModp, tagp->m_cellPath);
-            UINFO(9, "  path fixup: " << refp << " cellPath='" << tagp->m_cellPath << "' -> "
+            Ast_گرہ_Module* ثابت correctModp
+                = V3LinkDotIfaceCapture::follow_Cell_راستہ(newModp, tagp->m_cell_راستہ);
+            UINFO(9, "  path fixup: " << refp << " cellPath='" << tagp->m_cell_راستہ << "' -> "
                                       << (correctModp ? correctModp->name() : "<null>"));
-            if (!correctModp || correctModp->dead()) return;
-            if (correctModp->parameterizedTemplate()) return;
+            اگر (!correctModp || correctModp->dead()) واپس;
+            اگر (correctModp->parameterizedTemplate()) واپس;
 
-            bool fixed = false;
-            if (refp->typedefp()) {
-                if (AstTypedef* const newTdp = V3LinkDotIfaceCapture::findTypedefInModule(
+            منطقی fixed = جھوٹ;
+            اگر (refp->typedefp()) {
+                اگر (AstTypedef* ثابت newTdp = V3LinkDotIfaceCapture::ڈھونڈو_Typedef_اندر_Module(
                         correctModp, refp->typedefp()->name())) {
                     refp->typedefp(newTdp);
-                    if (newTdp->subDTypep()) refp->refDTypep(newTdp->subDTypep());
-                    fixed = true;
+                    اگر (newTdp->subDTypep()) refp->refDTypep(newTdp->subDTypep());
+                    fixed = سچ;
                 }
             }
-            if (!fixed && refp->refDTypep()) {
-                if (AstNodeDType* const newDtp = V3LinkDotIfaceCapture::findDTypeInModule(
+            اگر (!fixed && refp->refDTypep()) {
+                اگر (Ast_گرہ_DType* ثابت newDtp = V3LinkDotIfaceCapture::ڈھونڈو_DType_اندر_Module(
                         correctModp, refp->refDTypep()->name(), refp->refDTypep()->type())) {
                     refp->refDTypep(newDtp);
-                    fixed = true;
+                    fixed = سچ;
                 }
             }
-            if (fixed) ++fixedCount;
+            اگر (fixed) ++fixed_گنتی;
         });
-        V3Stats::addStatSum("IfaceCapture, Ledger fixups in V3Param", fixedCount);
+        V3Stats::جوڑو_Stat_مجموع("IfaceCapture, Ledger fixups in V3Param", fixed_گنتی);
     }
 
     // Return true on success, false on error
-    bool deepCloneModule(AstNodeModule* srcModp, AstNode* ifErrorp, AstPin* paramsp,
-                         const string& newname, const IfaceRefRefs& ifaceRefRefs) {
+    منطقی deepCloneModule(Ast_گرہ_Module* srcModp, Ast_گرہ* ifErrorp, AstPin* paramsp,
+                         ثابت string& newname, ثابت IfaceRefRefs& ifaceRefRefs) {
         // Deep clone of new module
         // Note all module internal variables will be re-linked to the new modules by clone
         // However links outside the module (like on the upper cells) will not.
-        AstNodeModule* newModp;
-        if (srcModp->user3p()) {
-            newModp = VN_CAST(srcModp->user3p()->cloneTree(false), NodeModule);
-        } else {
-            newModp = srcModp->cloneTree(false);
+        Ast_گرہ_Module* newModp;
+        اگر (srcModp->user3p()) {
+            newModp = VN_CAST(srcModp->user3p()->clone_درخت(جھوٹ), گرہ_Module);
+        } ورنہ {
+            newModp = srcModp->clone_درخت(جھوٹ);
         }
         // AstPin normally retains links to external module formals across cloning. For a cloned
         // interface, relink pins whose formals were cloned with the interface while clonep() is
         // still valid, so nested parameterized classes use the cloned interface parameters.
-        if (AstIface* const newIfacep = VN_CAST(newModp, Iface)) {
+        اگر (AstIface* ثابت newIfacep = VN_CAST(newModp, Iface)) {
             newIfacep->foreach([](AstPin* pinp) { pinp->cloneRelinkGen(); });
         }
 
         // Mark the source module as a parameterized template now that a specialized
         // clone exists.  This suppresses width/type errors on the unresolved template
         // during widthParamsEdit (which runs before V3LinkDot sets dead()).
-        srcModp->parameterizedTemplate(true);
+        srcModp->parameterizedTemplate(سچ);
         // The clone is a specialized instance, not a template.  Clear the flag in
         // case it was inherited from a prior cloneTree (when srcModp was already
         // marked by an earlier specialization).
-        newModp->parameterizedTemplate(false);
+        newModp->parameterizedTemplate(جھوٹ);
 
         newModp->name(newname);
-        newModp->user2(false);  // We need to re-recurse this module once changed
-        newModp->recursive(false);
-        newModp->recursiveClone(false);
-        newModp->hasGParam(false);
+        newModp->user2(جھوٹ);  // We need to re-recurse this module once changed
+        newModp->recursive(جھوٹ);
+        newModp->recursiveClone(جھوٹ);
+        newModp->hasGParam(جھوٹ);
         // Recursion may need level cleanups
-        if (newModp->level() <= m_modp->level()) newModp->level(m_modp->level() + 1);
-        if ((newModp->level() - srcModp->level()) >= (v3Global.opt.moduleRecursionDepth() - 2)) {
+        اگر (newModp->level() <= m_modp->level()) newModp->level(m_modp->level() + 1);
+        اگر ((newModp->level() - srcModp->level()) >= (v3Global.opt.module_Recursion_گہرائی() - 2)) {
             ifErrorp->v3error("Exceeded maximum --module-recursion-depth of "
-                              << v3Global.opt.moduleRecursionDepth());
-            VL_DO_DANGLING(newModp->deleteTree(), newModp);
-            return false;
+                              << v3Global.opt.module_Recursion_گہرائی());
+            VL_DO_DANGLING(newModp->delete_درخت(), newModp);
+            واپس جھوٹ;
         }
 
-        if (AstClass* const newClassp = VN_CAST(newModp, Class)) {
+        اگر (AstClass* ثابت newClassp = VN_CAST(newModp, Class)) {
             replaceRefsRecurse(newModp->stmtsp(), newClassp, VN_AS(srcModp, Class));
         }
 
@@ -1063,16 +1063,16 @@ class ParamProcessor final {
         // module end up with the same level, which we will need to fix up at the end, as we do not
         // know up front how recursive modules are expanded, and a later expansion might re-use an
         // earlier expansion (see t_recursive_module_bug_2).
-        AstNode* insertp = srcModp;
-        while (VN_IS(insertp->nextp(), NodeModule)
-               && VN_AS(insertp->nextp(), NodeModule)->level() <= newModp->level()) {
+        Ast_گرہ* insertp = srcModp;
+        جب (VN_IS(insertp->nextp(), گرہ_Module)
+               && VN_AS(insertp->nextp(), گرہ_Module)->level() <= newModp->level()) {
             insertp = insertp->nextp();
         }
-        insertp->addNextHere(newModp);
+        insertp->جوڑو_اگلا_یہاں(newModp);
 
         m_modNameMap.emplace(newModp->name(), ModInfo{newModp});
-        const auto iter = m_modNameMap.find(newname);
-        CloneMap* const clonemapp = &(iter->second.m_cloneMap);
+        ثابت خودکار iter = m_modNameMap.ڈھونڈو(newname);
+        CloneMap* ثابت clonemapp = &(iter->دوسرا.m_cloneMap);
         UINFO(4, "     De-parameterize to new: " << newModp);
 
         // Grab all I/O so we can remap our pins later
@@ -1085,38 +1085,38 @@ class ParamProcessor final {
         // being cloned. In such cases, use relinkPinsByName to match by variable name.
         // Check if any parameter pins reference variables outside the cloned interface.
         // This is O(n) but acceptable since parameter pin lists are typically small (<10 pins).
-        bool needRelinkByName = false;
-        if (paramsp) {
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (pinp->modVarp() && clonemapp->find(pinp->modVarp()) == clonemapp->end()) {
-                    needRelinkByName = true;
-                    break;
+        منطقی needRelinkByName = جھوٹ;
+        اگر (paramsp) {
+            برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (pinp->modVarp() && clonemapp->ڈھونڈو(pinp->modVarp()) == clonemapp->انتہا()) {
+                    needRelinkByName = سچ;
+                    توڑو;
                 }
             }
         }
-        if (needRelinkByName) {
+        اگر (needRelinkByName) {
             relinkPinsByName(paramsp, newModp);
-        } else {
+        } ورنہ {
             relinkPins(clonemapp, paramsp);
         }
 
         // Fix any interface references
-        for (auto it = ifaceRefRefs.cbegin(); it != ifaceRefRefs.cend(); ++it) {
-            const AstIfaceRefDType* const portIrefp = it->first;
-            const AstIfaceRefDType* const pinIrefp = it->second;
-            AstIfaceRefDType* const cloneIrefp = portIrefp->clonep();
-            UINFO(8, "     IfaceOld " << portIrefp);
+        برائے (خودکار it = ifaceRefRefs.cbegin(); it != ifaceRefRefs.cend(); ++it) {
+            ثابت AstIfaceRefDType* ثابت پورٹ_Irefp = it->پہلا;
+            ثابت AstIfaceRefDType* ثابت pinIrefp = it->دوسرا;
+            AstIfaceRefDType* ثابت cloneIrefp = پورٹ_Irefp->clonep();
+            UINFO(8, "     IfaceOld " << پورٹ_Irefp);
             UINFO(8, "     IfaceTo  " << pinIrefp);
-            UASSERT_OBJ(cloneIrefp, portIrefp, "parameter clone didn't hit AstIfaceRefDType");
+            UASSERT_OBJ(cloneIrefp, پورٹ_Irefp, "parameter clone didn't hit AstIfaceRefDType");
             UINFO(8, "     IfaceClo " << cloneIrefp);
-            cloneIrefp->ifacep(pinIrefp->ifaceViaCellp());
+            cloneIrefp->ifacep(pinIrefp->iface_بذریعہ_Cellp());
             UINFO(8, "     IfaceNew " << cloneIrefp);
         }
 
         // Fix VarXRefs that reference variables in old interfaces.
         // Now that interface port dtypes have been updated above, we can use them
         // to find the correct interface for each VarXRef.
-        if (!ifaceRefRefs.empty()) { VarXRefRelinkVisitor{newModp}; }
+        اگر (!ifaceRefRefs.خالی_خانے()) { VarXRefRelinkVisitor{newModp}; }
 
         // Fix cross-module REFDTYPE pointers in newModp.
         UASSERT_OBJ(newModp, srcModp, "newModp null before hierarchy fixup");
@@ -1124,61 +1124,61 @@ class ParamProcessor final {
 
         // Assign parameters to the constants specified
         // DOES clone() so must be finished with module clonep() before here
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->exprp()) {
-                if (AstVar* const modvarp = pinp->modVarp()) {
-                    AstNode* const newp = pinp->exprp();  // Const or ConsArray
-                    AstConst* const exprp = VN_CAST(newp, Const);
-                    AstConst* const origp = VN_CAST(modvarp->valuep(), Const);
-                    const bool overridden
-                        = !(origp && exprp && ParameterizedHierBlocks::areSame(exprp, origp));
+        برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            اگر (pinp->exprp()) {
+                اگر (AstVar* ثابت modvarp = pinp->modVarp()) {
+                    Ast_گرہ* ثابت newp = pinp->exprp();  // Const or ConsArray
+                    AstConst* ثابت exprp = VN_CAST(newp, Const);
+                    AstConst* ثابت origp = VN_CAST(modvarp->valuep(), Const);
+                    ثابت منطقی overridden
+                        = !(origp && exprp && Parameterized_Hier_بلاکیں::areSame(exprp, origp));
                     // Remove any existing parameter
-                    if (modvarp->valuep()) modvarp->valuep()->unlinkFrBack()->deleteTree();
+                    اگر (modvarp->valuep()) modvarp->valuep()->unlink_Fr_عقب()->delete_درخت();
                     // Set this parameter to value requested by cell
                     UINFO(9, "       set param " << modvarp << " = " << newp);
-                    modvarp->valuep(newp->cloneTree(false));
+                    modvarp->valuep(newp->clone_درخت(جھوٹ));
                     modvarp->overriddenParam(overridden);
-                } else if (AstParamTypeDType* const modptp = pinp->modPTypep()) {
-                    AstNodeDType* const dtypep = VN_AS(pinp->exprp(), NodeDType);
+                } ورنہ اگر (AstParamTypeDType* ثابت modptp = pinp->modPTypep()) {
+                    Ast_گرہ_DType* ثابت dtypep = VN_AS(pinp->exprp(), گرہ_DType);
                     UASSERT_OBJ(dtypep, pinp, "unlinked param dtype");
-                    if (modptp->childDTypep()) modptp->childDTypep()->unlinkFrBack()->deleteTree();
+                    اگر (modptp->بچہ_DTypep()) modptp->بچہ_DTypep()->unlink_Fr_عقب()->delete_درخت();
                     // Set this parameter to value requested by cell
-                    modptp->childDTypep(dtypep->cloneTree(false));
+                    modptp->بچہ_DTypep(dtypep->clone_درخت(جھوٹ));
                     // Later V3LinkDot will convert the ParamDType to a Typedef
                     // Not done here as may be localparams, etc, that also need conversion
                 }
             }
         }
 
-        return true;
+        واپس سچ;
     }
-    const ModInfo* moduleFindOrClone(AstNodeModule* srcModp, AstNode* ifErrorp, AstPin* paramsp,
-                                     const string& newname, const IfaceRefRefs& ifaceRefRefs) {
+    ثابت ModInfo* module_ڈھونڈو_Or_Clone(Ast_گرہ_Module* srcModp, Ast_گرہ* ifErrorp, AstPin* paramsp,
+                                     ثابت string& newname, ثابت IfaceRefRefs& ifaceRefRefs) {
         // Already made this flavor?
-        auto it = m_modNameMap.find(newname);
-        if (it != m_modNameMap.end()) {
-            UINFO(4, "     De-parameterize to prev: " << it->second.m_modp);
-        } else {
-            if (!deepCloneModule(srcModp, ifErrorp, paramsp, newname, ifaceRefRefs)) {
-                return nullptr;
+        خودکار it = m_modNameMap.ڈھونڈو(newname);
+        اگر (it != m_modNameMap.انتہا()) {
+            UINFO(4, "     De-parameterize to prev: " << it->دوسرا.m_modp);
+        } ورنہ {
+            اگر (!deepCloneModule(srcModp, ifErrorp, paramsp, newname, ifaceRefRefs)) {
+                واپس خالی_اشاریہ;
             }
-            it = m_modNameMap.find(newname);
-            UASSERT(it != m_modNameMap.end(), "should find just-made module");
+            it = m_modNameMap.ڈھونڈو(newname);
+            UASSERT(it != m_modNameMap.انتہا(), "should find just-made module");
         }
-        const ModInfo* const modInfop = &(it->second);
-        return modInfop;
+        ثابت ModInfo* ثابت modInfop = &(it->دوسرا);
+        واپس modInfop;
     }
 
-    void convertToStringp(AstNode* nodep) {
+    خالی convert_مقصد_Stringp(Ast_گرہ* nodep) {
         // Should be called on values of parameters of type string to convert them
         // to properly typed string constants.
         // Has no effect if the value is not a string constant.
-        AstConst* const constp = VN_CAST(nodep, Const);
+        AstConst* ثابت constp = VN_CAST(nodep, Const);
         // Check if it wasn't already converted
-        if (constp && !constp->num().isString()) {
+        اگر (constp && !constp->عدد().isString()) {
             constp->replaceWith(
-                new AstConst{constp->fileline(), AstConst::String{}, constp->num().toString()});
-            VL_DO_DANGLING(constp->deleteTree(), constp);
+                نیا AstConst{constp->fileline(), AstConst::String{}, constp->عدد().مقصد_String()});
+            VL_DO_DANGLING(constp->delete_درخت(), constp);
         }
     }
 
@@ -1187,115 +1187,115 @@ class ParamProcessor final {
     // VarRefs to sibling lparams that are not yet const, e.g. `one = base`
     // where `base = inner_a::v`), resolving siblings deepest-first so the
     // whole chain constifies.  `inProgress` guards against reference cycles.
-    void constifyMemberValue(AstVar* varp, std::set<AstVar*>& inProgress) {
-        if (!varp->valuep() || VN_IS(varp->valuep(), Const)) return;
-        if (!inProgress.insert(varp).second) {
+    خالی constify_Member_قدر(AstVar* varp, std::سیٹ<AstVar*>& اندر_پیش_رفت) {
+        اگر (!varp->valuep() || VN_IS(varp->valuep(), Const)) واپس;
+        اگر (!اندر_پیش_رفت.داخل_کرو(varp).دوسرا) {
             // Re-entered while still resolving varp: its value transitively
             // references itself.  Report and replace the value with a Const, as
             // otherwise the unresolved Dot reaches V3Width as an untyped node.
             varp->v3error("Variable's initial value is circular: " << varp->prettyNameQ());
-            varp->valuep()->unlinkFrBack()->deleteTree();
-            varp->valuep(new AstConst{varp->fileline(), AstConst::Signed32{}, 0});
-            return;
+            varp->valuep()->unlink_Fr_عقب()->delete_درخت();
+            varp->valuep(نیا AstConst{varp->fileline(), AstConst::Signed32{}, 0});
+            واپس;
         }
         // First resolve sibling lparams this value references, so their Dots
         // are folded before we inline them here.
-        std::set<AstVar*> siblings;
-        varp->valuep()->foreach([&](const AstVarRef* refp) {
-            AstVar* const refVarp = refp->varp();
-            if (refVarp && refVarp->isParam() && refVarp->valuep()
+        std::سیٹ<AstVar*> siblings;
+        varp->valuep()->foreach([&](ثابت AstVarRef* refp) {
+            AstVar* ثابت refVarp = refp->varp();
+            اگر (refVarp && refVarp->isParam() && refVarp->valuep()
                 && !VN_IS(refVarp->valuep(), Const)) {
-                siblings.insert(refVarp);
+                siblings.داخل_کرو(refVarp);
             }
         });
-        for (AstVar* const sibp : siblings) constifyMemberValue(sibp, inProgress);
+        برائے (AstVar* ثابت sibp : siblings) constify_Member_قدر(sibp, اندر_پیش_رفت);
         // Resolve class-scoped references and any member selections they expose.
         resolveDeferredDotsReachableFrom(varp->valuep(), m_modp);
         V3Const::constifyParamsEdit(varp);
-        inProgress.erase(varp);
+        اندر_پیش_رفت.erase(varp);
     }
 
     // Return the member name on a deferred Dot RHS, including a selected member.
-    static AstParseRef* memberParseRef(AstNode* nodep) {
-        if (AstParseRef* const refp = VN_CAST(nodep, ParseRef)) return refp;
-        AstNodePreSel* const selp = VN_CAST(nodep, NodePreSel);
-        return selp ? VN_CAST(selp->fromp(), ParseRef) : nullptr;
+    ساکن AstParseRef* memberParseRef(Ast_گرہ* nodep) {
+        اگر (AstParseRef* ثابت refp = VN_CAST(nodep, ParseRef)) واپس refp;
+        Ast_گرہ_Pre_Sel* ثابت selp = VN_CAST(nodep, گرہ_Pre_Sel);
+        واپس selp ? VN_CAST(selp->fromp(), ParseRef) : خالی_اشاریہ;
     }
 
     // Replace a deferred Dot with valuep, preserving any select on the member name.
-    static void replaceMemberDot(AstDot* dotp, AstParseRef* memberRefp, AstNodeExpr* valuep) {
-        if (memberRefp == dotp->rhsp()) {
+    ساکن خالی replaceMemberDot(AstDot* dotp, AstParseRef* memberRefp, Ast_گرہ_اظہاریہ* valuep) {
+        اگر (memberRefp == dotp->rhsp()) {
             dotp->replaceWith(valuep);
-        } else {
-            AstNodePreSel* const selp = VN_AS(dotp->rhsp(), NodePreSel);
-            if (AstAttrOf* const attrp = selp->attrp()) {
-                if (AstNode* const oldFromp = attrp->fromp()) {
-                    oldFromp->replaceWith(valuep->cloneTree(false));
-                    VL_DO_DANGLING(oldFromp->deleteTree(), oldFromp);
+        } ورنہ {
+            Ast_گرہ_Pre_Sel* ثابت selp = VN_AS(dotp->rhsp(), گرہ_Pre_Sel);
+            اگر (Ast_Attr_کا* ثابت attrp = selp->attrp()) {
+                اگر (Ast_گرہ* ثابت oldFromp = attrp->fromp()) {
+                    oldFromp->replaceWith(valuep->clone_درخت(جھوٹ));
+                    VL_DO_DANGLING(oldFromp->delete_درخت(), oldFromp);
                 }
             }
             memberRefp->replaceWith(valuep);
-            VL_DO_DANGLING(memberRefp->deleteTree(), memberRefp);
-            dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
+            VL_DO_DANGLING(memberRefp->delete_درخت(), memberRefp);
+            dotp->replaceWith(dotp->rhsp()->unlink_Fr_عقب());
         }
-        VL_DO_DANGLING(dotp->deleteTree(), dotp);
+        VL_DO_DANGLING(dotp->delete_درخت(), dotp);
     }
 
     // True for an expression produced while lowering a deferred struct-member chain.
-    static bool isDeferredMemberBase(const AstNodeExpr* nodep) {
-        if (VN_IS(nodep, MemberSel)) return true;
-        if (const AstNodePreSel* const selp = VN_CAST(nodep, NodePreSel)) {
-            const AstNodeDType* const fromDTypep = selp->fromp()->dtypep();
-            const AstNodeArrayDType* const arrayDTypep
-                = fromDTypep ? VN_CAST(fromDTypep->skipRefOrNullp(), NodeArrayDType) : nullptr;
-            if (arrayDTypep) {
-                const AstNodeDType* const elemDTypep = arrayDTypep->subDTypep();
-                return elemDTypep && VN_IS(elemDTypep->skipRefOrNullp(), NodeUOrStructDType);
+    ساکن منطقی is_Deferred_Member_بنیاد(ثابت Ast_گرہ_اظہاریہ* nodep) {
+        اگر (VN_IS(nodep, MemberSel)) واپس سچ;
+        اگر (ثابت Ast_گرہ_Pre_Sel* ثابت selp = VN_CAST(nodep, گرہ_Pre_Sel)) {
+            ثابت Ast_گرہ_DType* ثابت fromDTypep = selp->fromp()->dtypep();
+            ثابت Ast_گرہ_Array_DType* ثابت arrayDTypep
+                = fromDTypep ? VN_CAST(fromDTypep->skipRefOrNullp(), گرہ_Array_DType) : خالی_اشاریہ;
+            اگر (arrayDTypep) {
+                ثابت Ast_گرہ_DType* ثابت elemDTypep = arrayDTypep->subDTypep();
+                واپس elemDTypep && VN_IS(elemDTypep->skipRefOrNullp(), گرہ_UOr_Struct_DType);
             }
-            return isDeferredMemberBase(selp->fromp());
+            واپس is_Deferred_Member_بنیاد(selp->fromp());
         }
-        const AstNodeDType* const dtypep = nodep->dtypep();
-        return dtypep && VN_IS(dtypep->skipRefOrNullp(), NodeUOrStructDType);
+        ثابت Ast_گرہ_DType* ثابت dtypep = nodep->dtypep();
+        واپس dtypep && VN_IS(dtypep->skipRefOrNullp(), گرہ_UOr_Struct_DType);
     }
 
     // Lower a Dot exposed after its inner class::member reference was substituted.
-    static void resolveMemberDot(AstDot* dotp) {
-        AstNodeExpr* const lhsp = VN_CAST(dotp->lhsp(), NodeExpr);
-        AstParseRef* const memberRefp = memberParseRef(dotp->rhsp());
-        if (!lhsp || !memberRefp || !isDeferredMemberBase(lhsp)) return;
-        AstMemberSel* const newp = new AstMemberSel{memberRefp->fileline(), lhsp->unlinkFrBack(),
-                                                    VFlagChildDType{}, memberRefp->name()};
+    ساکن خالی resolveMemberDot(AstDot* dotp) {
+        Ast_گرہ_اظہاریہ* ثابت lhsp = VN_CAST(dotp->lhsp(), گرہ_اظہاریہ);
+        AstParseRef* ثابت memberRefp = memberParseRef(dotp->rhsp());
+        اگر (!lhsp || !memberRefp || !is_Deferred_Member_بنیاد(lhsp)) واپس;
+        AstMemberSel* ثابت newp = نیا AstMemberSel{memberRefp->fileline(), lhsp->unlink_Fr_عقب(),
+                                                    VFlag_بچہ_DType{}, memberRefp->name()};
         replaceMemberDot(dotp, memberRefp, newp);
     }
 
     // Helper to resolve DOT to RefDType for class type references.
     // If the class is parameterized and not yet specialized, specialize it first.
     // This handles cases like: iface #(param_class#(value)::typedef_name)
-    void resolveDotToTypedef(AstNode* exprp) {
-        AstDot* const dotp = VN_CAST(exprp, Dot);
-        if (!dotp) return;
+    خالی resolve_Dot_مقصد_Typedef(Ast_گرہ* exprp) {
+        AstDot* ثابت dotp = VN_CAST(exprp, Dot);
+        اگر (!dotp) واپس;
         UINFO(9, "Resolve deferred Dot: " << dotp);
-        AstClassOrPackageRef* const classRefp = VN_CAST(dotp->lhsp(), ClassOrPackageRef);
-        if (!classRefp) {
+        AstClassOrPackageRef* ثابت classRefp = VN_CAST(dotp->lhsp(), ClassOrPackageRef);
+        اگر (!classRefp) {
             resolveMemberDot(dotp);
-            return;
+            واپس;
         }
-        AstParseRef* const parseRefp = memberParseRef(dotp->rhsp());
-        if (!parseRefp) return;
+        AstParseRef* ثابت parseRefp = memberParseRef(dotp->rhsp());
+        اگر (!parseRefp) واپس;
 
-        const AstClass* lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
+        ثابت AstClass* lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
 
         // Specialize parameterized class through type parameter indirection (#7000)
-        AstParamTypeDType* const paramTypep
+        AstParamTypeDType* ثابت paramTypep
             = VN_CAST(classRefp->classOrPackageNodep(), ParamTypeDType);
-        if (paramTypep) {
-            AstNodeDType* const dtypep = paramTypep->subDTypep();
-            AstClassRefDType* const classRefDTypep
-                = dtypep ? VN_CAST(dtypep->skipRefOrNullp(), ClassRefDType) : nullptr;
-            if (classRefDTypep) {
-                AstClass* const srcClassp = classRefDTypep->classp();
-                if (srcClassp && srcClassp->hasGParam() && classRefDTypep->paramsp()) {
-                    if (lhsClassp == srcClassp || !lhsClassp) {
+        اگر (paramTypep) {
+            Ast_گرہ_DType* ثابت dtypep = paramTypep->subDTypep();
+            AstClassRefDType* ثابت classRefDTypep
+                = dtypep ? VN_CAST(dtypep->skipRefOrNullp(), ClassRefDType) : خالی_اشاریہ;
+            اگر (classRefDTypep) {
+                AstClass* ثابت srcClassp = classRefDTypep->classp();
+                اگر (srcClassp && srcClassp->hasGParam() && classRefDTypep->paramsp()) {
+                    اگر (lhsClassp == srcClassp || !lhsClassp) {
                         classRefDeparam(classRefDTypep, srcClassp);
                         lhsClassp = classRefDTypep->classp();
                     }
@@ -1303,165 +1303,165 @@ class ParamProcessor final {
             }
         }
 
-        if (classRefp->paramsp()) {
-            AstClass* const srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
-            if (srcClassp && srcClassp->hasGParam()) {
-                if (lhsClassp == srcClassp || !lhsClassp) {
+        اگر (classRefp->paramsp()) {
+            AstClass* ثابت srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
+            اگر (srcClassp && srcClassp->hasGParam()) {
+                اگر (lhsClassp == srcClassp || !lhsClassp) {
                     classRefDeparam(classRefp, srcClassp);
                     lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
                 }
             }
         }
         // Typedef-aliased paramed class (e.g., typedef C#(7) my_c; my_c::b).
-        if (AstClassRefDType* const crp = classRefDTypeOfNode(classRefp->classOrPackageNodep())) {
-            if (AstClass* const srcClassp = crp->classp()) {
-                if (srcClassp->hasGParam() && crp->paramsp()) {
+        اگر (AstClassRefDType* ثابت crp = class_Ref_DType_کا_گرہ(classRefp->classOrPackageNodep())) {
+            اگر (AstClass* ثابت srcClassp = crp->classp()) {
+                اگر (srcClassp->hasGParam() && crp->paramsp()) {
                     classRefDeparam(crp, srcClassp);
-                    if (AstClass* const newClassp = crp->classp()) lhsClassp = newClassp;
+                    اگر (AstClass* ثابت newClassp = crp->classp()) lhsClassp = newClassp;
                 }
             }
         }
-        if (!lhsClassp) return;
+        اگر (!lhsClassp) واپس;
 
-        AstNode* const memberp = m_memberMap.findMember(lhsClassp, parseRefp->name());
+        Ast_گرہ* ثابت memberp = m_memberMap.ڈھونڈو_Member(lhsClassp, parseRefp->name());
         UINFO(9, "Resolve deferred class member: " << parseRefp->name() << " -> " << memberp);
-        if (AstTypedef* const tdefp = VN_CAST(memberp, Typedef)) {
-            if (parseRefp != dotp->rhsp()) return;
-            AstRefDType* const refp = new AstRefDType{dotp->fileline(), tdefp->name()};
+        اگر (AstTypedef* ثابت tdefp = VN_CAST(memberp, Typedef)) {
+            اگر (parseRefp != dotp->rhsp()) واپس;
+            AstRefDType* ثابت refp = نیا AstRefDType{dotp->fileline(), tdefp->name()};
             refp->typedefp(tdefp);
             dotp->replaceWith(refp);
-            VL_DO_DANGLING(dotp->deleteTree(), dotp);
-        } else if (AstVar* const varp = VN_CAST(memberp, Var)) {
+            VL_DO_DANGLING(dotp->delete_درخت(), dotp);
+        } ورنہ اگر (AstVar* ثابت varp = VN_CAST(memberp, Var)) {
             substituteParamMember(dotp, parseRefp, varp);
         }
     }
 
     // Substitute a class param/lparam member's constant value for dotp. The
     // reverse-order deferred-Dot walk lowers any outer fields to MemberSels.
-    void substituteParamMember(AstDot* const dotp, AstParseRef* const memberRefp,
-                               AstVar* const varp) {
-        if (!varp->isParam() || !varp->valuep()) return;
-        if (!VN_IS(varp->valuep(), Const)) {
-            std::set<AstVar*> inProgress;
-            constifyMemberValue(varp, inProgress);
+    خالی substituteParamMember(AstDot* ثابت dotp, AstParseRef* ثابت memberRefp,
+                               AstVar* ثابت varp) {
+        اگر (!varp->isParam() || !varp->valuep()) واپس;
+        اگر (!VN_IS(varp->valuep(), Const)) {
+            std::سیٹ<AstVar*> اندر_پیش_رفت;
+            constify_Member_قدر(varp, اندر_پیش_رفت);
         }
-        AstConst* const constp = VN_CAST(varp->valuep(), Const);
-        if (!constp) return;
-        AstConst* const newp = constp->cloneTree(false);
+        AstConst* ثابت constp = VN_CAST(varp->valuep(), Const);
+        اگر (!constp) واپس;
+        AstConst* ثابت newp = constp->clone_درخت(جھوٹ);
         newp->dtypep(varp->subDTypep());
         replaceMemberDot(dotp, memberRefp, newp);
     }
 
     // Resolve one class-scoped RefDType. The generic deferred walk finds these
     // through every dtype wrapper and follows out-of-tree typedef references.
-    void resolveParamClassRefDType(AstRefDType* refp) {
-        if (refp->typedefp() || refp->refDTypep()) return;
+    خالی resolveParamClassRefDType(AstRefDType* refp) {
+        اگر (refp->typedefp() || refp->refDTypep()) واپس;
 
-        AstClassOrPackageRef* const classRefp
+        AstClassOrPackageRef* ثابت classRefp
             = VN_CAST(refp->classOrPackageOpp(), ClassOrPackageRef);
-        if (!classRefp) return;
+        اگر (!classRefp) واپس;
 
         AstClass* srcClassp = VN_CAST(classRefp->classOrPackageNodep(), Class);
-        if (srcClassp && srcClassp->hasGParam()) {
+        اگر (srcClassp && srcClassp->hasGParam()) {
             classRefDeparam(classRefp, srcClassp);
-            return;
+            واپس;
         }
 
         // Follow typedef chain to find the underlying ClassRefDType
-        AstNode* targetp = classRefp->classOrPackageNodep();
-        while (const AstTypedef* const tdefp = VN_CAST(targetp, Typedef))
+        Ast_گرہ* targetp = classRefp->classOrPackageNodep();
+        جب (ثابت AstTypedef* ثابت tdefp = VN_CAST(targetp, Typedef))
             targetp = tdefp->subDTypep();
-        if (AstNodeDType* const dtargetp = VN_CAST(targetp, NodeDType))
+        اگر (Ast_گرہ_DType* ثابت dtargetp = VN_CAST(targetp, گرہ_DType))
             targetp = dtargetp->skipRefOrNullp();
-        if (!targetp) return;
-        AstClassRefDType* const classRefDTypep = VN_CAST(targetp, ClassRefDType);
-        if (!classRefDTypep) return;
+        اگر (!targetp) واپس;
+        AstClassRefDType* ثابت classRefDTypep = VN_CAST(targetp, ClassRefDType);
+        اگر (!classRefDTypep) واپس;
         srcClassp = classRefDTypep->classp();
-        if (!srcClassp) return;
+        اگر (!srcClassp) واپس;
 
         AstClass* newClassp = srcClassp;
-        if (srcClassp->hasGParam()) {
+        اگر (srcClassp->hasGParam()) {
             classRefDeparam(classRefDTypep, srcClassp);
             newClassp = classRefDTypep->classp();
         }
 
-        AstTypedef* const typedefp
-            = VN_CAST(m_memberMap.findMember(newClassp, refp->name()), Typedef);
-        if (typedefp) {
+        AstTypedef* ثابت typedefp
+            = VN_CAST(m_memberMap.ڈھونڈو_Member(newClassp, refp->name()), Typedef);
+        اگر (typedefp) {
             refp->typedefp(typedefp);
             refp->classOrPackagep(newClassp);
         }
     }
 
     // True if a $bits/$size type query in nodep's parameters reads another type parameter.
-    static bool defaultParamsHaveTypeQueryOnParamType(const AstClassRefDType* nodep) {
-        bool found = false;
-        nodep->foreach([&](const AstAttrOf* attrp) {
-            if (found || !attrp->attrType().isTypeQuery()) return;
-            const AstRefDType* const refp = VN_CAST(attrp->fromp(), RefDType);
-            if (refp && VN_IS(refp->refDTypep(), ParamTypeDType)) found = true;
+    ساکن منطقی defaultParamsHaveTypeQueryOnParamType(ثابت AstClassRefDType* nodep) {
+        منطقی ملا = جھوٹ;
+        nodep->foreach([&](ثابت Ast_Attr_کا* attrp) {
+            اگر (ملا || !attrp->attrType().isTypeQuery()) واپس;
+            ثابت AstRefDType* ثابت refp = VN_CAST(attrp->fromp(), RefDType);
+            اگر (refp && VN_IS(refp->refDTypep(), ParamTypeDType)) ملا = سچ;
         });
-        return found;
+        واپس ملا;
     }
 
     // Check if exprp's class matches origp's class after deparameterization.
     // Handles both the simple case (user4p link from defaultsResolved) and the
     // nested case where the default's inner class has non-default sub-parameters
     // (e.g., uvm_sequence#(uvm_reg_item) where uvm_reg_item != default uvm_sequence_item).
-    bool classTypeMatchesDefaultClone(const AstNodeDType* exprp, const AstNodeDType* origp) {
+    منطقی classTypeMatchesDefaultClone(ثابت Ast_گرہ_DType* exprp, ثابت Ast_گرہ_DType* origp) {
         exprp = exprp->skipRefp();
         origp = origp->skipRefp();
-        const auto* const exprClassRefp = VN_CAST(exprp, ClassRefDType);
-        const auto* const origClassRefp = VN_CAST(origp, ClassRefDType);
-        if (!exprClassRefp || !origClassRefp) return false;
+        ثابت خودکار* ثابت اظہاریہ_Class_Refp = VN_CAST(exprp, ClassRefDType);
+        ثابت خودکار* ثابت origClassRefp = VN_CAST(origp, ClassRefDType);
+        اگر (!اظہاریہ_Class_Refp || !origClassRefp) واپس جھوٹ;
         // Fast path: check user4p link (set when template was deparameterized with defaults)
-        const AstNodeModule* const defaultClonep
+        ثابت Ast_گرہ_Module* ثابت defaultClonep
             = VN_CAST(origClassRefp->classp()->user4p(), Class);
-        if (defaultClonep && defaultClonep == exprClassRefp->classp()) return true;
+        اگر (defaultClonep && defaultClonep == اظہاریہ_Class_Refp->classp()) واپس سچ;
         // Skip the comparison when the default's $bits/$size reads another type parameter, as
         // deparameterizing it below would resolve that shared type at the wrong width (#7711).
-        if (defaultParamsHaveTypeQueryOnParamType(origClassRefp)) return false;
+        اگر (defaultParamsHaveTypeQueryOnParamType(origClassRefp)) واپس جھوٹ;
         // Slow path: deparameterize the default type and compare the result.
         // Different templates can never match; use origName() because exprp's
         // class may already be a specialization (clone) of the template.
-        if (!origClassRefp->classp()->hasGParam()) return false;
-        if (origClassRefp->classp()->origName() != exprClassRefp->classp()->origName())
-            return false;
+        اگر (!origClassRefp->classp()->hasGParam()) واپس جھوٹ;
+        اگر (origClassRefp->classp()->origName() != اظہاریہ_Class_Refp->classp()->origName())
+            واپس جھوٹ;
         // Prevent re-entry when classRefDeparam recurses through cellPinCleanup.
-        if (!m_defaultCloneInProgress.insert(origClassRefp->classp()).second) return false;
+        اگر (!m_default_Clone_اندر_پیش_رفت.داخل_کرو(origClassRefp->classp()).دوسرا) واپس جھوٹ;
         // const_cast safe: cloneTree doesn't modify the source
-        AstClassRefDType* const origClonep = static_cast<AstClassRefDType*>(
-            const_cast<AstClassRefDType*>(origClassRefp)->cloneTree(false));
-        AstNodeModule* const resolvedModp = classRefDeparam(origClonep, origClassRefp->classp());
-        const bool match = resolvedModp && VN_CAST(resolvedModp, Class) == exprClassRefp->classp();
-        VL_DO_DANGLING(origClonep->deleteTree(), origClonep);
-        m_defaultCloneInProgress.erase(origClassRefp->classp());
-        return match;
+        AstClassRefDType* ثابت origClonep = static_cast<AstClassRefDType*>(
+            const_cast<AstClassRefDType*>(origClassRefp)->clone_درخت(جھوٹ));
+        Ast_گرہ_Module* ثابت resolvedModp = classRefDeparam(origClonep, origClassRefp->classp());
+        ثابت منطقی مطابقت = resolvedModp && VN_CAST(resolvedModp, Class) == اظہاریہ_Class_Refp->classp();
+        VL_DO_DANGLING(origClonep->delete_درخت(), origClonep);
+        m_default_Clone_اندر_پیش_رفت.erase(origClassRefp->classp());
+        واپس مطابقت;
     }
 
-    static bool paramConstsEqualAtMaxWidth(AstConst* exprp, AstConst* origp) {
+    ساکن منطقی param_Consts_Equal_At_Max_چوڑائی(AstConst* exprp, AstConst* origp) {
         // Return true if two integer constants are equal after sign-extending
         // both to max(width).  A typed parameter default (e.g. byte) is
         // narrower than a 32-bit pin expression, so sameTree/areSame fail.
-        if (exprp->num().width() == origp->num().width()) return false;
-        if (exprp->num().isOpaque()) return false;
-        if (origp->num().isOpaque()) return false;
-        const int maxWidth = std::max(exprp->num().width(), origp->num().width());
-        V3Number exprNum{exprp, maxWidth};
-        if (exprp->num().isSigned()) {
-            exprNum.opExtendS(exprp->num(), exprp->num().width());
-        } else {
-            exprNum.opAssign(exprp->num());
+        اگر (exprp->عدد().چوڑائی() == origp->عدد().چوڑائی()) واپس جھوٹ;
+        اگر (exprp->عدد().isOpaque()) واپس جھوٹ;
+        اگر (origp->عدد().isOpaque()) واپس جھوٹ;
+        ثابت صحیح max_چوڑائی = std::max(exprp->عدد().چوڑائی(), origp->عدد().چوڑائی());
+        V3_نمبر اظہاریہ_عدد{exprp, max_چوڑائی};
+        اگر (exprp->عدد().isSigned()) {
+            اظہاریہ_عدد.opExtendS(exprp->عدد(), exprp->عدد().چوڑائی());
+        } ورنہ {
+            اظہاریہ_عدد.op_تفویض(exprp->عدد());
         }
-        V3Number origNum{origp, maxWidth};
-        if (origp->num().isSigned()) {
-            origNum.opExtendS(origp->num(), origp->num().width());
-        } else {
-            origNum.opAssign(origp->num());
+        V3_نمبر orig_عدد{origp, max_چوڑائی};
+        اگر (origp->عدد().isSigned()) {
+            orig_عدد.opExtendS(origp->عدد(), origp->عدد().چوڑائی());
+        } ورنہ {
+            orig_عدد.op_تفویض(origp->عدد());
         }
-        V3Number isEq{exprp, 1};
-        isEq.opEq(exprNum, origNum);
-        return isEq.isNeqZero();
+        V3_نمبر isEq{exprp, 1};
+        isEq.opEq(اظہاریہ_عدد, orig_عدد);
+        واپس isEq.isNeqZero();
     }
 
     // Rewrite placeholder __VGIfaceParam pins emitted by
@@ -1476,58 +1476,58 @@ class ParamProcessor final {
     //     after its own nodeDeparam has specialized it. That specialization
     //     happens in V3Param's top-down walk, so the window between "outer
     //     port resolved" and "inner cellDeparam starts" exists only here.
-    void resolveGenericIfaceForwardingPins(AstPin* paramsp) {
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (!pinp->exprp()) continue;
-            if (!VString::startsWith(pinp->name(), "__VGIfaceParam")) continue;
-            const AstNodeVarRef* const fwdRefp = VN_CAST(pinp->exprp(), NodeVarRef);
-            if (!fwdRefp) continue;
-            const AstIfaceRefDType* const resolvedp
-                = VN_CAST(fwdRefp->varp()->childDTypep()->skipRefp(), IfaceRefDType);
+    خالی resolveGenericIfaceForwardingPins(AstPin* paramsp) {
+        برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            اگر (!pinp->exprp()) جاری;
+            اگر (!VString::startsWith(pinp->name(), "__VGIfaceParam")) جاری;
+            ثابت Ast_گرہ_Var_Ref* ثابت fwdRefp = VN_CAST(pinp->exprp(), گرہ_Var_Ref);
+            اگر (!fwdRefp) جاری;
+            ثابت AstIfaceRefDType* ثابت resolvedp
+                = VN_CAST(fwdRefp->varp()->بچہ_DTypep()->skipRefp(), IfaceRefDType);
             UASSERT_OBJ(resolvedp, pinp,
                         "Generic interface forwarding pin not specialized before use");
-            AstIfaceRefDType* const newIrefp = new AstIfaceRefDType{
+            AstIfaceRefDType* ثابت newIrefp = نیا AstIfaceRefDType{
                 resolvedp->fileline(), resolvedp->modportFileline(), resolvedp->cellName(),
                 resolvedp->ifaceName(), resolvedp->modportName()};
             newIrefp->ifacep(resolvedp->ifacep());
-            if (resolvedp->paramsp()) {
-                newIrefp->addParamsp(resolvedp->paramsp()->cloneTree(true));
+            اگر (resolvedp->paramsp()) {
+                newIrefp->جوڑو_Paramsp(resolvedp->paramsp()->clone_درخت(سچ));
             }
-            pinp->exprp()->unlinkFrBack()->deleteTree();
+            pinp->exprp()->unlink_Fr_عقب()->delete_درخت();
             pinp->exprp(newIrefp);
         }
     }
 
     // Include the pin's value in the specialization name, so cells passing equal
     // values share one module clone.
-    void nameByPinValue(AstPin* pinp, AstNodeModule* srcModp, AstVar* modvarp, string& longnamer,
-                        bool& any_overridesr) {
-        longnamer += "_" + paramSmallName(srcModp, modvarp) + paramValueNumber(pinp->exprp());
-        any_overridesr = true;
+    خالی name_By_Pin_قدر(AstPin* pinp, Ast_گرہ_Module* srcModp, AstVar* modvarp, string& longnamer,
+                        منطقی& any_overridesr) {
+        longnamer += "_" + paramSmallName(srcModp, modvarp) + param_قدر_نمبر(pinp->exprp());
+        any_overridesr = سچ;
     }
 
     // Name the specialization by a value pin, or prepare a type pin, noting in
     // overridingTypePinsr whether it differs from the default
-    void cellPinCleanup(AstNode* nodep, AstPin* pinp, AstPin* paramsp, AstNodeModule* srcModp,
-                        string& longnamer, bool& any_overridesr,
-                        std::unordered_set<const AstPin*>& overridingTypePinsr) {
-        if (!pinp->exprp()) return;  // No-connect
-        if (AstVar* const modvarp = pinp->modVarp()) {
+    خالی cellPinCleanup(Ast_گرہ* nodep, AstPin* pinp, AstPin* paramsp, Ast_گرہ_Module* srcModp,
+                        string& longnamer, منطقی& any_overridesr,
+                        std::unordered_سیٹ<ثابت AstPin*>& overridingTypePinsr) {
+        اگر (!pinp->exprp()) واپس;  // No-connect
+        اگر (AstVar* ثابت modvarp = pinp->modVarp()) {
             resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
-            if (!modvarp->isGParam()) {
+            اگر (!modvarp->isGParam()) {
                 pinp->v3fatalSrc("Attempted parameter setting of non-parameter: Param "
                                  << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-            } else if (VN_IS(pinp->exprp(), Pattern)
+            } ورنہ اگر (VN_IS(pinp->exprp(), نمونہ)
                        || (VN_IS(pinp->exprp(), ConsArray)
                            && arraySubDTypep(modvarp->subDTypep()))) {
                 // A pattern or array value is named by its contents
-                nameByPinValue(pinp, srcModp, modvarp, longnamer, any_overridesr);
-            } else {
+                name_By_Pin_قدر(pinp, srcModp, modvarp, longnamer, any_overridesr);
+            } ورنہ {
                 UINFO(9, "cellPinCleanup: before constify " << pinp << " " << modvarp);
                 V3Const::constifyParamsEdit(pinp->exprp());
-                if (isAggregateParamValue(pinp->exprp())) {
-                    nameByPinValue(pinp, srcModp, modvarp, longnamer, any_overridesr);
-                    return;
+                اگر (is_Aggregate_Param_قدر(pinp->exprp())) {
+                    name_By_Pin_قدر(pinp, srcModp, modvarp, longnamer, any_overridesr);
+                    واپس;
                 }
                 // Cast/CastSize default values are not yet folded by V3Width.
                 // Constify here so the comparison below sees a Const node.
@@ -1540,183 +1540,183 @@ class ParamProcessor final {
                 // instance, and folding it here would evaluate it against the
                 // template's own defaults and bake that in for every later
                 // instance that relies on the default.
-                if (modvarp->valuep()
-                    && (VN_IS(modvarp->valuep(), Cast) || VN_IS(modvarp->valuep(), CastSize))) {
-                    const bool dependent = modvarp->valuep()->exists(
-                        [](AstNode* np) { return VN_IS(np, VarRef) || VN_IS(np, RefDType); });
-                    if (!dependent) V3Const::constifyParamsEdit(modvarp->valuep());
+                اگر (modvarp->valuep()
+                    && (VN_IS(modvarp->valuep(), Cast) || VN_IS(modvarp->valuep(), Cast_سائز))) {
+                    ثابت منطقی dependent = modvarp->valuep()->exists(
+                        [](Ast_گرہ* np) { واپس VN_IS(np, VarRef) || VN_IS(np, RefDType); });
+                    اگر (!dependent) V3Const::constifyParamsEdit(modvarp->valuep());
                 }
                 UINFO(9, "cellPinCleanup: after constify " << pinp);
                 // String constants are parsed as logic arrays and converted to strings in V3Const.
                 // At this moment, some constants may have been already converted.
                 // To correctly compare constants, both should be of the same type,
                 // so they need to be converted.
-                if (isString(modvarp->subDTypep())) {
-                    convertToStringp(pinp->exprp());
-                    convertToStringp(modvarp->valuep());
+                اگر (isString(modvarp->subDTypep())) {
+                    convert_مقصد_Stringp(pinp->exprp());
+                    convert_مقصد_Stringp(modvarp->valuep());
                 }
-                AstConst* const exprp = VN_CAST(pinp->exprp(), Const);
-                AstConst* const origp = VN_CAST(modvarp->valuep(), Const);
+                AstConst* ثابت exprp = VN_CAST(pinp->exprp(), Const);
+                AstConst* ثابت origp = VN_CAST(modvarp->valuep(), Const);
                 // Width the pin to the port's type so equal values hash the same (#5479).
-                AstConst* normedNamep = nullptr;
-                if (exprp && !exprp->num().isDouble() && !exprp->num().isString()) {
-                    AstVar* cloneVarp = modvarp->cloneTree(false);
-                    bool cloneVarpUnresolved = false;
-                    if (AstNode* const oldValuep = cloneVarp->valuep()) {
-                        oldValuep->unlinkFrBack();
-                        VL_DO_DANGLING(oldValuep->deleteTree(), oldValuep);
+                AstConst* normedNamep = خالی_اشاریہ;
+                اگر (exprp && !exprp->عدد().isDouble() && !exprp->عدد().isString()) {
+                    AstVar* cloneVarp = modvarp->clone_درخت(جھوٹ);
+                    منطقی cloneVarpUnresolved = جھوٹ;
+                    اگر (Ast_گرہ* ثابت oldValuep = cloneVarp->valuep()) {
+                        oldValuep->unlink_Fr_عقب();
+                        VL_DO_DANGLING(oldValuep->delete_درخت(), oldValuep);
                     }
-                    cloneVarp->valuep(exprp->cloneTree(false));
-                    if (AstNodeDType* const origDTypep = modvarp->subDTypep()) {
+                    cloneVarp->valuep(exprp->clone_درخت(جھوٹ));
+                    اگر (Ast_گرہ_DType* ثابت origDTypep = modvarp->subDTypep()) {
                         // Attach clone under cloneVarp so the root has a back pointer.
-                        if (cloneVarp->childDTypep())
-                            cloneVarp->childDTypep()->unlinkFrBack()->deleteTree();
-                        cloneVarp->childDTypep(origDTypep->cloneTree(false));
-                        cloneVarp->dtypep(nullptr);
+                        اگر (cloneVarp->بچہ_DTypep())
+                            cloneVarp->بچہ_DTypep()->unlink_Fr_عقب()->delete_درخت();
+                        cloneVarp->بچہ_DTypep(origDTypep->clone_درخت(جھوٹ));
+                        cloneVarp->dtypep(خالی_اشاریہ);
                         // Inline param refs so widthing doesn't touch the template (#7411).
-                        constexpr int maxSubstIters = 1000;
-                        for (int it = 0; it < maxSubstIters; ++it) {
-                            bool any = false;
+                        constexpr صحیح maxSubstIters = 1000;
+                        برائے (صحیح it = 0; it < maxSubstIters; ++it) {
+                            منطقی any = جھوٹ;
                             cloneVarp->foreach([&](AstVarRef* varrefp) {
-                                AstVar* const targetp = varrefp->varp();
-                                AstNode* replacep = nullptr;
-                                for (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
-                                    if (pp->modVarp() == targetp) {
+                                AstVar* ثابت targetp = varrefp->varp();
+                                Ast_گرہ* replacep = خالی_اشاریہ;
+                                برائے (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
+                                    اگر (pp->modVarp() == targetp) {
                                         // A pattern or array override names the value too
-                                        if (VN_IS(pp->exprp(), Const)
-                                            || VN_IS(pp->exprp(), Pattern)
+                                        اگر (VN_IS(pp->exprp(), Const)
+                                            || VN_IS(pp->exprp(), نمونہ)
                                             || VN_IS(pp->exprp(), ConsArray)) {
-                                            replacep = pp->exprp()->cloneTree(false);
+                                            replacep = pp->exprp()->clone_درخت(جھوٹ);
                                         }
-                                        break;
+                                        توڑو;
                                     }
                                 }
-                                if (!replacep && targetp->valuep()) {
-                                    replacep = targetp->valuep()->cloneTree(false);
+                                اگر (!replacep && targetp->valuep()) {
+                                    replacep = targetp->valuep()->clone_درخت(جھوٹ);
                                 }
                                 // An inlined pattern takes the type of its parameter
-                                AstPattern* const patp = VN_CAST(replacep, Pattern);
-                                if (patp && !patp->childDTypep() && targetp->childDTypep()) {
-                                    patp->childDTypep(targetp->childDTypep()->cloneTree(false));
+                                Ast_نمونہ* ثابت patp = VN_CAST(replacep, نمونہ);
+                                اگر (patp && !patp->بچہ_DTypep() && targetp->بچہ_DTypep()) {
+                                    patp->بچہ_DTypep(targetp->بچہ_DTypep()->clone_درخت(جھوٹ));
                                 }
-                                if (replacep) {
+                                اگر (replacep) {
                                     varrefp->replaceWith(replacep);
-                                    VL_DO_DANGLING(varrefp->deleteTree(), varrefp);
-                                    any = true;
+                                    VL_DO_DANGLING(varrefp->delete_درخت(), varrefp);
+                                    any = سچ;
                                 }
                             });
                             // Replace RefDType to a ParamTypeDType with pin override
                             // or the paramtype's default so constify below does not
                             // reach into the template.  Collect then replace in
                             // reverse so descendants aren't freed early.
-                            std::vector<std::pair<AstRefDType*, AstNodeDType*>> toReplace;
+                            std::سمتیہ<std::pair<AstRefDType*, Ast_گرہ_DType*>> مقصد_Replace;
                             cloneVarp->foreach([&](AstRefDType* refp) {
-                                AstParamTypeDType* const ptdp
+                                AstParamTypeDType* ثابت ptdp
                                     = VN_CAST(refp->refDTypep(), ParamTypeDType);
-                                if (!ptdp) return;
-                                AstPin* overridePinp = nullptr;
-                                for (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
-                                    if (pp->modPTypep() == ptdp) {
+                                اگر (!ptdp) واپس;
+                                AstPin* overridePinp = خالی_اشاریہ;
+                                برائے (AstPin* pp = paramsp; pp; pp = VN_AS(pp->nextp(), Pin)) {
+                                    اگر (pp->modPTypep() == ptdp) {
                                         overridePinp = pp;
-                                        break;
+                                        توڑو;
                                     }
                                 }
-                                AstNodeDType* const substp
-                                    = overridePinp ? VN_CAST(overridePinp->exprp(), NodeDType)
+                                Ast_گرہ_DType* ثابت substp
+                                    = overridePinp ? VN_CAST(overridePinp->exprp(), گرہ_DType)
                                                    : ptdp->subDTypep();
-                                if (substp) toReplace.emplace_back(refp, substp);
+                                اگر (substp) مقصد_Replace.emplace_عقب(refp, substp);
                             });
-                            for (auto it = toReplace.rbegin(); it != toReplace.rend(); ++it) {
-                                AstRefDType* const refp = it->first;
-                                refp->replaceWith(it->second->cloneTree(false));
-                                VL_DO_DANGLING(refp->deleteTree(), refp);
-                                any = true;
+                            برائے (خودکار it = مقصد_Replace.rbegin(); it != مقصد_Replace.rend(); ++it) {
+                                AstRefDType* ثابت refp = it->پہلا;
+                                refp->replaceWith(it->دوسرا->clone_درخت(جھوٹ));
+                                VL_DO_DANGLING(refp->delete_درخت(), refp);
+                                any = سچ;
                             }
-                            if (!any) break;
+                            اگر (!any) توڑو;
                         }
                         // Skip the widthing constify if anything left can't be evaluated here: a
                         // reference, as to a variable or around a cycle, an unresolved type
                         // parameter, or a type or enum item of the template
-                        cloneVarp->foreach([&](AstNode* np) {
-                            if (VN_IS(np, VarRef)) {
-                                cloneVarpUnresolved = true;
-                                return;
+                        cloneVarp->foreach([&](Ast_گرہ* np) {
+                            اگر (VN_IS(np, VarRef)) {
+                                cloneVarpUnresolved = سچ;
+                                واپس;
                             }
-                            if (AstEnumItemRef* const itemRefp = VN_CAST(np, EnumItemRef)) {
-                                if (V3LinkDotIfaceCapture::findOwnerModule(itemRefp->itemp())
+                            اگر (Ast_Enum_شے_Ref* ثابت شے_Refp = VN_CAST(np, Enum_شے_Ref)) {
+                                اگر (V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(شے_Refp->itemp())
                                     == srcModp) {
-                                    cloneVarpUnresolved = true;
+                                    cloneVarpUnresolved = سچ;
                                 }
-                                return;
+                                واپس;
                             }
-                            AstRefDType* const refp = VN_CAST(np, RefDType);
-                            if (!refp) return;
-                            if (VN_IS(refp->refDTypep(), ParamTypeDType)) {
+                            AstRefDType* ثابت refp = VN_CAST(np, RefDType);
+                            اگر (!refp) واپس;
+                            اگر (VN_IS(refp->refDTypep(), ParamTypeDType)) {
                                 UINFO(5, "  cellPinCleanup: skip normedNamep "
                                          "(unresolved RefDType->ParamTypeDType) pin="
                                              << pinp->prettyNameQ());
-                                cloneVarpUnresolved = true;
+                                cloneVarpUnresolved = سچ;
                             }
                             // A type declared in the template must not be widthed there
-                            if (V3LinkDotIfaceCapture::findOwnerModule(refp->typedefp()) == srcModp
-                                || V3LinkDotIfaceCapture::findOwnerModule(refp->refDTypep())
+                            اگر (V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(refp->typedefp()) == srcModp
+                                || V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(refp->refDTypep())
                                        == srcModp) {
-                                cloneVarpUnresolved = true;
+                                cloneVarpUnresolved = سچ;
                             }
                         });
                     }
-                    if (!cloneVarpUnresolved) {
+                    اگر (!cloneVarpUnresolved) {
                         V3Const::constifyParamsEdit(cloneVarp);
-                        if (AstConst* const widthedp = VN_CAST(cloneVarp->valuep(), Const)) {
+                        اگر (AstConst* ثابت widthedp = VN_CAST(cloneVarp->valuep(), Const)) {
                             // Stamp the port's type so equal values hash the same.
-                            if (cloneVarp->dtypep()) widthedp->dtypep(cloneVarp->dtypep());
-                            widthedp->unlinkFrBack();
+                            اگر (cloneVarp->dtypep()) widthedp->dtypep(cloneVarp->dtypep());
+                            widthedp->unlink_Fr_عقب();
                             normedNamep = widthedp;
                         }
                     }
-                    VL_DO_DANGLING(cloneVarp->deleteTree(), cloneVarp);
+                    VL_DO_DANGLING(cloneVarp->delete_درخت(), cloneVarp);
                 }
-                AstConst* const namingExprp = normedNamep ? normedNamep : exprp;
-                if (!exprp) {
+                AstConst* ثابت namingExprp = normedNamep ? normedNamep : exprp;
+                اگر (!exprp) {
                     // With DepGraph architecture, all expressions should be constants
                     // by the time V3Param runs. If not, it's an error.
                     UINFO(9, "cellPinCleanup: NOT CONST after constify " << pinp);
                     UINFOTREE(1, pinp, "", "errnode");
                     pinp->v3error("Can't convert defparam value to constant: Param "
                                   << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-                    AstNode* const pinExprp = pinp->exprp();
-                    pinExprp->replaceWith(new AstConst{pinp->fileline(), AstConst::WidthedValue{},
-                                                       modvarp->width(), 0});
-                    VL_DO_DANGLING(pinExprp->deleteTree(), pinExprp);
-                } else if (origp
-                           && (exprp->sameTree(origp)
-                               || (exprp->num().width() == origp->num().width()
-                                   && ParameterizedHierBlocks::areSame(exprp, origp))
-                               || paramConstsEqualAtMaxWidth(exprp, origp))) {
+                    Ast_گرہ* ثابت pinExprp = pinp->exprp();
+                    pinExprp->replaceWith(نیا AstConst{pinp->fileline(), AstConst::Widthed_قدر{},
+                                                       modvarp->چوڑائی(), 0});
+                    VL_DO_DANGLING(pinExprp->delete_درخت(), pinExprp);
+                } ورنہ اگر (origp
+                           && (exprp->same_درخت(origp)
+                               || (exprp->عدد().چوڑائی() == origp->عدد().چوڑائی()
+                                   && Parameterized_Hier_بلاکیں::areSame(exprp, origp))
+                               || param_Consts_Equal_At_Max_چوڑائی(exprp, origp))) {
                     // Setting parameter to its default value.  Just ignore it.
                     // This prevents making additional modules, and makes coverage more
                     // obvious as it won't show up under a unique module page name.
                     UINFO(9, "cellPinCleanup: same as default " << pinp);
-                } else if (namingExprp->num().isDouble() || namingExprp->num().isString()
-                           || namingExprp->num().isFourState()
-                           || namingExprp->num().width() != 32) {
+                } ورنہ اگر (namingExprp->عدد().isDouble() || namingExprp->عدد().isString()
+                           || namingExprp->عدد().isFourState()
+                           || namingExprp->عدد().چوڑائی() != 32) {
                     longnamer += ("_" + paramSmallName(srcModp, modvarp)
-                                  + paramValueNumber(namingExprp));
-                    any_overridesr = true;
-                } else {
+                                  + param_قدر_نمبر(namingExprp));
+                    any_overridesr = سچ;
+                } ورنہ {
                     longnamer += ("_" + paramSmallName(srcModp, modvarp)
-                                  + namingExprp->num().ascii(false));
-                    any_overridesr = true;
+                                  + namingExprp->عدد().ascii(جھوٹ));
+                    any_overridesr = سچ;
                 }
-                if (normedNamep) VL_DO_DANGLING(normedNamep->deleteTree(), normedNamep);
+                اگر (normedNamep) VL_DO_DANGLING(normedNamep->delete_درخت(), normedNamep);
             }
-        } else if (AstParamTypeDType* const modvarp = pinp->modPTypep()) {
+        } ورنہ اگر (AstParamTypeDType* ثابت modvarp = pinp->modPTypep()) {
             // Resolve the pin and declared type through arbitrary dtype wrappers
             // and typedef chains before widthing either one.
             resolveDeferredDotsReachableFrom(pinp->exprp(), m_modp);
             resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
 
-            AstNodeDType* rawTypep = VN_CAST(pinp->exprp(), NodeDType);
+            Ast_گرہ_DType* rawTypep = VN_CAST(pinp->exprp(), گرہ_DType);
             // Guard against widthing a struct/union still owned by a
             // parameterized template interface (not yet specialized).
             // widthParamsEdit is destructive: it evaluates range expressions,
@@ -1725,20 +1725,20 @@ class ParamProcessor final {
             // Triggered by deeply nested parameterized interfaces (e.g.
             // outer_if containing inner_if with struct typedefs) when the
             // inner interface hasn't been specialized yet.
-            bool skipWidthForTemplateStruct = false;
+            منطقی skip_چوڑائی_For_Template_Struct = جھوٹ;
             {
                 // Use non-asserting skip: before widthParamsEdit, type(expr)
                 // constructs may contain unlinked REFDTYPEs (e.g. type(x-y))
-                AstNodeDType* const resolvedp = rawTypep ? rawTypep->skipRefOrNullp() : nullptr;
-                if (resolvedp && (VN_IS(resolvedp, StructDType) || VN_IS(resolvedp, UnionDType))) {
-                    AstNodeModule* const ownerModp
-                        = V3LinkDotIfaceCapture::findOwnerModule(resolvedp);
+                Ast_گرہ_DType* ثابت resolvedp = rawTypep ? rawTypep->skipRefOrNullp() : خالی_اشاریہ;
+                اگر (resolvedp && (VN_IS(resolvedp, StructDType) || VN_IS(resolvedp, UnionDType))) {
+                    Ast_گرہ_Module* ثابت ownerModp
+                        = V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(resolvedp);
                     // Skip if owned by a parameterized interface (template or not
                     // yet cloned).  hasGParam() covers interfaces that haven't
                     // been cloned yet (parameterizedTemplate() not set).
-                    if (ownerModp && VN_IS(ownerModp, Iface) && ownerModp->hasGParam()) {
-                        skipWidthForTemplateStruct = true;
-                        V3Stats::addStatSum("Param, Template struct width skips", 1);
+                    اگر (ownerModp && VN_IS(ownerModp, Iface) && ownerModp->hasGParam()) {
+                        skip_چوڑائی_For_Template_Struct = سچ;
+                        V3Stats::جوڑو_Stat_مجموع("Param, Template struct width skips", 1);
                         UINFO(9, "SKIP-WIDTH-TEMPLATE: struct="
                                      << resolvedp->prettyTypeName() << " templateOwner="
                                      << ownerModp->prettyNameQ() << " pin=" << pinp->prettyNameQ()
@@ -1746,43 +1746,43 @@ class ParamProcessor final {
                                      << " srcMod=" << srcModp->prettyNameQ());
                     }
                 }
-                if (rawTypep && !skipWidthForTemplateStruct) V3Width::widthParamsEdit(rawTypep);
+                اگر (rawTypep && !skip_چوڑائی_For_Template_Struct) V3_چوڑائی::چوڑائی_Params_Edit(rawTypep);
             }
-            AstNodeDType* exprp = rawTypep ? rawTypep->skipRefToNonRefp() : nullptr;
-            const AstNodeDType* origp = modvarp->skipRefToNonRefp();
-            if (!exprp) {
+            Ast_گرہ_DType* exprp = rawTypep ? rawTypep->skip_Ref_مقصد_Non_Refp() : خالی_اشاریہ;
+            ثابت Ast_گرہ_DType* origp = modvarp->skip_Ref_مقصد_Non_Refp();
+            اگر (!exprp) {
                 pinp->v3error("Parameter type pin value isn't a type: Param "
                               << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
-            } else if (!origp) {
+            } ورنہ اگر (!origp) {
                 pinp->v3error("Parameter type variable isn't a type: Param "
                               << modvarp->prettyNameQ());
-            } else {
+            } ورنہ {
                 UINFO(9, "Parameter type assignment expr=" << exprp << " to " << origp);
-                if (!skipWidthForTemplateStruct) {
+                اگر (!skip_چوڑائی_For_Template_Struct) {
                     V3Const::constifyParamsEdit(pinp->exprp());  // Reconcile typedefs
                     // Constify may have caused pinp->exprp to change
-                    rawTypep = VN_AS(pinp->exprp(), NodeDType);
-                    exprp = rawTypep->skipRefToNonRefp();
+                    rawTypep = VN_AS(pinp->exprp(), گرہ_DType);
+                    exprp = rawTypep->skip_Ref_مقصد_Non_Refp();
                 }
-                if (!modvarp->fwdType().isNodeCompatible(exprp)) {
+                اگر (!modvarp->fwdType().is_گرہ_Compatible(exprp)) {
                     pinp->v3error("Parameter type expression type "
                                   << exprp->prettyDTypeNameQ()
                                   << " violates parameter's forwarding type '"
                                   << modvarp->fwdType().ascii() << "'");
                 }
-                if (exprp->similarDType(origp) || classTypeMatchesDefaultClone(exprp, origp)) {
+                اگر (exprp->similarDType(origp) || classTypeMatchesDefaultClone(exprp, origp)) {
                     // Setting parameter to its default value.  Just ignore it.
                     // This prevents making additional modules, and makes coverage more
                     // obvious as it won't show up under a unique module page name.
-                } else {
-                    if (!skipWidthForTemplateStruct) {
+                } ورنہ {
+                    اگر (!skip_چوڑائی_For_Template_Struct) {
                         VL_DO_DANGLING(V3Const::constifyParamsEdit(exprp), exprp);
-                        rawTypep = VN_CAST(pinp->exprp(), NodeDType);
-                        exprp = rawTypep ? rawTypep->skipRefToNonRefp() : nullptr;
+                        rawTypep = VN_CAST(pinp->exprp(), گرہ_DType);
+                        exprp = rawTypep ? rawTypep->skip_Ref_مقصد_Non_Refp() : خالی_اشاریہ;
                     }
                     // Deparameterize ClassRefDType before name generation (#7000)
-                    if (AstClassRefDType* const classRefDTypep = VN_CAST(exprp, ClassRefDType)) {
-                        if (classRefDTypep->paramsp() && classRefDTypep->classp()
+                    اگر (AstClassRefDType* ثابت classRefDTypep = VN_CAST(exprp, ClassRefDType)) {
+                        اگر (classRefDTypep->paramsp() && classRefDTypep->classp()
                             && classRefDTypep->classp()->hasGParam()) {
                             classRefDeparam(classRefDTypep, classRefDTypep->classp());
                         }
@@ -1790,76 +1790,76 @@ class ParamProcessor final {
                     overridingTypePinsr.emplace(pinp);  // Named once every pin is prepared
                 }
             }
-        } else {
+        } ورنہ {
             pinp->v3fatalSrc("Parameter not found in sub-module: Param "
                              << pinp->prettyNameQ() << " of " << nodep->prettyNameQ());
         }
     }
 
-    void cellInterfaceCleanup(AstPin* pinsp, AstNodeModule* srcModp, string& longnamer,
-                              bool& any_overridesr, IfaceRefRefs& ifaceRefRefs) {
-        for (AstPin* pinp = pinsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            const AstVar* const modvarp = pinp->modVarp();
-            if (modvarp && VN_IS(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceGenericDType)) {
-                continue;
+    خالی cellInterfaceCleanup(AstPin* pinsp, Ast_گرہ_Module* srcModp, string& longnamer,
+                              منطقی& any_overridesr, IfaceRefRefs& ifaceRefRefs) {
+        برائے (AstPin* pinp = pinsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            ثابت AstVar* ثابت modvarp = pinp->modVarp();
+            اگر (modvarp && VN_IS(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceGenericDType)) {
+                جاری;
             }
-            if (modvarp->isIfaceRef()) {
+            اگر (modvarp->isIfaceRef()) {
                 // arraySubDTypeDeepp returns input unchanged if not an array.
-                AstIfaceRefDType* const portIrefp
+                AstIfaceRefDType* ثابت پورٹ_Irefp
                     = VN_CAST(arraySubDTypeDeepp(modvarp->subDTypep()), IfaceRefDType);
-                const AstNode* const exprp = pinp->exprp();
-                if (VN_IS(exprp, CellArrayRef)) {
+                ثابت Ast_گرہ* ثابت exprp = pinp->exprp();
+                اگر (VN_IS(exprp, CellArrayRef)) {
                     // CellArrayRef not yet linked; V3LinkDot resolves this pin later.
                     UINFO(9, "Skipping interface cleanup for CellArrayRef pin: " << pinp);
-                    continue;
+                    جاری;
                 }
-                AstIfaceRefDType* pinIrefp = nullptr;
+                AstIfaceRefDType* pinIrefp = خالی_اشاریہ;
                 // Pin is a VarRef to a var of (possibly arrayed) iface type.
-                if (const AstNodeVarRef* const vrp = VN_CAST(exprp, NodeVarRef)) {
-                    if (vrp->varp()) {
+                اگر (ثابت Ast_گرہ_Var_Ref* ثابت vrp = VN_CAST(exprp, گرہ_Var_Ref)) {
+                    اگر (vrp->varp()) {
                         pinIrefp
                             = VN_CAST(arraySubDTypeDeepp(vrp->varp()->subDTypep()), IfaceRefDType);
                     }
                 }
                 // Pin is a select, of any depth, of a VarRef (e.g. SelBit/ArraySel into an iface
                 // array, or a slice of a row of a multi-dimensional one)
-                if (!pinIrefp && exprp) {
-                    const AstNode* basep = exprp;
-                    while (const AstNodePreSel* const selp = VN_CAST(basep, NodePreSel)) {
+                اگر (!pinIrefp && exprp) {
+                    ثابت Ast_گرہ* basep = exprp;
+                    جب (ثابت Ast_گرہ_Pre_Sel* ثابت selp = VN_CAST(basep, گرہ_Pre_Sel)) {
                         basep = selp->fromp();
                     }
-                    if (const AstVarRef* const vrp = VN_CAST(basep, VarRef)) {
-                        if (vrp->varp()) {
+                    اگر (ثابت AstVarRef* ثابت vrp = VN_CAST(basep, VarRef)) {
+                        اگر (vrp->varp()) {
                             pinIrefp = VN_CAST(arraySubDTypeDeepp(vrp->varp()->subDTypep()),
                                                IfaceRefDType);
                         }
                     }
                 }
 
-                UINFO(9, "     portIfaceRef " << portIrefp);
+                UINFO(9, "     portIfaceRef " << پورٹ_Irefp);
 
-                if (!portIrefp) {
+                اگر (!پورٹ_Irefp) {
                     pinp->v3error("Interface port " << modvarp->prettyNameQ()
                                                     << " is not an interface " << modvarp);
-                } else if (!pinIrefp) {
+                } ورنہ اگر (!pinIrefp) {
                     pinp->v3error("Interface port "
                                   << modvarp->prettyNameQ()
                                   << " is not connected to interface/modport pin expression");
-                } else {
+                } ورنہ {
                     UINFO(9, "     pinIfaceRef " << pinIrefp);
-                    if (portIrefp->ifaceViaCellp() != pinIrefp->ifaceViaCellp()) {
+                    اگر (پورٹ_Irefp->iface_بذریعہ_Cellp() != pinIrefp->iface_بذریعہ_Cellp()) {
                         UINFO(9, "     IfaceRefDType needs reconnect  " << pinIrefp);
                         longnamer += ("_" + paramSmallName(srcModp, pinp->modVarp())
-                                      + paramValueNumber(pinIrefp));
-                        any_overridesr = true;
-                        ifaceRefRefs.emplace_back(portIrefp, pinIrefp);
-                        if (portIrefp->ifacep() != pinIrefp->ifacep()
+                                      + param_قدر_نمبر(pinIrefp));
+                        any_overridesr = سچ;
+                        ifaceRefRefs.emplace_عقب(پورٹ_Irefp, pinIrefp);
+                        اگر (پورٹ_Irefp->ifacep() != pinIrefp->ifacep()
                             // Might be different only due to param cloning, so check names too
-                            && portIrefp->ifaceName() != pinIrefp->ifaceName()) {
+                            && پورٹ_Irefp->ifaceName() != pinIrefp->ifaceName()) {
                             pinp->v3error("Port " << pinp->prettyNameQ() << " expects "
-                                                  << AstNode::prettyNameQ(portIrefp->ifaceName())
+                                                  << Ast_گرہ::prettyNameQ(پورٹ_Irefp->ifaceName())
                                                   << " interface but pin connects "
-                                                  << AstNode::prettyNameQ(pinIrefp->ifaceName())
+                                                  << Ast_گرہ::prettyNameQ(pinIrefp->ifaceName())
                                                   << " interface");
                         }
                     }
@@ -1868,80 +1868,80 @@ class ParamProcessor final {
         }
     }
 
-    void storeOriginalParams(AstNodeModule* const classp) {
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstNode* originalParamp = nullptr;
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isGParam()) originalParamp = varp->clonep();
-            } else if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                if (ptp->isGParam()) originalParamp = ptp->clonep();
+    خالی storeOriginalParams(Ast_گرہ_Module* ثابت classp) {
+        برائے (Ast_گرہ* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            Ast_گرہ* originalParamp = خالی_اشاریہ;
+            اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                اگر (varp->isGParam()) originalParamp = varp->clonep();
+            } ورنہ اگر (AstParamTypeDType* ثابت ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                اگر (ptp->isGParam()) originalParamp = ptp->clonep();
             }
-            if (originalParamp) m_originalParams[stmtp] = originalParamp;
+            اگر (originalParamp) m_originalParams[stmtp] = originalParamp;
         }
     }
 
     // Set interfaces types inside generic modules
     // to the corresponding values of implicit parameters
-    void genericInterfaceVarSetup(const AstPin* const paramsp, const AstPin* const pinsp) {
-        std::unordered_map<string, const AstPin*> paramspMap;
-        for (const AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (VString::startsWith(pinp->name(), "__VGIfaceParam")) {
-                paramspMap.insert({pinp->name().substr(std::strlen("__VGIfaceParam")), pinp});
+    خالی generic_Interface_Var_تیاری(ثابت AstPin* ثابت paramsp, ثابت AstPin* ثابت pinsp) {
+        std::unordered_map<string, ثابت AstPin*> paramspMap;
+        برائے (ثابت AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            اگر (VString::startsWith(pinp->name(), "__VGIfaceParam")) {
+                paramspMap.داخل_کرو({pinp->name().substr(std::لڑی_لمبائی("__VGIfaceParam")), pinp});
             }
         }
 
-        if (paramspMap.empty()) return;
+        اگر (paramspMap.خالی_خانے()) واپس;
 
-        for (const AstNode* nodep = pinsp; nodep; nodep = nodep->nextp()) {
-            if (const AstPin* const pinp = VN_CAST(nodep, Pin)) {
-                if (AstVar* const varp = pinp->modVarp()) {
-                    AstNodeDType* dtypep = varp->childDTypep()->elemDTypep();
-                    if (AstIfaceGenericDType* const ifaceGDTypep
+        برائے (ثابت Ast_گرہ* nodep = pinsp; nodep; nodep = nodep->nextp()) {
+            اگر (ثابت AstPin* ثابت pinp = VN_CAST(nodep, Pin)) {
+                اگر (AstVar* ثابت varp = pinp->modVarp()) {
+                    Ast_گرہ_DType* dtypep = varp->بچہ_DTypep()->elemDTypep();
+                    اگر (AstIfaceGenericDType* ثابت ifaceGDTypep
                         = VN_CAST(dtypep, IfaceGenericDType)) {
-                        const auto iter = paramspMap.find(varp->name());
-                        if (iter == paramspMap.end()) continue;
-                        AstNode* const backp = ifaceGDTypep->backp();
-                        ifaceGDTypep->unlinkFrBack();
-                        const AstPin* const paramp = iter->second;
+                        ثابت خودکار iter = paramspMap.ڈھونڈو(varp->name());
+                        اگر (iter == paramspMap.انتہا()) جاری;
+                        Ast_گرہ* ثابت backp = ifaceGDTypep->backp();
+                        ifaceGDTypep->unlink_Fr_عقب();
+                        ثابت AstPin* ثابت paramp = iter->دوسرا;
                         paramspMap.erase(iter);
-                        const AstIfaceRefDType* const ifacerefp
+                        ثابت AstIfaceRefDType* ثابت ifacerefp
                             = VN_AS(paramp->exprp(), IfaceRefDType);
-                        AstIfaceRefDType* const newIfacerefp = new AstIfaceRefDType{
+                        AstIfaceRefDType* ثابت newIfacerefp = نیا AstIfaceRefDType{
                             ifaceGDTypep->fileline(), ifaceGDTypep->modportFileline(),
                             ifaceGDTypep->name(), ifacerefp->ifaceName(),
                             ifaceGDTypep->modportName()};
                         newIfacerefp->ifacep(ifacerefp->ifacep());
-                        if (auto* const arrDtp = VN_CAST(backp, NodeArrayDType)) {
-                            arrDtp->childDTypep(newIfacerefp);
-                        } else if (auto* const arrDtp = VN_CAST(backp, BracketArrayDType)) {
-                            arrDtp->childDTypep(newIfacerefp);
-                        } else {
-                            varp->childDTypep(newIfacerefp);
+                        اگر (خودکار* ثابت arrDtp = VN_CAST(backp, گرہ_Array_DType)) {
+                            arrDtp->بچہ_DTypep(newIfacerefp);
+                        } ورنہ اگر (خودکار* ثابت arrDtp = VN_CAST(backp, BracketArrayDType)) {
+                            arrDtp->بچہ_DTypep(newIfacerefp);
+                        } ورنہ {
+                            varp->بچہ_DTypep(newIfacerefp);
                         }
-                        VL_DO_DANGLING(m_deleter.pushDeletep(ifaceGDTypep), ifaceGDTypep);
-                        if (paramspMap.empty()) return;
+                        VL_DO_DANGLING(m_deleter.ڈالو_Deletep(ifaceGDTypep), ifaceGDTypep);
+                        اگر (paramspMap.خالی_خانے()) واپس;
                     }
                 }
             }
         }
 
-        UASSERT(paramspMap.empty(), "Not every generic interface implicit param is used");
+        UASSERT(paramspMap.خالی_خانے(), "Not every generic interface implicit param is used");
     }
 
-    void resolveDefaultParams(AstNode* nodep) {
+    خالی resolveDefaultParams(Ast_گرہ* nodep) {
         AstClassOrPackageRef* classOrPackageRef = VN_CAST(nodep, ClassOrPackageRef);
         AstClassRefDType* classRefDType = VN_CAST(nodep, ClassRefDType);
-        AstClass* classp = nullptr;
-        AstPin* paramsp = nullptr;
+        AstClass* classp = خالی_اشاریہ;
+        AstPin* paramsp = خالی_اشاریہ;
 
-        if (classOrPackageRef) {
+        اگر (classOrPackageRef) {
             classp = VN_CAST(classOrPackageRef->classOrPackageSkipp(), Class);
-            if (!classp) return;  // No parameters in packages
+            اگر (!classp) واپس;  // No parameters in packages
             paramsp = classOrPackageRef->paramsp();
-        } else if (classRefDType) {
+        } ورنہ اگر (classRefDType) {
             classp = classRefDType->classp();
             paramsp = classRefDType->paramsp();
-        } else {
+        } ورنہ {
             nodep->v3fatalSrc("resolveDefaultParams called on node which is not a Class ref");
         }
 
@@ -1949,40 +1949,40 @@ class ParamProcessor final {
 
         // Get the parameter list for this class
         m_classTypeParams.clear();
-        m_paramIndex.clear();
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* paramTypep = VN_CAST(stmtp, ParamTypeDType)) {
+        m_param_اشاریہ.clear();
+        برائے (Ast_گرہ* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            اگر (AstParamTypeDType* paramTypep = VN_CAST(stmtp, ParamTypeDType)) {
                 // Only consider formal class type parameters (generic parameters),
                 // not localparam type declarations inside the class body.
-                if (!paramTypep->isGParam()) continue;
-                m_paramIndex.emplace(paramTypep, static_cast<int>(m_classTypeParams.size()));
-                m_classTypeParams.emplace_back(paramTypep, -1);
+                اگر (!paramTypep->isGParam()) جاری;
+                m_param_اشاریہ.emplace(paramTypep, static_cast<صحیح>(m_classTypeParams.سائز()));
+                m_classTypeParams.emplace_عقب(paramTypep, -1);
             }
         }
 
         // For each parameter, detect either a dependent default (copy from previous param)
         // or a direct type default (for ex. int). Store dependency index in
         // m_classParams[i].second, default type in defaultTypeNodes[i].
-        std::vector<AstNodeDType*> defaultTypeNodes(m_classTypeParams.size(), nullptr);
-        for (size_t i = 0; i < m_classTypeParams.size(); ++i) {
-            AstParamTypeDType* const paramTypep = m_classTypeParams[i].first;
+        std::سمتیہ<Ast_گرہ_DType*> defaultTypeNodes(m_classTypeParams.سائز(), خالی_اشاریہ);
+        برائے (سائز_t i = 0; i < m_classTypeParams.سائز(); ++i) {
+            AstParamTypeDType* ثابت paramTypep = m_classTypeParams[i].پہلا;
             // Parser places defaults/constraints under childDTypep as AstRequireDType
-            AstRequireDType* const reqDtp = VN_CAST(paramTypep->getChildDTypep(), RequireDType);
-            if (!reqDtp) continue;
+            AstRequireDType* ثابت reqDtp = VN_CAST(paramTypep->get_بچہ_DTypep(), RequireDType);
+            اگر (!reqDtp) جاری;
 
             // If default is a reference to another param type, record dependency
-            if (AstRefDType* const refDtp = VN_CAST(reqDtp->subDTypep(), RefDType)) {
-                if (AstParamTypeDType* const sourceParamp
+            اگر (AstRefDType* ثابت refDtp = VN_CAST(reqDtp->subDTypep(), RefDType)) {
+                اگر (AstParamTypeDType* ثابت ماخذ_Paramp
                     = VN_CAST(refDtp->refDTypep(), ParamTypeDType)) {
-                    auto it = m_paramIndex.find(sourceParamp);
-                    if (it != m_paramIndex.end()) { m_classTypeParams[i].second = it->second; }
-                    continue;  // dependency handled
+                    خودکار it = m_param_اشاریہ.ڈھونڈو(ماخذ_Paramp);
+                    اگر (it != m_param_اشاریہ.انتہا()) { m_classTypeParams[i].دوسرا = it->دوسرا; }
+                    جاری;  // dependency handled
                 }
             }
 
             // If default is a direct type (for ex. int)
             // also record dependency
-            if (AstNodeDType* const dtp = VN_CAST(reqDtp->lhsp(), NodeDType)) {
+            اگر (Ast_گرہ_DType* ثابت dtp = VN_CAST(reqDtp->lhsp(), گرہ_DType)) {
                 defaultTypeNodes[i] = dtp;
             }
         }
@@ -1991,102 +1991,102 @@ class ParamProcessor final {
         // Type parameters when named can be given in any order, but later we depend
         // on the order when handling defaults. So here we reorder them
         // for proper handling. The remaining ones are just pushed back
-        std::vector<AstPin*> pinsByIndex;
-        pinsByIndex.resize(m_classTypeParams.size(), nullptr);
-        for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            AstParamTypeDType* const typep = pinp->modPTypep();
-            const auto it = typep ? m_paramIndex.find(typep) : m_paramIndex.end();
-            if (it != m_paramIndex.end()) {
-                pinsByIndex[it->second] = pinp;
-            } else {
-                pinsByIndex.push_back(pinp);
+        std::سمتیہ<AstPin*> pins_By_اشاریہ;
+        pins_By_اشاریہ.resize(m_classTypeParams.سائز(), خالی_اشاریہ);
+        برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            AstParamTypeDType* ثابت typep = pinp->modPTypep();
+            ثابت خودکار it = typep ? m_param_اشاریہ.ڈھونڈو(typep) : m_param_اشاریہ.انتہا();
+            اگر (it != m_param_اشاریہ.انتہا()) {
+                pins_By_اشاریہ[it->دوسرا] = pinp;
+            } ورنہ {
+                pins_By_اشاریہ.ڈالو_عقب(pinp);
             }
         }
 
         // For each missing parameter, get its pin from dependency or direct default.
         // A dependent default can reference a parameter declared later (not IEEE, but
         // we support it here), so repeat until no further parameter can be resolved.
-        for (bool resolvedSome = true; resolvedSome;) {
-            resolvedSome = false;
-            for (size_t paramIdx = 0; paramIdx < m_classTypeParams.size(); paramIdx++) {
-                if (pinsByIndex[paramIdx]) continue;
-                const int sourceParamIdx = m_classTypeParams[paramIdx].second;
+        برائے (منطقی resolvedSome = سچ; resolvedSome;) {
+            resolvedSome = جھوٹ;
+            برائے (سائز_t paramIdx = 0; paramIdx < m_classTypeParams.سائز(); paramIdx++) {
+                اگر (pins_By_اشاریہ[paramIdx]) جاری;
+                ثابت صحیح ماخذ_Param_Idx = m_classTypeParams[paramIdx].دوسرا;
 
-                AstPin* newPinp = nullptr;
+                AstPin* newPinp = خالی_اشاریہ;
 
                 // Case 1: Dependent default -> clone the source pin's type, but only once
                 // the source parameter itself has been resolved (it might be listed later)
-                if (sourceParamIdx >= 0 && pinsByIndex[sourceParamIdx]) {
-                    newPinp = pinsByIndex[sourceParamIdx]->cloneTree(false);
+                اگر (ماخذ_Param_Idx >= 0 && pins_By_اشاریہ[ماخذ_Param_Idx]) {
+                    newPinp = pins_By_اشاریہ[ماخذ_Param_Idx]->clone_درخت(جھوٹ);
                 }
 
                 // Case 2: Direct default type (e.g., int), create a new pin with that dtype
-                if (!newPinp && defaultTypeNodes[paramIdx]) {
-                    AstNodeDType* const dtypep = defaultTypeNodes[paramIdx];
-                    newPinp = new AstPin{dtypep->fileline(), static_cast<int>(paramIdx) + 1,
-                                         "__paramNumber" + cvtToStr(paramIdx + 1),
-                                         dtypep->cloneTree(false)};
+                اگر (!newPinp && defaultTypeNodes[paramIdx]) {
+                    Ast_گرہ_DType* ثابت dtypep = defaultTypeNodes[paramIdx];
+                    newPinp = نیا AstPin{dtypep->fileline(), static_cast<صحیح>(paramIdx) + 1,
+                                         "__paramNumber" + cvt_مقصد_Str(paramIdx + 1),
+                                         dtypep->clone_درخت(جھوٹ)};
                 }
 
-                if (newPinp) {
-                    newPinp->name("__paramNumber" + cvtToStr(paramIdx + 1));
-                    newPinp->param(true);
-                    newPinp->modPTypep(m_classTypeParams[paramIdx].first);
-                    if (classOrPackageRef) {
-                        classOrPackageRef->addParamsp(newPinp);
-                    } else if (classRefDType) {
-                        classRefDType->addParamsp(newPinp);
+                اگر (newPinp) {
+                    newPinp->name("__paramNumber" + cvt_مقصد_Str(paramIdx + 1));
+                    newPinp->param(سچ);
+                    newPinp->modPTypep(m_classTypeParams[paramIdx].پہلا);
+                    اگر (classOrPackageRef) {
+                        classOrPackageRef->جوڑو_Paramsp(newPinp);
+                    } ورنہ اگر (classRefDType) {
+                        classRefDType->جوڑو_Paramsp(newPinp);
                     }
                     // Update local tracking so future dependent defaults can find it
-                    pinsByIndex[paramIdx] = newPinp;
-                    if (!paramsp) paramsp = newPinp;
-                    resolvedSome = true;
+                    pins_By_اشاریہ[paramIdx] = newPinp;
+                    اگر (!paramsp) paramsp = newPinp;
+                    resolvedSome = سچ;
                 }
             }
         }
     }
 
-    AstNodeModule* nodeDeparamCommon(AstNode* nodep, AstNodeModule* srcModp, AstPin* paramsp,
-                                     AstPin* pinsp, bool any_overrides) {
+    Ast_گرہ_Module* گرہ_Deparam_Common(Ast_گرہ* nodep, Ast_گرہ_Module* srcModp, AstPin* paramsp,
+                                     AstPin* pinsp, منطقی any_overrides) {
         // Returns new or reused module
         // Make sure constification worked
         // Must be a separate loop, as constant conversion may have changed some pointers.
         string longname = srcModp->name() + "_";
-        if (debug() >= 9 && paramsp) paramsp->dumpTreeAndNext(cout, "-  cellparams: ");
+        اگر (debug() >= 9 && paramsp) paramsp->dump_درخت_And_اگلا(خارج, "-  cellparams: ");
 
-        if (srcModp->hierBlock()) {
-            longname = parameterizedHierBlockName(srcModp, paramsp);
+        اگر (srcModp->hier_بلاک()) {
+            longname = parameterized_Hier_بلاک_Name(srcModp, paramsp);
             any_overrides = longname != srcModp->name();
-        } else {
+        } ورنہ {
             // Prepare every pin before naming any, as naming a value can depend on the others:
             // fold each value pin, as a class reference's may not be yet, and resolve each type
-            std::unordered_set<const AstPin*> overridingTypePins;
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (!pinp->exprp()) continue;  // An empty override keeps the default
-                if (pinp->modPTypep()) {
+            std::unordered_سیٹ<ثابت AstPin*> overridingTypePins;
+            برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (!pinp->exprp()) جاری;  // An empty override keeps the default
+                اگر (pinp->modPTypep()) {
                     cellPinCleanup(nodep, pinp, paramsp, srcModp, longname /*ref*/,
                                    any_overrides /*ref*/, overridingTypePins /*ref*/);
-                    continue;
+                    جاری;
                 }
-                AstVar* const modvarp = pinp->modVarp();
-                if (!modvarp || !modvarp->isGParam()) continue;
+                AstVar* ثابت modvarp = pinp->modVarp();
+                اگر (!modvarp || !modvarp->isGParam()) جاری;
                 resolveDeferredDotsReachableFrom(modvarp->subDTypep(), m_modp);
                 // An untyped pattern can't be folded without its parameter's type
-                const AstPattern* const patternp = VN_CAST(pinp->exprp(), Pattern);
-                if (patternp && !patternp->childDTypep()) continue;
-                if (!VN_IS(pinp->exprp(), Const) && !isAggregateParamValue(pinp->exprp())) {
+                ثابت Ast_نمونہ* ثابت patternp = VN_CAST(pinp->exprp(), نمونہ);
+                اگر (patternp && !patternp->بچہ_DTypep()) جاری;
+                اگر (!VN_IS(pinp->exprp(), Const) && !is_Aggregate_Param_قدر(pinp->exprp())) {
                     // The pin, so a conditional of patterns is typed as an override's value
                     V3Const::constifyParamsEdit(pinp);
                 }
             }
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (AstParamTypeDType* const modptp = pinp->modPTypep()) {
-                    if (!overridingTypePins.count(pinp)) continue;
-                    AstNodeDType* const typep = VN_AS(pinp->exprp(), NodeDType);
+            برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (AstParamTypeDType* ثابت modptp = pinp->modPTypep()) {
+                    اگر (!overridingTypePins.گنتی(pinp)) جاری;
+                    Ast_گرہ_DType* ثابت typep = VN_AS(pinp->exprp(), گرہ_DType);
                     longname += "_" + paramSmallName(srcModp, modptp)
-                                + paramValueNumber(typep->skipRefToNonRefp());
-                    any_overrides = true;
-                    continue;
+                                + param_قدر_نمبر(typep->skip_Ref_مقصد_Non_Refp());
+                    any_overrides = سچ;
+                    جاری;
                 }
                 cellPinCleanup(nodep, pinp, paramsp, srcModp, longname /*ref*/,
                                any_overrides /*ref*/, overridingTypePins /*ref*/);
@@ -2102,62 +2102,62 @@ class ParamProcessor final {
         // Already-specialized clones (hasGParam=false) must not be re-cloned, otherwise
         // nested class type parameters cause unbounded re-deparameterization (Holder_ ->
         // Holder__).
-        bool defaultsResolved = false;
-        if (!any_overrides && !VN_IS(srcModp, Iface) && srcModp->hasGParam()) {
-            for (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-                if (pinp->modPTypep()) {
-                    any_overrides = true;
-                    defaultsResolved = true;
-                    break;
+        منطقی defaultsResolved = جھوٹ;
+        اگر (!any_overrides && !VN_IS(srcModp, Iface) && srcModp->hasGParam()) {
+            برائے (AstPin* pinp = paramsp; pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+                اگر (pinp->modPTypep()) {
+                    any_overrides = سچ;
+                    defaultsResolved = سچ;
+                    توڑو;
                 }
             }
         }
-        if (!any_overrides && VN_IS(nodep, Cell) && hasDescendantDefparams(srcModp)) {
-            longname += "__Vdefparam" + V3Hash{srcModp->someInstanceName()}.toString();
-            any_overrides = true;
+        اگر (!any_overrides && VN_IS(nodep, Cell) && hasDescendantDefparams(srcModp)) {
+            longname += "__Vdefparam" + V3Hash{srcModp->someInstanceName()}.مقصد_String();
+            any_overrides = سچ;
         }
 
         UINFO(9,
               "nodeDeparamCommon: " << srcModp->prettyNameQ() << " overrides=" << any_overrides);
 
-        AstNodeModule* newModp = nullptr;
-        if (m_hierBlocks.hierSubRun() && m_hierBlocks.isHierBlock(srcModp->origName())) {
-            AstNodeModule* const paramedModp
-                = m_hierBlocks.findByParams(srcModp->origName(), paramsp, m_modp);
-            if (!paramedModp) return nullptr;  // Unsupported, already reported
-            paramedModp->dead(false);
+        Ast_گرہ_Module* newModp = خالی_اشاریہ;
+        اگر (m_hier_بلاکیں.hier_Sub_تسلسل() && m_hier_بلاکیں.is_Hier_بلاک(srcModp->origName())) {
+            Ast_گرہ_Module* ثابت paramedModp
+                = m_hier_بلاکیں.ڈھونڈو_By_Params(srcModp->origName(), paramsp, m_modp);
+            اگر (!paramedModp) واپس خالی_اشاریہ;  // Unsupported, already reported
+            paramedModp->dead(جھوٹ);
             // We need to relink the pins to the new module
             relinkPinsByName(pinsp, paramedModp);
             newModp = paramedModp;
             // any_overrides = true;  // Unused later, so not needed
-        } else if (!any_overrides) {
+        } ورنہ اگر (!any_overrides) {
             UINFO(9, "nodeDeparamCommon: no overrides, reusing " << srcModp);
             UINFO(8, "Cell parameters all match original values, skipping expansion.");
             // If it's the first use of the default instance, create a copy and store it in user3p.
             // user3p will also be used to check if the default instance is used.
-            if (!srcModp->user3p() && (VN_IS(srcModp, Class) || VN_IS(srcModp, Iface))) {
-                AstNodeModule* nodeCopyp = srcModp->cloneTree(false);
+            اگر (!srcModp->user3p() && (VN_IS(srcModp, Class) || VN_IS(srcModp, Iface))) {
+                Ast_گرہ_Module* گرہ_Copyp = srcModp->clone_درخت(جھوٹ);
                 // It is a temporary copy of the original class node, stored in order to create
                 // another instances. It is needed only during class instantiation.
-                UINFO(8, "    Created clone " << nodeCopyp);
-                m_deleter.pushDeletep(nodeCopyp);  // nodeCopyp used past here
-                srcModp->user3p(nodeCopyp);
-                storeOriginalParams(nodeCopyp);
+                UINFO(8, "    Created clone " << گرہ_Copyp);
+                m_deleter.ڈالو_Deletep(گرہ_Copyp);  // nodeCopyp used past here
+                srcModp->user3p(گرہ_Copyp);
+                storeOriginalParams(گرہ_Copyp);
             }
             newModp = srcModp;
-        } else {
-            const string newname
-                = srcModp->hierBlock() ? longname : moduleCalcName(srcModp, longname);
-            const ModInfo* const modInfop
-                = moduleFindOrClone(srcModp, nodep, paramsp, newname, ifaceRefRefs);
-            if (!modInfop) return nullptr;
+        } ورنہ {
+            ثابت string newname
+                = srcModp->hier_بلاک() ? longname : moduleCalcName(srcModp, longname);
+            ثابت ModInfo* ثابت modInfop
+                = module_ڈھونڈو_Or_Clone(srcModp, nodep, paramsp, newname, ifaceRefRefs);
+            اگر (!modInfop) واپس خالی_اشاریہ;
             // We need to relink the pins to the new module
             relinkPinsByName(pinsp, modInfop->m_modp);
             UINFO(8, "     Done with " << modInfop->m_modp);
             newModp = modInfop->m_modp;
         }
 
-        const bool cloned = (newModp != srcModp);
+        ثابت منطقی cloned = (newModp != srcModp);
         UINFO(9, "nodeDeparamCommon result: " << newModp->prettyNameQ() << " cloned=" << cloned);
 
         // ParamVisitor skips the body of a class still marked hasGParam(), relying on it
@@ -2165,115 +2165,115 @@ class ParamProcessor final {
         // class-scoped reference (e.g. the 'C#(V)::t' default of a type parameter that the
         // instantiation overrides) is never visited, so record specializations here.
         // user2() is set once processWorkQ has elaborated the body, which needs no re-queue.
-        AstClass* const newClassp = VN_CAST(newModp, Class);
-        if (newClassp && !newClassp->user2()) m_specializedClassps.push_back(newClassp);
+        AstClass* ثابت newClassp = VN_CAST(newModp, Class);
+        اگر (newClassp && !newClassp->user2()) m_specializedClassps.ڈالو_عقب(newClassp);
 
         // Link source class to its specialized version for later relinking of method references
-        if (defaultsResolved) srcModp->user4p(newModp);
+        اگر (defaultsResolved) srcModp->user4p(newModp);
 
-        for (auto* stmtp = newModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* dtypep = VN_CAST(stmtp, ParamTypeDType)) {
-                if (VN_IS(dtypep->skipRefOrNullp(), VoidDType)) {
+        برائے (خودکار* stmtp = newModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            اگر (AstParamTypeDType* dtypep = VN_CAST(stmtp, ParamTypeDType)) {
+                اگر (VN_IS(dtypep->skipRefOrNullp(), VoidDType)) {
                     nodep->v3error(
                         "Class parameter type without default value is never given value"
                         << " (IEEE 1800-2023 6.20.1): " << dtypep->prettyNameQ());
                 }
             }
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (VN_IS(newModp, Class) && varp->isParam() && !varp->valuep()) {
+            اگر (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                اگر (VN_IS(newModp, Class) && varp->isParam() && !varp->valuep()) {
                     nodep->v3error("Class parameter without default value is never given value"
                                    << " (IEEE 1800-2023 6.20.1): " << varp->prettyNameQ());
                 }
             }
         }
 
-        genericInterfaceVarSetup(paramsp, pinsp);
+        generic_Interface_Var_تیاری(paramsp, pinsp);
 
         // Delete the parameters from the cell; they're not relevant any longer.
-        if (paramsp) VL_DO_DANGLING(paramsp->unlinkFrBackWithNext()->deleteTree(), paramsp);
-        return newModp;
+        اگر (paramsp) VL_DO_DANGLING(paramsp->unlink_Fr_عقب_With_اگلا()->delete_درخت(), paramsp);
+        واپس newModp;
     }
 
-    AstNodeModule* cellDeparam(AstCell* nodep, AstNodeModule* srcModp) {
+    Ast_گرہ_Module* cellDeparam(AstCell* nodep, Ast_گرہ_Module* srcModp) {
         // Must always clone __Vrcm (recursive modules)
-        AstNodeModule* const newModp = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(),
+        Ast_گرہ_Module* ثابت newModp = گرہ_Deparam_Common(nodep, srcModp, nodep->paramsp(),
                                                          nodep->pinsp(), nodep->recursive());
-        if (!newModp) return nullptr;
+        اگر (!newModp) واپس خالی_اشاریہ;
         nodep->modp(newModp);  // Might be unchanged if not cloned (newModp == srcModp)
         nodep->modName(newModp->name());
-        nodep->recursive(false);
-        return newModp;
+        nodep->recursive(جھوٹ);
+        واپس newModp;
     }
-    AstNodeModule* ifaceRefDeparam(AstIfaceRefDType* const nodep, AstNodeModule* srcModp) {
+    Ast_گرہ_Module* ifaceRefDeparam(AstIfaceRefDType* ثابت nodep, Ast_گرہ_Module* srcModp) {
         // Check for self-reference pattern: typedef iface#(T) this_type inside interface iface
         // When processing inside a specialized interface, the IfaceRefDType should point to
         // the owner interface, not create an intermediate specialization.
-        if (m_modp && VN_IS(m_modp, Iface)) {
+        اگر (m_modp && VN_IS(m_modp, Iface)) {
             AstIface* ownerIfacep = const_cast<AstIface*>(VN_AS(m_modp, Iface));
-            const string ownerOrigName
-                = ownerIfacep->origName().empty() ? ownerIfacep->name() : ownerIfacep->origName();
-            const string srcOrigName
-                = srcModp->origName().empty() ? srcModp->name() : srcModp->origName();
-            string ownerBaseName = ownerOrigName;
-            const size_t ownerPos = ownerBaseName.find("__");
-            if (ownerPos != string::npos) ownerBaseName = ownerBaseName.substr(0, ownerPos);
-            string srcBaseName = srcOrigName;
-            const size_t srcPos = srcBaseName.find("__");
-            if (srcPos != string::npos) srcBaseName = srcBaseName.substr(0, srcPos);
+            ثابت string ownerOrigName
+                = ownerIfacep->origName().خالی_خانے() ? ownerIfacep->name() : ownerIfacep->origName();
+            ثابت string srcOrigName
+                = srcModp->origName().خالی_خانے() ? srcModp->name() : srcModp->origName();
+            string owner_بنیاد_Name = ownerOrigName;
+            ثابت سائز_t ownerPos = owner_بنیاد_Name.ڈھونڈو("__");
+            اگر (ownerPos != string::npos) owner_بنیاد_Name = owner_بنیاد_Name.substr(0, ownerPos);
+            string src_بنیاد_Name = srcOrigName;
+            ثابت سائز_t srcPos = src_بنیاد_Name.ڈھونڈو("__");
+            اگر (srcPos != string::npos) src_بنیاد_Name = src_بنیاد_Name.substr(0, srcPos);
 
-            if (ownerBaseName == srcBaseName) {
-                bool allOwnParams = true;
-                for (AstPin* pinp = nodep->paramsp(); pinp && allOwnParams;
+            اگر (owner_بنیاد_Name == src_بنیاد_Name) {
+                منطقی allOwnParams = سچ;
+                برائے (AstPin* pinp = nodep->paramsp(); pinp && allOwnParams;
                      pinp = VN_AS(pinp->nextp(), Pin)) {
-                    if (AstRefDType* const refp = VN_CAST(pinp->exprp(), RefDType)) {
-                        if (AstParamTypeDType* const ptdp
+                    اگر (AstRefDType* ثابت refp = VN_CAST(pinp->exprp(), RefDType)) {
+                        اگر (AstParamTypeDType* ثابت ptdp
                             = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
-                            AstNodeModule* const ptdOwnerp
-                                = V3LinkDotIfaceCapture::findOwnerModule(ptdp);
-                            if (ptdOwnerp != m_modp) allOwnParams = false;
-                        } else {
+                            Ast_گرہ_Module* ثابت ptdOwnerp
+                                = V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(ptdp);
+                            اگر (ptdOwnerp != m_modp) allOwnParams = جھوٹ;
+                        } ورنہ {
                             pinp->v3error(  // LCOV_EXCL_LINE
                                 "Self-referencing interface typedef "
                                 "parameter is not a type parameter of "
                                 "the enclosing interface");
                         }
-                    } else {
+                    } ورنہ {
                         pinp->v3error(  // LCOV_EXCL_LINE
                             "Self-referencing interface typedef "
                             "parameter is not a type reference");
                     }
                 }
-                if (allOwnParams) {
+                اگر (allOwnParams) {
                     UINFO(5, "ifaceRefDeparam: self-reference pattern detected in "
                                  << ownerIfacep->prettyNameQ() << ", using owner interface");
-                    V3Stats::addStatSum("Param, Self-reference iface typedefs", 1);
+                    V3Stats::جوڑو_Stat_مجموع("Param, Self-reference iface typedefs", 1);
                     nodep->ifacep(ownerIfacep);
-                    if (nodep->paramsp()) nodep->paramsp()->unlinkFrBackWithNext()->deleteTree();
-                    return ownerIfacep;
+                    اگر (nodep->paramsp()) nodep->paramsp()->unlink_Fr_عقب_With_اگلا()->delete_درخت();
+                    واپس ownerIfacep;
                 }
             }
         }
 
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
+        Ast_گرہ_Module* ثابت newModp
+            = گرہ_Deparam_Common(nodep, srcModp, nodep->paramsp(), خالی_اشاریہ, جھوٹ);
+        اگر (!newModp) واپس خالی_اشاریہ;
         nodep->ifacep(VN_AS(newModp, Iface));
-        return newModp;
+        واپس newModp;
     }
-    AstNodeModule* classRefDeparam(AstClassOrPackageRef* nodep, AstNodeModule* srcModp) {
+    Ast_گرہ_Module* classRefDeparam(AstClassOrPackageRef* nodep, Ast_گرہ_Module* srcModp) {
         resolveDefaultParams(nodep);
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
+        Ast_گرہ_Module* ثابت newModp
+            = گرہ_Deparam_Common(nodep, srcModp, nodep->paramsp(), خالی_اشاریہ, جھوٹ);
+        اگر (!newModp) واپس خالی_اشاریہ;
         nodep->classOrPackagep(newModp);  // Might be unchanged if not cloned (newModp == srcModp)
 
         // If this ClassOrPackageRef is a child of a RefDType (e.g., typedef class#(T)::member_t),
         // resolve the RefDType's typedef to point to the typedef inside the specialized class
-        AstRefDType* const refDTypep = VN_CAST(nodep->backp(), RefDType);
-        AstClass* const newClassp = refDTypep ? VN_CAST(newModp, Class) : nullptr;
-        if (newClassp && !refDTypep->typedefp() && !refDTypep->subDTypep()) {
-            if (AstTypedef* const typedefp
-                = VN_CAST(m_memberMap.findMember(newClassp, refDTypep->name()), Typedef)) {
+        AstRefDType* ثابت refDTypep = VN_CAST(nodep->backp(), RefDType);
+        AstClass* ثابت newClassp = refDTypep ? VN_CAST(newModp, Class) : خالی_اشاریہ;
+        اگر (newClassp && !refDTypep->typedefp() && !refDTypep->subDTypep()) {
+            اگر (AstTypedef* ثابت typedefp
+                = VN_CAST(m_memberMap.ڈھونڈو_Member(newClassp, refDTypep->name()), Typedef)) {
                 refDTypep->typedefp(typedefp);
                 refDTypep->classOrPackagep(newClassp);
                 UINFO(9, "Resolved parameterized class typedef: " << refDTypep->name() << " -> "
@@ -2281,95 +2281,95 @@ class ParamProcessor final {
                                                                   << newClassp->name());
             }
         }
-        return newModp;
+        واپس newModp;
     }
-    AstNodeModule* classRefDeparam(AstClassRefDType* nodep, AstNodeModule* srcModp) {
+    Ast_گرہ_Module* classRefDeparam(AstClassRefDType* nodep, Ast_گرہ_Module* srcModp) {
         resolveDefaultParams(nodep);
-        AstNodeModule* const newModp
-            = nodeDeparamCommon(nodep, srcModp, nodep->paramsp(), nullptr, false);
-        if (!newModp) return nullptr;
-        AstClass* const newClassp = VN_AS(newModp, Class);
+        Ast_گرہ_Module* ثابت newModp
+            = گرہ_Deparam_Common(nodep, srcModp, nodep->paramsp(), خالی_اشاریہ, جھوٹ);
+        اگر (!newModp) واپس خالی_اشاریہ;
+        AstClass* ثابت newClassp = VN_AS(newModp, Class);
         nodep->classp(newClassp);  // Might be unchanged if not cloned (newModp == srcModp)
         nodep->classOrPackagep(newClassp);
-        return newClassp;
+        واپس newClassp;
     }
 
     // Resolve deferred class-scoped references in post-order. Resolution may
     // deparameterize a class and delete its parameter pins, so no pointer to a
     // child may remain pending when its parent is resolved.
-    class DeferredResolverVisitor final : public VNVisitor {
+    جماعت DeferredResolverVisitor final : عوامی VNVisitor {
         ParamProcessor& m_processor;  // Processor used to resolve deferred references
-        std::set<const AstNode*> m_reachedDecls;
+        std::سیٹ<ثابت Ast_گرہ*> m_reachedDecls;
 
-        bool firstReach(const AstNode* const declp) { return m_reachedDecls.insert(declp).second; }
+        منطقی پہلا_رسائی(ثابت Ast_گرہ* ثابت declp) { واپس m_reachedDecls.داخل_کرو(declp).دوسرا; }
 
-        void iterateParamType(AstParamTypeDType* const paramTypep) {
-            if (firstReach(paramTypep)) iterate(paramTypep);
+        خالی iterateParamType(AstParamTypeDType* ثابت paramTypep) {
+            اگر (پہلا_رسائی(paramTypep)) iterate(paramTypep);
         }
-        void iterateTypedef(AstTypedef* const tdefp) {
-            if (firstReach(tdefp)) iterate(tdefp->subDTypep());
+        خالی iterateTypedef(AstTypedef* ثابت tdefp) {
+            اگر (پہلا_رسائی(tdefp)) iterate(tdefp->subDTypep());
         }
 
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
-        void visit(AstClassOrPackageRef* nodep) override {
+        خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
+        خالی دورہ(AstClassOrPackageRef* nodep) override {
             iterateChildren(nodep);
-            AstNode* const targetp = nodep->classOrPackageNodep();
-            if (AstTypedef* const tdefp = VN_CAST(targetp, Typedef)) {
+            Ast_گرہ* ثابت targetp = nodep->classOrPackageNodep();
+            اگر (AstTypedef* ثابت tdefp = VN_CAST(targetp, Typedef)) {
                 iterateTypedef(tdefp);
-            } else if (AstParamTypeDType* const paramTypep = VN_CAST(targetp, ParamTypeDType)) {
+            } ورنہ اگر (AstParamTypeDType* ثابت paramTypep = VN_CAST(targetp, ParamTypeDType)) {
                 iterateParamType(paramTypep);
             }
         }
-        void visit(AstDot* nodep) override {
+        خالی دورہ(AstDot* nodep) override {
             iterateChildren(nodep);
-            m_processor.resolveDotToTypedef(nodep);
+            m_processor.resolve_Dot_مقصد_Typedef(nodep);
         }
-        void visit(AstRefDType* nodep) override {
+        خالی دورہ(AstRefDType* nodep) override {
             iterateChildren(nodep);
-            AstTypedef* const tdefp = nodep->typedefp();
-            if (tdefp) {
+            AstTypedef* ثابت tdefp = nodep->typedefp();
+            اگر (tdefp) {
                 iterateTypedef(tdefp);
-            } else if (AstParamTypeDType* const paramTypep
+            } ورنہ اگر (AstParamTypeDType* ثابت paramTypep
                        = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
                 iterateParamType(paramTypep);
             }
             m_processor.resolveParamClassRefDType(nodep);
         }
-        void visit(AstVarRef* nodep) override {
+        خالی دورہ(AstVarRef* nodep) override {
             iterateChildren(nodep);
-            AstVar* const varp = nodep->varp();
-            if (firstReach(varp)) {
+            AstVar* ثابت varp = nodep->varp();
+            اگر (پہلا_رسائی(varp)) {
                 iterate(varp->subDTypep());
-                const auto& deferredVarps = v3Global.rootp()->deferredParamVarps();
-                if (varp->varType() == VVarType::LPARAM && deferredVarps.count(varp)) {
+                ثابت خودکار& deferredVarps = v3Global.rootp()->deferredParamVarps();
+                اگر (varp->varType() == VVarType::LPARAM && deferredVarps.گنتی(varp)) {
                     UASSERT_OBJ(varp->valuep(), varp, "VarRef should have non-null valuep");
                     iterate(varp->valuep());
                 }
             }
         }
 
-    public:
-        DeferredResolverVisitor(ParamProcessor& processor, AstNode* rootp)
+    عوامی:
+        DeferredResolverVisitor(ParamProcessor& processor, Ast_گرہ* rootp)
             : m_processor{processor} {
             iterate(rootp);
         }
     };
 
-public:
+عوامی:
     // After an interface cell inside parentModp has been deparameterized
     // (rewired from template to clone), retarget REFDTYPEs that still
     // reference the old template's types so that $bits(iface_typedef)
     // evaluates with the clone's widths.
-    void retargetIfaceRefs(AstNodeModule* parentModp, const string& cellName) {
-        AstNodeModule* const correctModp
-            = V3LinkDotIfaceCapture::followCellPath(parentModp, cellName);
-        if (!correctModp || correctModp->dead() || correctModp->parameterizedTemplate()) return;
-        parentModp->foreach([&](AstRefDType* refp) {
-            const VIfaceCaptureTag* const tagp = V3LinkDotIfaceCapture::captureTag(refp);
-            if (!tagp || tagp->m_cellPath != cellName) return;
+    خالی retargetIfaceRefs(Ast_گرہ_Module* والد_Modp, ثابت string& cellName) {
+        Ast_گرہ_Module* ثابت correctModp
+            = V3LinkDotIfaceCapture::follow_Cell_راستہ(والد_Modp, cellName);
+        اگر (!correctModp || correctModp->dead() || correctModp->parameterizedTemplate()) واپس;
+        والد_Modp->foreach([&](AstRefDType* refp) {
+            ثابت VIface_Capture_لیبل* ثابت tagp = V3LinkDotIfaceCapture::capture_لیبل(refp);
+            اگر (!tagp || tagp->m_cell_راستہ != cellName) واپس;
             // Only retarget REFDTYPEs owned by parentModp.
-            if (V3LinkDotIfaceCapture::findOwnerModule(refp) != parentModp) return;
-            if (V3LinkDotIfaceCapture::retargetRefToModule(refp, correctModp)) {
+            اگر (V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(refp) != والد_Modp) واپس;
+            اگر (V3LinkDotIfaceCapture::retarget_Ref_مقصد_Module(refp, correctModp)) {
                 UINFO(9, "retargetIfaceRefs: " << refp << " -> " << correctModp->prettyNameQ());
             }
         });
@@ -2379,14 +2379,14 @@ public:
     // addition to AST children, follow typedefs, parameter types, deferred
     // localparam values, and referenced-variable dtypes. This makes the walk
     // independent of the particular dtype wrappers around a RefDType.
-    void resolveDeferredDotsReachableFrom(AstNode* rootp, const AstNodeModule* modp) {
+    خالی resolveDeferredDotsReachableFrom(Ast_گرہ* rootp, ثابت Ast_گرہ_Module* modp) {
         VL_RESTORER(m_modp);
         m_modp = modp;
-        DeferredResolverVisitor{*this, rootp};
+        DeferredResolverVisitor{*یہ, rootp};
     }
 
-    AstNodeModule* nodeDeparam(AstNode* nodep, AstNodeModule* srcModp, AstNodeModule* modp,
-                               const string& someInstanceName) {
+    Ast_گرہ_Module* گرہ_Deparam(Ast_گرہ* nodep, Ast_گرہ_Module* srcModp, Ast_گرہ_Module* modp,
+                               ثابت string& someInstanceName) {
         // Return new or reused de-parameterized module
         m_modp = modp;
         // Cell: Check for parameters in the instantiation.
@@ -2394,7 +2394,7 @@ public:
         // and remove any recursive references
         UINFO(4, "De-parameterize: " << nodep);
         UINFO(9, "nodeDeparam ENTER node=<"
-                     << AstNode::nodeAddr(nodep) << ">" << " type=" << nodep->typeName()
+                     << Ast_گرہ::گرہ_Addr(nodep) << ">" << " type=" << nodep->typeName()
                      << " srcMod=" << (srcModp ? srcModp->prettyNameQ() : "'<null>'")
                      << " srcSomeInstanceName='"
                      << (srcModp ? srcModp->someInstanceName() : string("<null>")) << "'"
@@ -2402,19 +2402,19 @@ public:
                      << " parentSomeInstanceName='"
                      << (modp ? modp->someInstanceName() : string("<null>")) << "'"
                      << " inputSomeInstanceName='" << someInstanceName << "'");
-        string nodeName = nodep->name();
-        if (AstIfaceRefDType* const ifaceRefp = VN_CAST(nodep, IfaceRefDType)) {
-            if (nodeName.empty()) nodeName = ifaceRefp->cellName();
+        string گرہ_Name = nodep->name();
+        اگر (AstIfaceRefDType* ثابت ifaceRefp = VN_CAST(nodep, IfaceRefDType)) {
+            اگر (گرہ_Name.خالی_خانے()) گرہ_Name = ifaceRefp->cellName();
         }
-        const string instanceName
-            = nodeName.empty() ? someInstanceName : (someInstanceName + "." + nodeName);
+        ثابت string instanceName
+            = گرہ_Name.خالی_خانے() ? someInstanceName : (someInstanceName + "." + گرہ_Name);
 
-        if (AstCell* const cellp = VN_CAST(nodep, Cell)) {
-            for (AstPin* pinp = cellp->paramsp(); pinp;) {
-                AstPin* const nextp = VN_AS(pinp->nextp(), Pin);
-                if (!pinp->paramPath().empty() && instanceName != pinp->paramPath()
-                    && !VString::endsWith(instanceName, "." + pinp->paramPath())) {
-                    VL_DO_DANGLING(pinp->unlinkFrBack()->deleteTree(), pinp);
+        اگر (AstCell* ثابت cellp = VN_CAST(nodep, Cell)) {
+            برائے (AstPin* pinp = cellp->paramsp(); pinp;) {
+                AstPin* ثابت nextp = VN_AS(pinp->nextp(), Pin);
+                اگر (!pinp->param_راستہ().خالی_خانے() && instanceName != pinp->param_راستہ()
+                    && !VString::سرے_With(instanceName, "." + pinp->param_راستہ())) {
+                    VL_DO_DANGLING(pinp->unlink_Fr_عقب()->delete_درخت(), pinp);
                 }
                 pinp = nextp;
             }
@@ -2438,29 +2438,29 @@ public:
         srcModp->someInstanceName(instanceName);
         UINFO(9, "nodeDeparam SET-SRC-INST srcMod="
                      << srcModp->prettyNameQ() << " someInstanceName='"
-                     << srcModp->someInstanceName() << "'" << " node=<" << AstNode::nodeAddr(nodep)
+                     << srcModp->someInstanceName() << "'" << " node=<" << Ast_گرہ::گرہ_Addr(nodep)
                      << ">" << " nodeType=" << nodep->typeName());
 
-        AstNodeModule* newModp = nullptr;
-        if (AstCell* const cellp = VN_CAST(nodep, Cell)) {
+        Ast_گرہ_Module* newModp = خالی_اشاریہ;
+        اگر (AstCell* ثابت cellp = VN_CAST(nodep, Cell)) {
             newModp = cellDeparam(cellp, srcModp);
-        } else if (AstIfaceRefDType* const ifaceRefDTypep = VN_CAST(nodep, IfaceRefDType)) {
+        } ورنہ اگر (AstIfaceRefDType* ثابت ifaceRefDTypep = VN_CAST(nodep, IfaceRefDType)) {
             newModp = ifaceRefDeparam(ifaceRefDTypep, srcModp);
-        } else if (AstClassRefDType* const classRefp = VN_CAST(nodep, ClassRefDType)) {
+        } ورنہ اگر (AstClassRefDType* ثابت classRefp = VN_CAST(nodep, ClassRefDType)) {
             newModp = classRefDeparam(classRefp, srcModp);
-        } else if (AstClassOrPackageRef* const classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+        } ورنہ اگر (AstClassOrPackageRef* ثابت classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
             newModp = classRefDeparam(classRefp, srcModp);
-        } else {
+        } ورنہ {
             nodep->v3fatalSrc("Expected module parameterization");
         }
         // 'newModp' might be nullptr on error
-        if (!newModp) return nullptr;
+        اگر (!newModp) واپس خالی_اشاریہ;
 
         // Set name for later warnings
         newModp->someInstanceName(instanceName);
 
         UINFO(9, "nodeDeparam EXIT  node=<"
-                     << AstNode::nodeAddr(nodep) << ">" << " type=" << nodep->typeName()
+                     << Ast_گرہ::گرہ_Addr(nodep) << ">" << " type=" << nodep->typeName()
                      << " srcMod=" << (srcModp ? srcModp->prettyNameQ() : "'<null>'")
                      << " srcSomeInstanceName='"
                      << (srcModp ? srcModp->someInstanceName() : string("<null>")) << "'"
@@ -2471,63 +2471,63 @@ public:
         UINFO(8, "     Done with orig " << nodep);
         // if (debug() >= 10)
         // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("param-out.tree"));
-        return newModp;
+        واپس newModp;
     }
 
     // Return, and forget, the classes specialized since the previous call
-    std::vector<AstClass*> takeSpecializedClassps() {
-        std::vector<AstClass*> taken;
-        taken.swap(m_specializedClassps);
-        return taken;
+    std::سمتیہ<AstClass*> takeSpecializedClassps() {
+        std::سمتیہ<AstClass*> لیا_گیا;
+        لیا_گیا.تبادلہ(m_specializedClassps);
+        واپس لیا_گیا;
     }
 
     // CONSTRUCTORS
-    explicit ParamProcessor(AstNetlist* nodep)
-        : m_hierBlocks{v3Global.opt.hierBlocks(), nodep} {
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            m_allModuleNames.insert(modp->name());
+    صریح ParamProcessor(AstNetlist* nodep)
+        : m_hier_بلاکیں{v3Global.opt.hier_بلاکیں(), nodep} {
+        برائے (Ast_گرہ_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), گرہ_Module)) {
+            m_all_Module_نام.داخل_کرو(modp->name());
         }
     }
-    ~ParamProcessor() = default;
+    ~ParamProcessor() = طےشدہ;
     VL_UNCOPYABLE(ParamProcessor);
 };
 
 //######################################################################
 // Record classes that are referenced with parameter pins
 
-class ClassRefUnlinkerVisitor final : public VNVisitor {
+جماعت ClassRefUnlinkerVisitor final : عوامی VNVisitor {
 
-public:
-    explicit ClassRefUnlinkerVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    void visit(AstClassOrPackageRef* nodep) override {
-        if (nodep->paramsp()) {
-            if (AstClass* const classp = VN_CAST(nodep->classOrPackageSkipp(), Class)) {
-                if (!classp->user3p()) {
+عوامی:
+    صریح ClassRefUnlinkerVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    خالی دورہ(AstClassOrPackageRef* nodep) override {
+        اگر (nodep->paramsp()) {
+            اگر (AstClass* ثابت classp = VN_CAST(nodep->classOrPackageSkipp(), Class)) {
+                اگر (!classp->user3p()) {
                     // Check if this ClassOrPackageRef is the lhsp of a DOT node
-                    AstDot* const dotp = VN_CAST(nodep->backp(), Dot);
-                    if (dotp && dotp->lhsp() == nodep) {
+                    AstDot* ثابت dotp = VN_CAST(nodep->backp(), Dot);
+                    اگر (dotp && dotp->lhsp() == nodep) {
                         // Replace DOT with just its rhsp to avoid leaving DOT with null lhsp
-                        dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
-                        VL_DO_DANGLING2(pushDeletep(dotp), dotp, nodep);
-                    } else {
-                        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+                        dotp->replaceWith(dotp->rhsp()->unlink_Fr_عقب());
+                        VL_DO_DANGLING2(ڈالو_Deletep(dotp), dotp, nodep);
+                    } ورنہ {
+                        VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
                     }
                 }
             }
         }
     }
-    void visit(AstClass* nodep) override {}  // don't iterate inside classes
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(AstClass* nodep) override {}  // don't iterate inside classes
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 };
 
 //######################################################################
 //  Relink RefDType nodes to point to parameterized classes' type parameters
 
-class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
+جماعت ParamClassRefDTypeRelinkVisitor final : عوامی VNVisitor {
 
-    AstClass* m_classp = nullptr;
-    std::unordered_map<const AstParamTypeDType*, AstClass*> m_paramTypeClassMap;
+    AstClass* m_classp = خالی_اشاریہ;
+    std::unordered_map<ثابت AstParamTypeDType*, AstClass*> m_paramTypeClassMap;
 
     // Owner-tracking state for the post-clone REFDTYPE typedef retargeting
     // (see retargetRefDType()). m_ownerModp is the most recently entered
@@ -2535,58 +2535,58 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
     // rebuilt lazily on the first AstRefDType visit per owner; the
     // m_ownerMapForp cache key avoids rebuilding when the owner is unchanged
     // (e.g. across siblings under the same parent).
-    AstNodeModule* m_ownerModp = nullptr;
-    AstNodeModule* m_ownerMapForp = nullptr;
-    std::unordered_map<std::string, AstClass*> m_origNameToClone;
-    std::unordered_set<std::string> m_ambiguous;
+    Ast_گرہ_Module* m_ownerModp = خالی_اشاریہ;
+    Ast_گرہ_Module* m_ownerMapForp = خالی_اشاریہ;
+    std::unordered_map<std::string, AstClass*> m_orig_Name_مقصد_Clone;
+    std::unordered_سیٹ<std::string> m_ambiguous;
 
-    void ensureOwnerMap() {
-        if (m_ownerMapForp == m_ownerModp) return;
+    خالی ensureOwnerMap() {
+        اگر (m_ownerMapForp == m_ownerModp) واپس;
         m_ownerMapForp = m_ownerModp;
-        m_origNameToClone.clear();
+        m_orig_Name_مقصد_Clone.clear();
         m_ambiguous.clear();
-        if (!m_ownerModp) return;
+        اگر (!m_ownerModp) واپس;
         // Skip bare/generic class templates: their bodies are not
         // authoritative for any specialization, and their self-typedefs
         // (e.g. `typedef cls#(P,Q) this_type;` inside a parameterized class)
         // would otherwise be treated as ground truth and cause REFDTYPEs in
         // the body to be retargeted at the bare template.
-        if (AstClass* const ownerClassp = VN_CAST(m_ownerModp, Class)) {
-            if (ownerClassp->hasGParam()) return;
+        اگر (AstClass* ثابت ownerClassp = VN_CAST(m_ownerModp, Class)) {
+            اگر (ownerClassp->hasGParam()) واپس;
         }
-        for (AstNode* sp = m_ownerModp->stmtsp(); sp; sp = sp->nextp()) {
-            AstTypedef* const tdp = VN_CAST(sp, Typedef);
-            if (!tdp) continue;
-            AstClassRefDType* const crdtp = VN_CAST(tdp->subDTypep(), ClassRefDType);
-            if (!crdtp || !crdtp->classp()) continue;
-            AstClass* const targetp = crdtp->classp();
+        برائے (Ast_گرہ* sp = m_ownerModp->stmtsp(); sp; sp = sp->nextp()) {
+            AstTypedef* ثابت tdp = VN_CAST(sp, Typedef);
+            اگر (!tdp) جاری;
+            AstClassRefDType* ثابت crdtp = VN_CAST(tdp->subDTypep(), ClassRefDType);
+            اگر (!crdtp || !crdtp->classp()) جاری;
+            AstClass* ثابت targetp = crdtp->classp();
             // A typedef pointing at a still-generic template is a forward
             // declaration / unresolved reference, not ground truth.
-            if (targetp->hasGParam()) continue;
-            const std::string origName
-                = targetp->origName().empty() ? targetp->name() : targetp->origName();
-            const auto pair = m_origNameToClone.emplace(origName, targetp);
+            اگر (targetp->hasGParam()) جاری;
+            ثابت std::string origName
+                = targetp->origName().خالی_خانے() ? targetp->name() : targetp->origName();
+            ثابت خودکار pair = m_orig_Name_مقصد_Clone.emplace(origName, targetp);
             // Two locally-resolved typedefs pointing at different
             // specializations of the same template -> ambiguous; we cannot
             // safely guess which one a stripped REFDTYPE meant.
-            if (!pair.second && pair.first->second != targetp) m_ambiguous.insert(origName);
+            اگر (!pair.دوسرا && pair.پہلا->دوسرا != targetp) m_ambiguous.داخل_کرو(origName);
         }
     }
 
     // A class's name before specialization (e.g. "holder" for "holder__Tz1").
-    static string classOrigName(const AstClass* classp) {
-        return classp->origName().empty() ? classp->name() : classp->origName();
+    ساکن string classOrigName(ثابت AstClass* classp) {
+        واپس classp->origName().خالی_خانے() ? classp->name() : classp->origName();
     }
 
     // Find 'name' in classp or any base class (findTypedefInModule() searches
     // only the class itself).
-    static AstTypedef* findTypedefWithBases(AstClass* classp, const string& name) {
-        for (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            if (AstTypedef* const tdp = V3LinkDotIfaceCapture::findTypedefInModule(cp, name)) {
-                if (tdp->subDTypep()) return tdp;
+    ساکن AstTypedef* ڈھونڈو_Typedef_With_Bases(AstClass* classp, ثابت string& name) {
+        برائے (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : خالی_اشاریہ) {
+            اگر (AstTypedef* ثابت tdp = V3LinkDotIfaceCapture::ڈھونڈو_Typedef_اندر_Module(cp, name)) {
+                اگر (tdp->subDTypep()) واپس tdp;
             }
         }
-        return nullptr;
+        واپس خالی_اشاریہ;
     }
 
     // Re-resolve REFDTYPE.typedefp/refDTypep using the containing module's
@@ -2597,53 +2597,53 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
     // stomps the bindings made by the first. By this point each owner's
     // typedefs have been correctly bound (via classRefDeparam), so we use
     // those local typedefs as ground truth.
-    void retargetRefDType(AstRefDType* refp) {
-        if (!m_ownerModp) return;
+    خالی retargetRefDType(AstRefDType* refp) {
+        اگر (!m_ownerModp) واپس;
 
         // IEEE 1800-2023 8.25.1: a bare class-qualified reference to the class
         // being compiled means the current specialization, but V3LinkDot binds
         // it to the default instance, so a typedef reached through it widens
         // with the template's defaults (#8348). Rebind it to the
         // specialization's own typedef.
-        if (AstClass* const ownerClassp = VN_CAST(m_ownerModp, Class)) {
-            if (!ownerClassp->hasGParam() && !refp->paramsp()) {
+        اگر (AstClass* ثابت ownerClassp = VN_CAST(m_ownerModp, Class)) {
+            اگر (!ownerClassp->hasGParam() && !refp->paramsp()) {
                 // What the reference resolves to: its typedef's owner if
                 // linked, else the class it is qualified by.
-                const AstClass* refClassp = nullptr;
-                if (AstTypedef* const tdp = refp->typedefp()) {
-                    refClassp = VN_CAST(V3LinkDotIfaceCapture::findOwnerModule(tdp), Class);
-                } else if (const AstClassOrPackageRef* const classRefp
+                ثابت AstClass* refClassp = خالی_اشاریہ;
+                اگر (AstTypedef* ثابت tdp = refp->typedefp()) {
+                    refClassp = VN_CAST(V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(tdp), Class);
+                } ورنہ اگر (ثابت AstClassOrPackageRef* ثابت classRefp
                            = VN_CAST(refp->classOrPackageOpp(), ClassOrPackageRef)) {
                     refClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
                 }
                 // Same originating class => bare self reference (another
                 // specialization would carry #(), rejected above).
-                if (refClassp && refClassp != ownerClassp
+                اگر (refClassp && refClassp != ownerClassp
                     && classOrigName(refClassp) == classOrigName(ownerClassp)) {
-                    AstTypedef* const selfTdp = findTypedefWithBases(ownerClassp, refp->name());
-                    if (selfTdp) {
+                    AstTypedef* ثابت selfTdp = ڈھونڈو_Typedef_With_Bases(ownerClassp, refp->name());
+                    اگر (selfTdp) {
                         UINFO(9, "post-param REFDTYPE self-reference retarget: "
                                      << refp << " from " << refClassp->name() << " to "
                                      << ownerClassp->name());
                         refp->typedefp(selfTdp);
-                        refp->classOrPackagep(V3LinkDotIfaceCapture::findOwnerModule(selfTdp));
+                        refp->classOrPackagep(V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(selfTdp));
                         refp->refDTypep(selfTdp->subDTypep());
-                        return;
+                        واپس;
                     }
                 }
             }
         }
 
-        AstTypedef* const oldTdp = refp->typedefp();
-        if (!oldTdp) return;
-        AstClass* const oldOwnerp = VN_CAST(V3LinkDotIfaceCapture::findOwnerModule(oldTdp), Class);
-        if (!oldOwnerp) return;
+        AstTypedef* ثابت oldTdp = refp->typedefp();
+        اگر (!oldTdp) واپس;
+        AstClass* ثابت oldOwnerp = VN_CAST(V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(oldTdp), Class);
+        اگر (!oldOwnerp) واپس;
 
         ensureOwnerMap();
-        if (m_origNameToClone.empty()) return;
-        const std::string origName
-            = oldOwnerp->origName().empty() ? oldOwnerp->name() : oldOwnerp->origName();
-        if (m_ambiguous.count(origName)) {
+        اگر (m_orig_Name_مقصد_Clone.خالی_خانے()) واپس;
+        ثابت std::string origName
+            = oldOwnerp->origName().خالی_خانے() ? oldOwnerp->name() : oldOwnerp->origName();
+        اگر (m_ambiguous.گنتی(origName)) {
             // The owner has two locally-resolved typedefs pointing at
             // different specializations of the same template, e.g.:
             //   typedef driver #(.IW(5)) drv5_t;
@@ -2652,29 +2652,29 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
             // tell which sibling it meant; leave it alone.
             UINFO(9, "post-param REFDTYPE retarget skipped (ambiguous owner '" << origName
                                                                                << "'): " << refp);
-            return;
+            واپس;
         }
-        const auto it = m_origNameToClone.find(origName);
-        if (it == m_origNameToClone.end()) return;
-        AstClass* const correctClassp = it->second;
-        if (correctClassp == oldOwnerp) return;
-        AstTypedef* const newTdp
-            = V3LinkDotIfaceCapture::findTypedefInModule(correctClassp, refp->name());
-        if (!newTdp) {
+        ثابت خودکار it = m_orig_Name_مقصد_Clone.ڈھونڈو(origName);
+        اگر (it == m_orig_Name_مقصد_Clone.انتہا()) واپس;
+        AstClass* ثابت correctClassp = it->دوسرا;
+        اگر (correctClassp == oldOwnerp) واپس;
+        AstTypedef* ثابت newTdp
+            = V3LinkDotIfaceCapture::ڈھونڈو_Typedef_اندر_Module(correctClassp, refp->name());
+        اگر (!newTdp) {
             // The owner map says correctClassp is the right specialization,
             // but it does not declare a typedef named refp->name(). Caveats
             // of findTypedefInModule (e.g. typedef declared in a base class,
             // not the specialization we resolved to) can land us here.
             UINFO(9, "post-param REFDTYPE retarget skipped (no typedef '"
                          << refp->name() << "' in " << correctClassp->name() << "): " << refp);
-            return;
+            واپس;
         }
         // typedefp / classOrPackagep / refDTypep must agree. If newTdp lacks
         // a subDTypep we cannot keep all three in sync, so skip the entire
         // retarget rather than leaving the REFDTYPE half-updated.
-        if (!newTdp->subDTypep()) {
+        اگر (!newTdp->subDTypep()) {
             UINFO(9, "post-param REFDTYPE retarget skipped (newTdp has null subDTypep): " << refp);
-            return;
+            واپس;
         }
         refp->typedefp(newTdp);
         refp->classOrPackagep(correctClassp);
@@ -2683,49 +2683,49 @@ class ParamClassRefDTypeRelinkVisitor final : public VNVisitor {
                                                     << " to " << correctClassp->name());
     }
 
-public:
-    explicit ParamClassRefDTypeRelinkVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    void visit(AstNodeModule* nodep) override {
+عوامی:
+    صریح ParamClassRefDTypeRelinkVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_ownerModp);
         m_ownerModp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    خالی دورہ(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_ownerModp);
         m_classp = nodep;
         m_ownerModp = nodep;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
+        برائے (Ast_گرہ* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            اگر (AstParamTypeDType* ثابت ptp = VN_CAST(stmtp, ParamTypeDType)) {
                 m_paramTypeClassMap[ptp] = nodep;
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstRefDType* nodep) override {
+    خالی دورہ(AstRefDType* nodep) override {
         iterateChildren(nodep);
         // Redirect refs whose refDTypep points at a stale ParamTypeDType in
         // a generic class template that has been replaced by a parametrized
         // clone.
-        if (AstParamTypeDType* const paramtypep = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
-            const auto it = m_paramTypeClassMap.find(paramtypep);
-            if (it != m_paramTypeClassMap.end()) {
-                AstClass* const origClassp = it->second;
-                if (origClassp->hasGParam() && !origClassp->user3p()) {
-                    if (AstClass* const parametrizedClassp
+        اگر (AstParamTypeDType* ثابت paramtypep = VN_CAST(nodep->refDTypep(), ParamTypeDType)) {
+            ثابت خودکار it = m_paramTypeClassMap.ڈھونڈو(paramtypep);
+            اگر (it != m_paramTypeClassMap.انتہا()) {
+                AstClass* ثابت origClassp = it->دوسرا;
+                اگر (origClassp->hasGParam() && !origClassp->user3p()) {
+                    اگر (AstClass* ثابت parametrizedClassp
                         = VN_CAST(origClassp->user4p(), Class)) {
-                        const string paramName = paramtypep->name();
-                        AstParamTypeDType* newParamTypep = nullptr;
-                        for (AstNode* stmtp = parametrizedClassp->stmtsp(); stmtp;
+                        ثابت string paramName = paramtypep->name();
+                        AstParamTypeDType* newParamTypep = خالی_اشاریہ;
+                        برائے (Ast_گرہ* stmtp = parametrizedClassp->stmtsp(); stmtp;
                              stmtp = stmtp->nextp()) {
-                            if (AstParamTypeDType* const ptp = VN_CAST(stmtp, ParamTypeDType)) {
-                                if (ptp->name() == paramName) {
+                            اگر (AstParamTypeDType* ثابت ptp = VN_CAST(stmtp, ParamTypeDType)) {
+                                اگر (ptp->name() == paramName) {
                                     newParamTypep = ptp;
-                                    break;
+                                    توڑو;
                                 }
                             }
                         }
-                        if (newParamTypep) {
+                        اگر (newParamTypep) {
                             nodep->refDTypep(newParamTypep);
                             nodep->classOrPackagep(parametrizedClassp);
                         }
@@ -2737,30 +2737,30 @@ public:
         // resolved typedefs as ground truth (handles sibling-clone stomping).
         retargetRefDType(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 };
 
 //######################################################################
 // Process parameter top state
 
-class ParamState final {
-public:
+جماعت ParamState final {
+عوامی:
     // STATE - across all visitors
-    std::vector<AstClass*> m_paramClasses;  // Parameterized classes
-    std::vector<AstDot*> m_dots;  // Dot references to process
+    std::سمتیہ<AstClass*> m_paramClasses;  // Parameterized classes
+    std::سمتیہ<AstDot*> m_dots;  // Dot references to process
     // Work queue keyed by (!isIface, level) so interfaces are always processed
     // before non-interfaces.  This ensures interface clones have their types
     // properly widthed before any module that references those types.
-    using WQKey = std::pair<bool, int>;
-    std::multimap<WQKey, AstNodeModule*> m_workQueueNext;  // Modules left to process
+    استعمال WQKey = std::pair<منطقی, صحیح>;
+    std::multimap<WQKey, Ast_گرہ_Module*> m_work_قطار_اگلا;  // Modules left to process
     // Map from AstNodeModule to set of all AstNodeModules that instantiates it.
-    std::unordered_map<AstNodeModule*, std::unordered_set<AstNodeModule*>> m_parentps;
+    std::unordered_map<Ast_گرہ_Module*, std::unordered_سیٹ<Ast_گرہ_Module*>> m_parentps;
 };
 
 //######################################################################
 // Process parameter visitor
 
-class ParamVisitor final : public VNVisitor {
+جماعت ParamVisitor final : عوامی VNVisitor {
     // NODE STATE
     // AstNodeModule::user1 -> bool: already fixed level (temporary)
     // AstNodeDType::user2  -> bool: already visited from typedef
@@ -2770,53 +2770,53 @@ class ParamVisitor final : public VNVisitor {
     ParamProcessor m_processor;  // De-parameterize a cell, build modules
     GenForUnroller m_unroller;  // Unroller for AstGenFor
 
-    bool m_iterateModule = false;  // Iterating module body
+    منطقی m_iterateModule = جھوٹ;  // Iterating module body
     string m_unlinkedTxt;  // Text for AstUnlinkedRef
-    std::multimap<bool, AstNode*> m_cellps;  // Cells left to process (in current module)
-    std::unordered_map<const AstNode*, std::string>
-        m_genHierNames;  // Maps ast nodes to generated hierarchy names
-    std::map<const AstRefDType*, bool>
+    std::multimap<منطقی, Ast_گرہ*> m_cellps;  // Cells left to process (in current module)
+    std::unordered_map<ثابت Ast_گرہ*, std::string>
+        m_gen_Hier_نام;  // Maps ast nodes to generated hierarchy names
+    std::map<ثابت AstRefDType*, منطقی>
         m_isCircular;  // Stores information whether `AstRefDType` is circular
-    using VarsByName = std::unordered_map<std::string, AstVar*>;
+    استعمال VarsByName = std::unordered_map<std::string, AstVar*>;
     // Persists across modules; one specialized interface clone serves every module bound to it
-    std::unordered_map<const AstNodeModule*, VarsByName> m_ifaceParams;
+    std::unordered_map<ثابت Ast_گرہ_Module*, VarsByName> m_ifaceParams;
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Module iterating
-    std::unordered_set<std::string> m_ifacePortNames;  // Interface port names in current module
+    Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Module iterating
+    std::unordered_سیٹ<std::string> m_iface_پورٹ_نام;  // Interface port names in current module
     std::unordered_map<std::string, AstCell*>
         m_ifaceInstCells;  // Local interface instance cells in current module, keyed by name
     VarsByName m_modIfaceRefs;  // Interface-ref Vars in current module, keyed by name
-    bool m_modIfaceRefsDone = false;  // m_modIfaceRefs has been gathered for m_modp
+    منطقی m_mod_Iface_Refs_مکمل = جھوٹ;  // m_modIfaceRefs has been gathered for m_modp
     string m_generateHierName;  // Generate portion of hierarchy name
-    bool m_inGenerateCond = false;  // Traversing a generate condition; see iterateGenerateCond
+    منطقی m_اندر_Generate_Cond = جھوٹ;  // Traversing a generate condition; see iterateGenerateCond
 
     // METHODS
 
-    void processWorkQ() {
+    خالی processWorkQ() {
         UASSERT(!m_iterateModule, "Should not nest");
-        std::multimap<ParamState::WQKey, AstNodeModule*> workQueue;
+        std::multimap<ParamState::WQKey, Ast_گرہ_Module*> work_قطار;
         m_generateHierName = "";
-        m_iterateModule = true;
+        m_iterateModule = سچ;
 
         // Visit all cells under module, recursively
-        while (true) {
+        جب (سچ) {
             // Classes specialized since the last pass still need their bodies elaborated
-            for (AstClass* const classp : m_processor.takeSpecializedClassps()) {
-                m_state.m_workQueueNext.emplace(ParamState::WQKey{true, classp->level()}, classp);
+            برائے (AstClass* ثابت classp : m_processor.takeSpecializedClassps()) {
+                m_state.m_work_قطار_اگلا.emplace(ParamState::WQKey{سچ, classp->level()}, classp);
             }
-            if (workQueue.empty()) std::swap(workQueue, m_state.m_workQueueNext);
-            if (workQueue.empty()) break;
+            اگر (work_قطار.خالی_خانے()) std::تبادلہ(work_قطار, m_state.m_work_قطار_اگلا);
+            اگر (work_قطار.خالی_خانے()) توڑو;
 
-            const auto itm = workQueue.cbegin();
-            AstNodeModule* const modp = itm->second;
-            workQueue.erase(itm);
+            ثابت خودکار itm = work_قطار.cbegin();
+            Ast_گرہ_Module* ثابت modp = itm->دوسرا;
+            work_قطار.erase(itm);
             // Starting a new module, so what was learned about the last one no longer holds.
             v3Global.rootp()->clearContainingModules();
 
             // Process once; note user2 will be cleared on specialization, so we will do the
             // specialized module if needed
-            if (!modp->user2SetOnce()) {
+            اگر (!modp->user2_سیٹ_Once()) {
                 UINFO(9, "processWorkQ module begin mod='"
                              << modp->name() << "' orig='" << modp->origName() << "'"
                              << " someInstanceName='" << modp->someInstanceName() << "'"
@@ -2826,67 +2826,67 @@ class ParamVisitor final : public VNVisitor {
 
                 // TODO: this really should be an assert, but classes and hier_blocks are
                 // special...
-                if (modp->someInstanceName().empty()) modp->someInstanceName(modp->origName());
+                اگر (modp->someInstanceName().خالی_خانے()) modp->someInstanceName(modp->origName());
 
                 // Iterate the body
                 {
                     VL_RESTORER(m_modp);
-                    VL_RESTORER_CLEAR(m_ifacePortNames);
+                    VL_RESTORER_CLEAR(m_iface_پورٹ_نام);
                     VL_RESTORER_CLEAR(m_ifaceInstCells);
                     VL_RESTORER_CLEAR(m_modIfaceRefs);
-                    VL_RESTORER(m_modIfaceRefsDone);
+                    VL_RESTORER(m_mod_Iface_Refs_مکمل);
                     m_modp = modp;
-                    m_modIfaceRefsDone = false;
+                    m_mod_Iface_Refs_مکمل = جھوٹ;
                     iterateChildren(modp);
                 }
             }
 
             // Process interface cells, then non-interface cells, which may reference an interface
             // cell.
-            while (!m_cellps.empty()) {
-                const auto itim = m_cellps.cbegin();
-                AstNode* const cellp = itim->second;
+            جب (!m_cellps.خالی_خانے()) {
+                ثابت خودکار itim = m_cellps.cbegin();
+                Ast_گرہ* ثابت cellp = itim->دوسرا;
                 m_cellps.erase(itim);
 
                 // Consume the generated hierarchy name for the node
                 string genHierName;
-                const auto genHierIt = m_genHierNames.find(cellp);
-                if (genHierIt != m_genHierNames.end()) {
-                    genHierName = std::move(genHierIt->second);
-                    m_genHierNames.erase(genHierIt);
+                ثابت خودکار genHierIt = m_gen_Hier_نام.ڈھونڈو(cellp);
+                اگر (genHierIt != m_gen_Hier_نام.انتہا()) {
+                    genHierName = std::move(genHierIt->دوسرا);
+                    m_gen_Hier_نام.erase(genHierIt);
                 }
 
-                AstNodeModule* srcModp = nullptr;
-                if (const AstCell* modCellp = VN_CAST(cellp, Cell)) {
+                Ast_گرہ_Module* srcModp = خالی_اشاریہ;
+                اگر (ثابت AstCell* modCellp = VN_CAST(cellp, Cell)) {
                     srcModp = modCellp->modp();
-                } else if (const AstClassOrPackageRef* classRefp
+                } ورنہ اگر (ثابت AstClassOrPackageRef* classRefp
                            = VN_CAST(cellp, ClassOrPackageRef)) {
                     srcModp = classRefp->classOrPackageSkipp();
-                    if (VN_IS(classRefp->classOrPackageNodep(), ParamTypeDType)) continue;
-                } else if (const AstClassRefDType* classRefp = VN_CAST(cellp, ClassRefDType)) {
+                    اگر (VN_IS(classRefp->classOrPackageNodep(), ParamTypeDType)) جاری;
+                } ورنہ اگر (ثابت AstClassRefDType* classRefp = VN_CAST(cellp, ClassRefDType)) {
                     srcModp = classRefp->classp();
-                } else if (const AstIfaceRefDType* ifaceRefp = VN_CAST(cellp, IfaceRefDType)) {
+                } ورنہ اگر (ثابت AstIfaceRefDType* ifaceRefp = VN_CAST(cellp, IfaceRefDType)) {
                     srcModp = ifaceRefp->ifacep();
-                } else {
+                } ورنہ {
                     cellp->v3fatalSrc("Expected module parameterization");
                 }
-                if (!srcModp) continue;
+                اگر (!srcModp) جاری;
 
                 // Update path
-                const string someInstanceName = modp->someInstanceName() + genHierName;
+                ثابت string someInstanceName = modp->someInstanceName() + genHierName;
 
                 // Apply parameter specialization
-                if (AstNodeModule* const newModp
-                    = m_processor.nodeDeparam(cellp, srcModp, modp, someInstanceName)) {
+                اگر (Ast_گرہ_Module* ثابت newModp
+                    = m_processor.گرہ_Deparam(cellp, srcModp, modp, someInstanceName)) {
 
-                    if (VN_IS(srcModp, Iface)) {
+                    اگر (VN_IS(srcModp, Iface)) {
                         logTemplateLeakRefs(modp, srcModp, "after queued nodeDeparam", cellp);
                         // After the interface cell is rewired to its clone,
                         // retarget REFDTYPEs in the parent module that still
                         // reference the template interface's types.
-                        if (V3LinkDotIfaceCapture::enabled()) {
-                            if (const AstCell* const modCellp = VN_CAST(cellp, Cell)) {
-                                if (newModp != srcModp) {
+                        اگر (V3LinkDotIfaceCapture::enabled()) {
+                            اگر (ثابت AstCell* ثابت modCellp = VN_CAST(cellp, Cell)) {
+                                اگر (newModp != srcModp) {
                                     m_processor.retargetIfaceRefs(modp, modCellp->name());
                                 }
                             }
@@ -2894,29 +2894,29 @@ class ParamVisitor final : public VNVisitor {
                     }
 
                     // Add the (now potentially specialized) child module to the work queue
-                    workQueue.emplace(ParamState::WQKey{!VN_IS(newModp, Iface), newModp->level()},
+                    work_قطار.emplace(ParamState::WQKey{!VN_IS(newModp, Iface), newModp->level()},
                                       newModp);
 
                     // Add to the hierarchy registry
-                    m_state.m_parentps[newModp].insert(modp);
+                    m_state.m_parentps[newModp].داخل_کرو(modp);
 
                     // Eagerly specialize nested iface cells so their types
                     // have correct widths before sibling module cells run.
-                    if (VN_IS(newModp, Iface) && newModp != srcModp) {
+                    اگر (VN_IS(newModp, Iface) && newModp != srcModp) {
                         specializeNestedIfaceCells(newModp);
                     }
                 }
             }
         }
 
-        m_iterateModule = false;
+        m_iterateModule = جھوٹ;
     }
 
     // Extract the base reference name from a dotted VarXRef (e.g., "iface.FOO" -> "iface")
-    static string getRefBaseName(const AstVarXRef* refp) {
-        const string dotted = refp->dotted();
-        if (dotted.empty()) return "";
-        return dotted.substr(0, dotted.find('.'));
+    ساکن string get_Ref_بنیاد_Name(ثابت AstVarXRef* refp) {
+        ثابت string dotted = refp->dotted();
+        اگر (dotted.خالی_خانے()) واپس "";
+        واپس dotted.substr(0, dotted.ڈھونڈو('.'));
     }
 
     // Debug-only diagnostic (requires --debugi-V3Param 9).
@@ -2925,138 +2925,138 @@ class ParamVisitor final : public VNVisitor {
     // unspecialized interface template).  Any such "leak" indicates a
     // pointer that was not properly redirected to the clone during
     // deparameterization.  Logs each leak with ancestry for triage.
-    void logTemplateLeakRefs(AstNodeModule* parentModp, AstNodeModule* templateModp,
-                             const char* stage, AstNode* contextp) {
-        if (debug() < 9 || !parentModp || !templateModp || !VN_IS(templateModp, Iface)) return;
+    خالی logTemplateLeakRefs(Ast_گرہ_Module* والد_Modp, Ast_گرہ_Module* templateModp,
+                             ثابت حرف* stage, Ast_گرہ* contextp) {
+        اگر (debug() < 9 || !والد_Modp || !templateModp || !VN_IS(templateModp, Iface)) واپس;
         // LCOV_EXCL_START  // Debug-only diagnostic
-        int leakCount = 0;
-        const auto ancestryOf = [](const AstNode* nodep) {
+        صحیح leak_گنتی = 0;
+        ثابت خودکار ancestry_کا = [](ثابت Ast_گرہ* nodep) {
             string ancestry;
-            for (const AstNode* curp = nodep; curp; curp = curp->backp()) {
-                if (!ancestry.empty()) ancestry += "<-";
+            برائے (ثابت Ast_گرہ* curp = nodep; curp; curp = curp->backp()) {
+                اگر (!ancestry.خالی_خانے()) ancestry += "<-";
                 ancestry += curp->typeName();
-                if (VN_IS(curp, NodeModule) || VN_IS(curp, Netlist) || VN_IS(curp, TypeTable)) {
-                    break;
+                اگر (VN_IS(curp, گرہ_Module) || VN_IS(curp, Netlist) || VN_IS(curp, Type_جدول)) {
+                    توڑو;
                 }
             }
-            return ancestry;
+            واپس ancestry;
         };
 
-        parentModp->foreach([&](AstRefDType* refp) {
-            if (refp->typedefp()) {
-                AstNodeModule* const tdOwnerp
-                    = V3LinkDotIfaceCapture::findOwnerModule(refp->typedefp());
-                if (tdOwnerp == templateModp) {
-                    ++leakCount;
+        والد_Modp->foreach([&](AstRefDType* refp) {
+            اگر (refp->typedefp()) {
+                Ast_گرہ_Module* ثابت tdOwnerp
+                    = V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(refp->typedefp());
+                اگر (tdOwnerp == templateModp) {
+                    ++leak_گنتی;
                     UINFO(9, "TEMPLATE-LEAK "
-                                 << stage << " parent=" << parentModp->prettyNameQ()
+                                 << stage << " parent=" << والد_Modp->prettyNameQ()
                                  << " template=" << templateModp->prettyNameQ() << " contextType="
                                  << (contextp ? contextp->typeName() : string("<null>"))
                                  << " contextName="
                                  << (contextp ? contextp->prettyNameQ() : "'<null>'")
                                  << " leak=REFDTYPE typedef owner" << " ref=<"
-                                 << AstNode::nodeAddr(refp) << ">" << " refName="
-                                 << refp->prettyNameQ() << " ancestry=" << ancestryOf(refp));
+                                 << Ast_گرہ::گرہ_Addr(refp) << ">" << " refName="
+                                 << refp->prettyNameQ() << " ancestry=" << ancestry_کا(refp));
                 }
             }
-            if (refp->refDTypep()) {
-                AstNodeModule* const rdOwnerp
-                    = V3LinkDotIfaceCapture::findOwnerModule(refp->refDTypep());
-                if (rdOwnerp == templateModp) {
-                    ++leakCount;
+            اگر (refp->refDTypep()) {
+                Ast_گرہ_Module* ثابت rdOwnerp
+                    = V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(refp->refDTypep());
+                اگر (rdOwnerp == templateModp) {
+                    ++leak_گنتی;
                     UINFO(9, "TEMPLATE-LEAK "
-                                 << stage << " parent=" << parentModp->prettyNameQ()
+                                 << stage << " parent=" << والد_Modp->prettyNameQ()
                                  << " template=" << templateModp->prettyNameQ() << " contextType="
                                  << (contextp ? contextp->typeName() : string("<null>"))
                                  << " contextName="
                                  << (contextp ? contextp->prettyNameQ() : "'<null>'")
                                  << " leak=REFDTYPE refDType owner" << " ref=<"
-                                 << AstNode::nodeAddr(refp) << ">" << " refName="
-                                 << refp->prettyNameQ() << " ancestry=" << ancestryOf(refp));
+                                 << Ast_گرہ::گرہ_Addr(refp) << ">" << " refName="
+                                 << refp->prettyNameQ() << " ancestry=" << ancestry_کا(refp));
                 }
             }
         });
 
-        parentModp->foreach([&](AstVarRef* varrefp) {
-            if (!varrefp->varp()) return;
-            AstNodeModule* const varOwnerp
-                = V3LinkDotIfaceCapture::findOwnerModule(varrefp->varp());
-            if (varOwnerp != templateModp) return;
-            ++leakCount;
+        والد_Modp->foreach([&](AstVarRef* varrefp) {
+            اگر (!varrefp->varp()) واپس;
+            Ast_گرہ_Module* ثابت varOwnerp
+                = V3LinkDotIfaceCapture::ڈھونڈو_Owner_Module(varrefp->varp());
+            اگر (varOwnerp != templateModp) واپس;
+            ++leak_گنتی;
             UINFO(9, "TEMPLATE-LEAK "
-                         << stage << " parent=" << parentModp->prettyNameQ()
+                         << stage << " parent=" << والد_Modp->prettyNameQ()
                          << " template=" << templateModp->prettyNameQ()
                          << " contextType=" << (contextp ? contextp->typeName() : string("<null>"))
                          << " contextName=" << (contextp ? contextp->prettyNameQ() : "'<null>'")
-                         << " leak=VARREF target owner" << " ref=<" << AstNode::nodeAddr(varrefp)
+                         << " leak=VARREF target owner" << " ref=<" << Ast_گرہ::گرہ_Addr(varrefp)
                          << ">" << " var=" << varrefp->prettyNameQ()
-                         << " ancestry=" << ancestryOf(varrefp));
+                         << " ancestry=" << ancestry_کا(varrefp));
         });
 
-        if (leakCount > 0) {
+        اگر (leak_گنتی > 0) {
             UINFO(9, "TEMPLATE-LEAK summary stage='"
-                         << stage << "' parent=" << parentModp->prettyNameQ()
-                         << " template=" << templateModp->prettyNameQ() << " count=" << leakCount);
+                         << stage << "' parent=" << والد_Modp->prettyNameQ()
+                         << " template=" << templateModp->prettyNameQ() << " count=" << leak_گنتی);
         }
         // LCOV_EXCL_STOP
     }
 
     // Flag hierarchical refs in a parameter value. Single top-down pass.
-    void checkParamNotHierRecurse(AstNode* nodep, bool underTypeQuery = false) {
-        for (; nodep; nodep = nodep->nextp()) {
+    خالی checkParamNotHierRecurse(Ast_گرہ* nodep, منطقی underTypeQuery = جھوٹ) {
+        برائے (; nodep; nodep = nodep->nextp()) {
             // Refs read only for their type ($bits etc.) are allowed
-            const AstAttrOf* const attrp = VN_CAST(nodep, AttrOf);
-            const bool childUnderQuery
+            ثابت Ast_Attr_کا* ثابت attrp = VN_CAST(nodep, Attr_کا);
+            ثابت منطقی بچہ_Under_Query
                 = underTypeQuery || (attrp && attrp->attrType().isTypeQuery());
-            if (const AstVarXRef* const refp = VN_CAST(nodep, VarXRef)) {
+            اگر (ثابت AstVarXRef* ثابت refp = VN_CAST(nodep, VarXRef)) {
                 // Allow hierarchical ref to interface params through interface/modport ports
                 // or local interface instances
-                bool isIfaceRef = false;
-                if (refp->varp() && refp->varp()->isIfaceParam()) {
-                    const string refname = getRefBaseName(refp);
+                منطقی isIfaceRef = جھوٹ;
+                اگر (refp->varp() && refp->varp()->isIfaceParam()) {
+                    ثابت string refname = get_Ref_بنیاد_Name(refp);
                     isIfaceRef
-                        = !refname.empty()
-                          && (m_ifacePortNames.count(refname) || m_ifaceInstCells.count(refname));
+                        = !refname.خالی_خانے()
+                          && (m_iface_پورٹ_نام.گنتی(refname) || m_ifaceInstCells.گنتی(refname));
                 }
-                if (!isIfaceRef && !underTypeQuery) {
+                اگر (!isIfaceRef && !underTypeQuery) {
                     refp->v3warn(HIERPARAM, "Parameter values cannot use hierarchical values"
                                             " (IEEE 1800-2023 6.20.2)");
                 }
-            } else if (const AstNodeFTaskRef* const refp = VN_CAST(nodep, NodeFTaskRef)) {
-                if (refp->dotted() != "") {
+            } ورنہ اگر (ثابت Ast_گرہ_FTask_Ref* ثابت refp = VN_CAST(nodep, گرہ_FTask_Ref)) {
+                اگر (refp->dotted() != "") {
                     refp->v3error("Parameter values cannot call hierarchical functions"
                                   " (IEEE 1800-2023 6.20.2)");
                 }
             }
-            checkParamNotHierRecurse(nodep->op1p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op2p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op3p(), childUnderQuery);
-            checkParamNotHierRecurse(nodep->op4p(), childUnderQuery);
+            checkParamNotHierRecurse(nodep->op1p(), بچہ_Under_Query);
+            checkParamNotHierRecurse(nodep->op2p(), بچہ_Under_Query);
+            checkParamNotHierRecurse(nodep->op3p(), بچہ_Under_Query);
+            checkParamNotHierRecurse(nodep->op4p(), بچہ_Under_Query);
         }
     }
 
     // Deparameterize and constify nested interface cells within ifaceModp.
-    void specializeNestedIfaceCells(AstNodeModule* ifaceModp) {
-        for (AstNode* stmtp = ifaceModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstCell* const nestedCellp = VN_CAST(stmtp, Cell);
-            if (!nestedCellp) continue;
-            if (!VN_IS(nestedCellp->modp(), Iface)) continue;
-            if (!nestedCellp->paramsp()) continue;
+    خالی specializeNestedIfaceCells(Ast_گرہ_Module* ifaceModp) {
+        برائے (Ast_گرہ* stmtp = ifaceModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstCell* ثابت nestedCellp = VN_CAST(stmtp, Cell);
+            اگر (!nestedCellp) جاری;
+            اگر (!VN_IS(nestedCellp->modp(), Iface)) جاری;
+            اگر (!nestedCellp->paramsp()) جاری;
 
-            AstNodeModule* const nestedSrcModp = nestedCellp->modp();
-            if (AstNodeModule* const nestedNewModp = m_processor.nodeDeparam(
+            Ast_گرہ_Module* ثابت nestedSrcModp = nestedCellp->modp();
+            اگر (Ast_گرہ_Module* ثابت nestedNewModp = m_processor.گرہ_Deparam(
                     nestedCellp, nestedSrcModp, ifaceModp, ifaceModp->someInstanceName())) {
-                if (nestedNewModp != nestedSrcModp) {
+                اگر (nestedNewModp != nestedSrcModp) {
                     // Constify the nested clone's params so its types have correct widths.
-                    for (AstNode* sp = nestedNewModp->stmtsp(); sp; sp = sp->nextp()) {
-                        if (AstVar* const varp = VN_CAST(sp, Var)) {
-                            if (varp->isParam() && varp->valuep()) {
+                    برائے (Ast_گرہ* sp = nestedNewModp->stmtsp(); sp; sp = sp->nextp()) {
+                        اگر (AstVar* ثابت varp = VN_CAST(sp, Var)) {
+                            اگر (varp->isParam() && varp->valuep()) {
                                 V3Const::constifyParamsEdit(varp);
                             }
                         }
                     }
                     // Retarget REFDTYPEs in the outer clone to the nested clone's types.
-                    if (V3LinkDotIfaceCapture::enabled()) {
+                    اگر (V3LinkDotIfaceCapture::enabled()) {
                         m_processor.retargetIfaceRefs(ifaceModp, nestedCellp->name());
                     }
                     specializeNestedIfaceCells(nestedNewModp);
@@ -3066,51 +3066,51 @@ class ParamVisitor final : public VNVisitor {
     }
 
     // Check if cell parameters reference interface ports or local interface instances
-    bool cellParamsReferenceIfacePorts(AstCell* cellp) {
-        if (!cellp->paramsp()) return false;
+    منطقی cellParamsReferenceIfacePorts(AstCell* cellp) {
+        اگر (!cellp->paramsp()) واپس جھوٹ;
 
-        for (AstNode* nodep = cellp->paramsp(); nodep; nodep = nodep->nextp()) {
-            if (AstPin* const pinp = VN_CAST(nodep, Pin)) {
-                if (AstNode* const exprp = pinp->exprp()) {
-                    if (const AstVarXRef* const refp = VN_CAST(exprp, VarXRef)) {
-                        const string refname = getRefBaseName(refp);
-                        if (!refname.empty()
-                            && (m_ifacePortNames.count(refname)
-                                || m_ifaceInstCells.count(refname)))
-                            return true;
+        برائے (Ast_گرہ* nodep = cellp->paramsp(); nodep; nodep = nodep->nextp()) {
+            اگر (AstPin* ثابت pinp = VN_CAST(nodep, Pin)) {
+                اگر (Ast_گرہ* ثابت exprp = pinp->exprp()) {
+                    اگر (ثابت AstVarXRef* ثابت refp = VN_CAST(exprp, VarXRef)) {
+                        ثابت string refname = get_Ref_بنیاد_Name(refp);
+                        اگر (!refname.خالی_خانے()
+                            && (m_iface_پورٹ_نام.گنتی(refname)
+                                || m_ifaceInstCells.گنتی(refname)))
+                            واپس سچ;
                     }
                 }
             }
         }
-        return false;
+        واپس جھوٹ;
     }
 
     // Split interface array port 'portp' into a variable for each of its elements, in the
     // dimensions of 'dtypep' inwards. 'suffix' is the name suffix of the dimensions outside
     // 'dtypep'.
-    void expandIfaceArrayPortDimensions(AstVar* portp, AstNodeDType* dtypep,
-                                        const std::string& suffix) {
-        const AstUnpackArrayDType* const arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+    خالی expand_Iface_Array_پورٹ_Dimensions(AstVar* portp, Ast_گرہ_DType* dtypep,
+                                        ثابت std::string& suffix) {
+        ثابت AstUnpackArrayDType* ثابت arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
         // Base case: add the element variable when no dimensions left
-        if (!arrp) {
-            AstVar* const varp = portp->cloneTree(false);
+        اگر (!arrp) {
+            AstVar* ثابت varp = portp->clone_درخت(جھوٹ);
             varp->name(portp->name() + suffix);
             varp->origName(portp->origName() + suffix);
-            if (AstNodeDType* const oldp = varp->childDTypep()) {
-                VL_DO_DANGLING(pushDeletep(oldp->unlinkFrBack()), oldp);
+            اگر (Ast_گرہ_DType* ثابت oldp = varp->بچہ_DTypep()) {
+                VL_DO_DANGLING(ڈالو_Deletep(oldp->unlink_Fr_عقب()), oldp);
             }
-            varp->dtypep(nullptr);
-            varp->childDTypep(portp->subDTypep()->elemDTypep()->cloneTree(false));
-            portp->addNextHere(varp);
-            return;
+            varp->dtypep(خالی_اشاریہ);
+            varp->بچہ_DTypep(portp->subDTypep()->elemDTypep()->clone_درخت(جھوٹ));
+            portp->جوڑو_اگلا_یہاں(varp);
+            واپس;
         }
 
         // Enumerate the current dimension given by 'arrp'
         // Each element is added right after 'portp', so go from right to left,
         // to end with an enumeration from the left index to the right index.
-        for (const int n : arrp->declRange().seqRightToLeft()) {
-            const std::string s = suffix + "__BRA__" + AstNode::encodeNumber(n) + "__KET__";
-            expandIfaceArrayPortDimensions(portp, arrp->subDTypep(), s);
+        برائے (ثابت صحیح n : arrp->declRange().seq_دایاں_مقصد_بایاں()) {
+            ثابت std::string s = suffix + "__BRA__" + Ast_گرہ::encode_نمبر(n) + "__KET__";
+            expand_Iface_Array_پورٹ_Dimensions(portp, arrp->subDTypep(), s);
         }
     }
 
@@ -3119,63 +3119,63 @@ class ParamVisitor final : public VNVisitor {
     // the left) of the dimensions outside 'rangep'. For an array of interfaces, 'ifaceVarp' is
     // the variable referencing the whole array (see V3LinkCells), which is also split into
     // variables referencing the elements.
-    void expandCellArrayDimensions(AstCell* arrayedCellp, AstVar* ifaceVarp,
-                                   const AstRange* rangep, const std::string& suffix, int idx) {
+    خالی expandCellArrayDimensions(AstCell* arrayedCellp, AstVar* ifaceVarp,
+                                   ثابت AstRange* rangep, ثابت std::string& suffix, صحیح idx) {
         // Base case: insert the element when no dimensions left
-        if (!rangep) {
-            AstCell* const elemp = arrayedCellp->cloneTree(false);
+        اگر (!rangep) {
+            AstCell* ثابت elemp = arrayedCellp->clone_درخت(جھوٹ);
             elemp->name(arrayedCellp->name() + suffix);
             elemp->origName(arrayedCellp->origName() + suffix);
             elemp->arrayIdx(idx);
-            arrayedCellp->addNextHere(elemp);
-            if (ifaceVarp) {
-                AstIfaceRefDType* const irefp
-                    = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType)->cloneTree(false);
+            arrayedCellp->جوڑو_اگلا_یہاں(elemp);
+            اگر (ifaceVarp) {
+                AstIfaceRefDType* ثابت irefp
+                    = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType)->clone_درخت(جھوٹ);
                 irefp->cellp(elemp);
                 irefp->cellName(elemp->name());
                 // Named like the variable of any interface cell (see V3LinkCells)
-                AstVar* const varp = ifaceVarp->cloneTree(false);
+                AstVar* ثابت varp = ifaceVarp->clone_درخت(جھوٹ);
                 varp->name(elemp->name() + "__Viftop");
                 varp->origName(elemp->origName() + "__Viftop");
-                if (AstNodeDType* const oldp = varp->childDTypep()) {
-                    VL_DO_DANGLING(pushDeletep(oldp->unlinkFrBack()), oldp);
+                اگر (Ast_گرہ_DType* ثابت oldp = varp->بچہ_DTypep()) {
+                    VL_DO_DANGLING(ڈالو_Deletep(oldp->unlink_Fr_عقب()), oldp);
                 }
-                varp->dtypep(nullptr);
-                varp->childDTypep(irefp);
-                ifaceVarp->addNextHere(varp);
+                varp->dtypep(خالی_اشاریہ);
+                varp->بچہ_DTypep(irefp);
+                ifaceVarp->جوڑو_اگلا_یہاں(varp);
             }
-            return;
+            واپس;
         }
 
         // Enumerate the current dimension given by 'rangep'
         // Each element is added right after 'arrayedCellp', so go from right to left,
         // to end with an enumeration from the left index to the right index.
         idx = (idx + 1) * rangep->elementsConst();
-        const AstRange* const subRangep = VN_AS(rangep->nextp(), Range);
-        for (const int n : rangep->seqRightToLeft()) {
-            const std::string s = suffix + "__BRA__" + AstNode::encodeNumber(n) + "__KET__";
+        ثابت AstRange* ثابت subRangep = VN_AS(rangep->nextp(), Range);
+        برائے (ثابت صحیح n : rangep->seq_دایاں_مقصد_بایاں()) {
+            ثابت std::string s = suffix + "__BRA__" + Ast_گرہ::encode_نمبر(n) + "__KET__";
             expandCellArrayDimensions(arrayedCellp, ifaceVarp, subRangep, s, --idx);
         }
     }
 
     // A generic visitor for cells and class refs
-    void visitCellOrClassRef(AstNode* nodep, bool isIface) {
+    خالی دورہ_Cell_Or_Class_Ref(Ast_گرہ* nodep, منطقی isIface) {
         // Must do ifaces first, so push to list and do in proper order
-        m_genHierNames.emplace(nodep, m_generateHierName);
+        m_gen_Hier_نام.emplace(nodep, m_generateHierName);
 
         // Deparameterize iface cells early so types are available for lparams.
-        if (isIface && VN_CAST(nodep, Cell) && VN_CAST(nodep, Cell)->paramsp()) {
-            AstCell* const cellp = VN_CAST(nodep, Cell);
-            if (!cellParamsReferenceIfacePorts(cellp)) {
-                AstNodeModule* const srcModp = cellp->modp();
-                AstNodeModule* const newModp
-                    = m_processor.nodeDeparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
+        اگر (isIface && VN_CAST(nodep, Cell) && VN_CAST(nodep, Cell)->paramsp()) {
+            AstCell* ثابت cellp = VN_CAST(nodep, Cell);
+            اگر (!cellParamsReferenceIfacePorts(cellp)) {
+                Ast_گرہ_Module* ثابت srcModp = cellp->modp();
+                Ast_گرہ_Module* ثابت newModp
+                    = m_processor.گرہ_Deparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
                 // Retarget template REFDTYPEs to the clone's types.
-                if (V3LinkDotIfaceCapture::enabled() && cellp->modp() != srcModp) {
+                اگر (V3LinkDotIfaceCapture::enabled() && cellp->modp() != srcModp) {
                     m_processor.retargetIfaceRefs(m_modp, cellp->name());
                 }
                 // Specialize nested iface cells so their types are correct.
-                if (newModp && newModp != srcModp) { specializeNestedIfaceCells(newModp); }
+                اگر (newModp && newModp != srcModp) { specializeNestedIfaceCells(newModp); }
             }
         }
 
@@ -3183,73 +3183,73 @@ class ParamVisitor final : public VNVisitor {
         iterateChildren(nodep);
         // A generate condition is folded and deleted before the drain loop runs, so
         // queueing from one only leaves a dangling pointer.  See iterateGenerateCond.
-        if (!m_inGenerateCond) m_cellps.emplace(!isIface, nodep);
+        اگر (!m_اندر_Generate_Cond) m_cellps.emplace(!isIface, nodep);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->recursiveClone()) nodep->dead(true);  // Fake, made for recursive elimination
-        if (nodep->dead()) return;  // Marked by LinkDot (and above)
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
+        اگر (nodep->recursiveClone()) nodep->dead(سچ);  // Fake, made for recursive elimination
+        اگر (nodep->dead()) واپس;  // Marked by LinkDot (and above)
         UINFO(9, "V3Param: visit module name=" << nodep->prettyNameQ() << " orig='"
                                                << nodep->origName() << "' someInstanceName='"
                                                << nodep->someInstanceName() << "' hasGParam="
                                                << (nodep->hasGParam() ? "yes" : "no")
                                                << " user3p=" << (nodep->user3p() ? "set" : "null")
                                                << " dead=" << (nodep->dead() ? "yes" : "no"));
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            if (classp->hasGParam()) {
+        اگر (AstClass* ثابت classp = VN_CAST(nodep, Class)) {
+            اگر (classp->hasGParam()) {
                 // Don't enter into a definition.
                 // If a class is used, it will be visited through a reference and cloned
-                m_state.m_paramClasses.push_back(classp);
-                return;
+                m_state.m_paramClasses.ڈالو_عقب(classp);
+                واپس;
             }
         }
 
-        if (m_iterateModule) {  // Iterating from processWorkQ
+        اگر (m_iterateModule) {  // Iterating from processWorkQ
             UINFO(4, " MOD-under-MOD.  " << nodep);
             // Delay until current module is done.
             // processWorkQ() (which we are returning to) will process nodep later
-            m_state.m_workQueueNext.emplace(
+            m_state.m_work_قطار_اگلا.emplace(
                 ParamState::WQKey{!VN_IS(nodep, Iface), nodep->level()}, nodep);
-            return;
+            واپس;
         }
 
         // Start traversal at root-like things
-        if (nodep->isTop()  // Tops
+        اگر (nodep->is_چوٹی()  // Tops
             || VN_IS(nodep, Class)  //  Moved classes
             || VN_IS(nodep, Package)) {  // Likewise haven't done wrapTopPackages yet
-            m_state.m_workQueueNext.emplace(
+            m_state.m_work_قطار_اگلا.emplace(
                 ParamState::WQKey{!VN_IS(nodep, Iface), nodep->level()}, nodep);
             processWorkQ();
         }
     }
 
-    bool isCircularType(const AstRefDType* nodep) {
-        const auto iter = m_isCircular.emplace(nodep, true);
-        if (!iter.second) return iter.first->second;
-        if (const AstRefDType* const subDTypep = VN_CAST(nodep->subDTypep(), RefDType)) {
-            const bool ret = isCircularType(subDTypep);
-            iter.first->second = ret;
-            return ret;
+    منطقی isCircularType(ثابت AstRefDType* nodep) {
+        ثابت خودکار iter = m_isCircular.emplace(nodep, سچ);
+        اگر (!iter.دوسرا) واپس iter.پہلا->دوسرا;
+        اگر (ثابت AstRefDType* ثابت subDTypep = VN_CAST(nodep->subDTypep(), RefDType)) {
+            ثابت منطقی ret = isCircularType(subDTypep);
+            iter.پہلا->دوسرا = ret;
+            واپس ret;
         }
-        iter.first->second = false;
-        return false;
+        iter.پہلا->دوسرا = جھوٹ;
+        واپس جھوٹ;
     }
 
-    void visit(AstRefDType* nodep) override {
-        const bool isCircular = isCircularType(nodep);
+    خالی دورہ(AstRefDType* nodep) override {
+        ثابت منطقی isCircular = isCircularType(nodep);
         // A module-body `typedef C#(Cfg)::t alias` the deferred pin/param walk
         // never reached would survive to V3Width unlinked. If its alias chain is
         // broken, run the same deferred resolution here.
-        if (!isCircular && nodep->typedefp() && !nodep->skipRefOrNullp()) {
+        اگر (!isCircular && nodep->typedefp() && !nodep->skipRefOrNullp()) {
             m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
         }
-        if (isCircular) {
+        اگر (isCircular) {
             nodep->v3error("Typedef's type is circular: " << nodep->prettyName());
-        } else if (nodep->typedefp() && nodep->subDTypep()
+        } ورنہ اگر (nodep->typedefp() && nodep->subDTypep()
                    && (VN_IS(nodep->subDTypep()->skipRefOrNullp(), IfaceRefDType)
                        || VN_IS(nodep->subDTypep()->skipRefOrNullp(), ClassRefDType))
-                   && !nodep->skipRefp()->user2SetOnce()) {
+                   && !nodep->skipRefp()->user2_سیٹ_Once()) {
             // The visit() function for every valid nodep->skipRefp() type below
             // must include a `user2SetOnce()` check to avoid adding duplicate
             // nodes to m_cellps
@@ -3257,397 +3257,397 @@ class ParamVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstCell* nodep) override {
-        if (nodep->rangep() && nodep->arrayIdx() < 0) {
+    خالی دورہ(AstCell* nodep) override {
+        اگر (nodep->rangep() && nodep->arrayIdx() < 0) {
             // Type check the ranges
-            for (AstRange* rangep = nodep->rangep(); rangep;
+            برائے (AstRange* rangep = nodep->rangep(); rangep;
                  rangep = VN_AS(rangep->nextp(), Range)) {
-                rangep = VN_AS(V3Width::widthParamsEdit(rangep), Range);
+                rangep = VN_AS(V3_چوڑائی::چوڑائی_Params_Edit(rangep), Range);
             }
             // If it's an interface, pick up the corresponding AstIfaceRefDType variable
-            AstVar* const ifaceVarp = [&]() -> AstVar* {
-                if (!VN_IS(nodep->modp(), Iface)) return nullptr;
+            AstVar* ثابت ifaceVarp = [&]() -> AstVar* {
+                اگر (!VN_IS(nodep->modp(), Iface)) واپس خالی_اشاریہ;
                 // The variable referencing the whole array, right after the cell (see V3LinkCells)
-                AstVar* const varp = VN_CAST(nodep->nextp(), Var);
+                AstVar* ثابت varp = VN_CAST(nodep->nextp(), Var);
                 UASSERT_OBJ(varp && varp->name() == nodep->name() + "__Viftop", nodep,
                             "No __Viftop variable for interface array");
-                return varp;
+                واپس varp;
             }();
             // Expand the instance array into its elements
             expandCellArrayDimensions(nodep, ifaceVarp, nodep->rangep(), "", 0);
-            if (ifaceVarp) {
-                ifaceVarp->isIfaceArraySplit(true);
+            اگر (ifaceVarp) {
+                ifaceVarp->is_Iface_Array_بانٹو(سچ);
                 // Until V3Width removes it, the whole array variable refers to the first
                 // element, which is also used for accessing the parameters of the array
-                AstCell* const firstp = VN_AS(nodep->nextp(), Cell);
-                AstIfaceRefDType* const irefp
+                AstCell* ثابت firstp = VN_AS(nodep->nextp(), Cell);
+                AstIfaceRefDType* ثابت irefp
                     = VN_AS(ifaceVarp->subDTypep()->elemDTypep(), IfaceRefDType);
                 irefp->cellp(firstp);
                 irefp->cellName(firstp->name());
                 m_ifaceInstCells.emplace(nodep->name(), firstp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
             // The elements replaced the arrayed cell in place, so will be iterated next.
-            return;
+            واپس;
         }
         checkParamNotHierRecurse(nodep->paramsp());
-        if (VN_IS(nodep->modp(), Iface)) m_ifaceInstCells.emplace(nodep->name(), nodep);
-        visitCellOrClassRef(nodep, VN_IS(nodep->modp(), Iface));
+        اگر (VN_IS(nodep->modp(), Iface)) m_ifaceInstCells.emplace(nodep->name(), nodep);
+        دورہ_Cell_Or_Class_Ref(nodep, VN_IS(nodep->modp(), Iface));
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        nodep->skipRefp()->user2SetOnce();
-        if (nodep->ifacep()) visitCellOrClassRef(nodep, true);
+    خالی دورہ(AstIfaceRefDType* nodep) override {
+        nodep->skipRefp()->user2_سیٹ_Once();
+        اگر (nodep->ifacep()) دورہ_Cell_Or_Class_Ref(nodep, سچ);
     }
-    void visit(AstClassRefDType* nodep) override {
-        nodep->skipRefp()->user2SetOnce();
+    خالی دورہ(AstClassRefDType* nodep) override {
+        nodep->skipRefp()->user2_سیٹ_Once();
         checkParamNotHierRecurse(nodep->paramsp());
-        visitCellOrClassRef(nodep, false);
+        دورہ_Cell_Or_Class_Ref(nodep, جھوٹ);
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    خالی دورہ(AstClassOrPackageRef* nodep) override {
         // If it points to a typedef it is not really a class reference. That typedef will be
         // visited anyway (from its parent node), so even if it points to a parameterized class
         // type, the instance will be created.
-        if (!VN_IS(nodep->classOrPackageNodep(), Typedef)) visitCellOrClassRef(nodep, false);
+        اگر (!VN_IS(nodep->classOrPackageNodep(), Typedef)) دورہ_Cell_Or_Class_Ref(nodep, جھوٹ);
     }
 
     // Recurse into AstGenBlock as generate blocks aren't flattened until V3Begin::debeginAll,
     // well after V3Param runs
-    static void gatherVars(AstNode* stmtsp, bool (*matchp)(const AstVar*), VarsByName& varsr) {
-        for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(nodep, Var)) {
+    ساکن خالی gatherVars(Ast_گرہ* stmtsp, منطقی (*matchp)(ثابت AstVar*), VarsByName& varsr) {
+        برائے (Ast_گرہ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+            اگر (AstVar* ثابت varp = VN_CAST(nodep, Var)) {
                 // emplace, not assign, so the first declaration of a name wins
-                if (matchp(varp)) varsr.emplace(varp->name(), varp);
-            } else if (AstGenBlock* const genp = VN_CAST(nodep, GenBlock)) {
+                اگر (matchp(varp)) varsr.emplace(varp->name(), varp);
+            } ورنہ اگر (Ast_Gen_بلاک* ثابت genp = VN_CAST(nodep, Gen_بلاک)) {
                 gatherVars(genp->itemsp(), matchp, varsr);
             }
         }
     }
-    const VarsByName& modIfaceRefs() {
-        if (!m_modIfaceRefsDone) {
+    ثابت VarsByName& modIfaceRefs() {
+        اگر (!m_mod_Iface_Refs_مکمل) {
             gatherVars(
-                m_modp->stmtsp(), [](const AstVar* varp) { return varp->isIfaceRef(); },
+                m_modp->stmtsp(), [](ثابت AstVar* varp) { واپس varp->isIfaceRef(); },
                 m_modIfaceRefs);
-            m_modIfaceRefsDone = true;
+            m_mod_Iface_Refs_مکمل = سچ;
         }
-        return m_modIfaceRefs;
+        واپس m_modIfaceRefs;
     }
-    const VarsByName& ifaceParams(AstNodeModule* ifacep) {
-        const auto pair = m_ifaceParams.emplace(ifacep, VarsByName{});
-        if (pair.second) {
+    ثابت VarsByName& ifaceParams(Ast_گرہ_Module* ifacep) {
+        ثابت خودکار pair = m_ifaceParams.emplace(ifacep, VarsByName{});
+        اگر (pair.دوسرا) {
             gatherVars(
-                ifacep->stmtsp(), [](const AstVar* varp) { return varp->isParam(); },
-                pair.first->second);
+                ifacep->stmtsp(), [](ثابت AstVar* varp) { واپس varp->isParam(); },
+                pair.پہلا->دوسرا);
         }
-        return pair.first->second;
+        واپس pair.پہلا->دوسرا;
     }
     // Resolve a generic-interface 'ifacePort.member' Dot left unlinked by V3LinkDot, now that
     // ifacePort may have been specialized. Returns nullptr if still unresolvable
-    AstNode* tryResolveGenericIfaceDot(AstDot* dotp) {
-        AstParseRef* const lhsp = VN_CAST(dotp->lhsp(), ParseRef);
-        AstParseRef* const rhsp = VN_CAST(dotp->rhsp(), ParseRef);
-        if (!lhsp || !rhsp) return nullptr;
+    Ast_گرہ* tryResolveGenericIfaceDot(AstDot* dotp) {
+        AstParseRef* ثابت lhsp = VN_CAST(dotp->lhsp(), ParseRef);
+        AstParseRef* ثابت rhsp = VN_CAST(dotp->rhsp(), ParseRef);
+        اگر (!lhsp || !rhsp) واپس خالی_اشاریہ;
         // Always called from visit(AstVar) inside processWorkQ()'s VL_RESTORER(m_modp) scope
-        if (VL_UNCOVERABLE(!m_modp)) return nullptr;
+        اگر (VL_UNCOVERABLE(!m_modp)) واپس خالی_اشاریہ;
 
-        const auto& refVars = modIfaceRefs();
-        const auto ifaceVarIt = refVars.find(lhsp->name());
+        ثابت خودکار& refVars = modIfaceRefs();
+        ثابت خودکار ifaceVarIt = refVars.ڈھونڈو(lhsp->name());
         // V3LinkDot only defers Dots whose lhs is a non-array iface-ref var, so this can't fail
-        if (VL_UNCOVERABLE(ifaceVarIt == refVars.end())) return nullptr;
-        AstVar* const ifaceVarp = ifaceVarIt->second;
-        AstIfaceRefDType* const ifacerefp = VN_CAST(ifaceVarp->subDTypep(), IfaceRefDType);
-        if (VL_UNCOVERABLE(!ifacerefp || !ifacerefp->ifacep())) return nullptr;
+        اگر (VL_UNCOVERABLE(ifaceVarIt == refVars.انتہا())) واپس خالی_اشاریہ;
+        AstVar* ثابت ifaceVarp = ifaceVarIt->دوسرا;
+        AstIfaceRefDType* ثابت ifacerefp = VN_CAST(ifaceVarp->subDTypep(), IfaceRefDType);
+        اگر (VL_UNCOVERABLE(!ifacerefp || !ifacerefp->ifacep())) واپس خالی_اشاریہ;
 
-        const auto& ifaceVars = ifaceParams(ifacerefp->ifacep());
-        const auto targetVarIt = ifaceVars.find(rhsp->name());
-        if (targetVarIt == ifaceVars.end()) return nullptr;
-        AstVar* const targetVarp = targetVarIt->second;
+        ثابت خودکار& ifaceVars = ifaceParams(ifacerefp->ifacep());
+        ثابت خودکار ہدف_Var_It = ifaceVars.ڈھونڈو(rhsp->name());
+        اگر (ہدف_Var_It == ifaceVars.انتہا()) واپس خالی_اشاریہ;
+        AstVar* ثابت ہدف_Varp = ہدف_Var_It->دوسرا;
         // processWorkQ() visits interface cells first, so the interface is already constified
-        if (VL_UNCOVERABLE(!VN_IS(targetVarp->valuep(), Const))) iterate(targetVarp);
-        if (VL_UNCOVERABLE(!targetVarp->valuep() || !VN_IS(targetVarp->valuep(), Const))) {
-            return nullptr;  // LCOV_EXCL_LINE
+        اگر (VL_UNCOVERABLE(!VN_IS(ہدف_Varp->valuep(), Const))) iterate(ہدف_Varp);
+        اگر (VL_UNCOVERABLE(!ہدف_Varp->valuep() || !VN_IS(ہدف_Varp->valuep(), Const))) {
+            واپس خالی_اشاریہ;  // LCOV_EXCL_LINE
         }
-        return targetVarp->valuep()->cloneTree(false);
+        واپس ہدف_Varp->valuep()->clone_درخت(جھوٹ);
     }
-    void resolveGenericIfaceDotsIn(AstNode* nodep) {
+    خالی resolve_Generic_Iface_Dots_اندر(Ast_گرہ* nodep) {
         // Collect first: the deleteTree() below frees a node foreach() would still read from
-        std::vector<AstDot*> dotps;
-        nodep->foreach([&](AstDot* dotp) { dotps.push_back(dotp); });
-        for (AstDot* const dotp : dotps) {
-            if (AstNode* const newp = tryResolveGenericIfaceDot(dotp)) {
+        std::سمتیہ<AstDot*> dotps;
+        nodep->foreach([&](AstDot* dotp) { dotps.ڈالو_عقب(dotp); });
+        برائے (AstDot* ثابت dotp : dotps) {
+            اگر (Ast_گرہ* ثابت newp = tryResolveGenericIfaceDot(dotp)) {
                 dotp->replaceWith(newp);
-                VL_DO_DANGLING(dotp->deleteTree(), dotp);
+                VL_DO_DANGLING(dotp->delete_درخت(), dotp);
             }
         }
     }
 
     // Make sure all parameters are constantified
-    void visit(AstVar* nodep) override {
-        if (nodep->user2SetOnce()) return;  // Process once
+    خالی دورہ(AstVar* nodep) override {
+        اگر (nodep->user2_سیٹ_Once()) واپس;  // Process once
         // Interface array port: split it into its elements
-        if (nodep->isIfaceRef() && !nodep->isIfaceParent()
+        اگر (nodep->isIfaceRef() && !nodep->is_Iface_والد()
             && (VN_IS(nodep->subDTypep()->skipRefp(), UnpackArrayDType)
                 || VN_IS(nodep->subDTypep()->skipRefp(), BracketArrayDType))) {
             // Also converts any C-style [N] dimensions, the ranges must be constant
-            V3Width::widthParamsEdit(nodep->subDTypep());
-            expandIfaceArrayPortDimensions(nodep, nodep->subDTypep(), "");
-            nodep->isIfaceArraySplit(true);
+            V3_چوڑائی::چوڑائی_Params_Edit(nodep->subDTypep());
+            expand_Iface_Array_پورٹ_Dimensions(nodep, nodep->subDTypep(), "");
+            nodep->is_Iface_Array_بانٹو(سچ);
         }
         // Build cache of interface port names as we encounter them
-        if (nodep->isIfaceRef()) { m_ifacePortNames.insert(nodep->name()); }
+        اگر (nodep->isIfaceRef()) { m_iface_پورٹ_نام.داخل_کرو(nodep->name()); }
         iterateChildren(nodep);
-        if (nodep->isParam()) {
+        اگر (nodep->isParam()) {
             checkParamNotHierRecurse(nodep->valuep());
-            if (!nodep->valuep() && !VN_IS(m_modp, Class)) {
+            اگر (!nodep->valuep() && !VN_IS(m_modp, Class)) {
                 nodep->v3error("Parameter without default value is never given value"
                                << " (IEEE 1800-2023 6.20.1): " << nodep->prettyNameQ());
-            } else if (nodep->valuep()) {
+            } ورنہ اگر (nodep->valuep()) {
                 // Resolve now: a sibling cell's pin fold may need this before linkDotParamed
-                resolveGenericIfaceDotsIn(nodep->valuep());
+                resolve_Generic_Iface_Dots_اندر(nodep->valuep());
                 // If the value expression contains a VarXRef to an interface
                 // localparam whose value is not yet constant, defer constification
                 // to avoid premature widthing with unresolved values (see
                 // t_lparam_dep_iface tests).  When the referenced localparam is
                 // already const, proceed normally so FUNCREFs with resolved iface
                 // param args get folded.
-                bool hasUnresolvedLparamXRef = false;
-                nodep->valuep()->foreach([&](const AstVarXRef* xrefp) {
-                    if (const AstVar* const varp = xrefp->varp()) {
-                        if (varp->varType() == VVarType::LPARAM && !VN_IS(varp->valuep(), Const)) {
-                            hasUnresolvedLparamXRef = true;
+                منطقی hasUnresolvedLparamXRef = جھوٹ;
+                nodep->valuep()->foreach([&](ثابت AstVarXRef* xrefp) {
+                    اگر (ثابت AstVar* ثابت varp = xrefp->varp()) {
+                        اگر (varp->varType() == VVarType::LPARAM && !VN_IS(varp->valuep(), Const)) {
+                            hasUnresolvedLparamXRef = سچ;
                         }
                     }
                 });
-                if (hasUnresolvedLparamXRef) return;
+                اگر (hasUnresolvedLparamXRef) واپس;
                 // Defer if value has any unresolved Dot, or references a deferred lparam
-                const bool hasDot = nodep->valuep()->exists([](AstDot*) { return true; });
-                bool refsDeferred = false;
-                if (!hasDot) {
-                    const auto& deferredVarps = v3Global.rootp()->deferredParamVarps();
-                    nodep->valuep()->foreach([&](const AstVarRef* refp) {
-                        if (refsDeferred) return;
-                        AstVar* const refVarp = refp->varp();
-                        if (refVarp && refVarp->varType() == VVarType::LPARAM
-                            && deferredVarps.count(refVarp)) {
-                            refsDeferred = true;
+                ثابت منطقی hasDot = nodep->valuep()->exists([](AstDot*) { واپس سچ; });
+                منطقی refsDeferred = جھوٹ;
+                اگر (!hasDot) {
+                    ثابت خودکار& deferredVarps = v3Global.rootp()->deferredParamVarps();
+                    nodep->valuep()->foreach([&](ثابت AstVarRef* refp) {
+                        اگر (refsDeferred) واپس;
+                        AstVar* ثابت refVarp = refp->varp();
+                        اگر (refVarp && refVarp->varType() == VVarType::LPARAM
+                            && deferredVarps.گنتی(refVarp)) {
+                            refsDeferred = سچ;
                         }
                     });
                 }
-                if (hasDot || refsDeferred) {
-                    v3Global.rootp()->pushDeferredParamVarp(nodep);
-                    return;
+                اگر (hasDot || refsDeferred) {
+                    v3Global.rootp()->ڈالو_Deferred_Param_Varp(nodep);
+                    واپس;
                 }
                 m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
                 V3Const::constifyParamsEdit(nodep);
             }
         }
     }
-    void visit(AstParamTypeDType* nodep) override {
+    خالی دورہ(AstParamTypeDType* nodep) override {
         iterateChildren(nodep);
-        if (VN_IS(nodep->skipRefOrNullp(), VoidDType)) {
+        اگر (VN_IS(nodep->skipRefOrNullp(), VoidDType)) {
             nodep->v3error("Parameter type without default value is never given value"
                            << " (IEEE 1800-2023 6.20.1): " << nodep->prettyNameQ());
         }
     }
     // Make sure varrefs cause vars to constify before things above
-    void visit(AstVarRef* nodep) override {
+    خالی دورہ(AstVarRef* nodep) override {
         // Might jump across functions, so beware if ever add a m_funcp
-        if (nodep->varp()) iterate(nodep->varp());
+        اگر (nodep->varp()) iterate(nodep->varp());
     }
-    bool ifaceParamReplace(AstVarXRef* nodep, AstNode* candp) {
-        for (; candp; candp = candp->nextp()) {
-            if (nodep->name() == candp->name()) {
-                if (AstVar* const varp = VN_CAST(candp, Var)) {
+    منطقی ifaceParamReplace(AstVarXRef* nodep, Ast_گرہ* candp) {
+        برائے (; candp; candp = candp->nextp()) {
+            اگر (nodep->name() == candp->name()) {
+                اگر (AstVar* ثابت varp = VN_CAST(candp, Var)) {
                     UINFO(9, "Found interface parameter: " << varp);
                     // The interface may not have been visited yet (it is at a
                     // deeper level in the work queue), so its localparams may
                     // not be constified.  Eagerly constify here so that the
                     // caller's hasUnresolvedLparamXRef check sees a Const.
-                    if (varp->isParam() && varp->valuep() && !VN_IS(varp->valuep(), Const)) {
+                    اگر (varp->isParam() && varp->valuep() && !VN_IS(varp->valuep(), Const)) {
                         V3Const::constifyParamsEdit(varp);
                     }
                     nodep->varp(varp);
-                    return true;
-                } else if (const AstPin* const pinp = VN_CAST(candp, Pin)) {
+                    واپس سچ;
+                } ورنہ اگر (ثابت AstPin* ثابت pinp = VN_CAST(candp, Pin)) {
                     UINFO(9, "Found interface parameter: " << pinp);
                     UASSERT_OBJ(pinp->exprp(), pinp, "Interface parameter pin missing expression");
-                    nodep->replaceWith(pinp->exprp()->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return true;
+                    nodep->replaceWith(pinp->exprp()->clone_درخت(جھوٹ));
+                    VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+                    واپس سچ;
                 }
             }
         }
-        return false;
+        واپس جھوٹ;
     }
 
-    void deparamIfaceCellNow(AstCell* cellp) {
-        if (!cellp->paramsp()) return;
-        if (!VN_IS(cellp->modp(), Iface)) return;
-        AstNodeModule* const srcModp = cellp->modp();
-        AstNodeModule* const newModp
-            = m_processor.nodeDeparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
-        if (newModp && newModp != srcModp) {
-            if (V3LinkDotIfaceCapture::enabled()) {
+    خالی deparamIfaceCellNow(AstCell* cellp) {
+        اگر (!cellp->paramsp()) واپس;
+        اگر (!VN_IS(cellp->modp(), Iface)) واپس;
+        Ast_گرہ_Module* ثابت srcModp = cellp->modp();
+        Ast_گرہ_Module* ثابت newModp
+            = m_processor.گرہ_Deparam(cellp, srcModp, m_modp, m_modp->someInstanceName());
+        اگر (newModp && newModp != srcModp) {
+            اگر (V3LinkDotIfaceCapture::enabled()) {
                 m_processor.retargetIfaceRefs(m_modp, cellp->name());
             }
             specializeNestedIfaceCells(newModp);
         }
     }
 
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->containsGenBlock()) {
+    خالی دورہ(Ast_گرہ_FTask_Ref* nodep) override {
+        اگر (nodep->شامل_ہے_Gen_بلاک()) {
             // Needs relink, as may remove pointed-to task/func
-            nodep->taskp(nullptr);
-            return;
+            nodep->taskp(خالی_اشاریہ);
+            واپس;
         }
         iterateChildren(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
+    خالی دورہ(Ast_Enum_شے_Ref* nodep) override {
         // Needs relink, as may remove pointed-to item
-        if (nodep->containsGenBlock()) nodep->itemp(nullptr);
+        اگر (nodep->شامل_ہے_Gen_بلاک()) nodep->itemp(خالی_اشاریہ);
         iterateChildren(nodep);
     }
-    void visit(AstVarXRef* nodep) override {
-        if (nodep->containsGenBlock()) {
+    خالی دورہ(AstVarXRef* nodep) override {
+        اگر (nodep->شامل_ہے_Gen_بلاک()) {
             // Needs relink, as may remove pointed-to var
-            nodep->varp(nullptr);
-            return;
+            nodep->varp(خالی_اشاریہ);
+            واپس;
         }
         // Parameters of an interface array are accessed through its first element
-        if (nodep->varp() && nodep->varp()->isParam()) {
-            const auto it = m_ifaceInstCells.find(nodep->dotted());
-            if (it != m_ifaceInstCells.end()) nodep->dotted(it->second->name());
+        اگر (nodep->varp() && nodep->varp()->isParam()) {
+            ثابت خودکار it = m_ifaceInstCells.ڈھونڈو(nodep->dotted());
+            اگر (it != m_ifaceInstCells.انتہا()) nodep->dotted(it->دوسرا->name());
         }
         // Check to see if the scope is just an interface because interfaces are special
-        const string dotted = nodep->dotted();
-        if (!dotted.empty() && nodep->varp() && nodep->varp()->isParam()) {
-            const AstNode* backp = nodep;
-            while ((backp = backp->backp())) {
-                if (VN_IS(backp, NodeModule)) {
+        ثابت string dotted = nodep->dotted();
+        اگر (!dotted.خالی_خانے() && nodep->varp() && nodep->varp()->isParam()) {
+            ثابت Ast_گرہ* backp = nodep;
+            جب ((backp = backp->backp())) {
+                اگر (VN_IS(backp, گرہ_Module)) {
                     UINFO(9, "Hit module boundary, done looking for interface");
-                    break;
+                    توڑو;
                 }
-                if (const AstVar* const varp = VN_CAST(backp, Var)) {
-                    if (!varp->isIfaceRef()) continue;
+                اگر (ثابت AstVar* ثابت varp = VN_CAST(backp, Var)) {
+                    اگر (!varp->isIfaceRef()) جاری;
                     // Through all dimensions of an array
-                    const AstIfaceRefDType* const ifacerefp
+                    ثابت AstIfaceRefDType* ثابت ifacerefp
                         = VN_CAST(varp->subDTypep()->elemDTypep(), IfaceRefDType);
-                    if (!ifacerefp) continue;
+                    اگر (!ifacerefp) جاری;
                     // Interfaces passed in on the port map have ifaces
-                    if (const AstIface* const ifacep = ifacerefp->ifacep()) {
-                        if (dotted == backp->name()) {
+                    اگر (ثابت AstIface* ثابت ifacep = ifacerefp->ifacep()) {
+                        اگر (dotted == backp->name()) {
                             UINFO(9, "Iface matching scope:  " << ifacep);
-                            if (ifaceParamReplace(nodep, ifacep->stmtsp())) {  //
-                                return;
+                            اگر (ifaceParamReplace(nodep, ifacep->stmtsp())) {  //
+                                واپس;
                             }
                         }
                     }
                     // Interfaces declared in this module have cells
-                    else if (AstCell* const cellp = ifacerefp->cellp()) {
-                        if (dotted == cellp->name()) {
+                    ورنہ اگر (AstCell* ثابت cellp = ifacerefp->cellp()) {
+                        اگر (dotted == cellp->name()) {
                             UINFO(9, "Iface matching scope:  " << cellp);
                             deparamIfaceCellNow(cellp);
-                            if (ifaceParamReplace(nodep, cellp->modp()->stmtsp())) {  //
-                                return;
+                            اگر (ifaceParamReplace(nodep, cellp->modp()->stmtsp())) {  //
+                                واپس;
                             }
                         }
                     }
                 }
             }
             // Fallback: a direct local interface instance ("inst.PARAM"), not reached via a port.
-            const auto ifaceCellIt = m_ifaceInstCells.find(dotted);
-            if (ifaceCellIt != m_ifaceInstCells.end()) {
-                AstCell* const cellp = ifaceCellIt->second;
+            ثابت خودکار ifaceCellIt = m_ifaceInstCells.ڈھونڈو(dotted);
+            اگر (ifaceCellIt != m_ifaceInstCells.انتہا()) {
+                AstCell* ثابت cellp = ifaceCellIt->دوسرا;
                 deparamIfaceCellNow(cellp);
                 ifaceParamReplace(nodep, cellp->modp()->stmtsp());
             }
         }
     }
 
-    void visit(AstDot* nodep) override {
+    خالی دورہ(AstDot* nodep) override {
         iterate(nodep->lhsp());
         // Check if it is a reference to a field of a parameterized class.
         // If so, the RHS should be updated, when the LHS is replaced
         // by a class with actual parameter values.
-        const AstClass* lhsClassp = nullptr;
-        const AstClassOrPackageRef* const classRefp = VN_CAST(nodep->lhsp(), ClassOrPackageRef);
-        if (classRefp) lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
-        AstNode* rhsDefp = nullptr;
-        AstClassOrPackageRef* const rhsp = VN_CAST(nodep->rhsp(), ClassOrPackageRef);
-        if (rhsp) rhsDefp = rhsp->classOrPackageNodep();
-        if (lhsClassp && rhsDefp) {
-            m_state.m_dots.push_back(nodep);
+        ثابت AstClass* lhsClassp = خالی_اشاریہ;
+        ثابت AstClassOrPackageRef* ثابت classRefp = VN_CAST(nodep->lhsp(), ClassOrPackageRef);
+        اگر (classRefp) lhsClassp = VN_CAST(classRefp->classOrPackageSkipp(), Class);
+        Ast_گرہ* rhsDefp = خالی_اشاریہ;
+        AstClassOrPackageRef* ثابت rhsp = VN_CAST(nodep->rhsp(), ClassOrPackageRef);
+        اگر (rhsp) rhsDefp = rhsp->classOrPackageNodep();
+        اگر (lhsClassp && rhsDefp) {
+            m_state.m_dots.ڈالو_عقب(nodep);
             // No need to iterate into rhsp, because there should be nothing to do
-        } else {
+        } ورنہ {
             iterate(nodep->rhsp());
         }
     }
 
-    void visit(AstUnlinkedRef* nodep) override {
-        AstVarXRef* const varxrefp = VN_CAST(nodep->refp(), VarXRef);
-        AstNodeFTaskRef* const taskrefp = VN_CAST(nodep->refp(), NodeFTaskRef);
-        AstEnumItemRef* const enumrefp = VN_CAST(nodep->refp(), EnumItemRef);
-        if (varxrefp) {
+    خالی دورہ(AstUnlinkedRef* nodep) override {
+        AstVarXRef* ثابت varxrefp = VN_CAST(nodep->refp(), VarXRef);
+        Ast_گرہ_FTask_Ref* ثابت taskrefp = VN_CAST(nodep->refp(), گرہ_FTask_Ref);
+        Ast_Enum_شے_Ref* ثابت enumrefp = VN_CAST(nodep->refp(), Enum_شے_Ref);
+        اگر (varxrefp) {
             m_unlinkedTxt = varxrefp->dotted();
-        } else if (taskrefp) {
+        } ورنہ اگر (taskrefp) {
             m_unlinkedTxt = taskrefp->dotted();
-        } else if (enumrefp) {
+        } ورنہ اگر (enumrefp) {
             m_unlinkedTxt = enumrefp->dotted();
-        } else {
+        } ورنہ {
             nodep->v3fatalSrc("Unexpected AstUnlinkedRef node");
-            return;
+            واپس;
         }
         iterate(nodep->cellrefp());
 
-        if (varxrefp) {
+        اگر (varxrefp) {
             varxrefp->dotted(m_unlinkedTxt);
-        } else if (taskrefp) {
+        } ورنہ اگر (taskrefp) {
             taskrefp->dotted(m_unlinkedTxt);
-        } else {
+        } ورنہ {
             enumrefp->dotted(m_unlinkedTxt);
         }
-        nodep->replaceWith(nodep->refp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(nodep->refp()->unlink_Fr_عقب());
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstCellArrayRef* nodep) override {
+    خالی دورہ(AstCellArrayRef* nodep) override {
         // Multi-dim iface arrays chain multiple selps via nextp(); constify each in place.
-        for (AstNode *s = nodep->selp(), *nxt; s; s = nxt) {
+        برائے (Ast_گرہ *s = nodep->selp(), *nxt; s; s = nxt) {
             nxt = s->nextp();  // cache before constifyParamsEdit replaces s
             V3Const::constifyParamsEdit(s);
         }
-        std::vector<int> indices;
-        for (AstNode* s = nodep->selp(); s; s = s->nextp()) {
-            const AstConst* const constp = VN_CAST(s, Const);
-            if (!constp) {
+        std::سمتیہ<صحیح> indices;
+        برائے (Ast_گرہ* s = nodep->selp(); s; s = s->nextp()) {
+            ثابت AstConst* ثابت constp = VN_CAST(s, Const);
+            اگر (!constp) {
                 nodep->v3error("Could not expand constant selection inside dotted reference: "
                                << s->prettyNameQ());
-                return;
+                واپس;
             }
-            indices.push_back(constp->toSInt());
+            indices.ڈالو_عقب(constp->مقصد_SInt());
         }
         // Nested iface-array ports may carry a __Viftop suffix that's not in m_unlinkedTxt.
-        const string viftopSuffix = "__Viftop";
-        const string baseName
-            = VString::endsWith(nodep->name(), viftopSuffix)
-                  ? nodep->name().substr(0, nodep->name().size() - viftopSuffix.size())
+        ثابت string viftopSuffix = "__Viftop";
+        ثابت string بنیاد_Name
+            = VString::سرے_With(nodep->name(), viftopSuffix)
+                  ? nodep->name().substr(0, nodep->name().سائز() - viftopSuffix.سائز())
                   : nodep->name();
-        const string placeholder = "__BRA__??__KET__";
-        size_t pos = m_unlinkedTxt.find(baseName + placeholder);
+        ثابت string placeholder = "__BRA__??__KET__";
+        سائز_t pos = m_unlinkedTxt.ڈھونڈو(بنیاد_Name + placeholder);
         // An AstCellArrayRef for an iface-array pin expr (e.g. l1(l2.l1[0])) is visited
         // outside AstUnlinkedRef, so m_unlinkedTxt has no placeholder; V3LinkDot resolves later.
-        if (pos == string::npos) {
+        اگر (pos == string::npos) {
             UINFO(9, "Skipping unlinked text replacement for " << nodep);
-            return;
+            واپس;
         }
-        pos += baseName.length();
-        for (int idx : indices) {
-            const string replacement = "__BRA__" + AstNode::encodeNumber(idx) + "__KET__";
-            if (m_unlinkedTxt.compare(pos, placeholder.length(), placeholder) != 0) {
+        pos += بنیاد_Name.لمبائی_2();
+        برائے (صحیح idx : indices) {
+            ثابت string replacement = "__BRA__" + Ast_گرہ::encode_نمبر(idx) + "__KET__";
+            اگر (m_unlinkedTxt.compare(pos, placeholder.لمبائی_2(), placeholder) != 0) {
                 nodep->v3fatalSrc(  // LCOV_EXCL_LINE
                     "Expected placeholder at position in multi-dim iface dotted reference");
-                return;
+                واپس;
             }
-            m_unlinkedTxt.replace(pos, placeholder.length(), replacement);
-            pos += replacement.length();
+            m_unlinkedTxt.replace(pos, placeholder.لمبائی_2(), replacement);
+            pos += replacement.لمبائی_2();
         }
     }
 
@@ -3659,44 +3659,44 @@ class ParamVisitor final : public VNVisitor {
     // because deletion is deferred.  A generate condition doesn't defer and folds
     // immediately, so we can't queue. Anything queued here would be left dangling.
     // Refs in the surviving arm are queued when it is recursed.
-    void iterateGenerateCond(AstNode* nodep) {
-        VL_RESTORER(m_inGenerateCond);
-        m_inGenerateCond = true;
-        iterateAndNextNull(nodep);
+    خالی iterateGenerateCond(Ast_گرہ* nodep) {
+        VL_RESTORER(m_اندر_Generate_Cond);
+        m_اندر_Generate_Cond = سچ;
+        iterate_And_اگلا_Null(nodep);
         // The condition may reference deferred lparams whose Dots are still pending.
         m_processor.resolveDeferredDotsReachableFrom(nodep, m_modp);
     }
 
-    void visit(AstGenIf* nodep) override {
+    خالی دورہ(AstGenIf* nodep) override {
         UINFO(9, "  GENIF " << nodep);
         iterateGenerateCond(nodep->condp());
         // We suppress errors when widthing params since short-circuiting in
         // the conditional evaluation may mean these error can never occur. We
         // then make sure that short-circuiting is used by constifyParamsEdit.
-        V3Width::widthGenerateParamsEdit(nodep);  // Param typed widthing will
+        V3_چوڑائی::چوڑائی_Generate_Params_Edit(nodep);  // Param typed widthing will
                                                   // NOT recurse the body.
         V3Const::constifyGenerateParamsEdit(nodep->condp());  // condp may change
-        if (const AstConst* const constp = VN_CAST(nodep->condp(), Const)) {
-            if (AstNode* const keepp = (constp->isZero() ? nodep->elsesp() : nodep->thensp())) {
-                keepp->unlinkFrBackWithNext();
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(nodep->condp(), Const)) {
+            اگر (Ast_گرہ* ثابت keepp = (constp->isZero() ? nodep->elsesp() : nodep->thensp())) {
+                keepp->unlink_Fr_عقب_With_اگلا();
                 nodep->replaceWith(keepp);
-            } else {
-                nodep->unlinkFrBack();
+            } ورنہ {
+                nodep->unlink_Fr_عقب();
             }
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_درخت(), nodep);
             // Normal edit rules will now recurse the replacement
-        } else {
+        } ورنہ {
             nodep->condp()->v3error("Generate If condition must evaluate to constant");
         }
     }
 
-    void visit(AstGenBlock* nodep) override {
+    خالی دورہ(Ast_Gen_بلاک* nodep) override {
         // Parameter substitution for generated for loops.
         // TODO Unlike generated IF, we don't have to worry about short-circuiting the
         // conditional expression, since this is currently restricted to simple
         // comparisons. If we ever do move to more generic constant expressions, such code
         // will be needed here.
-        if (AstGenFor* const forp = VN_AS(nodep->genforp(), GenFor)) {
+        اگر (AstGenFor* ثابت forp = VN_AS(nodep->genforp(), GenFor)) {
             // We should have a GENFOR under here.  We will be replacing the begin,
             // so process here rather than at the generate to avoid iteration problems
             UINFO(9, "  BEGIN " << nodep);
@@ -3705,12 +3705,12 @@ class ParamVisitor final : public VNVisitor {
             iterateGenerateCond(forp->initsp());
             iterateGenerateCond(forp->condp());
             iterateGenerateCond(forp->incsp());
-            V3Width::widthParamsEdit(forp);  // Param typed widthing will NOT recurse the body
+            V3_چوڑائی::چوڑائی_Params_Edit(forp);  // Param typed widthing will NOT recurse the body
             // Outer wrapper around generate used to hold genvar, and to ensure genvar
             // doesn't conflict in V3LinkDot resolution with other genvars
             // Now though we need to change BEGIN("zzz", GENFOR(...)) to
             // a BEGIN("zzz__BRA__{loop#}__KET__")
-            const string beginName = nodep->name();
+            ثابت string beginName = nodep->name();
             // Leave the original Begin, as need a container for the (possible) GENVAR
             // Note m_unroller will replace some AstVarRef's to the loop variable with constants
             // Don't remove any deleted nodes in m_unroller until whole process finishes,
@@ -3718,104 +3718,104 @@ class ParamVisitor final : public VNVisitor {
             VL_DO_DANGLING(m_unroller.unroll(forp, beginName), forp);
             // Blocks were constructed under the special begin, move them up
             // Note forp is null, so grab statements again
-            if (AstNode* const stmtsp = nodep->genforp()) {
-                stmtsp->unlinkFrBackWithNext();
-                nodep->addNextHere(stmtsp);
+            اگر (Ast_گرہ* ثابت stmtsp = nodep->genforp()) {
+                stmtsp->unlink_Fr_عقب_With_اگلا();
+                nodep->جوڑو_اگلا_یہاں(stmtsp);
                 // Note this clears nodep->genforp(), so begin is no longer special
             }
-        } else {
+        } ورنہ {
             VL_RESTORER_COPY(m_generateHierName);
             m_generateHierName += "." + nodep->prettyName();
             iterateChildren(nodep);
         }
     }
-    void visit(AstGenFor* nodep) override {  // LCOV_EXCL_LINE
+    خالی دورہ(AstGenFor* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("GENFOR should have been wrapped in BEGIN");
     }
-    void visit(AstGenCase* nodep) override {
+    خالی دورہ(AstGenCase* nodep) override {
         UINFO(9, "  GENCASE " << nodep);
-        bool hit = false;
-        AstNode* keepp = nullptr;
+        منطقی کامیابی = جھوٹ;
+        Ast_گرہ* keepp = خالی_اشاریہ;
         iterateGenerateCond(nodep->exprp());
         V3Case::caseLint(nodep);
         // Case-item expressions must also be linked before widthing the case.
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+        برائے (Ast_Gen_Case_شے* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_شے)) {
+            برائے (Ast_گرہ* ep = itemp->condsp(); ep; ep = ep->nextp()) {
                 m_processor.resolveDeferredDotsReachableFrom(ep, m_modp);
             }
         }
-        V3Width::widthParamsEdit(nodep);  // Param typed widthing will NOT recurse the
+        V3_چوڑائی::چوڑائی_Params_Edit(nodep);  // Param typed widthing will NOT recurse the
                                           // body, don't trigger errors yet.
         V3Const::constifyParamsEdit(nodep->exprp());  // exprp may change
-        const AstConst* const exprp = VN_AS(nodep->exprp(), Const);
+        ثابت AstConst* ثابت exprp = VN_AS(nodep->exprp(), Const);
         // Constify
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            for (AstNode* ep = itemp->condsp(); ep;) {
-                AstNode* const nextp = ep->nextp();  // May edit list
+        برائے (Ast_Gen_Case_شے* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_شے)) {
+            برائے (Ast_گرہ* ep = itemp->condsp(); ep;) {
+                Ast_گرہ* ثابت nextp = ep->nextp();  // May edit list
                 iterateGenerateCond(ep);
                 VL_DO_DANGLING(V3Const::constifyParamsEdit(ep), ep);  // ep may change
                 ep = nextp;
             }
         }
         // Item match
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            if (!itemp->isDefault()) {
-                for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                    if (const AstConst* const ccondp = VN_CAST(ep, Const)) {
-                        V3Number match{nodep, 1};
-                        match.opEq(ccondp->num(), exprp->num());
-                        if (!hit && match.isNeqZero()) {
-                            hit = true;
+        برائے (Ast_Gen_Case_شے* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_شے)) {
+            اگر (!itemp->isDefault()) {
+                برائے (Ast_گرہ* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                    اگر (ثابت AstConst* ثابت ccondp = VN_CAST(ep, Const)) {
+                        V3_نمبر مطابقت{nodep, 1};
+                        مطابقت.opEq(ccondp->عدد(), exprp->عدد());
+                        اگر (!کامیابی && مطابقت.isNeqZero()) {
+                            کامیابی = سچ;
                             keepp = itemp->itemsp();
                         }
-                    } else {
+                    } ورنہ {
                         itemp->v3error("Generate Case item does not evaluate to constant");
                     }
                 }
             }
         }
         // Else default match
-        for (AstGenCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), GenCaseItem)) {
-            if (itemp->isDefault()) {
-                if (!hit) {
-                    hit = true;
+        برائے (Ast_Gen_Case_شے* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Gen_Case_شے)) {
+            اگر (itemp->isDefault()) {
+                اگر (!کامیابی) {
+                    کامیابی = سچ;
                     keepp = itemp->itemsp();
                 }
             }
         }
         // Replace
-        if (keepp) {
-            keepp->unlinkFrBackWithNext();
+        اگر (keepp) {
+            keepp->unlink_Fr_عقب_With_اگلا();
             nodep->replaceWith(keepp);
-        } else {
-            nodep->unlinkFrBack();
+        } ورنہ {
+            nodep->unlink_Fr_عقب();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ParamVisitor(ParamState& state, AstNetlist* netlistp)
+    صریح ParamVisitor(ParamState& state, AstNetlist* netlistp)
         : m_state{state}
         , m_processor{netlistp} {
 
         // Relies on modules already being in top-down-order
         iterate(netlistp);
     }
-    ~ParamVisitor() override = default;
+    ~ParamVisitor() override = طےشدہ;
     VL_UNCOPYABLE(ParamVisitor);
 };
 
 //######################################################################
 // Process top handler
 
-class ParamTop final : VNDeleter {
+جماعت Param_چوٹی final : VNDeleter {
     // NODE STATE
     // AstNodeModule::user1 -> bool: already fixed level (temporary)
 
@@ -3824,115 +3824,115 @@ class ParamTop final : VNDeleter {
 
     // METHODS
 
-    void relinkDots() {
+    خالی relinkDots() {
         // RHSs of AstDots need a relink when LHS is a parameterized class reference
-        for (AstDot* const dotp : m_state.m_dots) {
-            const AstClassOrPackageRef* const classRefp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
-            const AstClass* const lhsClassp = VN_AS(classRefp->classOrPackageSkipp(), Class);
-            AstClassOrPackageRef* const rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
-            for (auto* itemp = lhsClassp->membersp(); itemp; itemp = itemp->nextp()) {
-                if (itemp->name() == rhsp->name()) {
+        برائے (AstDot* ثابت dotp : m_state.m_dots) {
+            ثابت AstClassOrPackageRef* ثابت classRefp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
+            ثابت AstClass* ثابت lhsClassp = VN_AS(classRefp->classOrPackageSkipp(), Class);
+            AstClassOrPackageRef* ثابت rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
+            برائے (خودکار* itemp = lhsClassp->membersp(); itemp; itemp = itemp->nextp()) {
+                اگر (itemp->name() == rhsp->name()) {
                     rhsp->classOrPackageNodep(itemp);
-                    break;
+                    توڑو;
                 }
             }
         }
     }
 
-    void fixLevel(AstNodeModule* modp) {
+    خالی fixLevel(Ast_گرہ_Module* modp) {
         // Fix up level of module, based on who instantiates it
-        if (modp->user1SetOnce()) return;  // Already fixed
-        if (m_state.m_parentps[modp].empty()) return;  // Leave top levels alone
-        int maxParentLevel = 0;
-        for (AstNodeModule* parentp : m_state.m_parentps[modp]) {
+        اگر (modp->user1_سیٹ_Once()) واپس;  // Already fixed
+        اگر (m_state.m_parentps[modp].خالی_خانے()) واپس;  // Leave top levels alone
+        صحیح max_والد_Level = 0;
+        برائے (Ast_گرہ_Module* parentp : m_state.m_parentps[modp]) {
             fixLevel(parentp);  // Ensure parent level is correct
-            maxParentLevel = std::max(maxParentLevel, parentp->level());
+            max_والد_Level = std::max(max_والد_Level, parentp->level());
         }
-        if (modp->level() <= maxParentLevel) modp->level(maxParentLevel + 1);
+        اگر (modp->level() <= max_والد_Level) modp->level(max_والد_Level + 1);
         // Not correct fixup of depth(), as it should be mininum.  But depth() is unused
         // past V3LinkParse, so just do something sane in case this code doesn't get updated
-        modp->depth(modp->level());
+        modp->گہرائی(modp->level());
     }
 
-    void resortNetlistModules(AstNetlist* netlistp) {
+    خالی resortNetlistModules(AstNetlist* netlistp) {
         // Re-sort module list to be in topological order and fix-up incorrect levels. We need to
         // do this globally at the end due to the presence of recursive modules, which might be
         // expanded in orders that reuse earlier specializations later at a lower level.
         // Gather modules
-        std::vector<AstNodeModule*> modps;
-        for (AstNodeModule *modp = netlistp->modulesp(), *nextp; modp; modp = nextp) {
-            nextp = VN_AS(modp->nextp(), NodeModule);
-            modp->unlinkFrBack();
-            modps.push_back(modp);
+        std::سمتیہ<Ast_گرہ_Module*> modps;
+        برائے (Ast_گرہ_Module *modp = netlistp->modulesp(), *nextp; modp; modp = nextp) {
+            nextp = VN_AS(modp->nextp(), گرہ_Module);
+            modp->unlink_Fr_عقب();
+            modps.ڈالو_عقب(modp);
         }
 
         // Fix-up levels
-        const VNUser1InUse user1InUse;
-        for (AstNodeModule* const modp : modps) fixLevel(modp);
+        ثابت VNUser1_اندر_Use user1_اندر_Use;
+        برائے (Ast_گرہ_Module* ثابت modp : modps) fixLevel(modp);
 
         // Sort by level
-        std::stable_sort(modps.begin(), modps.end(),
-                         [](const AstNodeModule* ap, const AstNodeModule* bp) {
-                             return ap->level() < bp->level();
+        std::stable_ترتیب_دو(modps.begin(), modps.انتہا(),
+                         [](ثابت Ast_گرہ_Module* ap, ثابت Ast_گرہ_Module* bp) {
+                             واپس ap->level() < bp->level();
                          });
 
         // Re-insert modules
-        for (AstNodeModule* const modp : modps) netlistp->addModulesp(modp);
+        برائے (Ast_گرہ_Module* ثابت modp : modps) netlistp->جوڑو_Modulesp(modp);
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ParamTop(AstNetlist* netlistp) {
+    صریح Param_چوٹی(AstNetlist* netlistp) {
         // Relies on modules already being in top-down-order
-        const ParamVisitor paramVisitor{m_state /*ref*/, netlistp};
+        ثابت ParamVisitor paramVisitor{m_state /*ref*/, netlistp};
 
         // Mark classes which cannot be removed because they are still referenced
-        const ClassRefUnlinkerVisitor classUnlinkerVisitor{netlistp};
+        ثابت ClassRefUnlinkerVisitor classUnlinkerVisitor{netlistp};
 
-        netlistp->foreach([](AstNodeFTaskRef* ftaskrefp) {
-            AstNodeFTask* ftaskp = ftaskrefp->taskp();
-            if (!ftaskp || !ftaskp->classMethod()) return;
-            const std::string funcName = ftaskp->name();
+        netlistp->foreach([](Ast_گرہ_FTask_Ref* ftaskrefp) {
+            Ast_گرہ_FTask* ftaskp = ftaskrefp->taskp();
+            اگر (!ftaskp || !ftaskp->class_طریقہ()) واپس;
+            ثابت std::string funcName = ftaskp->name();
             // Find the nearest containing (ancestor) class for a node.
             // Uses aboveLoopp() which correctly skips sibling links
             // (e.g. covergroup classes) to find the true parent.
-            const auto ancestorClassOf = [](AstNode* startp) -> AstClass* {
-                for (AstNode* np = startp->aboveLoopp(); np; np = np->aboveLoopp()) {
-                    if (AstClass* const cp = VN_CAST(np, Class)) return cp;
+            ثابت خودکار ancestor_Class_کا = [](Ast_گرہ* startp) -> AstClass* {
+                برائے (Ast_گرہ* np = startp->aboveLoopp(); np; np = np->aboveLoopp()) {
+                    اگر (AstClass* ثابت cp = VN_CAST(np, Class)) واپس cp;
                 }
-                return nullptr;
+                واپس خالی_اشاریہ;
             };
-            AstClass* refClassp = ancestorClassOf(ftaskrefp);
-            if (refClassp == ftaskrefp->classOrPackagep())
-                return;  // task is in the same class as reference
-            AstClass* classp = ancestorClassOf(ftaskp);
+            AstClass* refClassp = ancestor_Class_کا(ftaskrefp);
+            اگر (refClassp == ftaskrefp->classOrPackagep())
+                واپس;  // task is in the same class as reference
+            AstClass* classp = ancestor_Class_کا(ftaskp);
             UASSERT_OBJ(classp, ftaskrefp, "Class method has no class above it");
             // If the FUNCREF and its task are both in the same (clone) class but
             // classOrPackagep still points to the old template, just retarget it
-            if (refClassp && refClassp == classp && ftaskrefp->classOrPackagep()
+            اگر (refClassp && refClassp == classp && ftaskrefp->classOrPackagep()
                 && ftaskrefp->classOrPackagep() != refClassp) {
                 ftaskrefp->classOrPackagep(refClassp);
-                return;
+                واپس;
             }
-            if (classp->user3p()) return;  // will not get removed, no need to relink
-            AstClass* const parametrizedClassp = VN_CAST(classp->user4p(), Class);
-            if (!parametrizedClassp) return;
-            AstNodeFTask* newFuncp = nullptr;
-            parametrizedClassp->exists([&newFuncp, funcName](AstNodeFTask* ftaskp) {
-                if (ftaskp->name() == funcName) {
+            اگر (classp->user3p()) واپس;  // will not get removed, no need to relink
+            AstClass* ثابت parametrizedClassp = VN_CAST(classp->user4p(), Class);
+            اگر (!parametrizedClassp) واپس;
+            Ast_گرہ_FTask* newFuncp = خالی_اشاریہ;
+            parametrizedClassp->exists([&newFuncp, funcName](Ast_گرہ_FTask* ftaskp) {
+                اگر (ftaskp->name() == funcName) {
                     newFuncp = ftaskp;
-                    return true;
+                    واپس سچ;
                 }
-                return false;
+                واپس جھوٹ;
             });
-            if (newFuncp) {
+            اگر (newFuncp) {
                 // v3error(ftaskp <<"->" << newFuncp);
                 ftaskrefp->taskp(newFuncp);
                 ftaskrefp->classOrPackagep(parametrizedClassp);
             }
         });
 
-        const ParamClassRefDTypeRelinkVisitor paramClassDTypeRelinkVisitor{netlistp};
+        ثابت ParamClassRefDTypeRelinkVisitor paramClassDTypeRelinkVisitor{netlistp};
 
         relinkDots();
 
@@ -3943,62 +3943,62 @@ public:
 
         // Remove defaulted classes
         // Unlike modules, which we keep around and mark dead() for later V3Dead
-        std::unordered_set<AstClass*> removedClassps;
-        for (AstClass* const classp : m_state.m_paramClasses) {
-            if (!classp->user3p()) {
+        std::unordered_سیٹ<AstClass*> removedClassps;
+        برائے (AstClass* ثابت classp : m_state.m_paramClasses) {
+            اگر (!classp->user3p()) {
                 // If there was an error, don't remove classes as they might
                 // have remained referenced, and  will crash in V3Broken or
                 // other locations. This is fine, we will abort imminently.
-                if (V3Error::errorCount()) continue;
+                اگر (V3Error::error_گنتی()) جاری;
                 removedClassps.emplace(classp);
-                VL_DO_DANGLING(pushDeletep(classp->unlinkFrBack()), classp);
-            } else {
+                VL_DO_DANGLING(ڈالو_Deletep(classp->unlink_Fr_عقب()), classp);
+            } ورنہ {
                 // Referenced. classp became a specialized class with the default
                 // values of parameters and is not a parameterized class anymore
-                classp->hasGParam(false);
+                classp->hasGParam(جھوٹ);
             }
         }
         // Remove references to defaulted classes
         // Reuse user3 to mark all nodes being deleted
-        AstNode::user3ClearTree();
-        for (AstClass* classp : removedClassps) {
-            classp->foreach([](AstNode* const nodep) { nodep->user3(true); });
+        Ast_گرہ::user3_Clear_درخت();
+        برائے (AstClass* classp : removedClassps) {
+            classp->foreach([](Ast_گرہ* ثابت nodep) { nodep->user3(سچ); });
         }
         // Set all links pointing to a user3 (deleting) node as null
-        netlistp->foreach([](AstNode* const nodep) {
-            nodep->foreachLink([&](AstNode** const linkpp, const char* namep) {
-                if (*linkpp && (*linkpp)->user3()) {
+        netlistp->foreach([](Ast_گرہ* ثابت nodep) {
+            nodep->foreachLink([&](Ast_گرہ** ثابت linkpp, ثابت حرف* namep) {
+                اگر (*linkpp && (*linkpp)->user3()) {
                     UINFO(9, "clear   link " << namep << " on " << nodep);
-                    *linkpp = nullptr;
+                    *linkpp = خالی_اشاریہ;
                     UINFO(9, "cleared link " << namep << " on " << nodep);
                 }
             });
         });
     }
-    ~ParamTop() = default;
-    VL_UNCOPYABLE(ParamTop);
+    ~Param_چوٹی() = طےشدہ;
+    VL_UNCOPYABLE(Param_چوٹی);
 };
 
 //######################################################################
 // Param class functions
 
-void V3Param::param(AstNetlist* rootp) {
+خالی V3Param::param(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     rootp->clearDeferredParamVarps();  // Defensive: drop any stragglers from a prior invocation
 
-    if (dumpTreeEitherLevel() >= 9) V3LinkDotIfaceCapture::dumpEntries("before V3Param");
-    { ParamTop{rootp}; }
+    اگر (dump_درخت_Either_Level() >= 9) V3LinkDotIfaceCapture::dumpEntries("before V3Param");
+    { Param_چوٹی{rootp}; }
     // The memo is only good while parameterizing, and the tree moves after.
     rootp->clearContainingModules();
-    if (dumpTreeEitherLevel() >= 9) V3LinkDotIfaceCapture::dumpEntries("after V3Param");
+    اگر (dump_درخت_Either_Level() >= 9) V3LinkDotIfaceCapture::dumpEntries("after V3Param");
 
-    V3Global::dumpCheckGlobalTree("param", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("param", 0, dump_درخت_Either_Level() >= 3);
 }
 
-void V3Param::finalizeDeferredParams(AstNetlist* rootp) {
+خالی V3Param::finalizeDeferredParams(AstNetlist* rootp) {
     // Constify params whose Dot RHS was resolved by V3LinkDot::linkDotParamed.
-    for (AstVar* const varp : rootp->deferredParamVarps()) {
-        if (varp->valuep() && !VN_IS(varp->valuep(), Const)) V3Const::constifyParamsEdit(varp);
+    برائے (AstVar* ثابت varp : rootp->deferredParamVarps()) {
+        اگر (varp->valuep() && !VN_IS(varp->valuep(), Const)) V3Const::constifyParamsEdit(varp);
     }
     rootp->clearDeferredParamVarps();
 }

@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONTAINER_H_
-#define VERILATOR_V3CONTAINER_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3CONTAINER_H_
+#تعریف_کرو VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#شامل <unordered_map>
+#شامل <unordered_set>
+#شامل <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
-class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+سانچہ <typename T_کلید>
+class VInsertion_سیٹ final {
+    std::سمتیہ<T_کلید> m_کلیدیں;  // Elements by insertion order
+    std::unordered_سیٹ<T_کلید> m_کلید_سیٹ;  // Elements by key
+عوامی:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool داخل_کرو(ثابت T_کلید& کلید) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ثابت خودکار it_ملا_Pair = m_کلید_سیٹ.داخل_کرو(کلید);
+        اگر (it_ملا_Pair.دوسرا) m_کلیدیں.ڈالو_عقب(کلید);
+        واپس it_ملا_Pair.دوسرا;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    سانچہ <typename T>
+    خالی داخل_کرو(T begin, ثابت T انتہا) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::قدر_type, T_کلید>::قدر,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        جب (begin != انتہا) {
+            اگر (m_کلید_سیٹ.داخل_کرو(*begin).دوسرا) m_کلیدیں.ڈالو_عقب(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    خالی clear() {
+        m_کلیدیں.clear();
+        m_کلید_سیٹ.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool خالی_خانے() ثابت { واپس m_کلیدیں.خالی_خانے(); }
+    سائز_t سائز() ثابت { واپس m_کلیدیں.سائز(); }
+    bool exists(ثابت T_کلید& کلید) ثابت { واپس m_کلید_سیٹ.ڈھونڈو(کلید) != m_کلید_سیٹ.انتہا(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::سمتیہ<T_کلید>::const_iterator;
+    const_iterator begin() ثابت { واپس m_کلیدیں.begin(); }
+    const_iterator انتہا() ثابت { واپس m_کلیدیں.انتہا(); }
 };
 
 //============================================================================
@@ -72,4 +72,4 @@ public:
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Values may be modified.
 
-#endif  // Guard
+#اگر_ختم  // Guard

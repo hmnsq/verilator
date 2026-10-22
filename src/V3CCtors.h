@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CCTORS_H_
-#define VERILATOR_V3CCTORS_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3CCTORS_H_
+#تعریف_کرو VERILATOR_V3CCTORS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 //============================================================================
 
 class V3CCtors final {
-public:
-    static void cctorsAll() VL_MT_DISABLED;
+عوامی:
+    ساکن خالی cctorsAll() VL_MT_DISABLED;
 
-private:
-    static void evalAsserts() VL_MT_DISABLED;
+نجی:
+    ساکن خالی evalAsserts() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

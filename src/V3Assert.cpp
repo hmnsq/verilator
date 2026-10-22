@@ -14,234 +14,234 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Assert.h"
+#شامل "V3Assert.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#شامل "V3AstUserAllocator.h"
+#شامل "V3Const.h"
+#شامل "V3Stats.h"
+#شامل "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+نامخلا {
 
-class DefaultDisableLocalVisitor final : public VNVisitor {
+جماعت DefaultDisableLocalVisitor final : عوامی VNVisitor {
     // STATE
-    AstNode* m_scopep = nullptr;
+    Ast_گرہ* m_scopep = خالی_اشاریہ;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        nodep->defaultDisablep(nullptr);
+        nodep->defaultDisablep(خالی_اشاریہ);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    خالی دورہ(Ast_Gen_بلاک* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
-        nodep->defaultDisablep(nullptr);
+        nodep->defaultDisablep(خالی_اشاریہ);
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {
+    خالی دورہ(AstDefaultDisable* nodep) override {
         UASSERT_OBJ(nodep, m_scopep,
                     "default disable iff must be inside a module or generate block");
-        AstDefaultDisable* defaultp = nullptr;
-        if (const AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        AstDefaultDisable* defaultp = خالی_اشاریہ;
+        اگر (ثابت Ast_گرہ_Module* ثابت modp = VN_CAST(m_scopep, گرہ_Module)) {
             defaultp = modp->defaultDisablep();
-        } else {
-            defaultp = VN_AS(m_scopep, GenBlock)->defaultDisablep();
+        } ورنہ {
+            defaultp = VN_AS(m_scopep, Gen_بلاک)->defaultDisablep();
         }
-        if (VL_UNLIKELY(defaultp)) {
+        اگر (VL_UNLIKELY(defaultp)) {
             nodep->v3error("Only one 'default disable iff' allowed per "
-                           << (VN_IS(m_scopep, NodeModule) ? "module" : "generate block")
+                           << (VN_IS(m_scopep, گرہ_Module) ? "module" : "generate block")
                            << " (IEEE 1800-2023 16.15)");
-        } else if (AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        } ورنہ اگر (Ast_گرہ_Module* ثابت modp = VN_CAST(m_scopep, گرہ_Module)) {
             modp->defaultDisablep(nodep);
-        } else {
-            VN_AS(m_scopep, GenBlock)->defaultDisablep(nodep);
+        } ورنہ {
+            VN_AS(m_scopep, Gen_بلاک)->defaultDisablep(nodep);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
+عوامی:
+    صریح DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
-class DefaultDisablePropagateVisitor final : public VNVisitor {
+جماعت DefaultDisablePropagateVisitor final : عوامی VNVisitor {
     // STATE
-    AstDefaultDisable* m_defaultDisablep = nullptr;
+    AstDefaultDisable* m_defaultDisablep = خالی_اشاریہ;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    خالی دورہ(Ast_Gen_بلاک* nodep) override {
         VL_RESTORER(m_defaultDisablep);
-        if (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
+        اگر (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
+عوامی:
+    صریح DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 // Lower a sequence used as an event control ('@seq', IEEE 1800-2023 9.4.2.4) into a
 // synthesized event fired by an internal 'cover sequence' on each end-of-match
-class SeqEventLowerVisitor final : public VNVisitor {
+جماعت Seq_Event_زیریں_Visitor final : عوامی VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    V3UniqueNames m_names{"__VseqEvent"};  // Synthesized event names
+    Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Current module
+    V3_Unique_نام m_نام{"__VseqEvent"};  // Synthesized event names
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSenItem* nodep) override {
-        AstFuncRef* const funcrefp = VN_CAST(nodep->sensp(), FuncRef);
-        if (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
-            FileLine* const flp = nodep->fileline();
-            AstVar* const eventp = new AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
-                                              m_modp->findBasicDType(VBasicDTypeKwd::EVENT)};
+    خالی دورہ(Ast_Sen_شے* nodep) override {
+        AstFuncRef* ثابت funcrefp = VN_CAST(nodep->sensp(), FuncRef);
+        اگر (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
+            File_سطر* ثابت flp = nodep->fileline();
+            AstVar* ثابت eventp = نیا AstVar{flp, VVarType::MODULETEMP, m_نام.get(nodep),
+                                              m_modp->ڈھونڈو_Basic_DType(VBasicDTypeKwd::EVENT)};
             eventp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(eventp);
-            v3Global.setHasEvents();
-            funcrefp->unlinkFrBack();
-            nodep->sensp(new AstVarRef{flp, eventp, VAccess::READ});
-            const bool automaticActual = funcrefp->exists([](const AstNodeVarRef* refp) {
-                return refp->varp() && refp->varp()->lifetime().isAutomatic();
+            m_modp->جوڑو_Stmtsp(eventp);
+            v3Global.سیٹ_Has_Events();
+            funcrefp->unlink_Fr_عقب();
+            nodep->sensp(نیا AstVarRef{flp, eventp, VAccess::READ});
+            ثابت منطقی automaticActual = funcrefp->exists([](ثابت Ast_گرہ_Var_Ref* refp) {
+                واپس refp->varp() && refp->varp()->lifetime().isAutomatic();
             });
-            if (automaticActual) {
+            اگر (automaticActual) {
                 nodep->v3error("Arguments to a sequence used as an event control must be"
                                " static (IEEE 1800-2023 9.4.2.4)");
-                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(false);
-                VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
-                return;
+                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(جھوٹ);
+                VL_DO_DANGLING(ڈالو_Deletep(funcrefp), funcrefp);
+                واپس;
             }
-            AstFireEvent* const firep
-                = new AstFireEvent{flp, new AstVarRef{flp, eventp, VAccess::WRITE}, false};
-            AstCover* const coverp
-                = new AstCover{flp, new AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
+            AstFireEvent* ثابت firep
+                = نیا AstFireEvent{flp, نیا AstVarRef{flp, eventp, VAccess::WRITE}, جھوٹ};
+            AstCover* ثابت coverp
+                = نیا AstCover{flp, نیا AstPropSpec{flp, خالی_اشاریہ, خالی_اشاریہ, funcrefp}, firep,
                                VAssertType::CONCURRENT};
-            coverp->isCoverSeq(true);
-            coverp->isSeqEvent(true);
-            m_modp->addStmtsp(coverp);
-            return;
+            coverp->isCoverSeq(سچ);
+            coverp->isSeqEvent(سچ);
+            m_modp->جوڑو_Stmtsp(coverp);
+            واپس;
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit SeqEventLowerVisitor(AstNetlist* nodep) { iterate(nodep); }
+عوامی:
+    صریح Seq_Event_زیریں_Visitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 }  // namespace
 
-void V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
+خالی V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
     { DefaultDisableLocalVisitor{nodep}; }
     { DefaultDisablePropagateVisitor{nodep}; }
 }
 
-void V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
-    { SeqEventLowerVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertseqevent", 0, dumpTreeEitherLevel() >= 3);
+خالی V3AssertCommon::زیریں_Sequence_Events(AstNetlist* nodep) {
+    { Seq_Event_زیریں_Visitor{nodep}; }
+    V3Global::dump_Check_Global_درخت("assertseqevent", 0, dump_درخت_Either_Level() >= 3);
 }
 
-string V3AssertCommon::assertCtlGetCall(const char* query, VAssertType type,
+string V3AssertCommon::assertCtlGetCall(ثابت حرف* query, VAssertType type,
                                         VAssertDirectiveType directiveType) {
     // Template arguments let the runtime build the type/directive mask at C++ compile time
-    return "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
-           + std::to_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
+    واپس "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::مقصد_string(type) + ", "s
+           + std::مقصد_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
 }
 
-bool V3AssertCommon::checkSvaValueLimit(AstNode* nodep, const AstConst* constp, const char* what) {
+منطقی V3AssertCommon::check_Sva_قدر_حد_بندی(Ast_گرہ* nodep, ثابت AstConst* constp, ثابت حرف* what) {
     // Temporal values can materialize as O(N) AST or state in later passes.
     // Leave headroom for a range ring's extra slot and V3Number's signed
     // `(bits + 31) / 32` word count.
-    static constexpr unsigned SVA_VALUE_HARD_LIMIT
-        = static_cast<unsigned>(std::numeric_limits<int>::max()) - 32U;
-    const unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.maxNumWidth());
-    const unsigned limit = std::min(configuredLimit, SVA_VALUE_HARD_LIMIT);
-    if (constp->num().fitsInUInt() && constp->toUInt() <= limit) return true;
+    ساکن constexpr غیرعلامتی SVA_قدر_HARD_حد_بندی
+        = static_cast<غیرعلامتی>(std::numeric_limits<صحیح>::max()) - 32U;
+    ثابت غیرعلامتی configured_حد_بندی = static_cast<غیرعلامتی>(v3Global.opt.max_عدد_چوڑائی());
+    ثابت غیرعلامتی حد_بندی = std::min(configured_حد_بندی, SVA_قدر_HARD_حد_بندی);
+    اگر (constp->عدد().سماتا_اندر_UInt() && constp->مقصد_UInt() <= حد_بندی) واپس سچ;
     nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << what << " exceeds implementation limit of "
-                                                 << limit
-                                                 << (configuredLimit <= SVA_VALUE_HARD_LIMIT
+                                                 << حد_بندی
+                                                 << (configured_حد_بندی <= SVA_قدر_HARD_حد_بندی
                                                          ? " (--max-num-width)"
                                                          : " (host arithmetic limit)"));
-    return false;
+    واپس جھوٹ;
 }
 
 // The bound of a cycle delay in a sequence, if a non-negative elaboration-time constant
-static const AstConst* checkSvaDelayBound(AstNode* errp, AstNodeExpr* boundp, const char* what) {
-    const AstConst* const constp = VN_CAST(boundp, Const);
-    if (!constp || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+ساکن ثابت AstConst* checkSvaDelayBound(Ast_گرہ* errp, Ast_گرہ_اظہاریہ* boundp, ثابت حرف* what) {
+    ثابت AstConst* ثابت constp = VN_CAST(boundp, Const);
+    اگر (!constp || (constp->dtypep()->isSigned() && constp->عدد().isNegative())) {
         errp->v3error(what << " is not a non-negative elaboration-time constant"
                               " (IEEE 1800-2023 16.7)");
-        return nullptr;
+        واپس خالی_اشاریہ;
     }
-    if (!V3AssertCommon::checkSvaValueLimit(errp, constp, "SVA cycle delay")) return nullptr;
-    return constp;
+    اگر (!V3AssertCommon::check_Sva_قدر_حد_بندی(errp, constp, "SVA cycle delay")) واپس خالی_اشاریہ;
+    واپس constp;
 }
 
 // Fold the bounds of a cycle delay in a sequence, and return if they are valid, else report it
 // on errp
-static bool svaCycleDelayValid(const AstDelay* nodep, AstNode* errp) {
+ساکن منطقی sva_چکر_Delay_Valid(ثابت AstDelay* nodep, Ast_گرہ* errp) {
     V3Const::constifyParamsNoWarnEdit(nodep->lhsp());
-    const AstConst* const minConstp = checkSvaDelayBound(
+    ثابت AstConst* ثابت minConstp = checkSvaDelayBound(
         errp, nodep->lhsp(), nodep->isRangeDelay() ? "Range delay minimum" : "Delay value");
-    if (!nodep->rhsp() || nodep->isUnbounded()) return minConstp != nullptr;
+    اگر (!nodep->rhsp() || nodep->isUnbounded()) واپس minConstp != خالی_اشاریہ;
     V3Const::constifyParamsNoWarnEdit(nodep->rhsp());
-    const AstConst* const maxConstp
+    ثابت AstConst* ثابت maxConstp
         = checkSvaDelayBound(errp, nodep->rhsp(), "Range delay maximum");
-    if (!minConstp || !maxConstp) return false;
-    if (maxConstp->toUInt() < minConstp->toUInt()) {
+    اگر (!minConstp || !maxConstp) واپس جھوٹ;
+    اگر (maxConstp->مقصد_UInt() < minConstp->مقصد_UInt()) {
         errp->v3error("Range delay maximum must be >= minimum (IEEE 1800-2023 16.7)");
-        return false;
+        واپس جھوٹ;
     }
-    return true;
+    واپس سچ;
 }
 
-void V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) {
-    if (svaCycleDelayValid(nodep, errp)) return;
+خالی V3AssertCommon::check_Sva_چکر_Delay(AstDelay* nodep, Ast_گرہ* errp) {
+    اگر (sva_چکر_Delay_Valid(nodep, errp)) واپس;
     // Make the delay valid, so later steps do not fail after the error
-    FileLine* const flp = nodep->fileline();
-    AstNodeExpr* const minp = nodep->lhsp();
-    minp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-    VL_DO_DANGLING(minp->deleteTree(), minp);
-    if (nodep->rhsp() && !nodep->isUnbounded()) {
-        AstNodeExpr* const maxp = nodep->rhsp();
-        maxp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-        VL_DO_DANGLING(maxp->deleteTree(), maxp);
+    File_سطر* ثابت flp = nodep->fileline();
+    Ast_گرہ_اظہاریہ* ثابت minp = nodep->lhsp();
+    minp->replaceWith(نیا AstConst{flp, AstConst::ثنائی_ہندسہ_False_Erroring{}});
+    VL_DO_DANGLING(minp->delete_درخت(), minp);
+    اگر (nodep->rhsp() && !nodep->isUnbounded()) {
+        Ast_گرہ_اظہاریہ* ثابت maxp = nodep->rhsp();
+        maxp->replaceWith(نیا AstConst{flp, AstConst::ثنائی_ہندسہ_False_Erroring{}});
+        VL_DO_DANGLING(maxp->delete_درخت(), maxp);
     }
 }
 
-bool V3AssertCommon::refsSvaFormal(const AstNode* nodep) {
-    return nodep->exists([](const AstNodeVarRef* refp) {
-        const AstVar* const varp = refp->varp();
-        if (!varp || !varp->isIO()) return false;
-        const AstNode* const declp = varp->aboveLoopp();
-        return VN_IS(declp, Sequence) || VN_IS(declp, Property);
+منطقی V3AssertCommon::refsSvaFormal(ثابت Ast_گرہ* nodep) {
+    واپس nodep->exists([](ثابت Ast_گرہ_Var_Ref* refp) {
+        ثابت AstVar* ثابت varp = refp->varp();
+        اگر (!varp || !varp->isIO()) واپس جھوٹ;
+        ثابت Ast_گرہ* ثابت declp = varp->aboveLoopp();
+        واپس VN_IS(declp, Sequence) || VN_IS(declp, Property);
     });
 }
 
-void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
+خالی V3AssertCommon::checkSvaInstanceDelays(Ast_گرہ* nodep, Ast_گرہ* instp) {
     // A delay still referencing a formal argument of an enclosing sequence or property is
     // checked when that is instanced. Collect first, as checking edits the delays.
-    std::vector<AstDelay*> delayps;
+    std::سمتیہ<AstDelay*> delayps;
     nodep->foreach([&](AstDelay* delayp) {
-        if (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) return;
-        if (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) return;
-        delayps.push_back(delayp);
+        اگر (!delayp->is_چکر_Delay() || refsSvaFormal(delayp->lhsp())) واپس;
+        اگر (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) واپس;
+        delayps.ڈالو_عقب(delayp);
     });
-    for (AstDelay* const delayp : delayps) checkSvaCycleDelay(delayp, instp);
+    برائے (AstDelay* ثابت delayp : delayps) check_Sva_چکر_Delay(delayp, instp);
 }
 
 //######################################################################
@@ -249,134 +249,134 @@ void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
 // If any AstFuture, then move all non-future varrefs to be one cycle behind,
 // see IEEE 1800-2023 16.9.4.
 
-class AssertDeFutureVisitor final : public VNVisitor {
+جماعت AssertDeFutureVisitor final : عوامی VNVisitor {
     // STATE - across all visitors
-    AstNodeModule* const m_modp;  // Module future is underneath
-    const AstFuture* m_futurep;  // First AstFuture found
-    const unsigned m_pastNum;  // Prefix unique number for this module
+    Ast_گرہ_Module* ثابت m_modp;  // Module future is underneath
+    ثابت AstFuture* m_futurep;  // First AstFuture found
+    ثابت غیرعلامتی m_past_عدد;  // Prefix unique number for this module
     std::map<AstVar*, AstVar*> m_delayedVars;  // Old to delayed variable mapping
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_inFuture = false;  // Inside a future
-    bool m_unsupported = false;  // Printed unsupported
+    منطقی m_اندر_Future = جھوٹ;  // Inside a future
+    منطقی m_unsupported = جھوٹ;  // Printed unsupported
 
     // METHODS
-    void unsupported(AstNode* nodep) {
-        if (m_unsupported) return;
-        m_unsupported = true;
+    خالی unsupported(Ast_گرہ* nodep) {
+        اگر (m_unsupported) واپس;
+        m_unsupported = سچ;
         nodep->v3warn(E_UNSUPPORTED,
                       "Unsupported/illegal: Future value function used with expression with "
                           << nodep->prettyOperatorName());
     }
     // VISITORS
-    void visit(AstFuture* nodep) override {
-        VL_RESTORER(m_inFuture);
-        m_inFuture = true;
+    خالی دورہ(AstFuture* nodep) override {
+        VL_RESTORER(m_اندر_Future);
+        m_اندر_Future = سچ;
         iterateChildren(nodep);
         // Done with the future, this subexpression is current-time
-        nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(nodep->exprp()->unlink_Fr_عقب());
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        if (m_inFuture || m_unsupported)
-            return;  // Need user1 set above, don't process when Future is removed
-        if (nodep->access().isWriteOrRW()) {
+    خالی دورہ(Ast_گرہ_Var_Ref* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;
+        اگر (m_اندر_Future || m_unsupported)
+            واپس;  // Need user1 set above, don't process when Future is removed
+        اگر (nodep->access().isWriteOrRW()) {
             unsupported(nodep);
-            return;
+            واپس;
         }
-        auto it = m_delayedVars.find(nodep->varp());
+        خودکار it = m_delayedVars.ڈھونڈو(nodep->varp());
         AstVar* outvarp;
-        if (it == m_delayedVars.end()) {
-            AstSenTree* const sentreep = m_futurep->sentreep();
-            AstAlways* const alwaysp = new AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
-                                                     sentreep->cloneTree(false), nullptr};
-            m_modp->addStmtsp(alwaysp);
-            outvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP,
-                                 "__Vnotfuture" + cvtToStr(m_pastNum) + "_" + nodep->name(),
+        اگر (it == m_delayedVars.انتہا()) {
+            Ast_Sen_درخت* ثابت sentreep = m_futurep->sentreep();
+            AstAlways* ثابت alwaysp = نیا AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
+                                                     sentreep->clone_درخت(جھوٹ), خالی_اشاریہ};
+            m_modp->جوڑو_Stmtsp(alwaysp);
+            outvarp = نیا AstVar{nodep->fileline(), VVarType::MODULETEMP,
+                                 "__Vnotfuture" + cvt_مقصد_Str(m_past_عدد) + "_" + nodep->name(),
                                  nodep->dtypep()};
-            m_modp->addStmtsp(outvarp);
-            AstVarRef* varRefAWritep = new AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
-            varRefAWritep->user1(true);
-            AstNodeVarRef* varRefAReadp = nodep->cloneTree(false);
-            varRefAReadp->user1(true);
-            AstNode* const assp = new AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
-            alwaysp->addStmtsp(assp);
+            m_modp->جوڑو_Stmtsp(outvarp);
+            AstVarRef* varRefAWritep = نیا AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
+            varRefAWritep->user1(سچ);
+            Ast_گرہ_Var_Ref* varRefAReadp = nodep->clone_درخت(جھوٹ);
+            varRefAReadp->user1(سچ);
+            Ast_گرہ* ثابت assp = نیا Ast_تفویض_Dly{nodep->fileline(), varRefAWritep, varRefAReadp};
+            alwaysp->جوڑو_Stmtsp(assp);
             m_delayedVars.emplace(nodep->varp(), outvarp);
-        } else {
-            outvarp = it->second;
+        } ورنہ {
+            outvarp = it->دوسرا;
         }
-        AstVarRef* newp = new AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
-        newp->user1(true);
+        AstVarRef* newp = نیا AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
+        newp->user1(سچ);
         UINFO(9, "DeFuture " << nodep << "  becomes " << newp);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override { unsupported(nodep); }
-    void visit(AstMethodCall* nodep) override { unsupported(nodep); }
-    void visit(AstNode* nodep) override {
-        if (!nodep->isPure()) unsupported(nodep);
+    خالی دورہ(Ast_گرہ_FTask_Ref* nodep) override { unsupported(nodep); }
+    خالی دورہ(Ast_طریقہ_Call* nodep) override { unsupported(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override {
+        اگر (!nodep->is_خالص()) unsupported(nodep);
         iterateChildren(nodep);
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit AssertDeFutureVisitor(AstNode* nodep, AstNodeModule* modp, unsigned pastNum)
+    صریح AssertDeFutureVisitor(Ast_گرہ* nodep, Ast_گرہ_Module* modp, غیرعلامتی past_عدد)
         : m_modp{modp}
-        , m_pastNum{pastNum} {
+        , m_past_عدد{past_عدد} {
         // See if any Future before we process
-        if (nodep->forall([&](const AstFuture* futurep) -> bool {
+        اگر (nodep->forall([&](ثابت AstFuture* futurep) -> منطقی {
                 m_futurep = futurep;
-                return false;
+                واپس جھوٹ;
             }))
-            return;
+            واپس;
         // UINFOTREE(9, nodep, "", "defuture-in");
-        visit(nodep);  // Nodep may get deleted
+        دورہ(nodep);  // Nodep may get deleted
         // UINFOTREE(9, nodep, "", "defuture-ou");
     }
-    ~AssertDeFutureVisitor() = default;
+    ~AssertDeFutureVisitor() = طےشدہ;
 };
 
 // Prepare one default sampled expression.
-class DefaultSampledValueVisitor final : public VNVisitor {
+جماعت Default_Sampled_قدر_Visitor final : عوامی VNVisitor {
     // METHODS
-    static AstConst* newTypeDefault(AstNodeExpr* nodep) {
-        AstConst* const constp
-            = new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
-        if (nodep->dtypep()->isFourstate()) constp->num().setAllBitsX();
+    ساکن AstConst* newTypeDefault(Ast_گرہ_اظہاریہ* nodep) {
+        AstConst* ثابت constp
+            = نیا AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
+        اگر (nodep->dtypep()->isFourstate()) constp->عدد().سیٹ_All_بٹ_X();
         constp->dtypeFrom(nodep);
-        return constp;
+        واپس constp;
     }
 
     // VISITORS
-    void visit(AstCMethodHard* nodep) override {
-        if (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+    خالی دورہ(AstCMethodHard* nodep) override {
+        اگر (nodep->طریقہ() == VCMethod::EVENT_IS_TRIGGERED) {
+            nodep->replaceWith(نیا AstConst{nodep->fileline(), AstConst::ثنائی_ہندسہ_False{}});
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+        } ورنہ {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
-        AstVar* const varp = nodep->varp();
-        if (varp->isParam()
+    خالی دورہ(Ast_گرہ_Var_Ref* nodep) override {
+        AstVar* ثابت varp = nodep->varp();
+        اگر (varp->isParam()
             || (!varp->isNet() && varp->lifetime().isStatic() && varp->hasUserInit())) {
-            return;
+            واپس;
         }
         nodep->replaceWith(newTypeDefault(nodep));
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultSampledValueVisitor(AstNode* nodep) { iterate(nodep); }
+عوامی:
+    صریح Default_Sampled_قدر_Visitor(Ast_گرہ* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // AssertVisitor
 
-class AssertVisitor final : public VNVisitor {
+جماعت AssertVisitor final : عوامی VNVisitor {
     // CONSTANTS
-    static constexpr uint8_t ALL_ASSERT_TYPES
+    ساکن constexpr uint8_t ALL_ASSERT_TYPES
         = std::numeric_limits<std::underlying_type<VAssertType::en>::type>::max();
 
     // NODE STATE/TYPES
@@ -385,419 +385,419 @@ class AssertVisitor final : public VNVisitor {
     //  AstAlways::user2p()      -> std::vector<AstVar*>. Delayed variables via 'm_delayed'
     //  AstNodeVarRef::user2()   -> bool.  True if shouldn't be sampled
     //  AstIf::user2()           -> bool.  True for assertOn() checks inserted in this pass
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    AstUser2Allocator<AstAlways, std::vector<AstVar*>> m_delayed;
+    ثابت VNUser1_اندر_Use m_user1_اندر_Use;
+    ثابت VNUser2_اندر_Use m_user2_اندر_Use;
+    AstUser2Allocator<AstAlways, std::سمتیہ<AstVar*>> m_delayed;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Last module
-    const AstNode* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
-    unsigned m_monitorNum = 0;  // Global $monitor numbering (not per module)
-    AstVar* m_monitorNumVarp = nullptr;  // $monitor number variable
-    AstVar* m_monitorOffVarp = nullptr;  // $monitoroff variable
-    unsigned m_modPastNum = 0;  // Module past numbering
-    unsigned m_modStrobeNum = 0;  // Module $strobe numbering
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
+    Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Last module
+    ثابت Ast_گرہ* m_beginp = خالی_اشاریہ;  // Last AstBegin/AstGenBlock
+    غیرعلامتی m_monitor_عدد = 0;  // Global $monitor numbering (not per module)
+    AstVar* m_monitor_عدد_Varp = خالی_اشاریہ;  // $monitor number variable
+    AstVar* m_monitorOffVarp = خالی_اشاریہ;  // $monitoroff variable
+    غیرعلامتی m_mod_Past_عدد = 0;  // Module past numbering
+    غیرعلامتی m_mod_Strobe_عدد = 0;  // Module $strobe numbering
+    Ast_گرہ_Procedure* m_procedurep = خالی_اشاریہ;  // Current procedure
     VDouble0 m_statCover;  // Statistic tracking
     VDouble0 m_statAsNotImm;  // Statistic tracking
     VDouble0 m_statAsImm;  // Statistic tracking
-    VDouble0 m_statAsFull;  // Statistic tracking
+    VDouble0 m_stat_As_بھرا;  // Statistic tracking
     VDouble0 m_statPastVars;  // Statistic tracking
     VDouble0 m_statAssertOnCombined;  // Statistic tracking
     VDouble0 m_statAssertOnHoisted;  // Statistic tracking
-    bool m_inSampled = false;  // True inside a sampled expression
-    bool m_inRestrict = false;  // True inside restrict assertion
-    AstNode* m_passsp = nullptr;  // Current pass statement
-    AstNode* m_failsp = nullptr;  // Current fail statement
-    AstNodeCoverOrAssert* m_assertp = nullptr;  // Current assertion
-    AstFinal* m_finalp = nullptr;  // Current final block
+    منطقی m_اندر_Sampled = جھوٹ;  // True inside a sampled expression
+    منطقی m_اندر_Restrict = جھوٹ;  // True inside restrict assertion
+    Ast_گرہ* m_passsp = خالی_اشاریہ;  // Current pass statement
+    Ast_گرہ* m_failsp = خالی_اشاریہ;  // Current fail statement
+    Ast_گرہ_Cover_Or_Assert* m_assertp = خالی_اشاریہ;  // Current assertion
+    AstFinal* m_finalp = خالی_اشاریہ;  // Current final block
     VDouble0 m_statLiftedCaseExprs;  // Count of purified case expressions
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    V3UniqueNames m_caseTempNames{"__VCase"};
-    V3UniqueNames m_matchCountNames{"__VnfaRemainingMatchCount"};  // Match replay counter names
+    Ast_گرہ_FTask* m_ftaskp = خالی_اشاریہ;  // Current function/task
+    V3_Unique_نام m_case_عارضی_نام{"__VCase"};
+    V3_Unique_نام m_مطابقت_گنتی_نام{"__VnfaRemainingMatchCount"};  // Match replay counter names
     // Maps from (expression, senTree) to the AstAlways that computes its delayed values.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_گرہ_اظہاریہ>, std::unordered_map<VNRef<Ast_Sen_درخت>, AstAlways*>>
         m_modExpr2Sen2DelayedAlwaysp;
     // Source sampled-value history is initialized, unlike internal property-lowering history.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_گرہ_اظہاریہ>, std::unordered_map<VNRef<Ast_Sen_درخت>, AstAlways*>>
         m_modExpr2Sen2DefaultDelayedAlwaysp;
     // Map from delayed-value AstAlways to its last-sampling-tick time variable
-    std::unordered_map<const AstAlways*, AstVar*> m_delayedAlways2TickTimep;
+    std::unordered_map<ثابت AstAlways*, AstVar*> m_delayedAlways2TickTimep;
 
     // METHODS
-    static const char* assertPassOnQuery(bool vacuous) {
-        static constexpr const char* queries[2]
+    ساکن ثابت حرف* assertPassOnQuery(منطقی vacuous) {
+        ساکن constexpr ثابت حرف* queries[2]
             = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-        return queries[vacuous];
+        واپس queries[vacuous];
     }
-    static AstNodeExpr* assertOnCond(FileLine* fl, VAssertType type,
+    ساکن Ast_گرہ_اظہاریہ* assertOnCond(File_سطر* fl, VAssertType type,
                                      VAssertDirectiveType directiveType) {
         // cppcheck-suppress missingReturn
-        switch (directiveType) {
-        case VAssertDirectiveType::INTRINSIC: return new AstConst{fl, AstConst::BitTrue{}};
-        case VAssertDirectiveType::VIOLATION_CASE: {
-            if (v3Global.opt.assertCase()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        انتخاب (directiveType) {
+        حالت VAssertDirectiveType::INTRINSIC: واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_True{}};
+        حالت VAssertDirectiveType::VIOLATION_CASE: {
+            اگر (v3Global.opt.assertCase()) {
+                واپس نیا AstCExpr{fl, AstCExpr::خالص{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
             // If assertions are off, have constant propagation rip them out later
             // This allows syntax errors and such to be detected normally.
-            return new AstConst{fl, AstConst::BitFalse{}};
+            واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}};
         }
-        case VAssertDirectiveType::ASSERT:
-        case VAssertDirectiveType::COVER:
-        case VAssertDirectiveType::ASSUME: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{
-                    fl, AstCExpr::Pure{},
+        حالت VAssertDirectiveType::ASSERT:
+        حالت VAssertDirectiveType::COVER:
+        حالت VAssertDirectiveType::ASSUME: {
+            اگر (v3Global.opt.assertOn()) {
+                واپس نیا AstCExpr{
+                    fl, AstCExpr::خالص{},
                     V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}};
         }
-        case VAssertDirectiveType::INTERNAL:
-        case VAssertDirectiveType::VIOLATION_IF:
-        case VAssertDirectiveType::RESTRICT: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        حالت VAssertDirectiveType::اندرونی_2:
+        حالت VAssertDirectiveType::VIOLATION_IF:
+        حالت VAssertDirectiveType::RESTRICT: {
+            اگر (v3Global.opt.assertOn()) {
+                واپس نیا AstCExpr{fl, AstCExpr::خالص{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}};
         }
         }
         VL_UNREACHABLE;
     }
 
-    static bool isControlled(VAssertDirectiveType directiveType) {
-        return (static_cast<int>(directiveType)
-                & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                   | static_cast<int>(VAssertDirectiveType::COVER)
-                   | static_cast<int>(VAssertDirectiveType::ASSUME)));
+    ساکن منطقی isControlled(VAssertDirectiveType directiveType) {
+        واپس (static_cast<صحیح>(directiveType)
+                & (static_cast<صحیح>(VAssertDirectiveType::ASSERT)
+                   | static_cast<صحیح>(VAssertDirectiveType::COVER)
+                   | static_cast<صحیح>(VAssertDirectiveType::ASSUME)));
     }
-    static AstNodeExpr* assertPassOnCond(FileLine* fl, VAssertType type,
-                                         VAssertDirectiveType directiveType, bool vacuous) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
-            fl, AstCExpr::Pure{},
+    ساکن Ast_گرہ_اظہاریہ* assertPassOnCond(File_سطر* fl, VAssertType type,
+                                         VAssertDirectiveType directiveType, منطقی vacuous) {
+        اگر (!isControlled(directiveType)) واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_True{}};
+        اگر (!v3Global.opt.assertOn()) واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}};
+        واپس نیا AstCExpr{
+            fl, AstCExpr::خالص{},
             V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType), 1};
     }
-    static AstNodeExpr* assertFailOnCond(FileLine* fl, VAssertType type,
+    ساکن Ast_گرہ_اظہاریہ* assertFailOnCond(File_سطر* fl, VAssertType type,
                                          VAssertDirectiveType directiveType) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
-            fl, AstCExpr::Pure{},
+        اگر (!isControlled(directiveType)) واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_True{}};
+        اگر (!v3Global.opt.assertOn()) واپس نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}};
+        واپس نیا AstCExpr{
+            fl, AstCExpr::خالص{},
             V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType), 1};
     }
-    string assertDisplayMessage(const AstNode* nodep, const string& prefix, const string& message,
+    string assert_Display_پیغام(ثابت Ast_گرہ* nodep, ثابت string& سابقہ, ثابت string& پیغام,
                                 VDisplayType severity) {
-        if (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
-            return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
-                    + cvtToStr(nodep->fileline()->lineno()) + ": Assertion failed in %m"
-                    + ((message != "") ? ": " : "") + message + "\n");
+        اگر (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
+            واپس ("[%0t] "s + سابقہ + ": " + nodep->fileline()->filebasename() + ":"
+                    + cvt_مقصد_Str(nodep->fileline()->lineno()) + ": Assertion failed in %m"
+                    + ((پیغام != "") ? ": " : "") + پیغام + "\n");
         }
-        return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
-                + cvtToStr(nodep->fileline()->lineno()) + ": %m" + ((message != "") ? ": " : "")
-                + message + "\n");
+        واپس ("[%0t] "s + سابقہ + ": " + nodep->fileline()->filebasename() + ":"
+                + cvt_مقصد_Str(nodep->fileline()->lineno()) + ": %m" + ((پیغام != "") ? ": " : "")
+                + پیغام + "\n");
     }
-    void replaceDisplay(AstDisplay* nodep, const string& prefix) {
-        nodep->fmtp()->text(
-            assertDisplayMessage(nodep, prefix, nodep->fmtp()->text(), nodep->displayType()));
+    خالی replaceDisplay(AstDisplay* nodep, ثابت string& سابقہ) {
+        nodep->fmtp()->متن(
+            assert_Display_پیغام(nodep, سابقہ, nodep->fmtp()->متن(), nodep->displayType()));
         nodep->displayType(VDisplayType::DT_WRITE);
         // cppcheck-suppress nullPointer
-        AstNodeExpr* const timenewp = new AstTime{nodep->fileline(), m_modp->timeunit()};
+        Ast_گرہ_اظہاریہ* ثابت timenewp = نیا Ast_وقت{nodep->fileline(), m_modp->timeunit()};
         nodep->fmtp()->prependExprsp(timenewp);
-        if (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
-            nodep->fmtp()->scopeNamep(new AstScopeName{nodep->fileline(), true});
+        اگر (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
+            nodep->fmtp()->scopeNamep(نیا AstScopeName{nodep->fileline(), سچ});
         }
     }
-    AstSampled* newSampledExpr(AstNodeExpr* nodep) {
-        return new AstSampled{nodep->fileline(), nodep, nodep->dtypep(), true};
+    AstSampled* new_Sampled_اظہاریہ(Ast_گرہ_اظہاریہ* nodep) {
+        واپس نیا AstSampled{nodep->fileline(), nodep, nodep->dtypep(), سچ};
     }
-    AstVarRef* newMonitorNumVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorNumVarp) {
-            m_monitorNumVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
-                                          nodep->findUInt64DType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorNumVarp);
+    AstVarRef* new_Monitor_عدد_Var_Refp(ثابت Ast_گرہ* nodep, VAccess access) {
+        اگر (!m_monitor_عدد_Varp) {
+            m_monitor_عدد_Varp = نیا AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
+                                          nodep->ڈھونڈو_UInt64_DType()};
+            v3Global.rootp()->dollarUnitPkgp()->جوڑو_Stmtsp(m_monitor_عدد_Varp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorNumVarp, access};
+        AstVarRef* ثابت varrefp = نیا AstVarRef{nodep->fileline(), m_monitor_عدد_Varp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        واپس varrefp;
     }
-    AstVarRef* newMonitorOffVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorOffVarp) {
-            m_monitorOffVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
-                                          nodep->findBitDType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorOffVarp);
+    AstVarRef* newMonitorOffVarRefp(ثابت Ast_گرہ* nodep, VAccess access) {
+        اگر (!m_monitorOffVarp) {
+            m_monitorOffVarp = نیا AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
+                                          nodep->ڈھونڈو_ثنائی_ہندسہ_DType()};
+            v3Global.rootp()->dollarUnitPkgp()->جوڑو_Stmtsp(m_monitorOffVarp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
+        AstVarRef* ثابت varrefp = نیا AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        واپس varrefp;
     }
-    static AstIf* newIfAssertOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                VAssertType type = VAssertType::INTERNAL) {
+    ساکن AstIf* newIfAssertOn(Ast_گرہ* bodyp, VAssertDirectiveType directiveType,
+                                VAssertType type = VAssertType::اندرونی_2) {
         // Add an internal if to check assertions are on.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
+        File_سطر* ثابت fl = bodyp->fileline();
 
-        AstNodeExpr* const condp = assertOnCond(fl, type, directiveType);
-        AstIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        Ast_گرہ_اظہاریہ* ثابت condp = assertOnCond(fl, type, directiveType);
+        AstIf* ثابت newp = نیا AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(سچ);  // To avoid LATCH warning
+        newp->user2(سچ);  // Mark as an assertOn() check
+        واپس newp;
     }
-    static AstNodeStmt* newIfAssertPassOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                          VAssertType type, bool vacuous) {
+    ساکن Ast_گرہ_Stmt* newIfAssertPassOn(Ast_گرہ* bodyp, VAssertDirectiveType directiveType,
+                                          VAssertType type, منطقی vacuous) {
         // Add an internal if to check assertion passOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertPassOnCond(fl, type, directiveType, vacuous);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_سطر* ثابت fl = bodyp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت condp = assertPassOnCond(fl, type, directiveType, vacuous);
+        Ast_گرہ_If* ثابت newp = نیا AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(سچ);  // To avoid LATCH warning
+        newp->user1(سچ);  // Don't assert/cover this if
+        newp->user2(سچ);  // Mark as an assertOn() check
+        واپس newp;
     }
-    static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    ساکن Ast_گرہ_Stmt* newIfAssertFailOn(Ast_گرہ* bodyp, VAssertDirectiveType directiveType,
                                           VAssertType type) {
         // Add an internal if to check assertion failOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertFailOnCond(fl, type, directiveType);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_سطر* ثابت fl = bodyp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت condp = assertFailOnCond(fl, type, directiveType);
+        Ast_گرہ_If* ثابت newp = نیا AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(سچ);  // To avoid LATCH warning
+        newp->user1(سچ);  // Don't assert/cover this if
+        newp->user2(سچ);  // Mark as an assertOn() check
+        واپس newp;
     }
 
-    static AstIf* assertCond(const AstNodeCoverOrAssert* nodep, AstNodeExpr* propp,
-                             AstNode* passsp, AstNode* failsp) {
-        AstIf* const ifp = new AstIf{nodep->fileline(), propp, passsp, failsp};
+    ساکن AstIf* assertCond(ثابت Ast_گرہ_Cover_Or_Assert* nodep, Ast_گرہ_اظہاریہ* propp,
+                             Ast_گرہ* passsp, Ast_گرہ* failsp) {
+        AstIf* ثابت ifp = نیا AstIf{nodep->fileline(), propp, passsp, failsp};
         // It's more LIKELY that we'll take the nullptr if clause
         // than the sim-killing else clause:
         ifp->branchPred(VBranchPred::BP_LIKELY);
-        ifp->isBoundsCheck(true);  // To avoid LATCH warning
-        return ifp;
+        ifp->isBoundsCheck(سچ);  // To avoid LATCH warning
+        واپس ifp;
     }
 
-    AstNodeStmt* assertBody(const AstNodeCoverOrAssert* nodep, AstNode* propp, AstNode* passsp,
-                            AstNode* failsp) {
-        if (AstPExpr* const pexprp = VN_CAST(propp, PExpr)) {
-            if (!v3Global.opt.timing().isSetTrue()) {
+    Ast_گرہ_Stmt* assertBody(ثابت Ast_گرہ_Cover_Or_Assert* nodep, Ast_گرہ* propp, Ast_گرہ* passsp,
+                            Ast_گرہ* failsp) {
+        اگر (AstPExpr* ثابت pexprp = VN_CAST(propp, PExpr)) {
+            اگر (!v3Global.opt.timing().is_سیٹ_True()) {
                 nodep->v3warn(E_NOTIMING, "This property expression requires --timing");
-                VL_DO_DANGLING(pushDeletep(pexprp), pexprp);
-                return new AstBegin{nodep->fileline(), "", nullptr, false};
+                VL_DO_DANGLING(ڈالو_Deletep(pexprp), pexprp);
+                واپس نیا AstBegin{nodep->fileline(), "", خالی_اشاریہ, جھوٹ};
             }
-            AstFork* const forkp = new AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
-            forkp->addForksp(pexprp->bodyp()->unlinkFrBack());
-            if (AstNodeStmt* const finalp = pexprp->finalp()) {
-                if (!m_finalp) {
-                    m_finalp = new AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
-                    m_modp->addStmtsp(m_finalp);
-                } else {
-                    m_finalp->addStmtsp(finalp->unlinkFrBack());
+            AstFork* ثابت forkp = نیا AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
+            forkp->جوڑو_Forksp(pexprp->bodyp()->unlink_Fr_عقب());
+            اگر (Ast_گرہ_Stmt* ثابت finalp = pexprp->finalp()) {
+                اگر (!m_finalp) {
+                    m_finalp = نیا AstFinal{m_modp->fileline(), finalp->unlink_Fr_عقب()};
+                    m_modp->جوڑو_Stmtsp(m_finalp);
+                } ورنہ {
+                    m_finalp->جوڑو_Stmtsp(finalp->unlink_Fr_عقب());
                 }
             }
-            VL_DO_DANGLING2(pushDeletep(pexprp), pexprp, propp);
-            return forkp;
+            VL_DO_DANGLING2(ڈالو_Deletep(pexprp), pexprp, propp);
+            واپس forkp;
         }
 
-        return assertCond(nodep, VN_AS(propp, NodeExpr), passsp, failsp);
+        واپس assertCond(nodep, VN_AS(propp, گرہ_اظہاریہ), passsp, failsp);
     }
 
-    AstNodeStmt* newFireAssertUnchecked(const AstNodeStmt* nodep, const string& message,
-                                        AstNodeExpr* exprsp = nullptr) {
+    Ast_گرہ_Stmt* newFireAssertUnchecked(ثابت Ast_گرہ_Stmt* nodep, ثابت string& پیغام,
+                                        Ast_گرہ_اظہاریہ* exprsp = خالی_اشاریہ) {
         // Like newFireAssert() but omits the asserts-on check
-        AstDisplay* const dispp
-            = new AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
+        AstDisplay* ثابت dispp
+            = نیا AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, پیغام, خالی_اشاریہ, خالی_اشاریہ};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstNodeStmt* const bodysp = dispp;
+        Ast_گرہ_Stmt* ثابت bodysp = dispp;
         replaceDisplay(dispp, "%%Error");  // Convert to standard DISPLAY format
-        if (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
-        if (v3Global.opt.stopFail()) bodysp->addNext(new AstStop{nodep->fileline(), false});
-        return bodysp;
+        اگر (exprsp) dispp->fmtp()->exprsp()->جوڑو_اگلا(exprsp);
+        اگر (v3Global.opt.stopFail()) bodysp->جوڑو_اگلا(نیا AstStop{nodep->fileline(), جھوٹ});
+        واپس bodysp;
     }
 
-    AstNodeStmt* newFireAssert(const AstNodeStmt* nodep, VAssertDirectiveType directiveType,
-                               VAssertType assertType, const string& message,
-                               AstNodeExpr* exprsp = nullptr) {
-        AstNodeStmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
+    Ast_گرہ_Stmt* newFireAssert(ثابت Ast_گرہ_Stmt* nodep, VAssertDirectiveType directiveType,
+                               VAssertType assertType, ثابت string& پیغام,
+                               Ast_گرہ_اظہاریہ* exprsp = خالی_اشاریہ) {
+        Ast_گرہ_Stmt* bodysp = newFireAssertUnchecked(nodep, پیغام, exprsp);
         bodysp = newIfAssertOn(bodysp, directiveType, assertType);
-        return bodysp;
+        واپس bodysp;
     }
 
-    AstVar* createDelayedVar(const std::string& name, AstAlways* alwaysp, AstNodeExpr* exprp,
-                             AstNodeExpr* initp) {
-        FileLine* const flp = exprp->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+    AstVar* createDelayedVar(ثابت std::string& name, AstAlways* alwaysp, Ast_گرہ_اظہاریہ* exprp,
+                             Ast_گرہ_اظہاریہ* initp) {
+        File_سطر* ثابت flp = exprp->fileline();
+        AstVar* ثابت varp = نیا AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         // TODO: this lifetime seems nonsene (can't have NBAs to automatics), but is as before
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        m_modp->addStmtsp(varp);
+        m_modp->جوڑو_Stmtsp(varp);
         // Before enough clock ticks, $past returns the expression's default sampled value.
-        if (initp) {
-            m_modp->addStmtsp(new AstInitialStatic{
-                flp, new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, initp}});
+        اگر (initp) {
+            m_modp->جوڑو_Stmtsp(نیا AstInitialStatic{
+                flp, نیا Ast_تفویض{flp, نیا AstVarRef{flp, varp, VAccess::WRITE}, initp}});
         }
         ++m_statPastVars;
         // Actually set the delayed value
-        AstNodeExpr* const lhsp = new AstVarRef{flp, varp, VAccess::WRITE};
-        AstAssignDly* const assignp = new AstAssignDly{flp, lhsp, exprp};
+        Ast_گرہ_اظہاریہ* ثابت lhsp = نیا AstVarRef{flp, varp, VAccess::WRITE};
+        Ast_تفویض_Dly* ثابت assignp = نیا Ast_تفویض_Dly{flp, lhsp, exprp};
         alwaysp->prependStmtsp(assignp);
-        return varp;
+        واپس varp;
     }
 
-    AstAlways* getDelayedAlways(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep) {
-        auto& expr2Sen2Alwaysr
+    AstAlways* getDelayedAlways(Ast_گرہ_اظہاریہ* exprp, Ast_گرہ_اظہاریہ* initp, Ast_Sen_درخت* senTreep) {
+        خودکار& expr2Sen2Alwaysr
             = initp ? m_modExpr2Sen2DefaultDelayedAlwaysp : m_modExpr2Sen2DelayedAlwaysp;
         AstAlways*& alwayspr = expr2Sen2Alwaysr[*exprp][*senTreep];
-        if (!alwayspr) {
-            FileLine* const flp = exprp->fileline();
+        اگر (!alwayspr) {
+            File_سطر* ثابت flp = exprp->fileline();
             // Create the always block that computes the delayed values
-            alwayspr = new AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
-            m_modp->addStmtsp(alwayspr);
+            alwayspr = نیا AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, خالی_اشاریہ};
+            m_modp->جوڑو_Stmtsp(alwayspr);
             // Create the once-delayed variable
-            const std::string name = "_Vpast_" + cvtToStr(m_modPastNum++) + "_1";
-            AstVar* const varp = createDelayedVar(name, alwayspr, exprp, initp);
+            ثابت std::string name = "_Vpast_" + cvt_مقصد_Str(m_mod_Past_عدد++) + "_1";
+            AstVar* ثابت varp = createDelayedVar(name, alwayspr, exprp, initp);
             // Add it to delayed variable vector
-            m_delayed(alwayspr).emplace_back(varp);
-        } else {
+            m_delayed(alwayspr).emplace_عقب(varp);
+        } ورنہ {
             // Reusing exiting, not needed
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
+            VL_DO_DANGLING(ڈالو_Deletep(exprp), exprp);
+            اگر (initp) VL_DO_DANGLING(ڈالو_Deletep(initp), initp);
+            VL_DO_DANGLING(ڈالو_Deletep(senTreep), senTreep);
         }
-        return alwayspr;
+        واپس alwayspr;
     }
 
-    AstNodeExpr* getPastValue(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep,
+    Ast_گرہ_اظہاریہ* get_Past_قدر(Ast_گرہ_اظہاریہ* exprp, Ast_گرہ_اظہاریہ* initp, Ast_Sen_درخت* senTreep,
                               uint32_t ticks) {
         UASSERT_OBJ(ticks > 0, exprp, "Delay must be > 0");
-        FileLine* const flp = exprp->fileline();
-        AstAlways* const alwaysp
-            = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-        AstNodeExpr* const resultp = pastValueRef(alwaysp, flp, ticks, initp);
-        if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-        return resultp;
+        File_سطر* ثابت flp = exprp->fileline();
+        AstAlways* ثابت alwaysp
+            = getDelayedAlways(exprp, initp ? initp->clone_درخت_خالص(جھوٹ) : خالی_اشاریہ, senTreep);
+        Ast_گرہ_اظہاریہ* ثابت resultp = past_قدر_Ref(alwaysp, flp, ticks, initp);
+        اگر (initp) VL_DO_DANGLING(ڈالو_Deletep(initp), initp);
+        واپس resultp;
     }
 
-    AstNodeExpr* pastValueRef(AstAlways* alwaysp, FileLine* flp, uint32_t ticks,
-                              AstNodeExpr* initp) {
-        std::vector<AstVar*>& delayedr = m_delayed(alwaysp);
+    Ast_گرہ_اظہاریہ* past_قدر_Ref(AstAlways* alwaysp, File_سطر* flp, uint32_t ticks,
+                              Ast_گرہ_اظہاریہ* initp) {
+        std::سمتیہ<AstVar*>& delayedr = m_delayed(alwaysp);
         // Ensure the required delay exists
-        while (delayedr.size() < ticks) {
-            AstVar* const firstp = delayedr.front();
-            FileLine* const varFlp = firstp->fileline();
+        جب (delayedr.سائز() < ticks) {
+            AstVar* ثابت firstp = delayedr.front();
+            File_سطر* ثابت varFlp = firstp->fileline();
             // Create once more delayed value
             std::string name = firstp->name();
-            name.resize(name.size() - 1);
-            name += std::to_string(delayedr.size() + 1);
-            AstNodeExpr* const prevp = new AstVarRef{varFlp, delayedr.back(), VAccess::READ};
-            AstVar* const varp = createDelayedVar(name, alwaysp, prevp,
-                                                  initp ? initp->cloneTreePure(false) : nullptr);
+            name.resize(name.سائز() - 1);
+            name += std::مقصد_string(delayedr.سائز() + 1);
+            Ast_گرہ_اظہاریہ* ثابت prevp = نیا AstVarRef{varFlp, delayedr.عقب(), VAccess::READ};
+            AstVar* ثابت varp = createDelayedVar(name, alwaysp, prevp,
+                                                  initp ? initp->clone_درخت_خالص(جھوٹ) : خالی_اشاریہ);
             // Add it to delayed variable vector
-            delayedr.emplace_back(varp);
+            delayedr.emplace_عقب(varp);
         }
         // Return a reference to the appropriately delayed variable
-        return new AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
+        واپس نیا AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
     }
 
     // Time of the pipeline's last sampling tick, for end-of-simulation readers
-    AstVar* getPastTickTimeVar(AstAlways* alwaysp) {
+    AstVar* get_Past_Tick_وقت_Var(AstAlways* alwaysp) {
         AstVar*& varpr = m_delayedAlways2TickTimep[alwaysp];
-        if (!varpr) {
-            FileLine* const flp = alwaysp->fileline();
-            varpr = new AstVar{flp, VVarType::MODULETEMP,
-                               "_Vpast_" + cvtToStr(m_modPastNum++) + "_t",
-                               m_modp->findUInt64DType()};
-            m_modp->addStmtsp(varpr);
-            AstNodeExpr* const timep = new AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
-            alwaysp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, varpr, VAccess::WRITE}, timep});
+        اگر (!varpr) {
+            File_سطر* ثابت flp = alwaysp->fileline();
+            varpr = نیا AstVar{flp, VVarType::MODULETEMP,
+                               "_Vpast_" + cvt_مقصد_Str(m_mod_Past_عدد++) + "_t",
+                               m_modp->ڈھونڈو_UInt64_DType()};
+            m_modp->جوڑو_Stmtsp(varpr);
+            Ast_گرہ_اظہاریہ* ثابت timep = نیا AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
+            alwaysp->جوڑو_Stmtsp(
+                نیا Ast_تفویض{flp, نیا AstVarRef{flp, varpr, VAccess::WRITE}, timep});
         }
-        return varpr;
+        واپس varpr;
     }
 
-    void visitAssertionIterate(AstNodeCoverOrAssert* nodep, AstNode* failsp) {
-        if (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
+    خالی دورہ_Assertion_Iterate(Ast_گرہ_Cover_Or_Assert* nodep, Ast_گرہ* failsp) {
+        اگر (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
 
-        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_modPastNum++}; }
+        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_mod_Past_عدد++}; }
 
-        iterateAndNextNull(nodep->sentreep());
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
-            iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
-            iterateAndNextNull(assertp->failsp());
-        } else if (AstCover* const coverp = VN_CAST(nodep, Cover)) {
-            iterateAndNextNull(coverp->coverincsp());
-        } else if (!VN_IS(nodep, Restrict)) {
+        iterate_And_اگلا_Null(nodep->sentreep());
+        اگر (AstAssert* ثابت assertp = VN_CAST(nodep, Assert)) {
+            iterate_And_اگلا_Null(assertp->failsp());
+        } ورنہ اگر (AstAssertIntrinsic* ثابت assertp = VN_CAST(nodep, AssertIntrinsic)) {
+            iterate_And_اگلا_Null(assertp->failsp());
+        } ورنہ اگر (AstCover* ثابت coverp = VN_CAST(nodep, Cover)) {
+            iterate_And_اگلا_Null(coverp->coverincsp());
+        } ورنہ اگر (!VN_IS(nodep, Restrict)) {
             nodep->v3fatalSrc("Unhandled assert type");
         }
-        iterateAndNextNull(nodep->passsp());
-        AstSenTree* sentreep = nodep->sentreep();
-        if (nodep->immediate()) {
+        iterate_And_اگلا_Null(nodep->passsp());
+        Ast_Sen_درخت* sentreep = nodep->sentreep();
+        اگر (nodep->فوری()) {
             UASSERT_OBJ(!sentreep, nodep, "Immediate assertions don't have sensitivity");
-        } else {
+        } ورنہ {
             UASSERT_OBJ(sentreep, nodep, "Concurrent assertions must have sensitivity");
             // Explicit inline clock differs from the enclosing always: hoist
             // and warn. To support this need queue of asserts to activate.
-            if (m_procedurep && !nodep->senFromAlways()) {
+            اگر (m_procedurep && !nodep->senFromAlways()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Procedural concurrent assertion with"
                               " clocking event inside always (IEEE 1800-2023 16.14.6)");
-                static_cast<AstNode*>(m_procedurep)->addNext(nodep->unlinkFrBack());
-                return;  // Later iterate will pick up
+                static_cast<Ast_گرہ*>(m_procedurep)->جوڑو_اگلا(nodep->unlink_Fr_عقب());
+                واپس;  // Later iterate will pick up
             }
-            sentreep->unlinkFrBack();
-            if (m_procedurep) { VL_DO_DANGLING(pushDeletep(sentreep), sentreep); }
+            sentreep->unlink_Fr_عقب();
+            اگر (m_procedurep) { VL_DO_DANGLING(ڈالو_Deletep(sentreep), sentreep); }
         }
         //
-        const string& message = nodep->name();
-        AstNode* passsp = nodep->passsp();
-        if (passsp) passsp->unlinkFrBackWithNext();
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        ثابت string& پیغام = nodep->name();
+        Ast_گرہ* passsp = nodep->passsp();
+        اگر (passsp) passsp->unlink_Fr_عقب_With_اگلا();
+        اگر (AstAssert* ثابت assertp = VN_CAST(nodep, Assert)) {
             failsp = assertp->failsp();
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } ورنہ اگر (AstAssertIntrinsic* ثابت assertp = VN_CAST(nodep, AssertIntrinsic)) {
             failsp = assertp->failsp();
         }
-        if (failsp) failsp->unlinkFrBackWithNext();
+        اگر (failsp) failsp->unlink_Fr_عقب_With_اگلا();
 
-        bool selfDestruct = false;
-        bool passspGated = false;
-        const AstCover* const coverp = VN_CAST(nodep, Cover);
+        منطقی selfDestruct = جھوٹ;
+        منطقی passspGated = جھوٹ;
+        ثابت AstCover* ثابت coverp = VN_CAST(nodep, Cover);
         // A sequence event control is not an assertion directive; no assertion control
-        const bool seqEvent = coverp && coverp->isSeqEvent();
-        if (coverp) {
+        ثابت منطقی seqEvent = coverp && coverp->isSeqEvent();
+        اگر (coverp) {
             ++m_statCover;
-            if (seqEvent) {
+            اگر (seqEvent) {
                 // Keep the event-fire action, with no coverage bucket
-            } else if (!v3Global.opt.coverageUser()) {
-                selfDestruct = true;
-            } else {
+            } ورنہ اگر (!v3Global.opt.coverageUser()) {
+                selfDestruct = سچ;
+            } ورنہ {
                 // V3Coverage assigned us a bucket to increment.
-                AstCoverInc* const covincp = VN_AS(coverp->coverincsp(), CoverInc);
+                AstCoverInc* ثابت covincp = VN_AS(coverp->coverincsp(), CoverInc);
                 UASSERT_OBJ(covincp, coverp, "Missing AstCoverInc under assertion");
-                covincp->unlinkFrBackWithNext();  // next() might have  AstAssign for trace
-                if (message != "") covincp->declp()->comment(message);
-                if (passsp) {
+                covincp->unlink_Fr_عقب_With_اگلا();  // next() might have  AstAssign for trace
+                اگر (پیغام != "") covincp->declp()->comment(پیغام);
+                اگر (passsp) {
                     passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                               /*vacuous=*/false);
-                    passspGated = true;
-                    passsp = AstNode::addNext<AstNode, AstNode>(covincp, passsp);
-                } else {
+                                               /*vacuous=*/جھوٹ);
+                    passspGated = سچ;
+                    passsp = Ast_گرہ::جوڑو_اگلا<Ast_گرہ, Ast_گرہ>(covincp, passsp);
+                } ورنہ {
                     passsp = covincp;
                 }
             }
-        } else if (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
-            if (nodep->immediate()) {
+        } ورنہ اگر (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
+            اگر (nodep->فوری()) {
                 ++m_statAsImm;
-            } else {
+            } ورنہ {
                 ++m_statAsNotImm;
             }
-            if (!passsp && !failsp)
+            اگر (!passsp && !failsp)
                 failsp = newFireAssertUnchecked(
                     nodep, VN_IS(nodep, AssertIntrinsic) ? "'$cast' failed." : "'assert' failed.");
-        } else {
+        } ورنہ {
             nodep->v3fatalSrc("Unknown node type");
         }
 
@@ -809,690 +809,690 @@ class AssertVisitor final : public VNVisitor {
         m_assertp = nodep;
         iterate(nodep->propp());
 
-        AstNode* propExprp;
-        AstNodeExpr* disablep = nullptr;
-        AstNodeExpr* matchCountp = nullptr;
-        if (AstPropSpec* const specp = VN_CAST(nodep->propp(), PropSpec)) {
-            propExprp = specp->propp()->unlinkFrBack();
-            if (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
-            matchCountp = specp->matchCountp();
-        } else {
-            propExprp = nodep->propp()->unlinkFrBack();
+        Ast_گرہ* propExprp;
+        Ast_گرہ_اظہاریہ* disablep = خالی_اشاریہ;
+        Ast_گرہ_اظہاریہ* مطابقت_Countp = خالی_اشاریہ;
+        اگر (AstPropSpec* ثابت specp = VN_CAST(nodep->propp(), PropSpec)) {
+            propExprp = specp->propp()->unlink_Fr_عقب();
+            اگر (specp->disablep()) disablep = specp->disablep()->unlink_Fr_عقب();
+            مطابقت_Countp = specp->مطابقت_Countp();
+        } ورنہ {
+            propExprp = nodep->propp()->unlink_Fr_عقب();
         }
-        FileLine* const flp = nodep->fileline();
-        bool passspAlreadyGated = false;
-        if (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
-        if (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
+        File_سطر* ثابت flp = nodep->fileline();
+        منطقی passspAlreadyGated = جھوٹ;
+        اگر (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
+        اگر (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
             && !seqEvent) {
             passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                       /*vacuous=*/false);
+                                       /*vacuous=*/جھوٹ);
         }
-        if (failsp && !VN_IS(propExprp, PExpr)) {
+        اگر (failsp && !VN_IS(propExprp, PExpr)) {
             failsp = newIfAssertFailOn(failsp, nodep->directive(), nodep->userType());
         }
-        if (coverp && matchCountp && passsp) {
+        اگر (coverp && مطابقت_Countp && passsp) {
             // Convert the match count into a loop that decrements a temporary variable until it
             // reaches zero.
-            matchCountp->unlinkFrBack();
-            AstVar* const remainingp = new AstVar{
-                flp, VVarType::MODULETEMP, m_matchCountNames.get(""), matchCountp->dtypep()};
+            مطابقت_Countp->unlink_Fr_عقب();
+            AstVar* ثابت remainingp = نیا AstVar{
+                flp, VVarType::MODULETEMP, m_مطابقت_گنتی_نام.get(""), مطابقت_Countp->dtypep()};
             remainingp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(remainingp);
-            AstNode* const replaysp
-                = new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
-            AstLoop* const loopp = new AstLoop{flp};
-            loopp->addStmtsp(
-                new AstLoopTest{flp, loopp, new AstVarRef{flp, remainingp, VAccess::READ}});
-            loopp->addStmtsp(passsp);
-            loopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, remainingp, VAccess::READ},
-                                         new AstConst{flp, AstConst::WidthedValue{},
-                                                      remainingp->dtypep()->width(), 1}}});
-            replaysp->addNext(loopp);
+            m_modp->جوڑو_Stmtsp(remainingp);
+            Ast_گرہ* ثابت replaysp
+                = نیا Ast_تفویض{flp, نیا AstVarRef{flp, remainingp, VAccess::WRITE}, مطابقت_Countp};
+            AstLoop* ثابت loopp = نیا AstLoop{flp};
+            loopp->جوڑو_Stmtsp(
+                نیا AstLoopTest{flp, loopp, نیا AstVarRef{flp, remainingp, VAccess::READ}});
+            loopp->جوڑو_Stmtsp(passsp);
+            loopp->جوڑو_Stmtsp(
+                نیا Ast_تفویض{flp, نیا AstVarRef{flp, remainingp, VAccess::WRITE},
+                              نیا AstSub{flp, نیا AstVarRef{flp, remainingp, VAccess::READ},
+                                         نیا AstConst{flp, AstConst::Widthed_قدر{},
+                                                      remainingp->dtypep()->چوڑائی(), 1}}});
+            replaysp->جوڑو_اگلا(loopp);
             passsp = replaysp;
         }
-        AstNode* bodysp = assertBody(nodep, propExprp, passsp, failsp);
-        if (disablep) bodysp = new AstIf{flp, new AstLogNot{flp, disablep}, bodysp};
+        Ast_گرہ* bodysp = assertBody(nodep, propExprp, passsp, failsp);
+        اگر (disablep) bodysp = نیا AstIf{flp, نیا AstLogNot{flp, disablep}, bodysp};
         // Add assertOn check last, for better combining
-        if (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
-        if (sentreep) bodysp = new AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
+        اگر (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
+        اگر (sentreep) bodysp = نیا AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
 
-        if (passsp && !passsp->backp()) VL_DO_DANGLING(pushDeletep(passsp), passsp);
-        if (failsp && !failsp->backp()) VL_DO_DANGLING(pushDeletep(failsp), failsp);
+        اگر (passsp && !passsp->backp()) VL_DO_DANGLING(ڈالو_Deletep(passsp), passsp);
+        اگر (failsp && !failsp->backp()) VL_DO_DANGLING(ڈالو_Deletep(failsp), failsp);
 
         // Install it
-        if (selfDestruct) {
+        اگر (selfDestruct) {
             // Delete it after making the tree.  This way we can tell the user
             // if it wasn't constructed nicely or has other errors without needing --coverage.
-            VL_DO_DANGLING(bodysp->deleteTree(), bodysp);
-            nodep->unlinkFrBack();
-        } else {
+            VL_DO_DANGLING(bodysp->delete_درخت(), bodysp);
+            nodep->unlink_Fr_عقب();
+        } ورنہ {
             nodep->replaceWith(bodysp);
         }
         // Bye
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
 
-    bool isEmptyStmt(AstNode* nodep) {
-        if (!nodep) return true;
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->declsp()) return false;
-            for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!isEmptyStmt(stmtp)) return false;
+    منطقی is_خالی_خانے_Stmt(Ast_گرہ* nodep) {
+        اگر (!nodep) واپس سچ;
+        اگر (AstBegin* ثابت beginp = VN_CAST(nodep, Begin)) {
+            اگر (beginp->declsp()) واپس جھوٹ;
+            برائے (Ast_گرہ* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                اگر (!is_خالی_خانے_Stmt(stmtp)) واپس جھوٹ;
             }
-            return true;
+            واپس سچ;
         }
-        return false;
+        واپس جھوٹ;
     }
 
     // VISITORS
-    void visit(AstIf* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->uniquePragma() || nodep->unique0Pragma()) {
-                const AstNodeIf* ifp = nodep;
-                AstNodeExpr* propp = nullptr;
-                bool hasDefaultElse = false;
-                do {
+    خالی دورہ(AstIf* nodep) override {
+        اگر (!nodep->user1_سیٹ_Once()) {
+            اگر (nodep->uniquePragma() || nodep->unique0Pragma()) {
+                ثابت Ast_گرہ_If* ifp = nodep;
+                Ast_گرہ_اظہاریہ* propp = خالی_اشاریہ;
+                منطقی hasDefaultElse = جھوٹ;
+                کرو {
                     // If this statement ends with 'else if', then nextIf will point to the
                     // nextIf statement.  Otherwise it will be null.
-                    const AstNodeIf* const nextifp = dynamic_cast<AstNodeIf*>(ifp->elsesp());
-                    iterateAndNextNull(ifp->condp());
+                    ثابت Ast_گرہ_If* ثابت nextifp = dynamic_cast<Ast_گرہ_If*>(ifp->elsesp());
+                    iterate_And_اگلا_Null(ifp->condp());
 
                     // Recurse into the true case.
-                    iterateAndNextNull(ifp->thensp());
+                    iterate_And_اگلا_Null(ifp->thensp());
 
                     // If the last else is not an else if, recurse into that too.
-                    if (ifp->elsesp() && !nextifp) {  //
-                        iterateAndNextNull(ifp->elsesp());
+                    اگر (ifp->elsesp() && !nextifp) {  //
+                        iterate_And_اگلا_Null(ifp->elsesp());
                     }
 
                     // Build a bitmask of the true predicates
-                    AstNodeExpr* const predp = ifp->condp()->cloneTreePure(false);
-                    if (propp) {
-                        propp = new AstConcat{nodep->fileline(), predp, propp};
-                    } else {
+                    Ast_گرہ_اظہاریہ* ثابت predp = ifp->condp()->clone_درخت_خالص(جھوٹ);
+                    اگر (propp) {
+                        propp = نیا AstConcat{nodep->fileline(), predp, propp};
+                    } ورنہ {
                         propp = predp;
                     }
 
                     // Record if this ends with an 'else' that does not have an if
-                    if (ifp->elsesp() && !nextifp) hasDefaultElse = true;
+                    اگر (ifp->elsesp() && !nextifp) hasDefaultElse = سچ;
 
                     ifp = nextifp;
-                } while (ifp);
+                } جب (ifp);
 
-                const bool allow_none = nodep->unique0Pragma();
+                ثابت منطقی allow_none = nodep->unique0Pragma();
 
                 // Empty case means no property
-                if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                اگر (!propp) propp = نیا AstConst{nodep->fileline(), AstConst::ثنائی_ہندسہ_False{}};
 
                 // Note: if this ends with an 'else', then we don't need to validate that one of
                 // the predicates evaluates to true.
-                AstNodeExpr* const ohot
+                Ast_گرہ_اظہاریہ* ثابت ohot
                     = ((allow_none || hasDefaultElse)
-                           ? static_cast<AstNodeExpr*>(new AstOneHot0{nodep->fileline(), propp})
-                           : static_cast<AstNodeExpr*>(new AstOneHot{nodep->fileline(), propp}));
-                const VAssertType assertType
+                           ? static_cast<Ast_گرہ_اظہاریہ*>(نیا AstOneHot0{nodep->fileline(), propp})
+                           : static_cast<Ast_گرہ_اظہاریہ*>(نیا AstOneHot{nodep->fileline(), propp}));
+                ثابت VAssertType assertType
                     = nodep->uniquePragma() ? VAssertType::UNIQUE : VAssertType::UNIQUE0;
                 // Move, not clone, as the branches might declare referenced variables
                 VNRelinker relinker;
-                nodep->unlinkFrBack(&relinker);
-                AstIf* const checkifp
-                    = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot},
+                nodep->unlink_Fr_عقب(&relinker);
+                AstIf* ثابت checkifp
+                    = نیا AstIf{nodep->fileline(), نیا AstLogNot{nodep->fileline(), ohot},
                                 newFireAssert(nodep, VAssertDirectiveType::VIOLATION_IF,
                                               assertType, "'unique if' statement violated"),
                                 nodep};
-                checkifp->isBoundsCheck(true);  // To avoid LATCH warning
+                checkifp->isBoundsCheck(سچ);  // To avoid LATCH warning
                 checkifp->branchPred(VBranchPred::BP_UNLIKELY);
                 relinker.relink(checkifp);
-                return;
+                واپس;
             }
         }
 
         iterateChildren(nodep);
 
-        if (nodep->user2()) {
+        اگر (nodep->user2()) {
             // Combine consecutive assertOn checks if possible
-            if (AstIf* const backp = VN_CAST(nodep->backp(), If)) {
-                if (backp->nextp() == nodep  //
+            اگر (AstIf* ثابت backp = VN_CAST(nodep->backp(), If)) {
+                اگر (backp->nextp() == nodep  //
                     && backp->user2()  //
-                    && backp->condp()->sameTree(nodep->condp())) {
+                    && backp->condp()->same_درخت(nodep->condp())) {
                     ++m_statAssertOnCombined;
-                    backp->addThensp(nodep->thensp()->unlinkFrBackWithNext());
-                    nodep->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    backp->جوڑو_Thensp(nodep->thensp()->unlink_Fr_عقب_With_اگلا());
+                    nodep->unlink_Fr_عقب();
+                    VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+                    واپس;
                 }
             }
             // Combine nested assertOn checks if possible
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp  //
+            اگر (nodep->thensp() && !nodep->thensp()->nextp() && is_خالی_خانے_Stmt(nodep->elsesp())) {
+                AstIf* ثابت checkp = VN_CAST(nodep->thensp(), If);
+                اگر (checkp  //
                     && checkp->user2()  //
-                    && checkp->condp()->sameTree(nodep->condp())) {
+                    && checkp->condp()->same_درخت(nodep->condp())) {
                     ++m_statAssertOnCombined;
-                    nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    VL_DO_DANGLING(pushDeletep(checkp->unlinkFrBack()), checkp);
-                    return;
+                    nodep->جوڑو_Thensp(checkp->thensp()->unlink_Fr_عقب_With_اگلا());
+                    VL_DO_DANGLING(ڈالو_Deletep(checkp->unlink_Fr_عقب()), checkp);
+                    واپس;
                 }
             }
-            return;
+            واپس;
         }
 
         // Swap assertOn check with single statement 'if' statement to bubble up for combining
         // Note we can't just swap the conditions as they two Ifs have different flags,
         // so swapping the Ifs themeselves then swapping back the bodies.
-        if (nodep->condp()->isPure()) {
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp && checkp->user2()) {
+        اگر (nodep->condp()->is_خالص()) {
+            اگر (nodep->thensp() && !nodep->thensp()->nextp() && is_خالی_خانے_Stmt(nodep->elsesp())) {
+                AstIf* ثابت checkp = VN_CAST(nodep->thensp(), If);
+                اگر (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(checkp->unlinkFrBack());
-                    nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    checkp->addThensp(nodep);
-                    return;
+                    nodep->replaceWith(checkp->unlink_Fr_عقب());
+                    nodep->جوڑو_Thensp(checkp->thensp()->unlink_Fr_عقب_With_اگلا());
+                    checkp->جوڑو_Thensp(nodep);
+                    واپس;
                 }
             }
-            if (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
-                AstIf* const checkp = VN_CAST(nodep->elsesp(), If);
-                if (checkp && checkp->user2()) {
+            اگر (nodep->elsesp() && !nodep->elsesp()->nextp() && is_خالی_خانے_Stmt(nodep->thensp())) {
+                AstIf* ثابت checkp = VN_CAST(nodep->elsesp(), If);
+                اگر (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(checkp->unlinkFrBack());
-                    nodep->addElsesp(checkp->thensp()->unlinkFrBackWithNext());
-                    checkp->addThensp(nodep);
-                    return;
+                    nodep->replaceWith(checkp->unlink_Fr_عقب());
+                    nodep->جوڑو_Elsesp(checkp->thensp()->unlink_Fr_عقب_With_اگلا());
+                    checkp->جوڑو_Thensp(nodep);
+                    واپس;
                 }
             }
         }
     }
 
     //========== Case assertions
-    void visit(AstCase* nodep) override {
+    خالی دورہ(AstCase* nodep) override {
         // Introduce temporary variable for AstCase if needed - it is done here and not in V3Case
         // because this phase is before V3Scope and V3Case is not. Doing it before V3Scope ensures
         // that V3Scope will take care of a scope creation
         // We also need to do it before V3Begin, co that pragmas like `unique0` also work correctly
-        if (!nodep->exprp()->isPure()) {
+        اگر (!nodep->exprp()->is_خالص()) {
             ++m_statLiftedCaseExprs;
-            FileLine* const fl = nodep->exprp()->fileline();
-            AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
+            File_سطر* ثابت fl = nodep->exprp()->fileline();
+            AstVar* ثابت varp = نیا AstVar{fl, VVarType::BLOCKTEMP, m_case_عارضی_نام.get(nodep),
                                             nodep->exprp()->dtypep()};
-            AstNodeExpr* const origp = nodep->exprp()->unlinkFrBack();
-            nodep->addHereThisAsNext(
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, origp});
-            nodep->exprp(new AstVarRef{fl, varp, VAccess::READ});
-            if (m_ftaskp) {
-                varp->funcLocal(true);
+            Ast_گرہ_اظہاریہ* ثابت origp = nodep->exprp()->unlink_Fr_عقب();
+            nodep->جوڑو_یہاں_This_As_اگلا(
+                نیا Ast_تفویض{fl, نیا AstVarRef{fl, varp, VAccess::WRITE}, origp});
+            nodep->exprp(نیا AstVarRef{fl, varp, VAccess::READ});
+            اگر (m_ftaskp) {
+                varp->funcLocal(سچ);
                 varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 m_ftaskp->prependStmtsp(varp);
-            } else {
+            } ورنہ {
                 m_modp->prependStmtsp(varp);
             }
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_درخت();
         }
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
-            bool has_default = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (itemp->isDefault()) has_default = true;
+        اگر (!nodep->user1_سیٹ_Once()) {
+            منطقی has_default = جھوٹ;
+            برائے (Ast_Case_شے* itemp = nodep->itemsp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Case_شے)) {
+                اگر (itemp->isDefault()) has_default = سچ;
             }
-            const AstNodeDType* exprDtypep = nodep->exprp()->dtypep()->skipRefp();
+            ثابت Ast_گرہ_DType* اظہاریہ_Dtypep = nodep->exprp()->dtypep()->skipRefp();
 
-            VAssertType assertType = VAssertType::INTERNAL;
-            if (nodep->priorityPragma()) {
-                assertType = VAssertType::PRIORITY;
-            } else if (nodep->uniquePragma()) {
+            VAssertType assertType = VAssertType::اندرونی_2;
+            اگر (nodep->ترجیح_Pragma()) {
+                assertType = VAssertType::ترجیح;
+            } ورنہ اگر (nodep->uniquePragma()) {
                 assertType = VAssertType::UNIQUE;
-            } else if (nodep->unique0Pragma()) {
+            } ورنہ اگر (nodep->unique0Pragma()) {
                 assertType = VAssertType::UNIQUE0;
             }
 
             string valFmt;
-            if (exprDtypep->isIntegralOrPacked())
-                valFmt = " for '" + cvtToStr(exprDtypep->widthMin()) + "'h%X'";
-            if (nodep->fullPragma() || nodep->priorityPragma()) {
+            اگر (اظہاریہ_Dtypep->isIntegralOrPacked())
+                valFmt = " for '" + cvt_مقصد_Str(اظہاریہ_Dtypep->چوڑائی_Min()) + "'h%X'";
+            اگر (nodep->بھرا_Pragma() || nodep->ترجیح_Pragma()) {
                 // Need to add a default if there isn't one already
-                ++m_statAsFull;
-                if (!has_default) {
-                    nodep->addItemsp(new AstCaseItem{
-                        nodep->fileline(), nullptr /*DEFAULT*/,
+                ++m_stat_As_بھرا;
+                اگر (!has_default) {
+                    nodep->جوڑو_Itemsp(نیا Ast_Case_شے{
+                        nodep->fileline(), خالی_اشاریہ /*DEFAULT*/,
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       nodep->pragmaString() + ", but non-match found" + valFmt,
-                                      valFmt.empty() ? nullptr
-                                                     : nodep->exprp()->cloneTreePure(false))});
+                                      valFmt.خالی_خانے() ? خالی_اشاریہ
+                                                     : nodep->exprp()->clone_درخت_خالص(جھوٹ))});
                 }
             }
-            if (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
+            اگر (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
                 // Need to check that one, and only one of the case items match at any moment
                 // If there's a default, we allow none to match, else exactly one must match
-                ++m_statAsFull;
-                if (!has_default && !nodep->itemsp()) {
+                ++m_stat_As_بھرا;
+                اگر (!has_default && !nodep->itemsp()) {
                     // Not parallel, but harmlessly so.
-                } else {
-                    AstNodeExpr* propp = nullptr;
-                    for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-                         itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                        AstNodeExpr* itembitp = nullptr;
-                        for (AstNodeExpr* icondp = itemp->condsp(); icondp;
-                             icondp = VN_AS(icondp->nextp(), NodeExpr)) {
-                            AstNodeExpr* onep;
-                            if (AstInsideRange* const rcondp = VN_CAST(icondp, InsideRange)) {
+                } ورنہ {
+                    Ast_گرہ_اظہاریہ* propp = خالی_اشاریہ;
+                    برائے (Ast_Case_شے* itemp = nodep->itemsp(); itemp;
+                         itemp = VN_AS(itemp->nextp(), Case_شے)) {
+                        Ast_گرہ_اظہاریہ* itembitp = خالی_اشاریہ;
+                        برائے (Ast_گرہ_اظہاریہ* icondp = itemp->condsp(); icondp;
+                             icondp = VN_AS(icondp->nextp(), گرہ_اظہاریہ)) {
+                            Ast_گرہ_اظہاریہ* onep;
+                            اگر (AstInsideRange* ثابت rcondp = VN_CAST(icondp, InsideRange)) {
                                 onep = rcondp->newAndFromInside(
-                                    nodep->exprp()->cloneTreePure(true),
-                                    rcondp->lhsp()->cloneTreePure(true),
-                                    rcondp->rhsp()->cloneTreePure(true));
-                            } else if (nodep->casex() || nodep->casez() || nodep->caseInside()) {
+                                    nodep->exprp()->clone_درخت_خالص(سچ),
+                                    rcondp->lhsp()->clone_درخت_خالص(سچ),
+                                    rcondp->rhsp()->clone_درخت_خالص(سچ));
+                            } ورنہ اگر (nodep->casex() || nodep->casez() || nodep->caseInside()) {
                                 onep = AstEqWild::newTyped(itemp->fileline(),
-                                                           nodep->exprp()->cloneTreePure(false),
-                                                           icondp->cloneTreePure(false));
-                            } else {
+                                                           nodep->exprp()->clone_درخت_خالص(جھوٹ),
+                                                           icondp->clone_درخت_خالص(جھوٹ));
+                            } ورنہ {
                                 onep = AstEq::newTyped(icondp->fileline(),
-                                                       nodep->exprp()->cloneTreePure(false),
-                                                       icondp->cloneTreePure(false));
+                                                       nodep->exprp()->clone_درخت_خالص(جھوٹ),
+                                                       icondp->clone_درخت_خالص(جھوٹ));
                             }
                             // OR together all conditions within the same case item
-                            if (onep) {
-                                if (itembitp) {
-                                    itembitp = new AstOr{icondp->fileline(), onep, itembitp};
-                                } else {
+                            اگر (onep) {
+                                اگر (itembitp) {
+                                    itembitp = نیا AstOr{icondp->fileline(), onep, itembitp};
+                                } ورنہ {
                                     itembitp = onep;
                                 }
                             }
                         }
-                        if (itembitp) {
-                            if (propp) {
-                                propp = new AstConcat{itemp->fileline(), itembitp, propp};
-                            } else {
+                        اگر (itembitp) {
+                            اگر (propp) {
+                                propp = نیا AstConcat{itemp->fileline(), itembitp, propp};
+                            } ورنہ {
                                 propp = itembitp;
                             }
                         }
                     }
                     // Empty case means no property
-                    if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    const bool allow_none = has_default || nodep->unique0Pragma();
+                    اگر (!propp) propp = نیا AstConst{nodep->fileline(), AstConst::ثنائی_ہندسہ_False{}};
+                    ثابت منطقی allow_none = has_default || nodep->unique0Pragma();
                     // The following assertion looks as below.
                     // if (!$onehot(propp)) begin
                     //     if (propp == '0) begin if (!allow_none) $error("none match"); end
                     //     else $error("multiple match");
-                    // end
-                    AstNodeExpr* const ohot = new AstOneHot{nodep->fileline(), propp};
-                    AstConst* const zero = new AstConst{
-                        nodep->fileline(), AstConst::WidthedValue{}, propp->width(), 0};
-                    AstIf* const ohotIfp
-                        = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot}};
-                    AstIf* const zeroIfp = new AstIf{
+                    //انتہا
+                    Ast_گرہ_اظہاریہ* ثابت ohot = نیا AstOneHot{nodep->fileline(), propp};
+                    AstConst* ثابت zero = نیا AstConst{
+                        nodep->fileline(), AstConst::Widthed_قدر{}, propp->چوڑائی(), 0};
+                    AstIf* ثابت ohotIfp
+                        = نیا AstIf{nodep->fileline(), نیا AstLogNot{nodep->fileline(), ohot}};
+                    AstIf* ثابت zeroIfp = نیا AstIf{
                         nodep->fileline(),
-                        new AstEq{nodep->fileline(), propp->cloneTreePure(false), zero}};
-                    AstNodeExpr* const exprp = nodep->exprp();
-                    const string pragmaStr = nodep->pragmaString();
-                    if (!allow_none)
-                        zeroIfp->addThensp(
+                        نیا AstEq{nodep->fileline(), propp->clone_درخت_خالص(جھوٹ), zero}};
+                    Ast_گرہ_اظہاریہ* ثابت exprp = nodep->exprp();
+                    ثابت string pragmaStr = nodep->pragmaString();
+                    اگر (!allow_none)
+                        zeroIfp->جوڑو_Thensp(
                             newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                           pragmaStr + ", but none matched" + valFmt,
-                                          valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
-                    zeroIfp->addElsesp(
+                                          valFmt.خالی_خانے() ? خالی_اشاریہ : exprp->clone_درخت_خالص(جھوٹ)));
+                    zeroIfp->جوڑو_Elsesp(
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       pragmaStr + ", but multiple matches found" + valFmt,
-                                      valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
-                    ohotIfp->addThensp(zeroIfp);
-                    ohotIfp->isBoundsCheck(true);  // To avoid LATCH warning
+                                      valFmt.خالی_خانے() ? خالی_اشاریہ : exprp->clone_درخت_خالص(جھوٹ)));
+                    ohotIfp->جوڑو_Thensp(zeroIfp);
+                    ohotIfp->isBoundsCheck(سچ);  // To avoid LATCH warning
                     ohotIfp->branchPred(VBranchPred::BP_UNLIKELY);
-                    nodep->addNotParallelp(ohotIfp);
+                    nodep->جوڑو_Not_Parallelp(ohotIfp);
                 }
             }
         }
     }
 
-    void visit(AstFuture* nodep) override {
+    خالی دورہ(AstFuture* nodep) override {
         nodep->v3error("Future sampled value function called outside property or sequence "
                        "expression (IEEE 16.9.4)");
-        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(نیا AstConst{nodep->fileline(), 0});
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
 
     //========== Past
-    void visit(AstPast* nodep) override {
-        if (!nodep->propertyTiming()) {
-            nodep->initp(nodep->exprp()->cloneTreePure(false));
-            { DefaultSampledValueVisitor{nodep->initp()}; }
+    خالی دورہ(AstPast* nodep) override {
+        اگر (!nodep->propertyTiming()) {
+            nodep->initp(nodep->exprp()->clone_درخت_خالص(جھوٹ));
+            { Default_Sampled_قدر_Visitor{nodep->initp()}; }
         }
-        AstNodeExpr* const initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
+        Ast_گرہ_اظہاریہ* ثابت initp = nodep->initp() ? nodep->initp()->unlink_Fr_عقب() : خالی_اشاریہ;
         iterateChildren(nodep);
         uint32_t ticks = 1;
-        if (nodep->ticksp()) {
+        اگر (nodep->ticksp()) {
             UASSERT_OBJ(VN_IS(nodep->ticksp(), Const), nodep,
                         "Expected constant ticks, checked in V3Width");
-            ticks = VN_AS(nodep->ticksp(), Const)->toUInt();
+            ticks = VN_AS(nodep->ticksp(), Const)->مقصد_UInt();
         }
         UASSERT_OBJ(ticks >= 1, nodep, "0 tick should have been checked in V3Width");
-        AstNodeExpr* const exprp = newSampledExpr(nodep->exprp()->unlinkFrBack());
-        AstSenTree* const senTreep = nodep->sentreep()->unlinkFrBack();
-        AstNodeExpr* inp = nullptr;
+        Ast_گرہ_اظہاریہ* ثابت exprp = new_Sampled_اظہاریہ(nodep->exprp()->unlink_Fr_عقب());
+        Ast_Sen_درخت* ثابت senTreep = nodep->sentreep()->unlink_Fr_عقب();
+        Ast_گرہ_اظہاریہ* inp = خالی_اشاریہ;
         // Deliberately emitted for every ftask $past; calls outside final take the normal stage
-        if (VN_IS(m_procedurep, Final) || m_ftaskp) {
+        اگر (VN_IS(m_procedurep, Final) || m_ftaskp) {
             // A sampling-tick finish reads one stage deeper (IEEE 1800-2023 16.9.3).
-            FileLine* const flp = nodep->fileline();
-            AstAlways* const alwaysp
-                = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-            AstNodeExpr* const betweenTicksp = pastValueRef(alwaysp, flp, ticks, initp);
-            AstNodeExpr* const onTickp = pastValueRef(alwaysp, flp, ticks + 1, initp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            AstNodeExpr* const onTickCondp = new AstLogAnd{
-                flp, new AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
-                new AstEq{flp, new AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
-                          new AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
-            AstCond* const condp = new AstCond{flp, onTickCondp, onTickp, betweenTicksp};
+            File_سطر* ثابت flp = nodep->fileline();
+            AstAlways* ثابت alwaysp
+                = getDelayedAlways(exprp, initp ? initp->clone_درخت_خالص(جھوٹ) : خالی_اشاریہ, senTreep);
+            Ast_گرہ_اظہاریہ* ثابت betweenTicksp = past_قدر_Ref(alwaysp, flp, ticks, initp);
+            Ast_گرہ_اظہاریہ* ثابت onTickp = past_قدر_Ref(alwaysp, flp, ticks + 1, initp);
+            اگر (initp) VL_DO_DANGLING(ڈالو_Deletep(initp), initp);
+            Ast_گرہ_اظہاریہ* ثابت onTickCondp = نیا AstLogAnd{
+                flp, نیا AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
+                نیا AstEq{flp, نیا AstVarRef{flp, get_Past_Tick_وقت_Var(alwaysp), VAccess::READ},
+                          نیا AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
+            AstCond* ثابت condp = نیا AstCond{flp, onTickCondp, onTickp, betweenTicksp};
             condp->dtypeFrom(onTickp);
             inp = condp;
-        } else {
-            inp = getPastValue(exprp, initp, senTreep, ticks);
+        } ورنہ {
+            inp = get_Past_قدر(exprp, initp, senTreep, ticks);
         }
         nodep->replaceWith(inp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
 
     //========== Move $sampled down to read-only variables
-    void visit(AstSampled* nodep) override {
-        if (nodep->user1()) return;
-        VL_RESTORER(m_inSampled);
+    خالی دورہ(AstSampled* nodep) override {
+        اگر (nodep->user1()) واپس;
+        VL_RESTORER(m_اندر_Sampled);
         {
-            m_inSampled = true;
+            m_اندر_Sampled = سچ;
             iterateChildren(nodep);
         }
-        if (nodep->exprp()) {
-            nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        } else {
-            nodep->unlinkFrBack();
+        اگر (nodep->exprp()) {
+            nodep->replaceWith(nodep->exprp()->unlink_Fr_عقب());
+        } ورنہ {
+            nodep->unlink_Fr_عقب();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
-            if (!nodep->access().isReadOnly()) {
+    خالی دورہ(Ast_گرہ_Var_Ref* nodep) override {
+        اگر (m_اندر_Sampled && !nodep->user2() && !nodep->varp()->is_عارضی()) {
+            اگر (!nodep->access().isReadOnly()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Write to variable in sampled expression");
-            } else {
+            } ورنہ {
                 VNRelinker relinkHandle;
-                nodep->unlinkFrBack(&relinkHandle);
-                AstSampled* const newp = newSampledExpr(nodep);
+                nodep->unlink_Fr_عقب(&relinkHandle);
+                AstSampled* ثابت newp = new_Sampled_اظہاریہ(nodep);
                 relinkHandle.relink(newp);
                 newp->user1(1);
-                v3Global.setHasSampled();
+                v3Global.سیٹ_Has_Sampled();
             }
         }
     }
     // Don't sample sensitivities
-    void visit(AstSenItem* nodep) override {
-        VL_RESTORER(m_inSampled);
-        m_inSampled = false;
+    خالی دورہ(Ast_Sen_شے* nodep) override {
+        VL_RESTORER(m_اندر_Sampled);
+        m_اندر_Sampled = جھوٹ;
         iterateChildren(nodep);
     }
-    void visit(AstPExprClause* nodep) override {
-        AstNode* stmtsp = nullptr;
-        if (nodep->pass() && m_passsp) {
+    خالی دورہ(AstPExprClause* nodep) override {
+        Ast_گرہ* stmtsp = خالی_اشاریہ;
+        اگر (nodep->pass() && m_passsp) {
             // Cover adds COVERINC by AstNode::addNext, thus need to clone next too.
-            stmtsp = m_passsp->cloneTree(true);
+            stmtsp = m_passsp->clone_درخت(سچ);
             stmtsp = newIfAssertPassOn(stmtsp, m_assertp->directive(), m_assertp->userType(),
                                        nodep->vacuous());
-        } else if (!nodep->pass() && m_failsp) {
-            stmtsp = m_failsp->cloneTree(true);
+        } ورنہ اگر (!nodep->pass() && m_failsp) {
+            stmtsp = m_failsp->clone_درخت(سچ);
             stmtsp = newIfAssertFailOn(stmtsp, m_assertp->directive(), m_assertp->userType());
         }
-        if (stmtsp) {
-            stmtsp->foreachAndNext([](AstNodeVarRef* const refp) {
+        اگر (stmtsp) {
+            stmtsp->foreach_And_اگلا([](Ast_گرہ_Var_Ref* ثابت refp) {
                 // References inside action blocks shouldn't be implicitly sampled
                 // m_passsp/m_failsp have been already visited once and refs explicitly sampled
                 // are handled already
                 refp->user2(1);
             });
             nodep->replaceWith(stmtsp);
-        } else {
-            nodep->unlinkFrBack();
+        } ورنہ {
+            nodep->unlink_Fr_عقب();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstPExpr* nodep) override {
-        if (m_inRestrict) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+    خالی دورہ(AstPExpr* nodep) override {
+        اگر (m_اندر_Restrict) {
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
+        } ورنہ {
             iterateChildren(nodep);
         }
     }
 
     //========== Statements
-    void visit(AstDisplay* nodep) override {
+    خالی دورہ(AstDisplay* nodep) override {
         iterateChildren(nodep);
         // Replace the special types with standard text
-        if (nodep->displayType() == VDisplayType::DT_INFO) {
+        اگر (nodep->displayType() == VDisplayType::DT_INFO) {
             replaceDisplay(nodep, "-Info");
-        } else if (nodep->displayType() == VDisplayType::DT_WARNING) {
+        } ورنہ اگر (nodep->displayType() == VDisplayType::DT_WARNING) {
             replaceDisplay(nodep, "%%Warning");
-        } else if (nodep->displayType() == VDisplayType::DT_ERROR) {
+        } ورنہ اگر (nodep->displayType() == VDisplayType::DT_ERROR) {
             replaceDisplay(nodep, "%%Error");
-        } else if (nodep->displayType() == VDisplayType::DT_FATAL) {
+        } ورنہ اگر (nodep->displayType() == VDisplayType::DT_FATAL) {
             replaceDisplay(nodep, "%%Fatal");
-        } else if (nodep->displayType() == VDisplayType::DT_MONITOR) {
+        } ورنہ اگر (nodep->displayType() == VDisplayType::DT_MONITOR) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
-            FileLine* const fl = nodep->fileline();
+            File_سطر* ثابت fl = nodep->fileline();
 
-            AstSenItem* monSenItemsp = nullptr;
-            if (AstNode* const monExprsp = nodep->fmtp()->exprsp()) {
-                monExprsp->foreachAndNext([&](AstVarRef* varrefp) {
-                    AstSenItem* const senItemp
-                        = new AstSenItem{fl, VEdgeType::ET_CHANGED,
+            Ast_Sen_شے* monSenItemsp = خالی_اشاریہ;
+            اگر (Ast_گرہ* ثابت monExprsp = nodep->fmtp()->exprsp()) {
+                monExprsp->foreach_And_اگلا([&](AstVarRef* varrefp) {
+                    Ast_Sen_شے* ثابت senItemp
+                        = نیا Ast_Sen_شے{fl, VEdgeType::ET_بدلا,
                                          // Clone so get VarRef or VarXRef as needed
-                                         varrefp->cloneTree(false)};
-                    monSenItemsp = AstNode::addNextNull(monSenItemsp, senItemp);
+                                         varrefp->clone_درخت(جھوٹ)};
+                    monSenItemsp = Ast_گرہ::جوڑو_اگلا_Null(monSenItemsp, senItemp);
                 });
             }
 
-            AstSenTree* const monSenTree = new AstSenTree{fl, monSenItemsp};
-            const auto monNum = ++m_monitorNum;
+            Ast_Sen_درخت* ثابت mon_Sen_درخت = نیا Ast_Sen_درخت{fl, monSenItemsp};
+            ثابت خودکار mon_عدد = ++m_monitor_عدد;
             // Where $monitor was we do "__VmonitorNum = N;"
-            AstAssign* const newsetp = new AstAssign{
-                fl, newMonitorNumVarRefp(nodep, VAccess::WRITE), new AstConst{fl, monNum}};
+            Ast_تفویض* ثابت newsetp = نیا Ast_تفویض{
+                fl, new_Monitor_عدد_Var_Refp(nodep, VAccess::WRITE), نیا AstConst{fl, mon_عدد}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__VmonitorOn && __VmonitorNum==N) $display(...);"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{
+            Ast_گرہ* ثابت stmtsp = nodep;
+            AstIf* ثابت ifp = نیا AstIf{
                 fl,
-                new AstLogAnd{fl, new AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
-                              new AstEq{fl, new AstConst{fl, monNum},
-                                        newMonitorNumVarRefp(nodep, VAccess::READ)}},
+                نیا AstLogAnd{fl, نیا AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
+                              نیا AstEq{fl, نیا AstConst{fl, mon_عدد},
+                                        new_Monitor_عدد_Var_Refp(nodep, VAccess::READ)}},
                 stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            ifp->isBoundsCheck(سچ);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlways{fl, VAlwaysKwd::ALWAYS, monSenTree, ifp};
-            m_modp->addStmtsp(newp);
-        } else if (nodep->displayType() == VDisplayType::DT_STROBE) {
+            Ast_گرہ* ثابت newp = نیا AstAlways{fl, VAlwaysKwd::ALWAYS, mon_Sen_درخت, ifp};
+            m_modp->جوڑو_Stmtsp(newp);
+        } ورنہ اگر (nodep->displayType() == VDisplayType::DT_STROBE) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
             // Need one-shot
-            FileLine* const fl = nodep->fileline();
-            AstVar* const varp
-                = new AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_modStrobeNum++),
-                             nodep->findBitDType()};
-            m_modp->addStmtsp(varp);
+            File_سطر* ثابت fl = nodep->fileline();
+            AstVar* ثابت varp
+                = نیا AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvt_مقصد_Str(m_mod_Strobe_عدد++),
+                             nodep->ڈھونڈو_ثنائی_ہندسہ_DType()};
+            m_modp->جوڑو_Stmtsp(varp);
             // Where $strobe was we do "__Vstrobe = '1;"
-            AstAssign* const newsetp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     new AstConst{fl, AstConst::BitTrue{}}};
+            Ast_تفویض* ثابت newsetp = نیا Ast_تفویض{fl, نیا AstVarRef{fl, varp, VAccess::WRITE},
+                                                     نیا AstConst{fl, AstConst::ثنائی_ہندسہ_True{}}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__Vstrobe) begin $display(...); __Vstrobe = '0; end"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, varp, VAccess::READ}, stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            Ast_گرہ* ثابت stmtsp = nodep;
+            AstIf* ثابت ifp = نیا AstIf{fl, نیا AstVarRef{fl, varp, VAccess::READ}, stmtsp};
+            ifp->isBoundsCheck(سچ);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlwaysPostponed{fl, ifp};
-            stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitFalse{}}});
-            m_modp->addStmtsp(newp);
+            Ast_گرہ* ثابت newp = نیا AstAlwaysPostponed{fl, ifp};
+            stmtsp->جوڑو_اگلا(نیا Ast_تفویض{fl, نیا AstVarRef{fl, varp, VAccess::WRITE},
+                                          نیا AstConst{fl, AstConst::ثنائی_ہندسہ_False{}}});
+            m_modp->جوڑو_Stmtsp(newp);
         }
     }
-    void visit(AstMonitorOff* nodep) override {
-        AstAssign* const newp
-            = new AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
-                            new AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
+    خالی دورہ(AstMonitorOff* nodep) override {
+        Ast_تفویض* ثابت newp
+            = نیا Ast_تفویض{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
+                            نیا AstConst{nodep->fileline(), AstConst::ثنائی_ہندسہ_True{}, nodep->off()}};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstAssert* nodep) override {  //
-        visitAssertionIterate(nodep, nodep->failsp());
+    خالی دورہ(AstAssert* nodep) override {  //
+        دورہ_Assertion_Iterate(nodep, nodep->failsp());
     }
-    void visit(AstAssertCtl* nodep) override {
+    خالی دورہ(AstAssertCtl* nodep) override {
         iterateChildren(nodep);
 
-        bool assertTypeConst = true;
-        if (!nodep->assertTypesp()) {
+        منطقی assertTypeConst = سچ;
+        اگر (!nodep->assertTypesp()) {
             nodep->assertTypes(VAssertType{ALL_ASSERT_TYPES});
-        } else if (const AstConst* const assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
-            nodep->assertTypes(VAssertType{assertTypesp->toSInt()});
-        } else {
-            assertTypeConst = false;
+        } ورنہ اگر (ثابت AstConst* ثابت assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
+            nodep->assertTypes(VAssertType{assertTypesp->مقصد_SInt()});
+        } ورنہ {
+            assertTypeConst = جھوٹ;
         }
 
-        bool controlTypeConst = false;
-        if (const AstConst* const constp = VN_CAST(nodep->controlTypep(), Const)) {
-            nodep->ctlType(constp->toSInt());
-            controlTypeConst = true;
+        منطقی controlTypeConst = جھوٹ;
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(nodep->controlTypep(), Const)) {
+            nodep->ctlType(constp->مقصد_SInt());
+            controlTypeConst = سچ;
         }
-        if (controlTypeConst
-            && (nodep->ctlType() < VAssertCtlType::LOCK
+        اگر (controlTypeConst
+            && (nodep->ctlType() < VAssertCtlType::تالا
                 || nodep->ctlType() > VAssertCtlType::VACUOUS_OFF)) {
-            nodep->unlinkFrBack();
+            nodep->unlink_Fr_عقب();
             nodep->v3error("Bad $assertcontrol control_type '"
-                           << cvtToStr(static_cast<int>(nodep->ctlType()))
+                           << cvt_مقصد_Str(static_cast<صحیح>(nodep->ctlType()))
                            << "' (IEEE 1800-2023 Table 20-5)");
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+            واپس;
         }
-        if (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
-            && nodep->assertTypes().containsAny(VAssertType::UNIQUE | VAssertType::UNIQUE0
-                                                | VAssertType::PRIORITY)) {
+        اگر (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
+            && nodep->assertTypes().شامل_ہے_Any(VAssertType::UNIQUE | VAssertType::UNIQUE0
+                                                | VAssertType::ترجیح)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: assert control assertion_type");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
+            واپس;
         }
 
-        bool directiveTypeConst = true;
-        if (!nodep->directiveTypesp()) {
+        منطقی directiveTypeConst = سچ;
+        اگر (!nodep->directiveTypesp()) {
             nodep->directiveTypes(VAssertDirectiveType::ASSERT | VAssertDirectiveType::ASSUME
                                   | VAssertDirectiveType::COVER);
-        } else if (const AstConst* const directiveTypesp
+        } ورنہ اگر (ثابت AstConst* ثابت directiveTypesp
                    = VN_CAST(nodep->directiveTypesp(), Const)) {
-            nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->toSInt()});
-        } else {
-            directiveTypeConst = false;
+            nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->مقصد_SInt()});
+        } ورنہ {
+            directiveTypeConst = جھوٹ;
         }
-        if (!directiveTypeConst) {
+        اگر (!directiveTypeConst) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: non-const assert directive type expression");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
+            واپس;
         }
 
-        FileLine* const fl = nodep->fileline();
+        File_سطر* ثابت fl = nodep->fileline();
         UINFO(9, "Generating assertctl for a module: " << m_modp);
-        AstCStmt* const newp = new AstCStmt{fl};
-        newp->add("vlSymsp->_vm_contextp__->assertCtl(");
-        newp->add(nodep->controlTypep()->unlinkFrBack());
-        newp->add(", ");
-        if (nodep->assertTypesp()) {
-            newp->add(nodep->assertTypesp()->unlinkFrBack());
-        } else {
-            newp->add(std::to_string(ALL_ASSERT_TYPES));
+        AstCStmt* ثابت newp = نیا AstCStmt{fl};
+        newp->جوڑو("vlSymsp->_vm_contextp__->assertCtl(");
+        newp->جوڑو(nodep->controlTypep()->unlink_Fr_عقب());
+        newp->جوڑو(", ");
+        اگر (nodep->assertTypesp()) {
+            newp->جوڑو(nodep->assertTypesp()->unlink_Fr_عقب());
+        } ورنہ {
+            newp->جوڑو(std::مقصد_string(ALL_ASSERT_TYPES));
         }
-        newp->add(", " + std::to_string(nodep->directiveTypes()) + ");\n");
+        newp->جوڑو(", " + std::مقصد_string(nodep->directiveTypes()) + ");\n");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {  //
-        visitAssertionIterate(nodep, nodep->failsp());
+    خالی دورہ(AstAssertIntrinsic* nodep) override {  //
+        دورہ_Assertion_Iterate(nodep, nodep->failsp());
     }
-    void visit(AstCover* nodep) override {  //
-        visitAssertionIterate(nodep, nullptr);
+    خالی دورہ(AstCover* nodep) override {  //
+        دورہ_Assertion_Iterate(nodep, خالی_اشاریہ);
     }
-    void visit(AstRestrict* nodep) override {
-        VL_RESTORER(m_inRestrict);
-        m_inRestrict = true;
+    خالی دورہ(AstRestrict* nodep) override {
+        VL_RESTORER(m_اندر_Restrict);
+        m_اندر_Restrict = سچ;
         iterateChildren(nodep);
         // IEEE says simulator ignores these
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modPastNum);
-        VL_RESTORER(m_modStrobeNum);
+        VL_RESTORER(m_mod_Past_عدد);
+        VL_RESTORER(m_mod_Strobe_عدد);
         VL_RESTORER(m_finalp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DelayedAlwaysp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DefaultDelayedAlwaysp);
         VL_RESTORER_CLEAR(m_delayedAlways2TickTimep);
         m_modp = nodep;
-        m_modPastNum = 0;
-        m_modStrobeNum = 0;
-        m_finalp = nullptr;
+        m_mod_Past_عدد = 0;
+        m_mod_Strobe_عدد = 0;
+        m_finalp = خالی_اشاریہ;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    خالی دورہ(Ast_گرہ_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    خالی دورہ(Ast_گرہ_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    خالی دورہ(Ast_Gen_بلاک* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    خالی دورہ(AstBegin* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
         // If the body is a single assertOn check, bubble it up for combining
-        if (!nodep->declsp()) {
-            if (AstIf* const ifp = VN_CAST(nodep->stmtsp(), If)) {
-                if (ifp->user2() && !ifp->nextp()) {
+        اگر (!nodep->declsp()) {
+            اگر (AstIf* ثابت ifp = VN_CAST(nodep->stmtsp(), If)) {
+                اگر (ifp->user2() && !ifp->nextp()) {
                     ++m_statAssertOnHoisted;
-                    nodep->replaceWith(ifp->unlinkFrBack());
-                    nodep->addStmtsp(ifp->thensp()->unlinkFrBackWithNext());
-                    ifp->addThensp(nodep);
+                    nodep->replaceWith(ifp->unlink_Fr_عقب());
+                    nodep->جوڑو_Stmtsp(ifp->thensp()->unlink_Fr_عقب_With_اگلا());
+                    ifp->جوڑو_Thensp(nodep);
                 }
             }
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
+    صریح AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~AssertVisitor() override {
-        V3Stats::addStat("Assertions, assert non-immediate statements", m_statAsNotImm);
-        V3Stats::addStat("Assertions, assert immediate statements", m_statAsImm);
-        V3Stats::addStat("Assertions, cover statements", m_statCover);
-        V3Stats::addStat("Assertions, full/parallel case", m_statAsFull);
-        V3Stats::addStat("Assertions, $past variables", m_statPastVars);
-        V3Stats::addStat("Assertions, assertOn checks combined", m_statAssertOnCombined);
-        V3Stats::addStat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
-        V3Stats::addStat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
+        V3Stats::جوڑو_Stat("Assertions, assert non-immediate statements", m_statAsNotImm);
+        V3Stats::جوڑو_Stat("Assertions, assert immediate statements", m_statAsImm);
+        V3Stats::جوڑو_Stat("Assertions, cover statements", m_statCover);
+        V3Stats::جوڑو_Stat("Assertions, full/parallel case", m_stat_As_بھرا);
+        V3Stats::جوڑو_Stat("Assertions, $past variables", m_statPastVars);
+        V3Stats::جوڑو_Stat("Assertions, assertOn checks combined", m_statAssertOnCombined);
+        V3Stats::جوڑو_Stat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
+        V3Stats::جوڑو_Stat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
         // Rewrites can change purity, e.g. by compiling out assertion statements with --no-assert
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_درخت();
     }
 };
 
 //######################################################################
 // Top Assert class
 
-void V3Assert::assertAll(AstNetlist* nodep) {
+خالی V3Assert::assertAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { AssertVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("assert", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("assert", 0, dump_درخت_Either_Level() >= 3);
 }

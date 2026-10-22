@@ -14,33 +14,33 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHALG_H_
-#define VERILATOR_V3GRAPHALG_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3GRAPHALG_H_
+#تعریف_کرو VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#شامل "V3Global.h"
+#شامل "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
-class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+سانچہ <typename T_گراف = V3_گراف>  // Or sometimes const V3Graph
+class گراف_Alg VL_NOT_FINAL {
+محفوظ:
+    T_گراف* ثابت m_graphp;  // Graph we're operating upon
+    ثابت V3_کنارہ_Func_P m_کنارہ_Funcp;  // Function that says we follow this edge
     // CONSTRUCTORS
-    GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
+    گراف_Alg(T_گراف* graphp, V3_کنارہ_Func_P کنارہ_Funcp)
         : m_graphp{graphp}
-        , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+        , m_کنارہ_Funcp{کنارہ_Funcp} {}
+    ~گراف_Alg() = طےشدہ;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool follow_کنارہ(V3_گراف_کنارہ* edgep) { واپس (edgep->وزن_2() && (m_کنارہ_Funcp)(edgep)); }
 };
 
 //============================================================================
 
-#endif  // Guard
+#اگر_ختم  // Guard

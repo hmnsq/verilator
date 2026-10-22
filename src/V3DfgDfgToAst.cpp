@@ -26,318 +26,318 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3UniqueNames.h"
+#شامل "V3Dfg.h"
+#شامل "V3DfgPasses.h"
+#شامل "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+نامخلا {
 
 // Create an AstNodeExpr out of a DfgVertex. For most AstNodeExpr subtypes, this can be done
 // automatically. For the few special cases, we provide specializations below
-template <typename T_Node, typename T_Vertex, typename... Ops>
-T_Node* makeNode(const T_Vertex* vtxp, Ops... ops) {
-    T_Node* const nodep = new T_Node{vtxp->fileline(), ops...};
-    UASSERT_OBJ(nodep->width() == static_cast<int>(vtxp->width()), vtxp,
+سانچہ <قسم_نام T_گرہ, قسم_نام T_راس, قسم_نام... Ops>
+T_گرہ* make_گرہ(ثابت T_راس* vtxp, Ops... ops) {
+    T_گرہ* ثابت nodep = نیا T_گرہ{vtxp->fileline(), ops...};
+    UASSERT_OBJ(nodep->چوڑائی() == static_cast<صحیح>(vtxp->چوڑائی()), vtxp,
                 "Incorrect width in AstNode created from DfgVertex "
-                    << vtxp->typeName() << ": " << nodep->width() << " vs " << vtxp->width());
-    return nodep;
+                    << vtxp->typeName() << ": " << nodep->چوڑائی() << " vs " << vtxp->چوڑائی());
+    واپس nodep;
 }
 
 //======================================================================
 // Vertices needing special conversion
 
-template <>
-AstCountOnes* makeNode<AstCountOnes, DfgCountOnes, AstNodeExpr*>(  //
-    const DfgCountOnes* vtxp, AstNodeExpr* op1) {
-    AstCountOnes* const nodep = new AstCountOnes{vtxp->fileline(), op1};
-    return nodep;
+سانچہ <>
+Ast_گنتی_Ones* make_گرہ<Ast_گنتی_Ones, Dfg_گنتی_Ones, Ast_گرہ_اظہاریہ*>(  //
+    ثابت Dfg_گنتی_Ones* vtxp, Ast_گرہ_اظہاریہ* op1) {
+    Ast_گنتی_Ones* ثابت nodep = نیا Ast_گنتی_Ones{vtxp->fileline(), op1};
+    واپس nodep;
 }
 
-template <>
-AstExtend* makeNode<AstExtend, DfgExtend, AstNodeExpr*>(  //
-    const DfgExtend* vtxp, AstNodeExpr* op1) {
-    return new AstExtend{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+سانچہ <>
+AstExtend* make_گرہ<AstExtend, DfgExtend, Ast_گرہ_اظہاریہ*>(  //
+    ثابت DfgExtend* vtxp, Ast_گرہ_اظہاریہ* op1) {
+    واپس نیا AstExtend{vtxp->fileline(), op1, static_cast<صحیح>(vtxp->چوڑائی())};
 }
 
-template <>
-AstExtendS* makeNode<AstExtendS, DfgExtendS, AstNodeExpr*>(  //
-    const DfgExtendS* vtxp, AstNodeExpr* op1) {
-    return new AstExtendS{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+سانچہ <>
+AstExtendS* make_گرہ<AstExtendS, DfgExtendS, Ast_گرہ_اظہاریہ*>(  //
+    ثابت DfgExtendS* vtxp, Ast_گرہ_اظہاریہ* op1) {
+    واپس نیا AstExtendS{vtxp->fileline(), op1, static_cast<صحیح>(vtxp->چوڑائی())};
 }
 
-template <>
-AstShiftL* makeNode<AstShiftL, DfgShiftL, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftL* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftL{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+سانچہ <>
+Ast_سرکاؤ_L* make_گرہ<Ast_سرکاؤ_L, Dfg_سرکاؤ_L, Ast_گرہ_اظہاریہ*, Ast_گرہ_اظہاریہ*>(  //
+    ثابت Dfg_سرکاؤ_L* vtxp, Ast_گرہ_اظہاریہ* op1, Ast_گرہ_اظہاریہ* op2) {
+    واپس نیا Ast_سرکاؤ_L{vtxp->fileline(), op1, op2, static_cast<صحیح>(vtxp->چوڑائی())};
 }
 
-template <>
-AstShiftR* makeNode<AstShiftR, DfgShiftR, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftR* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftR{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+سانچہ <>
+Ast_سرکاؤ_R* make_گرہ<Ast_سرکاؤ_R, Dfg_سرکاؤ_R, Ast_گرہ_اظہاریہ*, Ast_گرہ_اظہاریہ*>(  //
+    ثابت Dfg_سرکاؤ_R* vtxp, Ast_گرہ_اظہاریہ* op1, Ast_گرہ_اظہاریہ* op2) {
+    واپس نیا Ast_سرکاؤ_R{vtxp->fileline(), op1, op2, static_cast<صحیح>(vtxp->چوڑائی())};
 }
 
-template <>
-AstShiftRS* makeNode<AstShiftRS, DfgShiftRS, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftRS* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftRS{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+سانچہ <>
+Ast_سرکاؤ_RS* make_گرہ<Ast_سرکاؤ_RS, Dfg_سرکاؤ_RS, Ast_گرہ_اظہاریہ*, Ast_گرہ_اظہاریہ*>(  //
+    ثابت Dfg_سرکاؤ_RS* vtxp, Ast_گرہ_اظہاریہ* op1, Ast_گرہ_اظہاریہ* op2) {
+    واپس نیا Ast_سرکاؤ_RS{vtxp->fileline(), op1, op2, static_cast<صحیح>(vtxp->چوڑائی())};
 }
 
 }  // namespace
 
-class DfgToAstVisitor final : DfgVisitor {
+جماعت Dfg_مقصد_Ast_Visitor final : DfgVisitor {
     // NODE STATE
 
     // AstScope::user2p  // The combinational AstActive under this scope
-    const VNUser2InUse m_user2InUse;
+    ثابت VNUser2_اندر_Use m_user2_اندر_Use;
 
     // STATE
-    V3DfgDfgToAstContext& m_ctx;  // The context for stats
-    AstNodeExpr* m_resultp = nullptr;  // The result node of the current traversal
-    AstAlways* m_alwaysp = nullptr;  // Process to add assignments to, if have a default driver
-    AstActive* m_activep = nullptr;  // The AstNodeModule or AstActive to insert assigns into
+    V3_Dfg_Dfg_مقصد_Ast_Context& m_ctx;  // The context for stats
+    Ast_گرہ_اظہاریہ* m_resultp = خالی_اشاریہ;  // The result node of the current traversal
+    AstAlways* m_alwaysp = خالی_اشاریہ;  // Process to add assignments to, if have a default driver
+    Ast_فعال* m_activep = خالی_اشاریہ;  // The AstNodeModule or AstActive to insert assigns into
 
     // METHODS
-    static AstActive* getCombActive(AstScope* scopep) {
-        if (!scopep->user2p()) {
+    ساکن Ast_فعال* get_Comb_فعال(AstScope* scopep) {
+        اگر (!scopep->user2p()) {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->hasCombo()) {
+            برائے (Ast_گرہ* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                Ast_فعال* ثابت activep = VN_CAST(nodep, فعال);
+                اگر (!activep) جاری;
+                اگر (activep->hasCombo()) {
                     scopep->user2p(activep);
-                    break;
+                    توڑو;
                 }
             }
             // If there isn't one, create a new one
-            if (!scopep->user2p()) {
-                FileLine* const flp = scopep->fileline();
-                AstSenTree* const senTreep
-                    = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-                AstActive* const activep = new AstActive{flp, "", senTreep};
-                activep->senTreeStorep(senTreep);
-                scopep->addBlocksp(activep);
+            اگر (!scopep->user2p()) {
+                File_سطر* ثابت flp = scopep->fileline();
+                Ast_Sen_درخت* ثابت senTreep
+                    = نیا Ast_Sen_درخت{flp, نیا Ast_Sen_شے{flp, Ast_Sen_شے::Combo{}}};
+                Ast_فعال* ثابت activep = نیا Ast_فعال{flp, "", senTreep};
+                activep->sen_درخت_Storep(senTreep);
+                scopep->جوڑو_Blocksp(activep);
                 scopep->user2p(activep);
             }
         }
-        return VN_AS(scopep->user2p(), Active);
+        واپس VN_AS(scopep->user2p(), فعال);
     }
 
-    AstNodeExpr* convertDfgVertexToAstNodeExpr(DfgVertex* vtxp) {
+    Ast_گرہ_اظہاریہ* convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(Dfg_راس* vtxp) {
         UASSERT_OBJ(!m_resultp, vtxp, "Result already computed");
-        UASSERT_OBJ(vtxp->is<DfgVertexVar>() || vtxp->is<DfgConst>()  //
-                        || !vtxp->hasMultipleSinks() || vtxp->isCheaperThanLoad(),  //
+        UASSERT_OBJ(vtxp->is<Dfg_راس_Var>() || vtxp->is<DfgConst>()  //
+                        || !vtxp->has_مضرب_Sinks() || vtxp->is_Cheaper_Than_بھرو(),  //
                     vtxp, "Intermediate DFG value with multiple uses");
         iterate(vtxp);
         UASSERT_OBJ(m_resultp, vtxp, "Missing result");
-        AstNodeExpr* const resultp = m_resultp;
-        m_resultp = nullptr;
-        return resultp;
+        Ast_گرہ_اظہاریہ* ثابت resultp = m_resultp;
+        m_resultp = خالی_اشاریہ;
+        واپس resultp;
     }
 
-    void createAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
+    خالی createAssignment(File_سطر* flp, Ast_گرہ_اظہاریہ* lhsp, Dfg_راس* driverp) {
         // Keep track of statisticss
-        ++m_ctx.m_resultEquations;
+        ++m_ctx.m_نتیجہ_Equations;
         // Render the driver
-        AstNodeExpr* const rhsp = convertDfgVertexToAstNodeExpr(driverp);
+        Ast_گرہ_اظہاریہ* ثابت rhsp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(driverp);
         // Update LHS locations to reflect the location of the original driver
-        lhsp->foreach([&](AstNode* nodep) { nodep->fileline(flp); });
+        lhsp->foreach([&](Ast_گرہ* nodep) { nodep->fileline(flp); });
 
         // If using a process, add Assign there
-        if (m_alwaysp) {
-            m_alwaysp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
-            return;
+        اگر (m_alwaysp) {
+            m_alwaysp->جوڑو_Stmtsp(نیا Ast_تفویض{flp, lhsp, rhsp});
+            واپس;
         }
 
         // Otherwise create an AssignW
-        AstAssignW* const ap = new AstAssignW{flp, lhsp, rhsp};
-        m_activep->addStmtsp(new AstAlways{ap});
+        Ast_تفویض_W* ثابت ap = نیا Ast_تفویض_W{flp, lhsp, rhsp};
+        m_activep->جوڑو_Stmtsp(نیا AstAlways{ap});
     }
 
-    void convertDriver(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
-        if (DfgSplicePacked* const sPackedp = driverp->cast<DfgSplicePacked>()) {
+    خالی convertDriver(File_سطر* flp, Ast_گرہ_اظہاریہ* lhsp, Dfg_راس* driverp) {
+        اگر (DfgSplicePacked* ثابت sPackedp = driverp->cast<DfgSplicePacked>()) {
             // Partial assignment of packed value
-            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sPackedp->foreachDriver([&](Dfg_راس& src, uint32_t lo, File_سطر* dflp) {
                 // Create Sel
-                AstConst* const lsbp = new AstConst{dflp, lo};
-                const int width = static_cast<int>(src.width());
-                AstSel* const nLhsp = new AstSel{dflp, lhsp->cloneTreePure(false), lsbp, width};
+                AstConst* ثابت lsbp = نیا AstConst{dflp, lo};
+                ثابت صحیح چوڑائی = static_cast<صحیح>(src.چوڑائی());
+                AstSel* ثابت nLhsp = نیا AstSel{dflp, lhsp->clone_درخت_خالص(جھوٹ), lsbp, چوڑائی};
                 // Convert source
                 convertDriver(dflp, nLhsp, &src);
                 // Delete Sel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_درخت(), nLhsp);
+                واپس جھوٹ;
             });
-            return;
+            واپس;
         }
 
-        if (DfgSpliceArray* const sArrayp = driverp->cast<DfgSpliceArray>()) {
+        اگر (DfgSpliceArray* ثابت sArrayp = driverp->cast<DfgSpliceArray>()) {
             // Partial assignment of array variable
-            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
-                UASSERT_OBJ(src.size() == 1, &src, "We only handle single elements");
+            sArrayp->foreachDriver([&](Dfg_راس& src, uint32_t lo, File_سطر* dflp) {
+                UASSERT_OBJ(src.سائز() == 1, &src, "We only handle single elements");
                 // Create ArraySel
-                AstConst* const idxp = new AstConst{dflp, lo};
-                AstArraySel* const nLhsp = new AstArraySel{dflp, lhsp->cloneTreePure(false), idxp};
+                AstConst* ثابت idxp = نیا AstConst{dflp, lo};
+                AstArraySel* ثابت nLhsp = نیا AstArraySel{dflp, lhsp->clone_درخت_خالص(جھوٹ), idxp};
                 // Convert source
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+                اگر (ثابت DfgUnitArray* ثابت uap = src.cast<DfgUnitArray>()) {
                     convertDriver(dflp, nLhsp, uap->srcp());
-                } else {
+                } ورنہ {
                     convertDriver(dflp, nLhsp, &src);
                 }
                 // Delete ArraySel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_درخت(), nLhsp);
+                واپس جھوٹ;
             });
-            return;
+            واپس;
         }
 
-        if (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
+        اگر (ثابت DfgUnitArray* ثابت uap = driverp->cast<DfgUnitArray>()) {
             // Single element array being assigned a unit array. Needs an ArraySel.
-            AstConst* const idxp = new AstConst{flp, 0};
-            AstArraySel* const nLhsp = new AstArraySel{flp, lhsp->cloneTreePure(false), idxp};
+            AstConst* ثابت idxp = نیا AstConst{flp, 0};
+            AstArraySel* ثابت nLhsp = نیا AstArraySel{flp, lhsp->clone_درخت_خالص(جھوٹ), idxp};
             // Convert source
             convertDriver(flp, nLhsp, uap->srcp());
             // Delete ArraySel - was cloned
-            VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-            return;
+            VL_DO_DANGLING(nLhsp->delete_درخت(), nLhsp);
+            واپس;
         }
 
         // Base case: assign vertex to current lhs
-        createAssignment(flp, lhsp->cloneTreePure(false), driverp);
+        createAssignment(flp, lhsp->clone_درخت_خالص(جھوٹ), driverp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    خالی دورہ(Dfg_راس* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("Unhandled DfgVertex: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVarPacked* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    خالی دورہ(DfgVarPacked* vtxp) override {
+        m_resultp = نیا AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgVarArray* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    خالی دورہ(DfgVarArray* vtxp) override {
+        m_resultp = نیا AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgPrev* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    خالی دورہ(Dfg_پچھلا* vtxp) override {
+        m_resultp = نیا AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgConst* vtxp) override {  //
-        m_resultp = new AstConst{vtxp->fileline(), vtxp->num()};
+    خالی دورہ(DfgConst* vtxp) override {  //
+        m_resultp = نیا AstConst{vtxp->fileline(), vtxp->عدد()};
     }
-    void visit(DfgCReset* vtxp) override {
-        DfgVertex* const sinkp = vtxp->singleSink();
+    خالی دورہ(DfgCReset* vtxp) override {
+        Dfg_راس* ثابت sinkp = vtxp->singleSink();
         UASSERT_OBJ(sinkp, vtxp, "CReset should only have one sink");
-        UASSERT_OBJ(sinkp->is<DfgVertexVar>(), sinkp, "CReset should drive a variable");
-        AstVar* const varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
-        m_resultp = new AstCReset{vtxp->fileline(), varp, false};
+        UASSERT_OBJ(sinkp->is<Dfg_راس_Var>(), sinkp, "CReset should drive a variable");
+        AstVar* ثابت varp = sinkp->as<Dfg_راس_Var>()->vscp()->varp();
+        m_resultp = نیا AstCReset{vtxp->fileline(), varp, جھوٹ};
     }
-    void visit(DfgMatchMasked* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const lhsp = convertDfgVertexToAstNodeExpr(vtxp->lhsp());
-        AstVarScope* const matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
-        m_resultp = new AstMatchMasked{flp, lhsp, new AstVarRef{flp, matchp, VAccess::READ}};
-    }
-
-    void visit(DfgRep* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const srcp = convertDfgVertexToAstNodeExpr(vtxp->srcp());
-        m_resultp = new AstReplicate{flp, srcp, vtxp->count()};
+    خالی دورہ(Dfg_مطابقت_Masked* vtxp) override {
+        File_سطر* ثابت flp = vtxp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت lhsp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(vtxp->lhsp());
+        AstVarScope* ثابت matchp = vtxp->matchp()->as<Dfg_راس_Var>()->vscp();
+        m_resultp = نیا Ast_مطابقت_Masked{flp, lhsp, نیا AstVarRef{flp, matchp, VAccess::READ}};
     }
 
-    void visit(DfgSel* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstConst* const lsbp = new AstConst{flp, vtxp->lsb()};
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    خالی دورہ(DfgRep* vtxp) override {
+        File_سطر* ثابت flp = vtxp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت srcp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(vtxp->srcp());
+        m_resultp = نیا AstReplicate{flp, srcp, vtxp->گنتی()};
     }
 
-    void visit(DfgMux* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstNodeExpr* const lsbp = convertDfgVertexToAstNodeExpr(vtxp->lsbp());
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    خالی دورہ(DfgSel* vtxp) override {
+        File_سطر* ثابت flp = vtxp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت fromp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(vtxp->fromp());
+        AstConst* ثابت lsbp = نیا AstConst{flp, vtxp->lsb()};
+        m_resultp = نیا AstSel{flp, fromp, lsbp, static_cast<صحیح>(vtxp->چوڑائی())};
+    }
+
+    خالی دورہ(DfgMux* vtxp) override {
+        File_سطر* ثابت flp = vtxp->fileline();
+        Ast_گرہ_اظہاریہ* ثابت fromp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(vtxp->fromp());
+        Ast_گرہ_اظہاریہ* ثابت lsbp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(vtxp->lsbp());
+        m_resultp = نیا AstSel{flp, fromp, lsbp, static_cast<صحیح>(vtxp->چوڑائی())};
     }
 
     // The rest of the 'visit' methods are generated by 'astgen'
-#include "V3Dfg__gen_dfg_to_ast.h"
+#شامل "V3Dfg__gen_dfg_to_ast.h"
 
     // Constructor
-    DfgToAstVisitor(DfgGraph& dfg, V3DfgDfgToAstContext& ctx)
+    Dfg_مقصد_Ast_Visitor(Dfg_گراف& dfg, V3_Dfg_Dfg_مقصد_Ast_Context& ctx)
         : m_ctx{ctx} {
-        if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+        اگر (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
 
         // Convert the graph back to combinational assignments. The graph must have been
         // regularized, so we only need to render variable assignments and update Ast references.
 
         // Render variable assignments
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
+        برائے (Dfg_راس_Var& vtx : dfg.varVertices()) {
             // If there is no driver (this vertex is an input to the graph), then nothing to do.
-            if (!vtx.srcp()) {
+            اگر (!vtx.srcp()) {
                 UASSERT_OBJ(!vtx.defaultp(), &vtx, "Only default driver on variable");
-                continue;
+                جاری;
             }
 
             ++m_ctx.m_outputVariables;
 
             // Render variable assignments
-            FileLine* const flp = vtx.driverFileLine() ? vtx.driverFileLine() : vtx.fileline();
-            AstVarRef* const lhsp = new AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
+            File_سطر* ثابت flp = vtx.driver_File_سطر() ? vtx.driver_File_سطر() : vtx.fileline();
+            AstVarRef* ثابت lhsp = نیا AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
 
             // Add it to the scope holding the target variable
             VL_RESTORER(m_activep);
-            m_activep = getCombActive(vtx.vscp()->scopep());
+            m_activep = get_Comb_فعال(vtx.vscp()->scopep());
 
             // If there is a default value, render all drivers under an AstAlways
             VL_RESTORER(m_alwaysp);
-            if (DfgVertex* const defaultp = vtx.defaultp()) {
+            اگر (Dfg_راس* ثابت defaultp = vtx.defaultp()) {
                 ++m_ctx.m_outputVariablesWithDefault;
-                m_alwaysp = new AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
-                m_activep->addStmtsp(m_alwaysp);
+                m_alwaysp = نیا AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, خالی_اشاریہ};
+                m_activep->جوڑو_Stmtsp(m_alwaysp);
                 // The default assignment needs to go first
-                createAssignment(vtx.fileline(), lhsp->cloneTreePure(false), defaultp);
+                createAssignment(vtx.fileline(), lhsp->clone_درخت_خالص(جھوٹ), defaultp);
             }
 
             // Render the drivers
             convertDriver(flp, lhsp, vtx.srcp());
 
             // convetDriver always clones lhsp
-            VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
+            VL_DO_DANGLING(lhsp->delete_درخت(), lhsp);
         }
 
         // Update Ast References
-        for (DfgVertexAst& vtx : dfg.astVertices()) {
-            if (DfgAstRd* const rVtxp = vtx.cast<DfgAstRd>()) {
+        برائے (Dfg_راس_Ast& vtx : dfg.astVertices()) {
+            اگر (DfgAstRd* ثابت rVtxp = vtx.cast<DfgAstRd>()) {
                 // Render the driver
-                AstNodeExpr* const exprp = convertDfgVertexToAstNodeExpr(rVtxp->srcp());
+                Ast_گرہ_اظہاریہ* ثابت exprp = convert_Dfg_راس_مقصد_Ast_گرہ_اظہاریہ(rVtxp->srcp());
                 // If it's the same as the reference, do not replace it so FileLines are preserved
-                if (exprp->sameTree(rVtxp->exprp())) {
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                    continue;
+                اگر (exprp->same_درخت(rVtxp->exprp())) {
+                    VL_DO_DANGLING(exprp->delete_درخت(), exprp);
+                    جاری;
                 }
                 // Replace the reference with the expression
-                if (VN_IS(exprp, VarRef)) {
+                اگر (VN_IS(exprp, VarRef)) {
                     exprp->fileline(rVtxp->exprp()->fileline());
                     ++m_ctx.m_varRefsSubstituted;
-                } else {
+                } ورنہ {
                     ++m_ctx.m_expressionsInlined;
                 }
                 rVtxp->exprp()->replaceWith(exprp);
-                rVtxp->exprp()->deleteTree();
+                rVtxp->exprp()->delete_درخت();
                 rVtxp->exprp(exprp);
             }
         }
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
+عوامی:
+    ساکن خالی apply(Dfg_گراف& dfg, V3_Dfg_Dfg_مقصد_Ast_Context& ctx) { Dfg_مقصد_Ast_Visitor{dfg, ctx}; }
 };
 
-void V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
-    DfgToAstVisitor::apply(dfg, ctx.m_dfg2AstContext);
+خالی V3DfgPasses::dfg_مقصد_Ast(Dfg_گراف& dfg, V3DfgContext& ctx) {
+    Dfg_مقصد_Ast_Visitor::apply(dfg, ctx.m_dfg2AstContext);
 }

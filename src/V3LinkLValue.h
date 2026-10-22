@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKLVALUE_H_
-#define VERILATOR_V3LINKLVALUE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3LINKLVALUE_H_
+#تعریف_کرو VERILATOR_V3LINKLVALUE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
+#شامل "V3Ast.h"
 
 //============================================================================
 
 class V3LinkLValue final {
-public:
-    static void linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkLValueSet(AstNode* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
+    ساکن خالی link_LValue_سیٹ(Ast_گرہ* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

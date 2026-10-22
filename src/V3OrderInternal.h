@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERINTERNAL_H_
-#define VERILATOR_V3ORDERINTERNAL_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3ORDERINTERNAL_H_
+#تعریف_کرو VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#شامل "V3Order.h"
+#شامل "V3OrderGraph.h"
+#شامل "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#شامل <string>
+#شامل <vector>
 
 class AstVarScope;
 
@@ -35,24 +35,24 @@ class LogicByScope;
 
 //============================================================================
 
-namespace V3Order {
+namespace V3_ترتیب {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<ترتیب_گراف> build_ترتیب_گراف(ثابت V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ثابت std::سمتیہ<V3Sched::LogicByScope*>& coll,  //
+                                            ثابت V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+خالی ترتیب_ترتیب_گراف(ترتیب_گراف& گراف, ثابت std::string& لیبل);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+خالی processDomains(ترتیب_گراف& گراف,  //
+                    ثابت std::string& لیبل,  //
+                    ثابت ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_گرہ_Stmt* createSerial(ترتیب_Move_گراف& move_گراف, ثابت std::string& لیبل, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_گرہ_Stmt* createParallel(ترتیب_Move_گراف& move_گراف, ثابت std::string& لیبل, bool slow);
 
 };  // namespace V3Order
 
-#endif  // Guard
+#اگر_ختم  // Guard

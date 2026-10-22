@@ -25,15 +25,15 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Expand.h"
+#شامل "V3Expand.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#شامل "V3Const.h"
+#شامل "V3Stats.h"
 
-#include <algorithm>
-#include <array>
+#شامل <algorithm>
+#شامل <array>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -42,31 +42,31 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // unique transformation ExpandVisitor applies. Keep sorted.
 
 // clang-format off
-#define FOR_EACH_EXPAND_PATTERN(macro) \
-    macro(ASSIGN_AND) \
-    macro(ASSIGN_ARRAYSEL) \
-    macro(ASSIGN_CONCAT) \
-    macro(ASSIGN_COND) \
-    macro(ASSIGN_CONST) \
-    macro(ASSIGN_EXTEND) \
-    macro(ASSIGN_NOT) \
-    macro(ASSIGN_OR) \
-    macro(ASSIGN_REPLICATE) \
-    macro(ASSIGN_SEL_ALIGNED) \
-    macro(ASSIGN_SEL_UNALIGNED) \
-    macro(ASSIGN_SHIFTL) \
-    macro(ASSIGN_SHIFTR) \
-    macro(ASSIGN_TO_SEL_CONST_NARROW) \
-    macro(ASSIGN_TO_SEL_CONST_WIDE) \
-    macro(ASSIGN_TO_SEL_VAR_NARROW) \
-    macro(ASSIGN_TO_SEL_VAR_WIDE_ONE_BIT) \
-    macro(ASSIGN_VARREF) \
-    macro(ASSIGN_XOR) \
+#تعریف_کرو FOR_EACH_EXPAND_نمونہ(macro) \
+    macro(تفویض_AND) \
+    macro(تفویض_ARRAYSEL) \
+    macro(تفویض_CONCAT) \
+    macro(تفویض_COND) \
+    macro(تفویض_CONST) \
+    macro(تفویض_EXTEND) \
+    macro(تفویض_NOT) \
+    macro(تفویض_OR) \
+    macro(تفویض_REPLICATE) \
+    macro(تفویض_SEL_ALIGNED) \
+    macro(تفویض_SEL_UNALIGNED) \
+    macro(تفویض_SHIFTL) \
+    macro(تفویض_SHIFTR) \
+    macro(تفویض_مقصد_SEL_CONST_NARROW) \
+    macro(تفویض_مقصد_SEL_CONST_WIDE) \
+    macro(تفویض_مقصد_SEL_VAR_NARROW) \
+    macro(تفویض_مقصد_SEL_VAR_WIDE_ONE_ثنائی_ہندسہ) \
+    macro(تفویض_VARREF) \
+    macro(تفویض_XOR) \
     macro(CONCAT) \
-    macro(REDAND_TO_EQ) \
-    macro(REDOR_TO_NEQ) \
+    macro(REDAND_مقصد_EQ) \
+    macro(REDOR_مقصد_NEQ) \
     macro(REPLICATE) \
-    macro(REPLICATE_ONE_BIT) \
+    macro(REPLICATE_ONE_ثنائی_ہندسہ) \
     macro(SEL_FROM_NARROW) \
     macro(SEL_FROM_WIDE) \
     macro(WORDIZE_EQ) \
@@ -76,49 +76,49 @@ VL_DEFINE_DEBUG_FUNCTIONS;
     macro(WORDIZE_REDXOR)
 // clang-format on
 
-class VExpandPattern final {
-public:
-    enum en : uint8_t {
-#define EXPAND_PATTERN_ID(id) id,
-        FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_ID)
-#undef EXPAND_PATTERN_ID
-            _ENUM_END
+جماعت VExpand_نمونہ final {
+عوامی:
+    شمار en : uint8_t {
+#تعریف_کرو EXPAND_نمونہ_ID(id) id,
+        FOR_EACH_EXPAND_نمونہ(EXPAND_نمونہ_ID)
+#تعریف_منسوخ EXPAND_نمونہ_ID
+            ENUM_انتہا
     };
-    enum en m_e;
-    const char* ascii() const {
-        static const char* const names[] = {
-#define EXPAND_PATTERN_NAME(id) #id,
-            FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_NAME)
-#undef EXPAND_PATTERN_NAME
+    شمار en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساکن ثابت حرف* ثابت نام[] = {
+#تعریف_کرو EXPAND_نمونہ_NAME(id) #id,
+            FOR_EACH_EXPAND_نمونہ(EXPAND_نمونہ_NAME)
+#تعریف_منسوخ EXPAND_نمونہ_NAME
                 "_ENUM_END"  //
         };
-        return names[m_e];
+        واپس نام[m_e];
     }
 
     // cppcheck-suppress noExplicitConstructor
-    VExpandPattern(en _e)
+    VExpand_نمونہ(en _e)
         : m_e{_e} {}
-    operator en() const { return m_e; }
+    عامل en() ثابت { واپس m_e; }
 };
 
 //######################################################################
 // Find nodes with side effects, to mark as non-expandable
 
-class ExpandOkVisitor final : public VNVisitorConst {
+جماعت ExpandOkVisitor final : عوامی VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> bool.  Is pure (along with all children)
-    const VNUser2InUse m_inuser2;
+    ثابت VNUser2_اندر_Use m_inuser2;
 
     // STATE - for current visit position (use VL_RESTORER)
     // Tracks similar to AstNode::isTreePureRecurse(), but avoid O(n^2)
     // False = pure, as nodes that ExpandVisitor inserts preserve pureness
-    bool m_isImpure = true;  // Currently pure
+    منطقی m_isImpure = سچ;  // Currently pure
 
-    void visit(AstNode* nodep) override {
-        bool selfImpure = !nodep->isPure();
+    خالی دورہ(Ast_گرہ* nodep) override {
+        منطقی selfImpure = !nodep->is_خالص();
         {
             VL_RESTORER(m_isImpure);
-            m_isImpure = false;
+            m_isImpure = جھوٹ;
             iterateChildrenConst(nodep);
             selfImpure |= m_isImpure;
             nodep->user2(selfImpure);
@@ -126,417 +126,417 @@ class ExpandOkVisitor final : public VNVisitorConst {
         m_isImpure |= selfImpure;
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ExpandOkVisitor(AstNetlist* nodep) { iterateConst(nodep); }
-    ~ExpandOkVisitor() = default;
+    صریح ExpandOkVisitor(AstNetlist* nodep) { iterateConst(nodep); }
+    ~ExpandOkVisitor() = طےشدہ;
 };
 
 //######################################################################
 // Expand state, as a visitor of each AstNode
 
-class ExpandVisitor final : public VNVisitor {
+جماعت ExpandVisitor final : عوامی VNVisitor {
     // NODE STATE
     //  AstNode::user1()        -> bool.  Processed
     //  AstNode::user2()        -> See ExpandOkVisitor
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_اندر_Use m_inuser1;
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNode* m_stmtp = nullptr;  // Current statement
+    Ast_گرہ* m_stmtp = خالی_اشاریہ;  // Current statement
 
     // STATE - across all visitors
-    AstCFunc* m_funcp = nullptr;  // Current function
+    AstCFunc* m_funcp = خالی_اشاریہ;  // Current function
     VDouble0 m_statImpure;  // Statistic tracking
     VDouble0 m_statWides;  // Statistic tracking
-    VDouble0 m_statWideWords;  // Statistic tracking
+    VDouble0 m_stat_Wide_الفاظ;  // Statistic tracking
     VDouble0 m_statWideLimited;  // Statistic tracking
     VDouble0 m_statTemps;  // Statistic tracking
     // Number of applications of each expansion pattern for statistics
-    std::array<VDouble0, VExpandPattern::_ENUM_END> m_statPatterns;
+    std::array<VDouble0, VExpand_نمونہ::ENUM_انتہا> m_statPatterns;
 
     // STATE - for current function
-    size_t m_nTmps = 0;  // Sequence numbers for temopraries
+    سائز_t m_nTmps = 0;  // Sequence numbers for temopraries
 
     // METHODS
     // Note the application of the given expansion pattern to 'nodep'
-    void didPattern(VExpandPattern pattern, AstNode* nodep) {
-        UINFO(8, "    " << pattern.ascii() << " " << nodep);
-        ++m_statPatterns[pattern];
+    خالی did_نمونہ(VExpand_نمونہ نمونہ_2, Ast_گرہ* nodep) {
+        UINFO(8, "    " << نمونہ_2.ascii() << " " << nodep);
+        ++m_statPatterns[نمونہ_2];
     }
 
     // Use state that ExpandOkVisitor calculated
-    static bool isImpure(AstNode* nodep) {
-        const bool impure = nodep->user2();
-        if (impure) UINFO(9, "      impure " << nodep);
-        return impure;
+    ساکن منطقی isImpure(Ast_گرہ* nodep) {
+        ثابت منطقی impure = nodep->user2();
+        اگر (impure) UINFO(9, "      impure " << nodep);
+        واپس impure;
     }
 
-    bool doExpandWide(AstNode* nodep) {
-        if (isImpure(nodep)) {
+    منطقی doExpandWide(Ast_گرہ* nodep) {
+        اگر (isImpure(nodep)) {
             ++m_statImpure;
-            return false;
+            واپس جھوٹ;
         }
-        if (nodep->widthWords() <= v3Global.opt.expandLimit()) {
+        اگر (nodep->چوڑائی_الفاظ() <= v3Global.opt.expand_حد_بندی()) {
             ++m_statWides;
-            m_statWideWords += nodep->widthWords();
-            return true;
-        } else {
+            m_stat_Wide_الفاظ += nodep->چوڑائی_الفاظ();
+            واپس سچ;
+        } ورنہ {
             ++m_statWideLimited;
-            return false;
+            واپس جھوٹ;
         }
     }
 
-    static int longOrQuadWidth(AstNode* nodep) {
-        return (nodep->width() + (VL_EDATASIZE - 1)) & ~(VL_EDATASIZE - 1);
+    ساکن صحیح long_Or_Quad_چوڑائی(Ast_گرہ* nodep) {
+        واپس (nodep->چوڑائی() + (VL_EDATASIZE - 1)) & ~(VL_EDATASIZE - 1);
     }
-    static V3Number notWideMask(AstNode* nodep) {
-        return V3Number{nodep, VL_EDATASIZE, ~VL_MASK_E(nodep->widthMin())};
+    ساکن V3_نمبر not_Wide_نقاب(Ast_گرہ* nodep) {
+        واپس V3_نمبر{nodep, VL_EDATASIZE, ~VL_نقاب_E(nodep->چوڑائی_Min())};
     }
-    static V3Number wordMask(AstNode* nodep) {
-        if (nodep->isWide()) {
-            return V3Number{nodep, VL_EDATASIZE, VL_MASK_E(nodep->widthMin())};
-        } else {
-            V3Number mask{nodep, longOrQuadWidth(nodep)};
-            mask.setMask(nodep->widthMin());
-            return mask;
+    ساکن V3_نمبر لفظ_نقاب(Ast_گرہ* nodep) {
+        اگر (nodep->isWide()) {
+            واپس V3_نمبر{nodep, VL_EDATASIZE, VL_نقاب_E(nodep->چوڑائی_Min())};
+        } ورنہ {
+            V3_نمبر نقاب{nodep, long_Or_Quad_چوڑائی(nodep)};
+            نقاب.سیٹ_نقاب(nodep->چوڑائی_Min());
+            واپس نقاب;
         }
     }
 
-    static void insertBefore(AstNode* placep, AstNode* newp) {
+    ساکن خالی داخل_کرو_Before(Ast_گرہ* placep, Ast_گرہ* newp) {
         newp->user1(1);  // Already processed, don't need to re-iterate
-        placep->addHereThisAsNext(newp);
+        placep->جوڑو_یہاں_This_As_اگلا(newp);
     }
-    static void replaceWithDelete(AstNode* nodep, AstNode* newp) {
+    ساکن خالی replaceWithDelete(Ast_گرہ* nodep, Ast_گرہ* newp) {
         newp->user1(1);  // Already processed, don't need to re-iterate
-        if (newp->width() != nodep->width()) {
-            UASSERT_OBJ(newp->widthMin() == nodep->widthMin(), nodep,
+        اگر (newp->چوڑائی() != nodep->چوڑائی()) {
+            UASSERT_OBJ(newp->چوڑائی_Min() == nodep->چوڑائی_Min(), nodep,
                         "Replacement width mismatch");
-            newp->dtypeChgWidth(nodep->width(), nodep->widthMin());
+            newp->dtype_Chg_چوڑائی(nodep->چوڑائی(), nodep->چوڑائی_Min());
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    static AstNode* newWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* lhsp,
-                                  AstNodeExpr* rhsp) {
-        FileLine* const fl = placep->fileline();
-        return new AstAssign{fl,
-                             new AstWordSel{fl, lhsp->cloneTreePure(true),
-                                            new AstConst{fl, static_cast<uint32_t>(word)}},
+    ساکن Ast_گرہ* new_لفظ_تفویض(Ast_گرہ_تفویض* placep, صحیح لفظ, Ast_گرہ_اظہاریہ* lhsp,
+                                  Ast_گرہ_اظہاریہ* rhsp) {
+        File_سطر* ثابت fl = placep->fileline();
+        واپس نیا Ast_تفویض{fl,
+                             نیا Ast_لفظ_Sel{fl, lhsp->clone_درخت_خالص(سچ),
+                                            نیا AstConst{fl, static_cast<uint32_t>(لفظ)}},
                              rhsp};
     }
-    static void addWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* lhsp,
-                              AstNodeExpr* rhsp) {
-        insertBefore(placep, newWordAssign(placep, word, lhsp, rhsp));
+    ساکن خالی جوڑو_لفظ_تفویض(Ast_گرہ_تفویض* placep, صحیح لفظ, Ast_گرہ_اظہاریہ* lhsp,
+                              Ast_گرہ_اظہاریہ* rhsp) {
+        داخل_کرو_Before(placep, new_لفظ_تفویض(placep, لفظ, lhsp, rhsp));
     }
-    static void addWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* rhsp) {
-        addWordAssign(placep, word, placep->lhsp(), rhsp);
+    ساکن خالی جوڑو_لفظ_تفویض(Ast_گرہ_تفویض* placep, صحیح لفظ, Ast_گرہ_اظہاریہ* rhsp) {
+        جوڑو_لفظ_تفویض(placep, لفظ, placep->lhsp(), rhsp);
     }
 
-    AstVar* addLocalTmp(AstNode* placep, const char* namep, AstNodeExpr* valuep) {
-        const std::string name = "__V"s + namep + "_"s + std::to_string(m_nTmps);
-        FileLine* const flp = placep->fileline();
-        AstVar* const tmpp = new AstVar{flp, VVarType::STMTTEMP, name, valuep->dtypep()};
-        tmpp->funcLocal(true);
-        tmpp->isInternal(true);
-        tmpp->noReset(true);
-        tmpp->substConstOnly(true);
-        m_funcp->addVarsp(tmpp);
-        insertBefore(placep, new AstAssign{flp, new AstVarRef{flp, tmpp, VAccess::WRITE}, valuep});
+    AstVar* جوڑو_Local_Tmp(Ast_گرہ* placep, ثابت حرف* namep, Ast_گرہ_اظہاریہ* valuep) {
+        ثابت std::string name = "__V"s + namep + "_"s + std::مقصد_string(m_nTmps);
+        File_سطر* ثابت flp = placep->fileline();
+        AstVar* ثابت tmpp = نیا AstVar{flp, VVarType::STMTTEMP, name, valuep->dtypep()};
+        tmpp->funcLocal(سچ);
+        tmpp->is_اندرونی(سچ);
+        tmpp->noReset(سچ);
+        tmpp->substConstOnly(سچ);
+        m_funcp->جوڑو_Varsp(tmpp);
+        داخل_کرو_Before(placep, نیا Ast_تفویض{flp, نیا AstVarRef{flp, tmpp, VAccess::WRITE}, valuep});
         ++m_statTemps;
-        return tmpp;
+        واپس tmpp;
     }
 
-    static void fixCloneLvalue(AstNode* nodep) {
+    ساکن خالی fixCloneLvalue(Ast_گرہ* nodep) {
         // In AstSel transforms, we call clone() on VarRefs that were lvalues,
         // but are now being used on the RHS of the assignment
-        if (VN_IS(nodep, VarRef)) VN_AS(nodep, VarRef)->access(VAccess::READ);
+        اگر (VN_IS(nodep, VarRef)) VN_AS(nodep, VarRef)->access(VAccess::READ);
         // Iterate
-        if (AstNode* const refp = nodep->op1p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op2p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op3p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op4p()) fixCloneLvalue(refp);
+        اگر (Ast_گرہ* ثابت refp = nodep->op1p()) fixCloneLvalue(refp);
+        اگر (Ast_گرہ* ثابت refp = nodep->op2p()) fixCloneLvalue(refp);
+        اگر (Ast_گرہ* ثابت refp = nodep->op3p()) fixCloneLvalue(refp);
+        اگر (Ast_گرہ* ثابت refp = nodep->op4p()) fixCloneLvalue(refp);
     }
 
-    static AstNodeExpr* newAstWordSelClone(AstNodeExpr* nodep, int word) {
+    ساکن Ast_گرہ_اظہاریہ* new_Ast_لفظ_Sel_Clone(Ast_گرہ_اظہاریہ* nodep, صحیح لفظ) {
         // Get the specified word number from a wide array
         // Or, if it's a long/quad, do appropriate conversion to wide
         // Concat may pass negative word numbers, that means it wants a zero
-        FileLine* const fl = nodep->fileline();
-        if (nodep->isWide() && word >= 0 && word < nodep->widthWords()) {
-            return new AstWordSel{fl, nodep->cloneTreePure(true),
-                                  new AstConst{fl, static_cast<uint32_t>(word)}};
-        } else if (nodep->isQuad() && word == 0) {
-            AstNodeExpr* const quadfromp = nodep->cloneTreePure(true);
-            quadfromp->dtypeSetBitUnsized(VL_QUADSIZE, quadfromp->widthMin(), VSigning::UNSIGNED);
-            return new AstCCast{fl, quadfromp, VL_EDATASIZE};
-        } else if (nodep->isQuad() && word == 1) {
-            AstNodeExpr* const quadfromp = nodep->cloneTreePure(true);
-            quadfromp->dtypeSetBitUnsized(VL_QUADSIZE, quadfromp->widthMin(), VSigning::UNSIGNED);
-            return new AstCCast{
-                fl, new AstShiftR{fl, quadfromp, new AstConst{fl, VL_EDATASIZE}, VL_EDATASIZE},
+        File_سطر* ثابت fl = nodep->fileline();
+        اگر (nodep->isWide() && لفظ >= 0 && لفظ < nodep->چوڑائی_الفاظ()) {
+            واپس نیا Ast_لفظ_Sel{fl, nodep->clone_درخت_خالص(سچ),
+                                  نیا AstConst{fl, static_cast<uint32_t>(لفظ)}};
+        } ورنہ اگر (nodep->isQuad() && لفظ == 0) {
+            Ast_گرہ_اظہاریہ* ثابت quadfromp = nodep->clone_درخت_خالص(سچ);
+            quadfromp->dtype_سیٹ_ثنائی_ہندسہ_Unsized(VL_QUADSIZE, quadfromp->چوڑائی_Min(), VSigning::UNSIGNED);
+            واپس نیا AstCCast{fl, quadfromp, VL_EDATASIZE};
+        } ورنہ اگر (nodep->isQuad() && لفظ == 1) {
+            Ast_گرہ_اظہاریہ* ثابت quadfromp = nodep->clone_درخت_خالص(سچ);
+            quadfromp->dtype_سیٹ_ثنائی_ہندسہ_Unsized(VL_QUADSIZE, quadfromp->چوڑائی_Min(), VSigning::UNSIGNED);
+            واپس نیا AstCCast{
+                fl, نیا Ast_سرکاؤ_R{fl, quadfromp, نیا AstConst{fl, VL_EDATASIZE}, VL_EDATASIZE},
                 VL_EDATASIZE};
-        } else if (!nodep->isWide() && !nodep->isQuad() && word == 0) {
-            return nodep->cloneTreePure(true);
-        } else {  // Out of bounds
-            return new AstConst{fl, 0};
+        } ورنہ اگر (!nodep->isWide() && !nodep->isQuad() && لفظ == 0) {
+            واپس nodep->clone_درخت_خالص(سچ);
+        } ورنہ {  // Out of bounds
+            واپس نیا AstConst{fl, 0};
         }
     }
 
-    static AstNodeExpr* newWordGrabShift(FileLine* fl, int word, AstNodeExpr* lhsp, int shift) {
+    ساکن Ast_گرہ_اظہاریہ* new_لفظ_Grab_سرکاؤ(File_سطر* fl, صحیح لفظ, Ast_گرہ_اظہاریہ* lhsp, صحیح سرکاؤ_2) {
         // Extract the expression to grab the value for the specified word, if it's the shift
         // of shift bits from lhsp
         // Negative word numbers requested for lhs when it's "before" what we want.
         // We get a 0 then.
-        const int othword = word - shift / VL_EDATASIZE;
-        AstNodeExpr* const lop = newAstWordSelClone(lhsp, othword);
-        const uint32_t loShift = VL_BITBIT_E(shift);
-        if (!loShift) return lop;
-        AstNodeExpr* const hip = newAstWordSelClone(lhsp, othword - 1);
-        const uint32_t hiShift = VL_EDATASIZE - loShift;  // Complement offset
-        AstNodeExpr* const newp
-            = new AstOr{fl,  //
-                        new AstShiftR{fl, hip, new AstConst{fl, hiShift}, VL_EDATASIZE},
-                        new AstShiftL{fl, lop, new AstConst{fl, loShift}, VL_EDATASIZE}};
-        return V3Const::constifyEditCpp(newp);
+        ثابت صحیح othword = لفظ - سرکاؤ_2 / VL_EDATASIZE;
+        Ast_گرہ_اظہاریہ* ثابت lop = new_Ast_لفظ_Sel_Clone(lhsp, othword);
+        ثابت uint32_t lo_سرکاؤ = VL_BITBIT_E(سرکاؤ_2);
+        اگر (!lo_سرکاؤ) واپس lop;
+        Ast_گرہ_اظہاریہ* ثابت hip = new_Ast_لفظ_Sel_Clone(lhsp, othword - 1);
+        ثابت uint32_t hi_سرکاؤ = VL_EDATASIZE - lo_سرکاؤ;  // Complement offset
+        Ast_گرہ_اظہاریہ* ثابت newp
+            = نیا AstOr{fl,  //
+                        نیا Ast_سرکاؤ_R{fl, hip, نیا AstConst{fl, hi_سرکاؤ}, VL_EDATASIZE},
+                        نیا Ast_سرکاؤ_L{fl, lop, نیا AstConst{fl, lo_سرکاؤ}, VL_EDATASIZE}};
+        واپس V3Const::constifyEditCpp(newp);
     }
 
     // Return expression indexing the word that contains 'lsbp' + the given word offset
-    static AstNodeExpr* newWordIndex(AstNodeExpr* lsbp, uint32_t wordOffset = 0) {
+    ساکن Ast_گرہ_اظہاریہ* new_لفظ_اشاریہ(Ast_گرہ_اظہاریہ* lsbp, uint32_t لفظ_انحراف = 0) {
         // This is indexing a WordSel, so a 32 bit constants are fine
-        FileLine* const flp = lsbp->fileline();
-        if (const AstConst* constp = VN_CAST(lsbp, Const)) {
-            return new AstConst{flp, wordOffset + VL_BITWORD_E(constp->toUInt())};
+        File_سطر* ثابت flp = lsbp->fileline();
+        اگر (ثابت AstConst* constp = VN_CAST(lsbp, Const)) {
+            واپس نیا AstConst{flp, لفظ_انحراف + VL_BITWORD_E(constp->مقصد_UInt())};
         }
 
-        if (lsbp->backp()) lsbp = lsbp->cloneTreePure(false);
-        AstNodeExpr* const wwl2p = new AstConst{flp, VL_EDATASIZE_LOG2};  // Word width log 2
-        AstNodeExpr* indexp = new AstShiftR{flp, lsbp, wwl2p, VL_EDATASIZE};
-        if (wordOffset) indexp = new AstAdd{flp, new AstConst{flp, wordOffset}, indexp};
-        return indexp;
+        اگر (lsbp->backp()) lsbp = lsbp->clone_درخت_خالص(جھوٹ);
+        Ast_گرہ_اظہاریہ* ثابت wwl2p = نیا AstConst{flp, VL_EDATASIZE_LOG2};  // Word width log 2
+        Ast_گرہ_اظہاریہ* indexp = نیا Ast_سرکاؤ_R{flp, lsbp, wwl2p, VL_EDATASIZE};
+        اگر (لفظ_انحراف) indexp = نیا Ast_جوڑو{flp, نیا AstConst{flp, لفظ_انحراف}, indexp};
+        واپس indexp;
     }
 
     // Return word of fromp that contains word indexp + the given word offset.
-    static AstNodeExpr* newWordSelWord(FileLine* flp, AstNodeExpr* fromp, AstNodeExpr* indexp,
-                                       uint32_t wordOffset = 0) {
+    ساکن Ast_گرہ_اظہاریہ* new_لفظ_Sel_لفظ(File_سطر* flp, Ast_گرہ_اظہاریہ* fromp, Ast_گرہ_اظہاریہ* indexp,
+                                       uint32_t لفظ_انحراف = 0) {
         UASSERT_OBJ(fromp->isWide(), fromp, "Only need AstWordSel on wide from's");
 
-        if (const AstConst* const constp = VN_CAST(indexp, Const)) {
-            indexp = nullptr;
-            wordOffset += constp->toUInt();
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(indexp, Const)) {
+            indexp = خالی_اشاریہ;
+            لفظ_انحراف += constp->مقصد_UInt();
         }
 
         // e.g. "logic [95:0] var[0]; logic [0] sel; out = var[sel];"
         // Squash before C++ to avoid getting a C++ compiler warning
         // (even though code would be unreachable as presumably a
         // AstCond is protecting above this node.
-        if (wordOffset >= static_cast<uint32_t>(fromp->widthWords())) {
-            return new AstConst{flp, AstConst::SizedEData{}, 0};
+        اگر (لفظ_انحراف >= static_cast<uint32_t>(fromp->چوڑائی_الفاظ())) {
+            واپس نیا AstConst{flp, AstConst::SizedEData{}, 0};
         }
 
-        if (fromp->backp()) fromp = fromp->cloneTreePure(false);
+        اگر (fromp->backp()) fromp = fromp->clone_درخت_خالص(جھوٹ);
 
         // If indexp was constant, just use it
-        if (!indexp) return new AstWordSel{flp, fromp, new AstConst{flp, wordOffset}};
+        اگر (!indexp) واپس نیا Ast_لفظ_Sel{flp, fromp, نیا AstConst{flp, لفظ_انحراف}};
 
         // Otherwise compute at runtime
-        if (indexp->backp()) indexp = indexp->cloneTreePure(false);
-        if (wordOffset) indexp = new AstAdd{flp, new AstConst{flp, wordOffset}, indexp};
-        return new AstWordSel{flp, fromp, indexp};
+        اگر (indexp->backp()) indexp = indexp->clone_درخت_خالص(جھوٹ);
+        اگر (لفظ_انحراف) indexp = نیا Ast_جوڑو{flp, نیا AstConst{flp, لفظ_انحراف}, indexp};
+        واپس نیا Ast_لفظ_Sel{flp, fromp, indexp};
     }
 
     // Return word of fromp that contains bit lsbp + the given word offset.
-    static AstNodeExpr* newWordSelBit(FileLine* flp, AstNodeExpr* fromp, AstNodeExpr* lsbp,
-                                      uint32_t wordOffset = 0) {
-        AstNodeExpr* const indexp = newWordIndex(lsbp, wordOffset);
-        AstNodeExpr* const wordSelp = newWordSelWord(flp, fromp, indexp);
-        if (!indexp->backp()) VL_DO_DANGLING(indexp->deleteTree(), indexp);
-        return wordSelp;
+    ساکن Ast_گرہ_اظہاریہ* new_لفظ_Sel_ثنائی_ہندسہ(File_سطر* flp, Ast_گرہ_اظہاریہ* fromp, Ast_گرہ_اظہاریہ* lsbp,
+                                      uint32_t لفظ_انحراف = 0) {
+        Ast_گرہ_اظہاریہ* ثابت indexp = new_لفظ_اشاریہ(lsbp, لفظ_انحراف);
+        Ast_گرہ_اظہاریہ* ثابت لفظ_Selp = new_لفظ_Sel_لفظ(flp, fromp, indexp);
+        اگر (!indexp->backp()) VL_DO_DANGLING(indexp->delete_درخت(), indexp);
+        واپس لفظ_Selp;
     }
 
-    static AstNodeExpr* newSelBitBit(AstNodeExpr* lsbp) {
+    ساکن Ast_گرہ_اظہاریہ* new_Sel_ثنائی_ہندسہ_ثنائی_ہندسہ(Ast_گرہ_اظہاریہ* lsbp) {
         // Return equation to get the VL_BITBIT of a constant or non-constant
-        FileLine* const fl = lsbp->fileline();
-        if (VN_IS(lsbp, Const)) {
-            return new AstConst{fl, VL_BITBIT_E(VN_AS(lsbp, Const)->toUInt())};
-        } else {
-            return new AstAnd{fl, new AstConst{fl, VL_EDATASIZE - 1}, lsbp->cloneTreePure(true)};
+        File_سطر* ثابت fl = lsbp->fileline();
+        اگر (VN_IS(lsbp, Const)) {
+            واپس نیا AstConst{fl, VL_BITBIT_E(VN_AS(lsbp, Const)->مقصد_UInt())};
+        } ورنہ {
+            واپس نیا AstAnd{fl, نیا AstConst{fl, VL_EDATASIZE - 1}, lsbp->clone_درخت_خالص(سچ)};
         }
     }
 
     //====================
 
-    bool expandWide(AstNodeAssign* nodep, AstConst* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_CONST, nodep);
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstConst* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_CONST, nodep);
         // -> {for each_word{ ASSIGN(WORDSEL(wide,#),WORDSEL(CONST,#))}}
-        if (rhsp->num().isFourState()) {
+        اگر (rhsp->عدد().isFourState()) {
             rhsp->v3warn(E_UNSUPPORTED,  // LCOV_EXCL_LINE  // impossible?
                          "Unsupported: 4-state numbers in this context");
         }
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstConst{fl, AstConst::SizedEData{}, rhsp->num().edataWord(w)});
+        File_سطر* ثابت fl = nodep->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstConst{fl, AstConst::SizedEData{}, rhsp->عدد().edata_لفظ(w)});
         }
-        return true;
+        واپس سچ;
     }
     //-------- Uniops
-    bool expandWide(AstNodeAssign* nodep, AstVarRef* rhsp) {
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstVarRef* rhsp) {
         // Special case: do not expand assignment of constant pool variables.
         // V3Subst undestands these directly.
-        if (rhsp->varp()->constPoolEntry()) return false;
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_VARREF, nodep);
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, newAstWordSelClone(rhsp, w));
+        اگر (rhsp->varp()->const_Pool_اندراج()) واپس جھوٹ;
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_VARREF, nodep);
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rhsp, w));
         }
-        return true;
+        واپس سچ;
     }
-    bool expandWide(AstNodeAssign* nodep, AstArraySel* rhsp) {
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstArraySel* rhsp) {
         UASSERT_OBJ(!VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType), nodep,
                     "ArraySel with unpacked arrays should have been removed in V3Slice");
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_ARRAYSEL, nodep);
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, newAstWordSelClone(rhsp, w));
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_ARRAYSEL, nodep);
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rhsp, w));
         }
-        return true;
+        واپس سچ;
     }
-    bool expandWide(AstNodeAssign* nodep, AstNot* rhsp) {
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstNot* rhsp) {
         // -> {for each_word{ ASSIGN(WORDSEL(wide,#),NOT(WORDSEL(lhs,#))) }}
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_NOT, nodep);
-        FileLine* const fl = rhsp->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, new AstNot{fl, newAstWordSelClone(rhsp->lhsp(), w)});
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_NOT, nodep);
+        File_سطر* ثابت fl = rhsp->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w, نیا AstNot{fl, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w)});
         }
-        return true;
+        واپس سچ;
     }
     //-------- Biops
-    bool expandWide(AstNodeAssign* nodep, AstAnd* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_AND, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstAnd{fl, newAstWordSelClone(rhsp->lhsp(), w),
-                                     newAstWordSelClone(rhsp->rhsp(), w)});
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstAnd* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_AND, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstAnd{fl, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w),
+                                     new_Ast_لفظ_Sel_Clone(rhsp->rhsp(), w)});
         }
-        return true;
+        واپس سچ;
     }
-    bool expandWide(AstNodeAssign* nodep, AstOr* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_OR, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstOr{fl, newAstWordSelClone(rhsp->lhsp(), w),
-                                    newAstWordSelClone(rhsp->rhsp(), w)});
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstOr* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_OR, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstOr{fl, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w),
+                                    new_Ast_لفظ_Sel_Clone(rhsp->rhsp(), w)});
         }
-        return true;
+        واپس سچ;
     }
-    bool expandWide(AstNodeAssign* nodep, AstXor* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_XOR, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstXor{fl, newAstWordSelClone(rhsp->lhsp(), w),
-                                     newAstWordSelClone(rhsp->rhsp(), w)});
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstXor* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_XOR, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstXor{fl, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w),
+                                     new_Ast_لفظ_Sel_Clone(rhsp->rhsp(), w)});
         }
-        return true;
+        واپس سچ;
     }
-    bool expandWideShift(AstNodeAssign* nodep, AstNodeBiop* rhsp, bool isLeftShift) {
-        if (!doExpandWide(nodep)) return false;
+    منطقی expand_Wide_سرکاؤ(Ast_گرہ_تفویض* nodep, Ast_گرہ_Biop* rhsp, منطقی is_بایاں_سرکاؤ) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
 
         // Simplify the shift amount, in case it becomes a constant
         V3Const::constifyEditCpp(rhsp->rhsp());
 
         // If it's a constant shift by whole words, expand it so V3Subst can substitute it
-        if (const AstConst* const rhsConstp = VN_CAST(rhsp->rhsp(), Const)) {
-            const uint32_t shiftBits = rhsConstp->toUInt();
-            if (VL_BITBIT_E(shiftBits) == 0) {
-                const int widthWords = nodep->widthWords();
-                const int shiftWords = std::min<int>(VL_BITWORD_E(shiftBits), widthWords);
-                FileLine* const flp = rhsp->fileline();
-                if (isLeftShift) {
-                    didPattern(VExpandPattern::ASSIGN_SHIFTL, nodep);
+        اگر (ثابت AstConst* ثابت rhsConstp = VN_CAST(rhsp->rhsp(), Const)) {
+            ثابت uint32_t سرکاؤ_بٹ = rhsConstp->مقصد_UInt();
+            اگر (VL_BITBIT_E(سرکاؤ_بٹ) == 0) {
+                ثابت صحیح چوڑائی_الفاظ = nodep->چوڑائی_الفاظ();
+                ثابت صحیح سرکاؤ_الفاظ = std::min<صحیح>(VL_BITWORD_E(سرکاؤ_بٹ), چوڑائی_الفاظ);
+                File_سطر* ثابت flp = rhsp->fileline();
+                اگر (is_بایاں_سرکاؤ) {
+                    did_نمونہ(VExpand_نمونہ::تفویض_SHIFTL, nodep);
                     // Low words of the result are zero
-                    for (int w = 0; w < shiftWords; ++w) {
-                        addWordAssign(nodep, w, new AstConst{flp, AstConst::SizedEData{}, 0});
+                    برائے (صحیح w = 0; w < سرکاؤ_الفاظ; ++w) {
+                        جوڑو_لفظ_تفویض(nodep, w, نیا AstConst{flp, AstConst::SizedEData{}, 0});
                     }
                     // High words of the result are copied from higher words of the source
-                    for (int w = shiftWords; w < widthWords; ++w) {
-                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w - shiftWords));
+                    برائے (صحیح w = سرکاؤ_الفاظ; w < چوڑائی_الفاظ; ++w) {
+                        جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w - سرکاؤ_الفاظ));
                     }
-                } else {
-                    didPattern(VExpandPattern::ASSIGN_SHIFTR, nodep);
+                } ورنہ {
+                    did_نمونہ(VExpand_نمونہ::تفویض_SHIFTR, nodep);
                     // Low words of the result are copied from higher words of the source
-                    for (int w = 0; w < widthWords - shiftWords; ++w) {
-                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w + shiftWords));
+                    برائے (صحیح w = 0; w < چوڑائی_الفاظ - سرکاؤ_الفاظ; ++w) {
+                        جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rhsp->lhsp(), w + سرکاؤ_الفاظ));
                     }
                     // High words of the result are zero
-                    for (int w = widthWords - shiftWords; w < widthWords; ++w) {
-                        addWordAssign(nodep, w, new AstConst{flp, AstConst::SizedEData{}, 0});
+                    برائے (صحیح w = چوڑائی_الفاظ - سرکاؤ_الفاظ; w < چوڑائی_الفاظ; ++w) {
+                        جوڑو_لفظ_تفویض(nodep, w, نیا AstConst{flp, AstConst::SizedEData{}, 0});
                     }
                 }
-                return true;
+                واپس سچ;
             }
         }
 
-        return false;
+        واپس جھوٹ;
     }
 
     //-------- Triops
-    bool expandWide(AstNodeAssign* nodep, AstCond* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_COND, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstCond{fl, rhsp->condp()->cloneTreePure(true),
-                                      newAstWordSelClone(rhsp->thenp(), w),
-                                      newAstWordSelClone(rhsp->elsep(), w)});
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstCond* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_COND, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstCond{fl, rhsp->condp()->clone_درخت_خالص(سچ),
+                                      new_Ast_لفظ_Sel_Clone(rhsp->thenp(), w),
+                                      new_Ast_لفظ_Sel_Clone(rhsp->elsep(), w)});
         }
-        return true;
+        واپس سچ;
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
+    خالی دورہ(AstNetlist* nodep) override { iterate_And_اگلا_Null(nodep->modulesp()); }
 
-    void visit(AstCFunc* nodep) override {
+    خالی دورہ(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         VL_RESTORER(m_nTmps);
         m_funcp = nodep;
         m_nTmps = 0;
-        const VDouble0 statWidesBefore = m_statWides;
+        ثابت VDouble0 statWidesBefore = m_statWides;
         iterateChildren(nodep);
 
         // Constant fold here if anything was expanded, as Ast size can likely be reduced
-        if (v3Global.opt.fConstEager() && m_statWides != statWidesBefore) {
-            AstNode* const editedp = V3Const::constifyEditCpp(nodep);
+        اگر (v3Global.opt.fConstEager() && m_statWides != statWidesBefore) {
+            Ast_گرہ* ثابت editedp = V3Const::constifyEditCpp(nodep);
             UASSERT_OBJ(editedp == nodep, editedp, "Should not have replaced CFunc");
         }
     }
 
-    void visit(AstExtend* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstExtend* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        اگر (nodep->isWide()) {
             // See under ASSIGN(EXTEND)
-        } else {
-            if (isImpure(nodep)) return;
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* newp = lhsp;
-            if (nodep->isQuad()) {
-                if (lhsp->isQuad()) {
+        } ورنہ {
+            اگر (isImpure(nodep)) واپس;
+            Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* newp = lhsp;
+            اگر (nodep->isQuad()) {
+                اگر (lhsp->isQuad()) {
                     lhsp->dtypeFrom(nodep);  // Just mark it, else nop
-                } else if (lhsp->isWide()) {
+                } ورنہ اگر (lhsp->isWide()) {
                     nodep->v3fatalSrc("extending larger thing into smaller?");
-                } else {
-                    newp = new AstCCast{nodep->fileline(), lhsp, nodep};
+                } ورنہ {
+                    newp = نیا AstCCast{nodep->fileline(), lhsp, nodep};
                 }
-            } else {  // Long
+            } ورنہ {  // Long
                 UASSERT_OBJ(!(lhsp->isQuad() || lhsp->isWide()), nodep,
                             "extending larger thing into smaller?");
                 lhsp->dtypeFrom(nodep);  // Just mark it, else nop
@@ -544,48 +544,48 @@ class ExpandVisitor final : public VNVisitor {
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstExtend* rhsp) {
-        if (!doExpandWide(nodep)) return false;
-        didPattern(VExpandPattern::ASSIGN_EXTEND, nodep);
-        AstNodeExpr* const rlhsp = rhsp->lhsp();
-        for (int w = 0; w < rlhsp->widthWords(); ++w) {
-            addWordAssign(nodep, w, newAstWordSelClone(rlhsp, w));
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstExtend* rhsp) {
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_EXTEND, nodep);
+        Ast_گرہ_اظہاریہ* ثابت rlhsp = rhsp->lhsp();
+        برائے (صحیح w = 0; w < rlhsp->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rlhsp, w));
         }
-        for (int w = rlhsp->widthWords(); w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, new AstConst{nodep->fileline(), AstConst::SizedEData{}, 0});
+        برائے (صحیح w = rlhsp->چوڑائی_الفاظ(); w < nodep->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w, نیا AstConst{nodep->fileline(), AstConst::SizedEData{}, 0});
         }
-        return true;
+        واپس سچ;
     }
 
-    void visit(AstSel* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstSel* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
 
-        const uint32_t width = static_cast<uint32_t>(nodep->widthConst());
-        UASSERT_OBJ(nodep->widthMin() == static_cast<int>(width), nodep, "Width mismatch");
+        ثابت uint32_t چوڑائی = static_cast<uint32_t>(nodep->چوڑائی_Const());
+        UASSERT_OBJ(nodep->چوڑائی_Min() == static_cast<صحیح>(چوڑائی), nodep, "Width mismatch");
 
         // Skip if Sel is an LHS assignment select
-        if (AstNodeAssign* const assignp = VN_CAST(nodep->backp(), NodeAssign)) {
-            if (nodep == assignp->lhsp()) return;
+        اگر (Ast_گرہ_تفویض* ثابت assignp = VN_CAST(nodep->backp(), گرہ_تفویض)) {
+            اگر (nodep == assignp->lhsp()) واپس;
         }
 
         // Skip if wide: See under ASSIGN(WIDE)
-        if (nodep->isWide()) return;
+        اگر (nodep->isWide()) واپس;
 
         // Skip Sel from stream or queue
-        if (VN_IS(nodep->fromp()->dtypep(), StreamDType)) return;
-        if (VN_IS(nodep->fromp()->dtypep(), QueueDType)) return;
+        اگر (VN_IS(nodep->fromp()->dtypep(), دھارا_DType)) واپس;
+        اگر (VN_IS(nodep->fromp()->dtypep(), قطار_DType)) واپس;
 
         // Result must be non-wide after skipping all the above
-        UASSERT_OBJ(width <= 64, nodep, "Inconsistent result width");
+        UASSERT_OBJ(چوڑائی <= 64, nodep, "Inconsistent result width");
 
-        if (nodep->fromp()->isWide()) {  // Long/Quad from Wide
-            if (isImpure(nodep)) return;
-            didPattern(VExpandPattern::SEL_FROM_WIDE, nodep);
-            FileLine* const nfl = nodep->fileline();
-            FileLine* const lfl = nodep->lsbp()->fileline();
-            FileLine* const ffl = nodep->fromp()->fileline();
-            AstNodeExpr* const fromp = nodep->fromp();
+        اگر (nodep->fromp()->isWide()) {  // Long/Quad from Wide
+            اگر (isImpure(nodep)) واپس;
+            did_نمونہ(VExpand_نمونہ::SEL_FROM_WIDE, nodep);
+            File_سطر* ثابت nfl = nodep->fileline();
+            File_سطر* ثابت lfl = nodep->lsbp()->fileline();
+            File_سطر* ثابت ffl = nodep->fromp()->fileline();
+            Ast_گرہ_اظہاریہ* ثابت fromp = nodep->fromp();
 
             // To extract an up-to-64-bit value from a wide source, up to 3 words might be needed
             // from the source operand. Each word might need to be shifted by a different amount.
@@ -600,354 +600,354 @@ class ExpandVisitor final : public VNVisitor {
             // is bounded linearly with the number of nested Sels (instead of exponentially).
 
             // Return simplified 'exprp' if it simplifies to a small tree, otherwise nullptr
-            const auto tryFold = [&](AstNodeExpr* exprp) -> AstNodeExpr* {
+            ثابت خودکار tryFold = [&](Ast_گرہ_اظہاریہ* exprp) -> Ast_گرہ_اظہاریہ* {
                 // Size limit for inlining expressions (any arbitrary value results in
                 // a bounded expansion. Picked a value to allow common simple forms.)
-                static constexpr int EXPAND_SEL_LSB_LIMIT = 8;
+                ساکن constexpr صحیح EXPAND_SEL_LSB_حد_بندی = 8;
                 // Simplify
                 exprp = V3Const::constifyEditCpp(exprp);
                 // Accept if not larger than the limit
-                if (!exprp->isLargerThan(EXPAND_SEL_LSB_LIMIT)) return exprp;
+                اگر (!exprp->isLargerThan(EXPAND_SEL_LSB_حد_بندی)) واپس exprp;
                 // Delete if rejected
-                VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return nullptr;
+                VL_DO_DANGLING(exprp->delete_درخت(), exprp);
+                واپس خالی_اشاریہ;
             };
 
             // Return the index of the word holding the bit 'offset' bits above the LSB
-            const auto wordIdx = [&](uint32_t offset) -> AstNodeExpr* {
-                AstNodeExpr* const msbp = new AstAdd{lfl, new AstConst{lfl, offset},
-                                                     nodep->lsbp()->cloneTreePure(false)};
-                AstNodeExpr* const idxp = newWordIndex(msbp);
-                if (!msbp->backp()) VL_DO_DANGLING(msbp->deleteTree(), msbp);
-                return idxp;
+            ثابت خودکار لفظ_Idx = [&](uint32_t انحراف) -> Ast_گرہ_اظہاریہ* {
+                Ast_گرہ_اظہاریہ* ثابت msbp = نیا Ast_جوڑو{lfl, نیا AstConst{lfl, انحراف},
+                                                     nodep->lsbp()->clone_درخت_خالص(جھوٹ)};
+                Ast_گرہ_اظہاریہ* ثابت idxp = new_لفظ_اشاریہ(msbp);
+                اگر (!msbp->backp()) VL_DO_DANGLING(msbp->delete_درخت(), msbp);
+                واپس idxp;
             };
 
             // Bit index of the selected LSB within its word
-            AstNodeExpr* lBitp = tryFold(newSelBitBit(nodep->lsbp()));
-            const bool aligned = lBitp && lBitp->isZero();
+            Ast_گرہ_اظہاریہ* lBitp = tryFold(new_Sel_ثنائی_ہندسہ_ثنائی_ہندسہ(nodep->lsbp()));
+            ثابت منطقی aligned = lBitp && lBitp->isZero();
 
             // Which of the other 2 words the expansion might need
-            const bool mNeeded = width > 1 && !aligned;
-            const bool hNeeded = width > VL_EDATASIZE;
+            ثابت منطقی mNeeded = چوڑائی > 1 && !aligned;
+            ثابت منطقی hNeeded = چوڑائی > VL_EDATASIZE;
             UASSERT_OBJ(!hNeeded || nodep->isQuad(), nodep, "Width mismatch");
 
             // Word indices
-            const uint32_t mMsbOffset = std::min<uint32_t>(width, VL_EDATASIZE) - 1;
-            const uint32_t hMsbOffset = width - 1;
-            AstNodeExpr* lIdxp = tryFold(newWordIndex(nodep->lsbp()));
-            AstNodeExpr* mIdxp = mNeeded ? tryFold(wordIdx(mMsbOffset)) : nullptr;
-            AstNodeExpr* hIdxp = hNeeded ? tryFold(wordIdx(hMsbOffset)) : nullptr;
+            ثابت uint32_t m_Msb_انحراف = std::min<uint32_t>(چوڑائی, VL_EDATASIZE) - 1;
+            ثابت uint32_t h_Msb_انحراف = چوڑائی - 1;
+            Ast_گرہ_اظہاریہ* lIdxp = tryFold(new_لفظ_اشاریہ(nodep->lsbp()));
+            Ast_گرہ_اظہاریہ* mIdxp = mNeeded ? tryFold(لفظ_Idx(m_Msb_انحراف)) : خالی_اشاریہ;
+            Ast_گرہ_اظہاریہ* hIdxp = hNeeded ? tryFold(لفظ_Idx(h_Msb_انحراف)) : خالی_اشاریہ;
 
             // If the LSB expression is needed multiple times, evaluate it into a temporary
-            const int nCopies = !lBitp + !lIdxp + (mNeeded && !mIdxp) + (hNeeded && !hIdxp);
-            if (nCopies > 1 && m_funcp && m_stmtp && !isImpure(m_stmtp)) {
+            ثابت صحیح nCopies = !lBitp + !lIdxp + (mNeeded && !mIdxp) + (hNeeded && !hIdxp);
+            اگر (nCopies > 1 && m_funcp && m_stmtp && !isImpure(m_stmtp)) {
                 ++m_nTmps;  // Use fresh set of temporaries
-                AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
-                AstVar* const tmpp = addLocalTmp(m_stmtp, "ExpandSel_Lsb", lsbp);
-                nodep->lsbp(new AstVarRef{lfl, tmpp, VAccess::READ});
+                Ast_گرہ_اظہاریہ* ثابت lsbp = nodep->lsbp()->unlink_Fr_عقب();
+                AstVar* ثابت tmpp = جوڑو_Local_Tmp(m_stmtp, "ExpandSel_Lsb", lsbp);
+                nodep->lsbp(نیا AstVarRef{lfl, tmpp, VAccess::READ});
             }
 
             // Rebuild remaining expressions derived from LSB if needed, now using the temporary
-            if (!lBitp) lBitp = newSelBitBit(nodep->lsbp());
-            if (!lIdxp) lIdxp = newWordIndex(nodep->lsbp());
-            if (!mIdxp) mIdxp = mNeeded ? wordIdx(mMsbOffset) : nullptr;
-            if (!hIdxp) hIdxp = hNeeded ? wordIdx(hMsbOffset) : nullptr;
+            اگر (!lBitp) lBitp = new_Sel_ثنائی_ہندسہ_ثنائی_ہندسہ(nodep->lsbp());
+            اگر (!lIdxp) lIdxp = new_لفظ_اشاریہ(nodep->lsbp());
+            اگر (!mIdxp) mIdxp = mNeeded ? لفظ_Idx(m_Msb_انحراف) : خالی_اشاریہ;
+            اگر (!hIdxp) hIdxp = hNeeded ? لفظ_Idx(h_Msb_انحراف) : خالی_اشاریہ;
 
             // Return word 'idxp' of 'fromp', without consuming 'idxp'
-            const auto wordSel = [&](AstNodeExpr* idxp) -> AstNodeExpr* {
-                AstNodeExpr* const clonep = idxp->cloneTreePure(false);
-                AstNodeExpr* const wordp = newWordSelWord(ffl, fromp, clonep);
-                if (!clonep->backp()) VL_DO_DANGLING(clonep->deleteTree(), clonep);
-                return wordp;
+            ثابت خودکار لفظ_Sel_2 = [&](Ast_گرہ_اظہاریہ* idxp) -> Ast_گرہ_اظہاریہ* {
+                Ast_گرہ_اظہاریہ* ثابت clonep = idxp->clone_درخت_خالص(جھوٹ);
+                Ast_گرہ_اظہاریہ* ثابت wordp = new_لفظ_Sel_لفظ(ffl, fromp, clonep);
+                اگر (!clonep->backp()) VL_DO_DANGLING(clonep->delete_درخت(), clonep);
+                واپس wordp;
             };
 
             // Construct term containing the bits of the low word - always needed
-            AstNodeExpr* const lTermp = [&]() -> AstNodeExpr* {
-                AstNodeExpr* lWordp = wordSel(lIdxp);
-                if (nodep->isQuad()) lWordp = new AstCCast{nfl, lWordp, nodep};
-                return new AstShiftR{nfl, lWordp, lBitp->cloneTreePure(false), nodep->width()};
+            Ast_گرہ_اظہاریہ* ثابت lTermp = [&]() -> Ast_گرہ_اظہاریہ* {
+                Ast_گرہ_اظہاریہ* lWordp = لفظ_Sel_2(lIdxp);
+                اگر (nodep->isQuad()) lWordp = نیا AstCCast{nfl, lWordp, nodep};
+                واپس نیا Ast_سرکاؤ_R{nfl, lWordp, lBitp->clone_درخت_خالص(جھوٹ), nodep->چوڑائی()};
             }();
 
             // Construct term containing the bits of the middle word - if needed
-            AstNodeExpr* const mTermp = [&]() -> AstNodeExpr* {
-                if (!mNeeded) return nullptr;
+            Ast_گرہ_اظہاریہ* ثابت mTermp = [&]() -> Ast_گرہ_اظہاریہ* {
+                اگر (!mNeeded) واپس خالی_اشاریہ;
 
-                AstNodeExpr* mWordp = wordSel(mIdxp);
-                if (nodep->isQuad()) mWordp = new AstCCast{nfl, mWordp, nodep};
-                AstNodeExpr* const mShiftp = new AstSub{lfl, new AstConst{lfl, VL_EDATASIZE},
-                                                        lBitp->cloneTreePure(false)};
+                Ast_گرہ_اظہاریہ* mWordp = لفظ_Sel_2(mIdxp);
+                اگر (nodep->isQuad()) mWordp = نیا AstCCast{nfl, mWordp, nodep};
+                Ast_گرہ_اظہاریہ* ثابت mShiftp = نیا AstSub{lfl, نیا AstConst{lfl, VL_EDATASIZE},
+                                                        lBitp->clone_درخت_خالص(جھوٹ)};
                 // If we're selecting bit zero, then all 32 bits in the mid word
                 // get shifted << by 32 bits, so ignore them.
-                const V3Number zero{nodep, longOrQuadWidth(nodep)};
-                return new AstCond{
+                ثابت V3_نمبر zero{nodep, long_Or_Quad_چوڑائی(nodep)};
+                واپس نیا AstCond{
                     nfl,
                     // lsb % VL_EDATASIZE == 0 ?
-                    new AstEq{nfl, new AstConst{nfl, 0}, lBitp->cloneTreePure(false)},
+                    نیا AstEq{nfl, نیا AstConst{nfl, 0}, lBitp->clone_درخت_خالص(جھوٹ)},
                     // 0 :
-                    new AstConst{nfl, zero},
+                    نیا AstConst{nfl, zero},
                     //  midword >> (VL_EDATASIZE - (lbs % VL_EDATASIZE))
-                    new AstShiftL{nfl, mWordp, mShiftp, nodep->width()}};
+                    نیا Ast_سرکاؤ_L{nfl, mWordp, mShiftp, nodep->چوڑائی()}};
             }();
 
             // Construct term containing the bits of the high word - if needed
-            AstNodeExpr* const hTermp = [&]() -> AstNodeExpr* {
-                if (!hNeeded) return nullptr;
+            Ast_گرہ_اظہاریہ* ثابت hTermp = [&]() -> Ast_گرہ_اظہاریہ* {
+                اگر (!hNeeded) واپس خالی_اشاریہ;
 
-                AstNodeExpr* hWordp = wordSel(hIdxp);
-                hWordp = new AstCCast{nfl, hWordp, nodep};
-                AstNodeExpr* const hShiftp = new AstCond{
+                Ast_گرہ_اظہاریہ* hWordp = لفظ_Sel_2(hIdxp);
+                hWordp = نیا AstCCast{nfl, hWordp, nodep};
+                Ast_گرہ_اظہاریہ* ثابت hShiftp = نیا AstCond{
                     nfl,
                     // lsb % VL_EDATASIZE == 0 ?
-                    new AstEq{nfl, new AstConst{nfl, 0}, lBitp->cloneTreePure(false)},
+                    نیا AstEq{nfl, نیا AstConst{nfl, 0}, lBitp->clone_درخت_خالص(جھوٹ)},
                     // VL_EDATASIZE :
-                    new AstConst{lfl, VL_EDATASIZE},
+                    نیا AstConst{lfl, VL_EDATASIZE},
                     // 64 - (lbs % VL_EDATASIZE)
-                    new AstSub{lfl, new AstConst{lfl, 64}, lBitp->cloneTreePure(false)}};
-                return new AstShiftL{nfl, hWordp, hShiftp, nodep->width()};
+                    نیا AstSub{lfl, نیا AstConst{lfl, 64}, lBitp->clone_درخت_خالص(جھوٹ)}};
+                واپس نیا Ast_سرکاؤ_L{nfl, hWordp, hShiftp, nodep->چوڑائی()};
             }();
 
             // Delete parts not captured during construction
-            VL_DO_DANGLING(lBitp->deleteTree(), lBitp);
-            VL_DO_DANGLING(lIdxp->deleteTree(), lIdxp);
-            if (mIdxp) VL_DO_DANGLING(mIdxp->deleteTree(), mIdxp);
-            if (hIdxp) VL_DO_DANGLING(hIdxp->deleteTree(), hIdxp);
+            VL_DO_DANGLING(lBitp->delete_درخت(), lBitp);
+            VL_DO_DANGLING(lIdxp->delete_درخت(), lIdxp);
+            اگر (mIdxp) VL_DO_DANGLING(mIdxp->delete_درخت(), mIdxp);
+            اگر (hIdxp) VL_DO_DANGLING(hIdxp->delete_درخت(), hIdxp);
 
             // Or reduce the terms
-            AstNodeExpr* newp = lTermp;
-            if (mTermp) newp = new AstOr{nfl, mTermp, newp};
-            if (hTermp) newp = new AstOr{nfl, hTermp, newp};
+            Ast_گرہ_اظہاریہ* newp = lTermp;
+            اگر (mTermp) newp = نیا AstOr{nfl, mTermp, newp};
+            اگر (hTermp) newp = نیا AstOr{nfl, hTermp, newp};
             newp->dtypeFrom(nodep);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {  // Long/Quad from Long/Quad
+        } ورنہ {  // Long/Quad from Long/Quad
             // No isImpure() check - can handle side effects in below
-            didPattern(VExpandPattern::SEL_FROM_NARROW, nodep);
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* fromp = nodep->fromp()->unlinkFrBack();
-            AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
-            if (nodep->isQuad() && !fromp->isQuad()) fromp = new AstCCast{fl, fromp, nodep};
+            did_نمونہ(VExpand_نمونہ::SEL_FROM_NARROW, nodep);
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* fromp = nodep->fromp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* ثابت lsbp = nodep->lsbp()->unlink_Fr_عقب();
+            اگر (nodep->isQuad() && !fromp->isQuad()) fromp = نیا AstCCast{fl, fromp, nodep};
             // {large}>>32 requires 64-bit shift operation; then cast
-            AstNodeExpr* newp = new AstShiftR{fl, fromp, lsbp, fromp->width()};
+            Ast_گرہ_اظہاریہ* newp = نیا Ast_سرکاؤ_R{fl, fromp, lsbp, fromp->چوڑائی()};
             newp->dtypeFrom(fromp);
-            if (!nodep->isQuad() && fromp->isQuad()) newp = new AstCCast{fl, newp, nodep};
+            اگر (!nodep->isQuad() && fromp->isQuad()) newp = نیا AstCCast{fl, newp, nodep};
             newp->dtypeFrom(nodep);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
 
-    bool expandWide(AstNodeAssign* nodep, AstSel* rhsp) {
-        UASSERT_OBJ(nodep->widthMin() == rhsp->widthConst(), nodep, "Width mismatch");
-        if (!doExpandWide(nodep)) return false;
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstSel* rhsp) {
+        UASSERT_OBJ(nodep->چوڑائی_Min() == rhsp->چوڑائی_Const(), nodep, "Width mismatch");
+        اگر (!doExpandWide(nodep)) واپس جھوٹ;
 
         // Simplify the index, in case it becomes a constant
         V3Const::constifyEditCpp(rhsp->lsbp());
 
         // If it's a constant select and aligned, we can just copy the words
-        if (const AstConst* const lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
-            const uint32_t lsb = lsbConstp->toUInt();
-            if (VL_BITBIT_E(lsb) == 0) {
-                didPattern(VExpandPattern::ASSIGN_SEL_ALIGNED, nodep);
-                const uint32_t word = VL_BITWORD_E(lsb);
-                for (int w = 0; w < nodep->widthWords(); ++w) {
-                    addWordAssign(nodep, w, newAstWordSelClone(rhsp->fromp(), w + word));
+        اگر (ثابت AstConst* ثابت lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
+            ثابت uint32_t lsb = lsbConstp->مقصد_UInt();
+            اگر (VL_BITBIT_E(lsb) == 0) {
+                did_نمونہ(VExpand_نمونہ::تفویض_SEL_ALIGNED, nodep);
+                ثابت uint32_t لفظ = VL_BITWORD_E(lsb);
+                برائے (صحیح w = 0; w < nodep->چوڑائی_الفاظ(); ++w) {
+                    جوڑو_لفظ_تفویض(nodep, w, new_Ast_لفظ_Sel_Clone(rhsp->fromp(), w + لفظ));
                 }
-                return true;
+                واپس سچ;
             }
         }
 
-        didPattern(VExpandPattern::ASSIGN_SEL_UNALIGNED, nodep);
-        FileLine* const flp = rhsp->fileline();
+        did_نمونہ(VExpand_نمونہ::تفویض_SEL_UNALIGNED, nodep);
+        File_سطر* ثابت flp = rhsp->fileline();
 
         // Use fresh set of temporaries
         ++m_nTmps;
 
         // Compute word index of LSB, store to temporary if not constant
-        AstNodeExpr* const wordLsbp = rhsp->lsbp()->cloneTreePure(false);
-        AstNodeExpr* wordIdxp = newWordIndex(wordLsbp);
-        if (!wordLsbp->backp()) VL_DO_DANGLING(wordLsbp->deleteTree(), wordLsbp);
-        wordIdxp = V3Const::constifyEditCpp(wordIdxp);
-        if (!VN_IS(wordIdxp, Const)) {
-            AstVar* const tmpp = addLocalTmp(nodep, "ExpandSel_WordIdx", wordIdxp);
-            wordIdxp = new AstVarRef{flp, tmpp, VAccess::READ};
+        Ast_گرہ_اظہاریہ* ثابت لفظ_Lsbp = rhsp->lsbp()->clone_درخت_خالص(جھوٹ);
+        Ast_گرہ_اظہاریہ* لفظ_Idxp = new_لفظ_اشاریہ(لفظ_Lsbp);
+        اگر (!لفظ_Lsbp->backp()) VL_DO_DANGLING(لفظ_Lsbp->delete_درخت(), لفظ_Lsbp);
+        لفظ_Idxp = V3Const::constifyEditCpp(لفظ_Idxp);
+        اگر (!VN_IS(لفظ_Idxp, Const)) {
+            AstVar* ثابت tmpp = جوڑو_Local_Tmp(nodep, "ExpandSel_WordIdx", لفظ_Idxp);
+            لفظ_Idxp = نیا AstVarRef{flp, tmpp, VAccess::READ};
         }
 
         // Compute shift amounts and mask, store to temporaries if not constants
-        AstNodeExpr* loShftp = nullptr;
-        AstNodeExpr* hiShftp = nullptr;
-        AstNodeExpr* hiMaskp = nullptr;
-        if (const AstConst* const lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
-            const uint32_t bitOffset = VL_BITBIT_E(lsbConstp->toUInt());
+        Ast_گرہ_اظہاریہ* loShftp = خالی_اشاریہ;
+        Ast_گرہ_اظہاریہ* hiShftp = خالی_اشاریہ;
+        Ast_گرہ_اظہاریہ* hiMaskp = خالی_اشاریہ;
+        اگر (ثابت AstConst* ثابت lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
+            ثابت uint32_t ثنائی_ہندسہ_انحراف = VL_BITBIT_E(lsbConstp->مقصد_UInt());
             // Must be unaligned, otherwise we would have handled it above
-            UASSERT_OBJ(bitOffset, nodep, "Missed aligned wide select");
-            loShftp = new AstConst{flp, bitOffset};
-            hiShftp = new AstConst{flp, VL_EDATASIZE - bitOffset};
-            hiMaskp = nullptr;
-        } else {
+            UASSERT_OBJ(ثنائی_ہندسہ_انحراف, nodep, "Missed aligned wide select");
+            loShftp = نیا AstConst{flp, ثنائی_ہندسہ_انحراف};
+            hiShftp = نیا AstConst{flp, VL_EDATASIZE - ثنائی_ہندسہ_انحراف};
+            hiMaskp = خالی_اشاریہ;
+        } ورنہ {
             // Compute Low word shift amount: bottom bits of lsb index
-            AstNodeExpr* const lsbp = rhsp->lsbp()->cloneTreePure(false);
-            loShftp = new AstAnd{flp, new AstConst{flp, VL_SIZEBITS_E}, lsbp};
-            AstVar* const loTmpp = addLocalTmp(nodep, "ExpandSel_LoShift", loShftp);
-            loShftp = new AstVarRef{flp, loTmpp, VAccess::READ};
+            Ast_گرہ_اظہاریہ* ثابت lsbp = rhsp->lsbp()->clone_درخت_خالص(جھوٹ);
+            loShftp = نیا AstAnd{flp, نیا AstConst{flp, VL_SIZEBITS_E}, lsbp};
+            AstVar* ثابت loTmpp = جوڑو_Local_Tmp(nodep, "ExpandSel_LoShift", loShftp);
+            loShftp = نیا AstVarRef{flp, loTmpp, VAccess::READ};
 
             // Compute if aligned: Low word shift amount is 0
-            AstNodeExpr* const zerop = new AstConst{flp, 0};
-            AstNodeExpr* alignedp = new AstEq{flp, zerop, loShftp->cloneTreePure(false)};
-            AstVar* const alignedTmpp = addLocalTmp(nodep, "ExpandSel_Aligned", alignedp);
-            alignedp = new AstVarRef{flp, alignedTmpp, VAccess::READ};
+            Ast_گرہ_اظہاریہ* ثابت zerop = نیا AstConst{flp, 0};
+            Ast_گرہ_اظہاریہ* alignedp = نیا AstEq{flp, zerop, loShftp->clone_درخت_خالص(جھوٹ)};
+            AstVar* ثابت alignedTmpp = جوڑو_Local_Tmp(nodep, "ExpandSel_Aligned", alignedp);
+            alignedp = نیا AstVarRef{flp, alignedTmpp, VAccess::READ};
 
             // Computed High word shift amount: 0 if aligned else VL_EDATASIZE - Low word shift
-            AstNodeExpr* const edsp = new AstConst{flp, VL_EDATASIZE};
-            AstNodeExpr* const subp = new AstSub{flp, edsp, loShftp->cloneTreePure(false)};
-            hiShftp = new AstCond{flp, alignedp, new AstConst{flp, 0}, subp};
-            AstVar* const hiTmpp = addLocalTmp(nodep, "ExpandSel_HiShift", hiShftp);
-            hiShftp = new AstVarRef{flp, hiTmpp, VAccess::READ};
+            Ast_گرہ_اظہاریہ* ثابت edsp = نیا AstConst{flp, VL_EDATASIZE};
+            Ast_گرہ_اظہاریہ* ثابت subp = نیا AstSub{flp, edsp, loShftp->clone_درخت_خالص(جھوٹ)};
+            hiShftp = نیا AstCond{flp, alignedp, نیا AstConst{flp, 0}, subp};
+            AstVar* ثابت hiTmpp = جوڑو_Local_Tmp(nodep, "ExpandSel_HiShift", hiShftp);
+            hiShftp = نیا AstVarRef{flp, hiTmpp, VAccess::READ};
 
             // Compute the High word mask: 0 if aligned, ones otherwise
-            hiMaskp = new AstCond{flp, alignedp->cloneTreePure(false),
-                                  new AstConst{flp, AstConst::SizedEData{}, 0},
-                                  new AstConst{flp, AstConst::SizedEData{}, -1ULL}};
-            AstVar* const maskTmpp = addLocalTmp(nodep, "ExpandSel_HiMask", hiMaskp);
-            hiMaskp = new AstVarRef{flp, maskTmpp, VAccess::READ};
+            hiMaskp = نیا AstCond{flp, alignedp->clone_درخت_خالص(جھوٹ),
+                                  نیا AstConst{flp, AstConst::SizedEData{}, 0},
+                                  نیا AstConst{flp, AstConst::SizedEData{}, -1ULL}};
+            AstVar* ثابت نقاب_Tmpp = جوڑو_Local_Tmp(nodep, "ExpandSel_HiMask", hiMaskp);
+            hiMaskp = نیا AstVarRef{flp, نقاب_Tmpp, VAccess::READ};
         }
 
         // Create each word of the selected result
-        AstNodeExpr* const fromp = rhsp->fromp();
-        const int selWords = nodep->widthWords();
-        for (int w = 0; w < selWords; ++w) {
+        Ast_گرہ_اظہاریہ* ثابت fromp = rhsp->fromp();
+        ثابت صحیح sel_الفاظ = nodep->چوڑائی_الفاظ();
+        برائے (صحیح w = 0; w < sel_الفاظ; ++w) {
             // Grab bits from word 'VL_BITWORD_E(lsb) + w'
-            AstNodeExpr* const loWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w);
-            AstNodeExpr* const loShftClonep = loShftp->cloneTreePure(false);
-            AstNodeExpr* const lop = new AstShiftR{flp, loWordp, loShftClonep, VL_EDATASIZE};
+            Ast_گرہ_اظہاریہ* ثابت loWordp = new_لفظ_Sel_لفظ(fromp->fileline(), fromp, لفظ_Idxp, w);
+            Ast_گرہ_اظہاریہ* ثابت loShftClonep = loShftp->clone_درخت_خالص(جھوٹ);
+            Ast_گرہ_اظہاریہ* ثابت lop = نیا Ast_سرکاؤ_R{flp, loWordp, loShftClonep, VL_EDATASIZE};
             // Grab bits from word 'VL_BITWORD_E(lsb) + w + 1'
-            AstNodeExpr* hiWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w + 1);
+            Ast_گرہ_اظہاریہ* hiWordp = new_لفظ_Sel_لفظ(fromp->fileline(), fromp, لفظ_Idxp, w + 1);
             // For the last word of the result, avoid an OOB access when the Sel is not OOB
-            if (w == selWords - 1) {
-                const uint32_t max = fromp->widthWords() - w - 1;
-                AstNodeExpr* const maxp = new AstConst{flp, max};
-                AstNodeExpr* const condp = new AstGte{flp, wordIdxp->cloneTreePure(false), maxp};
-                AstNodeExpr* const zerop = new AstConst{flp, AstConst::SizedEData{}, 0};
-                hiWordp = new AstCond{flp, condp, zerop, hiWordp};
+            اگر (w == sel_الفاظ - 1) {
+                ثابت uint32_t max = fromp->چوڑائی_الفاظ() - w - 1;
+                Ast_گرہ_اظہاریہ* ثابت maxp = نیا AstConst{flp, max};
+                Ast_گرہ_اظہاریہ* ثابت condp = نیا AstGte{flp, لفظ_Idxp->clone_درخت_خالص(جھوٹ), maxp};
+                Ast_گرہ_اظہاریہ* ثابت zerop = نیا AstConst{flp, AstConst::SizedEData{}, 0};
+                hiWordp = نیا AstCond{flp, condp, zerop, hiWordp};
             }
-            AstNodeExpr* const hiShftClonep = hiShftp->cloneTreePure(false);
-            AstNodeExpr* const hiPartp = new AstShiftL{flp, hiWordp, hiShftClonep, VL_EDATASIZE};
-            AstNodeExpr* const hip
-                = hiMaskp ? new AstAnd{flp, hiPartp, hiMaskp->cloneTreePure(false)} : hiPartp;
+            Ast_گرہ_اظہاریہ* ثابت hiShftClonep = hiShftp->clone_درخت_خالص(جھوٹ);
+            Ast_گرہ_اظہاریہ* ثابت hiPartp = نیا Ast_سرکاؤ_L{flp, hiWordp, hiShftClonep, VL_EDATASIZE};
+            Ast_گرہ_اظہاریہ* ثابت hip
+                = hiMaskp ? نیا AstAnd{flp, hiPartp, hiMaskp->clone_درخت_خالص(جھوٹ)} : hiPartp;
             // Combine them
-            addWordAssign(nodep, w, new AstOr{nodep->fileline(), hip, lop});
+            جوڑو_لفظ_تفویض(nodep, w, نیا AstOr{nodep->fileline(), hip, lop});
         }
 
         // Delete parts not captured during construction
-        if (!wordIdxp->backp()) VL_DO_DANGLING(wordIdxp->deleteTree(), wordIdxp);
-        if (!loShftp->backp()) VL_DO_DANGLING(loShftp->deleteTree(), loShftp);
-        if (!hiShftp->backp()) VL_DO_DANGLING(hiShftp->deleteTree(), hiShftp);
-        if (hiMaskp && !hiMaskp->backp()) VL_DO_DANGLING(hiMaskp->deleteTree(), hiMaskp);
+        اگر (!لفظ_Idxp->backp()) VL_DO_DANGLING(لفظ_Idxp->delete_درخت(), لفظ_Idxp);
+        اگر (!loShftp->backp()) VL_DO_DANGLING(loShftp->delete_درخت(), loShftp);
+        اگر (!hiShftp->backp()) VL_DO_DANGLING(hiShftp->delete_درخت(), hiShftp);
+        اگر (hiMaskp && !hiMaskp->backp()) VL_DO_DANGLING(hiMaskp->delete_درخت(), hiMaskp);
 
-        return true;
+        واپس سچ;
     }
 
-    bool expandLhs(AstNodeAssign* nodep, AstSel* lhsp) {
+    منطقی expandLhs(Ast_گرہ_تفویض* nodep, AstSel* lhsp) {
         // Possibilities
         //      destp: wide or narrow
         //      rhsp:  wide (destp must be wide), narrow, or 1 bit wide
         //      rhsp:  may be allones and can remove AND NOT gate
         //      lsbp:  constant or variable
         // Yuk.
-        if (isImpure(nodep)) return false;
-        FileLine* const nfl = nodep->fileline();
-        FileLine* const lfl = lhsp->fileline();
-        const bool destwide = lhsp->fromp()->isWide();
-        const bool ones = nodep->rhsp()->isAllOnesV();
-        if (VN_IS(lhsp->lsbp(), Const)) {
+        اگر (isImpure(nodep)) واپس جھوٹ;
+        File_سطر* ثابت nfl = nodep->fileline();
+        File_سطر* ثابت lfl = lhsp->fileline();
+        ثابت منطقی destwide = lhsp->fromp()->isWide();
+        ثابت منطقی ones = nodep->rhsp()->isAllOnesV();
+        اگر (VN_IS(lhsp->lsbp(), Const)) {
             // The code should work without this constant test, but it won't
             // constify as nicely as we'd like.
-            AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-            const int lsb = lhsp->lsbConst();
-            const int msb = lhsp->msbConst();
-            V3Number maskset{nodep, destp->widthMin()};
-            maskset.setMask(msb + 1 - lsb, lsb);
-            V3Number maskold{nodep, destp->widthMin()};
+            Ast_گرہ_اظہاریہ* rhsp = nodep->rhsp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* ثابت destp = lhsp->fromp()->unlink_Fr_عقب();
+            ثابت صحیح lsb = lhsp->lsbConst();
+            ثابت صحیح msb = lhsp->msbConst();
+            V3_نمبر maskset{nodep, destp->چوڑائی_Min()};
+            maskset.سیٹ_نقاب(msb + 1 - lsb, lsb);
+            V3_نمبر maskold{nodep, destp->چوڑائی_Min()};
             maskold.opNot(maskset);
-            if (destwide) {
-                didPattern(VExpandPattern::ASSIGN_TO_SEL_CONST_WIDE, nodep);
-                for (int w = 0; w < destp->widthWords(); ++w) {
-                    if (w >= VL_BITWORD_E(lsb) && w <= VL_BITWORD_E(msb)) {
+            اگر (destwide) {
+                did_نمونہ(VExpand_نمونہ::تفویض_مقصد_SEL_CONST_WIDE, nodep);
+                برائے (صحیح w = 0; w < destp->چوڑائی_الفاظ(); ++w) {
+                    اگر (w >= VL_BITWORD_E(lsb) && w <= VL_BITWORD_E(msb)) {
                         // else we would just be setting it to the same exact value
-                        AstNodeExpr* oldvalp = newAstWordSelClone(destp, w);
+                        Ast_گرہ_اظہاریہ* oldvalp = new_Ast_لفظ_Sel_Clone(destp, w);
                         fixCloneLvalue(oldvalp);
-                        if (!ones) {
-                            oldvalp = new AstAnd{
+                        اگر (!ones) {
+                            oldvalp = نیا AstAnd{
                                 lfl,
-                                new AstConst{lfl, AstConst::SizedEData{}, maskold.edataWord(w)},
+                                نیا AstConst{lfl, AstConst::SizedEData{}, maskold.edata_لفظ(w)},
                                 oldvalp};
                         }
 
                         // Appropriate word of new value to insert:
-                        AstNodeExpr* newp = newWordGrabShift(lfl, w, rhsp, lsb);
+                        Ast_گرہ_اظہاریہ* newp = new_لفظ_Grab_سرکاؤ(lfl, w, rhsp, lsb);
 
                         // Apply cleaning at the top word of the destination
                         // (no cleaning to do if dst's width is a whole number
                         // of words).
-                        if (w == destp->widthWords() - 1 && VL_BITBIT_E(destp->widthMin()) != 0) {
-                            V3Number cleanmask{nodep, VL_EDATASIZE};
-                            cleanmask.setMask(VL_BITBIT_E(destp->widthMin()));
-                            newp = new AstAnd{lfl, newp, new AstConst{lfl, cleanmask}};
+                        اگر (w == destp->چوڑائی_الفاظ() - 1 && VL_BITBIT_E(destp->چوڑائی_Min()) != 0) {
+                            V3_نمبر cleanmask{nodep, VL_EDATASIZE};
+                            cleanmask.سیٹ_نقاب(VL_BITBIT_E(destp->چوڑائی_Min()));
+                            newp = نیا AstAnd{lfl, newp, نیا AstConst{lfl, cleanmask}};
                         }
-                        AstNodeExpr* const orp
-                            = V3Const::constifyEditCpp(new AstOr{lfl, oldvalp, newp});
-                        addWordAssign(nodep, w, destp, orp);
+                        Ast_گرہ_اظہاریہ* ثابت orp
+                            = V3Const::constifyEditCpp(نیا AstOr{lfl, oldvalp, newp});
+                        جوڑو_لفظ_تفویض(nodep, w, destp, orp);
                     }
                 }
-                VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-                VL_DO_DANGLING(destp->deleteTree(), destp);
-            } else {
-                didPattern(VExpandPattern::ASSIGN_TO_SEL_CONST_NARROW, nodep);
-                if (destp->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{nfl, rhsp, nodep};
-                AstNodeExpr* oldvalp = destp->cloneTreePure(true);
+                VL_DO_DANGLING(rhsp->delete_درخت(), rhsp);
+                VL_DO_DANGLING(destp->delete_درخت(), destp);
+            } ورنہ {
+                did_نمونہ(VExpand_نمونہ::تفویض_مقصد_SEL_CONST_NARROW, nodep);
+                اگر (destp->isQuad() && !rhsp->isQuad()) rhsp = نیا AstCCast{nfl, rhsp, nodep};
+                Ast_گرہ_اظہاریہ* oldvalp = destp->clone_درخت_خالص(سچ);
                 fixCloneLvalue(oldvalp);
-                if (!ones) oldvalp = new AstAnd{lfl, new AstConst{lfl, maskold}, oldvalp};
+                اگر (!ones) oldvalp = نیا AstAnd{lfl, نیا AstConst{lfl, maskold}, oldvalp};
 
                 // The bit-select can refer to bits outside the width of nodep
                 // which we aren't allowed to assign to.  This is a mask of the
                 // valid range of nodep which we apply to the new shifted RHS.
-                V3Number cleanmask{nodep, destp->widthMin()};
-                cleanmask.setMask(destp->widthMin());
-                AstNodeExpr* const shifted = new AstShiftL{
-                    lfl, rhsp, new AstConst{lfl, static_cast<uint32_t>(lsb)}, destp->width()};
-                AstNodeExpr* const cleaned
-                    = new AstAnd{lfl, shifted, new AstConst{lfl, cleanmask}};
-                AstNodeExpr* const orp
-                    = V3Const::constifyEditCpp(new AstOr{lfl, oldvalp, cleaned});
-                insertBefore(nodep, new AstAssign{nfl, destp, orp});
+                V3_نمبر cleanmask{nodep, destp->چوڑائی_Min()};
+                cleanmask.سیٹ_نقاب(destp->چوڑائی_Min());
+                Ast_گرہ_اظہاریہ* ثابت shifted = نیا Ast_سرکاؤ_L{
+                    lfl, rhsp, نیا AstConst{lfl, static_cast<uint32_t>(lsb)}, destp->چوڑائی()};
+                Ast_گرہ_اظہاریہ* ثابت cleaned
+                    = نیا AstAnd{lfl, shifted, نیا AstConst{lfl, cleanmask}};
+                Ast_گرہ_اظہاریہ* ثابت orp
+                    = V3Const::constifyEditCpp(نیا AstOr{lfl, oldvalp, cleaned});
+                داخل_کرو_Before(nodep, نیا Ast_تفویض{nfl, destp, orp});
             }
-            return true;
-        } else {  // non-const select offset
-            if (destwide && lhsp->widthConst() == 1) {
-                didPattern(VExpandPattern::ASSIGN_TO_SEL_VAR_WIDE_ONE_BIT, nodep);
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-                AstNodeExpr* oldvalp
-                    = newWordSelBit(lfl, destp->cloneTreePure(false), lhsp->lsbp());
+            واپس سچ;
+        } ورنہ {  // non-const select offset
+            اگر (destwide && lhsp->چوڑائی_Const() == 1) {
+                did_نمونہ(VExpand_نمونہ::تفویض_مقصد_SEL_VAR_WIDE_ONE_ثنائی_ہندسہ, nodep);
+                Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp()->unlink_Fr_عقب();
+                Ast_گرہ_اظہاریہ* ثابت destp = lhsp->fromp()->unlink_Fr_عقب();
+                Ast_گرہ_اظہاریہ* oldvalp
+                    = new_لفظ_Sel_ثنائی_ہندسہ(lfl, destp->clone_درخت_خالص(جھوٹ), lhsp->lsbp());
                 fixCloneLvalue(oldvalp);
-                if (!ones) {
-                    oldvalp = new AstAnd{
+                اگر (!ones) {
+                    oldvalp = نیا AstAnd{
                         lfl,
-                        new AstNot{
-                            lfl, new AstShiftL{lfl, new AstConst{nfl, 1},
+                        نیا AstNot{
+                            lfl, نیا Ast_سرکاؤ_L{lfl, نیا AstConst{nfl, 1},
                                                // newSelBitBit may exceed the MSB of this variable.
                                                // That's ok as we'd just AND with a larger value,
                                                // but oldval would clip the upper bits to sanity
-                                               newSelBitBit(lhsp->lsbp()), VL_EDATASIZE}},
+                                               new_Sel_ثنائی_ہندسہ_ثنائی_ہندسہ(lhsp->lsbp()), VL_EDATASIZE}},
                         oldvalp};
                 }
                 // Restrict the shift amount to 0-31, see bug804.
-                AstNodeExpr* const shiftp = new AstAnd{nfl, lhsp->lsbp()->cloneTreePure(true),
-                                                       new AstConst{nfl, VL_EDATASIZE - 1}};
-                AstNode* const newp = new AstAssign{
-                    nfl, newWordSelBit(nfl, destp, lhsp->lsbp()),
-                    new AstOr{lfl, oldvalp, new AstShiftL{lfl, rhsp, shiftp, VL_EDATASIZE}}};
-                insertBefore(nodep, newp);
-                return true;
-            } else if (destwide) {
+                Ast_گرہ_اظہاریہ* ثابت shiftp = نیا AstAnd{nfl, lhsp->lsbp()->clone_درخت_خالص(سچ),
+                                                       نیا AstConst{nfl, VL_EDATASIZE - 1}};
+                Ast_گرہ* ثابت newp = نیا Ast_تفویض{
+                    nfl, new_لفظ_Sel_ثنائی_ہندسہ(nfl, destp, lhsp->lsbp()),
+                    نیا AstOr{lfl, oldvalp, نیا Ast_سرکاؤ_L{lfl, rhsp, shiftp, VL_EDATASIZE}}};
+                داخل_کرو_Before(nodep, newp);
+                واپس سچ;
+            } ورنہ اگر (destwide) {
                 UINFO(8, "    ASSIGNSEL(varlsb,wide) -- NoOp -- " << nodep);
                 //   For wide destp, we can either form a equation for every destination word,
                 // with the appropriate long equation of if it's being written or not.
@@ -958,252 +958,252 @@ class ExpandVisitor final : public VNVisitor {
                 // since it may result in better substitution optimizations later.
                 //   This results in so much code, we're better off leaving a function call.
                 // Reconsider if we get subexpression elimination.
-                return false;
-            } else {
-                didPattern(VExpandPattern::ASSIGN_TO_SEL_VAR_NARROW, nodep);
+                واپس جھوٹ;
+            } ورنہ {
+                did_نمونہ(VExpand_نمونہ::تفویض_مقصد_SEL_VAR_NARROW, nodep);
                 // nodep->dumpTree("-  old: ");
-                AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-                AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-                AstNodeExpr* oldvalp = destp->cloneTreePure(true);
+                Ast_گرہ_اظہاریہ* rhsp = nodep->rhsp()->unlink_Fr_عقب();
+                Ast_گرہ_اظہاریہ* ثابت destp = lhsp->fromp()->unlink_Fr_عقب();
+                Ast_گرہ_اظہاریہ* oldvalp = destp->clone_درخت_خالص(سچ);
                 fixCloneLvalue(oldvalp);
 
-                V3Number maskwidth{nodep, destp->widthMin()};
-                maskwidth.setMask(lhsp->widthConst());
+                V3_نمبر maskwidth{nodep, destp->چوڑائی_Min()};
+                maskwidth.سیٹ_نقاب(lhsp->چوڑائی_Const());
 
-                if (destp->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{nfl, rhsp, nodep};
-                if (!ones) {
-                    oldvalp = new AstAnd{
+                اگر (destp->isQuad() && !rhsp->isQuad()) rhsp = نیا AstCCast{nfl, rhsp, nodep};
+                اگر (!ones) {
+                    oldvalp = نیا AstAnd{
                         lfl,
-                        new AstNot{lfl, new AstShiftL{lfl, new AstConst{nfl, maskwidth},
-                                                      lhsp->lsbp()->cloneTreePure(true),
-                                                      destp->width()}},
+                        نیا AstNot{lfl, نیا Ast_سرکاؤ_L{lfl, نیا AstConst{nfl, maskwidth},
+                                                      lhsp->lsbp()->clone_درخت_خالص(سچ),
+                                                      destp->چوڑائی()}},
                         oldvalp};
                 }
-                AstNodeExpr* newp
-                    = new AstShiftL{lfl, rhsp, lhsp->lsbp()->cloneTreePure(true), destp->width()};
+                Ast_گرہ_اظہاریہ* newp
+                    = نیا Ast_سرکاؤ_L{lfl, rhsp, lhsp->lsbp()->clone_درخت_خالص(سچ), destp->چوڑائی()};
                 // Apply cleaning to the new value being inserted.  Mask is
                 // slightly wider than necessary to avoid an AND with all ones
                 // being optimized out.  No need to clean if destp is
                 // quad-sized as there are no extra bits to contaminate
-                if (destp->widthMin() != 64) {
-                    V3Number cleanmask{nodep, destp->widthMin() + 1};
-                    cleanmask.setMask(destp->widthMin());
-                    newp = new AstAnd{lfl, newp, new AstConst{lfl, cleanmask}};
+                اگر (destp->چوڑائی_Min() != 64) {
+                    V3_نمبر cleanmask{nodep, destp->چوڑائی_Min() + 1};
+                    cleanmask.سیٹ_نقاب(destp->چوڑائی_Min());
+                    newp = نیا AstAnd{lfl, newp, نیا AstConst{lfl, cleanmask}};
                 }
 
-                insertBefore(nodep, new AstAssign{nfl, destp, new AstOr{lfl, oldvalp, newp}});
-                return true;
+                داخل_کرو_Before(nodep, نیا Ast_تفویض{nfl, destp, نیا AstOr{lfl, oldvalp, newp}});
+                واپس سچ;
             }
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstConcat* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        اگر (nodep->isWide()) {
             // See under ASSIGN(WIDE)
-        } else {
+        } ورنہ {
             // No isImpure() check - can handle side effects in below
-            didPattern(VExpandPattern::CONCAT, nodep);
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-            const uint32_t rhsshift = rhsp->widthMin();
-            if (nodep->isQuad() && !lhsp->isQuad()) lhsp = new AstCCast{fl, lhsp, nodep};
-            if (nodep->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{fl, rhsp, nodep};
-            AstNodeExpr* const newp = new AstOr{
-                fl, new AstShiftL{fl, lhsp, new AstConst{fl, rhsshift}, nodep->width()}, rhsp};
+            did_نمونہ(VExpand_نمونہ::CONCAT, nodep);
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* lhsp = nodep->lhsp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* rhsp = nodep->rhsp()->unlink_Fr_عقب();
+            ثابت uint32_t rhsshift = rhsp->چوڑائی_Min();
+            اگر (nodep->isQuad() && !lhsp->isQuad()) lhsp = نیا AstCCast{fl, lhsp, nodep};
+            اگر (nodep->isQuad() && !rhsp->isQuad()) rhsp = نیا AstCCast{fl, rhsp, nodep};
+            Ast_گرہ_اظہاریہ* ثابت newp = نیا AstOr{
+                fl, نیا Ast_سرکاؤ_L{fl, lhsp, نیا AstConst{fl, rhsshift}, nodep->چوڑائی()}, rhsp};
             newp->dtypeFrom(nodep);  // Unsigned
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstConcat* rhsp) {
-        if (!doExpandWide(rhsp)) return false;
-        didPattern(VExpandPattern::ASSIGN_CONCAT, nodep);
-        FileLine* const fl = rhsp->fileline();
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstConcat* rhsp) {
+        اگر (!doExpandWide(rhsp)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_CONCAT, nodep);
+        File_سطر* ثابت fl = rhsp->fileline();
         // Lhs or Rhs may be word, long, or quad.
         // newAstWordSelClone nicely abstracts the difference.
-        const int rhsshift = rhsp->rhsp()->widthMin();
+        ثابت صحیح rhsshift = rhsp->rhsp()->چوڑائی_Min();
         // Sometimes doing the words backwards is preferable.
         // When we have x={x,foo} backwards is better, when x={foo,x} forward is better
         // However V3Subst tends to rip this up, so not worth optimizing now.
-        for (int w = 0; w < rhsp->widthWords(); ++w) {
-            addWordAssign(nodep, w,
-                          new AstOr{fl, newWordGrabShift(fl, w, rhsp->lhsp(), rhsshift),
-                                    newAstWordSelClone(rhsp->rhsp(), w)});
+        برائے (صحیح w = 0; w < rhsp->چوڑائی_الفاظ(); ++w) {
+            جوڑو_لفظ_تفویض(nodep, w,
+                          نیا AstOr{fl, new_لفظ_Grab_سرکاؤ(fl, w, rhsp->lhsp(), rhsshift),
+                                    new_Ast_لفظ_Sel_Clone(rhsp->rhsp(), w)});
         }
-        return true;
+        واپس سچ;
     }
 
-    void visit(AstReplicate* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstReplicate* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        اگر (nodep->isWide()) {
             // See under ASSIGN(WIDE)
-        } else {
-            if (isImpure(nodep)) return;
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* lhsp = nodep->srcp()->unlinkFrBack();
-            AstNodeExpr* newp;
-            const int lhswidth = lhsp->widthMin();
-            if (lhswidth == 1) {
-                didPattern(VExpandPattern::REPLICATE_ONE_BIT, nodep);
-                newp = new AstNegate{fl, lhsp};
-            } else {
-                didPattern(VExpandPattern::REPLICATE, nodep);
-                const AstConst* const constp = VN_AS(nodep->countp(), Const);
+        } ورنہ {
+            اگر (isImpure(nodep)) واپس;
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* lhsp = nodep->srcp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* newp;
+            ثابت صحیح lhswidth = lhsp->چوڑائی_Min();
+            اگر (lhswidth == 1) {
+                did_نمونہ(VExpand_نمونہ::REPLICATE_ONE_ثنائی_ہندسہ, nodep);
+                newp = نیا AstNegate{fl, lhsp};
+            } ورنہ {
+                did_نمونہ(VExpand_نمونہ::REPLICATE, nodep);
+                ثابت AstConst* ثابت constp = VN_AS(nodep->countp(), Const);
                 UASSERT_OBJ(constp, nodep,
                             "Replication value isn't a constant.  Checked earlier!");
-                const uint32_t times = constp->toUInt();
-                if (nodep->isQuad() && !lhsp->isQuad()) lhsp = new AstCCast{fl, lhsp, nodep};
-                newp = lhsp->cloneTreePure(true);
-                for (unsigned repnum = 1; repnum < times; repnum++) {
-                    const int rhsshift = repnum * lhswidth;
-                    newp = new AstOr{
+                ثابت uint32_t times = constp->مقصد_UInt();
+                اگر (nodep->isQuad() && !lhsp->isQuad()) lhsp = نیا AstCCast{fl, lhsp, nodep};
+                newp = lhsp->clone_درخت_خالص(سچ);
+                برائے (غیرعلامتی repnum = 1; repnum < times; repnum++) {
+                    ثابت صحیح rhsshift = repnum * lhswidth;
+                    newp = نیا AstOr{
                         fl,
-                        new AstShiftL{fl, lhsp->cloneTreePure(true),
-                                      new AstConst{fl, static_cast<uint32_t>(rhsshift)},
-                                      nodep->width()},
+                        نیا Ast_سرکاؤ_L{fl, lhsp->clone_درخت_خالص(سچ),
+                                      نیا AstConst{fl, static_cast<uint32_t>(rhsshift)},
+                                      nodep->چوڑائی()},
                         newp};
                     newp->dtypeFrom(nodep);  // Unsigned
                 }
-                VL_DO_DANGLING(lhsp->deleteTree(), lhsp);  // Never used
+                VL_DO_DANGLING(lhsp->delete_درخت(), lhsp);  // Never used
             }
             newp->dtypeFrom(nodep);  // Unsigned
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstReplicate* rhsp) {
-        if (!doExpandWide(rhsp)) return false;
-        didPattern(VExpandPattern::ASSIGN_REPLICATE, nodep);
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = rhsp->srcp();
-        const int lhswidth = lhsp->widthMin();
-        const AstConst* const constp = VN_AS(rhsp->countp(), Const);
+    منطقی expandWide(Ast_گرہ_تفویض* nodep, AstReplicate* rhsp) {
+        اگر (!doExpandWide(rhsp)) واپس جھوٹ;
+        did_نمونہ(VExpand_نمونہ::تفویض_REPLICATE, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        Ast_گرہ_اظہاریہ* ثابت lhsp = rhsp->srcp();
+        ثابت صحیح lhswidth = lhsp->چوڑائی_Min();
+        ثابت AstConst* ثابت constp = VN_AS(rhsp->countp(), Const);
         UASSERT_OBJ(constp, rhsp, "Replication value isn't a constant.  Checked earlier!");
-        const uint32_t times = constp->toUInt();
-        for (int w = 0; w < rhsp->widthWords(); ++w) {
-            AstNodeExpr* newp;
-            if (lhswidth == 1) {
-                newp = new AstNegate{fl, lhsp->cloneTreePure(true)};
+        ثابت uint32_t times = constp->مقصد_UInt();
+        برائے (صحیح w = 0; w < rhsp->چوڑائی_الفاظ(); ++w) {
+            Ast_گرہ_اظہاریہ* newp;
+            اگر (lhswidth == 1) {
+                newp = نیا AstNegate{fl, lhsp->clone_درخت_خالص(سچ)};
                 // Replicate always unsigned
-                newp->dtypeChgWidthSigned(VL_EDATASIZE, VL_EDATASIZE, VSigning::UNSIGNED);
-            } else {
-                newp = newAstWordSelClone(lhsp, w);
-                FileLine* const rfl = rhsp->fileline();
-                for (unsigned repnum = 1; repnum < times; repnum++) {
-                    newp = new AstOr{fl, newWordGrabShift(rfl, w, lhsp, lhswidth * repnum), newp};
+                newp->dtype_Chg_چوڑائی_Signed(VL_EDATASIZE, VL_EDATASIZE, VSigning::UNSIGNED);
+            } ورنہ {
+                newp = new_Ast_لفظ_Sel_Clone(lhsp, w);
+                File_سطر* ثابت rfl = rhsp->fileline();
+                برائے (غیرعلامتی repnum = 1; repnum < times; repnum++) {
+                    newp = نیا AstOr{fl, new_لفظ_Grab_سرکاؤ(rfl, w, lhsp, lhswidth * repnum), newp};
                 }
             }
-            addWordAssign(nodep, w, newp);
+            جوڑو_لفظ_تفویض(nodep, w, newp);
         }
-        return true;
+        واپس سچ;
     }
 
-    void visitEqNeq(AstNodeBiop* nodep) {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ_Eq_Neq(Ast_گرہ_Biop* nodep) {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        if (nodep->lhsp()->isWide()
-            && !(VN_IS(nodep->lhsp()->dtypep()->skipRefp(), StreamDType)
-                 || VN_IS(nodep->rhsp()->dtypep()->skipRefp(), StreamDType))) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
-            if (!doExpandWide(nodep->rhsp())) return;
-            didPattern(VN_IS(nodep, Neq) ? VExpandPattern::WORDIZE_NEQ
-                                         : VExpandPattern::WORDIZE_EQ,
+        اگر (nodep->lhsp()->isWide()
+            && !(VN_IS(nodep->lhsp()->dtypep()->skipRefp(), دھارا_DType)
+                 || VN_IS(nodep->rhsp()->dtypep()->skipRefp(), دھارا_DType))) {
+            اگر (isImpure(nodep)) واپس;
+            اگر (!doExpandWide(nodep->lhsp())) واپس;
+            اگر (!doExpandWide(nodep->rhsp())) واپس;
+            did_نمونہ(VN_IS(nodep, Neq) ? VExpand_نمونہ::WORDIZE_NEQ
+                                         : VExpand_نمونہ::WORDIZE_EQ,
                        nodep);
             // -> (0=={or{for each_word{WORDSEL(lhs,#)^WORDSEL(rhs,#)}}}
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = new AstXor{fl, newAstWordSelClone(nodep->lhsp(), w),
-                                                    newAstWordSelClone(nodep->rhsp(), w)};
-                newp = newp ? new AstOr{fl, newp, eqp} : eqp;
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* newp = خالی_اشاریہ;
+            برائے (صحیح w = 0; w < nodep->lhsp()->چوڑائی_الفاظ(); ++w) {
+                Ast_گرہ_اظہاریہ* ثابت eqp = نیا AstXor{fl, new_Ast_لفظ_Sel_Clone(nodep->lhsp(), w),
+                                                    new_Ast_لفظ_Sel_Clone(nodep->rhsp(), w)};
+                newp = newp ? نیا AstOr{fl, newp, eqp} : eqp;
             }
-            if (VN_IS(nodep, Neq)) {
-                newp = new AstNeq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
-            } else {
-                newp = new AstEq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            اگر (VN_IS(nodep, Neq)) {
+                newp = نیا AstNeq{fl, نیا AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            } ورنہ {
+                newp = نیا AstEq{fl, نیا AstConst{fl, AstConst::SizedEData{}, 0}, newp};
             }
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstEq* nodep) override { visitEqNeq(nodep); }
-    void visit(AstNeq* nodep) override { visitEqNeq(nodep); }
+    خالی دورہ(AstEq* nodep) override { دورہ_Eq_Neq(nodep); }
+    خالی دورہ(AstNeq* nodep) override { دورہ_Eq_Neq(nodep); }
 
-    void visit(AstRedOr* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstRedOr* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
-            didPattern(VExpandPattern::WORDIZE_REDOR, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        اگر (nodep->lhsp()->isWide()) {
+            اگر (isImpure(nodep)) واپس;
+            اگر (!doExpandWide(nodep->lhsp())) واپس;
+            did_نمونہ(VExpand_نمونہ::WORDIZE_REDOR, nodep);
             // -> (0!={or{for each_word{WORDSEL(lhs,#)}}}
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = newAstWordSelClone(nodep->lhsp(), w);
-                newp = newp ? new AstOr{fl, newp, eqp} : eqp;
+            Ast_گرہ_اظہاریہ* newp = خالی_اشاریہ;
+            برائے (صحیح w = 0; w < nodep->lhsp()->چوڑائی_الفاظ(); ++w) {
+                Ast_گرہ_اظہاریہ* ثابت eqp = new_Ast_لفظ_Sel_Clone(nodep->lhsp(), w);
+                newp = newp ? نیا AstOr{fl, newp, eqp} : eqp;
             }
-            newp = new AstNeq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            newp = نیا AstNeq{fl, نیا AstConst{fl, AstConst::SizedEData{}, 0}, newp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {
+        } ورنہ {
             // No isImpure() check - can handle side effects in below
-            didPattern(VExpandPattern::REDOR_TO_NEQ, nodep);
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstNeq{
-                fl, new AstConst{fl, AstConst::WidthedValue{}, longOrQuadWidth(nodep), 0}, lhsp};
+            did_نمونہ(VExpand_نمونہ::REDOR_مقصد_NEQ, nodep);
+            Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* ثابت newp = نیا AstNeq{
+                fl, نیا AstConst{fl, AstConst::Widthed_قدر{}, long_Or_Quad_چوڑائی(nodep), 0}, lhsp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstRedAnd* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstRedAnd* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
-            didPattern(VExpandPattern::WORDIZE_REDAND, nodep);
+        File_سطر* ثابت fl = nodep->fileline();
+        اگر (nodep->lhsp()->isWide()) {
+            اگر (isImpure(nodep)) واپس;
+            اگر (!doExpandWide(nodep->lhsp())) واپس;
+            did_نمونہ(VExpand_نمونہ::WORDIZE_REDAND, nodep);
             // -> (0!={and{for each_word{WORDSEL(lhs,#)}}}
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* eqp = newAstWordSelClone(nodep->lhsp(), w);
-                if (w == nodep->lhsp()->widthWords() - 1) {
+            Ast_گرہ_اظہاریہ* newp = خالی_اشاریہ;
+            برائے (صحیح w = 0; w < nodep->lhsp()->چوڑائی_الفاظ(); ++w) {
+                Ast_گرہ_اظہاریہ* eqp = new_Ast_لفظ_Sel_Clone(nodep->lhsp(), w);
+                اگر (w == nodep->lhsp()->چوڑائی_الفاظ() - 1) {
                     // Rather than doing a (slowish) ==##, we OR in the
                     // bits that aren't part of the mask
-                    eqp = new AstOr{fl, new AstConst{fl, notWideMask(nodep->lhsp())},
+                    eqp = نیا AstOr{fl, نیا AstConst{fl, not_Wide_نقاب(nodep->lhsp())},
                                     // Bug in cppcheck
                                     // cppcheck-suppress memleak
                                     eqp};
                 }
-                newp = newp ? new AstAnd{fl, newp, eqp} : eqp;
+                newp = newp ? نیا AstAnd{fl, newp, eqp} : eqp;
             }
-            newp = new AstEq{fl, new AstConst{fl, AstConst::SizedEData{}, VL_MASK_E(VL_EDATASIZE)},
+            newp = نیا AstEq{fl, نیا AstConst{fl, AstConst::SizedEData{}, VL_نقاب_E(VL_EDATASIZE)},
                              newp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {
+        } ورنہ {
             // No isImpure() check - can handle side effects in below
-            didPattern(VExpandPattern::REDAND_TO_EQ, nodep);
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstEq{fl, new AstConst{fl, wordMask(lhsp)}, lhsp};
+            did_نمونہ(VExpand_نمونہ::REDAND_مقصد_EQ, nodep);
+            Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp()->unlink_Fr_عقب();
+            Ast_گرہ_اظہاریہ* ثابت newp = نیا AstEq{fl, نیا AstConst{fl, لفظ_نقاب(lhsp)}, lhsp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstRedXor* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(AstRedXor* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         iterateChildren(nodep);
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
-            didPattern(VExpandPattern::WORDIZE_REDXOR, nodep);
+        اگر (nodep->lhsp()->isWide()) {
+            اگر (isImpure(nodep)) واپس;
+            اگر (!doExpandWide(nodep->lhsp())) واپس;
+            did_نمونہ(VExpand_نمونہ::WORDIZE_REDXOR, nodep);
             // -> (0!={redxor{for each_word{XOR(WORDSEL(lhs,#))}}}
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = newAstWordSelClone(nodep->lhsp(), w);
-                newp = newp ? new AstXor{fl, newp, eqp} : eqp;
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* newp = خالی_اشاریہ;
+            برائے (صحیح w = 0; w < nodep->lhsp()->چوڑائی_الفاظ(); ++w) {
+                Ast_گرہ_اظہاریہ* ثابت eqp = new_Ast_لفظ_Sel_Clone(nodep->lhsp(), w);
+                newp = newp ? نیا AstXor{fl, newp, eqp} : eqp;
             }
-            newp = new AstRedXor{fl, newp};
+            newp = نیا AstRedXor{fl, newp};
             UINFO(8, "    Wordize REDXORnew " << newp);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
@@ -1211,96 +1211,96 @@ class ExpandVisitor final : public VNVisitor {
         // which the inlined function does nicely.
     }
 
-    void visit(AstNodeStmt* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    خالی دورہ(Ast_گرہ_Stmt* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)) {
-            return;  // Skip for UnpackArrayDType
+    خالی دورہ(Ast_گرہ_تفویض* nodep) override {
+        اگر (nodep->user1_سیٹ_Once()) واپس;  // Process once
+        اگر (VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)) {
+            واپس;  // Skip for UnpackArrayDType
         }
 
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
-        bool did = false;
-        if (nodep->isWide()  //
+        منطقی did = جھوٹ;
+        اگر (nodep->isWide()  //
             && ((VN_IS(nodep->lhsp(), VarRef) || VN_IS(nodep->lhsp(), ArraySel)))
             && !AstVar::scVarRecurse(nodep->lhsp())  // Need special function for SC
             && !AstVar::scVarRecurse(nodep->rhsp())) {
-            if (AstConst* const rhsp = VN_CAST(nodep->rhsp(), Const)) {
+            اگر (AstConst* ثابت rhsp = VN_CAST(nodep->rhsp(), Const)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+            } ورنہ اگر (AstVarRef* ثابت rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstSel* const rhsp = VN_CAST(nodep->rhsp(), Sel)) {
+            } ورنہ اگر (AstSel* ثابت rhsp = VN_CAST(nodep->rhsp(), Sel)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstArraySel* const rhsp = VN_CAST(nodep->rhsp(), ArraySel)) {
+            } ورنہ اگر (AstArraySel* ثابت rhsp = VN_CAST(nodep->rhsp(), ArraySel)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstConcat* const rhsp = VN_CAST(nodep->rhsp(), Concat)) {
+            } ورنہ اگر (AstConcat* ثابت rhsp = VN_CAST(nodep->rhsp(), Concat)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstExtend* const rhsp = VN_CAST(nodep->rhsp(), Extend)) {
+            } ورنہ اگر (AstExtend* ثابت rhsp = VN_CAST(nodep->rhsp(), Extend)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstReplicate* const rhsp = VN_CAST(nodep->rhsp(), Replicate)) {
+            } ورنہ اگر (AstReplicate* ثابت rhsp = VN_CAST(nodep->rhsp(), Replicate)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstAnd* const rhsp = VN_CAST(nodep->rhsp(), And)) {
+            } ورنہ اگر (AstAnd* ثابت rhsp = VN_CAST(nodep->rhsp(), And)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstOr* const rhsp = VN_CAST(nodep->rhsp(), Or)) {
+            } ورنہ اگر (AstOr* ثابت rhsp = VN_CAST(nodep->rhsp(), Or)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstNot* const rhsp = VN_CAST(nodep->rhsp(), Not)) {
+            } ورنہ اگر (AstNot* ثابت rhsp = VN_CAST(nodep->rhsp(), Not)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstXor* const rhsp = VN_CAST(nodep->rhsp(), Xor)) {
+            } ورنہ اگر (AstXor* ثابت rhsp = VN_CAST(nodep->rhsp(), Xor)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstShiftL* const rhsp = VN_CAST(nodep->rhsp(), ShiftL)) {
-                did = expandWideShift(nodep, rhsp, /* isLeftShift: */ true);
-            } else if (AstShiftR* const rhsp = VN_CAST(nodep->rhsp(), ShiftR)) {
-                did = expandWideShift(nodep, rhsp, /* isLeftShift: */ false);
-            } else if (AstCond* const rhsp = VN_CAST(nodep->rhsp(), Cond)) {
+            } ورنہ اگر (Ast_سرکاؤ_L* ثابت rhsp = VN_CAST(nodep->rhsp(), سرکاؤ_L)) {
+                did = expand_Wide_سرکاؤ(nodep, rhsp, /* isLeftShift: */ سچ);
+            } ورنہ اگر (Ast_سرکاؤ_R* ثابت rhsp = VN_CAST(nodep->rhsp(), سرکاؤ_R)) {
+                did = expand_Wide_سرکاؤ(nodep, rhsp, /* isLeftShift: */ جھوٹ);
+            } ورنہ اگر (AstCond* ثابت rhsp = VN_CAST(nodep->rhsp(), Cond)) {
                 did = expandWide(nodep, rhsp);
             }
-        } else if (AstSel* const lhsp = VN_CAST(nodep->lhsp(), Sel)) {
+        } ورنہ اگر (AstSel* ثابت lhsp = VN_CAST(nodep->lhsp(), Sel)) {
             did = expandLhs(nodep, lhsp);
         }
         // Cleanup common code
-        if (did) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        اگر (did) VL_DO_DANGLING(nodep->unlink_Fr_عقب()->delete_درخت(), nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(AstVar*) override {}  // Don't hit varrefs under vars
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ExpandVisitor(AstNetlist* nodep) { iterate(nodep); }
+    صریح ExpandVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ExpandVisitor() override {
-        V3Stats::addStat("Optimizations, Expand, expanded wides", m_statWides);
-        V3Stats::addStat("Optimizations, Expand, expanded wide words", m_statWideWords);
-        V3Stats::addStat("Optimizations, Expand, not expanded impure", m_statImpure);
-        V3Stats::addStat("Optimizations, Expand, not expanded limit", m_statWideLimited);
-        V3Stats::addStat("Optimizations, Expand, temporaries created", m_statTemps);
-        const auto emitStat = [this](VExpandPattern pattern) {
-            std::string str{pattern.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? ' ' : std::tolower(c);
+        V3Stats::جوڑو_Stat("Optimizations, Expand, expanded wides", m_statWides);
+        V3Stats::جوڑو_Stat("Optimizations, Expand, expanded wide words", m_stat_Wide_الفاظ);
+        V3Stats::جوڑو_Stat("Optimizations, Expand, not expanded impure", m_statImpure);
+        V3Stats::جوڑو_Stat("Optimizations, Expand, not expanded limit", m_statWideLimited);
+        V3Stats::جوڑو_Stat("Optimizations, Expand, temporaries created", m_statTemps);
+        ثابت خودکار emitStat = [یہ](VExpand_نمونہ نمونہ_2) {
+            std::string str{نمونہ_2.ascii()};
+            std::transform(str.begin(), str.انتہا(), str.begin(), [](غیرعلامتی حرف c) {  //
+                واپس c == '_' ? ' ' : std::tolower(c);
             });
-            V3Stats::addStat("Optimizations, Expand, pattern " + str, m_statPatterns[pattern]);
+            V3Stats::جوڑو_Stat("Optimizations, Expand, pattern " + str, m_statPatterns[نمونہ_2]);
         };
-#define EXPAND_PATTERN_EMIT_STAT(id) emitStat(VExpandPattern::id);
-        FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_EMIT_STAT)
-#undef EXPAND_PATTERN_EMIT_STAT
+#تعریف_کرو EXPAND_نمونہ_EMIT_STAT(id) emitStat(VExpand_نمونہ::id);
+        FOR_EACH_EXPAND_نمونہ(EXPAND_نمونہ_EMIT_STAT)
+#تعریف_منسوخ EXPAND_نمونہ_EMIT_STAT
     }
 };
 
 //######################################################################
 // Expand class functions
 
-void V3Expand::expandAll(AstNetlist* nodep) {
+خالی V3Expand::expandAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const ExpandOkVisitor okVisitor{nodep};
+        ثابت ExpandOkVisitor okVisitor{nodep};
         ExpandVisitor{nodep};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("expand", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("expand", 0, dump_درخت_Either_Level() >= 3);
 }

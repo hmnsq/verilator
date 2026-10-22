@@ -18,79 +18,79 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODESTMT_H_
-#define VERILATOR_V3ASTNODESTMT_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3ASTNODESTMT_H_
+#تعریف_کرو VERILATOR_V3ASTNODESTMT_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#اگر_غیر_تعریف_شدہ VERILATOR_V3AST_H_
+#غلطی "Use V3Ast.h as the include"
+#شامل "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#تعریف_کرو VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#اگر_ختم
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeStmt VL_NOT_FINAL : public AstNode {
+class Ast_گرہ_Stmt VL_NOT_FINAL : عوامی Ast_گرہ {
     // Procedural statement
-protected:
-    AstNodeStmt(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+محفوظ:
+    Ast_گرہ_Stmt(VNType t, File_سطر* fl)
+        : Ast_گرہ{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeStmt;
+عوامی:
+    ASTGEN_MEMBERS_Ast_گرہ_Stmt;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    خالی dump(std::ostream& str = std::cout) ثابت override;
+    خالی dumpJson(std::ostream& str = std::cout) ثابت override;
 };
-class AstNodeAssign VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_تفویض VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // Iteration is in order, and we want rhsp to be visited first (which is the execution order)
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
     // @astgen op3 := timingControlp : Optional[AstNode]
-protected:
-    AstNodeAssign(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : AstNodeStmt{t, fl} {
+محفوظ:
+    Ast_گرہ_تفویض(VNType t, File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp,
+                  Ast_گرہ* timingControlp = nullptr)
+        : Ast_گرہ_Stmt{t, fl} {
         this->rhsp(rhsp);
         this->lhsp(lhsp);
         this->timingControlp(timingControlp);
         dtypeFrom(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeAssign;
+عوامی:
+    ASTGEN_MEMBERS_Ast_گرہ_تفویض;
     // Clone single node, just get same type back.
-    void dump(std::ostream& str) const override;
-    virtual AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) = 0;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    virtual bool cleanRhs() const { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    string verilogKwd() const override { return "="; }
-    bool isTimingControl() const override { return timingControlp(); }
+    خالی dump(std::ostream& str) ثابت override;
+    مجازی Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) = 0;
+    bool hasDType() ثابت override VL_MT_محفوظ { واپس true; }
+    مجازی bool cleanRhs() ثابت { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس چوڑائی_Instrs(); }
+    bool same_گرہ(ثابت Ast_گرہ*) ثابت override { واپس true; }
+    string verilogKwd() ثابت override { واپس "="; }
+    bool isTimingControl() ثابت override { واپس timingControlp(); }
 };
-class AstNodeBlock VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_بلاک VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // A Begin/fork block
     // Parents: statement
     // @astgen op1 := declsp : List[AstNode] // Declarations inside block
     // @astgen op2 := stmtsp : List[AstNode] // Sequential statements inside block
     string m_name;  // Name of block
     bool m_unnamed;  // Originally unnamed (name change does not affect this)
-protected:
-    AstNodeBlock(VNType t, FileLine* fl, const string& name)
-        : AstNodeStmt{t, fl}
+محفوظ:
+    Ast_گرہ_بلاک(VNType t, File_سطر* fl, ثابت string& name)
+        : Ast_گرہ_Stmt{t, fl}
         , m_name{name}
         , m_unnamed{name == ""} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBlock;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    bool unnamed() const { return m_unnamed; }
+عوامی:
+    ASTGEN_MEMBERS_Ast_گرہ_بلاک;
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس true; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }  // * = Block name
+    خالی name(ثابت string& name) override { m_name = name; }
+    bool unnamed() ثابت { واپس m_unnamed; }
 };
-class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_Cover_Or_Assert VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // Cover or Assert
     // Parents:  {statement list}
     // @astgen op1 := propp : AstNode
@@ -98,151 +98,151 @@ class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
     // op3 used by some sub-types only
     // @astgen op4 := passsp: List[AstNode] // Statements when propp is passing/truthly
     string m_name;  // Name to report
-    const VAssertType m_userType;  // Assertion/cover type for user enable/disable
-    const VAssertDirectiveType m_directive;  // Assertion directive type
+    ثابت VAssertType m_userType;  // Assertion/cover type for user enable/disable
+    ثابت VAssertDirectiveType m_directive;  // Assertion directive type
     bool m_senFromAlways = false;  // Sensitivity list copied from upper always
-    bool m_immediate = false;  // Immediate assert (may differ from userType being immediate)
+    bool m_فوری = false;  // Immediate assert (may differ from userType being immediate)
 
-public:
-    AstNodeCoverOrAssert(VNType t, FileLine* fl, AstNode* propp, AstNode* passsp,
+عوامی:
+    Ast_گرہ_Cover_Or_Assert(VNType t, File_سطر* fl, Ast_گرہ* propp, Ast_گرہ* passsp,
                          VAssertType userType, VAssertDirectiveType directive,
-                         const string& name = "")
-        : AstNodeStmt{t, fl}
+                         ثابت string& name = "")
+        : Ast_گرہ_Stmt{t, fl}
         , m_name{name}
         , m_userType{userType}
         , m_directive{directive} {
         this->propp(propp);
-        addPasssp(passsp);
-        m_immediate = m_userType.containsAny(VAssertType::SIMPLE_IMMEDIATE
-                                             | VAssertType::OBSERVED_DEFERRED_IMMEDIATE
-                                             | VAssertType::FINAL_DEFERRED_IMMEDIATE)
-                      || m_userType == VAssertType::INTERNAL;
+        جوڑو_Passsp(passsp);
+        m_فوری = m_userType.شامل_ہے_Any(VAssertType::SIMPLE_فوری
+                                             | VAssertType::OBSERVED_DEFERRED_فوری
+                                             | VAssertType::FINAL_DEFERRED_فوری)
+                      || m_userType == VAssertType::اندرونی_2;
     }
-    ASTGEN_MEMBERS_AstNodeCoverOrAssert;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool sameNode(const AstNode* samep) const override { return samep->name() == name(); }
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string type() { return ""; }
-    VAssertType userType() const VL_MT_SAFE { return m_userType; }
-    VAssertDirectiveType directive() const { return m_directive; }
-    bool immediate() const { return m_immediate; }
-    void immediate(bool flag) { m_immediate = flag; }
-    bool senFromAlways() const VL_MT_STABLE { return m_senFromAlways; }
-    void senFromAlways(bool flag) { m_senFromAlways = flag; }
+    ASTGEN_MEMBERS_Ast_گرہ_Cover_Or_Assert;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }  // * = Var name
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس samep->name() == name(); }
+    خالی name(ثابت string& name) override { m_name = name; }
+    خالی dump(std::ostream& str = std::cout) ثابت override;
+    خالی dumpJson(std::ostream& str = std::cout) ثابت override;
+    string type() { واپس ""; }
+    VAssertType userType() ثابت VL_MT_محفوظ { واپس m_userType; }
+    VAssertDirectiveType directive() ثابت { واپس m_directive; }
+    bool فوری() ثابت { واپس m_فوری; }
+    خالی فوری(bool flag) { m_فوری = flag; }
+    bool senFromAlways() ثابت VL_MT_STABLE { واپس m_senFromAlways; }
+    خالی senFromAlways(bool flag) { m_senFromAlways = flag; }
 };
-class AstNodeForeach VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_Foreach VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := headerp : AstForeachHeader
     // @astgen op2 := bodyp : List[AstNode]
-public:
-    AstNodeForeach(VNType t, FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp)
-        : AstNodeStmt(t, fl) {
+عوامی:
+    Ast_گرہ_Foreach(VNType t, File_سطر* fl, Ast_Foreach_سرخی* headerp, Ast_گرہ* bodyp)
+        : Ast_گرہ_Stmt(t, fl) {
         this->headerp(headerp);
-        addBodyp(bodyp);
+        جوڑو_Bodyp(bodyp);
     }
-    ASTGEN_MEMBERS_AstNodeForeach;
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_گرہ_Foreach;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstNodeIf VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_If VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
     VBranchPred m_branchPred;  // Branch prediction as taken/untaken?
     bool m_isBoundsCheck;  // True if this if node is for assertion/bounds checking
-protected:
-    AstNodeIf(VNType t, FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
-        : AstNodeStmt{t, fl} {
+محفوظ:
+    Ast_گرہ_If(VNType t, File_سطر* fl, Ast_گرہ_اظہاریہ* condp, Ast_گرہ* thensp, Ast_گرہ* elsesp)
+        : Ast_گرہ_Stmt{t, fl} {
         this->condp(condp);
-        addThensp(thensp);
-        addElsesp(elsesp);
+        جوڑو_Thensp(thensp);
+        جوڑو_Elsesp(elsesp);
         isBoundsCheck(false);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeIf;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isGateDedupable() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void branchPred(VBranchPred flag) { m_branchPred = flag; }
-    VBranchPred branchPred() const { return m_branchPred; }
-    void isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
-    bool isBoundsCheck() const { return m_isBoundsCheck; }
+عوامی:
+    ASTGEN_MEMBERS_Ast_گرہ_If;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isGateDedupable() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
+    خالی branchPred(VBranchPred flag) { m_branchPred = flag; }
+    VBranchPred branchPred() ثابت { واپس m_branchPred; }
+    خالی isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
+    bool isBoundsCheck() ثابت { واپس m_isBoundsCheck; }
 };
-class AstNodeReadWriteMem VL_NOT_FINAL : public AstNodeStmt {
+class Ast_گرہ_Read_Write_Mem VL_NOT_FINAL : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := filenamep : AstNodeExpr
     // @astgen op2 := memp : AstNodeExpr
     // @astgen op3 := lsbp : Optional[AstNodeExpr]
     // @astgen op4 := msbp : Optional[AstNodeExpr]
 
-    const bool m_isHex;  // readmemh, not readmemb
-public:
-    AstNodeReadWriteMem(VNType t, FileLine* fl, bool hex, AstNodeExpr* filenamep,
-                        AstNodeExpr* memp, AstNodeExpr* lsbp, AstNodeExpr* msbp)
-        : AstNodeStmt{t, fl}
+    ثابت bool m_isHex;  // readmemh, not readmemb
+عوامی:
+    Ast_گرہ_Read_Write_Mem(VNType t, File_سطر* fl, bool hex, Ast_گرہ_اظہاریہ* filenamep,
+                        Ast_گرہ_اظہاریہ* memp, Ast_گرہ_اظہاریہ* lsbp, Ast_گرہ_اظہاریہ* msbp)
+        : Ast_گرہ_Stmt{t, fl}
         , m_isHex{hex} {
         this->filenamep(filenamep);
         this->memp(memp);
         this->lsbp(lsbp);
         this->msbp(msbp);
     }
-    ASTGEN_MEMBERS_AstNodeReadWriteMem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return isHex() == VN_DBG_AS(samep, NodeReadWriteMem)->isHex();
+    ASTGEN_MEMBERS_Ast_گرہ_Read_Write_Mem;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس isHex() == VN_DBG_AS(samep, گرہ_Read_Write_Mem)->isHex();
     }
-    bool isHex() const { return m_isHex; }
-    virtual const char* cFuncPrefixp() const = 0;
+    bool isHex() ثابت { واپس m_isHex; }
+    مجازی ثابت حرف* cFuncPrefixp() ثابت = 0;
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstCaseItem final : public AstNode {
+class Ast_Case_شے final : عوامی Ast_گرہ {
     // Single item of AstCase/AstRandCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* stmtsp)
-        : ASTGEN_SUPER_CaseItem(fl) {
-        addCondsp(condsp);
-        addStmtsp(stmtsp);
+عوامی:
+    Ast_Case_شے(File_سطر* fl, Ast_گرہ_اظہاریہ* condsp, Ast_گرہ* stmtsp)
+        : ASTGEN_SUPER_Case_شے(fl) {
+        جوڑو_Condsp(condsp);
+        جوڑو_Stmtsp(stmtsp);
     }
-    ASTGEN_MEMBERS_AstCaseItem;
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isDefault() const { return condsp() == nullptr; }
+    ASTGEN_MEMBERS_Ast_Case_شے;
+    صحیح instr_گنتی() ثابت override { واپس چوڑائی_Instrs() + INSTR_گنتی_BRANCH; }
+    bool isDefault() ثابت { واپس condsp() == nullptr; }
 };
 
-class AstForeachHeader final : public AstNode {
+class Ast_Foreach_سرخی final : عوامی Ast_گرہ {
     // Variable reference + index enumeration "ref [id, id, id]" for a foreach statement
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := elementsp : List[AstNode<AstNodeExpr|AstVar|AstEmpty>]
     //             AstNodeExpr/AstEmpty during parsing (only AstParseRef/AstEmpty is well formed)
     //             then AstVar/AstEmpty after LinkDot
-public:
-    AstForeachHeader(FileLine* fl, AstNodeExpr* fromp, AstNode* elementsp)
-        : ASTGEN_SUPER_ForeachHeader(fl) {
+عوامی:
+    Ast_Foreach_سرخی(File_سطر* fl, Ast_گرہ_اظہاریہ* fromp, Ast_گرہ* elementsp)
+        : ASTGEN_SUPER_Foreach_سرخی(fl) {
         this->fromp(fromp);
-        addElementsp(elementsp);
+        جوڑو_Elementsp(elementsp);
     }
-    ASTGEN_MEMBERS_AstForeachHeader;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
+    ASTGEN_MEMBERS_Ast_Foreach_سرخی;
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس false; }
 };
 
 // === AstNodeStmt ===
-class AstAssertCtl final : public AstNodeStmt {
+class AstAssertCtl final : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := controlTypep : AstNodeExpr
     // @astgen op2 := assertTypesp : Optional[AstNodeExpr]
     // @astgen op3 := directiveTypesp : Optional[AstNodeExpr]
@@ -252,134 +252,134 @@ class AstAssertCtl final : public AstNodeStmt {
     VAssertType m_assertTypes;  // Types of assertions affected
     VAssertDirectiveType m_directiveTypes;  // Types of directives affected
 
-public:
-    AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
-                 AstNodeExpr* levelp = nullptr, AstNodeExpr* itemsp = nullptr);
-    AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp = nullptr,
-                 AstNodeExpr* directiveTypep = nullptr, AstNodeExpr* levelp = nullptr,
-                 AstNodeExpr* itemsp = nullptr);
+عوامی:
+    AstAssertCtl(File_سطر* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
+                 Ast_گرہ_اظہاریہ* levelp = nullptr, Ast_گرہ_اظہاریہ* itemsp = nullptr);
+    AstAssertCtl(File_سطر* fl, Ast_گرہ_اظہاریہ* controlTypep, Ast_گرہ_اظہاریہ* assertTypesp = nullptr,
+                 Ast_گرہ_اظہاریہ* directiveTypep = nullptr, Ast_گرہ_اظہاریہ* levelp = nullptr,
+                 Ast_گرہ_اظہاریہ* itemsp = nullptr);
     ASTGEN_MEMBERS_AstAssertCtl;
-    string verilogKwd() const override { return m_ctlType.ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    VAssertCtlType ctlType() const { return m_ctlType; }
-    void ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
-    VAssertType assertTypes() const { return m_assertTypes; }
-    void assertTypes(VAssertType types) { m_assertTypes = types; }
-    VAssertDirectiveType directiveTypes() const { return m_directiveTypes; }
-    void directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    string verilogKwd() ثابت override { واپس m_ctlType.ascii(); }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    VAssertCtlType ctlType() ثابت { واپس m_ctlType; }
+    خالی ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
+    VAssertType assertTypes() ثابت { واپس m_assertTypes; }
+    خالی assertTypes(VAssertType types) { m_assertTypes = types; }
+    VAssertDirectiveType directiveTypes() ثابت { واپس m_directiveTypes; }
+    خالی directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
+    خالی dump(std::ostream& str = std::cout) ثابت override;
+    خالی dumpJson(std::ostream& str = std::cout) ثابت override;
 };
-class AstBreak final : public AstNodeStmt {
-public:
-    explicit AstBreak(FileLine* fl)
+class AstBreak final : عوامی Ast_گرہ_Stmt {
+عوامی:
+    explicit AstBreak(File_سطر* fl)
         : ASTGEN_SUPER_Break(fl) {}
     ASTGEN_MEMBERS_AstBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ثابت override { واپس "break"; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCAwait final : public AstNodeStmt {
+class AstCAwait final : عوامی Ast_گرہ_Stmt {
     // C++'s co_await. While this is an expression in C++, in Verilator it is only used
     // with void result types and always appears in statement position. There must never
     // be a suspendable process that returns a value, so modeling as a statement instead.
     // @astgen op1 := exprp : AstNodeExpr
     //
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sentree related to this await
-public:
-    AstCAwait(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep = nullptr)
+عوامی:
+    AstCAwait(File_سطر* fl, Ast_گرہ_اظہاریہ* exprp, Ast_Sen_درخت* sentreep = nullptr)
         : ASTGEN_SUPER_CAwait(fl)
         , m_sentreep{sentreep} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstCAwait;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    AstSenTree* sentreep() const { return m_sentreep; }
-    void clearSentreep() { m_sentreep = nullptr; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isTimingControl() ثابت override { واپس true; }
+    Ast_Sen_درخت* sentreep() ثابت { واپس m_sentreep; }
+    خالی clearSentreep() { m_sentreep = nullptr; }
 };
-class AstCLocalScope final : public AstNodeStmt {
+class AstCLocalScope final : عوامی Ast_گرہ_Stmt {
     // Pack statements into an unnamed scope when generating C++
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstCLocalScope(FileLine* fl, AstNode* stmtsp)
+عوامی:
+    AstCLocalScope(File_سطر* fl, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_CLocalScope(fl) {
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCLocalScope;
 };
-class AstCReturn final : public AstNodeStmt {
+class AstCReturn final : عوامی Ast_گرہ_Stmt {
     // C++ return from a function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstCReturn(FileLine* fl, AstNodeExpr* lhsp)
+عوامی:
+    AstCReturn(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp)
         : ASTGEN_SUPER_CReturn(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstCReturn;
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    صحیح instr_گنتی() ثابت override { واپس چوڑائی_Instrs(); }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstCStmt final : public AstNodeStmt {
+class AstCStmt final : عوامی Ast_گرہ_Stmt {
     // C statement emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeStmt|AstNodeExpr|AstText>]
-    const VCStmtType m_stmtType;  // Special statement (instead of comparing name())
+    ثابت VCStmtType m_stmtType;  // Special statement (instead of comparing name())
 
-    static AstCStmt* profExecSection(FileLine* flp, const std::string& section, bool push) {
+    ساکن AstCStmt* profExecSection(File_سطر* flp, ثابت std::string& section, bool ڈالو) {
         // Compute the label
         std::string label;
-        if (v3Global.opt.hierChild()) {
-            label += v3Global.opt.topModule() + ":";
-        } else if (!v3Global.opt.libCreate().empty()) {
+        اگر (v3Global.opt.hier_بچہ()) {
+            label += v3Global.opt.چوٹی_Module() + ":";
+        } ورنہ اگر (!v3Global.opt.libCreate().خالی_خانے()) {
             label += v3Global.opt.libCreate() + ":";
         }
         label += section;
         // The profiler statement
         std::string pStmt = "VL_EXEC_TRACE_ADD_RECORD(vlSymsp)";
-        pStmt += push ? ".sectionPush" : ".sectionPop";
+        pStmt += ڈالو ? ".sectionPush" : ".sectionPop";
         pStmt += "(";
-        if (push) pStmt += "\"" + label + "\"";
+        اگر (ڈالو) pStmt += "\"" + label + "\"";
         pStmt += ");";
         // The debug statement
         std::string dStmt = "VL_DEBUG_IF(VL_DBG_MSGF(\"+    --prof-exec ";
-        dStmt += push ? "sectionPush " : "sectionPop ";
+        dStmt += ڈالو ? "sectionPush " : "sectionPop ";
         dStmt += label;
         dStmt += "\\n\"););";
         // Concatenate
-        return new AstCStmt{flp, push ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
+        واپس new AstCStmt{flp, ڈالو ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
     }
 
-public:
-    explicit AstCStmt(FileLine* fl, const std::string& text = "",
-                      const VCStmtType& stmtType = VCStmtType::NONE)
+عوامی:
+    explicit AstCStmt(File_سطر* fl, ثابت std::string& متن = "",
+                      ثابت VCStmtType& stmtType = VCStmtType::NONE)
         : ASTGEN_SUPER_CStmt(fl)
         , m_stmtType{stmtType} {
-        if (!text.empty()) add(text);
+        اگر (!متن.خالی_خانے()) جوڑو(متن);
     }
     ASTGEN_MEMBERS_AstCStmt;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VCStmtType stmtType() const { return m_stmtType; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool same_گرہ(ثابت Ast_گرہ*) ثابت override { واپس true; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    VCStmtType stmtType() ثابت { واپس m_stmtType; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    خالی جوڑو(ثابت std::string& متن) { جوڑو_Nodesp(new Ast_متن{fileline(), متن}); }
+    خالی جوڑو(Ast_گرہ* nodep) { جوڑو_Nodesp(nodep); }
     // Static factory methods for specific cases
-    static AstCStmt* profExecSectionPush(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, true);
+    ساکن AstCStmt* prof_Exec_Section_ڈالو(File_سطر* flp, ثابت std::string& section) {
+        واپس profExecSection(flp, section, true);
     }
-    static AstCStmt* profExecSectionPop(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, false);
+    ساکن AstCStmt* prof_Exec_Section_نکالو(File_سطر* flp, ثابت std::string& section) {
+        واپس profExecSection(flp, section, false);
     }
 };
-class AstCStmtUser final : public AstNodeStmt {
+class AstCStmtUser final : عوامی Ast_گرہ_Stmt {
     // User '$c' statement, also used for handling some AstSystemCSection.
     // Same as AstCStmt, with text tracking disabled.
     //
@@ -389,144 +389,144 @@ class AstCStmtUser final : public AstNodeStmt {
     // Use AstCStmt instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_fromDollarC;  // Is from source '$c', emit decoration
-public:
-    explicit AstCStmtUser(FileLine* fl, bool fromDollarC = false)
+    ثابت bool m_fromDollarC;  // Is from source '$c', emit decoration
+عوامی:
+    explicit AstCStmtUser(File_سطر* fl, bool fromDollarC = false)
         : ASTGEN_SUPER_CStmtUser(fl)
         , m_fromDollarC{fromDollarC} {}
     ASTGEN_MEMBERS_AstCStmtUser;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool fromDollarC() const { return m_fromDollarC; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool same_گرہ(ثابت Ast_گرہ*) ثابت override { واپس true; }
+    bool fromDollarC() ثابت { واپس m_fromDollarC; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    خالی جوڑو(ثابت std::string& متن) { جوڑو_Nodesp(new Ast_متن{fileline(), متن}); }
+    خالی جوڑو(Ast_گرہ* nodep) { جوڑو_Nodesp(nodep); }
 };
-class AstCase final : public AstNodeStmt {
+class AstCase final : عوامی Ast_گرہ_Stmt {
     // Case statement
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstCaseItem]
     // @astgen op3 := notParallelp : List[AstNode] // assertion code for non-full case's
     VCaseType m_caseType;  // 0=case, 1=casex, 2=casez
-    bool m_fullPragma = false;  // Synthesis full_case
+    bool m_بھرا_Pragma = false;  // Synthesis full_case
     bool m_parallelPragma = false;  // Synthesis parallel_case
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
-    bool m_priorityPragma = false;  // priority case
-public:
-    AstCase(FileLine* fl, VCaseType caseType, AstNodeExpr* exprp, AstCaseItem* itemsp)
+    bool m_ترجیح_Pragma = false;  // priority case
+عوامی:
+    AstCase(File_سطر* fl, VCaseType caseType, Ast_گرہ_اظہاریہ* exprp, Ast_Case_شے* itemsp)
         : ASTGEN_SUPER_Case(fl)
         , m_caseType{caseType} {
         this->exprp(exprp);
-        addItemsp(itemsp);
+        جوڑو_Itemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstCase;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    string verilogKwd() const override { return casez() ? "casez" : casex() ? "casex" : "case"; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    string verilogKwd() ثابت override { واپس casez() ? "casez" : casex() ? "casex" : "case"; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
     }
-    bool casex() const { return m_caseType == VCaseType::CT_CASEX; }
-    bool casez() const { return m_caseType == VCaseType::CT_CASEZ; }
-    bool caseInside() const { return m_caseType == VCaseType::CT_CASEINSIDE; }
-    bool caseMatches() const { return m_caseType == VCaseType::CT_CASEMATCHES; }
-    bool caseSimple() const { return m_caseType == VCaseType::CT_CASE; }
-    void caseInsideSet() { m_caseType = VCaseType::CT_CASEINSIDE; }
-    void caseMatchesSet() { m_caseType = VCaseType::CT_CASEMATCHES; }
-    bool fullPragma() const { return m_fullPragma; }
-    void fullPragma(bool flag) { m_fullPragma = flag; }
-    bool parallelPragma() const { return m_parallelPragma; }
-    void parallelPragma(bool flag) { m_parallelPragma = flag; }
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    string pragmaString() const;
+    bool casex() ثابت { واپس m_caseType == VCaseType::CT_CASEX; }
+    bool casez() ثابت { واپس m_caseType == VCaseType::CT_CASEZ; }
+    bool caseInside() ثابت { واپس m_caseType == VCaseType::CT_CASEINSIDE; }
+    bool caseMatches() ثابت { واپس m_caseType == VCaseType::CT_CASEMATCHES; }
+    bool caseSimple() ثابت { واپس m_caseType == VCaseType::CT_CASE; }
+    خالی case_Inside_سیٹ() { m_caseType = VCaseType::CT_CASEINSIDE; }
+    خالی case_Matches_سیٹ() { m_caseType = VCaseType::CT_CASEMATCHES; }
+    bool بھرا_Pragma() ثابت { واپس m_بھرا_Pragma; }
+    خالی بھرا_Pragma(bool flag) { m_بھرا_Pragma = flag; }
+    bool parallelPragma() ثابت { واپس m_parallelPragma; }
+    خالی parallelPragma(bool flag) { m_parallelPragma = flag; }
+    bool uniquePragma() ثابت { واپس m_uniquePragma; }
+    خالی uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() ثابت { واپس m_unique0Pragma; }
+    خالی unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool ترجیح_Pragma() ثابت { واپس m_ترجیح_Pragma; }
+    خالی ترجیح_Pragma(bool flag) { m_ترجیح_Pragma = flag; }
+    string pragmaString() ثابت;
 };
-class AstComment final : public AstNodeStmt {
+class AstComment final : عوامی Ast_گرہ_Stmt {
     // Some comment to put into the output stream
-    const string m_name;  // Text of comment
-    const bool m_showAt;  // Show "at <fileline>"
-public:
-    AstComment(FileLine* fl, const string& name, bool showAt = false)
+    ثابت string m_name;  // Text of comment
+    ثابت bool m_showAt;  // Show "at <fileline>"
+عوامی:
+    AstComment(File_سطر* fl, ثابت string& name, bool showAt = false)
         : ASTGEN_SUPER_Comment(fl)
         , m_name{name}
         , m_showAt{showAt} {}
     ASTGEN_MEMBERS_AstComment;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Text
-    bool sameNode(const AstNode* samep) const override { return true; }  // Ignore name in comments
-    virtual bool showAt() const { return m_showAt; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }  // * = Text
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس true; }  // Ignore name in comments
+    مجازی bool showAt() ثابت { واپس m_showAt; }
 };
-class AstConstraintBefore final : public AstNodeStmt {
+class AstConstraintBefore final : عوامی Ast_گرہ_Stmt {
     // Constraint solve before item
     // @astgen op1 := lhssp : List[AstNodeExpr]
     // @astgen op2 := rhssp : List[AstNodeExpr]
-public:
-    AstConstraintBefore(FileLine* fl, AstNodeExpr* lhssp, AstNodeExpr* rhssp)
+عوامی:
+    AstConstraintBefore(File_سطر* fl, Ast_گرہ_اظہاریہ* lhssp, Ast_گرہ_اظہاریہ* rhssp)
         : ASTGEN_SUPER_ConstraintBefore(fl) {
-        addLhssp(lhssp);
-        addRhssp(rhssp);
+        جوڑو_Lhssp(lhssp);
+        جوڑو_Rhssp(rhssp);
     }
     ASTGEN_MEMBERS_AstConstraintBefore;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstConstraintExpr final : public AstNodeStmt {
+class Ast_Constraint_اظہاریہ final : عوامی Ast_گرہ_Stmt {
     // Constraint expression
     // @astgen op1 := exprp : AstNodeExpr
     bool m_isDisableSoft = false;  // Disable soft constraint expression
     bool m_isSoft = false;  // Soft constraint expression
-public:
-    AstConstraintExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_ConstraintExpr(fl) {
+عوامی:
+    Ast_Constraint_اظہاریہ(File_سطر* fl, Ast_گرہ_اظہاریہ* exprp)
+        : ASTGEN_SUPER_Constraint_اظہاریہ(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstConstraintExpr;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isDisableSoft() const { return m_isDisableSoft; }
-    void isDisableSoft(bool flag) { m_isDisableSoft = flag; }
-    bool isSoft() const { return m_isSoft; }
-    void isSoft(bool flag) { m_isSoft = flag; }
+    ASTGEN_MEMBERS_Ast_Constraint_اظہاریہ;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
+    bool isDisableSoft() ثابت { واپس m_isDisableSoft; }
+    خالی isDisableSoft(bool flag) { m_isDisableSoft = flag; }
+    bool isSoft() ثابت { واپس m_isSoft; }
+    خالی isSoft(bool flag) { m_isSoft = flag; }
 };
-class AstConstraintUnique final : public AstNodeStmt {
+class AstConstraintUnique final : عوامی Ast_گرہ_Stmt {
     // Constraint unique statement
     // @astgen op1 := rangesp : List[AstNode]
-public:
-    AstConstraintUnique(FileLine* fl, AstNode* rangesp)
+عوامی:
+    AstConstraintUnique(File_سطر* fl, Ast_گرہ* rangesp)
         : ASTGEN_SUPER_ConstraintUnique(fl) {
-        addRangesp(rangesp);
+        جوڑو_Rangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstConstraintUnique;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstContinue final : public AstNodeStmt {
-public:
-    explicit AstContinue(FileLine* fl)
+class AstContinue final : عوامی Ast_گرہ_Stmt {
+عوامی:
+    explicit AstContinue(File_سطر* fl)
         : ASTGEN_SUPER_Continue(fl) {}
     ASTGEN_MEMBERS_AstContinue;
-    string verilogKwd() const override { return "continue"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ثابت override { واپس "continue"; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCoverInc final : public AstNodeStmt {
+class AstCoverInc final : عوامی Ast_گرہ_Stmt {
     // Coverage analysis point; increment coverage count
     // @astgen op1 := toggleExprp : Optional[AstNodeExpr]  // [After V3Clock]
     // @astgen op2 := toggleCovExprp : Optional[AstNodeExpr]  // [After V3Clock]
@@ -536,175 +536,175 @@ class AstCoverInc final : public AstNodeStmt {
 
     bool m_isDuplicate = false;  // Duplicate AstCoverInc associated with one AstNodeCoverDecl
 
-public:
-    AstCoverInc(FileLine* fl, AstNodeCoverDecl* declp, const bool isDuplicate = false)
+عوامی:
+    AstCoverInc(File_سطر* fl, Ast_گرہ_Cover_Decl* declp, ثابت bool isDuplicate = false)
         : ASTGEN_SUPER_CoverInc(fl)
         , m_isDuplicate{isDuplicate}
         , m_declp{declp} {}
     ASTGEN_MEMBERS_AstCoverInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverInc* const otherp = VN_DBG_AS(samep, CoverInc);
-        return declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس 1 + 2 * INSTR_گنتی_LD; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        ثابت AstCoverInc* ثابت otherp = VN_DBG_AS(samep, CoverInc);
+        واپس declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstNodeCoverDecl* declp() const { return m_declp; }  // Where defined
-    void declp(AstNodeCoverDecl* nodep) { m_declp = nodep; }
-    bool isDuplicate() const { return m_isDuplicate; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool is_خالص() override { واپس false; }
+    Ast_گرہ_Cover_Decl* declp() ثابت { واپس m_declp; }  // Where defined
+    خالی declp(Ast_گرہ_Cover_Decl* nodep) { m_declp = nodep; }
+    bool isDuplicate() ثابت { واپس m_isDuplicate; }
 };
-class AstDeassign final : public AstNodeStmt {
+class AstDeassign final : عوامی Ast_گرہ_Stmt {
     // Procedural 'deassign' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstDeassign(FileLine* fl, AstNodeExpr* lhsp)
+عوامی:
+    AstDeassign(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp)
         : ASTGEN_SUPER_Deassign(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDeassign;
 };
-class AstDelay final : public AstNodeStmt {
+class AstDelay final : عوامی Ast_گرہ_Stmt {
     // Delay statement
     // @astgen op1 := lhsp : AstNodeExpr // Delay value (or min for range)
     // @astgen op2 := stmtsp : List[AstNode] // Statements under delay
     // @astgen op3 := rhsp : Optional[AstNodeExpr] // Max bound for cycle range or fall delay
     // @astgen op4 := throughoutp : Optional[AstNodeExpr] // Throughout condition (IEEE 16.9.9)
     VTimescale m_timeunit;  // Delay's time unit
-    const bool m_isCycleDelay;  // True if it is a cycle delay
-public:
-    AstDelay(FileLine* fl, AstNodeExpr* lhsp, bool isCycleDelay)
+    ثابت bool m_is_چکر_Delay;  // True if it is a cycle delay
+عوامی:
+    AstDelay(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, bool is_چکر_Delay)
         : ASTGEN_SUPER_Delay(fl)
-        , m_isCycleDelay{isCycleDelay} {
+        , m_is_چکر_Delay{is_چکر_Delay} {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDelay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
-    bool isCycleDelay() const { return m_isCycleDelay; }
-    bool isRangeDelay() const { return m_isCycleDelay && rhsp(); }
-    bool isUnbounded() const { return isRangeDelay() && VN_IS(rhsp(), Unbounded); }
-    void fallDelay(AstNodeExpr* const fallDelayp) { rhsp(fallDelayp); }
-    AstNodeExpr* fallDelay() const { return m_isCycleDelay ? nullptr : rhsp(); }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isTimingControl() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
+    خالی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() ثابت { واپس m_timeunit; }
+    bool is_چکر_Delay() ثابت { واپس m_is_چکر_Delay; }
+    bool isRangeDelay() ثابت { واپس m_is_چکر_Delay && rhsp(); }
+    bool isUnbounded() ثابت { واپس isRangeDelay() && VN_IS(rhsp(), Unbounded); }
+    خالی fallDelay(Ast_گرہ_اظہاریہ* ثابت fallDelayp) { rhsp(fallDelayp); }
+    Ast_گرہ_اظہاریہ* fallDelay() ثابت { واپس m_is_چکر_Delay ? nullptr : rhsp(); }
 };
-class AstDisable final : public AstNodeStmt {
+class AstDisable final : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := targetRefp : Optional[AstNodeExpr]  // Reference to link in V3LinkDot
     // @astgen ptr := m_targetp : Optional[AstNode]  // Task or block after V3LinkDot
-public:
-    AstDisable(FileLine* fl, AstNodeExpr* targetRefp)
+عوامی:
+    AstDisable(File_سطر* fl, Ast_گرہ_اظہاریہ* ہدف_Refp)
         : ASTGEN_SUPER_Disable(fl) {
-        this->targetRefp(targetRefp);
+        this->ہدف_Refp(ہدف_Refp);
     }
     ASTGEN_MEMBERS_AstDisable;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void targetp(AstNode* nodep) { m_targetp = nodep; }
-    AstNode* targetp() const { return m_targetp; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    ثابت حرف* broken() ثابت override;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی targetp(Ast_گرہ* nodep) { m_targetp = nodep; }
+    Ast_گرہ* targetp() ثابت { واپس m_targetp; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstDisableFork final : public AstNodeStmt {
+class AstDisableFork final : عوامی Ast_گرہ_Stmt {
     // A "disable fork" statement
-public:
-    explicit AstDisableFork(FileLine* fl)
+عوامی:
+    explicit AstDisableFork(File_سطر* fl)
         : ASTGEN_SUPER_DisableFork(fl) {}
     ASTGEN_MEMBERS_AstDisableFork;
-    string verilogKwd() const override { return "disable fork"; }
+    string verilogKwd() ثابت override { واپس "disable fork"; }
 };
-class AstDisplay final : public AstNodeStmt {
+class AstDisplay final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must resolve to a VarRef)
     VDisplayType m_displayType;
 
-public:
-    AstDisplay(FileLine* fl, VDisplayType dispType, const string& text, AstNodeExpr* filep,
-               AstNodeExpr* exprsp, char missingArgChar = 'd')
+عوامی:
+    AstDisplay(File_سطر* fl, VDisplayType dispType, ثابت string& متن, Ast_گرہ_اظہاریہ* filep,
+               Ast_گرہ_اظہاریہ* exprsp, حرف missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
-        fmtp(new AstSFormatF{fl, text, true, exprsp, missingArgChar});
+        fmtp(new AstSFormatF{fl, متن, true, exprsp, missingArgChar});
         this->filep(filep);
     }
-    AstDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* filep, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+    AstDisplay(File_سطر* fl, VDisplayType dispType, Ast_گرہ_اظہاریہ* filep, Ast_گرہ_اظہاریہ* exprsp,
+               حرف missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* ثابت newp
+            = new AstSFormatF{fl, AstSFormatF::اظہاریہ_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(true);
         fmtp(newp);
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstDisplay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override {
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    ثابت حرف* broken() ثابت override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        واپس nullptr;
     }
-    string verilogKwd() const override {
-        return (filep() ? "$f"s + string{displayType().ascii()}
+    string verilogKwd() ثابت override {
+        واپس (filep() ? "$f"s + string{displayType().ascii()}
                         : "$"s + string{displayType().ascii()});
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return displayType() == VN_DBG_AS(samep, Display)->displayType();
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { واپس true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس displayType() == VN_DBG_AS(samep, Display)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    VDisplayType displayType() const { return m_displayType; }
-    void displayType(VDisplayType type) { m_displayType = type; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_PLI; }
+    VDisplayType displayType() ثابت { واپس m_displayType; }
+    خالی displayType(VDisplayType type) { m_displayType = type; }
     // * = Add a newline for $display
-    bool addNewline() const { return displayType().addNewline(); }
+    bool جوڑو_Newline() ثابت { واپس displayType().جوڑو_Newline(); }
 };
-class AstDumpCtl final : public AstNodeStmt {
+class AstDumpCtl final : عوامی Ast_گرہ_Stmt {
     // $dumpon etc
     // Parents: expr
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression based on type of statement
-    const VDumpCtlType m_ctlType;  // Type of operation
-public:
-    AstDumpCtl(FileLine* fl, VDumpCtlType ctlType, AstNodeExpr* exprp = nullptr)
+    ثابت VDumpCtlType m_ctlType;  // Type of operation
+عوامی:
+    AstDumpCtl(File_سطر* fl, VDumpCtlType ctlType, Ast_گرہ_اظہاریہ* exprp = nullptr)
         : ASTGEN_SUPER_DumpCtl(fl)
         , m_ctlType{ctlType} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstDumpCtl;
-    string verilogKwd() const override { return ctlType().ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    virtual bool cleanOut() const { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VDumpCtlType ctlType() const { return m_ctlType; }
+    string verilogKwd() ثابت override { واپس ctlType().ascii(); }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    مجازی bool clean_برآمد() ثابت { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    VDumpCtlType ctlType() ثابت { واپس m_ctlType; }
 };
-class AstEventControl final : public AstNodeStmt {
+class AstEventControl final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     // @astgen op1 := sentreep : Optional[AstSenTree]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstEventControl(FileLine* fl, AstSenTree* sentreep, AstNode* stmtsp)
+عوامی:
+    AstEventControl(File_سطر* fl, Ast_Sen_درخت* sentreep, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_EventControl(fl) {
         this->sentreep(sentreep);
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstEventControl;
-    string verilogKwd() const override { return "@(%l) %r"; }
-    bool isTimingControl() const override { return true; }
-    int instrCount() const override { return 0; }
+    string verilogKwd() ثابت override { واپس "@(%l) %r"; }
+    bool isTimingControl() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }
 };
-class AstExecGraph final : public AstNodeStmt {
+class Ast_Exec_گراف final : عوامی Ast_گرہ_Stmt {
     // For parallel execution, this node contains a dependency graph. Each
     // vertex in the graph is an ExecMTask, which includes a function that
     // holds the sequential body of the mtask.
@@ -724,130 +724,130 @@ class AstExecGraph final : public AstNodeStmt {
     // Static cost of the logic each trigger guards, populated by V3ExecGraph::implement
     // @astgen op4 := triggerCostsp : Optional[AstVarRef]
     // @astgen ptr := m_runfuncp : Optional[AstCFunc]  // Statically scheduled dispatch function
-    V3Graph* const m_depGraphp;  // contains ExecMTask vertices
-    const string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
+    V3_گراف* ثابت m_depGraphp;  // contains ExecMTask vertices
+    ثابت string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
 
-public:
-    AstExecGraph(FileLine* fl, const string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
-    ~AstExecGraph() override;
-    ASTGEN_MEMBERS_AstExecGraph;
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    V3Graph* depGraphp() { return m_depGraphp; }
-    const V3Graph* depGraphp() const { return m_depGraphp; }
-    AstCFunc* runfuncp() const { return m_runfuncp; }
-    void runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
+عوامی:
+    Ast_Exec_گراف(File_سطر* fl, ثابت string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
+    ~Ast_Exec_گراف() override;
+    ASTGEN_MEMBERS_Ast_Exec_گراف;
+    خالی cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    ثابت حرف* broken() ثابت override;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }
+    V3_گراف* depGraphp() { واپس m_depGraphp; }
+    ثابت V3_گراف* depGraphp() ثابت { واپس m_depGraphp; }
+    AstCFunc* runfuncp() ثابت { واپس m_runfuncp; }
+    خالی runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
 };
-class AstFClose final : public AstNodeStmt {
+class AstFClose final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFClose(FileLine* fl, AstNodeExpr* filep)
+عوامی:
+    AstFClose(File_سطر* fl, Ast_گرہ_اظہاریہ* filep)
         : ASTGEN_SUPER_FClose(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFClose;
-    string verilogKwd() const override { return "$fclose"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ثابت override { واپس "$fclose"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstFFlush final : public AstNodeStmt {
+class AstFFlush final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
-public:
-    AstFFlush(FileLine* fl, AstNodeExpr* filep)
+عوامی:
+    AstFFlush(File_سطر* fl, Ast_گرہ_اظہاریہ* filep)
         : ASTGEN_SUPER_FFlush(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFFlush;
-    string verilogKwd() const override { return "$fflush"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ثابت override { واپس "$fflush"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstFinish final : public AstNodeStmt {
-public:
-    explicit AstFinish(FileLine* fl)
-        : ASTGEN_SUPER_Finish(fl) {}
-    ASTGEN_MEMBERS_AstFinish;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+class Ast_اختتام final : عوامی Ast_گرہ_Stmt {
+عوامی:
+    explicit Ast_اختتام(File_سطر* fl)
+        : ASTGEN_SUPER_اختتام(fl) {}
+    ASTGEN_MEMBERS_Ast_اختتام;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { واپس true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }  // Rarely executes
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس fileline() == samep->fileline(); }
 };
-class AstFinishFork final : public AstNodeStmt {
+class Ast_اختتام_Fork final : عوامی Ast_گرہ_Stmt {
     // $finish in fork
-public:
-    explicit AstFinishFork(FileLine* fl)
-        : ASTGEN_SUPER_FinishFork(fl) {}
-    ASTGEN_MEMBERS_AstFinishFork;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+عوامی:
+    explicit Ast_اختتام_Fork(File_سطر* fl)
+        : ASTGEN_SUPER_اختتام_Fork(fl) {}
+    ASTGEN_MEMBERS_Ast_اختتام_Fork;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { واپس true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }  // Rarely executes
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس fileline() == samep->fileline(); }
 };
-class AstFireEvent final : public AstNodeStmt {
+class AstFireEvent final : عوامی Ast_گرہ_Stmt {
     // '-> _' and '->> _' event trigger statements
     // @astgen op1 := operandp : AstNodeExpr
-    const bool m_delayed;  // Delayed (->>) vs non-delayed (->)
-public:
-    AstFireEvent(FileLine* fl, AstNodeExpr* operandp, bool delayed)
+    ثابت bool m_delayed;  // Delayed (->>) vs non-delayed (->)
+عوامی:
+    AstFireEvent(File_سطر* fl, Ast_گرہ_اظہاریہ* operandp, bool delayed)
         : ASTGEN_SUPER_FireEvent(fl)
         , m_delayed{delayed} {
         this->operandp(operandp);
     }
     ASTGEN_MEMBERS_AstFireEvent;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isDelayed() const { return m_delayed; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isDelayed() ثابت { واپس m_delayed; }
 };
-class AstInitialAutomaticStmt final : public AstNodeStmt {
+class AstInitialAutomaticStmt final : عوامی Ast_گرہ_Stmt {
     // Automatic variable initialization in a statement position
     // Used during early stages to record an initial initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialAutomatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialAutomaticStmt(FileLine* fl, AstNode* stmtsp)
+عوامی:
+    AstInitialAutomaticStmt(File_سطر* fl, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_InitialAutomaticStmt(fl) {
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialAutomaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }
+    bool is_خالص() override { واپس true; }
 };
-class AstInitialStaticStmt final : public AstNodeStmt {
+class AstInitialStaticStmt final : عوامی Ast_گرہ_Stmt {
     // Static variable initialization in a statement position
     // Used during early stages to record a static initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialStatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialStaticStmt(FileLine* fl, AstNode* stmtsp)
+عوامی:
+    AstInitialStaticStmt(File_سطر* fl, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_InitialStaticStmt(fl) {
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialStaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }
+    bool is_خالص() override { واپس true; }
 };
-class AstJumpBlock final : public AstNodeStmt {
+class Ast_Jump_بلاک final : عوامی Ast_گرہ_Stmt {
     // Block of code that might contain AstJumpGo statements as children,
     // which when exectued branch to right after the referenced AstJumpBlock.
     // AstJumpBlocks can nest, and an AstJumpGo can reference any of the
@@ -856,45 +856,45 @@ class AstJumpBlock final : public AstNodeStmt {
     // Children: {statement list, with JumpGo below}
     // @astgen op1 := stmtsp : List[AstNode]
     VIsCached m_purity;  // Pure state
-public:
+عوامی:
     // After construction must call ->labelp to associate with appropriate label
-    AstJumpBlock(FileLine* fl, AstNode* stmtsp)
-        : ASTGEN_SUPER_JumpBlock(fl) {
-        addStmtsp(stmtsp);
+    Ast_Jump_بلاک(File_سطر* fl, Ast_گرہ* stmtsp)
+        : ASTGEN_SUPER_Jump_بلاک(fl) {
+        جوڑو_Stmtsp(stmtsp);
     }
-    ASTGEN_MEMBERS_AstJumpBlock;
-    int instrCount() const override { return 0; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool isPure() override;
+    ASTGEN_MEMBERS_Ast_Jump_بلاک;
+    صحیح instr_گنتی() ثابت override { واپس 0; }
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس true; }
+    bool is_خالص() override;
 
-private:
-    bool getPurityRecurse() const;
+نجی:
+    bool getPurityRecurse() ثابت;
 };
-class AstJumpGo final : public AstNodeStmt {
+class AstJumpGo final : عوامی Ast_گرہ_Stmt {
     // Branch to right after the referenced encloding AstJumpBlock
     // Parents:  statement, including the referenced AstJumpBlock
     // Children: none
     //
     // @astgen ptr := m_blockp : AstJumpBlock  // The AstJumpBlock we are branching after
-public:
-    AstJumpGo(FileLine* fl, AstJumpBlock* blockp)
+عوامی:
+    AstJumpGo(File_سطر* fl, Ast_Jump_بلاک* blockp)
         : ASTGEN_SUPER_JumpGo(fl)
         , m_blockp{blockp} {}
     ASTGEN_MEMBERS_AstJumpGo;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* samep) const override {
-        return blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
+    ثابت حرف* broken() ثابت override;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override {
-        return true;  // SPECIAL: We don't process code after breaks
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isBrancher() ثابت override {
+        واپس true;  // SPECIAL: We don't process code after breaks
     }
-    AstJumpBlock* blockp() const { return m_blockp; }
+    Ast_Jump_بلاک* blockp() ثابت { واپس m_blockp; }
 };
-class AstLoop final : public AstNodeStmt {
+class AstLoop final : عوامی Ast_گرہ_Stmt {
     // An inifinite loop, used to model all source level procedural loops.
     // Executes as:
     //  while (true) {
@@ -906,25 +906,25 @@ class AstLoop final : public AstNodeStmt {
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := contsp : List[AstNode] // Empty after LinkJump
     VOptionBool m_unroll;  // Full, none, or default unrolling
-public:
-    explicit AstLoop(FileLine* fl, AstNode* stmtsp = nullptr)
+عوامی:
+    explicit AstLoop(File_سطر* fl, Ast_گرہ* stmtsp = nullptr)
         : ASTGEN_SUPER_Loop(fl) {
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstLoop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* thatp) const override {
-        return m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool same_گرہ(ثابت Ast_گرہ* thatp) ثابت override {
+        واپس m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
     }
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس true; }
     // ACCESSORS
-    VOptionBool unroll() const { return m_unroll; }
-    void unroll(const VOptionBool flag) { m_unroll = flag; }
+    VOptionBool unroll() ثابت { واپس m_unroll; }
+    خالی unroll(ثابت VOptionBool flag) { m_unroll = flag; }
 };
-class AstLoopTest final : public AstNodeStmt {
+class AstLoopTest final : عوامی Ast_گرہ_Stmt {
     // The condition test inside an AstLoop. If the condition is true,
     // execution continues after this AstLoopTest statement. If the condition
     // is false, control is transfered to after the corresponding AstLoop.
@@ -932,276 +932,276 @@ class AstLoopTest final : public AstNodeStmt {
     // which breaks out of the loop if the condition is false.
     // @astgen op1 := condp : AstNodeExpr  // The loop condition
     // @astgen ptr := m_loopp : AstLoop  // The corresponding AstLoop
-public:
-    AstLoopTest(FileLine* fl, AstLoop* loopp, AstNodeExpr* condp)
+عوامی:
+    AstLoopTest(File_سطر* fl, AstLoop* loopp, Ast_گرہ_اظہاریہ* condp)
         : ASTGEN_SUPER_LoopTest(fl)
         , m_loopp{loopp} {
         this->condp(condp);
     }
     ASTGEN_MEMBERS_AstLoopTest;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override { return true; }
-    int instrCount() const override { return 0; }
+    ثابت حرف* broken() ثابت override;
+    خالی dump(std::ostream& str) ثابت override;
+    bool same_گرہ(ثابت Ast_گرہ*) ثابت override { واپس true; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isBrancher() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }
     // ACCESSORS
-    AstLoop* loopp() const { return m_loopp; }
+    AstLoop* loopp() ثابت { واپس m_loopp; }
 };
-class AstMonitorOff final : public AstNodeStmt {
-    const bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
+class AstMonitorOff final : عوامی Ast_گرہ_Stmt {
+    ثابت bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
 
-public:
-    AstMonitorOff(FileLine* fl, bool off)
+عوامی:
+    AstMonitorOff(File_سطر* fl, bool off)
         : ASTGEN_SUPER_MonitorOff(fl)
         , m_off{off} {}
     ASTGEN_MEMBERS_AstMonitorOff;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return m_off ? "$monitoroff" : "$monitoron"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string verilogKwd() ثابت override { واپس m_off ? "$monitoroff" : "$monitoron"; }
+    bool isGateOptimizable() ثابت override { واپس false; }  // Though deleted before opt
+    bool isPredictOptimizable() ثابت override { واپس false; }  // Though deleted before opt
+    bool is_خالص() override { واپس false; }  // Though deleted before opt
+    bool isOutputter() override { واپس true; }  // Though deleted before opt
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_PLI; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
     }
-    bool off() const { return m_off; }
+    bool off() ثابت { واپس m_off; }
 };
-class AstPExprClause final : public AstNodeStmt {
-    const bool m_pass;  // Will be replaced by passing assertion clause, false for
+class AstPExprClause final : عوامی Ast_گرہ_Stmt {
+    ثابت bool m_pass;  // Will be replaced by passing assertion clause, false for
                         // assertion failure clause
-    const bool m_vacuous;  // Pass is vacuous
+    ثابت bool m_vacuous;  // Pass is vacuous
 
-public:
+عوامی:
     ASTGEN_MEMBERS_AstPExprClause;
-    explicit AstPExprClause(FileLine* fl, bool pass = true, bool vacuous = false)
+    explicit AstPExprClause(File_سطر* fl, bool pass = true, bool vacuous = false)
         : ASTGEN_SUPER_PExprClause(fl)
         , m_pass{pass}
         , m_vacuous{vacuous} {}
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool pass() const { return m_pass; }
-    bool vacuous() const { return m_vacuous; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool pass() ثابت { واپس m_pass; }
+    bool vacuous() ثابت { واپس m_vacuous; }
 };
-class AstPrintTimeScale final : public AstNodeStmt {
+class Ast_Print_وقت_Scale final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     string m_name;  // Parent module name
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    explicit AstPrintTimeScale(FileLine* fl)
-        : ASTGEN_SUPER_PrintTimeScale(fl) {}
-    ASTGEN_MEMBERS_AstPrintTimeScale;
-    void name(const string& name) override { m_name = name; }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return "$printtimescale"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
+عوامی:
+    explicit Ast_Print_وقت_Scale(File_سطر* fl)
+        : ASTGEN_SUPER_Print_وقت_Scale(fl) {}
+    ASTGEN_MEMBERS_Ast_Print_وقت_Scale;
+    خالی name(ثابت string& name) override { m_name = name; }
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }  // * = Var name
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string verilogKwd() ثابت override { واپس "$printtimescale"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_PLI; }
+    خالی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() ثابت { واپس m_timeunit; }
 };
-class AstRSBreak final : public AstNodeStmt {
+class AstRSBreak final : عوامی Ast_گرہ_Stmt {
     // randsequence break
-public:
-    explicit AstRSBreak(FileLine* fl)
+عوامی:
+    explicit AstRSBreak(File_سطر* fl)
         : ASTGEN_SUPER_RSBreak(fl) {}
     ASTGEN_MEMBERS_AstRSBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ثابت override { واپس "break"; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSProd final : public AstNodeStmt {
+class AstRSProd final : عوامی Ast_گرہ_Stmt {
     // randomsequence production, under a AstRandSequence
     // @astgen op1 := fvarp : Optional[AstVar]
     // @astgen op2 := portsp : List[AstNode]
     // @astgen op3 := rulesp : List[AstRSRule]
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProd(FileLine* fl, const string& name, AstNode* portsp, AstRSRule* rulesp)
+عوامی:
+    AstRSProd(File_سطر* fl, ثابت string& name, Ast_گرہ* portsp, AstRSRule* rulesp)
         : ASTGEN_SUPER_RSProd(fl)
         , m_name{name} {
-        addPortsp(portsp);
-        addRulesp(rulesp);
+        جوڑو_Portsp(portsp);
+        جوڑو_Rulesp(rulesp);
     }
     ASTGEN_MEMBERS_AstRSProd;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس true; }
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
 };
-class AstRSProdItem final : public AstNodeStmt {
+class Ast_RSProd_شے final : عوامی Ast_گرہ_Stmt {
     // randomsquence production item
     // @astgen op1 := argsp : List[AstArg]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to production
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProdItem(FileLine* fl, const string& name, AstArg* argsp)
-        : ASTGEN_SUPER_RSProdItem(fl)
+عوامی:
+    Ast_RSProd_شے(File_سطر* fl, ثابت string& name, AstArg* argsp)
+        : ASTGEN_SUPER_RSProd_شے(fl)
         , m_name{name} {
-        addArgsp(argsp);
+        جوڑو_Argsp(argsp);
     }
-    ASTGEN_MEMBERS_AstRSProdItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    ASTGEN_MEMBERS_Ast_RSProd_شے;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    AstRSProd* prodp() ثابت { واپس m_prodp; }
+    خالی prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRSProdList final : public AstNodeStmt {
+class AstRSProdList final : عوامی Ast_گرہ_Stmt {
     // randomsquence production list
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodsp : List[AstNode]
     bool m_randJoin = false;  // Is rand join'ed
-public:
-    AstRSProdList(FileLine* fl, AstNodeExpr* weightp, AstNode* prodsp)
+عوامی:
+    AstRSProdList(File_سطر* fl, Ast_گرہ_اظہاریہ* weightp, Ast_گرہ* prodsp)
         : ASTGEN_SUPER_RSProdList(fl) {
         this->weightp(weightp);
-        addProdsp(prodsp);
+        جوڑو_Prodsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRSProdList;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool randJoin() const { return m_randJoin; }
-    void randJoin(bool flag) { m_randJoin = flag; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool randJoin() ثابت { واپس m_randJoin; }
+    خالی randJoin(bool flag) { m_randJoin = flag; }
 };
-class AstRSReturn final : public AstNodeStmt {
+class AstRSReturn final : عوامی Ast_گرہ_Stmt {
     // randsequence return
-public:
-    explicit AstRSReturn(FileLine* fl)
+عوامی:
+    explicit AstRSReturn(File_سطر* fl)
         : ASTGEN_SUPER_RSReturn(fl) {}
     ASTGEN_MEMBERS_AstRSReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ثابت override { واپس "return"; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSRule final : public AstNodeStmt {
+class AstRSRule final : عوامی Ast_گرہ_Stmt {
     // randomsquence rule
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodlistsp : List[AstRSProdList]
     // @astgen op3 := weightStmtsp : List[AstNode]
-public:
-    AstRSRule(FileLine* fl, AstNodeExpr* weightp, AstRSProdList* prodlistsp, AstNode* weightStmtsp)
+عوامی:
+    AstRSRule(File_سطر* fl, Ast_گرہ_اظہاریہ* weightp, AstRSProdList* prodlistsp, Ast_گرہ* وزن_Stmtsp)
         : ASTGEN_SUPER_RSRule(fl) {
         this->weightp(weightp);
-        addProdlistsp(prodlistsp);
-        addWeightStmtsp(weightStmtsp);
+        جوڑو_Prodlistsp(prodlistsp);
+        جوڑو_وزن_Stmtsp(وزن_Stmtsp);
     }
     ASTGEN_MEMBERS_AstRSRule;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
 };
-class AstRandCase final : public AstNodeStmt {
+class AstRandCase final : عوامی Ast_گرہ_Stmt {
     // @astgen op2 := itemsp : List[AstCaseItem]
-public:
-    AstRandCase(FileLine* fl, AstCaseItem* itemsp)
+عوامی:
+    AstRandCase(File_سطر* fl, Ast_Case_شے* itemsp)
         : ASTGEN_SUPER_RandCase(fl) {
-        addItemsp(itemsp);
+        جوڑو_Itemsp(itemsp);
         v3Global.useRandomizeMethods(true);
     }
     ASTGEN_MEMBERS_AstRandCase;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
 };
-class AstRandSequence final : public AstNodeStmt {
+class AstRandSequence final : عوامی Ast_گرہ_Stmt {
     // @astgen op2 := prodsp : List[AstRSProd]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to start production (if any)
     string m_name;  // Created unique name
-    string m_start;  // Name of start production, or "" to use first production
-public:
-    AstRandSequence(FileLine* fl, const string& start, AstRSProd* prodsp)
+    string m_آغاز;  // Name of start production, or "" to use first production
+عوامی:
+    AstRandSequence(File_سطر* fl, ثابت string& آغاز, AstRSProd* prodsp)
         : ASTGEN_SUPER_RandSequence(fl)
-        , m_start{start} {
-        addProdsp(prodsp);
+        , m_آغاز{آغاز} {
+        جوڑو_Prodsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRandSequence;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    string start() const VL_MT_STABLE { return m_start; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { واپس m_name; }  // * = Block name
+    خالی name(ثابت string& name) override { m_name = name; }
+    string آغاز() ثابت VL_MT_STABLE { واپس m_آغاز; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    AstRSProd* prodp() ثابت { واپس m_prodp; }
+    خالی prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRelease final : public AstNodeStmt {
+class AstRelease final : عوامی Ast_گرہ_Stmt {
     // Procedural 'release' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstRelease(FileLine* fl, AstNodeExpr* lhsp)
+عوامی:
+    AstRelease(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp)
         : ASTGEN_SUPER_Release(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRelease;
 };
-class AstRepeat final : public AstNodeStmt {
+class AstRepeat final : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := countp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstRepeat(FileLine* fl, AstNodeExpr* countp, AstNode* stmtsp)
+عوامی:
+    AstRepeat(File_سطر* fl, Ast_گرہ_اظہاریہ* countp, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_Repeat(fl) {
         this->countp(countp);
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstRepeat;
-    bool isGateOptimizable() const override { return false; }  // Not relevant - converted to FOR
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { واپس false; }  // Not relevant - converted to FOR
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_BRANCH; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstReturn final : public AstNodeStmt {
+class AstReturn final : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := lhsp : Optional[AstNodeExpr]
-public:
-    explicit AstReturn(FileLine* fl, AstNodeExpr* lhsp = nullptr)
+عوامی:
+    explicit AstReturn(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp = nullptr)
         : ASTGEN_SUPER_Return(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ثابت override { واپس "return"; }
+    bool isBrancher() ثابت override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstSFormat final : public AstNodeStmt {
+class AstSFormat final : عوامی Ast_گرہ_Stmt {
     // Parents: statement container
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := lhsp : AstNodeExpr
-public:
-    AstSFormat(FileLine* fl, bool optionalFormat, AstNodeExpr* lhsp, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+عوامی:
+    AstSFormat(File_سطر* fl, bool optionalFormat, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* exprsp,
+               حرف missingArgChar = 'd')
         : ASTGEN_SUPER_SFormat(fl) {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* ثابت newp
+            = new AstSFormatF{fl, AstSFormatF::اظہاریہ_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(optionalFormat);
         fmtp(newp);
         this->lhsp(lhsp);
     }
-    AstSFormat(FileLine* fl, AstSFormatF* fmtp, AstNodeExpr* lhsp)
+    AstSFormat(File_سطر* fl, AstSFormatF* fmtp, Ast_گرہ_اظہاریہ* lhsp)
         : ASTGEN_SUPER_SFormat(fl) {
         this->fmtp(fmtp);
         this->lhsp(lhsp);
         fmtp->hidden(true);
     }
     ASTGEN_MEMBERS_AstSFormat;
-    const char* broken() const override {
+    ثابت حرف* broken() ثابت override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        واپس nullptr;
     }
-    string verilogKwd() const override { return "$sformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isOutputter() override { return false; }
-    virtual bool cleanOut() const { return false; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ثابت override { واپس "$sformat"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس true; }
+    bool is_خالص() override { واپس true; }
+    bool isOutputter() override { واپس false; }
+    مجازی bool clean_برآمد() ثابت { واپس false; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_PLI; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstSetuphold final : public AstNodeStmt {
+class AstSetuphold final : عوامی Ast_گرہ_Stmt {
     // Verilog $setuphold
     // @astgen op1 := refevp : AstNodeExpr
     // @astgen op2 := dataevp : AstNodeExpr
     // @astgen op3 := delrefp : Optional[AstNodeExpr]
     // @astgen op4 := deldatap : Optional[AstNodeExpr]
-public:
-    AstSetuphold(FileLine* fl, AstNodeExpr* refevp, AstNodeExpr* dataevp,
-                 AstNodeExpr* delrefp = nullptr, AstNodeExpr* deldatap = nullptr)
+عوامی:
+    AstSetuphold(File_سطر* fl, Ast_گرہ_اظہاریہ* refevp, Ast_گرہ_اظہاریہ* dataevp,
+                 Ast_گرہ_اظہاریہ* delrefp = nullptr, Ast_گرہ_اظہاریہ* deldatap = nullptr)
         : ASTGEN_SUPER_Setuphold(fl) {
         this->refevp(refevp);
         this->dataevp(dataevp);
@@ -1209,104 +1209,104 @@ public:
         this->deldatap(deldatap);
     }
     ASTGEN_MEMBERS_AstSetuphold;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstStackTraceT final : public AstNodeStmt {
+class Ast_ڈھیر_Trace_T final : عوامی Ast_گرہ_Stmt {
     // $stacktrace used as task
-public:
-    explicit AstStackTraceT(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceT(fl) {}
-    ASTGEN_MEMBERS_AstStackTraceT;
-    string verilogKwd() const override { return "$stacktrace"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+عوامی:
+    explicit Ast_ڈھیر_Trace_T(File_سطر* fl)
+        : ASTGEN_SUPER_ڈھیر_Trace_T(fl) {}
+    ASTGEN_MEMBERS_Ast_ڈھیر_Trace_T;
+    string verilogKwd() ثابت override { واپس "$stacktrace"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstStmtExpr final : public AstNodeStmt {
+class Ast_Stmt_اظہاریہ final : عوامی Ast_گرہ_Stmt {
     // Expression in statement position
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstStmtExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_StmtExpr(fl) {
+عوامی:
+    Ast_Stmt_اظہاریہ(File_سطر* fl, Ast_گرہ_اظہاریہ* exprp)
+        : ASTGEN_SUPER_Stmt_اظہاریہ(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstStmtExpr;
+    ASTGEN_MEMBERS_Ast_Stmt_اظہاریہ;
     // cppcheck-suppress uselessOverride
-    bool isPure() override { return exprp()->isPure(); }
+    bool is_خالص() override { واپس exprp()->is_خالص(); }
 };
-class AstStmtPragma final : public AstNodeStmt {
+class AstStmtPragma final : عوامی Ast_گرہ_Stmt {
     // Pragma in statement position
     // @astgen op1 := pragp : AstPragma
-public:
-    AstStmtPragma(FileLine* fl, AstPragma* pragp)
+عوامی:
+    AstStmtPragma(File_سطر* fl, AstPragma* pragp)
         : ASTGEN_SUPER_StmtPragma(fl) {
         this->pragp(pragp);
     }
     ASTGEN_MEMBERS_AstStmtPragma;
 };
-class AstStop final : public AstNodeStmt {
-    const bool m_isFatal;  // $fatal not $stop
-public:
-    AstStop(FileLine* fl, bool isFatal)
+class AstStop final : عوامی Ast_گرہ_Stmt {
+    ثابت bool m_isFatal;  // $fatal not $stop
+عوامی:
+    AstStop(File_سطر* fl, bool isFatal)
         : ASTGEN_SUPER_Stop(fl)
         , m_isFatal{isFatal} {}
     ASTGEN_MEMBERS_AstStop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
-    string emitVerilog() const { return m_isFatal ? "$fatal" : "$stop"; }
-    bool isFatal() const { return m_isFatal; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { واپس true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ثابت override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس 0; }  // Rarely executes
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس fileline() == samep->fileline(); }
+    string emitVerilog() ثابت { واپس m_isFatal ? "$fatal" : "$stop"; }
+    bool isFatal() ثابت { واپس m_isFatal; }
 };
-class AstSystemT final : public AstNodeStmt {
+class AstSystemT final : عوامی Ast_گرہ_Stmt {
     // $system used as task
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemT(FileLine* fl, AstNodeExpr* lhsp)
+عوامی:
+    AstSystemT(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp)
         : ASTGEN_SUPER_SystemT(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstSystemT;
-    string verilogKwd() const override { return "$system"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ثابت override { واپس "$system"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool isUnlikely() ثابت override { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* /*samep*/) ثابت override { واپس true; }
 };
-class AstTimeFormat final : public AstNodeStmt {
+class Ast_وقت_Format final : عوامی Ast_گرہ_Stmt {
     // Parents: stmtlist
     // @astgen op1 := unitsp : Optional[AstNodeExpr]
     // @astgen op2 := precisionp : Optional[AstNodeExpr]
     // @astgen op3 := suffixp : Optional[AstNodeExpr]
     // @astgen op4 := widthp : Optional[AstNodeExpr]
-public:
-    AstTimeFormat(FileLine* fl, AstNodeExpr* unitsp, AstNodeExpr* precisionp, AstNodeExpr* suffixp,
-                  AstNodeExpr* widthp)
-        : ASTGEN_SUPER_TimeFormat(fl) {
+عوامی:
+    Ast_وقت_Format(File_سطر* fl, Ast_گرہ_اظہاریہ* unitsp, Ast_گرہ_اظہاریہ* precisionp, Ast_گرہ_اظہاریہ* suffixp,
+                  Ast_گرہ_اظہاریہ* widthp)
+        : ASTGEN_SUPER_وقت_Format(fl) {
         this->unitsp(unitsp);
         this->precisionp(precisionp);
         this->suffixp(suffixp);
         this->widthp(widthp);
     }
-    ASTGEN_MEMBERS_AstTimeFormat;
-    string verilogKwd() const override { return "$timeformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    ASTGEN_MEMBERS_Ast_وقت_Format;
+    string verilogKwd() ثابت override { واپس "$timeformat"; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool is_خالص() override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    صحیح instr_گنتی() ثابت override { واپس INSTR_گنتی_PLI; }
 };
-class AstTraceDecl final : public AstNodeStmt {
+class AstTraceDecl final : عوامی Ast_گرہ_Stmt {
     // Trace point declaration
     // Separate from AstTraceInc; as a declaration can't be deleted
     // Parents:  {statement list}
@@ -1315,278 +1315,278 @@ class AstTraceDecl final : public AstNodeStmt {
     //
     // @astgen ptr := m_dtypeCallp: Optional[AstCCall] // Type init function call
     // @astgen ptr := m_dtypeDeclp: Optional[AstTraceDecl] // CCall TraceDecl which replaces this
-    uint32_t m_code{std::numeric_limits<uint32_t>::max()};  // Trace identifier code
+    uint32_t m_رمز{std::numeric_limits<uint32_t>::max()};  // Trace identifier code
     uint32_t m_fidx{0};  // Trace function index
-    const string m_showname;  // Name of variable
-    const VNumRange m_bitRange;  // Property of var the trace details
-    const VNumRange m_arrayRange;  // Property of var the trace details
-    const VVarType m_varType;  // Type of variable (for localparam vs. param)
-    const VDirection m_declDirection;  // Declared direction input/output etc
-    const bool m_inDtypeFunc;  // Trace decl inside type init function
+    ثابت string m_showname;  // Name of variable
+    ثابت VNumRange m_ثنائی_ہندسہ_Range;  // Property of var the trace details
+    ثابت VNumRange m_arrayRange;  // Property of var the trace details
+    ثابت VVarType m_varType;  // Type of variable (for localparam vs. param)
+    ثابت VDirection m_declDirection;  // Declared direction input/output etc
+    ثابت bool m_اندر_Dtype_Func;  // Trace decl inside type init function
     // dist-ast-dump-suppress  // Not stable and of low value
-    int m_codeInc{0};  // Code increment for type
-public:
-    AstTraceDecl(FileLine* fl, const string& showname,
+    صحیح m_رمز_Inc{0};  // Code increment for type
+عوامی:
+    AstTraceDecl(File_سطر* fl, ثابت string& showname,
                  AstVar* varp,  // For input/output state etc
-                 AstNodeExpr* valuep, const VNumRange& bitRange, const VNumRange& arrayRange,
-                 AstCCall* const dtypeCallp, const bool inDtypeFunc)
+                 Ast_گرہ_اظہاریہ* valuep, ثابت VNumRange& ثنائی_ہندسہ_Range, ثابت VNumRange& arrayRange,
+                 AstCCall* ثابت dtypeCallp, ثابت bool اندر_Dtype_Func)
         : ASTGEN_SUPER_TraceDecl(fl)
         , m_showname{showname}
-        , m_bitRange{bitRange}
+        , m_ثنائی_ہندسہ_Range{ثنائی_ہندسہ_Range}
         , m_arrayRange{arrayRange}
         , m_varType{varp->varType()}
         , m_declDirection{varp->declDirection()}
-        , m_inDtypeFunc{inDtypeFunc} {
+        , m_اندر_Dtype_Func{اندر_Dtype_Func} {
         dtypeFrom(valuep);
         this->valuep(valuep);
         this->dtypeCallp(dtypeCallp);
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 100; }  // Large...
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس 100; }  // Large...
     ASTGEN_MEMBERS_AstTraceDecl;
-    string name() const override VL_MT_STABLE { return m_showname; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override { return true; }
-    string showname() const { return m_showname; }  // * = Var name
+    string name() ثابت override VL_MT_STABLE { واپس m_showname; }
+    bool maybe_Pointed_مقصد() ثابت override VL_MT_محفوظ { واپس true; }
+    bool hasDType() ثابت override VL_MT_محفوظ { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس true; }
+    string showname() ثابت { واپس m_showname; }  // * = Var name
     // Details on what we're tracing
-    uint32_t code() const { return m_code; }
-    void code(uint32_t code) { m_code = code; }
-    bool codeAssigned() const { return m_code != std::numeric_limits<uint32_t>::max(); }
-    uint32_t fidx() const { return m_fidx; }
-    void fidx(uint32_t fidx) { m_fidx = fidx; }
-    void codeInc(uint32_t codeInc) { m_codeInc = codeInc; }
-    uint32_t codeInc() const {
-        if (m_codeInc) { return m_codeInc; }
-        return (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
-               * valuep()->dtypep()->widthWords()
+    uint32_t رمز() ثابت { واپس m_رمز; }
+    خالی رمز(uint32_t رمز) { m_رمز = رمز; }
+    bool رمز_Assigned() ثابت { واپس m_رمز != std::numeric_limits<uint32_t>::max(); }
+    uint32_t fidx() ثابت { واپس m_fidx; }
+    خالی fidx(uint32_t fidx) { m_fidx = fidx; }
+    خالی رمز_Inc(uint32_t رمز_Inc) { m_رمز_Inc = رمز_Inc; }
+    uint32_t رمز_Inc() ثابت {
+        اگر (m_رمز_Inc) { واپس m_رمز_Inc; }
+        واپس (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
+               * valuep()->dtypep()->چوڑائی_الفاظ()
                * (VL_EDATASIZE / 32);  // A code is always 32-bits
     }
-    const VNumRange& bitRange() const { return m_bitRange; }
-    const VNumRange& arrayRange() const { return m_arrayRange; }
-    VVarType varType() const { return m_varType; }
-    VDirection declDirection() const { return m_declDirection; }
-    AstCCall* dtypeCallp() const { return m_dtypeCallp; }
-    void dtypeCallp(AstCCall* const callp) { m_dtypeCallp = callp; }
-    AstTraceDecl* dtypeDeclp() const { return m_dtypeDeclp; }
-    void dtypeDeclp(AstTraceDecl* const declp) { m_dtypeDeclp = declp; }
-    bool inDtypeFunc() const { return m_inDtypeFunc; }
+    ثابت VNumRange& ثنائی_ہندسہ_Range() ثابت { واپس m_ثنائی_ہندسہ_Range; }
+    ثابت VNumRange& arrayRange() ثابت { واپس m_arrayRange; }
+    VVarType varType() ثابت { واپس m_varType; }
+    VDirection declDirection() ثابت { واپس m_declDirection; }
+    AstCCall* dtypeCallp() ثابت { واپس m_dtypeCallp; }
+    خالی dtypeCallp(AstCCall* ثابت callp) { m_dtypeCallp = callp; }
+    AstTraceDecl* dtypeDeclp() ثابت { واپس m_dtypeDeclp; }
+    خالی dtypeDeclp(AstTraceDecl* ثابت declp) { m_dtypeDeclp = declp; }
+    bool اندر_Dtype_Func() ثابت { واپس m_اندر_Dtype_Func; }
 };
-class AstTraceInc final : public AstNodeStmt {
+class AstTraceInc final : عوامی Ast_گرہ_Stmt {
     // Trace point dump
     // @astgen op1 := valuep : AstNodeExpr // Expression being traced (from decl)
     //
     // @astgen ptr := m_declp : AstTraceDecl  // Pointer to declaration
-    const uint32_t m_baseCode;  // Trace code base value in function containing this AstTraceInc
-    const VTraceType m_traceType;  // Is this a const/full/incremental dump
+    ثابت uint32_t m_بنیاد_رمز;  // Trace code base value in function containing this AstTraceInc
+    ثابت VTraceType m_traceType;  // Is this a const/full/incremental dump
 
-public:
-    AstTraceInc(FileLine* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
+عوامی:
+    AstTraceInc(File_سطر* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t بنیاد_رمز = 0)
         : ASTGEN_SUPER_TraceInc(fl)
-        , m_baseCode{baseCode}
+        , m_بنیاد_رمز{بنیاد_رمز}
         , m_traceType{traceType}
         , m_declp{declp} {
         dtypeFrom(declp);
         // Note: A clone is necessary (instead of using declp()->valuep()),
         // for insertion of local temporaries in V3Premit
-        valuep(declp->valuep()->cloneTree(true));
+        valuep(declp->valuep()->clone_درخت(true));
     }
     ASTGEN_MEMBERS_AstTraceInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 10 + 2 * INSTR_COUNT_LD; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return declp() == VN_DBG_AS(samep, TraceInc)->declp();
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_گنتی() ثابت override { واپس 10 + 2 * INSTR_گنتی_LD; }
+    bool hasDType() ثابت override VL_MT_محفوظ { واپس true; }
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        واپس declp() == VN_DBG_AS(samep, TraceInc)->declp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstTraceDecl* declp() const { return m_declp; }
-    VTraceType traceType() const { return m_traceType; }
-    uint32_t baseCode() const { return m_baseCode; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    bool isPredictOptimizable() ثابت override { واپس false; }
+    bool isOutputter() override { واپس true; }
+    bool is_خالص() override { واپس false; }
+    AstTraceDecl* declp() ثابت { واپس m_declp; }
+    VTraceType traceType() ثابت { واپس m_traceType; }
+    uint32_t بنیاد_رمز() ثابت { واپس m_بنیاد_رمز; }
 };
-class AstTracePopPrefix final : public AstNodeStmt {
-public:
-    explicit AstTracePopPrefix(FileLine* fl)
-        : ASTGEN_SUPER_TracePopPrefix(fl) {}
-    ASTGEN_MEMBERS_AstTracePopPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
+class Ast_Trace_نکالو_سابقہ final : عوامی Ast_گرہ_Stmt {
+عوامی:
+    explicit Ast_Trace_نکالو_سابقہ(File_سطر* fl)
+        : ASTGEN_SUPER_Trace_نکالو_سابقہ(fl) {}
+    ASTGEN_MEMBERS_Ast_Trace_نکالو_سابقہ;
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس false; }
 };
-class AstTracePushPrefix final : public AstNodeStmt {
-    const string m_prefix;  // Prefix to add to signal names
-    const VTracePrefixType m_prefixType;  // Type of prefix being pushed
-    const int m_left;  // Array left index, or struct/union member count
-    const int m_right;  // Array right index
-    const bool m_quotedPrefix;  // Quote prefix name
-public:
-    AstTracePushPrefix(FileLine* fl, const string& prefix, VTracePrefixType prefixType,
-                       int left = 0, int right = 0, bool quotedPrefix = true)
-        : ASTGEN_SUPER_TracePushPrefix(fl)
-        , m_prefix{prefix}
-        , m_prefixType{prefixType}
-        , m_left{left}
-        , m_right{right}
-        , m_quotedPrefix{quotedPrefix} {}
-    ASTGEN_MEMBERS_AstTracePushPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prefix() const { return m_prefix; }
-    VTracePrefixType prefixType() const { return m_prefixType; }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    bool quotedPrefix() const { return m_quotedPrefix; }
+class Ast_Trace_ڈالو_سابقہ final : عوامی Ast_گرہ_Stmt {
+    ثابت string m_سابقہ;  // Prefix to add to signal names
+    ثابت VTrace_سابقہ_Type m_سابقہ_Type;  // Type of prefix being pushed
+    ثابت صحیح m_بایاں;  // Array left index, or struct/union member count
+    ثابت صحیح m_دایاں;  // Array right index
+    ثابت bool m_quoted_سابقہ;  // Quote prefix name
+عوامی:
+    Ast_Trace_ڈالو_سابقہ(File_سطر* fl, ثابت string& سابقہ, VTrace_سابقہ_Type سابقہ_Type,
+                       صحیح بایاں = 0, صحیح دایاں = 0, bool quoted_سابقہ = true)
+        : ASTGEN_SUPER_Trace_ڈالو_سابقہ(fl)
+        , m_سابقہ{سابقہ}
+        , m_سابقہ_Type{سابقہ_Type}
+        , m_بایاں{بایاں}
+        , m_دایاں{دایاں}
+        , m_quoted_سابقہ{quoted_سابقہ} {}
+    ASTGEN_MEMBERS_Ast_Trace_ڈالو_سابقہ;
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override { واپس false; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    string سابقہ() ثابت { واپس m_سابقہ; }
+    VTrace_سابقہ_Type سابقہ_Type() ثابت { واپس m_سابقہ_Type; }
+    صحیح بایاں() ثابت { واپس m_بایاں; }
+    صحیح دایاں() ثابت { واپس m_دایاں; }
+    bool quoted_سابقہ() ثابت { واپس m_quoted_سابقہ; }
 };
-class AstWait final : public AstNodeStmt {
+class AstWait final : عوامی Ast_گرہ_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstWait(FileLine* fl, AstNodeExpr* condp, AstNode* stmtsp)
+عوامی:
+    AstWait(File_سطر* fl, Ast_گرہ_اظہاریہ* condp, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_Wait(fl) {
         this->condp(condp);
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstWait;
-    bool isTimingControl() const override { return true; }
+    bool isTimingControl() ثابت override { واپس true; }
 };
-class AstWaitFork final : public AstNodeStmt {
+class AstWaitFork final : عوامی Ast_گرہ_Stmt {
     // A "wait fork" statement
-public:
-    explicit AstWaitFork(FileLine* fl)
+عوامی:
+    explicit AstWaitFork(File_سطر* fl)
         : ASTGEN_SUPER_WaitFork(fl) {}
     ASTGEN_MEMBERS_AstWaitFork;
-    bool isTimingControl() const override { return true; }
-    string verilogKwd() const override { return "wait fork"; }
+    bool isTimingControl() ثابت override { واپس true; }
+    string verilogKwd() ثابت override { واپس "wait fork"; }
 };
 
 // === AstNodeAssign ===
-class AstAssign final : public AstNodeAssign {
-public:
-    AstAssign(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-              AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_Assign(fl, lhsp, rhsp, timingControlp) {
+class Ast_تفویض final : عوامی Ast_گرہ_تفویض {
+عوامی:
+    Ast_تفویض(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp,
+              Ast_گرہ* timingControlp = nullptr)
+        : ASTGEN_SUPER_تفویض(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssign;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssign{fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_تفویض;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        Ast_گرہ* ثابت controlp = timingControlp() ? timingControlp()->clone_درخت(false) : nullptr;
+        واپس new Ast_تفویض{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignCompound final : public AstNodeAssign {
+class Ast_تفویض_Compound final : عوامی Ast_گرہ_تفویض {
     // Compound assignments (+=, -=, *=, ...)
-public:
-    enum operation : uint8_t {
-        Add,
+عوامی:
+    شمار operation : uint8_t {
+        جوڑو_2,
         And,
         Div,
         ModDiv,
         Mul,
         Or,
-        ShiftL,
-        ShiftR,
-        ShiftRS,
+        سرکاؤ_L,
+        سرکاؤ_R,
+        سرکاؤ_RS,
         Sub,
         Xor,
     };
 
-private:
+نجی:
     operation m_operation;
 
-public:
-    AstAssignCompound(AstAssignCompound::operation operation, FileLine* fl, AstNodeExpr* lhsp,
-                      AstNodeExpr* rhsp, AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignCompound(fl, lhsp, rhsp, timingControlp) {
+عوامی:
+    Ast_تفویض_Compound(Ast_تفویض_Compound::operation operation, File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp,
+                      Ast_گرہ_اظہاریہ* rhsp, Ast_گرہ* timingControlp = nullptr)
+        : ASTGEN_SUPER_تفویض_Compound(fl, lhsp, rhsp, timingControlp) {
         this->m_operation = operation;
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssignCompound;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCompound{operation(), fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_تفویض_Compound;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        Ast_گرہ* ثابت controlp = timingControlp() ? timingControlp()->clone_درخت(false) : nullptr;
+        واپس new Ast_تفویض_Compound{operation(), fileline(), lhsp, rhsp, controlp};
     }
-    operation operation() { return m_operation; }
+    operation operation() { واپس m_operation; }
 };
-class AstAssignCont final : public AstNodeAssign {
+class Ast_تفویض_Cont final : عوامی Ast_گرہ_تفویض {
     // Continuous procedural 'assign'.  See AstAssignW for non-procedural version.
-public:
-    AstAssignCont(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignCont(fl, lhsp, rhsp, timingControlp) {
+عوامی:
+    Ast_تفویض_Cont(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp,
+                  Ast_گرہ* timingControlp = nullptr)
+        : ASTGEN_SUPER_تفویض_Cont(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssignCont;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCont{fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_تفویض_Cont;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        Ast_گرہ* ثابت controlp = timingControlp() ? timingControlp()->clone_درخت(false) : nullptr;
+        واپس new Ast_تفویض_Cont{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignDly final : public AstNodeAssign {
-public:
-    AstAssignDly(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                 AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignDly(fl, lhsp, rhsp, timingControlp) {}
-    ASTGEN_MEMBERS_AstAssignDly;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignDly{fileline(), lhsp, rhsp, controlp};
+class Ast_تفویض_Dly final : عوامی Ast_گرہ_تفویض {
+عوامی:
+    Ast_تفویض_Dly(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp,
+                 Ast_گرہ* timingControlp = nullptr)
+        : ASTGEN_SUPER_تفویض_Dly(fl, lhsp, rhsp, timingControlp) {}
+    ASTGEN_MEMBERS_Ast_تفویض_Dly;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        Ast_گرہ* ثابت controlp = timingControlp() ? timingControlp()->clone_درخت(false) : nullptr;
+        واپس new Ast_تفویض_Dly{fileline(), lhsp, rhsp, controlp};
     }
-    bool isGateOptimizable() const override { return false; }
-    string verilogKwd() const override { return "<="; }
+    bool isGateOptimizable() ثابت override { واپس false; }
+    string verilogKwd() ثابت override { واپس "<="; }
 };
-class AstAssignForce final : public AstNodeAssign {
+class Ast_تفویض_Force final : عوامی Ast_گرہ_تفویض {
     // Procedural 'force' statement
-public:
-    AstAssignForce(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_AssignForce(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstAssignForce;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        return new AstAssignForce{fileline(), lhsp, rhsp};
+عوامی:
+    Ast_تفویض_Force(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp)
+        : ASTGEN_SUPER_تفویض_Force(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_تفویض_Force;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        واپس new Ast_تفویض_Force{fileline(), lhsp, rhsp};
     }
 };
-class AstAssignW final : public AstNodeAssign {
+class Ast_تفویض_W final : عوامی Ast_گرہ_تفویض {
     // Like assign, but wire/assign's in verilog, the only setting of the specified variable
     // @astgen op4 := strengthSpecp : Optional[AstStrengthSpec]
-public:
-    AstAssignW(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-               AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignW(fl, lhsp, rhsp, timingControlp) {}
-    ASTGEN_MEMBERS_AstAssignW;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignW{fileline(), lhsp, rhsp, controlp};
+عوامی:
+    Ast_تفویض_W(File_سطر* fl, Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp,
+               Ast_گرہ* timingControlp = nullptr)
+        : ASTGEN_SUPER_تفویض_W(fl, lhsp, rhsp, timingControlp) {}
+    ASTGEN_MEMBERS_Ast_تفویض_W;
+    Ast_گرہ_تفویض* cloneType(Ast_گرہ_اظہاریہ* lhsp, Ast_گرہ_اظہاریہ* rhsp) override {
+        Ast_گرہ* ثابت controlp = timingControlp() ? timingControlp()->clone_درخت(false) : nullptr;
+        واپس new Ast_تفویض_W{fileline(), lhsp, rhsp, controlp};
     }
-    bool isTimingControl() const override {
-        return timingControlp() || lhsp()->exists([](const AstNodeVarRef* refp) {
-            return refp->access().isWriteOrRW() && refp->varp()->delayp();
+    bool isTimingControl() ثابت override {
+        واپس timingControlp() || lhsp()->exists([](ثابت Ast_گرہ_Var_Ref* refp) {
+            واپس refp->access().isWriteOrRW() && refp->varp()->delayp();
         });
     }
-    AstDelay* getLhsNetDelay() const;
+    AstDelay* getLhsNetDelay() ثابت;
 };
 
 // === AstNodeBlock ===
-class AstBegin final : public AstNodeBlock {
+class AstBegin final : عوامی Ast_گرہ_بلاک {
     // A 'begin'/'end' named block.
     bool m_needProcess : 1;  // Uses VlProcess
-    const bool m_implied : 1;  // Not inserted by user
-public:
-    AstBegin(FileLine* fl, const string& name, AstNode* stmtsp, bool implied)
+    ثابت bool m_implied : 1;  // Not inserted by user
+عوامی:
+    AstBegin(File_سطر* fl, ثابت string& name, Ast_گرہ* stmtsp, bool implied)
         : ASTGEN_SUPER_Begin(fl, name)
         , m_needProcess{false}
         , m_implied{implied} {
-        addStmtsp(stmtsp);
+        جوڑو_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstBegin;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void setNeedProcess() { m_needProcess = true; }
-    bool needProcess() const { return m_needProcess; }
-    bool implied() const { return m_implied; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    خالی سیٹ_Need_Process() { m_needProcess = true; }
+    bool needProcess() ثابت { واپس m_needProcess; }
+    bool implied() ثابت { واپس m_implied; }
 };
-class AstFork final : public AstNodeBlock {
+class AstFork final : عوامی Ast_گرہ_بلاک {
     // A 'fork'/'join*' named block. Note that this is a strict superset of
     // AstBegin, and it does contain AstNodeBlock::stmtsp(), which are
     // statements that execute sequentially before the parallel statements are
@@ -1596,149 +1596,149 @@ class AstFork final : public AstNodeBlock {
     // be executed sequentially within each fork branch.
     //
     // @astgen op3 := forksp : List[AstBegin]
-    const VJoinType m_joinType;  // Join keyword type
-    bool m_immediateStart = false;  // Fork starts before its parent blocks or exits
+    ثابت VJoinType m_joinType;  // Join keyword type
+    bool m_فوری_آغاز = false;  // Fork starts before its parent blocks or exits
 
-public:
-    AstFork(FileLine* fl, VJoinType joinType, const string& name = "")
+عوامی:
+    AstFork(File_سطر* fl, VJoinType joinType, ثابت string& name = "")
         : ASTGEN_SUPER_Fork(fl, name)
         , m_joinType{joinType} {}
     ASTGEN_MEMBERS_AstFork;
-    bool sameNode(const AstNode* samep) const override {
-        const AstFork* const asamep = VN_DBG_AS(samep, Fork);
-        return joinType() == asamep->joinType() && immediateStart() == asamep->immediateStart();
+    bool same_گرہ(ثابت Ast_گرہ* samep) ثابت override {
+        ثابت AstFork* ثابت asamep = VN_DBG_AS(samep, Fork);
+        واپس joinType() == asamep->joinType() && فوری_آغاز() == asamep->فوری_آغاز();
     }
-    bool isTimingControl() const override { return !joinType().joinNone(); }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VJoinType joinType() const { return m_joinType; }
-    bool immediateStart() const { return m_immediateStart; }
-    void immediateStart(bool flag) { m_immediateStart = flag; }
+    bool isTimingControl() ثابت override { واپس !joinType().joinNone(); }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    VJoinType joinType() ثابت { واپس m_joinType; }
+    bool فوری_آغاز() ثابت { واپس m_فوری_آغاز; }
+    خالی فوری_آغاز(bool flag) { m_فوری_آغاز = flag; }
 };
 
 // === AstNodeCoverOrAssert ===
-class AstAssert final : public AstNodeCoverOrAssert {
+class AstAssert final : عوامی Ast_گرہ_Cover_Or_Assert {
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
 
-public:
+عوامی:
     ASTGEN_MEMBERS_AstAssert;
-    AstAssert(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp, VAssertType type,
-              VAssertDirectiveType directive, const string& name = "")
+    AstAssert(File_سطر* fl, Ast_گرہ* propp, Ast_گرہ* passsp, Ast_گرہ* failsp, VAssertType type,
+              VAssertDirectiveType directive, ثابت string& name = "")
         : ASTGEN_SUPER_Assert(fl, propp, passsp, type, directive, name) {
-        addFailsp(failsp);
+        جوڑو_Failsp(failsp);
     }
-    string verilogKwd() const override {
-        return directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
+    string verilogKwd() ثابت override {
+        واپس directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
     }
 };
-class AstAssertIntrinsic final : public AstNodeCoverOrAssert {
+class AstAssertIntrinsic final : عوامی Ast_گرہ_Cover_Or_Assert {
     // A $cast or other compiler inserted assert, that must run even without --assert option
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
-public:
+عوامی:
     ASTGEN_MEMBERS_AstAssertIntrinsic;
-    AstAssertIntrinsic(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp,
-                       const string& name = "")
+    AstAssertIntrinsic(File_سطر* fl, Ast_گرہ* propp, Ast_گرہ* passsp, Ast_گرہ* failsp,
+                       ثابت string& name = "")
         // Intrinsic asserts are always enabled thus 'type' field is set to INTERNAL.
-        : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::INTERNAL,
+        : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::اندرونی_2,
                                        VAssertDirectiveType::INTRINSIC, name) {
-        addFailsp(failsp);
+        جوڑو_Failsp(failsp);
     }
-    string verilogKwd() const override { return "assert"; }
+    string verilogKwd() ثابت override { واپس "assert"; }
 };
-class AstCover final : public AstNodeCoverOrAssert {
+class AstCover final : عوامی Ast_گرہ_Cover_Or_Assert {
     // @astgen op3 := coverincsp: List[AstNode] // Coverage node
     bool m_isCoverSeq = false;  // 'cover sequence' (IEEE 1800-2023 16.14.3): fires per
                                 // end-of-match, not per property success
     bool m_isSeqEvent = false;  // Synthesized for a sequence used as an event control
                                 // (IEEE 1800-2023 9.4.2.4)
-public:
+عوامی:
     ASTGEN_MEMBERS_AstCover;
-    AstCover(FileLine* fl, AstNode* propp, AstNode* stmtsp, VAssertType type,
-             const string& name = "")
+    AstCover(File_سطر* fl, Ast_گرہ* propp, Ast_گرہ* stmtsp, VAssertType type,
+             ثابت string& name = "")
         : ASTGEN_SUPER_Cover(fl, propp, stmtsp, type, VAssertDirectiveType::COVER, name) {}
-    string verilogKwd() const override { return "cover"; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isCoverSeq() const { return m_isCoverSeq; }
-    void isCoverSeq(bool flag) { m_isCoverSeq = flag; }
-    bool isSeqEvent() const { return m_isSeqEvent; }
-    void isSeqEvent(bool flag) { m_isSeqEvent = flag; }
+    string verilogKwd() ثابت override { واپس "cover"; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
+    bool isCoverSeq() ثابت { واپس m_isCoverSeq; }
+    خالی isCoverSeq(bool flag) { m_isCoverSeq = flag; }
+    bool isSeqEvent() ثابت { واپس m_isSeqEvent; }
+    خالی isSeqEvent(bool flag) { m_isSeqEvent = flag; }
 };
-class AstRestrict final : public AstNodeCoverOrAssert {
-public:
+class AstRestrict final : عوامی Ast_گرہ_Cover_Or_Assert {
+عوامی:
     ASTGEN_MEMBERS_AstRestrict;
-    AstRestrict(FileLine* fl, AstNode* propp)
+    AstRestrict(File_سطر* fl, Ast_گرہ* propp)
         // Intrinsic asserts are always ignored thus 'type' field is set to INTERNAL.
-        : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::INTERNAL,
+        : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::اندرونی_2,
                                 VAssertDirectiveType::RESTRICT) {}
-    string verilogKwd() const override { return "restrict"; }
+    string verilogKwd() ثابت override { واپس "restrict"; }
 };
 
 // === AstNodeForeach ===
-class AstConstraintForeach final : public AstNodeForeach {
+class AstConstraintForeach final : عوامی Ast_گرہ_Foreach {
     // Constraint foreach statement
     bool m_soft;  // is soft foreach, non-standard extension
-public:
-    AstConstraintForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp,
+عوامی:
+    AstConstraintForeach(File_سطر* fl, Ast_Foreach_سرخی* headerp, Ast_گرہ* bodyp,
                          bool soft = false)
         : ASTGEN_SUPER_ConstraintForeach(fl, headerp, bodyp)
         , m_soft{soft} {}
     ASTGEN_MEMBERS_AstConstraintForeach;
-    bool isSoft() const { return m_soft; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool isSoft() ثابت { واپس m_soft; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
 };
-class AstForeach final : public AstNodeForeach {
-public:
-    AstForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* stmtsp)
+class AstForeach final : عوامی Ast_گرہ_Foreach {
+عوامی:
+    AstForeach(File_سطر* fl, Ast_Foreach_سرخی* headerp, Ast_گرہ* stmtsp)
         : ASTGEN_SUPER_Foreach(fl, headerp, stmtsp) {}
     ASTGEN_MEMBERS_AstForeach;
 };
 
 // === AstNodeIf ===
-class AstConstraintIf final : public AstNodeIf {
-public:
-    AstConstraintIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+class AstConstraintIf final : عوامی Ast_گرہ_If {
+عوامی:
+    AstConstraintIf(File_سطر* fl, Ast_گرہ_اظہاریہ* condp, Ast_گرہ* thensp, Ast_گرہ* elsesp)
         : ASTGEN_SUPER_ConstraintIf(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstConstraintIf;
 };
 
-class AstIf final : public AstNodeIf {
+class AstIf final : عوامی Ast_گرہ_If {
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
-    bool m_priorityPragma = false;  // priority case
-public:
-    AstIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp = nullptr, AstNode* elsesp = nullptr)
+    bool m_ترجیح_Pragma = false;  // priority case
+عوامی:
+    AstIf(File_سطر* fl, Ast_گرہ_اظہاریہ* condp, Ast_گرہ* thensp = nullptr, Ast_گرہ* elsesp = nullptr)
         : ASTGEN_SUPER_If(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstIf;
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool uniquePragma() ثابت { واپس m_uniquePragma; }
+    خالی uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() ثابت { واپس m_unique0Pragma; }
+    خالی unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool ترجیح_Pragma() ثابت { واپس m_ترجیح_Pragma; }
+    خالی ترجیح_Pragma(bool flag) { m_ترجیح_Pragma = flag; }
+    خالی dump(std::ostream& str) ثابت override;
+    خالی dumpJson(std::ostream& str) ثابت override;
 };
 
 // === AstNodeReadWriteMem ===
-class AstReadMem final : public AstNodeReadWriteMem {
-public:
-    AstReadMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-               AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstReadMem final : عوامی Ast_گرہ_Read_Write_Mem {
+عوامی:
+    AstReadMem(File_سطر* fl, bool hex, Ast_گرہ_اظہاریہ* filenamep, Ast_گرہ_اظہاریہ* memp,
+               Ast_گرہ_اظہاریہ* lsbp, Ast_گرہ_اظہاریہ* msbp)
         : ASTGEN_SUPER_ReadMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstReadMem;
-    string verilogKwd() const override { return (isHex() ? "$readmemh" : "$readmemb"); }
-    const char* cFuncPrefixp() const override { return "VL_READMEM_"; }
+    string verilogKwd() ثابت override { واپس (isHex() ? "$readmemh" : "$readmemb"); }
+    ثابت حرف* cFuncPrefixp() ثابت override { واپس "VL_READMEM_"; }
 };
-class AstWriteMem final : public AstNodeReadWriteMem {
-public:
-    AstWriteMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-                AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstWriteMem final : عوامی Ast_گرہ_Read_Write_Mem {
+عوامی:
+    AstWriteMem(File_سطر* fl, bool hex, Ast_گرہ_اظہاریہ* filenamep, Ast_گرہ_اظہاریہ* memp,
+                Ast_گرہ_اظہاریہ* lsbp, Ast_گرہ_اظہاریہ* msbp)
         : ASTGEN_SUPER_WriteMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstWriteMem;
-    string verilogKwd() const override { return (isHex() ? "$writememh" : "$writememb"); }
-    const char* cFuncPrefixp() const override { return "VL_WRITEMEM_"; }
+    string verilogKwd() ثابت override { واپس (isHex() ? "$writememh" : "$writememb"); }
+    ثابت حرف* cFuncPrefixp() ثابت override { واپس "VL_WRITEMEM_"; }
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

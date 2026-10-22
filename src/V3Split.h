@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SPLIT_H_
-#define VERILATOR_V3SPLIT_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3_بانٹو_H
+#تعریف_کرو VERILATOR_V3_بانٹو_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Split final {
-public:
-    static void splitAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_بانٹو final {
+عوامی:
+    ساکن خالی بانٹو_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

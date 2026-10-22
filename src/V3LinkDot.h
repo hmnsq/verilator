@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOT_H_
-#define VERILATOR_V3LINKDOT_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3LINKDOT_H_
+#تعریف_کرو VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#شامل "V3Ast.h"
+#شامل "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+شمار VLink_Dot_قدم : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    ساکن خالی dumpSubstep(ثابت string& name) VL_MT_DISABLED;
+    ساکن خالی linkDotGuts(AstNetlist* rootp, VLink_Dot_قدم قدم) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    ساکن خالی linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    ساکن خالی linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

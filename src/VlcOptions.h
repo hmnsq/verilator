@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCOPTIONS_H_
-#define VERILATOR_VLCOPTIONS_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_VLCOPTIONS_H_
+#تعریف_کرو VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#شامل "VlcPoint.h"
+#شامل "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#شامل <map>
+#شامل <set>
+#شامل <vector>
 
 //######################################################################
 // V3Options - Command line options
 
-using VlStringSet = std::set<std::string>;
+using Vl_String_سیٹ = std::سیٹ<std::string>;
 
 class VlcOptions final {
     // MEMBERS (general options)
     // clang-format off
-    string m_annotateOut;       // main switch: --annotate I<output_directory>
+    string m_annotate_برآمد;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    صحیح m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
-    VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    Vl_String_سیٹ m_readFiles;    // main switch: --read
+    صحیح m_report_سطحیں = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,44 +52,44 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+نجی:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    خالی parseReportOption() VL_MT_DISABLED;
+    ساکن خالی show_نسخہ(bool verbose) VL_MT_DISABLED;
 
-public:
+عوامی:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = طےشدہ;
+    ~VlcOptions() = طےشدہ;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    خالی parseOptsList(صحیح argc, حرف** argv) VL_MT_DISABLED;
+    خالی جوڑو_Read_File(ثابت string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    ثابت Vl_String_سیٹ& readFiles() ثابت { واپس m_readFiles; }
+    string annotate_برآمد() ثابت { واپس m_annotate_برآمد; }
+    bool annotateAll() ثابت { واپس m_annotateAll; }
+    صحیح annotateMin() ثابت { واپس m_annotateMin; }
+    bool گنتی_Ok(uint64_t گنتی) ثابت { واپس گنتی >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() ثابت { واپس m_annotatePoints; }
+    bool includeResetArcs() ثابت { واپس m_includeResetArcs; }
+    صحیح report_سطحیں() ثابت { واپس m_report_سطحیں; }
+    bool reportSpecified() ثابت { واپس !m_report.خالی_خانے(); }
+    bool reportSummary() ثابت { واپس m_reportSummary; }
+    bool reportHierarchy() ثابت { واپس m_reportHierarchy; }
+    bool rank() ثابت { واپس m_rank; }
+    bool unlink() ثابت { واپس m_unlink; }
+    string writeFile() ثابت { واپس m_writeFile; }
+    string writeInfoFile() ثابت { واپس m_writeInfoFile; }
+    bool is_Type_مطابقت(ثابت حرف* name) ثابت {
+        واپس VString::wildmatch(Vlc_نقطہ::type_نکالو(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    ساکن string نسخہ() VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // guard
+#اگر_ختم  // guard

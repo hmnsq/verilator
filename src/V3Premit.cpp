@@ -24,218 +24,218 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Premit.h"
+#شامل "V3Premit.h"
 
-#include "V3ConstPool.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#شامل "V3ConstPool.h"
+#شامل "V3Stats.h"
+#شامل "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int STATIC_CONST_MIN_WIDTH = 256;  // Minimum size to extract to static constant
+constexpr صحیح STATIC_CONST_MIN_چوڑائی = 256;  // Minimum size to extract to static constant
 
 //######################################################################
 // Premit state, as a visitor of each AstNode
 
-class PremitVisitor final : public VNVisitor {
+جماعت PremitVisitor final : عوامی VNVisitor {
     // NODE STATE
     //  AstNodeExpr::user()     -> bool.  True if iterated already
     //  *::user3()              -> bool.  Used when visiting AstNodeAssign
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_اندر_Use m_inuser1;
 
     // STATE - across all visitors
-    VDouble0 m_extractedToConstPool;  // Statistic tracking
+    VDouble0 m_extracted_مقصد_Const_Pool;  // Statistic tracking
     VDouble0 m_temporaryVarsCreated;  // Statistic tracking
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstCFunc* m_cfuncp = nullptr;  // Current block
-    size_t m_tmpVarCnt = 0;  // Number of temporary variables created inside a function
-    AstNode* m_stmtp = nullptr;  // Current statement
-    bool m_assignLhs = false;  // Inside assignment lhs, don't breakup extracts
-    bool m_inCons = false;  // Inside a NodeCons, so not the root of a value
+    AstCFunc* m_cfuncp = خالی_اشاریہ;  // Current block
+    سائز_t m_tmpVarCnt = 0;  // Number of temporary variables created inside a function
+    Ast_گرہ* m_stmtp = خالی_اشاریہ;  // Current statement
+    منطقی m_تفویض_Lhs = جھوٹ;  // Inside assignment lhs, don't breakup extracts
+    منطقی m_اندر_Cons = جھوٹ;  // Inside a NodeCons, so not the root of a value
 
     // METHODS
-    bool needsTemp(AstNodeExpr* nodep) {
+    منطقی needs_عارضی(Ast_گرہ_اظہاریہ* nodep) {
         // Consider adding a temp for this expression.
-        if (!m_stmtp) return false;  // Not under a statement
-        if (nodep->user1SetOnce()) return false;  // Already processed
-        if (!nodep->isWide()) return false;  // Not wide
-        if (m_assignLhs) return false;  // This is an lvalue!
-        UASSERT_OBJ(!VN_IS(nodep->firstAbovep(), ArraySel), nodep, "Should have been ignored");
-        return true;
+        اگر (!m_stmtp) واپس جھوٹ;  // Not under a statement
+        اگر (nodep->user1_سیٹ_Once()) واپس جھوٹ;  // Already processed
+        اگر (!nodep->isWide()) واپس جھوٹ;  // Not wide
+        اگر (m_تفویض_Lhs) واپس جھوٹ;  // This is an lvalue!
+        UASSERT_OBJ(!VN_IS(nodep->پہلا_Abovep(), ArraySel), nodep, "Should have been ignored");
+        واپس سچ;
     }
 
-    void checkNode(AstNodeExpr* nodep) {
-        if (needsTemp(nodep)) createTemp(nodep);
+    خالی check_گرہ(Ast_گرہ_اظہاریہ* nodep) {
+        اگر (needs_عارضی(nodep)) create_عارضی(nodep);
     }
 
     // True if the value should be in the constant pool, rather than built where it is used
-    static bool useConstPool(const AstNodeExpr* nodep) {
-        uint64_t width = 0;
-        bool hasData = false;
-        bool hasDynamic = false;
+    ساکن منطقی useConstPool(ثابت Ast_گرہ_اظہاریہ* nodep) {
+        uint64_t چوڑائی = 0;
+        منطقی has_ڈیٹا = جھوٹ;
+        منطقی hasDynamic = جھوٹ;
         // Must be a tree of constants (see AstNodeExpr::isConstantTree), which can be emitted
-        const bool emittable = nodep->forall([&](const AstNodeExpr* exprp) {
-            if (VN_IS(exprp, NodeCons)) {
+        ثابت منطقی emittable = nodep->forall([&](ثابت Ast_گرہ_اظہاریہ* exprp) {
+            اگر (VN_IS(exprp, گرہ_Cons)) {
                 hasDynamic |= exprp->dtypep()->skipRefp()->isDynamicallySized();
-                return true;
+                واپس سچ;
             }
-            const AstConst* const constp = VN_CAST(exprp, Const);
-            if (!constp) return false;
-            width += static_cast<uint64_t>(constp->widthWords()) * VL_EDATASIZE;
-            hasData = true;
-            return !constp->num().isFourState();
+            ثابت AstConst* ثابت constp = VN_CAST(exprp, Const);
+            اگر (!constp) واپس جھوٹ;
+            چوڑائی += static_cast<uint64_t>(constp->چوڑائی_الفاظ()) * VL_EDATASIZE;
+            has_ڈیٹا = سچ;
+            واپس !constp->عدد().isFourState();
         });
-        if (!emittable) return false;
+        اگر (!emittable) واپس جھوٹ;
         // Dynamically sized values allocate when built with data, so use the pool for them
-        if (hasDynamic) return hasData;
-        return width >= static_cast<uint64_t>(STATIC_CONST_MIN_WIDTH);
+        اگر (hasDynamic) واپس has_ڈیٹا;
+        واپس چوڑائی >= static_cast<uint64_t>(STATIC_CONST_MIN_چوڑائی);
     }
 
-    AstVarRef* isRhsOfAssignToVar(AstNodeExpr* nodep) {
+    AstVarRef* is_Rhs_کا_تفویض_مقصد_Var(Ast_گرہ_اظہاریہ* nodep) {
         // If enclosing statement is an assign
-        AstNodeAssign* const assignp = VN_CAST(m_stmtp, NodeAssign);
-        if (!assignp) return nullptr;
+        Ast_گرہ_تفویض* ثابت assignp = VN_CAST(m_stmtp, گرہ_تفویض);
+        اگر (!assignp) واپس خالی_اشاریہ;
         // of which 'nodep' is the RHS of
-        if (assignp->rhsp() != nodep) return nullptr;
+        اگر (assignp->rhsp() != nodep) واپس خالی_اشاریہ;
         // and the LHS is a sipmple variable reference
-        AstVarRef* const lRefp = VN_CAST(assignp->lhsp(), VarRef);
-        if (!lRefp) return nullptr;
-        AstVar* const varp = lRefp->varp();
+        AstVarRef* ثابت lRefp = VN_CAST(assignp->lhsp(), VarRef);
+        اگر (!lRefp) واپس خالی_اشاریہ;
+        AstVar* ثابت varp = lRefp->varp();
         // And the RHS does not use the same variable
-        if (nodep->exists([varp](const AstVarRef* refp) { return refp->varp() == varp; })) {
-            return nullptr;
+        اگر (nodep->exists([varp](ثابت AstVarRef* refp) { واپس refp->varp() == varp; })) {
+            واپس خالی_اشاریہ;
         }
         // Then return the LHS reference
-        return lRefp;
+        واپس lRefp;
     }
 
     // Create a new temporary that can hold the value of the given expression
-    AstVar* newTmpFor(AstNodeExpr* nodep) {
-        FileLine* const flp = nodep->fileline();
-        const std::string name = "__Vtemp_" + std::to_string(++m_tmpVarCnt);
-        AstVar* const varp = new AstVar{flp, VVarType::STMTTEMP, name, nodep->dtypep()};
-        varp->funcLocal(true);
-        varp->noReset(true);
-        m_cfuncp->addVarsp(varp);
+    AstVar* newTmpFor(Ast_گرہ_اظہاریہ* nodep) {
+        File_سطر* ثابت flp = nodep->fileline();
+        ثابت std::string name = "__Vtemp_" + std::مقصد_string(++m_tmpVarCnt);
+        AstVar* ثابت varp = نیا AstVar{flp, VVarType::STMTTEMP, name, nodep->dtypep()};
+        varp->funcLocal(سچ);
+        varp->noReset(سچ);
+        m_cfuncp->جوڑو_Varsp(varp);
         ++m_temporaryVarsCreated;
-        return varp;
+        واپس varp;
     }
 
-    AstVar* createTemp(AstNodeExpr* nodep) {
+    AstVar* create_عارضی(Ast_گرہ_اظہاریہ* nodep) {
         UASSERT_OBJ(m_stmtp, nodep, "Attempting to create temporary with no insertion point");
         UINFO(4, "createTemp: " << nodep);
 
         VNRelinker relinker;
-        nodep->unlinkFrBack(&relinker);
+        nodep->unlink_Fr_عقب(&relinker);
 
-        FileLine* const flp = nodep->fileline();
-        AstVar* varp = nullptr;
+        File_سطر* ثابت flp = nodep->fileline();
+        AstVar* varp = خالی_اشاریہ;
 
-        if (useConstPool(nodep)) {
+        اگر (useConstPool(nodep)) {
             // Extract into constant pool.
-            AstVarRef* const refp = V3ConstPool::find(nodep);
+            AstVarRef* ثابت refp = V3ConstPool::ڈھونڈو(nodep);
             varp = refp->varp();
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            ++m_extractedToConstPool;
+            VL_DO_DANGLING(nodep->delete_درخت(), nodep);
+            ++m_extracted_مقصد_Const_Pool;
             // Replace node with reference to the constant pool entry
             relinker.relink(refp);
-        } else {
+        } ورنہ {
             // Keep as local temporary.
             varp = newTmpFor(nodep);
             // Assignment to put before the referencing statement
-            AstVarRef* const refp = new AstVarRef{flp, varp, VAccess::WRITE};
-            AstAssign* const assignp = new AstAssign{flp, refp, nodep};
+            AstVarRef* ثابت refp = نیا AstVarRef{flp, varp, VAccess::WRITE};
+            Ast_تفویض* ثابت assignp = نیا Ast_تفویض{flp, refp, nodep};
             // Insert before the statement
-            m_stmtp->addHereThisAsNext(assignp);
+            m_stmtp->جوڑو_یہاں_This_As_اگلا(assignp);
             // Replace node with VarRef to new Var
-            relinker.relink(new AstVarRef{flp, varp, VAccess::READ});
+            relinker.relink(نیا AstVarRef{flp, varp, VAccess::READ});
         }
 
         // Return the temporary variable
-        return varp;
+        واپس varp;
     }
 
-    void replaceWithOvrShift(AstNodeBiop* nodep) {
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* newp = nullptr;
-        if (VN_IS(nodep, ShiftL)) {
-            newp = new AstShiftLOvr{flp, lhsp, rhsp};
-        } else if (VN_IS(nodep, ShiftR)) {
-            newp = new AstShiftROvr{flp, lhsp, rhsp};
-        } else {
-            newp = new AstShiftRSOvr{flp, lhsp, rhsp};
+    خالی replace_With_Ovr_سرکاؤ(Ast_گرہ_Biop* nodep) {
+        File_سطر* ثابت flp = nodep->fileline();
+        Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp()->unlink_Fr_عقب();
+        Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp()->unlink_Fr_عقب();
+        Ast_گرہ_اظہاریہ* newp = خالی_اشاریہ;
+        اگر (VN_IS(nodep, سرکاؤ_L)) {
+            newp = نیا Ast_سرکاؤ_LOvr{flp, lhsp, rhsp};
+        } ورنہ اگر (VN_IS(nodep, سرکاؤ_R)) {
+            newp = نیا Ast_سرکاؤ_ROvr{flp, lhsp, rhsp};
+        } ورنہ {
+            newp = نیا Ast_سرکاؤ_RSOvr{flp, lhsp, rhsp};
         }
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
     }
 
-    void visitShift(AstNodeBiop* nodep) {
+    خالی دورہ_سرکاؤ(Ast_گرہ_Biop* nodep) {
         UINFO(4, "  ShiftFix  " << nodep);
-        UASSERT_OBJ(VN_IS(nodep, ShiftL) || VN_IS(nodep, ShiftR) || VN_IS(nodep, ShiftRS), nodep,
+        UASSERT_OBJ(VN_IS(nodep, سرکاؤ_L) || VN_IS(nodep, سرکاؤ_R) || VN_IS(nodep, سرکاؤ_RS), nodep,
                     "Bad case");
         // Shift larger than the width of the type (overshift) is undefined behavour in C++
         // (in practice will shift by the wrapped shift amount). These are requierd to go to
         // zero/msbs, so replacing them here.
-        FileLine* const flp = nodep->fileline();
-        if (const AstConst* const shiftp = VN_CAST(nodep->rhsp(), Const)) {
+        File_سطر* ثابت flp = nodep->fileline();
+        اگر (ثابت AstConst* ثابت shiftp = VN_CAST(nodep->rhsp(), Const)) {
             // Shift amount known to be constant. If oversized shift, replace with zero/msbs.
             // Otherwise we can leave the original shifts which have better constant folding
             // than the *Ovr versions.
-            const bool isOversized
-                = shiftp->num().mostSetBitP1() > 32
-                  || (shiftp->num().toUInt() >= static_cast<uint32_t>(nodep->width()));
-            if (isOversized) {
+            ثابت منطقی isOversized
+                = shiftp->عدد().most_سیٹ_ثنائی_ہندسہ_P1() > 32
+                  || (shiftp->عدد().مقصد_UInt() >= static_cast<uint32_t>(nodep->چوڑائی()));
+            اگر (isOversized) {
                 // If signed shift, replace with replicated MSB
-                if (VN_IS(nodep, ShiftRS)) {
-                    AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-                    AstNodeExpr* const msbp = new AstSel{flp, lhsp, lhsp->widthMin() - 1, 1};
-                    nodep->replaceWithKeepDType(new AstExtendS{flp, msbp, nodep->width()});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                اگر (VN_IS(nodep, سرکاؤ_RS)) {
+                    Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp()->unlink_Fr_عقب();
+                    Ast_گرہ_اظہاریہ* ثابت msbp = نیا AstSel{flp, lhsp, lhsp->چوڑائی_Min() - 1, 1};
+                    nodep->replaceWithKeepDType(نیا AstExtendS{flp, msbp, nodep->چوڑائی()});
+                    VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+                    واپس;
                 }
                 // Unsigned. If pure, replace with zero
-                if (nodep->lhsp()->isPure()) {
+                اگر (nodep->lhsp()->is_خالص()) {
                     nodep->replaceWithKeepDType(
-                        new AstConst{flp, AstConst::DTyped{}, nodep->dtypep()});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                        نیا AstConst{flp, AstConst::DTyped{}, nodep->dtypep()});
+                    VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+                    واپس;
                 }
                 // Impure. Keep shift
-                if (!nodep->isWide()) {
-                    replaceWithOvrShift(nodep);
-                    return;
+                اگر (!nodep->isWide()) {
+                    replace_With_Ovr_سرکاؤ(nodep);
+                    واپس;
                 }
             }
-        } else {
+        } ورنہ {
             // Shift amount not known at compile time. Convert to *Ovr version. Don't need to do
             // if it would use a wide operation which works correctly at runtime, of if the max
             // value of the shift amount is less than the with of the shifted value.
-            if (!nodep->isWide() && (nodep->width() < (1LL << nodep->rhsp()->widthMin()))) {
-                replaceWithOvrShift(nodep);
-                return;
+            اگر (!nodep->isWide() && (nodep->چوڑائی() < (1LL << nodep->rhsp()->چوڑائی_Min()))) {
+                replace_With_Ovr_سرکاؤ(nodep);
+                واپس;
             }
         }
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
 
-    static bool rhsReadsLhs(const AstNodeAssign* nodep) {
-        const VNUser3InUse user3InUse;
-        nodep->lhsp()->foreach([](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) refp->varp()->user3(true);
+    ساکن منطقی rhsReadsLhs(ثابت Ast_گرہ_تفویض* nodep) {
+        ثابت VNUser3_اندر_Use user3_اندر_Use;
+        nodep->lhsp()->foreach([](ثابت AstVarRef* refp) {
+            اگر (refp->access().isWriteOrRW()) refp->varp()->user3(سچ);
         });
-        return nodep->rhsp()->exists([](const AstVarRef* refp) {
-            return refp->access().isReadOnly() && refp->varp()->user3();
+        واپس nodep->rhsp()->exists([](ثابت AstVarRef* refp) {
+            واپس refp->access().isReadOnly() && refp->varp()->user3();
         });
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    خالی دورہ(AstCFunc* nodep) override {
         UASSERT_OBJ(!m_cfuncp, nodep, "Should not nest");
         VL_RESTORER(m_cfuncp);
         VL_RESTORER(m_tmpVarCnt);
@@ -245,290 +245,290 @@ class PremitVisitor final : public VNVisitor {
     }
 
     // VISITORS - Statements
-#define START_STATEMENT_OR_RETURN(stmtp) \
-    if (!m_cfuncp) return; \
-    if ((stmtp)->user1SetOnce()) return; \
-    VL_RESTORER(m_assignLhs); \
+#تعریف_کرو آغاز_STATEMENT_OR_RETURN(stmtp) \
+    اگر (!m_cfuncp) واپس; \
+    اگر ((stmtp)->user1_سیٹ_Once()) واپس; \
+    VL_RESTORER(m_تفویض_Lhs); \
     VL_RESTORER(m_stmtp); \
-    m_assignLhs = false; \
+    m_تفویض_Lhs = جھوٹ; \
     m_stmtp = (stmtp);
 
-    void visit(AstNodeAssign* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    خالی دورہ(Ast_گرہ_تفویض* nodep) override {
+        آغاز_STATEMENT_OR_RETURN(nodep);
 
-        if (AstCvtArrayToPacked* const packedp = VN_CAST(nodep->lhsp(), CvtArrayToPacked)) {
+        اگر (Ast_Cvt_Array_مقصد_Packed* ثابت packedp = VN_CAST(nodep->lhsp(), Cvt_Array_مقصد_Packed)) {
             // AstCvtArrayToPacked is converted to VL_PACK, which returns rvalue,
             // so it shouldn't be on the LHS. It is now replaced with unpacking of RHS.
-            AstNodeExpr* const exprLhsp = packedp->fromp()->unlinkFrBack();
-            packedp->replaceWith(exprLhsp);
-            VL_DO_DANGLING(pushDeletep(packedp), packedp);
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            nodep->rhsp(new AstCvtPackedToArray{rhsp->fileline(), rhsp, exprLhsp->dtypep()});
-            nodep->dtypeFrom(exprLhsp);
+            Ast_گرہ_اظہاریہ* ثابت اظہاریہ_Lhsp = packedp->fromp()->unlink_Fr_عقب();
+            packedp->replaceWith(اظہاریہ_Lhsp);
+            VL_DO_DANGLING(ڈالو_Deletep(packedp), packedp);
+            Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp()->unlink_Fr_عقب();
+            nodep->rhsp(نیا Ast_Cvt_Packed_مقصد_Array{rhsp->fileline(), rhsp, اظہاریہ_Lhsp->dtypep()});
+            nodep->dtypeFrom(اظہاریہ_Lhsp);
         }
         // Direct assignment to a simple variable
-        if (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
-            AstNode* const rhsp = nodep->rhsp();
+        اگر (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
+            Ast_گرہ* ثابت rhsp = nodep->rhsp();
             // Rhs is already a var ref, so nothing to do
-            if (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) return;
-            if (VN_IS(rhsp, Cond)) {
+            اگر (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) واپس;
+            اگر (VN_IS(rhsp, Cond)) {
                 // Do replace Cond on RHS, even if a simple assignment
-            } else if (!VN_IS(rhsp, Const)) {
+            } ورنہ اگر (!VN_IS(rhsp, Const)) {
                 // Don't replace the rhs, it's already a simple assignment
-                rhsp->user1(true);
-            } else if (rhsp->widthWords() * VL_EDATASIZE < STATIC_CONST_MIN_WIDTH) {
+                rhsp->user1(سچ);
+            } ورنہ اگر (rhsp->چوڑائی_الفاظ() * VL_EDATASIZE < STATIC_CONST_MIN_چوڑائی) {
                 // It's a small constant, so nothing to do, otherwise will be put to const pool
-                return;
+                واپس;
             }
         }
 
         // If the RHS reads the LHS, we need a temporary unless the update is atomic
-        const bool isAtomic = VN_IS(nodep->lhsp(), VarRef) && !nodep->lhsp()->isWide();
-        if (!isAtomic && rhsReadsLhs(nodep)) {
-            createTemp(nodep->rhsp());
-        } else {
-            iterateAndNextNull(nodep->rhsp());
+        ثابت منطقی isAtomic = VN_IS(nodep->lhsp(), VarRef) && !nodep->lhsp()->isWide();
+        اگر (!isAtomic && rhsReadsLhs(nodep)) {
+            create_عارضی(nodep->rhsp());
+        } ورنہ {
+            iterate_And_اگلا_Null(nodep->rhsp());
         }
 
-        m_assignLhs = true;  // Restored by VL_RESTORER in START_STATEMENT_OR_RETURN
-        iterateAndNextNull(nodep->lhsp());
+        m_تفویض_Lhs = سچ;  // Restored by VL_RESTORER in START_STATEMENT_OR_RETURN
+        iterate_And_اگلا_Null(nodep->lhsp());
 
         // It's possible we end up with an 'a' = 'a' after expanding an AstCond
-        if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-            if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-                if (lhsp->varp() == rhsp->varp()) {
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        اگر (AstVarRef* ثابت rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+            اگر (AstVarRef* ثابت lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+                اگر (lhsp->varp() == rhsp->varp()) {
+                    VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
                 }
             }
         }
     }
-    void visit(AstDisplay* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    خالی دورہ(AstDisplay* nodep) override {
+        آغاز_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
-        if (v3Global.opt.autoflush()) {
-            const AstNode* searchp = nodep->nextp();
-            while (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
-            if (searchp && VN_IS(searchp, Display)
-                && nodep->filep()->sameGateTree(VN_AS(searchp, Display)->filep())) {
+        اگر (v3Global.opt.autoflush()) {
+            ثابت Ast_گرہ* searchp = nodep->nextp();
+            جب (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
+            اگر (searchp && VN_IS(searchp, Display)
+                && nodep->filep()->same_Gate_درخت(VN_AS(searchp, Display)->filep())) {
                 // There's another display next; we can just wait to flush
-            } else {
+            } ورنہ {
                 UINFO(4, "Autoflush " << nodep);
-                nodep->addNextHere(
-                    new AstFFlush{nodep->fileline(),
-                                  nodep->filep() ? nodep->filep()->cloneTreePure(true) : nullptr});
+                nodep->جوڑو_اگلا_یہاں(
+                    نیا AstFFlush{nodep->fileline(),
+                                  nodep->filep() ? nodep->filep()->clone_درخت_خالص(سچ) : خالی_اشاریہ});
             }
         }
     }
-    void visit(AstWriteMem* nodep) override {
+    خالی دورہ(AstWriteMem* nodep) override {
         // Task lowering and scheduling put every memory dump inside a C++ function.
         UASSERT_OBJ(m_cfuncp, nodep, "Memory dump not under CFunc");
-        START_STATEMENT_OR_RETURN(nodep);
+        آغاز_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
         // Memory dumps take an address, so force-aware reads need stable storage.
         // Keep temporaries created here or while visiting a wide memory expression.
-        if (const AstVarRef* const refp = VN_CAST(nodep->memp(), VarRef)) {
-            refp->varp()->noSubst(true);
-        } else {
-            createTemp(nodep->memp())->noSubst(true);
+        اگر (ثابت AstVarRef* ثابت refp = VN_CAST(nodep->memp(), VarRef)) {
+            refp->varp()->noSubst(سچ);
+        } ورنہ {
+            create_عارضی(nodep->memp())->noSubst(سچ);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
-        START_STATEMENT_OR_RETURN(nodep);
+    خالی دورہ(Ast_گرہ_Stmt* nodep) override {
+        آغاز_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
     }
 
-#undef START_STATEMENT_OR_RETURN
+#تعریف_منسوخ آغاز_STATEMENT_OR_RETURN
 
     // VISITORS - Expressions
-    void visit(AstShiftL* nodep) override { visitShift(nodep); }
-    void visit(AstShiftR* nodep) override { visitShift(nodep); }
-    void visit(AstShiftRS* nodep) override { visitShift(nodep); }
+    خالی دورہ(Ast_سرکاؤ_L* nodep) override { دورہ_سرکاؤ(nodep); }
+    خالی دورہ(Ast_سرکاؤ_R* nodep) override { دورہ_سرکاؤ(nodep); }
+    خالی دورہ(Ast_سرکاؤ_RS* nodep) override { دورہ_سرکاؤ(nodep); }
 
-    void visit(AstConst* nodep) override { checkNode(nodep); }
+    خالی دورہ(AstConst* nodep) override { check_گرہ(nodep); }
     // Operators
-    void visit(AstNodeTermop* nodep) override { checkNode(nodep); }
-    void visit(AstNodeUniop* nodep) override {
+    خالی دورہ(Ast_گرہ_Termop* nodep) override { check_گرہ(nodep); }
+    خالی دورہ(Ast_گرہ_Uniop* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstNodeBiop* nodep) override {
+    خالی دورہ(Ast_گرہ_Biop* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstRand* nodep) override {
+    خالی دورہ(AstRand* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstRandRNG* nodep) override {
+    خالی دورہ(AstRandRNG* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
+    خالی دورہ(AstCExprUser* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    خالی دورہ(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstCvtArrayToPacked* nodep) override {
+    خالی دورہ(Ast_Cvt_Array_مقصد_Packed* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstCvtPackedToArray* nodep) override {
+    خالی دورہ(Ast_Cvt_Packed_مقصد_Array* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
-        if (!VN_IS(nodep->backp(), NodeAssign)) createTemp(nodep);
+        check_گرہ(nodep);
+        اگر (!VN_IS(nodep->backp(), گرہ_تفویض)) create_عارضی(nodep);
     }
-    void visit(AstCvtUnpackToQueue* nodep) override {
+    خالی دورہ(Ast_Cvt_Unpack_مقصد_قطار* nodep) override {
         iterateChildren(nodep);
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstSel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    خالی دورہ(AstSel* nodep) override {
+        iterate_And_اگلا_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->lsbp());
+            VL_RESTORER(m_تفویض_Lhs);
+            m_تفویض_Lhs = جھوٹ;
+            iterate_And_اگلا_Null(nodep->lsbp());
             // AstSel::widthp() must remain a constant, so not iterating
         }
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstArraySel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    خالی دورہ(AstArraySel* nodep) override {
+        iterate_And_اگلا_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->bitp());
+            VL_RESTORER(m_تفویض_Lhs);
+            m_تفویض_Lhs = جھوٹ;
+            iterate_And_اگلا_Null(nodep->bitp());
         }
         // ArraySel are just pointer arithmetic and should never be replaced
     }
-    void visit(AstAssocSel* nodep) override {
-        iterateAndNextNull(nodep->fromp());
+    خالی دورہ(AstAssocSel* nodep) override {
+        iterate_And_اگلا_Null(nodep->fromp());
         {  // Only the 'from' is part of the assignment LHS
-            VL_RESTORER(m_assignLhs);
-            m_assignLhs = false;
-            iterateAndNextNull(nodep->bitp());
+            VL_RESTORER(m_تفویض_Lhs);
+            m_تفویض_Lhs = جھوٹ;
+            iterate_And_اگلا_Null(nodep->bitp());
         }
-        checkNode(nodep);
+        check_گرہ(nodep);
     }
-    void visit(AstNodeCons* nodep) override {
+    خالی دورہ(Ast_گرہ_Cons* nodep) override {
         // Only lift whole values, as editing the parts of a constant would make it non-constant
-        if (!m_inCons && nodep->isConstantTree()) {
-            if (m_stmtp && useConstPool(nodep)) {
-                nodep->replaceWith(V3ConstPool::find(nodep));
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                ++m_extractedToConstPool;
+        اگر (!m_اندر_Cons && nodep->is_Constant_درخت()) {
+            اگر (m_stmtp && useConstPool(nodep)) {
+                nodep->replaceWith(V3ConstPool::ڈھونڈو(nodep));
+                VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+                ++m_extracted_مقصد_Const_Pool;
             }
-            return;
+            واپس;
         }
-        VL_RESTORER(m_inCons);
-        m_inCons = true;
+        VL_RESTORER(m_اندر_Cons);
+        m_اندر_Cons = سچ;
         iterateChildren(nodep);
     }
     // Const associative array keys are emitted as initializers, so need no temporary
-    void visit(AstConsAssocItem* nodep) override {
-        if (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
+    خالی دورہ(Ast_Cons_Assoc_شے* nodep) override {
+        اگر (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
         iterate(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    خالی دورہ(Ast_مطابقت_Masked* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        اگر (!nodep->user1_سیٹ_Once()) {
             // Don't want this replicated by V3Expand
-            AstVar* const varp = createTemp(nodep);
-            varp->noSubst(true);  // Do not re-inline in V3Subst
+            AstVar* ثابت varp = create_عارضی(nodep);
+            varp->noSubst(سچ);  // Do not re-inline in V3Subst
         }
     }
-    void visit(AstCond* nodep) override {
+    خالی دورہ(AstCond* nodep) override {
         // Convert AstCond to AstIf in order to avoid evaluating
         // sub-expressions in both branches unconditionally.
-        if (needsTemp(nodep)) {
+        اگر (needs_عارضی(nodep)) {
             // Check if LHS variable could be used directly
-            AstVarRef* const lRefp = isRhsOfAssignToVar(nodep);
+            AstVarRef* ثابت lRefp = is_Rhs_کا_تفویض_مقصد_Var(nodep);
             // If not, create a new temporary variable
             AstVar* varp = lRefp ? lRefp->varp() : newTmpFor(nodep);
             // Can't substitute across basic blocks
-            varp->noSubst(true);
+            varp->noSubst(سچ);
 
-            FileLine* const flp = nodep->fileline();
+            File_سطر* ثابت flp = nodep->fileline();
             // Create 'then' assignment
-            AstVarRef* const thenRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) thenRefp->selfPointer(lRefp->selfPointer());
-            AstNodeExpr* const thenExprp = nodep->thenp()->unlinkFrBack();
-            AstAssign* const thenAsspp = new AstAssign{flp, thenRefp, thenExprp};
+            AstVarRef* ثابت thenRefp = نیا AstVarRef{flp, varp, VAccess::WRITE};
+            اگر (lRefp) thenRefp->self_اشارہ_گر(lRefp->self_اشارہ_گر());
+            Ast_گرہ_اظہاریہ* ثابت thenExprp = nodep->thenp()->unlink_Fr_عقب();
+            Ast_تفویض* ثابت thenAsspp = نیا Ast_تفویض{flp, thenRefp, thenExprp};
             // Create 'else' assignment
-            AstVarRef* const elseRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) elseRefp->selfPointer(lRefp->selfPointer());
-            AstNodeExpr* const elseExprp = nodep->elsep()->unlinkFrBack();
-            AstAssign* const elseAsspp = new AstAssign{flp, elseRefp, elseExprp};
+            AstVarRef* ثابت elseRefp = نیا AstVarRef{flp, varp, VAccess::WRITE};
+            اگر (lRefp) elseRefp->self_اشارہ_گر(lRefp->self_اشارہ_گر());
+            Ast_گرہ_اظہاریہ* ثابت elseExprp = nodep->elsep()->unlink_Fr_عقب();
+            Ast_تفویض* ثابت elseAsspp = نیا Ast_تفویض{flp, elseRefp, elseExprp};
             // Creae 'if' and insert it before the statement
-            AstNodeExpr* const condp = nodep->condp()->unlinkFrBack();
-            AstIf* const ifp = new AstIf{flp, condp, thenAsspp, elseAsspp};
-            m_stmtp->addHereThisAsNext(ifp);
+            Ast_گرہ_اظہاریہ* ثابت condp = nodep->condp()->unlink_Fr_عقب();
+            AstIf* ثابت ifp = نیا AstIf{flp, condp, thenAsspp, elseAsspp};
+            m_stmtp->جوڑو_یہاں_This_As_اگلا(ifp);
             // Replace the AstCond with the result variable
-            nodep->replaceWith(new AstVarRef{flp, varp, VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(نیا AstVarRef{flp, varp, VAccess::READ});
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
             // Splitting to multiple statements can change purity
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_درخت();
             // Iterate the resulting assignments
             iterate(ifp);
-            return;
+            واپس;
         }
         iterateChildren(nodep);
     }
-    void visit(AstSFormatF* nodep) override {
+    خالی دورہ(AstSFormatF* nodep) override {
         iterateChildren(nodep);
         // Any strings sent to a display must be var of string data type,
         // to avoid passing a pointer to a temporary.
-        AstNodeExpr* exprsp = nodep->exprsp();
-        if (nodep->exprFormat()) {
-            exprsp = VN_AS(exprsp->nextp(), NodeExpr);
-            for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
-                const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                if (fargp && fargp->formatAttr().isEnum()) {
+        Ast_گرہ_اظہاریہ* exprsp = nodep->exprsp();
+        اگر (nodep->اظہاریہ_Format_2()) {
+            exprsp = VN_AS(exprsp->nextp(), گرہ_اظہاریہ);
+            برائے (Ast_گرہ* argp = exprsp; argp; argp = argp->nextp()) {
+                ثابت AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+                اگر (fargp && fargp->formatAttr().isEnum()) {
                     // Evaluate the format before materializing enum arguments.
-                    AstVar* const varp = createTemp(nodep->exprsp());
-                    varp->noSubst(true);
-                    break;
+                    AstVar* ثابت varp = create_عارضی(nodep->exprsp());
+                    varp->noSubst(سچ);
+                    توڑو;
                 }
             }
         }
-        for (AstNodeExpr *argp = exprsp, *nextp; argp; argp = nextp) {
-            nextp = VN_AS(argp->nextp(), NodeExpr);
+        برائے (Ast_گرہ_اظہاریہ *argp = exprsp, *nextp; argp; argp = nextp) {
+            nextp = VN_AS(argp->nextp(), گرہ_اظہاریہ);
 
-            AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-            AstNodeExpr* const subargp = fargp ? fargp->exprp() : argp;
-            if (fargp && fargp->formatAttr().isEnum()) {
+            AstSFormatArg* ثابت fargp = VN_CAST(argp, SFormatArg);
+            Ast_گرہ_اظہاریہ* ثابت subargp = fargp ? fargp->exprp() : argp;
+            اگر (fargp && fargp->formatAttr().isEnum()) {
                 // The name lookup must see the same value as the numeric argument.
-                AstVar* const valueVarp = createTemp(subargp);
-                valueVarp->noSubst(true);
-                if (!VN_IS(fargp->namep(), VarRef)) {
-                    AstVar* const nameVarp = createTemp(fargp->namep());
-                    nameVarp->noSubst(true);
+                AstVar* ثابت قدر_Varp = create_عارضی(subargp);
+                قدر_Varp->noSubst(سچ);
+                اگر (!VN_IS(fargp->namep(), VarRef)) {
+                    AstVar* ثابت nameVarp = create_عارضی(fargp->namep());
+                    nameVarp->noSubst(سچ);
                 }
-                continue;
+                جاری;
             }
             // Must avoid taking address of rvalue, so even Const needs a temp
-            if (subargp->isString() && !VN_IS(subargp, VarRef)) {
-                AstVar* const varp = createTemp(subargp);
+            اگر (subargp->isString() && !VN_IS(subargp, VarRef)) {
+                AstVar* ثابت varp = create_عارضی(subargp);
                 // Do not remove VarRefs to this in V3Const
-                varp->noSubst(true);
+                varp->noSubst(سچ);
             }
         }
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(AstVar*) override {}  // Don't hit varrefs under vars
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit PremitVisitor(AstNetlist* nodep) { iterate(nodep); }
+    صریح PremitVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~PremitVisitor() override {
-        V3Stats::addStat("Optimizations, Prelim extracted value to ConstPool",
-                         m_extractedToConstPool);
-        V3Stats::addStat("Optimizations, Prelim temporary variables created",
+        V3Stats::جوڑو_Stat("Optimizations, Prelim extracted value to ConstPool",
+                         m_extracted_مقصد_Const_Pool);
+        V3Stats::جوڑو_Stat("Optimizations, Prelim temporary variables created",
                          m_temporaryVarsCreated);
     }
 };
@@ -536,8 +536,8 @@ public:
 //######################################################################
 // Premit class functions
 
-void V3Premit::premitAll(AstNetlist* nodep) {
+خالی V3Premit::premitAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { PremitVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("premit", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("premit", 0, dump_درخت_Either_Level() >= 3);
 }

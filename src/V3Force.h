@@ -15,19 +15,19 @@
 
 //*************************************************************************
 
-#ifndef VERILATOR_V3FORCE_H_
-#define VERILATOR_V3FORCE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3FORCE_H_
+#تعریف_کرو VERILATOR_V3FORCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Force final {
-public:
-    static void forceAndAssignAll(AstNetlist* nodep) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی force_And_تفویض_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIFE_H_
-#define VERILATOR_V3LIFE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3LIFE_H_
+#تعریف_کرو VERILATOR_V3LIFE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Life final {
-public:
-    static void lifeAll(AstNetlist* nodep) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی lifeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

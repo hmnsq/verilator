@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITV_H_
-#define VERILATOR_V3EMITV_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3EMITV_H_
+#تعریف_کرو VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_گرہ;
+class Ast_Sen_درخت;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+عوامی:
+    ساکن خالی verilog_For_درخت(ثابت Ast_گرہ* nodep, std::ostream& os = std::cout);
+    ساکن خالی debug_Verilog_For_درخت(ثابت Ast_گرہ* nodep, std::ostream& os);
+    ساکن std::string debug_Verilog_For_درخت(ثابت Ast_گرہ* nodep);
+    ساکن خالی emitvFiles();
+    ساکن خالی debugEmitV(ثابت string& filename);
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

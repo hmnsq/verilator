@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASSERTNFA_H_
-#define VERILATOR_V3ASSERTNFA_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3ASSERTNFA_H_
+#تعریف_کرو VERILATOR_V3ASSERTNFA_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3AssertNfa final {
-public:
-    static void assertNfaAll(AstNetlist* nodep) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی assertNfaAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

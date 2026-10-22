@@ -14,60 +14,60 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TASK_H_
-#define VERILATOR_V3TASK_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3TASK_H_
+#تعریف_کرو VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#شامل "V3Ast.h"
+#شامل "V3Container.h"
+#شامل "V3Error.h"
 
-#include <utility>
-#include <vector>
+#شامل <utility>
+#شامل <vector>
 
 //============================================================================
 
 using V3TaskConnect = std::pair<AstVar*, AstArg*>;  // [port, pin-connects-to]
-using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
+using V3TaskConnects = std::سمتیہ<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
 
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_گرہ_FTask*, std::string>, Ast_گرہ_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+عوامی:
+    V3TaskConnectState() = طےشدہ;
+    ~V3TaskConnectState() = طےشدہ;
+    خالی ڈالو_Deletep(Ast_گرہ* nodep) { m_deleter.ڈالو_Deletep(nodep); }
+    bool didWrap() ثابت { واپس m_didWrap; }
+    خالی سیٹ_Did_Wrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { واپس m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    ساکن ثابت حرف* ثابت s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    ساکن V3TaskConnects taskConnects(Ast_گرہ_FTask_Ref* nodep, Ast_گرہ* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    ساکن خالی taskConnectWrap(Ast_گرہ_FTask_Ref* nodep, ثابت V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                ثابت VInsertion_سیٹ<ثابت AstVar*>& argWrap) VL_MT_DISABLED;
+    ساکن Ast_گرہ_FTask*
+    taskConnectWrapNew(Ast_گرہ_FTask* taskp, ثابت string& newname, ثابت V3TaskConnects& tconnects,
+                       ثابت VInsertion_سیٹ<ثابت AstVar*>& argWrap) VL_MT_DISABLED;
+    ساکن string تفویض_اندرونی_مقصد_Dpi(AstVar* portp, bool isPtr, ثابت string& frSuffix,
+                                      ثابت string& مقصد_Suffix,
+                                      ثابت string& fr_سابقہ = "") VL_MT_DISABLED;
+    ساکن string تفویض_Dpi_مقصد_اندرونی(ثابت string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    ساکن ثابت حرف* dpiTemporaryVarSuffix() VL_MT_محفوظ { واپس s_dpiTemporaryVarSuffix; }
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

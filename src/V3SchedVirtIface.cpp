@@ -25,145 +25,145 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstNodeExpr.h"
-#include "V3Sched.h"
+#شامل "V3AstNodeExpr.h"
+#شامل "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+نامخلا V3Sched {
 
-namespace {
+نامخلا {
 
-class VirtIfaceVisitor final : public VNVisitor {
-private:
+جماعت VirtIfaceVisitor final : عوامی VNVisitor {
+نجی:
     // STATE
-    using IfaceMember = std::pair<const AstIface*, std::string>;
-    using IfaceCallable = std::pair<AstIface*, AstCFunc*>;
+    استعمال IfaceMember = std::pair<ثابت AstIface*, std::string>;
+    استعمال IfaceCallable = std::pair<AstIface*, AstCFunc*>;
 
     // Set of (iface, member) pairs written through VIF -- defines which members need triggers
-    std::set<IfaceMember> m_vifWrittenMembers;
+    std::سیٹ<IfaceMember> m_vifWrittenMembers;
     // All candidate VarScopes of interface members (keyed by interface type + member name)
-    std::map<IfaceMember, std::vector<AstVarScope*>> m_candidateVscps;
-    std::set<std::pair<IfaceMember, AstVarScope*>> m_seenCandidateVscps;
+    std::map<IfaceMember, std::سمتیہ<AstVarScope*>> m_candidateVscps;
+    std::سیٹ<std::pair<IfaceMember, AstVarScope*>> m_نظر_آیا_Candidate_Vscps;
     // VarScope index and callable worklist for VIF method-body writes.
-    std::map<const AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
-    std::vector<IfaceCallable> m_reachableIfaceCallables;
-    std::set<IfaceCallable> m_seenReachableIfaceCallables;
+    std::map<ثابت AstVar*, std::سمتیہ<AstVarScope*>> m_vscpsByVar;
+    std::سمتیہ<IfaceCallable> m_reachableIfaceCallables;
+    std::سیٹ<IfaceCallable> m_نظر_آیا_Reachable_Iface_Callables;
     VirtIfaceTriggers m_triggers;
 
     // METHODS
     // Returns true if statement writes across a virtual interface boundary
-    static bool writesToVirtIface(const AstNode* const nodep) {
-        return nodep->exists([](const AstMemberSel* const memberSelp) {
-            if (!memberSelp->access().isWriteOrRW()) return false;
-            AstIfaceRefDType* const dtypep
+    ساکن منطقی writes_مقصد_Virt_Iface(ثابت Ast_گرہ* ثابت nodep) {
+        واپس nodep->exists([](ثابت AstMemberSel* ثابت memberSelp) {
+            اگر (!memberSelp->access().isWriteOrRW()) واپس جھوٹ;
+            AstIfaceRefDType* ثابت dtypep
                 = VN_CAST(memberSelp->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            return dtypep && dtypep->isVirtual();
+            واپس dtypep && dtypep->isVirtual();
         });
     }
 
     // VISITORS
-    void visit(AstMemberSel* nodep) override {
+    خالی دورہ(AstMemberSel* nodep) override {
         // Detect writes through VIF: the MemberSel's fromp resolves to a virtual interface type.
         // Handles both direct VIF access (vif.member) and class chain (obj.vif.member).
-        if (nodep->access().isWriteOrRW()) {
-            AstIfaceRefDType* const dtypep
+        اگر (nodep->access().isWriteOrRW()) {
+            AstIfaceRefDType* ثابت dtypep
                 = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            if (dtypep && dtypep->isVirtual()) {
+            اگر (dtypep && dtypep->isVirtual()) {
                 m_vifWrittenMembers.emplace(dtypep->ifacep(), nodep->varp()->name());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstCMethodCall* nodep) override {
-        if (const AstIfaceRefDType* const dtypep
+    خالی دورہ(AstCMethodCall* nodep) override {
+        اگر (ثابت AstIfaceRefDType* ثابت dtypep
             = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType)) {
-            if (VL_UNCOVERABLE(!dtypep->isVirtual())) {
+            اگر (VL_UNCOVERABLE(!dtypep->isVirtual())) {
                 // Concrete interface method calls are lowered before this pass.
-            } else {
-                addReachableIfaceCallable(dtypep->ifaceViaCellp(), nodep->funcp());
+            } ورنہ {
+                جوڑو_Reachable_Iface_Callable(dtypep->iface_بذریعہ_Cellp(), nodep->funcp());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
+    خالی دورہ(AstVarScope* nodep) override {
         // Collect candidate VarScopes. sensIfacep() is set on interface members
         // accessed via any MemberSel (virtual or non-virtual).
-        AstVar* const varp = nodep->varp();
-        if (varp->isTemp()) return;
-        m_vscpsByVar[varp].push_back(nodep);
-        if (const AstIface* const ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
+        AstVar* ثابت varp = nodep->varp();
+        اگر (varp->is_عارضی()) واپس;
+        m_vscpsByVar[varp].ڈالو_عقب(nodep);
+        اگر (ثابت AstIface* ثابت ifacep = varp->sensIfacep()) جوڑو_Candidate_Vscp(ifacep, nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    خالی دورہ(Ast_گرہ_Procedure* nodep) override {
         // Disable lifetime optimization for variables in AlwaysPost blocks
         // that write to virtual interface members, as VIF reads may observe them
-        if (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
-            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(false); });
+        اگر (VN_IS(nodep, AlwaysPost) && writes_مقصد_Virt_Iface(nodep)) {
+            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(جھوٹ); });
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-    void addCandidateVscp(const AstIface* const ifacep, AstVarScope* const vscp) {
-        const IfaceMember member{ifacep, vscp->varp()->name()};
-        if (m_seenCandidateVscps.emplace(member, vscp).second)
-            m_candidateVscps[member].push_back(vscp);
+    خالی جوڑو_Candidate_Vscp(ثابت AstIface* ثابت ifacep, AstVarScope* ثابت vscp) {
+        ثابت IfaceMember member{ifacep, vscp->varp()->name()};
+        اگر (m_نظر_آیا_Candidate_Vscps.emplace(member, vscp).دوسرا)
+            m_candidateVscps[member].ڈالو_عقب(vscp);
     }
 
-    void addReachableIfaceCallable(AstIface* const ifacep, AstCFunc* const funcp) {
-        const IfaceCallable callable{ifacep, funcp};
-        if (m_seenReachableIfaceCallables.emplace(callable).second) {
-            m_reachableIfaceCallables.push_back(callable);
+    خالی جوڑو_Reachable_Iface_Callable(AstIface* ثابت ifacep, AstCFunc* ثابت funcp) {
+        ثابت IfaceCallable callable{ifacep, funcp};
+        اگر (m_نظر_آیا_Reachable_Iface_Callables.emplace(callable).دوسرا) {
+            m_reachableIfaceCallables.ڈالو_عقب(callable);
         }
     }
 
     // Build final trigger list by intersecting VIF writes with candidate VarScopes
-    void buildTriggers() {
-        for (const auto& written : m_vifWrittenMembers) {
-            const auto it = m_candidateVscps.find(written);
-            if (it == m_candidateVscps.end()) continue;
-            for (AstVarScope* const vscp : it->second) {
-                const AstIface* const ifacep = written.first;
-                m_triggers.addTrigger(ifacep, vscp->varp(), vscp);
+    خالی buildTriggers() {
+        برائے (ثابت خودکار& written : m_vifWrittenMembers) {
+            ثابت خودکار it = m_candidateVscps.ڈھونڈو(written);
+            اگر (it == m_candidateVscps.انتہا()) جاری;
+            برائے (AstVarScope* ثابت vscp : it->دوسرا) {
+                ثابت AstIface* ثابت ifacep = written.پہلا;
+                m_triggers.جوڑو_Trigger(ifacep, vscp->varp(), vscp);
             }
         }
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit VirtIfaceVisitor(AstNetlist* nodep) {
+    صریح VirtIfaceVisitor(AstNetlist* nodep) {
         iterate(nodep);
-        for (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
-            const IfaceCallable callable = m_reachableIfaceCallables[i];
-            callable.second->foreach([this, callable](AstNodeExpr* const nodep) {
-                if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        برائے (سائز_t i = 0; i < m_reachableIfaceCallables.سائز(); ++i) {
+            ثابت IfaceCallable callable = m_reachableIfaceCallables[i];
+            callable.دوسرا->foreach([یہ, callable](Ast_گرہ_اظہاریہ* ثابت nodep) {
+                اگر (AstVarRef* ثابت refp = VN_CAST(nodep, VarRef)) {
                     // Only persistent interface storage is observable through a VIF read.
                     UASSERT_OBJ(refp->varScopep(), refp, "No var scope");
-                    AstVar* const varp = refp->varp();
-                    if (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
+                    AstVar* ثابت varp = refp->varp();
+                    اگر (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->is_عارضی()
                         || varp->isEvent() || !VN_IS(refp->varScopep()->scopep()->modp(), Iface)) {
-                        return;
+                        واپس;
                     }
-                    varp->sensIfacep(callable.first);
-                    m_vifWrittenMembers.emplace(callable.first, varp->name());
-                    const auto it = m_vscpsByVar.find(varp);
-                    UASSERT_OBJ(it != m_vscpsByVar.end(), varp,
+                    varp->sensIfacep(callable.پہلا);
+                    m_vifWrittenMembers.emplace(callable.پہلا, varp->name());
+                    ثابت خودکار it = m_vscpsByVar.ڈھونڈو(varp);
+                    UASSERT_OBJ(it != m_vscpsByVar.انتہا(), varp,
                                 "No VarScope for interface member");
-                    for (AstVarScope* const vscp : it->second)
-                        addCandidateVscp(callable.first, vscp);
-                } else if (AstNodeCCall* const callp = VN_CAST(nodep, NodeCCall)) {
-                    addReachableIfaceCallable(callable.first, callp->funcp());
+                    برائے (AstVarScope* ثابت vscp : it->دوسرا)
+                        جوڑو_Candidate_Vscp(callable.پہلا, vscp);
+                } ورنہ اگر (Ast_گرہ_CCall* ثابت callp = VN_CAST(nodep, گرہ_CCall)) {
+                    جوڑو_Reachable_Iface_Callable(callable.پہلا, callp->funcp());
                 }
             });
         }
         buildTriggers();
     }
-    ~VirtIfaceVisitor() override = default;
+    ~VirtIfaceVisitor() override = طےشدہ;
 
     // METHODS
-    VirtIfaceTriggers take_triggers() { return std::move(m_triggers); }
+    VirtIfaceTriggers take_triggers() { واپس std::move(m_triggers); }
 };
 
 }  //namespace
@@ -171,12 +171,12 @@ public:
 VirtIfaceTriggers makeVirtIfaceTriggers(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     VirtIfaceTriggers triggers{};
-    if (v3Global.hasVirtIfaces()) {
+    اگر (v3Global.hasVirtIfaces()) {
         triggers = VirtIfaceVisitor{nodep}.take_triggers();
         // Dump after destructor so VNDeleter runs
-        V3Global::dumpCheckGlobalTree("sched_vif", 0, dumpTreeEitherLevel() >= 6);
+        V3Global::dump_Check_Global_درخت("sched_vif", 0, dump_درخت_Either_Level() >= 6);
     }
-    return triggers;
+    واپس triggers;
 }
 
 }  //namespace V3Sched

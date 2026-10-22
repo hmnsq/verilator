@@ -19,97 +19,97 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3MEMBERMAP_H_
-#define VERILATOR_V3MEMBERMAP_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3MEMBERMAP_H_
+#تعریف_کرو VERILATOR_V3MEMBERMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Global.h"
+#شامل "V3Ast.h"
+#شامل "V3Global.h"
 
-#include <map>
+#شامل <map>
 
 //######################################################################
 
 class VMemberMap final {
     // MEMBERS
-    using MemberMap = std::map<std::string, AstNode*>;
-    using NodeMap = std::map<const AstNode*, MemberMap>;
-    NodeMap m_map;  // Map of nodes being tracked
+    using MemberMap = std::map<std::string, Ast_گرہ*>;
+    using گرہ_Map = std::map<ثابت Ast_گرہ*, MemberMap>;
+    گرہ_Map m_map;  // Map of nodes being tracked
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
-    void clear() { m_map.clear(); }
+عوامی:
+    خالی clear() { m_map.clear(); }
     // Find 'name' under 'nodep', caching nodep's children if needed
-    AstNode* findMember(const AstNode* nodep, const std::string& name) {
-        auto nit = m_map.find(nodep);
-        if (VL_UNLIKELY(nit == m_map.end())) {
-            scan(nodep);
-            nit = m_map.find(nodep);
+    Ast_گرہ* ڈھونڈو_Member(ثابت Ast_گرہ* nodep, ثابت std::string& name) {
+        خودکار nit = m_map.ڈھونڈو(nodep);
+        اگر (VL_UNLIKELY(nit == m_map.انتہا())) {
+            جائزہ(nodep);
+            nit = m_map.ڈھونڈو(nodep);
         }
-        const auto mit = nit->second.find(name);
-        if (mit == nit->second.end()) return nullptr;
-        return mit->second;
+        ثابت خودکار mit = nit->دوسرا.ڈھونڈو(name);
+        اگر (mit == nit->دوسرا.انتہا()) واپس nullptr;
+        واپس mit->دوسرا;
     }
     // Insert under the given parent node the child's name
-    void insert(const AstNode* nodep, AstNode* childp) {
-        auto nit = m_map.find(nodep);
-        if (nit == m_map.end()) {
-            scan(nodep);
-            nit = m_map.find(nodep);
+    خالی داخل_کرو(ثابت Ast_گرہ* nodep, Ast_گرہ* childp) {
+        خودکار nit = m_map.ڈھونڈو(nodep);
+        اگر (nit == m_map.انتہا()) {
+            جائزہ(nodep);
+            nit = m_map.ڈھونڈو(nodep);
         }
-        memberInsert(nit->second, childp, false);
+        member_داخل_کرو(nit->دوسرا, childp, false);
     }
 
-private:
-    void scan(const AstNode* nodep) {
-        const auto nitPair = m_map.emplace(nodep, MemberMap{});
-        MemberMap& mmapr = nitPair.first->second;
-        if (const AstClass* const anodep = VN_CAST(nodep, Class)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        if (AstClass::isCacheableChild(blockp)) memberInsert(mmapr, blockp);
+نجی:
+    خالی جائزہ(ثابت Ast_گرہ* nodep) {
+        ثابت خودکار nitPair = m_map.emplace(nodep, MemberMap{});
+        MemberMap& mmapr = nitPair.پہلا->دوسرا;
+        اگر (ثابت AstClass* ثابت anodep = VN_CAST(nodep, Class)) {
+            برائے (Ast_گرہ* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                اگر (ثابت AstScope* ثابت scopep = VN_CAST(itemp, Scope)) {
+                    برائے (Ast_گرہ* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        اگر (AstClass::is_Cacheable_بچہ(blockp)) member_داخل_کرو(mmapr, blockp);
                     }
-                } else {
-                    if (AstClass::isCacheableChild(itemp)) memberInsert(mmapr, itemp);
+                } ورنہ {
+                    اگر (AstClass::is_Cacheable_بچہ(itemp)) member_داخل_کرو(mmapr, itemp);
                 }
             }
-        } else if (const AstIface* const anodep = VN_CAST(nodep, Iface)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        memberInsert(mmapr, blockp);
+        } ورنہ اگر (ثابت AstIface* ثابت anodep = VN_CAST(nodep, Iface)) {
+            برائے (Ast_گرہ* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                اگر (ثابت AstScope* ثابت scopep = VN_CAST(itemp, Scope)) {
+                    برائے (Ast_گرہ* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        member_داخل_کرو(mmapr, blockp);
                     }
-                } else if (!VN_IS(itemp, Always)) {
-                    memberInsert(mmapr, itemp);
+                } ورنہ اگر (!VN_IS(itemp, Always)) {
+                    member_داخل_کرو(mmapr, itemp);
                 }
             }
-        } else if (const AstNodeUOrStructDType* const anodep
-                   = VN_CAST(nodep, NodeUOrStructDType)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } ورنہ اگر (ثابت Ast_گرہ_UOr_Struct_DType* ثابت anodep
+                   = VN_CAST(nodep, گرہ_UOr_Struct_DType)) {
+            برائے (Ast_گرہ* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                member_داخل_کرو(mmapr, itemp);
             }
-        } else if (const AstPackage* const anodep = VN_CAST(nodep, Package)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } ورنہ اگر (ثابت AstPackage* ثابت anodep = VN_CAST(nodep, Package)) {
+            برائے (Ast_گرہ* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                member_داخل_کرو(mmapr, itemp);
             }
-        } else {
+        } ورنہ {
             nodep->v3fatalSrc("Unsupported node type");
         }
     }
-    void memberInsert(MemberMap& mmapr, AstNode* childp, bool warn = true) {
+    خالی member_داخل_کرو(MemberMap& mmapr, Ast_گرہ* childp, bool warn = true) {
         // Skip nodes without names (e.g., initial blocks, anonymous statements)
         // These can't be looked up by name anyway
-        if (childp->name().empty()) return;
-        const auto mitPair = mmapr.emplace(childp->name(), childp);
-        if (VL_UNCOVERABLE(!mitPair.second && warn)) {
+        اگر (childp->name().خالی_خانے()) واپس;
+        ثابت خودکار mitPair = mmapr.emplace(childp->name(), childp);
+        اگر (VL_UNCOVERABLE(!mitPair.دوسرا && warn)) {
             // Probably an internal error, but we'll make it user friendly if happens
             childp->v3error("Duplicate declaration of member name: " << childp->prettyNameQ());
         }
     }
 };
 
-#endif  // guard
+#اگر_ختم  // guard

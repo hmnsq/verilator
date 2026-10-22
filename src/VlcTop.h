@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_VLCTOP_H_
+#تعریف_کرو VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#شامل "VlcOptions.h"
+#شامل "VlcPoint.h"
+#شامل "VlcSource.h"
+#شامل "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_چوٹی final {
+عوامی:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+نجی:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    خالی annotateCalc();
+    خالی annotateCalcNeeded();
+    خالی annotateOutputFiles(ثابت string& dirname);
 
-public:
+عوامی:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_چوٹی() = طےشدہ;
+    ~Vlc_چوٹی() = طےشدہ;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { واپس m_tests; }
+    VlcPoints& points() { واپس m_points; }
+    VlcSources& sources() { واپس m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    خالی annotate(ثابت string& dirname);
+    خالی printHierarchyReport();
+    خالی printTypeSummary();
+    خالی readCoverage(ثابت string& filename, bool nonfatal = false);
+    خالی writeCoverage(ثابت string& filename);
+    خالی writeInfo(ثابت string& filename);
 
-    void rank();
+    خالی rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#اگر_ختم  // guard

@@ -28,16 +28,16 @@
 ///
 //*************************************************************************
 
-#ifndef VERILATOR_V3MUTEX_H_
-#define VERILATOR_V3MUTEX_H_ 1
+#اگر_غیر_تعریف_شدہ VERILATOR_V3MUTEX_H_
+#تعریف_کرو VERILATOR_V3MUTEX_H_ 1
 
-#include "verilatedos.h"
+#شامل "verilatedos.h"
 
-#include <cstdlib>
-#include <functional>
-#include <mutex>
+#شامل <cstdlib>
+#شامل <functional>
+#شامل <mutex>
 
-#define VL_LOCK_SPINS 50000  /// Number of times to spin for a mutex before yielding
+#تعریف_کرو VL_تالا_SPINS 50000  /// Number of times to spin for a mutex before yielding
 
 // MutexConfig class that allows to configure how mutex and lockguards behave
 // once configured and locked, it cannot be changed. Configuration and lock needs to be
@@ -47,97 +47,97 @@ class V3MutexConfig final {
     // Use carefully as it can cause undefined behavior when used inappropriately.
     // All mutexes needs to be unlocked.
     bool m_enable = false;  // Allows locking on mutexes, default don't lock mutexes
-    bool m_lockConfig = false;  // After set, configuration cannot be changed
+    bool m_تالا_Config = false;  // After set, configuration cannot be changed
 
-    V3MutexConfig() = default;
-    ~V3MutexConfig() = default;
+    V3MutexConfig() = طےشدہ;
+    ~V3MutexConfig() = طےشدہ;
 
-public:
-    static V3MutexConfig& s() VL_MT_SAFE {
-        static V3MutexConfig s{};
-        return s;
+عوامی:
+    ساکن V3MutexConfig& s() VL_MT_محفوظ {
+        ساکن V3MutexConfig s{};
+        واپس s;
     }
 
     // configures class
-    void configure(bool enable) VL_MT_UNSAFE {
-        if (!s().m_lockConfig) {
+    خالی configure(bool enable) VL_MT_UNSAFE {
+        اگر (!s().m_تالا_Config) {
             s().m_enable = enable;
-            s().m_lockConfig = true;
-        } else {
+            s().m_تالا_Config = true;
+        } ورنہ {
             // requires <iostream>
             // avoided to reduce compile time
             // std::cerr << "%Error: V3Mutex already configured." << std::endl;
             std::abort();  // LCOV_EXCL_LINE
         }
     }
-    bool enable() const VL_MT_SAFE { return m_enable; }
+    bool enable() ثابت VL_MT_محفوظ { واپس m_enable; }
 };
 
 /// Mutex, wrapped to allow -fthread_safety checks
-template <typename T>
+سانچہ <typename T>
 class VL_CAPABILITY("mutex") V3MutexImp final {
     T m_mutex;  // Mutex
 
-public:
+عوامی:
     /// Construct mutex (without locking it)
-    V3MutexImp() = default;
-    ~V3MutexImp() = default;
+    V3MutexImp() = طےشدہ;
+    ~V3MutexImp() = طےشدہ;
     VL_UNCOPYABLE(V3MutexImp);
-    const V3MutexImp& operator!() const { return *this; }  // For -fthread_safety
+    ثابت V3MutexImp& عامل!() ثابت { واپس *this; }  // For -fthread_safety
     /// Acquire/lock mutex
-    void lock() VL_ACQUIRE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) {
+    خالی تالا_2() VL_ACQUIRE() VL_MT_محفوظ {
+        اگر (V3MutexConfig::s().enable()) {
             // Try to acquire the lock by spinning.  If the wait is short,
             // avoids a trap to the OS plus OS scheduler overhead.
-            if (VL_LIKELY(try_lock())) return;  // Short circuit loop
-            for (int i = 0; i < VL_LOCK_SPINS; ++i) {
-                if (VL_LIKELY(try_lock())) return;
+            اگر (VL_LIKELY(try_تالا())) واپس;  // Short circuit loop
+            برائے (صحیح i = 0; i < VL_تالا_SPINS; ++i) {
+                اگر (VL_LIKELY(try_تالا())) واپس;
                 VL_CPU_RELAX();
             }
             // Spinning hasn't worked, pay the cost of blocking.
-            m_mutex.lock();
+            m_mutex.تالا_2();
         }
     }
     /// Release/unlock mutex
-    void unlock() VL_RELEASE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) m_mutex.unlock();
+    خالی unlock() VL_RELEASE() VL_MT_محفوظ {
+        اگر (V3MutexConfig::s().enable()) m_mutex.unlock();
     }
     /// Try to acquire mutex.  Returns true on success, and false on failure.
-    bool try_lock() VL_TRY_ACQUIRE(true) VL_MT_SAFE {
-        return V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
+    bool try_تالا() VL_TRY_ACQUIRE(true) VL_MT_محفوظ {
+        واپس V3MutexConfig::s().enable() ? m_mutex.try_تالا() : true;
     }
     /// Assume that the mutex is already held. Purely for Clang thread safety analyzer.
-    void assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}
+    خالی assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_محفوظ {}
     /// Pretend that the mutex is being unlocked. Purely for Clang thread safety analyzer.
-    void pretendUnlock() VL_RELEASE() VL_MT_SAFE {}
+    خالی pretendUnlock() VL_RELEASE() VL_MT_محفوظ {}
 };
 
 /// Lock guard for mutex (ala std::unique_lock), wrapped to allow -fthread_safety checks
-template <typename T>
-class VL_SCOPED_CAPABILITY V3LockGuardImp final {
-    VL_UNCOPYABLE(V3LockGuardImp);
+سانچہ <typename T>
+class VL_SCOPED_CAPABILITY V3_تالا_Guard_Imp final {
+    VL_UNCOPYABLE(V3_تالا_Guard_Imp);
 
-private:
+نجی:
     T& m_mutexr;
 
-public:
+عوامی:
     /// Lock given mutex and hold it for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_SAFE
+    explicit V3_تالا_Guard_Imp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_محفوظ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
-        mutexr.lock();
+        mutexr.تالا_2();
     }
     /// Take already locked mutex, and and hold the lock for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr, std::adopt_lock_t) VL_REQUIRES(mutexr) VL_MT_SAFE
+    explicit V3_تالا_Guard_Imp(T& mutexr, std::adopt_تالا_t) VL_REQUIRES(mutexr) VL_MT_محفوظ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
     }
 
     /// Unlock the mutex
-    ~V3LockGuardImp() VL_RELEASE() { m_mutexr.unlock(); }
+    ~V3_تالا_Guard_Imp() VL_RELEASE() { m_mutexr.unlock(); }
 };
 
 using V3Mutex = V3MutexImp<std::mutex>;
 using V3RecursiveMutex = V3MutexImp<std::recursive_mutex>;
-using V3LockGuard = V3LockGuardImp<V3Mutex>;
-using V3RecursiveLockGuard = V3LockGuardImp<V3RecursiveMutex>;
+using V3_تالا_Guard = V3_تالا_Guard_Imp<V3Mutex>;
+using V3_Recursive_تالا_Guard = V3_تالا_Guard_Imp<V3RecursiveMutex>;
 
-#endif  // guard
+#اگر_ختم  // guard

@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3INST_H_
-#define VERILATOR_V3INST_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3INST_H_
+#تعریف_کرو VERILATOR_V3INST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-class AstAssignW;
+class Ast_تفویض_W;
 class AstCell;
 class AstNetlist;
 class AstPin;
@@ -28,11 +28,11 @@ class AstPin;
 //============================================================================
 
 class V3Inst final {
-public:
-    static void instAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
+عوامی:
+    ساکن خالی instAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ساکن Ast_تفویض_W* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
                                           bool alwaysCvt = false) VL_MT_DISABLED;
-    static void checkOutputShort(const AstPin* nodep) VL_MT_DISABLED;
+    ساکن خالی checkOutputShort(ثابت AstPin* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

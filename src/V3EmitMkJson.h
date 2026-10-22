@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITMKJSON_H_
-#define VERILATOR_V3EMITMKJSON_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3EMITMKJSON_H_
+#تعریف_کرو VERILATOR_V3EMITMKJSON_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 //============================================================================
 
 class V3EmitMkJson final {
-public:
-    static void emit() VL_MT_DISABLED;
+عوامی:
+    ساکن خالی emit() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

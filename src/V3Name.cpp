@@ -19,59 +19,59 @@
 //              Prepend __PVT__ to variable names
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Name.h"
+#شامل "V3Name.h"
 
-#include "V3LanguageWords.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#شامل "V3LanguageWords.h"
+#شامل "V3MemberMap.h"
+#شامل "V3UniqueNames.h"
 
-#include <vector>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Name state, as a visitor of each AstNode
 
-class NameVisitor final : public VNVisitorConst {
+جماعت NameVisitor final : عوامی VNVisitorConst {
     // NODE STATE
     // Cleared on Netlist
     //  AstCell::user1()        -> bool.  Set true if already processed
     //  AstScope::user1()       -> bool.  Set true if already processed
     //  AstVar::user1()         -> bool.  Set true if already processed
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_اندر_Use m_inuser1;
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;  // Current module
+    ثابت Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Current module
 
     // Rename struct / union field properly
-    std::vector<V3UniqueNames> m_nameStack;  // Hierarchy-based renames
+    std::سمتیہ<V3_Unique_نام> m_name_ڈھیر;  // Hierarchy-based renames
 
-    void renameKeywordCheck(AstNode* nodep) {
-        const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-        if (rsvd != "") {
+    خالی renameKeywordCheck(Ast_گرہ* nodep) {
+        ثابت std::string rsvd = V3_Language_الفاظ::isKeyword(nodep->name());
+        اگر (rsvd != "") {
             nodep->v3warn(SYMRSVDWORD, "Symbol matches " + rsvd + ": " << nodep->prettyNameQ());
-            const string newname = "__SYM__"s + nodep->name();
+            ثابت string newname = "__SYM__"s + nodep->name();
             nodep->name(newname);
-            nodep->editCountInc();
+            nodep->edit_گنتی_Inc();
         }
     }
 
     // METHODS
-    void rename(AstNode* nodep, bool addPvt) {
-        if (!nodep->user1()) {  // Not already done
-            if (addPvt) {
-                const string newname = "__PVT__"s + nodep->name();
+    خالی rename(Ast_گرہ* nodep, منطقی جوڑو_Pvt) {
+        اگر (!nodep->user1()) {  // Not already done
+            اگر (جوڑو_Pvt) {
+                ثابت string newname = "__PVT__"s + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
-            } else if (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
-            } else if (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
-                       && VN_AS(nodep, Var)->isSigPublic()) {
-                const string newname = "__Vm_sig_" + nodep->name();
+                nodep->edit_گنتی_Inc();
+            } ورنہ اگر (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
+            } ورنہ اگر (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
+                       && VN_AS(nodep, Var)->is_Sig_عوامی()) {
+                ثابت string newname = "__Vm_sig_" + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
-            } else {
+                nodep->edit_گنتی_Inc();
+            } ورنہ {
                 renameKeywordCheck(nodep);
             }
             nodep->user1(1);
@@ -79,102 +79,102 @@ class NameVisitor final : public VNVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
-        rename(nodep, false);
+        rename(nodep, جھوٹ);
         // Avoid clashing with the classes of the library model itself
-        if (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
+        اگر (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
     }
     // Add __PVT__ to names of local signals
-    void visit(AstVar* nodep) override {
+    خالی دورہ(AstVar* nodep) override {
         // Don't iterate... Don't need temps for RANGES under the Var.
         rename(nodep,
-               ((!m_modp || !m_modp->isTop()) && !nodep->isSigPublic()
+               ((!m_modp || !m_modp->is_چوٹی()) && !nodep->is_Sig_عوامی()
                 && !nodep->isFuncLocal()  // Isn't exposed, and would mess up dpi import wrappers
-                && !nodep->isTemp()  // Don't bother to rename internal signals
+                && !nodep->is_عارضی()  // Don't bother to rename internal signals
                 // Special case, hardcoded m_process references in verilated_std.h and elsewhere
                 && !(m_modp && m_modp->name() == "std__03a__03aprocess"
                      && nodep->name() == "m_process")));
         iterateChildrenConst(nodep);
     }
-    void visit(AstCFunc* nodep) override {
-        if (!nodep->user1()) {
+    خالی دورہ(AstCFunc* nodep) override {
+        اگر (!nodep->user1()) {
             iterateChildrenConst(nodep);
-            rename(nodep, false);
+            rename(nodep, جھوٹ);
         }
     }
-    void visit(AstVarRef* nodep) override { iterateConst(nodep->varp()); }
-    void visit(AstCell* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, (!nodep->modp()->modPublic() && !VN_IS(nodep->modp(), ClassPackage)));
+    خالی دورہ(AstVarRef* nodep) override { iterateConst(nodep->varp()); }
+    خالی دورہ(AstCell* nodep) override {
+        اگر (!nodep->user1()) {
+            rename(nodep, (!nodep->modp()->mod_عوامی() && !VN_IS(nodep->modp(), ClassPackage)));
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->packed()) {
-            m_nameStack.emplace_back("", false);
-            m_nameStack.back().get("get");
-            m_nameStack.back().get("set");
+    خالی دورہ(Ast_گرہ_UOr_Struct_DType* nodep) override {
+        اگر (nodep->packed()) {
+            m_name_ڈھیر.emplace_عقب("", جھوٹ);
+            m_name_ڈھیر.عقب().get("get");
+            m_name_ڈھیر.عقب().get("set");
         }
         iterateChildrenConst(nodep);
-        if (nodep->packed()) m_nameStack.pop_back();
+        اگر (nodep->packed()) m_name_ڈھیر.نکالو_عقب();
     }
-    void visit(AstMemberDType* nodep) override {
-        if (!nodep->user1()) {
-            if (!m_nameStack.empty()) {  // Packed member field
+    خالی دورہ(AstMemberDType* nodep) override {
+        اگر (!nodep->user1()) {
+            اگر (!m_name_ڈھیر.خالی_خانے()) {  // Packed member field
                 renameKeywordCheck(nodep);
-                nodep->name(m_nameStack.back().get(nodep->name()));
+                nodep->name(m_name_ڈھیر.عقب().get(nodep->name()));
                 nodep->user1(1);
-            } else {
-                rename(nodep, true);
+            } ورنہ {
+                rename(nodep, سچ);
             }
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, true);
+    خالی دورہ(AstMemberSel* nodep) override {
+        اگر (!nodep->user1()) {
+            rename(nodep, سچ);
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!nodep->user1()) {
-            rename(nodep, true);
+    خالی دورہ(AstStructSel* nodep) override {
+        اگر (!nodep->user1()) {
+            rename(nodep, سچ);
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstScope* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
-            if (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
+    خالی دورہ(AstScope* nodep) override {
+        اگر (!nodep->user1_سیٹ_Once()) {
+            اگر (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
+            اگر (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
             // Always recompute name (as many levels above scope may have changed)
             // Same formula as V3Scope
-            nodep->name(nodep->isTop()         ? "TOP"
+            nodep->name(nodep->is_چوٹی()         ? "TOP"
                         : VN_IS(m_modp, Class) ? ("TOP." + m_modp->name())
                         : VN_IS(m_modp, ClassPackage)
                             ? ("TOP." + m_modp->name())
                             : (nodep->aboveScopep()->name() + "." + nodep->aboveCellp()->name()));
-            nodep->editCountInc();
+            nodep->edit_گنتی_Inc();
             iterateChildrenConst(nodep);
         }
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit NameVisitor(AstNetlist* nodep) { iterateConst(nodep); }
-    ~NameVisitor() override = default;
+    صریح NameVisitor(AstNetlist* nodep) { iterateConst(nodep); }
+    ~NameVisitor() override = طےشدہ;
 };
 
 //######################################################################
 // Name class functions
 
-void V3Name::nameAll(AstNetlist* nodep) {
+خالی V3Name::nameAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { NameVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("name", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_درخت("name", 0, dump_درخت_Either_Level() >= 6);
 }

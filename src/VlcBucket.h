@@ -14,16 +14,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCBUCKET_H_
-#define VERILATOR_VLCBUCKET_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_VLCBUCKET_H_
+#تعریف_کرو VERILATOR_VLCBUCKET_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
+#اگر_غیر_تعریف_شدہ V3ERROR_NO_GLOBAL_
+#تعریف_کرو V3ERROR_NO_GLOBAL_
+#اگر_ختم
+#شامل "V3Error.h"
 
 //********************************************************************
 // VlcBuckets - Container of all coverage point hits for a given test
@@ -33,83 +33,83 @@
 class VlcBuckets final {
     // MEMBERS
     uint64_t* m_datap = nullptr;  ///< Pointer to first bucket (dynamically allocated)
-    uint64_t m_dataSize = 0;  ///< Current entries in m_datap
+    uint64_t m_ڈیٹا_سائز = 0;  ///< Current entries in m_datap
     uint64_t m_bucketsCovered = 0;  ///< Num buckets with sufficient coverage
 
-    static uint64_t covBit(uint64_t point) { return 1ULL << (point & 63); }
-    uint64_t allocSize() const { return sizeof(uint64_t) * m_dataSize / 64; }
-    void allocate(uint64_t point) {
-        const uint64_t oldsize = m_dataSize;
-        if (m_dataSize < point) m_dataSize = (point + 64) & ~63ULL;  // Keep power of two
-        m_dataSize *= 2;
+    ساکن uint64_t cov_ثنائی_ہندسہ(uint64_t نقطہ) { واپس 1ULL << (نقطہ & 63); }
+    uint64_t alloc_سائز() ثابت { واپس حجم(uint64_t) * m_ڈیٹا_سائز / 64; }
+    خالی allocate(uint64_t نقطہ) {
+        ثابت uint64_t oldsize = m_ڈیٹا_سائز;
+        اگر (m_ڈیٹا_سائز < نقطہ) m_ڈیٹا_سائز = (نقطہ + 64) & ~63ULL;  // Keep power of two
+        m_ڈیٹا_سائز *= 2;
         // UINFO(9, "Realloc " << allocSize() << " for " << point << "  " << cvtToHex(m_datap));
-        uint64_t* const newp = static_cast<uint64_t*>(std::realloc(m_datap, allocSize()));
-        if (VL_UNCOVERABLE(!newp)) {
+        uint64_t* ثابت newp = static_cast<uint64_t*>(std::realloc(m_datap, alloc_سائز()));
+        اگر (VL_UNCOVERABLE(!newp)) {
             // cppcheck-suppress doubleFree  // cppcheck 1.90 bug - realloc doesn't free on fail
-            free(m_datap);  // LCOV_EXCL_LINE
+            آزاد(m_datap);  // LCOV_EXCL_LINE
             v3fatal("Out of memory increasing buckets");  // LCOV_EXCL_LINE
         }
         m_datap = newp;
-        for (uint64_t i = oldsize; i < m_dataSize; i += 64) m_datap[i / 64] = 0;
+        برائے (uint64_t i = oldsize; i < m_ڈیٹا_سائز; i += 64) m_datap[i / 64] = 0;
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
     VlcBuckets() { allocate(1024); }
     ~VlcBuckets() {
-        m_dataSize = 0;
-        VL_DO_CLEAR(free(m_datap), m_datap = nullptr);
+        m_ڈیٹا_سائز = 0;
+        VL_DO_CLEAR(آزاد(m_datap), m_datap = nullptr);
     }
 
     // ACCESSORS
-    static uint64_t sufficient() { return 1; }
-    uint64_t bucketsCovered() const { return m_bucketsCovered; }
+    ساکن uint64_t sufficient() { واپس 1; }
+    uint64_t bucketsCovered() ثابت { واپس m_bucketsCovered; }
 
     // METHODS
-    void addData(uint64_t point, uint64_t hits) {
-        if (hits >= sufficient()) {
+    خالی جوڑو_ڈیٹا(uint64_t نقطہ, uint64_t کامیابیاں) {
+        اگر (کامیابیاں >= sufficient()) {
             // UINFO(9, "     addData " << point << " " << hits << " size=" << m_dataSize);
-            if (point >= m_dataSize) allocate(point);
-            m_datap[point / 64] |= covBit(point);
+            اگر (نقطہ >= m_ڈیٹا_سائز) allocate(نقطہ);
+            m_datap[نقطہ / 64] |= cov_ثنائی_ہندسہ(نقطہ);
             m_bucketsCovered++;
         }
     }
-    void clearHits(uint64_t point) const {
-        if (point >= m_dataSize) return;
-        m_datap[point / 64] &= ~covBit(point);
+    خالی clear_کامیابیاں(uint64_t نقطہ) ثابت {
+        اگر (نقطہ >= m_ڈیٹا_سائز) واپس;
+        m_datap[نقطہ / 64] &= ~cov_ثنائی_ہندسہ(نقطہ);
     }
-    bool exists(uint64_t point) const {
-        if (point >= m_dataSize) return false;
-        return (m_datap[point / 64] & covBit(point)) ? true : false;
+    bool exists(uint64_t نقطہ) ثابت {
+        اگر (نقطہ >= m_ڈیٹا_سائز) واپس false;
+        واپس (m_datap[نقطہ / 64] & cov_ثنائی_ہندسہ(نقطہ)) ? true : false;
     }
-    uint64_t hits(uint64_t point) const {
-        if (point >= m_dataSize) return 0;
-        return (m_datap[point / 64] & covBit(point)) ? 1 : 0;
+    uint64_t کامیابیاں(uint64_t نقطہ) ثابت {
+        اگر (نقطہ >= m_ڈیٹا_سائز) واپس 0;
+        واپس (m_datap[نقطہ / 64] & cov_ثنائی_ہندسہ(نقطہ)) ? 1 : 0;
     }
-    uint64_t popCount() const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) ++pop;
+    uint64_t نکالو_گنتی() ثابت {
+        uint64_t نکالو = 0;
+        برائے (uint64_t i = 0; i < m_ڈیٹا_سائز; ++i) {
+            اگر (کامیابیاں(i)) ++نکالو;
         }
-        return pop;
+        واپس نکالو;
     }
-    uint64_t dataPopCount(const VlcBuckets& remaining) const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && remaining.hits(i)) ++pop;
+    uint64_t ڈیٹا_نکالو_گنتی(ثابت VlcBuckets& بقایا) ثابت {
+        uint64_t نکالو = 0;
+        برائے (uint64_t i = 0; i < m_ڈیٹا_سائز; ++i) {
+            اگر (کامیابیاں(i) && بقایا.کامیابیاں(i)) ++نکالو;
         }
-        return pop;
+        واپس نکالو;
     }
-    void orData(const VlcBuckets& ordata) {
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && ordata.hits(i)) clearHits(i);
+    خالی or_ڈیٹا(ثابت VlcBuckets& ordata) {
+        برائے (uint64_t i = 0; i < m_ڈیٹا_سائز; ++i) {
+            اگر (کامیابیاں(i) && ordata.کامیابیاں(i)) clear_کامیابیاں(i);
         }
     }
 
-    void dump() const {
+    خالی dump() ثابت {
         std::cout << "#     ";
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) std::cout << "," << i;
+        برائے (uint64_t i = 0; i < m_ڈیٹا_سائز; ++i) {
+            اگر (کامیابیاں(i)) std::cout << "," << i;
         }
         std::cout << "\n";
     }
@@ -117,4 +117,4 @@ public:
 
 //######################################################################
 
-#endif  // guard
+#اگر_ختم  // guard

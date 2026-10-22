@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DFGOPTIMIZER_H_
-#define VERILATOR_V3DFGOPTIMIZER_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3DFGOPTIMIZER_H_
+#تعریف_کرو VERILATOR_V3DFGOPTIMIZER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
+#شامل "V3Ast.h"
 
 //============================================================================
 
 namespace V3DfgOptimizer {
 // Optimize the design
-void optimize(AstNetlist*) VL_MT_DISABLED;
+خالی optimize(AstNetlist*) VL_MT_DISABLED;
 }  // namespace V3DfgOptimizer
 
-#endif  // Guard
+#اگر_ختم  // Guard

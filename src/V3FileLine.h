@@ -14,172 +14,172 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FILELINE_H_
-#define VERILATOR_V3FILELINE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3FILELINE_H_
+#تعریف_کرو VERILATOR_V3FILELINE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Hash.h"
-#include "V3LangCode.h"
-#include "V3Mutex.h"
+#شامل "V3Error.h"
+#شامل "V3Hash.h"
+#شامل "V3LangCode.h"
+#شامل "V3Mutex.h"
 
-#include <atomic>
-#include <deque>
-#include <map>
-#include <memory>
-#include <set>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
+#شامل <atomic>
+#شامل <deque>
+#شامل <map>
+#شامل <memory>
+#شامل <set>
+#شامل <sstream>
+#شامل <unordered_map>
+#شامل <vector>
 
 // ######################################################################
 
-class FileLine;
+class File_سطر;
 
 //! Singleton class with tables of per-file data.
 
 //! This singleton class contains tables of data that are unchanging in each
 //! source file (each with its own unique filename number).
-class FileLineSingleton final {
-    friend class FileLine;
+class File_سطر_Singleton final {
+    دوست class File_سطر;
 
     // TYPES
     using fileNameIdx_t = uint16_t;  // Increase width if 64K input files are not enough
-    using msgEnSetIdx_t = uint16_t;  // Increase width if 64K unique message sets are not enough
-    class MsgEnBitSet final {
-        VErrorBitSet m_codeEn;  // Enabled by code directives/metacomments
-        VErrorBitSet m_ctrlEn;  // Enabled by control file
+    using پیغام_En_سیٹ_Idx_t = uint16_t;  // Increase width if 64K unique message sets are not enough
+    class پیغام_En_ثنائی_ہندسہ_سیٹ final {
+        VError_ثنائی_ہندسہ_سیٹ m_رمز_En;  // Enabled by code directives/metacomments
+        VError_ثنائی_ہندسہ_سیٹ m_ctrlEn;  // Enabled by control file
 
-    public:
-        enum class Subset : uint8_t {
-            CODE = 0,  // Selects m_codeEn, the enable bits used by in-code directives/metacomments
+    عوامی:
+        شمار class Subset : uint8_t {
+            رمز_2 = 0,  // Selects m_codeEn, the enable bits used by in-code directives/metacomments
             CTRL = 1,  // Selects m_ctrlEn, the enable bits used by control files
         };
 
         // Create empty set
-        MsgEnBitSet() = default;
+        پیغام_En_ثنائی_ہندسہ_سیٹ() = طےشدہ;
         // Create intersection set
-        MsgEnBitSet(const MsgEnBitSet& a, const MsgEnBitSet& b)
-            : m_codeEn{a.m_codeEn & b.m_codeEn}
+        پیغام_En_ثنائی_ہندسہ_سیٹ(ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& a, ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& b)
+            : m_رمز_En{a.m_رمز_En & b.m_رمز_En}
             , m_ctrlEn{a.m_ctrlEn & b.m_ctrlEn} {}
 
-        struct Hash final {
-            size_t operator()(const MsgEnBitSet& item) const {
-                V3Hash hash{item.m_codeEn.hash()};
-                hash += item.m_ctrlEn.hash();
-                return hash.value();
+        ساخت Hash final {
+            سائز_t عامل()(ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& شے_3) ثابت {
+                V3Hash hash{شے_3.m_رمز_En.hash()};
+                hash += شے_3.m_ctrlEn.hash();
+                واپس hash.قدر();
             }
         };
 
-        struct Equal final {
-            bool operator()(const MsgEnBitSet& a, const MsgEnBitSet& b) const { return a == b; }
+        ساخت Equal final {
+            bool عامل()(ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& a, ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& b) ثابت { واپس a == b; }
         };
 
-        bool operator==(const MsgEnBitSet& other) const {
-            return m_codeEn == other.m_codeEn && m_ctrlEn == other.m_ctrlEn;
+        bool عامل==(ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& other) ثابت {
+            واپس m_رمز_En == other.m_رمز_En && m_ctrlEn == other.m_ctrlEn;
         }
 
-        const VErrorBitSet& getAll(Subset subset) const {
-            return subset == Subset::CODE ? m_codeEn : m_ctrlEn;
+        ثابت VError_ثنائی_ہندسہ_سیٹ& getAll(Subset subset) ثابت {
+            واپس subset == Subset::رمز_2 ? m_رمز_En : m_ctrlEn;
         }
-        bool test(Subset subset, V3ErrorCode code) const {
-            return subset == Subset::CODE ? m_codeEn.test(code) : m_ctrlEn.test(code);
+        bool test(Subset subset, V3_Error_رمز رمز) ثابت {
+            واپس subset == Subset::رمز_2 ? m_رمز_En.test(رمز) : m_ctrlEn.test(رمز);
         }
-        void setAll(Subset subset, const VErrorBitSet& bitset) {
-            if (subset == Subset::CODE) {  // LCOV_EXCL_BR_LINE
-                m_codeEn = bitset;  // LCOV_EXCL_LINE
-            } else {
+        خالی سیٹ_All(Subset subset, ثابت VError_ثنائی_ہندسہ_سیٹ& bitset) {
+            اگر (subset == Subset::رمز_2) {  // LCOV_EXCL_BR_LINE
+                m_رمز_En = bitset;  // LCOV_EXCL_LINE
+            } ورنہ {
                 m_ctrlEn = bitset;
             }
         }
-        void set(Subset subset, V3ErrorCode code, bool value) {
-            if (subset == Subset::CODE) {
-                m_codeEn.set(code, value);
-            } else {
-                m_ctrlEn.set(code, value);
+        خالی سیٹ(Subset subset, V3_Error_رمز رمز, bool قدر) {
+            اگر (subset == Subset::رمز_2) {
+                m_رمز_En.سیٹ(رمز, قدر);
+            } ورنہ {
+                m_ctrlEn.سیٹ(رمز, قدر);
             }
         }
 
         // Enabled iff enabled by both in-code dierctives/metacomments and control file
-        bool enabled(V3ErrorCode code) const { return m_codeEn.test(code) && m_ctrlEn.test(code); }
+        bool enabled(V3_Error_رمز رمز) ثابت { واپس m_رمز_En.test(رمز) && m_ctrlEn.test(رمز); }
     };
 
     // MEMBERS
     V3Mutex m_mutex;  // protects members
-    std::map<const std::string, fileNameIdx_t> m_namemap;  // filenameno for each filename
-    std::deque<string> m_names;  // filename text for each filenameno
-    std::deque<V3LangCode> m_languages;  // language for each filenameno
+    std::map<ثابت std::string, fileNameIdx_t> m_namemap;  // filenameno for each filename
+    std::deque<string> m_نام;  // filename text for each filenameno
+    std::deque<V3_Lang_رمز> m_languages;  // language for each filenameno
 
     // Map from flag set to the index in m_internedMsgEns for interning
-    std::unordered_map<MsgEnBitSet, msgEnSetIdx_t, MsgEnBitSet::Hash, MsgEnBitSet::Equal>
-        m_internedMsgEnIdxs VL_GUARDED_BY(m_mutex);
+    std::unordered_map<پیغام_En_ثنائی_ہندسہ_سیٹ, پیغام_En_سیٹ_Idx_t, پیغام_En_ثنائی_ہندسہ_سیٹ::Hash, پیغام_En_ثنائی_ہندسہ_سیٹ::Equal>
+        m_interned_پیغام_En_Idxs VL_GUARDED_BY(m_mutex);
     // Interned message enablement flag sets
-    std::vector<MsgEnBitSet> m_internedMsgEns;
+    std::سمتیہ<پیغام_En_ثنائی_ہندسہ_سیٹ> m_interned_پیغام_Ens;
 
     // CONSTRUCTORS
-    FileLineSingleton() = default;
-    ~FileLineSingleton() = default;
+    File_سطر_Singleton() = طےشدہ;
+    ~File_سطر_Singleton() = طےشدہ;
 
-    fileNameIdx_t nameToNumber(const string& filename);
-    const std::string& numberToName(fileNameIdx_t filenameno) const VL_MT_SAFE {
-        return m_names[filenameno];
+    fileNameIdx_t name_مقصد_نمبر(ثابت string& filename);
+    ثابت std::string& نمبر_مقصد_Name(fileNameIdx_t filenameno) ثابت VL_MT_محفوظ {
+        واپس m_نام[filenameno];
     }
-    V3LangCode numberToLang(fileNameIdx_t filenameno) const { return m_languages[filenameno]; }
-    void numberToLang(fileNameIdx_t filenameno, const V3LangCode& l) {
+    V3_Lang_رمز نمبر_مقصد_Lang(fileNameIdx_t filenameno) ثابت { واپس m_languages[filenameno]; }
+    خالی نمبر_مقصد_Lang(fileNameIdx_t filenameno, ثابت V3_Lang_رمز& l) {
         m_languages[filenameno] = l;
     }
-    void clear() {
+    خالی clear() {
         m_namemap.clear();
-        m_names.clear();
+        m_نام.clear();
         m_languages.clear();
     }
-    void fileNameNumMapDumpJson(std::ostream& os);
-    static string filenameLetters(fileNameIdx_t fileno) VL_PURE;
+    خالی file_Name_عدد_Map_Dump_Json(std::ostream& os);
+    ساکن string filenameLetters(fileNameIdx_t fileno) VL_خالص;
 
     // Add given bitset to the interned bitsets, return interned index
-    msgEnSetIdx_t addMsgEnBitSet(const MsgEnBitSet& bitSet) VL_MT_SAFE_EXCLUDES(m_mutex);
+    پیغام_En_سیٹ_Idx_t جوڑو_پیغام_En_ثنائی_ہندسہ_سیٹ(ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& ثنائی_ہندسہ_سیٹ) VL_MT_محفوظ_EXCLUDES(m_mutex);
     // Add index of default bitset
-    msgEnSetIdx_t defaultMsgEnIndex() VL_MT_SAFE;
+    پیغام_En_سیٹ_Idx_t default_پیغام_En_اشاریہ() VL_MT_محفوظ;
     // Set code to value in bitset at interned index setIdx, return interned index of result
-    msgEnSetIdx_t msgEnSetBit(msgEnSetIdx_t setIdx, MsgEnBitSet::Subset subset, V3ErrorCode code,
-                              bool value);
+    پیغام_En_سیٹ_Idx_t پیغام_En_سیٹ_ثنائی_ہندسہ(پیغام_En_سیٹ_Idx_t سیٹ_Idx, پیغام_En_ثنائی_ہندسہ_سیٹ::Subset subset, V3_Error_رمز رمز,
+                              bool قدر);
     // Bulk-set all control codes to given bitset
-    msgEnSetIdx_t msgSetCtrlBitSet(msgEnSetIdx_t setIdx, const VErrorBitSet& bitset);
+    پیغام_En_سیٹ_Idx_t پیغام_سیٹ_Ctrl_ثنائی_ہندسہ_سیٹ(پیغام_En_سیٹ_Idx_t سیٹ_Idx, ثابت VError_ثنائی_ہندسہ_سیٹ& bitset);
     // Return index to intersection set
-    msgEnSetIdx_t msgEnAnd(msgEnSetIdx_t lhsIdx, msgEnSetIdx_t rhsIdx);
+    پیغام_En_سیٹ_Idx_t پیغام_En_And(پیغام_En_سیٹ_Idx_t lhsIdx, پیغام_En_سیٹ_Idx_t rhsIdx);
     // Retrieve interned bitset at given interned index. The returned reference is not persistent.
-    const MsgEnBitSet& msgEn(msgEnSetIdx_t idx) const VL_MT_SAFE {
-        return m_internedMsgEns.at(idx);
+    ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& پیغام_En(پیغام_En_سیٹ_Idx_t idx) ثابت VL_MT_محفوظ {
+        واپس m_interned_پیغام_Ens.at(idx);
     }
 };
 
 // All source lines from a file/stream, to enable errors to show sources
 class VFileContent final {
-    friend class FileLine;
+    دوست class File_سطر;
     // MEMBERS
-    int m_id;  // Content ID number
+    صحیح m_id;  // Content ID number
     // Reference count for sharing (shared_ptr has size overhead that we don't want)
-    std::atomic<size_t> m_refCount{0};
-    std::deque<string> m_lines;  // Source text lines
+    std::atomic<سائز_t> m_ref_گنتی{0};
+    std::deque<string> m_سطریں;  // Source text lines
     VFileContent() {
-        static int s_id = 0;
+        ساکن صحیح s_id = 0;
         m_id = ++s_id;
     }
-    ~VFileContent() = default;
+    ~VFileContent() = طےشدہ;
     // METHODS
-    void refInc() { ++m_refCount; }
-    void refDec() {
-        if (!--m_refCount) delete this;
+    خالی refInc() { ++m_ref_گنتی; }
+    خالی refDec() {
+        اگر (!--m_ref_گنتی) delete this;
     }
 
-public:
-    void pushText(const string& text);  // Add arbitrary text (need not be line-by-line)
-    string getLine(int lineno) const VL_MT_SAFE;
-    string ascii() const { return "ct" + cvtToStr(m_id); }
+عوامی:
+    خالی ڈالو_متن(ثابت string& متن);  // Add arbitrary text (need not be line-by-line)
+    string get_سطر(صحیح lineno) ثابت VL_MT_محفوظ;
+    string ascii() ثابت { واپس "ct" + cvt_مقصد_Str(m_id); }
 };
-std::ostream& operator<<(std::ostream& os, VFileContent* contentp);
+std::ostream& عامل<<(std::ostream& os, VFileContent* contentp);
 
 // File and line number of an object, mostly for error reporting
 
@@ -189,303 +189,303 @@ std::ostream& operator<<(std::ostream& os, VFileContent* contentp);
 // Similarly, message enablement flags are interned in FileLineSingleton.
 
 // WARNING: Avoid increasing the size of this class as much as possible.
-class FileLine final {
+class File_سطر final {
 
     // CONSTANTS
-    static constexpr unsigned SHOW_SOURCE_MAX_LENGTH = 400;  // Don't show source lines > this long
+    ساکن constexpr غیرعلامتی SHOW_ماخذ_MAX_لمبائی = 400;  // Don't show source lines > this long
 
     // TYPES
-    using fileNameIdx_t = FileLineSingleton::fileNameIdx_t;
-    using msgEnSetIdx_t = FileLineSingleton::msgEnSetIdx_t;
-    using MsgEnBitSet = FileLineSingleton::MsgEnBitSet;
+    using fileNameIdx_t = File_سطر_Singleton::fileNameIdx_t;
+    using پیغام_En_سیٹ_Idx_t = File_سطر_Singleton::پیغام_En_سیٹ_Idx_t;
+    using پیغام_En_ثنائی_ہندسہ_سیٹ = File_سطر_Singleton::پیغام_En_ثنائی_ہندسہ_سیٹ;
 
     // MEMBERS
     // Columns here means number of chars from beginning (i.e. tabs count as one)
     // 64-bit word # 0
-    msgEnSetIdx_t m_msgEnIdx = 0;  // Message enable bit set (index into interned array)
+    پیغام_En_سیٹ_Idx_t m_پیغام_En_Idx = 0;  // Message enable bit set (index into interned array)
     fileNameIdx_t m_filenameno = 0;  // `line corrected filename number
     bool m_waive : 1;  // Waive warning - pack next to the line number to save 8 bytes of storage
-    unsigned m_contentLineno : 31;  // Line number within source stream
+    غیرعلامتی m_contentLineno : 31;  // Line number within source stream
     // 64-bit word # 1
-    uint32_t m_tokenNum = 0;  // Token number in processing order
-    int m_firstLineno = 0;  // `line corrected token's first line number
+    uint32_t m_token_عدد = 0;  // Token number in processing order
+    صحیح m_پہلا_Lineno = 0;  // `line corrected token's first line number
     // 64-bit word # 2
-    uint32_t m_firstColumn : 24;  // `line corrected token's first column number
-    uint32_t m_lastColumn : 24;  // `line corrected token's last column number
-    uint16_t m_lastLinenoAdder = 0;  // Last line number as offset from m_firstLineno
+    uint32_t m_پہلا_عمود : 24;  // `line corrected token's first column number
+    uint32_t m_آخری_عمود : 24;  // `line corrected token's last column number
+    uint16_t m_آخری_Lineno_Adder = 0;  // Last line number as offset from m_firstLineno
     // 64-bit word # 3/4
     VFileContent* m_contentp = nullptr;  // Source text contents line is within
-    FileLine* m_parent = nullptr;  // Parent line that included this line
+    File_سطر* m_والد = nullptr;  // Parent line that included this line
 
-protected:
+محفوظ:
     // User routines should never need to change line numbers
     // We are storing pointers, so we CAN'T change them after initial reading.
-    friend class FileLineSingleton;
-    friend class V3ParseImp;
-    friend class V3PreLex;
-    friend class V3PreProcImp;
-    friend class V3PreShellImp;
+    دوست class File_سطر_Singleton;
+    دوست class V3ParseImp;
+    دوست class V3PreLex;
+    دوست class V3PreProcImp;
+    دوست class V3PreShellImp;
 
-private:
+نجی:
     // CONSTRUCTORS
-    static FileLineSingleton& singleton() VL_MT_SAFE {
-        static FileLineSingleton s;
-        return s;
+    ساکن File_سطر_Singleton& singleton() VL_MT_محفوظ {
+        ساکن File_سطر_Singleton s;
+        واپس s;
     }
-    static FileLine& defaultFileLine() VL_MT_SAFE {
-        static FileLine s;
-        return s;
+    ساکن File_سطر& default_File_سطر() VL_MT_محفوظ {
+        ساکن File_سطر s;
+        واپس s;
     }
 
-    FileLine()  // Only used for defaultFileLine above
-        : m_msgEnIdx{singleton().defaultMsgEnIndex()}
-        , m_filenameno{singleton().nameToNumber(FileLine::builtInFilename())}
+    File_سطر()  // Only used for defaultFileLine above
+        : m_پیغام_En_Idx{singleton().default_پیغام_En_اشاریہ()}
+        , m_filenameno{singleton().name_مقصد_نمبر(File_سطر::built_اندر_Filename())}
         , m_waive{false}
         , m_contentLineno{0}
-        , m_firstColumn{0}
-        , m_lastColumn{0} {}
+        , m_پہلا_عمود{0}
+        , m_آخری_عمود{0} {}
 
-public:
-    explicit FileLine(const string& filename)
-        : m_msgEnIdx{defaultFileLine().m_msgEnIdx}
-        , m_filenameno{singleton().nameToNumber(filename)}
+عوامی:
+    explicit File_سطر(ثابت string& filename)
+        : m_پیغام_En_Idx{default_File_سطر().m_پیغام_En_Idx}
+        , m_filenameno{singleton().name_مقصد_نمبر(filename)}
         , m_waive{false}
         , m_contentLineno{0}
-        , m_firstColumn{0}
-        , m_lastColumn{0} {}
-    explicit FileLine(const FileLine& from)
-        : m_msgEnIdx{from.m_msgEnIdx}
+        , m_پہلا_عمود{0}
+        , m_آخری_عمود{0} {}
+    explicit File_سطر(ثابت File_سطر& from)
+        : m_پیغام_En_Idx{from.m_پیغام_En_Idx}
         , m_filenameno{from.m_filenameno}
         , m_waive{from.m_waive}
         , m_contentLineno{from.m_contentLineno}
-        , m_tokenNum{from.m_tokenNum}
-        , m_firstLineno{from.m_firstLineno}
-        , m_firstColumn{from.m_firstColumn}
-        , m_lastColumn{from.m_lastColumn}
-        , m_lastLinenoAdder{from.m_lastLinenoAdder}
+        , m_token_عدد{from.m_token_عدد}
+        , m_پہلا_Lineno{from.m_پہلا_Lineno}
+        , m_پہلا_عمود{from.m_پہلا_عمود}
+        , m_آخری_عمود{from.m_آخری_عمود}
+        , m_آخری_Lineno_Adder{from.m_آخری_Lineno_Adder}
         , m_contentp{from.m_contentp}
-        , m_parent{from.m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        , m_والد{from.m_والد} {
+        اگر (m_contentp) m_contentp->refInc();
     }
-    explicit FileLine(FileLine* fromp)
-        : m_msgEnIdx{fromp->m_msgEnIdx}
+    explicit File_سطر(File_سطر* fromp)
+        : m_پیغام_En_Idx{fromp->m_پیغام_En_Idx}
         , m_filenameno{fromp->m_filenameno}
         , m_waive{fromp->m_waive}
         , m_contentLineno{fromp->m_contentLineno}
-        , m_tokenNum{fromp->m_tokenNum}
-        , m_firstLineno{fromp->m_firstLineno}
-        , m_firstColumn{fromp->m_firstColumn}
-        , m_lastColumn{fromp->m_lastColumn}
-        , m_lastLinenoAdder{fromp->m_lastLinenoAdder}
+        , m_token_عدد{fromp->m_token_عدد}
+        , m_پہلا_Lineno{fromp->m_پہلا_Lineno}
+        , m_پہلا_عمود{fromp->m_پہلا_عمود}
+        , m_آخری_عمود{fromp->m_آخری_عمود}
+        , m_آخری_Lineno_Adder{fromp->m_آخری_Lineno_Adder}
         , m_contentp{fromp->m_contentp}
-        , m_parent{fromp->m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        , m_والد{fromp->m_والد} {
+        اگر (m_contentp) m_contentp->refInc();
     }
-    void applyIgnores();
-    FileLine* copyOrSameFileLine();
-    FileLine* copyOrSameFileLineApplied();
-    static void deleteAllRemaining();
-    static void stats();
-    ~FileLine();
-#ifdef VL_LEAK_CHECKS
-    static void* operator new(size_t size);
-    static void operator delete(void* obj, size_t size);
-#endif
+    خالی applyIgnores();
+    File_سطر* copy_Or_Same_File_سطر();
+    File_سطر* copy_Or_Same_File_سطر_Applied();
+    ساکن خالی delete_All_بقایا();
+    ساکن خالی stats();
+    ~File_سطر();
+#اگر_تعریف_شدہ VL_LEAK_CHECKS
+    ساکن خالی* عامل new(سائز_t سائز);
+    ساکن خالی عامل delete(خالی* obj, سائز_t سائز);
+#اگر_ختم
     // METHODS
-    void newContent();
-    void contentLineno(int num) {
-        lineno(num);
-        m_contentLineno = static_cast<unsigned>(num);
+    خالی newContent();
+    خالی contentLineno(صحیح عدد) {
+        lineno(عدد);
+        m_contentLineno = static_cast<غیرعلامتی>(عدد);
     }
-    void contentLinenoFrom(const FileLine* fromp) { m_contentLineno = fromp->m_contentLineno; }
-    void lineno(int num) {
-        m_firstLineno = num;
-        m_lastLinenoAdder = 0;
-        m_firstColumn = 1;
-        m_lastColumn = 1;
+    خالی contentLinenoFrom(ثابت File_سطر* fromp) { m_contentLineno = fromp->m_contentLineno; }
+    خالی lineno(صحیح عدد) {
+        m_پہلا_Lineno = عدد;
+        m_آخری_Lineno_Adder = 0;
+        m_پہلا_عمود = 1;
+        m_آخری_عمود = 1;
     }
-    void column(int firstColumn, int lastColumn) {
-        m_firstColumn = firstColumn;
-        m_lastColumn = lastColumn;
+    خالی عمود_2(صحیح پہلا_عمود, صحیح آخری_عمود) {
+        m_پہلا_عمود = پہلا_عمود;
+        m_آخری_عمود = آخری_عمود;
     }
-    void language(V3LangCode lang) const { singleton().numberToLang(filenameno(), lang); }
-    void filename(const string& name) { m_filenameno = singleton().nameToNumber(name); }
-    void parent(FileLine* fileline) { m_parent = fileline; }
-    void lineDirective(const char* textp, int& enterExitRef);
-    void lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                            int& enterExitRef);
-    void linenoInc() {
-        if (m_lastLinenoAdder == 65535) {
+    خالی language(V3_Lang_رمز lang) ثابت { singleton().نمبر_مقصد_Lang(filenameno(), lang); }
+    خالی filename(ثابت string& name) { m_filenameno = singleton().name_مقصد_نمبر(name); }
+    خالی والد(File_سطر* fileline) { m_والد = fileline; }
+    خالی سطر_Directive(ثابت حرف* textp, صحیح& enterExitRef);
+    خالی سطر_Directive_Parse(ثابت حرف* textp, string& filenameRef, صحیح& linenoRef,
+                            صحیح& enterExitRef);
+    خالی linenoInc() {
+        اگر (m_آخری_Lineno_Adder == 65535) {
             // Overflow can only happen on super-long comment, adjust
             // starting first line to deal with it this will make token
             // start later than in reality, but nothing should refer to it,
             // and the overall line number will not drift.
-            m_firstLineno += 65535 + 1;
-            m_lastLinenoAdder = 0;
-        } else {
-            ++m_lastLinenoAdder;
+            m_پہلا_Lineno += 65535 + 1;
+            m_آخری_Lineno_Adder = 0;
+        } ورنہ {
+            ++m_آخری_Lineno_Adder;
         }
-        m_lastColumn = 1;
+        m_آخری_عمود = 1;
         ++m_contentLineno;
     }
-    void startToken() {
-        m_firstLineno = lastLineno();
-        m_firstColumn = m_lastColumn;
-        m_lastLinenoAdder = 0;
+    خالی آغاز_Token() {
+        m_پہلا_Lineno = آخری_Lineno();
+        m_پہلا_عمود = m_آخری_عمود;
+        m_آخری_Lineno_Adder = 0;
     }
     // Advance last line/column based on given text
-    void forwardToken(const char* textp, size_t size, bool trackLines = true);
-    uint32_t tokenNum() const VL_MT_SAFE { return m_tokenNum; }
-    int firstLineno() const VL_MT_SAFE { return m_firstLineno; }
-    int firstColumn() const VL_MT_SAFE { return static_cast<int>(m_firstColumn); }
-    int lastLineno() const VL_MT_SAFE { return m_firstLineno + m_lastLinenoAdder; }
-    int lastColumn() const VL_MT_SAFE { return static_cast<int>(m_lastColumn); }
-    VFileContent* contentp() const { return m_contentp; }
+    خالی forwardToken(ثابت حرف* textp, سائز_t سائز, bool track_سطریں = true);
+    uint32_t token_عدد() ثابت VL_MT_محفوظ { واپس m_token_عدد; }
+    صحیح پہلا_Lineno() ثابت VL_MT_محفوظ { واپس m_پہلا_Lineno; }
+    صحیح پہلا_عمود() ثابت VL_MT_محفوظ { واپس static_cast<صحیح>(m_پہلا_عمود); }
+    صحیح آخری_Lineno() ثابت VL_MT_محفوظ { واپس m_پہلا_Lineno + m_آخری_Lineno_Adder; }
+    صحیح آخری_عمود() ثابت VL_MT_محفوظ { واپس static_cast<صحیح>(m_آخری_عمود); }
+    VFileContent* contentp() ثابت { واپس m_contentp; }
     // If not otherwise more specific, use last lineno for errors etc,
     // as the parser errors etc generally make more sense pointing at the last parse point
-    int lineno() const VL_MT_SAFE { return lastLineno(); }
-    string source() const VL_MT_SAFE;
-    string sourcePrefix(int toColumn) const VL_MT_SAFE;
-    string prettySource() const VL_MT_SAFE;  // Source, w/stripped unprintables and newlines
-    FileLine* parent() const VL_MT_SAFE { return m_parent; }
-    V3LangCode language() const { return singleton().numberToLang(filenameno()); }
-    string ascii() const VL_MT_SAFE;
-    string asciiLineCol() const;
-    int filenameno() const VL_MT_SAFE { return m_filenameno; }
-    const std::string& filename() const VL_MT_SAFE {
-        return singleton().numberToName(filenameno());
+    صحیح lineno() ثابت VL_MT_محفوظ { واپس آخری_Lineno(); }
+    string ماخذ() ثابت VL_MT_محفوظ;
+    string ماخذ_سابقہ(صحیح مقصد_عمود) ثابت VL_MT_محفوظ;
+    string pretty_ماخذ() ثابت VL_MT_محفوظ;  // Source, w/stripped unprintables and newlines
+    File_سطر* والد() ثابت VL_MT_محفوظ { واپس m_والد; }
+    V3_Lang_رمز language() ثابت { واپس singleton().نمبر_مقصد_Lang(filenameno()); }
+    string ascii() ثابت VL_MT_محفوظ;
+    string ascii_سطر_ستون() ثابت;
+    صحیح filenameno() ثابت VL_MT_محفوظ { واپس m_filenameno; }
+    ثابت std::string& filename() ثابت VL_MT_محفوظ {
+        واپس singleton().نمبر_مقصد_Name(filenameno());
     }
     // Filename with C string escapes
-    string filenameEsc() const VL_MT_SAFE { return VString::quoteBackslash(filename()); }
-    bool filenameIsGlobal() const VL_MT_SAFE {
-        return (filename() == commandLineFilename() || filename() == builtInFilename());
+    string filenameEsc() ثابت VL_MT_محفوظ { واپس VString::quoteBackslash(filename()); }
+    bool filenameIsGlobal() ثابت VL_MT_محفوظ {
+        واپس (filename() == command_سطر_Filename() || filename() == built_اندر_Filename());
     }
-    string filenameLetters() const VL_MT_SAFE {
-        return FileLineSingleton::filenameLetters(filenameno());
+    string filenameLetters() ثابت VL_MT_محفوظ {
+        واپس File_سطر_Singleton::filenameLetters(filenameno());
     }
-    string filebasename() const VL_MT_SAFE;
-    string filebasenameNoExt() const;
-    string firstColumnLetters() const VL_MT_SAFE;
-    string profileFuncname() const;
-    string lineDirectiveStrg(int enterExit) const;
+    string filebasename() ثابت VL_MT_محفوظ;
+    string filebasenameNoExt() ثابت;
+    string پہلا_عمود_Letters() ثابت VL_MT_محفوظ;
+    string profileFuncname() ثابت;
+    string سطر_Directive_Strg(صحیح enterExit) ثابت;
 
     // Turn on/off warning messages on this line.
-private:
-    void warnSet(MsgEnBitSet::Subset subset, V3ErrorCode code, bool flag) {
-        m_msgEnIdx = singleton().msgEnSetBit(m_msgEnIdx, subset, code, flag);
+نجی:
+    خالی warn_سیٹ(پیغام_En_ثنائی_ہندسہ_سیٹ::Subset subset, V3_Error_رمز رمز, bool flag) {
+        m_پیغام_En_Idx = singleton().پیغام_En_سیٹ_ثنائی_ہندسہ(m_پیغام_En_Idx, subset, رمز, flag);
     }
 
-public:
-    void warnOn(V3ErrorCode code, bool flag) { warnSet(MsgEnBitSet::Subset::CODE, code, flag); }
-    void warnSetCtrlBitSet(const VErrorBitSet& bitset) {
-        m_msgEnIdx = singleton().msgSetCtrlBitSet(m_msgEnIdx, bitset);
+عوامی:
+    خالی warnOn(V3_Error_رمز رمز, bool flag) { warn_سیٹ(پیغام_En_ثنائی_ہندسہ_سیٹ::Subset::رمز_2, رمز, flag); }
+    خالی warn_سیٹ_Ctrl_ثنائی_ہندسہ_سیٹ(ثابت VError_ثنائی_ہندسہ_سیٹ& bitset) {
+        m_پیغام_En_Idx = singleton().پیغام_سیٹ_Ctrl_ثنائی_ہندسہ_سیٹ(m_پیغام_En_Idx, bitset);
     }
-    void warnOff(V3ErrorCode code, bool turnOff) { warnOn(code, !turnOff); }
-    string warnOffParse(const string& msgs, bool turnOff);  // Returns "" if ok
-    bool warnIsOff(V3ErrorCode code) const VL_MT_SAFE;
-    void warnLintOff(bool turnOff);
-    void warnStyleOff(bool turnOff);
-    void warnStateFrom(const FileLine& from) { m_msgEnIdx = from.m_msgEnIdx; }
-    void warnResetDefault() { warnStateFrom(defaultFileLine()); }
+    خالی warnOff(V3_Error_رمز رمز, bool turnOff) { warnOn(رمز, !turnOff); }
+    string warnOffParse(ثابت string& msgs, bool turnOff);  // Returns "" if ok
+    bool warnIsOff(V3_Error_رمز رمز) ثابت VL_MT_محفوظ;
+    خالی warnLintOff(bool turnOff);
+    خالی warnStyleOff(bool turnOff);
+    خالی warnStateFrom(ثابت File_سطر& from) { m_پیغام_En_Idx = from.m_پیغام_En_Idx; }
+    خالی warnResetDefault() { warnStateFrom(default_File_سطر()); }
 
     // Specific flag ACCESSORS/METHODS
-    bool celldefineOn() const { return msgEn().enabled(V3ErrorCode::I_CELLDEFINE); }
-    void celldefineOn(bool flag) { warnOn(V3ErrorCode::I_CELLDEFINE, flag); }
-    bool coverageOn() const { return msgEn().enabled(V3ErrorCode::I_COVERAGE); }
-    void coverageOn(bool flag) { warnOn(V3ErrorCode::I_COVERAGE, flag); }
-    bool erroringOn() const { return msgEn().enabled(V3ErrorCode::I_ERRORING); }
-    void erroringOn(bool flag) { warnOn(V3ErrorCode::I_ERRORING, flag); }
-    bool tracingOn() const { return msgEn().enabled(V3ErrorCode::I_TRACING); }
-    void tracingOn(bool flag) { warnOn(V3ErrorCode::I_TRACING, flag); }
-    bool timingOn() const { return msgEn().enabled(V3ErrorCode::I_TIMING); }
-    void timingOn(bool flag) { warnOn(V3ErrorCode::I_TIMING, flag); }
+    bool celldefineOn() ثابت { واپس پیغام_En().enabled(V3_Error_رمز::I_CELLDEFINE); }
+    خالی celldefineOn(bool flag) { warnOn(V3_Error_رمز::I_CELLDEFINE, flag); }
+    bool coverageOn() ثابت { واپس پیغام_En().enabled(V3_Error_رمز::I_COVERAGE); }
+    خالی coverageOn(bool flag) { warnOn(V3_Error_رمز::I_COVERAGE, flag); }
+    bool erroringOn() ثابت { واپس پیغام_En().enabled(V3_Error_رمز::I_ERRORING); }
+    خالی erroringOn(bool flag) { warnOn(V3_Error_رمز::I_ERRORING, flag); }
+    bool tracingOn() ثابت { واپس پیغام_En().enabled(V3_Error_رمز::I_TRACING); }
+    خالی tracingOn(bool flag) { warnOn(V3_Error_رمز::I_TRACING, flag); }
+    bool timingOn() ثابت { واپس پیغام_En().enabled(V3_Error_رمز::I_TIMING); }
+    خالی timingOn(bool flag) { warnOn(V3_Error_رمز::I_TIMING, flag); }
 
     // METHODS - Global
     // <command-line> and <built-in> match what GCC outputs
-    static string commandLineFilename() VL_MT_SAFE { return "<command-line>"; }
-    static string builtInFilename() VL_MT_SAFE { return "<built-in>"; }
-    static void globalWarnOff(V3ErrorCode code, bool turnOff) {
-        defaultFileLine().warnOff(code, turnOff);
+    ساکن string command_سطر_Filename() VL_MT_محفوظ { واپس "<command-line>"; }
+    ساکن string built_اندر_Filename() VL_MT_محفوظ { واپس "<built-in>"; }
+    ساکن خالی globalWarnOff(V3_Error_رمز رمز, bool turnOff) {
+        default_File_سطر().warnOff(رمز, turnOff);
     }
-    static string globalWarnOffParse(const string& msgs, bool turnOff) {
-        return defaultFileLine().warnOffParse(msgs, turnOff);
+    ساکن string globalWarnOffParse(ثابت string& msgs, bool turnOff) {
+        واپس default_File_سطر().warnOffParse(msgs, turnOff);
     }
-    static void fileNameNumMapDumpJson(std::ostream& os) {
-        singleton().fileNameNumMapDumpJson(os);
+    ساکن خالی file_Name_عدد_Map_Dump_Json(std::ostream& os) {
+        singleton().file_Name_عدد_Map_Dump_Json(os);
     }
 
     // METHODS - Called from netlist
     // Merge warning disables from another fileline
-    void modifyStateInherit(const FileLine* fromp) {
-        m_msgEnIdx = singleton().msgEnAnd(m_msgEnIdx, fromp->m_msgEnIdx);
+    خالی modifyStateInherit(ثابت File_سطر* fromp) {
+        m_پیغام_En_Idx = singleton().پیغام_En_And(m_پیغام_En_Idx, fromp->m_پیغام_En_Idx);
     }
     // Change the current fileline due to actions discovered after parsing
     // and may have side effects on other nodes sharing this FileLine.
     // Use only when this is intended
-    void modifyWarnOff(V3ErrorCode code, bool turnOff) { warnOff(code, turnOff); }
+    خالی modifyWarnOff(V3_Error_رمز رمز, bool turnOff) { warnOff(رمز, turnOff); }
 
     // OPERATORS
-    void v3errorEnd(std::ostringstream& str, const string& extra = "")
+    خالی v3error_انتہا(std::ostringstream& str, ثابت string& extra = "")
         VL_RELEASE(V3Error::s().m_mutex);
-    void v3errorEndFatal(std::ostringstream& str) VL_ATTR_NORETURN
+    خالی v3error_انتہا_Fatal(std::ostringstream& str) VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex) {
-        v3errorEnd(str);
-        assert(0);  // LCOV_EXCL_LINE
+        v3error_انتہا(str);
+        أكد(0);  // LCOV_EXCL_LINE
         VL_UNREACHABLE;
     }
     /// When building an error, prefix for printing continuation lines
     /// e.g. information referring to the same FileLine as before
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex);
+    string warn_مزید() ثابت VL_REQUIRES(V3Error::s().m_mutex);
     /// When building an error, prefix for printing secondary information
     /// from a different FileLine than the original error
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex);
+    string warnOther() ثابت VL_REQUIRES(V3Error::s().m_mutex);
     /// When building an error, current location in include etc
     /// If not used in a given error, automatically pasted at end of error
-    string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
+    string warnContextPrimary() ثابت VL_REQUIRES(V3Error::s().m_mutex) {
         V3Error::s().errorContexted(true);
-        return warnContext() + warnContextParent();
+        واپس warnContext() + warn_Context_والد();
     }
     /// When building an error, additional location for additional references
     /// Simplified information vs warnContextPrimary() to make dump clearer
-    string warnContextSecondary() const { return warnContext(); }
-    bool operator==(const FileLine& rhs) const {
-        return (m_tokenNum == rhs.m_tokenNum && m_firstLineno == rhs.m_firstLineno
-                && m_firstColumn == rhs.m_firstColumn && m_lastLinenoAdder == rhs.m_lastLinenoAdder
-                && m_lastColumn == rhs.m_lastColumn && m_filenameno == rhs.m_filenameno
-                && m_msgEnIdx == rhs.m_msgEnIdx);
+    string warnContextSecondary() ثابت { واپس warnContext(); }
+    bool عامل==(ثابت File_سطر& rhs) ثابت {
+        واپس (m_token_عدد == rhs.m_token_عدد && m_پہلا_Lineno == rhs.m_پہلا_Lineno
+                && m_پہلا_عمود == rhs.m_پہلا_عمود && m_آخری_Lineno_Adder == rhs.m_آخری_Lineno_Adder
+                && m_آخری_عمود == rhs.m_آخری_عمود && m_filenameno == rhs.m_filenameno
+                && m_پیغام_En_Idx == rhs.m_پیغام_En_Idx);
     }
-    bool equalFirstLineCol(const FileLine& rhs) const {
-        return (m_filenameno == rhs.m_filenameno && m_firstLineno == rhs.m_firstLineno
-                && m_firstColumn == rhs.m_firstColumn);
+    bool equal_پہلا_سطر_ستون(ثابت File_سطر& rhs) ثابت {
+        واپس (m_filenameno == rhs.m_filenameno && m_پہلا_Lineno == rhs.m_پہلا_Lineno
+                && m_پہلا_عمود == rhs.m_پہلا_عمود);
     }
     // Returns -1 if (*this) should come before rhs after sorted. 1 for the opposite case. 0 for
     // equivalent.
-    int operatorCompare(const FileLine& rhs) const {
-        if (m_filenameno != rhs.m_filenameno) return (m_filenameno < rhs.m_filenameno) ? -1 : 1;
-        if (m_firstLineno != rhs.m_firstLineno)
-            return (m_firstLineno < rhs.m_firstLineno) ? -1 : 1;
-        if (m_firstColumn != rhs.m_firstColumn)
-            return (m_firstColumn < rhs.m_firstColumn) ? -1 : 1;
-        if (m_lastLinenoAdder != rhs.m_lastLinenoAdder)
-            return (m_lastLinenoAdder < rhs.m_lastLinenoAdder) ? -1 : 1;
-        if (m_lastColumn != rhs.m_lastColumn) return (m_lastColumn < rhs.m_lastColumn) ? -1 : 1;
-        const MsgEnBitSet& lhsMsgEn = msgEn();
-        const MsgEnBitSet& rhsMsgEn = rhs.msgEn();
-        for (size_t i = 0; i < V3ErrorCode::_ENUM_MAX; ++i) {
-            const V3ErrorCode code = static_cast<V3ErrorCode>(i);
-            if (lhsMsgEn.enabled(code) != rhsMsgEn.enabled(code))
-                return rhsMsgEn.enabled(code) ? -1 : 1;
+    صحیح operatorCompare(ثابت File_سطر& rhs) ثابت {
+        اگر (m_filenameno != rhs.m_filenameno) واپس (m_filenameno < rhs.m_filenameno) ? -1 : 1;
+        اگر (m_پہلا_Lineno != rhs.m_پہلا_Lineno)
+            واپس (m_پہلا_Lineno < rhs.m_پہلا_Lineno) ? -1 : 1;
+        اگر (m_پہلا_عمود != rhs.m_پہلا_عمود)
+            واپس (m_پہلا_عمود < rhs.m_پہلا_عمود) ? -1 : 1;
+        اگر (m_آخری_Lineno_Adder != rhs.m_آخری_Lineno_Adder)
+            واپس (m_آخری_Lineno_Adder < rhs.m_آخری_Lineno_Adder) ? -1 : 1;
+        اگر (m_آخری_عمود != rhs.m_آخری_عمود) واپس (m_آخری_عمود < rhs.m_آخری_عمود) ? -1 : 1;
+        ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& lhs_پیغام_En = پیغام_En();
+        ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& rhs_پیغام_En = rhs.پیغام_En();
+        برائے (سائز_t i = 0; i < V3_Error_رمز::_ENUM_MAX; ++i) {
+            ثابت V3_Error_رمز رمز = static_cast<V3_Error_رمز>(i);
+            اگر (lhs_پیغام_En.enabled(رمز) != rhs_پیغام_En.enabled(رمز))
+                واپس rhs_پیغام_En.enabled(رمز) ? -1 : 1;
         }
         // TokenNum is compared last as makes more logical sort order by file/line first
-        if (m_tokenNum != rhs.m_tokenNum) return (m_tokenNum < rhs.m_tokenNum) ? -1 : 1;
-        return 0;  // (*this) and rhs are equivalent
+        اگر (m_token_عدد != rhs.m_token_عدد) واپس (m_token_عدد < rhs.m_token_عدد) ? -1 : 1;
+        واپس 0;  // (*this) and rhs are equivalent
     }
 
-private:
-    string warnContext() const;
-    string warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex);
-    const MsgEnBitSet& msgEn() const VL_MT_SAFE { return singleton().msgEn(m_msgEnIdx); }
+نجی:
+    string warnContext() ثابت;
+    string warn_Context_والد() ثابت VL_REQUIRES(V3Error::s().m_mutex);
+    ثابت پیغام_En_ثنائی_ہندسہ_سیٹ& پیغام_En() ثابت VL_MT_محفوظ { واپس singleton().پیغام_En(m_پیغام_En_Idx); }
 };
-std::ostream& operator<<(std::ostream& os, FileLine* fileline);
+std::ostream& عامل<<(std::ostream& os, File_سطر* fileline);
 
-#endif  // Guard
+#اگر_ختم  // Guard

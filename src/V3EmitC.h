@@ -14,25 +14,25 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITC_H_
-#define VERILATOR_V3EMITC_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3EMITC_H_
+#تعریف_کرو VERILATOR_V3EMITC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 //============================================================================
 
 class V3EmitC final {
-public:
-    static void emitcConstPool() VL_MT_DISABLED;
-    static void emitcExecGraph() VL_MT_DISABLED;
-    static void emitcFiles() VL_MT_DISABLED;
-    static void emitcHeaders() VL_MT_DISABLED;
-    static void emitcImp();
-    static void emitcInlines() VL_MT_DISABLED;
-    static void emitcModel() VL_MT_DISABLED;
-    static void emitcPch() VL_MT_DISABLED;
-    static void emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی emitcConstPool() VL_MT_DISABLED;
+    ساکن خالی emitc_Exec_گراف() VL_MT_DISABLED;
+    ساکن خالی emitcFiles() VL_MT_DISABLED;
+    ساکن خالی emitc_سرخیاں() VL_MT_DISABLED;
+    ساکن خالی emitcImp();
+    ساکن خالی emitcInlines() VL_MT_DISABLED;
+    ساکن خالی emitcModel() VL_MT_DISABLED;
+    ساکن خالی emitcPch() VL_MT_DISABLED;
+    ساکن خالی emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

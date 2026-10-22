@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#شامل "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#شامل "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#شامل <iomanip>
+#شامل <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,122 +31,122 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+جماعت StatsVisitor final : عوامی VNVisitorConst {
+    ساخت Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::عدد_TYPES()> m_stat_Type_گنتی{};
         // Prediction of given type
-        std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
+        std::array<uint64_t, VBranchPred::ENUM_انتہا> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    ثابت منطقی m_fastOnly;  // When true, consider only fast functions
+    منطقی m_خالی_خانے = سچ;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
-    std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
-        m_statVarWidthNames;  // Var names of given width
+    std::سمتیہ<uint64_t> m_statVarWidths;  // Variables of given width
+    std::سمتیہ<std::map<ثابت std::string, uint32_t>>
+        m_stat_Var_چوڑائی_نام;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    خالی گنتی_Then_Iterate_Children(Ast_گرہ* nodep) {
+        ++m_accump->m_stat_Type_گنتی[nodep->type()];
+        اگر (nodep->type() != VNType::Netlist) m_خالی_خانے = جھوٹ;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    خالی دورہ(AstVar* nodep) override {
+        اگر (nodep->dtypep()) {
+            اگر (!nodep->const_Pool_اندراج()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
-                    m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
-                        m_statVarWidthNames.resize(nodep->width() + 5);
+                اگر (m_statVarWidths.سائز() <= static_cast<سائز_t>(nodep->چوڑائی())) {
+                    m_statVarWidths.resize(nodep->چوڑائی() + 5);
+                    اگر (v3Global.opt.statsVars()) {  //
+                        m_stat_Var_چوڑائی_نام.resize(nodep->چوڑائی() + 5);
                     }
                 }
-                ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
-                    ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
+                ++m_statVarWidths.at(nodep->چوڑائی());
+                اگر (v3Global.opt.statsVars()) {
+                    ++m_stat_Var_چوڑائی_نام.at(nodep->چوڑائی())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        گنتی_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    خالی دورہ(Ast_گرہ_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        گنتی_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    خالی دورہ(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        اگر (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        گنتی_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { گنتی_Then_Iterate_Children(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, ثابت std::string& stage, منطقی fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        اگر (m_خالی_خانے) واپس;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        ثابت خودکار جوڑو_Stat = [&](ثابت std::string& name, دوہرا گنتی, غیرعلامتی precision = 0) {
+            V3Stats::جوڑو_Stat(stage, name, گنتی, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        برائے (غیرعلامتی i = 0; i < m_statVarWidths.سائز(); i++) {
+            اگر (ثابت uint64_t گنتی = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
-                        addStat(prefix + " " + it.first, it.second);
+                ثابت std::string سابقہ = ss.str();
+                اگر (v3Global.opt.statsVars()) {
+                    برائے (ثابت خودکار& it : m_stat_Var_چوڑائی_نام.at(i)) {
+                        جوڑو_Stat(سابقہ + " " + it.پہلا, it.دوسرا);
                     }
-                } else {
-                    addStat(prefix, count);
+                } ورنہ {
+                    جوڑو_Stat(سابقہ, گنتی);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        ثابت خودکار typeName
+            = [](سائز_t t) { واپس std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        ثابت خودکار type_سائز
+            = [](سائز_t t) { واپس VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        سائز_t کل_گرہ_حافظہ_Usage = 0;
+        برائے (سائز_t t = 0; t < VNType::عدد_TYPES(); ++t) {
+            اگر (ثابت uint64_t گنتی = m_counters.m_stat_Type_گنتی[t]) {
+                کل_گرہ_حافظہ_Usage += گنتی * type_سائز(t);
+                جوڑو_Stat("Node count, " + typeName(t), گنتی);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        جوڑو_Stat("Node mem TOTAL (MiB)", کل_گرہ_حافظہ_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
-                addStat("Node mem %, " + typeName(t), share, 2);
+        برائے (سائز_t t = 0; t < VNType::عدد_TYPES(); ++t) {
+            اگر (ثابت uint64_t گنتی = m_counters.m_stat_Type_گنتی[t]) {
+                ثابت دوہرا share = 100.0 * گنتی * type_سائز(t) / کل_گرہ_حافظہ_Usage;
+                جوڑو_Stat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
-                addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
+        برائے (صحیح t = 0; t < VBranchPred::ENUM_انتہا; ++t) {
+            اگر (ثابت uint64_t c = m_counters.m_statPred[t]) {
+                جوڑو_Stat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
     }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+خالی V3Stats::statsStageAll(AstNetlist* nodep, ثابت std::string& stage, منطقی fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

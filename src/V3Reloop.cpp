@@ -29,238 +29,238 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Reloop.h"
+#شامل "V3Reloop.h"
 
-#include "V3Stats.h"
+#شامل "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ReloopVisitor final : public VNVisitor {
+جماعت ReloopVisitor final : عوامی VNVisitor {
     // NODE STATE
     // AstCFunc::user1p      -> Var number temp var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1_اندر_Use m_inuser1;
 
     // STATE
     VDouble0 m_statReloops;  // Statistic tracking
-    VDouble0 m_statReItems;  // Statistic tracking
-    AstCFunc* m_cfuncp = nullptr;  // Current block
+    VDouble0 m_stat_Re_اشیاء;  // Statistic tracking
+    AstCFunc* m_cfuncp = خالی_اشاریہ;  // Current block
 
-    std::vector<AstNodeAssign*> m_mgAssignps;  // List of assignments merging
-    AstCFunc* m_mgCfuncp = nullptr;  // Parent C function
-    const AstNode* m_mgNextp = nullptr;  // Next node
-    const AstNodeSel* m_mgSelLp = nullptr;  // Parent select, nullptr = idle
-    const AstNodeSel* m_mgSelRp = nullptr;  // Parent select, nullptr = constant
-    const AstNodeVarRef* m_mgVarrefLp = nullptr;  // Parent varref
-    const AstNodeVarRef* m_mgVarrefRp = nullptr;  // Parent varref, nullptr = constant
-    int64_t m_mgOffset = 0;  // Index offset
-    const AstConst* m_mgConstRp = nullptr;  // Parent RHS constant, nullptr = sel
-    uint32_t m_mgIndexLo = 0;  // Merge range
-    uint32_t m_mgIndexHi = 0;  // Merge range
+    std::سمتیہ<Ast_گرہ_تفویض*> m_mgAssignps;  // List of assignments merging
+    AstCFunc* m_mgCfuncp = خالی_اشاریہ;  // Parent C function
+    ثابت Ast_گرہ* m_mgNextp = خالی_اشاریہ;  // Next node
+    ثابت Ast_گرہ_Sel* m_mgSelLp = خالی_اشاریہ;  // Parent select, nullptr = idle
+    ثابت Ast_گرہ_Sel* m_mgSelRp = خالی_اشاریہ;  // Parent select, nullptr = constant
+    ثابت Ast_گرہ_Var_Ref* m_mgVarrefLp = خالی_اشاریہ;  // Parent varref
+    ثابت Ast_گرہ_Var_Ref* m_mgVarrefRp = خالی_اشاریہ;  // Parent varref, nullptr = constant
+    int64_t m_mg_انحراف = 0;  // Index offset
+    ثابت AstConst* m_mgConstRp = خالی_اشاریہ;  // Parent RHS constant, nullptr = sel
+    uint32_t m_mg_اشاریہ_Lo = 0;  // Merge range
+    uint32_t m_mg_اشاریہ_Hi = 0;  // Merge range
 
     // METHODS
 
-    static AstVar* createVarTemp(FileLine* fl, AstCFunc* cfuncp) {
+    ساکن AstVar* create_Var_عارضی(File_سطر* fl, AstCFunc* cfuncp) {
         UASSERT_OBJ(cfuncp, fl, "Assignment not under a function");
-        const string newvarname{"__Vilp" + std::to_string(cfuncp->user1Inc() + 1)};
-        AstVar* const varp
-            = new AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
-        cfuncp->addVarsp(varp);
-        return varp;
+        ثابت string newvarname{"__Vilp" + std::مقصد_string(cfuncp->user1Inc() + 1)};
+        AstVar* ثابت varp
+            = نیا AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
+        cfuncp->جوڑو_Varsp(varp);
+        واپس varp;
     }
-    void mergeEnd() {
-        if (!m_mgAssignps.empty()) {
-            const uint32_t items = m_mgIndexHi - m_mgIndexLo + 1;
-            UINFO(9, "End merge iter=" << items << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
-                                       << m_mgOffset << " " << m_mgAssignps[0]);
-            if (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
-                UINFO(6, "Reloop merging items=" << items << " " << m_mgIndexHi << ":"
-                                                 << m_mgIndexLo << " " << m_mgOffset << " "
+    خالی ملاؤ_انتہا() {
+        اگر (!m_mgAssignps.خالی_خانے()) {
+            ثابت uint32_t اشیاء = m_mg_اشاریہ_Hi - m_mg_اشاریہ_Lo + 1;
+            UINFO(9, "End merge iter=" << اشیاء << " " << m_mg_اشاریہ_Hi << ":" << m_mg_اشاریہ_Lo << " "
+                                       << m_mg_انحراف << " " << m_mgAssignps[0]);
+            اگر (اشیاء >= static_cast<uint32_t>(v3Global.opt.reloop_حد_بندی())) {
+                UINFO(6, "Reloop merging items=" << اشیاء << " " << m_mg_اشاریہ_Hi << ":"
+                                                 << m_mg_اشاریہ_Lo << " " << m_mg_انحراف << " "
                                                  << m_mgAssignps[0]);
                 ++m_statReloops;
-                m_statReItems += items;
+                m_stat_Re_اشیاء += اشیاء;
 
                 // Transform first assign into for loop body
-                AstNodeAssign* const bodyp = m_mgAssignps.front();
+                Ast_گرہ_تفویض* ثابت bodyp = m_mgAssignps.front();
                 UASSERT_OBJ(bodyp->lhsp() == m_mgSelLp, bodyp, "Corrupt queue/state");
-                FileLine* const fl = bodyp->fileline();
-                AstVar* const itp = createVarTemp(fl, m_mgCfuncp);
+                File_سطر* ثابت fl = bodyp->fileline();
+                AstVar* ثابت itp = create_Var_عارضی(fl, m_mgCfuncp);
 
-                if (m_mgOffset > 0) {
-                    UASSERT_OBJ(m_mgIndexLo >= m_mgOffset, bodyp,
+                اگر (m_mg_انحراف > 0) {
+                    UASSERT_OBJ(m_mg_اشاریہ_Lo >= m_mg_انحراف, bodyp,
                                 "Reloop iteration starts at negative index");
-                    m_mgIndexLo -= m_mgOffset;
-                    m_mgIndexHi -= m_mgOffset;
+                    m_mg_اشاریہ_Lo -= m_mg_انحراف;
+                    m_mg_اشاریہ_Hi -= m_mg_انحراف;
                 }
 
-                AstNode* const initp = new AstAssign{fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                                                     new AstConst{fl, m_mgIndexLo}};
-                AstNodeExpr* const condp = new AstLte{fl, new AstVarRef{fl, itp, VAccess::READ},
-                                                      new AstConst{fl, m_mgIndexHi}};
-                AstNode* const incp = new AstAssign{
-                    fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, itp, VAccess::READ}}};
-                AstLoop* const loopp = new AstLoop{fl};
-                loopp->addStmtsp(new AstLoopTest{fl, loopp, condp});
-                initp->addNext(loopp);
+                Ast_گرہ* ثابت initp = نیا Ast_تفویض{fl, نیا AstVarRef{fl, itp, VAccess::WRITE},
+                                                     نیا AstConst{fl, m_mg_اشاریہ_Lo}};
+                Ast_گرہ_اظہاریہ* ثابت condp = نیا AstLte{fl, نیا AstVarRef{fl, itp, VAccess::READ},
+                                                      نیا AstConst{fl, m_mg_اشاریہ_Hi}};
+                Ast_گرہ* ثابت incp = نیا Ast_تفویض{
+                    fl, نیا AstVarRef{fl, itp, VAccess::WRITE},
+                    نیا Ast_جوڑو{fl, نیا AstConst{fl, 1}, نیا AstVarRef{fl, itp, VAccess::READ}}};
+                AstLoop* ثابت loopp = نیا AstLoop{fl};
+                loopp->جوڑو_Stmtsp(نیا AstLoopTest{fl, loopp, condp});
+                initp->جوڑو_اگلا(loopp);
                 bodyp->replaceWith(initp);
-                loopp->addStmtsp(bodyp);
-                loopp->addStmtsp(incp);
+                loopp->جوڑو_Stmtsp(bodyp);
+                loopp->جوڑو_Stmtsp(incp);
 
                 // Replace constant index with new loop index
-                AstNodeExpr* const offsetp
-                    = m_mgOffset == 0 ? nullptr : new AstConst(fl, std::abs(m_mgOffset));
-                AstNodeExpr* const lbitp = m_mgSelLp->bitp();
-                AstNodeExpr* const lvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                lbitp->replaceWith(m_mgOffset > 0 ? new AstAdd{fl, lvrefp, offsetp} : lvrefp);
-                VL_DO_DANGLING(lbitp->deleteTree(), lbitp);
-                if (m_mgSelRp) {  // else constant and no replace
-                    AstNodeExpr* const rbitp = m_mgSelRp->bitp();
-                    AstNodeExpr* const rvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                    rbitp->replaceWith(m_mgOffset < 0 ? new AstAdd{fl, rvrefp, offsetp} : rvrefp);
-                    VL_DO_DANGLING(rbitp->deleteTree(), lbitp);
+                Ast_گرہ_اظہاریہ* ثابت offsetp
+                    = m_mg_انحراف == 0 ? خالی_اشاریہ : نیا AstConst(fl, std::مطلق_قدر(m_mg_انحراف));
+                Ast_گرہ_اظہاریہ* ثابت lbitp = m_mgSelLp->bitp();
+                Ast_گرہ_اظہاریہ* ثابت lvrefp = نیا AstVarRef{fl, itp, VAccess::READ};
+                lbitp->replaceWith(m_mg_انحراف > 0 ? نیا Ast_جوڑو{fl, lvrefp, offsetp} : lvrefp);
+                VL_DO_DANGLING(lbitp->delete_درخت(), lbitp);
+                اگر (m_mgSelRp) {  // else constant and no replace
+                    Ast_گرہ_اظہاریہ* ثابت rbitp = m_mgSelRp->bitp();
+                    Ast_گرہ_اظہاریہ* ثابت rvrefp = نیا AstVarRef{fl, itp, VAccess::READ};
+                    rbitp->replaceWith(m_mg_انحراف < 0 ? نیا Ast_جوڑو{fl, rvrefp, offsetp} : rvrefp);
+                    VL_DO_DANGLING(rbitp->delete_درخت(), lbitp);
                 }
                 UINFOTREE(9, initp, "", "new");
                 UINFOTREE(9, loopp, "", "new");
 
                 // Remove remaining assigns
-                for (AstNodeAssign* assp : m_mgAssignps) {
-                    if (assp != bodyp) {
-                        VL_DO_DANGLING(assp->unlinkFrBack()->deleteTree(), assp);
+                برائے (Ast_گرہ_تفویض* assp : m_mgAssignps) {
+                    اگر (assp != bodyp) {
+                        VL_DO_DANGLING(assp->unlink_Fr_عقب()->delete_درخت(), assp);
                     }
                 }
             }
             // Setup for next merge
             m_mgAssignps.clear();
-            m_mgSelLp = nullptr;
-            m_mgSelRp = nullptr;
-            m_mgVarrefLp = nullptr;
-            m_mgVarrefRp = nullptr;
-            m_mgOffset = 0;
-            m_mgConstRp = nullptr;
+            m_mgSelLp = خالی_اشاریہ;
+            m_mgSelRp = خالی_اشاریہ;
+            m_mgVarrefLp = خالی_اشاریہ;
+            m_mgVarrefRp = خالی_اشاریہ;
+            m_mg_انحراف = 0;
+            m_mgConstRp = خالی_اشاریہ;
         }
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    خالی دورہ(AstCFunc* nodep) override {
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        mergeEnd();  // Finish last pending merge, if any
+        ملاؤ_انتہا();  // Finish last pending merge, if any
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_cfuncp) return;
+    خالی دورہ(Ast_گرہ_تفویض* nodep) override {
+        اگر (!m_cfuncp) واپس;
 
         // Left select WordSel or ArraySel
-        AstNodeSel* const lselp = VN_CAST(nodep->lhsp(), NodeSel);
-        if (!lselp) {  // Not ever merged
-            mergeEnd();
-            return;
+        Ast_گرہ_Sel* ثابت lselp = VN_CAST(nodep->lhsp(), گرہ_Sel);
+        اگر (!lselp) {  // Not ever merged
+            ملاؤ_انتہا();
+            واپس;
         }
         // Of a constant index
-        const AstConst* const lbitp = VN_CAST(lselp->bitp(), Const);
-        if (!lbitp) {
-            mergeEnd();
-            return;
+        ثابت AstConst* ثابت lbitp = VN_CAST(lselp->bitp(), Const);
+        اگر (!lbitp) {
+            ملاؤ_انتہا();
+            واپس;
         }
-        if (lbitp->width() > 32) {  // Assoc arrays can do this
-            mergeEnd();
-            return;
+        اگر (lbitp->چوڑائی() > 32) {  // Assoc arrays can do this
+            ملاؤ_انتہا();
+            واپس;
         }
-        const uint32_t lindex = lbitp->toUInt();
+        ثابت uint32_t lindex = lbitp->مقصد_UInt();
         // Of variable
-        const AstNodeVarRef* const lvarrefp = VN_CAST(lselp->fromp(), NodeVarRef);
-        if (!lvarrefp) {
-            mergeEnd();
-            return;
+        ثابت Ast_گرہ_Var_Ref* ثابت lvarrefp = VN_CAST(lselp->fromp(), گرہ_Var_Ref);
+        اگر (!lvarrefp) {
+            ملاؤ_انتہا();
+            واپس;
         }
 
         // RHS is a constant or a select
-        const AstConst* const rconstp = VN_CAST(nodep->rhsp(), Const);
-        const AstNodeSel* const rselp = VN_CAST(nodep->rhsp(), NodeSel);
-        const AstNodeVarRef* rvarrefp = nullptr;
+        ثابت AstConst* ثابت rconstp = VN_CAST(nodep->rhsp(), Const);
+        ثابت Ast_گرہ_Sel* ثابت rselp = VN_CAST(nodep->rhsp(), گرہ_Sel);
+        ثابت Ast_گرہ_Var_Ref* rvarrefp = خالی_اشاریہ;
         uint32_t rindex = lindex;
-        if (rconstp) {  // Ok
-        } else if (rselp) {
-            const AstConst* const rbitp = VN_CAST(rselp->bitp(), Const);
-            rvarrefp = VN_CAST(rselp->fromp(), NodeVarRef);
-            if (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
-                mergeEnd();
-                return;
+        اگر (rconstp) {  // Ok
+        } ورنہ اگر (rselp) {
+            ثابت AstConst* ثابت rbitp = VN_CAST(rselp->bitp(), Const);
+            rvarrefp = VN_CAST(rselp->fromp(), گرہ_Var_Ref);
+            اگر (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
+                ملاؤ_انتہا();
+                واپس;
             }
-            rindex = rbitp->toUInt();
-        } else {
-            mergeEnd();
-            return;
+            rindex = rbitp->مقصد_UInt();
+        } ورنہ {
+            ملاؤ_انتہا();
+            واپس;
         }
 
-        if (m_mgSelLp) {  // Old merge
-            if (m_mgCfuncp == m_cfuncp  // In same function
+        اگر (m_mgSelLp) {  // Old merge
+            اگر (m_mgCfuncp == m_cfuncp  // In same function
                 && m_mgNextp == nodep  // Consecutive node
                 && m_mgVarrefLp->isSame(lvarrefp)  // Same array on left hand side
                 && (m_mgConstRp  // On the right hand side either ...
                         ? (rconstp && m_mgConstRp->isSame(rconstp))  // ... same constant
                         : (rselp && m_mgVarrefRp->isSame(rvarrefp)))  // ... or same array
-                && (lindex == m_mgIndexLo - 1 || lindex == m_mgIndexHi + 1)  // Left index +/- 1
-                && (m_mgConstRp || lindex == rindex + m_mgOffset)  // Same right index offset
+                && (lindex == m_mg_اشاریہ_Lo - 1 || lindex == m_mg_اشاریہ_Hi + 1)  // Left index +/- 1
+                && (m_mgConstRp || lindex == rindex + m_mg_انحراف)  // Same right index offset
             ) {
                 // Sequentially next to last assign; continue merge
-                if (lindex == m_mgIndexLo - 1) {
-                    m_mgIndexLo = lindex;
-                } else if (lindex == m_mgIndexHi + 1) {
-                    m_mgIndexHi = lindex;
+                اگر (lindex == m_mg_اشاریہ_Lo - 1) {
+                    m_mg_اشاریہ_Lo = lindex;
+                } ورنہ اگر (lindex == m_mg_اشاریہ_Hi + 1) {
+                    m_mg_اشاریہ_Hi = lindex;
                 }
-                UINFO(9, "Continue merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
+                UINFO(9, "Continue merge i=" << lindex << " " << m_mg_اشاریہ_Hi << ":" << m_mg_اشاریہ_Lo
                                              << " " << nodep);
-                m_mgAssignps.push_back(nodep);
+                m_mgAssignps.ڈالو_عقب(nodep);
                 m_mgNextp = nodep->nextp();
-                return;
-            } else {
-                UINFO(9, "End merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
+                واپس;
+            } ورنہ {
+                UINFO(9, "End merge i=" << lindex << " " << m_mg_اشاریہ_Hi << ":" << m_mg_اشاریہ_Lo
                                         << " " << nodep);
                 // This assign doesn't merge with previous assign,
                 // but should start a new merge
-                mergeEnd();
+                ملاؤ_انتہا();
             }
         }
 
         // Merge start
-        m_mgAssignps.push_back(nodep);
+        m_mgAssignps.ڈالو_عقب(nodep);
         m_mgCfuncp = m_cfuncp;
         m_mgNextp = nodep->nextp();
         m_mgSelLp = lselp;
         m_mgSelRp = rselp;
         m_mgVarrefLp = lvarrefp;
         m_mgVarrefRp = rvarrefp;
-        m_mgOffset = static_cast<int64_t>(lindex) - static_cast<int64_t>(rindex);
+        m_mg_انحراف = static_cast<int64_t>(lindex) - static_cast<int64_t>(rindex);
         m_mgConstRp = rconstp;
-        m_mgIndexLo = lindex;
-        m_mgIndexHi = lindex;
-        UINFO(9, "Start merge i=" << lindex << " o=" << m_mgOffset << nodep);
+        m_mg_اشاریہ_Lo = lindex;
+        m_mg_اشاریہ_Hi = lindex;
+        UINFO(9, "Start merge i=" << lindex << " o=" << m_mg_انحراف << nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_اظہاریہ_Stmt* nodep) override { iterateChildren(nodep); }
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(AstVar*) override {}  // Accelerate
+    خالی دورہ(Ast_گرہ_اظہاریہ*) override {}  // Accelerate
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ReloopVisitor(AstNetlist* nodep) { iterate(nodep); }
+    صریح ReloopVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ReloopVisitor() override {
-        V3Stats::addStat("Optimizations, Reloops", m_statReloops);
-        V3Stats::addStat("Optimizations, Reloop iterations", m_statReItems);
+        V3Stats::جوڑو_Stat("Optimizations, Reloops", m_statReloops);
+        V3Stats::جوڑو_Stat("Optimizations, Reloop iterations", m_stat_Re_اشیاء);
     }
 };
 
 //######################################################################
 // Reloop class functions
 
-void V3Reloop::reloopAll(AstNetlist* nodep) {
+خالی V3Reloop::reloopAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ReloopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("reloop", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_درخت("reloop", 0, dump_درخت_Either_Level() >= 6);
 }

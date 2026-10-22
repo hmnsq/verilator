@@ -14,69 +14,69 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PREEXPR_H_
-#define VERILATOR_V3PREEXPR_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3PREEXPR_H_
+#تعریف_کرو VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#شامل "V3FileLine.h"
+#شامل "V3Global.h"
 
-#include <deque>
+#شامل <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_اظہاریہ_Token final {
+عوامی:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    شمار token_t : uint8_t { ZERO, ONE, انتہا_2, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+نجی:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_سطر* ثابت m_fileline;  // Token fileline
+    token_t ثابت m_token;  // Token value
+عوامی:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_اظہاریہ_Token(File_سطر* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_اظہاریہ_Token(File_سطر* fileline, bool قدر)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{قدر ? ONE : ZERO} {}
+    ~V3_Pre_اظہاریہ_Token() = طےشدہ;
+    ثابت حرف* ascii() ثابت {
+        ساکن ثابت حرف* نام[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        واپس نام[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_سطر* fileline() ثابت { واپس m_fileline; }
+    token_t token() ثابت { واپس m_token; }
+    bool is_قدر() ثابت { واپس m_token == ZERO || m_token == ONE; }
+    bool قدر() ثابت {
+        UASSERT(is_قدر(), "preproc expr fetch of non-value");
+        واپس m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_اظہاریہ final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_اظہاریہ_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_اظہاریہ_Token> m_اقدار;  // Value stack
+    std::deque<V3_Pre_اظہاریہ_Token> m_ops;  // Operator stack
+    File_سطر* m_پہلا_Fileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    شمار action_t : uint8_t {
+        VV,  //قدر
         AA,  // Accept
         RR,  // Reduce
-        SS,  // Shift
+        SS,  //سرکاؤ
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    ساکن ثابت حرف* actionAscii(action_t en) {
+        ساکن constexpr ثابت حرف* نام[] = {"VV", "AA", "RR", "SS", "EE"};
+        واپس نام[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parse_جدول[V3_Pre_اظہاریہ_Token::MAX][V3_Pre_اظہاریہ_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    ساکن خالی selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    ساکن خالی selfTestOne(ثابت string& اظہاریہ, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << اظہاریہ);
+        File_سطر* ثابت flp = nullptr;
+        V3_Pre_اظہاریہ parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        برائے (ثابت حرف* cp = اظہاریہ.c_str(); *cp; ++cp) {
+            اگر (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                انتخاب (*cp) {
+                حالت '0': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::ZERO}); توڑو;
+                حالت '1': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::ONE}); توڑو;
+                حالت '!': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::LNOT}); توڑو;
+                حالت '|': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::LOR}); توڑو;
+                حالت '&': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::LAND}); توڑو;
+                حالت '-': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::IMP}); توڑو;
+                حالت '<': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::EQV}); توڑو;
+                حالت '(': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::BRA}); توڑو;
+                حالت ')': parser.ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::KET}); توڑو;
+                طےشدہ: توڑو;
                 }
-            } else if (*cp == ' ') {
+            } ورنہ اگر (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        ثابت bool got = parser.نتیجہ();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    خالی ڈالو_Op(ثابت V3_Pre_اظہاریہ_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.ڈالو_عقب(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    خالی ڈالو_قدر(ثابت V3_Pre_اظہاریہ_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_اقدار.ڈالو_عقب(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
-            m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+    V3_Pre_اظہاریہ_Token نکالو_قدر() {
+        اگر (m_اقدار.خالی_خانے()) {
+            m_پہلا_Fileline->v3error("Syntax error in `ifdef () expression");
+            واپس V3_Pre_اظہاریہ_Token{m_پہلا_Fileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        ثابت V3_Pre_اظہاریہ_Token tok = m_اقدار.عقب();
+        m_اقدار.نکالو_عقب();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        واپس tok;
     }
-    void reduce() {
-        UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+    خالی reduce() {
+        UASSERT(!m_ops.خالی_خانے(), "lost op stack beginning END");
+        ثابت V3_Pre_اظہاریہ_Token tok = m_ops.عقب();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.نکالو_عقب();
+        انتخاب (tok.token()) {
+        حالت V3_Pre_اظہاریہ_Token::KET: {
+            جب (m_ops.عقب().token() != V3_Pre_اظہاریہ_Token::انتہا_2
+                   && m_ops.عقب().token() != V3_Pre_اظہاریہ_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            اگر (m_ops.عقب().token() == V3_Pre_اظہاریہ_Token::BRA) {
+                m_ops.نکالو_عقب();
+            } ورنہ {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                واپس;
             }
-            break;
+            توڑو;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        حالت V3_Pre_اظہاریہ_Token::LNOT: {
+            ثابت V3_Pre_اظہاریہ_Token lhs = نکالو_قدر();
+            ڈالو_قدر(V3_Pre_اظہاریہ_Token{tok.fileline(), !lhs.قدر()});
+            توڑو;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        حالت V3_Pre_اظہاریہ_Token::LAND: {
+            ثابت V3_Pre_اظہاریہ_Token rhs = نکالو_قدر();
+            ثابت V3_Pre_اظہاریہ_Token lhs = نکالو_قدر();
+            ڈالو_قدر(V3_Pre_اظہاریہ_Token{tok.fileline(), lhs.قدر() && rhs.قدر()});
+            توڑو;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        حالت V3_Pre_اظہاریہ_Token::LOR: {
+            ثابت V3_Pre_اظہاریہ_Token rhs = نکالو_قدر();
+            ثابت V3_Pre_اظہاریہ_Token lhs = نکالو_قدر();
+            ڈالو_قدر(V3_Pre_اظہاریہ_Token{tok.fileline(), lhs.قدر() || rhs.قدر()});
+            توڑو;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        حالت V3_Pre_اظہاریہ_Token::IMP: {
+            ثابت V3_Pre_اظہاریہ_Token rhs = نکالو_قدر();
+            ثابت V3_Pre_اظہاریہ_Token lhs = نکالو_قدر();
+            ڈالو_قدر(V3_Pre_اظہاریہ_Token{tok.fileline(), !lhs.قدر() || rhs.قدر()});
+            توڑو;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        حالت V3_Pre_اظہاریہ_Token::EQV: {
+            ثابت V3_Pre_اظہاریہ_Token rhs = نکالو_قدر();
+            ثابت V3_Pre_اظہاریہ_Token lhs = نکالو_قدر();
+            ڈالو_قدر(V3_Pre_اظہاریہ_Token{tok.fileline(), lhs.قدر() == rhs.قدر()});
+            توڑو;
         }
-        default: {
+        طےشدہ: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            توڑو;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    خالی parse() {
+        جب (!m_inputs.خالی_خانے()) {
+            ثابت V3_Pre_اظہاریہ_Token tok = m_inputs.front();
+            m_inputs.نکالو_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            اگر (tok.is_قدر()) {
+                ڈالو_قدر(tok);
+                جاری;
             }
 
-            UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            UASSERT(!m_ops.خالی_خانے(), "lost op stack beginning END");
+            ثابت V3_Pre_اظہاریہ_Token چوٹی_Tok = m_ops.عقب();
+            خودکار action = parse_جدول[چوٹی_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << چوٹی_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            انتخاب (action) {
+            حالت RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                توڑو;
+            حالت SS:  //سرکاؤ
+                m_ops.ڈالو_عقب(tok);
+                توڑو;
+            حالت AA:  // Accept
+                توڑو;
+            طےشدہ: tok.fileline()->v3error("Syntax error in `ifdef () expression"); واپس;
             }
         }
     }
 
-public:
+عوامی:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_اظہاریہ() = طےشدہ;
+    ~V3_Pre_اظہاریہ() = طےشدہ;
+    خالی reset(File_سطر* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_اقدار.clear();
         m_ops.clear();
-        m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        m_پہلا_Fileline = flp;
+        ڈالو_Op(V3_Pre_اظہاریہ_Token{flp, V3_Pre_اظہاریہ_Token::انتہا_2});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    خالی ڈالو_داخلہ(ثابت V3_Pre_اظہاریہ_Token& token) {
+        اگر (!m_پہلا_Fileline) m_پہلا_Fileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.ڈالو_عقب(token);
     }
-    bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+    bool نتیجہ() {
+        ڈالو_داخلہ(V3_Pre_اظہاریہ_Token{m_پہلا_Fileline, V3_Pre_اظہاریہ_Token::انتہا_2});
         parse();
-        return popValue().value();
+        واپس نکالو_قدر().قدر();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    ساکن خالی selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

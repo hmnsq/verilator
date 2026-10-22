@@ -24,398 +24,398 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Coverage.h"
+#شامل "V3Coverage.h"
 
-#include "V3EmitV.h"
-#include "V3UniqueNames.h"
+#شامل "V3EmitV.h"
+#شامل "V3UniqueNames.h"
 
-#include <list>
-#include <unordered_map>
+#شامل <list>
+#شامل <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class ExprCoverageEligibleVisitor final : public VNVisitorConst {
+جماعت اظہاریہ_Coverage_Eligible_Visitor final : عوامی VNVisitorConst {
     // STATE
-    bool m_eligible = true;
+    منطقی m_eligible = سچ;
 
-    static bool elemDTypeEligible(const AstNodeDType* dtypep) {
+    ساکن منطقی elemDTypeEligible(ثابت Ast_گرہ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (const AstNodeDType* const dtp = dtypep->virtRefDTypep()) {
-            if (!elemDTypeEligible(dtp)) return false;
+        اگر (ثابت Ast_گرہ_DType* ثابت dtp = dtypep->virtRefDTypep()) {
+            اگر (!elemDTypeEligible(dtp)) واپس جھوٹ;
         }
-        if (const AstNodeDType* const dtp = dtypep->virtRefDType2p()) {
-            if (!elemDTypeEligible(dtp)) return false;
+        اگر (ثابت Ast_گرہ_DType* ثابت dtp = dtypep->virtRefDType2p()) {
+            اگر (!elemDTypeEligible(dtp)) واپس جھوٹ;
         }
-        return !VN_IS(dtypep, ClassRefDType);
+        واپس !VN_IS(dtypep, ClassRefDType);
     }
 
-    void visit(AstNodeVarRef* nodep) override {
-        const AstNodeDType* const dtypep = nodep->varp()->dtypep();
+    خالی دورہ(Ast_گرہ_Var_Ref* nodep) override {
+        ثابت Ast_گرہ_DType* ثابت dtypep = nodep->varp()->dtypep();
         // Class objects and references not supported for expression coverage
         // because the object may not persist until the point at which
         // coverage data is gathered
         // This could be resolved in the future by protecting against dereferrencing
         // null pointers when cloning the expression for expression coverage
-        if (dtypep && elemDTypeEligible(dtypep)) {
+        اگر (dtypep && elemDTypeEligible(dtypep)) {
             iterateChildrenConst(nodep);
-        } else {
-            m_eligible = false;
+        } ورنہ {
+            m_eligible = جھوٹ;
         }
     }
 
-    void visit(AstNode* nodep) override {
-        if (!nodep->isExprCoverageEligible()) {
-            m_eligible = false;
-        } else {
+    خالی دورہ(Ast_گرہ* nodep) override {
+        اگر (!nodep->is_اظہاریہ_Coverage_Eligible()) {
+            m_eligible = جھوٹ;
+        } ورنہ {
             iterateChildrenConst(nodep);
         }
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit ExprCoverageEligibleVisitor(AstNode* nodep) { iterateConst(nodep); }
-    ~ExprCoverageEligibleVisitor() override = default;
+    صریح اظہاریہ_Coverage_Eligible_Visitor(Ast_گرہ* nodep) { iterateConst(nodep); }
+    ~اظہاریہ_Coverage_Eligible_Visitor() override = طےشدہ;
 
-    bool eligible() const { return m_eligible; }
+    منطقی eligible() ثابت { واپس m_eligible; }
 };
 
 //######################################################################
 // Coverage state, as a visitor of each AstNode
 
-class CoverageVisitor final : public VNVisitor {
+جماعت CoverageVisitor final : عوامی VNVisitor {
     // TYPES
-    using LinenoSet = std::set<int>;
+    استعمال Lineno_سیٹ = std::سیٹ<صحیح>;
 
-    struct CoverTerm final {
-        AstNodeExpr* m_exprp;  // Expression branch term
-        bool m_objective;  // Term objective
+    ساخت Cover_رکن final {
+        Ast_گرہ_اظہاریہ* m_exprp;  // Expression branch term
+        منطقی m_objective;  // Term objective
         std::string m_emitV;  // V3EmitV string for cover point comment
-        CoverTerm(AstNodeExpr* exprp, bool objective, const string& emitV)
+        Cover_رکن(Ast_گرہ_اظہاریہ* exprp, منطقی objective, ثابت string& emitV)
             : m_exprp{exprp}
             , m_objective{objective}
             , m_emitV{emitV} {}
     };
-    using CoverExpr = std::deque<CoverTerm>;
-    using CoverExprs = std::list<CoverExpr>;
+    استعمال Cover_اظہاریہ = std::deque<Cover_رکن>;
+    استعمال CoverExprs = std::list<Cover_اظہاریہ>;
 
-    struct ToggleEnt final {
-        const string m_comment;  // Comment for coverage dump
-        AstNodeExpr* m_varRefp;  // How to get to this element
-        AstNodeExpr* m_chgRefp;  // How to get to this element
-        ToggleEnt(const string& comment, AstNodeExpr* vp, AstNodeExpr* cp)
+    ساخت ToggleEnt final {
+        ثابت string m_comment;  // Comment for coverage dump
+        Ast_گرہ_اظہاریہ* m_varRefp;  // How to get to this element
+        Ast_گرہ_اظہاریہ* m_chgRefp;  // How to get to this element
+        ToggleEnt(ثابت string& comment, Ast_گرہ_اظہاریہ* vp, Ast_گرہ_اظہاریہ* cp)
             : m_comment{comment}
             , m_varRefp{vp}
             , m_chgRefp{cp} {}
-        ~ToggleEnt() = default;
-        void cleanup() {
-            VL_DO_CLEAR(m_varRefp->deleteTree(), m_varRefp = nullptr);
-            VL_DO_CLEAR(m_chgRefp->deleteTree(), m_chgRefp = nullptr);
+        ~ToggleEnt() = طےشدہ;
+        خالی cleanup() {
+            VL_DO_CLEAR(m_varRefp->delete_درخت(), m_varRefp = خالی_اشاریہ);
+            VL_DO_CLEAR(m_chgRefp->delete_درخت(), m_chgRefp = خالی_اشاریہ);
         }
     };
 
-    struct CheckState final {  // State save-restored on each new coverage scope/block
-        bool m_on = false;  // Should this block get covered?
-        bool m_inModOff = false;  // In module with no coverage
-        int m_handle = 0;  // Opaque handle for index into line tracking
-        const AstNode* m_nodep = nullptr;  // Node establishing this state
-        CheckState() = default;
-        bool coverageOn(const AstNode* nodep) const {
-            return m_on && !m_inModOff && nodep->fileline()->coverageOn();
+    ساخت CheckState final {  // State save-restored on each new coverage scope/block
+        منطقی m_on = جھوٹ;  // Should this block get covered?
+        منطقی m_اندر_Mod_Off = جھوٹ;  // In module with no coverage
+        صحیح m_handle = 0;  // Opaque handle for index into line tracking
+        ثابت Ast_گرہ* m_nodep = خالی_اشاریہ;  // Node establishing this state
+        CheckState() = طےشدہ;
+        منطقی coverageOn(ثابت Ast_گرہ* nodep) ثابت {
+            واپس m_on && !m_اندر_Mod_Off && nodep->fileline()->coverageOn();
         }
-        bool lineCoverageOn(const AstNode* nodep) const {
-            return coverageOn(nodep) && v3Global.opt.coverageLine();
+        منطقی سطر_Coverage_On(ثابت Ast_گرہ* nodep) ثابت {
+            واپس coverageOn(nodep) && v3Global.opt.coverage_سطر();
         }
-        bool branchCoverageOn(const AstNode* nodep) const {
-            return coverageOn(nodep) && v3Global.opt.coverageBranch();
+        منطقی branchCoverageOn(ثابت Ast_گرہ* nodep) ثابت {
+            واپس coverageOn(nodep) && v3Global.opt.coverageBranch();
         }
-        bool exprCoverageOn(const AstNode* nodep) const {
-            return coverageOn(nodep) && v3Global.opt.coverageExpr();
+        منطقی اظہاریہ_Coverage_On(ثابت Ast_گرہ* nodep) ثابت {
+            واپس coverageOn(nodep) && v3Global.opt.coverage_اظہاریہ();
         }
     };
 
-    enum Objective : uint8_t { NONE, SEEKING, ABORTED };
+    شمار Objective : uint8_t { NONE, SEEKING, ABORTED };
 
     // NODE STATE
     // Entire netlist:
     //  AstIf::user1()                  -> bool.  True indicates ifelse processed
     //  AstIf/AstLoopTest::user2()      -> bool.  True indicates coverage-generated
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    V3UniqueNames m_exprTempNames;  // For generating unique temporary variable names used by
+    ثابت VNUser1_اندر_Use m_inuser1;
+    ثابت VNUser2_اندر_Use m_inuser2;
+    V3_Unique_نام m_اظہاریہ_عارضی_نام;  // For generating unique temporary variable names used by
                                     // expression coverage
-    std::unordered_map<AstNodeExpr*, AstVar*> m_funcTemps;
+    std::unordered_map<Ast_گرہ_اظہاریہ*, AstVar*> m_funcTemps;
 
     // STATE - across all visitors
-    int m_nextHandle = 0;
+    صحیح m_اگلا_Handle = 0;
 
     // STATE - for current visit position (use VL_RESTORER)
     CheckState m_state;  // State save-restored on each new coverage scope/block
-    AstNodeModule* m_modp = nullptr;  // Current module to add statement to
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNode* m_exprStmtsp = nullptr;  // Node to add expr coverage to
-    bool m_then = false;  // Whether we're iterating the then or else branch
+    Ast_گرہ_Module* m_modp = خالی_اشاریہ;  // Current module to add statement to
+    Ast_گرہ_FTask* m_ftaskp = خالی_اشاریہ;  // Current function/task
+    Ast_گرہ* m_اظہاریہ_Stmtsp = خالی_اشاریہ;  // Node to add expr coverage to
+    منطقی m_then = جھوٹ;  // Whether we're iterating the then or else branch
                           // when m_exprStmtps is an AstIf
     CoverExprs m_exprs;  // List of expressions that can reach objective
     Objective m_seeking = NONE;  // Seeking objective for expression coverage
-    bool m_objective = false;  // Expression objective
-    bool m_ifCond = false;  // Visiting if condition
-    bool m_inToggleOff = false;  // In function/task etc
+    منطقی m_objective = جھوٹ;  // Expression objective
+    منطقی m_ifCond = جھوٹ;  // Visiting if condition
+    منطقی m_اندر_Toggle_Off = جھوٹ;  // In function/task etc
     string m_beginHier;  // AstBegin hier name for user coverage points
 
     // STATE - cleared each module
     std::unordered_map<std::string, uint32_t> m_varnames;  // Uniquify inserted variable names
-    std::unordered_map<int, LinenoSet> m_handleLines;  // Line numbers for given m_stateHandle
+    std::unordered_map<صحیح, Lineno_سیٹ> m_handle_سطریں;  // Line numbers for given m_stateHandle
 
     // METHODS
 
     // Return non-nullptr reason if this variable shouldn't have toggle coverage
-    const char* varIgnoreToggle(const AstVar* nodep) {
-        const bool cover = nodep->isIO() || (nodep->isSignal() && nodep->isBitLogic());
-        if (!cover) return "Not relevant signal";
-        if (nodep->isConst()) return "Signal is constant";
-        if (nodep->isDouble()) return "Signal is double";
-        if (nodep->isString()) return "Signal is string";
-        if (!v3Global.opt.coverageUnderscore()) {
-            const string prettyName = nodep->prettyName();
-            if (prettyName[0] == '_') return "Leading underscore";
-            if (prettyName.find("._") != string::npos) return "Inlined leading underscore";
+    ثابت حرف* varIgnoreToggle(ثابت AstVar* nodep) {
+        ثابت منطقی cover = nodep->isIO() || (nodep->isSignal() && nodep->is_ثنائی_ہندسہ_Logic());
+        اگر (!cover) واپس "Not relevant signal";
+        اگر (nodep->isConst()) واپس "Signal is constant";
+        اگر (nodep->isDouble()) واپس "Signal is double";
+        اگر (nodep->isString()) واپس "Signal is string";
+        اگر (!v3Global.opt.coverageUnderscore()) {
+            ثابت string prettyName = nodep->prettyName();
+            اگر (prettyName[0] == '_') واپس "Leading underscore";
+            اگر (prettyName.ڈھونڈو("._") != string::npos) واپس "Inlined leading underscore";
         }
-        if ((nodep->width() * nodep->dtypep()->arrayUnpackedElements())
-            > static_cast<uint32_t>(v3Global.opt.coverageMaxWidth())) {
-            return "Wide bus/array > --coverage-max-width setting's bits";
+        اگر ((nodep->چوڑائی() * nodep->dtypep()->arrayUnpackedElements())
+            > static_cast<uint32_t>(v3Global.opt.coverage_Max_چوڑائی())) {
+            واپس "Wide bus/array > --coverage-max-width setting's bits";
         }
         // We allow this, though tracing doesn't
         // if (nodep->arrayp(1)) return "Unsupported: Multi-dimensional array";
-        return nullptr;
+        واپس خالی_اشاریہ;
     }
 
-    AstCoverInc* newCoverInc(FileLine* fl, AstNodeCoverDecl* const declp,
-                             const string& trace_var_name) {
-        AstCoverInc* const incp = new AstCoverInc{fl, declp};
-        if (!trace_var_name.empty()
+    AstCoverInc* newCoverInc(File_سطر* fl, Ast_گرہ_Cover_Decl* ثابت declp,
+                             ثابت string& trace_var_name) {
+        AstCoverInc* ثابت incp = نیا AstCoverInc{fl, declp};
+        اگر (!trace_var_name.خالی_خانے()
             && v3Global.opt.traceCoverage()
             // No module handle to trace inside classes
             && !VN_IS(m_modp, Class)) {
-            FileLine* const fl_nowarn = new FileLine{incp->fileline()};
-            fl_nowarn->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
-            AstVar* const varp = new AstVar{fl_nowarn, VVarType::MODULETEMP, trace_var_name,
-                                            incp->findUInt32DType()};
-            varp->setIgnoreSchedWrite();  // Ignore the increment output, so no UNOPTFLAT
+            File_سطر* ثابت fl_nowarn = نیا File_سطر{incp->fileline()};
+            fl_nowarn->modifyWarnOff(V3_Error_رمز::UNUSEDSIGNAL, سچ);
+            AstVar* ثابت varp = نیا AstVar{fl_nowarn, VVarType::MODULETEMP, trace_var_name,
+                                            incp->ڈھونڈو_UInt32_DType()};
+            varp->سیٹ_Ignore_Sched_Write();  // Ignore the increment output, so no UNOPTFLAT
             varp->lifetime(VLifetime::STATIC_IMPLICIT);
-            varp->trace(true);
-            m_modp->addStmtsp(varp);
+            varp->trace(سچ);
+            m_modp->جوڑو_Stmtsp(varp);
             UINFO(5, "New coverage trace: " << varp);
-            AstAssign* const assp = new AstAssign{
-                incp->fileline(), new AstVarRef{incp->fileline(), varp, VAccess::WRITE},
-                new AstAdd{incp->fileline(), new AstVarRef{incp->fileline(), varp, VAccess::READ},
-                           new AstConst{incp->fileline(), AstConst::WidthedValue{}, 32, 1}}};
-            AstNode::addNext<AstNode, AstNode>(incp, assp);
+            Ast_تفویض* ثابت assp = نیا Ast_تفویض{
+                incp->fileline(), نیا AstVarRef{incp->fileline(), varp, VAccess::WRITE},
+                نیا Ast_جوڑو{incp->fileline(), نیا AstVarRef{incp->fileline(), varp, VAccess::READ},
+                           نیا AstConst{incp->fileline(), AstConst::Widthed_قدر{}, 32, 1}}};
+            Ast_گرہ::جوڑو_اگلا<Ast_گرہ, Ast_گرہ>(incp, assp);
         }
-        return incp;
+        واپس incp;
     }
-    string traceNameForLine(const AstNode* nodep, const string& type) {
+    string trace_Name_For_سطر(ثابت Ast_گرہ* nodep, ثابت string& type) {
         string name = "vlCoverageLineTrace_" + nodep->fileline()->filebasenameNoExt() + "__"
-                      + cvtToStr(nodep->fileline()->lineno()) + "_" + type;
-        if (const uint32_t suffix = m_varnames[name]++) name += "_" + cvtToStr(suffix);
-        return name;
+                      + cvt_مقصد_Str(nodep->fileline()->lineno()) + "_" + type;
+        اگر (ثابت uint32_t suffix = m_varnames[name]++) name += "_" + cvt_مقصد_Str(suffix);
+        واپس name;
     }
 
     // Line tracking
-    void createHandle(const AstNode* nodep) {
+    خالی createHandle(ثابت Ast_گرہ* nodep) {
         // Start tracking lines for the given handling node
         // If and if's else have separate handles for same nodep,
         // so nodep cannot have a pointer to a unique handle
-        m_state.m_on = true;
-        m_state.m_handle = ++m_nextHandle;
+        m_state.m_on = سچ;
+        m_state.m_handle = ++m_اگلا_Handle;
         // Ensure line numbers we track are in the same file as this block
         // so track via nodep
         m_state.m_nodep = nodep;
         UINFO(9, "line create h" << m_state.m_handle << " " << nodep);
     }
-    void lineTrack(const AstNode* nodep) {
+    خالی سطر_Track(ثابت Ast_گرہ* nodep) {
         // Branch points report the lines they cover too, so track for either kind
-        if ((m_state.lineCoverageOn(nodep) || m_state.branchCoverageOn(nodep)) && !m_ifCond
+        اگر ((m_state.سطر_Coverage_On(nodep) || m_state.branchCoverageOn(nodep)) && !m_ifCond
             && m_state.m_nodep->fileline()->filenameno() == nodep->fileline()->filenameno()) {
-            for (int lineno = nodep->fileline()->firstLineno();
-                 lineno <= nodep->fileline()->lastLineno(); ++lineno) {
+            برائے (صحیح lineno = nodep->fileline()->پہلا_Lineno();
+                 lineno <= nodep->fileline()->آخری_Lineno(); ++lineno) {
                 UINFO(9, "line track " << lineno << " for h" << m_state.m_handle << " "
                                        << m_state.m_nodep);
-                m_handleLines[m_state.m_handle].insert(lineno);
+                m_handle_سطریں[m_state.m_handle].داخل_کرو(lineno);
             }
         }
     }
-    static string linesFirstLast(const int first, const int last) {
-        if (first && first == last) {
-            return cvtToStr(first);
-        } else if (first && last) {
-            return cvtToStr(first) + "-" + cvtToStr(last);
-        } else {
-            return "";
+    ساکن string سطریں_پہلا_آخری(ثابت صحیح پہلا, ثابت صحیح آخری) {
+        اگر (پہلا && پہلا == آخری) {
+            واپس cvt_مقصد_Str(پہلا);
+        } ورنہ اگر (پہلا && آخری) {
+            واپس cvt_مقصد_Str(پہلا) + "-" + cvt_مقصد_Str(آخری);
+        } ورنہ {
+            واپس "";
         }
     }
-    string linesCov(const CheckState& state, const AstNode* nodep) {
+    string سطریں_Cov(ثابت CheckState& state, ثابت Ast_گرہ* nodep) {
         // Return comma separated list of ranged numbers
-        string out;
-        const LinenoSet& lines = m_handleLines[state.m_handle];
-        int first = 0;
-        int last = 0;
-        for (const int linen : lines) {
-            if (!first) {
-                first = last = linen;
-            } else if (linen == last + 1) {
-                ++last;
-            } else {
-                if (!out.empty()) out += ",";
-                out += linesFirstLast(first, last);
-                first = last = linen;
+        string برآمد;
+        ثابت Lineno_سیٹ& سطریں = m_handle_سطریں[state.m_handle];
+        صحیح پہلا = 0;
+        صحیح آخری = 0;
+        برائے (ثابت صحیح linen : سطریں) {
+            اگر (!پہلا) {
+                پہلا = آخری = linen;
+            } ورنہ اگر (linen == آخری + 1) {
+                ++آخری;
+            } ورنہ {
+                اگر (!برآمد.خالی_خانے()) برآمد += ",";
+                برآمد += سطریں_پہلا_آخری(پہلا, آخری);
+                پہلا = آخری = linen;
             }
         }
-        if (first) {
-            if (!out.empty()) out += ",";
-            out += linesFirstLast(first, last);
+        اگر (پہلا) {
+            اگر (!برآمد.خالی_خانے()) برآمد += ",";
+            برآمد += سطریں_پہلا_آخری(پہلا, آخری);
         }
-        UINFO(9, "lines out " << out << " for h" << state.m_handle << " " << nodep);
-        return out;
+        UINFO(9, "lines out " << برآمد << " for h" << state.m_handle << " " << nodep);
+        واپس برآمد;
     }
 
     // VISITORS - BOTH
-    void visit(AstNodeModule* nodep) override {
-        const AstNodeModule* const origModp = m_modp;
+    خالی دورہ(Ast_گرہ_Module* nodep) override {
+        ثابت Ast_گرہ_Module* ثابت origModp = m_modp;
         VL_RESTORER(m_modp);
         VL_RESTORER(m_state);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_اظہاریہ_عارضی_نام);
         VL_RESTORER_COPY(m_funcTemps);
         createHandle(nodep);
         m_modp = nodep;
-        m_state.m_inModOff = nodep->isTop();  // Already made top shell, no coverage for it
-        if (!origModp) {
+        m_state.m_اندر_Mod_Off = nodep->is_چوٹی();  // Already made top shell, no coverage for it
+        اگر (!origModp) {
             // No blocks cross (non-nested) modules, so save some memory
             m_varnames.clear();
-            m_handleLines.clear();
+            m_handle_سطریں.clear();
         }
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    خالی دورہ(AstClass* nodep) override {
         VL_RESTORER(m_modp);
         VL_RESTORER(m_state);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_اظہاریہ_عارضی_نام);
         VL_RESTORER_COPY(m_funcTemps);
         createHandle(nodep);
         m_modp = nodep;
         // Covergroup declarations are not executable statements; suppress line/expr/toggle
         // coverage so declarative elements (covergroup, coverpoint, cross) are not annotated
-        m_state.m_inModOff = nodep->isCovergroup();
+        m_state.m_اندر_Mod_Off = nodep->isCovergroup();
         iterateChildren(nodep);
     }
-    void visit(AstAlways* nodep) override {
-        if (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+    خالی دورہ(AstAlways* nodep) override {
+        اگر (nodep->keyword() == VAlwaysKwd::CONT_تفویض) {
             // Handle continuous assigns for expression coverage (but not line coverage)
             VL_RESTORER(m_state);
-            VL_RESTORER(m_exprStmtsp);
-            VL_RESTORER(m_inToggleOff);
-            m_exprStmtsp = nodep;
-            m_inToggleOff = true;
+            VL_RESTORER(m_اظہاریہ_Stmtsp);
+            VL_RESTORER(m_اندر_Toggle_Off);
+            m_اظہاریہ_Stmtsp = nodep;
+            m_اندر_Toggle_Off = سچ;
             createHandle(nodep);
             iterateChildren(nodep);
             // Note: No line coverage for continuous assigns
-            return;
+            واپس;
         }
         iterateProcedure(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override { iterateProcedure(nodep); }
-    void visit(AstLoop* nodep) override {
+    خالی دورہ(Ast_گرہ_Procedure* nodep) override { iterateProcedure(nodep); }
+    خالی دورہ(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         VL_RESTORER(m_state);
-        VL_RESTORER(m_exprStmtsp);
-        VL_RESTORER(m_inToggleOff);
-        m_exprStmtsp = nodep;
-        m_inToggleOff = true;
+        VL_RESTORER(m_اظہاریہ_Stmtsp);
+        VL_RESTORER(m_اندر_Toggle_Off);
+        m_اظہاریہ_Stmtsp = nodep;
+        m_اندر_Toggle_Off = سچ;
         createHandle(nodep);
-        iterateAndNextNull(nodep->stmtsp());
-        if (m_state.lineCoverageOn(nodep)) {
-            AstCoverOtherDecl* const declp
-                = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
-            m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
-            insertProcStatement(nodep, newp);
+        iterate_And_اگلا_Null(nodep->stmtsp());
+        اگر (m_state.سطر_Coverage_On(nodep)) {
+            AstCoverOtherDecl* ثابت declp
+                = نیا AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
+                                        "block", سطریں_Cov(m_state, nodep), 0};
+            m_modp->جوڑو_Stmtsp(declp);
+            Ast_گرہ* ثابت newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_سطر(nodep, "block"));
+            داخل_کرو_Proc_Statement(nodep, newp);
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (nodep->user2SetOnce()) return;
-        lineTrack(nodep);
-        if (m_state.lineCoverageOn(nodep) && nodep->backp()->nextp() == nodep) {
-            AstCoverOtherDecl* const declp
-                = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
-            m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
-            nodep->addHereThisAsNext(newp);
+    خالی دورہ(AstLoopTest* nodep) override {
+        اگر (nodep->user2_سیٹ_Once()) واپس;
+        سطر_Track(nodep);
+        اگر (m_state.سطر_Coverage_On(nodep) && nodep->backp()->nextp() == nodep) {
+            AstCoverOtherDecl* ثابت declp
+                = نیا AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
+                                        "block", سطریں_Cov(m_state, nodep), 0};
+            m_modp->جوڑو_Stmtsp(declp);
+            Ast_گرہ* ثابت newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_سطر(nodep, "block"));
+            nodep->جوڑو_یہاں_This_As_اگلا(newp);
             createHandle(nodep);
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    خالی دورہ(Ast_گرہ_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_اظہاریہ_عارضی_نام);
         VL_RESTORER_COPY(m_funcTemps);
         m_ftaskp = nodep;
-        if (!nodep->dpiImport()) iterateProcedure(nodep);
+        اگر (!nodep->dpiImport()) iterateProcedure(nodep);
     }
 
-    void insertProcStatement(AstNode* nodep, AstNode* stmtp) {
-        if (AstNodeProcedure* const itemp = VN_CAST(nodep, NodeProcedure)) {
-            itemp->addStmtsp(stmtp);
-        } else if (AstNodeFTask* const itemp = VN_CAST(nodep, NodeFTask)) {
-            itemp->addStmtsp(stmtp);
-        } else if (AstLoop* const itemp = VN_CAST(nodep, Loop)) {
-            itemp->addStmtsp(stmtp);
-        } else if (AstIf* const itemp = VN_CAST(nodep, If)) {
-            if (m_then) {
-                itemp->addThensp(stmtp);
-            } else {
-                itemp->addElsesp(stmtp);
+    خالی داخل_کرو_Proc_Statement(Ast_گرہ* nodep, Ast_گرہ* stmtp) {
+        اگر (Ast_گرہ_Procedure* ثابت itemp = VN_CAST(nodep, گرہ_Procedure)) {
+            itemp->جوڑو_Stmtsp(stmtp);
+        } ورنہ اگر (Ast_گرہ_FTask* ثابت itemp = VN_CAST(nodep, گرہ_FTask)) {
+            itemp->جوڑو_Stmtsp(stmtp);
+        } ورنہ اگر (AstLoop* ثابت itemp = VN_CAST(nodep, Loop)) {
+            itemp->جوڑو_Stmtsp(stmtp);
+        } ورنہ اگر (AstIf* ثابت itemp = VN_CAST(nodep, If)) {
+            اگر (m_then) {
+                itemp->جوڑو_Thensp(stmtp);
+            } ورنہ {
+                itemp->جوڑو_Elsesp(stmtp);
             }
-        } else if (AstBegin* const itemp = VN_CAST(nodep, Begin)) {
-            itemp->addStmtsp(stmtp);
-        } else {
+        } ورنہ اگر (AstBegin* ثابت itemp = VN_CAST(nodep, Begin)) {
+            itemp->جوڑو_Stmtsp(stmtp);
+        } ورنہ {
             nodep->v3fatalSrc("Bad node type");
         }
     }
-    void iterateProcedure(AstNode* nodep) {
+    خالی iterateProcedure(Ast_گرہ* nodep) {
         VL_RESTORER(m_state);
-        VL_RESTORER(m_exprStmtsp);
-        VL_RESTORER(m_inToggleOff);
-        m_exprStmtsp = nodep;
-        m_inToggleOff = true;
+        VL_RESTORER(m_اظہاریہ_Stmtsp);
+        VL_RESTORER(m_اندر_Toggle_Off);
+        m_اظہاریہ_Stmtsp = nodep;
+        m_اندر_Toggle_Off = سچ;
         createHandle(nodep);
         iterateChildren(nodep);
-        if (m_state.lineCoverageOn(nodep)) {
-            lineTrack(nodep);
-            AstCoverOtherDecl* const declp
-                = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
-            m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
-            insertProcStatement(nodep, newp);
+        اگر (m_state.سطر_Coverage_On(nodep)) {
+            سطر_Track(nodep);
+            AstCoverOtherDecl* ثابت declp
+                = نیا AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
+                                        "block", سطریں_Cov(m_state, nodep), 0};
+            m_modp->جوڑو_Stmtsp(declp);
+            Ast_گرہ* ثابت newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_سطر(nodep, "block"));
+            داخل_کرو_Proc_Statement(nodep, newp);
         }
     }
 
     // VISITORS - TOGGLE COVERAGE
-    void visit(AstVar* nodep) override {
+    خالی دورہ(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_modp && !m_inToggleOff && !m_state.m_inModOff && nodep->fileline()->coverageOn()
+        اگر (m_modp && !m_اندر_Toggle_Off && !m_state.m_اندر_Mod_Off && nodep->fileline()->coverageOn()
             && v3Global.opt.coverageToggle()) {
-            const char* const disablep = varIgnoreToggle(nodep);
-            if (disablep) {
+            ثابت حرف* ثابت disablep = varIgnoreToggle(nodep);
+            اگر (disablep) {
                 UINFO(4, "    Disable Toggle: " << disablep << " " << nodep);
-            } else {
+            } ورنہ {
                 UINFO(4, "    Toggle: " << nodep);
                 // There's several overall ways to approach this
                 //    Treat like tracing, where a end-of-timestamp action sees all changes
@@ -429,523 +429,523 @@ class CoverageVisitor final : public VNVisitor {
                 //      We'll do this, and make the if(...) coverinc later.
 
                 // Add signal to hold the old value
-                const string newvarname = "__Vtogcov__"s + m_beginHier + nodep->shortName();
-                FileLine* const fl_nowarn = new FileLine{nodep->fileline()};
-                fl_nowarn->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
-                AstVar* const chgVarp
-                    = new AstVar{fl_nowarn, VVarType::MODULETEMP, newvarname, nodep};
-                m_modp->addStmtsp(chgVarp);
+                ثابت string newvarname = "__Vtogcov__"s + m_beginHier + nodep->shortName();
+                File_سطر* ثابت fl_nowarn = نیا File_سطر{nodep->fileline()};
+                fl_nowarn->modifyWarnOff(V3_Error_رمز::UNUSEDSIGNAL, سچ);
+                AstVar* ثابت chgVarp
+                    = نیا AstVar{fl_nowarn, VVarType::MODULETEMP, newvarname, nodep};
+                m_modp->جوڑو_Stmtsp(chgVarp);
 
                 // Create bucket for each dimension * bit.
                 // This is necessarily an O(n^2) expansion, which is why
                 // we limit coverage to signals with < 256 bits.
 
-                ToggleEnt newvec{""s, new AstVarRef{fl_nowarn, nodep, VAccess::READ},
-                                 new AstVarRef{fl_nowarn, chgVarp, VAccess::WRITE}};
+                ToggleEnt newvec{""s, نیا AstVarRef{fl_nowarn, nodep, VAccess::READ},
+                                 نیا AstVarRef{fl_nowarn, chgVarp, VAccess::WRITE}};
                 toggleVarRecurse(nodep->dtypeSkipRefp(), 0, newvec, nodep);
                 newvec.cleanup();
             }
         }
     }
 
-    void toggleVarBottom(const ToggleEnt& above, const AstVar* varp, const VNumRange& range) {
-        const std::string hierPrefix
-            = (m_beginHier != "") ? AstNode::prettyName(m_beginHier) + "." : "";
-        AstCoverToggleDecl* const declp
-            = new AstCoverToggleDecl{varp->fileline(), "v_toggle/" + m_modp->prettyName(),
-                                     hierPrefix + varp->name() + above.m_comment, range};
-        m_modp->addStmtsp(declp);
-        AstCoverToggle* const newp = new AstCoverToggle{
+    خالی toggleVarBottom(ثابت ToggleEnt& above, ثابت AstVar* varp, ثابت VNumRange& range) {
+        ثابت std::string hier_سابقہ
+            = (m_beginHier != "") ? Ast_گرہ::prettyName(m_beginHier) + "." : "";
+        AstCoverToggleDecl* ثابت declp
+            = نیا AstCoverToggleDecl{varp->fileline(), "v_toggle/" + m_modp->prettyName(),
+                                     hier_سابقہ + varp->name() + above.m_comment, range};
+        m_modp->جوڑو_Stmtsp(declp);
+        AstCoverToggle* ثابت newp = نیا AstCoverToggle{
             varp->fileline(), newCoverInc(varp->fileline(), declp, ""),
-            above.m_varRefp->cloneTree(false), above.m_chgRefp->cloneTree(false)};
-        m_modp->addStmtsp(newp);
+            above.m_varRefp->clone_درخت(جھوٹ), above.m_chgRefp->clone_درخت(جھوٹ)};
+        m_modp->جوڑو_Stmtsp(newp);
     }
 
-    void toggleVarRecurse(const AstNodeDType* const dtypep, const int depth,  // per-iteration
-                          const ToggleEnt& above, const AstVar* const varp) {  // Constant
-        if (const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType)) {
+    خالی toggleVarRecurse(ثابت Ast_گرہ_DType* ثابت dtypep, ثابت صحیح گہرائی,  // per-iteration
+                          ثابت ToggleEnt& above, ثابت AstVar* ثابت varp) {  // Constant
+        اگر (ثابت AstBasicDType* ثابت basicp = VN_CAST(dtypep, BasicDType)) {
             toggleVarBottom(above, varp, basicp->nrange());
-        } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-            for (const int index_docs : adtypep->declRange().seqLoToHi()) {
-                const int index_code = index_docs - adtypep->lo();
-                ToggleEnt newent{above.m_comment + "["s + cvtToStr(index_docs) + "]",
-                                 new AstArraySel{varp->fileline(),
-                                                 above.m_varRefp->cloneTree(false), index_code},
-                                 new AstArraySel{varp->fileline(),
-                                                 above.m_chgRefp->cloneTree(false), index_code}};
-                toggleVarRecurse(adtypep->subDTypep()->skipRefp(), depth + 1, newent, varp);
+        } ورنہ اگر (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+            برائے (ثابت صحیح اشاریہ_docs : adtypep->declRange().seq_Lo_مقصد_Hi()) {
+                ثابت صحیح اشاریہ_رمز = اشاریہ_docs - adtypep->lo();
+                ToggleEnt newent{above.m_comment + "["s + cvt_مقصد_Str(اشاریہ_docs) + "]",
+                                 نیا AstArraySel{varp->fileline(),
+                                                 above.m_varRefp->clone_درخت(جھوٹ), اشاریہ_رمز},
+                                 نیا AstArraySel{varp->fileline(),
+                                                 above.m_chgRefp->clone_درخت(جھوٹ), اشاریہ_رمز}};
+                toggleVarRecurse(adtypep->subDTypep()->skipRefp(), گہرائی + 1, newent, varp);
                 newent.cleanup();
             }
-        } else if (const AstPackArrayDType* const adtypep = VN_CAST(dtypep, PackArrayDType)) {
-            for (const int index_docs : adtypep->declRange().seqLoToHi()) {
-                const AstNodeDType* const subtypep = adtypep->subDTypep()->skipRefp();
-                const int index_code = index_docs - adtypep->lo();
-                ToggleEnt newent{above.m_comment + "["s + cvtToStr(index_docs) + "]",
-                                 new AstSel{varp->fileline(), above.m_varRefp->cloneTree(false),
-                                            index_code * subtypep->width(), subtypep->width()},
-                                 new AstSel{varp->fileline(), above.m_chgRefp->cloneTree(false),
-                                            index_code * subtypep->width(), subtypep->width()}};
-                toggleVarRecurse(adtypep->subDTypep()->skipRefp(), depth + 1, newent, varp);
+        } ورنہ اگر (ثابت AstPackArrayDType* ثابت adtypep = VN_CAST(dtypep, PackArrayDType)) {
+            برائے (ثابت صحیح اشاریہ_docs : adtypep->declRange().seq_Lo_مقصد_Hi()) {
+                ثابت Ast_گرہ_DType* ثابت subtypep = adtypep->subDTypep()->skipRefp();
+                ثابت صحیح اشاریہ_رمز = اشاریہ_docs - adtypep->lo();
+                ToggleEnt newent{above.m_comment + "["s + cvt_مقصد_Str(اشاریہ_docs) + "]",
+                                 نیا AstSel{varp->fileline(), above.m_varRefp->clone_درخت(جھوٹ),
+                                            اشاریہ_رمز * subtypep->چوڑائی(), subtypep->چوڑائی()},
+                                 نیا AstSel{varp->fileline(), above.m_chgRefp->clone_درخت(جھوٹ),
+                                            اشاریہ_رمز * subtypep->چوڑائی(), subtypep->چوڑائی()}};
+                toggleVarRecurse(adtypep->subDTypep()->skipRefp(), گہرائی + 1, newent, varp);
                 newent.cleanup();
             }
-        } else if (const AstStructDType* const adtypep = VN_CAST(dtypep, StructDType)) {
-            if (adtypep->packed()) {
-                for (AstMemberDType* itemp = adtypep->membersp(); itemp;
+        } ورنہ اگر (ثابت AstStructDType* ثابت adtypep = VN_CAST(dtypep, StructDType)) {
+            اگر (adtypep->packed()) {
+                برائے (AstMemberDType* itemp = adtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
-                    const int index_code = itemp->lsb();
+                    ثابت Ast_گرہ_DType* ثابت subtypep = itemp->subDTypep()->skipRefp();
+                    ثابت صحیح اشاریہ_رمز = itemp->lsb();
                     ToggleEnt newent{
                         above.m_comment + "."s + itemp->name(),
-                        new AstSel{varp->fileline(), above.m_varRefp->cloneTree(false), index_code,
-                                   subtypep->width()},
-                        new AstSel{varp->fileline(), above.m_chgRefp->cloneTree(false), index_code,
-                                   subtypep->width()}};
-                    toggleVarRecurse(subtypep, depth + 1, newent, varp);
+                        نیا AstSel{varp->fileline(), above.m_varRefp->clone_درخت(جھوٹ), اشاریہ_رمز,
+                                   subtypep->چوڑائی()},
+                        نیا AstSel{varp->fileline(), above.m_chgRefp->clone_درخت(جھوٹ), اشاریہ_رمز,
+                                   subtypep->چوڑائی()}};
+                    toggleVarRecurse(subtypep, گہرائی + 1, newent, varp);
                     newent.cleanup();
                 }
-            } else {
-                for (AstMemberDType* itemp = adtypep->membersp(); itemp;
+            } ورنہ {
+                برائے (AstMemberDType* itemp = adtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
-                    AstNodeExpr* const varRefp = new AstStructSel{
-                        varp->fileline(), above.m_varRefp->cloneTree(false), itemp->name()};
-                    AstNodeExpr* const chgRefp = new AstStructSel{
-                        varp->fileline(), above.m_chgRefp->cloneTree(false), itemp->name()};
+                    Ast_گرہ_DType* ثابت subtypep = itemp->subDTypep()->skipRefp();
+                    Ast_گرہ_اظہاریہ* ثابت varRefp = نیا AstStructSel{
+                        varp->fileline(), above.m_varRefp->clone_درخت(جھوٹ), itemp->name()};
+                    Ast_گرہ_اظہاریہ* ثابت chgRefp = نیا AstStructSel{
+                        varp->fileline(), above.m_chgRefp->clone_درخت(جھوٹ), itemp->name()};
                     varRefp->dtypep(subtypep);
                     chgRefp->dtypep(subtypep);
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(), varRefp, chgRefp};
-                    toggleVarRecurse(subtypep, depth + 1, newent, varp);
+                    toggleVarRecurse(subtypep, گہرائی + 1, newent, varp);
                     newent.cleanup();
                 }
             }
-        } else if (const AstUnionDType* const adtypep = VN_CAST(dtypep, UnionDType)) {
+        } ورنہ اگر (ثابت AstUnionDType* ثابت adtypep = VN_CAST(dtypep, UnionDType)) {
             // Arbitrarily handle only the first member of the union
-            if (const AstMemberDType* const itemp = adtypep->membersp()) {
-                AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
-                if (adtypep->packed()) {
+            اگر (ثابت AstMemberDType* ثابت itemp = adtypep->membersp()) {
+                Ast_گرہ_DType* ثابت subtypep = itemp->subDTypep()->skipRefp();
+                اگر (adtypep->packed()) {
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(),
-                                     above.m_varRefp->cloneTree(false),
-                                     above.m_chgRefp->cloneTree(false)};
-                    toggleVarRecurse(subtypep, depth + 1, newent, varp);
+                                     above.m_varRefp->clone_درخت(جھوٹ),
+                                     above.m_chgRefp->clone_درخت(جھوٹ)};
+                    toggleVarRecurse(subtypep, گہرائی + 1, newent, varp);
                     newent.cleanup();
-                } else {
-                    AstNodeExpr* const varRefp = new AstStructSel{
-                        varp->fileline(), above.m_varRefp->cloneTree(false), itemp->name()};
-                    AstNodeExpr* const chgRefp = new AstStructSel{
-                        varp->fileline(), above.m_chgRefp->cloneTree(false), itemp->name()};
+                } ورنہ {
+                    Ast_گرہ_اظہاریہ* ثابت varRefp = نیا AstStructSel{
+                        varp->fileline(), above.m_varRefp->clone_درخت(جھوٹ), itemp->name()};
+                    Ast_گرہ_اظہاریہ* ثابت chgRefp = نیا AstStructSel{
+                        varp->fileline(), above.m_chgRefp->clone_درخت(جھوٹ), itemp->name()};
                     varRefp->dtypep(subtypep);
                     chgRefp->dtypep(subtypep);
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(), varRefp, chgRefp};
-                    toggleVarRecurse(subtypep, depth + 1, newent, varp);
+                    toggleVarRecurse(subtypep, گہرائی + 1, newent, varp);
                     newent.cleanup();
                 }
             }
-        } else if (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, AssocArrayDType)
+        } ورنہ اگر (VN_IS(dtypep, قطار_DType) || VN_IS(dtypep, AssocArrayDType)
                    || VN_IS(dtypep, WildcardArrayDType)) {
             // Not covered
             varp->v3warn(COVERIGN, "Coverage ignored for type " << dtypep->prettyTypeName());
-        } else {
+        } ورنہ {
             dtypep->v3fatalSrc("Unexpected node data type in toggle coverage generation: "
                                << dtypep->prettyTypeName());
         }
     }
-    bool includeCondToBranchRecursive(const AstNode* const nodep) {
-        const AstNode* const backp = nodep->backp();
-        if (VN_IS(backp, Cond) && VN_AS(backp, Cond)->condp() != nodep) {
-            return includeCondToBranchRecursive(backp);
-        } else if (VN_IS(backp, Sel) && VN_AS(backp, Sel)->fromp() == nodep) {
-            return includeCondToBranchRecursive(backp);
-        } else if (VN_IS(backp, NodeAssign) && VN_AS(backp, NodeAssign)->rhsp() == nodep) {
-            return true;
+    منطقی include_Cond_مقصد_Branch_Recursive(ثابت Ast_گرہ* ثابت nodep) {
+        ثابت Ast_گرہ* ثابت backp = nodep->backp();
+        اگر (VN_IS(backp, Cond) && VN_AS(backp, Cond)->condp() != nodep) {
+            واپس include_Cond_مقصد_Branch_Recursive(backp);
+        } ورنہ اگر (VN_IS(backp, Sel) && VN_AS(backp, Sel)->fromp() == nodep) {
+            واپس include_Cond_مقصد_Branch_Recursive(backp);
+        } ورنہ اگر (VN_IS(backp, گرہ_تفویض) && VN_AS(backp, گرہ_تفویض)->rhsp() == nodep) {
+            واپس سچ;
         }
-        return false;
+        واپس جھوٹ;
     }
 
     // VISITORS - LINE COVERAGE
-    void visit(AstCond* nodep) override {
+    خالی دورہ(AstCond* nodep) override {
         UINFO(4, " COND: " << nodep);
 
-        if (m_seeking == NONE) coverExprs(nodep->condp());
+        اگر (m_seeking == NONE) coverExprs(nodep->condp());
 
-        if (m_state.branchCoverageOn(nodep) && VN_IS(m_modp, Module)
-            && includeCondToBranchRecursive(nodep)) {
+        اگر (m_state.branchCoverageOn(nodep) && VN_IS(m_modp, Module)
+            && include_Cond_مقصد_Branch_Recursive(nodep)) {
             VL_RESTORER(m_seeking);
             // Disable expression coverage in sub-expressions, since they were already visited
             m_seeking = ABORTED;
 
-            const CheckState lastState = m_state;
+            ثابت CheckState آخری_State = m_state;
             createHandle(nodep);
             iterate(nodep->thenp());
-            lineTrack(nodep);
-            AstNodeExpr* const thenp = nodep->thenp()->unlinkFrBack();
-            AstCoverOtherDecl* const thenDeclp
-                = new AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
-                                        "cond_then", linesCov(m_state, nodep), 0};
-            m_modp->addStmtsp(thenDeclp);
-            nodep->thenp(new AstExprStmt{
+            سطر_Track(nodep);
+            Ast_گرہ_اظہاریہ* ثابت thenp = nodep->thenp()->unlink_Fr_عقب();
+            AstCoverOtherDecl* ثابت thenDeclp
+                = نیا AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
+                                        "cond_then", سطریں_Cov(m_state, nodep), 0};
+            m_modp->جوڑو_Stmtsp(thenDeclp);
+            nodep->thenp(نیا Ast_اظہاریہ_Stmt{
                 thenp->fileline(),
-                newCoverInc(nodep->fileline(), thenDeclp, traceNameForLine(nodep, "cond_then")),
+                newCoverInc(nodep->fileline(), thenDeclp, trace_Name_For_سطر(nodep, "cond_then")),
                 thenp});
-            m_state = lastState;
+            m_state = آخری_State;
             createHandle(nodep);
             iterate(nodep->elsep());
-            AstNodeExpr* const elsep = nodep->elsep()->unlinkFrBack();
-            AstCoverOtherDecl* const elseDeclp
-                = new AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
-                                        "cond_else", linesCov(m_state, nodep), 1};
-            m_modp->addStmtsp(elseDeclp);
-            nodep->elsep(new AstExprStmt{
+            Ast_گرہ_اظہاریہ* ثابت elsep = nodep->elsep()->unlink_Fr_عقب();
+            AstCoverOtherDecl* ثابت elseDeclp
+                = نیا AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
+                                        "cond_else", سطریں_Cov(m_state, nodep), 1};
+            m_modp->جوڑو_Stmtsp(elseDeclp);
+            nodep->elsep(نیا Ast_اظہاریہ_Stmt{
                 elsep->fileline(),
-                newCoverInc(nodep->fileline(), elseDeclp, traceNameForLine(nodep, "cond_else")),
+                newCoverInc(nodep->fileline(), elseDeclp, trace_Name_For_سطر(nodep, "cond_else")),
                 elsep});
 
-            m_state = lastState;
-        } else {
-            lineTrack(nodep);
+            m_state = آخری_State;
+        } ورنہ {
+            سطر_Track(nodep);
         }
     }
     // Note not AstNodeIf; other types don't get covered
-    void visit(AstIf* nodep) override {
-        if (nodep->user2()) return;
+    خالی دورہ(AstIf* nodep) override {
+        اگر (nodep->user2()) واپس;
 
         UINFO(4, " IF: " << nodep);
-        if (m_state.m_on) {
+        اگر (m_state.m_on) {
             // An else-if.  When we iterate the if, use "elsif" marking
-            const bool elsif
+            ثابت منطقی elsif
                 = nodep->thensp() && VN_IS(nodep->elsesp(), If) && !nodep->elsesp()->nextp();
-            if (elsif) VN_AS(nodep->elsesp(), If)->user1(true);
-            const bool first_elsif = !nodep->user1() && elsif;
-            const bool cont_elsif = nodep->user1() && elsif;
-            const bool final_elsif = nodep->user1() && !elsif && nodep->elsesp();
+            اگر (elsif) VN_AS(nodep->elsesp(), If)->user1(سچ);
+            ثابت منطقی پہلا_elsif = !nodep->user1() && elsif;
+            ثابت منطقی cont_elsif = nodep->user1() && elsif;
+            ثابت منطقی final_elsif = nodep->user1() && !elsif && nodep->elsesp();
             //
             // Considered: If conditional is on a different line from if/else then we
             // can show it as part of line coverage of the statement
             // above. Otherwise show it based on what is inside.
             // But: Seemed too complicated, and fragile.
-            const CheckState lastState = m_state;
+            ثابت CheckState آخری_State = m_state;
             CheckState ifState;
             CheckState elseState;
             {
-                VL_RESTORER(m_exprStmtsp);
+                VL_RESTORER(m_اظہاریہ_Stmtsp);
                 VL_RESTORER(m_then);
-                m_exprStmtsp = nodep;
-                m_then = true;
+                m_اظہاریہ_Stmtsp = nodep;
+                m_then = سچ;
                 createHandle(nodep);
-                iterateAndNextNull(nodep->thensp());
-                lineTrack(nodep);
+                iterate_And_اگلا_Null(nodep->thensp());
+                سطر_Track(nodep);
                 ifState = m_state;
             }
-            m_state = lastState;
+            m_state = آخری_State;
             {
-                VL_RESTORER(m_exprStmtsp);
+                VL_RESTORER(m_اظہاریہ_Stmtsp);
                 VL_RESTORER(m_then);
-                m_exprStmtsp = nodep;
-                m_then = false;
+                m_اظہاریہ_Stmtsp = nodep;
+                m_then = جھوٹ;
                 createHandle(nodep);
-                iterateAndNextNull(nodep->elsesp());
+                iterate_And_اگلا_Null(nodep->elsesp());
                 elseState = m_state;
             }
-            m_state = lastState;
+            m_state = آخری_State;
             //
             // If both if and else are "on", and we're not in an if/else, then
             // we do branch coverage
-            if (!(first_elsif || cont_elsif || final_elsif) && ifState.branchCoverageOn(nodep)
+            اگر (!(پہلا_elsif || cont_elsif || final_elsif) && ifState.branchCoverageOn(nodep)
                 && elseState.branchCoverageOn(nodep)) {
                 // Normal if. Linecov shows what's inside the if (not condition that is
                 // always executed)
                 UINFO(4, "   COVER-branch: " << nodep);
-                AstCoverOtherDecl* const ifDeclp
-                    = new AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
-                                            "if", linesCov(ifState, nodep), 0};
-                m_modp->addStmtsp(ifDeclp);
-                nodep->addThensp(
-                    newCoverInc(nodep->fileline(), ifDeclp, traceNameForLine(nodep, "if")));
+                AstCoverOtherDecl* ثابت ifDeclp
+                    = نیا AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
+                                            "if", سطریں_Cov(ifState, nodep), 0};
+                m_modp->جوڑو_Stmtsp(ifDeclp);
+                nodep->جوڑو_Thensp(
+                    newCoverInc(nodep->fileline(), ifDeclp, trace_Name_For_سطر(nodep, "if")));
                 // The else has a column offset of 1 to uniquify it relative to the if
                 // As "if" and "else" are more than one character wide, this won't overlap
                 // another token
-                AstCoverOtherDecl* const elseDeclp
-                    = new AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
-                                            "else", linesCov(elseState, nodep), 1};
-                m_modp->addStmtsp(elseDeclp);
-                nodep->addElsesp(
-                    newCoverInc(nodep->fileline(), elseDeclp, traceNameForLine(nodep, "else")));
+                AstCoverOtherDecl* ثابت elseDeclp
+                    = نیا AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
+                                            "else", سطریں_Cov(elseState, nodep), 1};
+                m_modp->جوڑو_Stmtsp(elseDeclp);
+                nodep->جوڑو_Elsesp(
+                    newCoverInc(nodep->fileline(), elseDeclp, trace_Name_For_سطر(nodep, "else")));
             }
             // If/else attributes to each block as non-branch coverage
-            else if (first_elsif || cont_elsif) {
+            ورنہ اگر (پہلا_elsif || cont_elsif) {
                 UINFO(4, "   COVER-elsif: " << nodep);
-                if (ifState.lineCoverageOn(nodep)) {
-                    AstCoverOtherDecl* const elsifDeclp = new AstCoverOtherDecl{
+                اگر (ifState.سطر_Coverage_On(nodep)) {
+                    AstCoverOtherDecl* ثابت elsifDeclp = نیا AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "elsif",
-                        linesCov(ifState, nodep), 0};
-                    m_modp->addStmtsp(elsifDeclp);
+                        سطریں_Cov(ifState, nodep), 0};
+                    m_modp->جوڑو_Stmtsp(elsifDeclp);
 
-                    nodep->addThensp(newCoverInc(nodep->fileline(), elsifDeclp,
-                                                 traceNameForLine(nodep, "elsif")));
+                    nodep->جوڑو_Thensp(newCoverInc(nodep->fileline(), elsifDeclp,
+                                                 trace_Name_For_سطر(nodep, "elsif")));
                 }
                 // and we don't insert the else as the child if-else will do so
-            } else {
+            } ورنہ {
                 // Cover as separate blocks (not a branch as is not two-legged)
-                if (ifState.lineCoverageOn(nodep)) {
+                اگر (ifState.سطر_Coverage_On(nodep)) {
                     UINFO(4, "   COVER-half-if: " << nodep);
-                    AstCoverOtherDecl* const ifDeclp = new AstCoverOtherDecl{
+                    AstCoverOtherDecl* ثابت ifDeclp = نیا AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "if",
-                        linesCov(ifState, nodep), 0};
-                    m_modp->addStmtsp(ifDeclp);
-                    nodep->addThensp(
-                        newCoverInc(nodep->fileline(), ifDeclp, traceNameForLine(nodep, "if")));
+                        سطریں_Cov(ifState, nodep), 0};
+                    m_modp->جوڑو_Stmtsp(ifDeclp);
+                    nodep->جوڑو_Thensp(
+                        newCoverInc(nodep->fileline(), ifDeclp, trace_Name_For_سطر(nodep, "if")));
                 }
-                if (elseState.lineCoverageOn(nodep)) {
+                اگر (elseState.سطر_Coverage_On(nodep)) {
                     UINFO(4, "   COVER-half-el: " << nodep);
-                    AstCoverOtherDecl* const elseDeclp = new AstCoverOtherDecl{
+                    AstCoverOtherDecl* ثابت elseDeclp = نیا AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "else",
-                        linesCov(elseState, nodep), 1};
-                    m_modp->addStmtsp(elseDeclp);
+                        سطریں_Cov(elseState, nodep), 1};
+                    m_modp->جوڑو_Stmtsp(elseDeclp);
 
-                    nodep->addElsesp(newCoverInc(nodep->fileline(), elseDeclp,
-                                                 traceNameForLine(nodep, "else")));
+                    nodep->جوڑو_Elsesp(newCoverInc(nodep->fileline(), elseDeclp,
+                                                 trace_Name_For_سطر(nodep, "else")));
                 }
             }
-            m_state = lastState;
+            m_state = آخری_State;
         }
         VL_RESTORER(m_ifCond);
-        m_ifCond = true;
-        iterateAndNextNull(nodep->condp());
+        m_ifCond = سچ;
+        iterate_And_اگلا_Null(nodep->condp());
         UINFO(9, " done HANDLE " << m_state.m_handle << " for " << nodep);
     }
-    void visit(AstCaseItem* nodep) override {
+    خالی دورہ(Ast_Case_شے* nodep) override {
         // We don't add an explicit "default" coverage if not provided,
         // as we already have a warning when there is no default.
         UINFO(4, " CASEI: " << nodep);
-        if (m_state.lineCoverageOn(nodep)) {
+        اگر (m_state.سطر_Coverage_On(nodep)) {
             VL_RESTORER(m_state);
             createHandle(nodep);
-            iterateAndNextNull(nodep->stmtsp());
-            if (m_state.lineCoverageOn(nodep)) {  // if the case body didn't disable it
-                lineTrack(nodep);
+            iterate_And_اگلا_Null(nodep->stmtsp());
+            اگر (m_state.سطر_Coverage_On(nodep)) {  // if the case body didn't disable it
+                سطر_Track(nodep);
                 UINFO(4, "   COVER: " << nodep);
-                AstCoverOtherDecl* const declp
-                    = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                            "case", linesCov(m_state, nodep), 0};
-                m_modp->addStmtsp(declp);
-                nodep->addStmtsp(
-                    newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "case")));
+                AstCoverOtherDecl* ثابت declp
+                    = نیا AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
+                                            "case", سطریں_Cov(m_state, nodep), 0};
+                m_modp->جوڑو_Stmtsp(declp);
+                nodep->جوڑو_Stmtsp(
+                    newCoverInc(nodep->fileline(), declp, trace_Name_For_سطر(nodep, "case")));
             }
         }
     }
-    void visit(AstCover* nodep) override {
+    خالی دورہ(AstCover* nodep) override {
         UINFO(4, " COVER: " << nodep);
         VL_RESTORER(m_state);
-        m_state.m_on = true;  // Always do cover blocks, even if there's a $stop
+        m_state.m_on = سچ;  // Always do cover blocks, even if there's a $stop
         createHandle(nodep);
         iterateChildren(nodep);
-        if (!nodep->coverincsp() && v3Global.opt.coverageUser()) {
+        اگر (!nodep->coverincsp() && v3Global.opt.coverageUser()) {
             // Note the name may be overridden by V3Assert processing
-            lineTrack(nodep);
-            AstCoverOtherDecl* const declp
-                = new AstCoverOtherDecl{nodep->fileline(), "v_user/" + m_modp->prettyName(),
-                                        "cover", linesCov(m_state, nodep), 0};
+            سطر_Track(nodep);
+            AstCoverOtherDecl* ثابت declp
+                = نیا AstCoverOtherDecl{nodep->fileline(), "v_user/" + m_modp->prettyName(),
+                                        "cover", سطریں_Cov(m_state, nodep), 0};
             declp->hier(m_beginHier);
-            m_modp->addStmtsp(declp);
-            nodep->addCoverincsp(
+            m_modp->جوڑو_Stmtsp(declp);
+            nodep->جوڑو_Coverincsp(
                 newCoverInc(nodep->fileline(), declp, m_beginHier + "_vlCoverageUserTrace"));
         }
     }
-    void visit(AstPropSpec* nodep) override {
-        VL_RESTORER(m_exprStmtsp);
-        m_exprStmtsp = nullptr;
+    خالی دورہ(AstPropSpec* nodep) override {
+        VL_RESTORER(m_اظہاریہ_Stmtsp);
+        m_اظہاریہ_Stmtsp = خالی_اشاریہ;
         iterateChildren(nodep);
     }
-    void visit(AstStop* nodep) override {
+    خالی دورہ(AstStop* nodep) override {
         UINFO(4, "  STOP: " << nodep);
-        m_state.m_on = false;
+        m_state.m_on = جھوٹ;
     }
-    void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::COVERAGE_BLOCK_OFF) {
+    خالی دورہ(AstStmtPragma* nodep) override {
+        اگر (nodep->pragp()->pragType() == VPragmaType::COVERAGE_بلاک_OFF) {
             // Skip all NEXT nodes under this block, and skip this if/case branch
             UINFO(4, "  OFF: h" << m_state.m_handle << " " << nodep);
-            m_state.m_on = false;
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-        } else {
-            if (m_state.m_on) iterateChildren(nodep);
-            lineTrack(nodep);
+            m_state.m_on = جھوٹ;
+            VL_DO_DANGLING(nodep->unlink_Fr_عقب()->delete_درخت(), nodep);
+        } ورنہ {
+            اگر (m_state.m_on) iterateChildren(nodep);
+            سطر_Track(nodep);
         }
     }
-    void visit(AstGenBlock* nodep) override {
+    خالی دورہ(Ast_Gen_بلاک* nodep) override {
         // Similar to AstBegin
         VL_RESTORER_COPY(m_beginHier);
-        if (nodep->name() != "") {
+        اگر (nodep->name() != "") {
             m_beginHier = m_beginHier + (m_beginHier != "" ? "__DOT__" : "") + nodep->name();
         }
         iterateChildren(nodep);
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
 
-    void visit(AstBegin* nodep) override {
+    خالی دورہ(AstBegin* nodep) override {
         // Record the hierarchy of any named begins, so we can apply to user
         // coverage points.  This is because there may be cov points inside
         // generate blocks; each point should get separate consideration.
         // (Currently ignored for line coverage, since any generate iteration
         // covers the code in that line.)
         VL_RESTORER_COPY(m_beginHier);
-        VL_RESTORER(m_inToggleOff);
-        VL_RESTORER(m_exprStmtsp);
-        m_exprStmtsp = nodep;
-        m_inToggleOff = true;
-        if (nodep->name() != "") {
+        VL_RESTORER(m_اندر_Toggle_Off);
+        VL_RESTORER(m_اظہاریہ_Stmtsp);
+        m_اظہاریہ_Stmtsp = nodep;
+        m_اندر_Toggle_Off = سچ;
+        اگر (nodep->name() != "") {
             m_beginHier = m_beginHier + (m_beginHier != "" ? "__DOT__" : "") + nodep->name();
         }
         iterateChildren(nodep);
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
 
-    void abortExprCoverage() {
+    خالی abort_اظہاریہ_Coverage() {
         // is possible to hit max while in NONE, see: exprReduce()
         // if that happens we don't want to set ABORTED if it isn't already
         // since that will bleed into other expressions
-        if (m_seeking != NONE) m_seeking = ABORTED;
+        اگر (m_seeking != NONE) m_seeking = ABORTED;
         m_exprs.clear();
     }
 
-    bool checkMaxExprs(size_t additional = 0) {
-        if (m_seeking != ABORTED
-            && static_cast<int>(m_exprs.size() + additional) <= v3Global.opt.coverageExprMax())
-            return false;
-        abortExprCoverage();
-        return true;
+    منطقی checkMaxExprs(سائز_t additional = 0) {
+        اگر (m_seeking != ABORTED
+            && static_cast<صحیح>(m_exprs.سائز() + additional) <= v3Global.opt.coverage_اظہاریہ_Max())
+            واپس جھوٹ;
+        abort_اظہاریہ_Coverage();
+        واپس سچ;
     }
 
-    void addExprCoverInc(AstNodeExpr* nodep, int start = 0) {
-        FileLine* const fl = nodep->fileline();
-        int count = start;
-        for (CoverExpr& expr : m_exprs) {
-            const string name = "expr_" + std::to_string(count);
+    خالی جوڑو_اظہاریہ_Cover_Inc(Ast_گرہ_اظہاریہ* nodep, صحیح آغاز = 0) {
+        File_سطر* ثابت fl = nodep->fileline();
+        صحیح گنتی = آغاز;
+        برائے (Cover_اظہاریہ& اظہاریہ : m_exprs) {
+            ثابت string name = "expr_" + std::مقصد_string(گنتی);
             string comment = "(";
-            bool first = true;
-            AstNodeExpr* condp = nullptr;
-            for (CoverTerm& term : expr) {
-                comment += (first ? "" : " && ") + term.m_emitV
-                           + "==" + (term.m_objective ? "1" : "0");
-                AstNodeExpr* covExprp = nullptr;
-                if (VN_IS(term.m_exprp, FuncRef) || term.m_exprp->isSystemFunc()) {
-                    AstNodeExpr* const frefp = term.m_exprp;
-                    AstNodeDType* const dtypep = frefp->dtypep();
-                    const auto pair = m_funcTemps.emplace(frefp, nullptr);
-                    AstVar* varp = pair.first->second;
-                    if (pair.second) {
-                        varp = new AstVar{fl, VVarType::MODULETEMP, m_exprTempNames.get(frefp),
+            منطقی پہلا = سچ;
+            Ast_گرہ_اظہاریہ* condp = خالی_اشاریہ;
+            برائے (Cover_رکن& رکن : اظہاریہ) {
+                comment += (پہلا ? "" : " && ") + رکن.m_emitV
+                           + "==" + (رکن.m_objective ? "1" : "0");
+                Ast_گرہ_اظہاریہ* covExprp = خالی_اشاریہ;
+                اگر (VN_IS(رکن.m_exprp, FuncRef) || رکن.m_exprp->isSystemFunc()) {
+                    Ast_گرہ_اظہاریہ* ثابت frefp = رکن.m_exprp;
+                    Ast_گرہ_DType* ثابت dtypep = frefp->dtypep();
+                    ثابت خودکار pair = m_funcTemps.emplace(frefp, خالی_اشاریہ);
+                    AstVar* varp = pair.پہلا->دوسرا;
+                    اگر (pair.دوسرا) {
+                        varp = نیا AstVar{fl, VVarType::MODULETEMP, m_اظہاریہ_عارضی_نام.get(frefp),
                                           dtypep};
                         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                        pair.first->second = varp;
-                        if (m_ftaskp) {
-                            varp->funcLocal(true);
+                        pair.پہلا->دوسرا = varp;
+                        اگر (m_ftaskp) {
+                            varp->funcLocal(سچ);
                             m_ftaskp->prependStmtsp(varp);
-                        } else {
+                        } ورنہ {
                             m_modp->prependStmtsp(varp);
                         }
                         VNRelinker relinkHandle;
-                        frefp->unlinkFrBack(&relinkHandle);
-                        relinkHandle.relink(new AstExprStmt{
-                            fl, new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, frefp},
-                            new AstVarRef{fl, varp, VAccess::READ}});
+                        frefp->unlink_Fr_عقب(&relinkHandle);
+                        relinkHandle.relink(نیا Ast_اظہاریہ_Stmt{
+                            fl, نیا Ast_تفویض{fl, نیا AstVarRef{fl, varp, VAccess::WRITE}, frefp},
+                            نیا AstVarRef{fl, varp, VAccess::READ}});
                     }
-                    covExprp = new AstVarRef{fl, varp, VAccess::READ};
-                } else {
-                    covExprp = term.m_exprp->cloneTree(false);
+                    covExprp = نیا AstVarRef{fl, varp, VAccess::READ};
+                } ورنہ {
+                    covExprp = رکن.m_exprp->clone_درخت(جھوٹ);
                 }
-                AstNodeExpr* const termp
-                    = term.m_objective ? covExprp : new AstLogNot{fl, covExprp};
-                if (condp) {
-                    condp = new AstLogAnd{fl, condp, termp};
-                } else {
+                Ast_گرہ_اظہاریہ* ثابت termp
+                    = رکن.m_objective ? covExprp : نیا AstLogNot{fl, covExprp};
+                اگر (condp) {
+                    condp = نیا AstLogAnd{fl, condp, termp};
+                } ورنہ {
                     condp = termp;
                 }
-                first = false;
+                پہلا = جھوٹ;
             }
             comment += ") => ";
             comment += (m_objective ? '1' : '0');
-            AstCoverOtherDecl* const declp = new AstCoverOtherDecl{
+            AstCoverOtherDecl* ثابت declp = نیا AstCoverOtherDecl{
                 nodep->fileline(), "v_expr/" + m_modp->prettyName(), comment, "", 0};
-            m_modp->addStmtsp(declp);
-            AstNode* const newp = newCoverInc(fl, declp, traceNameForLine(nodep, name));
+            m_modp->جوڑو_Stmtsp(declp);
+            Ast_گرہ* ثابت newp = newCoverInc(fl, declp, trace_Name_For_سطر(nodep, name));
             UASSERT_OBJ(condp, nodep, "No terms in expression coverage branch");
-            AstIf* const ifp = new AstIf{fl, condp, newp, nullptr};
-            ifp->user2(true);
-            insertProcStatement(m_exprStmtsp, ifp);
-            ++count;
+            AstIf* ثابت ifp = نیا AstIf{fl, condp, newp, خالی_اشاریہ};
+            ifp->user2(سچ);
+            داخل_کرو_Proc_Statement(m_اظہاریہ_Stmtsp, ifp);
+            ++گنتی;
         }
     }
 
-    void coverExprs(AstNodeExpr* nodep) {
-        if (!m_state.exprCoverageOn(nodep) || nodep->dtypep()->width() != 1 || !m_exprStmtsp) {
-            return;
+    خالی coverExprs(Ast_گرہ_اظہاریہ* nodep) {
+        اگر (!m_state.اظہاریہ_Coverage_On(nodep) || nodep->dtypep()->چوڑائی() != 1 || !m_اظہاریہ_Stmtsp) {
+            واپس;
         }
 
         UASSERT_OBJ(m_seeking == NONE, nodep, "recursively covering expressions is not expected");
-        UASSERT_OBJ(m_exprs.empty(), nodep, "unexpected expression coverage garbage");
+        UASSERT_OBJ(m_exprs.خالی_خانے(), nodep, "unexpected expression coverage garbage");
         VL_RESTORER(m_seeking);
         VL_RESTORER(m_objective);
         VL_RESTORER_CLEAR(m_exprs);  // Already asserted above it's empty.
 
         m_seeking = SEEKING;
-        m_objective = false;
+        m_objective = جھوٹ;
         iterate(nodep);
         CoverExprs falseExprs;
-        m_exprs.swap(falseExprs);
+        m_exprs.تبادلہ(falseExprs);
 
-        m_objective = true;
+        m_objective = سچ;
         iterate(nodep);
-        if (checkMaxExprs(falseExprs.size())) return;
-        if (m_seeking == ABORTED) return;
+        اگر (checkMaxExprs(falseExprs.سائز())) واپس;
+        اگر (m_seeking == ABORTED) واپس;
 
-        addExprCoverInc(nodep);
-        const int start = m_exprs.size();
-        m_objective = false;
-        m_exprs.swap(falseExprs);
-        addExprCoverInc(nodep, start);
+        جوڑو_اظہاریہ_Cover_Inc(nodep);
+        ثابت صحیح آغاز = m_exprs.سائز();
+        m_objective = جھوٹ;
+        m_exprs.تبادلہ(falseExprs);
+        جوڑو_اظہاریہ_Cover_Inc(nodep, آغاز);
     }
 
-    void exprEither(AstNodeBiop* nodep, bool overrideObjective = false, bool lObjective = false,
-                    bool rObjective = false) {
+    خالی اظہاریہ_Either(Ast_گرہ_Biop* nodep, منطقی overrideObjective = جھوٹ, منطقی lObjective = جھوٹ,
+                    منطقی rObjective = جھوٹ) {
         VL_RESTORER(m_objective);
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp();
+        Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp();
 
-        if (overrideObjective) m_objective = lObjective;
+        اگر (overrideObjective) m_objective = lObjective;
         iterate(lhsp);
-        if (checkMaxExprs()) return;
+        اگر (checkMaxExprs()) واپس;
         CoverExprs lhsExprs;
-        m_exprs.swap(lhsExprs);
-        if (overrideObjective) m_objective = rObjective;
+        m_exprs.تبادلہ(lhsExprs);
+        اگر (overrideObjective) m_objective = rObjective;
         iterate(rhsp);
-        m_exprs.splice(m_exprs.end(), lhsExprs);
+        m_exprs.splice(m_exprs.انتہا(), lhsExprs);
         checkMaxExprs();
     }
 
-    void exprBoth(AstNodeBiop* nodep, bool overrideObjective = false, bool lObjective = false,
-                  bool rObjective = false) {
+    خالی اظہاریہ_Both(Ast_گرہ_Biop* nodep, منطقی overrideObjective = جھوٹ, منطقی lObjective = جھوٹ,
+                  منطقی rObjective = جھوٹ) {
         VL_RESTORER(m_objective);
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp();
+        Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp();
 
-        if (overrideObjective) m_objective = lObjective;
+        اگر (overrideObjective) m_objective = lObjective;
         iterate(lhsp);
-        if (checkMaxExprs()) return;
+        اگر (checkMaxExprs()) واپس;
         CoverExprs lhsExprs;
-        m_exprs.swap(lhsExprs);
-        if (overrideObjective) m_objective = rObjective;
+        m_exprs.تبادلہ(lhsExprs);
+        اگر (overrideObjective) m_objective = rObjective;
         iterate(rhsp);
-        if (checkMaxExprs()) return;
+        اگر (checkMaxExprs()) واپس;
         CoverExprs rhsExprs;
-        m_exprs.swap(rhsExprs);
+        m_exprs.تبادلہ(rhsExprs);
 
-        for (const CoverExpr& l : lhsExprs) {
-            for (const CoverExpr& r : rhsExprs) {
+        برائے (ثابت Cover_اظہاریہ& l : lhsExprs) {
+            برائے (ثابت Cover_اظہاریہ& r : rhsExprs) {
                 // array size 2 -> (false, true)
-                std::array<std::set<AstVar*>, 2> varps;
-                std::array<std::set<std::string>, 2> strs;
+                std::array<std::سیٹ<AstVar*>, 2> varps;
+                std::array<std::سیٹ<std::string>, 2> strs;
 
-                UASSERT_OBJ(!l.empty() && !r.empty(), nodep, "Empty coverage expression branch");
-                CoverExpr expr;
+                UASSERT_OBJ(!l.خالی_خانے() && !r.خالی_خانے(), nodep, "Empty coverage expression branch");
+                Cover_اظہاریہ اظہاریہ;
 
                 // Compare Vars for simple VarRefs otherwise compare stringified terms
                 // remove redundant terms and remove entire expression branches when
@@ -953,217 +953,217 @@ class CoverageVisitor final : public VNVisitor {
                 // Equivalent terms which don't match on either of these criteria will
                 // not be flagged as redundant or impossible, however the results will
                 // still be valid, albeit messier
-                for (const CoverTerm& term : l) {
-                    if (const AstVarRef* const refp = VN_CAST(term.m_exprp, VarRef)) {
-                        varps[term.m_objective].insert(refp->varp());
-                    } else {
-                        strs[term.m_objective].insert(term.m_emitV);
+                برائے (ثابت Cover_رکن& رکن : l) {
+                    اگر (ثابت AstVarRef* ثابت refp = VN_CAST(رکن.m_exprp, VarRef)) {
+                        varps[رکن.m_objective].داخل_کرو(refp->varp());
+                    } ورنہ {
+                        strs[رکن.m_objective].داخل_کرو(رکن.m_emitV);
                     }
-                    expr.push_back(term);
+                    اظہاریہ.ڈالو_عقب(رکن);
                 }
-                bool impossible = false;
-                for (const CoverTerm& term : r) {
-                    bool redundant = false;
-                    if (const AstNodeVarRef* const refp = VN_CAST(term.m_exprp, NodeVarRef)) {
-                        if (varps[term.m_objective].find(refp->varp())
-                            != varps[term.m_objective].end())
-                            redundant = true;
-                        if (varps[!term.m_objective].find(refp->varp())
-                            != varps[!term.m_objective].end())
-                            impossible = true;
-                    } else {
-                        if (strs[term.m_objective].find(term.m_emitV)
-                            != strs[term.m_objective].end())
-                            redundant = true;
-                        if (strs[!term.m_objective].find(term.m_emitV)
-                            != strs[!term.m_objective].end())
-                            impossible = true;
+                منطقی impossible = جھوٹ;
+                برائے (ثابت Cover_رکن& رکن : r) {
+                    منطقی redundant = جھوٹ;
+                    اگر (ثابت Ast_گرہ_Var_Ref* ثابت refp = VN_CAST(رکن.m_exprp, گرہ_Var_Ref)) {
+                        اگر (varps[رکن.m_objective].ڈھونڈو(refp->varp())
+                            != varps[رکن.m_objective].انتہا())
+                            redundant = سچ;
+                        اگر (varps[!رکن.m_objective].ڈھونڈو(refp->varp())
+                            != varps[!رکن.m_objective].انتہا())
+                            impossible = سچ;
+                    } ورنہ {
+                        اگر (strs[رکن.m_objective].ڈھونڈو(رکن.m_emitV)
+                            != strs[رکن.m_objective].انتہا())
+                            redundant = سچ;
+                        اگر (strs[!رکن.m_objective].ڈھونڈو(رکن.m_emitV)
+                            != strs[!رکن.m_objective].انتہا())
+                            impossible = سچ;
                     }
-                    if (!redundant) expr.push_back(term);
+                    اگر (!redundant) اظہاریہ.ڈالو_عقب(رکن);
                 }
-                if (!impossible) m_exprs.push_back(std::move(expr));
-                if (checkMaxExprs()) return;
+                اگر (!impossible) m_exprs.ڈالو_عقب(std::move(اظہاریہ));
+                اگر (checkMaxExprs()) واپس;
             }
         }
     }
 
-    void orExpr(AstNodeBiop* nodep) {
-        if (m_seeking == NONE) {
+    خالی or_اظہاریہ(Ast_گرہ_Biop* nodep) {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else if (m_objective) {
-            exprEither(nodep);
-        } else {
-            exprBoth(nodep);
+        } ورنہ اگر (m_objective) {
+            اظہاریہ_Either(nodep);
+        } ورنہ {
+            اظہاریہ_Both(nodep);
         }
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
-    void visit(AstLogOr* nodep) override { orExpr(nodep); }
-    void visit(AstOr* nodep) override { orExpr(nodep); }
+    خالی دورہ(AstLogOr* nodep) override { or_اظہاریہ(nodep); }
+    خالی دورہ(AstOr* nodep) override { or_اظہاریہ(nodep); }
 
-    void andExpr(AstNodeBiop* nodep) {
-        if (m_seeking == NONE) {
+    خالی and_اظہاریہ(Ast_گرہ_Biop* nodep) {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else if (m_objective) {
-            exprBoth(nodep);
-        } else {
-            exprEither(nodep);
+        } ورنہ اگر (m_objective) {
+            اظہاریہ_Both(nodep);
+        } ورنہ {
+            اظہاریہ_Either(nodep);
         }
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
-    void visit(AstLogAnd* nodep) override { andExpr(nodep); }
-    void visit(AstAnd* nodep) override { andExpr(nodep); }
+    خالی دورہ(AstLogAnd* nodep) override { and_اظہاریہ(nodep); }
+    خالی دورہ(AstAnd* nodep) override { and_اظہاریہ(nodep); }
 
-    void xorExpr(AstNodeBiop* nodep) {
-        if (m_seeking == NONE) {
+    خالی xor_اظہاریہ(Ast_گرہ_Biop* nodep) {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else {
-            for (const bool lObjective : {false, true}) {
-                CoverExprs prevExprs;
-                m_exprs.swap(prevExprs);
-                const bool rObjective = lObjective ^ m_objective;
-                exprBoth(nodep, true, lObjective, rObjective);
-                m_exprs.splice(m_exprs.end(), prevExprs);
-                if (checkMaxExprs()) break;
+        } ورنہ {
+            برائے (ثابت منطقی lObjective : {جھوٹ, سچ}) {
+                CoverExprs پچھلا_Exprs;
+                m_exprs.تبادلہ(پچھلا_Exprs);
+                ثابت منطقی rObjective = lObjective ^ m_objective;
+                اظہاریہ_Both(nodep, سچ, lObjective, rObjective);
+                m_exprs.splice(m_exprs.انتہا(), پچھلا_Exprs);
+                اگر (checkMaxExprs()) توڑو;
             }
         }
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
-    void visit(AstXor* nodep) override { xorExpr(nodep); }
+    خالی دورہ(AstXor* nodep) override { xor_اظہاریہ(nodep); }
 
-    void exprNot(AstNodeExpr* nodep) {
+    خالی اظہاریہ_Not(Ast_گرہ_اظہاریہ* nodep) {
         VL_RESTORER(m_objective);
-        if (m_seeking == NONE) {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else {
+        } ورنہ {
             m_objective = !m_objective;
             iterateChildren(nodep);
-            lineTrack(nodep);
+            سطر_Track(nodep);
         }
     }
-    void visit(AstNot* nodep) override { exprNot(nodep); }
-    void visit(AstLogNot* nodep) override { exprNot(nodep); }
+    خالی دورہ(AstNot* nodep) override { اظہاریہ_Not(nodep); }
+    خالی دورہ(AstLogNot* nodep) override { اظہاریہ_Not(nodep); }
 
-    template <typename T_Oper>
-    void exprReduce(AstNodeUniop* nodep) {
-        if (m_seeking != ABORTED) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const lhsp = nodep->lhsp();
-            const int width = lhsp->dtypep()->width();
-            const size_t expected = std::is_same<T_Oper, AstXor>::value ? 0x1 << width : width + 1;
-            if (checkMaxExprs(expected)) return;
-            AstNodeExpr* unrolledp = new AstSel{
-                fl, lhsp->cloneTree(false), new AstConst{fl, static_cast<uint32_t>(width - 1)}, 1};
-            for (int bit = width - 2; bit >= 0; bit--) {
-                AstSel* const selp = new AstSel{fl, lhsp->cloneTree(false),
-                                                new AstConst{fl, static_cast<uint32_t>(bit)}, 1};
-                unrolledp = new T_Oper{fl, selp, unrolledp};
+    سانچہ <قسم_نام T_Oper>
+    خالی اظہاریہ_Reduce(Ast_گرہ_Uniop* nodep) {
+        اگر (m_seeking != ABORTED) {
+            File_سطر* ثابت fl = nodep->fileline();
+            Ast_گرہ_اظہاریہ* ثابت lhsp = nodep->lhsp();
+            ثابت صحیح چوڑائی = lhsp->dtypep()->چوڑائی();
+            ثابت سائز_t expected = std::is_same<T_Oper, AstXor>::قدر ? 0x1 << چوڑائی : چوڑائی + 1;
+            اگر (checkMaxExprs(expected)) واپس;
+            Ast_گرہ_اظہاریہ* unrolledp = نیا AstSel{
+                fl, lhsp->clone_درخت(جھوٹ), نیا AstConst{fl, static_cast<uint32_t>(چوڑائی - 1)}, 1};
+            برائے (صحیح ثنائی_ہندسہ_2 = چوڑائی - 2; ثنائی_ہندسہ_2 >= 0; ثنائی_ہندسہ_2--) {
+                AstSel* ثابت selp = نیا AstSel{fl, lhsp->clone_درخت(جھوٹ),
+                                                نیا AstConst{fl, static_cast<uint32_t>(ثنائی_ہندسہ_2)}, 1};
+                unrolledp = نیا T_Oper{fl, selp, unrolledp};
             }
             iterate(unrolledp);
-            VL_DO_DANGLING(pushDeletep(unrolledp), unrolledp);
-        } else {
+            VL_DO_DANGLING(ڈالو_Deletep(unrolledp), unrolledp);
+        } ورنہ {
             iterateChildren(nodep);
-            lineTrack(nodep);
+            سطر_Track(nodep);
         }
     }
-    void visit(AstRedOr* nodep) override { exprReduce<AstOr>(nodep); }
-    void visit(AstRedAnd* nodep) override { exprReduce<AstAnd>(nodep); }
-    void visit(AstRedXor* nodep) override { exprReduce<AstXor>(nodep); }
+    خالی دورہ(AstRedOr* nodep) override { اظہاریہ_Reduce<AstOr>(nodep); }
+    خالی دورہ(AstRedAnd* nodep) override { اظہاریہ_Reduce<AstAnd>(nodep); }
+    خالی دورہ(AstRedXor* nodep) override { اظہاریہ_Reduce<AstXor>(nodep); }
 
-    void visit(AstLogIf* nodep) override {
-        if (m_seeking == NONE) {
+    خالی دورہ(AstLogIf* nodep) override {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else if (m_objective) {
-            exprEither(nodep, true, false, true);
-        } else {
-            exprBoth(nodep, true, true, false);
+        } ورنہ اگر (m_objective) {
+            اظہاریہ_Either(nodep, سچ, جھوٹ, سچ);
+        } ورنہ {
+            اظہاریہ_Both(nodep, سچ, سچ, جھوٹ);
         }
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
 
-    void visit(AstLogEq* nodep) override {
+    خالی دورہ(AstLogEq* nodep) override {
         VL_RESTORER(m_objective);
-        if (m_seeking == NONE) {
+        اگر (m_seeking == NONE) {
             coverExprs(nodep);
-        } else {
+        } ورنہ {
             m_objective = !m_objective;
-            xorExpr(nodep);
-            lineTrack(nodep);
+            xor_اظہاریہ(nodep);
+            سطر_Track(nodep);
         }
     }
 
-    void visit(AstFuncRef* nodep) override {
-        if (nodep->taskp()->lifetime().isAutomatic()) {
-            visit(static_cast<AstNodeExpr*>(nodep));
-        } else {
-            exprUnsupported(nodep, "non-automatic function");
+    خالی دورہ(AstFuncRef* nodep) override {
+        اگر (nodep->taskp()->lifetime().isAutomatic()) {
+            دورہ(static_cast<Ast_گرہ_اظہاریہ*>(nodep));
+        } ورنہ {
+            اظہاریہ_Unsupported(nodep, "non-automatic function");
         }
     }
 
-    void visit(AstNodeExpr* nodep) override {
-        if (m_seeking != SEEKING) {
+    خالی دورہ(Ast_گرہ_اظہاریہ* nodep) override {
+        اگر (m_seeking != SEEKING) {
             iterateChildren(nodep);
-        } else {
-            ExprCoverageEligibleVisitor elgibleVisitor(nodep);
-            if (elgibleVisitor.eligible()) {
+        } ورنہ {
+            اظہاریہ_Coverage_Eligible_Visitor elgibleVisitor(nodep);
+            اگر (elgibleVisitor.eligible()) {
                 std::stringstream emitV;
-                V3EmitV::verilogForTree(nodep, emitV);
+                V3EmitV::verilog_For_درخت(nodep, emitV);
                 // Add new expression with a single term
-                CoverExpr expr;
-                expr.emplace_back(nodep, m_objective, emitV.str());
-                m_exprs.push_back(std::move(expr));
+                Cover_اظہاریہ اظہاریہ;
+                اظہاریہ.emplace_عقب(nodep, m_objective, emitV.str());
+                m_exprs.ڈالو_عقب(std::move(اظہاریہ));
                 checkMaxExprs();
-            } else {
-                exprUnsupported(nodep, "not coverage eligible");
+            } ورنہ {
+                اظہاریہ_Unsupported(nodep, "not coverage eligible");
             }
         }
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
 
     // VISITORS - BOTH
-    void visit(AstProperty* nodep) override {
+    خالی دورہ(AstProperty* nodep) override {
         VL_RESTORER(m_state);
-        VL_RESTORER(m_inToggleOff);
-        m_state.m_on = false;
-        m_inToggleOff = true;
+        VL_RESTORER(m_اندر_Toggle_Off);
+        m_state.m_on = جھوٹ;
+        m_اندر_Toggle_Off = سچ;
         iterateChildren(nodep);
     }
-    void visit(AstSequence* nodep) override {
+    خالی دورہ(AstSequence* nodep) override {
         VL_RESTORER(m_state);
-        VL_RESTORER(m_inToggleOff);
-        m_state.m_on = false;
-        m_inToggleOff = true;
+        VL_RESTORER(m_اندر_Toggle_Off);
+        m_state.m_on = جھوٹ;
+        m_اندر_Toggle_Off = سچ;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override {
+    خالی دورہ(Ast_گرہ* nodep) override {
         iterateChildren(nodep);
-        lineTrack(nodep);
+        سطر_Track(nodep);
     }
 
-    void exprUnsupported(AstNode* nodep, const string& why) {
+    خالی اظہاریہ_Unsupported(Ast_گرہ* nodep, ثابت string& why) {
         UINFO(9, "unsupported: " << why << " " << nodep);
-        const bool wasSeeking = m_seeking == SEEKING;
-        const Objective oldSeeking = m_seeking;
-        if (wasSeeking) abortExprCoverage();
+        ثابت منطقی wasSeeking = m_seeking == SEEKING;
+        ثابت Objective oldSeeking = m_seeking;
+        اگر (wasSeeking) abort_اظہاریہ_Coverage();
         m_seeking = ABORTED;
         iterateChildren(nodep);
-        lineTrack(nodep);
-        if (!wasSeeking) m_seeking = oldSeeking;
+        سطر_Track(nodep);
+        اگر (!wasSeeking) m_seeking = oldSeeking;
     }
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit CoverageVisitor(AstNetlist* rootp)
-        : m_exprTempNames{"__VExpr"} {
+    صریح CoverageVisitor(AstNetlist* rootp)
+        : m_اظہاریہ_عارضی_نام{"__VExpr"} {
         iterateChildren(rootp);
     }
-    ~CoverageVisitor() override = default;
+    ~CoverageVisitor() override = طےشدہ;
 };
 
 //######################################################################
 // Coverage class functions
 
-void V3Coverage::coverage(AstNetlist* rootp) {
+خالی V3Coverage::coverage(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     { CoverageVisitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("coverage", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("coverage", 0, dump_درخت_Either_Level() >= 3);
 }

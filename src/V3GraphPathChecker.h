@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHPATHCHECKER_H_
-#define VERILATOR_V3GRAPHPATHCHECKER_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3GRAPHPATHCHECKER_H_
+#تعریف_کرو VERILATOR_V3GRAPHPATHCHECKER_H_
 
-#include "V3Error.h"
-#include "V3Graph.h"
-#include "V3GraphAlg.h"
+#شامل "V3Error.h"
+#شامل "V3Graph.h"
+#شامل "V3GraphAlg.h"
 
 //######################################################################
 
@@ -29,35 +29,35 @@
 ///
 /// The graph (or at least, the subset the algorithm sees through
 /// edgeFuncp) must not change during the lifetime of the checker.
-class GraphPathChecker final : GraphAlg<V3Graph> {
+class گراف_راستہ_Checker final : گراف_Alg<V3_گراف> {
     // Count "generations" which increases on operations that scan through
     // the graph. Each node is marked with the last generation that scanned
     // it, to enable asserting there are no cycles, and to avoid recursing
     // through the same node twice while searching for a path.
     uint64_t m_generation = 0;
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp
-                                               = V3GraphEdge::followAlwaysTrue) VL_MT_DISABLED;
-    ~GraphPathChecker() VL_MT_DISABLED;
+    explicit گراف_راستہ_Checker(V3_گراف* graphp, V3_کنارہ_Func_P کنارہ_Funcp
+                                               = V3_گراف_کنارہ::followAlwaysTrue) VL_MT_DISABLED;
+    ~گراف_راستہ_Checker() VL_MT_DISABLED;
 
     // METHODS
-    bool pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) VL_MT_DISABLED;
+    bool راستہ_Exists_From(ثابت V3_گراف_راس* fromp, ثابت V3_گراف_راس* چوٹی) VL_MT_DISABLED;
 
     // If have edges A->B, B->C, and A->C then A->C is considered a
     // "transitive" edge (implied by A->B and B->C) and it could be safely
     // removed. Detect such an edge.
-    bool isTransitiveEdge(const V3GraphEdge* edgep) VL_MT_DISABLED;
+    bool is_متعدی_کنارہ(ثابت V3_گراف_کنارہ* edgep) VL_MT_DISABLED;
 
-private:
-    bool pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                            unsigned* costp = nullptr) VL_MT_DISABLED;
-    template <GraphWay::en N_Way>
-    void initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
-    void incGeneration() { ++m_generation; }
+نجی:
+    bool راستہ_Exists_اندرونی(ثابت V3_گراف_راس* ap, ثابت V3_گراف_راس* bp,
+                            غیرعلامتی* costp = nullptr) VL_MT_DISABLED;
+    سانچہ <گراف_Way::en N_Way>
+    خالی initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
+    خالی incGeneration() { ++m_generation; }
 
-    VL_UNCOPYABLE(GraphPathChecker);
+    VL_UNCOPYABLE(گراف_راستہ_Checker);
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

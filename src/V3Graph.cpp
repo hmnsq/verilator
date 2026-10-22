@@ -14,21 +14,21 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کرو VL_MT_DISABLED_رمز_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Graph.h"
+#شامل "V3Graph.h"
 
-#include "V3File.h"
-#include "V3Global.h"
+#شامل "V3File.h"
+#شامل "V3Global.h"
 
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#شامل <map>
+#شامل <memory>
+#شامل <unordered_map>
+#شامل <unordered_set>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,120 +36,120 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Vertices
 
-V3GraphVertex::V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old)
+V3_گراف_راس::V3_گراف_راس(V3_گراف* graphp, ثابت V3_گراف_راس& old)
     : m_fanout{old.m_fanout}
     , m_color{old.m_color}
     , m_rank{old.m_rank} {
-    m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    m_userp = خالی_اشاریہ;
+    graphp->vertices().link_عقب(یہ);
 }
 
-V3GraphVertex::V3GraphVertex(V3Graph* graphp)
+V3_گراف_راس::V3_گراف_راس(V3_گراف* graphp)
     : m_fanout{0}
     , m_color{0}
     , m_rank{0} {
-    m_userp = nullptr;
-    graphp->vertices().linkBack(this);
+    m_userp = خالی_اشاریہ;
+    graphp->vertices().link_عقب(یہ);
 }
 
-void V3GraphVertex::unlinkEdges(V3Graph*) {
-    while (V3GraphEdge* const ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
-    while (V3GraphEdge* const ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+خالی V3_گراف_راس::unlink_کنارے(V3_گراف*) {
+    جب (V3_گراف_کنارہ* ثابت ep = m_outs.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
+    جب (V3_گراف_کنارہ* ثابت ep = m_ins.frontp()) VL_DO_DANGLING(ep->unlinkDelete(), ep);
 }
 
-void V3GraphVertex::unlinkDelete(V3Graph* graphp) {
+خالی V3_گراف_راس::unlinkDelete(V3_گراف* graphp) {
     // Delete edges
-    unlinkEdges(graphp);
+    unlink_کنارے(graphp);
     // Unlink from vertex list
-    graphp->m_vertices.unlink(this);
+    graphp->m_vertices.unlink(یہ);
     // Delete
-    delete this;  // this=nullptr;
+    حذف یہ;  // this=nullptr;
 }
 
-void V3GraphVertex::rerouteEdges(V3Graph* graphp) {
+خالی V3_گراف_راس::reroute_کنارے(V3_گراف* graphp) {
     // Make new edges for each from/to pair
-    for (const V3GraphEdge& iedge : inEdges()) {
-        for (const V3GraphEdge& oedge : outEdges()) {
-            new V3GraphEdge{graphp, iedge.fromp(), oedge.top(),
-                            std::min(iedge.weight(), oedge.weight()),
+    برائے (ثابت V3_گراف_کنارہ& iedge : اندر_کنارے()) {
+        برائے (ثابت V3_گراف_کنارہ& oedge : برآمد_کنارے()) {
+            نیا V3_گراف_کنارہ{graphp, iedge.fromp(), oedge.چوٹی(),
+                            std::min(iedge.وزن_2(), oedge.وزن_2()),
                             iedge.cutable() && oedge.cutable()};
         }
     }
     // Remove old edges
-    unlinkEdges(graphp);
+    unlink_کنارے(graphp);
 }
 
 // cppcheck-has-bug-suppress constParameter
-void V3GraphVertex::v3errorEnd(const std::ostringstream& str) const  // LCOV_EXCL_START
+خالی V3_گراف_راس::v3error_انتہا(ثابت std::ostringstream& str) ثابت  // LCOV_EXCL_START
     VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (debug()) nsstr << "\n-vertex: " << this << '\n';
-    if (FileLine* const flp = fileline()) {
-        flp->v3errorEnd(nsstr);
-    } else {
-        V3Error::v3errorEnd(nsstr, "", nullptr);
+    اگر (debug()) nsstr << "\n-vertex: " << یہ << '\n';
+    اگر (File_سطر* ثابت flp = fileline()) {
+        flp->v3error_انتہا(nsstr);
+    } ورنہ {
+        V3Error::v3error_انتہا(nsstr, "", خالی_اشاریہ);
     }
 }
-void V3GraphVertex::v3errorEndFatal(const std::ostringstream& str) const
+خالی V3_گراف_راس::v3error_انتہا_Fatal(ثابت std::ostringstream& str) ثابت
     VL_RELEASE(V3Error::s().m_mutex) {
-    v3errorEnd(str);
-    assert(0);
+    v3error_انتہا(str);
+    أكد(0);
     VL_UNREACHABLE;
 }  // LCOV_EXCL_STOP
 
-std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) {
+std::ostream& عامل<<(std::ostream& os, V3_گراف_راس* vertexp) {
     os << "  VERTEX=" << vertexp->name();
-    if (vertexp->rank()) os << " r" << vertexp->rank();
-    if (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
-    if (vertexp->color()) os << " c" << vertexp->color();
-    return os;
+    اگر (vertexp->rank()) os << " r" << vertexp->rank();
+    اگر (vertexp->fanout() != 0.0) os << " f" << vertexp->fanout();
+    اگر (vertexp->color()) os << " c" << vertexp->color();
+    واپس os;
 }
 
 //######################################################################
 //######################################################################
-// Edges
+//کنارے
 
-void V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
-                       bool cutable) {
+خالی V3_گراف_کنارہ::init(V3_گراف* /*graphp*/, V3_گراف_راس* fromp, V3_گراف_راس* چوٹی, صحیح وزن_2,
+                       منطقی cutable) {
     UASSERT(fromp, "Null from pointer");
-    UASSERT(top, "Null to pointer");
+    UASSERT(چوٹی, "Null to pointer");
     m_fromp = fromp;
-    m_top = top;
-    m_weight = weight;
+    m_چوٹی = چوٹی;
+    m_وزن = وزن_2;
     m_cutable = cutable;
-    m_userp = nullptr;
+    m_userp = خالی_اشاریہ;
     // Link vertices to this edge
-    m_fromp->outEdges().linkBack(this);
-    m_top->inEdges().linkBack(this);
+    m_fromp->برآمد_کنارے().link_عقب(یہ);
+    m_چوٹی->اندر_کنارے().link_عقب(یہ);
 }
 
-void V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
-    m_fromp->outEdges().unlink(this);
+خالی V3_گراف_کنارہ::relinkFromp(V3_گراف_راس* newFromp) {
+    m_fromp->برآمد_کنارے().unlink(یہ);
     m_fromp = newFromp;
-    m_fromp->outEdges().linkBack(this);
+    m_fromp->برآمد_کنارے().link_عقب(یہ);
 }
 
-void V3GraphEdge::relinkTop(V3GraphVertex* newTop) {
-    m_top->inEdges().unlink(this);
-    m_top = newTop;
-    m_top->inEdges().linkBack(this);
+خالی V3_گراف_کنارہ::relink_چوٹی(V3_گراف_راس* new_چوٹی) {
+    m_چوٹی->اندر_کنارے().unlink(یہ);
+    m_چوٹی = new_چوٹی;
+    m_چوٹی->اندر_کنارے().link_عقب(یہ);
 }
 
-void V3GraphEdge::unlinkDelete() {
+خالی V3_گراف_کنارہ::unlinkDelete() {
     // Unlink from side
-    m_fromp->outEdges().unlink(this);
+    m_fromp->برآمد_کنارے().unlink(یہ);
     // Unlink to side
-    m_top->inEdges().unlink(this);
+    m_چوٹی->اندر_کنارے().unlink(یہ);
     // Delete
-    delete this;
+    حذف یہ;
 }
 
-std::string V3GraphEdge::name() const { return m_fromp->name() + "->" + m_top->name(); }
+std::string V3_گراف_کنارہ::name() ثابت { واپس m_fromp->name() + "->" + m_چوٹی->name(); }
 
-int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
-    if (!m_weight || !rhsp->m_weight) return 0;
-    return top()->sortCmp(rhsp->top());
+صحیح V3_گراف_کنارہ::ترتیب_دو_Cmp(ثابت V3_گراف_کنارہ* rhsp) ثابت {
+    اگر (!m_وزن || !rhsp->m_وزن) واپس 0;
+    واپس چوٹی()->ترتیب_دو_Cmp(rhsp->چوٹی());
 }
 
 //######################################################################
@@ -157,43 +157,43 @@ int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
 // Graph top level
 // Constructors
 
-V3Graph::V3Graph() {}
+V3_گراف::V3_گراف() {}
 
-V3Graph::~V3Graph() { clear(); }
+V3_گراف::~V3_گراف() { clear(); }
 
-void V3Graph::clear() {
+خالی V3_گراف::clear() {
     // Empty it of all points, as if making a new object
     // Delete the old edges
-    for (V3GraphVertex& vertex : vertices()) {
-        while (V3GraphEdge* const edgep = vertex.outEdges().unlinkFront()) {
-            VL_DO_DANGLING(delete edgep, edgep);
+    برائے (V3_گراف_راس& راس : vertices()) {
+        جب (V3_گراف_کنارہ* ثابت edgep = راس.برآمد_کنارے().unlinkFront()) {
+            VL_DO_DANGLING(حذف edgep, edgep);
         }
     }
     // Delete the old vertices
-    while (V3GraphVertex* const vertexp = vertices().unlinkFront()) {
-        VL_DO_DANGLING(delete vertexp, vertexp);
+    جب (V3_گراف_راس* ثابت vertexp = vertices().unlinkFront()) {
+        VL_DO_DANGLING(حذف vertexp, vertexp);
     }
 }
 
-void V3Graph::userClearVertices() {
+خالی V3_گراف::userClearVertices() {
     // Clear user() in all of tree
     // We may use the userCnt trick in V3Ast later... (but gblCnt would be
     // in V3Graph instead of static - which has the complication of finding
     // the graph pointer given a vertex.)  For now, we don't call this often, and
     // the extra code on each read of user() would probably slow things
     // down more than help.
-    for (V3GraphVertex& vertex : vertices()) {
-        vertex.user(0);
-        vertex.userp(nullptr);  // It's a union, but might be different size than user()
+    برائے (V3_گراف_راس& راس : vertices()) {
+        راس.user(0);
+        راس.userp(خالی_اشاریہ);  // It's a union, but might be different size than user()
     }
 }
 
-void V3Graph::userClearEdges() {
+خالی V3_گراف::user_Clear_کنارے() {
     // Clear user() in all of tree
-    for (V3GraphVertex& vertex : vertices()) {
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            edge.user(0);
-            edge.userp(nullptr);  // It's a union, but might be different size than user()
+    برائے (V3_گراف_راس& راس : vertices()) {
+        برائے (V3_گراف_کنارہ& کنارہ : راس.برآمد_کنارے()) {
+            کنارہ.user(0);
+            کنارہ.userp(خالی_اشاریہ);  // It's a union, but might be different size than user()
         }
     }
 }
@@ -201,63 +201,63 @@ void V3Graph::userClearEdges() {
 //======================================================================
 // Dumping
 
-void V3Graph::loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) {
+خالی V3_گراف::loops_پیغام_Cb(V3_گراف_راس* vertexp, V3_کنارہ_Func_P کنارہ_Funcp) {
     vertexp->v3fatalSrc("Loops detected in graph: " << vertexp << "\n"
-                                                    << reportLoops(edgeFuncp, vertexp));
+                                                    << reportLoops(کنارہ_Funcp, vertexp));
 }
-string V3Graph::loopsVertexCb(V3GraphVertex* vertexp) {
+string V3_گراف::loops_راس_Cb(V3_گراف_راس* vertexp) {
     // Needed here as V3GraphVertex<< isn't defined until later in header
-    if (debug())
-        return "-Info-Loop: "s + cvtToHex(vertexp) + ' ' + cvtToStr(vertexp) + '\n';
-    else
-        return "";
+    اگر (debug())
+        واپس "-Info-Loop: "s + cvt_مقصد_Hex(vertexp) + ' ' + cvt_مقصد_Str(vertexp) + '\n';
+    ورنہ
+        واپس "";
 }
 
-void V3Graph::dump(std::ostream& os) const {
+خالی V3_گراف::dump(std::ostream& os) ثابت {
     // This generates a file used by graphviz, https://www.graphviz.org
     os << " Graph:\n";
     // Print vertices
-    for (const V3GraphVertex& vertex : vertices()) {
-        os << "\tNode: " << vertex.name();
-        if (vertex.color()) os << "  color=" << vertex.color();
+    برائے (ثابت V3_گراف_راس& راس : vertices()) {
+        os << "\tNode: " << راس.name();
+        اگر (راس.color()) os << "  color=" << راس.color();
         os << '\n';
         // Print edges
-        for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-        for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+        برائے (ثابت V3_گراف_کنارہ& کنارہ : راس.اندر_کنارے()) dump_کنارہ(os, راس, کنارہ);
+        برائے (ثابت V3_گراف_کنارہ& کنارہ : راس.برآمد_کنارے()) dump_کنارہ(os, راس, کنارہ);
     }
 }
 
-void V3Graph::dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                       const V3GraphEdge& edge) const {
-    if (edge.weight() && (edge.fromp() == &vertex || edge.top() == &vertex)) {
+خالی V3_گراف::dump_کنارہ(std::ostream& os, ثابت V3_گراف_راس& راس,
+                       ثابت V3_گراف_کنارہ& کنارہ) ثابت {
+    اگر (کنارہ.وزن_2() && (کنارہ.fromp() == &راس || کنارہ.چوٹی() == &راس)) {
         os << "\t\t";
-        if (edge.fromp() == &vertex) os << "-> " << edge.top()->name();
-        if (edge.top() == &vertex) os << "<- " << edge.fromp()->name();
-        if (edge.cutable()) os << "  [CUTABLE]";
+        اگر (کنارہ.fromp() == &راس) os << "-> " << کنارہ.چوٹی()->name();
+        اگر (کنارہ.چوٹی() == &راس) os << "<- " << کنارہ.fromp()->name();
+        اگر (کنارہ.cutable()) os << "  [CUTABLE]";
         os << '\n';
     }
 }
-void V3Graph::dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const {
-    for (const V3GraphEdge& edge : vertex.inEdges()) dumpEdge(os, vertex, edge);
-    for (const V3GraphEdge& edge : vertex.outEdges()) dumpEdge(os, vertex, edge);
+خالی V3_گراف::dump_کنارے(std::ostream& os, ثابت V3_گراف_راس& راس) ثابت {
+    برائے (ثابت V3_گراف_کنارہ& کنارہ : راس.اندر_کنارے()) dump_کنارہ(os, راس, کنارہ);
+    برائے (ثابت V3_گراف_کنارہ& کنارہ : راس.برآمد_کنارے()) dump_کنارہ(os, راس, کنارہ);
 }
 
-void V3Graph::dumpDotFilePrefixed(const string& nameComment, bool colorAsSubgraph) const {
+خالی V3_گراف::dumpDotFilePrefixed(ثابت string& nameComment, منطقی colorAsSubgraph) ثابت {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
 //! Variant of dumpDotFilePrefixed without --dump option check
-void V3Graph::dumpDotFilePrefixedAlways(const string& nameComment, bool colorAsSubgraph) const {
+خالی V3_گراف::dumpDotFilePrefixedAlways(ثابت string& nameComment, منطقی colorAsSubgraph) ثابت {
     dumpDotFile(v3Global.debugFilename(nameComment) + ".dot", colorAsSubgraph);
 }
 
-void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
+خالی V3_گراف::dumpDotFile(ثابت string& filename, منطقی colorAsSubgraph) ثابت {
     // This generates a file used by graphviz, https://www.graphviz.org
     // "hardcoded" parameters:
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    ثابت std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    اگر (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    // Header
+    //سرخی
     *logp << "digraph v3graph {\n";
     *logp << "\tgraph\t[label=\"" << filename << "\",\n";
     *logp << "\t\t labelloc=t, labeljust=l,\n";
@@ -266,66 +266,66 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
 
     // List of all possible subgraphs
     // Collections of explicit ranks
-    std::unordered_set<std::string> ranks;
-    std::unordered_multimap<std::string, const V3GraphVertex*> rankSets;
-    std::multimap<std::string, const V3GraphVertex*> subgraphs;
-    for (const V3GraphVertex& vertex : vertices()) {
-        const string vertexSubgraph
-            = (colorAsSubgraph && vertex.color()) ? cvtToStr(vertex.color()) : "";
-        subgraphs.emplace(vertexSubgraph, &vertex);
-        const string& dotRank = vertex.dotRank();
-        if (!dotRank.empty()) {
+    std::unordered_سیٹ<std::string> ranks;
+    std::unordered_multimap<std::string, ثابت V3_گراف_راس*> rankSets;
+    std::multimap<std::string, ثابت V3_گراف_راس*> subgraphs;
+    برائے (ثابت V3_گراف_راس& راس : vertices()) {
+        ثابت string راس_Subgraph
+            = (colorAsSubgraph && راس.color()) ? cvt_مقصد_Str(راس.color()) : "";
+        subgraphs.emplace(راس_Subgraph, &راس);
+        ثابت string& dotRank = راس.dotRank();
+        اگر (!dotRank.خالی_خانے()) {
             ranks.emplace(dotRank);
-            rankSets.emplace(dotRank, &vertex);
+            rankSets.emplace(dotRank, &راس);
         }
     }
 
     // We use a map here, as we don't want to corrupt anything (userp) in the graph,
     // and we don't care if this is slow.
-    std::unordered_map<const V3GraphVertex*, int> numMap;
+    std::unordered_map<ثابت V3_گراف_راس*, صحیح> عدد_Map;
 
     // Print vertices
-    int n = 0;
+    صحیح n = 0;
     string subgr;
-    for (auto it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
-        const string vertexSubgraph = it->first;
-        const V3GraphVertex* vertexp = it->second;
-        numMap[vertexp] = n;
-        if (subgr != vertexSubgraph) {
-            if (subgr != "") *logp << "\t};\n";
-            subgr = vertexSubgraph;
-            if (subgr != "") {
+    برائے (خودکار it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
+        ثابت string راس_Subgraph = it->پہلا;
+        ثابت V3_گراف_راس* vertexp = it->دوسرا;
+        عدد_Map[vertexp] = n;
+        اگر (subgr != راس_Subgraph) {
+            اگر (subgr != "") *logp << "\t};\n";
+            subgr = راس_Subgraph;
+            اگر (subgr != "") {
                 *logp << "\tsubgraph cluster_" << subgr << " {\n";
                 *logp << "\tlabel=\"" << subgr << "\"\n";
             }
         }
-        if (subgr != "") *logp << "\t";
+        اگر (subgr != "") *logp << "\t";
         *logp << "\tn" << vertexp->dotName() << (n++) << "\t[fontsize=8 " << "label=\""
               << (vertexp->name() != "" ? vertexp->name() : "\\N");
-        if (vertexp->rank()) *logp << " r" << vertexp->rank();
-        if (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
-        if (vertexp->color()) *logp << "\\n c" << vertexp->color();
+        اگر (vertexp->rank()) *logp << " r" << vertexp->rank();
+        اگر (vertexp->fanout() != 0.0) *logp << " f" << vertexp->fanout();
+        اگر (vertexp->color()) *logp << "\\n c" << vertexp->color();
         *logp << "\"";
         *logp << ", color=" << vertexp->dotColor();
-        if (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
-        if (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
+        اگر (vertexp->dotStyle() != "") *logp << ", style=" << vertexp->dotStyle();
+        اگر (vertexp->dotShape() != "") *logp << ", shape=" << vertexp->dotShape();
         *logp << "];\n";
     }
-    if (subgr != "") *logp << "\t};\n";
+    اگر (subgr != "") *logp << "\t};\n";
 
     // Print edges
-    for (const V3GraphVertex& vertex : vertices()) {
-        for (const V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight()) {
-                const int fromVnum = numMap[edge.fromp()];
-                const int toVnum = numMap[edge.top()];
-                *logp << "\tn" << edge.fromp()->dotName() << fromVnum << " -> n"
-                      << edge.top()->dotName() << toVnum
+    برائے (ثابت V3_گراف_راس& راس : vertices()) {
+        برائے (ثابت V3_گراف_کنارہ& کنارہ : راس.برآمد_کنارے()) {
+            اگر (کنارہ.وزن_2()) {
+                ثابت صحیح fromVnum = عدد_Map[کنارہ.fromp()];
+                ثابت صحیح مقصد_Vnum = عدد_Map[کنارہ.چوٹی()];
+                *logp << "\tn" << کنارہ.fromp()->dotName() << fromVnum << " -> n"
+                      << کنارہ.چوٹی()->dotName() << مقصد_Vnum
                       << " ["
                       // <<"fontsize=8 label=\""<<(edge.name()!="" ? edge.name() : "\\E")<<"\""
-                      << "fontsize=8 label=\"" << (edge.dotLabel() != "" ? edge.dotLabel() : "")
-                      << "\"" << " weight=" << edge.weight() << " color=" << edge.dotColor();
-                if (edge.dotStyle() != "") *logp << " style=" << edge.dotStyle();
+                      << "fontsize=8 label=\"" << (کنارہ.dotLabel() != "" ? کنارہ.dotLabel() : "")
+                      << "\"" << " weight=" << کنارہ.وزن_2() << " color=" << کنارہ.dotColor();
+                اگر (کنارہ.dotStyle() != "") *logp << " style=" << کنارہ.dotStyle();
                 // if (edge.cutable()) *logp << ",constraint=false";  // to rank without
                 // following edges
                 *logp << "];\n";
@@ -334,18 +334,18 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     }
 
     // Print ranks
-    for (const auto& dotRank : ranks) {
+    برائے (ثابت خودکار& dotRank : ranks) {
         *logp << "\t{ rank=";
-        if (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
+        اگر (dotRank != "sink" && dotRank != "source" && dotRank != "min" && dotRank != "max") {
             *logp << "same";
-        } else {
+        } ورنہ {
             *logp << dotRank;
         }
         *logp << "; ";
-        auto bounds = rankSets.equal_range(dotRank);
-        for (auto it{bounds.first}; it != bounds.second; ++it) {
-            if (it != bounds.first) *logp << ", ";
-            *logp << 'n' << numMap[it->second] << "";
+        خودکار bounds = rankSets.equal_range(dotRank);
+        برائے (خودکار it{bounds.پہلا}; it != bounds.دوسرا; ++it) {
+            اگر (it != bounds.پہلا) *logp << ", ";
+            *logp << 'n' << عدد_Map[it->دوسرا] << "";
         }
         *logp << " }\n";
     }
@@ -356,20 +356,20 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     *logp << "}\n";
     logp->close();
 
-    cout << "dot -Tpdf -o ~/a.pdf " << filename << "\n";
+    خارج << "dot -Tpdf -o ~/a.pdf " << filename << "\n";
 }
 
-void V3Graph::hashGraphDebug(const char* debugName) const {
+خالی V3_گراف::hash_گراف_Debug(ثابت حرف* debugName) ثابت {
     // Disabled when there are no nondeterminism issues in flight.
-    if (!v3Global.opt.debugNondeterminism()) return;
+    اگر (!v3Global.opt.debugNondeterminism()) واپس;
 
     // Assign a unique ID to each vertex for pointer stability, then hash
     uint32_t id = 1;
-    std::unordered_map<const V3GraphVertex*, uint32_t> vx2Id;
-    for (const V3GraphVertex& vtx : vertices()) vx2Id[&vtx] = ++id;
+    std::unordered_map<ثابت V3_گراف_راس*, uint32_t> vx2Id;
+    برائے (ثابت V3_گراف_راس& vtx : vertices()) vx2Id[&vtx] = ++id;
     V3Hash hash;
-    for (const V3GraphVertex& vtx : vertices()) {
-        for (const V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.top()];
+    برائے (ثابت V3_گراف_راس& vtx : vertices()) {
+        برائے (ثابت V3_گراف_کنارہ& کنارہ : vtx.برآمد_کنارے()) hash += vx2Id[کنارہ.چوٹی()];
     }
-    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.value()));
+    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvt_مقصد_Hex(hash.قدر()));
 }

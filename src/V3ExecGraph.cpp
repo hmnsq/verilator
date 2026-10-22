@@ -14,54 +14,54 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ExecGraph.h"
+#شامل "V3ExecGraph.h"
 
-#include "V3ConstPool.h"
-#include "V3Control.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
-#include "V3GraphStream.h"
-#include "V3Hasher.h"
-#include "V3InstrCount.h"
-#include "V3Os.h"
-#include "V3Stats.h"
+#شامل "V3ConstPool.h"
+#شامل "V3Control.h"
+#شامل "V3EmitCBase.h"
+#شامل "V3File.h"
+#شامل "V3GraphStream.h"
+#شامل "V3Hasher.h"
+#شامل "V3InstrCount.h"
+#شامل "V3Os.h"
+#شامل "V3Stats.h"
 
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#شامل <map>
+#شامل <memory>
+#شامل <unordered_map>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-AstCFunc* ExecMTask::createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
+AstCFunc* ExecMTask::createCFunc(Ast_Exec_گراف* execGraphp, AstScope* scopep, Ast_گرہ_Stmt* stmtsp,
                                  uint32_t id) {
-    const std::string newName = execGraphp->name() + "_mtask" + std::to_string(id);
-    AstCFunc* const newp = new AstCFunc{execGraphp->fileline(), newName, scopep};
-    newp->isLoose(true);
-    newp->voidSelf(true);  // Called through VlExecGraph::Fnp
-    newp->dontCombine(true);
-    newp->addStmtsp(stmtsp);
-    if (scopep) scopep->addBlocksp(newp);
-    return newp;
+    ثابت std::string newName = execGraphp->name() + "_mtask" + std::مقصد_string(id);
+    AstCFunc* ثابت newp = نیا AstCFunc{execGraphp->fileline(), newName, scopep};
+    newp->isLoose(سچ);
+    newp->voidSelf(سچ);  // Called through VlExecGraph::Fnp
+    newp->dontCombine(سچ);
+    newp->جوڑو_Stmtsp(stmtsp);
+    اگر (scopep) scopep->جوڑو_Blocksp(newp);
+    واپس newp;
 }
 
-ExecMTask::ExecMTask(AstExecGraph* execGraphp, AstScope* scopep,
-                     AstNodeStmt* stmtsp) VL_MT_DISABLED  //
-    : V3GraphVertex{execGraphp->depGraphp()},
-      m_id{s_nextId++},
+ExecMTask::ExecMTask(Ast_Exec_گراف* execGraphp, AstScope* scopep,
+                     Ast_گرہ_Stmt* stmtsp) VL_MT_DISABLED  //
+    : V3_گراف_راس{execGraphp->depGraphp()},
+      m_id{s_اگلا_Id++},
       m_funcp{createCFunc(execGraphp, scopep, stmtsp, m_id)},
-      m_hashName{V3Hasher::uncachedHash(m_funcp).toString()} {}
+      m_hashName{V3Hasher::uncachedHash(m_funcp).مقصد_String()} {}
 
-void ExecMTask::dump(std::ostream& str) const {
-    str << name() << "." << cvtToHex(this);
-    if (priority() || cost()) str << " [pr=" << priority() << " c=" << cvtToStr(cost()) << "]";
+خالی ExecMTask::dump(std::ostream& str) ثابت {
+    str << name() << "." << cvt_مقصد_Hex(یہ);
+    اگر (ترجیح_2() || لاگت()) str << " [pr=" << ترجیح_2() << " c=" << cvt_مقصد_Str(لاگت()) << "]";
 }
 
-std::atomic<uint32_t> ExecMTask::s_nextId{0};
+std::atomic<uint32_t> ExecMTask::s_اگلا_Id{0};
 
-namespace V3ExecGraph {
+نامخلا V3_Exec_گراف {
 
 //######################################################################
 // ThreadSchedule
@@ -71,59 +71,59 @@ namespace V3ExecGraph {
 // PackThreads::pack, which is moved from there and is const, which means we can only acquire a
 // const reference to is so no further modifications are allowed, so all members are public
 // (attributes).
-class ThreadSchedule final {
-    friend class PackThreads;
+جماعت Thread_جدول_وقت final {
+    دوست جماعت Pack_دھاگے;
 
     uint32_t m_id;  // Unique ID of a schedule
-    static uint32_t s_nextId;  // Next ID number to use
-    std::unordered_set<const ExecMTask*> mtasks;  // Mtasks in this schedule
-    uint32_t m_endTime = 0;  // Latest task end time in this schedule
+    ساکن uint32_t s_اگلا_Id;  // Next ID number to use
+    std::unordered_سیٹ<ثابت ExecMTask*> mtasks;  // Mtasks in this schedule
+    uint32_t m_انتہا_وقت = 0;  // Latest task end time in this schedule
 
-public:
+عوامی:
     // CONSTANTS
-    static constexpr uint32_t UNASSIGNED = 0xffffffff;
+    ساکن constexpr uint32_t UNASSIGNED = 0xffffffff;
 
     // TYPES
-    struct MTaskState final {
-        uint32_t completionTime = 0;  // Estimated time this mtask will complete
+    ساخت MTaskState final {
+        uint32_t completion_وقت = 0;  // Estimated time this mtask will complete
         uint32_t threadId = UNASSIGNED;  // Thread id this MTask is assigned to
-        const ExecMTask* nextp = nullptr;  // Next MTask on same thread after this
+        ثابت ExecMTask* nextp = خالی_اشاریہ;  // Next MTask on same thread after this
     };
 
     // MEMBERS
     // Allocation of sequence of MTasks to threads. Can be considered a map from thread ID to
     // the sequence of MTasks to be executed by that thread.
-    std::vector<std::vector<const ExecMTask*>> m_threads;
+    std::سمتیہ<std::سمتیہ<ثابت ExecMTask*>> m_دھاگے;
 
     // Global state for each mtask.
-    static std::unordered_map<const ExecMTask*, MTaskState> s_mtaskState;
+    ساکن std::unordered_map<ثابت ExecMTask*, MTaskState> s_mtaskState;
 
-    explicit ThreadSchedule(uint32_t nThreads)
-        : m_id{s_nextId++}
-        , m_threads{nThreads} {}
-    ThreadSchedule(ThreadSchedule&&) = default;
-    ThreadSchedule& operator=(ThreadSchedule&&) = default;
+    صریح Thread_جدول_وقت(uint32_t n_دھاگے)
+        : m_id{s_اگلا_Id++}
+        , m_دھاگے{n_دھاگے} {}
+    Thread_جدول_وقت(Thread_جدول_وقت&&) = طےشدہ;
+    Thread_جدول_وقت& عامل=(Thread_جدول_وقت&&) = طےشدہ;
 
-private:
-    VL_UNCOPYABLE(ThreadSchedule);
+نجی:
+    VL_UNCOPYABLE(Thread_جدول_وقت);
 
-    static constexpr double s_threadBoxWidth = 2.5;
-    static constexpr double s_threadBoxHeight = 1.5;
-    static constexpr double s_horizontalGap = s_threadBoxWidth / 2;
+    ساکن constexpr دوہرا s_thread_Box_چوڑائی = 2.5;
+    ساکن constexpr دوہرا s_thread_Box_اونچائی = 1.5;
+    ساکن constexpr دوہرا s_horizontalGap = s_thread_Box_چوڑائی / 2;
 
     // Debugging
     // Variant of dumpDotFilePrefixed without --dump option check
-    static void dumpDotFilePrefixedAlways(const std::vector<ThreadSchedule>& schedules,
-                                          const string& nameComment, uint32_t nThreads) {
-        dumpDotFile(schedules, v3Global.debugFilename(nameComment) + ".dot", nThreads);
+    ساکن خالی dumpDotFilePrefixedAlways(ثابت std::سمتیہ<Thread_جدول_وقت>& schedules,
+                                          ثابت string& nameComment, uint32_t n_دھاگے) {
+        dumpDotFile(schedules, v3Global.debugFilename(nameComment) + ".dot", n_دھاگے);
     }
-    static void dumpDotFile(const std::vector<ThreadSchedule>& schedules, const string& filename,
-                            uint32_t nThreads) {
+    ساکن خالی dumpDotFile(ثابت std::سمتیہ<Thread_جدول_وقت>& schedules, ثابت string& filename,
+                            uint32_t n_دھاگے) {
         // This generates a file used by graphviz, https://www.graphviz.org
-        const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-        if (logp->fail()) v3fatal("Can't write file: " << filename);
+        ثابت std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+        اگر (logp->fail()) v3fatal("Can't write file: " << filename);
 
-        // Header
+        //سرخی
         *logp << "digraph v3graph {\n";
         *logp << "  graph[layout=\"neato\" labelloc=t labeljust=l label=\"" << filename << "\"]\n";
         *logp << "  node[shape=\"rect\" ratio=\"fill\" fixedsize=true]\n";
@@ -131,100 +131,100 @@ private:
         // Thread labels
         *logp << "\n  // Threads\n";
 
-        for (uint32_t i = 0; i < nThreads; ++i) {
-            const string name = "t" + std::to_string(i);
-            const string label = "Thread " + std::to_string(i);
-            constexpr double posX = -s_horizontalGap;
-            const double posY = -static_cast<double>(i) * s_threadBoxHeight;
-            dumpDotFileEmitBlock(logp, name, label, s_threadBoxWidth, s_threadBoxHeight, posX,
+        برائے (uint32_t i = 0; i < n_دھاگے; ++i) {
+            ثابت string name = "t" + std::مقصد_string(i);
+            ثابت string label = "Thread " + std::مقصد_string(i);
+            constexpr دوہرا posX = -s_horizontalGap;
+            ثابت دوہرا posY = -static_cast<دوہرا>(i) * s_thread_Box_اونچائی;
+            dump_Dot_File_Emit_بلاک(logp, name, label, s_thread_Box_چوڑائی, s_thread_Box_اونچائی, posX,
                                  posY, "grey");
         }
 
         // MTask nodes
         *logp << "\n  // MTasks\n";
 
-        uint32_t maxCost = 0;
-        for (const auto& state : ThreadSchedule::s_mtaskState) {
-            const ExecMTask* const mtaskp = state.first;
-            maxCost = std::max(maxCost, mtaskp->cost());
+        uint32_t max_لاگت = 0;
+        برائے (ثابت خودکار& state : Thread_جدول_وقت::s_mtaskState) {
+            ثابت ExecMTask* ثابت mtaskp = state.پہلا;
+            max_لاگت = std::max(max_لاگت, mtaskp->لاگت());
         }
         // To avoid segments getting too large, limit maximal mtask length.
         // Based on the mtask cost, normalize it using segment cost
-        constexpr uint32_t segmentsPerLongestMtask = 4;
-        const uint32_t segmentCost = maxCost / segmentsPerLongestMtask;
+        constexpr uint32_t segments_فی_Longest_Mtask = 4;
+        ثابت uint32_t segment_لاگت = max_لاگت / segments_فی_Longest_Mtask;
 
         // Create columns of tasks whose execution intervals overlaps.
         // Keep offset for each column for correctly aligned tasks.
-        std::vector<double> offsets(nThreads, 0.0);
-        for (const ThreadSchedule& schedule : schedules) {
-            if (schedule.mtasks.empty()) continue;
-            using Column = std::vector<const ExecMTask*>;
-            std::vector<Column> columns = {{}};
+        std::سمتیہ<دوہرا> offsets(n_دھاگے, 0.0);
+        برائے (ثابت Thread_جدول_وقت& جدول_وقت : schedules) {
+            اگر (جدول_وقت.mtasks.خالی_خانے()) جاری;
+            استعمال عمود = std::سمتیہ<ثابت ExecMTask*>;
+            std::سمتیہ<عمود> columns = {{}};
 
             // Order tasks based on their start time
-            struct Cmp final {
-                bool operator()(const ExecMTask* const a, const ExecMTask* const b) const {
-                    if (startTime(a) == startTime(b)) return threadId(a) < threadId(b);
-                    return startTime(a) < startTime(b);
+            ساخت Cmp final {
+                منطقی عامل()(ثابت ExecMTask* ثابت a, ثابت ExecMTask* ثابت b) ثابت {
+                    اگر (آغاز_وقت(a) == آغاز_وقت(b)) واپس threadId(a) < threadId(b);
+                    واپس آغاز_وقت(a) < آغاز_وقت(b);
                 }
             };
-            const std::multiset<const ExecMTask*, Cmp> tasks(schedule.mtasks.begin(),
-                                                             schedule.mtasks.end());
+            ثابت std::multiset<ثابت ExecMTask*, Cmp> tasks(جدول_وقت.mtasks.begin(),
+                                                             جدول_وقت.mtasks.انتہا());
 
-            for (const ExecMTask* const mtaskp : tasks) {
-                Column& column = columns.back();
-                UASSERT(column.size() <= nThreads, "Invalid partitioning");
+            برائے (ثابت ExecMTask* ثابت mtaskp : tasks) {
+                عمود& عمود_2 = columns.عقب();
+                UASSERT(عمود_2.سائز() <= n_دھاگے, "Invalid partitioning");
 
-                bool intersects = true;
-                for (const ExecMTask* const earlierMtask : column) {
-                    if (endTime(mtaskp) <= startTime(earlierMtask)
-                        || startTime(mtaskp) >= endTime(earlierMtask)) {
-                        intersects = false;
-                        break;
+                منطقی intersects = سچ;
+                برائے (ثابت ExecMTask* ثابت earlierMtask : عمود_2) {
+                    اگر (انتہا_وقت(mtaskp) <= آغاز_وقت(earlierMtask)
+                        || آغاز_وقت(mtaskp) >= انتہا_وقت(earlierMtask)) {
+                        intersects = جھوٹ;
+                        توڑو;
                     }
                 }
-                if (intersects) {
-                    column.emplace_back(mtaskp);
-                } else {
-                    columns.emplace_back(Column{mtaskp});
+                اگر (intersects) {
+                    عمود_2.emplace_عقب(mtaskp);
+                } ورنہ {
+                    columns.emplace_عقب(عمود{mtaskp});
                 }
             }
 
-            UASSERT(!columns.front().empty(), "Should be populated by mtasks");
+            UASSERT(!columns.front().خالی_خانے(), "Should be populated by mtasks");
 
-            for (const Column& column : columns) {
-                double lastColumnOffset = 0;
-                for (const ExecMTask* const mtaskp : column) {
-                    dumpDotFileEmitMTask(logp, mtaskp, schedule, segmentCost, offsets);
-                    lastColumnOffset = std::max(lastColumnOffset, offsets[threadId(mtaskp)]);
+            برائے (ثابت عمود& عمود_2 : columns) {
+                دوہرا آخری_عمود_انحراف = 0;
+                برائے (ثابت ExecMTask* ثابت mtaskp : عمود_2) {
+                    dumpDotFileEmitMTask(logp, mtaskp, جدول_وقت, segment_لاگت, offsets);
+                    آخری_عمود_انحراف = std::max(آخری_عمود_انحراف, offsets[threadId(mtaskp)]);
                 }
                 // Even out column offset
-                std::fill(offsets.begin(), offsets.end(), lastColumnOffset);
+                std::fill(offsets.begin(), offsets.انتہا(), آخری_عمود_انحراف);
             }
 
-            dumpDotFileEmitFork(logp, offsets.front(), nThreads);
+            dumpDotFileEmitFork(logp, offsets.front(), n_دھاگے);
 
             // Emit MTask dependency edges
             *logp << "\n  // MTask dependencies\n";
 
-            for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-                if (thread.empty()) break;  // No more threads
+            برائے (ثابت std::سمتیہ<ثابت ExecMTask*>& thread : جدول_وقت.m_دھاگے) {
+                اگر (thread.خالی_خانے()) توڑو;  // No more threads
 
                 // Show that schedule ends when all tasks are finished
-                *logp << "  " << thread.back()->name() << " -> fork_"
-                      << static_cast<int>(offsets.front()) << "\n";
+                *logp << "  " << thread.عقب()->name() << " -> fork_"
+                      << static_cast<صحیح>(offsets.front()) << "\n";
 
                 // Show that tasks from the same thread are executed in a sequence
-                for (size_t i = 1; i < thread.size(); ++i)
+                برائے (سائز_t i = 1; i < thread.سائز(); ++i)
                     *logp << "  " << thread[i - 1]->name() << " -> " << thread[i]->name() << "\n";
 
                 // Emit cross-task dependencies
-                for (const ExecMTask* const mtaskp : thread) {
-                    for (const V3GraphEdge& edge : mtaskp->outEdges()) {
-                        const ExecMTask* const topMTaskp = edge.top()->cast<const ExecMTask>();
-                        if (topMTaskp && schedule.contains(topMTaskp)
-                            && threadId(topMTaskp) != threadId(mtaskp))
-                            *logp << "  " << mtaskp->name() << " -> " << topMTaskp->name() << "\n";
+                برائے (ثابت ExecMTask* ثابت mtaskp : thread) {
+                    برائے (ثابت V3_گراف_کنارہ& کنارہ : mtaskp->برآمد_کنارے()) {
+                        ثابت ExecMTask* ثابت چوٹی_MTaskp = کنارہ.چوٹی()->cast<ثابت ExecMTask>();
+                        اگر (چوٹی_MTaskp && جدول_وقت.شامل_ہے(چوٹی_MTaskp)
+                            && threadId(چوٹی_MTaskp) != threadId(mtaskp))
+                            *logp << "  " << mtaskp->name() << " -> " << چوٹی_MTaskp->name() << "\n";
                     }
                 }
             }
@@ -234,96 +234,96 @@ private:
         *logp << "}\n";
         logp->close();
     }
-    static void dumpDotFileEmitBlock(const std::unique_ptr<std::ofstream>& logp,
-                                     const string& name, const string& label, double width,
-                                     double height, double xPos, double yPos,
-                                     const string& fillColor) {
-        *logp << "  " << name << " [label=\"" << label << "\" width=" << width
-              << " height=" << height << " pos=\"" << xPos << "," << yPos
+    ساکن خالی dump_Dot_File_Emit_بلاک(ثابت std::unique_ptr<std::ofstream>& logp,
+                                     ثابت string& name, ثابت string& label, دوہرا چوڑائی,
+                                     دوہرا اونچائی, دوہرا xPos, دوہرا yPos,
+                                     ثابت string& fillColor) {
+        *logp << "  " << name << " [label=\"" << label << "\" width=" << چوڑائی
+              << " height=" << اونچائی << " pos=\"" << xPos << "," << yPos
               << "!\" style=\"filled\" fillcolor=\"" << fillColor << "\"]\n";
     }
-    static void dumpDotFileEmitMTask(const std::unique_ptr<std::ofstream>& logp,
-                                     const ExecMTask* const mtaskp, const ThreadSchedule& schedule,
-                                     uint32_t segmentCost, std::vector<double>& offsets) {
-        for (int i = 0; i < mtaskp->threads(); ++i) {
+    ساکن خالی dumpDotFileEmitMTask(ثابت std::unique_ptr<std::ofstream>& logp,
+                                     ثابت ExecMTask* ثابت mtaskp, ثابت Thread_جدول_وقت& جدول_وقت,
+                                     uint32_t segment_لاگت, std::سمتیہ<دوہرا>& offsets) {
+        برائے (صحیح i = 0; i < mtaskp->دھاگے(); ++i) {
             // Keep original name for the original thread of hierarchical task to keep
             // dependency tracking, add '_' for the rest to differentiate them.
-            const string name = i == 0 ? mtaskp->name() : mtaskp->name() + '_' + std::to_string(i);
-            const string label = mtaskp->name() + " (" + std::to_string(startTime(mtaskp)) + ':'
-                                 + std::to_string(endTime(mtaskp)) + ')'
-                                 + "\\ncost=" + std::to_string(mtaskp->cost())
-                                 + "\\npriority=" + std::to_string(mtaskp->priority());
-            const double width
-                = std::max(s_threadBoxWidth,
-                           s_threadBoxWidth * static_cast<double>(mtaskp->cost()) / segmentCost);
-            const uint32_t mtaskThreadId = threadId(mtaskp) + i * schedule.m_threads.size();
-            const double xPos = width / 2 + offsets[mtaskThreadId];
-            offsets[mtaskThreadId] += width + s_horizontalGap;
-            const double yPos = -s_threadBoxHeight * static_cast<double>(mtaskThreadId);
-            const string fillColor = i == 0 ? "white" : "lightgreen";
-            dumpDotFileEmitBlock(logp, name, label, width, s_threadBoxHeight, xPos, yPos,
+            ثابت string name = i == 0 ? mtaskp->name() : mtaskp->name() + '_' + std::مقصد_string(i);
+            ثابت string label = mtaskp->name() + " (" + std::مقصد_string(آغاز_وقت(mtaskp)) + ':'
+                                 + std::مقصد_string(انتہا_وقت(mtaskp)) + ')'
+                                 + "\\ncost=" + std::مقصد_string(mtaskp->لاگت())
+                                 + "\\npriority=" + std::مقصد_string(mtaskp->ترجیح_2());
+            ثابت دوہرا چوڑائی
+                = std::max(s_thread_Box_چوڑائی,
+                           s_thread_Box_چوڑائی * static_cast<دوہرا>(mtaskp->لاگت()) / segment_لاگت);
+            ثابت uint32_t mtaskThreadId = threadId(mtaskp) + i * جدول_وقت.m_دھاگے.سائز();
+            ثابت دوہرا xPos = چوڑائی / 2 + offsets[mtaskThreadId];
+            offsets[mtaskThreadId] += چوڑائی + s_horizontalGap;
+            ثابت دوہرا yPos = -s_thread_Box_اونچائی * static_cast<دوہرا>(mtaskThreadId);
+            ثابت string fillColor = i == 0 ? "white" : "lightgreen";
+            dump_Dot_File_Emit_بلاک(logp, name, label, چوڑائی, s_thread_Box_اونچائی, xPos, yPos,
                                  fillColor);
         }
     }
 
-    static void dumpDotFileEmitFork(const std::unique_ptr<std::ofstream>& logp, double offset,
-                                    uint32_t nThreads) {
-        const string& name = "fork_" + std::to_string(static_cast<int>(offset));
-        constexpr double width = s_threadBoxWidth / 8;
-        const double height = s_threadBoxHeight * nThreads;
-        const double xPos = offset - s_horizontalGap / 2;
-        const double yPos
-            = -static_cast<double>(nThreads) / 2 * s_threadBoxHeight + s_threadBoxHeight / 2;
-        dumpDotFileEmitBlock(logp, name, "", width, height, xPos, yPos, "black");
+    ساکن خالی dumpDotFileEmitFork(ثابت std::unique_ptr<std::ofstream>& logp, دوہرا انحراف,
+                                    uint32_t n_دھاگے) {
+        ثابت string& name = "fork_" + std::مقصد_string(static_cast<صحیح>(انحراف));
+        constexpr دوہرا چوڑائی = s_thread_Box_چوڑائی / 8;
+        ثابت دوہرا اونچائی = s_thread_Box_اونچائی * n_دھاگے;
+        ثابت دوہرا xPos = انحراف - s_horizontalGap / 2;
+        ثابت دوہرا yPos
+            = -static_cast<دوہرا>(n_دھاگے) / 2 * s_thread_Box_اونچائی + s_thread_Box_اونچائی / 2;
+        dump_Dot_File_Emit_بلاک(logp, name, "", چوڑائی, اونچائی, xPos, yPos, "black");
     }
 
-public:
-    static uint32_t threadId(const ExecMTask* mtaskp) {
-        const auto& it = s_mtaskState.find(mtaskp);
-        return it != s_mtaskState.end() ? it->second.threadId : UNASSIGNED;
+عوامی:
+    ساکن uint32_t threadId(ثابت ExecMTask* mtaskp) {
+        ثابت خودکار& it = s_mtaskState.ڈھونڈو(mtaskp);
+        واپس it != s_mtaskState.انتہا() ? it->دوسرا.threadId : UNASSIGNED;
     }
-    static uint32_t startTime(const ExecMTask* mtaskp) {
-        return s_mtaskState.at(mtaskp).completionTime - mtaskp->cost();
+    ساکن uint32_t آغاز_وقت(ثابت ExecMTask* mtaskp) {
+        واپس s_mtaskState.at(mtaskp).completion_وقت - mtaskp->لاگت();
     }
-    static uint32_t endTime(const ExecMTask* mtaskp) {
-        return s_mtaskState.at(mtaskp).completionTime;
+    ساکن uint32_t انتہا_وقت(ثابت ExecMTask* mtaskp) {
+        واپس s_mtaskState.at(mtaskp).completion_وقت;
     }
 
     // Returns the number of cross-thread dependencies of the given MTask. If > 0, the MTask must
     // test whether its dependencies are ready before starting, and therefore may need to block.
-    uint32_t crossThreadDependencies(const ExecMTask* mtaskp) const {
-        const uint32_t thisThreadId = threadId(mtaskp);
-        uint32_t result = 0;
-        for (const V3GraphEdge& edge : mtaskp->inEdges()) {
-            const ExecMTask* const prevp = edge.fromp()->as<ExecMTask>();
-            if (threadId(prevp) != thisThreadId && contains(prevp)) ++result;
+    uint32_t crossThreadDependencies(ثابت ExecMTask* mtaskp) ثابت {
+        ثابت uint32_t thisThreadId = threadId(mtaskp);
+        uint32_t نتیجہ = 0;
+        برائے (ثابت V3_گراف_کنارہ& کنارہ : mtaskp->اندر_کنارے()) {
+            ثابت ExecMTask* ثابت prevp = کنارہ.fromp()->as<ExecMTask>();
+            اگر (threadId(prevp) != thisThreadId && شامل_ہے(prevp)) ++نتیجہ;
         }
-        return result;
+        واپس نتیجہ;
     }
 
-    uint32_t id() const { return m_id; }
-    uint32_t scheduleOn(const ExecMTask* mtaskp, uint32_t bestThreadId) {
+    uint32_t id() ثابت { واپس m_id; }
+    uint32_t جدول_وقت_On(ثابت ExecMTask* mtaskp, uint32_t بہترین_Thread_Id) {
         mtasks.emplace(mtaskp);
-        const uint32_t bestEndTime = mtaskp->predictStart() + mtaskp->cost();
-        m_endTime = std::max(m_endTime, bestEndTime);
-        s_mtaskState[mtaskp].completionTime = bestEndTime;
-        s_mtaskState[mtaskp].threadId = bestThreadId;
+        ثابت uint32_t بہترین_انتہا_وقت = mtaskp->predict_آغاز() + mtaskp->لاگت();
+        m_انتہا_وقت = std::max(m_انتہا_وقت, بہترین_انتہا_وقت);
+        s_mtaskState[mtaskp].completion_وقت = بہترین_انتہا_وقت;
+        s_mtaskState[mtaskp].threadId = بہترین_Thread_Id;
 
         // Reference to thread in schedule we are assigning this MTask to.
-        std::vector<const ExecMTask*>& bestThread = m_threads[bestThreadId];
-        if (!bestThread.empty()) s_mtaskState[bestThread.back()].nextp = mtaskp;
+        std::سمتیہ<ثابت ExecMTask*>& بہترین_Thread = m_دھاگے[بہترین_Thread_Id];
+        اگر (!بہترین_Thread.خالی_خانے()) s_mtaskState[بہترین_Thread.عقب()].nextp = mtaskp;
 
         // Add the MTask to the schedule
-        bestThread.push_back(mtaskp);
-        return bestEndTime;
+        بہترین_Thread.ڈالو_عقب(mtaskp);
+        واپس بہترین_انتہا_وقت;
     }
-    bool contains(const ExecMTask* mtaskp) const { return mtasks.count(mtaskp); }
-    uint32_t endTime() const { return m_endTime; }
+    منطقی شامل_ہے(ثابت ExecMTask* mtaskp) ثابت { واپس mtasks.گنتی(mtaskp); }
+    uint32_t انتہا_وقت() ثابت { واپس m_انتہا_وقت; }
 };
 
-uint32_t ThreadSchedule::s_nextId = 0;
-std::unordered_map<const ExecMTask*, ThreadSchedule::MTaskState> ThreadSchedule::s_mtaskState{};
-constexpr double V3ExecGraph::ThreadSchedule::s_threadBoxWidth;
+uint32_t Thread_جدول_وقت::s_اگلا_Id = 0;
+std::unordered_map<ثابت ExecMTask*, Thread_جدول_وقت::MTaskState> Thread_جدول_وقت::s_mtaskState{};
+constexpr دوہرا V3_Exec_گراف::Thread_جدول_وقت::s_thread_Box_چوڑائی;
 
 //######################################################################
 // PackThreads
@@ -343,247 +343,247 @@ constexpr double V3ExecGraph::ThreadSchedule::s_threadBoxWidth;
 // depending on which thread is looking. Be a little bit pessimistic when
 // thread A checks the end time of an mtask running on thread B. This extra
 // "padding" avoids tight "layovers" at cross-thread dependencies.
-class PackThreads final {
+جماعت Pack_دھاگے final {
     // TYPES
-    struct MTaskCmp final {
-        bool operator()(const ExecMTask* ap, const ExecMTask* bp) const {
-            return ap->id() < bp->id();
+    ساخت MTaskCmp final {
+        منطقی عامل()(ثابت ExecMTask* ap, ثابت ExecMTask* bp) ثابت {
+            واپس ap->id() < bp->id();
         }
     };
 
     // MEMBERS
-    const uint32_t m_nThreads;  // Number of threads
-    const uint32_t m_nHierThreads;  // Number of threads used for hierarchical tasks
-    const uint32_t m_sandbagNumerator;  // Numerator padding for est runtime
-    const uint32_t m_sandbagDenom;  // Denominator padding for est runtime
+    ثابت uint32_t m_n_دھاگے;  // Number of threads
+    ثابت uint32_t m_n_Hier_دھاگے;  // Number of threads used for hierarchical tasks
+    ثابت uint32_t m_sandbagNumerator;  // Numerator padding for est runtime
+    ثابت uint32_t m_sandbagDenom;  // Denominator padding for est runtime
 
     // CONSTRUCTORS
-    explicit PackThreads(uint32_t nThreads = v3Global.opt.threads(),
-                         uint32_t nHierThreads = v3Global.opt.hierThreads(),
-                         unsigned sandbagNumerator = 30, unsigned sandbagDenom = 100)
-        : m_nThreads{nThreads}
-        , m_nHierThreads{nHierThreads}
+    صریح Pack_دھاگے(uint32_t n_دھاگے = v3Global.opt.دھاگے(),
+                         uint32_t n_Hier_دھاگے = v3Global.opt.hier_دھاگے(),
+                         غیرعلامتی sandbagNumerator = 30, غیرعلامتی sandbagDenom = 100)
+        : m_n_دھاگے{n_دھاگے}
+        , m_n_Hier_دھاگے{n_Hier_دھاگے}
         , m_sandbagNumerator{sandbagNumerator}
         , m_sandbagDenom{sandbagDenom} {}
-    ~PackThreads() = default;
-    VL_UNCOPYABLE(PackThreads);
+    ~Pack_دھاگے() = طےشدہ;
+    VL_UNCOPYABLE(Pack_دھاگے);
 
     // METHODS
-    uint32_t completionTime(const ThreadSchedule& schedule, const ExecMTask* mtaskp,
+    uint32_t completion_وقت(ثابت Thread_جدول_وقت& جدول_وقت, ثابت ExecMTask* mtaskp,
                             uint32_t threadId) {
         // Ignore tasks that were scheduled on a different schedule
-        if (!schedule.contains(mtaskp)) return 0;
-        const ThreadSchedule::MTaskState& state = schedule.s_mtaskState.at(mtaskp);
-        UASSERT(state.threadId != ThreadSchedule::UNASSIGNED, "Mtask should have assigned thread");
-        if (threadId == state.threadId) {
+        اگر (!جدول_وقت.شامل_ہے(mtaskp)) واپس 0;
+        ثابت Thread_جدول_وقت::MTaskState& state = جدول_وقت.s_mtaskState.at(mtaskp);
+        UASSERT(state.threadId != Thread_جدول_وقت::UNASSIGNED, "Mtask should have assigned thread");
+        اگر (threadId == state.threadId) {
             // No overhead on same thread
-            return state.completionTime;
+            واپس state.completion_وقت;
         }
 
         // Add some padding to the estimated runtime when looking from
         // another thread
-        uint32_t sandbaggedEndTime
-            = state.completionTime + (m_sandbagNumerator * mtaskp->cost()) / m_sandbagDenom;
+        uint32_t sandbagged_انتہا_وقت
+            = state.completion_وقت + (m_sandbagNumerator * mtaskp->لاگت()) / m_sandbagDenom;
 
         // If task B is packed after task A on thread 0, don't let thread 1
         // think that A finishes earlier than thread 0 thinks that B
         // finishes, otherwise we get priority inversions and fail the self
         // test.
-        if (state.nextp) {
-            const uint32_t successorEndTime
-                = completionTime(schedule, state.nextp, state.threadId);
-            if ((sandbaggedEndTime >= successorEndTime) && (successorEndTime > 1)) {
-                sandbaggedEndTime = successorEndTime - 1;
+        اگر (state.nextp) {
+            ثابت uint32_t successor_انتہا_وقت
+                = completion_وقت(جدول_وقت, state.nextp, state.threadId);
+            اگر ((sandbagged_انتہا_وقت >= successor_انتہا_وقت) && (successor_انتہا_وقت > 1)) {
+                sandbagged_انتہا_وقت = successor_انتہا_وقت - 1;
             }
         }
 
         UINFO(6, "Sandbagged end time for " << mtaskp->name() << " on th " << threadId << " = "
-                                            << sandbaggedEndTime);
-        return sandbaggedEndTime;
+                                            << sandbagged_انتہا_وقت);
+        واپس sandbagged_انتہا_وقت;
     }
 
-    static bool isReady(ThreadSchedule& schedule, const ExecMTask* mtaskp) {
-        for (const V3GraphEdge& edgeIn : mtaskp->inEdges()) {
-            const ExecMTask* const prevp = edgeIn.fromp()->as<const ExecMTask>();
-            if (schedule.threadId(prevp) == ThreadSchedule::UNASSIGNED) {
+    ساکن منطقی isReady(Thread_جدول_وقت& جدول_وقت, ثابت ExecMTask* mtaskp) {
+        برائے (ثابت V3_گراف_کنارہ& کنارہ_اندر : mtaskp->اندر_کنارے()) {
+            ثابت ExecMTask* ثابت prevp = کنارہ_اندر.fromp()->as<ثابت ExecMTask>();
+            اگر (جدول_وقت.threadId(prevp) == Thread_جدول_وقت::UNASSIGNED) {
                 // This predecessor is not assigned yet
-                return false;
+                واپس جھوٹ;
             }
         }
-        return true;
+        واپس سچ;
     }
 
     // Pack an MTasks from given graph into m_nThreads threads, return the schedule.
-    std::vector<ThreadSchedule> pack(V3Graph& mtaskGraph) {
-        std::vector<ThreadSchedule> result;
-        result.emplace_back(ThreadSchedule{m_nThreads});
+    std::سمتیہ<Thread_جدول_وقت> pack(V3_گراف& mtask_گراف) {
+        std::سمتیہ<Thread_جدول_وقت> نتیجہ;
+        نتیجہ.emplace_عقب(Thread_جدول_وقت{m_n_دھاگے});
 
         // To support scheduling tasks that utilize more than one thread, we introduce a wide
         // task (ExecMTask with threads() > 1). Those tasks are scheduled on a separate thread
         // schedule to ensure that indexes for simulation-time thread pool workers are not shadowed
         // by another tasks.
         // For retaining control over thread schedules, we distinguish SchedulingModes:
-        enum class SchedulingMode : uint8_t {
+        شمار جماعت Scheduling_منوال : uint8_t {
             SCHEDULING,  // Schedule normal tasks
             WIDE_TASK_DISCOVERED,  // Found a wide task, if this is the only one available,
                                    // switch to WIDE_TASK_SCHEDULING
             WIDE_TASK_SCHEDULING  // Schedule wide tasks
         };
-        SchedulingMode mode = SchedulingMode::SCHEDULING;
+        Scheduling_منوال منوال = Scheduling_منوال::SCHEDULING;
 
         // Time each thread is occupied until
-        std::vector<uint32_t> busyUntil(std::max(m_nThreads, m_nHierThreads), 0);
+        std::سمتیہ<uint32_t> busyUntil(std::max(m_n_دھاگے, m_n_Hier_دھاگے), 0);
 
         // MTasks ready to be assigned next. All their dependencies are already assigned.
-        std::set<ExecMTask*, MTaskCmp> readyMTasks;
-        int maxThreadWorkers = 1;
+        std::سیٹ<ExecMTask*, MTaskCmp> readyMTasks;
+        صحیح maxThreadWorkers = 1;
 
         // Build initial ready list
-        for (V3GraphVertex& vtx : mtaskGraph.vertices()) {
-            ExecMTask* const mtaskp = vtx.as<ExecMTask>();
-            if (isReady(result.back(), mtaskp)) readyMTasks.insert(mtaskp);
+        برائے (V3_گراف_راس& vtx : mtask_گراف.vertices()) {
+            ExecMTask* ثابت mtaskp = vtx.as<ExecMTask>();
+            اگر (isReady(نتیجہ.عقب(), mtaskp)) readyMTasks.داخل_کرو(mtaskp);
             // TODO right now we schedule tasks assuming they take the same number of threads for
             // simplification.
-            maxThreadWorkers = std::max(maxThreadWorkers, mtaskp->threads());
+            maxThreadWorkers = std::max(maxThreadWorkers, mtaskp->دھاگے());
         }
 
-        while (!readyMTasks.empty()) {
+        جب (!readyMTasks.خالی_خانے()) {
             // For each task in the ready set, compute when it might start
             // on each thread (in that thread's local time frame.)
-            uint32_t bestTime = 0xffffffff;
-            uint32_t bestThreadId = 0;
-            ExecMTask* bestMtaskp = nullptr;  // Todo: const ExecMTask*
-            ThreadSchedule& schedule = result.back();
-            for (uint32_t threadId = 0; threadId < schedule.m_threads.size(); ++threadId) {
-                for (ExecMTask* const mtaskp : readyMTasks) {
-                    if (mode != SchedulingMode::WIDE_TASK_SCHEDULING && mtaskp->threads() > 1) {
-                        mode = SchedulingMode::WIDE_TASK_DISCOVERED;
-                        continue;
+            uint32_t بہترین_وقت = 0xffffffff;
+            uint32_t بہترین_Thread_Id = 0;
+            ExecMTask* بہترین_Mtaskp = خالی_اشاریہ;  // Todo: const ExecMTask*
+            Thread_جدول_وقت& جدول_وقت = نتیجہ.عقب();
+            برائے (uint32_t threadId = 0; threadId < جدول_وقت.m_دھاگے.سائز(); ++threadId) {
+                برائے (ExecMTask* ثابت mtaskp : readyMTasks) {
+                    اگر (منوال != Scheduling_منوال::WIDE_TASK_SCHEDULING && mtaskp->دھاگے() > 1) {
+                        منوال = Scheduling_منوال::WIDE_TASK_DISCOVERED;
+                        جاری;
                     }
-                    if (mode == SchedulingMode::WIDE_TASK_SCHEDULING && mtaskp->threads() <= 1)
-                        continue;
+                    اگر (منوال == Scheduling_منوال::WIDE_TASK_SCHEDULING && mtaskp->دھاگے() <= 1)
+                        جاری;
 
-                    uint32_t timeBegin = busyUntil[threadId];
-                    if (timeBegin > bestTime) {
-                        UINFO(6, "th " << threadId << " busy until " << timeBegin
-                                       << ", later than bestTime " << bestTime
+                    uint32_t وقت_Begin = busyUntil[threadId];
+                    اگر (وقت_Begin > بہترین_وقت) {
+                        UINFO(6, "th " << threadId << " busy until " << وقت_Begin
+                                       << ", later than bestTime " << بہترین_وقت
                                        << ", skipping thread.");
-                        break;
+                        توڑو;
                     }
-                    for (const V3GraphEdge& edge : mtaskp->inEdges()) {
-                        const ExecMTask* const priorp = edge.fromp()->as<ExecMTask>();
-                        const uint32_t priorEndTime = completionTime(schedule, priorp, threadId);
-                        if (priorEndTime > timeBegin) timeBegin = priorEndTime;
+                    برائے (ثابت V3_گراف_کنارہ& کنارہ : mtaskp->اندر_کنارے()) {
+                        ثابت ExecMTask* ثابت priorp = کنارہ.fromp()->as<ExecMTask>();
+                        ثابت uint32_t پیشگی_انتہا_وقت = completion_وقت(جدول_وقت, priorp, threadId);
+                        اگر (پیشگی_انتہا_وقت > وقت_Begin) وقت_Begin = پیشگی_انتہا_وقت;
                     }
-                    UINFO(6, "Task " << mtaskp->name() << " start at " << timeBegin
+                    UINFO(6, "Task " << mtaskp->name() << " start at " << وقت_Begin
                                      << " on thread " << threadId);
-                    if ((timeBegin < bestTime)
-                        || ((timeBegin == bestTime)
-                            && bestMtaskp  // Redundant, but appeases static analysis tools
-                            && (mtaskp->priority() > bestMtaskp->priority()))) {
-                        bestTime = timeBegin;
-                        bestThreadId = threadId;
-                        bestMtaskp = mtaskp;
+                    اگر ((وقت_Begin < بہترین_وقت)
+                        || ((وقت_Begin == بہترین_وقت)
+                            && بہترین_Mtaskp  // Redundant, but appeases static analysis tools
+                            && (mtaskp->ترجیح_2() > بہترین_Mtaskp->ترجیح_2()))) {
+                        بہترین_وقت = وقت_Begin;
+                        بہترین_Thread_Id = threadId;
+                        بہترین_Mtaskp = mtaskp;
                     }
                 }
             }
 
-            const uint32_t endTime = schedule.endTime();
+            ثابت uint32_t انتہا_وقت = جدول_وقت.انتہا_وقت();
 
-            if (!bestMtaskp && mode == SchedulingMode::WIDE_TASK_DISCOVERED) {
-                mode = SchedulingMode::WIDE_TASK_SCHEDULING;
-                const uint32_t size = m_nHierThreads / maxThreadWorkers;
-                UASSERT(size, "Thread pool size should be bigger than 0");
+            اگر (!بہترین_Mtaskp && منوال == Scheduling_منوال::WIDE_TASK_DISCOVERED) {
+                منوال = Scheduling_منوال::WIDE_TASK_SCHEDULING;
+                ثابت uint32_t سائز = m_n_Hier_دھاگے / maxThreadWorkers;
+                UASSERT(سائز, "Thread pool size should be bigger than 0");
                 // If no tasks were added to the normal thread schedule, clear it.
-                if (schedule.s_mtaskState.empty()) result.clear();
-                result.emplace_back(ThreadSchedule{size});
-                std::fill(busyUntil.begin(), busyUntil.end(), endTime);
-                continue;
+                اگر (جدول_وقت.s_mtaskState.خالی_خانے()) نتیجہ.clear();
+                نتیجہ.emplace_عقب(Thread_جدول_وقت{سائز});
+                std::fill(busyUntil.begin(), busyUntil.انتہا(), انتہا_وقت);
+                جاری;
             }
 
-            if (!bestMtaskp && mode == SchedulingMode::WIDE_TASK_SCHEDULING) {
-                mode = SchedulingMode::SCHEDULING;
-                UASSERT(!schedule.s_mtaskState.empty(), "Mtask should be added");
-                result.emplace_back(ThreadSchedule{m_nThreads});
-                std::fill(busyUntil.begin(), busyUntil.end(), endTime);
-                continue;
+            اگر (!بہترین_Mtaskp && منوال == Scheduling_منوال::WIDE_TASK_SCHEDULING) {
+                منوال = Scheduling_منوال::SCHEDULING;
+                UASSERT(!جدول_وقت.s_mtaskState.خالی_خانے(), "Mtask should be added");
+                نتیجہ.emplace_عقب(Thread_جدول_وقت{m_n_دھاگے});
+                std::fill(busyUntil.begin(), busyUntil.انتہا(), انتہا_وقت);
+                جاری;
             }
 
-            UASSERT(bestMtaskp, "Should have found some task");
+            UASSERT(بہترین_Mtaskp, "Should have found some task");
 
-            bestMtaskp->predictStart(bestTime);
-            const uint32_t bestEndTime = schedule.scheduleOn(bestMtaskp, bestThreadId);
-            busyUntil[bestThreadId] = bestEndTime;
+            بہترین_Mtaskp->predict_آغاز(بہترین_وقت);
+            ثابت uint32_t بہترین_انتہا_وقت = جدول_وقت.جدول_وقت_On(بہترین_Mtaskp, بہترین_Thread_Id);
+            busyUntil[بہترین_Thread_Id] = بہترین_انتہا_وقت;
 
             // Update the ready list
-            const size_t erased = readyMTasks.erase(bestMtaskp);
-            UASSERT_OBJ(erased > 0, bestMtaskp, "Should have erased something?");
-            for (const V3GraphEdge& edgeOut : bestMtaskp->outEdges()) {
-                ExecMTask* const nextp = edgeOut.top()->as<ExecMTask>();
+            ثابت سائز_t erased = readyMTasks.erase(بہترین_Mtaskp);
+            UASSERT_OBJ(erased > 0, بہترین_Mtaskp, "Should have erased something?");
+            برائے (ثابت V3_گراف_کنارہ& کنارہ_برآمد : بہترین_Mtaskp->برآمد_کنارے()) {
+                ExecMTask* ثابت nextp = کنارہ_برآمد.چوٹی()->as<ExecMTask>();
                 // Dependent MTask should not yet be assigned to a thread
-                UASSERT(schedule.threadId(nextp) == ThreadSchedule::UNASSIGNED,
+                UASSERT(جدول_وقت.threadId(nextp) == Thread_جدول_وقت::UNASSIGNED,
                         "Tasks after one being assigned should not be assigned yet");
                 // Dependent MTask should not be ready yet, since dependency is just being assigned
-                UASSERT_OBJ(readyMTasks.find(nextp) == readyMTasks.end(), nextp,
+                UASSERT_OBJ(readyMTasks.ڈھونڈو(nextp) == readyMTasks.انتہا(), nextp,
                             "Tasks after one being assigned should not be ready");
-                if (isReady(schedule, nextp)) {
-                    readyMTasks.insert(nextp);
+                اگر (isReady(جدول_وقت, nextp)) {
+                    readyMTasks.داخل_کرو(nextp);
                     UINFO(6, "Inserted " << nextp->name() << " into ready");
                 }
             }
         }
 
         // All schedules are combined on a single graph
-        if (dumpGraphLevel() >= 4)
-            ThreadSchedule::dumpDotFilePrefixedAlways(result, "schedule", m_nThreads);
+        اگر (dump_گراف_Level() >= 4)
+            Thread_جدول_وقت::dumpDotFilePrefixedAlways(نتیجہ, "schedule", m_n_دھاگے);
 
-        return result;
+        واپس نتیجہ;
     }
 
-public:
+عوامی:
     // SELF TEST
-    static void selfTest() {
+    ساکن خالی selfTest() {
         // Dummy trigger vector for the test graphs, which are never emitted
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, "__VtestTriggered",
-                                        v3Global.rootp()->findUInt64DType()};
-        AstScope* const scopep = new AstScope{flp, nullptr, "test", nullptr, nullptr};
-        AstVarScope* const trigVscp = new AstVarScope{flp, scopep, varp};
-        selfTestHierFirst(trigVscp);
-        selfTestNormalFirst(trigVscp);
-        VL_DO_DANGLING(trigVscp->deleteTree(), trigVscp);
-        VL_DO_DANGLING(scopep->deleteTree(), scopep);
-        VL_DO_DANGLING(varp->deleteTree(), varp);
+        File_سطر* ثابت flp = v3Global.rootp()->fileline();
+        AstVar* ثابت varp = نیا AstVar{flp, VVarType::MODULETEMP, "__VtestTriggered",
+                                        v3Global.rootp()->ڈھونڈو_UInt64_DType()};
+        AstScope* ثابت scopep = نیا AstScope{flp, خالی_اشاریہ, "test", خالی_اشاریہ, خالی_اشاریہ};
+        AstVarScope* ثابت trigVscp = نیا AstVarScope{flp, scopep, varp};
+        self_Test_Hier_پہلا(trigVscp);
+        self_Test_معمول_پہلا(trigVscp);
+        VL_DO_DANGLING(trigVscp->delete_درخت(), trigVscp);
+        VL_DO_DANGLING(scopep->delete_درخت(), scopep);
+        VL_DO_DANGLING(varp->delete_درخت(), varp);
     }
-    static void selfTestNormalFirst(AstVarScope* trigVscp) {
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstExecGraph* const execGraphp = new AstExecGraph{flp, "test", trigVscp};
-        V3Graph& graph = *execGraphp->depGraphp();
-        const auto makeBody = [&]() -> AstNodeStmt* { return new AstComment{flp, ""}; };
-        ExecMTask* const t0 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t0->cost(1000);
-        t0->priority(1100);
-        ExecMTask* const t1 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t1->cost(100);
-        t1->priority(100);
-        ExecMTask* const t2 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t2->cost(100);
-        t2->priority(100);
-        t2->threads(2);
-        ExecMTask* const t3 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t3->cost(100);
-        t3->priority(100);
-        t3->threads(3);
-        ExecMTask* const t4 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t4->cost(100);
-        t4->priority(100);
-        t4->threads(3);
-        ExecMTask* const t5 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t5->cost(100);
-        t5->priority(100);
-        ExecMTask* const t6 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t6->cost(100);
-        t6->priority(100);
+    ساکن خالی self_Test_معمول_پہلا(AstVarScope* trigVscp) {
+        File_سطر* ثابت flp = v3Global.rootp()->fileline();
+        Ast_Exec_گراف* ثابت execGraphp = نیا Ast_Exec_گراف{flp, "test", trigVscp};
+        V3_گراف& گراف = *execGraphp->depGraphp();
+        ثابت خودکار makeBody = [&]() -> Ast_گرہ_Stmt* { واپس نیا AstComment{flp, ""}; };
+        ExecMTask* ثابت t0 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t0->لاگت(1000);
+        t0->ترجیح_2(1100);
+        ExecMTask* ثابت t1 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t1->لاگت(100);
+        t1->ترجیح_2(100);
+        ExecMTask* ثابت t2 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t2->لاگت(100);
+        t2->ترجیح_2(100);
+        t2->دھاگے(2);
+        ExecMTask* ثابت t3 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t3->لاگت(100);
+        t3->ترجیح_2(100);
+        t3->دھاگے(3);
+        ExecMTask* ثابت t4 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t4->لاگت(100);
+        t4->ترجیح_2(100);
+        t4->دھاگے(3);
+        ExecMTask* ثابت t5 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t5->لاگت(100);
+        t5->ترجیح_2(100);
+        ExecMTask* ثابت t6 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t6->لاگت(100);
+        t6->ترجیح_2(100);
 
         /*
                           0
@@ -594,299 +594,299 @@ public:
                          /    \
                         5      6
         */
-        new V3GraphEdge{&graph, t0, t1, 1};
-        new V3GraphEdge{&graph, t0, t2, 1};
-        new V3GraphEdge{&graph, t2, t3, 1};
-        new V3GraphEdge{&graph, t2, t4, 1};
-        new V3GraphEdge{&graph, t3, t5, 1};
-        new V3GraphEdge{&graph, t4, t6, 1};
+        نیا V3_گراف_کنارہ{&گراف, t0, t1, 1};
+        نیا V3_گراف_کنارہ{&گراف, t0, t2, 1};
+        نیا V3_گراف_کنارہ{&گراف, t2, t3, 1};
+        نیا V3_گراف_کنارہ{&گراف, t2, t4, 1};
+        نیا V3_گراف_کنارہ{&گراف, t3, t5, 1};
+        نیا V3_گراف_کنارہ{&گراف, t4, t6, 1};
 
-        constexpr uint32_t threads = 2;
-        constexpr uint32_t hierThreads = 6;
-        PackThreads packer{threads, hierThreads,
+        constexpr uint32_t دھاگے = 2;
+        constexpr uint32_t hier_دھاگے = 6;
+        Pack_دھاگے packer{دھاگے, hier_دھاگے,
                            3,  // Sandbag numerator
                            10};  // Sandbag denom
 
-        const std::vector<ThreadSchedule> scheduled = packer.pack(graph);
-        UASSERT_SELFTEST(scheduled.size(), 3);
-        UASSERT_SELFTEST(scheduled[0].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0].size(), 2);
-        for (size_t i = 1; i < scheduled[0].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[0].m_threads[i].size(), 0);
+        ثابت std::سمتیہ<Thread_جدول_وقت> scheduled = packer.pack(گراف);
+        UASSERT_SELFTEST(scheduled.سائز(), 3);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے.سائز(), دھاگے);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے[0].سائز(), 2);
+        برائے (سائز_t i = 1; i < scheduled[0].m_دھاگے.سائز(); ++i)
+            UASSERT_SELFTEST(scheduled[0].m_دھاگے[i].سائز(), 0);
 
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][0], t0);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][1], t1);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے[0][0], t0);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے[0][1], t1);
 
-        UASSERT_SELFTEST(scheduled[1].m_threads.size(), hierThreads / 3);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][0], t2);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][1], t3);
-        UASSERT_SELFTEST(scheduled[1].m_threads[1][0], t4);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے.سائز(), hier_دھاگے / 3);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے[0][0], t2);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے[0][1], t3);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے[1][0], t4);
 
-        UASSERT_SELFTEST(scheduled[2].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[2].m_threads[0][0], t5);
-        UASSERT_SELFTEST(scheduled[2].m_threads[1][0], t6);
+        UASSERT_SELFTEST(scheduled[2].m_دھاگے.سائز(), دھاگے);
+        UASSERT_SELFTEST(scheduled[2].m_دھاگے[0][0], t5);
+        UASSERT_SELFTEST(scheduled[2].m_دھاگے[1][0], t6);
 
-        UASSERT_SELFTEST(ThreadSchedule::s_mtaskState.size(), 7);
+        UASSERT_SELFTEST(Thread_جدول_وقت::s_mtaskState.سائز(), 7);
 
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t0), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t1), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t2), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t3), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t4), 1);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t5), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t6), 1);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t0), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t1), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t2), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t3), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t4), 1);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t5), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t6), 1);
 
         // On its native thread, we see the actual end time for t0:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 0), 1000);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t0, 0), 1000);
         // On the other thread, we see a sandbagged end time which does not
         // exceed the t1 end time:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 1), 1099);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t0, 1), 1099);
 
         // Actual end time on native thread:
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t1, 0), 1100);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t1, 0), 1100);
         // Sandbagged end time seen on thread 1.  Note it does not compound
         // with t0's sandbagged time; compounding caused trouble in
         // practice.
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t1, 1), 1130);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t1, 1), 1130);
 
         // Wide task scheduling
 
         // Task does not depend on previous or future schedules
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t2, 0), 0);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[2], t2, 0), 0);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t2, 0), 0);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[2], t2, 0), 0);
 
         // We allow sandbagging for hierarchical children tasks, this does not affect
         // wide task scheduling. When the next schedule is created it doesn't matter
         // anyway.
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 0), 1200);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 1), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 2), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 3), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 4), 1230);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t2, 5), 1230);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 0), 1200);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 1), 1230);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 2), 1230);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 3), 1230);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 4), 1230);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t2, 5), 1230);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 0), 1300);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 1), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 2), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 3), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 4), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t3, 5), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 0), 1300);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 1), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 2), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 3), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 4), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t3, 5), 1330);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 0), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 1), 1330);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 2), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 3), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 4), 1360);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t4, 5), 1360);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 0), 1360);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 1), 1330);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 2), 1360);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 3), 1360);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 4), 1360);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t4, 5), 1360);
 
-        for (V3GraphVertex& vtx : graph.vertices()) vtx.as<ExecMTask>()->funcp()->deleteTree();
-        VL_DO_DANGLING(execGraphp->deleteTree(), execGraphp);
-        ThreadSchedule::s_mtaskState.clear();
+        برائے (V3_گراف_راس& vtx : گراف.vertices()) vtx.as<ExecMTask>()->funcp()->delete_درخت();
+        VL_DO_DANGLING(execGraphp->delete_درخت(), execGraphp);
+        Thread_جدول_وقت::s_mtaskState.clear();
     }
-    static void selfTestHierFirst(AstVarScope* trigVscp) {
-        FileLine* const flp = v3Global.rootp()->fileline();
-        AstExecGraph* const execGraphp = new AstExecGraph{flp, "test", trigVscp};
-        V3Graph& graph = *execGraphp->depGraphp();
-        const auto makeBody = [&]() -> AstNodeStmt* { return new AstComment{flp, ""}; };
-        ExecMTask* const t0 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t0->cost(1000);
-        t0->priority(1100);
-        t0->threads(2);
-        ExecMTask* const t1 = new ExecMTask{execGraphp, nullptr, makeBody()};
-        t1->cost(100);
-        t1->priority(100);
+    ساکن خالی self_Test_Hier_پہلا(AstVarScope* trigVscp) {
+        File_سطر* ثابت flp = v3Global.rootp()->fileline();
+        Ast_Exec_گراف* ثابت execGraphp = نیا Ast_Exec_گراف{flp, "test", trigVscp};
+        V3_گراف& گراف = *execGraphp->depGraphp();
+        ثابت خودکار makeBody = [&]() -> Ast_گرہ_Stmt* { واپس نیا AstComment{flp, ""}; };
+        ExecMTask* ثابت t0 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t0->لاگت(1000);
+        t0->ترجیح_2(1100);
+        t0->دھاگے(2);
+        ExecMTask* ثابت t1 = نیا ExecMTask{execGraphp, خالی_اشاریہ, makeBody()};
+        t1->لاگت(100);
+        t1->ترجیح_2(100);
 
         /*
                           0
                           |
                           1
         */
-        new V3GraphEdge{&graph, t0, t1, 1};
+        نیا V3_گراف_کنارہ{&گراف, t0, t1, 1};
 
-        constexpr uint32_t threads = 1;
-        constexpr uint32_t hierThreads = 2;
-        PackThreads packer{threads, hierThreads,
+        constexpr uint32_t دھاگے = 1;
+        constexpr uint32_t hier_دھاگے = 2;
+        Pack_دھاگے packer{دھاگے, hier_دھاگے,
                            3,  // Sandbag numerator
                            10};  // Sandbag denom
 
-        const std::vector<ThreadSchedule> scheduled = packer.pack(graph);
-        UASSERT_SELFTEST(scheduled.size(), 2);
-        UASSERT_SELFTEST(scheduled[0].m_threads.size(), hierThreads / 2);
-        UASSERT_SELFTEST(scheduled[0].m_threads[0].size(), 1);
-        for (size_t i = 1; i < scheduled[0].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[0].m_threads[i].size(), 0);
+        ثابت std::سمتیہ<Thread_جدول_وقت> scheduled = packer.pack(گراف);
+        UASSERT_SELFTEST(scheduled.سائز(), 2);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے.سائز(), hier_دھاگے / 2);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے[0].سائز(), 1);
+        برائے (سائز_t i = 1; i < scheduled[0].m_دھاگے.سائز(); ++i)
+            UASSERT_SELFTEST(scheduled[0].m_دھاگے[i].سائز(), 0);
 
-        UASSERT_SELFTEST(scheduled[0].m_threads[0][0], t0);
+        UASSERT_SELFTEST(scheduled[0].m_دھاگے[0][0], t0);
 
-        UASSERT_SELFTEST(scheduled[1].m_threads.size(), threads);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0].size(), 1);
-        for (size_t i = 1; i < scheduled[1].m_threads.size(); ++i)
-            UASSERT_SELFTEST(scheduled[1].m_threads[i].size(), 0);
-        UASSERT_SELFTEST(scheduled[1].m_threads[0][0], t1);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے.سائز(), دھاگے);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے[0].سائز(), 1);
+        برائے (سائز_t i = 1; i < scheduled[1].m_دھاگے.سائز(); ++i)
+            UASSERT_SELFTEST(scheduled[1].m_دھاگے[i].سائز(), 0);
+        UASSERT_SELFTEST(scheduled[1].m_دھاگے[0][0], t1);
 
-        UASSERT_SELFTEST(ThreadSchedule::s_mtaskState.size(), 2);
+        UASSERT_SELFTEST(Thread_جدول_وقت::s_mtaskState.سائز(), 2);
 
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t0), 0);
-        UASSERT_SELFTEST(ThreadSchedule::threadId(t1), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t0), 0);
+        UASSERT_SELFTEST(Thread_جدول_وقت::threadId(t1), 0);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[0], t0, 0), 1000);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[0], t0, 0), 1000);
 
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t1, 0), 1100);
-        UASSERT_SELFTEST(packer.completionTime(scheduled[1], t1, 1), 1130);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t1, 0), 1100);
+        UASSERT_SELFTEST(packer.completion_وقت(scheduled[1], t1, 1), 1130);
 
-        for (V3GraphVertex& vtx : graph.vertices()) vtx.as<ExecMTask>()->funcp()->deleteTree();
-        VL_DO_DANGLING(execGraphp->deleteTree(), execGraphp);
-        ThreadSchedule::s_mtaskState.clear();
+        برائے (V3_گراف_راس& vtx : گراف.vertices()) vtx.as<ExecMTask>()->funcp()->delete_درخت();
+        VL_DO_DANGLING(execGraphp->delete_درخت(), execGraphp);
+        Thread_جدول_وقت::s_mtaskState.clear();
     }
 
-    static std::vector<ThreadSchedule> apply(V3Graph& mtaskGraph) {
-        return PackThreads{}.pack(mtaskGraph);
+    ساکن std::سمتیہ<Thread_جدول_وقت> apply(V3_گراف& mtask_گراف) {
+        واپس Pack_دھاگے{}.pack(mtask_گراف);
     }
 };
 
-using EstimateAndProfiled = std::pair<uint64_t, uint64_t>;  // cost est, cost profiled
-using Costs = std::unordered_map<uint32_t, EstimateAndProfiled>;
+استعمال EstimateAndProfiled = std::pair<uint64_t, uint64_t>;  // cost est, cost profiled
+استعمال Costs = std::unordered_map<uint32_t, EstimateAndProfiled>;
 
-void normalizeCosts(Costs& costs) {
-    const auto scaleCost = [](uint64_t value, double multiplier) {
-        double scaled = static_cast<double>(value) * multiplier;
-        if (value && scaled < 1) scaled = 1;
-        return static_cast<uint64_t>(scaled);
+خالی normalizeCosts(Costs& costs) {
+    ثابت خودکار scale_لاگت = [](uint64_t قدر, دوہرا multiplier) {
+        دوہرا scaled = static_cast<دوہرا>(قدر) * multiplier;
+        اگر (قدر && scaled < 1) scaled = 1;
+        واپس static_cast<uint64_t>(scaled);
     };
 
     // For all costs with a profile, compute sum
-    uint64_t sumCostProfiled = 0;  // For data with estimate and profile
-    uint64_t sumCostEstimate = 0;  // For data with estimate and profile
-    for (const auto& est : costs) {
-        if (est.second.second) {
-            sumCostEstimate += est.second.first;
-            sumCostProfiled += est.second.second;
+    uint64_t مجموع_لاگت_Profiled = 0;  // For data with estimate and profile
+    uint64_t مجموع_لاگت_Estimate = 0;  // For data with estimate and profile
+    برائے (ثابت خودکار& est : costs) {
+        اگر (est.دوسرا.دوسرا) {
+            مجموع_لاگت_Estimate += est.دوسرا.پہلا;
+            مجموع_لاگت_Profiled += est.دوسرا.دوسرا;
         }
     }
 
-    if (sumCostEstimate) {
+    اگر (مجموع_لاگت_Estimate) {
         // For data where we don't have profiled data, compute how much to
         // scale up/down the estimate to make on same relative scale as
         // profiled data.  (Improves results if only a few profiles missing.)
-        const double estToProfile
-            = static_cast<double>(sumCostProfiled) / static_cast<double>(sumCostEstimate);
-        UINFO(5, "Estimated data needs scaling by " << estToProfile
-                                                    << ", sumCostProfiled=" << sumCostProfiled
-                                                    << " sumCostEstimate=" << sumCostEstimate);
-        for (auto& est : costs) {
-            uint64_t& costEstimate = est.second.first;
-            costEstimate = scaleCost(costEstimate, estToProfile);
+        ثابت دوہرا est_مقصد_Profile
+            = static_cast<دوہرا>(مجموع_لاگت_Profiled) / static_cast<دوہرا>(مجموع_لاگت_Estimate);
+        UINFO(5, "Estimated data needs scaling by " << est_مقصد_Profile
+                                                    << ", sumCostProfiled=" << مجموع_لاگت_Profiled
+                                                    << " sumCostEstimate=" << مجموع_لاگت_Estimate);
+        برائے (خودکار& est : costs) {
+            uint64_t& لاگت_Estimate = est.دوسرا.پہلا;
+            لاگت_Estimate = scale_لاگت(لاگت_Estimate, est_مقصد_Profile);
         }
     }
 
     // COSTS can overflow a uint32.  Using maximum value of costs, scale all down
-    uint64_t maxCost = 0;
-    for (auto& est : costs) {
-        const uint64_t& costEstimate = est.second.first;
-        const uint64_t& costProfiled = est.second.second;
-        if (maxCost < costEstimate) maxCost = costEstimate;
-        if (maxCost < costProfiled) maxCost = costProfiled;
-        UINFO(9, "Post uint scale: ce = " << est.second.first << " cp=" << est.second.second);
+    uint64_t max_لاگت = 0;
+    برائے (خودکار& est : costs) {
+        ثابت uint64_t& لاگت_Estimate = est.دوسرا.پہلا;
+        ثابت uint64_t& لاگت_Profiled = est.دوسرا.دوسرا;
+        اگر (max_لاگت < لاگت_Estimate) max_لاگت = لاگت_Estimate;
+        اگر (max_لاگت < لاگت_Profiled) max_لاگت = لاگت_Profiled;
+        UINFO(9, "Post uint scale: ce = " << est.دوسرا.پہلا << " cp=" << est.دوسرا.دوسرا);
     }
-    constexpr uint64_t scaleDownTo = 10000000;  // Extra room for future algorithms to add costs
-    if (maxCost > scaleDownTo) {
-        const double scaleup = static_cast<double>(scaleDownTo) / static_cast<double>(maxCost);
+    constexpr uint64_t scale_نیچے_کو_مقصد = 10000000;  // Extra room for future algorithms to add costs
+    اگر (max_لاگت > scale_نیچے_کو_مقصد) {
+        ثابت دوہرا scaleup = static_cast<دوہرا>(scale_نیچے_کو_مقصد) / static_cast<دوہرا>(max_لاگت);
         UINFO(5, "Scaling data to within 32-bits by multiply by=" << scaleup
-                                                                  << ", maxCost=" << maxCost);
-        for (auto& est : costs) {
-            est.second.first = scaleCost(est.second.first, scaleup);
-            est.second.second = scaleCost(est.second.second, scaleup);
+                                                                  << ", maxCost=" << max_لاگت);
+        برائے (خودکار& est : costs) {
+            est.دوسرا.پہلا = scale_لاگت(est.دوسرا.پہلا, scaleup);
+            est.دوسرا.دوسرا = scale_لاگت(est.دوسرا.دوسرا, scaleup);
         }
     }
 }
 
-void removeEmptyMTasks(AstExecGraph* execGraphp) {
+خالی remove_خالی_خانے_MTasks(Ast_Exec_گراف* execGraphp) {
     // Remove the calls to empty MTask functions, then the MTasks
-    for (AstCCall *callp = execGraphp->callsp(), *nextp; callp; callp = nextp) {
+    برائے (AstCCall *callp = execGraphp->callsp(), *nextp; callp; callp = nextp) {
         nextp = VN_AS(callp->nextp(), CCall);
-        if (!callp->funcp()->stmtsp()) VL_DO_DANGLING(callp->unlinkFrBack()->deleteTree(), callp);
+        اگر (!callp->funcp()->stmtsp()) VL_DO_DANGLING(callp->unlink_Fr_عقب()->delete_درخت(), callp);
     }
-    V3Graph* const execMTaskGraphp = execGraphp->depGraphp();
-    for (V3GraphVertex* const vtxp : execMTaskGraphp->vertices().unlinkable()) {
-        ExecMTask* const mtaskp = vtxp->as<ExecMTask>();
-        AstCFunc* const funcp = mtaskp->funcp();
-        if (funcp->stmtsp()) continue;
+    V3_گراف* ثابت execMTaskGraphp = execGraphp->depGraphp();
+    برائے (V3_گراف_راس* ثابت vtxp : execMTaskGraphp->vertices().unlinkable()) {
+        ExecMTask* ثابت mtaskp = vtxp->as<ExecMTask>();
+        AstCFunc* ثابت funcp = mtaskp->funcp();
+        اگر (funcp->stmtsp()) جاری;
 
         UINFO(6, "Removing empty MTask " << mtaskp->name());
         // Redirect edges
-        mtaskp->rerouteEdges(execMTaskGraphp);
+        mtaskp->reroute_کنارے(execMTaskGraphp);
         // Delete the MTask function
-        VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+        VL_DO_DANGLING(funcp->unlink_Fr_عقب()->delete_درخت(), funcp);
         // Delete the MTask vertex
         VL_DO_DANGLING(mtaskp->unlinkDelete(execMTaskGraphp), mtaskp);
     }
     // Remove redundant dependencies
-    execMTaskGraphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
+    execMTaskGraphp->remove_Redundant_کنارے_Max(&V3_گراف_کنارہ::followAlwaysTrue);
 }
 
-void fillinCosts(V3Graph* execMTaskGraphp) {
+خالی fillinCosts(V3_گراف* execMTaskGraphp) {
     // Pass 1: See what profiling data applies
     Costs costs;  // For each mtask, costs
 
-    for (V3GraphVertex& vtx : execMTaskGraphp->vertices()) {
-        ExecMTask* const mtp = vtx.as<ExecMTask>();
+    برائے (V3_گراف_راس& vtx : execMTaskGraphp->vertices()) {
+        ExecMTask* ثابت mtp = vtx.as<ExecMTask>();
         // This estimate is 64 bits, but the final mtask graph algorithm needs 32 bits
-        const uint64_t costEstimate = V3InstrCount::count(mtp->funcp(), false);
-        const uint64_t costProfiled
-            = V3Control::getProfileData(v3Global.opt.prefix(), mtp->hashName());
-        if (costProfiled) {
+        ثابت uint64_t لاگت_Estimate = V3_Instr_گنتی::گنتی(mtp->funcp(), جھوٹ);
+        ثابت uint64_t لاگت_Profiled
+            = V3Control::get_Profile_ڈیٹا(v3Global.opt.سابقہ(), mtp->hashName());
+        اگر (لاگت_Profiled) {
             UINFO(5, "Profile data for mtask " << mtp->id() << " " << mtp->hashName()
-                                               << " cost override " << costProfiled);
+                                               << " cost override " << لاگت_Profiled);
         }
-        costs[mtp->id()] = std::make_pair(costEstimate, costProfiled);
+        costs[mtp->id()] = std::make_pair(لاگت_Estimate, لاگت_Profiled);
     }
 
     normalizeCosts(costs /*ref*/);
 
-    int totalEstimates = 0;
-    int missingProfiles = 0;
-    for (V3GraphVertex& vtx : execMTaskGraphp->vertices()) {
-        ExecMTask* const mtp = vtx.as<ExecMTask>();
-        const uint32_t costEstimate = costs[mtp->id()].first;
-        const uint64_t costProfiled = costs[mtp->id()].second;
-        UINFO(9, "ce = " << costEstimate << " cp=" << costProfiled);
-        UASSERT(costEstimate <= (1UL << 31), "cost scaling math would overflow uint32");
-        UASSERT(costProfiled <= (1UL << 31), "cost scaling math would overflow uint32");
-        const uint64_t costProfiled32 = static_cast<uint32_t>(costProfiled);
-        uint32_t costToUse = costProfiled32;
-        if (!costProfiled32) {
-            costToUse = costEstimate;
-            if (costEstimate != 0) ++missingProfiles;
+    صحیح کل_Estimates = 0;
+    صحیح missingProfiles = 0;
+    برائے (V3_گراف_راس& vtx : execMTaskGraphp->vertices()) {
+        ExecMTask* ثابت mtp = vtx.as<ExecMTask>();
+        ثابت uint32_t لاگت_Estimate = costs[mtp->id()].پہلا;
+        ثابت uint64_t لاگت_Profiled = costs[mtp->id()].دوسرا;
+        UINFO(9, "ce = " << لاگت_Estimate << " cp=" << لاگت_Profiled);
+        UASSERT(لاگت_Estimate <= (1UL << 31), "cost scaling math would overflow uint32");
+        UASSERT(لاگت_Profiled <= (1UL << 31), "cost scaling math would overflow uint32");
+        ثابت uint64_t لاگت_Profiled32 = static_cast<uint32_t>(لاگت_Profiled);
+        uint32_t لاگت_مقصد_Use = لاگت_Profiled32;
+        اگر (!لاگت_Profiled32) {
+            لاگت_مقصد_Use = لاگت_Estimate;
+            اگر (لاگت_Estimate != 0) ++missingProfiles;
         }
-        if (costEstimate != 0) ++totalEstimates;
-        mtp->cost(costToUse);
-        mtp->priority(costToUse);
+        اگر (لاگت_Estimate != 0) ++کل_Estimates;
+        mtp->لاگت(لاگت_مقصد_Use);
+        mtp->ترجیح_2(لاگت_مقصد_Use);
     }
 
-    if (missingProfiles) {
-        if (FileLine* const fl = V3Control::getProfileDataFileLine()) {
-            if (V3Control::containsMTaskProfileData()) {
+    اگر (missingProfiles) {
+        اگر (File_سطر* ثابت fl = V3Control::get_Profile_ڈیٹا_File_سطر()) {
+            اگر (V3Control::شامل_ہے_MTask_Profile_ڈیٹا()) {
                 fl->v3warn(PROFOUTOFDATE, "Profile data for mtasks may be out of date. "
-                                              << missingProfiles << " of " << totalEstimates
+                                              << missingProfiles << " of " << کل_Estimates
                                               << " mtasks had no data");
             }
         }
     }
 }
 
-void finalizeCosts(V3Graph* execMTaskGraphp) {
-    GraphStreamUnordered ser(execMTaskGraphp, GraphWay::REVERSE);
-    while (const V3GraphVertex* const vxp = ser.nextp()) {
-        ExecMTask* const mtp = const_cast<V3GraphVertex*>(vxp)->as<ExecMTask>();
+خالی finalizeCosts(V3_گراف* execMTaskGraphp) {
+    گراف_دھارا_Unordered ser(execMTaskGraphp, گراف_Way::الٹ_2);
+    جب (ثابت V3_گراف_راس* ثابت vxp = ser.nextp()) {
+        ExecMTask* ثابت mtp = const_cast<V3_گراف_راس*>(vxp)->as<ExecMTask>();
         // "Priority" is the critical path from the start of the mtask, to
         // the end of the graph reachable from this mtask.  Given the
         // choice among several ready mtasks, we'll want to start the
         // highest priority one first, so we're always working on the "long
         // pole"
-        for (V3GraphEdge& edge : mtp->outEdges()) {
-            const ExecMTask* const followp = edge.top()->as<ExecMTask>();
-            if ((followp->priority() + mtp->cost()) > mtp->priority()) {
-                mtp->priority(followp->priority() + mtp->cost());
+        برائے (V3_گراف_کنارہ& کنارہ : mtp->برآمد_کنارے()) {
+            ثابت ExecMTask* ثابت followp = کنارہ.چوٹی()->as<ExecMTask>();
+            اگر ((followp->ترجیح_2() + mtp->لاگت()) > mtp->ترجیح_2()) {
+                mtp->ترجیح_2(followp->ترجیح_2() + mtp->لاگت());
             }
         }
     }
@@ -894,372 +894,372 @@ void finalizeCosts(V3Graph* execMTaskGraphp) {
     // Removing tasks may cause edges that were formerly non-transitive to
     // become transitive. Also we just created new edges around the removed
     // tasks, which could be transitive. Prune out all transitive edges.
-    execMTaskGraphp->removeTransitiveEdges();
+    execMTaskGraphp->remove_متعدی_کنارے();
 
     // Record summary stats for final m_tasks graph.
-    const auto report = execMTaskGraphp->parallelismReport([](const V3GraphVertex* vtxp) {  //
-        return vtxp->as<const ExecMTask>()->cost();
+    ثابت خودکار report = execMTaskGraphp->parallelismReport([](ثابت V3_گراف_راس* vtxp) {  //
+        واپس vtxp->as<ثابت ExecMTask>()->لاگت();
     });
-    V3Stats::addStat("MTask graph, final, critical path cost", report.criticalPathCost());
-    V3Stats::addStat("MTask graph, final, total graph cost", report.totalGraphCost());
-    V3Stats::addStat("MTask graph, final, mtask count", report.vertexCount());
-    V3Stats::addStat("MTask graph, final, edge count", report.edgeCount());
-    V3Stats::addStat("MTask graph, final, parallelism factor", report.parallelismFactor());
-    if (debug() >= 3) {
+    V3Stats::جوڑو_Stat("MTask graph, final, critical path cost", report.critical_راستہ_لاگت());
+    V3Stats::جوڑو_Stat("MTask graph, final, total graph cost", report.کل_گراف_لاگت());
+    V3Stats::جوڑو_Stat("MTask graph, final, mtask count", report.راس_گنتی());
+    V3Stats::جوڑو_Stat("MTask graph, final, edge count", report.کنارہ_گنتی());
+    V3Stats::جوڑو_Stat("MTask graph, final, parallelism factor", report.parallelism_ضربی_عدد());
+    اگر (debug() >= 3) {
         UINFO(0, "\n");
         UINFO(0, "    Final mtask parallelism report:");
-        UINFO(0, "    Critical path cost = " << report.criticalPathCost());
-        UINFO(0, "    Total graph cost = " << report.totalGraphCost());
-        UINFO(0, "    MTask vertex count = " << report.vertexCount());
-        UINFO(0, "    Edge count = " << report.edgeCount());
-        UINFO(0, "    Parallelism factor = " << report.parallelismFactor());
+        UINFO(0, "    Critical path cost = " << report.critical_راستہ_لاگت());
+        UINFO(0, "    Total graph cost = " << report.کل_گراف_لاگت());
+        UINFO(0, "    MTask vertex count = " << report.راس_گنتی());
+        UINFO(0, "    Edge count = " << report.کنارہ_گنتی());
+        UINFO(0, "    Parallelism factor = " << report.parallelism_ضربی_عدد());
     }
 }
 
 // Create an mtask state variable in the top module, waiting for 'nDependencies'
-AstVar* newMTaskStateVar(const std::string& name, uint32_t nDependencies) {
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
-    AstBasicDType* const dtypep
-        = v3Global.rootp()->typeTablep()->findBasicDType(fl, VBasicDTypeKwd::MTASKSTATE);
-    AstVar* const varp = new AstVar{fl, VVarType::MODULETEMP, "__Vm_mtaskstate_" + name, dtypep};
-    varp->isConst(true);
-    varp->valuep(new AstConst{fl, nDependencies});
-    modp->addStmtsp(varp);
-    return varp;
+AstVar* newMTaskStateVar(ثابت std::string& name, uint32_t nDependencies) {
+    Ast_گرہ_Module* ثابت modp = v3Global.rootp()->چوٹی_Modulep();
+    File_سطر* ثابت fl = modp->fileline();
+    AstBasicDType* ثابت dtypep
+        = v3Global.rootp()->typeTablep()->ڈھونڈو_Basic_DType(fl, VBasicDTypeKwd::MTASKSTATE);
+    AstVar* ثابت varp = نیا AstVar{fl, VVarType::MODULETEMP, "__Vm_mtaskstate_" + name, dtypep};
+    varp->isConst(سچ);
+    varp->valuep(نیا AstConst{fl, nDependencies});
+    modp->جوڑو_Stmtsp(varp);
+    واپس varp;
 }
 
 // Statement calling 'method' on the given mtask state variable
-AstCStmt* newMTaskStateCall(AstVar* varp, const std::string& method) {
-    FileLine* const fl = varp->fileline();
-    AstVarRef* const refp = new AstVarRef{fl, varp, VAccess::READWRITE};
+AstCStmt* newMTaskStateCall(AstVar* varp, ثابت std::string& طریقہ) {
+    File_سطر* ثابت fl = varp->fileline();
+    AstVarRef* ثابت refp = نیا AstVarRef{fl, varp, VAccess::READWRITE};
     // Not 'this', the thread functions are static
-    const AstScope* const topScopep = v3Global.rootp()->topScopep()->scopep();
-    refp->selfPointer(VSelfPointerText{VSelfPointerText::VlSyms{}, topScopep->nameDotless()});
-    AstCStmt* const stmtp = new AstCStmt{fl};
-    stmtp->add(refp);
-    stmtp->add("." + method + ";");
-    return stmtp;
+    ثابت AstScope* ثابت چوٹی_Scopep = v3Global.rootp()->چوٹی_Scopep()->scopep();
+    refp->self_اشارہ_گر(VSelf_اشارہ_گر_متن{VSelf_اشارہ_گر_متن::VlSyms{}, چوٹی_Scopep->nameDotless()});
+    AstCStmt* ثابت stmtp = نیا AstCStmt{fl};
+    stmtp->جوڑو(refp);
+    stmtp->جوڑو("." + طریقہ + ";");
+    واپس stmtp;
 }
 
-void addMTaskToFunction(const ThreadSchedule& schedule, const uint32_t threadId, AstCFunc* funcp,
-                        const ExecMTask* mtaskp,
-                        const std::unordered_map<const ExecMTask*, AstVar*>& stateVars) {
-    AstScope* const scopep = v3Global.rootp()->topScopep()->scopep();
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
+خالی جوڑو_MTask_مقصد_Function(ثابت Thread_جدول_وقت& جدول_وقت, ثابت uint32_t threadId, AstCFunc* funcp,
+                        ثابت ExecMTask* mtaskp,
+                        ثابت std::unordered_map<ثابت ExecMTask*, AstVar*>& stateVars) {
+    AstScope* ثابت scopep = v3Global.rootp()->چوٹی_Scopep()->scopep();
+    Ast_گرہ_Module* ثابت modp = v3Global.rootp()->چوٹی_Modulep();
+    File_سطر* ثابت fl = modp->fileline();
 
     // Helper function to make the code a bit more legible
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        funcp->addStmtsp(new AstCStmt{fl, stmt});
+    ثابت خودکار جوڑو_CStmt = [=](ثابت string& stmt) -> خالی {  //
+        funcp->جوڑو_Stmtsp(نیا AstCStmt{fl, stmt});
     };
 
-    if (schedule.crossThreadDependencies(mtaskp)) {
+    اگر (جدول_وقت.crossThreadDependencies(mtaskp)) {
         // This mtask has dependencies executed on another thread, so it may block. Wait on the
         // task state variable to be notified.
-        if (v3Global.opt.profExec()) {
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
+        اگر (v3Global.opt.profExec()) {
+            جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
         }
-        funcp->addStmtsp(
+        funcp->جوڑو_Stmtsp(
             newMTaskStateCall(stateVars.at(mtaskp), "waitUntilUpstreamDone(even_cycle)"));
-        if (v3Global.opt.profExec()) {
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
+        اگر (v3Global.opt.profExec()) {
+            جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
         }
     }
 
-    if (v3Global.opt.profPgo()) {
+    اگر (v3Global.opt.profPgo()) {
         // No lock around startCounter, as counter numbers are unique per thread
-        addCStmt("vlSymsp->_vm_pgoProfiler.startCounter(" + std::to_string(mtaskp->id()) + ");");
+        جوڑو_CStmt("vlSymsp->_vm_pgoProfiler.startCounter(" + std::مقصد_string(mtaskp->id()) + ");");
     }
 
     // Call the MTask function
-    AstCCall* const callp = new AstCCall{fl, mtaskp->funcp()};
-    callp->selfPointer(VSelfPointerText{VSelfPointerText::VlSyms{}, scopep->nameDotless()});
-    callp->dtypeSetVoid();
-    funcp->addStmtsp(callp->makeStmt());
+    AstCCall* ثابت callp = نیا AstCCall{fl, mtaskp->funcp()};
+    callp->self_اشارہ_گر(VSelf_اشارہ_گر_متن{VSelf_اشارہ_گر_متن::VlSyms{}, scopep->nameDotless()});
+    callp->dtype_سیٹ_Void();
+    funcp->جوڑو_Stmtsp(callp->makeStmt());
 
-    if (v3Global.opt.profPgo()) {
+    اگر (v3Global.opt.profPgo()) {
         // No lock around stopCounter, as counter numbers are unique per thread
-        addCStmt("vlSymsp->_vm_pgoProfiler.stopCounter(" + std::to_string(mtaskp->id()) + ");");
+        جوڑو_CStmt("vlSymsp->_vm_pgoProfiler.stopCounter(" + std::مقصد_string(mtaskp->id()) + ");");
     }
 
     // For any dependent mtask that's on another thread, signal one dependency completion.
-    for (const V3GraphEdge& edge : mtaskp->outEdges()) {
-        const ExecMTask* const nextp = edge.top()->as<ExecMTask>();
-        if (schedule.threadId(nextp) != threadId && schedule.contains(nextp)) {
-            funcp->addStmtsp(
+    برائے (ثابت V3_گراف_کنارہ& کنارہ : mtaskp->برآمد_کنارے()) {
+        ثابت ExecMTask* ثابت nextp = کنارہ.چوٹی()->as<ExecMTask>();
+        اگر (جدول_وقت.threadId(nextp) != threadId && جدول_وقت.شامل_ہے(nextp)) {
+            funcp->جوڑو_Stmtsp(
                 newMTaskStateCall(stateVars.at(nextp), "signalUpstreamDone(even_cycle)"));
         }
     }
 }
 
-const std::vector<AstCFunc*> createThreadFunctions(const ThreadSchedule& schedule,
-                                                   const string& tag) {
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    FileLine* const fl = modp->fileline();
+ثابت std::سمتیہ<AstCFunc*> createThreadFunctions(ثابت Thread_جدول_وقت& جدول_وقت,
+                                                   ثابت string& لیبل) {
+    Ast_گرہ_Module* ثابت modp = v3Global.rootp()->چوٹی_Modulep();
+    File_سطر* ثابت fl = modp->fileline();
 
-    std::vector<AstCFunc*> funcps;
+    std::سمتیہ<AstCFunc*> funcps;
 
     // Create the task state variables up front, as threads signal mtasks on other threads
-    std::unordered_map<const ExecMTask*, AstVar*> stateVars;
-    for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-        for (const ExecMTask* const mtaskp : thread) {
-            if (const uint32_t nDependencies = schedule.crossThreadDependencies(mtaskp)) {
-                stateVars.emplace(mtaskp, newMTaskStateVar(cvtToStr(mtaskp->id()), nDependencies));
+    std::unordered_map<ثابت ExecMTask*, AstVar*> stateVars;
+    برائے (ثابت std::سمتیہ<ثابت ExecMTask*>& thread : جدول_وقت.m_دھاگے) {
+        برائے (ثابت ExecMTask* ثابت mtaskp : thread) {
+            اگر (ثابت uint32_t nDependencies = جدول_وقت.crossThreadDependencies(mtaskp)) {
+                stateVars.emplace(mtaskp, newMTaskStateVar(cvt_مقصد_Str(mtaskp->id()), nDependencies));
             }
         }
     }
 
     // For each thread, create a function representing its entry point
-    for (const std::vector<const ExecMTask*>& thread : schedule.m_threads) {
-        if (thread.empty()) continue;
-        const uint32_t threadId = schedule.threadId(thread.front());
-        const string name{"__Vthread__" + tag + "__s" + cvtToStr(schedule.id()) + "__t"
-                          + cvtToStr(threadId)};
-        AstCFunc* const funcp = new AstCFunc{fl, name, nullptr, "void"};
-        modp->addStmtsp(funcp);
-        funcps.push_back(funcp);
-        funcp->isStatic(true);  // Uses void self pointer, so static and hand rolled
-        funcp->isLoose(true);
-        funcp->entryPoint(true);
+    برائے (ثابت std::سمتیہ<ثابت ExecMTask*>& thread : جدول_وقت.m_دھاگے) {
+        اگر (thread.خالی_خانے()) جاری;
+        ثابت uint32_t threadId = جدول_وقت.threadId(thread.front());
+        ثابت string name{"__Vthread__" + لیبل + "__s" + cvt_مقصد_Str(جدول_وقت.id()) + "__t"
+                          + cvt_مقصد_Str(threadId)};
+        AstCFunc* ثابت funcp = نیا AstCFunc{fl, name, خالی_اشاریہ, "void"};
+        modp->جوڑو_Stmtsp(funcp);
+        funcps.ڈالو_عقب(funcp);
+        funcp->isStatic(سچ);  // Uses void self pointer, so static and hand rolled
+        funcp->isLoose(سچ);
+        funcp->اندراج_نقطہ(سچ);
         funcp->argTypes("void* voidSelf, bool even_cycle");
 
         // Setup vlSelf and vlSyms
-        funcp->addStmtsp(new AstCStmt{fl, EmitCUtil::voidSelfAssign(modp)});
-        funcp->addStmtsp(new AstCStmt{fl, EmitCUtil::symClassAssign()});
+        funcp->جوڑو_Stmtsp(نیا AstCStmt{fl, EmitCUtil::void_Self_تفویض(modp)});
+        funcp->جوڑو_Stmtsp(نیا AstCStmt{fl, EmitCUtil::sym_Class_تفویض()});
 
         // Invoke each mtask scheduled to this thread from the thread function
-        for (const ExecMTask* const mtaskp : thread) {
-            addMTaskToFunction(schedule, threadId, funcp, mtaskp, stateVars);
+        برائے (ثابت ExecMTask* ثابت mtaskp : thread) {
+            جوڑو_MTask_مقصد_Function(جدول_وقت, threadId, funcp, mtaskp, stateVars);
         }
     }
 
-    return funcps;
+    واپس funcps;
 }
 
-void addThreadStartWrapper(AstExecGraph* const execGraphp) {
+خالی جوڑو_Thread_آغاز_Wrapper(Ast_Exec_گراف* ثابت execGraphp) {
     // FileLine used for constructing nodes below
-    FileLine* const fl = v3Global.rootp()->fileline();
-    const string& tag = execGraphp->name();
+    File_سطر* ثابت fl = v3Global.rootp()->fileline();
+    ثابت string& لیبل = execGraphp->name();
 
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{fl, stmt});
+    ثابت خودکار جوڑو_CStmt = [=](ثابت string& stmt) -> خالی {  //
+        execGraphp->runfuncp()->جوڑو_Stmtsp(نیا AstCStmt{fl, stmt});
     };
 
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphBegin();");
+    اگر (v3Global.opt.profExec()) {
+        جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphBegin();");
     }
 
-    addCStmt("vlSymsp->__Vm_even_cycle__" + tag + " = !vlSymsp->__Vm_even_cycle__" + tag + ";");
+    جوڑو_CStmt("vlSymsp->__Vm_even_cycle__" + لیبل + " = !vlSymsp->__Vm_even_cycle__" + لیبل + ";");
 
-    if (!v3Global.opt.hierBlocks().empty()) addCStmt("std::vector<size_t> indexes;");
+    اگر (!v3Global.opt.hier_بلاکیں().خالی_خانے()) جوڑو_CStmt("std::vector<size_t> indexes;");
 }
 
-void addThreadEndWrapper(AstExecGraph* const execGraphp) {
+خالی جوڑو_Thread_انتہا_Wrapper(Ast_Exec_گراف* ثابت execGraphp) {
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        FileLine* const flp = v3Global.rootp()->fileline();
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{flp, stmt});
+    ثابت خودکار جوڑو_CStmt = [=](ثابت string& stmt) -> خالی {  //
+        File_سطر* ثابت flp = v3Global.rootp()->fileline();
+        execGraphp->runfuncp()->جوڑو_Stmtsp(نیا AstCStmt{flp, stmt});
     };
 
-    addCStmt("Verilated::mtaskId(0);");
-    if (v3Global.opt.profExec()) { addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphEnd();"); }
+    جوڑو_CStmt("Verilated::mtaskId(0);");
+    اگر (v3Global.opt.profExec()) { جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).execGraphEnd();"); }
 }
-void addThreadStartToExecGraph(AstExecGraph* const execGraphp,
-                               const std::vector<AstCFunc*>& funcps, uint32_t scheduleId) {
+خالی جوڑو_Thread_آغاز_مقصد_Exec_گراف(Ast_Exec_گراف* ثابت execGraphp,
+                               ثابت std::سمتیہ<AstCFunc*>& funcps, uint32_t جدول_وقت_Id) {
     // FileLine used for constructing nodes below
-    FileLine* const fl = v3Global.rootp()->fileline();
-    const string& tag = execGraphp->name();
+    File_سطر* ثابت fl = v3Global.rootp()->fileline();
+    ثابت string& لیبل = execGraphp->name();
 
     // The fake "final" mtask state variable, signaled by each thread when finished
-    AstVar* const finalVarp
-        = newMTaskStateVar("final__" + cvtToStr(scheduleId) + "__" + tag, funcps.size());
-    for (AstCFunc* const funcp : funcps) {
-        funcp->addStmtsp(newMTaskStateCall(finalVarp, "signalUpstreamDone(even_cycle)"));
+    AstVar* ثابت finalVarp
+        = newMTaskStateVar("final__" + cvt_مقصد_Str(جدول_وقت_Id) + "__" + لیبل, funcps.سائز());
+    برائے (AstCFunc* ثابت funcp : funcps) {
+        funcp->جوڑو_Stmtsp(newMTaskStateCall(finalVarp, "signalUpstreamDone(even_cycle)"));
     }
 
     // Add thread function invocations to execGraph
-    const auto addCStmt = [=](const string& stmt) -> void {  //
-        execGraphp->runfuncp()->addStmtsp(new AstCStmt{fl, stmt});
+    ثابت خودکار جوڑو_CStmt = [=](ثابت string& stmt) -> خالی {  //
+        execGraphp->runfuncp()->جوڑو_Stmtsp(نیا AstCStmt{fl, stmt});
     };
 
-    const uint32_t last = funcps.size() - 1;
-    if (!v3Global.opt.hierBlocks().empty() && last > 0) {
-        addCStmt("for (size_t i = 0; i < " + std::to_string(last) + "; ++i) {\n"  //
+    ثابت uint32_t آخری = funcps.سائز() - 1;
+    اگر (!v3Global.opt.hier_بلاکیں().خالی_خانے() && آخری > 0) {
+        جوڑو_CStmt("for (size_t i = 0; i < " + std::مقصد_string(آخری) + "; ++i) {\n"  //
                  + "indexes.push_back(vlSymsp->__Vm_threadPoolp->assignWorkerIndex());\n"  //
                  + "}");
     }
     uint32_t i = 0;
-    for (AstCFunc* const funcp : funcps) {
-        if (i != last) {
+    برائے (AstCFunc* ثابت funcp : funcps) {
+        اگر (i != آخری) {
             // The first N-1 will run on the thread pool.
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            execGraphp->runfuncp()->addStmtsp(cstmtp);
-            cstmtp->add("vlSymsp->__Vm_threadPoolp->workerp(");
-            if (v3Global.opt.hierChild() || !v3Global.opt.hierBlocks().empty()) {
-                cstmtp->add("indexes[" + std::to_string(i) + "]");
-            } else {
-                cstmtp->add(std::to_string(i));
+            AstCStmt* ثابت cstmtp = نیا AstCStmt{fl};
+            execGraphp->runfuncp()->جوڑو_Stmtsp(cstmtp);
+            cstmtp->جوڑو("vlSymsp->__Vm_threadPoolp->workerp(");
+            اگر (v3Global.opt.hier_بچہ() || !v3Global.opt.hier_بلاکیں().خالی_خانے()) {
+                cstmtp->جوڑو("indexes[" + std::مقصد_string(i) + "]");
+            } ورنہ {
+                cstmtp->جوڑو(std::مقصد_string(i));
             }
-            cstmtp->add(")->addTask(");
-            cstmtp->add(new AstAddrOfCFunc{fl, funcp});
-            cstmtp->add(", vlSelf, vlSymsp->__Vm_even_cycle__" + tag + ");");
-        } else {
+            cstmtp->جوڑو(")->addTask(");
+            cstmtp->جوڑو(نیا Ast_Addr_کا_CFunc{fl, funcp});
+            cstmtp->جوڑو(", vlSelf, vlSymsp->__Vm_even_cycle__" + لیبل + ");");
+        } ورنہ {
             // The last will run on the main thread.
-            AstCCall* const callp = new AstCCall{fl, funcp};
-            callp->dtypeSetVoid();
-            callp->argTypes("vlSelf, vlSymsp->__Vm_even_cycle__" + tag);
-            execGraphp->runfuncp()->addStmtsp(callp->makeStmt());
+            AstCCall* ثابت callp = نیا AstCCall{fl, funcp};
+            callp->dtype_سیٹ_Void();
+            callp->argTypes("vlSelf, vlSymsp->__Vm_even_cycle__" + لیبل);
+            execGraphp->runfuncp()->جوڑو_Stmtsp(callp->makeStmt());
         }
         ++i;
     }
-    V3Stats::addStatSum("Optimizations, Thread schedule total tasks", i);
+    V3Stats::جوڑو_Stat_مجموع("Optimizations, Thread schedule total tasks", i);
 
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
+    اگر (v3Global.opt.profExec()) {
+        جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitBegin();");
     }
-    execGraphp->runfuncp()->addStmtsp(newMTaskStateCall(
-        finalVarp, "waitUntilUpstreamDone(vlSymsp->__Vm_even_cycle__" + tag + ")"));
-    if (v3Global.opt.profExec()) {
-        addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
+    execGraphp->runfuncp()->جوڑو_Stmtsp(newMTaskStateCall(
+        finalVarp, "waitUntilUpstreamDone(vlSymsp->__Vm_even_cycle__" + لیبل + ")"));
+    اگر (v3Global.opt.profExec()) {
+        جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).threadScheduleWaitEnd();");
     }
     // Free all assigned worker indices in this section
-    if (!v3Global.opt.hierBlocks().empty() && last > 0) {
-        addCStmt("vlSymsp->__Vm_threadPoolp->freeWorkerIndexes(indexes);");
+    اگر (!v3Global.opt.hier_بلاکیں().خالی_خانے() && آخری > 0) {
+        جوڑو_CStmt("vlSymsp->__Vm_threadPoolp->freeWorkerIndexes(indexes);");
     }
 }
 
-void processMTaskBodies(AstExecGraph* const execGraphp) {
-    for (V3GraphVertex* const vtxp : execGraphp->depGraphp()->vertices().unlinkable()) {
-        ExecMTask* const mtaskp = vtxp->as<ExecMTask>();
-        AstCFunc* const funcp = mtaskp->funcp();
+خالی processMTaskBodies(Ast_Exec_گراف* ثابت execGraphp) {
+    برائے (V3_گراف_راس* ثابت vtxp : execGraphp->depGraphp()->vertices().unlinkable()) {
+        ExecMTask* ثابت mtaskp = vtxp->as<ExecMTask>();
+        AstCFunc* ثابت funcp = mtaskp->funcp();
         // Temporarily unlink function body so we can add more statemetns
-        AstNode* stmtsp = funcp->stmtsp()->unlinkFrBackWithNext();
+        Ast_گرہ* stmtsp = funcp->stmtsp()->unlink_Fr_عقب_With_اگلا();
 
         // Helper function to make the code a bit more legible
-        const auto addCStmt = [=](const string& stmt) -> void {  //
-            funcp->addStmtsp(new AstCStmt{execGraphp->fileline(), stmt});
+        ثابت خودکار جوڑو_CStmt = [=](ثابت string& stmt) -> خالی {  //
+            funcp->جوڑو_Stmtsp(نیا AstCStmt{execGraphp->fileline(), stmt});
         };
 
         // Profiling mtaskStart
-        if (v3Global.opt.profExec()) {
-            std::string args = std::to_string(mtaskp->id());
-            args += ", " + std::to_string(mtaskp->predictStart());
-            args += ", \"";
-            if (v3Global.opt.hierChild()) args += v3Global.opt.topModule();
-            args += "\"";
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskBegin(" + args + ");");
+        اگر (v3Global.opt.profExec()) {
+            std::string دلائل = std::مقصد_string(mtaskp->id());
+            دلائل += ", " + std::مقصد_string(mtaskp->predict_آغاز());
+            دلائل += ", \"";
+            اگر (v3Global.opt.hier_بچہ()) دلائل += v3Global.opt.چوٹی_Module();
+            دلائل += "\"";
+            جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskBegin(" + دلائل + ");");
         }
         // Set mtask ID in the run-time system
-        addCStmt("Verilated::mtaskId(" + std::to_string(mtaskp->id()) + ");");
+        جوڑو_CStmt("Verilated::mtaskId(" + std::مقصد_string(mtaskp->id()) + ");");
         // Add back the body
-        funcp->addStmtsp(stmtsp);
+        funcp->جوڑو_Stmtsp(stmtsp);
         // Flush message queue
-        addCStmt("Verilated::endOfThreadMTask(vlSymsp->__Vm_evalMsgQp);");
+        جوڑو_CStmt("Verilated::endOfThreadMTask(vlSymsp->__Vm_evalMsgQp);");
         // Profiling mtaskEnd
-        if (v3Global.opt.profExec()) {
-            const std::string& args = std::to_string(mtaskp->cost());
-            addCStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskEnd(" + args + ");");
+        اگر (v3Global.opt.profExec()) {
+            ثابت std::string& دلائل = std::مقصد_string(mtaskp->لاگت());
+            جوڑو_CStmt("VL_EXEC_TRACE_ADD_RECORD(vlSymsp).mtaskEnd(" + دلائل + ");");
         }
     }
 }
 
-void implementExecGraph(AstExecGraph* const execGraphp, const ThreadSchedule& schedule) {
+خالی implement_Exec_گراف(Ast_Exec_گراف* ثابت execGraphp, ثابت Thread_جدول_وقت& جدول_وقت) {
     // Nothing to be done if there are no MTasks in the graph at all.
-    if (execGraphp->depGraphp()->empty()) return;
+    اگر (execGraphp->depGraphp()->خالی_خانے()) واپس;
 
     // Create a function to be run by each thread.
-    const std::vector<AstCFunc*>& funcps = createThreadFunctions(schedule, execGraphp->name());
-    UASSERT(!funcps.empty(), "Non-empty ExecGraph yields no threads?");
+    ثابت std::سمتیہ<AstCFunc*>& funcps = createThreadFunctions(جدول_وقت, execGraphp->name());
+    UASSERT(!funcps.خالی_خانے(), "Non-empty ExecGraph yields no threads?");
 
     // Start the thread functions from the function that dispatches the graph.
-    addThreadStartToExecGraph(execGraphp, funcps, schedule.id());
+    جوڑو_Thread_آغاز_مقصد_Exec_گراف(execGraphp, funcps, جدول_وقت.id());
 }
 
-void createRunFunction(AstExecGraph* const execGraphp) {
+خالی create_تسلسل_Function(Ast_Exec_گراف* ثابت execGraphp) {
     // Create the function that dispatches the graph to the thread pool, as scheduled statically
-    FileLine* const flp = execGraphp->fileline();
-    AstNodeModule* const modp = v3Global.rootp()->topModulep();
-    AstCFunc* const funcp = new AstCFunc{flp, "runExecGraph_" + execGraphp->name(), nullptr};
-    funcp->isLoose(true);
-    funcp->voidSelf(true);  // Called through VlExecGraph::Fnp
-    funcp->dontCombine(true);
-    modp->addStmtsp(funcp);
+    File_سطر* ثابت flp = execGraphp->fileline();
+    Ast_گرہ_Module* ثابت modp = v3Global.rootp()->چوٹی_Modulep();
+    AstCFunc* ثابت funcp = نیا AstCFunc{flp, "runExecGraph_" + execGraphp->name(), خالی_اشاریہ};
+    funcp->isLoose(سچ);
+    funcp->voidSelf(سچ);  // Called through VlExecGraph::Fnp
+    funcp->dontCombine(سچ);
+    modp->جوڑو_Stmtsp(funcp);
     execGraphp->runfuncp(funcp);
 }
 
-void addTriggerMasks(AstExecGraph* const execGraphp) {
+خالی جوڑو_Trigger_Masks(Ast_Exec_گراف* ثابت execGraphp) {
     // Add to 'maskps' a constant table for each MTask in 'callsp', with the trigger bits its
     // code tests
-    FileLine* const flp = execGraphp->fileline();
-    AstVar* const triggersp = execGraphp->triggerp()->varp();
-    for (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
-        std::map<uint32_t, uint64_t> wordMasks;
-        callp->funcp()->foreach([&](const AstTriggered* trigp) {
+    File_سطر* ثابت flp = execGraphp->fileline();
+    AstVar* ثابت triggersp = execGraphp->triggerp()->varp();
+    برائے (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
+        std::map<uint32_t, uint64_t> لفظ_Masks;
+        callp->funcp()->foreach([&](ثابت AstTriggered* trigp) {
             UASSERT_OBJ(trigp->trigRefp()->varp() == triggersp, trigp,
                         "MTask tests another trigger vector");
-            for (const uint32_t index : trigp->indices()) {
-                wordMasks[VL_BITWORD_Q(index)] |= VL_BIT_Q(index);
+            برائے (ثابت uint32_t اشاریہ : trigp->indices()) {
+                لفظ_Masks[VL_BITWORD_Q(اشاریہ)] |= VL_ثنائی_ہندسہ_Q(اشاریہ);
             }
         });
-        AstConsArray* const consp = new AstConsArray{flp, triggersp->dtypep(),
-                                                     new AstConst{flp, AstConst::Unsized64{}, 0}};
-        for (const auto& wordMask : wordMasks) {
-            consp->valuep(wordMask.first,
-                          new AstConst{flp, AstConst::Unsized64{}, wordMask.second});
+        AstConsArray* ثابت consp = نیا AstConsArray{flp, triggersp->dtypep(),
+                                                     نیا AstConst{flp, AstConst::Unsized64{}, 0}};
+        برائے (ثابت خودکار& لفظ_نقاب : لفظ_Masks) {
+            consp->valuep(لفظ_نقاب.پہلا,
+                          نیا AstConst{flp, AstConst::Unsized64{}, لفظ_نقاب.دوسرا});
         }
-        execGraphp->addMaskps(V3ConstPool::find(consp));
-        VL_DO_DANGLING(consp->deleteTree(), consp);
+        execGraphp->جوڑو_Maskps(V3ConstPool::ڈھونڈو(consp));
+        VL_DO_DANGLING(consp->delete_درخت(), consp);
     }
 }
 
-void addTriggerCosts(AstExecGraph* const execGraphp) {
+خالی جوڑو_Trigger_Costs(Ast_Exec_گراف* ثابت execGraphp) {
     // Set 'triggerCostsp' to a constant table with the static cost of the logic each trigger
     // guards in the MTasks
-    FileLine* const flp = execGraphp->fileline();
-    const uint32_t nTriggers
+    File_سطر* ثابت flp = execGraphp->fileline();
+    ثابت uint32_t nTriggers
         = VN_AS(execGraphp->triggerp()->varp()->dtypep(), UnpackArrayDType)->elementsConst()
           * VL_QUADSIZE;
-    std::vector<uint32_t> costs(nTriggers, 0);
-    for (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
+    std::سمتیہ<uint32_t> costs(nTriggers, 0);
+    برائے (AstCCall* callp = execGraphp->callsp(); callp; callp = VN_AS(callp->nextp(), CCall)) {
         callp->funcp()->foreach([&](AstIf* ifp) {
-            if (const AstTriggered* const trigp = VN_CAST(ifp->condp(), Triggered)) {
-                const uint32_t cost = V3InstrCount::count(ifp, false);
-                for (const uint32_t index : trigp->indices()) costs.at(index) += cost;
+            اگر (ثابت AstTriggered* ثابت trigp = VN_CAST(ifp->condp(), Triggered)) {
+                ثابت uint32_t لاگت = V3_Instr_گنتی::گنتی(ifp, جھوٹ);
+                برائے (ثابت uint32_t اشاریہ : trigp->indices()) costs.at(اشاریہ) += لاگت;
             }
         });
     }
-    AstNetlist* const netlistp = v3Global.rootp();
-    AstUnpackArrayDType* const dtypep
-        = new AstUnpackArrayDType{flp, netlistp->findBitDType(32, 32, VSigning::UNSIGNED),
-                                  new AstRange{flp, static_cast<int>(nTriggers - 1), 0}};
-    netlistp->typeTablep()->addTypesp(dtypep);
-    AstConsArray* const consp = new AstConsArray{flp, dtypep, new AstConst{flp, 0}};
-    for (uint32_t index = 0; index < nTriggers; ++index) {
-        if (costs[index]) consp->valuep(index, new AstConst{flp, costs[index]});
+    AstNetlist* ثابت netlistp = v3Global.rootp();
+    AstUnpackArrayDType* ثابت dtypep
+        = نیا AstUnpackArrayDType{flp, netlistp->ڈھونڈو_ثنائی_ہندسہ_DType(32, 32, VSigning::UNSIGNED),
+                                  نیا AstRange{flp, static_cast<صحیح>(nTriggers - 1), 0}};
+    netlistp->typeTablep()->جوڑو_Typesp(dtypep);
+    AstConsArray* ثابت consp = نیا AstConsArray{flp, dtypep, نیا AstConst{flp, 0}};
+    برائے (uint32_t اشاریہ = 0; اشاریہ < nTriggers; ++اشاریہ) {
+        اگر (costs[اشاریہ]) consp->valuep(اشاریہ, نیا AstConst{flp, costs[اشاریہ]});
     }
-    execGraphp->triggerCostsp(V3ConstPool::find(consp));
-    VL_DO_DANGLING(consp->deleteTree(), consp);
+    execGraphp->triggerCostsp(V3ConstPool::ڈھونڈو(consp));
+    VL_DO_DANGLING(consp->delete_درخت(), consp);
 }
 
 // Called by Verilator top stage
-void implement(AstNetlist* netlistp) {
+خالی implement(AstNetlist* netlistp) {
     // Gather all ExecGraphs
-    std::vector<AstExecGraph*> execGraphps;
-    netlistp->topModulep()->foreach([&](AstExecGraph* egp) { execGraphps.emplace_back(egp); });
+    std::سمتیہ<Ast_Exec_گراف*> execGraphps;
+    netlistp->چوٹی_Modulep()->foreach([&](Ast_Exec_گراف* egp) { execGraphps.emplace_عقب(egp); });
 
     // Process each
-    for (AstExecGraph* const execGraphp : execGraphps) {
+    برائے (Ast_Exec_گراف* ثابت execGraphp : execGraphps) {
         // Some MTasks may have become empty after scheduling due to
         // optimizations after scheduling. Remove those.
-        removeEmptyMTasks(execGraphp);
+        remove_خالی_خانے_MTasks(execGraphp);
 
         // In some very small test cases, we might end up with a completely
         // empty ExecGraph, if so just delete it.
-        if (execGraphp->depGraphp()->empty()) {
-            VL_DO_DANGLING(execGraphp->unlinkFrBack()->deleteTree(), execGraphp);
-            return;
+        اگر (execGraphp->depGraphp()->خالی_خانے()) {
+            VL_DO_DANGLING(execGraphp->unlink_Fr_عقب()->delete_درخت(), execGraphp);
+            واپس;
         }
 
         // Back in V3Order, we partitioned mtasks using provisional cost
@@ -1270,45 +1270,45 @@ void implement(AstNetlist* netlistp) {
         fillinCosts(execGraphp->depGraphp());
         finalizeCosts(execGraphp->depGraphp());
 
-        if (dumpGraphLevel() >= 4) execGraphp->depGraphp()->dumpDotFilePrefixedAlways("pack");
+        اگر (dump_گراف_Level() >= 4) execGraphp->depGraphp()->dumpDotFilePrefixedAlways("pack");
 
-        createRunFunction(execGraphp);
-        addThreadStartWrapper(execGraphp);
+        create_تسلسل_Function(execGraphp);
+        جوڑو_Thread_آغاز_Wrapper(execGraphp);
 
         // Schedule the mtasks: statically associate each mtask with a thread,
         // and determine the order in which each thread will run its mtasks.
-        const std::vector<ThreadSchedule> packed = PackThreads::apply(*execGraphp->depGraphp());
-        V3Stats::addStatSum("Optimizations, Thread schedule count",
-                            static_cast<double>(packed.size()));
+        ثابت std::سمتیہ<Thread_جدول_وقت> packed = Pack_دھاگے::apply(*execGraphp->depGraphp());
+        V3Stats::جوڑو_Stat_مجموع("Optimizations, Thread schedule count",
+                            static_cast<دوہرا>(packed.سائز()));
 
         // Process MTask function bodies to add additional code
         processMTaskBodies(execGraphp);
 
-        for (const ThreadSchedule& schedule : packed) {
+        برائے (ثابت Thread_جدول_وقت& جدول_وقت : packed) {
             // Replace the graph body with its multi-threaded implementation.
-            implementExecGraph(execGraphp, schedule);
+            implement_Exec_گراف(execGraphp, جدول_وقت);
         }
 
-        addThreadEndWrapper(execGraphp);
+        جوڑو_Thread_انتہا_Wrapper(execGraphp);
 
-        addTriggerMasks(execGraphp);
-        addTriggerCosts(execGraphp);
+        جوڑو_Trigger_Masks(execGraphp);
+        جوڑو_Trigger_Costs(execGraphp);
     }
 }
 
-void selfTest() {
+خالی selfTest() {
     {  // Test that omitted profile data correctly scales estimates
         Costs costs({// id  est  prof
                      {1, {10, 1000}},
                      {2, {20, 0}},  // Note no profile
                      {3, {30, 3000}}});
         normalizeCosts(costs);
-        UASSERT_SELFTEST(costs[1].first, 1000);
-        UASSERT_SELFTEST(costs[1].second, 1000);
-        UASSERT_SELFTEST(costs[2].first, 2000);
-        UASSERT_SELFTEST(costs[2].second, 0);
-        UASSERT_SELFTEST(costs[3].first, 3000);
-        UASSERT_SELFTEST(costs[3].second, 3000);
+        UASSERT_SELFTEST(costs[1].پہلا, 1000);
+        UASSERT_SELFTEST(costs[1].دوسرا, 1000);
+        UASSERT_SELFTEST(costs[2].پہلا, 2000);
+        UASSERT_SELFTEST(costs[2].دوسرا, 0);
+        UASSERT_SELFTEST(costs[3].پہلا, 3000);
+        UASSERT_SELFTEST(costs[3].دوسرا, 3000);
     }
     {  // Test that very large profile data properly scales
         Costs costs({// id  est  prof
@@ -1316,15 +1316,15 @@ void selfTest() {
                      {2, {20, 200000000000}},
                      {3, {30, 1}}});  // Make sure doesn't underflow
         normalizeCosts(costs);
-        UASSERT_SELFTEST(costs[1].first, 2500000);
-        UASSERT_SELFTEST(costs[1].second, 5000000);
-        UASSERT_SELFTEST(costs[2].first, 5000000);
-        UASSERT_SELFTEST(costs[2].second, 10000000);
-        UASSERT_SELFTEST(costs[3].first, 7500000);
-        UASSERT_SELFTEST(costs[3].second, 1);
+        UASSERT_SELFTEST(costs[1].پہلا, 2500000);
+        UASSERT_SELFTEST(costs[1].دوسرا, 5000000);
+        UASSERT_SELFTEST(costs[2].پہلا, 5000000);
+        UASSERT_SELFTEST(costs[2].دوسرا, 10000000);
+        UASSERT_SELFTEST(costs[3].پہلا, 7500000);
+        UASSERT_SELFTEST(costs[3].دوسرا, 1);
     }
 
-    PackThreads::selfTest();
+    Pack_دھاگے::selfTest();
 }
 
 }  // namespace V3ExecGraph

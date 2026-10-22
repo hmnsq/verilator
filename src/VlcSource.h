@@ -14,85 +14,85 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCSOURCE_H_
-#define VERILATOR_VLCSOURCE_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_VLCSOURCE_H_
+#تعریف_کرو VERILATOR_VLCSOURCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "VlcPoint.h"
+#شامل "VlcPoint.h"
 
-#include <limits>
-#include <map>
-#include <set>
-#include <utility>
-#include <vector>
+#شامل <limits>
+#شامل <map>
+#شامل <set>
+#شامل <utility>
+#شامل <vector>
 
-class VlcPoint;
+class Vlc_نقطہ;
 
 //********************************************************************
 // VlcColumnCount - count at specific source file, line and column
 
-class VlcSourceCount final {
+class Vlc_ماخذ_گنتی final {
     // TYPES
-    using PointsSet = std::set<const VlcPoint*>;
+    using Points_سیٹ = std::سیٹ<ثابت Vlc_نقطہ*>;
 
     // MEMBERS
-    const int m_lineno;  ///< Line number
-    uint64_t m_maxCount = 0;  ///< Max count
-    uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
-    PointsSet m_points;  // Points on this line
+    ثابت صحیح m_lineno;  ///< Line number
+    uint64_t m_max_گنتی = 0;  ///< Max count
+    uint64_t m_min_گنتی = std::numeric_limits<uint64_t>::max();  ///< Min count
+    Points_سیٹ m_points;  // Points on this line
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit Vlc_ماخذ_گنتی(صحیح lineno)
         : m_lineno{lineno} {}
-    ~VlcSourceCount() = default;
+    ~Vlc_ماخذ_گنتی() = طےشدہ;
 
     // ACCESSORS
-    int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    صحیح lineno() ثابت { واپس m_lineno; }
+    uint64_t max_گنتی() ثابت { واپس m_max_گنتی; }
+    uint64_t min_گنتی() ثابت { واپس m_min_گنتی; }
 
     // METHODS
-    void insertPoint(const VlcPoint* pointp) {
-        m_maxCount = std::max(m_maxCount, pointp->count());
-        m_minCount = std::min(m_minCount, pointp->count());
+    خالی داخل_کرو_نقطہ(ثابت Vlc_نقطہ* pointp) {
+        m_max_گنتی = std::max(m_max_گنتی, pointp->گنتی());
+        m_min_گنتی = std::min(m_min_گنتی, pointp->گنتی());
         m_points.emplace(pointp);
     }
-    const PointsSet& points() { return m_points; }
+    ثابت Points_سیٹ& points() { واپس m_points; }
 };
 
 //********************************************************************
 // VlcSource - source file to annotate
 
-class VlcSource final {
-public:
+class Vlc_ماخذ final {
+عوامی:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<صحیح, Vlc_ماخذ_گنتی>;  // Map of {column}
 
-private:
+نجی:
     // MEMBERS
-    const string m_name;  //< Name of the source file
-    LinenoMap m_lines;  //< Map of each annotated line
+    ثابت string m_name;  //< Name of the source file
+    LinenoMap m_سطریں;  //< Map of each annotated line
     bool m_needed = false;  //< Need to annotate; has low coverage
 
-public:
+عوامی:
     // CONSTRUCTORS
-    explicit VlcSource(const string& name)
+    explicit Vlc_ماخذ(ثابت string& name)
         : m_name{name} {}
-    ~VlcSource() = default;
+    ~Vlc_ماخذ() = طےشدہ;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool needed() const { return m_needed; }
-    void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    ثابت string& name() ثابت { واپس m_name; }
+    bool needed() ثابت { واپس m_needed; }
+    خالی needed(bool flag) { m_needed = flag; }
+    LinenoMap& سطریں() { واپس m_سطریں; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
-        VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
-        sc.insertPoint(pointp);
+    خالی داخل_کرو_نقطہ(صحیح lineno, ثابت Vlc_نقطہ* pointp) {
+        Vlc_ماخذ_گنتی& sc = m_سطریں.emplace(lineno, lineno).پہلا->دوسرا;
+        sc.داخل_کرو_نقطہ(pointp);
     }
 };
 
@@ -100,33 +100,33 @@ public:
 // VlcSources - Container of all source files
 
 class VlcSources final {
-public:
+عوامی:
     // TYPES
-    using NameMap = std::map<const std::string, VlcSource>;
+    using NameMap = std::map<ثابت std::string, Vlc_ماخذ>;
 
-private:
+نجی:
     // MEMBERS
     NameMap m_sources;  //< List of all sources
 
-public:
+عوامی:
     // ITERATORS
     using iterator = NameMap::iterator;
-    NameMap::iterator begin() { return m_sources.begin(); }
-    NameMap::iterator end() { return m_sources.end(); }
+    NameMap::iterator begin() { واپس m_sources.begin(); }
+    NameMap::iterator انتہا() { واپس m_sources.انتہا(); }
 
     // CONSTRUCTORS
-    VlcSources() = default;
-    ~VlcSources() = default;
+    VlcSources() = طےشدہ;
+    ~VlcSources() = طےشدہ;
 
     // METHODS
-    VlcSource& findNewSource(const string& name) {
-        NameMap::iterator iter = m_sources.find(name);
-        if (iter != m_sources.end()) return iter->second;
-        iter = m_sources.emplace(name, VlcSource{name}).first;
-        return iter->second;
+    Vlc_ماخذ& ڈھونڈو_New_ماخذ(ثابت string& name) {
+        NameMap::iterator iter = m_sources.ڈھونڈو(name);
+        اگر (iter != m_sources.انتہا()) واپس iter->دوسرا;
+        iter = m_sources.emplace(name, Vlc_ماخذ{name}).پہلا;
+        واپس iter->دوسرا;
     }
 };
 
 //######################################################################
 
-#endif  // Guard
+#اگر_ختم  // Guard

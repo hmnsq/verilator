@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3MERGECOND_H_
-#define VERILATOR_V3MERGECOND_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3MERGECOND_H_
+#تعریف_کرو VERILATOR_V3MERGECOND_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3MergeCond final {
-public:
-    static void mergeAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ملاؤ_Cond final {
+عوامی:
+    ساکن خالی ملاؤ_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

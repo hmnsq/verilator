@@ -14,94 +14,94 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitMkJson.h"
+#شامل "V3EmitMkJson.h"
 
-#include "V3EmitCBase.h"
-#include "V3HierBlock.h"
-#include "V3Os.h"
+#شامل "V3EmitCBase.h"
+#شامل "V3HierBlock.h"
+#شامل "V3Os.h"
 
-#include <memory>
+#شامل <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements
 
-class V3EmitMkJsonEmitter final {
+جماعت V3EmitMkJsonEmitter final {
     // METHODS
 
     // STATIC FUNCTIONS
-    static void emitManifest() {
-        const std::string makeDir
-            = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(v3Global.opt.makeDir()));
+    ساکن خالی emitManifest() {
+        ثابت std::string makeDir
+            = V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(v3Global.opt.makeDir()));
 
-        V3OutJsonFile of{makeDir + "/" + v3Global.opt.prefix() + ".json"};
+        V3_برآمد_Json_File کا{makeDir + "/" + v3Global.opt.سابقہ() + ".json"};
 
-        std::vector<string> classesFast;
-        std::vector<string> classesSlow;
-        std::vector<string> supportFast;
-        std::vector<string> supportSlow;
-        std::vector<string> global;
-        std::vector<string> deps;
-        std::vector<string> cppFiles;
+        std::سمتیہ<string> classesFast;
+        std::سمتیہ<string> classesSlow;
+        std::سمتیہ<string> supportFast;
+        std::سمتیہ<string> supportSlow;
+        std::سمتیہ<string> global;
+        std::سمتیہ<string> deps;
+        std::سمتیہ<string> cppFiles;
 
-        for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeFile)) {
-            const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-            if (cfilep && cfilep->source()) {
-                const std::string filename
-                    = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cfilep->name()));
-                if (cfilep->support()) {
-                    if (cfilep->slow()) {
-                        supportSlow.emplace_back(filename);
-                    } else {
-                        supportFast.emplace_back(filename);
+        برائے (Ast_گرہ_File* nodep = v3Global.rootp()->filesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), گرہ_File)) {
+            ثابت AstCFile* ثابت cfilep = VN_CAST(nodep, CFile);
+            اگر (cfilep && cfilep->ماخذ()) {
+                ثابت std::string filename
+                    = V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(cfilep->name()));
+                اگر (cfilep->support()) {
+                    اگر (cfilep->slow()) {
+                        supportSlow.emplace_عقب(filename);
+                    } ورنہ {
+                        supportFast.emplace_عقب(filename);
                     }
-                } else {
-                    if (cfilep->slow()) {
-                        classesSlow.emplace_back(filename);
-                    } else {
-                        classesFast.emplace_back(filename);
+                } ورنہ {
+                    اگر (cfilep->slow()) {
+                        classesSlow.emplace_عقب(filename);
+                    } ورنہ {
+                        classesFast.emplace_عقب(filename);
                     }
                 }
             }
         }
 
-        const std::string verilatorRoot = V3Os::filenameSlashPath(
-            V3Os::filenameAbsolutePath(V3Options::getenvVERILATOR_ROOT()));
-        for (const string& cpp : v3Global.verilatedCppFiles())
-            global.emplace_back(verilatorRoot + "/include/" + cpp);
-        if (!v3Global.opt.libCreate().empty()) {
-            global.emplace_back(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
+        ثابت std::string verilator_جڑ = V3Os::filename_Slash_راستہ(
+            V3Os::filename_Absolute_راستہ(V3Options::getenv_VERILATOR_جڑ()));
+        برائے (ثابت string& cpp : v3Global.verilatedCppFiles())
+            global.emplace_عقب(verilator_جڑ + "/include/" + cpp);
+        اگر (!v3Global.opt.libCreate().خالی_خانے()) {
+            global.emplace_عقب(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
         }
 
-        for (const auto& dep : V3File::getAllDeps())
-            deps.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(dep)));
-        for (const auto& cppFile : v3Global.opt.cppFiles())
-            cppFiles.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cppFile)));
+        برائے (ثابت خودکار& dep : V3File::getAllDeps())
+            deps.emplace_عقب(V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(dep)));
+        برائے (ثابت خودکار& cppFile : v3Global.opt.cppFiles())
+            cppFiles.emplace_عقب(V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(cppFile)));
 
-        of.put("version", 1)
+        کا.put("version", 1)
             .begin("system")
             .put("perl", V3Options::getenvPERL())
             .put("python3", V3Options::getenvPYTHON3())
-            .put("verilator_root", verilatorRoot)
+            .put("verilator_root", verilator_جڑ)
             .put("verilator_solver", V3Options::getenvVERILATOR_SOLVER())
-            .end()
+            .انتہا()
             .begin("options")
             .putList("cflags", v3Global.opt.cFlags())
             .putList("ldflags", v3Global.opt.ldLibs())
             .put("system_c", v3Global.opt.systemC())
             .put("coverage", v3Global.opt.coverage())
             .put("dpi", v3Global.dpi())
-            .put("use_timing", v3Global.usesTiming())
-            .put("threads", v3Global.opt.threads())
+            .put("use_timing", v3Global.استعمال_کرتا_Timing())
+            .put("threads", v3Global.opt.دھاگے())
             .put("trace", v3Global.opt.trace())
             .put("trace_fst", v3Global.opt.traceEnabledFst())
             .put("trace_saif", v3Global.opt.traceEnabledSaif())
             .put("trace_vcd", v3Global.opt.traceEnabledVcd())
-            .end()
+            .انتہا()
             .begin("sources")
             .putList("global", global)
             .putList("classes_slow", classesSlow)
@@ -110,38 +110,38 @@ class V3EmitMkJsonEmitter final {
             .putList("support_fast", supportFast)
             .putList("deps", deps)
             .putList("user_classes", cppFiles)
-            .end();
+            .انتہا();
 
-        if (const V3HierGraph* const graphp = v3Global.hierGraphp()) {
-            of.begin("submodules", '[');
+        اگر (ثابت V3_Hier_گراف* ثابت graphp = v3Global.hierGraphp()) {
+            کا.begin("submodules", '[');
 
             // Enumerate in dependency order, leaves first. TODO: Shouldn't
             // really have to, but verilator-config.cmake.in depends on order.
-            for (const V3GraphVertex& vtx : vlstd::reverse_view(graphp->vertices())) {
-                const V3HierBlock* const hblockp = vtx.as<V3HierBlock>();
-                std::vector<std::string> hierDeps;
-                std::vector<std::string> sources;
-                for (const V3GraphEdge& edge : hblockp->outEdges()) {
-                    const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
-                    hierDeps.emplace_back(dependencyp->hierPrefix());
-                    sources.emplace_back(makeDir + "/" + dependencyp->hierWrapperFilename(true));
+            برائے (ثابت V3_گراف_راس& vtx : vlstd::الٹ_view(graphp->vertices())) {
+                ثابت V3_Hier_بلاک* ثابت hblockp = vtx.as<V3_Hier_بلاک>();
+                std::سمتیہ<std::string> hierDeps;
+                std::سمتیہ<std::string> sources;
+                برائے (ثابت V3_گراف_کنارہ& کنارہ : hblockp->برآمد_کنارے()) {
+                    ثابت V3_Hier_بلاک* ثابت dependencyp = کنارہ.چوٹی()->as<V3_Hier_بلاک>();
+                    hierDeps.emplace_عقب(dependencyp->hier_سابقہ());
+                    sources.emplace_عقب(makeDir + "/" + dependencyp->hierWrapperFilename(سچ));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles(hblockp->vFileIfNecessary())) {
-                    sources.emplace_back(
-                        V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
+                برائے (ثابت string& fname : V3_Hier_گراف::ماخذ_Files(hblockp->vFileIfNecessary())) {
+                    sources.emplace_عقب(
+                        V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(fname)));
                 }
 
-                of.begin()
-                    .put("prefix", hblockp->hierPrefix())
+                کا.begin()
+                    .put("prefix", hblockp->hier_سابقہ())
                     .put("top", hblockp->modp()->name())
                     .putList("deps", hierDeps)
-                    .put("directory", makeDir + "/" + hblockp->hierPrefix())
+                    .put("directory", makeDir + "/" + hblockp->hier_سابقہ())
                     .putList("sources", sources)
                     .putList("cflags", {"-fPIC"})
-                    .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               hblockp->commandArgsFilename(true))))
-                    .end();
+                    .put("verilator_args", V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(
+                                               hblockp->command_دلائل_Filename(سچ))))
+                    .انتہا();
             }
 
             // Top level reintegration
@@ -150,37 +150,37 @@ class V3EmitMkJsonEmitter final {
                 // CMake script, it will overwrite the original json manifest containing the
                 // "subodule" list we are creating here with one that doesn't have "submodule".
                 // Good luck debugging, suggest 'message(${MANIFEST})' in verilated-config.cmake.
-                std::vector<std::string> sources;
-                for (const V3GraphVertex& vtx : graphp->vertices()) {
-                    const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-                    sources.emplace_back(makeDir + "/" + blockp->hierWrapperFilename(true));
+                std::سمتیہ<std::string> sources;
+                برائے (ثابت V3_گراف_راس& vtx : graphp->vertices()) {
+                    ثابت V3_Hier_بلاک* ثابت blockp = vtx.as<V3_Hier_بلاک>();
+                    sources.emplace_عقب(makeDir + "/" + blockp->hierWrapperFilename(سچ));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles()) {
-                    sources.emplace_back(
-                        V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
+                برائے (ثابت string& fname : V3_Hier_گراف::ماخذ_Files()) {
+                    sources.emplace_عقب(
+                        V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(fname)));
                 }
 
-                of.begin()
-                    .put("prefix", v3Global.opt.prefix())
-                    .put("top", v3Global.rootp()->topModulep()->name())
+                کا.begin()
+                    .put("prefix", v3Global.opt.سابقہ())
+                    .put("top", v3Global.rootp()->چوٹی_Modulep()->name())
                     .put("directory", makeDir)
                     .putList("sources", sources)
-                    .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               graphp->topCommandArgsFilename(true))))
-                    .end();
+                    .put("verilator_args", V3Os::filename_Slash_راستہ(V3Os::filename_Absolute_راستہ(
+                                               graphp->چوٹی_Command_دلائل_Filename(سچ))))
+                    .انتہا();
             }
 
-            of.end();  // submodules
+            کا.انتہا();  // submodules
         }
     }
 
-public:
-    explicit V3EmitMkJsonEmitter() { emitManifest(); }
-    virtual ~V3EmitMkJsonEmitter() = default;
+عوامی:
+    صریح V3EmitMkJsonEmitter() { emitManifest(); }
+    مجازی ~V3EmitMkJsonEmitter() = طےشدہ;
 };
 
-void V3EmitMkJson::emit() {
+خالی V3EmitMkJson::emit() {
     UINFO(2, __FUNCTION__ << ":");
-    const V3EmitMkJsonEmitter emitter;
+    ثابت V3EmitMkJsonEmitter emitter;
 }

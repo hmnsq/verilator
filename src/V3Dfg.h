@@ -27,218 +27,218 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DFG_H_
-#define VERILATOR_V3DFG_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3DFG_H_
+#تعریف_کرو VERILATOR_V3DFG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
-#include "V3DfgDataType.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Hash.h"
-#include "V3List.h"
+#شامل "V3Ast.h"
+#شامل "V3Cfg.h"
+#شامل "V3DfgDataType.h"
+#شامل "V3Error.h"
+#شامل "V3Global.h"
+#شامل "V3Hash.h"
+#شامل "V3List.h"
 
-#include "V3Dfg__gen_forward_class_decls.h"  // From ./astgen
+#شامل "V3Dfg__gen_forward_class_decls.h"  // From ./astgen
 
-#include <algorithm>
-#include <array>
-#include <functional>
-#include <new>
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#شامل <algorithm>
+#شامل <array>
+#شامل <functional>
+#شامل <new>
+#شامل <type_traits>
+#شامل <unordered_map>
+#شامل <utility>
+#شامل <vector>
 
-#ifndef VL_NOT_FINAL
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#اگر_غیر_تعریف_شدہ VL_NOT_FINAL
+#تعریف_کرو VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#اگر_ختم
 
 // Can T be stored in the memory allocted for U?
-template <typename T, typename U>
-inline constexpr bool fitsSpaceAllocatedFor() {
-    return sizeof(T) <= sizeof(U) && alignof(T) <= alignof(U);
+سانچہ <typename T, typename U>
+اندرونی constexpr bool سماتا_Space_Allocated_For() {
+    واپس حجم(T) <= حجم(U) && alignof(T) <= alignof(U);
 }
 
-class DfgEdge;
-class DfgVertex;
-class DfgGraph;
+class Dfg_کنارہ;
+class Dfg_راس;
+class Dfg_گراف;
 class DfgVisitor;
 class V3DfgContext;
-template <typename T_User, bool = fitsSpaceAllocatedFor<T_User, void*>()>
+سانچہ <typename T_User, bool = سماتا_Space_Allocated_For<T_User, خالی*>()>
 class DfgUserMap;
 
 //------------------------------------------------------------------------------
 // Dataflow graph vertex type enum
 
 class VDfgType final {
-public:
-#include "V3Dfg__gen_type_enum.h"  // From ./astgen
-    const en m_e;
+عوامی:
+#شامل "V3Dfg__gen_type_enum.h"  // From ./astgen
+    ثابت en m_e;
     VDfgType() = delete;
 
     // VDfgType is interconvetible with VDfgType::en
     // cppcheck-suppress noExplicitConstructor
     constexpr VDfgType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr عامل en() ثابت { واپس m_e; }
 };
-constexpr bool operator==(VDfgType lhs, VDfgType rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(VDfgType lhs, VDfgType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDfgType::en lhs, VDfgType rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VDfgType& t) { return os << t.ascii(); }
+constexpr bool عامل==(VDfgType lhs, VDfgType rhs) { واپس lhs.m_e == rhs.m_e; }
+constexpr bool عامل==(VDfgType lhs, VDfgType::en rhs) { واپس lhs.m_e == rhs; }
+constexpr bool عامل==(VDfgType::en lhs, VDfgType rhs) { واپس lhs == rhs.m_e; }
+اندرونی std::ostream& عامل<<(std::ostream& os, ثابت VDfgType& t) { واپس os << t.ascii(); }
 
 //------------------------------------------------------------------------------
 // Dataflow graph edge
-class DfgEdge final {
-    friend class DfgVertex;
+class Dfg_کنارہ final {
+    دوست class Dfg_راس;
 
-    DfgVertex* m_srcp = nullptr;  // The source vertex driving this edge - might be unconnected
-    DfgVertex* const m_dstp;  // The vertex driven by this edge, which owns this edge, so immutable
-    V3ListLinks<DfgEdge> m_links;  // V3List links in the list of sinks of m_srcp
+    Dfg_راس* m_srcp = nullptr;  // The source vertex driving this edge - might be unconnected
+    Dfg_راس* ثابت m_dstp;  // The vertex driven by this edge, which owns this edge, so immutable
+    V3ListLinks<Dfg_کنارہ> m_links;  // V3List links in the list of sinks of m_srcp
 
-    VL_UNCOPYABLE(DfgEdge);
-    VL_UNMOVABLE(DfgEdge);
+    VL_UNCOPYABLE(Dfg_کنارہ);
+    VL_UNMOVABLE(Dfg_کنارہ);
 
-    V3ListLinks<DfgEdge>& links() { return m_links; }
-    using List = V3List<DfgEdge, &DfgEdge::links>;
+    V3ListLinks<Dfg_کنارہ>& links() { واپس m_links; }
+    using List = V3List<Dfg_کنارہ, &Dfg_کنارہ::links>;
 
-public:
-    explicit DfgEdge(DfgVertex* dstp)
+عوامی:
+    explicit Dfg_کنارہ(Dfg_راس* dstp)
         : m_dstp{dstp} {}
-    ~DfgEdge() { unlinkSrcp(); }
-    DfgEdge() = delete;
+    ~Dfg_کنارہ() { unlinkSrcp(); }
+    Dfg_کنارہ() = delete;
 
     // The source (driver) of this edge
-    DfgVertex* srcp() const { return m_srcp; }
+    Dfg_راس* srcp() ثابت { واپس m_srcp; }
     // The sink (consumer) of this edge
-    DfgVertex* dstp() const { return m_dstp; }
+    Dfg_راس* dstp() ثابت { واپس m_dstp; }
     // Remove driver of this edge
-    inline void unlinkSrcp();
+    اندرونی خالی unlinkSrcp();
     // Relink this edge to be driven from the given new source vertex
-    inline void relinkSrcp(DfgVertex* srcp);
+    اندرونی خالی relinkSrcp(Dfg_راس* srcp);
 };
 
 //------------------------------------------------------------------------------
 // Input edge storage of a fixed arity vertices, embedded in the vertex itself.
-template <uint32_t N_Edges>
-class DfgInlineEdgeStorage final {
-    static_assert(N_Edges > 0, "'DfgInlineEdgeStorage' must hold at least one edge");
-    VL_UNCOPYABLE(DfgInlineEdgeStorage);
-    VL_UNMOVABLE(DfgInlineEdgeStorage);
+سانچہ <uint32_t N_کنارے>
+class Dfg_Inline_کنارہ_Storage final {
+    static_assert(N_کنارے > 0, "'DfgInlineEdgeStorage' must hold at least one edge");
+    VL_UNCOPYABLE(Dfg_Inline_کنارہ_Storage);
+    VL_UNMOVABLE(Dfg_Inline_کنارہ_Storage);
 
-public:
-    union {  // Union, for manual memory management, so DfgEdge need no implicit constructor
-        DfgEdge m_edges[N_Edges];  // The input edges of the owning vertex
+عوامی:
+    اتحاد {  // Union, for manual memory management, so DfgEdge need no implicit constructor
+        Dfg_کنارہ m_کنارے[N_کنارے];  // The input edges of the owning vertex
     };
 
-    explicit DfgInlineEdgeStorage(DfgVertex* vtxp) {
-        for (uint32_t i = 0; i < N_Edges; ++i) new (&m_edges[i]) DfgEdge{vtxp};
+    explicit Dfg_Inline_کنارہ_Storage(Dfg_راس* vtxp) {
+        برائے (uint32_t i = 0; i < N_کنارے; ++i) new (&m_کنارے[i]) Dfg_کنارہ{vtxp};
     }
-    ~DfgInlineEdgeStorage() {
-        for (uint32_t i = 0; i < N_Edges; ++i) m_edges[i].~DfgEdge();
+    ~Dfg_Inline_کنارہ_Storage() {
+        برائے (uint32_t i = 0; i < N_کنارے; ++i) m_کنارے[i].~Dfg_کنارہ();
     }
-    DfgInlineEdgeStorage() = delete;
+    Dfg_Inline_کنارہ_Storage() = delete;
 };
 
 //------------------------------------------------------------------------------
 // Dataflow graph vertex
-class DfgVertex VL_NOT_FINAL {
-    friend class DfgGraph;
-    friend class DfgEdge;
-    friend class DfgVisitor;
-    template <typename, bool>
-    friend class DfgUserMap;
-    friend class DfgVertexVariadic;
+class Dfg_راس VL_NOT_FINAL {
+    دوست class Dfg_گراف;
+    دوست class Dfg_کنارہ;
+    دوست class DfgVisitor;
+    سانچہ <typename, bool>
+    دوست class DfgUserMap;
+    دوست class Dfg_راس_Variadic;
 
     // STATE
-    V3ListLinks<DfgVertex> m_links;  // V3List links in the DfgGraph
-    DfgEdge* const m_inlineInputsp;  // Input edges stored inline in the vertex (iff fixed arity)
+    V3ListLinks<Dfg_راس> m_links;  // V3List links in the DfgGraph
+    Dfg_کنارہ* ثابت m_inlineInputsp;  // Input edges stored inline in the vertex (iff fixed arity)
     uint32_t m_nInputs;  // Number of input edges
-    DfgEdge::List m_sinks;  // List of sink edges of this vertex
+    Dfg_کنارہ::List m_sinks;  // List of sink edges of this vertex
 
-    FileLine* const m_filelinep;  // Source location
-    const DfgDataType& m_dtype;  // Data type of the result of this vertex
-    const VDfgType m_type;  // Vertex type tag
+    File_سطر* ثابت m_filelinep;  // Source location
+    ثابت Dfg_ڈیٹا_Type& m_dtype;  // Data type of the result of this vertex
+    ثابت VDfgType m_type;  // Vertex type tag
 
     // The only way to access thes is via DfgUserMap, so mutable is appropriate,
     // the map can change while the keys (DfgVertex) are const.
     mutable uint32_t m_userGeneration = 0;  // User data generation number
-    mutable void* m_userStorage = nullptr;  // User data storage - one pointer worth
+    mutable خالی* m_userStorage = nullptr;  // User data storage - one pointer worth
 
-#ifdef VL_DEBUG
-    DfgGraph* m_dfgp = nullptr;  // Graph this vertex belongs to
-#endif
+#اگر_تعریف_شدہ VL_DEBUG
+    Dfg_گراف* m_dfgp = nullptr;  // Graph this vertex belongs to
+#اگر_ختم
 
     // METHODS
     // Visitor accept method
-    virtual void accept(DfgVisitor& v) = 0;
+    مجازی خالی accept(DfgVisitor& v) = 0;
 
     // Acessor for type List
-    V3ListLinks<DfgVertex>& links() { return m_links; }
+    V3ListLinks<Dfg_راس>& links() { واپس m_links; }
 
-public:
+عوامی:
     // List type that can store Vertex (which must be a DfgVertex) instances via m_links
-    template <typename Vertex>
-    using List = V3List<DfgVertex, &DfgVertex::links, Vertex>;
+    سانچہ <typename راس_2>
+    using List = V3List<Dfg_راس, &Dfg_راس::links, راس_2>;
 
-protected:
+محفوظ:
     // CONSTRUCTOR
-    DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
-              DfgEdge* inlineInputsp, uint32_t nInputs) VL_MT_DISABLED;
+    Dfg_راس(Dfg_گراف& dfg, VDfgType type, File_سطر* flp, ثابت Dfg_ڈیٹا_Type& dt,
+              Dfg_کنارہ* inlineInputsp, uint32_t nInputs) VL_MT_DISABLED;
     // Use unlinkDelete instead
-    virtual ~DfgVertex() VL_MT_DISABLED = default;
+    مجازی ~Dfg_راس() VL_MT_DISABLED = طےشدہ;
 
-private:
+نجی:
     // Get input edge 'i'
-    inline DfgEdge* inputEdgep(size_t i) const;
+    اندرونی Dfg_کنارہ* داخلہ_Edgep(سائز_t i) ثابت;
 
-public:
+عوامی:
     // Get input 'i'
-    DfgVertex* inputp(size_t i) const { return inputEdgep(i)->srcp(); }
+    Dfg_راس* inputp(سائز_t i) ثابت { واپس داخلہ_Edgep(i)->srcp(); }
     // Relink input 'i'
-    void inputp(size_t i, DfgVertex* vtxp) { inputEdgep(i)->relinkSrcp(vtxp); }
+    خالی inputp(سائز_t i, Dfg_راس* vtxp) { داخلہ_Edgep(i)->relinkSrcp(vtxp); }
     // The number of inputs this vertex has. Some might be unconnected.
-    size_t nInputs() const { return m_nInputs; }
+    سائز_t nInputs() ثابت { واپس m_nInputs; }
 
     // The type of this vertex
-    VDfgType type() const { return m_type; }
+    VDfgType type() ثابت { واپس m_type; }
     // Source location
-    FileLine* fileline() const { return m_filelinep; }
+    File_سطر* fileline() ثابت { واپس m_filelinep; }
     // The data type of the result of the vertex
-    const DfgDataType& dtype() const { return m_dtype; }
+    ثابت Dfg_ڈیٹا_Type& dtype() ثابت { واپس m_dtype; }
     // Shorthands for accessors of 'dtype()'
-    bool isPacked() const { return m_dtype.isPacked(); }
-    bool isArray() const { return m_dtype.isArray(); }
-    uint32_t size() const { return m_dtype.size(); }
+    bool isPacked() ثابت { واپس m_dtype.isPacked(); }
+    bool isArray() ثابت { واپس m_dtype.isArray(); }
+    uint32_t سائز() ثابت { واپس m_dtype.سائز(); }
     // Type check + size
-    uint32_t width() const {
+    uint32_t چوڑائی() ثابت {
         UASSERT_OBJ(m_dtype.isPacked(), this, "Non packed vertex has no 'width'");
-        return m_dtype.size();
+        واپس m_dtype.سائز();
     }
     // Has terminating side-effect
-    bool unsafe() const;
+    bool unsafe() ثابت;
 
     // Type check vertex (for debugging)
-    void typeCheck(const DfgGraph& dfg) const;
+    خالی typeCheck(ثابت Dfg_گراف& dfg) ثابت;
 
     // Predicate: has 1 or more sinks
-    bool hasSinks() const { return !m_sinks.empty(); }
+    bool hasSinks() ثابت { واپس !m_sinks.خالی_خانے(); }
 
     // Predicate: has 2 or more sinks
-    bool hasMultipleSinks() const { return m_sinks.hasMultipleElements(); }
+    bool has_مضرب_Sinks() ثابت { واپس m_sinks.has_مضرب_Elements(); }
 
     // Fanout (number of sinks) of this vertex (expensive to compute)
-    uint32_t fanout() const VL_MT_DISABLED;
+    uint32_t fanout() ثابت VL_MT_DISABLED;
 
     // Return a canonical variable vertex that holds the value of this vertex,
     // or nullptr if no such variable exists in the graph. This is O(fanout).
-    DfgVertexVar* getResultVar() VL_MT_DISABLED;
+    Dfg_راس_Var* get_نتیجہ_Var() VL_MT_DISABLED;
 
     // Cache type for 'scopep' below
-    using ScopeCache = std::unordered_map<const DfgVertex*, AstScope*>;
+    using ScopeCache = std::unordered_map<ثابت Dfg_راس*, AstScope*>;
 
     // Retrieve the prefred AstScope this vertex belongs to. For variable
     // vertices this is defined. For operation vertices, we try to find a
@@ -247,175 +247,175 @@ public:
     // then the root scope is returned. If 'tryResultVar' is true, we will
     // condier the scope of 'getResultVar' first, if it exists.
     // Only call this with a scoped DfgGraph
-    AstScope* scopep(ScopeCache& cache, bool tryResultVar = false) VL_MT_DISABLED;
+    AstScope* scopep(ScopeCache& cache, bool try_نتیجہ_Var = false) VL_MT_DISABLED;
 
     // If the node has a single sink, return it, otherwise return nullptr
-    DfgVertex* singleSink() const {
-        return m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
+    Dfg_راس* singleSink() ثابت {
+        واپس m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
     }
 
     // First sink of the vertex, if any, otherwise nullptr
-    DfgVertex* firtsSinkp() { return m_sinks.empty() ? nullptr : m_sinks.frontp()->dstp(); }
+    Dfg_راس* firtsSinkp() { واپس m_sinks.خالی_خانے() ? nullptr : m_sinks.frontp()->dstp(); }
 
     // Unlink from container (graph or builder), then delete this vertex
-    void unlinkDelete(DfgGraph& dfg) VL_MT_DISABLED;
+    خالی unlinkDelete(Dfg_گراف& dfg) VL_MT_DISABLED;
 
     // Relink all sinks to be driven from the given new source
-    void replaceWith(DfgVertex* vtxp) {
+    خالی replaceWith(Dfg_راس* vtxp) {
         UASSERT_OBJ(vtxp != this, this, "Replacing DfgVertex with itself");
         UASSERT_OBJ(vtxp->dtype() == dtype(), this, "Replacement DfgVertex has different type");
-        while (!m_sinks.empty()) m_sinks.frontp()->relinkSrcp(vtxp);
+        جب (!m_sinks.خالی_خانے()) m_sinks.frontp()->relinkSrcp(vtxp);
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
     // returns true, further sources are not iterated and this method returns
     // true itself. Unconnected source edges are not iterated.
-    template <typename T_Callable>
-    bool foreachSource(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
+    سانچہ <typename T_Callable>
+    bool foreach_ماخذ(T_Callable&& f) {
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, Dfg_راس&>::قدر,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        برائے (سائز_t i = 0; i < m_nInputs; ++i) {
+            اگر (Dfg_راس* ثابت srcp = داخلہ_Edgep(i)->srcp()) {
+                اگر (f(*srcp)) واپس true;
             }
         }
-        return false;
+        واپس false;
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
     // returns true, further sources are not iterated and this method returns
     // true itself. Unconnected source edges are not iterated.
-    template <typename T_Callable>
-    bool foreachSource(T_Callable&& f) const {
+    سانچہ <typename T_Callable>
+    bool foreach_ماخذ(T_Callable&& f) ثابت {
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
+            vlstd::is_invocable_r<bool, T_Callable, ثابت Dfg_راس&>::قدر,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (const DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        برائے (سائز_t i = 0; i < m_nInputs; ++i) {
+            اگر (ثابت Dfg_راس* ثابت srcp = داخلہ_Edgep(i)->srcp()) {
+                اگر (f(*srcp)) واپس true;
             }
         }
-        return false;
+        واپس false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
     // returns true, further sinks are not iterated and this method returns
     // true itself. Unlinking/deleting the given sink during iteration is safe,
     // but not other sinks of this vertex.
-    template <typename T_Callable>
+    سانچہ <typename T_Callable>
     bool foreachSink(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, Dfg_راس&>::قدر,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (const DfgEdge* const edgep : m_sinks.unlinkable()) {
-            if (f(*edgep->dstp())) return true;
+        برائے (ثابت Dfg_کنارہ* ثابت edgep : m_sinks.unlinkable()) {
+            اگر (f(*edgep->dstp())) واپس true;
         }
-        return false;
+        واپس false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
     // returns true, further sinks are not iterated and this method returns
     // true itself.
-    template <typename T_Callable>
-    bool foreachSink(T_Callable&& f) const {
+    سانچہ <typename T_Callable>
+    bool foreachSink(T_Callable&& f) ثابت {
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
+            vlstd::is_invocable_r<bool, T_Callable, ثابت Dfg_راس&>::قدر,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (const DfgEdge& edge : m_sinks) {
-            if (f(*edge.dstp())) return true;
+        برائے (ثابت Dfg_کنارہ& کنارہ : m_sinks) {
+            اگر (f(*کنارہ.dstp())) واپس true;
         }
-        return false;
+        واپس false;
     }
 
     // Is this vertex cheaper to re-compute than to load out of memoy
-    inline bool isCheaperThanLoad() const;
+    اندرونی bool is_Cheaper_Than_بھرو() ثابت;
 
     // Methods that allow DfgVertex to participate in error reporting/messaging
     // LCOV_EXCL_START
-    void v3errorEnd(std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
-        m_filelinep->v3errorEnd(str);
+    خالی v3error_انتہا(std::ostringstream& str) ثابت VL_RELEASE(V3Error::s().m_mutex) {
+        m_filelinep->v3error_انتہا(str);
     }
-    void v3errorEndFatal(std::ostringstream& str) const VL_ATTR_NORETURN
+    خالی v3error_انتہا_Fatal(std::ostringstream& str) ثابت VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex) {
-        m_filelinep->v3errorEndFatal(str);
+        m_filelinep->v3error_انتہا_Fatal(str);
     }
-    string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
-        return fileline()->warnContextPrimary();
+    string warnContextPrimary() ثابت VL_REQUIRES(V3Error::s().m_mutex) {
+        واپس fileline()->warnContextPrimary();
     }
-    string warnContextSecondary() const { return fileline()->warnContextSecondary(); }
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnMore(); }
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnOther(); }
+    string warnContextSecondary() ثابت { واپس fileline()->warnContextSecondary(); }
+    string warn_مزید() ثابت VL_REQUIRES(V3Error::s().m_mutex) { واپس fileline()->warn_مزید(); }
+    string warnOther() ثابت VL_REQUIRES(V3Error::s().m_mutex) { واپس fileline()->warnOther(); }
     // LCOV_EXCL_STOP
 
-private:
+نجی:
     // For internal use only.
     // Note: specializations for particular vertex types are provided by 'astgen'
-    template <typename T>
-    inline static bool privateTypeTest(const DfgVertex* nodep);
+    سانچہ <typename T>
+    اندرونی ساکن bool نجی_Type_Test(ثابت Dfg_راس* nodep);
 
-public:
+عوامی:
     // Subtype test
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<DfgVertex, T>::value, "'T' must be a subtype of DfgVertex");
-        return privateTypeTest<typename std::remove_cv<T>::type>(this);
+    سانچہ <typename T>
+    bool is() ثابت {
+        static_assert(std::is_بنیاد_کا<Dfg_راس, T>::قدر, "'T' must be a subtype of DfgVertex");
+        واپس نجی_Type_Test<typename std::remove_cv<T>::type>(this);
     }
 
     // Ensure subtype, then cast to that type
-    template <typename T>
+    سانچہ <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<T*>(this);
+        واپس static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    سانچہ <typename T>
+    ثابت T* as() ثابت {
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<const T*>(this);
+        واپس static_cast<ثابت T*>(this);
     }
 
     // Cast to subtype, or null if different
-    template <typename T>
+    سانچہ <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        واپس is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    سانچہ <typename T>
+    ثابت T* cast() ثابت {
+        واپس is<T>() ? static_cast<ثابت T*>(this) : nullptr;
     }
 
     // Human-readable vertex type as string for debugging
-    std::string typeName() const { return m_type.ascii(); }
+    std::string typeName() ثابت { واپس m_type.ascii(); }
 
     // Human-readable name for source operand with given index for debugging
-    virtual std::string srcName(size_t idx) const = 0;
+    مجازی std::string srcName(سائز_t idx) ثابت = 0;
 
     // S-expression inspired dump of vertex and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
+    std::string نمونہ_String(uint32_t گہرائی = 0) ثابت;
 };
 
 // DfgVertex visitor
 class DfgVisitor VL_NOT_FINAL {
-public:
+عوامی:
     // Dispatch to most specific 'visit' method on 'vtxp'
-    void iterate(DfgVertex* vtxp) { vtxp->accept(*this); }
+    خالی iterate(Dfg_راس* vtxp) { vtxp->accept(*this); }
     // Least specific visit method is abstract
-    virtual void visit(DfgVertex* nodep) = 0;
-#include "V3Dfg__gen_visitor_decls.h"  // From ./astgen
+    مجازی خالی دورہ(Dfg_راس* nodep) = 0;
+#شامل "V3Dfg__gen_visitor_decls.h"  // From ./astgen
 };
 
 // DfgVertex subclasses
-#include "V3DfgVertices.h"
+#شامل "V3DfgVertices.h"
 
 // Specializations of privateTypeTest
-#include "V3Dfg__gen_type_tests.h"  // From ./astgen
+#شامل "V3Dfg__gen_type_tests.h"  // From ./astgen
 
 //------------------------------------------------------------------------------
 // Dataflow graph
-class DfgGraph final {
-    friend class DfgUserMapBase;
+class Dfg_گراف final {
+    دوست class Dfg_User_Map_بنیاد;
 
     // MEMBERS
 
@@ -423,123 +423,123 @@ class DfgGraph final {
     // in large designs), and they can often be treated specially in algorithms, which in turn
     // enables significant Verilation performance gains, so we keep these in separate lists for
     // direct access.
-    DfgVertex::List<DfgVertexVar> m_varVertices;  // The variable vertices in the graph
-    DfgVertex::List<DfgVertexAst> m_astVertices;  // The ast reference vertices in the graph
-    DfgVertex::List<DfgConst> m_constVertices;  // The constant vertices in the graph
-    DfgVertex::List<DfgVertex> m_opVertices;  // The operation vertices in the graph
-    size_t m_size = 0;  // Number of vertices in the graph
+    Dfg_راس::List<Dfg_راس_Var> m_varVertices;  // The variable vertices in the graph
+    Dfg_راس::List<Dfg_راس_Ast> m_astVertices;  // The ast reference vertices in the graph
+    Dfg_راس::List<DfgConst> m_constVertices;  // The constant vertices in the graph
+    Dfg_راس::List<Dfg_راس> m_opVertices;  // The operation vertices in the graph
+    سائز_t m_سائز = 0;  // Number of vertices in the graph
     V3DfgContext& m_ctx;  // The DFG context this graph is optimized in
-    const std::string m_name;  // Name of graph - need not be unique
+    ثابت std::string m_name;  // Name of graph - need not be unique
 
     // The only way to access thes is via DfgUserMap, so mutable is appropriate,
     // the map can change while the graph is const.
-    mutable bool m_vertexUserInUse = false;  // Vertex user data currently in use
-    mutable uint32_t m_vertexUserGeneration = 0;  // Vertex user data generation counter
+    mutable bool m_راس_User_اندر_Use = false;  // Vertex user data currently in use
+    mutable uint32_t m_راس_User_Generation = 0;  // Vertex user data generation counter
 
-public:
+عوامی:
     // CONSTRUCTOR
-    DfgGraph(V3DfgContext& ctx, const string& name) VL_MT_DISABLED;
-    ~DfgGraph() VL_MT_DISABLED;
-    VL_UNCOPYABLE(DfgGraph);
+    Dfg_گراف(V3DfgContext& ctx, ثابت string& name) VL_MT_DISABLED;
+    ~Dfg_گراف() VL_MT_DISABLED;
+    VL_UNCOPYABLE(Dfg_گراف);
 
     // METHODS
     // Number of vertices in this graph
-    size_t size() const { return m_size; }
+    سائز_t سائز() ثابت { واپس m_سائز; }
     // Name of this graph
-    const string& name() const { return m_name; }
-    V3DfgContext& ctx() const { return m_ctx; }
+    ثابت string& name() ثابت { واپس m_name; }
+    V3DfgContext& ctx() ثابت { واپس m_ctx; }
 
     // Create a new DfgUserMap
-    template <typename T_User>
-    inline DfgUserMap<T_User> makeUserMap() const;
+    سانچہ <typename T_User>
+    اندرونی DfgUserMap<T_User> makeUserMap() ثابت;
 
     // Access to vertex lists
-    DfgVertex::List<DfgVertexVar>& varVertices() { return m_varVertices; }
-    const DfgVertex::List<DfgVertexVar>& varVertices() const { return m_varVertices; }
-    DfgVertex::List<DfgVertexAst>& astVertices() { return m_astVertices; }
-    const DfgVertex::List<DfgVertexAst>& astVertices() const { return m_astVertices; }
-    DfgVertex::List<DfgConst>& constVertices() { return m_constVertices; }
-    const DfgVertex::List<DfgConst>& constVertices() const { return m_constVertices; }
-    DfgVertex::List<DfgVertex>& opVertices() { return m_opVertices; }
-    const DfgVertex::List<DfgVertex>& opVertices() const { return m_opVertices; }
+    Dfg_راس::List<Dfg_راس_Var>& varVertices() { واپس m_varVertices; }
+    ثابت Dfg_راس::List<Dfg_راس_Var>& varVertices() ثابت { واپس m_varVertices; }
+    Dfg_راس::List<Dfg_راس_Ast>& astVertices() { واپس m_astVertices; }
+    ثابت Dfg_راس::List<Dfg_راس_Ast>& astVertices() ثابت { واپس m_astVertices; }
+    Dfg_راس::List<DfgConst>& constVertices() { واپس m_constVertices; }
+    ثابت Dfg_راس::List<DfgConst>& constVertices() ثابت { واپس m_constVertices; }
+    Dfg_راس::List<Dfg_راس>& opVertices() { واپس m_opVertices; }
+    ثابت Dfg_راس::List<Dfg_راس>& opVertices() ثابت { واپس m_opVertices; }
 
     // Add DfgVertex to this graph (assumes not yet contained).
-    void addVertex(DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    خالی جوڑو_راس(Dfg_راس& vtx) {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(!vtx.m_dfgp, &vtx, "Vertex already in a graph");
-#endif
+#اگر_ختم
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
-        ++m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
-            m_varVertices.linkBack(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
-            m_astVertices.linkBack(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
-            m_constVertices.linkBack(cVtxp);
-        } else {
-            m_opVertices.linkBack(&vtx);
+        ++m_سائز;
+        اگر (Dfg_راس_Var* ثابت vVtxp = vtx.cast<Dfg_راس_Var>()) {
+            m_varVertices.link_عقب(vVtxp);
+        } ورنہ اگر (Dfg_راس_Ast* ثابت aVtxp = vtx.cast<Dfg_راس_Ast>()) {
+            m_astVertices.link_عقب(aVtxp);
+        } ورنہ اگر (DfgConst* ثابت cVtxp = vtx.cast<DfgConst>()) {
+            m_constVertices.link_عقب(cVtxp);
+        } ورنہ {
+            m_opVertices.link_عقب(&vtx);
         }
         vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
+#اگر_تعریف_شدہ VL_DEBUG
         vtx.m_dfgp = this;
-#endif
+#اگر_ختم
     }
 
     // Remove DfgVertex form this graph (assumes it is contained).
-    void removeVertex(DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    خالی remove_راس(Dfg_راس& vtx) {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == this, &vtx, "Vertex not in this graph");
-#endif
+#اگر_ختم
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
-        --m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
+        --m_سائز;
+        اگر (Dfg_راس_Var* ثابت vVtxp = vtx.cast<Dfg_راس_Var>()) {
             m_varVertices.unlink(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
+        } ورنہ اگر (Dfg_راس_Ast* ثابت aVtxp = vtx.cast<Dfg_راس_Ast>()) {
             m_astVertices.unlink(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
+        } ورنہ اگر (DfgConst* ثابت cVtxp = vtx.cast<DfgConst>()) {
             m_constVertices.unlink(cVtxp);
-        } else {
+        } ورنہ {
             m_opVertices.unlink(&vtx);
         }
         vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
+#اگر_تعریف_شدہ VL_DEBUG
         vtx.m_dfgp = nullptr;
-#endif
+#اگر_ختم
     }
 
     // Calls given function 'f' for each vertex in the graph. It is safe to manipulate any vertices
     // in the graph, or to delete/unlink the vertex passed to 'f' during iteration. It is however
     // not safe to delete/unlink any vertex in the same graph other than the one passed to 'f'.
-    void forEachVertex(std::function<void(DfgVertex&)> f) {
-        for (DfgVertexVar* const vtxp : m_varVertices.unlinkable()) f(*vtxp);
-        for (DfgVertexAst* const vtxp : m_astVertices.unlinkable()) f(*vtxp);
-        for (DfgConst* const vtxp : m_constVertices.unlinkable()) f(*vtxp);
-        for (DfgVertex* const vtxp : m_opVertices.unlinkable()) f(*vtxp);
+    خالی for_Each_راس(std::function<خالی(Dfg_راس&)> f) {
+        برائے (Dfg_راس_Var* ثابت vtxp : m_varVertices.unlinkable()) f(*vtxp);
+        برائے (Dfg_راس_Ast* ثابت vtxp : m_astVertices.unlinkable()) f(*vtxp);
+        برائے (DfgConst* ثابت vtxp : m_constVertices.unlinkable()) f(*vtxp);
+        برائے (Dfg_راس* ثابت vtxp : m_opVertices.unlinkable()) f(*vtxp);
     }
 
     // 'const' variant of 'forEachVertex'. No mutation allowed.
-    void forEachVertex(std::function<void(const DfgVertex&)> f) const {
-        for (const DfgVertexVar& vtx : m_varVertices) f(vtx);
-        for (const DfgVertexAst& vtx : m_astVertices) f(vtx);
-        for (const DfgConst& vtx : m_constVertices) f(vtx);
-        for (const DfgVertex& vtx : m_opVertices) f(vtx);
+    خالی for_Each_راس(std::function<خالی(ثابت Dfg_راس&)> f) ثابت {
+        برائے (ثابت Dfg_راس_Var& vtx : m_varVertices) f(vtx);
+        برائے (ثابت Dfg_راس_Ast& vtx : m_astVertices) f(vtx);
+        برائے (ثابت DfgConst& vtx : m_constVertices) f(vtx);
+        برائے (ثابت Dfg_راس& vtx : m_opVertices) f(vtx);
     }
 
     // Merge contents of other graphs into this graph. Deletes the other graphs.
     // DfgVertexVar instances representing the same Ast variable are unified.
-    void mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) VL_MT_DISABLED;
+    خالی ملاؤ_Graphs(std::سمتیہ<std::unique_ptr<Dfg_گراف>>&& otherps) VL_MT_DISABLED;
 
     // Create a new temporary variable in the given scope. Temporaries are shared between
     // instances via the context, keyed by 'prefix', so callers must set identical AstVar
     // attributes on all temporaries created with the same prefix.
-    DfgVertexVar* makeNewVar(FileLine*, const std::string& prefix, const DfgDataType&,
+    Dfg_راس_Var* makeNewVar(File_سطر*, ثابت std::string& سابقہ, ثابت Dfg_ڈیٹا_Type&,
                              AstScope*) VL_MT_DISABLED;
 
     // Split this graph into individual components (unique sub-graphs with no edges between them).
     // Also removes any vertices that are not weakly connected to any variable.
     // Leaves 'this' graph empty.
-    std::vector<std::unique_ptr<DfgGraph>>
-    splitIntoComponents(const std::string& label) VL_MT_DISABLED;
+    std::سمتیہ<std::unique_ptr<Dfg_گراف>>
+    بانٹو_Into_Components(ثابت std::string& label) VL_MT_DISABLED;
 
     // Extract cyclic sub-graphs from 'this' graph. Cyclic sub-graphs are those that contain at
     // least one strongly connected component (SCC) plus any other vertices that feed or sink from
@@ -549,8 +549,8 @@ public:
     // of a cycle) are left in 'this' graph. This means that at the end 'this' graph is guaranteed
     // to be a DAG (acyclic). 'this' will not necessarily be a connected graph at the end, even if
     // it was originally connected.
-    std::vector<std::unique_ptr<DfgGraph>>
-    extractCyclicComponents(const std::string& label) VL_MT_DISABLED;
+    std::سمتیہ<std::unique_ptr<Dfg_گراف>>
+    نکالو_Cyclic_Components(ثابت std::string& label) VL_MT_DISABLED;
 
     //-----------------------------------------------------------------------
     // Debug dumping
@@ -558,31 +558,31 @@ public:
     // Dump graph in Graphviz format into the given stream 'os'. 'label' is added to the name of
     // the graph which is included in the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDot(std::ostream& os, const std::string& label,
-                 std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    خالی dumpDot(std::ostream& os, ثابت std::string& label,
+                 std::function<bool(ثابت Dfg_راس&)> p = {}) ثابت VL_MT_DISABLED;
     // Dump graph in Graphviz format into a new file with the given 'filename'. 'label' is added to
     // the name of the graph which is included in the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDotFile(const std::string& filename, const std::string& label,
-                     std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    خالی dumpDotFile(ثابت std::string& filename, ثابت std::string& label,
+                     std::function<bool(ثابت Dfg_راس&)> p = {}) ثابت VL_MT_DISABLED;
     // Same as dumpDotFile, but returns the contents as a string.
-    std::string dumpDotString(const std::string& label,
-                              std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    std::string dumpDotString(ثابت std::string& label,
+                              std::function<bool(ثابت Dfg_راس&)> p = {}) ثابت VL_MT_DISABLED;
     // Dump graph in Graphviz format into a new automatically numbered debug file. 'label' is
     // added to the name of the graph, which is included in the file name and the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDotFilePrefixed(const std::string& label,
-                             std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    خالی dumpDotFilePrefixed(ثابت std::string& label,
+                             std::function<bool(ثابت Dfg_راس&)> p = {}) ثابت VL_MT_DISABLED;
 
     // Returns the set of vertices in the upstream cones of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    sourceCone(const std::vector<const DfgVertex*>&) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_سیٹ<ثابت Dfg_راس*>>
+    ماخذ_Cone(ثابت std::سمتیہ<ثابت Dfg_راس*>&) ثابت VL_MT_DISABLED;
     // Returns the set of vertices in the downstream cones of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    sinkCone(const std::vector<const DfgVertex*>&) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_سیٹ<ثابت Dfg_راس*>>
+    sinkCone(ثابت std::سمتیہ<ثابت Dfg_راس*>&) ثابت VL_MT_DISABLED;
     // Returns the set of vertices within an 'n' hop neighborhood of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    neighborhood(const std::vector<const DfgVertex*>&, size_t n) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_سیٹ<ثابت Dfg_راس*>>
+    neighborhood(ثابت std::سمتیہ<ثابت Dfg_راس*>&, سائز_t n) ثابت VL_MT_DISABLED;
 };
 
 namespace V3Dfg {
@@ -590,24 +590,24 @@ namespace V3Dfg {
 // Functions for compatibility tests
 
 // Returns true if variable can be represented in the graph
-inline bool isSupported(const AstVarScope* vscp) {
-    const AstNodeModule* const modp = vscp->scopep()->modp();
-    if (VN_IS(modp, Module) || VN_IS(modp, Package)) {
+اندرونی bool isSupported(ثابت AstVarScope* vscp) {
+    ثابت Ast_گرہ_Module* ثابت modp = vscp->scopep()->modp();
+    اگر (VN_IS(modp, Module) || VN_IS(modp, Package)) {
         // Regular modules and packages supported
-    } else if (const AstIface* const ifacep = VN_CAST(modp, Iface)) {
+    } ورنہ اگر (ثابت AstIface* ثابت ifacep = VN_CAST(modp, Iface)) {
         // Interfaces supported if there are no virtual interfaces for
         // them, otherwise they cannot be resovled statically.
-        if (ifacep->hasVirtualRef()) return false;
-    } else {
-        return false;  // Anything else (class, etc) not supported
+        اگر (ifacep->hasVirtualRef()) واپس false;
+    } ورنہ {
+        واپس false;  // Anything else (class, etc) not supported
     }
-    if (DfgVertexVar::hasRWRefs(vscp)) return false;  // Referenced via READWRITE references
+    اگر (Dfg_راس_Var::hasRWRefs(vscp)) واپس false;  // Referenced via READWRITE references
     // Check the AstVar
-    AstVar* const varp = vscp->varp();
-    if (varp->isIfaceRef()) return false;  // Cannot handle interface references
-    if (varp->delayp()) return false;  // Cannot handle delayed variables
-    if (varp->isSc()) return false;  // SystemC variables are special and rare, we can ignore
-    return DfgDataType::fromAst(varp->dtypep());
+    AstVar* ثابت varp = vscp->varp();
+    اگر (varp->isIfaceRef()) واپس false;  // Cannot handle interface references
+    اگر (varp->delayp()) واپس false;  // Cannot handle delayed variables
+    اگر (varp->isSc()) واپس false;  // SystemC variables are special and rare, we can ignore
+    واپس Dfg_ڈیٹا_Type::fromAst(varp->dtypep());
 }
 
 }  //namespace V3Dfg
@@ -616,131 +616,131 @@ inline bool isSupported(const AstVarScope* vscp) {
 // Map from DfgVertices to T_Value implemeneted via DfgVertex::m_userStorage
 
 // Base class with common behavour
-class DfgUserMapBase VL_NOT_FINAL {
-    template <typename, bool>
-    friend class DfgUserMap;
+class Dfg_User_Map_بنیاد VL_NOT_FINAL {
+    سانچہ <typename, bool>
+    دوست class DfgUserMap;
 
-protected:
+محفوظ:
     // STATE
-    const DfgGraph* m_dfgp;  // The graph this map is for
+    ثابت Dfg_گراف* m_dfgp;  // The graph this map is for
     // The current generation number
-    const uint32_t m_currentGeneration;
+    ثابت uint32_t m_currentGeneration;
 
     // CONSTRUCTOR
-    explicit DfgUserMapBase(const DfgGraph* dfgp)
+    explicit Dfg_User_Map_بنیاد(ثابت Dfg_گراف* dfgp)
         : m_dfgp{dfgp}
-        , m_currentGeneration{++m_dfgp->m_vertexUserGeneration} {
+        , m_currentGeneration{++m_dfgp->m_راس_User_Generation} {
         UASSERT(m_currentGeneration, "DfgGraph user data generation number overflow");
-        UASSERT(!m_dfgp->m_vertexUserInUse, "DfgUserMap already in use for this DfgGraph");
-        m_dfgp->m_vertexUserInUse = true;
+        UASSERT(!m_dfgp->m_راس_User_اندر_Use, "DfgUserMap already in use for this DfgGraph");
+        m_dfgp->m_راس_User_اندر_Use = true;
     }
-    VL_UNCOPYABLE(DfgUserMapBase);
-    DfgUserMapBase(DfgUserMapBase&& that)
+    VL_UNCOPYABLE(Dfg_User_Map_بنیاد);
+    Dfg_User_Map_بنیاد(Dfg_User_Map_بنیاد&& that)
         : m_dfgp{that.m_dfgp}
         , m_currentGeneration{that.m_currentGeneration} {
         that.m_dfgp = nullptr;
     }
 
-public:
-    ~DfgUserMapBase() {
-        if (m_dfgp) m_dfgp->m_vertexUserInUse = false;
+عوامی:
+    ~Dfg_User_Map_بنیاد() {
+        اگر (m_dfgp) m_dfgp->m_راس_User_اندر_Use = false;
     }
-    DfgUserMapBase& operator=(DfgUserMapBase&&) = delete;
+    Dfg_User_Map_بنیاد& عامل=(Dfg_User_Map_بنیاد&&) = delete;
 };
 
 // Specialization where T_Value fits in DfgVertex::m_userStorage directly
-template <typename T_Value>
-class DfgUserMap<T_Value, true> final : public DfgUserMapBase {
-    static_assert(fitsSpaceAllocatedFor<T_Value, decltype(DfgVertex::m_userStorage)>(),
+سانچہ <typename T_قدر>
+class DfgUserMap<T_قدر, true> final : عوامی Dfg_User_Map_بنیاد {
+    static_assert(سماتا_Space_Allocated_For<T_قدر, decltype(Dfg_راس::m_userStorage)>(),
                   "'T_Value' does not fit 'DfgVertex::m_userStorage'");
-    friend class DfgGraph;
+    دوست class Dfg_گراف;
 
     // CONSTRUCTOR
-    explicit DfgUserMap(const DfgGraph* dfgp)
-        : DfgUserMapBase{dfgp} {}
+    explicit DfgUserMap(ثابت Dfg_گراف* dfgp)
+        : Dfg_User_Map_بنیاد{dfgp} {}
     VL_UNCOPYABLE(DfgUserMap);
 
-public:
-    DfgUserMap(DfgUserMap&&) = default;
-    ~DfgUserMap() = default;
-    DfgUserMap& operator=(DfgUserMap&&) = delete;
+عوامی:
+    DfgUserMap(DfgUserMap&&) = طےشدہ;
+    ~DfgUserMap() = طےشدہ;
+    DfgUserMap& عامل=(DfgUserMap&&) = delete;
 
     // METHODS
     // Retrieve mapped value for 'vtx', value initializing it on first access
-    T_Value& operator[](const DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    T_قدر& عامل[](ثابت Dfg_راس& vtx) {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
-        T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
-            new (storagep) T_Value{};
+#اگر_ختم
+        T_قدر* ثابت storagep = reinterpret_cast<T_قدر*>(&vtx.m_userStorage);
+        اگر (vtx.m_userGeneration != m_currentGeneration) {
+            new (storagep) T_قدر{};
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagep;
+        واپس *storagep;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_قدر& عامل[](ثابت Dfg_راس* vtxp) { واپس (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
-    T_Value& at(const DfgVertex& vtx) const {
-#ifdef VL_DEBUG
+    T_قدر& at(ثابت Dfg_راس& vtx) ثابت {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
+#اگر_ختم
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
-        T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        return *storagep;
+        T_قدر* ثابت storagep = reinterpret_cast<T_قدر*>(&vtx.m_userStorage);
+        واپس *storagep;
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_قدر& at(ثابت Dfg_راس* vtxp) ثابت { واپس (*this).at(*vtxp); }
 };
 
 // Specialization where T_Value does not fit in DfgVertex::m_userStorage directly
-template <typename T_Value>
-class DfgUserMap<T_Value, false> final : public DfgUserMapBase {
-    static_assert(fitsSpaceAllocatedFor<T_Value*, decltype(DfgVertex::m_userStorage)>(),
+سانچہ <typename T_قدر>
+class DfgUserMap<T_قدر, false> final : عوامی Dfg_User_Map_بنیاد {
+    static_assert(سماتا_Space_Allocated_For<T_قدر*, decltype(Dfg_راس::m_userStorage)>(),
                   "'T_Value*' does not fit 'DfgVertex::m_userStorage'");
-    friend class DfgGraph;
+    دوست class Dfg_گراف;
 
     // STATE
-    std::deque<T_Value> m_storage;  // Storage for T_Value instances
+    std::deque<T_قدر> m_storage;  // Storage for T_Value instances
 
     // CONSTRUCTOR
-    explicit DfgUserMap(const DfgGraph* dfgp)
-        : DfgUserMapBase{dfgp} {}
+    explicit DfgUserMap(ثابت Dfg_گراف* dfgp)
+        : Dfg_User_Map_بنیاد{dfgp} {}
     VL_UNCOPYABLE(DfgUserMap);
 
-public:
-    DfgUserMap(DfgUserMap&&) = default;
-    ~DfgUserMap() = default;
-    DfgUserMap& operator=(DfgUserMap&&) = delete;
+عوامی:
+    DfgUserMap(DfgUserMap&&) = طےشدہ;
+    ~DfgUserMap() = طےشدہ;
+    DfgUserMap& عامل=(DfgUserMap&&) = delete;
 
     // METHODS
     // Retrieve mapped value for 'vtx', value initializing it on first access
-    T_Value& operator[](const DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    T_قدر& عامل[](ثابت Dfg_راس& vtx) {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
-        T_Value*& storagepr = reinterpret_cast<T_Value*&>(vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
-            m_storage.emplace_back();
-            storagepr = &m_storage.back();
+#اگر_ختم
+        T_قدر*& storagepr = reinterpret_cast<T_قدر*&>(vtx.m_userStorage);
+        اگر (vtx.m_userGeneration != m_currentGeneration) {
+            m_storage.emplace_عقب();
+            storagepr = &m_storage.عقب();
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagepr;
+        واپس *storagepr;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_قدر& عامل[](ثابت Dfg_راس* vtxp) { واپس (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
-    T_Value& at(const DfgVertex& vtx) const {
-#ifdef VL_DEBUG
+    T_قدر& at(ثابت Dfg_راس& vtx) ثابت {
+#اگر_تعریف_شدہ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
+#اگر_ختم
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
-        return *reinterpret_cast<T_Value*&>(vtx.m_userStorage);
+        واپس *reinterpret_cast<T_قدر*&>(vtx.m_userStorage);
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_قدر& at(ثابت Dfg_راس* vtxp) ثابت { واپس (*this).at(*vtxp); }
 };
 
 //------------------------------------------------------------------------------
@@ -750,58 +750,58 @@ class DfgWorklist final {
     // STATE
 
     // The Graph being processed
-    DfgGraph& m_dfg;
+    Dfg_گراف& m_dfg;
     // Map from vertex to next vertex in the work list
-    DfgUserMap<DfgVertex*> m_nextp = m_dfg.makeUserMap<DfgVertex*>();
+    DfgUserMap<Dfg_راس*> m_nextp = m_dfg.makeUserMap<Dfg_راس*>();
     // We want all 'nextp' pointers for vertices that are in the worklist to be
     // non-zero (including that of the last element). This allows us to do two
     // important things: detect if an element is in the list by checking for a
     // non-zero 'nextp'', and easy prefetching without conditionals. The
     // address of the worklist itself is a good sentinel as it is a valid
     // memory address, and we can easily check for the end of the list.
-    DfgVertex* const m_sentinelp = reinterpret_cast<DfgVertex*>(this);
+    Dfg_راس* ثابت m_sentinelp = reinterpret_cast<Dfg_راس*>(this);
     // Head of work list
-    DfgVertex* m_headp = m_sentinelp;
+    Dfg_راس* m_headp = m_sentinelp;
 
-public:
+عوامی:
     // CONSTRUCTOR
-    explicit DfgWorklist(DfgGraph& dfg)
+    explicit DfgWorklist(Dfg_گراف& dfg)
         : m_dfg{dfg} {}
     VL_UNCOPYABLE(DfgWorklist);
     VL_UNMOVABLE(DfgWorklist);
-    ~DfgWorklist() = default;
+    ~DfgWorklist() = طےشدہ;
 
     // METHODS
 
     // If 'vtx' is not in the worklist already, add it at the head of the list
     // and return ture. If 'vtx' is already in the work list, then do nothing
     // and return false.
-    bool push_front(DfgVertex& vtx) {
+    bool ڈالو_front(Dfg_راس& vtx) {
         // Pick up reference to the next pointer
-        DfgVertex*& nextpr = m_nextp[vtx];
+        Dfg_راس*& nextpr = m_nextp[vtx];
         // If already in work list then nothing to do
-        if (nextpr) return false;
+        اگر (nextpr) واپس false;
         // Prepend to work list
         nextpr = m_headp;
         m_headp = &vtx;
-        return true;
+        واپس true;
     }
 
     // Returns ture iff 'vtx' is in the worklist
-    bool contains(const DfgVertex& vtx) { return m_nextp[vtx]; }
+    bool شامل_ہے(ثابت Dfg_راس& vtx) { واپس m_nextp[vtx]; }
 
     // Process the worklist by removing the first element, calling on it the
     // given callable 'f', and repeat until the worklist is empty. The callable
     // 'f' can add furthere vertices to the worklist.
-    template <typename T_Callable>
-    void foreach(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<void, T_Callable, DfgVertex&>::value,
+    سانچہ <typename T_Callable>
+    خالی foreach(T_Callable&& f) {
+        static_assert(vlstd::is_invocable_r<خالی, T_Callable, Dfg_راس&>::قدر,
                       "T_Callable 'f' must have a signature compatible with 'void(DfgVertex&)'");
 
         // Process the work list
-        while (m_headp != m_sentinelp) {
+        جب (m_headp != m_sentinelp) {
             // Pick up the head
-            DfgVertex& vtx = *m_headp;
+            Dfg_راس& vtx = *m_headp;
             // Detach the head
             m_headp = m_nextp.at(vtx);
             // Prefetch next item
@@ -819,82 +819,82 @@ public:
 
 // DfgEdge {{{
 
-void DfgEdge::unlinkSrcp() {
-    if (!m_srcp) return;
-#ifdef VL_DEBUG
+خالی Dfg_کنارہ::unlinkSrcp() {
+    اگر (!m_srcp) واپس;
+#اگر_تعریف_شدہ VL_DEBUG
     bool contained = false;
-    for (const DfgEdge& edge : m_srcp->m_sinks) {
-        if (&edge != this) continue;
+    برائے (ثابت Dfg_کنارہ& کنارہ : m_srcp->m_sinks) {
+        اگر (&کنارہ != this) جاری;
         contained = true;
-        break;
+        توڑو;
     }
     UASSERT_OBJ(contained, m_srcp, "'m_srcp' does not have this as sink");
-#endif
+#اگر_ختم
     m_srcp->m_sinks.unlink(this);
     m_srcp = nullptr;
 }
 
-void DfgEdge::relinkSrcp(DfgVertex* srcp) {
+خالی Dfg_کنارہ::relinkSrcp(Dfg_راس* srcp) {
     // Unlink current source, if any
     unlinkSrcp();
     m_srcp = srcp;
-    if (m_srcp) m_srcp->m_sinks.linkFront(this);
+    اگر (m_srcp) m_srcp->m_sinks.linkFront(this);
 }
 
 // }}}
 
 // DfgVertex {{{
 
-DfgEdge* DfgVertex::inputEdgep(size_t i) const {
+Dfg_کنارہ* Dfg_راس::داخلہ_Edgep(سائز_t i) ثابت {
     UDEBUGONLY(UASSERT_OBJ(i < m_nInputs, this, "Input index out of range"););
-    if (VL_LIKELY(m_inlineInputsp)) return m_inlineInputsp + i;
+    اگر (VL_LIKELY(m_inlineInputsp)) واپس m_inlineInputsp + i;
     // 'm_inlineInputsp' is null exactly for a DfgVertexVariadic
-    UDEBUGONLY(UASSERT_OBJ(is<DfgVertexVariadic>(), this, "Vertex without input edge storage"););
-    return static_cast<const DfgVertexVariadic*>(this)->m_edgeps[i].get();
+    UDEBUGONLY(UASSERT_OBJ(is<Dfg_راس_Variadic>(), this, "Vertex without input edge storage"););
+    واپس static_cast<ثابت Dfg_راس_Variadic*>(this)->m_edgeps[i].get();
 }
 
-bool DfgVertex::isCheaperThanLoad() const {
+bool Dfg_راس::is_Cheaper_Than_بھرو() ثابت {
     // Constants
-    if (is<DfgConst>()) return true;
+    اگر (is<DfgConst>()) واپس true;
     // Variables
-    if (is<DfgVertexVar>()) return true;
-    if (is<DfgPrev>()) return true;
+    اگر (is<Dfg_راس_Var>()) واپس true;
+    اگر (is<Dfg_پچھلا>()) واپس true;
     // Array sels are just address computation, but the address itself can be expensive
-    if (const DfgArraySel* aselp = cast<DfgArraySel>()) {
-        if (aselp->bitp()->is<DfgMatchMasked>()) return false;
-        return true;
+    اگر (ثابت DfgArraySel* aselp = cast<DfgArraySel>()) {
+        اگر (aselp->bitp()->is<Dfg_مطابقت_Masked>()) واپس false;
+        واپس true;
     }
     // Small select from variable
-    if (const DfgSel* const selp = cast<DfgSel>()) {
-        if (!selp->fromp()->is<DfgVarPacked>()) return false;
-        if (selp->fromp()->width() <= VL_QUADSIZE) return true;
-        const uint32_t lsb = selp->lsb();
-        const uint32_t msb = lsb + selp->width() - 1;
-        return VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
+    اگر (ثابت DfgSel* ثابت selp = cast<DfgSel>()) {
+        اگر (!selp->fromp()->is<DfgVarPacked>()) واپس false;
+        اگر (selp->fromp()->چوڑائی() <= VL_QUADSIZE) واپس true;
+        ثابت uint32_t lsb = selp->lsb();
+        ثابت uint32_t msb = lsb + selp->چوڑائی() - 1;
+        واپس VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
     }
     // Replication of a single cheap bit. Each word of the result is the same
     // mask computed by negating that bit, so recomputing it at each use costs
     // no more than the load it replaces.
-    if (const DfgRep* const repp = cast<DfgRep>()) {
-        const DfgVertex* const srcp = repp->srcp();
-        return srcp->width() == 1 && srcp->isCheaperThanLoad();
+    اگر (ثابت DfgRep* ثابت repp = cast<DfgRep>()) {
+        ثابت Dfg_راس* ثابت srcp = repp->srcp();
+        واپس srcp->چوڑائی() == 1 && srcp->is_Cheaper_Than_بھرو();
     }
     // Zero extend of a cheap vertex - Extend(_) was converted to Concat(0, _)
-    if (const DfgConcat* const catp = cast<DfgConcat>()) {
-        if (catp->width() > VL_QUADSIZE) return false;
-        const DfgConst* const lConstp = catp->lhsp()->cast<DfgConst>();
-        if (!lConstp || !lConstp->isZero()) return false;
-        return catp->rhsp()->isCheaperThanLoad();
+    اگر (ثابت DfgConcat* ثابت catp = cast<DfgConcat>()) {
+        اگر (catp->چوڑائی() > VL_QUADSIZE) واپس false;
+        ثابت DfgConst* ثابت lConstp = catp->lhsp()->cast<DfgConst>();
+        اگر (!lConstp || !lConstp->isZero()) واپس false;
+        واپس catp->rhsp()->is_Cheaper_Than_بھرو();
     }
     // Reduction of a narrow cheap vertex
-    if (is<DfgRedOr>()  //
+    اگر (is<DfgRedOr>()  //
         || is<DfgRedAnd>()  //
         || is<DfgRedXor>()) {
-        const DfgVertex* const srcp = as<DfgVertexUnary>()->srcp();
-        return srcp->width() <= VL_QUADSIZE && srcp->isCheaperThanLoad();
+        ثابت Dfg_راس* ثابت srcp = as<Dfg_راس_Unary>()->srcp();
+        واپس srcp->چوڑائی() <= VL_QUADSIZE && srcp->is_Cheaper_Than_بھرو();
     }
     // Comparisons of a narrow cheap vertex with constant
-    if (is<DfgEq>()  //
+    اگر (is<DfgEq>()  //
         || is<DfgNeq>()  //
         || is<DfgLt>()  //
         || is<DfgLte>()  //
@@ -904,24 +904,24 @@ bool DfgVertex::isCheaperThanLoad() const {
         || is<DfgLteS>()  //
         || is<DfgGtS>()  //
         || is<DfgGteS>()) {
-        const DfgVertexBinary* const binp = as<DfgVertexBinary>();
-        const DfgVertex* const lhsp = binp->inputp(0);
-        const DfgVertex* const rhsp = binp->inputp(1);
-        return lhsp->width() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->isCheaperThanLoad();
+        ثابت Dfg_راس_ثنائی* ثابت binp = as<Dfg_راس_ثنائی>();
+        ثابت Dfg_راس* ثابت lhsp = binp->inputp(0);
+        ثابت Dfg_راس* ثابت rhsp = binp->inputp(1);
+        واپس lhsp->چوڑائی() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->is_Cheaper_Than_بھرو();
     }
     // Otherwise probably not
-    return false;
+    واپس false;
 }
 
 // }}}
 
 // DfgGraph {{{
 
-template <typename T_User>
-DfgUserMap<T_User> DfgGraph::makeUserMap() const {
-    return DfgUserMap<T_User>{this};
+سانچہ <typename T_User>
+DfgUserMap<T_User> Dfg_گراف::makeUserMap() ثابت {
+    واپس DfgUserMap<T_User>{this};
 }
 
 // }}}
 
-#endif
+#اگر_ختم

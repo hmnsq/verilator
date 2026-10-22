@@ -14,30 +14,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKLEVEL_H_
-#define VERILATOR_V3LINKLEVEL_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3LINKLEVEL_H_
+#تعریف_کرو VERILATOR_V3LINKLEVEL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#شامل "V3Ast.h"
+#شامل "V3Error.h"
 
-#include <vector>
+#شامل <vector>
 
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::سمتیہ<Ast_گرہ_Module*>;
 
-    static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    ساکن خالی timescaling(ثابت ModVec& mods) VL_MT_DISABLED;
+    ساکن خالی wrap_چوٹی_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    ساکن خالی wrap_چوٹی_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
-public:
-    static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+عوامی:
+    ساکن خالی mod_ترتیب_دو_By_Level() VL_MT_DISABLED;
+    ساکن خالی wrap_چوٹی(AstNetlist* rootp) VL_MT_DISABLED;
+    ساکن خالی non_Wrap_چوٹی(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#اگر_ختم  // Guard

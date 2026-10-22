@@ -13,30 +13,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PCHASTMT_H_
-#define VERILATOR_V3PCHASTMT_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3PCHASTMT_H_
+#تعریف_کرو VERILATOR_V3PCHASTMT_H_
 
-#ifdef VL_PCH_INCLUDED
-#error "Including multiple V3Pch*.h flavors"
-#endif
-#define VL_PCH_INCLUDED
+#اگر_تعریف_شدہ VL_PCH_INCLUDED
+#غلطی "Including multiple V3Pch*.h flavors"
+#اگر_ختم
+#تعریف_کرو VL_PCH_INCLUDED
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#شامل "V3Ast.h"
+#شامل "V3Broken.h"
+#شامل "V3Container.h"
+#شامل "V3Error.h"
+#شامل "V3FileLine.h"
+#شامل "V3FunctionTraits.h"
+#شامل "V3Global.h"
+#شامل "V3Mutex.h"
+#شامل "V3Number.h"
+#شامل "V3Options.h"
+#شامل "V3StdFuture.h"
+#شامل "V3String.h"
 
-#include <algorithm>
+#شامل <algorithm>
 
-#endif  // Guard
+#اگر_ختم  // Guard

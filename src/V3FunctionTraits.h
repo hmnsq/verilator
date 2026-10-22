@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCTIONTRAITS_H_
-#define VERILATOR_V3FUNCTIONTRAITS_H_
+#اگر_غیر_تعریف_شدہ VERILATOR_V3FUNCTIONTRAITS_H_
+#تعریف_کرو VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#شامل "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#شامل <cstddef>
+#شامل <tuple>
+#شامل <type_traits>
 
-template <typename T>
-struct FunctionTraits;
+سانچہ <typename T>
+ساخت FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
-template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+سانچہ <typename T>
+ساخت FunctionTraits final
+    : عوامی FunctionTraits<decltype(&std::remove_reference<T>::type::عامل())> {};
 
 // Specialization for pointers to member function
-template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+سانچہ <typename T_ClassType, typename T_ReturnType, typename... دلائل_2>
+ساخت FunctionTraits<T_ReturnType (T_ClassType::*)(دلائل_2...) ثابت> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    ساکن constexpr سائز_t arity = حجم...(دلائل_2);
 
     // Type of result
-    using result_type = T_ReturnType;
+    using نتیجہ_type = T_ReturnType;
 
     // Type of arguments
-    template <std::size_t N>
-    struct arg final {
-        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+    سانچہ <std::سائز_t N>
+    ساخت arg final {
+        using type = typename std::tuple_element<N, std::tuple<دلائل_2...>>::type;
     };
 };
 
-template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+سانچہ <typename T_Callable, سائز_t N_اشاریہ>
+ساخت Function_Arg_No_اشارہ_گر_No_CV final {
     using Traits = FunctionTraits<T_Callable>;
-    using T_Arg = typename Traits::template arg<N_Index>::type;
-    using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;
+    using T_Arg = typename Traits::سانچہ arg<N_اشاریہ>::type;
+    using T_ArgNoPtr = typename std::remove_اشارہ_گر<T_Arg>::type;
     using type = typename std::remove_cv<T_ArgNoPtr>::type;
 };
 
-#endif
+#اگر_ختم

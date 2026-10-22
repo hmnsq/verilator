@@ -29,188 +29,188 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#شامل "V3PchAstMT.h"
 
-#include "V3FuncOpt.h"
+#شامل "V3FuncOpt.h"
 
-#include "V3Global.h"
-#include "V3Stats.h"
+#شامل "V3Global.h"
+#شامل "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class BalanceConcatTree final {
+جماعت Balance_Concat_درخت final {
     // STATELESS
 
     // We keep the expressions, together with their offsets within a concatenation tree
-    struct Term final {
-        AstNodeExpr* exprp = nullptr;
-        size_t offset = 0;
+    ساخت رکن_2 final {
+        Ast_گرہ_اظہاریہ* exprp = خالی_اشاریہ;
+        سائز_t انحراف = 0;
 
-        Term() = default;
-        Term(AstNodeExpr* exprp, size_t offset)
+        رکن_2() = طےشدہ;
+        رکن_2(Ast_گرہ_اظہاریہ* exprp, سائز_t انحراف)
             : exprp{exprp}
-            , offset{offset} {}
+            , انحراف{انحراف} {}
     };
 
     // Recursive implementation of 'gatherTerms' below.
-    static void gatherTermsRecursive(AstNodeExpr* exprp, std::vector<AstNodeExpr*>& terms) {
-        if (AstConcat* const catp = VN_CAST(exprp, Concat)) {
+    ساکن خالی gatherTermsRecursive(Ast_گرہ_اظہاریہ* exprp, std::سمتیہ<Ast_گرہ_اظہاریہ*>& terms) {
+        اگر (AstConcat* ثابت catp = VN_CAST(exprp, Concat)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-            return;
+            واپس;
         }
-        if (AstExtend* const extp = VN_CAST(exprp, Extend)) {
+        اگر (AstExtend* ثابت extp = VN_CAST(exprp, Extend)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-            return;
+            terms.emplace_عقب(extp);
+            واپس;
         }
 
         // Base case: different operation
-        terms.emplace_back(exprp);
+        terms.emplace_عقب(exprp);
     }
 
     // Gather terms in the tree rooted at the given node.
     // Results are right to left, that is, index 0 in the returned vector
     // is the rightmost term, index size()-1 is the leftmost term.
     // If a term is an AstExtend, it represents the extension part only.
-    static std::vector<AstNodeExpr*> gatherTerms(AstNodeExpr* rootp) {
-        std::vector<AstNodeExpr*> terms;
-        if (AstConcat* const catp = VN_CAST(rootp, Concat)) {
+    ساکن std::سمتیہ<Ast_گرہ_اظہاریہ*> gatherTerms(Ast_گرہ_اظہاریہ* rootp) {
+        std::سمتیہ<Ast_گرہ_اظہاریہ*> terms;
+        اگر (AstConcat* ثابت catp = VN_CAST(rootp, Concat)) {
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-        } else if (AstExtend* const extp = VN_CAST(rootp, Extend)) {
+        } ورنہ اگر (AstExtend* ثابت extp = VN_CAST(rootp, Extend)) {
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-        } else {
+            terms.emplace_عقب(extp);
+        } ورنہ {
             rootp->v3fatalSrc("Unexpected node type");
         }
-        return terms;
+        واپس terms;
     }
 
     // Construct a balanced concatenation from the given terms,
     // between indices begin (inclusive), and end (exclusive).
     // Note term[end].offset must be valid. term[end].vtxp is
     // never referenced.
-    static AstNodeExpr* construct(const std::vector<Term>& terms, const size_t begin,
-                                  const size_t end) {
-        UASSERT(end < terms.size(), "Invalid end");
-        UASSERT(begin < end, "Invalid range");
+    ساکن Ast_گرہ_اظہاریہ* construct(ثابت std::سمتیہ<رکن_2>& terms, ثابت سائز_t begin,
+                                  ثابت سائز_t انتہا) {
+        UASSERT(انتہا < terms.سائز(), "Invalid end");
+        UASSERT(begin < انتہا, "Invalid range");
         // Base case: just return the term
-        if (end == begin + 1) return terms[begin].exprp;
+        اگر (انتہا == begin + 1) واپس terms[begin].exprp;
 
         // Recursive case:
         // Compute the mid-point, trying to create roughly equal width intermediates
-        const size_t width = terms[end].offset - terms[begin].offset;
-        const size_t midOffset = width / 2 + terms[begin].offset;
-        const auto beginIt = terms.begin() + begin;
-        const auto endIt = terms.begin() + end;
-        const auto midIt = std::lower_bound(beginIt + 1, endIt - 1, midOffset,  //
-                                            [&](const Term& term, size_t value) {  //
-                                                return term.offset < value;
+        ثابت سائز_t چوڑائی = terms[انتہا].انحراف - terms[begin].انحراف;
+        ثابت سائز_t mid_انحراف = چوڑائی / 2 + terms[begin].انحراف;
+        ثابت خودکار beginIt = terms.begin() + begin;
+        ثابت خودکار انتہا_It = terms.begin() + انتہا;
+        ثابت خودکار midIt = std::زیریں_bound(beginIt + 1, انتہا_It - 1, mid_انحراف,  //
+                                            [&](ثابت رکن_2& رکن, سائز_t قدر) {  //
+                                                واپس رکن.انحراف < قدر;
                                             });
-        const size_t mid = begin + std::distance(beginIt, midIt);
-        UASSERT(begin < mid && mid < end, "Must make some progress");
+        ثابت سائز_t mid = begin + std::فاصلہ(beginIt, midIt);
+        UASSERT(begin < mid && mid < انتہا, "Must make some progress");
         // Construct the subtrees
-        AstNodeExpr* const rhsp = construct(terms, begin, mid);
-        AstNodeExpr* const lhsp = construct(terms, mid, end);
+        Ast_گرہ_اظہاریہ* ثابت rhsp = construct(terms, begin, mid);
+        Ast_گرہ_اظہاریہ* ثابت lhsp = construct(terms, mid, انتہا);
         // Construct new node
-        AstNodeExpr* newp = new AstConcat{lhsp->fileline(), lhsp, rhsp};
-        newp->user1(true);  // Must not attempt to balance again.
-        return newp;
+        Ast_گرہ_اظہاریہ* newp = نیا AstConcat{lhsp->fileline(), lhsp, rhsp};
+        newp->user1(سچ);  // Must not attempt to balance again.
+        واپس newp;
     }
 
     // Returns replacement node, or nullptr if no change
-    static AstConcat* balance(AstNodeExpr* const rootp) {
+    ساکن AstConcat* balance(Ast_گرہ_اظہاریہ* ثابت rootp) {
         UINFO(9, "balanceConcat " << rootp);
         // Gather all input vertices of the tree
-        const std::vector<AstNodeExpr*> exprps = gatherTerms(rootp);
+        ثابت std::سمتیہ<Ast_گرہ_اظہاریہ*> exprps = gatherTerms(rootp);
         // Don't bother with trivial trees
-        if (exprps.size() <= 3) return nullptr;
+        اگر (exprps.سائز() <= 3) واپس خالی_اشاریہ;
         // Don't do it if any of the terms are impure
-        for (AstNodeExpr* const exprp : exprps) {
-            if (!exprp->isPure()) return nullptr;
+        برائے (Ast_گرہ_اظہاریہ* ثابت exprp : exprps) {
+            اگر (!exprp->is_خالص()) واپس خالی_اشاریہ;
         }
 
         // Construct the terms Vector that we are going to do processing on
-        std::vector<Term> terms(exprps.size() + 1);
+        std::سمتیہ<رکن_2> terms(exprps.سائز() + 1);
         // These are redundant (constructor does the same), but here they are for clarity
-        terms[0].offset = 0;
-        terms[exprps.size()].exprp = nullptr;
-        for (size_t i = 0; i < exprps.size(); ++i) {
-            AstNodeExpr* const exprp = [&]() -> AstNodeExpr* {
-                if (AstExtend* const extp = VN_CAST(exprps[i], Extend)) {
-                    const int width = extp->width() - extp->lhsp()->width();
-                    return new AstConst{extp->fileline(), AstConst::WidthedValue{}, width, 0};
+        terms[0].انحراف = 0;
+        terms[exprps.سائز()].exprp = خالی_اشاریہ;
+        برائے (سائز_t i = 0; i < exprps.سائز(); ++i) {
+            Ast_گرہ_اظہاریہ* ثابت exprp = [&]() -> Ast_گرہ_اظہاریہ* {
+                اگر (AstExtend* ثابت extp = VN_CAST(exprps[i], Extend)) {
+                    ثابت صحیح چوڑائی = extp->چوڑائی() - extp->lhsp()->چوڑائی();
+                    واپس نیا AstConst{extp->fileline(), AstConst::Widthed_قدر{}, چوڑائی, 0};
                 }
-                return exprps[i]->cloneTreePure(false);
+                واپس exprps[i]->clone_درخت_خالص(جھوٹ);
             }();
             terms[i].exprp = exprp;
-            terms[i + 1].offset = terms[i].offset + exprp->width();
+            terms[i + 1].انحراف = terms[i].انحراف + exprp->چوڑائی();
         }
 
         // Round 1: try to create terms ending on VL_EDATASIZE boundaries.
         // This ensures we pack bits within a VL_EDATASIZE first is possible,
         // and then hopefully we can just assemble VL_EDATASIZE words afterward.
-        std::vector<Term> terms2;
+        std::سمتیہ<رکن_2> terms2;
         {
-            terms2.reserve(terms.size());
+            terms2.reserve(terms.سائز());
 
-            size_t begin = 0;  // Start of current range considered
-            size_t end = 0;  // End of current range considered
-            size_t offset = 0;  // Offset of current range considered
+            سائز_t begin = 0;  // Start of current range considered
+            سائز_t انتہا = 0;  // End of current range considered
+            سائز_t انحراف = 0;  // Offset of current range considered
 
             // Create a term from the current range
-            const auto makeTerm = [&]() {
-                AstNodeExpr* const exprp = construct(terms, begin, end);
-                terms2.emplace_back(exprp, offset);
-                offset += exprp->width();
-                begin = end;
+            ثابت خودکار make_رکن = [&]() {
+                Ast_گرہ_اظہاریہ* ثابت exprp = construct(terms, begin, انتہا);
+                terms2.emplace_عقب(exprp, انحراف);
+                انحراف += exprp->چوڑائی();
+                begin = انتہا;
             };
 
             // Create all terms ending on a boundary.
-            while (++end < terms.size() - 1) {
-                if (terms[end].offset % VL_EDATASIZE == 0) makeTerm();
+            جب (++انتہا < terms.سائز() - 1) {
+                اگر (terms[انتہا].انحراف % VL_EDATASIZE == 0) make_رکن();
             }
             // Final term. Loop condition above ensures this always exists,
             // and might or might not be on a boundary.
-            makeTerm();
+            make_رکن();
             // Sentinel term
-            terms2.emplace_back(nullptr, offset);
+            terms2.emplace_عقب(خالی_اشاریہ, انحراف);
             // should have ended up with the same number of bits at least...
-            UASSERT(terms2.back().offset == terms.back().offset, "Inconsistent terms");
+            UASSERT(terms2.عقب().انحراف == terms.عقب().انحراف, "Inconsistent terms");
         }
 
         // Round 2: Combine the partial terms
-        return VN_AS(construct(terms2, 0, terms2.size() - 1), Concat);
+        واپس VN_AS(construct(terms2, 0, terms2.سائز() - 1), Concat);
     }
 
-public:
-    static AstNodeExpr* apply(AstNodeExpr* nodep) {
-        if (!v3Global.opt.fFuncBalanceCat()) return nullptr;
-        if (nodep->user1()) return nullptr;  // Created by us, don't try to balance again
-        if (VN_IS(nodep->backp(), Concat)) return nullptr;  // Not root of tree
-        if (VN_IS(nodep->backp(), Extend)) return nullptr;  // Not root of tree
-        AstNodeExpr* const exprp = balance(nodep);
-        if (exprp) exprp->user1(true);  // Must not attempt again.
-        return exprp;
+عوامی:
+    ساکن Ast_گرہ_اظہاریہ* apply(Ast_گرہ_اظہاریہ* nodep) {
+        اگر (!v3Global.opt.fFuncBalanceCat()) واپس خالی_اشاریہ;
+        اگر (nodep->user1()) واپس خالی_اشاریہ;  // Created by us, don't try to balance again
+        اگر (VN_IS(nodep->backp(), Concat)) واپس خالی_اشاریہ;  // Not root of tree
+        اگر (VN_IS(nodep->backp(), Extend)) واپس خالی_اشاریہ;  // Not root of tree
+        Ast_گرہ_اظہاریہ* ثابت exprp = balance(nodep);
+        اگر (exprp) exprp->user1(سچ);  // Must not attempt again.
+        واپس exprp;
     }
 };
 
-struct FuncOptStats final {
+ساخت FuncOptStats final {
     // STATE - Statistic tracking
-    VDouble0 m_balancedConcats;  // Number of concatenations balanced
+    VDouble0 m_متوازن_Concats;  // Number of concatenations balanced
     VDouble0 m_concatSplits;  // Number of splits in assignments with Concat on RHS
 
-    FuncOptStats() = default;
+    FuncOptStats() = طےشدہ;
     ~FuncOptStats() {
-        V3Stats::addStat("Optimizations, FuncOpt concat trees balanced", m_balancedConcats);
-        V3Stats::addStat("Optimizations, FuncOpt concat splits", m_concatSplits);
+        V3Stats::جوڑو_Stat("Optimizations, FuncOpt concat trees balanced", m_متوازن_Concats);
+        V3Stats::جوڑو_Stat("Optimizations, FuncOpt concat splits", m_concatSplits);
     }
 };
 
-class FuncOptVisitor final : public VNVisitor {
+جماعت FuncOptVisitor final : عوامی VNVisitor {
     // NODE STATE
     //  AstNodeAssign::user()     -> bool.  Already checked, safe to split. Omit expensive check.
     //  AstConcat::user()         -> bool.  Already balanced.
@@ -219,179 +219,179 @@ class FuncOptVisitor final : public VNVisitor {
     FuncOptStats& m_stats;  // Statistics
 
     // True for e.g.: foo = foo >> 1; or foo[foo[0]] = ...;
-    static bool readsLhs(AstNodeAssign* nodep) {
+    ساکن منطقی readsLhs(Ast_گرہ_تفویض* nodep) {
         // It is expected that the number of vars written on the LHS is very small (should be 1).
-        std::unordered_set<const AstVar*> lhsWrVarps;
-        std::unordered_set<const AstVar*> lhsRdVarps;
-        nodep->lhsp()->foreach([&](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
-            if (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
+        std::unordered_سیٹ<ثابت AstVar*> lhsWrVarps;
+        std::unordered_سیٹ<ثابت AstVar*> lhsRdVarps;
+        nodep->lhsp()->foreach([&](ثابت AstVarRef* refp) {
+            اگر (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
+            اگر (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
         });
 
         // Common case of 1 variable on the LHS - special handling for speed
-        if (lhsWrVarps.size() == 1) {
-            const AstVar* const lhsWrVarp = *lhsWrVarps.begin();
+        اگر (lhsWrVarps.سائز() == 1) {
+            ثابت AstVar* ثابت lhsWrVarp = *lhsWrVarps.begin();
             // Check Rhs doesn't read the written var
-            const bool rhsReadsWritten = nodep->rhsp()->exists([=](const AstVarRef* refp) {  //
-                return refp->varp() == lhsWrVarp;
+            ثابت منطقی rhsReadsWritten = nodep->rhsp()->exists([=](ثابت AstVarRef* refp) {  //
+                واپس refp->varp() == lhsWrVarp;
             });
-            if (rhsReadsWritten) return true;
+            اگر (rhsReadsWritten) واپس سچ;
             // Check Lhs doesn't read the written var
-            return lhsRdVarps.count(lhsWrVarp);
+            واپس lhsRdVarps.گنتی(lhsWrVarp);
         }
 
         // Generic case of multiple vars written on LHS
         // TODO: this might be impossible due to earlier transforms, not sure
         // Check Rhs doesn't read the written vars
-        const bool rhsReadsWritten = nodep->rhsp()->exists([&](const AstVarRef* refp) {  //
-            return lhsWrVarps.count(refp->varp());
+        ثابت منطقی rhsReadsWritten = nodep->rhsp()->exists([&](ثابت AstVarRef* refp) {  //
+            واپس lhsWrVarps.گنتی(refp->varp());
         });
-        if (rhsReadsWritten) return true;
+        اگر (rhsReadsWritten) واپس سچ;
         // Check Lhs doesn't read the written vars
-        for (const AstVar* const lhsWrVarp : lhsWrVarps) {
-            if (lhsRdVarps.count(lhsWrVarp)) return true;
+        برائے (ثابت AstVar* ثابت lhsWrVarp : lhsWrVarps) {
+            اگر (lhsRdVarps.گنتی(lhsWrVarp)) واپس سچ;
         }
-        return false;
+        واپس جھوٹ;
     }
 
     // METHODS
     // Split wide assignments with a wide concatenation on the RHS.
     // Returns true if 'nodep' was deleted
-    bool splitConcat(AstNodeAssign* nodep) {
+    منطقی بانٹو_Concat(Ast_گرہ_تفویض* nodep) {
         UINFO(9, "splitConcat " << nodep);
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_گرہ_اظہاریہ* ثابت rhsp = nodep->rhsp();
         // Only care about concatenations an zero extend on the RHS
-        if (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) return false;
+        اگر (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) واپس جھوٹ;
         // Will need the LHS
-        AstNodeExpr* lhsp = nodep->lhsp();
-        if (!VN_IS(lhsp->dtypep()->skipRefp(), QueueDType))
-            UASSERT_OBJ(lhsp->width() == rhsp->width(), nodep, "Inconsistent assignment");
+        Ast_گرہ_اظہاریہ* lhsp = nodep->lhsp();
+        اگر (!VN_IS(lhsp->dtypep()->skipRefp(), قطار_DType))
+            UASSERT_OBJ(lhsp->چوڑائی() == rhsp->چوڑائی(), nodep, "Inconsistent assignment");
         // Only consider pure assignments. Nodes inserted below are safe.
-        if (!nodep->user1() && (!lhsp->isPure() || !rhsp->isPure())) return false;
+        اگر (!nodep->user1() && (!lhsp->is_خالص() || !rhsp->is_خالص())) واپس جھوٹ;
         // Do not split assignments to SC variables, they cannot be assigned in parts
-        if (lhsp->exists([](AstVarRef* refp) { return refp->varp()->isSc(); })) return false;
+        اگر (lhsp->exists([](AstVarRef* refp) { واپس refp->varp()->isSc(); })) واپس جھوٹ;
         // Check for a Sel on the LHS if present, and skip over it
         uint32_t lsb = 0;
-        if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
+        اگر (AstSel* ثابت selp = VN_CAST(lhsp, Sel)) {
+            اگر (AstConst* ثابت lsbp = VN_CAST(selp->lsbp(), Const)) {
                 lhsp = selp->fromp();
-                lsb = lsbp->toUInt();
-            } else {
+                lsb = lsbp->مقصد_UInt();
+            } ورنہ {
                 // Don't optimize if it's a variable select
-                return false;
+                واپس جھوٹ;
             }
         }
         // No need to split assignments targeting storage smaller than a machine register
-        if (lhsp->width() <= VL_QUADSIZE) return false;
+        اگر (lhsp->چوڑائی() <= VL_QUADSIZE) واپس جھوٹ;
 
         // If it's a concat straddling a word boundary, try to split it.
         // The next visit on the new nodes will split it recursively.
         // Otherwise, keep the original assignment.
-        const int lsbWord = lsb / VL_EDATASIZE;
-        const int msbWord = (lsb + rhsp->width() - 1) / VL_EDATASIZE;
-        if (lsbWord == msbWord) return false;
+        ثابت صحیح lsb_لفظ = lsb / VL_EDATASIZE;
+        ثابت صحیح msb_لفظ = (lsb + rhsp->چوڑائی() - 1) / VL_EDATASIZE;
+        اگر (lsb_لفظ == msb_لفظ) واپس جھوٹ;
 
         // If the RHS reads the LHS, we can't actually do this. Nodes inserted below are safe.
-        if (!nodep->user1() && readsLhs(nodep)) return false;
+        اگر (!nodep->user1() && readsLhs(nodep)) واپس جھوٹ;
 
         // Ok, actually split it now
         UINFO(5, "splitConcat optimizing " << nodep);
         ++m_stats.m_concatSplits;
         // The 2 parts and their offsets
-        AstNodeExpr* const rrp = [rhsp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->rhsp()->unlinkFrBack();
+        Ast_گرہ_اظہاریہ* ثابت rrp = [rhsp]() -> Ast_گرہ_اظہاریہ* {
+            اگر (AstConcat* ثابت catp = VN_CAST(rhsp, Concat)) {
+                واپس catp->rhsp()->unlink_Fr_عقب();
             }
-            return VN_AS(rhsp, Extend)->lhsp()->unlinkFrBack();
+            واپس VN_AS(rhsp, Extend)->lhsp()->unlink_Fr_عقب();
         }();
-        AstNodeExpr* const rlp = [rhsp, rrp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->lhsp()->unlinkFrBack();
+        Ast_گرہ_اظہاریہ* ثابت rlp = [rhsp, rrp]() -> Ast_گرہ_اظہاریہ* {
+            اگر (AstConcat* ثابت catp = VN_CAST(rhsp, Concat)) {
+                واپس catp->lhsp()->unlink_Fr_عقب();
             }
-            const int lWidth = rhsp->width() - rrp->width();
-            return new AstConst{rhsp->fileline(), AstConst::WidthedValue{}, lWidth, 0};
+            ثابت صحیح l_چوڑائی = rhsp->چوڑائی() - rrp->چوڑائی();
+            واپس نیا AstConst{rhsp->fileline(), AstConst::Widthed_قدر{}, l_چوڑائی, 0};
         }();
-        const int rLsb = lsb;
-        const int lLsb = lsb + rrp->width();
+        ثابت صحیح rLsb = lsb;
+        ثابت صحیح lLsb = lsb + rrp->چوڑائی();
         // Insert the 2 assignment right after the original. They will be visited next.
-        AstAssign* const arp = new AstAssign{
+        Ast_تفویض* ثابت arp = نیا Ast_تفویض{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->cloneTreePure(false), rLsb, rrp->width()}, rrp};
-        AstAssign* const alp = new AstAssign{
+            نیا AstSel{lhsp->fileline(), lhsp->clone_درخت_خالص(جھوٹ), rLsb, rrp->چوڑائی()}, rrp};
+        Ast_تفویض* ثابت alp = نیا Ast_تفویض{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->unlinkFrBack(), lLsb, rlp->width()}, rlp};
-        nodep->addNextHere(arp);
-        arp->addNextHere(alp);
+            نیا AstSel{lhsp->fileline(), lhsp->unlink_Fr_عقب(), lLsb, rlp->چوڑائی()}, rlp};
+        nodep->جوڑو_اگلا_یہاں(arp);
+        arp->جوڑو_اگلا_یہاں(alp);
         // Safe to split these.
-        arp->user1(true);
-        alp->user1(true);
+        arp->user1(سچ);
+        alp->user1(سچ);
         // Nuke what is left
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_عقب()), nodep);
+        واپس سچ;
     }
 
-    // VISIT
-    void visit(AstNodeAssign* nodep) override {
+    //دورہ
+    خالی دورہ(Ast_گرہ_تفویض* nodep) override {
         // TODO: Only thing remaining inside functions should be AstAssign (that is, an actual
         //       assignment statement), but we stil use AstAssignW, AstAssignDly, and all, fix.
         iterateChildren(nodep);
 
-        if (v3Global.opt.fFuncSplitCat()) {
-            if (splitConcat(nodep)) return;  // Must return here, in case more code is added below
+        اگر (v3Global.opt.f_Func_بانٹو_Cat()) {
+            اگر (بانٹو_Concat(nodep)) واپس;  // Must return here, in case more code is added below
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    خالی دورہ(AstConcat* nodep) override {
+        اگر (Ast_گرہ_اظہاریہ* ثابت newp = Balance_Concat_درخت::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_متوازن_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+            واپس;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstExtend* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    خالی دورہ(AstExtend* nodep) override {
+        اگر (Ast_گرہ_اظہاریہ* ثابت newp = Balance_Concat_درخت::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_متوازن_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
+            واپس;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    خالی دورہ(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
+    صریح FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
         : m_stats{stats} {
         iterateChildren(funcp);
     }
 
-public:
-    static void apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
+عوامی:
+    ساکن خالی apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
 };
 
 //######################################################################
 
-void V3FuncOpt::funcOptAll(AstNetlist* nodep) {
+خالی V3FuncOpt::funcOptAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         // NODE STATE
         //  AstNode::user1()     -> bool.  Processed
-        const VNUser1InUse user1InUse;
+        ثابت VNUser1_اندر_Use user1_اندر_Use;
         FuncOptStats stats;
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstCFunc* const cfuncp = VN_CAST(stmtp, CFunc)) {
+        برائے (Ast_گرہ_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), گرہ_Module)) {
+            برائے (Ast_گرہ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                اگر (AstCFunc* ثابت cfuncp = VN_CAST(stmtp, CFunc)) {
                     FuncOptVisitor::apply(stats, cfuncp);
                 }
             }
         }
     }
-    V3Global::dumpCheckGlobalTree("funcopt", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("funcopt", 0, dump_درخت_Either_Level() >= 3);
 }
