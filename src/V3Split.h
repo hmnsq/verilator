@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3SPLIT_H_
 #define VERILATOR_V3SPLIT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Split final {
-public:
-    static void splitAll(AstNetlist* nodep) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य splitAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard
