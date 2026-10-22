@@ -56,7 +56,7 @@ class CastVisitor final : public VNVisitor {
 
     // METHODS
 
-    void insertCast(AstNodeExpr* nodep, int needsize) {  // We'll insert ABOVE passed node
+    void insertCast(AstNodeExpr* nodep, цео needsize) {  // We'll insert ABOVE passed node
         VNRelinker relinkHandle;
         nodep->unlinkFrBack(&relinkHandle);
         //
@@ -69,21 +69,21 @@ class CastVisitor final : public VNVisitor {
         ensureLower32Cast(castp);
         nodep->user1(1);  // Now must be of known size
     }
-    static int castSize(int width) {
-        if (width > VL_IDATASIZE && width <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else if (width <= 8) {
-            return 8;
-        } else if (width <= 16) {
-            return 16;
-        } else {
-            return VL_IDATASIZE;
+    static цео castSize(цео width) {
+        ако (width > VL_IDATASIZE && width <= VL_QUADSIZE) {
+            врати VL_QUADSIZE;
+        } инако ако (width <= 8) {
+            врати 8;
+        } инако ако (width <= 16) {
+            врати 16;
+        } инако {
+            врати VL_IDATASIZE;
         }
     }
-    static int castSize(const AstNode* nodep) { return castSize(nodep->width()); }
+    static цео castSize(const AstNode* nodep) { врати castSize(nodep->width()); }
     void ensureCast(AstNodeExpr* nodep) {
-        if (castSize(nodep->backp()) != castSize(nodep) || !nodep->user1()) {
-            if (!nodep->isNull() && !nodep->isString() && !nodep->isDouble())
+        ако (castSize(nodep->backp()) != castSize(nodep) || !nodep->user1()) {
+            ако (!nodep->isNull() && !nodep->isString() && !nodep->isDouble())
                 insertCast(nodep, castSize(nodep->backp()));
         }
     }
@@ -91,7 +91,7 @@ class CastVisitor final : public VNVisitor {
     // as V3Clean widened the value to its C++ width
     void ensureCastValue(AstNodeExpr* valuep, const AstNodeDType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (dtypep->isIntegralOrPacked() && dtypep->width() <= VL_QUADSIZE) {
+        ако (dtypep->isIntegralOrPacked() && dtypep->width() <= VL_QUADSIZE) {
             insertCast(valuep, castSize(dtypep->width()));
         }
     }
@@ -101,13 +101,13 @@ class CastVisitor final : public VNVisitor {
         // really needs to be CAST(uint64(CAST(uint32(x))).
         // Otherwise a (uint64)(a>b) would return wrong value, as
         // less than has nondeterministic signedness.
-        if (nodep->isQuad() && !nodep->lhsp()->isQuad() && !VN_IS(nodep->lhsp(), CCast)) {
+        ако (nodep->isQuad() && !nodep->lhsp()->isQuad() && !VN_IS(nodep->lhsp(), CCast)) {
             insertCast(nodep->lhsp(), VL_IDATASIZE);
         }
     }
     void ensureNullChecked(AstNodeExpr* nodep) {
         // TODO optimize to track null checked values and avoid where possible
-        if (!VN_IS(nodep->backp(), NullCheck)) {
+        ако (!VN_IS(nodep->backp(), NullCheck)) {
             VNRelinker relinkHandle;
             nodep->unlinkFrBack(&relinkHandle);
             relinkHandle.relink(new AstNullCheck{nodep->fileline(), nodep});
@@ -118,13 +118,13 @@ class CastVisitor final : public VNVisitor {
     void visit(AstNodeUniop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        ако (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
     }
     void visit(AstNodeBiop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
+        ако (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        ако (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
     }
     void visit(AstCond* nodep) override {
         // All class types are castable to each other. If they are of different types,
@@ -137,14 +137,14 @@ class CastVisitor final : public VNVisitor {
             = VN_CAST(nodep->elsep()->dtypep()->skipRefp(), ClassRefDType);
         const bool castRequired = thenClassDtypep && elseClassDtypep
                                   && (thenClassDtypep->classp() != elseClassDtypep->classp());
-        if (castRequired) {
+        ако (castRequired) {
             const AstClass* const commonBaseClassp
                 = VN_AS(nodep->dtypep()->skipRefp(), ClassRefDType)->classp();
-            if (thenClassDtypep->classp() != commonBaseClassp) {
+            ако (thenClassDtypep->classp() != commonBaseClassp) {
                 AstNodeExpr* thenp = nodep->thenp()->unlinkFrBack();
                 nodep->thenp(new AstCCast{thenp->fileline(), thenp, nodep});
             }
-            if (elseClassDtypep->classp() != commonBaseClassp) {
+            ако (elseClassDtypep->classp() != commonBaseClassp) {
                 AstNodeExpr* elsep = nodep->elsep()->unlinkFrBack();
                 nodep->elsep(new AstCCast{elsep->fileline(), elsep, nodep});
             }
@@ -154,18 +154,18 @@ class CastVisitor final : public VNVisitor {
     void visit(AstNodeTriop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
-        if (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
+        ако (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        ако (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
+        ако (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
     }
     void visit(AstNodeQuadop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1()
                      | nodep->fhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
-        if (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
-        if (nodep->sizeMattersFhs()) ensureCast(nodep->fhsp());
+        ако (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        ако (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
+        ако (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
+        ако (nodep->sizeMattersFhs()) ensureCast(nodep->fhsp());
     }
     void visit(AstCCast* nodep) override {
         iterateChildren(nodep);
@@ -174,14 +174,14 @@ class CastVisitor final : public VNVisitor {
     }
     void visit(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
+        ако (nodep->defaultp()) {
             ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
     void visit(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
+        ако (nodep->defaultp()) {
             ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
@@ -192,7 +192,7 @@ class CastVisitor final : public VNVisitor {
     }
     void visit(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
+        ако (nodep->defaultp()) {
             ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
@@ -204,18 +204,18 @@ class CastVisitor final : public VNVisitor {
     void visit(AstNegate* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
-        if (nodep->lhsp()->widthMin() == 1 && !nodep->lhsp()->isWide()) {
+        ако (nodep->lhsp()->widthMin() == 1 && !nodep->lhsp()->isWide()) {
             // We want to avoid a GCC "converting of negative value" warning
             // from our expansion of
             //    out = {32{a<b}}  =>   out = - (a<b)
             insertCast(nodep->lhsp(), castSize(nodep));
-        } else {
-            if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        } инако {
+            ако (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
         }
     }
     void visit(AstVarRef* nodep) override {
         const AstNode* const backp = nodep->backp();
-        if (nodep->access().isReadOnly() && VN_IS(backp, NodeExpr) && !VN_IS(backp, CCast)
+        ако (nodep->access().isReadOnly() && VN_IS(backp, NodeExpr) && !VN_IS(backp, CCast)
             && !VN_IS(backp, NodeCCall) && !VN_IS(backp, CMethodHard) && !VN_IS(backp, SFormatF)
             && !VN_IS(backp, ArraySel) && !VN_IS(backp, StructSel) && !VN_IS(backp, RedXor)
             && (nodep->varp()->basicp() && !nodep->varp()->basicp()->isForkSync()

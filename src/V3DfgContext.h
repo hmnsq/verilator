@@ -172,7 +172,7 @@ private:
         const auto checkEnabled = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
             std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? '-' : std::tolower(c);
+                врати c == '_' ? '-' : std::tolower(c);
             });
             m_enabled[id] = v3Global.opt.fDfgPeepholeEnabled(str);
         };
@@ -181,13 +181,13 @@ private:
 #undef OPTIMIZATION_CHECK_ENABLED
     }
     ~V3DfgPeepholeContext() {
-        for (AstNode* const nodep : m_deleteps) {
+        за (AstNode* const nodep : m_deleteps) {
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
         }
         const auto emitStat = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
             std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? ' ' : std::tolower(c);
+                врати c == '_' ? ' ' : std::tolower(c);
             });
             addStat(str, m_count[id]);
         };
@@ -227,7 +227,7 @@ private:
     V3DfgRegularizeContext()
         : V3DfgSubContext{"Regularize"} {}
     ~V3DfgRegularizeContext() {
-        for (AstNode* const nodep : m_deleteps) {
+        за (AstNode* const nodep : m_deleteps) {
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
         }
         addStat("used variables inlined", m_usedVarsInlined);

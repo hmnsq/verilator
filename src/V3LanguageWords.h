@@ -38,18 +38,18 @@ private:
 public:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
+    static const_iterator begin() { врати s().s_kwdMap.begin(); }
+    static const_iterator end() { врати s().s_kwdMap.end(); }
     static string isKeyword(const string& kwd) {
         const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+        ако (it == s().s_kwdMap.end()) врати "";
+        врати it->second;
     }
 
 private:
     static Singleton& s() {
         static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+        врати s_s;
     }
 };
 

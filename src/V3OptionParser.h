@@ -76,7 +76,7 @@ public:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<цео, bool> parse(цео idx, цео argc, char* argv[]) VL_MT_DISABLED;
     // Find the most similar option
     string getSuggestion(const char* str) const VL_MT_DISABLED;
     void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
@@ -132,7 +132,7 @@ public:
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
     ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
+    ActionIfs& operator()(const char* optp, Set, цео*) const VL_MT_DISABLED;
     ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
 
     ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
@@ -147,7 +147,7 @@ public:
                           std::function<void(bool)>) const VL_MT_DISABLED;
     ActionIfs& operator()(const char* optp, CbOnOff,
                           std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
+    ActionIfs& operator()(const char* optp, CbVal, std::function<void(цео)>) const VL_MT_DISABLED;
     ActionIfs& operator()(const char* optp, CbVal,
                           std::function<void(const char*)>) const VL_MT_DISABLED;
 

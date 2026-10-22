@@ -34,7 +34,7 @@ bool isInstanceOf(SuperClass* objp) {
                       typename SubClass::V3RttiThisClass  //
                       >::value,
                   "Missing VL_RTTI_IMPL(...) in 'SubClass'");
-    return objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
+    врати objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
 }
 
 namespace internal {
@@ -42,13 +42,13 @@ namespace internal {
 // Returns true iff 'id' equals the 'rttiClassId()' of either 'T', or any of its base classes
 template <typename T>
 inline bool matchClassId(uintptr_t id) VL_PURE {
-    return id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
+    врати id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
 }
 
 // Specialization for the root class, which have 'void' for 'V3RttiBaseClass'
 template <>
 inline bool matchClassId<void>(uintptr_t) VL_PURE {
-    return false;
+    врати false;
 }
 
 }  // namespace internal
@@ -73,11 +73,11 @@ inline bool matchClassId<void>(uintptr_t) VL_PURE {
         /* Don't complain this function is unused */ (void)&v3RttiClassId; \
         /* The address of this static variable is used as the unique class type ID. */ \
         static char s_vlrttiClassId; \
-        return reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
+        врати reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
     } \
     /* Dispatch to matchClassId with the correct sub type (this type) */ \
     virtual bool v3RttiIsInstanceOfImpl(uintptr_t id) const OVERRIDE VL_PURE { \
-        return ::V3Rtti::internal::matchClassId<ThisClass>(id); \
+        врати ::V3Rtti::internal::matchClassId<ThisClass>(id); \
     }
 
 // Call this macro at the beginning of class definition if the class derives

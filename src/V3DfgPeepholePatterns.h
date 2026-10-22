@@ -207,13 +207,13 @@ public:
 #undef OPTIMIZATION_NAME
                 "_ENUM_END"  //
         };
-        return names[m_e];
+        врати names[m_e];
     }
 
     // cppcheck-suppress noExplicitConstructor
     VDfgPeepholePattern(en _e)
         : m_e{_e} {}
-    operator en() const { return m_e; }
+    operator en() const { врати m_e; }
 };
 
 #endif

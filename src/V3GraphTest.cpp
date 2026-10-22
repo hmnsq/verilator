@@ -39,7 +39,7 @@ protected:
 
     // Utilities
     void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+        ако (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
 public:
@@ -63,7 +63,7 @@ public:
         , m_name{name} {}
     ~V3GraphTestVertex() override = default;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() const override VL_MT_STABLE { врати m_name; }
 };
 
 class V3GraphTestVarVertex final : public V3GraphTestVertex {
@@ -72,7 +72,7 @@ public:
         : V3GraphTestVertex{graphp, name} {}
     ~V3GraphTestVarVertex() override = default;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() const override { врати "blue"; }
 };
 
 //######################################################################
@@ -81,7 +81,7 @@ public:
 
 class V3GraphTestStrong final : public V3GraphTest {
 public:
-    string name() override { return "strong"; }
+    string name() override { врати "strong"; }
     void runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
@@ -119,7 +119,7 @@ public:
 
 class V3GraphTestAcyc final : public V3GraphTest {
 public:
-    string name() override { return "acyc"; }
+    string name() override { врати "acyc"; }
     void runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
@@ -147,7 +147,7 @@ public:
 
 class V3GraphTestVars final : public V3GraphTest {
 public:
-    string name() override { return "vars"; }
+    string name() override { врати "vars"; }
     void runTest() override {
         V3Graph* const gp = &m_graph;
 
@@ -271,12 +271,12 @@ class V3GraphTestImport final : public V3GraphTest {
 
 #ifdef GRAPH_IMPORT
     void dotImport();
-#else
+#инако
     void dotImport() {}
 #endif
 
 public:
-    string name() override { return "import"; }
+    string name() override { врати "import"; }
     void runTest() override {
         V3Graph* const gp = &m_graph;
         dotImport();

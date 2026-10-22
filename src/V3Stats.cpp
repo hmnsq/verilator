@@ -52,23 +52,23 @@ class StatsVisitor final : public VNVisitorConst {
     // METHODS
     void countThenIterateChildren(AstNode* nodep) {
         ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+        ако (nodep->type() != VNType::Netlist) m_empty = false;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
     void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+        ако (nodep->dtypep()) {
+            ако (!nodep->constPoolEntry()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
+                ако (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
                     m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
+                    ако (v3Global.opt.statsVars()) {  //
                         m_statVarWidthNames.resize(nodep->width() + 5);
                     }
                 }
                 ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
+                ако (v3Global.opt.statsVars()) {
                     ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
                 }
             }
@@ -85,7 +85,7 @@ class StatsVisitor final : public VNVisitorConst {
 
     void visit(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        ако (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
         countThenIterateChildren(nodep);
     }
 
@@ -98,7 +98,7 @@ public:
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        ако (m_empty) врати;
 
         // Shorthand
         const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
@@ -106,16 +106,16 @@ public:
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        за (unsigned i = 0; i < m_statVarWidths.size(); i++) {
+            ако (const uint64_t count = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
                 const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
+                ако (v3Global.opt.statsVars()) {
+                    за (const auto& it : m_statVarWidthNames.at(i)) {
                         addStat(prefix + " " + it.first, it.second);
                     }
-                } else {
+                } инако {
                     addStat(prefix, count);
                 }
             }
@@ -123,12 +123,12 @@ public:
 
         // Node types (also total memory usage)
         const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+            = [](size_t t) { врати std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
         const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+            = [](size_t t) { врати VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
         size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
+        за (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
+            ако (const uint64_t count = m_counters.m_statTypeCount[t]) {
                 totalNodeMemoryUsage += count * typeSize(t);
                 addStat("Node count, " + typeName(t), count);
             }
@@ -136,16 +136,16 @@ public:
         addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
+        за (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
+            ако (const uint64_t count = m_counters.m_statTypeCount[t]) {
                 const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
                 addStat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
+        за (цео t = 0; t < VBranchPred::_ENUM_END; ++t) {
+            ако (const uint64_t c = m_counters.m_statPred[t]) {
                 addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }

@@ -68,15 +68,15 @@ public:
         , m_logicp{logicp}
         , m_scopep{scopep} {}
     V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicLogicVertex{graphp, logicp(), scopep()};
+        врати new SchedAcyclicLogicVertex{graphp, logicp(), scopep()};
     }
 
-    AstNode* logicp() const { return m_logicp; }
-    AstScope* scopep() const { return m_scopep; }
+    AstNode* logicp() const { врати m_logicp; }
+    AstScope* scopep() const { врати m_scopep; }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle2"; }
+    string name() const override VL_MT_STABLE { врати m_logicp->fileline()->ascii(); };
+    string dotShape() const override { врати "rectangle2"; }
     // LCOV_EXCL_STOP
 };
 
@@ -88,34 +88,34 @@ public:
     SchedAcyclicVarVertex(V3Graph* graphp, AstVarScope* vscp)
         : V3GraphVertex{graphp}
         , m_vscp{vscp} {}
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
+    AstVarScope* vscp() const { врати m_vscp; }
+    AstVar* varp() const { врати m_vscp->varp(); }
     V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicVarVertex{graphp, vscp()};
+        врати new SchedAcyclicVarVertex{graphp, vscp()};
     }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return "ellipse"; }
-    string dotColor() const override { return "blue"; }
+    string name() const override VL_MT_STABLE { врати m_vscp->name(); }
+    string dotShape() const override { врати "ellipse"; }
+    string dotColor() const override { врати "blue"; }
     // LCOV_EXCL_STOP
 };
 
 class Graph final : public V3Graph {
     string loopsVertexCb(V3GraphVertex* vtxp) override {
-        if (SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>()) {
+        ако (SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>()) {
             AstNode* const logicp = lvtxp->logicp();
             std::string logicName = logicp->prettyTypeName();
-            if (const AstAlways* const alwaysp = VN_CAST(logicp, Always)) {
-                if (alwaysp->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+            ако (const AstAlways* const alwaysp = VN_CAST(logicp, Always)) {
+                ако (alwaysp->keyword() == VAlwaysKwd::CONT_ASSIGN) {
                     logicName = "ASSIGNW";  // Keep using historiacl name until we have better
                 }
             }
-            return logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
-        } else {
+            врати logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
+        } инако {
             SchedAcyclicVarVertex* const vvtxp = vtxp->as<SchedAcyclicVarVertex>();
             AstVarScope* const vscp = vvtxp->vscp();
-            return vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
+            врати vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
                    + "\n";
         }
     }
@@ -130,21 +130,21 @@ std::unique_ptr<Graph> buildGraph(const LogicByScope& lbs) {
     // AstVarScope::user1() -> VarVertx
     const VNUser1InUse user1InUse;
     const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedAcyclicVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedAcyclicVarVertex*>();
+        ако (!vscp->user1p()) vscp->user1p(new SchedAcyclicVarVertex{graphp.get(), vscp});
+        врати vscp->user1u().to<SchedAcyclicVarVertex*>();
     };
 
-    const auto addEdge = [&](V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable) {
+    const auto addEdge = [&](V3GraphVertex* fromp, V3GraphVertex* top, цео weight, bool cuttable) {
         new V3GraphEdge{graphp.get(), fromp, top, weight, cuttable};
     };
 
-    for (const auto& entry : lbs) {
+    за (const auto& entry : lbs) {
         AstScope* const scopep = entry.m_scopep;
         AstActive* const activep = entry.m_activep;
         UASSERT_OBJ(activep->hasCombo(), activep, "Not combinational logic");
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+        за (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
             // Can safely ignore Postponed as we generate them all
-            if (VN_IS(nodep, AlwaysPostponed)) continue;
+            ако (VN_IS(nodep, AlwaysPostponed)) continue;
 
             SchedAcyclicLogicVertex* const lvtxp
                 = new SchedAcyclicLogicVertex{graphp.get(), nodep, scopep};
@@ -158,22 +158,22 @@ std::unique_ptr<Graph> buildGraph(const LogicByScope& lbs) {
                 AstVarScope* const vscp = refp->varScopep();
                 SchedAcyclicVarVertex* const vvtxp = getVarVertex(vscp);
                 // We want to cut the narrowest signals
-                const int weight = vscp->width() / 8 + 1;
+                const цео weight = vscp->width() / 8 + 1;
                 // If written, add logic -> var edge
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                ако (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
                     && !vscp->user2SetOnce())
                     addEdge(lvtxp, vvtxp, weight, true);
                 // If read, add var -> logic edge
                 // Note: Use same heuristic as ordering does to ignore written variables
                 // TODO: Use live variable analysis.
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce() && !vscp->user2()
+                ако (refp->access().isReadOrRW() && !vscp->user3SetOnce() && !vscp->user2()
                     && !forceReadEdgeIgnores.count(vscp))
                     addEdge(vvtxp, lvtxp, weight, true);
             });
         }
     }
 
-    return graphp;
+    врати graphp;
 }
 
 void removeNonCyclic(Graph* graphp) {
@@ -181,33 +181,33 @@ void removeNonCyclic(Graph* graphp) {
     std::vector<V3GraphVertex*> queue;
 
     const auto enqueue = [&](V3GraphVertex* vtxp) {
-        if (vtxp->user()) return;  // Already in queue
+        ако (vtxp->user()) врати;  // Already in queue
         vtxp->user(1);
         queue.push_back(vtxp);
     };
 
     // Start with vertices with no inputs or outputs
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (vtx.inEmpty() || vtx.outEmpty()) enqueue(&vtx);
+    за (V3GraphVertex& vtx : graphp->vertices()) {
+        ако (vtx.inEmpty() || vtx.outEmpty()) enqueue(&vtx);
     }
 
     // Iterate while we still have candidates
-    while (!queue.empty()) {
+    док (!queue.empty()) {
         // Pop next candidate
         V3GraphVertex* const vtxp = queue.back();
         queue.pop_back();
         vtxp->user(0);  // No longer in queue
 
-        if (vtxp->inEmpty()) {
+        ако (vtxp->inEmpty()) {
             // Enqueue children for consideration, remove out edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
+            за (V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
                 enqueue(edgep->top());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
             VL_DO_DANGLING(vtxp->unlinkDelete(graphp), vtxp);
-        } else if (vtxp->outEmpty()) {
+        } инако ако (vtxp->outEmpty()) {
             // Enqueue parents for consideration, remove in edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->inEdges().unlinkable()) {
+            за (V3GraphEdge* const edgep : vtxp->inEdges().unlinkable()) {
                 enqueue(edgep->fromp());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
@@ -218,13 +218,13 @@ void removeNonCyclic(Graph* graphp) {
 
 // Has this VarVertex been cut? (any edges in or out has been cut)
 bool isCut(const SchedAcyclicVarVertex* vtxp) {
-    for (const V3GraphEdge& edge : vtxp->inEdges()) {
-        if (edge.weight() == 0) return true;
+    за (const V3GraphEdge& edge : vtxp->inEdges()) {
+        ако (edge.weight() == 0) врати true;
     }
-    for (const V3GraphEdge& edge : vtxp->outEdges()) {
-        if (edge.weight() == 0) return true;
+    за (const V3GraphEdge& edge : vtxp->outEdges()) {
+        ако (edge.weight() == 0) врати true;
     }
-    return false;
+    врати false;
 }
 
 std::vector<SchedAcyclicVarVertex*> findCutVertices(Graph* graphp) {
@@ -237,15 +237,15 @@ std::vector<SchedAcyclicVarVertex*> findCutVertices(Graph* graphp) {
     size_t nCyclicVars = 0;  // Number of variables that are part of an SCC (cycle)
     std::unordered_set<uint32_t> sccs;  // Unique SCC colors
 
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;  // Not part of an SCC (cycle), can ignore
+    за (V3GraphVertex& vtx : graphp->vertices()) {
+        ако (!vtx.color()) continue;  // Not part of an SCC (cycle), can ignore
         ++nCyclicVtxs;
-        if (SchedAcyclicVarVertex* const vvtxp = vtx.cast<SchedAcyclicVarVertex>()) {
+        ако (SchedAcyclicVarVertex* const vvtxp = vtx.cast<SchedAcyclicVarVertex>()) {
             ++nCyclicVars;
-            if (!vvtxp->vscp()->user1SetOnce() && isCut(vvtxp)) result.push_back(vvtxp);
+            ако (!vvtxp->vscp()->user1SetOnce() && isCut(vvtxp)) result.push_back(vvtxp);
         }
         // Don't bother counting if not dumping statistics
-        if (v3Global.opt.stats()) sccs.insert(vtx.color());
+        ако (v3Global.opt.stats()) sccs.insert(vtx.color());
     }
 
     V3Stats::addStat("Scheduling, Cycles, cyclic variables", nCyclicVars);
@@ -253,13 +253,13 @@ std::vector<SchedAcyclicVarVertex*> findCutVertices(Graph* graphp) {
     V3Stats::addStat("Scheduling, Cycles, unique SCCs", sccs.size());
     V3Stats::addStat("Scheduling, Cycles, cut variables", result.size());
 
-    return result;
+    врати result;
 }
 
 void resetEdgeWeights(const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-        for (V3GraphEdge& e : vvtxp->inEdges()) e.weight(1);
-        for (V3GraphEdge& e : vvtxp->outEdges()) e.weight(1);
+    за (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
+        за (V3GraphEdge& e : vvtxp->inEdges()) e.weight(1);
+        за (V3GraphEdge& e : vvtxp->outEdges()) e.weight(1);
     }
 }
 
@@ -268,13 +268,13 @@ using Candidate = std::pair<SchedAcyclicVarVertex*, unsigned>;
 
 // Gather all splitting candidates that are in the same SCC as the given vertex
 void gatherSCCCandidates(V3GraphVertex* vtxp, std::vector<Candidate>& candidates) {
-    if (vtxp->user()) return;  // Already done
+    ако (vtxp->user()) врати;  // Already done
     vtxp->user(true);
 
-    if (SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>()) {
+    ако (SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>()) {
         AstVar* const varp = vvtxp->varp();
         const string name = varp->prettyName();
-        if (!varp->user3SetOnce()  // Only consider each AstVar once
+        ако (!varp->user3SetOnce()  // Only consider each AstVar once
             && varp->width() != 1  // Ignore 1-bit signals (they cannot be split further)
             && name.find("__Vdly") == string::npos  // Ignore internal signals
             && name.find("__Vcell") == string::npos) {
@@ -285,13 +285,13 @@ void gatherSCCCandidates(V3GraphVertex* vtxp, std::vector<Candidate>& candidates
     }
 
     // Iterate through all the vertices within the same strongly connected component (same color)
-    for (V3GraphEdge& edge : vtxp->outEdges()) {
+    за (V3GraphEdge& edge : vtxp->outEdges()) {
         V3GraphVertex* const top = edge.top();
-        if (top->color() == vtxp->color()) gatherSCCCandidates(top, candidates);
+        ако (top->color() == vtxp->color()) gatherSCCCandidates(top, candidates);
     }
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
+    за (V3GraphEdge& edge : vtxp->inEdges()) {
         V3GraphVertex* const fromp = edge.fromp();
-        if (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
+        ако (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
     }
 }
 
@@ -310,7 +310,7 @@ std::string reportLoopVars(FileLine* /*warnFl*/, Graph* graphp, SchedAcyclicVarV
     }
 
     // Possible we only have candidates the user cannot do anything about, so don't bother them.
-    if (candidates.empty()) return "";
+    ако (candidates.empty()) врати "";
 
     // There may be a very large number of candidates, so only report up to 10 of the "most
     // important" signals.
@@ -319,54 +319,54 @@ std::string reportLoopVars(FileLine* /*warnFl*/, Graph* graphp, SchedAcyclicVarV
         = [&](std::function<bool(const Candidate&, const Candidate&)> less) -> string {
         std::stable_sort(candidates.begin(), candidates.end(), less);
         std::ostringstream ss2;
-        for (size_t i = 0; i < 10; i++) {
-            if (i == candidates.size()) break;
+        за (size_t i = 0; i < 10; i++) {
+            ако (i == candidates.size()) break;
             const Candidate& candidate = candidates[i];
             AstVar* const varp = candidate.first->varp();
 
             ss2 << V3Error::warnMore() << "    " << varp->fileline() << ' ' << varp->prettyName()
                 << ", width " << std::dec << varp->width() << ", circular fanout "
                 << candidate.second;
-            if (!varp->cannotSplitKindReason()) {
+            ако (!varp->cannotSplitKindReason()) {
                 ss2 << ", can split_var";
                 ++splittable;
             }
             ss2 << '\n';
         }
-        return ss2.str();
+        врати ss2.str();
     };
 
     // Widest variables
     ss << V3Error::warnMore() << "... Widest variables candidate to splitting:\n"
        << reportFirst10([](const Candidate& a, const Candidate& b) {
-              return a.first->varp()->width() > b.first->varp()->width();
+              врати a.first->varp()->width() > b.first->varp()->width();
           });
 
     // Highest fanout
     ss << V3Error::warnMore() << "... Candidates with the highest fanout:\n"
        << reportFirst10([](const Candidate& a, const Candidate& b) {  //
-              return a.second > b.second;
+              врати a.second > b.second;
           });
 
-    if (splittable) {
+    ако (splittable) {
         ss << V3Error::warnMore()
            << "... Suggest add /*verilator split_var*/ to appropriate variables above.\n";
     }
     V3Stats::addStat("Scheduling, split_var, candidates", splittable);
-    return ss.str();
+    врати ss.str();
 }
 
 void reportCycles(Graph* graphp, const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* vvtxp : cutVertices) {
+    за (SchedAcyclicVarVertex* vvtxp : cutVertices) {
         AstVarScope* const vscp = vvtxp->vscp();
         FileLine* const flp = vscp->fileline();
 
         // First v3warn not inside warnIsOff so we can see the suppressions with --debug
-        if (flp->warnIsOff(V3ErrorCode::UNOPTFLAT)) {
+        ако (flp->warnIsOff(V3ErrorCode::UNOPTFLAT)) {
             // First v3warn not inside warnIsOff so we can see the suppressions with --debug
             vscp->v3warn(UNOPTFLAT, "Signal unoptimizable: Circular combinational logic: "
                                         << vscp->prettyNameQ());
-        } else {
+        } инако {
             vscp->v3warn(UNOPTFLAT,
                          "Signal unoptimizable: Circular combinational logic: "
                              << vscp->prettyNameQ() << '\n'
@@ -381,7 +381,7 @@ void reportCycles(Graph* graphp, const std::vector<SchedAcyclicVarVertex*>& cutV
             // Complain just once
             flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
             // Create a subgraph for the UNOPTFLAT loop
-            if (v3Global.opt.reportUnoptflat()) {
+            ако (v3Global.opt.reportUnoptflat()) {
                 V3Graph loopGraph;
                 graphp->subtreeLoops(&V3GraphEdge::followAlwaysTrue, vvtxp, &loopGraph);
                 loopGraph.dumpDotFilePrefixedAlways("unoptflat");
@@ -395,13 +395,13 @@ void dumpSccs(V3Graph* graphp) {
     std::map<uint32_t, std::vector<V3GraphVertex*>> scc2Vtxps;
 
     // Gather all vertices in each SCC
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;
+    за (V3GraphVertex& vtx : graphp->vertices()) {
+        ако (!vtx.color()) continue;
         scc2Vtxps[vtx.color()].push_back(&vtx);
     }
 
     // Dump Verilog for each SCC into separate files
-    for (const auto& pair : scc2Vtxps) {
+    за (const auto& pair : scc2Vtxps) {
         const uint32_t color = pair.first;
         const std::vector<V3GraphVertex*>& vtxps = pair.second;
 
@@ -409,7 +409,7 @@ void dumpSccs(V3Graph* graphp) {
         const std::string fname
             = v3Global.debugFilename("sched_scc_" + std::to_string(color) + ".v");
         const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(fname)};
-        if (ofp->fail()) v3fatal("Can't write file: " << fname);
+        ако (ofp->fail()) v3fatal("Can't write file: " << fname);
 
         // Write header
         *ofp << "// SCC " << color << ", size: " << vtxps.size() << "\n\n";
@@ -419,9 +419,9 @@ void dumpSccs(V3Graph* graphp) {
         *ofp << "// Variables\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
+        за (V3GraphVertex* vtxp : vtxps) {
             const SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>();
-            if (!vvtxp) continue;
+            ако (!vvtxp) continue;
             AstVarScope* const vscp = vvtxp->vscp();
             *ofp << "// " << vscp->fileline()->ascii() << "\n";
             *ofp << "// " << vscp->prettyName() << "\n";
@@ -435,9 +435,9 @@ void dumpSccs(V3Graph* graphp) {
         *ofp << "// Logic\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
+        за (V3GraphVertex* vtxp : vtxps) {
             const SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>();
-            if (!lvtxp) continue;
+            ако (!lvtxp) continue;
             *ofp << "// " << lvtxp->logicp()->fileline()->ascii() << "\n";
             V3EmitV::debugVerilogForTree(lvtxp->logicp(), *ofp);
             *ofp << "\n";
@@ -453,11 +453,11 @@ LogicByScope fixCuts(AstNetlist* netlistp,
     std::vector<SchedAcyclicLogicVertex*> lvtxps;
     {
         const VNUser1InUse user1InUse;  // bool: already added to 'lvtxps'
-        for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-            for (V3GraphEdge& edge : vvtxp->outEdges()) {
+        за (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
+            за (V3GraphEdge& edge : vvtxp->outEdges()) {
                 SchedAcyclicLogicVertex* const lvtxp
                     = static_cast<SchedAcyclicLogicVertex*>(edge.top());
-                if (!lvtxp->logicp()->user1SetOnce()) lvtxps.push_back(lvtxp);
+                ако (!lvtxp->logicp()->user1SetOnce()) lvtxps.push_back(lvtxp);
                 lvtx2Cuts[lvtxp].push_back(vvtxp->vscp());
             }
         }
@@ -467,13 +467,13 @@ LogicByScope fixCuts(AstNetlist* netlistp,
     // explicit additional triggers on the cut variables)
     LogicByScope result;
     SenTreeFinder finder{netlistp};
-    for (SchedAcyclicLogicVertex* const lvtxp : lvtxps) {
+    за (SchedAcyclicLogicVertex* const lvtxp : lvtxps) {
         AstNode* const logicp = lvtxp->logicp();
         logicp->unlinkFrBack();
         FileLine* const flp = logicp->fileline();
         // Build the hybrid sensitivity list
         AstSenItem* senItemsp = nullptr;
-        for (AstVarScope* const vscp : lvtx2Cuts[lvtxp]) {
+        за (AstVarScope* const vscp : lvtx2Cuts[lvtxp]) {
             AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
             AstSenItem* const nextp = new AstSenItem{flp, VEdgeType::ET_HYBRID, refp};
             senItemsp = AstNode::addNext(senItemsp, nextp);
@@ -484,7 +484,7 @@ LogicByScope fixCuts(AstNetlist* netlistp,
         // SenTreeFinder::getSenTree clones, so clean up
         VL_DO_DANGLING(senTree->deleteTree(), senTree);
     }
-    return result;
+    врати result;
 }
 
 }  // namespace
@@ -497,10 +497,10 @@ LogicByScope breakCycles(AstNetlist* netlistp, const LogicByScope& combinational
     removeNonCyclic(graphp.get());
 
     // Nothing to do if no cycles, yay!
-    if (graphp->empty()) return LogicByScope{};
+    ако (graphp->empty()) врати LogicByScope{};
 
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
+    ако (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
 
     // Make graph acyclic by cutting some edges. Note: This also colors strongly connected
     // components which reportCycles uses to print each SCCs separately.
@@ -518,10 +518,10 @@ LogicByScope breakCycles(AstNetlist* netlistp, const LogicByScope& combinational
     reportCycles(graphp.get(), cutVertices);
 
     // Debug dump
-    if (dumpLevel() >= 6) dumpSccs(graphp.get());
+    ако (dumpLevel() >= 6) dumpSccs(graphp.get());
 
     // Fix cuts by converting dependent logic to use hybrid sensitivities
-    return fixCuts(netlistp, cutVertices);
+    врати fixCuts(netlistp, cutVertices);
 }
 
 }  // namespace V3Sched

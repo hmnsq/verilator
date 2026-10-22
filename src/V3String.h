@@ -42,26 +42,26 @@ template <typename T>
 std::string cvtToStr(const T& t) VL_PURE {
     std::ostringstream os;
     os << t;
-    return os.str();
+    врати os.str();
 }
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value, std::string>::type
 cvtToHex(const T tp) VL_PURE {
     std::ostringstream os;
     os << static_cast<const void*>(tp);
-    return os.str();
+    врати os.str();
 }
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
     std::ostringstream os;
     os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    врати os.str();
 }
 
 inline string ucfirst(const string& text) {
     string result = text;
     result[0] = std::toupper(result[0]);
-    return result;
+    врати result;
 }
 
 //######################################################################
@@ -85,9 +85,9 @@ public:
     // Insert esc just before tgt
     static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    static string quoteBackslash(const string& str) VL_PURE { врати quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    static string quotePercent(const string& str) VL_PURE { врати quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
     static string dequotePercent(const string& str);
     // Surround a raw string by double quote and escape if necessary
@@ -114,7 +114,7 @@ public:
     // Return true if only identifer or ""
     static bool isIdentifier(const string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    static bool isIdentifierChar(char c) { врати isalnum(c) || c == '_'; }
     // Return true if only whitespace or ""
     static bool isWhitespace(const string& str);
     // Return number of spaces/tabs leading in string
@@ -131,16 +131,16 @@ public:
     static std::deque<string> split(const string& str, char delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
     static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+        врати !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
     static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+        врати !str.rfind(prefix, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
     static bool endsWith(const string& str, const string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
     static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    static string aOrAn(const string& word) { врати aOrAn(word.c_str()); }
     // Hash the string
     static uint64_t hashMurmur(const string& str) VL_PURE;
 
@@ -230,7 +230,7 @@ public:
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() const { врати m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
@@ -246,7 +246,7 @@ class VSpellCheck final {
     static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
     static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
+    using EditDistance = unsigned цео;
     struct Candidate final {
         std::string str;  // String to be matched
         std::string msg;  // Message to print on a match
@@ -263,25 +263,25 @@ public:
     void pushCandidate(const string& str) { pushCandidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
     void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+        ако (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
     }
     // Return candidate is closest to provided string, or "" for none
     VSpellCheck::Candidate bestCandidate(const string& goal) const {
         EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+        врати bestCandidateInfo(goal, dist /*ref*/);
     }
     // Return friendly message
     string bestCandidateMsg(const string& goal) const {
         const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+        ако (candidate.msg.empty()) врати "";
+        врати "... Suggested alternative: '"s + candidate.msg + "'";
     }
     static void selfTest();
     std::vector<std::string> candidates() const {
         std::vector<std::string> result;
         result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+        за (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
+        врати result;
     }
 
 private:

@@ -62,47 +62,47 @@ struct VMemberQualifiers final {
     static VMemberQualifiers none() {
         VMemberQualifiers q;
         q.m_flags = 0;
-        return q;
+        врати q;
     }
     static VMemberQualifiers combine(const VMemberQualifiers& a, const VMemberQualifiers& b) {
         VMemberQualifiers q;
         q.m_flags = a.m_flags | b.m_flags;
-        return q;
+        врати q;
     }
     VRandAttr randAttr() const {
-        if (m_randc) return VRandAttr::RAND_CYCLIC;
-        if (m_rand) return VRandAttr::RAND;
-        return VRandAttr::NONE;
+        ако (m_randc) врати VRandAttr::RAND_CYCLIC;
+        ако (m_rand) врати VRandAttr::RAND;
+        врати VRandAttr::NONE;
     }
     void applyToNodes(AstNodeFTask* nodesp) const {
-        for (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->isStatic(true);
-            if (m_virtual) nodep->isVirtual(true);
-            if (m_const || m_rand || m_randc) {
+        за (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
+            ако (m_local) nodep->isHideLocal(true);
+            ако (m_protected) nodep->isHideProtected(true);
+            ако (m_static) nodep->isStatic(true);
+            ако (m_virtual) nodep->isVirtual(true);
+            ако (m_const || m_rand || m_randc) {
                 nodep->v3error("Syntax error: 'const'/'rand'/'randc' not allowed "
                                "before function/task declaration");
             }
         }
     }
     void applyToNodes(AstTypedef* nodep) const {
-        if (m_local) nodep->isHideLocal(true);
-        if (m_protected) nodep->isHideProtected(true);
-        if (m_static || m_virtual || m_rand || m_randc) {
+        ако (m_local) nodep->isHideLocal(true);
+        ако (m_protected) nodep->isHideProtected(true);
+        ако (m_static || m_virtual || m_rand || m_randc) {
             nodep->v3error("Syntax error: 'static'/'virtual'/'rand'/'randc' not allowed "
                            "before typedef declaration");
         }
     }
     void applyToNodes(AstVar* nodesp) const {
-        for (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
-            if (m_rand) nodep->rand(VRandAttr::RAND);
-            if (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
-            if (m_const) nodep->isConst(true);
-            if (m_virtual) {
+        за (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
+            ако (m_rand) nodep->rand(VRandAttr::RAND);
+            ако (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
+            ако (m_local) nodep->isHideLocal(true);
+            ако (m_protected) nodep->isHideProtected(true);
+            ако (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
+            ако (m_const) nodep->isConst(true);
+            ако (m_virtual) {
                 nodep->v3error("Syntax error: 'virtual' not allowed before var declaration");
             }
         }
@@ -115,13 +115,13 @@ struct VMemberQualifiers final {
 
 struct V3ParseBisonYYSType final {
     FileLine* fl = nullptr;
-    int token = 0;  // Read token, aka tok
+    цео token = 0;  // Read token, aka tok
     VBaseOverride baseOverride;
     bool flag = false;  // Passed up some rules
     union {
         V3Number* nump;
         std::string* strp;
-        int cint;
+        цео cint;
         double cdouble;
         bool cbool;
         VMemberQualifiers qualifiers;
@@ -161,11 +161,11 @@ class V3ParseImp final {
     bool m_inLibrary = false;  // Currently reading a library vs. regular file
     bool m_inLibMap = false;  // Currently reading a libmap file
     string m_libname;  // Config library name (or --work)
-    int m_lexKwdDepth = 0;  // Inside a `begin_keywords
-    int m_lexKwdLast;  // Last LEX state in `begin_keywords
+    цео m_lexKwdDepth = 0;  // Inside a `begin_keywords
+    цео m_lexKwdLast;  // Last LEX state in `begin_keywords
     VOptionBool m_unconnectedDrive;  // Last unconnected drive
 
-    int m_lexPrevToken = 0;  // previous parsed token (for lexer)
+    цео m_lexPrevToken = 0;  // previous parsed token (for lexer)
     bool m_afterColonColon = false;  // The previous token was '::'
     V3ParseBisonYYSType m_tokenLastBison{};  // Token we last sent to Bison
     std::deque<V3ParseBisonYYSType> m_tokensAhead;  // Tokens we parsed ahead of parser
@@ -188,20 +188,20 @@ public:
     VL_DEFINE_DEBUG(Flex);  // Define 'unsigned debugFlex()'
 
     // Functions called by lex rules:
-    int yylexThis();
-    static bool optFuture(const string& flag) { return v3Global.opt.isFuture(flag); }
+    цео yylexThis();
+    static bool optFuture(const string& flag) { врати v3Global.opt.isFuture(flag); }
 
     void tagNodep(AstNode* nodep) { m_tagNodep = nodep; }
-    AstNode* tagNodep() const { return m_tagNodep; }
+    AstNode* tagNodep() const { врати m_tagNodep; }
     void lexTimescaleParse(FileLine* fl, const char* textp) VL_MT_DISABLED;
     AstPragma* createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
                                double precVal) VL_MT_DISABLED;
-    VTimescale timeLastUnit() const { return m_timeLastUnit; }
-    VTimescale timeLastPrec() const { return m_timeLastPrec; }
+    VTimescale timeLastUnit() const { врати m_timeLastUnit; }
+    VTimescale timeLastPrec() const { врати m_timeLastPrec; }
 
     void lexFileline(FileLine* fl) { m_lexFileline = fl; }
-    FileLine* lexFileline() const { return m_lexFileline; }
-    std::string& lexString() { return m_lexString; }
+    FileLine* lexFileline() const { врати m_lexFileline; }
+    std::string& lexString() { врати m_lexString; }
     static void lexErrorPreprocDirective(FileLine* fl, const char* textp) VL_MT_DISABLED;
     static string lexParseTag(const char* textp) VL_MT_DISABLED;
     static double lexParseTimenum(const char* text) VL_MT_DISABLED;
@@ -211,29 +211,29 @@ public:
     void lexVerilatorCmtLintRestore(FileLine* fl) VL_MT_DISABLED;
     static void lexVerilatorCmtBad(FileLine* fl, const char* textp) VL_MT_DISABLED;
 
-    void lexPushKeywords(int state) {
+    void lexPushKeywords(цео state) {
         ++m_lexKwdDepth;
         m_lexKwdLast = state;
     }
     bool lexPopKeywords() {
-        if (m_lexKwdDepth) {
+        ако (m_lexKwdDepth) {
             --m_lexKwdDepth;
-            return true;
+            врати true;
         }
-        return false;
+        врати false;
     }
-    int lexKwdLastState() const { return m_lexKwdLast; }
-    static const char* tokenName(int tok) VL_MT_DISABLED;
-    static bool isStrengthToken(int tok) VL_MT_DISABLED;
+    цео lexKwdLastState() const { врати m_lexKwdLast; }
+    static const char* tokenName(цео tok) VL_MT_DISABLED;
+    static bool isStrengthToken(цео tok) VL_MT_DISABLED;
 
     void ppPushText(const string& text) {
         m_ppBuffers.push_back(text);
         m_ppBytes += text.length();
-        if (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
+        ако (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
     }
     size_t ppInputToLex(char* buf, size_t max_size) VL_MT_DISABLED;
 
-    static V3ParseImp* parsep() { return s_parsep; }
+    static V3ParseImp* parsep() { врати s_parsep; }
 
     // TODO: Many of these functions are the old interface; they'd be better as non-static
     // and called as READP->newString(...) etc.
@@ -242,56 +242,56 @@ public:
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
         m_stringps.push_back(strp);
-        return strp;
+        врати strp;
     }
     string* newString(const char* text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
         m_stringps.push_back(strp);
-        return strp;
+        врати strp;
     }
     string* newString(const char* text, size_t length) {
         string* const strp = new string(text, length);  // Need () constructor
         m_stringps.push_back(strp);
-        return strp;
+        врати strp;
     }
     V3Number* newNumber(FileLine* flp, const char* text) {
         V3Number* nump = new V3Number{flp, V3Number::VerilogNumberLiteral{}, text};
         m_numberps.push_back(nump);
-        return nump;
+        врати nump;
     }
 
     // For 'unique if' cannot have empty else statements as then assertion
     // would misfire
     AstNode* newBlock(FileLine* fl, AstNode* nodep) {
-        if (nodep) return nodep;
-        return new AstBegin{fl, "", nullptr, true};
+        ако (nodep) врати nodep;
+        врати new AstBegin{fl, "", nullptr, true};
     }
 
     // Bison sometimes needs error context without a token, so remember last token's line
     // Only use this if do not have and cannot get a token-relevant fileline
-    FileLine* bisonLastFileline() const { return m_bisonLastFileline; }
+    FileLine* bisonLastFileline() const { врати m_bisonLastFileline; }
 
     // Return next token, for bison, since bison isn't class based, use a global THIS
-    AstNetlist* rootp() const { return m_rootp; }
-    bool inLibMap() const { return m_inLibMap; }
-    bool inLibrary() const { return m_inLibrary; }
-    string libname() const { return m_libname; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
+    AstNetlist* rootp() const { врати m_rootp; }
+    bool inLibMap() const { врати m_inLibMap; }
+    bool inLibrary() const { врати m_inLibrary; }
+    string libname() const { врати m_libname; }
+    VOptionBool unconnectedDrive() const { врати m_unconnectedDrive; }
     void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
 
     // Interactions with parser
-    int bisonParse() VL_MT_DISABLED;
+    цео bisonParse() VL_MT_DISABLED;
 
     // Interactions with lexer
     void lexNew() VL_MT_DISABLED;
     void lexDestroy() VL_MT_DISABLED;
-    static int stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
-    int lexPrevToken() const { return m_lexPrevToken; }  // Parser -> lexer communication
-    size_t flexPpInputToLex(char* buf, size_t max_size) { return ppInputToLex(buf, max_size); }
+    static цео stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
+    цео lexPrevToken() const { врати m_lexPrevToken; }  // Parser -> lexer communication
+    size_t flexPpInputToLex(char* buf, size_t max_size) { врати ppInputToLex(buf, max_size); }
 
     //==== Symbol tables
-    AstPackage* unitPackage(FileLine* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
+    AstPackage* unitPackage(FileLine* /*fl*/) { врати parsep()->rootp()->dollarUnitPkgp(); }
 
     // CONSTRUCTORS
     V3ParseImp(AstNetlist* rootp, VInFilter* filterp)
@@ -307,13 +307,13 @@ public:
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    int tokenToBison() VL_MT_DISABLED;  // Pass token to bison
+    цео tokenToBison() VL_MT_DISABLED;  // Pass token to bison
 
     void parseFile(FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
                    const string& libname, const string& errmsg,
                    const std::string& notFoundName) VL_MT_DISABLED;
     void dumpInputsFile() VL_MT_DISABLED;
-    void dumpTokensAhead(int line) VL_MT_DISABLED;
+    void dumpTokensAhead(цео line) VL_MT_DISABLED;
     static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
     void importIfInStd(FileLine* fileline, const string& id, bool doImport);
     AstNodeExpr* makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp);
@@ -324,7 +324,7 @@ private:
     void yylexReadTok() VL_MT_DISABLED;
     void tokenPull() VL_MT_DISABLED;
     void tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
-    int tokenPipelineId(int token) VL_MT_DISABLED;
+    цео tokenPipelineId(цео token) VL_MT_DISABLED;
     void tokenPipelineSym() VL_MT_DISABLED;
     size_t tokenPipeScanIdInst(size_t depth) VL_MT_DISABLED;
     size_t tokenPipeScanIdType(size_t depth) VL_MT_DISABLED;

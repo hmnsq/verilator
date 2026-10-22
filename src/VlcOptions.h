@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    цео m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    цео m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -63,27 +63,27 @@ public:
     ~VlcOptions() = default;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
+    void parseOptsList(цео argc, char** argv) VL_MT_DISABLED;
     void addReadFile(const string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
+    const VlStringSet& readFiles() const { врати m_readFiles; }
+    string annotateOut() const { врати m_annotateOut; }
+    bool annotateAll() const { врати m_annotateAll; }
+    цео annotateMin() const { врати m_annotateMin; }
+    bool countOk(uint64_t count) const { врати count >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() const { врати m_annotatePoints; }
+    bool includeResetArcs() const { врати m_includeResetArcs; }
+    цео reportLevels() const { врати m_reportLevels; }
+    bool reportSpecified() const { врати !m_report.empty(); }
+    bool reportSummary() const { врати m_reportSummary; }
+    bool reportHierarchy() const { врати m_reportHierarchy; }
+    bool rank() const { врати m_rank; }
+    bool unlink() const { врати m_unlink; }
+    string writeFile() const { врати m_writeFile; }
+    string writeInfoFile() const { врати m_writeInfoFile; }
     bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+        врати VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)

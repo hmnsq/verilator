@@ -69,41 +69,41 @@ class FileLineSingleton final {
             size_t operator()(const MsgEnBitSet& item) const {
                 V3Hash hash{item.m_codeEn.hash()};
                 hash += item.m_ctrlEn.hash();
-                return hash.value();
+                врати hash.value();
             }
         };
 
         struct Equal final {
-            bool operator()(const MsgEnBitSet& a, const MsgEnBitSet& b) const { return a == b; }
+            bool operator()(const MsgEnBitSet& a, const MsgEnBitSet& b) const { врати a == b; }
         };
 
         bool operator==(const MsgEnBitSet& other) const {
-            return m_codeEn == other.m_codeEn && m_ctrlEn == other.m_ctrlEn;
+            врати m_codeEn == other.m_codeEn && m_ctrlEn == other.m_ctrlEn;
         }
 
         const VErrorBitSet& getAll(Subset subset) const {
-            return subset == Subset::CODE ? m_codeEn : m_ctrlEn;
+            врати subset == Subset::CODE ? m_codeEn : m_ctrlEn;
         }
         bool test(Subset subset, V3ErrorCode code) const {
-            return subset == Subset::CODE ? m_codeEn.test(code) : m_ctrlEn.test(code);
+            врати subset == Subset::CODE ? m_codeEn.test(code) : m_ctrlEn.test(code);
         }
         void setAll(Subset subset, const VErrorBitSet& bitset) {
-            if (subset == Subset::CODE) {  // LCOV_EXCL_BR_LINE
+            ако (subset == Subset::CODE) {  // LCOV_EXCL_BR_LINE
                 m_codeEn = bitset;  // LCOV_EXCL_LINE
-            } else {
+            } инако {
                 m_ctrlEn = bitset;
             }
         }
         void set(Subset subset, V3ErrorCode code, bool value) {
-            if (subset == Subset::CODE) {
+            ако (subset == Subset::CODE) {
                 m_codeEn.set(code, value);
-            } else {
+            } инако {
                 m_ctrlEn.set(code, value);
             }
         }
 
         // Enabled iff enabled by both in-code dierctives/metacomments and control file
-        bool enabled(V3ErrorCode code) const { return m_codeEn.test(code) && m_ctrlEn.test(code); }
+        bool enabled(V3ErrorCode code) const { врати m_codeEn.test(code) && m_ctrlEn.test(code); }
     };
 
     // MEMBERS
@@ -124,9 +124,9 @@ class FileLineSingleton final {
 
     fileNameIdx_t nameToNumber(const string& filename);
     const std::string& numberToName(fileNameIdx_t filenameno) const VL_MT_SAFE {
-        return m_names[filenameno];
+        врати m_names[filenameno];
     }
-    V3LangCode numberToLang(fileNameIdx_t filenameno) const { return m_languages[filenameno]; }
+    V3LangCode numberToLang(fileNameIdx_t filenameno) const { врати m_languages[filenameno]; }
     void numberToLang(fileNameIdx_t filenameno, const V3LangCode& l) {
         m_languages[filenameno] = l;
     }
@@ -151,7 +151,7 @@ class FileLineSingleton final {
     msgEnSetIdx_t msgEnAnd(msgEnSetIdx_t lhsIdx, msgEnSetIdx_t rhsIdx);
     // Retrieve interned bitset at given interned index. The returned reference is not persistent.
     const MsgEnBitSet& msgEn(msgEnSetIdx_t idx) const VL_MT_SAFE {
-        return m_internedMsgEns.at(idx);
+        врати m_internedMsgEns.at(idx);
     }
 };
 
@@ -159,25 +159,25 @@ class FileLineSingleton final {
 class VFileContent final {
     friend class FileLine;
     // MEMBERS
-    int m_id;  // Content ID number
+    цео m_id;  // Content ID number
     // Reference count for sharing (shared_ptr has size overhead that we don't want)
     std::atomic<size_t> m_refCount{0};
     std::deque<string> m_lines;  // Source text lines
     VFileContent() {
-        static int s_id = 0;
+        static цео s_id = 0;
         m_id = ++s_id;
     }
     ~VFileContent() = default;
     // METHODS
     void refInc() { ++m_refCount; }
     void refDec() {
-        if (!--m_refCount) delete this;
+        ако (!--m_refCount) delete this;
     }
 
 public:
     void pushText(const string& text);  // Add arbitrary text (need not be line-by-line)
-    string getLine(int lineno) const VL_MT_SAFE;
-    string ascii() const { return "ct" + cvtToStr(m_id); }
+    string getLine(цео lineno) const VL_MT_SAFE;
+    string ascii() const { врати "ct" + cvtToStr(m_id); }
 };
 std::ostream& operator<<(std::ostream& os, VFileContent* contentp);
 
@@ -208,7 +208,7 @@ class FileLine final {
     unsigned m_contentLineno : 31;  // Line number within source stream
     // 64-bit word # 1
     uint32_t m_tokenNum = 0;  // Token number in processing order
-    int m_firstLineno = 0;  // `line corrected token's first line number
+    цео m_firstLineno = 0;  // `line corrected token's first line number
     // 64-bit word # 2
     uint32_t m_firstColumn : 24;  // `line corrected token's first column number
     uint32_t m_lastColumn : 24;  // `line corrected token's last column number
@@ -230,11 +230,11 @@ private:
     // CONSTRUCTORS
     static FileLineSingleton& singleton() VL_MT_SAFE {
         static FileLineSingleton s;
-        return s;
+        врати s;
     }
     static FileLine& defaultFileLine() VL_MT_SAFE {
         static FileLine s;
-        return s;
+        врати s;
     }
 
     FileLine()  // Only used for defaultFileLine above
@@ -265,7 +265,7 @@ public:
         , m_lastLinenoAdder{from.m_lastLinenoAdder}
         , m_contentp{from.m_contentp}
         , m_parent{from.m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        ако (m_contentp) m_contentp->refInc();
     }
     explicit FileLine(FileLine* fromp)
         : m_msgEnIdx{fromp->m_msgEnIdx}
@@ -279,7 +279,7 @@ public:
         , m_lastLinenoAdder{fromp->m_lastLinenoAdder}
         , m_contentp{fromp->m_contentp}
         , m_parent{fromp->m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        ако (m_contentp) m_contentp->refInc();
     }
     void applyIgnores();
     FileLine* copyOrSameFileLine();
@@ -293,36 +293,36 @@ public:
 #endif
     // METHODS
     void newContent();
-    void contentLineno(int num) {
+    void contentLineno(цео num) {
         lineno(num);
         m_contentLineno = static_cast<unsigned>(num);
     }
     void contentLinenoFrom(const FileLine* fromp) { m_contentLineno = fromp->m_contentLineno; }
-    void lineno(int num) {
+    void lineno(цео num) {
         m_firstLineno = num;
         m_lastLinenoAdder = 0;
         m_firstColumn = 1;
         m_lastColumn = 1;
     }
-    void column(int firstColumn, int lastColumn) {
+    void column(цео firstColumn, цео lastColumn) {
         m_firstColumn = firstColumn;
         m_lastColumn = lastColumn;
     }
     void language(V3LangCode lang) const { singleton().numberToLang(filenameno(), lang); }
     void filename(const string& name) { m_filenameno = singleton().nameToNumber(name); }
     void parent(FileLine* fileline) { m_parent = fileline; }
-    void lineDirective(const char* textp, int& enterExitRef);
-    void lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                            int& enterExitRef);
+    void lineDirective(const char* textp, цео& enterExitRef);
+    void lineDirectiveParse(const char* textp, string& filenameRef, цео& linenoRef,
+                            цео& enterExitRef);
     void linenoInc() {
-        if (m_lastLinenoAdder == 65535) {
+        ако (m_lastLinenoAdder == 65535) {
             // Overflow can only happen on super-long comment, adjust
             // starting first line to deal with it this will make token
             // start later than in reality, but nothing should refer to it,
             // and the overall line number will not drift.
             m_firstLineno += 65535 + 1;
             m_lastLinenoAdder = 0;
-        } else {
+        } инако {
             ++m_lastLinenoAdder;
         }
         m_lastColumn = 1;
@@ -335,39 +335,39 @@ public:
     }
     // Advance last line/column based on given text
     void forwardToken(const char* textp, size_t size, bool trackLines = true);
-    uint32_t tokenNum() const VL_MT_SAFE { return m_tokenNum; }
-    int firstLineno() const VL_MT_SAFE { return m_firstLineno; }
-    int firstColumn() const VL_MT_SAFE { return static_cast<int>(m_firstColumn); }
-    int lastLineno() const VL_MT_SAFE { return m_firstLineno + m_lastLinenoAdder; }
-    int lastColumn() const VL_MT_SAFE { return static_cast<int>(m_lastColumn); }
-    VFileContent* contentp() const { return m_contentp; }
+    uint32_t tokenNum() const VL_MT_SAFE { врати m_tokenNum; }
+    цео firstLineno() const VL_MT_SAFE { врати m_firstLineno; }
+    цео firstColumn() const VL_MT_SAFE { врати static_cast<цео>(m_firstColumn); }
+    цео lastLineno() const VL_MT_SAFE { врати m_firstLineno + m_lastLinenoAdder; }
+    цео lastColumn() const VL_MT_SAFE { врати static_cast<цео>(m_lastColumn); }
+    VFileContent* contentp() const { врати m_contentp; }
     // If not otherwise more specific, use last lineno for errors etc,
     // as the parser errors etc generally make more sense pointing at the last parse point
-    int lineno() const VL_MT_SAFE { return lastLineno(); }
+    цео lineno() const VL_MT_SAFE { врати lastLineno(); }
     string source() const VL_MT_SAFE;
-    string sourcePrefix(int toColumn) const VL_MT_SAFE;
+    string sourcePrefix(цео toColumn) const VL_MT_SAFE;
     string prettySource() const VL_MT_SAFE;  // Source, w/stripped unprintables and newlines
-    FileLine* parent() const VL_MT_SAFE { return m_parent; }
-    V3LangCode language() const { return singleton().numberToLang(filenameno()); }
+    FileLine* parent() const VL_MT_SAFE { врати m_parent; }
+    V3LangCode language() const { врати singleton().numberToLang(filenameno()); }
     string ascii() const VL_MT_SAFE;
     string asciiLineCol() const;
-    int filenameno() const VL_MT_SAFE { return m_filenameno; }
+    цео filenameno() const VL_MT_SAFE { врати m_filenameno; }
     const std::string& filename() const VL_MT_SAFE {
-        return singleton().numberToName(filenameno());
+        врати singleton().numberToName(filenameno());
     }
     // Filename with C string escapes
-    string filenameEsc() const VL_MT_SAFE { return VString::quoteBackslash(filename()); }
+    string filenameEsc() const VL_MT_SAFE { врати VString::quoteBackslash(filename()); }
     bool filenameIsGlobal() const VL_MT_SAFE {
-        return (filename() == commandLineFilename() || filename() == builtInFilename());
+        врати (filename() == commandLineFilename() || filename() == builtInFilename());
     }
     string filenameLetters() const VL_MT_SAFE {
-        return FileLineSingleton::filenameLetters(filenameno());
+        врати FileLineSingleton::filenameLetters(filenameno());
     }
     string filebasename() const VL_MT_SAFE;
     string filebasenameNoExt() const;
     string firstColumnLetters() const VL_MT_SAFE;
     string profileFuncname() const;
-    string lineDirectiveStrg(int enterExit) const;
+    string lineDirectiveStrg(цео enterExit) const;
 
     // Turn on/off warning messages on this line.
 private:
@@ -389,26 +389,26 @@ public:
     void warnResetDefault() { warnStateFrom(defaultFileLine()); }
 
     // Specific flag ACCESSORS/METHODS
-    bool celldefineOn() const { return msgEn().enabled(V3ErrorCode::I_CELLDEFINE); }
+    bool celldefineOn() const { врати msgEn().enabled(V3ErrorCode::I_CELLDEFINE); }
     void celldefineOn(bool flag) { warnOn(V3ErrorCode::I_CELLDEFINE, flag); }
-    bool coverageOn() const { return msgEn().enabled(V3ErrorCode::I_COVERAGE); }
+    bool coverageOn() const { врати msgEn().enabled(V3ErrorCode::I_COVERAGE); }
     void coverageOn(bool flag) { warnOn(V3ErrorCode::I_COVERAGE, flag); }
-    bool erroringOn() const { return msgEn().enabled(V3ErrorCode::I_ERRORING); }
+    bool erroringOn() const { врати msgEn().enabled(V3ErrorCode::I_ERRORING); }
     void erroringOn(bool flag) { warnOn(V3ErrorCode::I_ERRORING, flag); }
-    bool tracingOn() const { return msgEn().enabled(V3ErrorCode::I_TRACING); }
+    bool tracingOn() const { врати msgEn().enabled(V3ErrorCode::I_TRACING); }
     void tracingOn(bool flag) { warnOn(V3ErrorCode::I_TRACING, flag); }
-    bool timingOn() const { return msgEn().enabled(V3ErrorCode::I_TIMING); }
+    bool timingOn() const { врати msgEn().enabled(V3ErrorCode::I_TIMING); }
     void timingOn(bool flag) { warnOn(V3ErrorCode::I_TIMING, flag); }
 
     // METHODS - Global
     // <command-line> and <built-in> match what GCC outputs
-    static string commandLineFilename() VL_MT_SAFE { return "<command-line>"; }
-    static string builtInFilename() VL_MT_SAFE { return "<built-in>"; }
+    static string commandLineFilename() VL_MT_SAFE { врати "<command-line>"; }
+    static string builtInFilename() VL_MT_SAFE { врати "<built-in>"; }
     static void globalWarnOff(V3ErrorCode code, bool turnOff) {
         defaultFileLine().warnOff(code, turnOff);
     }
     static string globalWarnOffParse(const string& msgs, bool turnOff) {
-        return defaultFileLine().warnOffParse(msgs, turnOff);
+        врати defaultFileLine().warnOffParse(msgs, turnOff);
     }
     static void fileNameNumMapDumpJson(std::ostream& os) {
         singleton().fileNameNumMapDumpJson(os);
@@ -443,48 +443,48 @@ public:
     /// If not used in a given error, automatically pasted at end of error
     string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
         V3Error::s().errorContexted(true);
-        return warnContext() + warnContextParent();
+        врати warnContext() + warnContextParent();
     }
     /// When building an error, additional location for additional references
     /// Simplified information vs warnContextPrimary() to make dump clearer
-    string warnContextSecondary() const { return warnContext(); }
+    string warnContextSecondary() const { врати warnContext(); }
     bool operator==(const FileLine& rhs) const {
-        return (m_tokenNum == rhs.m_tokenNum && m_firstLineno == rhs.m_firstLineno
+        врати (m_tokenNum == rhs.m_tokenNum && m_firstLineno == rhs.m_firstLineno
                 && m_firstColumn == rhs.m_firstColumn && m_lastLinenoAdder == rhs.m_lastLinenoAdder
                 && m_lastColumn == rhs.m_lastColumn && m_filenameno == rhs.m_filenameno
                 && m_msgEnIdx == rhs.m_msgEnIdx);
     }
     bool equalFirstLineCol(const FileLine& rhs) const {
-        return (m_filenameno == rhs.m_filenameno && m_firstLineno == rhs.m_firstLineno
+        врати (m_filenameno == rhs.m_filenameno && m_firstLineno == rhs.m_firstLineno
                 && m_firstColumn == rhs.m_firstColumn);
     }
     // Returns -1 if (*this) should come before rhs after sorted. 1 for the opposite case. 0 for
     // equivalent.
-    int operatorCompare(const FileLine& rhs) const {
-        if (m_filenameno != rhs.m_filenameno) return (m_filenameno < rhs.m_filenameno) ? -1 : 1;
-        if (m_firstLineno != rhs.m_firstLineno)
-            return (m_firstLineno < rhs.m_firstLineno) ? -1 : 1;
-        if (m_firstColumn != rhs.m_firstColumn)
-            return (m_firstColumn < rhs.m_firstColumn) ? -1 : 1;
-        if (m_lastLinenoAdder != rhs.m_lastLinenoAdder)
-            return (m_lastLinenoAdder < rhs.m_lastLinenoAdder) ? -1 : 1;
-        if (m_lastColumn != rhs.m_lastColumn) return (m_lastColumn < rhs.m_lastColumn) ? -1 : 1;
+    цео operatorCompare(const FileLine& rhs) const {
+        ако (m_filenameno != rhs.m_filenameno) врати (m_filenameno < rhs.m_filenameno) ? -1 : 1;
+        ако (m_firstLineno != rhs.m_firstLineno)
+            врати (m_firstLineno < rhs.m_firstLineno) ? -1 : 1;
+        ако (m_firstColumn != rhs.m_firstColumn)
+            врати (m_firstColumn < rhs.m_firstColumn) ? -1 : 1;
+        ако (m_lastLinenoAdder != rhs.m_lastLinenoAdder)
+            врати (m_lastLinenoAdder < rhs.m_lastLinenoAdder) ? -1 : 1;
+        ако (m_lastColumn != rhs.m_lastColumn) врати (m_lastColumn < rhs.m_lastColumn) ? -1 : 1;
         const MsgEnBitSet& lhsMsgEn = msgEn();
         const MsgEnBitSet& rhsMsgEn = rhs.msgEn();
-        for (size_t i = 0; i < V3ErrorCode::_ENUM_MAX; ++i) {
+        за (size_t i = 0; i < V3ErrorCode::_ENUM_MAX; ++i) {
             const V3ErrorCode code = static_cast<V3ErrorCode>(i);
-            if (lhsMsgEn.enabled(code) != rhsMsgEn.enabled(code))
-                return rhsMsgEn.enabled(code) ? -1 : 1;
+            ако (lhsMsgEn.enabled(code) != rhsMsgEn.enabled(code))
+                врати rhsMsgEn.enabled(code) ? -1 : 1;
         }
         // TokenNum is compared last as makes more logical sort order by file/line first
-        if (m_tokenNum != rhs.m_tokenNum) return (m_tokenNum < rhs.m_tokenNum) ? -1 : 1;
-        return 0;  // (*this) and rhs are equivalent
+        ако (m_tokenNum != rhs.m_tokenNum) врати (m_tokenNum < rhs.m_tokenNum) ? -1 : 1;
+        врати 0;  // (*this) and rhs are equivalent
     }
 
 private:
     string warnContext() const;
     string warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex);
-    const MsgEnBitSet& msgEn() const VL_MT_SAFE { return singleton().msgEn(m_msgEnIdx); }
+    const MsgEnBitSet& msgEn() const VL_MT_SAFE { врати singleton().msgEn(m_msgEnIdx); }
 };
 std::ostream& operator<<(std::ostream& os, FileLine* fileline);
 
