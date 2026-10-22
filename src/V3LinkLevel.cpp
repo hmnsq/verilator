@@ -19,24 +19,24 @@
 //          Create new MODULE TOP with connections to below signals
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkLevel.h"
+#ضمن "V3LinkLevel.h"
 
-#include <vector>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Levelizing class functions
 
-struct CmpLevel final {
-    bool operator()(const AstNodeModule* lhsp, const AstNodeModule* rhsp) const {
-        return lhsp->level() < rhsp->level();
+بنية CmpLevel final {
+    منطقي operator()(ثابت AstNodeModule* lhsp, ثابت AstNodeModule* rhsp) ثابت {
+        أرجع lhsp->level() < rhsp->level();
     }
 };
 
-void V3LinkLevel::modSortByLevel() {
+فراغ V3LinkLevel::modSortByLevel() {
     // Sort modules by levels, root down to lowest children
     // Calculate levels again in case we added modules
     UINFO(2, "modSortByLevel()");
@@ -45,25 +45,25 @@ void V3LinkLevel::modSortByLevel() {
 
     ModVec mods;  // Modules
     ModVec tops;  // Top level modules
-    for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
+    لكل (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
          nodep = VN_AS(nodep->nextp(), NodeModule)) {
-        if (nodep->isTop() && !VN_IS(nodep, NotFoundModule)) {
+        𐡄𐡍 (nodep->isTop() && !VN_IS(nodep, NotFoundModule)) {
             UINFO(9, "top candidate " << nodep);
             tops.push_back(nodep);
         }
         mods.push_back(nodep);
     }
-    if (tops.size() >= 2) {
-        const AstNode* const secp = tops[1];  // Complain about second one, as first often intended
-        if (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
-            auto warnTopModules = [](const AstNode* const secp, ModVec tops)
+    𐡄𐡍 (tops.size() >= 2) {
+        ثابت AstNode* ثابت secp = tops[1];  // Complain about second one, as first often intended
+        𐡄𐡍 (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
+            auto warnTopModules = [](ثابت AstNode* ثابت secp, ModVec tops)
                                       VL_REQUIRES(V3Error::s().m_mutex) -> std::string {
                 std::stringstream ss;
-                for (AstNode* alsop : tops) {
+                لكل (AstNode* alsop : tops) {
                     ss << secp->warnMore() << "... Top module " << alsop->prettyNameQ() << '\n'
                        << alsop->warnContextSecondary();
                 }
-                return ss.str();
+                أرجع ss.str();
             };
 
             secp->v3warn(MULTITOP, "Multiple top level modules\n"
@@ -81,26 +81,26 @@ void V3LinkLevel::modSortByLevel() {
     // Reorder the netlist's modules to have modules in level sorted order
     stable_sort(mods.begin(), mods.end(), CmpLevel());  // Sort the vector
     UINFO(9, "modSortByLevel() sorted");  // Comment required for gcc4.6.3 / bug666
-    for (AstNodeModule* nodep : mods) nodep->unlinkFrBack();
+    لكل (AstNodeModule* nodep : mods) nodep->unlinkFrBack();
     UASSERT_OBJ(!v3Global.rootp()->modulesp(), v3Global.rootp(), "Unlink didn't work");
-    for (AstNodeModule* nodep : mods) v3Global.rootp()->addModulesp(nodep);
+    لكل (AstNodeModule* nodep : mods) v3Global.rootp()->addModulesp(nodep);
     UINFO(9, "modSortByLevel() done");  // Comment required for gcc4.6.3 / bug666
-    V3Global::dumpCheckGlobalTree("cellsort", false, dumpTreeEitherLevel() >= 3);
+    V3Global::dumpCheckGlobalTree("cellsort", خطأ, dumpTreeEitherLevel() >= 3);
 }
 
-void V3LinkLevel::timescaling(const ModVec& mods) {
+فراغ V3LinkLevel::timescaling(ثابت ModVec& mods) {
     // Timescale determination
-    const AstNodeModule* modTimedp = nullptr;
+    ثابت AstNodeModule* modTimedp = nullptr;
     VTimescale unit{VTimescale::NONE};
 
     // Move timeunit attributes from parse to module unit
     // Grammar only allows timeunit as module_item, so no need to recurse full tree
-    for (AstNodeModule* modp : mods) {
-        for (AstNode *nextp, *childp = modp->stmtsp(); childp; childp = nextp) {
+    لكل (AstNodeModule* modp : mods) {
+        لكل (AstNode *nextp, *childp = modp->stmtsp(); childp; childp = nextp) {
             nextp = childp->nextp();
             // cppcheck-suppress constVariablePointer
-            if (AstPragma* pragp = VN_CAST(childp, Pragma)) {
-                if (pragp->pragType() == VPragmaType::TIMEUNIT_SET) {
+            𐡄𐡍 (AstPragma* pragp = VN_CAST(childp, Pragma)) {
+                𐡄𐡍 (pragp->pragType() == VPragmaType::TIMEUNIT_SET) {
                     modp->timeunit(pragp->timescale());
                     VL_DO_DANGLING(pragp->unlinkFrBack()->deleteTree(), pragp);
                 }
@@ -109,26 +109,26 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
     }
     // Use highest level module as default unit - already sorted in proper order
     // Combine timing into later modules
-    for (AstNodeModule* modp : mods) {
-        if (!modTimedp && !modp->timeunit().isNone()) {
+    لكل (AstNodeModule* modp : mods) {
+        𐡄𐡍 (!modTimedp && !modp->timeunit().isNone()) {
             modTimedp = modp;
             unit = modTimedp->timeunit();
-            break;
+            اكسر;
         }
     }
     unit = v3Global.opt.timeComputeUnit(unit);  // Apply override
-    if (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
+    𐡄𐡍 (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
     v3Global.rootp()->timeunit(unit);
 
-    bool dunitTimed = false;  // $unit had a timeunit
-    if (const AstPackage* const upkgp = v3Global.rootp()->dollarUnitPkgp()) {
-        if (!upkgp->timeunit().isNone()) dunitTimed = true;
+    منطقي dunitTimed = خطأ;  // $unit had a timeunit
+    𐡄𐡍 (ثابت AstPackage* ثابت upkgp = v3Global.rootp()->dollarUnitPkgp()) {
+        𐡄𐡍 (!upkgp->timeunit().isNone()) dunitTimed = 𐡒𐡔𐡈;
     }
 
-    for (AstNodeModule* modp : mods) {
-        if (!v3Global.opt.timeOverrideUnit().isNone()) modp->timeunit(unit);
-        if (modp->timeunit().isNone()) {
-            if (modTimedp  // Got previous
+    لكل (AstNodeModule* modp : mods) {
+        𐡄𐡍 (!v3Global.opt.timeOverrideUnit().isNone()) modp->timeunit(unit);
+        𐡄𐡍 (modp->timeunit().isNone()) {
+            𐡄𐡍 (modTimedp  // Got previous
                 && !dunitTimed
                 && (  // unit doesn't already include an override
                     v3Global.opt.timeOverrideUnit().isNone()
@@ -148,7 +148,7 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
 
     v3Global.rootp()->timescaleSpecified(modTimedp);  // true if some module specifies timescale
 
-    if (v3Global.rootp()->timeprecision().isNone()) {
+    𐡄𐡍 (v3Global.rootp()->timeprecision().isNone()) {
         v3Global.rootp()->timeprecisionMerge(v3Global.rootp()->fileline(),
                                              VTimescale{VTimescale::TS_DEFAULT});
     }
@@ -159,25 +159,25 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
 //######################################################################
 // Wrapping
 
-void V3LinkLevel::wrapTop(AstNetlist* rootp) {
+فراغ V3LinkLevel::wrapTop(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     // We do ONLY the top module
-    AstNodeModule* const oldmodp = rootp->modulesp();
-    if (!oldmodp) {  // Later V3LinkDot will warn
+    AstNodeModule* ثابت oldmodp = rootp->modulesp();
+    𐡄𐡍 (!oldmodp) {  // Later V3LinkDot will warn
         UINFO(1, "No module found to wrap");
-        return;
+        أرجع;
     }
     rootp->resolvedTopModuleName(oldmodp->name());
 
-    AstNodeModule* const newmodp = new AstModule{oldmodp->fileline(), "$root", oldmodp->libname()};
+    AstNodeModule* ثابت newmodp = جديد AstModule{oldmodp->fileline(), "$root", oldmodp->libname()};
     newmodp->name(AstNode::encodeName(newmodp->name()));  // so origName is nice
     // Make the new module first in the list
     oldmodp->unlinkFrBackWithNext();
     newmodp->addNext(oldmodp);
     newmodp->depth(1);
     newmodp->level(1);
-    newmodp->modPublic(true);
-    newmodp->protect(false);
+    newmodp->modPublic(𐡒𐡔𐡈);
+    newmodp->protect(خطأ);
     newmodp->timeunit(oldmodp->timeunit());
     rootp->addModulesp(newmodp);
 
@@ -187,10 +187,10 @@ void V3LinkLevel::wrapTop(AstNetlist* rootp) {
 
     // Instantiate all packages under the top wrapper
     // This way all later SCOPE based optimizations can ignore packages
-    for (AstNodeModule* modp = rootp->modulesp(); modp; modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) {
-            AstCell* const cellp
-                = new AstCell{modp->fileline(), modp->fileline(),
+    لكل (AstNodeModule* modp = rootp->modulesp(); modp; modp = VN_AS(modp->nextp(), NodeModule)) {
+        𐡄𐡍 (VN_IS(modp, Package)) {
+            AstCell* ثابت cellp
+                = جديد AstCell{modp->fileline(), modp->fileline(),
                               // Could add __03a__03a="::" to prevent conflict
                               // with module names/"v"
                               modp->name(), modp->name(), nullptr, nullptr, nullptr};
@@ -200,15 +200,15 @@ void V3LinkLevel::wrapTop(AstNetlist* rootp) {
     }
 
     // All modules and hier-classes except one we created are now a level deeper
-    rootp->foreach([&](AstNodeModule* const modp) {
-        if (modp != newmodp && modp->level()) modp->level(1 + modp->level());
+    rootp->foreach([&](AstNodeModule* ثابت modp) {
+        𐡄𐡍 (modp != newmodp && modp->level()) modp->level(1 + modp->level());
     });
 
     V3Global::dumpCheckGlobalTree("wraptop", 0, dumpTreeEitherLevel() >= 6);
 }
 
-void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
-    AstNodeModule* const newmodp = rootp->modulesp();
+فراغ V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
+    AstNodeModule* ثابت newmodp = rootp->modulesp();
     UASSERT_OBJ(newmodp && newmodp->isTop(), rootp, "No TOP module found to insert under");
 
     // Find all duplicate signal names (if multitop)
@@ -217,21 +217,21 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     NameSet dupNames;
     // For all modules, skipping over new top
     // cppcheck-suppress constVariablePointer
-    for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
+    لكل (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
          oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
-        for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
-                if (oldvarp->isIO()) {
-                    if (!ioNames.insert(oldvarp->name()).second) {
+        لكل (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            𐡄𐡍 (AstVar* ثابت oldvarp = VN_CAST(subnodep, Var)) {
+                𐡄𐡍 (oldvarp->isIO()) {
+                    𐡄𐡍 (!ioNames.insert(oldvarp->name()).second) {
                         // UINFO(8, "Multitop dup I/O found: " << oldvarp);
                         dupNames.insert(oldvarp->name());
                     }
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
-                    const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
-                        const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
-                            if (!ioNames.insert(oldvarp->name()).second) {
+                } وإلا 𐡄𐡍 (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
+                    ثابت AstNodeDType* ثابت subtypep = oldvarp->subDTypep();
+                    𐡄𐡍 (VN_IS(subtypep, IfaceRefDType)) {
+                        ثابت AstIfaceRefDType* ثابت ifacerefp = VN_AS(subtypep, IfaceRefDType);
+                        𐡄𐡍 (!ifacerefp->cellp()) {
+                            𐡄𐡍 (!ioNames.insert(oldvarp->name()).second) {
                                 // UINFO(8, "Multitop dup interface found: " << oldvarp);
                                 dupNames.insert(oldvarp->name());
                             }
@@ -243,12 +243,12 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     }
 
     // For all modules, skipping over new top
-    for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
+    لكل (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
          oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
-        if (VN_IS(oldmodp, Package)) continue;
+        𐡄𐡍 (VN_IS(oldmodp, Package)) استمر;
         // Add instance
         UINFO(5, "LOOP " << oldmodp);
-        AstCell* const cellp = new AstCell{
+        AstCell* ثابت cellp = جديد AstCell{
             newmodp->fileline(),
             newmodp->fileline(),
             (!v3Global.opt.l2Name().empty() ? v3Global.opt.l2Name() : oldmodp->name()),
@@ -260,59 +260,59 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
         newmodp->addStmtsp(cellp);
 
         // Add pins
-        for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
+        لكل (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            𐡄𐡍 (AstVar* ثابت oldvarp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << oldvarp);
-                if (oldvarp->isIO()) {
+                𐡄𐡍 (oldvarp->isIO()) {
                     string name = oldvarp->name();
-                    if (dupNames.find(name) != dupNames.end()) {
+                    𐡄𐡍 (dupNames.find(name) != dupNames.end()) {
                         // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                         name = oldmodp->name() + "__02E" + name;
                     }
 
-                    AstVar* const varp = oldvarp->cloneTree(false);
+                    AstVar* ثابت varp = oldvarp->cloneTree(خطأ);
                     varp->name(name);
-                    varp->protect(false);
+                    varp->protect(خطأ);
                     newmodp->addStmtsp(varp);
-                    varp->sigPublic(true);  // User needs to be able to get to it...
-                    oldvarp->primaryIO(false);
-                    varp->primaryIO(true);
+                    varp->sigPublic(𐡒𐡔𐡈);  // User needs to be able to get to it...
+                    oldvarp->primaryIO(خطأ);
+                    varp->primaryIO(𐡒𐡔𐡈);
                     varp->icoMaybeWritten(oldvarp->icoMaybeWritten());
-                    if (varp->isRef() || varp->isConstRef()) {
+                    𐡄𐡍 (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (varp->isIO() && v3Global.opt.systemC()) {
-                        varp->sc(true);
+                    𐡄𐡍 (varp->isIO() && v3Global.opt.systemC()) {
+                        varp->sc(𐡒𐡔𐡈);
                         // User can see trace one level down from the wrapper
                         // Avoids packing & unpacking SC signals a second time
-                        varp->trace(false);
+                        varp->trace(خطأ);
                     }
 
-                    if (v3Global.opt.noTraceTop() && varp->isIO()) varp->trace(false);
+                    𐡄𐡍 (v3Global.opt.noTraceTop() && varp->isIO()) varp->trace(خطأ);
 
-                    AstPin* const pinp = new AstPin{
+                    AstPin* ثابت pinp = جديد AstPin{
                         oldvarp->fileline(), 0, varp->name(),
-                        new AstVarRef{varp->fileline(), varp,
+                        جديد AstVarRef{varp->fileline(), varp,
                                       oldvarp->isWritable() ? VAccess::WRITE : VAccess::READ}};
                     // Skip length and width comp; we know it's a direct assignment
                     pinp->modVarp(oldvarp);
                     cellp->addPinsp(pinp);
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
+                } وإلا 𐡄𐡍 (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
                     // for each interface port on oldmodp instantiate a corresponding interface
                     // cell in $root
-                    const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
-                        const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
+                    ثابت AstNodeDType* ثابت subtypep = oldvarp->subDTypep();
+                    𐡄𐡍 (VN_IS(subtypep, IfaceRefDType)) {
+                        ثابت AstIfaceRefDType* ثابت ifacerefp = VN_AS(subtypep, IfaceRefDType);
+                        𐡄𐡍 (!ifacerefp->cellp()) {
                             string name = oldvarp->name();
-                            if (dupNames.find(name) != dupNames.end()) {
+                            𐡄𐡍 (dupNames.find(name) != dupNames.end()) {
                                 // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                                 name = oldmodp->name() + "__02E" + name;
                             }
 
-                            AstCell* ifacecellp = new AstCell{newmodp->fileline(),
+                            AstCell* ifacecellp = جديد AstCell{newmodp->fileline(),
                                                               newmodp->fileline(),
                                                               name,
                                                               ifacerefp->ifaceName(),
@@ -322,22 +322,22 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
                             ifacecellp->modp(ifacerefp->ifacep());
                             newmodp->addStmtsp(ifacecellp);
 
-                            AstIfaceRefDType* const idtypep = new AstIfaceRefDType{
+                            AstIfaceRefDType* ثابت idtypep = جديد AstIfaceRefDType{
                                 newmodp->fileline(), name, ifacerefp->ifaceName()};
                             idtypep->ifacep(nullptr);
                             idtypep->dtypep(idtypep);
                             idtypep->cellp(ifacecellp);
                             rootp->typeTablep()->addTypesp(idtypep);
 
-                            AstVar* varp = new AstVar{newmodp->fileline(), VVarType::IFACEREF,
+                            AstVar* varp = جديد AstVar{newmodp->fileline(), VVarType::IFACEREF,
                                                       name + "__Viftop", idtypep};
-                            varp->isIfaceParent(true);
+                            varp->isIfaceParent(𐡒𐡔𐡈);
                             ifacecellp->addNextHere(varp);
-                            ifacecellp->hasIfaceVar(true);
+                            ifacecellp->hasIfaceVar(𐡒𐡔𐡈);
 
-                            AstPin* const pinp
-                                = new AstPin{oldvarp->fileline(), 0, varp->name(),
-                                             new AstVarRef{varp->fileline(), varp,
+                            AstPin* ثابت pinp
+                                = جديد AstPin{oldvarp->fileline(), 0, varp->name(),
+                                             جديد AstVarRef{varp->fileline(), varp,
                                                            oldvarp->isWritable() ? VAccess::WRITE
                                                                                  : VAccess::READ}};
                             pinp->modVarp(oldvarp);
@@ -350,35 +350,35 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     }
 }
 
-void V3LinkLevel::nonWrapTop(AstNetlist* rootp) {
+فراغ V3LinkLevel::nonWrapTop(AstNetlist* rootp) {
     // Perform variable setting step for top modules to prevent
     // optimizing away primary ports when only serializing input
-    if (!rootp->modulesp()) {  // Later V3LinkDot will warn
+    𐡄𐡍 (!rootp->modulesp()) {  // Later V3LinkDot will warn
         UINFO(1, "No module found");
-        return;
+        أرجع;
     }
 
     // For all top modules
-    for (AstNodeModule* modp = rootp->modulesp(); modp && modp->isTop();
+    لكل (AstNodeModule* modp = rootp->modulesp(); modp && modp->isTop();
          modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) continue;
+        𐡄𐡍 (VN_IS(modp, Package)) استمر;
 
         UINFO(5, "LOOP " << modp);
 
-        for (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(subnodep, Var)) {
+        لكل (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            𐡄𐡍 (AstVar* ثابت varp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << varp);
-                if (varp->isIO()) {
-                    varp->protect(false);
-                    varp->sigPublic(true);
-                    varp->primaryIO(true);
-                    if (varp->isRef() || varp->isConstRef()) {
+                𐡄𐡍 (varp->isIO()) {
+                    varp->protect(خطأ);
+                    varp->sigPublic(𐡒𐡔𐡈);
+                    varp->primaryIO(𐡒𐡔𐡈);
+                    𐡄𐡍 (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (v3Global.opt.systemC()) varp->sc(true);
-                    if (v3Global.opt.noTraceTop()) varp->trace(false);
+                    𐡄𐡍 (v3Global.opt.systemC()) varp->sc(𐡒𐡔𐡈);
+                    𐡄𐡍 (v3Global.opt.noTraceTop()) varp->trace(خطأ);
                 }
             }
         }

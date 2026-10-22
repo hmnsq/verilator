@@ -17,23 +17,23 @@
 #ifndef VERILATOR_V3DEAD_H_
 #define VERILATOR_V3DEAD_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Dead final {
-public:
+عام:
     // Modules, no vars/dtypes
-    static void deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
     // Modules, Data types
-    static void deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
-    static void deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -14,21 +14,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3ExecGraph.h"
-#include "V3LanguageWords.h"
-#include "V3StackCount.h"
-#include "V3Stats.h"
+#ضمن "V3EmitC.h"
+#ضمن "V3EmitCBase.h"
+#ضمن "V3ExecGraph.h"
+#ضمن "V3LanguageWords.h"
+#ضمن "V3StackCount.h"
+#ضمن "V3Stats.h"
 
-#include <algorithm>
-#include <cstring>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <cstring>
+#ضمن <map>
+#ضمن <set>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,25 +36,25 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Symbol table emitting
 
 // Some handy short-hands to reduce verbosity
-static constexpr auto symClassName = &EmitCUtil::symClassName;
-static constexpr auto topClassName = &EmitCUtil::topClassName;
+ساكن constexpr auto symClassName = &EmitCUtil::symClassName;
+ساكن constexpr auto topClassName = &EmitCUtil::topClassName;
 
-class EmitCSyms final : EmitCBaseVisitorConst {
+صنف EmitCSyms final : EmitCBaseVisitorConst {
     // NODE STATE
     // Cleared on Netlist
     //  AstNodeModule::user1()  -> bool.  Set true __Vconfigure called
-    const VNUser1InUse m_inuser1;
+    ثابت VNUser1InUse m_inuser1;
 
     // TYPES
-    struct ScopeData final {
-        const AstNode* m_nodep;  // Scope symbol-table entry corresponds to
-        const std::string m_symName;  // Mangled name used to build __Vscopep_ variable
-        const std::string m_prettyName;  // Pretty (unprotected) name for display
-        const std::string m_defName;  // Name registered for this scope
-        const int m_timeunit;  // Timeunit of this scope
+    بنية ScopeData final {
+        ثابت AstNode* m_nodep;  // Scope symbol-table entry corresponds to
+        ثابت std::string m_symName;  // Mangled name used to build __Vscopep_ variable
+        ثابت std::string m_prettyName;  // Pretty (unprotected) name for display
+        ثابت std::string m_defName;  // Name registered for this scope
+        ثابت صحيح m_timeunit;  // Timeunit of this scope
         std::string m_type;  // TODO: this should be an enum
-        ScopeData(const AstNode* nodep, const std::string& symName, const std::string& prettyName,
-                  const std::string& defName, int timeunit, const std::string& type)
+        ScopeData(ثابت AstNode* nodep, ثابت std::string& symName, ثابت std::string& prettyName,
+                  ثابت std::string& defName, صحيح timeunit, ثابت std::string& type)
             : m_nodep{nodep}
             , m_symName{symName}
             , m_prettyName{prettyName}
@@ -62,72 +62,72 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             , m_timeunit{timeunit}
             , m_type{type} {}
     };
-    struct IfaceRefData final {
-        const AstScope* m_scopep;  // Concrete interface scope referred to
+    بنية IfaceRefData final {
+        ثابت AstScope* m_scopep;  // Concrete interface scope referred to
         std::string m_parentSym;  // Declaring scope symbol, including inlined levels
         std::string m_suffix;  // Path relative to the model instance
         std::string m_name;  // Name of the reference port
         std::string m_modportName;  // "" = no modport
-        IfaceRefData(const AstScope* scopep, const std::string& parentSym,
-                     const std::string& suffix, const std::string& name,
-                     const std::string& modportName)
+        IfaceRefData(ثابت AstScope* scopep, ثابت std::string& parentSym,
+                     ثابت std::string& suffix, ثابت std::string& name,
+                     ثابت std::string& modportName)
             : m_scopep{scopep}
             , m_parentSym{parentSym}
             , m_suffix{suffix}
             , m_name{name}
             , m_modportName{modportName} {}
     };
-    struct ScopeFuncData final {
-        const AstScopeName* const m_scopep;  // Scope the DPI export function is registered under
-        const AstCFunc* const m_cfuncp;  // DPI export function
-        const AstNodeModule* const m_modp;  // Module containing the DPI export function
-        ScopeFuncData(const AstScopeName* scopep, const AstCFunc* funcp, const AstNodeModule* modp)
+    بنية ScopeFuncData final {
+        ثابت AstScopeName* ثابت m_scopep;  // Scope the DPI export function is registered under
+        ثابت AstCFunc* ثابت m_cfuncp;  // DPI export function
+        ثابت AstNodeModule* ثابت m_modp;  // Module containing the DPI export function
+        ScopeFuncData(ثابت AstScopeName* scopep, ثابت AstCFunc* funcp, ثابت AstNodeModule* modp)
             : m_scopep{scopep}
             , m_cfuncp{funcp}
             , m_modp{modp} {}
     };
-    struct ScopeVarData final {
-        const std::string m_scopeName;  // Full name of the scope containing the variable
-        const std::string m_varBasePretty;  // Pretty base name of the variable, without scope
-        const AstVar* const m_varp;  // Public variable
-        const AstNodeModule* const m_modp;  // Module containing the variable
-        const AstScope* const m_scopep;  // Scope containing the variable
-        ScopeVarData(const std::string& scopeName, const std::string& varBasePretty,
-                     const AstVar* varp, const AstNodeModule* modp, const AstScope* scopep)
+    بنية ScopeVarData final {
+        ثابت std::string m_scopeName;  // Full name of the scope containing the variable
+        ثابت std::string m_varBasePretty;  // Pretty base name of the variable, without scope
+        ثابت AstVar* ثابت m_varp;  // Public variable
+        ثابت AstNodeModule* ثابت m_modp;  // Module containing the variable
+        ثابت AstScope* ثابت m_scopep;  // Scope containing the variable
+        ScopeVarData(ثابت std::string& scopeName, ثابت std::string& varBasePretty,
+                     ثابت AstVar* varp, ثابت AstNodeModule* modp, ثابت AstScope* scopep)
             : m_scopeName{scopeName}
             , m_varBasePretty{varBasePretty}
             , m_varp{varp}
             , m_modp{modp}
             , m_scopep{scopep} {}
     };
-    using ScopeNames = std::map<const std::string, ScopeData>;
-    using ScopeModPair = std::pair<const AstScope*, AstNodeModule*>;
-    using ModVarPair = std::pair<const AstNodeModule*, const AstVar*>;
+    using ScopeNames = std::map<ثابت std::string, ScopeData>;
+    using ScopeModPair = std::pair<ثابت AstScope*, AstNodeModule*>;
+    using ModVarPair = std::pair<ثابت AstNodeModule*, ثابت AstVar*>;
 
     // Vars with more dims take the residual per-statement path.
-    static constexpr int VPI_TABLE_MAX_DIMS = 3;
+    ساكن constexpr صحيح VPI_TABLE_MAX_DIMS = 3;
 
     // STATE
     AstCFunc* m_cfuncp = nullptr;  // Current function
     AstNodeModule* m_modp = nullptr;  // Current module
-    const AstScope* m_scopep = nullptr;  // Current scope
+    ثابت AstScope* m_scopep = nullptr;  // Current scope
     std::vector<ScopeModPair> m_scopes;  // Every scope by module
     std::vector<AstCFunc*> m_dpis;  // DPI functions
     std::vector<ModVarPair> m_modVars;  // Each public {mod,var}
-    std::map<const std::string, ScopeFuncData> m_scopeFuncs;  // Each {scope,dpi-export-func}
-    std::map<const std::string, ScopeVarData> m_scopeVars;  // Each {scope,public-var}
+    std::map<ثابت std::string, ScopeFuncData> m_scopeFuncs;  // Each {scope,dpi-export-func}
+    std::map<ثابت std::string, ScopeVarData> m_scopeVars;  // Each {scope,public-var}
     ScopeNames m_scopeNames;  // Each unique AstScopeName. Dpi scopes added later
     ScopeNames m_dpiScopeNames;  // Each unique AstScopeName for DPI export
     ScopeNames m_vpiScopeCandidates;  // All scopes for VPI
     std::vector<IfaceRefData> m_ifaceRefs;  // Each interface reference, for VPI
     // The actual hierarchy of scopes
-    std::map<const std::string, std::vector<std::string>> m_vpiScopeHierarchy;
-    int m_coverBins = 0;  // Global coverage bin number for non-object helper functions
+    std::map<ثابت std::string, std::vector<std::string>> m_vpiScopeHierarchy;
+    صحيح m_coverBins = 0;  // Global coverage bin number for non-object helper functions
     // Counts bins within the current module. Coverage storage is also emitted
     // on each module object so no-inline instances keep independent counters
     // when forcePerInstance is used.
-    int m_modCoverBins = 0;  // Per-module coverage bin number
-    const bool m_dpiHdrOnly;  // Only emit the DPI header
+    صحيح m_modCoverBins = 0;  // Per-module coverage bin number
+    ثابت منطقي m_dpiHdrOnly;  // Only emit the DPI header
     VDouble0 m_statVarScopeBytes;  // Statistic tracking
     // name -> initializer rows, built in getSymCtorStmts()
     std::vector<std::pair<std::string, std::vector<std::string>>> m_varTables;
@@ -138,25 +138,25 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     std::vector<std::string> m_ifaceRefTableRows;
 
     // METHODS
-    void emitSymHdr();
-    void emitSymImpPreamble();
-    void emitVarTables();
-    void emitScopeHier(TextStmts& stmts, bool destroy);
-    void emitSymImp(const AstNetlist* netlistp);
-    void emitDpiHdr();
-    void emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr);
-    void emitDpiImp();
+    فراغ emitSymHdr();
+    فراغ emitSymImpPreamble();
+    فراغ emitVarTables();
+    فراغ emitScopeHier(TextStmts& stmts, منطقي destroy);
+    فراغ emitSymImp(ثابت AstNetlist* netlistp);
+    فراغ emitDpiHdr();
+    فراغ emitDpiStruct(ثابت AstNodeDType* dtypep, std::set<std::string>& namesr);
+    فراغ emitDpiImp();
 
     TextStmts getSymCtorStmts();
     TextStmts getSymDtorStmts();
 
-    static void nameCheck(AstNode* nodep) {
+    ساكن فراغ nameCheck(AstNode* nodep) {
         // Prevent GCC compile time error; name check all things that reach C++ code
-        if (nodep->name().empty()) return;
-        const AstCFunc* const cfuncp = VN_CAST(nodep, CFunc);
-        if (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
-            const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-            if (rsvd != "") {
+        𐡄𐡍 (nodep->name().empty()) أرجع;
+        ثابت AstCFunc* ثابت cfuncp = VN_CAST(nodep, CFunc);
+        𐡄𐡍 (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
+            ثابت std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
+            𐡄𐡍 (rsvd != "") {
                 // Generally V3Name should find all of these and throw SYMRSVDWORD.
                 // We'll still check here because the compiler errors
                 // resulting if we miss this warning are SO nasty
@@ -168,197 +168,197 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         }
     }
 
-    static std::string scopeSymString(const std::string& scpname) {
+    ساكن std::string scopeSymString(ثابت std::string& scpname) {
         std::string out = scpname;
         std::string::size_type pos;
-        while ((pos = out.find("__PVT__")) != std::string::npos) out.replace(pos, 7, "");
-        if (VString::startsWith(out, "TOP__DOT__")) out.replace(0, 10, "");
-        if (VString::startsWith(out, "TOP.")) out.replace(0, 4, "");
-        while ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
-        while ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
-        return out;
+        طالما ((pos = out.find("__PVT__")) != std::string::npos) out.replace(pos, 7, "");
+        𐡄𐡍 (VString::startsWith(out, "TOP__DOT__")) out.replace(0, 10, "");
+        𐡄𐡍 (VString::startsWith(out, "TOP.")) out.replace(0, 4, "");
+        طالما ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
+        طالما ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
+        أرجع out;
     }
 
-    static string scopeDecodeIdentifier(const std::string& scpname) {
+    ساكن string scopeDecodeIdentifier(ثابت std::string& scpname) {
         std::string::size_type pos = std::string::npos;
 
         // Remove hierarchy
         size_t i = 0;
         // always makes progress
-        while (i < scpname.length()) {
-            if (scpname[i] == '\\') {
-                while (i < scpname.length() && scpname[i] != ' ') ++i;
+        طالما (i < scpname.length()) {
+            𐡄𐡍 (scpname[i] == '\\') {
+                طالما (i < scpname.length() && scpname[i] != ' ') ++i;
                 ++i;  // Proc ' ', it should always be there. Then grab '.' on next cycle
-            } else {
-                while (i < scpname.length() && scpname[i] != '.') ++i;
-                if (i < scpname.length()) pos = i++;
+            } وإلا {
+                طالما (i < scpname.length() && scpname[i] != '.') ++i;
+                𐡄𐡍 (i < scpname.length()) pos = i++;
             }
         }
 
-        return pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
+        أرجع pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
     }
 
     // Encounter order of one dtype-chain walk: unpacked (outer), then packed,
     // then a ranged basic leaf.
-    struct VarDims final {
-        int pdim = 0;  // Packed array dims plus a ranged basic leaf
-        int udim = 0;
-        std::vector<std::pair<int, int>> unpackedLR;  // (left,right), outer-first
-        std::vector<std::pair<int, int>> packedLR;  // (left,right), inner then leaf
+    بنية VarDims final {
+        صحيح pdim = 0;  // Packed array dims plus a ranged basic leaf
+        صحيح udim = 0;
+        std::vector<std::pair<صحيح, صحيح>> unpackedLR;  // (left,right), outer-first
+        std::vector<std::pair<صحيح, صحيح>> packedLR;  // (left,right), inner then leaf
 
         // Shared order used by both boundsString() and the table-row dv[] fill.
-        std::vector<std::pair<int, int>> flatten() const {
-            std::vector<std::pair<int, int>> flat(unpackedLR);
+        std::vector<std::pair<صحيح, صحيح>> flatten() ثابت {
+            std::vector<std::pair<صحيح, صحيح>> flat(unpackedLR);
             flat.insert(flat.end(), packedLR.cbegin(), packedLR.cend());
-            return flat;
+            أرجع flat;
         }
     };
-    static VarDims getVarDims(const AstNodeDType* const rootDtypep) {
+    ساكن VarDims getVarDims(ثابت AstNodeDType* ثابت rootDtypep) {
         VarDims d;
         // Range is always first, it's not in "C" order
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+        لكل (ثابت AstNodeDType* dtypep = rootDtypep; dtypep;) {
             // Skip AstRefDType/AstTypedef, or return same node
             dtypep = dtypep->skipRefp();
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
-                if (VN_IS(dtypep, PackArrayDType)) {
+            𐡄𐡍 (ثابت AstNodeArrayDType* ثابت adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+                𐡄𐡍 (VN_IS(dtypep, PackArrayDType)) {
                     d.packedLR.emplace_back(adtypep->left(), adtypep->right());
                     ++d.pdim;
-                } else {
+                } وإلا {
                     d.unpackedLR.emplace_back(adtypep->left(), adtypep->right());
                     ++d.udim;
                 }
                 dtypep = adtypep->subDTypep();
-            } else {
-                if (const AstBasicDType* const basicp = dtypep->basicp()) {
-                    if (basicp->isRanged()) {
+            } وإلا {
+                𐡄𐡍 (ثابت AstBasicDType* ثابت basicp = dtypep->basicp()) {
+                    𐡄𐡍 (basicp->isRanged()) {
                         d.packedLR.emplace_back(basicp->left(), basicp->right());
                         ++d.pdim;
                     }
                 }
-                break;  // Non-array leaf
+                اكسر;  // Non-array leaf
             }
         }
-        return d;
+        أرجع d;
     }
 
-    static VarDims dimsFor(const ScopeVarData& svd) { return getVarDims(svd.m_varp->dtypep()); }
+    ساكن VarDims dimsFor(ثابت ScopeVarData& svd) { أرجع getVarDims(svd.m_varp->dtypep()); }
 
     // Only needed on the residual path; the table path uses dims.flatten() directly.
-    static std::string boundsString(const VarDims& d) {
+    ساكن std::string boundsString(ثابت VarDims& d) {
         std::string bounds;
-        for (const std::pair<int, int>& lr : d.flatten()) {
+        لكل (ثابت std::pair<صحيح, صحيح>& lr : d.flatten()) {
             bounds += " ,";
             bounds += std::to_string(lr.first);
             bounds += ",";
             bounds += std::to_string(lr.second);
         }
-        return bounds;
+        أرجع bounds;
     }
 
-    static int getUnpackedElements(const AstNodeDType* rootDtypep) {
-        int elements = 1;
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+    ساكن صحيح getUnpackedElements(ثابت AstNodeDType* rootDtypep) {
+        صحيح elements = 1;
+        لكل (ثابت AstNodeDType* dtypep = rootDtypep; dtypep;) {
             dtypep = dtypep->skipRefp();
-            const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
-            if (!adtypep) break;
+            ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(dtypep, UnpackArrayDType);
+            𐡄𐡍 (!adtypep) اكسر;
             elements *= adtypep->elementsConst();
             dtypep = adtypep->subDTypep();
         }
-        return elements;
+        أرجع elements;
     }
 
-    static bool needsEmittedEntSize(const std::string& vlEnumType) {
-        return vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
+    ساكن منطقي needsEmittedEntSize(ثابت std::string& vlEnumType) {
+        أرجع vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
     }
 
-    static std::pair<bool, std::string> isForceControlSignal(const AstVar* const signalVarp) {
+    ساكن std::pair<منطقي, std::string> isForceControlSignal(ثابت AstVar* ثابت signalVarp) {
         // __VforceRd should not show up here because it is never public, but just in case it does,
         // it should be skipped because forceableVarInsert creates its VerilatedVar.
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
-            const std::size_t suffixPos = signalVarp->name().find(forceControlSuffix);
-            const bool suffixFound = suffixPos != std::string::npos;
-            const bool suffixIsAtEnd
+        لكل (ثابت std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
+            ثابت std::size_t suffixPos = signalVarp->name().find(forceControlSuffix);
+            ثابت منطقي suffixFound = suffixPos != std::string::npos;
+            ثابت منطقي suffixIsAtEnd
                 = suffixPos + forceControlSuffix.length() == signalVarp->name().length();
-            if (!(suffixFound && suffixIsAtEnd)) continue;
-            const std::string baseSignalName = signalVarp->name().substr(0, suffixPos);
-            return std::pair<bool, std::string>{true, baseSignalName};
+            𐡄𐡍 (!(suffixFound && suffixIsAtEnd)) استمر;
+            ثابت std::string baseSignalName = signalVarp->name().substr(0, suffixPos);
+            أرجع std::pair<منطقي, std::string>{𐡒𐡔𐡈, baseSignalName};
         }
-        return std::pair<bool, std::string>{false, ""};
+        أرجع std::pair<منطقي, std::string>{خطأ, ""};
     }
 
-    static void appendVarProperties(std::string& stmt, const std::string& vlEnumType,
-                                    const std::string& vlEnumDir, const int udim, const int pdim,
-                                    const std::string& bounds, const std::string& entSize = "") {
+    ساكن فراغ appendVarProperties(std::string& stmt, ثابت std::string& vlEnumType,
+                                    ثابت std::string& vlEnumDir, ثابت صحيح udim, ثابت صحيح pdim,
+                                    ثابت std::string& bounds, ثابت std::string& entSize = "") {
         stmt += vlEnumType;  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += vlEnumDir;  // VLVD_IN etc
         stmt += ", ";
         stmt += std::to_string(udim);
-        if (!entSize.empty()) {
+        𐡄𐡍 (!entSize.empty()) {
             stmt += ", ";
             stmt += entSize;
-        } else {
+        } وإلا {
             stmt += ", ";
             stmt += std::to_string(pdim);
         }
         stmt += bounds;
         stmt += ")";
     }
-    static std::string memberVlEnumDir(const AstVar* const varp,
-                                       const AstNodeDType* const dtypep) {
-        std::string out = '(' + varp->vlEnumDir(/*forMember=*/true);
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
-        if (const AstBasicDType* const basicp = skipDTypep->basicp()) {
-            if (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
+    ساكن std::string memberVlEnumDir(ثابت AstVar* ثابت varp,
+                                       ثابت AstNodeDType* ثابت dtypep) {
+        std::string out = '(' + varp->vlEnumDir(/*forMember=*/𐡒𐡔𐡈);
+        ثابت AstNodeDType* ثابت skipDTypep = dtypep->skipRefp();
+        𐡄𐡍 (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
+        𐡄𐡍 (ثابت AstBasicDType* ثابت basicp = skipDTypep->basicp()) {
+            𐡄𐡍 (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
         }
         out += skipDTypep->vlEnumPackedAgg();
-        return out + ')';
+        أرجع out + ')';
     }
 
     // Name of the instance member for the given scope
-    static std::string instName(const AstScope* scopep) {
-        return "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
+    ساكن std::string instName(ثابت AstScope* scopep) {
+        أرجع "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
     }
 
-    static std::string insertVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                          const AstVar* const varp, const int udim, const int pdim,
-                                          const std::string& bounds) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
-        const std::string vlEnumType = varp->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    ساكن std::string insertVarStatement(ثابت ScopeVarData& svd, ثابت AstScope* ثابت scopep,
+                                          ثابت AstVar* ثابت varp, ثابت صحيح udim, ثابت صحيح pdim,
+                                          ثابت std::string& bounds) {
+        ثابت std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        ثابت std::string vlEnumType = varp->vlEnumType();
+        ثابت منطقي needsEntSize = needsEmittedEntSize(vlEnumType);
 
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
         stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
 
-        if (!varp->isParam()) {
+        𐡄𐡍 (!varp->isParam()) {
             stmt += ", &(";
             stmt += varExpr;
             stmt += "), false, ";
-        } else if (varp->vlEnumType() == "VLVT_STRING"
+        } وإلا 𐡄𐡍 (varp->vlEnumType() == "VLVT_STRING"
                    && !VN_IS(varp->subDTypep(), UnpackArrayDType)) {
             stmt += ", const_cast<void*>(static_cast<const void*>(";
             stmt += varExpr;
             stmt += ".c_str())), true, ";
-        } else {
+        } وإلا {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
             stmt += varExpr;
             stmt += "))), true, ";
         }
 
-        const std::string entSize = needsEntSize
+        ثابت std::string entSize = needsEntSize
                                         ? "sizeof(" + varExpr + ") / "
                                               + std::to_string(getUnpackedElements(varp->dtypep()))
                                         : "";
         appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, entSize);
-        return stmt;
+        أرجع stmt;
     }
 
     // tryBuildTableEntry() classifies each public var once, so the caller does
     // not re-derive (and risk desyncing) the forceable-eligibility test.
-    enum class TableEntryKind : uint8_t {
+    تعداد صنف TableEntryKind : uint8_t {
         TABLE_ROW,  // Registered via a VlVarTableEntry[] table row
         FORCEABLE_RESIDUAL,  // Residual, via insertForceableVarStatement()
         PLAIN_RESIDUAL,  // Residual, via insertVarStatement() (+ struct/array expansion)
@@ -366,33 +366,33 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     // Builds one VlVarTableEntry row for 'varp', or reports which residual
     // path it must take instead.
-    TableEntryKind tryBuildTableEntry(const ScopeVarData& svd, const AstVar* const varp,
-                                      const AstScope* const scopep,
-                                      const std::string& modClassName, const VarDims& dims,
-                                      std::string& rowOut) const {
-        const int pdim = dims.pdim;
-        const int udim = dims.udim;
-        if (varp->isForceable() && forceControlSignalsAreValid(scopep, varp)) {
-            return TableEntryKind::FORCEABLE_RESIDUAL;
+    TableEntryKind tryBuildTableEntry(ثابت ScopeVarData& svd, ثابت AstVar* ثابت varp,
+                                      ثابت AstScope* ثابت scopep,
+                                      ثابت std::string& modClassName, ثابت VarDims& dims,
+                                      std::string& rowOut) ثابت {
+        ثابت صحيح pdim = dims.pdim;
+        ثابت صحيح udim = dims.udim;
+        𐡄𐡍 (varp->isForceable() && forceControlSignalsAreValid(scopep, varp)) {
+            أرجع TableEntryKind::FORCEABLE_RESIDUAL;
         }
-        if (udim + pdim > VPI_TABLE_MAX_DIMS) return TableEntryKind::PLAIN_RESIDUAL;
+        𐡄𐡍 (udim + pdim > VPI_TABLE_MAX_DIMS) أرجع TableEntryKind::PLAIN_RESIDUAL;
 
-        const std::string vlEnumType = varp->vlEnumType();
-        if (needsEmittedEntSize(vlEnumType))
-            return TableEntryKind::PLAIN_RESIDUAL;  // struct/union whole
+        ثابت std::string vlEnumType = varp->vlEnumType();
+        𐡄𐡍 (needsEmittedEntSize(vlEnumType))
+            أرجع TableEntryKind::PLAIN_RESIDUAL;  // struct/union whole
         // Params are static members (offsetof is invalid on those);
         // string params also need a runtime .c_str().
-        if (varp->isParam()) return TableEntryKind::PLAIN_RESIDUAL;
+        𐡄𐡍 (varp->isParam()) أرجع TableEntryKind::PLAIN_RESIDUAL;
 
-        const std::string name = V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty));
+        ثابت std::string name = V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty));
         // nameProtect() (not protect(name())) so the offsetof member matches the
         // emitted struct field: a primary I/O port keeps its unprotected name
         // under --protect-ids, whereas protect() would always hash it.
-        const std::string member = varName(varp);
-        const std::string dir = varp->vlEnumDir();
+        ثابت std::string member = varName(varp);
+        ثابت std::string dir = varp->vlEnumDir();
         // Flat dim (left,right) ints in varInsert() order: unpacked then packed.
-        std::vector<int> dv;
-        for (const std::pair<int, int>& lr : dims.flatten()) {
+        std::vector<صحيح> dv;
+        لكل (ثابت std::pair<صحيح, صحيح>& lr : dims.flatten()) {
             dv.push_back(lr.first);
             dv.push_back(lr.second);
         }
@@ -402,88 +402,88 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         row += vlEnumType + ", ";
         row += "(" + dir + "), ";
         row += std::to_string(udim) + ", " + std::to_string(pdim) + ", {";
-        for (int i = 0; i < VPI_TABLE_MAX_DIMS * 2; ++i) {
-            if (i) row += ", ";
-            row += std::to_string(i < static_cast<int>(dv.size()) ? dv[i] : 0);
+        لكل (صحيح i = 0; i < VPI_TABLE_MAX_DIMS * 2; ++i) {
+            𐡄𐡍 (i) row += ", ";
+            row += std::to_string(i < static_cast<صحيح>(dv.size()) ? dv[i] : 0);
         }
         row += "}}";
         rowOut = row;
-        return TableEntryKind::TABLE_ROW;
+        أرجع TableEntryKind::TABLE_ROW;
     }
 
-    static std::string insertDTypeVarStatement(const ScopeVarData& svd,
-                                               const AstScope* const scopep,
-                                               const std::string& prettyName,
-                                               const std::string& cName,
-                                               const AstNodeDType* const dtypep, const int udim,
-                                               const int pdim, const std::string& bounds) {
-        const std::string vlEnumType = dtypep->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    ساكن std::string insertDTypeVarStatement(ثابت ScopeVarData& svd,
+                                               ثابت AstScope* ثابت scopep,
+                                               ثابت std::string& prettyName,
+                                               ثابت std::string& cName,
+                                               ثابت AstNodeDType* ثابت dtypep, ثابت صحيح udim,
+                                               ثابت صحيح pdim, ثابت std::string& bounds) {
+        ثابت std::string vlEnumType = dtypep->vlEnumType();
+        ثابت منطقي needsEntSize = needsEmittedEntSize(vlEnumType);
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
         stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        ثابت std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
         // A parameter is emitted 'static const', so its members are const too and
         // need the same cast the whole-parameter insert uses.
-        if (svd.m_varp->isParam()) {
+        𐡄𐡍 (svd.m_varp->isParam()) {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
             stmt += varExpr;
             stmt += "))), true, ";
-        } else {
+        } وإلا {
             stmt += ", &(";
             stmt += varExpr;
             stmt += "), false, ";
         }
-        const std::string entSize
+        ثابت std::string entSize
             = needsEntSize
                   ? "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep))
                   : "";
         appendVarProperties(stmt, vlEnumType, memberVlEnumDir(svd.m_varp, dtypep), udim, pdim,
                             bounds, entSize);
-        return stmt;
+        أرجع stmt;
     }
 
-    static void addUOrStructMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cPrefix,
-                                       const AstNodeUOrStructDType* const sdtypep) {
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    ساكن فراغ addUOrStructMemberVars(std::vector<std::string>& stmts, ثابت ScopeVarData& svd,
+                                       ثابت AstScope* ثابت scopep,
+                                       ثابت std::string& prettyPrefix, ثابت std::string& cPrefix,
+                                       ثابت AstNodeUOrStructDType* ثابت sdtypep) {
+        لكل (ثابت AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            if (itemDTypep->vlEnumType().empty()) continue;
-            const std::string prettyName
+            ثابت AstNodeDType* ثابت itemDTypep = itemp->dtypep();
+            𐡄𐡍 (itemDTypep->vlEnumType().empty()) استمر;
+            ثابت std::string prettyName
                 = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
-            const std::string cName = cPrefix + "." + itemp->nameProtect();
-            const VarDims dims = getVarDims(itemDTypep);
+            ثابت std::string cName = cPrefix + "." + itemp->nameProtect();
+            ثابت VarDims dims = getVarDims(itemDTypep);
             stmts.emplace_back(insertDTypeVarStatement(svd, scopep, prettyName, cName, itemDTypep,
                                                        dims.udim, dims.pdim, boundsString(dims))
                                + ";");
             addPackedAggMemberVars(stmts, svd, scopep, prettyName, cName, itemDTypep);
-            if (const AstNodeUOrStructDType* const subp
+            𐡄𐡍 (ثابت AstNodeUOrStructDType* ثابت subp
                 = VN_CAST(itemDTypep->skipRefp(), NodeUOrStructDType)) {
-                if (!subp->packed())
+                𐡄𐡍 (!subp->packed())
                     addUOrStructMemberVars(stmts, svd, scopep, prettyName, cName, subp);
-            } else if (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
+            } وإلا 𐡄𐡍 (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
                 addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyName, cName,
                                                     itemDTypep);
             }
         }
     }
 
-    static void addUnpackedArrayUOrStructMemberVars(std::vector<std::string>& stmts,
-                                                    const ScopeVarData& svd,
-                                                    const AstScope* const scopep,
-                                                    const std::string& prettyPrefix,
-                                                    const std::string& cPrefix,
-                                                    const AstNodeDType* const dtypep) {
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
+    ساكن فراغ addUnpackedArrayUOrStructMemberVars(std::vector<std::string>& stmts,
+                                                    ثابت ScopeVarData& svd,
+                                                    ثابت AstScope* ثابت scopep,
+                                                    ثابت std::string& prettyPrefix,
+                                                    ثابت std::string& cPrefix,
+                                                    ثابت AstNodeDType* ثابت dtypep) {
+        ثابت AstNodeDType* ثابت skipDTypep = dtypep->skipRefp();
+        𐡄𐡍 (ثابت AstUnpackArrayDType* ثابت adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
             addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix + "[0]",
                                                 adtypep->subDTypep());
-        } else if (const AstNodeUOrStructDType* const sdtypep
+        } وإلا 𐡄𐡍 (ثابت AstNodeUOrStructDType* ثابت sdtypep
                    = VN_CAST(skipDTypep, NodeUOrStructDType)) {
-            if (!sdtypep->packed())
+            𐡄𐡍 (!sdtypep->packed())
                 addUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix, sdtypep);
         }
     }
@@ -492,36 +492,36 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     // slice of the parent's storage 'cName', with the parent's storage type and entSize, and its
     // bit offset within the parent's element 0. VPI adds any packed/unpacked index offset.
     // 'needsIndex' if an ancestor is an array, so the members are only valid after an index.
-    static void addPackedMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                    const AstScope* const scopep, const std::string& prettyPrefix,
-                                    const std::string& cName, const std::string& vlEnumType,
-                                    const std::string& entSize,
-                                    const AstNodeUOrStructDType* const sdtypep,
-                                    const int parentBitOffset, const bool needsIndex) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    ساكن فراغ addPackedMemberVars(std::vector<std::string>& stmts, ثابت ScopeVarData& svd,
+                                    ثابت AstScope* ثابت scopep, ثابت std::string& prettyPrefix,
+                                    ثابت std::string& cName, ثابت std::string& vlEnumType,
+                                    ثابت std::string& entSize,
+                                    ثابت AstNodeUOrStructDType* ثابت sdtypep,
+                                    ثابت صحيح parentBitOffset, ثابت منطقي needsIndex) {
+        ثابت std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        لكل (ثابت AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            const std::string prettyName
+            ثابت AstNodeDType* ثابت itemDTypep = itemp->dtypep();
+            ثابت std::string prettyName
                 = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
             // Union members all have lsb 0, so share the parent's offset
-            const int bitOffset = parentBitOffset + itemp->lsb();
-            const VarDims dims = getVarDims(itemDTypep);
+            ثابت صحيح bitOffset = parentBitOffset + itemp->lsb();
+            ثابت VarDims dims = getVarDims(itemDTypep);
             UASSERT_OBJ(dims.udim == 0, itemp, "Unpacked dimension in packed struct/union");
             std::string stmt;
             stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
             stmt += "->varInsertMember(\"";
             stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
             // A parameter is emitted 'static const', see insertDTypeVarStatement
-            if (svd.m_varp->isParam()) {
+            𐡄𐡍 (svd.m_varp->isParam()) {
                 stmt
                     += ", const_cast<void*>(static_cast<const void*>(&(" + varExpr + "))), true, ";
-            } else {
+            } وإلا {
                 stmt += ", &(" + varExpr + "), false, ";
             }
             stmt += vlEnumType + ", ";
             stmt += memberVlEnumDir(svd.m_varp, itemDTypep);
-            if (needsIndex) stmt += "|VLVF_PACKED_NEEDS_INDEX";
+            𐡄𐡍 (needsIndex) stmt += "|VLVF_PACKED_NEEDS_INDEX";
             stmt += ", ";
             stmt += std::to_string(bitOffset) + ", ";
             stmt += entSize + ", ";
@@ -531,13 +531,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             stmts.emplace_back(stmt);
             // Nested packed struct/union, or packed array of them: register the members of
             // the element at index offset 0
-            const AstNodeDType* subDTypep = itemDTypep->skipRefp();
-            bool isArray = false;
-            while (const AstPackArrayDType* const adtypep = VN_CAST(subDTypep, PackArrayDType)) {
+            ثابت AstNodeDType* subDTypep = itemDTypep->skipRefp();
+            منطقي isArray = خطأ;
+            طالما (ثابت AstPackArrayDType* ثابت adtypep = VN_CAST(subDTypep, PackArrayDType)) {
                 subDTypep = adtypep->subDTypep()->skipRefp();
-                isArray = true;
+                isArray = 𐡒𐡔𐡈;
             }
-            if (const AstNodeUOrStructDType* const subp = VN_CAST(subDTypep, NodeUOrStructDType)) {
+            𐡄𐡍 (ثابت AstNodeUOrStructDType* ثابت subp = VN_CAST(subDTypep, NodeUOrStructDType)) {
                 addPackedMemberVars(stmts, svd, scopep, prettyName, cName, vlEnumType, entSize,
                                     subp, bitOffset, needsIndex || isArray);
             }
@@ -546,38 +546,38 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     // If 'dtypep' (the type of storage 'cName') has packed struct/union elements, register the
     // members of its element 0
-    static void addPackedAggMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cName,
-                                       const AstNodeDType* const dtypep) {
+    ساكن فراغ addPackedAggMemberVars(std::vector<std::string>& stmts, ثابت ScopeVarData& svd,
+                                       ثابت AstScope* ثابت scopep,
+                                       ثابت std::string& prettyPrefix, ثابت std::string& cName,
+                                       ثابت AstNodeDType* ثابت dtypep) {
         std::string elemCName = cName;
-        const AstNodeDType* elemDTypep = dtypep->skipRefp();
-        bool isArray = false;
-        while (const AstNodeArrayDType* const adtypep = VN_CAST(elemDTypep, NodeArrayDType)) {
-            if (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
+        ثابت AstNodeDType* elemDTypep = dtypep->skipRefp();
+        منطقي isArray = خطأ;
+        طالما (ثابت AstNodeArrayDType* ثابت adtypep = VN_CAST(elemDTypep, NodeArrayDType)) {
+            𐡄𐡍 (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
             elemDTypep = adtypep->subDTypep()->skipRefp();
-            isArray = true;
+            isArray = 𐡒𐡔𐡈;
         }
-        const AstNodeUOrStructDType* const sdtypep = VN_CAST(elemDTypep, NodeUOrStructDType);
-        if (!sdtypep || !sdtypep->packed()) return;
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        const std::string entSize
+        ثابت AstNodeUOrStructDType* ثابت sdtypep = VN_CAST(elemDTypep, NodeUOrStructDType);
+        𐡄𐡍 (!sdtypep || !sdtypep->packed()) أرجع;
+        ثابت std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        ثابت std::string entSize
             = "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep));
         addPackedMemberVars(stmts, svd, scopep, prettyPrefix, elemCName, dtypep->vlEnumType(),
                             entSize, sdtypep, 0, isArray);
     }
 
-    std::string insertForceableVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                            const AstVar* const varp, const int udim,
-                                            const int pdim, const std::string& bounds) {
+    std::string insertForceableVarStatement(ثابت ScopeVarData& svd, ثابت AstScope* ثابت scopep,
+                                            ثابت AstVar* ثابت varp, ثابت صحيح udim,
+                                            ثابت صحيح pdim, ثابت std::string& bounds) {
         std::string stmt;
 
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName) + "->forceableVarInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
 
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        ثابت std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
 
-        assert(!varp->isParam());  // Forceable params do not make sense
+        أكد(!varp->isParam());  // Forceable params do not make sense
         stmt += ", &(";
         stmt += varExpr;
         stmt += "), false, ";
@@ -591,13 +591,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                 + "__VforceRd" + '"';
         stmt += ", {";
 
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
-            const std::string enableSignalKey
+        لكل (ثابت std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
+            ثابت std::string enableSignalKey
                 = getKeyName(scopep, varp->name() + forceControlSuffix);
-            const std::map<const std::string, ScopeVarData>::const_iterator itpair
+            ثابت std::map<ثابت std::string, ScopeVarData>::const_iterator itpair
                 = m_scopeVars.find(enableSignalKey);
 
-            if (itpair == m_scopeVars.end()) {
+            𐡄𐡍 (itpair == m_scopeVars.end()) {
                 varp->v3fatalSrc("Signal "
                                  << varp->prettyNameQ()
                                  << " is marked forceable, but the force control signal '"
@@ -606,13 +606,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                  << enableSignalKey << "'.");
             }
 
-            const ScopeVarData& svd = itpair->second;
-            const AstScope* const scopep = svd.m_scopep;
-            const AstVar* const varp = svd.m_varp;
-            const VarDims dims = dimsFor(svd);
+            ثابت ScopeVarData& svd = itpair->second;
+            ثابت AstScope* ثابت scopep = svd.m_scopep;
+            ثابت AstVar* ثابت varp = svd.m_varp;
+            ثابت VarDims dims = dimsFor(svd);
             stmt
                 += insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
-            if (forceControlSuffix == "__VforceEn") stmt += ",";
+            𐡄𐡍 (forceControlSuffix == "__VforceEn") stmt += ",";
         }
 
         stmt += "}";
@@ -622,147 +622,147 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         stmt += std::to_string(pdim);
         stmt += bounds;
         stmt += ")";
-        return stmt;
+        أرجع stmt;
     }
 
-    static std::string getKeyName(const AstScope* const scopep, const std::string& signal_name) {
+    ساكن std::string getKeyName(ثابت AstScope* ثابت scopep, ثابت std::string& signal_name) {
         // Copies the process from `addScopeVarEntry` which created the keys in the first place, in
         // order
         // signal can be found.
         std::string whole = scopep->name() + "__DOT__" + signal_name;
         std::string scpName;
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
-        if (dpos != std::string::npos) { scpName = whole.substr(0, dpos); }
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
-        return scpSym + " " + signal_name;
+        𐡄𐡍 (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
+        ثابت std::string::size_type dpos = whole.rfind("__DOT__");
+        𐡄𐡍 (dpos != std::string::npos) { scpName = whole.substr(0, dpos); }
+        ثابت std::string scpSym = scopeSymString(VName::dehash(scpName));
+        أرجع scpSym + " " + signal_name;
     }
 
-    bool baseSignalIsValid(const AstScope* const scopep, const AstVar* const controlSignalVarp,
-                           const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
+    منطقي baseSignalIsValid(ثابت AstScope* ثابت scopep, ثابت AstVar* ثابت controlSignalVarp,
+                           ثابت std::string& baseSignalName) ثابت {
+        ثابت std::string baseSignalKey = getKeyName(scopep, baseSignalName);
+        ثابت std::map<ثابت std::string, ScopeVarData>::const_iterator baseSignalIt
             = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
+        𐡄𐡍 (baseSignalIt == m_scopeVars.end()) {
             // This means that the signal is forceable, but not public, so only the force control
             // signals show up in the m_scopeVars, but not the base signal itself.
             // Expect this branch not to be hit, because `baseSignalIsPublic` is checked before
             // this, so this function will not get called in that case.
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
-            if (m_scopeVars.count(baseSignalName) > 1) {
+            أرجع خطأ;
+        } وإلا {
+            ثابت AstVar* ثابت baseSignalVarp = baseSignalIt->second.m_varp;
+            𐡄𐡍 (m_scopeVars.count(baseSignalName) > 1) {
                 baseSignalVarp->v3fatalSrc(
                     "Found Signal " << baseSignalName
                                     << ", but also found at least one other signal with name"
                                     << baseSignalName << " occurring in the same scope.");
-                return false;
+                أرجع خطأ;
             }
-            if (!baseSignalVarp->isForceable()) {
+            𐡄𐡍 (!baseSignalVarp->isForceable()) {
                 controlSignalVarp->v3fatalSrc(
                     "Found signal " << controlSignalVarp->prettyNameQ()
                                     << " which is a force control signal, but the base signal "
                                     << baseSignalVarp->prettyNameQ()
                                     << " is not marked as forceable.");
-                return false;
+                أرجع خطأ;
             }
         }
-        return true;
+        أرجع 𐡒𐡔𐡈;
     }
 
-    bool baseSignalIsPublic(const AstScope* const scopep,
-                            const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
+    منطقي baseSignalIsPublic(ثابت AstScope* ثابت scopep,
+                            ثابت std::string& baseSignalName) ثابت {
+        ثابت std::string baseSignalKey = getKeyName(scopep, baseSignalName);
+        ثابت std::map<ثابت std::string, ScopeVarData>::const_iterator baseSignalIt
             = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
+        𐡄𐡍 (baseSignalIt == m_scopeVars.end()) {
+            أرجع خطأ;
+        } وإلا {
+            ثابت AstVar* ثابت baseSignalVarp = baseSignalIt->second.m_varp;
             // Should not actually occur if the variable is in the m_scopeVars
-            if (!baseSignalVarp->isSigPublic()) return false;
+            𐡄𐡍 (!baseSignalVarp->isSigPublic()) أرجع خطأ;
         }
-        return true;
+        أرجع 𐡒𐡔𐡈;
     }
 
-    bool forceControlSignalsAreValid(const AstScope* const scopep,
-                                     const AstVar* const baseSignalVarp) const {
-        constexpr std::array<const char*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
-        return std::all_of(
+    منطقي forceControlSignalsAreValid(ثابت AstScope* ثابت scopep,
+                                     ثابت AstVar* ثابت baseSignalVarp) ثابت {
+        constexpr std::array<ثابت حرف*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
+        أرجع std::all_of(
             forceControlSuffixes.begin(), forceControlSuffixes.end(),
-            [scopep, baseSignalVarp, this](const std::string& forceControlSuffix) {
-                const std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
-                const std::string controlSignalKey = getKeyName(scopep, controlSignalName);
-                const std::size_t controlSignalCount = m_scopeVars.count(controlSignalKey);
-                if (controlSignalCount == 0) {
+            [scopep, baseSignalVarp, هذا](ثابت std::string& forceControlSuffix) {
+                ثابت std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
+                ثابت std::string controlSignalKey = getKeyName(scopep, controlSignalName);
+                ثابت std::size_t controlSignalCount = m_scopeVars.count(controlSignalKey);
+                𐡄𐡍 (controlSignalCount == 0) {
                     baseSignalVarp->v3fatalSrc("Signal "
                                                << baseSignalVarp->prettyNameQ()
                                                << " is marked forceable, but the control signal '"
                                                << controlSignalName
                                                << "' can not be found in m_scopeVars with key '"
                                                << controlSignalKey << "'.");
-                    return false;
+                    أرجع خطأ;
                 }
-                if (controlSignalCount > 1) {
+                𐡄𐡍 (controlSignalCount > 1) {
                     baseSignalVarp->v3fatalSrc("The control signal '"
                                                << controlSignalName << "' for forceable signal "
                                                << baseSignalVarp->prettyNameQ()
                                                << " occurs several times within the same scope.");
-                    return false;
+                    أرجع خطأ;
                 }
-                return true;
+                أرجع 𐡒𐡔𐡈;
             });
     }
 
     /// (scp, m_vpiScopeCandidates, m_scopeNames) -> m_scopeNames
     /// Look for parent scopes of scp in m_vpiScopeCandidates (separated by __DOT__ or ".")
     /// Then add/update entry in m_scopeNames if not already there
-    void varHierarchyScopes(std::string scp) {
+    فراغ varHierarchyScopes(std::string scp) {
 
         std::string::size_type prd_pos = scp.rfind('.');
         std::string::size_type dot_pos = scp.rfind("__DOT__");
 
-        while (!scp.empty()) {
-            const auto scpit = m_vpiScopeCandidates.find(scopeSymString(scp));
-            if ((scpit != m_vpiScopeCandidates.end())
+        طالما (!scp.empty()) {
+            ثابت auto scpit = m_vpiScopeCandidates.find(scopeSymString(scp));
+            𐡄𐡍 ((scpit != m_vpiScopeCandidates.end())
                 && (m_scopeNames.find(scp) == m_scopeNames.end())) {
                 // If not in m_scopeNames, add it, otherwise just update m_type
-                const auto pair = m_scopeNames.emplace(scpit->second.m_symName, scpit->second);
-                if (!pair.second) pair.first->second.m_type = scpit->second.m_type;
+                ثابت auto pair = m_scopeNames.emplace(scpit->second.m_symName, scpit->second);
+                𐡄𐡍 (!pair.second) pair.first->second.m_type = scpit->second.m_type;
             }
 
             // resize and advance pointers
-            if ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
+            𐡄𐡍 ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
                 scp.resize(dot_pos);
                 dot_pos = scp.rfind("__DOT__");
-            } else {
-                if (prd_pos == string::npos) break;
+            } وإلا {
+                𐡄𐡍 (prd_pos == string::npos) اكسر;
                 scp.resize(prd_pos);
                 prd_pos = scp.rfind('.');
             }
         }
     }
 
-    void addScopeVarEntry(const AstScope* const scopep, const AstNodeModule* const modp,
-                          const AstVar* const varp) {
+    فراغ addScopeVarEntry(ثابت AstScope* ثابت scopep, ثابت AstNodeModule* ثابت modp,
+                          ثابت AstVar* ثابت varp) {
         // Need to split the module + var name into the original-ish full scope
         // and variable name under that scope. The module instance name is
         // included later, when we know the scopes this module is under.
         std::string whole = scopep->name() + "__DOT__" + varp->name();
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
+        𐡄𐡍 (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
+        ثابت std::string::size_type dpos = whole.rfind("__DOT__");
         UASSERT_OBJ(dpos != std::string::npos, varp,
                     "Scope/variable name lost its appended __DOT__ separator");
-        const std::string scpName = whole.substr(0, dpos);
-        const std::string varBase = whole.substr(dpos + std::strlen("__DOT__"));
+        ثابت std::string scpName = whole.substr(0, dpos);
+        ثابت std::string varBase = whole.substr(dpos + std::strlen("__DOT__"));
         // UINFO(9, "For " << scopep->name() << " - " << varp->name() << "  Scp "
         // << scpName << "Var " << varBase);
-        const std::string varBasePretty = AstNode::vpiName(VName::dehash(varBase));
-        const std::string scpPretty = AstNode::prettyName(VName::dehash(scpName));
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
+        ثابت std::string varBasePretty = AstNode::vpiName(VName::dehash(varBase));
+        ثابت std::string scpPretty = AstNode::prettyName(VName::dehash(scpName));
+        ثابت std::string scpSym = scopeSymString(VName::dehash(scpName));
         // UINFO(9, " scnameins sp " << scpName << " sp " << scpPretty << " ss "
         // << scpSym);
-        if (v3Global.opt.vpi()) varHierarchyScopes(scpName);
+        𐡄𐡍 (v3Global.opt.vpi()) varHierarchyScopes(scpName);
 
         m_scopeNames.emplace(  //
             std::piecewise_construct,  //
@@ -775,97 +775,97 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             std::forward_as_tuple(scpSym, varBasePretty, varp, modp, scopep));
     }
 
-    void varsExpand() {
+    فراغ varsExpand() {
         // We didn't have all m_scopes loaded when we encountered variables, so expand them now
         // It would be less code if each module inserted its own variables.
         // Someday.
-        for (const ScopeModPair& smPair : m_scopes) {
-            const AstScope* const scopep = smPair.first;
-            const AstNodeModule* const smodp = smPair.second;
-            for (const ModVarPair& mvPair : m_modVars) {
-                const AstNodeModule* const modp = mvPair.first;
-                const AstVar* const varp = mvPair.second;
-                if (modp != smodp) continue;
+        لكل (ثابت ScopeModPair& smPair : m_scopes) {
+            ثابت AstScope* ثابت scopep = smPair.first;
+            ثابت AstNodeModule* ثابت smodp = smPair.second;
+            لكل (ثابت ModVarPair& mvPair : m_modVars) {
+                ثابت AstNodeModule* ثابت modp = mvPair.first;
+                ثابت AstVar* ثابت varp = mvPair.second;
+                𐡄𐡍 (modp != smodp) استمر;
                 addScopeVarEntry(scopep, modp, varp);
             }
         }
     }
 
-    void collectIfaceRefs(const AstScope* nodep) {
-        const AstCell* const cellp = nodep->aboveCellp();
+    فراغ collectIfaceRefs(ثابت AstScope* nodep) {
+        ثابت AstCell* ثابت cellp = nodep->aboveCellp();
         // Exclude classes inside interfaces; the cell's modp is the interface, not the Class
-        if (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) return;
+        𐡄𐡍 (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) أرجع;
 
         // vpiName() to match the scope table these are looked up alongside. Inlining
         // flattens the hierarchy but leaves the inlined levels in the scope name, which
         // therefore carries the full enclosing path.
-        const std::string path = AstNode::vpiName(nodep->name());
-        const std::string instName = AstNode::vpiName(cellp->origName());
+        ثابت std::string path = AstNode::vpiName(nodep->name());
+        ثابت std::string instName = AstNode::vpiName(cellp->origName());
         UASSERT_OBJ(path.length() > instName.length() && VString::endsWith(path, instName), nodep,
                     "Interface scope name " << path << " does not end with instance name "
                                             << instName);
-        const std::string parentPath = path.substr(0, path.length() - instName.length());
+        ثابت std::string parentPath = path.substr(0, path.length() - instName.length());
 
-        for (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
+        لكل (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
              intfRefp = VN_AS(intfRefp->nextp(), IntfRef)) {
-            const std::string refName = AstNode::vpiName(intfRefp->name());
+            ثابت std::string refName = AstNode::vpiName(intfRefp->name());
             // Assume only references under the same parent scope reference the
             // same interface. Same limitation as the trace path in V3TraceDecl.
-            if (!VString::startsWith(refName, parentPath)) continue;
+            𐡄𐡍 (!VString::startsWith(refName, parentPath)) استمر;
             m_ifaceRefs.emplace_back(nodep, scopeSymString(intfRefp->parentName()), refName,
                                      AstNode::vpiName(intfRefp->baseName()),
                                      intfRefp->modportName());
         }
     }
 
-    void buildIfaceRefTable() {
-        if (m_ifaceRefs.empty()) return;
-        const std::string symClass = symClassName();
+    فراغ buildIfaceRefTable() {
+        𐡄𐡍 (m_ifaceRefs.empty()) أرجع;
+        ثابت std::string symClass = symClassName();
         // Sorted by path, as VPI iteration yields references in table order
         std::stable_sort(
             m_ifaceRefs.begin(), m_ifaceRefs.end(),
-            [](const IfaceRefData& a, const IfaceRefData& b) { return a.m_suffix < b.m_suffix; });
-        for (const IfaceRefData& ird : m_ifaceRefs) {
-            const std::string scopeSym = scopeSymString(ird.m_scopep->name());
+            [](ثابت IfaceRefData& a, ثابت IfaceRefData& b) { أرجع a.m_suffix < b.m_suffix; });
+        لكل (ثابت IfaceRefData& ird : m_ifaceRefs) {
+            ثابت std::string scopeSym = scopeSymString(ird.m_scopep->name());
             // Only reference scopes that actually made it into the scope table
-            if (m_scopeNames.find(scopeSym) == m_scopeNames.end()) continue;
+            𐡄𐡍 (m_scopeNames.find(scopeSym) == m_scopeNames.end()) استمر;
             // The declaring scope may have been omitted from the public scope table.
             // Keep such references reachable by name, without attaching them to a scope.
             std::string parentOffset = "VL_IFACEREF_NO_PARENT";
-            const auto parent = m_scopeNames.find(ird.m_parentSym);
-            if (parent != m_scopeNames.end()) {
+            ثابت auto parent = m_scopeNames.find(ird.m_parentSym);
+            𐡄𐡍 (parent != m_scopeNames.end()) {
                 parentOffset = "offsetof(" + symClass + ", "
                                + protect("__Vscopep_" + parent->second.m_symName) + ")";
             }
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + scopeSym) + "), ";
             row += parentOffset + ", \"";
-            row += V3OutFormatter::quoteNameControls(VIdProtect::protectWordsIf(ird.m_name, true));
+            row += V3OutFormatter::quoteNameControls(VIdProtect::protectWordsIf(ird.m_name, 𐡒𐡔𐡈));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_suffix, true));
+                VIdProtect::protectWordsIf(ird.m_suffix, 𐡒𐡔𐡈));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_modportName, true));
+                VIdProtect::protectWordsIf(ird.m_modportName, 𐡒𐡔𐡈));
             row += "\"}";
             m_ifaceRefTableRows.emplace_back(std::move(row));
         }
-        if (!m_ifaceRefTableRows.empty()) m_ifaceRefTableName = symClass + "__VpiIfaceRefTable";
+        𐡄𐡍 (!m_ifaceRefTableRows.empty()) m_ifaceRefTableName = symClass + "__VpiIfaceRefTable";
     }
 
-    void buildVpiHierarchy() {
-        for (const auto& itpair : m_scopeNames) {
-            const std::string symName = itpair.second.m_symName;
+    فراغ buildVpiHierarchy() {
+        لكل (ثابت auto& itpair : m_scopeNames) {
+            ثابت std::string symName = itpair.second.m_symName;
             std::string above = symName;
-            if (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
+            𐡄𐡍 (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
 
-            while (!above.empty()) {
-                const std::string::size_type pos = above.rfind("__");
-                if (pos == std::string::npos) break;
+            طالما (!above.empty()) {
+                ثابت std::string::size_type pos = above.rfind("__");
+                𐡄𐡍 (pos == std::string::npos) اكسر;
                 above.resize(pos);
-                if (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
+                𐡄𐡍 (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
                     m_vpiScopeHierarchy[above].push_back(symName);
-                    break;
+                    اكسر;
                 }
             }
             m_vpiScopeHierarchy[symName] = std::vector<string>();
@@ -873,44 +873,44 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    فراغ visit(AstNetlist* nodep) override {
         // Collect list of scopes
         iterateChildrenConst(nodep);
         varsExpand();
 
-        if (v3Global.opt.vpi()) buildVpiHierarchy();
+        𐡄𐡍 (v3Global.opt.vpi()) buildVpiHierarchy();
 
-        if (v3Global.dpi()) {
+        𐡄𐡍 (v3Global.dpi()) {
             // add dpi scopes to m_scopeNames if not already there
-            for (const auto& scp : m_dpiScopeNames) m_scopeNames.emplace(scp.first, scp.second);
+            لكل (ثابت auto& scp : m_dpiScopeNames) m_scopeNames.emplace(scp.first, scp.second);
         }
 
         // Sort by names, so line/process order matters less
         std::stable_sort(m_scopes.begin(), m_scopes.end(),
-                         [](const ScopeModPair& a, const ScopeModPair& b) {
-                             return a.first->name() < b.first->name();
+                         [](ثابت ScopeModPair& a, ثابت ScopeModPair& b) {
+                             أرجع a.first->name() < b.first->name();
                          });
         std::stable_sort(m_dpis.begin(), m_dpis.end(),  //
-                         [](const AstCFunc* ap, const AstCFunc* bp) {
-                             if (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
-                                 return bp->dpiImportPrototype();
+                         [](ثابت AstCFunc* ap, ثابت AstCFunc* bp) {
+                             𐡄𐡍 (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
+                                 أرجع bp->dpiImportPrototype();
                              }
-                             return ap->name() < bp->name();
+                             أرجع ap->name() < bp->name();
                          });
 
         // Output
-        if (!m_dpiHdrOnly) {
+        𐡄𐡍 (!m_dpiHdrOnly) {
             // Must emit implementation first to determine number of splits
             emitSymImp(nodep);
             emitSymHdr();
         }
-        if (v3Global.dpi()) {
+        𐡄𐡍 (v3Global.dpi()) {
             emitDpiHdr();
-            if (!m_dpiHdrOnly) emitDpiImp();
+            𐡄𐡍 (!m_dpiHdrOnly) emitDpiImp();
         }
     }
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
+    فراغ visit(AstNodeModule* nodep) override {
+        𐡄𐡍 (nodep->isConstPool()) أرجع;  // Special emit rules
         nameCheck(nodep);
         VL_RESTORER(m_modp);
         VL_RESTORER(m_modCoverBins);
@@ -920,11 +920,11 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_modCoverBins = 0;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCellInlineScope* nodep) override {
-        const std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
+    فراغ visit(AstCellInlineScope* nodep) override {
+        ثابت std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
                                                                        : "SCOPE_MODULE";
-        const std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
-        const int timeunit = m_modp->timeunit().powerOfTen();
+        ثابت std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
+        ثابت صحيح timeunit = m_modp->timeunit().powerOfTen();
         m_vpiScopeCandidates.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scopeSymString(name)),  //
@@ -932,17 +932,17 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                   type == "SCOPE_MODULE" ? nodep->origModName() : "<null>",
                                   timeunit, type));
     }
-    void visit(AstScope* nodep) override {
-        if (VN_IS(m_modp, Class)) return;  // The ClassPackage is what is visible
+    فراغ visit(AstScope* nodep) override {
+        𐡄𐡍 (VN_IS(m_modp, Class)) أرجع;  // The ClassPackage is what is visible
         nameCheck(nodep);
 
         m_scopes.emplace_back(nodep, m_modp);
 
-        if (v3Global.opt.vpi() && !nodep->isTop()) {
-            const std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
+        𐡄𐡍 (v3Global.opt.vpi() && !nodep->isTop()) {
+            ثابت std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
                                      : VN_IS(nodep->modp(), Iface) ? "SCOPE_INTERFACE"  //
                                                                    : "SCOPE_MODULE";
-            const int timeunit = m_modp->timeunit().powerOfTen();
+            ثابت صحيح timeunit = m_modp->timeunit().powerOfTen();
             m_vpiScopeCandidates.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(scopeSymString(nodep->name())),  //
@@ -955,25 +955,25 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_scopep = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstScopeName* nodep) override {
-        if (nodep->selfRelative()) return;  // Its absolute copy is under the scope
-        const std::string name = nodep->scopeSymName();
+    فراغ visit(AstScopeName* nodep) override {
+        𐡄𐡍 (nodep->selfRelative()) أرجع;  // Its absolute copy is under the scope
+        ثابت std::string name = nodep->scopeSymName();
         // UINFO(9, "scnameins sp " << nodep->name() << " sp " << nodep->scopePrettySymName()
         // << " ss" << name);
-        const int timeunit = m_modp ? m_modp->timeunit().powerOfTen() : 0;
+        ثابت صحيح timeunit = m_modp ? m_modp->timeunit().powerOfTen() : 0;
         m_dpiScopeNames.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(name),  //
             std::forward_as_tuple(nodep, name, nodep->scopePrettySymName(), "<null>", timeunit,
                                   "SCOPE_OTHER"));
 
-        if (nodep->dpiExport()) {
+        𐡄𐡍 (nodep->dpiExport()) {
             UASSERT_OBJ(m_cfuncp, nodep, "ScopeName not under DPI function");
             m_scopeFuncs.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(name + " " + m_cfuncp->name()),  //
                 std::forward_as_tuple(nodep, m_cfuncp, m_modp));
-        } else {
+        } وإلا {
             // Note emplace does not construct when duplicate key
             m_dpiScopeNames.emplace(  //
                 std::piecewise_construct,  //
@@ -982,46 +982,46 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                       "<null>", timeunit, "SCOPE_OTHER"));
         }
     }
-    void visit(AstVar* nodep) override {
+    فراغ visit(AstVar* nodep) override {
         nameCheck(nodep);
         iterateChildrenConst(nodep);
         // Record if public, ignoring locals and types VPI cannot represent
-        if ((nodep->isSigUserRdPublic() || nodep->isSigUserRWPublic()) && !m_cfuncp
+        𐡄𐡍 ((nodep->isSigUserRdPublic() || nodep->isSigUserRWPublic()) && !m_cfuncp
             && !nodep->vlEnumType().empty()) {
             m_modVars.emplace_back(m_modp, nodep);
         }
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    فراغ visit(AstNodeCoverDecl* nodep) override {
         // Assign both global and module-local bin numbers. Most generated
         // coverage uses module-local counters, but static/package/class helper
         // functions may have no vlSelf and still need the global array.
-        if (!nodep->dataDeclNullp()) {  // else duplicate we don't need code for
+        𐡄𐡍 (!nodep->dataDeclNullp()) {  // else duplicate we don't need code for
             nodep->binNum(m_coverBins);
             m_coverBins += nodep->size();
             nodep->localBinNum(m_modCoverBins);
             m_modCoverBins += nodep->size();
         }
     }
-    void visit(AstCFunc* nodep) override {
+    فراغ visit(AstCFunc* nodep) override {
         nameCheck(nodep);
-        if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.push_back(nodep);
+        𐡄𐡍 (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.push_back(nodep);
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ visit(AstConst*) override {}
+    فراغ visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit EmitCSyms(AstNetlist* nodep, bool dpiHdrOnly)
+عام:
+    explicit EmitCSyms(AstNetlist* nodep, منطقي dpiHdrOnly)
         : m_dpiHdrOnly{dpiHdrOnly} {
         iterateConst(nodep);
     }
 };
 
-void EmitCSyms::emitSymHdr() {
+فراغ EmitCSyms::emitSymHdr() {
     UINFO(6, __FUNCTION__ << ": ");
     openNewOutputHeaderFile(symClassName(), "Symbol table internal header");
     puts("//\n");
@@ -1033,46 +1033,46 @@ void EmitCSyms::emitSymHdr() {
     puts("\n");
     ofp()->putsIntTopInclude();
     puts("#include \"verilated.h\"\n");
-    if (v3Global.needTraceDumper()) {
-        for (const string& base : v3Global.opt.traceSourceLangs())
+    𐡄𐡍 (v3Global.needTraceDumper()) {
+        لكل (ثابت string& base : v3Global.opt.traceSourceLangs())
             puts("#include \"" + base + ".h\"\n");
     }
-    if (v3Global.opt.usesProfiler()) puts("#include \"verilated_profiler.h\"\n");
+    𐡄𐡍 (v3Global.opt.usesProfiler()) puts("#include \"verilated_profiler.h\"\n");
 
     puts("\n// INCLUDE MODEL CLASS\n");
     puts("\n#include \"" + topClassName() + ".h\"\n");
 
     puts("\n// INCLUDE MODULE CLASSES\n");
-    for (AstNodeModule *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
+    لكل (AstNodeModule *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
         nextp = VN_AS(nodep->nextp(), NodeModule);
-        if (VN_IS(nodep, Class)) continue;  // Class included earlier
-        if (nodep->isConstPool()) continue;  // Special emit rules
+        𐡄𐡍 (VN_IS(nodep, Class)) استمر;  // Class included earlier
+        𐡄𐡍 (nodep->isConstPool()) استمر;  // Special emit rules
         putns(nodep, "#include \"" + EmitCUtil::prefixNameProtect(nodep) + ".h\"\n");
     }
 
-    if (v3Global.dpi()) {
+    𐡄𐡍 (v3Global.dpi()) {
         puts("\n// DPI TYPES for DPI Export callbacks (Internal use)\n");
         std::set<std::string> types;  // Remove duplicates and sort
-        for (const auto& itpair : m_scopeFuncs) {
-            const AstCFunc* const funcp = itpair.second.m_cfuncp;
-            if (!funcp->dpiExportImpl()) continue;
-            const std::string cbtype
+        لكل (ثابت auto& itpair : m_scopeFuncs) {
+            ثابت AstCFunc* ثابت funcp = itpair.second.m_cfuncp;
+            𐡄𐡍 (!funcp->dpiExportImpl()) استمر;
+            ثابت std::string cbtype
                 = protect(v3Global.opt.prefix() + "__Vcb_" + funcp->cname() + "_t");
-            const std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
+            ثابت std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
             types.emplace("using " + cbtype + " = " + functype + ";\n");
         }
-        for (const std::string& type : types) puts(type);
+        لكل (ثابت std::string& type : types) puts(type);
     }
 
     puts("\n// SYMS CLASS (contains all model state)\n");
     puts("class alignas(VL_CACHE_LINE_BYTES) " + symClassName()
          + " final : public VerilatedSyms {\n");
-    ofp()->putsPrivate(false);  // public:
+    ofp()->putsPrivate(خطأ);  // public:
 
     puts("// INTERNAL STATE\n");
     puts(topClassName() + "* const __Vm_modelp;\n");
 
-    if (v3Global.needTraceDumper()) {
+    𐡄𐡍 (v3Global.needTraceDumper()) {
         // __Vm_dumperp is local, otherwise we wouldn't know what design's eval()
         // should call a global dumpperp
         puts("bool __Vm_dumping = false;  // Dumping is active\n");
@@ -1081,24 +1081,24 @@ void EmitCSyms::emitSymHdr() {
              + "* __Vm_dumperp VL_GUARDED_BY(__Vm_dumperMutex) = nullptr;"
                "  /// Trace class for $dump*\n");
     }
-    if (v3Global.opt.trace()) {
+    𐡄𐡍 (v3Global.opt.trace()) {
         puts("bool __Vm_activity = false;"
              "  ///< Used by trace routines to determine change occurred\n");
         puts("uint32_t __Vm_baseCode = 0;"
              "  ///< Used by trace routines when tracing multiple models\n");
     }
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
+    𐡄𐡍 (v3Global.hasEvents()) {
+        𐡄𐡍 (v3Global.assignsEvents()) {
             puts("std::vector<VlAssignableEvent> __Vm_triggeredEvents;\n");
-        } else {
+        } وإلا {
             puts("std::vector<VlEvent*> __Vm_triggeredEvents;\n");
         }
     }
-    if (v3Global.hasClasses()) puts("VlDeleter __Vm_deleter;\n");
+    𐡄𐡍 (v3Global.hasClasses()) puts("VlDeleter __Vm_deleter;\n");
     puts("bool& __Vm_didInit;\n");
-    if (v3Global.opt.systemC()) puts("sc_core::sc_event __Vm_wakeEvent;\n");
+    𐡄𐡍 (v3Global.opt.systemC()) puts("sc_core::sc_event __Vm_wakeEvent;\n");
 
-    if (v3Global.opt.mtasks()) {
+    𐡄𐡍 (v3Global.opt.mtasks()) {
         puts("\n// MULTI-THREADING\n");
         puts("VlThreadPool* __Vm_threadPoolp;\n");
         puts("bool __Vm_even_cycle__ico = false;\n");
@@ -1106,12 +1106,12 @@ void EmitCSyms::emitSymHdr() {
         puts("bool __Vm_even_cycle__nba = false;\n");
     }
 
-    if (v3Global.opt.profExec()) {
+    𐡄𐡍 (v3Global.opt.profExec()) {
         puts("\n// EXECUTION PROFILING\n");
         puts("VlExecutionProfiler* const __Vm_executionProfilerp;\n");
     }
 
-    if (v3Global.opt.profPgo()) {
+    𐡄𐡍 (v3Global.opt.profPgo()) {
         puts("\n// PGO PROFILING\n");
         puts("VlPgoProfiler<" + std::to_string(ExecMTask::numUsedIds()) + "> _vm_pgoProfiler;\n");
     }
@@ -1120,16 +1120,16 @@ void EmitCSyms::emitSymHdr() {
     // In an anonymous union so the C++ compiler does not construct them implicitly,
     // they are constructed/destroyed explicitly in the ctor/dtor functions.
     puts("union {\nstruct {\n");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (VN_IS(modp, Class)) continue;
+    لكل (ثابت ScopeModPair& itpair : m_scopes) {
+        ثابت AstScope* ثابت scopep = itpair.first;
+        ثابت AstNodeModule* ثابت modp = itpair.second;
+        𐡄𐡍 (VN_IS(modp, Class)) استمر;
         ofp()->printf("%-30s ", EmitCUtil::prefixNameProtect(modp).c_str());
         putns(scopep, VIdProtect::protectIf(scopep->nameDotless(), scopep->protect()) + ";\n");
     }
     puts("} vlInst;\n};\n");
 
-    if (m_coverBins) {
+    𐡄𐡍 (m_coverBins) {
         puts("\n// COVERAGE\n");
         puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
         puts(" __Vcoverage[");
@@ -1137,15 +1137,15 @@ void EmitCSyms::emitSymHdr() {
         puts("];\n");
     }
 
-    if (!m_scopeNames.empty()) {  // Scope names
+    𐡄𐡍 (!m_scopeNames.empty()) {  // Scope names
         puts("\n// SCOPE NAMES\n");
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
+        لكل (ثابت auto& itpair : m_scopeNames) {
+            ثابت ScopeData& sd = itpair.second;
             putns(sd.m_nodep, "::VerilatedScope* " + protect("__Vscopep_" + sd.m_symName) + ";\n");
         }
     }
 
-    if (v3Global.opt.vpi()) {
+    𐡄𐡍 (v3Global.opt.vpi()) {
         puts("\n// SCOPE HIERARCHY\n");
         puts("VerilatedHierarchy __Vhier;\n");
     }
@@ -1158,38 +1158,38 @@ void EmitCSyms::emitSymHdr() {
     puts("\n// METHODS\n");
     puts("const char* name() const { return vlInst.TOP.vlNamep; }\n");
 
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
+    𐡄𐡍 (v3Global.hasEvents()) {
+        𐡄𐡍 (v3Global.assignsEvents()) {
             puts("void fireEvent(VlAssignableEvent& event) {\n");
-        } else {
+        } وإلا {
             puts("void fireEvent(VlEvent& event) {\n");
         }
         puts("if (VL_LIKELY(!event.isTriggered())) {\n");
-        if (v3Global.assignsEvents()) {
+        𐡄𐡍 (v3Global.assignsEvents()) {
             puts("__Vm_triggeredEvents.push_back(event);\n");
-        } else {
+        } وإلا {
             puts("__Vm_triggeredEvents.push_back(&event);\n");
         }
         puts("}\n");
         puts("event.fire();\n");
         puts("}\n");
         puts("void clearTriggeredEvents() {\n");
-        if (v3Global.assignsEvents()) {
+        𐡄𐡍 (v3Global.assignsEvents()) {
             puts("for (auto& event : __Vm_triggeredEvents) event.clearTriggered();\n");
-        } else {
+        } وإلا {
             puts("for (const auto eventp : __Vm_triggeredEvents) eventp->clearTriggered();\n");
         }
         puts("__Vm_triggeredEvents.clear();\n");
         puts("}\n");
     }
 
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) puts("void _traceDump();\n");
+    𐡄𐡍 (v3Global.needTraceDumper()) {
+        𐡄𐡍 (!optSystemC()) puts("void _traceDump();\n");
         puts("void _traceDumpOpen();\n");
         puts("void _traceDumpClose();\n");
     }
 
-    if (v3Global.opt.savable()) {
+    𐡄𐡍 (v3Global.opt.savable()) {
         puts("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
         puts("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
     }
@@ -1199,50 +1199,50 @@ void EmitCSyms::emitSymHdr() {
     closeOutputFile();
 }
 
-void EmitCSyms::emitSymImpPreamble() {
+فراغ EmitCSyms::emitSymImpPreamble() {
     puts("\n");
 
     // Includes
     puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
     puts("\n");
     // Declarations for DPI Export implementation functions
-    bool needsNewLine = false;
-    for (const auto& itpair : m_scopeFuncs) {
-        const AstCFunc* const funcp = itpair.second.m_cfuncp;
-        if (!funcp->dpiExportImpl()) continue;
+    منطقي needsNewLine = خطأ;
+    لكل (ثابت auto& itpair : m_scopeFuncs) {
+        ثابت AstCFunc* ثابت funcp = itpair.second.m_cfuncp;
+        𐡄𐡍 (!funcp->dpiExportImpl()) استمر;
         emitCFuncDecl(funcp, itpair.second.m_modp);
-        needsNewLine = true;
+        needsNewLine = 𐡒𐡔𐡈;
     }
-    if (needsNewLine) puts("\n");
+    𐡄𐡍 (needsNewLine) puts("\n");
     // Declarations of the Verilator library functions called at construction
     std::set<std::string> libNames;
-    for (const ScopeModPair& itpair : m_scopes) {
-        if (itpair.second->verilatorLib()) libNames.emplace(itpair.second->origName());
+    لكل (ثابت ScopeModPair& itpair : m_scopes) {
+        𐡄𐡍 (itpair.second->verilatorLib()) libNames.emplace(itpair.second->origName());
     }
-    for (const std::string& libName : libNames) {
+    لكل (ثابت std::string& libName : libNames) {
         puts("extern \"C\" void " + libName + "_protectlib_check_hash(int protectlib_hash__V);\n");
         puts("extern \"C\" void* " + libName + "_protectlib_create(const char* scopep__V);\n");
     }
-    if (!libNames.empty()) puts("\n");
+    𐡄𐡍 (!libNames.empty()) puts("\n");
 
     // So split ctor sub-functions in other translation units can reference
     // the VPI variable tables defined below.
-    if (!m_varTables.empty() || !m_scopeTableRows.empty() || !m_ifaceRefTableRows.empty()) {
-        for (const auto& kv : m_varTables) {
+    𐡄𐡍 (!m_varTables.empty() || !m_scopeTableRows.empty() || !m_ifaceRefTableRows.empty()) {
+        لكل (ثابت auto& kv : m_varTables) {
             puts("extern const VlVarTableEntry " + kv.first + "[];\n");
         }
-        if (!m_scopeTableRows.empty()) {
+        𐡄𐡍 (!m_scopeTableRows.empty()) {
             puts("extern const VlScopeTableEntry " + m_scopeTableName + "[];\n");
         }
-        if (!m_ifaceRefTableRows.empty()) {
+        𐡄𐡍 (!m_ifaceRefTableRows.empty()) {
             puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[];\n");
         }
         puts("\n");
     }
 }
 
-void EmitCSyms::emitVarTables() {
-    if (m_varTables.empty() && m_scopeTableRows.empty() && m_ifaceRefTableRows.empty()) return;
+فراغ EmitCSyms::emitVarTables() {
+    𐡄𐡍 (m_varTables.empty() && m_scopeTableRows.empty() && m_ifaceRefTableRows.empty()) أرجع;
     puts("\n// VPI VARIABLE/SCOPE TABLES\n");
     // offsetof on the (non-standard-layout) generated module/Syms classes is well
     // defined on all supported compilers but warns; suppress just here.
@@ -1250,27 +1250,27 @@ void EmitCSyms::emitVarTables() {
     puts("# pragma GCC diagnostic push\n");
     puts("# pragma GCC diagnostic ignored \"-Winvalid-offsetof\"\n");
     puts("#endif\n");
-    for (const auto& kv : m_varTables) {
+    لكل (ثابت auto& kv : m_varTables) {
         puts("extern const VlVarTableEntry " + kv.first + "[] = {\n");
-        for (const std::string& row : kv.second) {
+        لكل (ثابت std::string& row : kv.second) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
         }
         puts("};\n");
     }
-    if (!m_scopeTableRows.empty()) {
+    𐡄𐡍 (!m_scopeTableRows.empty()) {
         puts("extern const VlScopeTableEntry " + m_scopeTableName + "[] = {\n");
-        for (const std::string& row : m_scopeTableRows) {
+        لكل (ثابت std::string& row : m_scopeTableRows) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
         }
         puts("};\n");
     }
-    if (!m_ifaceRefTableRows.empty()) {
+    𐡄𐡍 (!m_ifaceRefTableRows.empty()) {
         puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[] = {\n");
-        for (const std::string& row : m_ifaceRefTableRows) {
+        لكل (ثابت std::string& row : m_ifaceRefTableRows) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
@@ -1282,39 +1282,39 @@ void EmitCSyms::emitVarTables() {
     puts("#endif\n");
 }
 
-void EmitCSyms::emitScopeHier(TextStmts& stmts, bool destroy) {
-    if (!v3Global.opt.vpi()) return;
+فراغ EmitCSyms::emitScopeHier(TextStmts& stmts, منطقي destroy) {
+    𐡄𐡍 (!v3Global.opt.vpi()) أرجع;
 
-    if (destroy) {
+    𐡄𐡍 (destroy) {
         stmts.add("// Tear down scope hierarchy");
-    } else {
+    } وإلا {
         stmts.add("// Set up scope hierarchy");
     }
 
-    const std::string method = destroy ? "remove" : "add";
-    for (const auto& itpair : m_scopeNames) {
-        if (itpair.first == "TOP") continue;
-        const ScopeData& sd = itpair.second;
-        const std::string& name = sd.m_prettyName;
-        const std::string& scopeType = sd.m_type;
-        if (name.find('.') != string::npos) continue;
-        if (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") continue;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+    ثابت std::string method = destroy ? "remove" : "add";
+    لكل (ثابت auto& itpair : m_scopeNames) {
+        𐡄𐡍 (itpair.first == "TOP") استمر;
+        ثابت ScopeData& sd = itpair.second;
+        ثابت std::string& name = sd.m_prettyName;
+        ثابت std::string& scopeType = sd.m_type;
+        𐡄𐡍 (name.find('.') != string::npos) استمر;
+        𐡄𐡍 (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") استمر;
+        ثابت std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
         stmts.add("vlSymsp->__Vhier." + method + "(0, " + id + ");");
     }
-    for (const auto& itpair : m_vpiScopeHierarchy) {
-        const std::string fromName = scopeSymString(itpair.first);
-        const std::string fromId
+    لكل (ثابت auto& itpair : m_vpiScopeHierarchy) {
+        ثابت std::string fromName = scopeSymString(itpair.first);
+        ثابت std::string fromId
             = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(fromName).m_symName);
-        for (const std::string& name : itpair.second) {
-            const std::string toName = scopeSymString(name);
-            const std::string toId
+        لكل (ثابت std::string& name : itpair.second) {
+            ثابت std::string toName = scopeSymString(name);
+            ثابت std::string toId
                 = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(toName).m_symName);
             stmts.add("vlSymsp->__Vhier." + method + "(" + fromId + ", " + toId + ");");
         }
     }
 
-    if (destroy) {
+    𐡄𐡍 (destroy) {
         stmts.add("// Clear keys from hierarchy map after values have been removed");
         stmts.add("vlSymsp->__Vhier.clear();");
     }
@@ -1325,7 +1325,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
 
     {
         uint64_t stackSize = V3StackCount::count(v3Global.rootp());
-        if (v3Global.opt.debugStackCheck()) stackSize += 1024 * 1024 * 1024;
+        𐡄𐡍 (v3Global.opt.debugStackCheck()) stackSize += 1024 * 1024 * 1024;
         V3Stats::addStat("Size prediction, Stack (bytes)", stackSize);
         // TODO: 'm_statVarScopeBytes' is always 0, AstVarScope doesn't reach here (V3Descope)
         V3Stats::addStat("Size prediction, Heap, from Var Scopes (bytes)", m_statVarScopeBytes);
@@ -1336,26 +1336,26 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     }
 
     stmts.add("// Setup sub module instances");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
-        const std::string name = V3OutFormatter::quoteNameControls(
+    لكل (ثابت ScopeModPair& itpair : m_scopes) {
+        ثابت AstScope* ثابت scopep = itpair.first;
+        ثابت AstNodeModule* ثابت modp = itpair.second;
+        𐡄𐡍 (modp->isTop()) استمر;
+        ثابت std::string name = V3OutFormatter::quoteNameControls(
             VIdProtect::protectWordsIf(scopep->prettyName(), scopep->protect()));
         stmts.add("VL_INPLACE_CONSTRUCT(vlSymsp->" + instName(scopep) + ", vlSymsp, \"" + name
                   + "\");");
     }
 
-    if (v3Global.opt.profPgo()) {
+    𐡄𐡍 (v3Global.opt.profPgo()) {
         stmts.add("// Configure profiling for PGO\n");
-        if (!v3Global.opt.hierChild()) {
+        𐡄𐡍 (!v3Global.opt.hierChild()) {
             stmts.add("vlSymsp->_vm_pgoProfiler.writeHeader("
                       "vlSymsp->_vm_contextp__->profVltFilename());");
         }
-        if (v3Global.opt.mtasks()) {
-            v3Global.rootp()->topModulep()->foreach([&](const AstExecGraph* execGraphp) {
-                for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
-                    const ExecMTask& mt = static_cast<const ExecMTask&>(vtx);
+        𐡄𐡍 (v3Global.opt.mtasks()) {
+            v3Global.rootp()->topModulep()->foreach([&](ثابت AstExecGraph* execGraphp) {
+                لكل (ثابت V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
+                    ثابت ExecMTask& mt = static_cast<ثابت ExecMTask&>(vtx);
                     stmts.add("vlSymsp->_vm_pgoProfiler.addCounter(" + std::to_string(mt.id())
                               + ", \"" + mt.hashName() + "\");");
                 }
@@ -1364,28 +1364,28 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     }
 
     stmts.add("// Configure time unit / time precision");
-    if (!v3Global.rootp()->timeunit().isNone()) {
-        const std::string unit = std::to_string(v3Global.rootp()->timeunit().powerOfTen());
+    𐡄𐡍 (!v3Global.rootp()->timeunit().isNone()) {
+        ثابت std::string unit = std::to_string(v3Global.rootp()->timeunit().powerOfTen());
         stmts.add("vlSymsp->_vm_contextp__->timeunit(" + unit + ");");
     }
-    if (!v3Global.rootp()->timeprecision().isNone()) {
-        const std::string prec = std::to_string(v3Global.rootp()->timeprecision().powerOfTen());
+    𐡄𐡍 (!v3Global.rootp()->timeprecision().isNone()) {
+        ثابت std::string prec = std::to_string(v3Global.rootp()->timeprecision().powerOfTen());
         stmts.add("vlSymsp->_vm_contextp__->timeprecision(" + prec + ");");
     }
 
     stmts.add("// Setup each module's pointers to their submodules");
-    for (const auto& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        const AstScope* const abovep = scopep->aboveScopep();
-        if (!abovep) continue;
+    لكل (ثابت auto& i : m_scopes) {
+        ثابت AstScope* ثابت scopep = i.first;
+        ثابت AstNodeModule* ثابت modp = i.second;
+        ثابت AstScope* ثابت abovep = scopep->aboveScopep();
+        𐡄𐡍 (!abovep) استمر;
 
-        const std::string protName = VIdProtect::protectWordsIf(scopep->name(), scopep->protect());
+        ثابت std::string protName = VIdProtect::protectWordsIf(scopep->name(), scopep->protect());
         std::string stmt = "vlSymsp->";
-        if (VN_IS(modp, ClassPackage)) {
+        𐡄𐡍 (VN_IS(modp, ClassPackage)) {
             // ClassPackage modules seem to be a bit out of place, so hard code...
             stmt += "vlInst.TOP";
-        } else {
+        } وإلا {
             stmt += instName(abovep);
         }
         stmt += ".";
@@ -1395,14 +1395,14 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         stmts.add(stmt);
     }
 
-    if (v3Global.opt.coverage()) {
+    𐡄𐡍 (v3Global.opt.coverage()) {
         stmts.add("// Setup each module's pointer back to symbol table (for public functions)");
-        for (const ScopeModPair& i : m_scopes) {
-            const AstScope* const scopep = i.first;
-            AstNodeModule* const modp = i.second;
+        لكل (ثابت ScopeModPair& i : m_scopes) {
+            ثابت AstScope* ثابت scopep = i.first;
+            AstNodeModule* ثابت modp = i.second;
             // first is used by AstCoverDecl's call to __vlCoverInsert
-            const bool first = !modp->user1();
-            modp->user1(true);
+            ثابت منطقي first = !modp->user1();
+            modp->user1(𐡒𐡔𐡈);
             stmts.add("vlSymsp->" + instName(scopep) + "." + protect("__Vconfigure") + "("
                       + (first ? "true" : "false") + ");");
         }
@@ -1411,27 +1411,27 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // Check the hash and create the library model of each Verilator library wrapper, as its
     // initial process would, but already at construction, so the library model exists before
     // the first evaluation
-    for (const ScopeModPair& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        if (!modp->verilatorLib()) continue;
-        const AstVar* hashp = nullptr;
-        const AstVar* handlep = nullptr;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (!varp) continue;
-            if (varp->prettyName() == "protectlib_hash__V") hashp = varp;
-            if (varp->prettyName() == "handle__V") handlep = varp;
+    لكل (ثابت ScopeModPair& i : m_scopes) {
+        ثابت AstScope* ثابت scopep = i.first;
+        ثابت AstNodeModule* ثابت modp = i.second;
+        𐡄𐡍 (!modp->verilatorLib()) استمر;
+        ثابت AstVar* hashp = nullptr;
+        ثابت AstVar* handlep = nullptr;
+        لكل (ثابت AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ثابت AstVar* ثابت varp = VN_CAST(nodep, Var);
+            𐡄𐡍 (!varp) استمر;
+            𐡄𐡍 (varp->prettyName() == "protectlib_hash__V") hashp = varp;
+            𐡄𐡍 (varp->prettyName() == "handle__V") handlep = varp;
         }
         UASSERT_OBJ(hashp, modp, "Verilator library wrapper without 'protectlib_hash__V'");
         UASSERT_OBJ(handlep, modp, "Verilator library wrapper without 'handle__V'");
-        const uint32_t hash = VN_AS(hashp->valuep(), Const)->toUInt();
+        ثابت uint32_t hash = VN_AS(hashp->valuep(), Const)->toUInt();
         stmts.add(modp->origName() + "_protectlib_check_hash(static_cast<int>("
                   + std::to_string(hash) + "U));");
         // The library model is named after the %m of the instance, which in a --lib-create
         // library omits the top module (see V3Scope)
         std::string path = scopep->prettyName();
-        if (!v3Global.opt.libCreate().empty()) {
+        𐡄𐡍 (!v3Global.opt.libCreate().empty()) {
             path.erase(0, v3Global.rootp()->traceLibTopName().size() + 1);
         }
         stmts.add("vlSymsp->" + instName(scopep) + "." + varName(handlep) + " = VL_CVT_VP_Q("
@@ -1443,15 +1443,15 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
 
     // Every scope has the same construction shape, so all fold into one table with no
     // residual; offsetof bakes the target __Vscopep_* member address into each row.
-    if (!m_scopeNames.empty()) {
+    𐡄𐡍 (!m_scopeNames.empty()) {
         stmts.add("// Setup scopes");
-        const std::string symClass = symClassName();
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
+        ثابت std::string symClass = symClassName();
+        لكل (ثابت auto& itpair : m_scopeNames) {
+            ثابت ScopeData& sd = itpair.second;
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + sd.m_symName) + "), \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(sd.m_prettyName, true));
+                VIdProtect::protectWordsIf(sd.m_prettyName, 𐡒𐡔𐡈));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
                 protect(scopeDecodeIdentifier(sd.m_prettyName)));
@@ -1469,23 +1469,23 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
 
     // After the scopes above, as each row points at an already-built VerilatedScope
     buildIfaceRefTable();
-    if (!m_ifaceRefTableRows.empty()) {
+    𐡄𐡍 (!m_ifaceRefTableRows.empty()) {
         stmts.add("// Setup interface references");
         stmts.add("VerilatedScope::ifaceRefsInsertFromTable(" + m_ifaceRefTableName + ", "
                   + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
     }
 
-    emitScopeHier(stmts, false);
+    emitScopeHier(stmts, خطأ);
 
-    if (v3Global.dpi()) {
-        for (const std::string vfinal : {"0", "1"}) {
+    𐡄𐡍 (v3Global.dpi()) {
+        لكل (ثابت std::string vfinal : {"0", "1"}) {
             stmts.add("// Setup export functions - final: " + vfinal);
-            for (const auto& itpair : m_scopeFuncs) {
-                const ScopeFuncData& sfd = itpair.second;
-                const AstScopeName* const scopep = sfd.m_scopep;
-                const AstCFunc* const funcp = sfd.m_cfuncp;
-                const AstNodeModule* const modp = sfd.m_modp;
-                if (!funcp->dpiExportImpl()) continue;
+            لكل (ثابت auto& itpair : m_scopeFuncs) {
+                ثابت ScopeFuncData& sfd = itpair.second;
+                ثابت AstScopeName* ثابت scopep = sfd.m_scopep;
+                ثابت AstCFunc* ثابت funcp = sfd.m_cfuncp;
+                ثابت AstNodeModule* ثابت modp = sfd.m_modp;
+                𐡄𐡍 (!funcp->dpiExportImpl()) استمر;
 
                 std::string stmt;
                 stmt += "vlSymsp->" + protect("__Vscopep_" + scopep->scopeSymName())
@@ -1507,90 +1507,90 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // contiguous. Tables are deduplicated by row content, not by scope, so
     // distinct scopes mapping to the same C++ class (e.g. --public-flat-rw)
     // still share a table when their rows are identical.
-    if (!m_scopeVars.empty()) {
+    𐡄𐡍 (!m_scopeVars.empty()) {
         stmts.add("// Setup public variables");
         // Keyed by '\0'-joined row text so identical rows share one table.
         std::unordered_map<std::string, std::string> tableByRows;
-        int tableCounter = 0;
+        صحيح tableCounter = 0;
 
         auto it = m_scopeVars.cbegin();
-        while (it != m_scopeVars.cend()) {
-            const std::string scopeName = it->second.m_scopeName;
-            const AstScope* const instScopep = it->second.m_scopep;
-            const AstNodeModule* const modp = it->second.m_modp;
-            const std::string modClassName = EmitCUtil::prefixNameProtect(modp);
+        طالما (it != m_scopeVars.cend()) {
+            ثابت std::string scopeName = it->second.m_scopeName;
+            ثابت AstScope* ثابت instScopep = it->second.m_scopep;
+            ثابت AstNodeModule* ثابت modp = it->second.m_modp;
+            ثابت std::string modClassName = EmitCUtil::prefixNameProtect(modp);
 
             std::vector<std::string> rows;
             std::vector<std::string> residual;
 
-            for (; it != m_scopeVars.cend() && it->second.m_scopeName == scopeName; ++it) {
-                const ScopeVarData& svd = it->second;
-                const AstScope* const scopep = svd.m_scopep;
+            لكل (; it != m_scopeVars.cend() && it->second.m_scopeName == scopeName; ++it) {
+                ثابت ScopeVarData& svd = it->second;
+                ثابت AstScope* ثابت scopep = svd.m_scopep;
                 UASSERT(scopep == instScopep && svd.m_modp == modp,
                         "VPI scope '" << scopeName << "' spans multiple C++ instances");
-                const AstVar* const varp = svd.m_varp;
-                const VarDims dims = dimsFor(svd);
+                ثابت AstVar* ثابت varp = svd.m_varp;
+                ثابت VarDims dims = dimsFor(svd);
 
                 // Force-control signals fold into the base signal's forceable insert.
-                const std::pair<bool, std::string> fc = isForceControlSignal(varp);
-                if (fc.first && baseSignalIsPublic(scopep, fc.second)
+                ثابت std::pair<منطقي, std::string> fc = isForceControlSignal(varp);
+                𐡄𐡍 (fc.first && baseSignalIsPublic(scopep, fc.second)
                     && baseSignalIsValid(scopep, varp, fc.second)) {
-                    continue;
+                    استمر;
                 }
 
                 std::string row;
-                const TableEntryKind kind
+                ثابت TableEntryKind kind
                     = tryBuildTableEntry(svd, varp, scopep, modClassName, dims, row);
-                switch (kind) {
-                case TableEntryKind::TABLE_ROW:
+                بدل (kind) {
+                حالة TableEntryKind::TABLE_ROW:
                     rows.emplace_back(row);
                     addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                            varName(varp), varp->dtypep());
-                    break;
-                case TableEntryKind::FORCEABLE_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
+                    اكسر;
+                حالة TableEntryKind::FORCEABLE_RESIDUAL: {
+                    ثابت std::string bounds = boundsString(dims);
                     residual.emplace_back(insertForceableVarStatement(svd, scopep, varp, dims.udim,
                                                                       dims.pdim, bounds)
                                           + ";");
-                    break;
+                    اكسر;
                 }
-                case TableEntryKind::PLAIN_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
+                حالة TableEntryKind::PLAIN_RESIDUAL: {
+                    ثابت std::string bounds = boundsString(dims);
                     residual.emplace_back(
                         insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
-                    break;
+                    اكسر;
                 }
-                default: v3fatalSrc("Bad case");
+                افتراضي: v3fatalSrc("Bad case");
                 }
-                if (kind == TableEntryKind::TABLE_ROW) continue;
-                if (const AstNodeUOrStructDType* const sdtypep
+                𐡄𐡍 (kind == TableEntryKind::TABLE_ROW) استمر;
+                𐡄𐡍 (ثابت AstNodeUOrStructDType* ثابت sdtypep
                     = VN_CAST(varp->dtypeSkipRefp(), NodeUOrStructDType)) {
-                    if (!sdtypep->packed()) {
+                    𐡄𐡍 (!sdtypep->packed()) {
                         addUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                                varName(varp), sdtypep);
                     }
-                } else if (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+                } وإلا 𐡄𐡍 (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
                     addUnpackedArrayUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                                         varName(varp), varp->dtypep());
                 }
-                if (kind == TableEntryKind::PLAIN_RESIDUAL) {
+                𐡄𐡍 (kind == TableEntryKind::PLAIN_RESIDUAL) {
                     addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                            varName(varp), varp->dtypep());
                 }
             }
 
-            if (!rows.empty()) {
-                const size_t rowCount = rows.size();
+            𐡄𐡍 (!rows.empty()) {
+                ثابت size_t rowCount = rows.size();
                 std::string key;
-                for (const std::string& r : rows) {
+                لكل (ثابت std::string& r : rows) {
                     key += r;
                     key += '\0';
                 }
-                const auto itt = tableByRows.find(key);
+                ثابت auto itt = tableByRows.find(key);
                 std::string tableName;
-                if (itt != tableByRows.end()) {
+                𐡄𐡍 (itt != tableByRows.end()) {
                     tableName = itt->second;
-                } else {
+                } وإلا {
                     tableName = modClassName + "__VpiVarTable" + std::to_string(tableCounter++);
                     tableByRows.emplace(std::move(key), tableName);
                     m_varTables.emplace_back(tableName, std::move(rows));
@@ -1602,49 +1602,49 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
                                    + instName(instScopep) + "));";
                 stmts.add(call);
             }
-            for (const std::string& r : residual) stmts.add(r);
+            لكل (ثابت std::string& r : residual) stmts.add(r);
         }
     }
 
-    return stmts;
+    أرجع stmts;
 }
 
 EmitCSyms::TextStmts EmitCSyms::getSymDtorStmts() {
     TextStmts stmts;
 
-    emitScopeHier(stmts, true);
-    if (v3Global.needTraceDumper()) {
+    emitScopeHier(stmts, 𐡒𐡔𐡈);
+    𐡄𐡍 (v3Global.needTraceDumper()) {
         stmts.add("if (vlSymsp->__Vm_dumping) vlSymsp->_traceDumpClose();");
     }
-    if (v3Global.opt.profPgo()) {
+    𐡄𐡍 (v3Global.opt.profPgo()) {
         stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + topClassName()
                   + "\", vlSymsp->_vm_contextp__->profVltFilename());");
     }
     // Before the scopes below, as each row names a scope being torn down
-    if (!m_ifaceRefTableRows.empty()) {
+    𐡄𐡍 (!m_ifaceRefTableRows.empty()) {
         stmts.add("// Tear down interface references");
         stmts.add("VerilatedScope::ifaceRefsEraseFromTable(" + m_ifaceRefTableName + ", "
                   + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
     }
 
     stmts.add("// Tear down scopes");
-    for (const auto& itpair : m_scopeNames) {
-        const ScopeData& sd = itpair.second;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+    لكل (ثابت auto& itpair : m_scopeNames) {
+        ثابت ScopeData& sd = itpair.second;
+        ثابت std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
         stmts.add("VL_DO_CLEAR(delete " + id + ", " + id + " = nullptr);");
     }
 
     stmts.add("// Tear down sub module instances");
-    for (const ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
+    لكل (ثابت ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
+        ثابت AstScope* ثابت scopep = itpair.first;
+        ثابت AstNodeModule* ثابت modp = itpair.second;
+        𐡄𐡍 (modp->isTop()) استمر;
         stmts.add("VL_INPLACE_DESTRUCT(vlSymsp->" + instName(scopep) + ");");
     }
-    return stmts;
+    أرجع stmts;
 }
 
-void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
+فراغ EmitCSyms::emitSymImp(ثابت AstNetlist* netlistp) {
     UINFO(6, __FUNCTION__ << ": ");
 
     // Get the body of the constructor and destructor
@@ -1652,28 +1652,28 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     TextStmts dtorStmts = getSymDtorStmts();
 
     // Split into sub-functions if needed
-    const std::pair<std::string, std::string> splitCtorDtorDecls  //
+    ثابت std::pair<std::string, std::string> splitCtorDtorDecls  //
         = emitSplitCtorDtor(ctorStmts, dtorStmts,
                             // Base cost 200 to consider other contents in main file.
                             200, symClassName(), symClassName() + "* vlSymsp", "vlSymsp",  //
-                            true, "Symbol table implementation internals",
-                            [this]() { emitSymImpPreamble(); });
+                            𐡒𐡔𐡈, "Symbol table implementation internals",
+                            [هذا]() { emitSymImpPreamble(); });
 
-    openNewOutputSourceFile(symClassName(), true, true, "Symbol table implementation internals");
+    openNewOutputSourceFile(symClassName(), 𐡒𐡔𐡈, 𐡒𐡔𐡈, "Symbol table implementation internals");
     emitSymImpPreamble();
     emitVarTables();
 
-    const AstScope* const topScopep = netlistp->topScopep()->scopep();
-    const std::string topInst = "vlSymsp->" + instName(topScopep);
+    ثابت AstScope* ثابت topScopep = netlistp->topScopep()->scopep();
+    ثابت std::string topInst = "vlSymsp->" + instName(topScopep);
 
     // Constructor contents, in a loose function, so all statements access the members through
     // 'vlSymsp', as they do when split into sub-functions
-    if (!splitCtorDtorDecls.first.empty()) puts("\n" + splitCtorDtorDecls.first + "\n");
+    𐡄𐡍 (!splitCtorDtorDecls.first.empty()) puts("\n" + splitCtorDtorDecls.first + "\n");
     puts("\nvoid " + symClassName() + "__ctor(" + symClassName()
          + "* vlSymsp, const char* namep) {\n");
     puts("// Setup top module instance\n");
     puts("VL_INPLACE_CONSTRUCT(" + topInst + ", vlSymsp, namep);\n");
-    for (const TextStmts::Stmt& stmt : ctorStmts) {
+    لكل (ثابت TextStmts::Stmt& stmt : ctorStmts) {
         ofp()->putsNoTracking("    ");
         ofp()->putsNoTracking(stmt.m_text);
         ofp()->putsNoTracking("\n");
@@ -1688,15 +1688,15 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     puts("    // Setup internal state of the Syms class\n");
     puts("    , __Vm_modelp{modelp}\n");
     puts("    , __Vm_didInit{modelp->m_didInit}\n");
-    if (v3Global.opt.mtasks()) {
+    𐡄𐡍 (v3Global.opt.mtasks()) {
         puts("    , __Vm_threadPoolp{static_cast<VlThreadPool*>(contextp->threadPoolp("
              "modelp->threads()))}\n");
     }
-    if (v3Global.opt.profExec()) {
+    𐡄𐡍 (v3Global.opt.profExec()) {
         puts("    , __Vm_executionProfilerp{static_cast<VlExecutionProfiler*>(contextp->"
              "enableExecutionProfiler(&VlExecutionProfiler::construct))}\n");
     }
-    if (v3Global.opt.profPgo() && !v3Global.opt.libCreate().empty()) {
+    𐡄𐡍 (v3Global.opt.profPgo() && !v3Global.opt.libCreate().empty()) {
         puts("    , _vm_pgoProfiler{" + std::to_string(v3Global.currentHierBlockCost()) + "}\n");
     }
     puts("{\n");
@@ -1704,9 +1704,9 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     puts("}\n");
 
     // Destructor contents, in a loose function, see constructor
-    if (!splitCtorDtorDecls.second.empty()) puts("\n" + splitCtorDtorDecls.second + "\n");
+    𐡄𐡍 (!splitCtorDtorDecls.second.empty()) puts("\n" + splitCtorDtorDecls.second + "\n");
     puts("\nvoid " + symClassName() + "__dtor(" + symClassName() + "* vlSymsp) {\n");
-    for (const TextStmts::Stmt& stmt : dtorStmts) {
+    لكل (ثابت TextStmts::Stmt& stmt : dtorStmts) {
         ofp()->putsNoTracking("    ");
         ofp()->putsNoTracking(stmt.m_text);
         ofp()->putsNoTracking("\n");
@@ -1722,8 +1722,8 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     puts("}\n");
 
     // Methods
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) {
+    𐡄𐡍 (v3Global.needTraceDumper()) {
+        𐡄𐡍 (!optSystemC()) {
             puts("\nvoid " + symClassName() + "::_traceDump() {\n");
             puts("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
             // Caller checked for __Vm_dumperp non-nullptr
@@ -1749,18 +1749,18 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
         puts("}\n");
     }
 
-    if (v3Global.opt.savable()) {
-        for (const bool& de : {false, true}) {
-            const std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
-            const std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
-            const std::string op = de ? ">>" : "<<";
+    𐡄𐡍 (v3Global.opt.savable()) {
+        لكل (ثابت منطقي& de : {خطأ, 𐡒𐡔𐡈}) {
+            ثابت std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
+            ثابت std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
+            ثابت std::string op = de ? ">>" : "<<";
             puts("\nvoid " + symClassName() + "::" + funcname + "(" + classname + "& os) {\n");
             puts("// Internal state\n");
-            if (v3Global.opt.trace()) puts("os" + op + "__Vm_activity;\n");
+            𐡄𐡍 (v3Global.opt.trace()) puts("os" + op + "__Vm_activity;\n");
             puts("os " + op + " __Vm_didInit;\n");
             puts("// Module instance state\n");
-            for (const ScopeModPair& itpair : m_scopes) {
-                const AstScope* const scopep = itpair.first;
+            لكل (ثابت ScopeModPair& itpair : m_scopes) {
+                ثابت AstScope* ثابت scopep = itpair.first;
                 puts(instName(scopep) + "." + funcname + "(os);\n");
             }
             puts("}\n");
@@ -1772,7 +1772,7 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
 
 //######################################################################
 
-void EmitCSyms::emitDpiHdr() {
+فراغ EmitCSyms::emitDpiHdr() {
     UINFO(6, __FUNCTION__ << ": ");
 
     openNewOutputHeaderFile(topClassName() + "__Dpi",
@@ -1790,38 +1790,38 @@ void EmitCSyms::emitDpiHdr() {
 
     // Unpacked structures passed as C structures (IEEE 1800-2023 H.7.8)
     std::set<std::string> structNames;
-    for (const AstCFunc* const nodep : m_dpis) {
-        for (const AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(argp, Var)) {
+    لكل (ثابت AstCFunc* ثابت nodep : m_dpis) {
+        لكل (ثابت AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+            𐡄𐡍 (ثابت AstVar* ثابت portp = VN_CAST(argp, Var)) {
                 emitDpiStruct(portp->dtypep(), structNames);
             }
         }
     }
-    if (!structNames.empty()) puts("\n");
+    𐡄𐡍 (!structNames.empty()) puts("\n");
 
     puts("#ifdef __cplusplus\n");
     puts("extern \"C\" {\n");
     puts("#endif\n");
     puts("\n");
 
-    int firstExp = 0;
-    int firstImp = 0;
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) continue;
+    صحيح firstExp = 0;
+    صحيح firstImp = 0;
+    لكل (ثابت AstCFunc* ثابت nodep : m_dpis) {
+        𐡄𐡍 (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) استمر;
 
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
-        if (nodep->dpiExportDispatcher()) {
-            if (!firstExp++) puts("\n// DPI EXPORTS\n");
+        ثابت std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        𐡄𐡍 (nodep->dpiExportDispatcher()) {
+            𐡄𐡍 (!firstExp++) puts("\n// DPI EXPORTS\n");
             putsDecoration(nodep, "// DPI export" + sourceLoc + "\n");
-        } else {
-            if (!firstImp++) puts("\n// DPI IMPORTS\n");
+        } وإلا {
+            𐡄𐡍 (!firstImp++) puts("\n// DPI IMPORTS\n");
             putsDecoration(nodep, "// DPI import" + sourceLoc + "\n");
         }
-        if (nodep->dpiCDeclOverride()) {
+        𐡄𐡍 (nodep->dpiCDeclOverride()) {
             putns(nodep, "extern " + nodep->dpiCDecl() + ";\n");
-        } else {
+        } وإلا {
             putns(nodep, "extern " + nodep->rtnTypeVoid() + " " + nodep->nameProtect() + "("
-                             + cFuncArgs(nodep, false) + ");\n");
+                             + cFuncArgs(nodep, خطأ) + ");\n");
         }
     }
 
@@ -1835,19 +1835,19 @@ void EmitCSyms::emitDpiHdr() {
     closeOutputFile();
 }
 
-void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr) {
-    if (!dtypep->containsUnpackedStruct()) return;
-    const AstStructDType* const sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
-    const std::string name = sdtypep->dpiName();
+فراغ EmitCSyms::emitDpiStruct(ثابت AstNodeDType* dtypep, std::set<std::string>& namesr) {
+    𐡄𐡍 (!dtypep->containsUnpackedStruct()) أرجع;
+    ثابت AstStructDType* ثابت sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
+    ثابت std::string name = sdtypep->dpiName();
     // Once per name, as V3Task checked structures of the same name are the same
-    if (namesr.count(name)) return;
+    𐡄𐡍 (namesr.count(name)) أرجع;
     // After the structures it contains
-    for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    لكل (ثابت AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         emitDpiStruct(itemp->subDTypep(), namesr);
     }
-    if (name.empty()) return;  // Declared where used
-    if (namesr.empty()) puts("// DPI TYPES\n");
+    𐡄𐡍 (name.empty()) أرجع;  // Declared where used
+    𐡄𐡍 (namesr.empty()) puts("// DPI TYPES\n");
     namesr.insert(name);
     // Guarded, so the user, or another model, may declare it instead
     puts("#ifndef VL_DPITYPE_" + name + "_\n");
@@ -1858,9 +1858,9 @@ void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>&
 
 //######################################################################
 
-void EmitCSyms::emitDpiImp() {
+فراغ EmitCSyms::emitDpiImp() {
     UINFO(6, __FUNCTION__ << ": ");
-    openNewOutputSourceFile(topClassName() + "__Dpi", false, true,
+    openNewOutputSourceFile(topClassName() + "__Dpi", خطأ, 𐡒𐡔𐡈,
                             "Implementation of DPI export functions");
     puts("//\n");
     puts("// Verilator compiles this file in when DPI functions are used.\n");
@@ -1878,11 +1878,11 @@ void EmitCSyms::emitDpiImp() {
     puts("#include \"" + topClassName() + ".h\"\n");
     puts("\n");
 
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher()) continue;
+    لكل (ثابت AstCFunc* ثابت nodep : m_dpis) {
+        𐡄𐡍 (!nodep->dpiExportDispatcher()) استمر;
 
-        const std::string name = nodep->name();
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        ثابت std::string name = nodep->name();
+        ثابت std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
 
         // Prevent multi-definition if used by multiple models
         puts("#ifndef VL_DPIDECL_" + name + "_\n");
@@ -1891,9 +1891,9 @@ void EmitCSyms::emitDpiImp() {
         puts("// DPI export" + sourceLoc + "\n");
         putns(nodep, "return " + topClassName() + "::" + name + "(");
         std::string comma;
-        for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn()) {
+        لكل (ثابت AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            𐡄𐡍 (ثابت AstVar* ثابت portp = VN_CAST(stmtp, Var)) {
+                𐡄𐡍 (portp->isIO() && !portp->isFuncReturn()) {
                     puts(comma);
                     comma = ", ";
                     putns(portp, portp->name());
@@ -1911,7 +1911,7 @@ void EmitCSyms::emitDpiImp() {
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcSyms(bool dpiHdrOnly) {
+فراغ V3EmitC::emitcSyms(منطقي dpiHdrOnly) {
     UINFO(2, __FUNCTION__ << ":");
     EmitCSyms{v3Global.rootp(), dpiHdrOnly};
 }
