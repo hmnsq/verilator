@@ -18,11 +18,11 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMoveGraph.h"
+#شامل "V3OrderMoveGraph.h"
 
-#include "V3Graph.h"
+#شامل "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -35,7 +35,7 @@ OrderMoveDomScope::DomScopeMap OrderMoveDomScope::s_dsMap;
 // OrderMoveVertex implementation
 
 OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                                 const OrderDomain* domainp) VL_MT_DISABLED
+                                 ثابت OrderDomain* domainp) VL_MT_DISABLED
     : V3GraphVertex{&graph},
       m_logicp{lVtxp},
       m_domScope{OrderMoveDomScope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : nullptr)} {
@@ -45,14 +45,14 @@ OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
 //======================================================================
 // OrderMoveGraphBuilder - for OrderMoveGraph::build
 
-class OrderMoveGraphBuilder final {
+رده OrderMoveGraphBuilder final {
     // TYPES
-    using DomainMap = std::map<const OrderDomain*, OrderMoveVertex*>;
+    using DomainMap = std::map<ثابت OrderDomain*, OrderMoveVertex*>;
 
     // MEMBERS
     OrderGraph& m_orderGraph;  // Input OrderGraph
     // Output OrderMoveGraph
-    std::unique_ptr<OrderMoveGraph> m_moveGraphp{new OrderMoveGraph{m_orderGraph}};
+    std::unique_ptr<OrderMoveGraph> m_moveGraphp{جدید OrderMoveGraph{m_orderGraph}};
     // Storage for domain -> OrderMoveVertex, maps held in OrderVarVertex::userp()
     std::deque<DomainMap> m_domainMaps;
 
@@ -71,31 +71,31 @@ class OrderMoveGraphBuilder final {
 
         // For each logic vertex, make a OrderMoveVertex, for each variable vertex, allocate
         // storage
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                lvtxp->userp(new OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
-            } else {
+        برای (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            اگر (OrderLogicVertex* ثابت lvtxp = vtx.cast<OrderLogicVertex>()) {
+                lvtxp->userp(جدید OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
+            } وگرنه {
                 // This is an OrderVarVertex
                 m_domainMaps.emplace_back();
                 vtx.userp(&m_domainMaps.back());
             }
         }
         // Build edges between logic vertices
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
+        برای (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            اگر (OrderLogicVertex* ثابت lvtxp = vtx.cast<OrderLogicVertex>()) {
                 iterateLogicVertex(lvtxp);
             }
         }
         m_moveGraphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
         m_moveGraphp->userClearVertices();
     }
-    virtual ~OrderMoveGraphBuilder() = default;
+    مجازی ~OrderMoveGraphBuilder() = پیشفرض;
     VL_UNCOPYABLE(OrderMoveGraphBuilder);
     VL_UNMOVABLE(OrderMoveGraphBuilder);
 
     // METHODS
 
-    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* top) {
+    منطقی domainsExclusive(ثابت OrderDomain* fromp, ثابت OrderDomain* بالاترین) {
         // Return 'true' if we can prove that both 'from' and 'to' cannot both
         // be active on the same evaluation, or false if we can't prove this.
         //
@@ -109,53 +109,53 @@ class OrderMoveGraphBuilder final {
         //
         // ... unless you know more about A and B, which sounds hard.
 
-        const std::set<uint32_t>& fromTriggers = fromp->triggers();
-        const std::set<uint32_t>& toTriggers = top->triggers();
-        if (fromTriggers.size() != 1) return false;
-        if (toTriggers.size() != 1) return false;
-        const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
-        if (!fromSenItemp) return false;
-        const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
-        if (!toSenItemp) return false;
+        ثابت std::set<uint32_t>& fromTriggers = fromp->triggers();
+        ثابت std::set<uint32_t>& toTriggers = بالاترین->triggers();
+        اگر (fromTriggers.size() != 1) بازگشت نادرست;
+        اگر (toTriggers.size() != 1) بازگشت نادرست;
+        ثابت AstSenItem* ثابت fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
+        اگر (!fromSenItemp) بازگشت نادرست;
+        ثابت AstSenItem* ثابت toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
+        اگر (!toSenItemp) بازگشت نادرست;
 
-        const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
-        if (!fromVarrefp) return false;
-        const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
-        if (!toVarrefp) return false;
+        ثابت Ast_گره_Var_Ref* ثابت fromVarrefp = fromSenItemp->varrefp();
+        اگر (!fromVarrefp) بازگشت نادرست;
+        ثابت Ast_گره_Var_Ref* ثابت toVarrefp = toSenItemp->varrefp();
+        اگر (!toVarrefp) بازگشت نادرست;
 
         // We know nothing about the relationship between different clocks here,
         // so only proceed if strictly the same clock.
-        if (fromVarrefp->varScopep() != toVarrefp->varScopep()) return false;
+        اگر (fromVarrefp->varScopep() != toVarrefp->varScopep()) بازگشت نادرست;
 
-        return fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
+        بازگشت fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
     }
 
-    void addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
-        new V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
+    تهی addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
+        جدید V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
     }
 
-    void iterateLogicVertex(const OrderLogicVertex* lvtxp) {
-        const OrderDomain* const domainp = lvtxp->domainp();
-        OrderMoveVertex* const lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
+    تهی iterateLogicVertex(ثابت OrderLogicVertex* lvtxp) {
+        ثابت OrderDomain* ثابت domainp = lvtxp->domainp();
+        OrderMoveVertex* ثابت lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
         // Search forward from lvtxp, making new edges from lMoveVtxp forward
-        for (const V3GraphEdge& edge : lvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        برای (ثابت V3GraphEdge& edge : lvtxp->outEdges()) {
+            اگر (edge.weight() == 0) ادامه;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
-            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
+            ثابت OrderVarVertex* ثابت vvtxp = static_cast<ثابت OrderVarVertex*>(edge.بالاترین());
 
             // Look up OrderMoveVertex for this domain on this variable
             DomainMap& mapp = *static_cast<DomainMap*>(vvtxp->userp());
-            const auto pair = mapp.emplace(domainp, nullptr);
+            ثابت auto pair = mapp.emplace(domainp, nullptr);
             // Reference to the mapped OrderMoveVertex
             OrderMoveVertex*& vMoveVtxp = pair.first->second;
 
             // On first encounter, visit downstream logic dependent on this (var, domain)
-            if (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
+            اگر (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
 
             // If no downstream dependents from this variable, then there is no need to add this
             // variable as a dependent.
-            if (!vMoveVtxp) continue;
+            اگر (!vMoveVtxp) ادامه;
 
             // Add this (variable, domain) as dependent of the logic that writes it.
             addEdge(lMoveVtxp, vMoveVtxp);
@@ -164,29 +164,29 @@ class OrderMoveGraphBuilder final {
 
     // Return the OrderMoveVertex for this (var, domain) pair, iff it has downstream dependencies,
     // otherwise return nullptr.
-    OrderMoveVertex* iterateVarVertex(const OrderVarVertex* vvtxp, const OrderDomain* domainp) {
+    OrderMoveVertex* iterateVarVertex(ثابت OrderVarVertex* vvtxp, ثابت OrderDomain* domainp) {
         OrderMoveVertex* vMoveVtxp = nullptr;
         // Search forward from vvtxp, making new edges from vMoveVtxp forward
-        for (const V3GraphEdge& edge : vvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        برای (ثابت V3GraphEdge& edge : vvtxp->outEdges()) {
+            اگر (edge.weight() == 0) ادامه;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
-            const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
+            ثابت OrderLogicVertex* ثابت lVtxp = edge.بالاترین()->as<OrderLogicVertex>();
 
             // Do not construct dependencies across exclusive domains.
-            if (domainsExclusive(domainp, lVtxp->domainp())) continue;
+            اگر (domainsExclusive(domainp, lVtxp->domainp())) ادامه;
 
             // there is a path from this vvtx to a logic vertex. Add the new edge.
-            if (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
-            OrderMoveVertex* const lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
+            اگر (!vMoveVtxp) vMoveVtxp = جدید OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
+            OrderMoveVertex* ثابت lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
             addEdge(vMoveVtxp, lMoveVxp);
         }
-        return vMoveVtxp;
+        بازگشت vMoveVtxp;
     }
 
-public:
-    static std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
-        return std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
+عمومی:
+    ایستا std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
+        بازگشت std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
     }
 };
 
@@ -194,5 +194,5 @@ public:
 // OrderMoveGraph implementation
 
 std::unique_ptr<OrderMoveGraph> OrderMoveGraph::build(OrderGraph& orderGraph) {
-    return OrderMoveGraphBuilder::apply(orderGraph);
+    بازگشت OrderMoveGraphBuilder::apply(orderGraph);
 }

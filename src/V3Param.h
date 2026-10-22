@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3PARAM_H_
 #define VERILATOR_V3PARAM_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Param final {
-public:
-    static void param(AstNetlist* rootp) VL_MT_DISABLED;
-    static void finalizeDeferredParams(AstNetlist* rootp) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی param(AstNetlist* rootp) VL_MT_DISABLED;
+    ایستا تهی finalizeDeferredParams(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

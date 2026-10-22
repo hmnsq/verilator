@@ -35,191 +35,191 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#شامل "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeExpr VL_NOT_FINAL : public AstNode {
+class Ast_گره_عبارت VL_NOT_FINAL : عمومی Ast_گره {
     // An expression tree node
-protected:
-    AstNodeExpr(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+محافظتشده:
+    Ast_گره_عبارت(VNType t, File_سطر* fl)
+        : Ast_گره{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeExpr;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_عبارت;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     // Every expression must have a data type after V3Width
-    bool hasDType() const override final VL_MT_SAFE { return true; }
-    virtual string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
+    bool hasDType() ثابت override final VL_MT_SAFE { بازگشت true; }
+    مجازی string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
     // For documentation on emitC format see EmitCFunc::emitOpName
-    virtual string emitC() = 0;
-    virtual string emitSMT() const { return ""; };
-    virtual string emitSimpleOperator() { return ""; }  // "" means not ok to use
-    virtual bool emitCheckMaxWords() { return false; }  // Check VL_MULS_MAX_WORDS
-    virtual bool cleanOut() const = 0;  // True if output has extra upper bits zero
+    مجازی string emitC() = 0;
+    مجازی string emitSMT() ثابت { بازگشت ""; };
+    مجازی string emitSimpleOperator() { بازگشت ""; }  // "" means not ok to use
+    مجازی bool emit_Check_Max_واژگان() { بازگشت false; }  // Check VL_MULS_MAX_WORDS
+    مجازی bool cleanOut() ثابت = 0;  // True if output has extra upper bits zero
     // True for SVA multi-cycle sequence nodes (SExpr, SConsRep, etc.)
-    virtual bool isMultiCycleSva() const { return false; }
-    const AstNodeExpr* getVAccessTargetRecurse() const;
-    AstNodeExpr* getVAccessTargetRecurse() {
-        return const_cast<AstNodeExpr*>(  // casting constness away is safe since this function is
+    مجازی bool isMultiCycleSva() ثابت { بازگشت false; }
+    ثابت Ast_گره_عبارت* getVAccessTargetRecurse() ثابت;
+    Ast_گره_عبارت* getVAccessTargetRecurse() {
+        بازگشت const_cast<Ast_گره_عبارت*>(  // casting constness away is safe since this function is
                                           // non-const itself therefore, caller guarantees that
                                           // this object is non-const
-            static_cast<const AstNodeExpr*>(this)->getVAccessTargetRecurse());
+            static_cast<ثابت Ast_گره_عبارت*>(this)->getVAccessTargetRecurse());
     }
-    VAccess getVAccessRecurse() const;
+    VAccess getVAccessRecurse() ثابت;
     // TODO: this actually means it's a write or RW, not that it's an LValue
-    bool isLValue() const { return getVAccessRecurse().isWriteOrRW(); }
+    bool isLValue() ثابت { بازگشت getVAccessRecurse().isWriteOrRW(); }
     // A constant value known at compile time: a Const, or a NodeCons of only constants
-    bool isConstantTree() const;
+    bool is_Constant_درخت() ثابت;
     // Return base var (or const) nodep dereferences
-    AstNode* baseFromp(bool overMembers);
+    Ast_گره* baseFromp(bool overMembers);
 
     // Wrap This expression into an AstStmtExpr to denote it occurs in statement position
-    inline AstStmtExpr* makeStmt();
+    درونخطی Ast_Stmt_عبارت* makeStmt();
     // Returns an error message if widthMin() is not correct otherwise returns nullptr like
     // broken()
-    virtual const char* widthMismatch() const VL_MT_STABLE { return nullptr; }
+    مجازی ثابت نویسه* widthMismatch() ثابت VL_MT_STABLE { بازگشت nullptr; }
 
     // S-expression inspired dump of node and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
-    bool isFourstateOrNoDtype() const {
-        if (!dtypep()) return true;
-        return dtypep()->skipRefp()->isFourstate();
+    std::string patternString(uint32_t depth = 0) ثابت;
+    bool isFourstateOrNoDtype() ثابت {
+        اگر (!dtypep()) بازگشت true;
+        بازگشت dtypep()->skipRefp()->isFourstate();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p) {
-        return expr1p->isFourstateOrNoDtype();
+    ایستا bool isFourstateOrNoDtype(ثابت Ast_گره_عبارت* ثابت expr1p) {
+        بازگشت expr1p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p) {
-        return expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
+    ایستا bool isFourstateOrNoDtype(ثابت Ast_گره_عبارت* ثابت expr1p,
+                                     ثابت Ast_گره_عبارت* ثابت expr2p) {
+        بازگشت expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
+    ایستا bool isFourstateOrNoDtype(ثابت Ast_گره_عبارت* ثابت expr1p,
+                                     ثابت Ast_گره_عبارت* ثابت expr2p,
+                                     ثابت Ast_گره_عبارت* ثابت expr3p) {
+        بازگشت isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p,
-                                     const AstNodeExpr* const expr4p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
+    ایستا bool isFourstateOrNoDtype(ثابت Ast_گره_عبارت* ثابت expr1p,
+                                     ثابت Ast_گره_عبارت* ثابت expr2p,
+                                     ثابت Ast_گره_عبارت* ثابت expr3p,
+                                     ثابت Ast_گره_عبارت* ثابت expr4p) {
+        بازگشت isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
     }
 };
-class AstNodeBiop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Biop VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Binary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeExpr{t, fl} {
+محافظتشده:
+    Ast_گره_Biop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
+        : Ast_گره_عبارت{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiop;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Biop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    مجازی تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) = 0;
+    مجازی bool cleanLhs() ثابت = 0;  // True if LHS must have extra upper bits zero
+    مجازی bool cleanRhs() ثابت = 0;  // True if RHS must have extra upper bits zero
+    مجازی bool sizeMattersLhs() ثابت = 0;  // True if output result depends on lhs size
+    مجازی bool sizeMattersRhs() ثابت = 0;  // True if output result depends on rhs size
+    مجازی bool doubleFlavor() ثابت { بازگشت false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    مجازی bool signedFlavor() ثابت { بازگشت false; }
+    مجازی bool stringFlavor() ثابت { بازگشت false; }  // N flavor of nodes with both flavors?
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
     bool isPure() override;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 
-private:
-    bool getPurityRecurse() const { return lhsp()->isPure() && rhsp()->isPure(); }
+خصوصی:
+    bool getPurityRecurse() ثابت { بازگشت lhsp()->isPure() && rhsp()->isPure(); }
 };
-class AstNodeBiCom VL_NOT_FINAL : public AstNodeBiop {
+class Ast_گره_Bi_Com VL_NOT_FINAL : عمومی Ast_گره_Biop {
     // Binary expr with commutative properties
-protected:
-    AstNodeBiCom(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiop{t, fl, lhs, rhs} {}
+محافظتشده:
+    Ast_گره_Bi_Com(VNType t, File_سطر* fl, Ast_گره_عبارت* lhs, Ast_گره_عبارت* rhs)
+        : Ast_گره_Biop{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiCom;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Bi_Com;
 };
-class AstNodeBiComAsv VL_NOT_FINAL : public AstNodeBiCom {
+class Ast_گره_Bi_Com_Asv VL_NOT_FINAL : عمومی Ast_گره_Bi_Com {
     // Binary expr with commutative & associative properties
-protected:
-    AstNodeBiComAsv(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiCom{t, fl, lhs, rhs} {}
+محافظتشده:
+    Ast_گره_Bi_Com_Asv(VNType t, File_سطر* fl, Ast_گره_عبارت* lhs, Ast_گره_عبارت* rhs)
+        : Ast_گره_Bi_Com{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiComAsv;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Bi_Com_Asv;
 };
-class AstNodeDistBiop VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeDistBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
+class Ast_گره_Dist_Biop VL_NOT_FINAL : عمومی Ast_گره_Biop {
+عمومی:
+    Ast_گره_Dist_Biop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
+        : Ast_گره_Biop{t, fl, lhsp, rhsp} {
         dtypeSetInteger2State();
     }
-    ASTGEN_MEMBERS_AstNodeDistBiop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
+    ASTGEN_MEMBERS_Ast_گره_Dist_Biop;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_TRIG; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
 };
-class AstNodeSel VL_NOT_FINAL : public AstNodeBiop {
+class Ast_گره_Sel VL_NOT_FINAL : عمومی Ast_گره_Biop {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // @astgen alias op1 := fromp // Expression we are indexing into
     // @astgen alias op2 := bitp // The index // TODO: rename to idxp
-protected:
-    AstNodeSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : AstNodeBiop{t, fl, fromp, bitp} {}
+محافظتشده:
+    Ast_گره_Sel(VNType t, File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
+        : Ast_گره_Biop{t, fl, fromp, bitp} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeSel;
-    int bitConst() const;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Sel;
+    صحیح bitConst() ثابت;
 };
-class AstNodeStream VL_NOT_FINAL : public AstNodeBiop {
+class Ast_گره_Stream VL_NOT_FINAL : عمومی Ast_گره_Biop {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
-protected:
-    AstNodeStream(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        if (lhsp->dtypep()) {
+محافظتشده:
+    Ast_گره_Stream(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
+        : Ast_گره_Biop{t, fl, lhsp, rhsp} {
+        اگر (lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(lhsp->width(), lhsp->widthMin(), VSigning::UNSIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeStream;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Stream;
 };
-class AstNodeSystemBiopD VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeSystemBiopD(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
+class Ast_گره_System_Biop_D VL_NOT_FINAL : عمومی Ast_گره_Biop {
+عمومی:
+    Ast_گره_System_Biop_D(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
+        : Ast_گره_Biop{t, fl, lhsp, rhsp} {
         dtypeSetDouble();
     }
-    ASTGEN_MEMBERS_AstNodeSystemBiopD;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_گره_System_Biop_D;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_TRIG; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_CCall VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // A call of a C++ function, perhaps a AstCFunc or perhaps globally named
     // @astgen op2 := argsp : List[AstNodeExpr]  // Note: op1 used by some sub-types only
     //
@@ -228,56 +228,56 @@ class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
     string m_argTypes;
     bool m_superReference = false;  // Called with super reference
 
-protected:
-    AstNodeCCall(VNType t, FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
-        : AstNodeExpr{t, fl}
+محافظتشده:
+    Ast_گره_CCall(VNType t, File_سطر* fl, AstCFunc* funcp, Ast_گره_عبارت* argsp = nullptr)
+        : Ast_گره_عبارت{t, fl}
         , m_funcp{funcp} {
         addArgsp(argsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeCCall;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return INSTR_COUNT_CALL; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCCall* const asamep = VN_DBG_AS(samep, NodeCCall);
-        return (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_CCall;
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_CALL; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت Ast_گره_CCall* ثابت asamep = VN_DBG_AS(samep, گره_CCall);
+        بازگشت (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
     bool isPure() override;
-    bool isOutputter() override { return !isPure(); }
-    AstCFunc* funcp() const { return m_funcp; }
-    void funcp(AstCFunc* funcp) { m_funcp = funcp; }
-    string argTypes() const { return m_argTypes; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    bool isUnlikely() const override { return m_funcp && m_funcp->isUnlikely(); }
+    bool isOutputter() override { بازگشت !isPure(); }
+    AstCFunc* funcp() ثابت { بازگشت m_funcp; }
+    تهی funcp(AstCFunc* funcp) { m_funcp = funcp; }
+    string argTypes() ثابت { بازگشت m_argTypes; }
+    تهی argTypes(ثابت string& str) { m_argTypes = str; }
+    bool isUnlikely() ثابت override { بازگشت m_funcp && m_funcp->isUnlikely(); }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+    bool cleanOut() ثابت final override { بازگشت true; }
+    bool superReference() ثابت { بازگشت m_superReference; }
+    تهی superReference(bool flag) { m_superReference = flag; }
 };
-class AstNodeCons VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Cons VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Construct a value of an aggregate type
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be 'this->isConstantTree() == true'
+    friend class Ast_گره_عبارت;  // For m_knownConstantTree
+    mutable bool m_known_Constant_درخت = false;  // Known to be 'this->isConstantTree() == true'
 
-protected:
-    AstNodeCons(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+محافظتشده:
+    Ast_گره_Cons(VNType t, File_سطر* fl)
+        : Ast_گره_عبارت{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeCons;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Cons;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     std::string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     std::string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    int instrCount() const final override { return widthInstrs(); }
+    bool cleanOut() ثابت final override { بازگشت true; }
+    صحیح instr_شمار() ثابت final override { بازگشت widthInstrs(); }
 };
-class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_FTask_Ref VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // A reference to a task (or function)
     // op1 used by some sub-types only
     // @astgen op2 := argsp : List[AstArg]
@@ -286,8 +286,8 @@ class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
     //
     // @astgen ptr := m_taskp : Optional[AstNodeFTask]  // [AfterLink] Pointer to task referenced
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the task
-    ASTGEN_MEMBERS_AstNodeFTaskRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_گره_FTask_Ref;  // Gen pointers before other members for performance
+خصوصی:
     string m_name;  // Name of variable
     string m_dotted;  // Dotted part of scope the name()ed task/func is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
@@ -296,39 +296,39 @@ private:
     bool m_superReference = false;  // Called with super reference
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTaskRef(VNType t, FileLine* fl, const string& name, AstArg* argsp)
-        : AstNodeExpr{t, fl}
+محافظتشده:
+    Ast_گره_FTask_Ref(VNType t, File_سطر* fl, ثابت string& name, AstArg* argsp)
+        : Ast_گره_عبارت{t, fl}
         , m_name{name} {
         addArgsp(argsp);
     }
 
-public:
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool isGateOptimizable() const override;
-    string dotted() const { return m_dotted; }  // * = Scope name or ""
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    AstNodeFTask* taskp() const { return m_taskp; }  // [After Link] Pointer to variable
-    void taskp(AstNodeFTask* taskp) { m_taskp = taskp; }
-    void name(const string& name) override { m_name = name; }
-    void dotted(const string& name) { m_dotted = name; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool pli() const { return m_pli; }
-    void pli(bool flag) { m_pli = flag; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+عمومی:
+    ثابت نویسه* broken() ثابت override;
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
+    bool isGateOptimizable() ثابت override;
+    string dotted() ثابت { بازگشت m_dotted; }  // * = Scope name or ""
+    string inlinedDots() ثابت { بازگشت m_inlinedDots; }
+    تهی inlinedDots(ثابت string& flag) { m_inlinedDots = flag; }
+    Ast_گره_FTask* taskp() ثابت { بازگشت m_taskp; }  // [After Link] Pointer to variable
+    تهی taskp(Ast_گره_FTask* taskp) { m_taskp = taskp; }
+    تهی name(ثابت string& name) override { m_name = name; }
+    تهی dotted(ثابت string& name) { m_dotted = name; }
+    Ast_گره_Module* classOrPackagep() ثابت { بازگشت m_classOrPackagep; }
+    تهی classOrPackagep(Ast_گره_Module* nodep) { m_classOrPackagep = nodep; }
+    bool containsGenBlock() ثابت { بازگشت m_containsGenBlock; }
+    تهی containsGenBlock(ثابت bool flag) { m_containsGenBlock = flag; }
+    bool pli() ثابت { بازگشت m_pli; }
+    تهی pli(bool flag) { m_pli = flag; }
+    bool superReference() ثابت { بازگشت m_superReference; }
+    تهی superReference(bool flag) { m_superReference = flag; }
     bool isPure() override;
-    bool isUnlikely() const override { return m_taskp && m_taskp->isUnlikely(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeFTaskRef* const asamep = VN_DBG_AS(samep, NodeFTaskRef);
-        return taskp() == asamep->taskp()  //
+    bool isUnlikely() ثابت override { بازگشت m_taskp && m_taskp->isUnlikely(); }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت Ast_گره_FTask_Ref* ثابت asamep = VN_DBG_AS(samep, گره_FTask_Ref);
+        بازگشت taskp() == asamep->taskp()  //
                && classOrPackagep() == asamep->classOrPackagep()  //
                && name() == asamep->name()  //
                && dotted() == asamep->dotted()  //
@@ -339,12 +339,12 @@ public:
     }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت final override { V3ERROR_NA_RETURN(true); }
 
-private:
-    bool getPurityRecurse() const;
+خصوصی:
+    bool getPurityRecurse() ثابت;
 };
-class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Pre_Sel VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Something that becomes an AstSel
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -352,31 +352,31 @@ class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := attrp : Optional[AstAttrOf]
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodePreSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+محافظتشده:
+    Ast_گره_Pre_Sel(VNType t, File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp)
+        : Ast_گره_عبارت{t, fl} {
         this->fromp(fromp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodePreSel;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Pre_Sel;
     // METHODS
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت final override { V3ERROR_NA_RETURN(true); }
     bool isPure() override;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 
-private:
-    bool getPurityRecurse() const {
-        return fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
+خصوصی:
+    bool getPurityRecurse() ثابت {
+        بازگشت fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
     }
 };
-class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Quadop VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // 4-ary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -384,218 +384,218 @@ class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := fhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeQuadop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp,
-                  AstNodeExpr* fhsp)
-        : AstNodeExpr{t, fl} {
+محافظتشده:
+    Ast_گره_Quadop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp,
+                  Ast_گره_عبارت* fhsp)
+        : Ast_گره_عبارت{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
         this->fhsp(fhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeQuadop;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Quadop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths, const V3Number& fhs)
+    مجازی تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                               ثابت V3_عدد& ths, ثابت V3_عدد& fhs)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool cleanFhs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    virtual bool sizeMattersFhs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    مجازی bool cleanLhs() ثابت = 0;  // True if LHS must have extra upper bits zero
+    مجازی bool cleanRhs() ثابت = 0;  // True if RHS must have extra upper bits zero
+    مجازی bool cleanThs() ثابت = 0;  // True if THS must have extra upper bits zero
+    مجازی bool cleanFhs() ثابت = 0;  // True if THS must have extra upper bits zero
+    مجازی bool sizeMattersLhs() ثابت = 0;  // True if output result depends on lhs size
+    مجازی bool sizeMattersRhs() ثابت = 0;  // True if output result depends on rhs size
+    مجازی bool sizeMattersThs() ثابت = 0;  // True if output result depends on ths size
+    مجازی bool sizeMattersFhs() ثابت = 0;  // True if output result depends on ths size
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
     bool isPure() override;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
+خصوصی:
+    bool getPurityRecurse() ثابت {
+        بازگشت lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
     }
 };
-class AstNodeTermop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Termop VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Terminal operator -- an operator with no "inputs"
-protected:
-    AstNodeTermop(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+محافظتشده:
+    Ast_گره_Termop(VNType t, File_سطر* fl)
+        : Ast_گره_عبارت{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeTermop;
-    bool isSystemFunc() const override { return true; }
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Termop;
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstNodeTriop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Triop VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Ternary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := thsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+محافظتشده:
+    Ast_گره_Triop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp)
+        : Ast_گره_عبارت{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeTriop;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Triop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths)
+    مجازی تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                               ثابت V3_عدد& ths)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    مجازی bool cleanLhs() ثابت = 0;  // True if LHS must have extra upper bits zero
+    مجازی bool cleanRhs() ثابت = 0;  // True if RHS must have extra upper bits zero
+    مجازی bool cleanThs() ثابت = 0;  // True if THS must have extra upper bits zero
+    مجازی bool sizeMattersLhs() ثابت = 0;  // True if output result depends on lhs size
+    مجازی bool sizeMattersRhs() ثابت = 0;  // True if output result depends on rhs size
+    مجازی bool sizeMattersThs() ثابت = 0;  // True if output result depends on ths size
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
     bool isPure() override;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
+خصوصی:
+    bool getPurityRecurse() ثابت {
+        بازگشت lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
     }
 };
-class AstNodeDistTriop VL_NOT_FINAL : public AstNodeTriop {
-public:
-    AstNodeDistTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                     AstNodeExpr* thsp)
-        : AstNodeTriop{t, fl, lhsp, rhsp, thsp} {
+class Ast_گره_Dist_Triop VL_NOT_FINAL : عمومی Ast_گره_Triop {
+عمومی:
+    Ast_گره_Dist_Triop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp,
+                     Ast_گره_عبارت* thsp)
+        : Ast_گره_Triop{t, fl, lhsp, rhsp, thsp} {
         dtypeSetInteger2State();
     }
-    ASTGEN_MEMBERS_AstNodeDistTriop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ASTGEN_MEMBERS_Ast_گره_Dist_Triop;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool cleanThs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_TRIG; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                       ثابت V3_عدد& ths) override {
         V3ERROR_NA;
     }
 };
-class AstNodeUniop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Uniop VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // Unary expression
     // @astgen op1 := lhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeUniop(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeExpr{t, fl} {
+محافظتشده:
+    Ast_گره_Uniop(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp)
+        : Ast_گره_عبارت{t, fl} {
         dtypeFrom(lhsp);
         this->lhsp(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeUniop;
+عمومی:
+    ASTGEN_MEMBERS_Ast_گره_Uniop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     // Set out to evaluation of a AstConst'ed lhs
-    virtual void numberOperate(V3Number& out, const V3Number& lhs) = 0;
-    virtual bool cleanLhs() const = 0;
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    مجازی تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) = 0;
+    مجازی bool cleanLhs() ثابت = 0;
+    مجازی bool sizeMattersLhs() ثابت = 0;  // True if output result depends on lhs size
+    مجازی bool doubleFlavor() ثابت { بازگشت false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    مجازی bool signedFlavor() ثابت { بازگشت false; }
+    مجازی bool stringFlavor() ثابت { بازگشت false; }  // N flavor of nodes with both flavors?
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
     bool isPure() override;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 };
-class AstNodeSystemUniopD VL_NOT_FINAL : public AstNodeUniop {
-public:
-    AstNodeSystemUniopD(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeUniop{t, fl, lhsp} {
+class Ast_گره_System_Uniop_D VL_NOT_FINAL : عمومی Ast_گره_Uniop {
+عمومی:
+    Ast_گره_System_Uniop_D(VNType t, File_سطر* fl, Ast_گره_عبارت* lhsp)
+        : Ast_گره_Uniop{t, fl, lhsp} {
         dtypeSetDouble();
     }
-    ASTGEN_MEMBERS_AstNodeSystemUniopD;
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_گره_System_Uniop_D;
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_TRIG; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstNodeVarRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_گره_Var_Ref VL_NOT_FINAL : عمومی Ast_گره_عبارت {
     // An AstVarRef or AstVarXRef
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     // @astgen ptr := m_varScopep : Optional[AstVarScope]  // Varscope for hierarchy
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the variable
-    ASTGEN_MEMBERS_AstNodeVarRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_گره_Var_Ref;  // Gen pointers before other members for performance
+خصوصی:
     VAccess m_access;  // Left hand side assignment
     VSelfPointerText m_selfPointer
         = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
                                                         // pointer (e.g.: 'this')
-protected:
-    AstNodeVarRef(VNType t, FileLine* fl, AstVar* varp, const VAccess& access)
-        : AstNodeExpr{t, fl}
+محافظتشده:
+    Ast_گره_Var_Ref(VNType t, File_سطر* fl, AstVar* varp, ثابت VAccess& access)
+        : Ast_گره_عبارت{t, fl}
         , m_access{access} {
         // May have varp==nullptr
         this->varp(varp);
     }
 
-public:
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return widthInstrs(); }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) {
+عمومی:
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    VAccess access() ثابت { بازگشت m_access; }
+    تهی access(ثابت VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
+    AstVar* varp() ثابت VL_MT_STABLE { بازگشت m_varp; }  // [After Link] Pointer to variable
+    تهی varp(AstVar* varp) {
         m_varp = varp;
-        dtypeFrom(reinterpret_cast<AstNode*>(varp));
+        dtypeFrom(reinterpret_cast<Ast_گره*>(varp));
     }
-    AstVarScope* varScopep() const { return m_varScopep; }
-    void varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    AstVarScope* varScopep() ثابت { بازگشت m_varScopep; }
+    تهی varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
+    ثابت VSelfPointerText& selfPointer() ثابت { بازگشت m_selfPointer; }
+    تهی selfPointer(ثابت VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
+    string selfPointerProtect(bool useSelfForThis) ثابت {
+        بازگشت selfPointer().protect(useSelfForThis, protect());
     }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    Ast_گره_Module* classOrPackagep() ثابت { بازگشت m_classOrPackagep; }
+    تهی classOrPackagep(Ast_گره_Module* nodep) { m_classOrPackagep = nodep; }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstArg final : public AstNode {
+class AstArg final : عمومی Ast_گره {
     // An argument to a function/task, which is either an expression, or is a placeholder for an
     // omitted argument.
     // @astgen op1 := exprp : Optional[AstNodeExpr] // nullptr if omitted
     std::string m_name;  // Argument name, or "" for number based interconnect
-public:
-    AstArg(FileLine* fl, const std::string& name, AstNodeExpr* exprp)
+عمومی:
+    AstArg(File_سطر* fl, ثابت std::string& name, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_Arg(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstArg;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool emptyConnectNoNext() const { return !exprp() && name() == "" && !nextp(); }
+    std::string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
+    تهی name(ثابت std::string& name) override { m_name = name; }
+    bool emptyConnectNoNext() ثابت { بازگشت !exprp() && name() == "" && !nextp(); }
 };
-class AstWith final : public AstNode {
+class AstWith final : عمومی Ast_گره {
     // Similar to AstArg, but this is essentially a lambda passed to a call.
     // Not an AstNodeExpr as there is no concept of function values in Verilator
     // The dtypep() contains the with lambda's return dtype, not a function type.
@@ -607,45 +607,45 @@ class AstWith final : public AstNode {
     // @astgen op2 := valueArgRefp : AstLambdaArgRef
     // @astgen op3 := exprp : List[AstNode]  // Pins, expression and constraints
     // TODO: Separate expression and constraints
-private:
+خصوصی:
     // 'with (identifier_list) {...}' restricted form (IEEE 1800-2023 18.7).
     bool m_restricted = false;
     // dist-ast-dump-suppress  // V3LinkDot temporary use only
     bool m_validated = false;  // identifier_list typo / unused checks already run
     std::set<std::string> m_restrictedNames;
 
-public:
-    AstWith(FileLine* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* valueArgRefp,
-            AstNode* exprp)
+عمومی:
+    AstWith(File_سطر* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* مقدار_Arg_Refp,
+            Ast_گره* exprp)
         : ASTGEN_SUPER_With(fl) {
         this->indexArgRefp(indexArgRefp);
-        this->valueArgRefp(valueArgRefp);
+        this->مقدار_Arg_Refp(مقدار_Arg_Refp);
         addExprp(exprp);
     }
     ASTGEN_MEMBERS_AstWith;
-    bool hasDType() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    const char* broken() const override {
+    bool hasDType() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    ثابت نویسه* broken() ثابت override {
         BROKEN_RTN(!indexArgRefp());  // varp needed to know lambda's arg dtype
-        BROKEN_RTN(!valueArgRefp());  // varp needed to know lambda's arg dtype
-        return nullptr;
+        BROKEN_RTN(!مقدار_Arg_Refp());  // varp needed to know lambda's arg dtype
+        بازگشت nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void restricted(bool flag) { m_restricted = flag; }
-    bool restricted() const { return m_restricted; }
-    bool validated() const { return m_validated; }
-    void validated(bool flag) { m_validated = flag; }
-    void addRestrictedName(const std::string& name) { m_restrictedNames.insert(name); }
-    const std::set<std::string>& restrictedNames() const { return m_restrictedNames; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    تهی restricted(bool flag) { m_restricted = flag; }
+    bool restricted() ثابت { بازگشت m_restricted; }
+    bool validated() ثابت { بازگشت m_validated; }
+    تهی validated(bool flag) { m_validated = flag; }
+    تهی addRestrictedName(ثابت std::string& name) { m_restrictedNames.درج(name); }
+    ثابت std::set<std::string>& restrictedNames() ثابت { بازگشت m_restrictedNames; }
     // True if 'name' binds into the randomize() target class.
-    bool nameResolvesToTarget(const std::string& name) const {
-        return !m_restricted || m_restrictedNames.count(name);
+    bool nameResolvesToTarget(ثابت std::string& name) ثابت {
+        بازگشت !m_restricted || m_restrictedNames.شمار(name);
     }
 };
 
 // === AstNodeExpr ===
-class AstAbortOn final : public AstNodeExpr {
+class AstAbortOn final : عمومی Ast_گره_عبارت {
     // IEEE 1800-2023 16.12.14: accept_on/reject_on/sync_accept_on/sync_reject_on
     // (cond) prop. The four operators share an identical AST shape and lowering
     // scaffolding -- VAbortKind selects between Accept/Reject verdict and
@@ -654,168 +654,168 @@ class AstAbortOn final : public AstNodeExpr {
     // @astgen op2 := propp : AstNodeExpr
     VAbortKind m_kind{VAbortKind::ACCEPT_ON};
 
-public:
-    AstAbortOn(FileLine* fl, VAbortKind kind, AstNodeExpr* condp, AstNodeExpr* propp)
+عمومی:
+    AstAbortOn(File_سطر* fl, VAbortKind kind, Ast_گره_عبارت* condp, Ast_گره_عبارت* propp)
         : ASTGEN_SUPER_AbortOn(fl)
         , m_kind{kind} {
         this->condp(condp);
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstAbortOn;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAbortKind kind() const { return m_kind; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    VAbortKind kind() ثابت { بازگشت m_kind; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstAddrOfCFunc final : public AstNodeExpr {
+class AstAddrOfCFunc final : عمومی Ast_گره_عبارت {
     // Get address of CFunc
     // @astgen ptr := m_funcp : AstCFunc  // Pointer to function itself
 
-public:
-    AstAddrOfCFunc(FileLine* fl, AstCFunc* funcp)
+عمومی:
+    AstAddrOfCFunc(File_سطر* fl, AstCFunc* funcp)
         : ASTGEN_SUPER_AddrOfCFunc(fl)
         , m_funcp{funcp} {
         dtypep(findCHandleDType());
     }
 
     ASTGEN_MEMBERS_AstAddrOfCFunc;
-    void dump(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstCFunc* funcp() const { return m_funcp; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    AstCFunc* funcp() ثابت { بازگشت m_funcp; }
 };
-class AstAttrOf final : public AstNodeExpr {
+class AstAttrOf final : عمومی Ast_گره_عبارت {
     // Return a value of a attribute, for example a LSB or array LSB of a signal
     // @astgen op1 := fromp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := dimp : Optional[AstNodeExpr]
     VAttrType m_attrType;  // What sort of extraction
     string m_name;  // Name for some attributes
-public:
-    AstAttrOf(FileLine* fl, VAttrType attrtype, AstNode* fromp = nullptr,
-              AstNodeExpr* dimp = nullptr)
+عمومی:
+    AstAttrOf(File_سطر* fl, VAttrType attrtype, Ast_گره* fromp = nullptr,
+              Ast_گره_عبارت* dimp = nullptr)
         : ASTGEN_SUPER_AttrOf(fl) {
         this->fromp(fromp);
         this->dimp(dimp);
         m_attrType = attrtype;
     }
     ASTGEN_MEMBERS_AstAttrOf;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    VAttrType attrType() const { return m_attrType; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
+    تهی name(ثابت string& name) override { m_name = name; }
+    VAttrType attrType() ثابت { بازگشت m_attrType; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstCExpr final : public AstNodeExpr {
+class AstCExpr final : عمومی Ast_گره_عبارت {
     // C expression emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Pure optimizable
+    ثابت bool m_pure;  // Pure optimizable
 
-    void init(const string& text, int setwidth) {
-        if (!text.empty()) add(text);
-        if (setwidth) {
+    تهی init(ثابت string& text, صحیح setwidth) {
+        اگر (!text.empty()) add(text);
+        اگر (setwidth) {
             dtypeSetBitSized(setwidth, VSigning::UNSIGNED);
-        } else {
+        } وگرنه {
             dtypeSetVoid();  // Caller to override if necessary
         }
     }
 
-public:
+عمومی:
     class Pure {};
-    explicit AstCExpr(FileLine* fl, const string& text = "", int setwidth = 0)
+    explicit AstCExpr(File_سطر* fl, ثابت string& text = "", صحیح setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
         , m_pure{false} {
         init(text, setwidth);
     }
-    AstCExpr(FileLine* fl, Pure, const string& text = "", int setwidth = 0)
+    AstCExpr(File_سطر* fl, Pure, ثابت string& text = "", صحیح setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
         , m_pure{true} {
         init(text, setwidth);
     }
     ASTGEN_MEMBERS_AstCExpr;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return true; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    bool cleanOut() ثابت override { بازگشت true; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت m_pure; }
+    bool isOutputter() override { بازگشت true; }
+    bool isPredictOptimizable() ثابت override { بازگشت m_pure; }
+    bool isPure() override { بازگشت m_pure; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    تهی add(ثابت std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    تهی add(Ast_گره* nodep) { addNodesp(nodep); }
 };
-class AstCExprUser final : public AstNodeExpr {
+class AstCExprUser final : عمومی Ast_گره_عبارت {
     // User '$c' or '$cpure' expression - Like AstCStmt, with text tracking and optimizations
     // disabled.
     //
     // Use AstCExpr instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Whether the function is pure
-public:
+    ثابت bool m_pure;  // Whether the function is pure
+عمومی:
     class Pure {};
-    explicit AstCExprUser(FileLine* fl)
+    explicit AstCExprUser(File_سطر* fl)
         : ASTGEN_SUPER_CExprUser(fl)
         , m_pure{false} {}
-    AstCExprUser(FileLine* fl, Pure)
+    AstCExprUser(File_سطر* fl, Pure)
         : ASTGEN_SUPER_CExprUser(fl)
         , m_pure{true} {}
     ASTGEN_MEMBERS_AstCExprUser;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return false; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    bool cleanOut() ثابت override { بازگشت false; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت m_pure; }
+    bool isOutputter() override { بازگشت true; }
+    bool isPredictOptimizable() ثابت override { بازگشت m_pure; }
+    bool isPure() override { بازگشت m_pure; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    تهی add(ثابت std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    تهی add(Ast_گره* nodep) { addNodesp(nodep); }
 };
-class AstCFuncHard final : public AstNodeExpr {
+class AstCFuncHard final : عمومی Ast_گره_عبارت {
     // A call to a C++ function in the runtime library (include/verilated*)
     // PARENTS: stmt/expr
     // @astgen op1 := pinsp : List[AstNodeExpr] // Arguments
     VIsCached m_purity;  // Pure optimizable
     VCFunction m_function;  // Which function to call
-public:
-    AstCFuncHard(FileLine* fl, VCFunction function, AstNodeExpr* pinsp = nullptr)
+عمومی:
+    AstCFuncHard(File_سطر* fl, VCFunction function, Ast_گره_عبارت* pinsp = nullptr)
         : ASTGEN_SUPER_CFuncHard(fl)
         , m_function{function} {
         addPinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCFuncHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return function().ascii(); }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت function().ascii(); }
     bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+        اگر (!m_purity.isCached()) m_purity.set(getPurity());
+        بازگشت m_purity.get();
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    VCFunction function() const VL_MT_STABLE { return m_function; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    VCFunction function() ثابت VL_MT_STABLE { بازگشت m_function; }
 
-private:
+خصوصی:
     bool getPurity();
 };
-class AstCMethodHard final : public AstNodeExpr {
+class AstCMethodHard final : عمومی Ast_گره_عبارت {
     // A reference to a "C" hardcoded member task (or function)
     // PARENTS: stmt/expr
     // @astgen op1 := fromp : AstNodeExpr // Subject of method call
@@ -824,69 +824,69 @@ class AstCMethodHard final : public AstNodeExpr {
     VCMethod m_method;  // Which method to call
     VIsCached m_purity;  // Pure optimizable
     bool m_usePtr = false;  // Use '->' not '.'
-public:
-    AstCMethodHard(FileLine* fl, AstNodeExpr* fromp, VCMethod method, AstNodeExpr* pinsp = nullptr)
+عمومی:
+    AstCMethodHard(File_سطر* fl, Ast_گره_عبارت* fromp, VCMethod method, Ast_گره_عبارت* pinsp = nullptr)
         : ASTGEN_SUPER_CMethodHard(fl)
         , m_method{method} {
         this->fromp(fromp);
         addPinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCMethodHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return method().ascii(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCMethodHard* const asamep = VN_DBG_AS(samep, CMethodHard);
-        return (m_method == asamep->m_method);
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت method().ascii(); }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstCMethodHard* ثابت asamep = VN_DBG_AS(samep, CMethodHard);
+        بازگشت (m_method == asamep->m_method);
     }
     bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+        اگر (!m_purity.isCached()) m_purity.set(getPurity());
+        بازگشت m_purity.get();
     }
-    int instrCount() const override;
+    صحیح instr_شمار() ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return m_method.isClean(); }
-    bool usePtr() const { return m_usePtr; }
-    void usePtr(bool flag) { m_usePtr = flag; }
-    VCMethod method() const VL_MT_STABLE { return m_method; }
-    void method(VCMethod value) { m_method = value; }
+    bool cleanOut() ثابت override { بازگشت m_method.isClean(); }
+    bool usePtr() ثابت { بازگشت m_usePtr; }
+    تهی usePtr(bool flag) { m_usePtr = flag; }
+    VCMethod method() ثابت VL_MT_STABLE { بازگشت m_method; }
+    تهی method(VCMethod مقدار) { m_method = مقدار; }
 
-private:
+خصوصی:
     bool getPurity();
 };
-class AstCReset final : public AstNodeExpr {
+class AstCReset final : عمومی Ast_گره_عبارت {
     // Reset variable at startup
-    const bool m_constructing;  // Previously cleared by constructor
-public:
-    AstCReset(FileLine* fl, AstVar* varp, bool constructing)
+    ثابت bool m_constructing;  // Previously cleared by constructor
+عمومی:
+    AstCReset(File_سطر* fl, AstVar* varp, bool constructing)
         : ASTGEN_SUPER_CReset(fl)
         , m_constructing{constructing} {
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstCReset;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isPure() override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    bool isPure() override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), NodeAssign));  // V3Emit* assumption
-        return nullptr;
+    bool cleanOut() ثابت override { بازگشت true; }
+    ثابت نویسه* broken() ثابت override {
+        BROKEN_RTN(!VN_IS(backp(), گره_Assign));  // V3Emit* assumption
+        بازگشت nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        return constructing() == VN_DBG_AS(samep, CReset)->constructing();
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت constructing() == VN_DBG_AS(samep, CReset)->constructing();
     }
-    bool constructing() const { return m_constructing; }
+    bool constructing() ثابت { بازگشت m_constructing; }
 };
-class AstCast final : public AstNodeExpr {
+class AstCast final : عمومی Ast_گره_عبارت {
     // Cast to appropriate data type
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := childDTypep : Optional[AstNodeDType]
-public:
-    AstCast(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, AstNodeDType* dtp)
+عمومی:
+    AstCast(File_سطر* fl, Ast_گره_عبارت* fromp, VFlagChildDType, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         childDTypep(dtp);
@@ -894,73 +894,73 @@ public:
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCast(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCast(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCast;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { بازگشت "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
+    Ast_گره_DType* getChildDTypep() ثابت override { بازگشت childDTypep(); }
+    Ast_گره_DType* subDTypep() ثابت VL_MT_STABLE { بازگشت dtypep() ? dtypep() : childDTypep(); }
 };
-class AstCastParse final : public AstNodeExpr {
+class AstCastParse final : عمومی Ast_گره_عبارت {
     // Cast to appropriate type, where we haven't determined yet what the data type is
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := dtp : AstNode
-public:
-    AstCastParse(FileLine* fl, AstNodeExpr* lhsp, AstNode* dtp)
+عمومی:
+    AstCastParse(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره* dtp)
         : ASTGEN_SUPER_CastParse(fl) {
         this->lhsp(lhsp);
         this->dtp(dtp);
     }
     ASTGEN_MEMBERS_AstCastParse;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { بازگشت "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstCastSize final : public AstNodeExpr {
+class AstCastSize final : عمومی Ast_گره_عبارت {
     // Cast to specific size; signed/twostate inherited from lower element per IEEE
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstConst
-public:
-    AstCastSize(FileLine* fl, AstNodeExpr* lhsp, AstConst* rhsp)
+عمومی:
+    AstCastSize(File_سطر* fl, Ast_گره_عبارت* lhsp, AstConst* rhsp)
         : ASTGEN_SUPER_CastSize(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstCastSize;
-    string emitVerilog() override { return "((%r)'(%l))"; }
+    string emitVerilog() override { بازگشت "((%r)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellArrayRef final : public AstNodeExpr {
+class AstCellArrayRef final : عمومی Ast_گره_عبارت {
     // As-of-yet unlinkable reference into an array of cells
     // @astgen op1 := selp : List[AstNodeExpr] // Select expression
     string m_name;  // Array name
-public:
-    AstCellArrayRef(FileLine* fl, const string& name, AstNodeExpr* selp)
+عمومی:
+    AstCellArrayRef(File_سطر* fl, ثابت string& name, Ast_گره_عبارت* selp)
         : ASTGEN_SUPER_CellArrayRef(fl)
         , m_name{name} {
         addSelp(selp);
     }
     ASTGEN_MEMBERS_AstCellArrayRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellRef final : public AstNodeExpr {
+class AstCellRef final : عمومی Ast_گره_عبارت {
     // As-of-yet unlinkable reference into a cell
     // @astgen op1 := cellp : AstNode
     // @astgen op2 := exprp : AstNode<AstNodeExpr|AstNodeDType>
     string m_name;  // Cell name
-public:
-    AstCellRef(FileLine* fl, const string& name, AstNode* cellp, AstNode* exprp)
+عمومی:
+    AstCellRef(File_سطر* fl, ثابت string& name, Ast_گره* cellp, Ast_گره* exprp)
         : ASTGEN_SUPER_CellRef(fl)
         , m_name{name} {
         this->cellp(cellp);
@@ -968,19 +968,19 @@ public:
     }
     ASTGEN_MEMBERS_AstCellRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstClassOrPackageRef final : public AstNodeExpr {
+class AstClassOrPackageRef final : عمومی Ast_گره_عبارت {
     // @astgen op1 := paramsp : List[AstPin]
     string m_name;
     // Node not NodeModule to appease some early parser usage
     // @astgen ptr := m_classOrPackageNodep : Optional[AstNode]  // Class/package referenced
-public:
-    AstClassOrPackageRef(FileLine* fl, const string& name, AstNode* classOrPackageNodep,
+عمومی:
+    AstClassOrPackageRef(File_سطر* fl, ثابت string& name, Ast_گره* classOrPackageNodep,
                          AstPin* paramsp)
         : ASTGEN_SUPER_ClassOrPackageRef(fl)
         , m_name{name}
@@ -989,243 +989,243 @@ public:
     }
     ASTGEN_MEMBERS_AstClassOrPackageRef;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        return (m_classOrPackageNodep
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت (m_classOrPackageNodep
                 == VN_DBG_AS(samep, ClassOrPackageRef)->m_classOrPackageNodep);
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
     // There's no classOrPackagep(); use classOrPackageNodep() to get Node,
     // or iterating to package with classOrPackageSkipp()
-    AstNodeModule* classOrPackageSkipp(const bool doRefs = true) const;
-    AstNode* classOrPackageNodep() const { return m_classOrPackageNodep; }
-    void classOrPackageNodep(AstNode* nodep) { m_classOrPackageNodep = nodep; }
-    void classOrPackagep(AstNodeModule* nodep) {
-        m_classOrPackageNodep = reinterpret_cast<AstNode*>(nodep);
+    Ast_گره_Module* classOrPackageSkipp(ثابت bool doRefs = true) ثابت;
+    Ast_گره* classOrPackageNodep() ثابت { بازگشت m_classOrPackageNodep; }
+    تهی classOrPackageNodep(Ast_گره* nodep) { m_classOrPackageNodep = nodep; }
+    تهی classOrPackagep(Ast_گره_Module* nodep) {
+        m_classOrPackageNodep = reinterpret_cast<Ast_گره*>(nodep);
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstConst final : public AstNodeExpr {
+class AstConst final : عمومی Ast_گره_عبارت {
     // A constant
-    V3Number m_num;  // Constant value
-    void initWithNumber() {
-        if (m_num.isDouble()) {
+    V3_عدد m_رقم;  // Constant value
+    تهی init_With_عدد() {
+        اگر (m_رقم.isDouble()) {
             dtypeSetDouble();
-        } else if (m_num.isString()) {
+        } وگرنه اگر (m_رقم.isString()) {
             dtypeSetString();
-        } else {
-            dtypeSetBitOrLogicUnsized(m_num.width(), (m_num.sized() ? 0 : m_num.widthToFit()),
-                                      VSigning::fromBool(m_num.isSigned()), m_num.isAnyXZ());
+        } وگرنه {
+            dtypeSetBitOrLogicUnsized(m_رقم.width(), (m_رقم.sized() ? 0 : m_رقم.widthToFit()),
+                                      VSigning::fromBool(m_رقم.isSigned()), m_رقم.isAnyXZ());
         }
-        m_num.nodep(this);
+        m_رقم.nodep(this);
     }
 
-public:
+عمومی:
     ~AstConst() override;
-    AstConst(FileLine* fl, const V3Number& num)
+    AstConst(File_سطر* fl, ثابت V3_عدد& رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{num} {
-        initWithNumber();
+        , m_رقم{رقم} {
+        init_With_عدد();
     }
-    class WidthedValue {};  // for creator type-overload selection
-    AstConst(FileLine* fl, WidthedValue, int width, uint32_t value)
+    class Widthed_مقدار {};  // for creator type-overload selection
+    AstConst(File_سطر* fl, Widthed_مقدار, صحیح width, uint32_t مقدار)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, width, value) {  // Need () constructor
-        initWithNumber();
+        , m_رقم(this, width, مقدار) {  // Need () constructor
+        init_With_عدد();
     }
     class DTyped {};  // for creator type-overload selection
     // Zero/empty constant with a type matching nodetypep
-    AstConst(FileLine* fl, DTyped, const AstNodeDType* nodedtypep)
+    AstConst(File_سطر* fl, DTyped, ثابت Ast_گره_DType* nodedtypep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, nodedtypep} {
-        initWithNumber();
+        , m_رقم{this, nodedtypep} {
+        init_With_عدد();
     }
     class StringToParse {};  // for creator type-overload selection
-    AstConst(FileLine* fl, StringToParse, const char* sourcep)
+    AstConst(File_سطر* fl, StringToParse, ثابت نویسه* sourcep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, sourcep} {
-        initWithNumber();
+        , m_رقم{this, V3_عدد::Verilog_عدد_Literal{}, sourcep} {
+        init_With_عدد();
     }
     class VerilogStringLiteral {};  // for creator type-overload selection
-    AstConst(FileLine* fl, VerilogStringLiteral, const string& str)
+    AstConst(File_سطر* fl, VerilogStringLiteral, ثابت string& str)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogStringLiteral{}, str} {
-        initWithNumber();
+        , m_رقم{this, V3_عدد::VerilogStringLiteral{}, str} {
+        init_With_عدد();
     }
-    AstConst(FileLine* fl, uint32_t num)
+    AstConst(File_سطر* fl, uint32_t رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        dtypeSetBitUnsized(m_num.width(), 0, VSigning::UNSIGNED);
+        , m_رقم(this, 32, رقم) {  // Need () constructor
+        dtypeSetBitUnsized(m_رقم.width(), 0, VSigning::UNSIGNED);
     }
     class Unsized32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized32, uint32_t num)  // Unsized 32-bit integer of specified value
+    AstConst(File_سطر* fl, Unsized32, uint32_t رقم)  // Unsized 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, false);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::UNSIGNED);
+        , m_رقم(this, 32, رقم) {  // Need () constructor
+        m_رقم.width(32, false);
+        dtypeSetBitUnsized(32, m_رقم.widthToFit(), VSigning::UNSIGNED);
     }
     class Signed32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Signed32, int32_t num)  // Signed 32-bit integer of specified value
+    AstConst(File_سطر* fl, Signed32, int32_t رقم)  // Signed 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, true);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::SIGNED);
+        , m_رقم(this, 32, رقم) {  // Need () constructor
+        m_رقم.width(32, true);
+        dtypeSetBitUnsized(32, m_رقم.widthToFit(), VSigning::SIGNED);
     }
     class Unsized64 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized64, uint64_t num)
+    AstConst(File_سطر* fl, Unsized64, uint64_t رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64, 0) {  // Need () constructor
-        m_num.setQuad(num);
+        , m_رقم(this, 64, 0) {  // Need () constructor
+        m_رقم.setQuad(رقم);
         dtypeSetBitSized(64, VSigning::UNSIGNED);
     }
     class SizedEData {};  // for creator type-overload selection
-    AstConst(FileLine* fl, SizedEData, uint64_t num)
+    AstConst(File_سطر* fl, SizedEData, uint64_t رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, VL_EDATASIZE, 0) {  // Need () constructor
-        m_num.setQuad(num);
+        , m_رقم(this, VL_EDATASIZE, 0) {  // Need () constructor
+        m_رقم.setQuad(رقم);
         dtypeSetBitSized(VL_EDATASIZE, VSigning::UNSIGNED);
     }
     class RealDouble {};  // for creator type-overload selection
-    AstConst(FileLine* fl, RealDouble, double num)
+    AstConst(File_سطر* fl, RealDouble, دوگانه رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64) {  // Need () constructor
-        m_num.setDouble(num);
+        , m_رقم(this, 64) {  // Need () constructor
+        m_رقم.setDouble(رقم);
         dtypeSetDouble();
     }
     class String {};  // for creator type-overload selection
-    AstConst(FileLine* fl, String, const string& num)
+    AstConst(File_سطر* fl, String, ثابت string& رقم)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::String{}, num} {
+        , m_رقم{this, V3_عدد::String{}, رقم} {
         dtypeSetString();
     }
     class BitFalse {};
-    AstConst(FileLine* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
+    AstConst(File_سطر* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
+        , m_رقم(this, 1, 0) {  // Need () constructor
         dtypeSetBit();
     }
     // False but created due to reporting earlier error; suppress some later errors
     class BitFalseErroring {};
-    AstConst(FileLine* fl, BitFalseErroring)
+    AstConst(File_سطر* fl, BitFalseErroring)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
+        , m_رقم(this, 1, 0) {  // Need () constructor
         dtypeSetBit();
-        FileLine* const newfl = new FileLine{fileline()};
+        File_سطر* ثابت newfl = new File_سطر{fileline()};
         newfl->erroringOn(true);
         fileline(newfl);
     }
     // Shorthand const 1 (or with argument 0/1), dtype should be a bit of size 1
     class BitTrue {};
-    AstConst(FileLine* fl, BitTrue, bool on = true)
+    AstConst(File_سطر* fl, BitTrue, bool on = true)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, on) {  // Need () constructor
+        , m_رقم(this, 1, on) {  // Need () constructor
         dtypeSetBit();
     }
     class All0 {};
-    AstConst(FileLine* fl, All0)
+    AstConst(File_سطر* fl, All0)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'0"} {
-        initWithNumber();
+        , m_رقم{this, V3_عدد::Verilog_عدد_Literal{}, "'0"} {
+        init_With_عدد();
         fl->warnOff(V3ErrorCode::NEWERSTD, true);
     }
     class All1 {};
-    AstConst(FileLine* fl, All1)
+    AstConst(File_سطر* fl, All1)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'1"} {
-        initWithNumber();
+        , m_رقم{this, V3_عدد::Verilog_عدد_Literal{}, "'1"} {
+        init_With_عدد();
         fl->warnOff(V3ErrorCode::NEWERSTD, true);
     }
     class Null {};
-    AstConst(FileLine* fl, Null)
+    AstConst(File_سطر* fl, Null)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::Null{}} {
+        , m_رقم{this, V3_عدد::Null{}} {
         dtypep(findNullDType());
-        initWithNumber();
+        init_With_عدد();
     }
     class OneStep {};
-    AstConst(FileLine* fl, OneStep)
+    AstConst(File_سطر* fl, OneStep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::OneStep{}} {
+        , m_رقم{this, V3_عدد::OneStep{}} {
         dtypeSetBitSized(64, VSigning::UNSIGNED);
-        initWithNumber();
+        init_With_عدد();
     }
     ASTGEN_MEMBERS_AstConst;
-    string name() const override VL_MT_STABLE { return num().ascii(); }  // * = Value
-    const V3Number& num() const VL_MT_SAFE { return m_num; }  // * = Value
-    V3Number& num() { return m_num; }  // * = Value
-    string origParamName() const;
-    void origParamName(const string& name);
-    uint32_t toUInt() const { return num().toUInt(); }
-    int32_t toSInt() const VL_MT_SAFE { return num().toSInt(); }
-    uint64_t toUQuad() const { return num().toUQuad(); }
+    string name() ثابت override VL_MT_STABLE { بازگشت رقم().ascii(); }  // * = Value
+    ثابت V3_عدد& رقم() ثابت VL_MT_SAFE { بازگشت m_رقم; }  // * = Value
+    V3_عدد& رقم() { بازگشت m_رقم; }  // * = Value
+    string origParamName() ثابت;
+    تهی origParamName(ثابت string& name);
+    uint32_t toUInt() ثابت { بازگشت رقم().toUInt(); }
+    int32_t toSInt() ثابت VL_MT_SAFE { بازگشت رقم().toSInt(); }
+    uint64_t toUQuad() ثابت { بازگشت رقم().toUQuad(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstConst* const sp = VN_DBG_AS(samep, Const);
-        return num().isCaseEq(sp->num());
+    bool cleanOut() ثابت override { بازگشت true; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstConst* ثابت sp = VN_DBG_AS(samep, Const);
+        بازگشت رقم().isCaseEq(sp->رقم());
     }
-    void cloneRelink() override;
-    const char* broken() const override {
-        BROKEN_RTN(m_num.nodep() && m_num.nodep() != this);
-        return nullptr;
+    تهی cloneRelink() override;
+    ثابت نویسه* broken() ثابت override {
+        BROKEN_RTN(m_رقم.nodep() && m_رقم.nodep() != this);
+        بازگشت nullptr;
     }
-    int instrCount() const override { return widthInstrs(); }
-    bool isEqAllOnes() const { return num().isEqAllOnes(width()); }
-    bool isEqAllOnesV() const { return num().isEqAllOnes(widthMinV()); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool isEqAllOnes() ثابت { بازگشت رقم().isEqAllOnes(width()); }
+    bool isEqAllOnesV() ثابت { بازگشت رقم().isEqAllOnes(widthMinV()); }
     // Whether a parameter declared without a data type takes the same type from this value
     // as from 'samep': both real, both string, or both integral with the same width and
     // signedness. Unlike AstNodeDType::similarDType, ignores whether two-state or four-state.
-    bool sameValueType(const AstConst* samep) const;
+    bool same_مقدار_Type(ثابت AstConst* samep) ثابت;
     // Parse string and create appropriate type of AstConst.
     // May return nullptr on parse failure.
-    static AstConst* parseParamLiteral(FileLine* fl, const string& literal);
+    ایستا AstConst* parseParamLiteral(File_سطر* fl, ثابت string& literal);
 };
-class AstConstraintRef final : public AstNodeExpr {
+class AstConstraintRef final : عمومی Ast_گره_عبارت {
     // A reference to a constraint identifier
     // @astgen op1 := fromp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_constrp : AstConstraint  // The constraint pointed to
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of constraint
 
-public:
-    AstConstraintRef(FileLine* fl, AstNodeExpr* fromp, AstConstraint* constrp)
+عمومی:
+    AstConstraintRef(File_سطر* fl, Ast_گره_عبارت* fromp, AstConstraint* constrp)
         : ASTGEN_SUPER_ConstraintRef(fl) {
         this->fromp(fromp);
         this->constrp(constrp);
         dtypep(findConstraintRefDType());
     }
     ASTGEN_MEMBERS_AstConstraintRef;
-    string name() const override VL_MT_STABLE;
-    AstConstraint* constrp() const VL_MT_STABLE { return m_constrp; }
-    void constrp(AstConstraint* nodep) { m_constrp = nodep; }
-    AstNodeModule* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
+    string name() ثابت override VL_MT_STABLE;
+    AstConstraint* constrp() ثابت VL_MT_STABLE { بازگشت m_constrp; }
+    تهی constrp(AstConstraint* nodep) { m_constrp = nodep; }
+    Ast_گره_Module* classOrPackagep() ثابت VL_MT_STABLE { بازگشت m_classOrPackagep; }
     // TODO: this setter is unused
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    تهی classOrPackagep(Ast_گره_Module* nodep) { m_classOrPackagep = nodep; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت final override { V3ERROR_NA_RETURN(true); }
 };
-class AstCvtArrayToArray final : public AstNodeExpr {
+class AstCvtArrayToArray final : عمومی Ast_گره_عبارت {
     // Copy/Cast from dynamic/unpacked types to dynamic/unpacked types
     // @astgen op1 := fromp : AstNodeExpr
-private:
-    const bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
-    const int m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
-    const int m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
-    const int m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
+خصوصی:
+    ثابت bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
+    ثابت صحیح m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
+    ثابت صحیح m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
+    ثابت صحیح m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
 
-public:
+عمومی:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp, bool reverse,
-                       int blockSize, int dstElementBits, int srcElementBits)
+    AstCvtArrayToArray(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp, bool reverse,
+                       صحیح blockSize, صحیح dstElementBits, صحیح srcElementBits)
         : ASTGEN_SUPER_CvtArrayToArray(fl)
         , m_reverse{reverse}
         , m_blockSize{blockSize}
@@ -1235,23 +1235,23 @@ public:
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCvtArrayToArray;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool reverse() const { return m_reverse; }
-    int blockSize() const { return m_blockSize; }
-    int dstElementBits() const { return m_dstElementBits; }
-    int srcElementBits() const { return m_srcElementBits; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool reverse() ثابت { بازگشت m_reverse; }
+    صحیح blockSize() ثابت { بازگشت m_blockSize; }
+    صحیح dstElementBits() ثابت { بازگشت m_dstElementBits; }
+    صحیح srcElementBits() ثابت { بازگشت m_srcElementBits; }
 };
-class AstCvtArrayToPacked final : public AstNodeExpr {
+class AstCvtArrayToPacked final : عمومی Ast_گره_عبارت {
     // Cast from dynamic queue data type to packed array
     // @astgen op1 := fromp : AstNodeExpr
-public:
+عمومی:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToPacked(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtArrayToPacked(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_CvtArrayToPacked(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1259,15 +1259,15 @@ public:
     ASTGEN_MEMBERS_AstCvtArrayToPacked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstCvtPackedToArray final : public AstNodeExpr {
+class AstCvtPackedToArray final : عمومی Ast_گره_عبارت {
     // Cast from packed array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+عمومی:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtPackedToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtPackedToArray(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_CvtPackedToArray(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1275,25 +1275,25 @@ public:
     ASTGEN_MEMBERS_AstCvtPackedToArray;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstCvtUnpackToQueue final : public AstNodeExpr {
+class AstCvtUnpackToQueue final : عمومی Ast_گره_عبارت {
     // Cast from unpacked array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+عمومی:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtUnpackToQueue(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtUnpackToQueue(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_CvtUnpackToQueue(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCvtUnpackToQueue;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
-    bool cleanOut() const override { return true; }
+    string emitC() override { بازگشت "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstCvtUnpackToUnpack final : public AstNodeExpr {
+class AstCvtUnpackToUnpack final : عمومی Ast_گره_عبارت {
     // Convert an unpacked array to one with the same shape but different ascending/descending
     // direction in at least one dimension (IEEE 1800-2023 7.6).
     // Any combination of dimensions is reversed by the one conversion, which dimensions follow
@@ -1302,8 +1302,8 @@ class AstCvtUnpackToUnpack final : public AstNodeExpr {
     // outer one. A conversion of an inner dimension is not inserted lower down instead, which
     // would need the arrays split into elements.
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCvtUnpackToUnpack(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+عمومی:
+    AstCvtUnpackToUnpack(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_CvtUnpackToUnpack(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1311,53 +1311,53 @@ public:
     ASTGEN_MEMBERS_AstCvtUnpackToUnpack;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstDist final : public AstNodeExpr {
+class AstDist final : عمومی Ast_گره_عبارت {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstDistItem]
-public:
-    AstDist(FileLine* fl, AstNodeExpr* exprp, AstDistItem* itemsp)
+عمومی:
+    AstDist(File_سطر* fl, Ast_گره_عبارت* exprp, AstDistItem* itemsp)
         : ASTGEN_SUPER_Dist(fl) {
         this->exprp(exprp);
         addItemsp(itemsp);
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstDist;
-    string emitVerilog() override { return "%l dist { %r }"; }
+    string emitVerilog() override { بازگشت "%l dist { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ثابت override { بازگشت false; }  // NA
 };
-class AstDistItem final : public AstNodeExpr {
+class AstDistItem final : عمومی Ast_گره_عبارت {
     // Constraint distribution item
     // @astgen op1 := rangep : AstNodeExpr
     // @astgen op2 := weightp : AstNodeExpr
     bool m_isWhole = false;  // True for weight ':/', false for ':='
-public:
-    AstDistItem(FileLine* fl, AstNodeExpr* rangep, AstNodeExpr* weightp)
+عمومی:
+    AstDistItem(File_سطر* fl, Ast_گره_عبارت* rangep, Ast_گره_عبارت* weightp)
         : ASTGEN_SUPER_DistItem(fl) {
         this->rangep(rangep);
         this->weightp(weightp);
     }
     ASTGEN_MEMBERS_AstDistItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string emitVerilog() override { بازگشت "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
-    void isWhole(bool flag) { m_isWhole = flag; }
-    bool isWhole() const { return m_isWhole; }
+    bool cleanOut() ثابت override { بازگشت false; }  // NA
+    تهی isWhole(bool flag) { m_isWhole = flag; }
+    bool isWhole() ثابت { بازگشت m_isWhole; }
 };
-class AstDot final : public AstNodeExpr {
+class AstDot final : عمومی Ast_گره_عبارت {
     // A dot separating paths in an AstVarXRef, AstFuncRef or AstTaskRef
     // These are eliminated in the link stage
     // @astgen op1 := lhsp : AstNode<AstNodeExpr|AstNodeDType>
     // @astgen op2 := rhsp : AstNode<AstNodeExpr|AstNodeDType>
     //
     // We don't have a list of elements as it's probably legal to do '(foo.bar).(baz.bap)'
-    const bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
-public:
-    AstDot(FileLine* fl, bool colon, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+    ثابت bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
+عمومی:
+    AstDot(File_سطر* fl, bool colon, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Dot(fl)
         , m_colon{colon} {
         this->lhsp(lhsp);
@@ -1365,36 +1365,36 @@ public:
     }
     ASTGEN_MEMBERS_AstDot;
     // For parser, make only if non-null package
-    static AstNodeExpr* newIfPkg(FileLine* fl, AstNodeExpr* packageOrClassp, AstNodeExpr* rhsp) {
-        if (!packageOrClassp) return rhsp;
-        return new AstDot{fl, true, packageOrClassp, rhsp};
+    ایستا Ast_گره_عبارت* newIfPkg(File_سطر* fl, Ast_گره_عبارت* packageOrClassp, Ast_گره_عبارت* rhsp) {
+        اگر (!packageOrClassp) بازگشت rhsp;
+        بازگشت new AstDot{fl, true, packageOrClassp, rhsp};
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool colon() const { return m_colon; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    bool colon() ثابت { بازگشت m_colon; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstEmptyQueue final : public AstNodeExpr {
-public:
-    explicit AstEmptyQueue(FileLine* fl)
+class AstEmptyQueue final : عمومی Ast_گره_عبارت {
+عمومی:
+    explicit AstEmptyQueue(File_سطر* fl)
         : ASTGEN_SUPER_EmptyQueue(fl) {}
     ASTGEN_MEMBERS_AstEmptyQueue;
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitVerilog() override { return "{}"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
+    string emitVerilog() override { بازگشت "{}"; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstEnumItemRef final : public AstNodeExpr {
+class AstEnumItemRef final : عمومی Ast_گره_عبارت {
     // @astgen ptr := m_itemp : Optional[AstEnumItem]  // [AfterLink] Pointer to item
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of enum (for param relink)
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
     bool m_containsGenBlock = false;  // Contains gen block reference
-public:
-    AstEnumItemRef(FileLine* fl, AstEnumItem* itemp, AstNodeModule* classOrPackagep)
+عمومی:
+    AstEnumItemRef(File_سطر* fl, AstEnumItem* itemp, Ast_گره_Module* classOrPackagep)
         : ASTGEN_SUPER_EnumItemRef(fl)
         , m_name{itemp->name()}
         , m_itemp{itemp}
@@ -1402,64 +1402,64 @@ public:
         dtypeFrom(m_itemp);
     }
     ASTGEN_MEMBERS_AstEnumItemRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return itemp() ? itemp()->name() : m_name; }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumItemRef* const sp = VN_DBG_AS(samep, EnumItemRef);
-        return itemp() == sp->itemp() && dotted() == sp->dotted()
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    ثابت نویسه* broken() ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت itemp() ? itemp()->name() : m_name; }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstEnumItemRef* ثابت sp = VN_DBG_AS(samep, EnumItemRef);
+        بازگشت itemp() == sp->itemp() && dotted() == sp->dotted()
                && containsGenBlock() == sp->containsGenBlock();
     }
-    AstEnumItem* itemp() const VL_MT_STABLE { return m_itemp; }
-    void itemp(AstEnumItem* nodep) { m_itemp = nodep; }
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
+    AstEnumItem* itemp() ثابت VL_MT_STABLE { بازگشت m_itemp; }
+    تهی itemp(AstEnumItem* nodep) { m_itemp = nodep; }
+    string dotted() ثابت { بازگشت m_dotted; }
+    تهی dotted(ثابت string& dotted) { m_dotted = dotted; }
+    bool containsGenBlock() ثابت { بازگشت m_containsGenBlock; }
+    تهی containsGenBlock(ثابت bool flag) { m_containsGenBlock = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    Ast_گره_Module* classOrPackagep() ثابت { بازگشت m_classOrPackagep; }
+    تهی classOrPackagep(Ast_گره_Module* nodep) { m_classOrPackagep = nodep; }
 };
-class AstExprStmt final : public AstNodeExpr {
+class Ast_عبارت_Stmt final : عمومی Ast_گره_عبارت {
     // Perform a statement, often assignment inside an expression node,
     // the parent gets passed the 'resultp()'.
     // resultp is evaluated AFTER the statement(s).
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := resultp : AstNodeExpr
-private:
+خصوصی:
     bool m_hasResult = true;  // Returns result via resultp()
 
-public:
-    AstExprStmt(FileLine* fl, AstNode* stmtsp, AstNodeExpr* resultp)
-        : ASTGEN_SUPER_ExprStmt(fl) {
+عمومی:
+    Ast_عبارت_Stmt(File_سطر* fl, Ast_گره* stmtsp, Ast_گره_عبارت* resultp)
+        : ASTGEN_SUPER_عبارت_Stmt(fl) {
         addStmtsp(stmtsp);
         this->resultp(resultp);
         dtypeFrom(resultp);
     }
-    ASTGEN_MEMBERS_AstExprStmt;
+    ASTGEN_MEMBERS_Ast_عبارت_Stmt;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
     bool isPure() override {
-        if (AstNode::afterCommentp(stmtsp())) return false;
-        return resultp()->isPure();
+        اگر (Ast_گره::afterCommentp(stmtsp())) بازگشت false;
+        بازگشت resultp()->isPure();
     }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool hasResult() const { return m_hasResult; }
-    void hasResult(bool flag) { m_hasResult = flag; }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
+    bool hasResult() ثابت { بازگشت m_hasResult; }
+    تهی hasResult(bool flag) { m_hasResult = flag; }
 };
-class AstFError final : public AstNodeExpr {
+class AstFError final : عمومی Ast_گره_عبارت {
     // @astgen op1 := filep : AstNodeExpr
     // @astgen op2 := strp : AstNodeExpr
-public:
-    AstFError(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* strp)
+عمومی:
+    AstFError(File_سطر* fl, Ast_گره_عبارت* filep, Ast_گره_عبارت* strp)
         : ASTGEN_SUPER_FError(fl) {
         this->filep(filep);
         this->strp(strp);
@@ -1468,20 +1468,20 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFError;
-    string emitVerilog() override { return "%f$ferror(%l, %r)"; }
+    string emitVerilog() override { بازگشت "%f$ferror(%l, %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 64; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstFOpen final : public AstNodeExpr {
+class AstFOpen final : عمومی Ast_گره_عبارت {
     // @astgen op2 := filenamep : AstNodeExpr
     // @astgen op3 := modep : AstNodeExpr
-public:
-    AstFOpen(FileLine* fl, AstNodeExpr* filenamep, AstNodeExpr* modep)
+عمومی:
+    AstFOpen(File_سطر* fl, Ast_گره_عبارت* filenamep, Ast_گره_عبارت* modep)
         : ASTGEN_SUPER_FOpen(fl) {
         this->filenamep(filenamep);
         this->modep(modep);
@@ -1492,20 +1492,20 @@ public:
     ASTGEN_MEMBERS_AstFOpen;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    string verilogKwd() ثابت override { بازگشت "$fopen"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFOpenMcd final : public AstNodeExpr {
+class AstFOpenMcd final : عمومی Ast_گره_عبارت {
     // @astgen op2 := filenamep : AstNodeExpr
-public:
-    AstFOpenMcd(FileLine* fl, AstNodeExpr* filenamep)
+عمومی:
+    AstFOpenMcd(File_سطر* fl, Ast_گره_عبارت* filenamep)
         : ASTGEN_SUPER_FOpenMcd(fl) {
         this->filenamep(filenamep);
         dtypeSetLogic2StateUnsized(
@@ -1515,23 +1515,23 @@ public:
     ASTGEN_MEMBERS_AstFOpenMcd;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    string verilogKwd() ثابت override { بازگشت "$fopen"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstFRead final : public AstNodeExpr {
+class AstFRead final : عمومی Ast_گره_عبارت {
     // @astgen op1 := memp : AstNodeExpr // VarRef for result
     // @astgen op2 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op3 := startp : Optional[AstNodeExpr] // Offset
     // @astgen op4 := countp : Optional[AstNodeExpr] // Size
-public:
-    AstFRead(FileLine* fl, AstNodeExpr* memp, AstNodeExpr* filep, AstNodeExpr* startp,
-             AstNodeExpr* countp)
+عمومی:
+    AstFRead(File_سطر* fl, Ast_گره_عبارت* memp, Ast_گره_عبارت* filep, Ast_گره_عبارت* startp,
+             Ast_گره_عبارت* countp)
         : ASTGEN_SUPER_FRead(fl) {
         this->memp(memp);
         this->filep(filep);
@@ -1540,21 +1540,21 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRead;
-    string verilogKwd() const override { return "$fread"; }
+    string verilogKwd() ثابت override { بازگشت "$fread"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { بازگشت true; }  // SPECIAL: makes output
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFRewind final : public AstNodeExpr {
+class AstFRewind final : عمومی Ast_گره_عبارت {
     // @astgen op1 := filep : Optional[AstNodeExpr]
-public:
-    AstFRewind(FileLine* fl, AstNodeExpr* filep)
+عمومی:
+    AstFRewind(File_سطر* fl, Ast_گره_عبارت* filep)
         : ASTGEN_SUPER_FRewind(fl) {
         this->filep(filep);
         dtypeSetLogic2StateUnsized(
@@ -1562,24 +1562,24 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRewind;
-    string verilogKwd() const override { return "$frewind"; }
+    string verilogKwd() ثابت override { بازگشت "$frewind"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstFScanF final : public AstNodeExpr {
+class AstFScanF final : عمومی Ast_گره_عبارت {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
     string m_text;
 
-public:
-    AstFScanF(FileLine* fl, const string& text, AstNodeExpr* filep, AstNodeExpr* exprsp)
+عمومی:
+    AstFScanF(File_سطر* fl, ثابت string& text, Ast_گره_عبارت* filep, Ast_گره_عبارت* exprsp)
         : ASTGEN_SUPER_FScanF(fl)
         , m_text{text} {
         addExprsp(exprsp);
@@ -1587,28 +1587,28 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$fscanf"; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_text; }
+    string verilogKwd() ثابت override { بازگشت "$fscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, FScanF)->text();
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { بازگشت true; }  // SPECIAL: makes output
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت text() == VN_DBG_AS(samep, FScanF)->text();
     }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    bool isSystemFunc() const override { return true; }
+    string text() ثابت { بازگشت m_text; }  // * = Text to display
+    تهی text(ثابت string& text) { m_text = text; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFSeek final : public AstNodeExpr {
+class AstFSeek final : عمومی Ast_گره_عبارت {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op2 := offset : Optional[AstNodeExpr]
     // @astgen op3 := operation : Optional[AstNodeExpr]
-public:
-    AstFSeek(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* offset, AstNodeExpr* operation)
+عمومی:
+    AstFSeek(File_سطر* fl, Ast_گره_عبارت* filep, Ast_گره_عبارت* offset, Ast_گره_عبارت* operation)
         : ASTGEN_SUPER_FSeek(fl) {
         this->filep(filep);
         this->offset(offset);
@@ -1618,21 +1618,21 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFSeek;
-    string verilogKwd() const override { return "$fseek"; }
+    string verilogKwd() ثابت override { بازگشت "$fseek"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { بازگشت true; }  // SPECIAL: makes output
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFTell final : public AstNodeExpr {
+class AstFTell final : عمومی Ast_گره_عبارت {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFTell(FileLine* fl, AstNodeExpr* filep)
+عمومی:
+    AstFTell(File_سطر* fl, Ast_گره_عبارت* filep)
         : ASTGEN_SUPER_FTell(fl) {
         this->filep(filep);
         dtypeSetLogic2StateUnsized(
@@ -1640,107 +1640,107 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFTell;
-    string verilogKwd() const override { return "$ftell"; }
+    string verilogKwd() ثابت override { بازگشت "$ftell"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFalling final : public AstNodeExpr {
+class AstFalling final : عمومی Ast_گره_عبارت {
     // Verilog $falling_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstFalling(FileLine* fl, AstNodeExpr* exprp)
+عمومی:
+    AstFalling(File_سطر* fl, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_Falling(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstFalling;
-    string emitVerilog() override { return "$falling_gclk(%l)"; }
+    string emitVerilog() override { بازگشت "$falling_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFell final : public AstNodeExpr {
+class AstFell final : عمومی Ast_گره_عبارت {
     // Verilog $fell
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFell(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+عمومی:
+    AstFell(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_Sen_درخت* sentreep)
         : ASTGEN_SUPER_Fell(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFell;
-    string emitVerilog() override { return "$fell(%l)"; }
+    string emitVerilog() override { بازگشت "$fell(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstFuture final : public AstNodeExpr {
+class AstFuture final : عمومی Ast_گره_عبارت {
     // Verilog $future_gclk
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFuture(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+عمومی:
+    AstFuture(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_Sen_درخت* sentreep)
         : ASTGEN_SUPER_Future(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFuture;
-    string emitVerilog() override { return "$future_gclk(%l)"; }
+    string emitVerilog() override { بازگشت "$future_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstGatePin final : public AstNodeExpr {
+class AstGatePin final : عمومی Ast_گره_عبارت {
     // Possibly expand a gate primitive input pin value to match the range of the gate primitive
     // @astgen op1 := exprp : AstNodeExpr // Pin expression
     // @astgen op2 := rangep : AstRange // Range of pin
-public:
-    AstGatePin(FileLine* fl, AstNodeExpr* exprp, AstRange* rangep)
+عمومی:
+    AstGatePin(File_سطر* fl, Ast_گره_عبارت* exprp, AstRange* rangep)
         : ASTGEN_SUPER_GatePin(fl) {
         this->exprp(exprp);
         this->rangep(rangep);
     }
     ASTGEN_MEMBERS_AstGatePin;
-    string emitVerilog() override { return "%l"; }
+    string emitVerilog() override { بازگشت "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstGetInitialRandomSeed final : public AstNodeExpr {
+class AstGetInitialRandomSeed final : عمومی Ast_گره_عبارت {
     // Verilog $get_initial_random_seed()
-public:
-    explicit AstGetInitialRandomSeed(FileLine* fl)
+عمومی:
+    explicit AstGetInitialRandomSeed(File_سطر* fl)
         : ASTGEN_SUPER_GetInitialRandomSeed(fl) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstGetInitialRandomSeed;
-    string emitVerilog() override { return "$get_initial_random_seed()"; }
+    string emitVerilog() override { بازگشت "$get_initial_random_seed()"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت true; }
+    bool isPure() override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstImplication final : public AstNodeExpr {
+class AstImplication final : عمومی Ast_گره_عبارت {
     // Implication |-> |=> (IEEE 1800-2023 16.12.7) and followed-by #-# #=#
     // (IEEE 1800-2023 16.12.9). Antecedent-miss is vacuous-pass for implication
     // and non-vacuous-fail for followed-by, hence the separate flag.
@@ -1748,12 +1748,12 @@ class AstImplication final : public AstNodeExpr {
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := sentreep : Optional[AstSenTree]
 
-private:
-    const bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
-    const bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
+خصوصی:
+    ثابت bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
+    ثابت bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
 
-public:
-    AstImplication(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool isOverlapped,
+عمومی:
+    AstImplication(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, bool isOverlapped,
                    bool isFollowedBy = false)
         : ASTGEN_SUPER_Implication(fl)
         , m_isOverlapped{isOverlapped}
@@ -1762,74 +1762,74 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstImplication;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return m_isFollowedBy || !m_isOverlapped; }
-    bool isOverlapped() const { return m_isOverlapped; }
-    bool isFollowedBy() const { return m_isFollowedBy; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool isMultiCycleSva() ثابت override { بازگشت m_isFollowedBy || !m_isOverlapped; }
+    bool isOverlapped() ثابت { بازگشت m_isOverlapped; }
+    bool isFollowedBy() ثابت { بازگشت m_isFollowedBy; }
 };
-class AstInside final : public AstNodeExpr {
+class AstInside final : عمومی Ast_گره_عبارت {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstNodeExpr]
-public:
-    AstInside(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* itemsp)
+عمومی:
+    AstInside(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* itemsp)
         : ASTGEN_SUPER_Inside(fl) {
         this->exprp(exprp);
         addItemsp(itemsp);
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstInside;
-    string emitVerilog() override { return "%l inside { %r }"; }
+    string emitVerilog() override { بازگشت "%l inside { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ثابت override { بازگشت false; }  // NA
 };
-class AstInsideRange final : public AstNodeExpr {
+class AstInsideRange final : عمومی Ast_گره_عبارت {
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
-public:
-    AstInsideRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstInsideRange(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_InsideRange(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstInsideRange;
-    string emitVerilog() override { return "[%l:%r]"; }
+    string emitVerilog() override { بازگشت "[%l:%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ثابت override { بازگشت false; }  // NA
     // Create AstAnd(AstGte(...), AstLte(...))
-    AstNodeExpr* newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
+    Ast_گره_عبارت* newAndFromInside(Ast_گره_عبارت* exprp, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp);
 };
-class AstLambdaArgRef final : public AstNodeExpr {
+class AstLambdaArgRef final : عمومی Ast_گره_عبارت {
     // Lambda argument usage
     // These are not AstVarRefs because we need to be able to delete/clone lambdas during
     // optimizations and AstVar's are painful to remove.
     string m_name;  // Name of variable
     bool m_index;  // Index, not value
 
-public:
-    AstLambdaArgRef(FileLine* fl, const string& name, bool index)
+عمومی:
+    AstLambdaArgRef(File_سطر* fl, ثابت string& name, bool index)
         : ASTGEN_SUPER_LambdaArgRef(fl)
         , m_name{name}
         , m_index{index} {}
     ASTGEN_MEMBERS_AstLambdaArgRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    string emitVerilog() override { return name(); }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    string emitVerilog() override { بازگشت name(); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool index() const { return m_index; }
-    bool isExprCoverageEligible() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
+    تهی name(ثابت string& name) override { m_name = name; }
+    bool index() ثابت { بازگشت m_index; }
+    bool is_عبارت_Coverage_Eligible() ثابت override { بازگشت false; }
 };
-class AstMatchMasked final : public AstNodeExpr {
+class AstMatchMasked final : عمومی Ast_گره_عبارت {
     // This is a non-source construct, created internally to represent
     // some case statements. It is a '(mask & _) == bits' matching loop
     // where {mask, bits} pairs are packed into a single wide 'matchp',
@@ -1837,106 +1837,106 @@ class AstMatchMasked final : public AstNodeExpr {
     // See VL_DECODER_* runtime functions.
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := matchp : AstVarRef
-public:
-    inline AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp);
+عمومی:
+    درونخطی AstMatchMasked(File_سطر* fl, Ast_گره_عبارت* lhsp, AstVarRef* matchp);
     ASTGEN_MEMBERS_AstMatchMasked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    static uint32_t fold(const V3Number& lhs, AstVar* matchVarp);
+    string emitC() override { بازگشت "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    ایستا uint32_t fold(ثابت V3_عدد& lhs, AstVar* matchVarp);
 };
-class AstMatches final : public AstNodeExpr {
+class AstMatches final : عمومی Ast_گره_عبارت {
     // "matches" operator: "expr matches pattern"
     // @astgen op1 := lhsp : AstNodeExpr  // Expression to match
     // @astgen op2 := patternp : AstNode  // Pattern to match against
-public:
-    AstMatches(FileLine* fl, AstNodeExpr* lhsp, AstNode* patternp)
+عمومی:
+    AstMatches(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره* patternp)
         : ASTGEN_SUPER_Matches(fl) {
         this->lhsp(lhsp);
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstMatches;
-    string emitVerilog() override { return "%l matches %r"; }
+    string emitVerilog() override { بازگشت "%l matches %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstMemberSel final : public AstNodeExpr {
+class AstMemberSel final : عمومی Ast_گره_عبارت {
     // @astgen op1 := fromp : AstNodeExpr
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Post link, variable in class that is selecting
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     string m_name;
     VAccess m_access;  // Read or write, as in AstNodeVarRef
-public:
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name)
+عمومی:
+    AstMemberSel(File_سطر* fl, Ast_گره_عبارت* fromp, VFlagChildDType, ثابت string& name)
         : ASTGEN_SUPER_MemberSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp);
+    AstMemberSel(File_سطر* fl, Ast_گره_عبارت* fromp, AstVar* varp);
     ASTGEN_MEMBERS_AstMemberSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
+    تهی name(ثابت string& name) override { m_name = name; }
+    VAccess access() ثابت { بازگشت m_access; }
+    تهی access(ثابت VAccess& flag) { m_access = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override;
-    int instrCount() const override { return widthInstrs(); }
-    AstVar* varp() const { return m_varp; }
-    void varp(AstVar* nodep) { m_varp = nodep; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override;
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    AstVar* varp() ثابت { بازگشت m_varp; }
+    تهی varp(AstVar* nodep) { m_varp = nodep; }
 };
-class AstNewCopy final : public AstNodeExpr {
+class AstNewCopy final : عمومی Ast_گره_عبارت {
     // New as shallow copy
     // @astgen op1 := rhsp : AstNodeExpr
-public:
-    AstNewCopy(FileLine* fl, AstNodeExpr* rhsp)
+عمومی:
+    AstNewCopy(File_سطر* fl, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NewCopy(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewCopy;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { بازگشت "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstNewDynamic final : public AstNodeExpr {
+class AstNewDynamic final : عمومی Ast_گره_عبارت {
     // New for dynamic array
     // @astgen op1 := sizep : AstNodeExpr
     // @astgen op2 := rhsp : Optional[AstNodeExpr]
-public:
-    AstNewDynamic(FileLine* fl, AstNodeExpr* sizep, AstNodeExpr* rhsp)
+عمومی:
+    AstNewDynamic(File_سطر* fl, Ast_گره_عبارت* sizep, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NewDynamic(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->sizep(sizep);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewDynamic;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { بازگشت "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstPExpr final : public AstNodeExpr {
+class AstPExpr final : عمومی Ast_گره_عبارت {
     // Property expression
     // @astgen op1 := bodyp : AstBegin
     // @astgen op2 := finalp : Optional[AstNodeStmt]
-public:
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeDType* dtypep)
+عمومی:
+    explicit AstPExpr(File_سطر* fl, AstBegin* bodyp, Ast_گره_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(nullptr);
         this->dtypep(dtypep);
     }
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeStmt* finalp, AstNodeDType* dtypep)
+    explicit AstPExpr(File_سطر* fl, AstBegin* bodyp, Ast_گره_Stmt* finalp, Ast_گره_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(finalp);
@@ -1945,21 +1945,21 @@ public:
     ASTGEN_MEMBERS_AstPExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstParseHolder final : public AstNodeExpr {
+class AstParseHolder final : عمومی Ast_گره_عبارت {
     // A reference to something soon to replace, used in a select at parse time
     // that needs conversion to pull the upper lvalue later
-public:
-    explicit AstParseHolder(FileLine* fl)
+عمومی:
+    explicit AstParseHolder(File_سطر* fl)
         : ASTGEN_SUPER_ParseHolder(fl) {}
     ASTGEN_MEMBERS_AstParseHolder;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstParseRef final : public AstNodeExpr {
+class AstParseRef final : عمومی Ast_گره_عبارت {
     // A reference to a variable, function or task
     // We don't know which at parse time due to bison constraints
     // The link stages will replace this with AstVarRef, or AstTaskRef, etc.
@@ -1968,27 +1968,27 @@ class AstParseRef final : public AstNodeExpr {
 
     string m_name;  // Name of the variable/function/task
 
-public:
-    AstParseRef(FileLine* fl, const string& name, AstNodeExpr* lhsp = nullptr,
-                AstNodeFTaskRef* ftaskrefp = nullptr)
+عمومی:
+    AstParseRef(File_سطر* fl, ثابت string& name, Ast_گره_عبارت* lhsp = nullptr,
+                Ast_گره_FTask_Ref* ftaskrefp = nullptr)
         : ASTGEN_SUPER_ParseRef(fl)
         , m_name{name} {
         this->lhsp(lhsp);
         this->ftaskrefp(ftaskrefp);
     }
     ASTGEN_MEMBERS_AstParseRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstParseRef* const asamep = VN_DBG_AS(samep, ParseRef);
-        return m_name == asamep->m_name;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
+    تهی name(ثابت string& name) override { m_name = name; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstParseRef* ثابت asamep = VN_DBG_AS(samep, ParseRef);
+        بازگشت m_name == asamep->m_name;
     }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstPast final : public AstNodeExpr {
+class AstPast final : عمومی Ast_گره_عبارت {
     // Verilog $past
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := ticksp : Optional[AstNodeExpr]
@@ -1999,9 +1999,9 @@ class AstPast final : public AstNodeExpr {
     // functions such as $rose/$fell must remain false so they receive default initialization.
     bool m_propertyTiming : 1;
 
-public:
-    AstPast(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ticksp = nullptr,
-            AstSenTree* sentreep = nullptr, bool propertyTiming = false)
+عمومی:
+    AstPast(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* ticksp = nullptr,
+            Ast_Sen_درخت* sentreep = nullptr, bool propertyTiming = false)
         : ASTGEN_SUPER_Past(fl)
         , m_propertyTiming{propertyTiming} {
         this->exprp(exprp);
@@ -2009,20 +2009,20 @@ public:
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstPast;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        return m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
     }
-    bool propertyTiming() const { return m_propertyTiming; }
-    bool isSystemFunc() const override { return true; }
+    bool propertyTiming() ثابت { بازگشت m_propertyTiming; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstPatMember final : public AstNodeExpr {
+class AstPatMember final : عمومی Ast_گره_عبارت {
     // Verilog '{a} or '{a{b}}
     // Parents: AstPattern
     // Children: expression, AstPattern, replication count, decoded nodep if TEXT
@@ -2034,35 +2034,35 @@ class AstPatMember final : public AstNodeExpr {
     bool m_isDefault = false;  // Has default
     bool m_isConcat = false;  // From concatenate
 
-public:
-    AstPatMember(FileLine* fl, AstNodeExpr* lhssp, AstNode* keyp, AstNodeExpr* repp)
+عمومی:
+    AstPatMember(File_سطر* fl, Ast_گره_عبارت* lhssp, Ast_گره* keyp, Ast_گره_عبارت* repp)
         : ASTGEN_SUPER_PatMember(fl) {
         addLhssp(lhssp);
         this->keyp(keyp);
         this->repp(repp);
     }
     ASTGEN_MEMBERS_AstPatMember;
-    string emitVerilog() override { return lhssp() ? "%f{%r{%k%l}}" : "%l"; }
+    string emitVerilog() override { بازگشت lhssp() ? "%f{%r{%k%l}}" : "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs() * 2; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool isConcat() const { return m_isConcat; }
-    void isConcat(bool flag) { m_isConcat = flag; }
-    bool isDefault() const { return m_isDefault; }
-    void isDefault(bool flag) { m_isDefault = flag; }
-    AstNodeExpr* keyExprp() const { return varrefp() ? varrefp() : VN_CAST(keyp(), NodeExpr); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    bool isConcat() ثابت { بازگشت m_isConcat; }
+    تهی isConcat(bool flag) { m_isConcat = flag; }
+    bool isDefault() ثابت { بازگشت m_isDefault; }
+    تهی isDefault(bool flag) { m_isDefault = flag; }
+    Ast_گره_عبارت* کلید_Exprp() ثابت { بازگشت varrefp() ? varrefp() : VN_CAST(keyp(), گره_عبارت); }
 };
-class AstPattern final : public AstNodeExpr {
+class AstPattern final : عمومی Ast_گره_عبارت {
     // Verilog '{a,b,c,d...}
     // Parents: AstNodeAssign, AstPattern, ...
     // Children: expression, AstPattern, AstPatReplicate
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstNode] // AstPatReplicate, AstPatMember, etc
-public:
-    AstPattern(FileLine* fl, AstNode* itemsp)
+عمومی:
+    AstPattern(File_سطر* fl, Ast_گره* itemsp)
         : ASTGEN_SUPER_Pattern(fl) {
         addItemsp(itemsp);
     }
@@ -2070,46 +2070,46 @@ public:
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    Ast_گره_DType* getChildDTypep() ثابت override { بازگشت childDTypep(); }
+    Ast_گره_DType* subDTypep() ثابت VL_MT_STABLE { بازگشت dtypep() ? dtypep() : childDTypep(); }
 };
-class AstPatternStar final : public AstNodeExpr {
+class AstPatternStar final : عمومی Ast_گره_عبارت {
     // Pattern wildcard: ".*"
-public:
-    explicit AstPatternStar(FileLine* fl)
+عمومی:
+    explicit AstPatternStar(File_سطر* fl)
         : ASTGEN_SUPER_PatternStar(fl) {}
     ASTGEN_MEMBERS_AstPatternStar;
-    string emitVerilog() override { return ".*"; }
+    string emitVerilog() override { بازگشت ".*"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstPatternVar final : public AstNodeExpr {
+class AstPatternVar final : عمومی Ast_گره_عبارت {
     // Pattern variable binding: ".variable"
     string m_name;  // Variable name
-public:
-    AstPatternVar(FileLine* fl, const string& name)
+عمومی:
+    AstPatternVar(File_سطر* fl, ثابت string& name)
         : ASTGEN_SUPER_PatternVar(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstPatternVar;
-    string emitVerilog() override { return ".%k"; }
+    string emitVerilog() override { بازگشت ".%k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, PatternVar)->m_name;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_name == VN_DBG_AS(samep, PatternVar)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
 };
-class AstPropAlways final : public AstNodeExpr {
+class AstPropAlways final : عمومی Ast_گره_عبارت {
     // always[m:n] / s_always[m:n] (IEEE 1800-2023 16.12.11)
     // @astgen op1 := propp : AstNodeExpr
     // @astgen op2 := loBoundp : AstNodeExpr
     // @astgen op3 := hiBoundp : AstNodeExpr
-    const bool m_isStrong = false;  // s_always
-public:
-    AstPropAlways(FileLine* fl, AstNodeExpr* propp, AstNodeExpr* loBoundp, AstNodeExpr* hiBoundp,
+    ثابت bool m_isStrong = false;  // s_always
+عمومی:
+    AstPropAlways(File_سطر* fl, Ast_گره_عبارت* propp, Ast_گره_عبارت* loBoundp, Ast_گره_عبارت* hiBoundp,
                   bool isStrong)
         : ASTGEN_SUPER_PropAlways(fl)
         , m_isStrong{isStrong} {
@@ -2118,126 +2118,126 @@ public:
         this->hiBoundp(hiBoundp);
     }
     ASTGEN_MEMBERS_AstPropAlways;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool isStrong() const { return m_isStrong; }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { V3ERROR_NA_RETURN(0); }
+    bool isStrong() ثابت { بازگشت m_isStrong; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstRand final : public AstNodeExpr {
+class AstRand final : عمومی Ast_گره_عبارت {
     // $random/$random(seed) or $urandom/$urandom(seed)
     // Return a random number, based upon width()
     // @astgen op1 := seedp : Optional[AstNodeExpr]
-    const bool m_urandom;  // $urandom vs $random
-public:
+    ثابت bool m_urandom;  // $urandom vs $random
+عمومی:
     class Reset {};
-    AstRand(FileLine* fl, AstNodeExpr* seedp, bool urandom)
+    AstRand(File_سطر* fl, Ast_گره_عبارت* seedp, bool urandom)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{urandom} {
         this->seedp(seedp);
     }
     class SRandomU32 {};
-    AstRand(FileLine* fl, SRandomU32)
+    AstRand(File_سطر* fl, SRandomU32)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{true} {
         dtypeSetUInt32();
     }
     ASTGEN_MEMBERS_AstRand;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override {
-        return seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
+        بازگشت seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
                        : (m_urandom ? "%f$urandom()" : "%f$random()");
     }
     string emitC() override {
-        if (seedp()) {
-            if (urandom()) return "VL_URANDOM_SEEDED_%nq%lq(%li)";
-            return "VL_RANDOM_SEEDED_%nq%lq(%li)";
+        اگر (seedp()) {
+            اگر (urandom()) بازگشت "VL_URANDOM_SEEDED_%nq%lq(%li)";
+            بازگشت "VL_RANDOM_SEEDED_%nq%lq(%li)";
         }
-        if (isWide()) return "VL_RANDOM_%nq(%nw, %P)";
-        return "VL_RANDOM_%nq()";
+        اگر (isWide()) بازگشت "VL_RANDOM_%nq(%nw, %P)";
+        بازگشت "VL_RANDOM_%nq()";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !seedp(); }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool combinable(const AstRand* samep) const {
-        return !seedp() && !samep->seedp() && urandom() == samep->urandom();
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت !seedp(); }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool combinable(ثابت AstRand* samep) ثابت {
+        بازگشت !seedp() && !samep->seedp() && urandom() == samep->urandom();
     }
-    bool urandom() const { return m_urandom; }
+    bool urandom() ثابت { بازگشت m_urandom; }
 };
-class AstRandRNG final : public AstNodeExpr {
+class AstRandRNG final : عمومی Ast_گره_عبارت {
     // Random used in a class using VlRNG
     // Return a random number, based upon width()
-public:
-    AstRandRNG(FileLine* fl, AstNodeDType* dtp)
+عمومی:
+    AstRandRNG(File_سطر* fl, Ast_گره_DType* dtp)
         : ASTGEN_SUPER_RandRNG(fl) {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstRandRNG;
-    string emitVerilog() override { return "%f$rngrandom()"; }
+    string emitVerilog() override { بازگشت "%f$rngrandom()"; }
     string emitC() override {
-        return isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
+        بازگشت isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
                         : "VL_RANDOM_RNG_%nq(__Vm_rng)";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstRising final : public AstNodeExpr {
+class AstRising final : عمومی Ast_گره_عبارت {
     // Verilog $rising_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstRising(FileLine* fl, AstNodeExpr* exprp)
+عمومی:
+    AstRising(File_سطر* fl, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_Rising(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstRising;
-    string emitVerilog() override { return "$rising_gclk(%l)"; }
+    string emitVerilog() override { بازگشت "$rising_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstRose final : public AstNodeExpr {
+class AstRose final : عمومی Ast_گره_عبارت {
     // Verilog $rose
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstRose(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+عمومی:
+    AstRose(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_Sen_درخت* sentreep)
         : ASTGEN_SUPER_Rose(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstRose;
-    string emitVerilog() override { return "$rose(%l)"; }
+    string emitVerilog() override { بازگشت "$rose(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstSClocked final : public AstNodeExpr {
+class AstSClocked final : عمومی Ast_گره_عبارت {
     // Sequence expression with an explicit leading clocking event
     // IEEE 1800-2023 16.7: sequence_expr ::= clocking_event sequence_expr
     // The clocking event is hoisted to the enclosing assertion clock by V3AssertNfa.
     // @astgen op1 := sensesp : AstSenItem
     // @astgen op2 := exprp : AstNodeExpr
-public:
-    AstSClocked(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* exprp)
+عمومی:
+    AstSClocked(File_سطر* fl, AstSenItem* sensesp, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_SClocked(fl) {
         this->sensesp(sensesp);
         this->exprp(exprp);
@@ -2245,9 +2245,9 @@ public:
     ASTGEN_MEMBERS_AstSClocked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
 };
-class AstSConsRep final : public AstNodeExpr {
+class AstSConsRep final : عمومی Ast_گره_عبارت {
     // Consecutive repetition [*N], [*N:M], [*N:$], [+], [*] (IEEE 1800-2023 16.9.2)
     // op1 := exprp -- the repeated expression
     // op2 := countp -- min repetition count (N); always a non-negative constant after V3Width
@@ -2266,16 +2266,16 @@ class AstSConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-    const bool m_unbounded = false;  // True when the upper bound is $
-public:
+    ثابت bool m_unbounded = false;  // True when the upper bound is $
+عمومی:
     // Exact [*N]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSConsRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp)
         : ASTGEN_SUPER_SConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [*N:M] or unbounded [*N:$]/[+]/[*]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp,
+    AstSConsRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp, Ast_گره_عبارت* maxCountp,
                 bool unbounded)
         : ASTGEN_SUPER_SConsRep(fl)
         , m_unbounded{unbounded} {
@@ -2284,45 +2284,45 @@ public:
         this->maxCountp(maxCountp);
     }
     ASTGEN_MEMBERS_AstSConsRep;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { V3ERROR_NA_RETURN(0); }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {  // LCOV_EXCL_LINE
+        بازگشت m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
     }
-    bool unbounded() const { return m_unbounded; }
-    bool isMultiCycleSva() const override { return true; }
+    bool unbounded() ثابت { بازگشت m_unbounded; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSEventually final : public AstNodeExpr {
+class AstSEventually final : عمومی Ast_گره_عبارت {
     // s_eventually
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    explicit AstSEventually(FileLine* fl, AstNodeExpr* exprp)
+عمومی:
+    explicit AstSEventually(File_سطر* fl, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_SEventually(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSEventually;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
 };
-class AstSExpr final : public AstNodeExpr {
+class AstSExpr final : عمومی Ast_گره_عبارت {
     // Sequence expression
     // @astgen op1 := preExprp: Optional[AstNodeExpr]
     // @astgen op2 := delayp : AstNodeStmt<AstDelay|AstBegin>
     // @astgen op3 := exprp : AstNodeExpr
-public:
-    explicit AstSExpr(FileLine* fl, AstNodeExpr* preExprp, AstNodeStmt* delayp, AstNodeExpr* exprp)
+عمومی:
+    explicit AstSExpr(File_سطر* fl, Ast_گره_عبارت* preExprp, Ast_گره_Stmt* delayp, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(preExprp);
         this->delayp(delayp);
         this->exprp(exprp);
     }
-    explicit AstSExpr(FileLine* fl, AstNodeStmt* delayp, AstNodeExpr* exprp)
+    explicit AstSExpr(File_سطر* fl, Ast_گره_Stmt* delayp, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(nullptr);
         this->delayp(delayp);
@@ -2331,11 +2331,11 @@ public:
     ASTGEN_MEMBERS_AstSExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSFormatArg final : public AstNodeExpr {
+class AstSFormatArg final : عمومی Ast_گره_عبارت {
     // Information for formatting each argument to AstSFormat,
     // used to pass to (potentially) runtime decoding of format arguments
     // PARENT: SFormatF (or next list of expressions)
@@ -2343,34 +2343,34 @@ class AstSFormatArg final : public AstNodeExpr {
     // @astgen op2 := namep : Optional[AstNodeExpr] // Runtime enum name lookup
     VFormatAttr m_formatAttr;  // How to format expression
 
-public:
-    AstSFormatArg(FileLine* fl, VFormatAttr formatAttr, AstNodeExpr* exprp)
+عمومی:
+    AstSFormatArg(File_سطر* fl, VFormatAttr formatAttr, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_SFormatArg(fl)
         , m_formatAttr{formatAttr} {
         dtypeFrom(exprp);
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSFormatArg;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
     }
-    string verilogKwd() const override { return "$sformatarg"; }
-    string emitVerilog() override { return "%l"; }
+    string verilogKwd() ثابت override { بازگشت "$sformatarg"; }
+    string emitVerilog() override { بازگشت "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
+    bool cleanOut() ثابت override { بازگشت true; }
+    ثابت نویسه* broken() ثابت override {
         BROKEN_RTN(!VN_IS(backp(), SFormatF) && firstAbovep());  // In list under SFormatF
         BROKEN_RTN(formatAttr().isEnum() != static_cast<bool>(namep()));
-        return nullptr;
+        بازگشت nullptr;
     }
-    VFormatAttr formatAttr() const { return m_formatAttr; }
-    void formatAttr(const VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
-    static VFormatAttr formatAttrDefauled(const AstSFormatArg* nodep, const AstNodeDType* dtypep);
+    VFormatAttr formatAttr() ثابت { بازگشت m_formatAttr; }
+    تهی formatAttr(ثابت VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
+    ایستا VFormatAttr formatAttrDefauled(ثابت AstSFormatArg* nodep, ثابت Ast_گره_DType* dtypep);
 };
-class AstSFormatF final : public AstNodeExpr {
+class AstSFormatF final : عمومی Ast_گره_عبارت {
     // Convert format to string, generally under an AstDisplay or AstSFormat
     // Also used as "real" function for /*verilator sformat*/ functions
     // exprsp() once past parsing may be AstSFormatArgs
@@ -2378,16 +2378,16 @@ class AstSFormatF final : public AstNodeExpr {
     // @astgen op2 := scopeNamep : Optional[AstScopeName]
     string m_text;
     bool m_hidden;  // Under display, etc
-    bool m_exprFormat
+    bool m_عبارت_Format
         = false;  // Runtime Node* format, false = text() format code, false = possibly r
     bool m_optionalFormat
         = false;  // With exprFormat, first argument is either format or format-implied
-    const char m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
+    ثابت نویسه m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    class ExprFormat {};
-    AstSFormatF(FileLine* fl, const string& text, bool hidden, AstNodeExpr* exprsp,
-                char missingArgChar = 'd')
+عمومی:
+    class عبارت_Format {};
+    AstSFormatF(File_سطر* fl, ثابت string& text, bool hidden, Ast_گره_عبارت* exprsp,
+                نویسه missingArgChar = 'd')
         : ASTGEN_SUPER_SFormatF(fl)
         , m_text{text}
         , m_hidden{hidden}
@@ -2395,62 +2395,62 @@ public:
         dtypeSetString();
         addExprsp(exprsp);
     }
-    AstSFormatF(FileLine* fl, ExprFormat, AstNodeExpr* exprsp, char missingArgChar = 'd',
+    AstSFormatF(File_سطر* fl, عبارت_Format, Ast_گره_عبارت* exprsp, نویسه missingArgChar = 'd',
                 bool hidden = true)
         : ASTGEN_SUPER_SFormatF(fl)
         , m_text{""}
         , m_hidden{hidden}
-        , m_exprFormat{true}
+        , m_عبارت_Format{true}
         , m_missingArgChar{missingArgChar} {
         dtypeSetString();
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSFormatF;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(const string& name) override { m_text = name; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, SFormatF)->text();
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    string name() ثابت override VL_MT_STABLE { بازگشت m_text; }
+    تهی name(ثابت string& name) override { m_text = name; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت text() == VN_DBG_AS(samep, SFormatF)->text();
     }
-    string verilogKwd() const override { return "$sformatf"; }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    const char* broken() const override {
-        BROKEN_RTN(text() != "" && exprFormat());  // Expr format means no literal format
-        return nullptr;
+    string verilogKwd() ثابت override { بازگشت "$sformatf"; }
+    string text() ثابت { بازگشت m_text; }  // * = Text to display
+    تهی text(ثابت string& text) { m_text = text; }
+    ثابت نویسه* broken() ثابت override {
+        BROKEN_RTN(text() != "" && عبارت_Format_2());  // Expr format means no literal format
+        بازگشت nullptr;
     }
-    bool formatScopeTracking() const {  // Track scopeNamep();  Ok if false positive
-        if (exprFormat() || name().find("%m") != string::npos || name().find("%M") != string::npos)
-            return true;
-        for (const AstNode* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
-            if (const AstConst* const fmtp = VN_CAST(exprp, Const)) {
-                if (fmtp->num().isFromString()) {
-                    const string str = fmtp->num().toString();
-                    if (str.find("%m") != string::npos || str.find("%M") != string::npos)
-                        return true;
+    bool formatScopeTracking() ثابت {  // Track scopeNamep();  Ok if false positive
+        اگر (عبارت_Format_2() || name().find("%m") != string::npos || name().find("%M") != string::npos)
+            بازگشت true;
+        برای (ثابت Ast_گره* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
+            اگر (ثابت AstConst* ثابت fmtp = VN_CAST(exprp, Const)) {
+                اگر (fmtp->رقم().isFromString()) {
+                    ثابت string str = fmtp->رقم().toString();
+                    اگر (str.find("%m") != string::npos || str.find("%M") != string::npos)
+                        بازگشت true;
                 }
             }
         }
-        return false;
+        بازگشت false;
     }
-    bool hidden() const { return m_hidden; }
-    void hidden(bool flag) { m_hidden = flag; }
-    bool exprFormat() const { return m_exprFormat; }
-    void exprFormat(bool flag) { m_exprFormat = flag; }
-    bool optionalFormat() const { return m_optionalFormat; }
-    void optionalFormat(bool flag) { m_optionalFormat = flag; }
-    char missingArgChar() const { return m_missingArgChar; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool hidden() ثابت { بازگشت m_hidden; }
+    تهی hidden(bool flag) { m_hidden = flag; }
+    bool عبارت_Format_2() ثابت { بازگشت m_عبارت_Format; }
+    تهی عبارت_Format_2(bool flag) { m_عبارت_Format = flag; }
+    bool optionalFormat() ثابت { بازگشت m_optionalFormat; }
+    تهی optionalFormat(bool flag) { m_optionalFormat = flag; }
+    نویسه missingArgChar() ثابت { بازگشت m_missingArgChar; }
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstSGotoRep final : public AstNodeExpr {
+class AstSGotoRep final : عمومی Ast_گره_عبارت {
     // Goto repetition: expr [-> count] or [-> count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2459,15 +2459,15 @@ class AstSGotoRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+عمومی:
     // Exact [->N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSGotoRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [->M:N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSGotoRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp, Ast_گره_عبارت* maxCountp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2476,10 +2476,10 @@ public:
     ASTGEN_MEMBERS_AstSGotoRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSNonConsRep final : public AstNodeExpr {
+class AstSNonConsRep final : عمومی Ast_گره_عبارت {
     // Nonconsecutive repetition: expr [= count] or [= count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2488,15 +2488,15 @@ class AstSNonConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+عمومی:
     // Exact [=N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSNonConsRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [=M:N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSNonConsRep(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* countp, Ast_گره_عبارت* maxCountp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2505,17 +2505,17 @@ public:
     ASTGEN_MEMBERS_AstSNonConsRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSScanF final : public AstNodeExpr {
+class AstSScanF final : عمومی Ast_گره_عبارت {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := fromp : AstNodeExpr
     string m_text;
     VTimescale m_timeunit;  // Parent module time unit
 
-public:
-    AstSScanF(FileLine* fl, const string& text, AstNodeExpr* fromp, AstNodeExpr* exprsp)
+عمومی:
+    AstSScanF(File_سطر* fl, ثابت string& text, Ast_گره_عبارت* fromp, Ast_گره_عبارت* exprsp)
         : ASTGEN_SUPER_SScanF(fl)
         , m_text{text} {
         addExprsp(exprsp);
@@ -2523,71 +2523,71 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$sscanf"; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_text; }
+    string verilogKwd() ثابت override { بازگشت "$sscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSScanF* const asamep = VN_DBG_AS(samep, SScanF);
-        return text() == asamep->text() && timeunit() == asamep->timeunit();
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { بازگشت true; }  // SPECIAL: makes output
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstSScanF* ثابت asamep = VN_DBG_AS(samep, SScanF);
+        بازگشت text() == asamep->text() && timeunit() == asamep->timeunit();
     }
-    string text() const { return m_text; }  // * = Text to display
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    bool isSystemFunc() const override { return true; }
+    string text() ثابت { بازگشت m_text; }  // * = Text to display
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstSampled final : public AstNodeExpr {
+class AstSampled final : عمومی Ast_گره_عبارت {
     // Verilog $sampled
     // @astgen op1 := exprp : AstNode<AstNodeExpr|AstPropSpec>
     bool m_internal : 1;  // Internally created, not from a source $sampled
-public:
-    AstSampled(FileLine* fl, AstNode* exprp, AstNodeDType* dtypep, bool internal = false)
+عمومی:
+    AstSampled(File_سطر* fl, Ast_گره* exprp, Ast_گره_DType* dtypep, bool internal = false)
         : ASTGEN_SUPER_Sampled(fl)
         , m_internal{internal} {
         this->exprp(exprp);
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstSampled;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "$sampled(%l)"; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string emitVerilog() override { بازگشت "$sampled(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
     }
-    bool internal() const { return m_internal; }
-    bool isSystemFunc() const override { return true; }
+    bool internal() ثابت { بازگشت m_internal; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstScopeName final : public AstNodeExpr {
+class AstScopeName final : عمومی Ast_گره_عبارت {
     // For display %m and DPI context imports
     // Parents:  AstSFormatF, AstNodeFTaskRef, AstNodeFTask, AstScope
     std::string m_scopeAttr;
     std::string m_scopeEntr;  // Scope path for the DPI import/export context name
     bool m_dpiExport = false;  // Is for dpiExport
     bool m_selfRelative = false;  // scopeAttr is the pretty path below the running instance
-    const bool m_forFormat;  // Is for a format %m
-    static std::string scopeNameFormatter(const std::string& text);
-    static std::string scopePrettyNameFormatter(const std::string& text);
+    ثابت bool m_forFormat;  // Is for a format %m
+    ایستا std::string scopeNameFormatter(ثابت std::string& text);
+    ایستا std::string scopePrettyNameFormatter(ثابت std::string& text);
 
-public:
+عمومی:
     class ForFormat {};
-    AstScopeName(FileLine* fl, bool forFormat)
+    AstScopeName(File_سطر* fl, bool forFormat)
         : ASTGEN_SUPER_ScopeName(fl)
         , m_forFormat{forFormat} {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstScopeName;
-    bool sameNode(const AstNode* samep) const override {
-        const AstScopeName* const sp = VN_DBG_AS(samep, ScopeName);
-        return m_scopeAttr == sp->m_scopeAttr  //
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstScopeName* ثابت sp = VN_DBG_AS(samep, ScopeName);
+        بازگشت m_scopeAttr == sp->m_scopeAttr  //
                && m_scopeEntr == sp->m_scopeEntr  //
                && m_dpiExport == sp->m_dpiExport  //
                && m_selfRelative == sp->m_selfRelative  //
@@ -2595,195 +2595,195 @@ public:
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    bool cleanOut() ثابت override { بازگشت true; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
     // ACCESSORS
-    const std::string& scopeAttr() const { return m_scopeAttr; }
-    void scopeAttr(const std::string& val) { m_scopeAttr = val; }
-    const std::string& scopeEntr() const { return m_scopeEntr; }
-    void scopeEntr(const std::string& val) { m_scopeEntr = val; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool selfRelative() const { return m_selfRelative; }
-    void selfRelative(bool flag) { m_selfRelative = flag; }
-    bool forFormat() const { return m_forFormat; }
+    ثابت std::string& scopeAttr() ثابت { بازگشت m_scopeAttr; }
+    تهی scopeAttr(ثابت std::string& val) { m_scopeAttr = val; }
+    ثابت std::string& scopeEntr() ثابت { بازگشت m_scopeEntr; }
+    تهی scopeEntr(ثابت std::string& val) { m_scopeEntr = val; }
+    bool dpiExport() ثابت { بازگشت m_dpiExport; }
+    تهی dpiExport(bool flag) { m_dpiExport = flag; }
+    bool selfRelative() ثابت { بازگشت m_selfRelative; }
+    تهی selfRelative(bool flag) { m_selfRelative = flag; }
+    bool forFormat() ثابت { بازگشت m_forFormat; }
     // Name for __Vscopep variable including children
-    string scopeSymName() const { return scopeNameFormatter(m_scopeAttr); }
+    string scopeSymName() ثابت { بازگشت scopeNameFormatter(m_scopeAttr); }
     // Name for DPI import scope
-    string scopeDpiName() const { return scopeNameFormatter(m_scopeEntr); }
+    string scopeDpiName() ثابت { بازگشت scopeNameFormatter(m_scopeEntr); }
     // Name for __Vscopep variable including children
-    string scopePrettySymName() const { return scopePrettyNameFormatter(m_scopeAttr); }
+    string scopePrettySymName() ثابت { بازگشت scopePrettyNameFormatter(m_scopeAttr); }
     // Name for __Vscopep variable including children
-    string scopePrettyDpiName() const { return scopePrettyNameFormatter(m_scopeEntr); }
+    string scopePrettyDpiName() ثابت { بازگشت scopePrettyNameFormatter(m_scopeEntr); }
 };
-class AstStable final : public AstNodeExpr {
+class AstStable final : عمومی Ast_گره_عبارت {
     // Verilog $stable
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstStable(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+عمومی:
+    AstStable(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_Sen_درخت* sentreep)
         : ASTGEN_SUPER_Stable(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstStable;
-    string emitVerilog() override { return "$stable(%l)"; }
+    string emitVerilog() override { بازگشت "$stable(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstStackTraceF final : public AstNodeExpr {
+class Ast_پشته_Trace_F final : عمومی Ast_گره_عبارت {
     // $stacktrace used as function
-public:
-    explicit AstStackTraceF(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceF(fl) {
+عمومی:
+    explicit Ast_پشته_Trace_F(File_سطر* fl)
+        : ASTGEN_SUPER_پشته_Trace_F(fl) {
         dtypeSetString();
     }
-    ASTGEN_MEMBERS_AstStackTraceF;
-    string verilogKwd() const override { return "$stacktrace"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_STACKTRACE_N()"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_پشته_Trace_F;
+    string verilogKwd() ثابت override { بازگشت "$stacktrace"; }
+    string emitVerilog() override { بازگشت verilogKwd(); }
+    string emitC() override { بازگشت "VL_STACKTRACE_N()"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstSteady final : public AstNodeExpr {
+class AstSteady final : عمومی Ast_گره_عبارت {
     // Verilog $steady_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstSteady(FileLine* fl, AstNodeExpr* exprp)
+عمومی:
+    AstSteady(File_سطر* fl, Ast_گره_عبارت* exprp)
         : ASTGEN_SUPER_Steady(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSteady;
-    string emitVerilog() override { return "$steady_gclk(%l)"; }
+    string emitVerilog() override { بازگشت "$steady_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstStructSel final : public AstNodeExpr {
+class AstStructSel final : عمومی Ast_گره_عبارت {
     // Unpacked struct/union member access
     // Parents: math|stmt
     // Children: varref, math
     // @astgen op1 := fromp : AstNodeExpr
     string m_name;  // Name of the member
-public:
-    AstStructSel(FileLine* fl, AstNodeExpr* fromp, const string& name)
+عمومی:
+    AstStructSel(File_سطر* fl, Ast_گره_عبارت* fromp, ثابت string& name)
         : ASTGEN_SUPER_StructSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstStructSel;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
+    تهی name(ثابت string& name) override { m_name = name; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override {
+    bool cleanOut() ثابت override {
         // Not a union
-        return VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
+        بازگشت VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstStructSel* const sp = VN_DBG_AS(samep, StructSel);
-        return m_name == sp->m_name;
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstStructSel* ثابت sp = VN_DBG_AS(samep, StructSel);
+        بازگشت m_name == sp->m_name;
     }
-    int instrCount() const override { return widthInstrs(); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstSysIgnore final : public AstNodeExpr {
+class AstSysIgnore final : عمومی Ast_گره_عبارت {
     // @astgen op1 := exprsp : List[AstNodeExpr] // Expressions to output (???)
-public:
-    AstSysIgnore(FileLine* fl, AstNodeExpr* exprsp)
+عمومی:
+    AstSysIgnore(File_سطر* fl, Ast_گره_عبارت* exprsp)
         : ASTGEN_SUPER_SysIgnore(fl) {
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSysIgnore;
-    string verilogKwd() const override { return "$ignored"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    string verilogKwd() ثابت override { بازگشت "$ignored"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }  // Though deleted before opt
+    bool isPredictOptimizable() ثابت override { بازگشت false; }  // Though deleted before opt
+    bool isPure() override { بازگشت false; }  // Though deleted before opt
+    bool isOutputter() override { بازگشت true; }  // Though deleted before opt
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstSystemF final : public AstNodeExpr {
+class AstSystemF final : عمومی Ast_گره_عبارت {
     // $system used as function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemF(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstSystemF(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_SystemF(fl) {
         this->lhsp(lhsp);
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSystemF;
-    string verilogKwd() const override { return "$system"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_SYSTEM_%nq(%lw, %P)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    string verilogKwd() ثابت override { بازگشت "$system"; }
+    string emitVerilog() override { بازگشت verilogKwd(); }
+    string emitC() override { بازگشت "VL_SYSTEM_%nq(%lw, %P)"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isOutputter() override { بازگشت true; }
+    bool isUnlikely() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstTaggedExpr final : public AstNodeExpr {
+class Ast_Tagged_عبارت final : عمومی Ast_گره_عبارت {
     // Tagged union expression: "tagged MemberName [expr]"
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Optional value expression
     string m_name;  // Member identifier name
-public:
-    AstTaggedExpr(FileLine* fl, const string& name, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_TaggedExpr(fl)
+عمومی:
+    Ast_Tagged_عبارت(File_سطر* fl, ثابت string& name, Ast_گره_عبارت* exprp)
+        : ASTGEN_SUPER_Tagged_عبارت(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstTaggedExpr;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_عبارت;
+    string emitVerilog() override { بازگشت "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedExpr)->m_name;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_name == VN_DBG_AS(samep, Tagged_عبارت)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
 };
-class AstTaggedPattern final : public AstNodeExpr {
+class AstTaggedPattern final : عمومی Ast_گره_عبارت {
     // Tagged pattern for matches: "tagged MemberName [pattern]"
     // @astgen op1 := patternp : Optional[AstNode]  // Optional nested pattern
     string m_name;  // Member identifier name
-public:
-    AstTaggedPattern(FileLine* fl, const string& name, AstNode* patternp)
+عمومی:
+    AstTaggedPattern(File_سطر* fl, ثابت string& name, Ast_گره* patternp)
         : ASTGEN_SUPER_TaggedPattern(fl)
         , m_name{name} {
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstTaggedPattern;
-    string emitVerilog() override { return "tagged %k"; }
+    string emitVerilog() override { بازگشت "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }
 };
-class AstTestPlusArgs final : public AstNodeExpr {
+class AstTestPlusArgs final : عمومی Ast_گره_عبارت {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
-public:
-    AstTestPlusArgs(FileLine* fl, AstNodeExpr* searchp)
+عمومی:
+    AstTestPlusArgs(File_سطر* fl, Ast_گره_عبارت* searchp)
         : ASTGEN_SUPER_TestPlusArgs(fl) {
         this->searchp(searchp);
         dtypeSetLogic2StateUnsized(
@@ -2791,109 +2791,109 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstTestPlusArgs;
-    string verilogKwd() const override { return "$test$plusargs"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    string verilogKwd() ثابت override { بازگشت "$test$plusargs"; }
+    string emitVerilog() override { بازگشت verilogKwd(); }
+    string emitC() override { بازگشت "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
     // but isPure() true
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstThisRef final : public AstNodeExpr {
+class AstThisRef final : عمومی Ast_گره_عبارت {
     // Reference to 'this'.
     // @astgen op1 := childDTypep : Optional[AstClassRefDType] // dtype of the node
-public:
-    AstThisRef(FileLine* fl, VFlagChildDType, AstClassRefDType* dtypep)
+عمومی:
+    AstThisRef(File_سطر* fl, VFlagChildDType, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         childDTypep(dtypep);
     }
-    AstThisRef(FileLine* fl, AstClassRefDType* dtypep)
+    AstThisRef(File_سطر* fl, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstThisRef;
-    string emitC() override { return "this"; }
-    string emitVerilog() override { return "this"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    string emitC() override { بازگشت "this"; }
+    string emitVerilog() override { بازگشت "this"; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    Ast_گره_DType* getChildDTypep() ثابت override { بازگشت childDTypep(); }
 };
-class AstTimePrecision final : public AstNodeExpr {
+class AstTimePrecision final : عمومی Ast_گره_عبارت {
     // Verilog $timeprecision
-public:
-    explicit AstTimePrecision(FileLine* fl)
+عمومی:
+    explicit AstTimePrecision(File_سطر* fl)
         : ASTGEN_SUPER_TimePrecision(fl) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstTimePrecision;
-    string emitVerilog() override { return "$timeprecision"; }
+    string emitVerilog() override { بازگشت "$timeprecision"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstTimeUnit final : public AstNodeExpr {
+class AstTimeUnit final : عمومی Ast_گره_عبارت {
     VTimescale m_timeunit;  // Parent module time unit
     // Verilog $timeunit
-public:
-    explicit AstTimeUnit(FileLine* fl)
+عمومی:
+    explicit AstTimeUnit(File_سطر* fl)
         : ASTGEN_SUPER_TimeUnit(fl) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstTimeUnit;
-    string emitVerilog() override { return "$timeunit"; }
+    string emitVerilog() override { بازگشت "$timeunit"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTriggered final : public AstNodeExpr {
+class AstTriggered final : عمومی Ast_گره_عبارت {
     // True if any of the triggers at 'm_indices' are set in 'trigRefp'.
     // Explicit form of the trigger check, so the triggers tested can be recovered directly.
     // @astgen op1 := trigRefp : AstVarRef  // Reference to the trigger vector
-    const std::vector<uint32_t> m_indices;  // Indices of the triggers tested
-public:
-    AstTriggered(FileLine* fl, AstVarScope* trigVscp, const std::vector<uint32_t>& indices);
+    ثابت std::vector<uint32_t> m_indices;  // Indices of the triggers tested
+عمومی:
+    AstTriggered(File_سطر* fl, AstVarScope* trigVscp, ثابت std::vector<uint32_t>& indices);
     ASTGEN_MEMBERS_AstTriggered;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
     }
-    const std::vector<uint32_t>& indices() const { return m_indices; }
+    ثابت std::vector<uint32_t>& indices() ثابت { بازگشت m_indices; }
 };
-class AstUnbounded final : public AstNodeExpr {
+class AstUnbounded final : عمومی Ast_گره_عبارت {
     // A $ in the parser, used for unbounded and queues
     // Due to where is used, treated as int
-public:
-    explicit AstUnbounded(FileLine* fl)
+عمومی:
+    explicit AstUnbounded(File_سطر* fl)
         : ASTGEN_SUPER_Unbounded(fl) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstUnbounded;
-    string emitVerilog() override { return "$"; }
+    string emitVerilog() override { بازگشت "$"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstUnlinkedRef final : public AstNodeExpr {
+class AstUnlinkedRef final : عمومی Ast_گره_عبارت {
     // As-of-yet unlinkable Ref
     // @astgen op1 := refp : AstNode
     // @astgen op2 := cellrefp : AstNode
 
     string m_name;  // Var name // TODO: There is no way to access this, fix or remove
-public:
-    AstUnlinkedRef(FileLine* fl, AstNode* refp, const string& name, AstNode* cellrefp)
+عمومی:
+    AstUnlinkedRef(File_سطر* fl, Ast_گره* refp, ثابت string& name, Ast_گره* cellrefp)
         : ASTGEN_SUPER_UnlinkedRef(fl)
         , m_name{name} {
         this->refp(refp);
@@ -2903,17 +2903,17 @@ public:
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstUntil final : public AstNodeExpr {
+class AstUntil final : عمومی Ast_گره_عبارت {
     // The until property expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
 
-    const bool m_strong;  // 's_' preffix
-    const bool m_overlapping;  // '_with` suffix
-public:
-    AstUntil(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool strong, bool overlapping)
+    ثابت bool m_strong;  // 's_' preffix
+    ثابت bool m_overlapping;  // '_with` suffix
+عمومی:
+    AstUntil(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, bool strong, bool overlapping)
         : ASTGEN_SUPER_Until(fl)
         , m_strong{strong}
         , m_overlapping{overlapping} {
@@ -2921,46 +2921,46 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstUntil;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    string verilogKwd() const override {
-        return (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
+    string verilogKwd() ثابت override {
+        بازگشت (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
     }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isMultiCycleSva() const override { return true; }
-    bool isStrong() const { return m_strong; }
-    bool isOverlapping() const { return m_overlapping; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
+    bool isStrong() ثابت { بازگشت m_strong; }
+    bool isOverlapping() ثابت { بازگشت m_overlapping; }
 };
-class AstValuePlusArgs final : public AstNodeExpr {
+class Ast_مقدار_Plus_Args final : عمومی Ast_گره_عبارت {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
     // @astgen op2 := outp : AstNodeExpr // VarRef for result
-public:
-    AstValuePlusArgs(FileLine* fl, AstNodeExpr* searchp, AstNodeExpr* outp)
-        : ASTGEN_SUPER_ValuePlusArgs(fl) {
+عمومی:
+    Ast_مقدار_Plus_Args(File_سطر* fl, Ast_گره_عبارت* searchp, Ast_گره_عبارت* outp)
+        : ASTGEN_SUPER_مقدار_Plus_Args(fl) {
         this->searchp(searchp);
         this->outp(outp);
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstValuePlusArgs;
-    string verilogKwd() const override { return "$value$plusargs"; }
-    string emitVerilog() override { return "%f$value$plusargs(%l, %k%r)"; }
+    ASTGEN_MEMBERS_Ast_مقدار_Plus_Args;
+    string verilogKwd() ثابت override { بازگشت "$value$plusargs"; }
+    string emitVerilog() override { بازگشت "%f$value$plusargs(%l, %k%r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !outp(); }
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت !outp(); }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstWithParse final : public AstNodeExpr {
+class AstWithParse final : عمومی Ast_گره_عبارت {
     // In early parse, FUNC(index) WITH equation-using-index
     // Replaced with AstWith
     // Parents: expr|stmt
@@ -2968,54 +2968,54 @@ class AstWithParse final : public AstNodeExpr {
     // @astgen op1 := funcrefp : AstNodeExpr
     // @astgen op3 := exprsp : List[AstNodeExpr]  // With's parenthesis part
     // @astgen op4 := constraintsp : List[AstNode]  // With's braces part
-private:
+خصوصی:
     // True for the 'with (identifier_list) {...}' form, including 'with () {...}'.
     bool m_restricted = false;
 
-public:
-    AstWithParse(FileLine* fl, AstNodeExpr* funcrefp, AstNodeExpr* exprsp,
-                 AstNode* constraintsp = nullptr)
+عمومی:
+    AstWithParse(File_سطر* fl, Ast_گره_عبارت* funcrefp, Ast_گره_عبارت* exprsp,
+                 Ast_گره* constraintsp = nullptr)
         : ASTGEN_SUPER_WithParse(fl) {
         this->funcrefp(funcrefp);
         addExprsp(exprsp);
         addConstraintsp(constraintsp);
     }
     ASTGEN_MEMBERS_AstWithParse;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool restricted() const { return m_restricted; }
-    void restricted(bool flag) { m_restricted = flag; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    bool restricted() ثابت { بازگشت m_restricted; }
+    تهی restricted(bool flag) { m_restricted = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(true); }
 };
 
 // === AstNodeBiop ===
-class AstBufIf1 final : public AstNodeBiop {
+class AstBufIf1 final : عمومی Ast_گره_Biop {
     // lhs is enable, rhs is data to drive
     // Note unlike the Verilog bufif1() UDP, this allows any width; each lhsp
     // bit enables respective rhsp bit
-public:
-    AstBufIf1(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstBufIf1(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_BufIf1(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstBufIf1;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opBufIf1(lhs, rhs);
     }
-    string emitVerilog() override { return "bufif(%r,%l)"; }
+    string emitVerilog() override { بازگشت "bufif(%r,%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstCastDynamic final : public AstNodeBiop {
+class AstCastDynamic final : عمومی Ast_گره_Biop {
     // Verilog $cast used as a function
     // Task usage of $cast is converted during parse to assert($cast(...))
     // lhsp() is value (we are converting FROM) to match AstCCast etc, this
@@ -3023,1088 +3023,1088 @@ class AstCastDynamic final : public AstNodeBiop {
     // value reading from.  Suggest use fromp()/top() instead of lhsp/rhsp().
     // @astgen alias op1 := fromp
     // @astgen alias op2 := top
-public:
-    AstCastDynamic(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstCastDynamic(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_CastDynamic(fl, lhsp, rhsp) {
         dtypeSetBitUnsized(32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
                            VSigning::SIGNED);  // Spec says int return
     }
     ASTGEN_MEMBERS_AstCastDynamic;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         V3ERROR_NA;
     }
-    string emitVerilog() override { return "%f$cast(%r, %l)"; }
-    string emitC() override { return "VL_DYNAMIC_CAST(%r, %l)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 20; }
-    bool isPure() override { return false; }
+    string emitVerilog() override { بازگشت "%f$cast(%r, %l)"; }
+    string emitC() override { بازگشت "VL_DYNAMIC_CAST(%r, %l)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 20; }
+    bool isPure() override { بازگشت false; }
 };
-class AstCompareNN final : public AstNodeBiop {
+class AstCompareNN final : عمومی Ast_گره_Biop {
     // Verilog str.compare() and str.icompare()
-    const bool m_ignoreCase;  // True for str.icompare()
-public:
-    AstCompareNN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool ignoreCase)
+    ثابت bool m_ignoreCase;  // True for str.icompare()
+عمومی:
+    AstCompareNN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, bool ignoreCase)
         : ASTGEN_SUPER_CompareNN(fl, lhsp, rhsp)
         , m_ignoreCase{ignoreCase} {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstCompareNN;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opCompareNN(lhs, rhs, m_ignoreCase);
     }
-    string name() const override VL_MT_STABLE { return m_ignoreCase ? "icompare" : "compare"; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_ignoreCase ? "icompare" : "compare"; }
     string emitVerilog() override {
-        return m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
+        بازگشت m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
     }
     string emitC() override {
-        return m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
+        بازگشت m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
     }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool ignoreCase() const { return m_ignoreCase; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool ignoreCase() ثابت { بازگشت m_ignoreCase; }
 };
-class AstConcat final : public AstNodeBiop {
+class AstConcat final : عمومی Ast_گره_Biop {
     // If you're looking for {#{}}, see AstReplicate
     // @astgen makeDfgVertex
-public:
-    AstConcat(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstConcat(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Concat(fl, lhsp, rhsp) {
-        if (lhsp->dtypep() && rhsp->dtypep()) {
+        اگر (lhsp->dtypep() && rhsp->dtypep()) {
             dtypeSetBitOrLogicSized(lhsp->dtypep()->width() + rhsp->dtypep()->width(),
                                     VSigning::UNSIGNED, isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstConcat;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { بازگشت "%f{%l, %k%r}"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opConcat(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(concat %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { بازگشت "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(concat %l %r)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
 };
-class AstConcatN final : public AstNodeBiop {
+class AstConcatN final : عمومی Ast_گره_Biop {
     // String concatenate
-public:
-    AstConcatN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstConcatN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_ConcatN(fl, lhsp, rhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstConcatN;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { بازگشت "%f{%l, %k%r}"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opConcatN(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCATN_NNN(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitC() override { بازگشت "VL_CONCATN_NNN(%li, %ri)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstDiv final : public AstNodeBiop {
+class AstDiv final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstDiv(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Div(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvudiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { بازگشت "%k(%l %f/ %r)"; }
+    string emitC() override { بازگشت "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvudiv %l %r)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_DIV; }
 };
-class AstDivD final : public AstNodeBiop {
-public:
-    AstDivD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDivD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstDivD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DivD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstDivD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opDivD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f/ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "/"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "/"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_DIV; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstDivS final : public AstNodeBiop {
+class AstDivS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstDivS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsdiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f/ %r)"; }
+    string emitC() override { بازگشت "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvsdiv %l %r)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_DIV; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstEqWild final : public AstNodeBiop {
+class AstEqWild final : عمومی Ast_گره_Biop {
     // Note wildcard operator rhs differs from lhs
     // @astgen makeDfgVertex
-public:
-    AstEqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstEqWild(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_EqWild(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstEqWild;
     // Return AstEqWild/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ایستا Ast_گره_Biop* newTyped(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp);
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opWildEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f==? %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f==? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        اگر (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_EQ_%lq(%lW, %P, %li, %ri)";
+        } وگرنه {
+            بازگشت "VL_EQ_%lq(%lW, %P, %li, %ri)";
         }
     }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (= %l %r))"; }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        اگر (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "==";
+        } وگرنه {
+            بازگشت "==";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstFGetS final : public AstNodeBiop {
+class AstFGetS final : عمومی Ast_گره_Biop {
     // @astgen alias op1 := strgp
     // @astgen alias op2 := filep
-public:
-    AstFGetS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstFGetS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_FGetS(fl, lhsp, rhsp) {
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetS;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgets(%l,%r)"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%f$fgets(%l,%r)"; }
     string emitC() override {
-        return strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
+        بازگشت strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
                                                        : "VL_FGETS_%nqX%rq(%lw, %P, &(%li), %ri)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 64; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: $display has 'visual' ordering
 };
-class AstFUngetC final : public AstNodeBiop {
-public:
-    AstFUngetC(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstFUngetC final : عمومی Ast_گره_Biop {
+عمومی:
+    AstFUngetC(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_FUngetC(fl, lhsp, rhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFUngetC;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$ungetc(%r, %l)"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%f$ungetc(%r, %l)"; }
     // Non-existent filehandle returns EOF
     string emitC() override {
-        return "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
+        بازگشت "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    AstNode* charp() const { return rhsp(); }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 64; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_گره* filep() ثابت { بازگشت lhsp(); }
+    Ast_گره* charp() ثابت { بازگشت rhsp(); }
 };
-class AstGetcN final : public AstNodeBiop {
+class AstGetcN final : عمومی Ast_گره_Biop {
     // Verilog string.getc()
-public:
-    AstGetcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGetcN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GetcN(fl, lhsp, rhsp) {
         dtypeSetBitSized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGetcN(lhs, rhs);
     }
-    string name() const override VL_MT_STABLE { return "getc"; }
-    string emitVerilog() override { return "%k(%l.getc(%r))"; }
-    string emitC() override { return "VL_GETC_N(%li,%ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string name() ثابت override VL_MT_STABLE { بازگشت "getc"; }
+    string emitVerilog() override { بازگشت "%k(%l.getc(%r))"; }
+    string emitC() override { بازگشت "VL_GETC_N(%li,%ri)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstGetcRefN final : public AstNodeBiop {
+class AstGetcRefN final : عمومی Ast_گره_Biop {
     // Verilog string[#] on the left-hand-side of assignment
     // Spec says is of type byte (not string of single character)
-public:
-    AstGetcRefN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGetcRefN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GetcRefN(fl, lhsp, rhsp) {
         dtypeSetBitSized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcRefN;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k%l[%r]"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k%l[%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstGt final : public AstNodeBiop {
+class AstGt final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGt(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Gt(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvugt %l %r))"; }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f> %r)"; }
+    string emitC() override { بازگشت "VL_GT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvugt %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ">"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstGtD final : public AstNodeBiop {
-public:
-    AstGtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstGtD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GtD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت ">"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstGtN final : public AstNodeBiop {
-public:
-    AstGtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtN final : عمومی Ast_گره_Biop {
+عمومی:
+    AstGtN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GtN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت ">"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstGtS final : public AstNodeBiop {
+class AstGtS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGtS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GtS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsgt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f> %r)"; }
+    string emitC() override { بازگشت "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvsgt %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstGte final : public AstNodeBiop {
+class AstGte final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGte(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Gte(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvuge %l %r))"; }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f>= %r)"; }
+    string emitC() override { بازگشت "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvuge %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ">="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstGteD final : public AstNodeBiop {
-public:
-    AstGteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstGteD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GteD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت ">="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstGteN final : public AstNodeBiop {
-public:
-    AstGteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteN final : عمومی Ast_گره_Biop {
+عمومی:
+    AstGteN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GteN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت ">="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstGteS final : public AstNodeBiop {
+class AstGteS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstGteS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_GteS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opGteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsge %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f>= %r)"; }
+    string emitC() override { بازگشت "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvsge %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstLogAnd final : public AstNodeBiop {
+class AstLogAnd final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLogAnd(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LogAnd(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f&& %r)"; }
-    string emitC() override { return "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&&"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { بازگشت "%k(%l %f&& %r)"; }
+    string emitC() override { بازگشت "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvand %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "&&"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
 };
-class AstLogIf final : public AstNodeBiop {
+class AstLogIf final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogIf(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLogIf(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LogIf(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogIf;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogIf(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f-> %r)"; }
-    string emitC() override { return "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
-    string emitSimpleOperator() override { return "->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { بازگشت "%k(%l %f-> %r)"; }
+    string emitC() override { بازگشت "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
+    string emitSimpleOperator() override { بازگشت "->"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
 };
-class AstLogOr final : public AstNodeBiop {
+class AstLogOr final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLogOr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LogOr(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f|| %r)"; }
-    string emitC() override { return "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "||"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { بازگشت "%k(%l %f|| %r)"; }
+    string emitC() override { بازگشت "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvor %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "||"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
 };
-class AstLt final : public AstNodeBiop {
+class AstLt final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLt(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Lt(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvult %l %r))"; }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f< %r)"; }
+    string emitC() override { بازگشت "VL_LT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvult %l %r))"; }
+    string emitSimpleOperator() override { بازگشت "<"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstLtD final : public AstNodeBiop {
-public:
-    AstLtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstLtD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LtD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "<"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstLtN final : public AstNodeBiop {
-public:
-    AstLtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtN final : عمومی Ast_گره_Biop {
+عمومی:
+    AstLtN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LtN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "<"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstLtS final : public AstNodeBiop {
+class AstLtS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLtS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LtS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvslt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f< %r)"; }
+    string emitC() override { بازگشت "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvslt %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstLte final : public AstNodeBiop {
+class AstLte final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLte(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Lte(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvule %l %r))"; }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f<= %r)"; }
+    string emitC() override { بازگشت "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvule %l %r))"; }
+    string emitSimpleOperator() override { بازگشت "<="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstLteD final : public AstNodeBiop {
-public:
-    AstLteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstLteD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LteD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "<="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstLteN final : public AstNodeBiop {
-public:
-    AstLteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteN final : عمومی Ast_گره_Biop {
+عمومی:
+    AstLteN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LteN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "<="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstLteS final : public AstNodeBiop {
+class AstLteS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLteS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LteS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsle %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f<= %r)"; }
+    string emitC() override { بازگشت "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (bvsle %l %r))"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstModDiv final : public AstNodeBiop {
+class AstModDiv final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstModDiv(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_ModDiv(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opModDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvurem %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { بازگشت "%k(%l %f%% %r)"; }
+    string emitC() override { بازگشت "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvurem %l %r)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_DIV; }
 };
-class AstModDivS final : public AstNodeBiop {
+class AstModDivS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstModDivS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_ModDivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opModDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsmod %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f%% %r)"; }
+    string emitC() override { بازگشت "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvsmod %l %r)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_DIV; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstNeqWild final : public AstNodeBiop {
+class AstNeqWild final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstNeqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstNeqWild(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NeqWild(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstNeqWild;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opWildNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!=? %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f!=? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        اگر (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_NEQ_%lq(%lW, %P, %li, %ri)";
+        } وگرنه {
+            بازگشت "VL_NEQ_%lq(%lW, %P, %li, %ri)";
         }
     }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        اگر (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "!=";
+        } وگرنه {
+            بازگشت "!=";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstPow final : public AstNodeBiop {
+class AstPow final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPow(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstPow(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Pow(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPow;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opPow(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
+    string emitVerilog() override { بازگشت "%k(%l %f** %r)"; }
+    string emitC() override { بازگشت "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL * 10; }
 };
-class AstPowD final : public AstNodeBiop {
-public:
-    AstPowD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstPowD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstPowD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_PowD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstPowD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opPowD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "pow(%li,%ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV * 5; }
-    bool doubleFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f** %r)"; }
+    string emitC() override { بازگشت "pow(%li,%ri)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL_DIV * 5; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstPowSS final : public AstNodeBiop {
+class AstPowSS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstPowSS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_PowSS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opPowSS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f** %r)"; }
+    string emitC() override { بازگشت "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL * 10; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstPowSU final : public AstNodeBiop {
+class AstPowSU final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSU(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstPowSU(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_PowSU(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSU;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opPowSU(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f** %r)"; }
+    string emitC() override { بازگشت "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL * 10; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstPowUS final : public AstNodeBiop {
+class AstPowUS final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowUS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstPowUS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_PowUS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowUS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opPowUS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f** %r)"; }
+    string emitC() override { بازگشت "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL * 10; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstReplicate final : public AstNodeBiop {
+class AstReplicate final : عمومی Ast_گره_Biop {
     // Also used as a "Uniop" flavor of Concat, e.g. "{a}"
     // Verilog {rhs{lhs}} - Note rhsp() is the replicate value, not the lhsp()
     // @astgen alias op1 := srcp
     // @astgen alias op2 := countp
-public:
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstReplicate(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Replicate(fl, lhsp, rhsp) {
-        if (lhsp) {
-            if (const AstConst* const constp = VN_CAST(rhsp, Const)) {
-                if (constp->num().isFourState()
-                    || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+        اگر (lhsp) {
+            اگر (ثابت AstConst* ثابت constp = VN_CAST(rhsp, Const)) {
+                اگر (constp->رقم().isFourState()
+                    || (constp->dtypep()->isSigned() && constp->رقم().isNegative())) {
                     dtypeSetBitOrLogicSized(lhsp->width(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());  // V3Width warns
-                } else {
+                } وگرنه {
                     dtypeSetBitOrLogicSized(lhsp->width() * constp->toSInt(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());
                 }
             }
         }
     }
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, uint32_t repCount)
-        : AstReplicate{fl, lhsp, new AstConst{fl, repCount}} {}
+    AstReplicate(File_سطر* fl, Ast_گره_عبارت* lhsp, uint32_t rep_شمار)
+        : AstReplicate{fl, lhsp, new AstConst{fl, rep_شمار}} {}
     ASTGEN_MEMBERS_AstReplicate;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opRepl(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override {
-        return "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
+    string emitVerilog() override { بازگشت "%f{%r{%k%l}}"; }
+    string emitC() override { بازگشت "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override {
+        بازگشت "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
 };
-class AstReplicateN final : public AstNodeBiop {
+class AstReplicateN final : عمومی Ast_گره_Biop {
     // String replicate
-public:
-    AstReplicateN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstReplicateN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_ReplicateN(fl, lhsp, rhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstReplicateN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opReplN(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATEN_NN%rq(%li, %ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
-    bool stringFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%f{%r{%k%l}}"; }
+    string emitC() override { بازگشت "VL_REPLICATEN_NN%rq(%li, %ri)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstSAnd final : public AstNodeBiop {
+class AstSAnd final : عمومی Ast_گره_Biop {
     // Sequence 'and' (IEEE 1800-2023 16.9.5): both operand sequences must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogAnd.
-    const bool m_propertyControl;  // Parser-generated property if/case branch conjunction
-public:
-    AstSAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool propertyControl = false)
+    ثابت bool m_propertyControl;  // Parser-generated property if/case branch conjunction
+عمومی:
+    AstSAnd(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, bool propertyControl = false)
         : ASTGEN_SUPER_SAnd(fl, lhsp, rhsp)
         , m_propertyControl{propertyControl} {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSAnd;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fand %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %fand %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {  // LCOV_EXCL_LINE
+        بازگشت m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
     }
-    bool propertyControl() const { return m_propertyControl; }
+    bool propertyControl() ثابت { بازگشت m_propertyControl; }
 };
-class AstSIntersect final : public AstNodeBiop {
+class AstSIntersect final : عمومی Ast_گره_Biop {
     // Sequence 'intersect' (IEEE 1800-2023 16.9.6): both operands match with equal length.
     // AND with a length restriction. For boolean operands, lowered to AstLogAnd.
-public:
-    AstSIntersect(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstSIntersect(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_SIntersect(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSIntersect;
     // LCOV_EXCL_START  // Lowered before these are ever called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fintersect %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %fintersect %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSOr final : public AstNodeBiop {
+class AstSOr final : عمومی Ast_گره_Biop {
     // Sequence 'or' (IEEE 1800-2023 16.9.7): at least one operand sequence must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogOr.
-public:
-    AstSOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstSOr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_SOr(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %for %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %for %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSThroughout final : public AstNodeBiop {
+class AstSThroughout final : عمومی Ast_گره_Biop {
     // expr throughout seq (IEEE 1800-2023 16.9.9)
-public:
-    AstSThroughout(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstSThroughout(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_SThroughout(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSThroughout;
     // LCOV_EXCL_START // Lowered in V3AssertProp before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fthroughout %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %fthroughout %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSWithin final : public AstNodeBiop {
+class AstSWithin final : عمومی Ast_گره_Biop {
     // seq1 within seq2 (IEEE 1800-2023 16.9.10)
-public:
-    AstSWithin(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstSWithin(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_SWithin(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSWithin;
     // LCOV_EXCL_START  // Lowered in V3AssertNfa before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fwithin %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %fwithin %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ثابت override { بازگشت true; }
 };
-class AstSel final : public AstNodeBiop {
+class AstSel final : عمومی Ast_گره_Biop {
     // *Resolved* (tyep checked) multiple bit range extraction. Always const width
     // @astgen alias op1 := fromp
     // @astgen alias op2 := lsbp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-    int m_declElWidth;  // If a packed array, the number of bits per element
+    صحیح m_declElWidth;  // If a packed array, the number of bits per element
     // Selection width (!= this->width() from V3Clean onwards, != this->widthMin() in V3Width)
-    int m_widthConst;
+    صحیح m_widthConst;
 
-public:
-    AstSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* lsbp, int bitwidth)
+عمومی:
+    AstSel(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* lsbp, صحیح bitwidth)
         : ASTGEN_SUPER_Sel(fl, fromp, lsbp)
         , m_declElWidth{1}
         , m_widthConst{bitwidth} {
         dtypeSetBitOrLogicSized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
-    AstSel(FileLine* fl, AstNodeExpr* fromp, int lsb, int bitwidth, int bitwidthMin = 0)
+    AstSel(File_سطر* fl, Ast_گره_عبارت* fromp, صحیح lsb, صحیح bitwidth, صحیح bitwidthMin = 0)
         : ASTGEN_SUPER_Sel(fl, fromp, new AstConst(fl, lsb))  // Need () constructor
         , m_declElWidth{1}
         , m_widthConst{bitwidth} {
@@ -4112,950 +4112,950 @@ public:
                                   VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& bit) override {
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& from, ثابت V3_عدد& bit) override {
         out.opSel(from, bit.toUInt() + widthConst() - 1, bit.toUInt());
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override {
-        return widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
+        بازگشت widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
                : isWide()        ? "VL_SEL_%nq%lq%rqI(%nw, %lw, %P, %li, %ri, %nw)"
                                  : "VL_SEL_%nq%lq%rqI(%lw, %P, %li, %ri, %nw)";
     }
-    string emitSMT() const override { return "((_ extract %t %r) %l)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* otherp) const override {
-        return widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
+    string emitSMT() ثابت override { بازگشت "((_ extract %t %r) %l)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* otherp) ثابت override {
+        بازگشت widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
     }
-    int instrCount() const override {
-        return widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
+    صحیح instr_شمار() ثابت override {
+        بازگشت widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
     }
-    int widthConst() const { return m_widthConst; }
-    void widthConst(int value) { m_widthConst = value; }
-    int lsbConst() const { return VN_AS(lsbp(), Const)->toSInt(); }
-    int msbConst() const { return lsbConst() + widthConst() - 1; }
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
-    void declRange(const VNumRange& flag) { m_declRange = flag; }
-    int declElWidth() const { return m_declElWidth; }
-    void declElWidth(int flag) { m_declElWidth = flag; }
+    صحیح widthConst() ثابت { بازگشت m_widthConst; }
+    تهی widthConst(صحیح مقدار) { m_widthConst = مقدار; }
+    صحیح lsbConst() ثابت { بازگشت VN_AS(lsbp(), Const)->toSInt(); }
+    صحیح msbConst() ثابت { بازگشت lsbConst() + widthConst() - 1; }
+    VNumRange& declRange() VL_MT_STABLE { بازگشت m_declRange; }
+    ثابت VNumRange& declRange() ثابت VL_MT_STABLE { بازگشت m_declRange; }
+    تهی declRange(ثابت VNumRange& flag) { m_declRange = flag; }
+    صحیح declElWidth() ثابت { بازگشت m_declElWidth; }
+    تهی declElWidth(صحیح flag) { m_declElWidth = flag; }
 };
-class AstShiftL final : public AstNodeBiop {
+class AstShiftL final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftL(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftL(fl, lhsp, rhsp) {
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } وگرنه اگر (ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftL;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftL(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvshl %l %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f<< %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvshl %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
+        بازگشت (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstShiftLOvr final : public AstNodeBiop {
+class AstShiftLOvr final : عمومی Ast_گره_Biop {
     // Like ShiftL but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftL
-public:
-    AstShiftLOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftLOvr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftLOvr(fl, lhsp, rhsp) {
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } وگرنه {
+            ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftLOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftL(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f<< %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstShiftR final : public AstNodeBiop {
+class AstShiftR final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftR(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftR(fl, lhsp, rhsp) {
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } وگرنه اگر (ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftR;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftR(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvlshr %l %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f>> %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvlshr %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
+        بازگشت (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstShiftROvr final : public AstNodeBiop {
+class AstShiftROvr final : عمومی Ast_گره_Biop {
     // Like ShiftR but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftR
-public:
-    AstShiftROvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftROvr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftROvr(fl, lhsp, rhsp) {
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } وگرنه {
+            ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftROvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftR(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f>> %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstShiftRS final : public AstNodeBiop {
+class AstShiftRS final : عمومی Ast_گره_Biop {
     // Shift right with sign extension, >>> operator
     // Output data type's width determines which bit is used for sign extension
     // @astgen makeDfgVertex
-public:
-    AstShiftRS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftRS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftRS(fl, lhsp, rhsp) {
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } وگرنه اگر (ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftRS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitSMT() const override { return "(bvashr %l %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f>>> %r)"; }
+    string emitSMT() ثابت override { بازگشت "(bvashr %l %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstShiftRSOvr final : public AstNodeBiop {
+class AstShiftRSOvr final : عمومی Ast_گره_Biop {
     // Shift right with sign extension, >>> operator, checks for an over shift and returns zeros
     // Output data type's width determines which bit is used for sign extension
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftRSOvr
-public:
-    AstShiftRSOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+عمومی:
+    AstShiftRSOvr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, صحیح setwidth = 0)
         : ASTGEN_SUPER_ShiftRSOvr(fl, lhsp, rhsp) {
         // Important that widthMin be correct, as opExtend requires it after V3Expand
-        if (setwidth) {
+        اگر (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } وگرنه {
+            ثابت Ast_گره_DType* ثابت dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftRSOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f>>> %r)"; }
+    string emitC() override { بازگشت "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstSub final : public AstNodeBiop {
+class AstSub final : عمومی Ast_گره_Biop {
     // @astgen makeDfgVertex
-public:
-    AstSub(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstSub(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Sub(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstSub;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opSub(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
-    string emitC() override { return "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsub %l %r)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f- %r)"; }
+    string emitC() override { بازگشت "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvsub %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "-"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
 };
-class AstSubD final : public AstNodeBiop {
-public:
-    AstSubD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstSubD final : عمومی Ast_گره_Biop {
+عمومی:
+    AstSubD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_SubD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstSubD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opSubD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f- %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "-"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstURandomRange final : public AstNodeBiop {
+class AstURandomRange final : عمومی Ast_گره_Biop {
     // $urandom_range
-public:
-    AstURandomRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstURandomRange(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_URandomRange(fl, lhsp, rhsp) {
         dtypeSetUInt32();  // Says IEEE
     }
     ASTGEN_MEMBERS_AstURandomRange;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$urandom_range(%l, %r)"; }
-    string emitC() override { return "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%f$urandom_range(%l, %r)"; }
+    string emitC() override { بازگشت "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_PLI; }
 };
 
 // === AstNodeBiCom ===
-class AstEq final : public AstNodeBiCom {
+class AstEq final : عمومی Ast_گره_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstEq(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Eq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstEq;
     // Return AstEq/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ایستا Ast_گره_Biop* newTyped(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp);
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f== %r)"; }
+    string emitC() override { بازگشت "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (= %l %r))"; }
+    string emitSimpleOperator() override { بازگشت "=="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstEqCase final : public AstNodeBiCom {
+class AstEqCase final : عمومی Ast_گره_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstEqCase(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_EqCase(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opCaseEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f=== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f=== %r)"; }
+    string emitC() override { بازگشت "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت "=="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstEqD final : public AstNodeBiCom {
-public:
-    AstEqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqD final : عمومی Ast_گره_Bi_Com {
+عمومی:
+    AstEqD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_EqD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opEqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "=="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstEqN final : public AstNodeBiCom {
-public:
-    AstEqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqN final : عمومی Ast_گره_Bi_Com {
+عمومی:
+    AstEqN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_EqN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opEqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "=="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstEqT final : public AstNodeBiCom {
+class AstEqT final : عمومی Ast_گره_Bi_Com {
     // Equal (==) for data types
-public:
-    AstEqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstEqT(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_EqT(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { بازگشت "=="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
 };
-class AstLogEq final : public AstNodeBiCom {
+class AstLogEq final : عمومی Ast_گره_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstLogEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstLogEq(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_LogEq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogEq;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opLogEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<-> %r)"; }
-    string emitC() override { return "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxnor %l %r)"; }
-    string emitSimpleOperator() override { return "<->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { بازگشت "%k(%l %f<-> %r)"; }
+    string emitC() override { بازگشت "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvxnor %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "<->"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() + INSTR_شمار_BRANCH; }
 };
-class AstNeq final : public AstNodeBiCom {
+class AstNeq final : عمومی Ast_گره_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstNeq(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Neq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstNeq;
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ایستا Ast_گره_Biop* newTyped(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp);
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    string emitSMT() const override { return "(__Vbv (not (= %l %r)))"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f!= %r)"; }
+    string emitC() override { بازگشت "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت "!="; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (not (= %l %r)))"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstNeqCase final : public AstNodeBiCom {
+class AstNeqCase final : عمومی Ast_گره_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstNeqCase(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NeqCase(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opCaseNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!== %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { بازگشت "%k(%l %f!== %r)"; }
+    string emitC() override { بازگشت "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { بازگشت "!="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
 };
-class AstNeqD final : public AstNodeBiCom {
-public:
-    AstNeqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqD final : عمومی Ast_گره_Bi_Com {
+عمومی:
+    AstNeqD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NeqD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opNeqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "!="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstNeqN final : public AstNodeBiCom {
-public:
-    AstNeqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqN final : عمومی Ast_گره_Bi_Com {
+عمومی:
+    AstNeqN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NeqN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opNeqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "!="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
+    bool stringFlavor() ثابت override { بازگشت true; }
 };
-class AstNeqT final : public AstNodeBiCom {
+class AstNeqT final : عمومی Ast_گره_Bi_Com {
     // Not-equal (!=) for data types
-public:
-    AstNeqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstNeqT(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_NeqT(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { بازگشت "!="; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_STR; }
 };
 
 // === AstNodeBiComAsv ===
-class AstAdd final : public AstNodeBiComAsv {
+class AstAdd final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAdd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstAdd(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Add(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAdd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opAdd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
-    string emitC() override { return "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvadd %l %r)"; }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f+ %r)"; }
+    string emitC() override { بازگشت "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvadd %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "+"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
 };
-class AstAddD final : public AstNodeBiComAsv {
-public:
-    AstAddD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAddD final : عمومی Ast_گره_Bi_Com_Asv {
+عمومی:
+    AstAddD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_AddD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstAddD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opAddD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f+ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "+"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstAnd final : public AstNodeBiComAsv {
+class AstAnd final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstAnd(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_And(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f& %r)"; }
-    string emitC() override { return "VL_AND_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { بازگشت "%k(%l %f& %r)"; }
+    string emitC() override { بازگشت "VL_AND_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvand %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "&"; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    ثابت نویسه* widthMismatch() ثابت override VL_MT_STABLE;
 };
-class AstMul final : public AstNodeBiComAsv {
+class AstMul final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMul(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstMul(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Mul(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMul;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opMul(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
+    string emitVerilog() override { بازگشت "%k(%l %f* %r)"; }
+    string emitC() override { بازگشت "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "*"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL; }
 };
-class AstMulD final : public AstNodeBiComAsv {
-public:
-    AstMulD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstMulD final : عمومی Ast_گره_Bi_Com_Asv {
+عمومی:
+    AstMulD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_MulD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstMulD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opMulD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
+    string emitVerilog() override { بازگشت "%k(%l %f* %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "*"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstMulS final : public AstNodeBiComAsv {
+class AstMulS final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMulS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstMulS(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_MulS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMulS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opMulS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { بازگشت "%k(%l %f* %r)"; }
+    string emitC() override { بازگشت "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    bool sizeMattersRhs() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * INSTR_شمار_INT_MUL; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstOr final : public AstNodeBiComAsv {
+class AstOr final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstOr(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Or(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f| %r)"; }
-    string emitC() override { return "VL_OR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "|"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { بازگشت "%k(%l %f| %r)"; }
+    string emitC() override { بازگشت "VL_OR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvor %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "|"; }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    ثابت نویسه* widthMismatch() ثابت override VL_MT_STABLE;
 };
-class AstXor final : public AstNodeBiComAsv {
+class AstXor final : عمومی Ast_گره_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstXor(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstXor(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Xor(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstXor;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opXor(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f^ %r)"; }
-    string emitC() override { return "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxor %l %r)"; }
-    string emitSimpleOperator() override { return "^"; }
-    bool cleanOut() const override { return false; }  // Lclean && Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { بازگشت "%k(%l %f^ %r)"; }
+    string emitC() override { بازگشت "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ثابت override { بازگشت "(bvxor %l %r)"; }
+    string emitSimpleOperator() override { بازگشت "^"; }
+    bool cleanOut() ثابت override { بازگشت false; }  // Lclean && Rclean
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    ثابت نویسه* widthMismatch() ثابت override VL_MT_STABLE;
 };
 
 // === AstNodeDistBiop ===
-class AstDistChiSquare final : public AstNodeDistBiop {
-public:
-    AstDistChiSquare(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistChiSquare final : عمومی Ast_گره_Dist_Biop {
+عمومی:
+    AstDistChiSquare(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DistChiSquare(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistChiSquare;
-    string emitVerilog() override { return "%f$dist_chi_square(%l, %r)"; }
-    string emitC() override { return "VL_DIST_CHI_SQUARE(%li, %ri)"; }
+    string emitVerilog() override { بازگشت "%f$dist_chi_square(%l, %r)"; }
+    string emitC() override { بازگشت "VL_DIST_CHI_SQUARE(%li, %ri)"; }
 };
-class AstDistExponential final : public AstNodeDistBiop {
-public:
-    AstDistExponential(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistExponential final : عمومی Ast_گره_Dist_Biop {
+عمومی:
+    AstDistExponential(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DistExponential(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistExponential;
-    string emitVerilog() override { return "%f$dist_exponential(%l, %r)"; }
-    string emitC() override { return "VL_DIST_EXPONENTIAL(%li, %ri)"; }
+    string emitVerilog() override { بازگشت "%f$dist_exponential(%l, %r)"; }
+    string emitC() override { بازگشت "VL_DIST_EXPONENTIAL(%li, %ri)"; }
 };
-class AstDistPoisson final : public AstNodeDistBiop {
-public:
-    AstDistPoisson(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistPoisson final : عمومی Ast_گره_Dist_Biop {
+عمومی:
+    AstDistPoisson(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DistPoisson(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistPoisson;
-    string emitVerilog() override { return "%f$dist_poisson(%l, %r)"; }
-    string emitC() override { return "VL_DIST_POISSON(%li, %ri)"; }
+    string emitVerilog() override { بازگشت "%f$dist_poisson(%l, %r)"; }
+    string emitC() override { بازگشت "VL_DIST_POISSON(%li, %ri)"; }
 };
-class AstDistT final : public AstNodeDistBiop {
-public:
-    AstDistT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistT final : عمومی Ast_گره_Dist_Biop {
+عمومی:
+    AstDistT(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_DistT(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistT;
-    string emitVerilog() override { return "%f$dist_t(%l, %r)"; }
-    string emitC() override { return "VL_DIST_T(%li, %ri)"; }
+    string emitVerilog() override { بازگشت "%f$dist_t(%l, %r)"; }
+    string emitC() override { بازگشت "VL_DIST_T(%li, %ri)"; }
 };
 
 // === AstNodeSel ===
-class AstArraySel final : public AstNodeSel {
+class AstArraySel final : عمومی Ast_گره_Sel {
     // @astgen makeDfgVertex
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), NodeArrayDType)) {
+    تهی init(ثابت Ast_گره* fromp) {
+        اگر (fromp && VN_IS(fromp->dtypep()->skipRefp(), گره_Array_DType)) {
             // Strip off array to find what array references
-            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), NodeArrayDType)->subDTypep());
+            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), گره_Array_DType)->subDTypep());
         }
     }
 
-public:
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+عمومی:
+    AstArraySel(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
         : ASTGEN_SUPER_ArraySel(fl, fromp, bitp) {
         init(fromp);
     }
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, int bit)
+    AstArraySel(File_سطر* fl, Ast_گره_عبارت* fromp, صحیح bit)
         : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, bit)) {  // Need () constructor
         init(fromp);
     }
     ASTGEN_MEMBERS_AstArraySel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    string emitSMT() ثابت override { بازگشت "(select %l %r)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override { بازگشت true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstAssocSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
+class AstAssocSel final : عمومی Ast_گره_Sel {
+    تهی init(ثابت Ast_گره* fromp) {
+        اگر (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), AssocArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstAssocSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+عمومی:
+    AstAssocSel(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
         : ASTGEN_SUPER_AssocSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstAssocSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override {
-        return !isLValue();  // AssocSel creates on miss
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l%f[%r])"; }
+    string emitC() override { بازگشت "%li%k[%ri]"; }
+    string emitSMT() ثابت override { بازگشت "(select %l %r)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override {
+        بازگشت !isLValue();  // AssocSel creates on miss
     }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !isLValue(); }  // AssocSel creates on miss
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت !isLValue(); }  // AssocSel creates on miss
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstWildcardSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
+class AstWildcardSel final : عمومی Ast_گره_Sel {
+    تهی init(ثابت Ast_گره* fromp) {
+        اگر (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), WildcardArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstWildcardSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+عمومی:
+    AstWildcardSel(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
         : ASTGEN_SUPER_WildcardSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstWildcardSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l%f[%r])"; }
+    string emitC() override { بازگشت "%li%k[%ri]"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool isGateOptimizable() ثابت override { بازگشت true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
 };
-class AstWordSel final : public AstNodeSel {
+class AstWordSel final : عمومی Ast_گره_Sel {
     // Select a single word from a multi-word wide value
-public:
-    AstWordSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+عمومی:
+    AstWordSel(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
         : ASTGEN_SUPER_WordSel(fl, fromp, bitp) {
         dtypeSetUInt32();  // Always used on VlWide arrays so returns EData size
     }
     ASTGEN_MEMBERS_AstWordSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    تهی عدد_Operate(V3_عدد&, ثابت V3_عدد&, ثابت V3_عدد&) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
 
 // === AstNodeStream ===
-class AstStreamL final : public AstNodeStream {
+class AstStreamL final : عمومی Ast_گره_Stream {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstStreamL(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_StreamL(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstStreamL;
-    string emitVerilog() override { return "%f{ << %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { بازگشت "%f{ << %r %k{%l} }"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opStreamL(lhs, rhs);
     }
-    string emitC() override { return "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { بازگشت "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
 };
-class AstStreamR final : public AstNodeStream {
+class AstStreamR final : عمومی Ast_گره_Stream {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+عمومی:
+    AstStreamR(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_StreamR(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstStreamR;
-    string emitVerilog() override { return "%f{ >> %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { بازگشت "%f{ >> %r %k{%l} }"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.opAssign(lhs);
     }
-    string emitC() override { return isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { بازگشت isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 2; }
 };
 
 // === AstNodeSystemBiopD ===
-class AstAtan2D final : public AstNodeSystemBiopD {
-public:
-    AstAtan2D(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAtan2D final : عمومی Ast_گره_System_Biop_D {
+عمومی:
+    AstAtan2D(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_Atan2D(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAtan2D;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.setDouble(std::atan2(lhs.toDouble(), rhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atan2(%l,%r)"; }
-    string emitC() override { return "atan2(%li,%ri)"; }
+    string emitVerilog() override { بازگشت "%f$atan2(%l,%r)"; }
+    string emitC() override { بازگشت "atan2(%li,%ri)"; }
 };
-class AstHypotD final : public AstNodeSystemBiopD {
-public:
-    AstHypotD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstHypotD final : عمومی Ast_گره_System_Biop_D {
+عمومی:
+    AstHypotD(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp)
         : ASTGEN_SUPER_HypotD(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstHypotD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs) override {
         out.setDouble(std::hypot(lhs.toDouble(), rhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$hypot(%l,%r)"; }
-    string emitC() override { return "hypot(%li,%ri)"; }
+    string emitVerilog() override { بازگشت "%f$hypot(%l,%r)"; }
+    string emitC() override { بازگشت "hypot(%li,%ri)"; }
 };
 
 // === AstNodeCCall ===
-class AstCCall final : public AstNodeCCall {
+class AstCCall final : عمومی Ast_گره_CCall {
     // C++ function call
     VSelfPointerText m_selfPointer
         = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
                                                         // pointer (e.g.: 'this')
-public:
-    AstCCall(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+عمومی:
+    AstCCall(File_سطر* fl, AstCFunc* funcp, Ast_گره_عبارت* argsp = nullptr)
         : ASTGEN_SUPER_CCall(fl, funcp, argsp) {
         UASSERT_OBJ(funcp, this, "CCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCCall;
 
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    ثابت VSelfPointerText& selfPointer() ثابت { بازگشت m_selfPointer; }
+    تهی selfPointer(ثابت VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
+    string selfPointerProtect(bool useSelfForThis) ثابت {
+        بازگشت selfPointer().protect(useSelfForThis, protect());
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool maybePointedTo() ثابت override VL_MT_SAFE { بازگشت true; }
 };
-class AstCMethodCall final : public AstNodeCCall {
+class AstCMethodCall final : عمومی Ast_گره_CCall {
     // C++ method call
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCMethodCall(FileLine* fl, AstNodeExpr* fromp, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+عمومی:
+    AstCMethodCall(File_سطر* fl, Ast_گره_عبارت* fromp, AstCFunc* funcp, Ast_گره_عبارت* argsp = nullptr)
         : ASTGEN_SUPER_CMethodCall(fl, funcp, argsp) {
         this->fromp(fromp);
         UASSERT_OBJ(funcp, this, "CMethodCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCMethodCall;
 };
-class AstCNew final : public AstNodeCCall {
+class AstCNew final : عمومی Ast_گره_CCall {
     // C++ new() call
-public:
-    AstCNew(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+عمومی:
+    AstCNew(File_سطر* fl, AstCFunc* funcp, Ast_گره_عبارت* argsp = nullptr)
         : ASTGEN_SUPER_CNew(fl, funcp, argsp) {}
     ASTGEN_MEMBERS_AstCNew;
 };
 
 // === AstNodeCons ===
-class AstConsArray final : public AstNodeCons {
+class AstConsArray final : عمومی Ast_گره_Cons {
     // Construct an unpacked array value, '{value, ...}, '{index: value, default: value}
     // If default is specified, the items may be sparse, and not provide each element.
     // Indices are C++ array style, with lo() at index 0
@@ -5064,142 +5064,142 @@ class AstConsArray final : public AstNodeCons {
     // dist-ast-dump-suppress  // Dumped by the itemsp list
     std::map<uint64_t, AstConsArrayItem*> m_itemps;  // The item at each index given
 
-public:
-    AstConsArray(FileLine* fl, AstNodeDType* newDTypep, AstNodeExpr* defaultp = nullptr)
+عمومی:
+    AstConsArray(File_سطر* fl, Ast_گره_DType* newDTypep, Ast_گره_عبارت* defaultp = nullptr)
         : ASTGEN_SUPER_ConsArray(fl) {
         dtypep(newDTypep);
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsArray;
-    const char* broken() const override;
-    void cloneRelink() override;
-    inline AstConsArrayItem* itemsp() const VL_MT_STABLE;
+    ثابت نویسه* broken() ثابت override;
+    تهی cloneRelink() override;
+    درونخطی AstConsArrayItem* itemsp() ثابت VL_MT_STABLE;
     // The value at the index, or the default if not given
-    AstNodeExpr* valuep(uint64_t index) const;
+    Ast_گره_عبارت* valuep(uint64_t index) ثابت;
     // Add the value of the element at the index, which must not be given yet
-    void valuep(uint64_t index, AstNodeExpr* newp);
+    تهی valuep(uint64_t index, Ast_گره_عبارت* newp);
     // Add the elements of the array 'arrayp', starting at the index
-    void spliceValues(uint64_t index, AstNodeExpr* arrayp);
+    تهی splice_مقادیر(uint64_t index, Ast_گره_عبارت* arrayp);
 };
-class AstConsAssoc final : public AstNodeCons {
+class AstConsAssoc final : عمومی Ast_گره_Cons {
     // Construct an associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsAssocItem]
-public:
-    explicit AstConsAssoc(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+عمومی:
+    explicit AstConsAssoc(File_سطر* fl, Ast_گره_عبارت* defaultp = nullptr)
         : ASTGEN_SUPER_ConsAssoc(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsAssoc;
-    const char* broken() const override {
+    ثابت نویسه* broken() ثابت override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), AssocArrayDType));
-        return nullptr;
+        بازگشت nullptr;
     }
 };
-class AstConsDynArray final : public AstNodeCons {
+class AstConsDynArray final : عمومی Ast_گره_Cons {
     // Construct a dynamic array value, '{value, ...}, {value, array, ...},
     // or with 'sizep', new[size]('{index: value, default: value})
     // @astgen op1 := sizep : Optional[AstNodeExpr]
     // @astgen op2 := defaultp : Optional[AstNodeExpr] // Only with sizep
     // @astgen op3 := itemsp : List[AstConsDynArrayItem]
-public:
-    explicit AstConsDynArray(FileLine* fl)
+عمومی:
+    explicit AstConsDynArray(File_سطر* fl)
         : ASTGEN_SUPER_ConsDynArray(fl) {}
     ASTGEN_MEMBERS_AstConsDynArray;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
 };
-class AstConsQueue final : public AstNodeCons {
+class AstConsQueue final : عمومی Ast_گره_Cons {
     // Construct a queue value, '{value, ...}, {value, array, ...}
     // @astgen op1 := itemsp : List[AstConsQueueItem]
-public:
-    explicit AstConsQueue(FileLine* fl)
+عمومی:
+    explicit AstConsQueue(File_سطر* fl)
         : ASTGEN_SUPER_ConsQueue(fl) {}
     ASTGEN_MEMBERS_AstConsQueue;
-    const char* broken() const override {
+    ثابت نویسه* broken() ثابت override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), QueueDType));
-        return nullptr;
+        بازگشت nullptr;
     }
 };
-class AstConsStruct final : public AstNodeCons {
+class AstConsStruct final : عمومی Ast_گره_Cons {
     // Construct an unpacked struct value, '{member: value, ...}
     // @astgen op1 := itemsp : List[AstConsStructItem] // A value for each member, in order
-public:
-    AstConsStruct(FileLine* fl, AstStructDType* dtypep)
+عمومی:
+    AstConsStruct(File_سطر* fl, AstStructDType* dtypep)
         : ASTGEN_SUPER_ConsStruct(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstConsStruct;
-    const char* broken() const override;
+    ثابت نویسه* broken() ثابت override;
     // The value of the member called 'name'
-    AstNodeExpr* memberValuep(const string& name) const;
+    Ast_گره_عبارت* memberValuep(ثابت string& name) ثابت;
 };
-class AstConsWildcard final : public AstNodeCons {
+class AstConsWildcard final : عمومی Ast_گره_Cons {
     // Construct a wildcard associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsWildcardItem]
-public:
-    explicit AstConsWildcard(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+عمومی:
+    explicit AstConsWildcard(File_سطر* fl, Ast_گره_عبارت* defaultp = nullptr)
         : ASTGEN_SUPER_ConsWildcard(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsWildcard;
-    const char* broken() const override {
+    ثابت نویسه* broken() ثابت override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), WildcardArrayDType));
-        return nullptr;
+        بازگشت nullptr;
     }
 };
 
 // === AstNodeFTaskRef ===
-class AstFuncRef final : public AstNodeFTaskRef {
+class AstFuncRef final : عمومی Ast_گره_FTask_Ref {
     // A reference to a function
-public:
-    inline AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp = nullptr);
-    AstFuncRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+عمومی:
+    درونخطی AstFuncRef(File_سطر* fl, AstFunc* taskp, AstArg* argsp = nullptr);
+    AstFuncRef(File_سطر* fl, ثابت string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_FuncRef(fl, name, argsp) {}
     ASTGEN_MEMBERS_AstFuncRef;
 };
-class AstMethodCall final : public AstNodeFTaskRef {
+class AstMethodCall final : عمومی Ast_گره_FTask_Ref {
     // A reference to a member task (or function)
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     // @astgen op1 := fromp : AstNodeExpr
     //
-public:
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name,
+عمومی:
+    AstMethodCall(File_سطر* fl, Ast_گره_عبارت* fromp, VFlagChildDType, ثابت string& name,
                   AstArg* argsp = nullptr)
         : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, const string& name, AstArg* argsp = nullptr)
+    AstMethodCall(File_سطر* fl, Ast_گره_عبارت* fromp, ثابت string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
         this->fromp(fromp);
     }
     ASTGEN_MEMBERS_AstMethodCall;
 };
-class AstNew final : public AstNodeFTaskRef {
+class AstNew final : عمومی Ast_گره_FTask_Ref {
     // New as constructor
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     bool m_isImplicit = false;  // Implicitly generated from extends args
     bool m_isScoped = false;  // Had :: scope when parsed
-public:
-    AstNew(FileLine* fl, AstArg* argsp = nullptr, bool isScoped = false)
+عمومی:
+    AstNew(File_سطر* fl, AstArg* argsp = nullptr, bool isScoped = false)
         : ASTGEN_SUPER_New(fl, "new", argsp)
         , m_isScoped{isScoped} {}
     ASTGEN_MEMBERS_AstNew;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return widthInstrs(); }
-    bool isImplicit() const { return m_isImplicit; }
-    void isImplicit(bool flag) { m_isImplicit = flag; }
-    bool isScoped() const { return m_isScoped; }
-    void isScoped(bool flag) { m_isScoped = flag; }
-    bool isPure() override { return false; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool isImplicit() ثابت { بازگشت m_isImplicit; }
+    تهی isImplicit(bool flag) { m_isImplicit = flag; }
+    bool isScoped() ثابت { بازگشت m_isScoped; }
+    تهی isScoped(bool flag) { m_isScoped = flag; }
+    bool isPure() override { بازگشت false; }
 };
-class AstTaskRef final : public AstNodeFTaskRef {
+class AstTaskRef final : عمومی Ast_گره_FTask_Ref {
     // A reference to a task
-public:
-    inline AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp = nullptr);
-    AstTaskRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+عمومی:
+    درونخطی AstTaskRef(File_سطر* fl, AstTask* taskp, AstArg* argsp = nullptr);
+    AstTaskRef(File_سطر* fl, ثابت string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_TaskRef(fl, name, argsp) {
         dtypeSetVoid();
     }
@@ -5207,1305 +5207,1305 @@ public:
 };
 
 // === AstNodePreSel ===
-class AstSelBit final : public AstNodePreSel {
+class AstSelBit final : عمومی Ast_گره_Pre_Sel {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // Gets replaced during link with AstArraySel or AstSel
     // @astgen alias op2 := bitp
-private:
+خصوصی:
     VAccess m_access;  // Left hand side assignment
-public:
-    AstSelBit(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+عمومی:
+    AstSelBit(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp)
         : ASTGEN_SUPER_SelBit(fl, fromp, bitp, nullptr) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSelBit;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    VAccess access() ثابت { بازگشت m_access; }
+    تهی access(ثابت VAccess& flag) { m_access = flag; }
 };
-class AstSelExtract final : public AstNodePreSel {
+class AstSelExtract final : عمومی Ast_گره_Pre_Sel {
     // Range extraction, gets replaced with AstSel
     // @astgen alias op2 := leftp
     // @astgen alias op3 := rightp
-public:
-    AstSelExtract(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* msbp, AstNodeExpr* lsbp)
+عمومی:
+    AstSelExtract(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* msbp, Ast_گره_عبارت* lsbp)
         : ASTGEN_SUPER_SelExtract(fl, fromp, msbp, lsbp) {}
     ASTGEN_MEMBERS_AstSelExtract;
 };
-class AstSelMinus final : public AstNodePreSel {
+class AstSelMinus final : عمومی Ast_گره_Pre_Sel {
     // -: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelMinus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+عمومی:
+    AstSelMinus(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp, Ast_گره_عبارت* widthp)
         : ASTGEN_SUPER_SelMinus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelMinus;
 };
-class AstSelPlus final : public AstNodePreSel {
+class AstSelPlus final : عمومی Ast_گره_Pre_Sel {
     // +: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelPlus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+عمومی:
+    AstSelPlus(File_سطر* fl, Ast_گره_عبارت* fromp, Ast_گره_عبارت* bitp, Ast_گره_عبارت* widthp)
         : ASTGEN_SUPER_SelPlus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelPlus;
 };
 
 // === AstNodeQuadop ===
-class AstCountBits final : public AstNodeQuadop {
+class Ast_شمار_Bits final : عمومی Ast_گره_Quadop {
     // Number of bits set in vector
-public:
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl1p->cloneTreePure(false),
-                                 ctrl1p->cloneTreePure(false)) {
+عمومی:
+    Ast_شمار_Bits(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* ctrl1p)
+        : ASTGEN_SUPER_شمار_Bits(fl, exprp, ctrl1p, ctrl1p->clone_درخت_Pure(false),
+                                 ctrl1p->clone_درخت_Pure(false)) {
         dtypeSetInt();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->cloneTreePure(false)) {
+    Ast_شمار_Bits(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* ctrl1p, Ast_گره_عبارت* ctrl2p)
+        : ASTGEN_SUPER_شمار_Bits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->clone_درخت_Pure(false)) {
         dtypeSetInt();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p,
-                 AstNodeExpr* ctrl3p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
+    Ast_شمار_Bits(File_سطر* fl, Ast_گره_عبارت* exprp, Ast_گره_عبارت* ctrl1p, Ast_گره_عبارت* ctrl2p,
+                 Ast_گره_عبارت* ctrl3p)
+        : ASTGEN_SUPER_شمار_Bits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
         dtypeSetInt();
     }
-    ASTGEN_MEMBERS_AstCountBits;
-    void numberOperate(V3Number& out, const V3Number& expr, const V3Number& ctrl1,
-                       const V3Number& ctrl2, const V3Number& ctrl3) override {
-        out.opCountBits(expr, ctrl1, ctrl2, ctrl3);
+    ASTGEN_MEMBERS_Ast_شمار_Bits;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& عبارت, ثابت V3_عدد& ctrl1,
+                       ثابت V3_عدد& ctrl2, ثابت V3_عدد& ctrl3) override {
+        out.op_شمار_Bits(عبارت, ctrl1, ctrl2, ctrl3);
     }
-    string emitVerilog() override { return "%f$countbits(%l, %r, %f, %o)"; }
-    string emitC() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool cleanFhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sizeMattersFhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    string emitVerilog() override { بازگشت "%f$countbits(%l, %r, %f, %o)"; }
+    string emitC() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool cleanThs() ثابت override { بازگشت true; }
+    bool cleanFhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
+    bool sizeMattersFhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 16; }
 };
 
 // === AstNodeTermop ===
-class AstInferredDisable final : public AstNodeTermop {
-public:
-    explicit AstInferredDisable(FileLine* fl)
+class AstInferredDisable final : عمومی Ast_گره_Termop {
+عمومی:
+    explicit AstInferredDisable(File_سطر* fl)
         : ASTGEN_SUPER_InferredDisable(fl) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstInferredDisable;
-    string emitVerilog() override { return "%f$inferred_disable"; }
+    string emitVerilog() override { بازگشت "%f$inferred_disable"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstTime final : public AstNodeTermop {
+class AstTime final : عمومی Ast_گره_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTime(FileLine* fl, const VTimescale& timeunit)
+عمومی:
+    AstTime(File_سطر* fl, ثابت VTimescale& timeunit)
         : ASTGEN_SUPER_Time(fl)
         , m_timeunit{timeunit} {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstTime;
-    string emitVerilog() override { return "%f$time"; }
+    string emitVerilog() override { بازگشت "%f$time"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_TIME; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTimeD final : public AstNodeTermop {
+class AstTimeD final : عمومی Ast_گره_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeD(FileLine* fl, const VTimescale& timeunit)
+عمومی:
+    AstTimeD(File_سطر* fl, ثابت VTimescale& timeunit)
         : ASTGEN_SUPER_TimeD(fl)
         , m_timeunit{timeunit} {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstTimeD;
-    string emitVerilog() override { return "%f$realtime"; }
+    string emitVerilog() override { بازگشت "%f$realtime"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool isGateOptimizable() ثابت override { بازگشت false; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_TIME; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
 };
 
 // === AstNodeTriop ===
 
-class AstCond final : public AstNodeTriop {
+class AstCond final : عمومی Ast_گره_Triop {
     // @astgen alias op1 := condp
     // @astgen alias op2 := thenp
     // @astgen alias op3 := elsep
     // @astgen makeDfgVertex
-public:
-    AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeExpr* elsep);
+عمومی:
+    AstCond(File_سطر* fl, Ast_گره_عبارت* condp, Ast_گره_عبارت* thenp, Ast_گره_عبارت* elsep);
     ASTGEN_MEMBERS_AstCond;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                       ثابت V3_عدد& ths) override {
         out.opAssign(lhs.isNeqZero() ? rhs : ths);
     }
-    string emitVerilog() override { return "%k(%l %f? %r %k: %t)"; }
-    string emitC() override { return "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
-    string emitSMT() const override { return "(ite (__Vbool %l) %r %t)"; }
-    bool cleanOut() const override { return false; }  // clean if e1 & e2 clean
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }  // Propagates up
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { بازگشت "%k(%l %f? %r %k: %t)"; }
+    string emitC() override { بازگشت "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
+    string emitSMT() ثابت override { بازگشت "(ite (__Vbool %l) %r %t)"; }
+    bool cleanOut() ثابت override { بازگشت false; }  // clean if e1 & e2 clean
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت false; }
+    bool cleanThs() ثابت override { بازگشت false; }  // Propagates up
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_BRANCH; }
 };
-class AstPutcN final : public AstNodeTriop {
+class AstPutcN final : عمومی Ast_گره_Triop {
     // Verilog string.putc()
-public:
-    AstPutcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+عمومی:
+    AstPutcN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* ths)
         : ASTGEN_SUPER_PutcN(fl, lhsp, rhsp, ths) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstPutcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                       ثابت V3_عدد& ths) override {
         out.opPutcN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "putc"; }
-    string emitVerilog() override { return "%k(%l.putc(%r,%t))"; }
-    string emitC() override { return "VL_PUTC_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ثابت override VL_MT_STABLE { بازگشت "putc"; }
+    string emitVerilog() override { بازگشت "%k(%l.putc(%r,%t))"; }
+    string emitC() override { بازگشت "VL_PUTC_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool cleanThs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
 };
-class AstSliceSel final : public AstNodeTriop {
+class AstSliceSel final : عمومی Ast_گره_Triop {
     // Multiple array element extraction
     // @astgen alias op1 := fromp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-public:
-    AstSliceSel(FileLine* fl, AstNodeExpr* fromp, const VNumRange& declRange)
+عمومی:
+    AstSliceSel(File_سطر* fl, Ast_گره_عبارت* fromp, ثابت VNumRange& declRange)
         : ASTGEN_SUPER_SliceSel(fl, fromp,
                                 new AstConst(fl, declRange.lo()),  // Need () constructor
                                 new AstConst(fl, declRange.elements()))  // Need () constructor
         , m_declRange{declRange} {}
     ASTGEN_MEMBERS_AstSliceSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& lo,
-                       const V3Number& width) override {
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& from, ثابت V3_عدد& lo,
+                       ثابت V3_عدد& width) override {
         V3ERROR_NA;
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Removed before EmitC
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    int instrCount() const override { return 10; }  // Removed before matters
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool cleanThs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره*) ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت 10; }  // Removed before matters
     // For widthConst()/loConst etc, see declRange().elements() and other VNumRange methods
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
+    VNumRange& declRange() VL_MT_STABLE { بازگشت m_declRange; }
+    ثابت VNumRange& declRange() ثابت VL_MT_STABLE { بازگشت m_declRange; }
 };
-class AstSubstrN final : public AstNodeTriop {
+class AstSubstrN final : عمومی Ast_گره_Triop {
     // Verilog string.substr()
-public:
-    AstSubstrN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+عمومی:
+    AstSubstrN(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* ths)
         : ASTGEN_SUPER_SubstrN(fl, lhsp, rhsp, ths) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstSubstrN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,
+                       ثابت V3_عدد& ths) override {
         out.opSubstrN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "substr"; }
-    string emitVerilog() override { return "%k(%l.substr(%r,%t))"; }
-    string emitC() override { return "VL_SUBSTR_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ثابت override VL_MT_STABLE { بازگشت "substr"; }
+    string emitVerilog() override { بازگشت "%k(%l.substr(%r,%t))"; }
+    string emitC() override { بازگشت "VL_SUBSTR_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { بازگشت ""; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool cleanRhs() ثابت override { بازگشت true; }
+    bool cleanThs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool sizeMattersRhs() ثابت override { بازگشت false; }
+    bool sizeMattersThs() ثابت override { بازگشت false; }
 };
 
 // === AstNodeDistTriop ===
-class AstDistErlang final : public AstNodeDistTriop {
-public:
-    AstDistErlang(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistErlang final : عمومی Ast_گره_Dist_Triop {
+عمومی:
+    AstDistErlang(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp)
         : ASTGEN_SUPER_DistErlang(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistErlang;
-    string emitVerilog() override { return "%f$dist_erlang(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_ERLANG(%li, %ri, %ti)"; }
+    string emitVerilog() override { بازگشت "%f$dist_erlang(%l, %r, %t)"; }
+    string emitC() override { بازگشت "VL_DIST_ERLANG(%li, %ri, %ti)"; }
 };
-class AstDistNormal final : public AstNodeDistTriop {
-public:
-    AstDistNormal(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistNormal final : عمومی Ast_گره_Dist_Triop {
+عمومی:
+    AstDistNormal(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp)
         : ASTGEN_SUPER_DistNormal(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistNormal;
-    string emitVerilog() override { return "%f$dist_normal(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_NORMAL(%li, %ri, %ti)"; }
+    string emitVerilog() override { بازگشت "%f$dist_normal(%l, %r, %t)"; }
+    string emitC() override { بازگشت "VL_DIST_NORMAL(%li, %ri, %ti)"; }
 };
-class AstDistUniform final : public AstNodeDistTriop {
-public:
-    AstDistUniform(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistUniform final : عمومی Ast_گره_Dist_Triop {
+عمومی:
+    AstDistUniform(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_عبارت* rhsp, Ast_گره_عبارت* thsp)
         : ASTGEN_SUPER_DistUniform(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistUniform;
-    string emitVerilog() override { return "%f$dist_uniform(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
+    string emitVerilog() override { بازگشت "%f$dist_uniform(%l, %r, %t)"; }
+    string emitC() override { بازگشت "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
 };
 
 // === AstNodeUniop ===
-class AstAtoN final : public AstNodeUniop {
+class AstAtoN final : عمومی Ast_گره_Uniop {
     // string.atoi(), atobin(), atohex(), atooct(), atoireal()
-public:
-    enum FmtType : int { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
+عمومی:
+    شمارش FmtType : صحیح { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
 
-private:
+خصوصی:
     // dist-ast-dump-suppress  // Part of name()
-    const FmtType m_fmtType;  // Operation type
-public:
-    AstAtoN(FileLine* fl, AstNodeExpr* lhsp, FmtType fmtType)
+    ثابت FmtType m_fmtType;  // Operation type
+عمومی:
+    AstAtoN(File_سطر* fl, Ast_گره_عبارت* lhsp, FmtType fmtType)
         : ASTGEN_SUPER_AtoN(fl, lhsp)
         , m_fmtType{fmtType} {
         fmtType == ATOREAL ? dtypeSetDouble() : dtypeSetInteger();
     }
     ASTGEN_MEMBERS_AstAtoN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAtoN(lhs, m_fmtType); }
-    string name() const override VL_MT_STABLE {
-        switch (m_fmtType) {
-        case ATOI: return "atoi";
-        case ATOHEX: return "atohex";
-        case ATOOCT: return "atooct";
-        case ATOBIN: return "atobin";
-        case ATOREAL: return "atoreal";
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opAtoN(lhs, m_fmtType); }
+    string name() ثابت override VL_MT_STABLE {
+        انتخاب (m_fmtType) {
+        حالت ATOI: بازگشت "atoi";
+        حالت ATOHEX: بازگشت "atohex";
+        حالت ATOOCT: بازگشت "atooct";
+        حالت ATOBIN: بازگشت "atobin";
+        حالت ATOREAL: بازگشت "atoreal";
         }
         V3ERROR_NA_RETURN("");
     }
-    string emitVerilog() override { return "%l." + name() + "()"; }
+    string emitVerilog() override { بازگشت "%l." + name() + "()"; }
     string emitC() override {
-        switch (m_fmtType) {
-        case ATOI: return "VL_ATOI_N(%li, 10)";
-        case ATOHEX: return "VL_ATOI_N(%li, 16)";
-        case ATOOCT: return "VL_ATOI_N(%li, 8)";
-        case ATOBIN: return "VL_ATOI_N(%li, 2)";
-        case ATOREAL: return "VL_ATOREAL_N(%li)";
+        انتخاب (m_fmtType) {
+        حالت ATOI: بازگشت "VL_ATOI_N(%li, 10)";
+        حالت ATOHEX: بازگشت "VL_ATOI_N(%li, 16)";
+        حالت ATOOCT: بازگشت "VL_ATOI_N(%li, 8)";
+        حالت ATOBIN: بازگشت "VL_ATOI_N(%li, 2)";
+        حالت ATOREAL: بازگشت "VL_ATOREAL_N(%li)";
         }
         V3ERROR_NA_RETURN("");
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    FmtType fmtType() const { return m_fmtType; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    FmtType fmtType() ثابت { بازگشت m_fmtType; }
 };
-class AstBitsToRealD final : public AstNodeUniop {
-public:
-    AstBitsToRealD(FileLine* fl, AstNodeExpr* lhsp)
+class AstBitsToRealD final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstBitsToRealD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_BitsToRealD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstBitsToRealD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opBitsToRealD(lhs); }
-    string emitVerilog() override { return "%f$bitstoreal(%l)"; }
-    string emitC() override { return "VL_CVT_D_Q(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opBitsToRealD(lhs); }
+    string emitVerilog() override { بازگشت "%f$bitstoreal(%l)"; }
+    string emitC() override { بازگشت "VL_CVT_D_Q(%li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    bool sizeMattersLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstCCast final : public AstNodeUniop {
+class AstCCast final : عمومی Ast_گره_Uniop {
     // Cast to C-based data type
-    int m_size;
+    صحیح m_size;
 
-public:
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, int setwidth, int minwidth = -1)
+عمومی:
+    AstCCast(File_سطر* fl, Ast_گره_عبارت* lhsp, صحیح setwidth, صحیح minwidth = -1)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         m_size = setwidth;
-        if (setwidth) {
-            if (minwidth == -1) minwidth = setwidth;
+        اگر (setwidth) {
+            اگر (minwidth == -1) minwidth = setwidth;
             dtypeSetBitUnsized(setwidth, minwidth, VSigning::UNSIGNED);
         }
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, AstNode* typeFromp)
+    AstCCast(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره* typeFromp)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         dtypeFrom(typeFromp);
         m_size = width();
     }
     ASTGEN_MEMBERS_AstCCast;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%f$_CAST(%l)"; }
-    string emitC() override { return "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }  // Special cased in V3Cast
-    bool sameNode(const AstNode* samep) const override {
-        return size() == VN_DBG_AS(samep, CCast)->size();
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { بازگشت "%f$_CAST(%l)"; }
+    string emitC() override { بازگشت "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }  // Special cased in V3Cast
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        بازگشت size() == VN_DBG_AS(samep, CCast)->size();
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
     //
-    int size() const { return m_size; }
+    صحیح size() ثابت { بازگشت m_size; }
 };
-class AstCLog2 final : public AstNodeUniop {
-public:
-    AstCLog2(FileLine* fl, AstNodeExpr* lhsp)
+class AstCLog2 final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstCLog2(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CLog2(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstCLog2;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCLog2(lhs); }
-    string emitVerilog() override { return "%f$clog2(%l)"; }
-    string emitC() override { return "VL_CLOG2_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opCLog2(lhs); }
+    string emitVerilog() override { بازگشت "%f$clog2(%l)"; }
+    string emitC() override { بازگشت "VL_CLOG2_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 16; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstCastWrap final : public AstNodeUniop {
+class AstCastWrap final : عمومی Ast_گره_Uniop {
     // A cast which has been expanded and the LHSP does all the lifting
     // This remains until V3Width final commit pass to suppress ENUMVALUE warnings
-public:
-    AstCastWrap(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstCastWrap(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CastWrap(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCastWrap;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "(%l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { بازگشت "(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
 };
-class AstCountOnes final : public AstNodeUniop {
+class Ast_شمار_Ones final : عمومی Ast_گره_Uniop {
     // Number of bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstCountOnes(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_CountOnes(fl, lhsp) {
+عمومی:
+    Ast_شمار_Ones(File_سطر* fl, Ast_گره_عبارت* lhsp)
+        : ASTGEN_SUPER_شمار_Ones(fl, lhsp) {
         dtypeSetInt();
     }
-    ASTGEN_MEMBERS_AstCountOnes;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCountOnes(lhs); }
-    string emitVerilog() override { return "%f$countones(%l)"; }
-    string emitC() override { return "VL_COUNTONES_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_شمار_Ones;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.op_شمار_Ones(lhs); }
+    string emitVerilog() override { بازگشت "%f$countones(%l)"; }
+    string emitC() override { بازگشت "VL_COUNTONES_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 16; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstCvtPackString final : public AstNodeUniop {
+class AstCvtPackString final : عمومی Ast_گره_Uniop {
     // Convert to Verilator Packed String (aka verilog "string")
-public:
-    AstCvtPackString(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstCvtPackString(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CvtPackString(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstCvtPackString;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCvtPackString(lhs); }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opCvtPackString(lhs); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* /*samep*/) ثابت override { بازگشت true; }
 };
-class AstExtend final : public AstNodeUniop {
+class AstExtend final : عمومی Ast_گره_Uniop {
     // Expand a value into a wider entity by 0 extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstExtend(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Extend(fl, lhsp) {}
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp, int width, int widthMin = 0)
+    AstExtend(File_سطر* fl, Ast_گره_عبارت* lhsp, صحیح width, صحیح widthMin = 0)
         : ASTGEN_SUPER_Extend(fl, lhsp) {
         dtypeSetBitOrLogicUnsized(width, widthMin ? widthMin : width, VSigning::UNSIGNED,
                                   lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtend;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { بازگشت "%l"; }
+    string emitC() override { بازگشت "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ثابت override {
+        بازگشت "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override {
+        بازگشت false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
 };
-class AstExtendS final : public AstNodeUniop {
+class AstExtendS final : عمومی Ast_گره_Uniop {
     // Expand a value into a wider entity by sign extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstExtendS(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {}
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp, int width)
+    AstExtendS(File_سطر* fl, Ast_گره_عبارت* lhsp, صحیح width)
         // Important that widthMin be correct, as opExtend requires it after V3Expand
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {
         dtypeSetBitOrLogicSized(width, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtendS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.opExtendS(lhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    string emitVerilog() override { بازگشت "%l"; }
+    string emitC() override { بازگشت "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ثابت override {
+        بازگشت "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override {
+        بازگشت false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
-    bool signedFlavor() const override { return true; }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool signedFlavor() ثابت override { بازگشت true; }
 };
-class AstFEof final : public AstNodeUniop {
-public:
-    AstFEof(FileLine* fl, AstNodeExpr* lhsp)
+class AstFEof final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstFEof(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_FEof(fl, lhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFEof;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$feof(%l)"; }
-    string emitC() override { return "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    AstNode* filep() const { return lhsp(); }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%f$feof(%l)"; }
+    string emitC() override { بازگشت "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 16; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ثابت override { بازگشت true; }
+    Ast_گره* filep() ثابت { بازگشت lhsp(); }
 };
-class AstFGetC final : public AstNodeUniop {
-public:
-    AstFGetC(FileLine* fl, AstNodeExpr* lhsp)
+class AstFGetC final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstFGetC(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_FGetC(fl, lhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetC;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgetc(%l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%f$fgetc(%l)"; }
     // Non-existent filehandle returns EOF
-    string emitC() override { return "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    bool isSystemFunc() const override { return true; }
+    string emitC() override { بازگشت "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 64; }
+    bool isPredictOptimizable() ثابت override { بازگشت false; }
+    bool isPure() override { بازگشت false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_گره* filep() ثابت { بازگشت lhsp(); }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstISToRD final : public AstNodeUniop {
+class AstISToRD final : عمومی Ast_گره_Uniop {
     // $itor where lhs is signed
-public:
-    AstISToRD(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstISToRD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ISToRD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstISToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opISToRD(lhs); }
-    string emitVerilog() override { return "%f$itor($signed(%l))"; }
-    string emitC() override { return "VL_ISTOR_D_%lq(%lw, %li)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opISToRD(lhs); }
+    string emitVerilog() override { بازگشت "%f$itor($signed(%l))"; }
+    string emitC() override { بازگشت "VL_ISTOR_D_%lq(%lw, %li)"; }
+    bool emit_Check_Max_واژگان() override { بازگشت true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstIToRD final : public AstNodeUniop {
+class AstIToRD final : عمومی Ast_گره_Uniop {
     // $itor where lhs is unsigned
-public:
-    AstIToRD(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstIToRD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_IToRD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstIToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIToRD(lhs); }
-    string emitVerilog() override { return "%f$itor(%l)"; }
-    string emitC() override { return "VL_ITOR_D_%lq(%lw, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opIToRD(lhs); }
+    string emitVerilog() override { بازگشت "%f$itor(%l)"; }
+    string emitC() override { بازگشت "VL_ITOR_D_%lq(%lw, %li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstIsUnbounded final : public AstNodeUniop {
+class AstIsUnbounded final : عمومی Ast_گره_Uniop {
     // True if is unbounded ($)
-public:
-    AstIsUnbounded(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstIsUnbounded(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_IsUnbounded(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstIsUnbounded;
-    void numberOperate(V3Number& out, const V3Number&) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد&) override {
         // Any constant isn't unbounded
         out.setZero();
     }
-    string emitVerilog() override { return "%f$isunbounded(%l)"; }
+    string emitVerilog() override { بازگشت "%f$isunbounded(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstIsUnknown final : public AstNodeUniop {
+class AstIsUnknown final : عمومی Ast_گره_Uniop {
     // True if any unknown bits
-public:
-    AstIsUnknown(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstIsUnknown(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_IsUnknown(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstIsUnknown;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIsUnknown(lhs); }
-    string emitVerilog() override { return "%f$isunknown(%l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opIsUnknown(lhs); }
+    string emitVerilog() override { بازگشت "%f$isunknown(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstLenN final : public AstNodeUniop {
+class AstLenN final : عمومی Ast_گره_Uniop {
     // Length of a string
-public:
-    AstLenN(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstLenN(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_LenN(fl, lhsp) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstLenN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLenN(lhs); }
-    string emitVerilog() override { return "%f(%l)"; }
-    string emitC() override { return "VL_LEN_IN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opLenN(lhs); }
+    string emitVerilog() override { بازگشت "%f(%l)"; }
+    string emitC() override { بازگشت "VL_LEN_IN(%li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstLogNot final : public AstNodeUniop {
+class AstLogNot final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-private:
-    const bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
+خصوصی:
+    ثابت bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
                                 // false for boolean '!' (IEEE 1800-2023 11.4.7)
-public:
-    AstLogNot(FileLine* fl, AstNodeExpr* lhsp, bool fromProperty = false)
+عمومی:
+    AstLogNot(File_سطر* fl, Ast_گره_عبارت* lhsp, bool fromProperty = false)
         : ASTGEN_SUPER_LogNot(fl, lhsp)
         , m_fromProperty{fromProperty} {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstLogNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLogNot(lhs); }
-    string emitVerilog() override { return "%f(! %l)"; }
-    string emitC() override { return "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override { return "(__Vbv (not (__Vbool %l)))"; }
-    string emitSimpleOperator() override { return "!"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool fromProperty() const { return m_fromProperty; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opLogNot(lhs); }
+    string emitVerilog() override { بازگشت "%f(! %l)"; }
+    string emitC() override { بازگشت "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ثابت override { بازگشت "(__Vbv (not (__Vbool %l)))"; }
+    string emitSimpleOperator() override { بازگشت "!"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool fromProperty() ثابت { بازگشت m_fromProperty; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
 };
-class AstMostSetBitP1 final : public AstNodeUniop {
+class AstMostSetBitP1 final : عمومی Ast_گره_Uniop {
     // Most-significant set bit plus one (bit-width); 0 if value is zero
-public:
-    AstMostSetBitP1(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstMostSetBitP1(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_MostSetBitP1(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstMostSetBitP1;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opMostSetBitP1(lhs); }
-    string emitVerilog() override { return "%f$mostsetbitp1(%l)"; }
-    string emitC() override { return "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opMostSetBitP1(lhs); }
+    string emitVerilog() override { بازگشت "%f$mostsetbitp1(%l)"; }
+    string emitC() override { بازگشت "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 16; }
 };
-class AstNToI final : public AstNodeUniop {
+class AstNToI final : عمومی Ast_گره_Uniop {
     // String to any-size integral
-public:
-    AstNToI(FileLine* fl, AstNodeExpr* lhsp, AstNodeDType* dtypep = nullptr)
+عمومی:
+    AstNToI(File_سطر* fl, Ast_گره_عبارت* lhsp, Ast_گره_DType* dtypep = nullptr)
         : ASTGEN_SUPER_NToI(fl, lhsp) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstNToI;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNToI(lhs); }
-    string emitVerilog() override { return "'(%l)"; }
-    string emitC() override { return "VL_NTOI_%nq(%nw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opNToI(lhs); }
+    string emitVerilog() override { بازگشت "'(%l)"; }
+    string emitC() override { بازگشت "VL_NTOI_%nq(%nw, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstNegate final : public AstNodeUniop {
+class AstNegate final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNegate(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstNegate(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Negate(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNegate;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegate(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
-    string emitC() override { return "VL_NEGATE_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvneg %l)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opNegate(lhs); }
+    string emitVerilog() override { بازگشت "%f(- %l)"; }
+    string emitC() override { بازگشت "VL_NEGATE_%lq(%lW, %P, %li)"; }
+    string emitSMT() ثابت override { بازگشت "(bvneg %l)"; }
+    string emitSimpleOperator() override { بازگشت "-"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
 };
-class AstNegateD final : public AstNodeUniop {
-public:
-    AstNegateD(FileLine* fl, AstNodeExpr* lhsp)
+class AstNegateD final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstNegateD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_NegateD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstNegateD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegateD(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opNegateD(lhs); }
+    string emitVerilog() override { بازگشت "%f(- %l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { بازگشت "-"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool doubleFlavor() ثابت override { بازگشت true; }
 };
-class AstNot final : public AstNodeUniop {
+class AstNot final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNot(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstNot(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Not(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNot(lhs); }
-    string emitVerilog() override { return "%f(~ %l)"; }
-    string emitC() override { return "VL_NOT_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvnot %l)"; }
-    string emitSimpleOperator() override { return "~"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opNot(lhs); }
+    string emitVerilog() override { بازگشت "%f(~ %l)"; }
+    string emitC() override { بازگشت "VL_NOT_%lq(%lW, %P, %li)"; }
+    string emitSMT() ثابت override { بازگشت "(bvnot %l)"; }
+    string emitSimpleOperator() override { بازگشت "~"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت true; }
+    ثابت نویسه* widthMismatch() ثابت override VL_MT_STABLE;
 };
-class AstNullCheck final : public AstNodeUniop {
+class AstNullCheck final : عمومی Ast_گره_Uniop {
     // Return LHS after checking that LHS is non-null
-public:
-    AstNullCheck(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstNullCheck(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_NullCheck(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNullCheck;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    int instrCount() const override { return 1; }  // Rarely executes
-    string emitVerilog() override { return "%l"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    صحیح instr_شمار() ثابت override { بازگشت 1; }  // Rarely executes
+    string emitVerilog() override { بازگشت "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override { بازگشت fileline() == samep->fileline(); }
 };
-class AstOneHot final : public AstNodeUniop {
+class AstOneHot final : عمومی Ast_گره_Uniop {
     // True if only single bit set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstOneHot(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_OneHot(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstOneHot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot(lhs); }
-    string emitVerilog() override { return "%f$onehot(%l)"; }
-    string emitC() override { return "VL_ONEHOT_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 4; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opOneHot(lhs); }
+    string emitVerilog() override { بازگشت "%f$onehot(%l)"; }
+    string emitC() override { بازگشت "VL_ONEHOT_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 4; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstOneHot0 final : public AstNodeUniop {
+class AstOneHot0 final : عمومی Ast_گره_Uniop {
     // True if only single bit, or no bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot0(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstOneHot0(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_OneHot0(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstOneHot0;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot0(lhs); }
-    string emitVerilog() override { return "%f$onehot0(%l)"; }
-    string emitC() override { return "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 3; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opOneHot0(lhs); }
+    string emitVerilog() override { بازگشت "%f$onehot0(%l)"; }
+    string emitC() override { بازگشت "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs() * 3; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstPostDec final : public AstNodeUniop {
+class AstPostDec final : عمومی Ast_گره_Uniop {
     // Post-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPostDec(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstPostDec(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_PostDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l--)"; }
+    string emitVerilog() override { بازگشت "%k(%l--)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstPostInc final : public AstNodeUniop {
+class AstPostInc final : عمومی Ast_گره_Uniop {
     // Post-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPostInc(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstPostInc(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_PostInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l++)"; }
+    string emitVerilog() override { بازگشت "%k(%l++)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreDec final : public AstNodeUniop {
+class AstPreDec final : عمومی Ast_گره_Uniop {
     // Pre-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPreDec(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstPreDec(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_PreDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(--%l)"; }
+    string emitVerilog() override { بازگشت "%k(--%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreInc final : public AstNodeUniop {
+class AstPreInc final : عمومی Ast_گره_Uniop {
     // Pre-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPreInc(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstPreInc(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_PreInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(++%l)"; }
+    string emitVerilog() override { بازگشت "%k(++%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ثابت override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ثابت override { V3ERROR_NA_RETURN(true); }
 };
-class AstRToIRoundS final : public AstNodeUniop {
+class AstRToIRoundS final : عمومی Ast_گره_Uniop {
     // Convert real to integer, with arbitrary sized output (not just "integer" format)
-public:
-    AstRToIRoundS(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstRToIRoundS(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RToIRoundS(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstRToIRoundS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIRoundS(lhs); }
-    string emitVerilog() override { return "%f$rtoi_rounded(%l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRToIRoundS(lhs); }
+    string emitVerilog() override { بازگشت "%f$rtoi_rounded(%l)"; }
     string emitC() override {
-        return isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
+        بازگشت isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstRToIS final : public AstNodeUniop {
+class AstRToIS final : عمومی Ast_گره_Uniop {
     // $rtoi(lhs)
-public:
-    AstRToIS(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstRToIS(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RToIS(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstRToIS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIS(lhs); }
-    string emitVerilog() override { return "%f$rtoi(%l)"; }
-    string emitC() override { return "VL_RTOI_I_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRToIS(lhs); }
+    string emitVerilog() override { بازگشت "%f$rtoi(%l)"; }
+    string emitC() override { بازگشت "VL_RTOI_I_D(%li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    bool sizeMattersLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstRealToBits final : public AstNodeUniop {
-public:
-    AstRealToBits(FileLine* fl, AstNodeExpr* lhsp)
+class AstRealToBits final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstRealToBits(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RealToBits(fl, lhsp) {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstRealToBits;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRealToBits(lhs); }
-    string emitVerilog() override { return "%f$realtobits(%l)"; }
-    string emitC() override { return "VL_CVT_Q_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRealToBits(lhs); }
+    string emitVerilog() override { بازگشت "%f$realtobits(%l)"; }
+    string emitC() override { بازگشت "VL_CVT_Q_D(%li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    bool sizeMattersLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    صحیح instr_شمار() ثابت override { بازگشت INSTR_شمار_DBL; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstRedAnd final : public AstNodeUniop {
+class AstRedAnd final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedAnd(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstRedAnd(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RedAnd(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedAnd(lhs); }
-    string emitVerilog() override { return "%f(& %l)"; }
-    string emitC() override { return "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRedAnd(lhs); }
+    string emitVerilog() override { بازگشت "%f(& %l)"; }
+    string emitC() override { بازگشت "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstRedOr final : public AstNodeUniop {
+class AstRedOr final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedOr(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstRedOr(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RedOr(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedOr;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedOr(lhs); }
-    string emitVerilog() override { return "%f(| %l)"; }
-    string emitC() override { return "VL_REDOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRedOr(lhs); }
+    string emitVerilog() override { بازگشت "%f(| %l)"; }
+    string emitC() override { بازگشت "VL_REDOR_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstRedXor final : public AstNodeUniop {
+class AstRedXor final : عمومی Ast_گره_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedXor(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstRedXor(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_RedXor(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedXor;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedXor(lhs); }
-    string emitVerilog() override { return "%f(^ %l)"; }
-    string emitC() override { return "VL_REDXOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override {
-        const int w = lhsp()->width();
-        return (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opRedXor(lhs); }
+    string emitVerilog() override { بازگشت "%f(^ %l)"; }
+    string emitC() override { بازگشت "VL_REDXOR_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override {
+        ثابت صحیح w = lhsp()->width();
+        بازگشت (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
     }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 1 + V3Number::log2b(width()); }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت 1 + V3_عدد::log2b(width()); }
 };
-class AstResizeLValue final : public AstNodeUniop {
+class AstResizeLValue final : عمومی Ast_گره_Uniop {
     // Resize a LValue into a wider/narrower entity at function argument boundry
     // Width and signness is implied from nodep->width()
-public:
-    AstResizeLValue(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstResizeLValue(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ResizeLValue(fl, lhsp) {}
     ASTGEN_MEMBERS_AstResizeLValue;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%l"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
 };
-class AstSigned final : public AstNodeUniop {
+class AstSigned final : عمومی Ast_گره_Uniop {
     // $signed(lhs)
-public:
-    AstSigned(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstSigned(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Signed(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.opAssign(lhs);
         out.isSigned(false);
     }
-    string emitVerilog() override { return "%f$signed(%l)"; }
+    string emitVerilog() override { بازگشت "%f$signed(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    bool sizeMattersLhs() ثابت override { بازگشت true; }  // Eliminated before matters
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
-class AstTimeImport final : public AstNodeUniop {
+class AstTimeImport final : عمومی Ast_گره_Uniop {
     // Take a constant that represents a time and needs conversion based on time units
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeImport(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstTimeImport(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_TimeImport(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTimeImport;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
+    تهی dump(std::ostream& str = std::cout) ثابت override;
+    تهی dumpJson(std::ostream& str = std::cout) ثابت override;
+    VTimescale timeunit() ثابت { بازگشت m_timeunit; }
+    تهی timeunit(ثابت VTimescale& flag) { m_timeunit = flag; }
 };
-class AstToLowerN final : public AstNodeUniop {
+class AstToLowerN final : عمومی Ast_گره_Uniop {
     // string.tolower()
-public:
-    AstToLowerN(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstToLowerN(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ToLowerN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToLowerN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToLowerN(lhs); }
-    string emitVerilog() override { return "%l.tolower()"; }
-    string emitC() override { return "VL_TOLOWER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opToLowerN(lhs); }
+    string emitVerilog() override { بازگشت "%l.tolower()"; }
+    string emitC() override { بازگشت "VL_TOLOWER_NN(%li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstToStringN final : public AstNodeUniop {
-public:
-    AstToStringN(FileLine* fl, AstNodeExpr* lhsp)
+class AstToStringN final : عمومی Ast_گره_Uniop {
+عمومی:
+    AstToStringN(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ToStringN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToStringN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "$sformatf(\"%p\", %l)"; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { بازگشت "$sformatf(\"%p\", %l)"; }
     string emitC() override {
-        return isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
+        بازگشت isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstToUpperN final : public AstNodeUniop {
+class AstToUpperN final : عمومی Ast_گره_Uniop {
     // string.toupper()
-public:
-    AstToUpperN(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstToUpperN(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ToUpperN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToUpperN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToUpperN(lhs); }
-    string emitVerilog() override { return "%l.toupper()"; }
-    string emitC() override { return "VL_TOUPPER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override { out.opToUpperN(lhs); }
+    string emitVerilog() override { بازگشت "%l.toupper()"; }
+    string emitC() override { بازگشت "VL_TOUPPER_NN(%li)"; }
+    bool cleanOut() ثابت override { بازگشت true; }
+    bool cleanLhs() ثابت override { بازگشت true; }
+    bool sizeMattersLhs() ثابت override { بازگشت false; }
 };
-class AstUnsigned final : public AstNodeUniop {
+class AstUnsigned final : عمومی Ast_گره_Uniop {
     // $unsigned(lhs)
-public:
-    AstUnsigned(FileLine* fl, AstNodeExpr* lhsp)
+عمومی:
+    AstUnsigned(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Unsigned(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstUnsigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.opAssign(lhs);
         out.isSigned(false);
     }
-    string emitVerilog() override { return "%f$unsigned(%l)"; }
+    string emitVerilog() override { بازگشت "%f$unsigned(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت false; }
+    bool cleanLhs() ثابت override { بازگشت false; }  // Eliminated before matters
+    bool sizeMattersLhs() ثابت override { بازگشت true; }  // Eliminated before matters
+    صحیح instr_شمار() ثابت override { بازگشت 0; }
+    bool isSystemFunc() ثابت override { بازگشت true; }
 };
 
 // === AstNodeSystemUniopD ===
-class AstAcosD final : public AstNodeSystemUniopD {
-public:
-    AstAcosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcosD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAcosD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AcosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::acos(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$acos(%l)"; }
-    string emitC() override { return "acos(%li)"; }
+    string emitVerilog() override { بازگشت "%f$acos(%l)"; }
+    string emitC() override { بازگشت "acos(%li)"; }
 };
-class AstAcoshD final : public AstNodeSystemUniopD {
-public:
-    AstAcoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcoshD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAcoshD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AcoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::acosh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$acosh(%l)"; }
-    string emitC() override { return "acosh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$acosh(%l)"; }
+    string emitC() override { بازگشت "acosh(%li)"; }
 };
-class AstAsinD final : public AstNodeSystemUniopD {
-public:
-    AstAsinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAsinD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AsinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::asin(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$asin(%l)"; }
-    string emitC() override { return "asin(%li)"; }
+    string emitVerilog() override { بازگشت "%f$asin(%l)"; }
+    string emitC() override { بازگشت "asin(%li)"; }
 };
-class AstAsinhD final : public AstNodeSystemUniopD {
-public:
-    AstAsinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinhD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAsinhD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AsinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::asinh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$asinh(%l)"; }
-    string emitC() override { return "asinh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$asinh(%l)"; }
+    string emitC() override { بازگشت "asinh(%li)"; }
 };
-class AstAtanD final : public AstNodeSystemUniopD {
-public:
-    AstAtanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAtanD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AtanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::atan(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atan(%l)"; }
-    string emitC() override { return "atan(%li)"; }
+    string emitVerilog() override { بازگشت "%f$atan(%l)"; }
+    string emitC() override { بازگشت "atan(%li)"; }
 };
-class AstAtanhD final : public AstNodeSystemUniopD {
-public:
-    AstAtanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanhD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstAtanhD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_AtanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::atanh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atanh(%l)"; }
-    string emitC() override { return "atanh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$atanh(%l)"; }
+    string emitC() override { بازگشت "atanh(%li)"; }
 };
-class AstCeilD final : public AstNodeSystemUniopD {
-public:
-    AstCeilD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCeilD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstCeilD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CeilD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCeilD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::ceil(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$ceil(%l)"; }
-    string emitC() override { return "ceil(%li)"; }
+    string emitVerilog() override { بازگشت "%f$ceil(%l)"; }
+    string emitC() override { بازگشت "ceil(%li)"; }
 };
-class AstCosD final : public AstNodeSystemUniopD {
-public:
-    AstCosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCosD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstCosD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::cos(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$cos(%l)"; }
-    string emitC() override { return "cos(%li)"; }
+    string emitVerilog() override { بازگشت "%f$cos(%l)"; }
+    string emitC() override { بازگشت "cos(%li)"; }
 };
-class AstCoshD final : public AstNodeSystemUniopD {
-public:
-    AstCoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCoshD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstCoshD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_CoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::cosh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$cosh(%l)"; }
-    string emitC() override { return "cosh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$cosh(%l)"; }
+    string emitC() override { بازگشت "cosh(%li)"; }
 };
-class AstExpD final : public AstNodeSystemUniopD {
-public:
-    AstExpD(FileLine* fl, AstNodeExpr* lhsp)
+class AstExpD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstExpD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_ExpD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstExpD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::exp(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$exp(%l)"; }
-    string emitC() override { return "exp(%li)"; }
+    string emitVerilog() override { بازگشت "%f$exp(%l)"; }
+    string emitC() override { بازگشت "exp(%li)"; }
 };
-class AstFloorD final : public AstNodeSystemUniopD {
-public:
-    AstFloorD(FileLine* fl, AstNodeExpr* lhsp)
+class AstFloorD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstFloorD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_FloorD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstFloorD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::floor(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$floor(%l)"; }
-    string emitC() override { return "floor(%li)"; }
+    string emitVerilog() override { بازگشت "%f$floor(%l)"; }
+    string emitC() override { بازگشت "floor(%li)"; }
 };
-class AstLog10D final : public AstNodeSystemUniopD {
-public:
-    AstLog10D(FileLine* fl, AstNodeExpr* lhsp)
+class AstLog10D final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstLog10D(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_Log10D(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLog10D;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::log10(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$log10(%l)"; }
-    string emitC() override { return "log10(%li)"; }
+    string emitVerilog() override { بازگشت "%f$log10(%l)"; }
+    string emitC() override { بازگشت "log10(%li)"; }
 };
-class AstLogD final : public AstNodeSystemUniopD {
-public:
-    AstLogD(FileLine* fl, AstNodeExpr* lhsp)
+class AstLogD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstLogD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_LogD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLogD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::log(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$ln(%l)"; }
-    string emitC() override { return "log(%li)"; }
+    string emitVerilog() override { بازگشت "%f$ln(%l)"; }
+    string emitC() override { بازگشت "log(%li)"; }
 };
-class AstSinD final : public AstNodeSystemUniopD {
-public:
-    AstSinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstSinD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_SinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::sin(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sin(%l)"; }
-    string emitC() override { return "sin(%li)"; }
+    string emitVerilog() override { بازگشت "%f$sin(%l)"; }
+    string emitC() override { بازگشت "sin(%li)"; }
 };
-class AstSinhD final : public AstNodeSystemUniopD {
-public:
-    AstSinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinhD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstSinhD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_SinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::sinh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sinh(%l)"; }
-    string emitC() override { return "sinh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$sinh(%l)"; }
+    string emitC() override { بازگشت "sinh(%li)"; }
 };
-class AstSqrtD final : public AstNodeSystemUniopD {
-public:
-    AstSqrtD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSqrtD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstSqrtD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_SqrtD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSqrtD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::sqrt(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sqrt(%l)"; }
-    string emitC() override { return "sqrt(%li)"; }
+    string emitVerilog() override { بازگشت "%f$sqrt(%l)"; }
+    string emitC() override { بازگشت "sqrt(%li)"; }
 };
-class AstTanD final : public AstNodeSystemUniopD {
-public:
-    AstTanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstTanD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_TanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::tan(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$tan(%l)"; }
-    string emitC() override { return "tan(%li)"; }
+    string emitVerilog() override { بازگشت "%f$tan(%l)"; }
+    string emitC() override { بازگشت "tan(%li)"; }
 };
-class AstTanhD final : public AstNodeSystemUniopD {
-public:
-    AstTanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanhD final : عمومی Ast_گره_System_Uniop_D {
+عمومی:
+    AstTanhD(File_سطر* fl, Ast_گره_عبارت* lhsp)
         : ASTGEN_SUPER_TanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    تهی عدد_Operate(V3_عدد& out, ثابت V3_عدد& lhs) override {
         out.setDouble(std::tanh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$tanh(%l)"; }
-    string emitC() override { return "tanh(%li)"; }
+    string emitVerilog() override { بازگشت "%f$tanh(%l)"; }
+    string emitC() override { بازگشت "tanh(%li)"; }
 };
 
 // === AstNodeVarRef ===
-class AstVarRef final : public AstNodeVarRef {
+class AstVarRef final : عمومی Ast_گره_Var_Ref {
     // A reference to a variable (lvalue or rvalue)
     std::string m_name;  // Name of varref, though name() favors varp()->namep()
                          // if non-null pointer (e.g.: 'this')
-public:
+عمومی:
     // This form only allowed post-link because output/wire compression may
     // lead to deletion of AstVar's
-    inline AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access);
-    inline AstVarRef(FileLine* fl, AstNodeModule* classOrPackagep, AstVar* varp,
-                     const VAccess& access);
+    درونخطی AstVarRef(File_سطر* fl, AstVar* varp, ثابت VAccess& access);
+    درونخطی AstVarRef(File_سطر* fl, Ast_گره_Module* classOrPackagep, AstVar* varp,
+                     ثابت VAccess& access);
     // This form only allowed post-link (see above)
-    inline AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access);
+    درونخطی AstVarRef(File_سطر* fl, AstVarScope* varscp, ثابت VAccess& access);
     ASTGEN_MEMBERS_AstVarRef;
-    std::string nameThis() const { return m_name; }
-    inline string name() const override;  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    bool sameNode(const AstNode* samep) const override;
-    inline bool sameNode(const AstVarRef* samep) const;
-    inline bool sameNoLvalue(const AstVarRef* samep) const;
-    int instrCount() const override;
+    std::string nameThis() ثابت { بازگشت m_name; }
+    درونخطی string name() ثابت override;  // * = Var name
+    تهی name(ثابت string& name) override { m_name = name; }
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    ثابت نویسه* broken() ثابت override;
+    bool same_گره(ثابت Ast_گره* samep) ثابت override;
+    درونخطی bool same_گره(ثابت AstVarRef* samep) ثابت;
+    درونخطی bool sameNoLvalue(ثابت AstVarRef* samep) ثابت;
+    صحیح instr_شمار() ثابت override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ثابت override { بازگشت true; }
 };
-class AstVarXRef final : public AstNodeVarRef {
+class AstVarXRef final : عمومی Ast_گره_Var_Ref {
     // A VarRef to something in another module before AstScope.
     // Includes pin on a cell, as part of a ASSIGN statement to connect I/Os until AstScope
     string m_name;
@@ -6513,32 +6513,32 @@ class AstVarXRef final : public AstNodeVarRef {
     string m_inlinedDots;  // Dotted hierarchy flattened out
     bool m_containsGenBlock = false;  // Contains gen block reference
     bool m_readOnlyModport = false;  // Linked via an input-only modport, until V3LinkLValue
-public:
-    AstVarXRef(FileLine* fl, const string& name, const string& dotted, const VAccess& access)
+عمومی:
+    AstVarXRef(File_سطر* fl, ثابت string& name, ثابت string& dotted, ثابت VAccess& access)
         : ASTGEN_SUPER_VarXRef(fl, nullptr, access)
         , m_name{name}
         , m_dotted{dotted} {}
-    inline AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access);
+    درونخطی AstVarXRef(File_سطر* fl, AstVar* varp, ثابت string& dotted, ثابت VAccess& access);
     ASTGEN_MEMBERS_AstVarXRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const std::string& name) override { m_name = name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool readOnlyModport() const { return m_readOnlyModport; }
-    void readOnlyModport(const bool flag) { m_readOnlyModport = flag; }
+    string name() ثابت override VL_MT_STABLE { بازگشت m_name; }  // * = Var name
+    تهی name(ثابت std::string& name) override { m_name = name; }  // * = Var name
+    تهی dump(std::ostream& str) ثابت override;
+    تهی dumpJson(std::ostream& str) ثابت override;
+    string dotted() ثابت { بازگشت m_dotted; }
+    تهی dotted(ثابت string& dotted) { m_dotted = dotted; }
+    string inlinedDots() ثابت { بازگشت m_inlinedDots; }
+    تهی inlinedDots(ثابت string& flag) { m_inlinedDots = flag; }
+    bool containsGenBlock() ثابت { بازگشت m_containsGenBlock; }
+    تهی containsGenBlock(ثابت bool flag) { m_containsGenBlock = flag; }
+    bool readOnlyModport() ثابت { بازگشت m_readOnlyModport; }
+    تهی readOnlyModport(ثابت bool flag) { m_readOnlyModport = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
-        return (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
+    bool cleanOut() ثابت override { بازگشت true; }
+    صحیح instr_شمار() ثابت override { بازگشت widthInstrs(); }
+    bool same_گره(ثابت Ast_گره* samep) ثابت override {
+        ثابت AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
+        بازگشت (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
                 && name() == asamep->name() && dotted() == asamep->dotted());
     }
 };

@@ -28,27 +28,27 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Unknown.h"
+#شامل "V3Unknown.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#شامل "V3Const.h"
+#شامل "V3Stats.h"
+#شامل "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class UnknownVisitor final : public VNVisitor {
+رده UnknownVisitor final : عمومی VNVisitor {
     // NODE STATE
     // Cleared on Netlist
     //  AstSel::user()          -> bool.  Set true if already processed
     //  AstArraySel::user()     -> bool.  Set true if already processed
     //  AstNode::user2p()       -> AstIf* Inserted if assignment for conditional
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    static const std::string s_xrandPrefix;
+    ثابت VNUser1InUse m_inuser1;
+    ثابت VNUser2InUse m_inuser2;
+    ایستا ثابت std::string s_xrandPrefix;
 
     // STATE - across all visitors
     VDouble0 m_statUnkVars;  // Statistic of xrand variable created
@@ -57,115 +57,115 @@ class UnknownVisitor final : public VNVisitor {
     std::unique_ptr<V3UniqueNames> m_xrandNames;  // For generating unique temporary variable names
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    bool m_constXCvt = false;  // Convert X's
-    bool m_allowXUnique = true;  // Allow unique assignments
+    Ast_گره_Module* m_modp = nullptr;  // Current module
+    Ast_گره_FTask* m_ftaskp = nullptr;  // Current function/task
+    منطقی m_constXCvt = نادرست;  // Convert X's
+    منطقی m_allowXUnique = درست;  // Allow unique assignments
 
     // METHODS
 
-    void addVar(AstVar* varp) {
-        if (m_ftaskp) {
-            varp->funcLocal(true);
+    تهی addVar(AstVar* varp) {
+        اگر (m_ftaskp) {
+            varp->funcLocal(درست);
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             m_ftaskp->prependStmtsp(varp);
-        } else {
+        } وگرنه {
             m_modp->prependStmtsp(varp);
         }
     }
 
-    void replaceBoundLvalue(AstNodeExpr* nodep, AstNodeExpr* condp) {
+    تهی replaceBoundLvalue(Ast_گره_عبارت* nodep, Ast_گره_عبارت* condp) {
         // Spec says a out-of-range LHS SEL results in a NOP.
         // We wrap the expression into IF
-        AstNodeExpr* prep = nodep;
+        Ast_گره_عبارت* prep = nodep;
 
         // Scan back to put the condlvalue above all selects (IE top of the lvalue)
-        while (VN_IS(prep->backp(), NodeSel) || VN_IS(prep->backp(), Sel)
+        وقتی (VN_IS(prep->backp(), گره_Sel) || VN_IS(prep->backp(), Sel)
                || VN_IS(prep->backp(), MemberSel) || VN_IS(prep->backp(), StructSel)) {
-            prep = VN_AS(prep->backp(), NodeExpr);
+            prep = VN_AS(prep->backp(), گره_عبارت);
         }
-        if (VN_IS(prep->backp(), AssignForce) || VN_IS(prep->backp(), Release)) {
+        اگر (VN_IS(prep->backp(), AssignForce) || VN_IS(prep->backp(), Release)) {
             // The conversion done in this function breaks force and release statements
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Force / release statement with complex select expression");
-            VL_DO_DANGLING(condp->deleteTree(), condp);
-            return;
+            VL_DO_DANGLING(condp->delete_درخت(), condp);
+            بازگشت;
         }
-        FileLine* const fl = nodep->fileline();
+        File_سطر* ثابت fl = nodep->fileline();
         VL_DANGLING(nodep);  // Zap it so we don't use it by mistake - use prep
 
         // Already exists; rather than IF(a,... IF(b... optimize to IF(a&&b,
         // Saves us teaching V3Const how to optimize, and it won't be needed again.
-        if (const AstIf* const ifp = VN_AS(prep->user2p(), If)) {
+        اگر (ثابت AstIf* ثابت ifp = VN_AS(prep->user2p(), If)) {
             VNRelinker replaceHandle;
-            AstNodeExpr* const earliercondp = ifp->condp()->unlinkFrBack(&replaceHandle);
-            AstNodeExpr* const newp = new AstLogAnd{condp->fileline(), condp, earliercondp};
+            Ast_گره_عبارت* ثابت earliercondp = ifp->condp()->unlinkFrBack(&replaceHandle);
+            Ast_گره_عبارت* ثابت newp = جدید AstLogAnd{condp->fileline(), condp, earliercondp};
             UINFO(4, "Edit BOUNDLVALUE " << newp);
             replaceHandle.relink(newp);
-        } else {
-            AstNode* stmtp = prep->backp();  // Grab above point before we replace 'prep'
-            while (!VN_IS(stmtp, NodeStmt)) stmtp = stmtp->backp();
+        } وگرنه {
+            Ast_گره* stmtp = prep->backp();  // Grab above point before we replace 'prep'
+            وقتی (!VN_IS(stmtp, گره_Stmt)) stmtp = stmtp->backp();
             VNRelinker replaceHandle;
-            AstNode* const origStmtp = stmtp->unlinkFrBack(&replaceHandle);
-            AstNode* elseStmtp = nullptr;
-            const bool hasSideEffects = origStmtp->exists(
-                [](AstNode* const np) { return !np->isPure() || np->isTimingControl(); });
-            if (hasSideEffects) {
+            Ast_گره* ثابت origStmtp = stmtp->unlinkFrBack(&replaceHandle);
+            Ast_گره* elseStmtp = nullptr;
+            ثابت منطقی hasSideEffects = origStmtp->exists(
+                [](Ast_گره* ثابت np) { بازگشت !np->isPure() || np->isTimingControl(); });
+            اگر (hasSideEffects) {
                 // Copy original statement and replace `prep` with reference to tmp var to make
                 // sure that side effect will take place
                 m_statElses++;
-                elseStmtp = origStmtp->cloneTree(false);
-                AstVar* const varp = new AstVar{fl, VVarType::MODULETEMP, m_lvboundNames.get(prep),
+                elseStmtp = origStmtp->clone_درخت(نادرست);
+                AstVar* ثابت varp = جدید AstVar{fl, VVarType::MODULETEMP, m_lvboundNames.get(prep),
                                                 prep->dtypep()};
                 addVar(varp);
-                AstNode* const prepCopyp = prep->clonep();
-                prepCopyp->replaceWith(new AstVarRef{fl, varp, VAccess::WRITE});
-                VL_DO_DANGLING(pushDeletep(prepCopyp), prepCopyp);
+                Ast_گره* ثابت prepCopyp = prep->clonep();
+                prepCopyp->replaceWith(جدید AstVarRef{fl, varp, VAccess::WRITE});
+                VL_DO_DANGLING(افزودن_Deletep(prepCopyp), prepCopyp);
             }
-            AstIf* const newp = new AstIf{fl, condp, origStmtp, elseStmtp};
+            AstIf* ثابت newp = جدید AstIf{fl, condp, origStmtp, elseStmtp};
             replaceHandle.relink(newp);
             newp->branchPred(VBranchPred::BP_LIKELY);
-            newp->isBoundsCheck(true);
+            newp->isBoundsCheck(درست);
             prep->user2p(newp);  // Save so we may LogAnd it next time
         }
     }
 
-    AstVar* createAddTemp(const AstNodeExpr* const nodep) {
-        AstVar* const varp = new AstVar{nodep->fileline(), VVarType::XTEMP,
+    AstVar* createAddTemp(ثابت Ast_گره_عبارت* ثابت nodep) {
+        AstVar* ثابت varp = جدید AstVar{nodep->fileline(), VVarType::XTEMP,
                                         m_xrandNames->get(nodep), nodep->dtypep()};
         addVar(varp);
-        return varp;
+        بازگشت varp;
     }
 
     // Returns true if it is known at compile time that `msbConstp` is greater than or equal
     // `exprp`
-    static bool isStaticlyGte(AstConst* const msbConstp, const AstNodeExpr* const exprp) {
-        if (msbConstp->width() >= exprp->width() && exprp->width() < 32
-            && msbConstp->num().toSInt() >= (1 << exprp->width()) - 1) {
-            return true;
+    ایستا منطقی isStaticlyGte(AstConst* ثابت msbConstp, ثابت Ast_گره_عبارت* ثابت exprp) {
+        اگر (msbConstp->width() >= exprp->width() && exprp->width() < 32
+            && msbConstp->رقم().toSInt() >= (1 << exprp->width()) - 1) {
+            بازگشت درست;
         }
-        if (const AstConst* const constp = VN_CAST(exprp, Const)) {
-            if (V3Number{msbConstp}.opGte(msbConstp->num(), constp->num()).isNeqZero()) {
-                return true;
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(exprp, Const)) {
+            اگر (V3_عدد{msbConstp}.opGte(msbConstp->رقم(), constp->رقم()).isNeqZero()) {
+                بازگشت درست;
             }
         }
-        return false;
+        بازگشت نادرست;
     }
 
-    AstNodeExpr* newExprStmtOrClone(AstNodeExpr*& exprp) {
-        if (!exprp->isPure()) {
-            AstVar* const varp = createAddTemp(exprp);
-            FileLine* const fl = exprp->fileline();
-            exprp = new AstExprStmt{
-                fl, new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, exprp},
-                new AstVarRef{fl, varp, VAccess::READ}};
-            return new AstVarRef{fl, varp, VAccess::READ};
+    Ast_گره_عبارت* new_عبارت_Stmt_Or_Clone(Ast_گره_عبارت*& exprp) {
+        اگر (!exprp->isPure()) {
+            AstVar* ثابت varp = createAddTemp(exprp);
+            File_سطر* ثابت fl = exprp->fileline();
+            exprp = جدید Ast_عبارت_Stmt{
+                fl, جدید AstAssign{fl, جدید AstVarRef{fl, varp, VAccess::WRITE}, exprp},
+                جدید AstVarRef{fl, varp, VAccess::READ}};
+            بازگشت جدید AstVarRef{fl, varp, VAccess::READ};
         }
-        return exprp->cloneTreePure(false);
+        بازگشت exprp->clone_درخت_Pure(نادرست);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    تهی visit(Ast_گره_Module* nodep) override {
         UINFO(4, " MOD   " << nodep);
         VL_RESTORER(m_modp);
         VL_RESTORER(m_constXCvt);
@@ -173,268 +173,268 @@ class UnknownVisitor final : public VNVisitor {
         auto xrandNames = std::make_unique<V3UniqueNames>(s_xrandPrefix);
         {
             m_modp = nodep;
-            m_constXCvt = true;
+            m_constXCvt = درست;
             // Class X randomization causes Vxrand in strange places, so disable
-            if (VN_IS(nodep, Class)) m_allowXUnique = false;
+            اگر (VN_IS(nodep, Class)) m_allowXUnique = نادرست;
             m_lvboundNames.reset();
             xrandNames.swap(m_xrandNames);
             iterateChildren(nodep);
             xrandNames.swap(m_xrandNames);
         }
     }
-    void visit(AstNodeFTask* nodep) override {
+    تهی visit(Ast_گره_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstCaseItem* nodep) override {
+    تهی visit(AstCaseItem* nodep) override {
         VL_RESTORER(m_constXCvt);
-        m_constXCvt = false;  // Avoid losing the X's in casex
+        m_constXCvt = نادرست;  // Avoid losing the X's in casex
         iterateAndNextNull(nodep->condsp());
-        m_constXCvt = true;
+        m_constXCvt = درست;
         iterateAndNextNull(nodep->stmtsp());
     }
-    void visit(AstNodeDType* nodep) override {
+    تهی visit(Ast_گره_DType* nodep) override {
         VL_RESTORER(m_constXCvt);
-        m_constXCvt = false;  // Avoid losing the X's in casex
+        m_constXCvt = نادرست;  // Avoid losing the X's in casex
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    تهی visit(AstVar* nodep) override {
         VL_RESTORER(m_allowXUnique);
-        if (nodep->isParam()) m_allowXUnique = false;
+        اگر (nodep->isParam()) m_allowXUnique = نادرست;
         iterateChildren(nodep);
     }
-    void visitEqNeqCase(AstNodeBiop* nodep) {
+    تهی visitEqNeqCase(Ast_گره_Biop* nodep) {
         UINFO(4, " N/EQCASE->EQ " << nodep);
         V3Const::constifyEdit(nodep->lhsp());  // lhsp may change
         V3Const::constifyEdit(nodep->rhsp());  // rhsp may change
-        if (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
+        اگر (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
             // Both sides are constant, node can be constant
             VL_DO_DANGLING(V3Const::constifyEdit(nodep), nodep);
-            return;
-        } else {
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* newp;
+            بازگشت;
+        } وگرنه {
+            Ast_گره_عبارت* ثابت lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlinkFrBack();
+            Ast_گره_عبارت* newp;
             // If we got ==1'bx it can never be true (but 1'bx==1'bx can be!)
-            if (((VN_IS(lhsp, Const) && VN_AS(lhsp, Const)->num().isFourState())
-                 || (VN_IS(rhsp, Const) && VN_AS(rhsp, Const)->num().isFourState()))) {
-                newp = new AstConst(nodep->fileline(), AstConst::WidthedValue{}, 1,
+            اگر (((VN_IS(lhsp, Const) && VN_AS(lhsp, Const)->رقم().isFourState())
+                 || (VN_IS(rhsp, Const) && VN_AS(rhsp, Const)->رقم().isFourState()))) {
+                newp = جدید AstConst(nodep->fileline(), AstConst::Widthed_مقدار{}, 1,
                                     (VN_IS(nodep, EqCase) ? 0 : 1));
-                VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
-                VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-            } else {
-                if (VN_IS(nodep, EqCase)) {
-                    newp = new AstEq{nodep->fileline(), lhsp, rhsp};
-                } else {
-                    newp = new AstNeq{nodep->fileline(), lhsp, rhsp};
+                VL_DO_DANGLING(lhsp->delete_درخت(), lhsp);
+                VL_DO_DANGLING(rhsp->delete_درخت(), rhsp);
+            } وگرنه {
+                اگر (VN_IS(nodep, EqCase)) {
+                    newp = جدید AstEq{nodep->fileline(), lhsp, rhsp};
+                } وگرنه {
+                    newp = جدید AstNeq{nodep->fileline(), lhsp, rhsp};
                 }
             }
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_درخت(), nodep);
             // Iterate tree now that we may have gotten rid of Xs
             iterateChildren(newp);
         }
     }
-    void visitEqNeqWild(AstNodeBiop* nodep) {
+    تهی visitEqNeqWild(Ast_گره_Biop* nodep) {
         UINFO(4, " N/EQWILD->EQ " << nodep);
         V3Const::constifyEdit(nodep->lhsp());  // lhsp may change
         V3Const::constifyEdit(nodep->rhsp());  // rhsp may change
-        if (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
+        اگر (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
             // Both sides are constant, node can be constant
             VL_DO_DANGLING(V3Const::constifyEdit(nodep), nodep);
-            return;
-        } else {
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* newp;
-            if (!VN_IS(rhsp, Const)) {
-                if (rhsp->dtypep()->isFourstate()) {
+            بازگشت;
+        } وگرنه {
+            Ast_گره_عبارت* ثابت lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_گره_عبارت* ثابت rhsp = nodep->rhsp()->unlinkFrBack();
+            Ast_گره_عبارت* newp;
+            اگر (!VN_IS(rhsp, Const)) {
+                اگر (rhsp->dtypep()->isFourstate()) {
                     nodep->v3warn(
                         E_UNSUPPORTED,
                         "Unsupported: RHS of ==? or !=? is fourstate but not a constant");
                 }
-                newp = new AstEq{nodep->fileline(), lhsp, rhsp};
-            } else {
+                newp = جدید AstEq{nodep->fileline(), lhsp, rhsp};
+            } وگرنه {
                 // X or Z's become mask, ala case statements.
-                V3Number nummask{rhsp, rhsp->width()};
-                nummask.opBitsNonXZ(VN_AS(rhsp, Const)->num());
-                V3Number numval{rhsp, rhsp->width()};
-                numval.opBitsOne(VN_AS(rhsp, Const)->num());
-                AstNodeExpr* const and1p = new AstAnd{nodep->fileline(), lhsp,
-                                                      new AstConst{nodep->fileline(), nummask}};
-                AstNodeExpr* const and2p = new AstConst{nodep->fileline(), numval};
-                if (VN_IS(nodep, EqWild)) {
-                    newp = new AstEq{nodep->fileline(), and1p, and2p};
-                } else {
-                    newp = new AstNeq{nodep->fileline(), and1p, and2p};
+                V3_عدد nummask{rhsp, rhsp->width()};
+                nummask.opBitsNonXZ(VN_AS(rhsp, Const)->رقم());
+                V3_عدد numval{rhsp, rhsp->width()};
+                numval.opBitsOne(VN_AS(rhsp, Const)->رقم());
+                Ast_گره_عبارت* ثابت and1p = جدید AstAnd{nodep->fileline(), lhsp,
+                                                      جدید AstConst{nodep->fileline(), nummask}};
+                Ast_گره_عبارت* ثابت and2p = جدید AstConst{nodep->fileline(), numval};
+                اگر (VN_IS(nodep, EqWild)) {
+                    newp = جدید AstEq{nodep->fileline(), and1p, and2p};
+                } وگرنه {
+                    newp = جدید AstNeq{nodep->fileline(), and1p, and2p};
                 }
-                VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
+                VL_DO_DANGLING(rhsp->delete_درخت(), rhsp);
             }
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_درخت(), nodep);
             // Iterate tree now that we may have gotten rid of the compare
             iterateChildren(newp);
         }
     }
 
-    void visit(AstEqCase* nodep) override { visitEqNeqCase(nodep); }
-    void visit(AstNeqCase* nodep) override { visitEqNeqCase(nodep); }
-    void visit(AstEqWild* nodep) override { visitEqNeqWild(nodep); }
-    void visit(AstNeqWild* nodep) override { visitEqNeqWild(nodep); }
-    void visit(AstIsUnknown* nodep) override {
+    تهی visit(AstEqCase* nodep) override { visitEqNeqCase(nodep); }
+    تهی visit(AstNeqCase* nodep) override { visitEqNeqCase(nodep); }
+    تهی visit(AstEqWild* nodep) override { visitEqNeqWild(nodep); }
+    تهی visit(AstNeqWild* nodep) override { visitEqNeqWild(nodep); }
+    تهی visit(AstIsUnknown* nodep) override {
         iterateChildren(nodep);
         // Ahh, we're two state, so this is easy
         UINFO(4, " ISUNKNOWN->0 " << nodep);
-        AstConst* const newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        AstConst* ثابت newp = جدید AstConst{nodep->fileline(), AstConst::BitFalse{}};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    void visit(AstCountBits* nodep) override {
+    تهی visit(Ast_شمار_Bits* nodep) override {
         // Ahh, we're two state, so this is easy
-        std::array<bool, 3> dropop;
-        dropop[0] = VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->num().isAnyX();
-        dropop[1] = VN_IS(nodep->thsp(), Const) && VN_AS(nodep->thsp(), Const)->num().isAnyX();
-        dropop[2] = VN_IS(nodep->fhsp(), Const) && VN_AS(nodep->fhsp(), Const)->num().isAnyX();
+        std::array<منطقی, 3> dropop;
+        dropop[0] = VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->رقم().isAnyX();
+        dropop[1] = VN_IS(nodep->thsp(), Const) && VN_AS(nodep->thsp(), Const)->رقم().isAnyX();
+        dropop[2] = VN_IS(nodep->fhsp(), Const) && VN_AS(nodep->fhsp(), Const)->رقم().isAnyX();
         UINFO(4, " COUNTBITS(" << dropop[0] << dropop[1] << dropop[2] << " " << nodep);
 
-        AstNodeExpr* nonXp = nullptr;
-        if (!dropop[0]) {
+        Ast_گره_عبارت* nonXp = nullptr;
+        اگر (!dropop[0]) {
             nonXp = nodep->rhsp();
-        } else if (!dropop[1]) {
+        } وگرنه اگر (!dropop[1]) {
             nonXp = nodep->thsp();
-        } else if (!dropop[2]) {
+        } وگرنه اگر (!dropop[2]) {
             nonXp = nodep->fhsp();
-        } else {  // Was all X-s
+        } وگرنه {  // Was all X-s
             UINFO(4, " COUNTBITS('x)->0 " << nodep);
-            AstConst* const newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+            AstConst* ثابت newp = جدید AstConst{nodep->fileline(), AstConst::BitFalse{}};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_درخت(), nodep);
+            بازگشت;
         }
-        if (dropop[0]) {
-            nodep->rhsp()->unlinkFrBack()->deleteTree();
-            nodep->rhsp(nonXp->cloneTreePure(true));
+        اگر (dropop[0]) {
+            nodep->rhsp()->unlinkFrBack()->delete_درخت();
+            nodep->rhsp(nonXp->clone_درخت_Pure(درست));
         }
-        if (dropop[1]) {
-            nodep->thsp()->unlinkFrBack()->deleteTree();
-            nodep->thsp(nonXp->cloneTreePure(true));
+        اگر (dropop[1]) {
+            nodep->thsp()->unlinkFrBack()->delete_درخت();
+            nodep->thsp(nonXp->clone_درخت_Pure(درست));
         }
-        if (dropop[2]) {
-            nodep->fhsp()->unlinkFrBack()->deleteTree();
-            nodep->fhsp(nonXp->cloneTreePure(true));
+        اگر (dropop[2]) {
+            nodep->fhsp()->unlinkFrBack()->delete_درخت();
+            nodep->fhsp(nonXp->clone_درخت_Pure(درست));
         }
         iterateChildren(nodep);
     }
-    void visit(AstConst* nodep) override {
-        if (m_constXCvt && nodep->num().isFourState()) {
+    تهی visit(AstConst* nodep) override {
+        اگر (m_constXCvt && nodep->رقم().isFourState()) {
             UINFO(4, " CONST4 " << nodep);
             UINFOTREE(9, nodep, "", "Const_old");
             // CONST(num) -> VARREF(newvarp)
             //          -> VAR(newvarp)
             //          -> INITIAL(VARREF(newvarp, OR(num_No_Xs,AND(random,num_1s_Where_X))
-            V3Number numb1{nodep, nodep->width()};
-            numb1.opBitsOne(nodep->num());
-            V3Number numbx{nodep, nodep->width()};
-            numbx.opBitsXZ(nodep->num());
-            if (!m_allowXUnique || v3Global.opt.xAssign() != "unique") {
+            V3_عدد numb1{nodep, nodep->width()};
+            numb1.opBitsOne(nodep->رقم());
+            V3_عدد numbx{nodep, nodep->width()};
+            numbx.opBitsXZ(nodep->رقم());
+            اگر (!m_allowXUnique || v3Global.opt.xAssign() != "unique") {
                 // All X bits just become 0; fastest simulation, but not nice
-                V3Number numnew{nodep, numb1.width()};
-                if (v3Global.opt.xAssign() == "1") {
+                V3_عدد numnew{nodep, numb1.width()};
+                اگر (v3Global.opt.xAssign() == "1") {
                     numnew.opOr(numb1, numbx);
-                } else {
+                } وگرنه {
                     numnew.opAssign(numb1);
                 }
-                AstConst* const newp = new AstConst{nodep->fileline(), numnew};
+                AstConst* ثابت newp = جدید AstConst{nodep->fileline(), numnew};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                VL_DO_DANGLING(nodep->delete_درخت(), nodep);
                 UINFO(4, "   -> " << newp);
-            } else {
+            } وگرنه {
                 // Make a Vxrand variable
                 // We use the special XTEMP type so it doesn't break pure functions
                 UASSERT_OBJ(m_modp, nodep, "X number not under module");
-                AstVar* const newvarp
-                    = new AstVar{nodep->fileline(), VVarType::XTEMP, m_xrandNames->get(nullptr),
+                AstVar* ثابت newvarp
+                    = جدید AstVar{nodep->fileline(), VVarType::XTEMP, m_xrandNames->get(nullptr),
                                  VFlagLogicPacked{}, nodep->width()};
                 newvarp->lifetime(VLifetime::STATIC_EXPLICIT);
                 ++m_statUnkVars;
                 VNRelinker replaceHandle;
                 nodep->unlinkFrBack(&replaceHandle);
-                AstNodeVarRef* const newref1p
-                    = new AstVarRef{nodep->fileline(), newvarp, VAccess::READ};
+                Ast_گره_Var_Ref* ثابت newref1p
+                    = جدید AstVarRef{nodep->fileline(), newvarp, VAccess::READ};
                 replaceHandle.relink(newref1p);  // Replace const with varref
-                AstInitial* const newinitp = new AstInitial{
+                AstInitial* ثابت newinitp = جدید AstInitial{
                     nodep->fileline(),
-                    new AstAssign{
+                    جدید AstAssign{
                         nodep->fileline(),
-                        new AstVarRef{nodep->fileline(), newvarp, VAccess::WRITE},
-                        new AstOr{nodep->fileline(), new AstConst{nodep->fileline(), numb1},
-                                  new AstAnd{
-                                      nodep->fileline(), new AstConst{nodep->fileline(), numbx},
-                                      new AstVarRef{nodep->fileline(), newvarp, VAccess::READ}}}}};
+                        جدید AstVarRef{nodep->fileline(), newvarp, VAccess::WRITE},
+                        جدید AstOr{nodep->fileline(), جدید AstConst{nodep->fileline(), numb1},
+                                  جدید AstAnd{
+                                      nodep->fileline(), جدید AstConst{nodep->fileline(), numbx},
+                                      جدید AstVarRef{nodep->fileline(), newvarp, VAccess::READ}}}}};
                 // Add inits in front of other statement.
                 // In the future, we should stuff the initp into the module's constructor.
                 // Must not unlink the statements, as one of them is being iterated
-                AstNode* const newStmtsp = AstNode::addNext<AstNode, AstNode>(newvarp, newinitp);
+                Ast_گره* ثابت newStmtsp = Ast_گره::addNext<Ast_گره, Ast_گره>(newvarp, newinitp);
                 m_modp->prependStmtsp(newStmtsp);
                 UINFOTREE(9, newref1p, "", "_newref");
                 UINFOTREE(9, newvarp, "", "_newvar");
                 UINFOTREE(9, newinitp, "", "_newini");
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                VL_DO_DANGLING(nodep->delete_درخت(), nodep);
             }
         }
     }
 
-    void visit(AstSel* nodep) override {
+    تهی visit(AstSel* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        اگر (!nodep->user1SetOnce()) {
             // Guard against reading/writing past end of bit vector array
-            const AstNode* const basefromp = nodep->baseFromp(true);
-            bool lvalue = false;
-            if (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
+            ثابت Ast_گره* ثابت basefromp = nodep->baseFromp(درست);
+            منطقی lvalue = نادرست;
+            اگر (ثابت Ast_گره_Var_Ref* ثابت varrefp = VN_CAST(basefromp, گره_Var_Ref)) {
                 lvalue = varrefp->access().isWriteOrRW();
             }
             // Find range of dtype we are selecting from
             // Similar code in V3Const::warnSelect
-            const uint32_t maxmsb = nodep->fromp()->dtypep()->width() - 1;
+            ثابت uint32_t maxmsb = nodep->fromp()->dtypep()->width() - 1;
             UINFOTREE(9, nodep, "", "sel_old");
 
             // If (maxmsb >= selected), we're in bound
             // See if the condition is constant true (e.g. always in bound due to constant select)
             // Note below has null backp(); the Edit function knows how to deal with that.
-            AstConst* const maxmsbConstp = new AstConst{
-                nodep->fileline(), AstConst::WidthedValue{}, nodep->lsbp()->width(), maxmsb};
-            AstNodeExpr* lsbp = V3Const::constifyEdit(nodep->lsbp()->unlinkFrBack());
-            if (isStaticlyGte(maxmsbConstp, lsbp)) {
+            AstConst* ثابت maxmsbConstp = جدید AstConst{
+                nodep->fileline(), AstConst::Widthed_مقدار{}, nodep->lsbp()->width(), maxmsb};
+            Ast_گره_عبارت* lsbp = V3Const::constifyEdit(nodep->lsbp()->unlinkFrBack());
+            اگر (isStaticlyGte(maxmsbConstp, lsbp)) {
                 // We don't need to add a conditional; we know the existing expression is ok
-                VL_DO_DANGLING(maxmsbConstp->deleteTree(), maxmsbConstp);
+                VL_DO_DANGLING(maxmsbConstp->delete_درخت(), maxmsbConstp);
                 nodep->lsbp(lsbp);
-                return;
+                بازگشت;
             }
-            nodep->lsbp(newExprStmtOrClone(lsbp));
-            AstNodeExpr* condp
-                = V3Const::constifyEdit(new AstGte{nodep->fileline(), maxmsbConstp, lsbp});
-            if (!lvalue) {
+            nodep->lsbp(new_عبارت_Stmt_Or_Clone(lsbp));
+            Ast_گره_عبارت* condp
+                = V3Const::constifyEdit(جدید AstGte{nodep->fileline(), maxmsbConstp, lsbp});
+            اگر (!lvalue) {
                 // SEL(...) -> COND(LTE(bit<=maxmsb), ARRAYSEL(...), {width{1'bx}})
                 VNRelinker replaceHandle;
                 nodep->unlinkFrBack(&replaceHandle);
-                V3Number xnum{nodep, nodep->width()};
+                V3_عدد xnum{nodep, nodep->width()};
                 xnum.setAllBitsX();
-                AstNodeExpr* const xexprp = new AstConst{nodep->fileline(), xnum};
-                AstNodeExpr* const newp = [&]() -> AstNodeExpr* {
-                    if (condp->isZero()) {
-                        VL_DO_DANGLING(condp->deleteTree(), condp);
-                        VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                        return xexprp;
+                Ast_گره_عبارت* ثابت xexprp = جدید AstConst{nodep->fileline(), xnum};
+                Ast_گره_عبارت* ثابت newp = [&]() -> Ast_گره_عبارت* {
+                    اگر (condp->isZero()) {
+                        VL_DO_DANGLING(condp->delete_درخت(), condp);
+                        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
+                        بازگشت xexprp;
                     }
-                    return new AstCond{nodep->fileline(), condp, nodep, xexprp};
+                    بازگشت جدید AstCond{nodep->fileline(), condp, nodep, xexprp};
                 }();
                 UINFOTREE(9, newp, "", "_new");
                 // Link in conditional
                 replaceHandle.relink(newp);
                 // Added X's, tristate them too
                 iterate(newp);
-            } else {  // lvalue
+            } وگرنه {  // lvalue
                 replaceBoundLvalue(nodep, condp);
             }
         }
@@ -443,104 +443,104 @@ class UnknownVisitor final : public VNVisitor {
     // visit(AstSliceSel) not needed as its bounds are constant and checked
     // in V3Width.
 
-    void visit(AstArraySel* nodep) override {
+    تهی visit(AstArraySel* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        اگر (!nodep->user1SetOnce()) {
             UINFOTREE(9, nodep, "", "in");
             // Guard against reading/writing past end of arrays
-            AstNode* const basefromp = nodep->fromp()->baseFromp(true);
-            bool lvalue = false;
-            if (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
+            Ast_گره* ثابت basefromp = nodep->fromp()->baseFromp(درست);
+            منطقی lvalue = نادرست;
+            اگر (ثابت Ast_گره_Var_Ref* ثابت varrefp = VN_CAST(basefromp, گره_Var_Ref)) {
                 lvalue = varrefp->access().isWriteOrRW();
-            } else if (VN_IS(basefromp, Const)) {
+            } وگرنه اگر (VN_IS(basefromp, Const)) {
                 // If it's a PARAMETER[bit], then basefromp may be a constant instead of a varrefp
-            } else {
+            } وگرنه {
                 // Normally one of above, but might have MEMBERSEL or otherwise
             }
             // Find range of dtype we are selecting from
-            int declElements = -1;
-            AstNodeDType* const dtypep = nodep->fromp()->dtypep()->skipRefp();
+            صحیح declElements = -1;
+            Ast_گره_DType* ثابت dtypep = nodep->fromp()->dtypep()->skipRefp();
             UASSERT_OBJ(dtypep, nodep, "Select of non-selectable type");
-            const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType);
+            ثابت Ast_گره_Array_DType* ثابت adtypep = VN_CAST(dtypep, گره_Array_DType);
             UASSERT_OBJ(adtypep, nodep, "Select from non-array " << dtypep->prettyTypeName());
             declElements = adtypep->elementsConst();
             UINFOTREE(9, nodep, "", "arraysel_old");
 
             // If value MODDIV constant, where constant <= declElements, known ok
             // V3Random makes these to intentionally prevent exceeding enum array bounds.
-            if (const AstModDiv* const moddivp = VN_CAST(nodep->bitp(), ModDiv)) {
-                if (const AstConst* const modconstp = VN_CAST(moddivp->rhsp(), Const)) {
-                    if (modconstp->width() <= 32
+            اگر (ثابت AstModDiv* ثابت moddivp = VN_CAST(nodep->bitp(), ModDiv)) {
+                اگر (ثابت AstConst* ثابت modconstp = VN_CAST(moddivp->rhsp(), Const)) {
+                    اگر (modconstp->width() <= 32
                         && modconstp->toUInt() <= static_cast<uint32_t>(declElements)) {
                         UINFO(9, "arraysel mod const " << declElements
                                                        << " >= " << modconstp->toUInt());
-                        return;
+                        بازگشت;
                     }
                 }
             }
 
             // See if the condition is constant true
-            AstConst* const declElementsp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, nodep->bitp()->width(),
+            AstConst* ثابت declElementsp
+                = جدید AstConst{nodep->fileline(), AstConst::Widthed_مقدار{}, nodep->bitp()->width(),
                                static_cast<uint32_t>(declElements - 1)};
-            AstNodeExpr* bitp = V3Const::constifyEdit(nodep->bitp()->unlinkFrBack());
-            if (isStaticlyGte(declElementsp, bitp)) {
+            Ast_گره_عبارت* bitp = V3Const::constifyEdit(nodep->bitp()->unlinkFrBack());
+            اگر (isStaticlyGte(declElementsp, bitp)) {
                 // We don't need to add a conditional; we know the existing expression is ok
-                VL_DO_DANGLING(declElementsp->deleteTree(), declElementsp);
+                VL_DO_DANGLING(declElementsp->delete_درخت(), declElementsp);
                 nodep->bitp(bitp);
-                return;
+                بازگشت;
             }
-            nodep->bitp(newExprStmtOrClone(bitp));
-            AstNodeExpr* condp = new AstGte{nodep->fileline(), declElementsp, bitp};
+            nodep->bitp(new_عبارت_Stmt_Or_Clone(bitp));
+            Ast_گره_عبارت* condp = جدید AstGte{nodep->fileline(), declElementsp, bitp};
             // Note below has null backp(); the Edit function knows how to deal with that.
-            const AstNodeDType* const nodeDtp = nodep->dtypep()->skipRefp();
-            if (!lvalue
+            ثابت Ast_گره_DType* ثابت گره_Dtp = nodep->dtypep()->skipRefp();
+            اگر (!lvalue
                 // Making a scalar would break if we're making an array
-                && VN_IS(nodeDtp, BasicDType)) {
+                && VN_IS(گره_Dtp, BasicDType)) {
                 // ARRAYSEL(...) -> COND(LT(bit<maxbit), ARRAYSEL(...), {width{1'bx}})
                 VNRelinker replaceHandle;
                 nodep->unlinkFrBack(&replaceHandle);
                 // TODO make a tieoff function that takes AstNode and returns typed value
-                V3Number xnum{nodep, nodep->width()};
-                if (nodeDtp->isDouble()) {
-                    xnum = V3Number{nodep, V3Number::Double{}, 0.0};
-                } else if (nodeDtp->isString()) {
-                    xnum = V3Number{nodep, V3Number::String{}, ""};
-                } else {
-                    if (nodeDtp->isFourstate()) {
+                V3_عدد xnum{nodep, nodep->width()};
+                اگر (گره_Dtp->isDouble()) {
+                    xnum = V3_عدد{nodep, V3_عدد::Double{}, 0.0};
+                } وگرنه اگر (گره_Dtp->isString()) {
+                    xnum = V3_عدد{nodep, V3_عدد::String{}, ""};
+                } وگرنه {
+                    اگر (گره_Dtp->isFourstate()) {
                         xnum.setAllBitsX();
-                    } else {
+                    } وگرنه {
                         xnum.setAllBits0();
                     }
                 }
-                AstNode* const newp = new AstCond{nodep->fileline(), condp, nodep,
-                                                  new AstConst{nodep->fileline(), xnum}};
+                Ast_گره* ثابت newp = جدید AstCond{nodep->fileline(), condp, nodep,
+                                                  جدید AstConst{nodep->fileline(), xnum}};
                 UINFOTREE(9, newp, "", "_new");
                 // Link in conditional, can blow away temp xor
                 replaceHandle.relink(newp);
                 // Added X's, tristate them too
                 iterate(newp);
-            } else if (!lvalue) {  // Mid-multidimension read, just use zero
+            } وگرنه اگر (!lvalue) {  // Mid-multidimension read, just use zero
                 // ARRAYSEL(...) -> ARRAYSEL(COND(LT(bit<maxbit), bit, 0))
                 VNRelinker replaceHandle;
-                AstNodeExpr* const asBitp = nodep->bitp()->unlinkFrBack(&replaceHandle);
-                AstNodeExpr* const newp
-                    = new AstCond{asBitp->fileline(), condp, asBitp,
-                                  new AstConst{asBitp->fileline(), AstConst::WidthedValue{},
+                Ast_گره_عبارت* ثابت asBitp = nodep->bitp()->unlinkFrBack(&replaceHandle);
+                Ast_گره_عبارت* ثابت newp
+                    = جدید AstCond{asBitp->fileline(), condp, asBitp,
+                                  جدید AstConst{asBitp->fileline(), AstConst::Widthed_مقدار{},
                                                asBitp->width(), 0}};
                 // Added X's, tristate them too
                 UINFOTREE(9, newp, "", "_new");
                 replaceHandle.relink(newp);
                 iterate(newp);
-            } else {  // lvalue
+            } وگرنه {  // lvalue
                 replaceBoundLvalue(nodep, condp);
             }
         }
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    تهی visit(Ast_گره* nodep) override { iterateChildren(nodep); }
 
-public:
+عمومی:
     // CONSTRUCTORS
     explicit UnknownVisitor(AstNetlist* nodep)
         : m_lvboundNames{"__Vlvbound"}
@@ -553,13 +553,13 @@ public:
     }
 };
 
-const std::string UnknownVisitor::s_xrandPrefix = "__Vxrand";
+ثابت std::string UnknownVisitor::s_xrandPrefix = "__Vxrand";
 
 //######################################################################
 // Unknown class functions
 
-void V3Unknown::unknownAll(AstNetlist* nodep) {
+تهی V3Unknown::unknownAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { UnknownVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("unknown", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("unknown", 0, dump_درخت_Either_Level() >= 3);
 }

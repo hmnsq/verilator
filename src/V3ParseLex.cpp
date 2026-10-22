@@ -16,46 +16,46 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3ParseImp.h"
+#شامل "V3ParseImp.h"
 
-#include <fstream>
+#شامل <fstream>
 
 //======================================================================
 // Build in LEX script
 
 #define yyFlexLexer V3LexerBase
-#include "V3Lexer.yy.cpp"
+#شامل "V3Lexer.yy.cpp"
 #undef yyFlexLexer
 
 //######################################################################
 // Lex-derived class
 
 /// Override the base lexer class so we can add some access functions
-class V3Lexer final : public V3LexerBase {
-public:
+رده V3Lexer final : عمومی V3LexerBase {
+عمومی:
     // CONSTRUCTORS
     V3Lexer()
         : V3LexerBase{nullptr} {}
-    ~V3Lexer() override = default;
+    ~V3Lexer() override = پیشفرض;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    تهی unputString(ثابت نویسه* textp, size_t length) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        ثابت نویسه* cp = textp;
+        برای (cp += length - 1; length--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
+تهی V3ParseImp::lexUnputString(ثابت نویسه* textp, size_t length) {
     parsep()->m_lexerp->unputString(textp, length);
 }
 
-void V3ParseImp::yylexReadTok() {
+تهی V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
     parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    ثابت صحیح token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -63,12 +63,12 @@ void V3ParseImp::yylexReadTok() {
 //######################################################################
 // Read class functions
 
-void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
-    m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+تهی V3ParseImp::lexNew() {
+    اگر (m_lexerp) delete m_lexerp;  // Restart from clean slate.
+    m_lexerp = جدید V3Lexer;
+    اگر (debugFlex() >= 9) m_lexerp->set_debug(~0);
 }
 
-void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+تهی V3ParseImp::lexDestroy() {
+    اگر (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
 }

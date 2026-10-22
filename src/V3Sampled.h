@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3SAMPLED_H_
 #define VERILATOR_V3SAMPLED_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Sampled final {
-public:
-    static void sampledAll(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی sampledAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

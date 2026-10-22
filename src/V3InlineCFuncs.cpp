@@ -25,132 +25,132 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InlineCFuncs.h"
+#شامل "V3InlineCFuncs.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ExecGraph.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#شامل "V3AstUserAllocator.h"
+#شامل "V3ExecGraph.h"
+#شامل "V3Graph.h"
+#شامل "V3Stats.h"
 
-#include <vector>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Bipartite call graph containing function and call site vertices
 
-class InlineCFuncsFunctionVertex;
-class InlineCFuncsCallSiteVertex;
+رده InlineCFuncsFunctionVertex;
+رده InlineCFuncsCallSiteVertex;
 
-class InlineCFuncsCallGraph final : public V3Graph {
-public:
+رده InlineCFuncsCallGraph final : عمومی V3Graph {
+عمومی:
     InlineCFuncsCallGraph()
         : V3Graph{} {}
-    ~InlineCFuncsCallGraph() override = default;
+    ~InlineCFuncsCallGraph() override = پیشفرض;
 
-    void addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& top);
-    void addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& top);
+    تهی addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& بالاترین);
+    تهی addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& بالاترین);
 };
 
-class EitherVertex VL_NOT_FINAL : public V3GraphVertex {
+رده EitherVertex VL_NOT_FINAL : عمومی V3GraphVertex {
     VL_RTTI_IMPL(EitherVertex, V3GraphVertex)
-protected:
+محافظتشده:
     explicit EitherVertex(InlineCFuncsCallGraph& graph)
         : V3GraphVertex{&graph} {}
 };
 
-class InlineCFuncsFunctionVertex final : public EitherVertex {
+رده InlineCFuncsFunctionVertex final : عمومی EitherVertex {
     VL_RTTI_IMPL(InlineCFuncsFunctionVertex, EitherVertex)
-    AstCFunc* const m_cfuncp;  // The function
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
-    const char* m_keepWyp = nullptr;  // Why the function should not be removed
+    AstCFunc* ثابت m_cfuncp;  // The function
+    ثابت نویسه* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
+    ثابت نویسه* m_keepWyp = nullptr;  // Why the function should not be removed
     size_t m_size = 0;  // The size of the function
 
-public:
+عمومی:
     InlineCFuncsFunctionVertex(InlineCFuncsCallGraph& graph, AstCFunc* cfuncp)
         : EitherVertex{graph}
         , m_cfuncp{cfuncp} {}
-    ~InlineCFuncsFunctionVertex() override = default;
+    ~InlineCFuncsFunctionVertex() override = پیشفرض;
 
     // ACCESSORS
-    AstCFunc* cfuncp() const { return m_cfuncp; }
-    size_t size() const { return m_size; }
-    void sizeInc(size_t value = 1) { m_size += value; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCFunc* cfuncp() ثابت { بازگشت m_cfuncp; }
+    size_t size() ثابت { بازگشت m_size; }
+    تهی sizeInc(size_t مقدار = 1) { m_size += مقدار; }
+    منطقی noInline() ثابت { بازگشت m_noInlineWyp; }
+    تهی setNoInline(ثابت نویسه* whyp) {
+        اگر (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
-    bool keep() const { return m_keepWyp; }
-    void setKeep(const char* whyp) {
-        if (!m_keepWyp) m_keepWyp = whyp;
+    منطقی keep() ثابت { بازگشت m_keepWyp; }
+    تهی setKeep(ثابت نویسه* whyp) {
+        اگر (!m_keepWyp) m_keepWyp = whyp;
     }
-    std::string dotColor() const override {
-        return m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
+    std::string dotColor() ثابت override {
+        بازگشت m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
     }
 
     // debug
-    FileLine* fileline() const override { return m_cfuncp->fileline(); }
-    std::string dotShape() const override { return "box"; }
-    std::string name() const override VL_MT_STABLE {
+    File_سطر* fileline() ثابت override { بازگشت m_cfuncp->fileline(); }
+    std::string dotShape() ثابت override { بازگشت "box"; }
+    std::string name() ثابت override VL_MT_STABLE {
         std::string str = cvtToHex(m_cfuncp);
         str += "\n" + m_cfuncp->name();
         str += "\nsize: " + std::to_string(m_size);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        if (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
-        return str;
+        اگر (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        اگر (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
+        بازگشت str;
     }
 };
 
-class InlineCFuncsCallSiteVertex final : public EitherVertex {
+رده InlineCFuncsCallSiteVertex final : عمومی EitherVertex {
     VL_RTTI_IMPL(InlineCFuncsCallSiteVertex, EitherVertex)
-    AstCCall* const m_callp;  // The call site
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
+    AstCCall* ثابت m_callp;  // The call site
+    ثابت نویسه* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
 
-public:
+عمومی:
     InlineCFuncsCallSiteVertex(InlineCFuncsCallGraph& graph, AstCCall* callp)
         : EitherVertex{graph}
         , m_callp{callp} {}
-    ~InlineCFuncsCallSiteVertex() override = default;
+    ~InlineCFuncsCallSiteVertex() override = پیشفرض;
 
     // ACCESSORS
-    AstCCall* callp() const { return m_callp; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCCall* callp() ثابت { بازگشت m_callp; }
+    منطقی noInline() ثابت { بازگشت m_noInlineWyp; }
+    تهی setNoInline(ثابت نویسه* whyp) {
+        اگر (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
 
     // debug
-    FileLine* fileline() const override { return m_callp->fileline(); }
-    std::string dotColor() const override { return m_noInlineWyp ? "red" : "black"; }
-    std::string dotShape() const override { return "ellipse"; }
-    std::string name() const override VL_MT_STABLE {
+    File_سطر* fileline() ثابت override { بازگشت m_callp->fileline(); }
+    std::string dotColor() ثابت override { بازگشت m_noInlineWyp ? "red" : "black"; }
+    std::string dotShape() ثابت override { بازگشت "ellipse"; }
+    std::string name() ثابت override VL_MT_STABLE {
         std::string str = cvtToHex(m_callp);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        return str;
+        اگر (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        بازگشت str;
     }
 };
 
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsFunctionVertex& caller,
+تهی InlineCFuncsCallGraph::addEdge(InlineCFuncsFunctionVertex& caller,
                                     InlineCFuncsCallSiteVertex& callsite) {
     UASSERT_OBJ(callsite.inEmpty(), &callsite, "Call site should have at most one incoming edge");
-    new V3GraphEdge{this, &caller, &callsite, 1, true};  // Can cut caller -> callsite
+    جدید V3GraphEdge{این, &caller, &callsite, 1, درست};  // Can cut caller -> callsite
 }
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsCallSiteVertex& callsite,
+تهی InlineCFuncsCallGraph::addEdge(InlineCFuncsCallSiteVertex& callsite,
                                     InlineCFuncsFunctionVertex& callee) {
     UASSERT_OBJ(callsite.outEmpty(), &callsite, "Call site should have at most one outgoing edge");
-    new V3GraphEdge{this, &callsite, &callee, 1, false};
+    جدید V3GraphEdge{این, &callsite, &callee, 1, نادرست};
 }
 
 //######################################################################
 
-class InlineCFuncsVisitor final : public VNVisitor {
+رده InlineCFuncsVisitor final : عمومی VNVisitor {
     // NODE STATE
     // AstCFunc::user1p() ->  InlineCFuncsFunctionVertex*, the function vertex
     // AstCCall::user1p() ->  InlineCFuncsCallSiteVertex*, the call site vertex
     // AstVar::user2p()   ->  AstVar*, the cloned inlined local variable
-    const VNUser1InUse m_user1InUse;
+    ثابت VNUser1InUse m_user1InUse;
 
     // STATE
     InlineCFuncsCallGraph m_graph;  // The call graph
@@ -158,158 +158,158 @@ class InlineCFuncsVisitor final : public VNVisitor {
     VDouble0 m_statFuncsInlined;  // Number of functions inlined at least once
     VDouble0 m_statFuncsRemoved;  // Number of fully-inlined functions removed
     // Size threshold: always inline if size <= this
-    const size_t m_sizeThreshold = v3Global.opt.inlineCFuncs();
+    ثابت size_t m_sizeThreshold = v3Global.opt.inlineCFuncs();
     // Product threshold: inline if size * calls <= this
-    const size_t m_prodThreshold = v3Global.opt.inlineCFuncsProduct();
+    ثابت size_t m_prodThreshold = v3Global.opt.inlineCFuncsProduct();
     // Maximum size of caller to consider inlining into
-    const size_t m_maxSizeCFunc = []() -> size_t {
-        int maxCFunc = v3Global.opt.outputSplitCFuncs();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxCFunc <= 0) maxCFunc = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxCFunc, maxFile);
+    ثابت size_t m_maxSizeCFunc = []() -> size_t {
+        صحیح maxCFunc = v3Global.opt.outputSplitCFuncs();
+        صحیح maxFile = v3Global.opt.outputSplit();
+        اگر (maxCFunc <= 0) maxCFunc = std::numeric_limits<صحیح>::max();
+        اگر (maxFile <= 0) maxFile = std::numeric_limits<صحیح>::max();
+        بازگشت std::min(maxCFunc, maxFile);
     }();
-    const size_t m_maxSizeTrace = []() -> size_t {
-        int maxTrace = v3Global.opt.outputSplitCTrace();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxTrace <= 0) maxTrace = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxTrace, maxFile);
+    ثابت size_t m_maxSizeTrace = []() -> size_t {
+        صحیح maxTrace = v3Global.opt.outputSplitCTrace();
+        صحیح maxFile = v3Global.opt.outputSplit();
+        اگر (maxTrace <= 0) maxTrace = std::numeric_limits<صحیح>::max();
+        اگر (maxFile <= 0) maxFile = std::numeric_limits<صحیح>::max();
+        بازگشت std::min(maxTrace, maxFile);
     }();
     InlineCFuncsFunctionVertex* m_cfuncVtxp = nullptr;  // Vertex of currently iterated function
-    bool m_inExecGraph = false;  // True while inside an AstExecGraph subtree
+    منطقی m_inExecGraph = نادرست;  // True while inside an AstExecGraph subtree
 
     // METHODS
     InlineCFuncsFunctionVertex* getInlineCFuncsFunctionVertexp(AstCFunc* cfuncp) {
-        if (!cfuncp->user1p()) cfuncp->user1p(new InlineCFuncsFunctionVertex{m_graph, cfuncp});
-        return cfuncp->user1u().to<InlineCFuncsFunctionVertex*>();
+        اگر (!cfuncp->user1p()) cfuncp->user1p(جدید InlineCFuncsFunctionVertex{m_graph, cfuncp});
+        بازگشت cfuncp->user1u().to<InlineCFuncsFunctionVertex*>();
     }
 
     InlineCFuncsCallSiteVertex* getInlineCFuncsCallSiteVertexp(AstCCall* callp) {
-        if (!callp->user1p()) callp->user1p(new InlineCFuncsCallSiteVertex{m_graph, callp});
-        return callp->user1u().to<InlineCFuncsCallSiteVertex*>();
+        اگر (!callp->user1p()) callp->user1p(جدید InlineCFuncsCallSiteVertex{m_graph, callp});
+        بازگشت callp->user1u().to<InlineCFuncsCallSiteVertex*>();
     }
 
-    AstCLocalScope* inlineCall(AstCFunc* const callerp,  //
-                               AstCCall* const callp,  //
-                               AstCFunc* const calleep,  //
-                               const size_t seqNum) {
+    AstCLocalScope* inlineCall(AstCFunc* ثابت callerp,  //
+                               AstCCall* ثابت callp,  //
+                               AstCFunc* ثابت calleep,  //
+                               ثابت size_t seq_رقم) {
         UINFO(6, "Inlining CFunc " << calleep->name() << " into " << callerp->name()
                                    << " at call site " << callp);
 
-        AstNodeStmt* const callSitep = VN_AS(callp->backp(), StmtExpr);
+        Ast_گره_Stmt* ثابت callSitep = VN_AS(callp->backp(), Stmt_عبارت);
         ++m_statCallsInlined;
 
         // Callee might be empty, just delete the call
-        if (!calleep->stmtsp()) {
-            VL_DO_DANGLING(pushDeletep(callSitep->unlinkFrBack()), callSitep);
-            return nullptr;
+        اگر (!calleep->stmtsp()) {
+            VL_DO_DANGLING(افزودن_Deletep(callSitep->unlinkFrBack()), callSitep);
+            بازگشت nullptr;
         }
 
         // Replace call site with a local scope
-        FileLine* const flp = callSitep->fileline();
-        AstCLocalScope* const lscopep = new AstCLocalScope{flp, nullptr};
+        File_سطر* ثابت flp = callSitep->fileline();
+        AstCLocalScope* ثابت lscopep = جدید AstCLocalScope{flp, nullptr};
         callSitep->replaceWith(lscopep);
-        VL_DO_DANGLING(pushDeletep(callSitep), callSitep);
-        lscopep->addStmtsp(new AstComment{flp, "Inlined CFunc: " + calleep->name()});
+        VL_DO_DANGLING(افزودن_Deletep(callSitep), callSitep);
+        lscopep->addStmtsp(جدید AstComment{flp, "Inlined CFunc: " + calleep->name()});
 
         // Although it's in a local scope, we still make names of cloned locals unique
-        const std::string varPrefix
-            = "__Vinline_" + std::to_string(seqNum) + "_" + calleep->name() + "_";
+        ثابت std::string varPrefix
+            = "__Vinline_" + std::to_string(seq_رقم) + "_" + calleep->name() + "_";
 
         // AstVar::user2p()  ->  AstVar*, the cloned inlined local variable
-        const VNUser2InUse user2InUse;
+        ثابت VNUser2InUse user2InUse;
 
         // Clone local variables, add them to the local scope
-        for (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            AstVar* const newVarp = varp->cloneTree(false);
+        برای (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            AstVar* ثابت newVarp = varp->clone_درخت(نادرست);
             newVarp->name(varPrefix + varp->name());
             lscopep->addStmtsp(newVarp);
             varp->user2p(newVarp);
         }
 
         // Clone the function body
-        AstNode* const bodyp = calleep->stmtsp()->cloneTree(true);
+        Ast_گره* ثابت bodyp = calleep->stmtsp()->clone_درخت(درست);
         lscopep->addStmtsp(bodyp);
 
         // Retarget local variable references to the cloned locals
         // Rename locals defined in the body, TODO: there should be none after #6280
         // Reset vertex pointers on calls
-        bodyp->foreachAndNext([&](AstNode* nodep) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (AstVar* const varp = VN_AS(refp->varp()->user2p(), Var)) {
+        bodyp->foreachAndNext([&](Ast_گره* nodep) {
+            اگر (AstVarRef* ثابت refp = VN_CAST(nodep, VarRef)) {
+                اگر (AstVar* ثابت varp = VN_AS(refp->varp()->user2p(), Var)) {
                     // Keep dtype; V3Expand may have widened the reference beyond the variable
-                    AstNodeDType* const dtypep = refp->dtypep();
+                    Ast_گره_DType* ثابت dtypep = refp->dtypep();
                     refp->varp(varp);
                     refp->dtypep(dtypep);
                 }
-            } else if (AstVar* const varp = VN_CAST(nodep, Var)) {
+            } وگرنه اگر (AstVar* ثابت varp = VN_CAST(nodep, Var)) {
                 varp->name(varPrefix + varp->name());
-            } else if (AstCCall* const callp = VN_CAST(nodep, CCall)) {
+            } وگرنه اگر (AstCCall* ثابت callp = VN_CAST(nodep, CCall)) {
                 callp->user1p(nullptr);
             }
         });
 
         // Return the local scope
-        return lscopep;
+        بازگشت lscopep;
     }
 
-    void doInlining() {
+    تهی doInlining() {
         // Need to gather vertices as we are changing the graph
         std::vector<InlineCFuncsFunctionVertex*> m_fVtxps;
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (InlineCFuncsFunctionVertex* const fVtxp = vtx.cast<InlineCFuncsFunctionVertex>()) {
+        برای (V3GraphVertex& vtx : m_graph.vertices()) {
+            اگر (InlineCFuncsFunctionVertex* ثابت fVtxp = vtx.cast<InlineCFuncsFunctionVertex>()) {
                 m_fVtxps.emplace_back(fVtxp);
             }
         }
 
         // Iterate functions leaf to root
-        for (InlineCFuncsFunctionVertex* const calleeVtxp : vlstd::reverse_view(m_fVtxps)) {
+        برای (InlineCFuncsFunctionVertex* ثابت calleeVtxp : vlstd::reverse_view(m_fVtxps)) {
             // Should we inline this function?
-            if (calleeVtxp->noInline()) continue;  // Told not to
+            اگر (calleeVtxp->noInline()) ادامه;  // Told not to
 
             // Check size heuristics
-            const bool doIt = [&]() {
+            ثابت منطقی doIt = [&]() {
                 // Inline if small enough
-                if (calleeVtxp->size() <= m_sizeThreshold) return true;
+                اگر (calleeVtxp->size() <= m_sizeThreshold) بازگشت درست;
                 // Inline if not too much bloat
-                const size_t nCalls = calleeVtxp->inEdges().size();
-                if (nCalls * calleeVtxp->size() <= m_prodThreshold) return true;
+                ثابت size_t nCalls = calleeVtxp->inEdges().size();
+                اگر (nCalls * calleeVtxp->size() <= m_prodThreshold) بازگشت درست;
                 // Otherwise don't inline
-                return false;
+                بازگشت نادرست;
             }();
-            if (!doIt) continue;
+            اگر (!doIt) ادامه;
 
             // Ok, attempt to inline call sites
             size_t nInlined = 0;
-            for (const V3GraphEdge* const edgep : calleeVtxp->inEdges().unlinkable()) {
-                InlineCFuncsCallSiteVertex* const callVtxp
+            برای (ثابت V3GraphEdge* ثابت edgep : calleeVtxp->inEdges().unlinkable()) {
+                InlineCFuncsCallSiteVertex* ثابت callVtxp
                     = edgep->fromp()->as<InlineCFuncsCallSiteVertex>();
 
-                AstCFunc* const calleep = calleeVtxp->cfuncp();
-                AstCCall* const callp = callVtxp->callp();
+                AstCFunc* ثابت calleep = calleeVtxp->cfuncp();
+                AstCCall* ثابت callp = callVtxp->callp();
                 UINFO(6, "Consider inlining " << calleep->name() << " at call site " << callp);
                 // Should we inline this call site?
-                if (callVtxp->noInline()) continue;  // Told not to
-                if (callVtxp->inEmpty()) continue;  // Don't know where it's called from
+                اگر (callVtxp->noInline()) ادامه;  // Told not to
+                اگر (callVtxp->inEmpty()) ادامه;  // Don't know where it's called from
 
                 // Pick up the caller
                 UASSERT_OBJ(callVtxp->inSize1(), callVtxp->callp(),
                             "Expected exactly one input edge for call site");
-                InlineCFuncsFunctionVertex* const callerVtxp
+                InlineCFuncsFunctionVertex* ثابت callerVtxp
                     = callVtxp->inEdges().frontp()->fromp()->as<InlineCFuncsFunctionVertex>();
-                AstCFunc* const callerp = callerVtxp->cfuncp();
+                AstCFunc* ثابت callerp = callerVtxp->cfuncp();
 
                 // Don't make a function bigger than the limit
-                const size_t limit = callerp->isTrace() ? m_maxSizeTrace : m_maxSizeCFunc;
-                if (callerVtxp->size() + calleeVtxp->size() > limit) continue;
+                ثابت size_t limit = callerp->isTrace() ? m_maxSizeTrace : m_maxSizeCFunc;
+                اگر (callerVtxp->size() + calleeVtxp->size() > limit) ادامه;
 
                 // Can't do it if it's in a different scope, self pointers differ
-                if (callerp->scopep() != calleep->scopep()) continue;
+                اگر (callerp->scopep() != calleep->scopep()) ادامه;
 
                 // Inline it
-                if (!nInlined) ++m_statFuncsInlined;
-                AstNode* const inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
+                اگر (!nInlined) ++m_statFuncsInlined;
+                Ast_گره* ثابت inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
 
                 // Need to adjust the graph:
                 // 1. Delete inlined call site
@@ -317,62 +317,62 @@ class InlineCFuncsVisitor final : public VNVisitor {
                 // 2. Add new inlined call sites - also increments size of caller
                 VL_RESTORER(m_cfuncVtxp);
                 m_cfuncVtxp = callerVtxp;
-                if (inlinedp) iterateChildrenConst(inlinedp);
+                اگر (inlinedp) iterateChildrenConst(inlinedp);
             }
         }
     }
 
-    void removeUnusedFuncs() {
+    تهی removeUnusedFuncs() {
         // Iterate root to leaves
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsFunctionVertex* const fVtxp = vtxp->cast<InlineCFuncsFunctionVertex>();
-            if (!fVtxp) continue;
+        برای (V3GraphVertex* ثابت vtxp : m_graph.vertices().unlinkable()) {
+            InlineCFuncsFunctionVertex* ثابت fVtxp = vtxp->cast<InlineCFuncsFunctionVertex>();
+            اگر (!fVtxp) ادامه;
             // Keep if still called
-            if (!fVtxp->inEmpty()) continue;
+            اگر (!fVtxp->inEmpty()) ادامه;
             // Keep for other reasons
-            if (fVtxp->keep()) continue;
+            اگر (fVtxp->keep()) ادامه;
 
-            AstCFunc* const funcp = fVtxp->cfuncp();
+            AstCFunc* ثابت funcp = fVtxp->cfuncp();
             UINFO(6, "Removing unused CFunc " << funcp);
             ++m_statFuncsRemoved;
 
             // Unlink all call sites
-            for (const V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                edgep->top()->unlinkEdges(&m_graph);
+            برای (ثابت V3GraphEdge* ثابت edgep : vtxp->outEdges().unlinkable()) {
+                edgep->بالاترین()->unlinkEdges(&m_graph);
             }
             // Delete function vertex
             vtxp->unlinkDelete(&m_graph);
             // Delete the function
-            VL_DO_DANGLING(pushDeletep(funcp->unlinkFrBack()), funcp);
+            VL_DO_DANGLING(افزودن_Deletep(funcp->unlinkFrBack()), funcp);
         }
 
         // Delete inlined/deleted call site vertices (for debugging only)
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsCallSiteVertex* const cVtxp = vtxp->cast<InlineCFuncsCallSiteVertex>();
-            if (!cVtxp) continue;
-            if (!cVtxp->inEmpty()) continue;
-            if (!cVtxp->outEmpty()) continue;
+        برای (V3GraphVertex* ثابت vtxp : m_graph.vertices().unlinkable()) {
+            InlineCFuncsCallSiteVertex* ثابت cVtxp = vtxp->cast<InlineCFuncsCallSiteVertex>();
+            اگر (!cVtxp) ادامه;
+            اگر (!cVtxp->inEmpty()) ادامه;
+            اگر (!cVtxp->outEmpty()) ادامه;
             vtxp->unlinkDelete(&m_graph);
         }
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    تهی visit(AstCFunc* nodep) override {
         // Create the function vertex
-        InlineCFuncsFunctionVertex* const vtxp = getInlineCFuncsFunctionVertexp(nodep);
+        InlineCFuncsFunctionVertex* ثابت vtxp = getInlineCFuncsFunctionVertexp(nodep);
 
         // Check if the function itself is not inlineable
-        if (nodep->rtnTypeVoid() != "void") vtxp->setNoInline("Not void");
-        if (nodep->dpiImportPrototype()) vtxp->setNoInline("DPI import prototype");
-        if (nodep->recursive()) vtxp->setNoInline("Recursive");
-        if (nodep->argsp()) vtxp->setNoInline("Has arguments");
-        if (nodep->isVirtual()) vtxp->setNoInline("Virtual method");
+        اگر (nodep->rtnTypeVoid() != "void") vtxp->setNoInline("Not void");
+        اگر (nodep->dpiImportPrototype()) vtxp->setNoInline("DPI import prototype");
+        اگر (nodep->recursive()) vtxp->setNoInline("Recursive");
+        اگر (nodep->argsp()) vtxp->setNoInline("Has arguments");
+        اگر (nodep->isVirtual()) vtxp->setNoInline("Virtual method");
 
         // Check if the function should not be removed
-        if (nodep->entryPoint()) vtxp->setKeep("Entry point");
-        if (nodep->dpiImportPrototype()) vtxp->setKeep("DPI import prototype");
-        if (nodep->dpiExportDispatcher()) vtxp->setKeep("DPI export implementation");
-        if (nodep->isVirtual()) vtxp->setKeep("Virtual method");
+        اگر (nodep->entryPoint()) vtxp->setKeep("Entry point");
+        اگر (nodep->dpiImportPrototype()) vtxp->setKeep("DPI import prototype");
+        اگر (nodep->dpiExportDispatcher()) vtxp->setKeep("DPI export implementation");
+        اگر (nodep->isVirtual()) vtxp->setKeep("Virtual method");
 
         // Iterate children
         VL_RESTORER(m_cfuncVtxp);
@@ -381,92 +381,92 @@ class InlineCFuncsVisitor final : public VNVisitor {
     }
 
     // Inlineable calls
-    void visit(AstCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
-        AstCFunc* const calleep = nodep->funcp();
+    تهی visit(AstCCall* nodep) override {
+        اگر (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+        AstCFunc* ثابت calleep = nodep->funcp();
 
         // Create the call site vertex
-        InlineCFuncsCallSiteVertex* const vtxp = getInlineCFuncsCallSiteVertexp(nodep);
+        InlineCFuncsCallSiteVertex* ثابت vtxp = getInlineCFuncsCallSiteVertexp(nodep);
 
         // Check if the call site is not inlineable
-        if (!VN_IS(nodep->backp(), StmtExpr)) vtxp->setNoInline("Not in statement position");
-        if (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
-        if (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
+        اگر (!VN_IS(nodep->backp(), Stmt_عبارت)) vtxp->setNoInline("Not in statement position");
+        اگر (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
+        اگر (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
 
         // Add caller/callee edges
-        if (m_cfuncVtxp) m_graph.addEdge(*m_cfuncVtxp, *vtxp);
+        اگر (m_cfuncVtxp) m_graph.addEdge(*m_cfuncVtxp, *vtxp);
         m_graph.addEdge(*vtxp, *getInlineCFuncsFunctionVertexp(calleep));
 
         // Iterate children
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    تهی visit(Ast_گره_CCall* nodep) override {
+        اگر (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Called elsewhere");
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    تهی visit(AstAddrOfCFunc* nodep) override {
+        اگر (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Referenced by AddressOfCFunc");
         iterateChildrenConst(nodep);
     }
 
     // Nodes preventing inlining
-    void visit(AstTraceDecl* nodep) override {
+    تهی visit(AstTraceDecl* nodep) override {
         // Referenced by TraceInc
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains TraceDecl");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains TraceDecl");
 
-        if (AstCCall* const callp = nodep->dtypeCallp()) {
+        اگر (AstCCall* ثابت callp = nodep->dtypeCallp()) {
             getInlineCFuncsCallSiteVertexp(callp)->setNoInline("Referenced by TraceDecl");
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstExecGraph* nodep) override {
+    تهی visit(AstExecGraph* nodep) override {
         // AstExecGraph is not cloneable, so can't inline the containing function
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains ExecGraph");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains ExecGraph");
         // Also mark functions referenced in the dependency graph
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
+        برای (ثابت V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
             getInlineCFuncsFunctionVertexp(vtx.as<ExecMTask>()->funcp())
                 ->setKeep("MTask function");
         }
         VL_RESTORER(m_inExecGraph);
-        m_inExecGraph = true;
+        m_inExecGraph = درست;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmt* nodep) override {
+    تهی visit(AstCStmt* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmt");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmt");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExpr* nodep) override {
+    تهی visit(AstCExpr* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExpr");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExpr");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmtUser* nodep) override {
+    تهی visit(AstCStmtUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmtUser");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmtUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
+    تهی visit(AstCExprUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExprUser");
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExprUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReturn* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CReturn");
+    تهی visit(AstCReturn* nodep) override {
+        اگر (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CReturn");
         iterateChildrenConst(nodep);
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    تهی visit(Ast_گره* nodep) override {
+        اگر (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         iterateChildrenConst(nodep);
     }
 
-public:
+عمومی:
     // CONSTRUCTORS
     explicit InlineCFuncsVisitor(AstNetlist* nodep) {
         // Phase 1: Build call graph
@@ -475,13 +475,13 @@ public:
         m_graph.acyclic(V3GraphEdge::followAlwaysTrue);
         // Order vertices (any topological order is fine)
         m_graph.order();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-graph");
+        اگر (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-graph");
         // Phase 2: Inline calls
         doInlining();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-inlined");
+        اگر (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-inlined");
         // Phase 3: Remove unused functions
         removeUnusedFuncs();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-kept");
+        اگر (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-kept");
     }
     ~InlineCFuncsVisitor() override {
         V3Stats::addStat("Optimizations, Inline CFuncs, calls inlined", m_statCallsInlined);
@@ -493,10 +493,10 @@ public:
 //######################################################################
 // InlineCFuncs class functions
 
-void V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
+تهی V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     // Don't inline when profiling per-function (it would lose granularity)
-    if (v3Global.opt.profCFuncs()) return;
+    اگر (v3Global.opt.profCFuncs()) بازگشت;
     { InlineCFuncsVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("inlinecfuncs", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_درخت("inlinecfuncs", 0, dump_درخت_Either_Level() >= 6);
 }

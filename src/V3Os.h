@@ -17,79 +17,79 @@
 #ifndef VERILATOR_V3OS_H_
 #define VERILATOR_V3OS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include <array>
+#شامل <array>
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Error.h"
+#شامل "V3Error.h"
 
 //============================================================================
 // V3Os: OS static class
 
 class V3Os final {
-public:
+عمومی:
     // METHODS (environment)
-    static string cwd() { return filenameRealPath("."); }
-    static string getenvStr(const string& envvar, const string& defaultValue);
-    static void setenvStr(const string& envvar, const string& value, const string& why);
+    ایستا string cwd() { بازگشت filenameRealPath("."); }
+    ایستا string getenvStr(ثابت string& envvar, ثابت string& default_مقدار);
+    ایستا تهی setenvStr(ثابت string& envvar, ثابت string& مقدار, ثابت string& why);
 
     // METHODS (generic filename utilities)
     ///< @return concatenated path
-    static string filenameJoin(std::initializer_list<const std::string> paths) VL_PURE;
+    ایستا string filenameJoin(std::initializer_list<ثابت std::string> paths) VL_PURE;
     template <typename... Args>
-    static string filenameJoin(Args... args) VL_PURE {
-        return filenameJoin({args...});
+    ایستا string filenameJoin(Args... args) VL_PURE {
+        بازگشت filenameJoin({args...});
     };
     ///< @return file path without repeated separators and ./ prefix
-    static string filenameCleanup(const string& filename) VL_PURE;
+    ایستا string filenameCleanup(ثابت string& filename) VL_PURE;
     ///< @return extension (.) part of filename
-    static string filenameExt(const string& filename) VL_PURE;
+    ایستا string filenameExt(ثابت string& filename) VL_PURE;
     ///< @return non-directory part of filename
-    static string filenameNonDir(const string& filename) VL_PURE;
+    ایستا string filenameNonDir(ثابت string& filename) VL_PURE;
     ///< @return basename of filename
-    static string filenameNonDirExt(const string& filename) VL_PURE;
+    ایستا string filenameNonDirExt(ثابت string& filename) VL_PURE;
     ///< @return directory part of filename
-    static string filenameDir(const string& filename) VL_PURE;
+    ایستا string filenameDir(ثابت string& filename) VL_PURE;
     ///< @return filename with env vars removed
-    static string filenameSubstitute(const string& filename);
+    ایستا string filenameSubstitute(ثابت string& filename);
     ///< @return realpath of filename
-    static string filenameRealPath(const string& filename) VL_PURE;
+    ایستا string filenameRealPath(ثابت string& filename) VL_PURE;
     // @return absolute path of filename, without resolving symlinks
-    static string filenameAbsolutePath(const string& filename) VL_PURE;
+    ایستا string filenameAbsolutePath(ثابت string& filename) VL_PURE;
     ///< @return relative path of filename, relative to base
-    static string filenameRelativePath(const string& filename, const string& base) VL_PURE;
+    ایستا string filenameRelativePath(ثابت string& filename, ثابت string& base) VL_PURE;
     ///< @return filename is relative
-    static bool filenameIsRel(const string& filename) VL_PURE;
+    ایستا bool filenameIsRel(ثابت string& filename) VL_PURE;
     ///< @return path slashed with '/'
-    static string filenameSlashPath(const string& filename) VL_PURE;
+    ایستا string filenameSlashPath(ثابت string& filename) VL_PURE;
 
     // METHODS (file utilities)
-    static string getline(std::istream& is, char delim = '\n');
+    ایستا string getline(std::istream& is, نویسه delim = '\n');
 
     // METHODS (directory utilities)
-    static void createDir(const string& dirname);
-    static void filesystemFlush(const string& dirname);
-    static void filesystemFlushBuildDir(const string& dirname);
-    static void unlinkRegexp(const string& dir, const string& regexp);
+    ایستا تهی createDir(ثابت string& dirname);
+    ایستا تهی filesystemFlush(ثابت string& dirname);
+    ایستا تهی filesystemFlushBuildDir(ثابت string& dirname);
+    ایستا تهی unlinkRegexp(ثابت string& dir, ثابت string& regexp);
 
     // METHODS (memory)
-    static void releaseMemory();
+    ایستا تهی releaseMemory();
 
     // METHODS (random)
-    static uint64_t rand64(std::array<uint64_t, 2>& stater);
-    static string trueRandom(size_t size) VL_MT_SAFE;
+    ایستا uint64_t rand64(std::array<uint64_t, 2>& stater);
+    ایستا string trueRandom(size_t size) VL_MT_SAFE;
 
     // METHODS (time & performance) (See also VlOs methods)
-    static void u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
+    ایستا تهی u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
     /// Return wall time since epoch in microseconds, or 0 if not implemented
-    static uint64_t timeUsecs();
+    ایستا uint64_t timeUsecs();
 
     // METHODS (sub command)
     /// Run system command, returns the exit code of the child process.
-    static int system(const string& command);
-    static void selfTest();
+    ایستا صحیح system(ثابت string& command);
+    ایستا تهی selfTest();
 };
 
 #endif  // Guard

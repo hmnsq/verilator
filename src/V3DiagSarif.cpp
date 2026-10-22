@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#شامل "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DiagSarif.h"
+#شامل "V3DiagSarif.h"
 
-#include "V3File.h"
-#include "V3Os.h"
+#شامل "V3File.h"
+#شامل "V3Os.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-class V3DiagSarifImp final {
+رده V3DiagSarifImp final {
     // MEMBERS
     std::deque<VErrorMessage> m_messages;
     std::set<V3ErrorCode> m_codes;
-    std::map<V3ErrorCode, int> m_codeIndex;
+    std::map<V3ErrorCode, صحیح> m_codeIndex;
 
     // METHODS
-    void calculate() {
-        for (const VErrorMessage& msgr : m_messages)
-            if (msgr.code().isNamed()) m_codes.emplace(msgr.code());
-        int i = 0;
-        for (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
+    تهی calculate() {
+        برای (ثابت VErrorMessage& msgr : m_messages)
+            اگر (msgr.code().isNamed()) m_codes.emplace(msgr.code());
+        صحیح i = 0;
+        برای (ثابت V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
     }
 
-    void putRules(V3OutJsonFile& of) const {
-        for (const V3ErrorCode& code : m_codes) {
+    تهی putRules(V3OutJsonFile& of) ثابت {
+        برای (ثابت V3ErrorCode& code : m_codes) {
             of.begin().put("id", code.ascii()).put("helpUri", code.url()).end();
         }
     }
 
-    void putText(V3OutJsonFile& of, const string& clean, const string& formatted) const {
-        const string markdown = "```\n" + formatted + "\n```\n";
+    تهی putText(V3OutJsonFile& of, ثابت string& clean, ثابت string& formatted) ثابت {
+        ثابت string markdown = "```\n" + formatted + "\n```\n";
         of.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
     }
 
-    void putLocation(V3OutJsonFile& of, const FileLine* fl) const {
-        const string filename = V3Os::filenameRealPath(fl->filename());
+    تهی putLocation(V3OutJsonFile& of, ثابت File_سطر* fl) ثابت {
+        ثابت string filename = V3Os::filenameRealPath(fl->filename());
         of.begin("physicalLocation");
         of.begin("artifactLocation");
-        if (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
+        اگر (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
             of.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
-        } else {
+        } وگرنه {
             of.put("uri", "file://" + filename);
         }
         of.end()
@@ -64,64 +64,64 @@ class V3DiagSarifImp final {
             .put("sourceLanguage", "systemverilog")
             .put("startLine", fl->firstLineno())
             .put("startColumn", fl->firstColumn());
-        if (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
+        اگر (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
         of.put("endColumn", fl->lastColumn());
         of.begin("snippit", '{');
-        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), false));
+        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), نادرست));
         of.end();  // snippit
         of.end();  // region
         of.end();  // artifactLocation
     }
 
-    string substrToNextRelated(const string& str) {
-        const size_t pos = str.find("__WARNRELATED(", 0);
-        return (pos == std::string::npos) ? str : str.substr(0, pos);
+    string substrToNextRelated(ثابت string& str) {
+        ثابت size_t pos = str.find("__WARNRELATED(", 0);
+        بازگشت (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
-    void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
+    تهی putResult(V3OutJsonFile& of, ثابت VErrorMessage& پیام) {
         of.begin();
-        of.put("level", msg.code().severityInfo()             ? "none"
-                        : V3Error::isError(msg.code(), false) ? "error"
+        of.put("level", پیام.code().severityInfo()             ? "none"
+                        : V3Error::isError(پیام.code(), نادرست) ? "error"
                                                               : "warning");
 
-        string text = msg.text();
+        string text = پیام.text();
         // UINFO(9, "Result raw text " << text);
 
         // We put the entire message including relatedLocations text
         // into the primary message text, because viewers such as
         // https://microsoft.github.io/sarif-web-component/
         // currently appear to ignore relatedLocations.
-        const string first_clean = V3Error::stripMetaText(text, true);
-        const string first_fmt = V3Error::stripMetaText(text, false);
+        ثابت string first_clean = V3Error::stripMetaText(text, درست);
+        ثابت string first_fmt = V3Error::stripMetaText(text, نادرست);
 
         of.begin("message");
         putText(of, first_clean, first_fmt);
         of.end();
-        if (const FileLine* const fl = msg.fileline()) {
+        اگر (ثابت File_سطر* ثابت fl = پیام.fileline()) {
             of.begin("locations", '[').begin();
             putLocation(of, fl);
             of.end();
             of.end();
         }
 
-        if (text.find("__WARNRELATED(") != std::string::npos) {
+        اگر (text.find("__WARNRELATED(") != std::string::npos) {
             of.begin("relatedLocations", '[');
             size_t pos = 0;
-            while ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
-                const size_t start = pos + std::strlen("__WARNRELATED(");
+            وقتی ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
+                ثابت size_t start = pos + std::strlen("__WARNRELATED(");
                 size_t end = start;
-                while (end < text.size() && text[end] != ')') ++end;
-                const size_t index = std::atoi(text.substr(start, end + 1).c_str());
-                if (end < text.size()) end += std::strlen(")");
+                وقتی (end < text.size() && text[end] != ')') ++end;
+                ثابت size_t index = std::atoi(text.substr(start, end + 1).c_str());
+                اگر (end < text.size()) end += std::strlen(")");
                 text = text.substr(end, text.size());
-                UASSERT_STATIC(index < msg.filelines().size(),
+                UASSERT_STATIC(index < پیام.filelines().size(),
                                "Error message warnRelated without fileline");
 
-                const string related_clean
-                    = V3Error::stripMetaText(substrToNextRelated(text), true);
-                const string related_fmt
-                    = V3Error::stripMetaText(substrToNextRelated(text), false);
-                const FileLine* fl = msg.filelines()[index];
+                ثابت string related_clean
+                    = V3Error::stripMetaText(substrToNextRelated(text), درست);
+                ثابت string related_fmt
+                    = V3Error::stripMetaText(substrToNextRelated(text), نادرست);
+                ثابت File_سطر* fl = پیام.filelines()[index];
                 of.begin().begin("message");
                 putText(of, related_clean, related_fmt);
                 of.end();  // message
@@ -131,22 +131,22 @@ class V3DiagSarifImp final {
             of.end();
         }
 
-        if (msg.code().isNamed())
-            of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
+        اگر (پیام.code().isNamed())
+            of.put("ruleId", پیام.code().ascii()).put("ruleIndex", m_codeIndex[پیام.code()]);
 
         of.end();
     }
 
     // STATIC FUNCTIONS
-public:
-    static V3DiagSarifImp& s() {
-        static V3DiagSarifImp s_s;
-        return s_s;
+عمومی:
+    ایستا V3DiagSarifImp& s() {
+        ایستا V3DiagSarifImp s_s;
+        بازگشت s_s;
     }
 
-    void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
+    تهی افزودن_Message(ثابت VErrorMessage& پیام) { m_messages.افزودن_back(پیام); }
 
-    void output(bool success) {
+    تهی output(منطقی success) {
         V3OutJsonFile of{v3Global.opt.diagnosticsSarifOutput()};
         calculate();
 
@@ -175,7 +175,7 @@ public:
             .end();
 
         of.begin("results", '[');
-        for (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
+        برای (ثابت VErrorMessage& msgr : m_messages) putResult(of, msgr);
         of.end();
 
         of.end();  // runs ]
@@ -183,13 +183,13 @@ public:
     }
 };
 
-void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
-    if (!v3Global.opt.diagnosticsSarif()) return;
-    V3DiagSarifImp::s().pushMessage(msg);
+تهی V3DiagSarif::افزودن_Message(ثابت VErrorMessage& پیام) VL_MT_DISABLED {
+    اگر (!v3Global.opt.diagnosticsSarif()) بازگشت;
+    V3DiagSarifImp::s().افزودن_Message(پیام);
 }
 
-void V3DiagSarif::output(bool success) {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+تهی V3DiagSarif::output(منطقی success) {
+    اگر (!v3Global.opt.diagnosticsSarif()) بازگشت;
     UINFO(2, __FUNCTION__ << ":");
     V3DiagSarifImp::s().output(success);
 }

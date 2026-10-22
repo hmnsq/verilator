@@ -14,34 +14,34 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3NUMBER_H_
-#define VERILATOR_V3NUMBER_H_
+#ifndef VERILATOR_V3_عدد_H
+#define VERILATOR_V3_عدد_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Hash.h"
-#include "V3StdFuture.h"
+#شامل "V3Error.h"
+#شامل "V3Hash.h"
+#شامل "V3StdFuture.h"
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <vector>
+#شامل <algorithm>
+#شامل <array>
+#شامل <cmath>
+#شامل <limits>
+#شامل <vector>
 
 class AstEnumDType;
 class AstEnumItem;
-class AstNode;
-class AstNodeDType;
+class Ast_گره;
+class Ast_گره_DType;
 class AstSFormatArg;
-class FileLine;
+class File_سطر;
 
 //============================================================================
 
 class VFormatAttr final {
-public:
-    enum en : char {
+عمومی:
+    شمارش en : نویسه {
         //               // AstSFormatArg is typically skipped for UNSIGNED, as is the default
         UNSIGNED = VL_VFORMATATTR_UNSIGNED,
         SIGNED = VL_VFORMATATTR_SIGNED,
@@ -54,85 +54,85 @@ public:
         STRING = VL_VFORMATATTR_STRING,
         TIMEUNIT = VL_VFORMATATTR_TIMEUNIT
     };
-    enum en m_e;
+    شمارش en m_e;
     VFormatAttr()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFormatAttr(en _e)
         : m_e{_e} {}
-    explicit VFormatAttr(int _e)
+    explicit VFormatAttr(صحیح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    char ascii() const { return m_e; }
-    bool isComplex() const { return m_e == COMPLEX; }
-    bool isDouble() const { return m_e == DOUBLE; }
-    bool isEnum() const { return m_e == ENUM || m_e == ENUM_SIGNED; }
-    bool isSigned() const { return m_e == SIGNED; }
-    bool isString() const { return m_e == STRING; }
-    bool isUnsigned() const { return m_e == UNSIGNED; }
+    constexpr operator en() ثابت { بازگشت m_e; }
+    نویسه ascii() ثابت { بازگشت m_e; }
+    bool isComplex() ثابت { بازگشت m_e == COMPLEX; }
+    bool isDouble() ثابت { بازگشت m_e == DOUBLE; }
+    bool isEnum() ثابت { بازگشت m_e == ENUM || m_e == ENUM_SIGNED; }
+    bool isSigned() ثابت { بازگشت m_e == SIGNED; }
+    bool isString() ثابت { بازگشت m_e == STRING; }
+    bool isUnsigned() ثابت { بازگشت m_e == UNSIGNED; }
 };
-constexpr bool operator==(const VFormatAttr& lhs, const VFormatAttr& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ثابت VFormatAttr& lhs, ثابت VFormatAttr& rhs) {
+    بازگشت lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFormatAttr& lhs, VFormatAttr::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFormatAttr::en lhs, const VFormatAttr& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFormatAttr& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ثابت VFormatAttr& lhs, VFormatAttr::en rhs) { بازگشت lhs.m_e == rhs; }
+constexpr bool operator==(VFormatAttr::en lhs, ثابت VFormatAttr& rhs) { بازگشت lhs == rhs.m_e; }
+درونخطی std::ostream& operator<<(std::ostream& os, ثابت VFormatAttr& rhs) {
+    بازگشت os << rhs.ascii();
 }
 
 //============================================================================
 
-class V3NumberData final {
-public:
+class V3_عدد_Data final {
+عمومی:
     // TYPES
-    struct ValueAndX final {
+    ساختار مقدار_And_X final {
         // Value, with bit 0 in bit 0 of this vector (unless X/Z)
-        uint32_t m_value;
+        uint32_t m_مقدار;
         // Each bit is true if it's X or Z, 10=z, 11=x
-        uint32_t m_valueX;
-        bool operator==(const ValueAndX& other) const VL_MT_SAFE {
-            return m_value == other.m_value && m_valueX == other.m_valueX;
+        uint32_t m_مقدار_X;
+        bool operator==(ثابت مقدار_And_X& other) ثابت VL_MT_SAFE {
+            بازگشت m_مقدار == other.m_مقدار && m_مقدار_X == other.m_مقدار_X;
         }
     };
 
-    enum class V3NumberDataType : uint8_t {
+    شمارش class V3_عدد_Data_Type : uint8_t {
         UNINITIALIZED = 0,
         LOGIC = 1,
         DOUBLE = 2,
         STRING = 3,
     };
-    friend std::ostream& operator<<(std::ostream& os, const V3NumberDataType& rhs) VL_MT_SAFE {
-        switch (rhs) {
-        case V3NumberDataType::UNINITIALIZED: return os << "UNINITIALIZED";
-        case V3NumberDataType::LOGIC: return os << "LOGIC";
-        case V3NumberDataType::DOUBLE: return os << "DOUBLE";
-        case V3NumberDataType::STRING: return os << "STRING";
+    friend std::ostream& operator<<(std::ostream& os, ثابت V3_عدد_Data_Type& rhs) VL_MT_SAFE {
+        انتخاب (rhs) {
+        حالت V3_عدد_Data_Type::UNINITIALIZED: بازگشت os << "UNINITIALIZED";
+        حالت V3_عدد_Data_Type::LOGIC: بازگشت os << "LOGIC";
+        حالت V3_عدد_Data_Type::DOUBLE: بازگشت os << "DOUBLE";
+        حالت V3_عدد_Data_Type::STRING: بازگشت os << "STRING";
         }
-        return os;
+        بازگشت os;
     }
 
-private:
+خصوصی:
     // CONSTANTS
     // At least 2 words (64 fourstate bits). 4 words (128 fourstate bits) in most cases,
     // i.e. when std::string has 32 bytes.
-    static constexpr int INLINE_WORDS = std::max(
-        static_cast<size_t>(2), std::max(sizeof(std::string) / sizeof(ValueAndX),
-                                         sizeof(std::vector<ValueAndX>) / sizeof(ValueAndX)));
+    ایستا constexpr صحیح INLINE_واژگان = std::max(
+        static_cast<size_t>(2), std::max(اندازه(std::string) / اندازه(مقدار_And_X),
+                                         اندازه(std::vector<مقدار_And_X>) / اندازه(مقدار_And_X)));
     // When m_width > MAX_INLINE_WIDTH number is stored in m_dynamicNumber.
     // Otherwise number is stored in m_inlineNumber.
-    static constexpr int MAX_INLINE_WIDTH = INLINE_WORDS * sizeof(ValueAndX) / 2 * 8;
+    ایستا constexpr صحیح MAX_INLINE_WIDTH = INLINE_واژگان * اندازه(مقدار_And_X) / 2 * 8;
 
     // MEMBERS
-    union {
-        std::array<ValueAndX, INLINE_WORDS> m_inlineNumber;
-        std::vector<ValueAndX> m_dynamicNumber;
+    اجتماع {
+        std::array<مقدار_And_X, INLINE_واژگان> m_inline_عدد;
+        std::vector<مقدار_And_X> m_dynamic_عدد;
         std::string m_string;
     };
 
-    int m_width = 0;  // Width (in bits) as specified/calculated
-    V3NumberDataType m_type;
+    صحیح m_width = 0;  // Width (in bits) as specified/calculated
+    V3_عدد_Data_Type m_type;
 
-public:
+عمومی:
     bool m_sized : 1;  // True if the user specified the width, else we track it.
     bool m_signed : 1;  // True if signed value
     bool m_is1Step : 1;  // True if 1step
@@ -142,8 +142,8 @@ public:
     bool m_hasOrigParamName : 1;  // Owning AstConst has originating parameter-name metadata
 
     // CONSTRUCTORS
-    V3NumberData()
-        : m_type{V3NumberDataType::UNINITIALIZED}
+    V3_عدد_Data()
+        : m_type{V3_عدد_Data_Type::UNINITIALIZED}
         , m_sized{false}
         , m_signed{false}
         , m_is1Step{false}
@@ -152,11 +152,11 @@ public:
         , m_autoExtend{false}
         , m_hasOrigParamName{false} {}
 
-    ~V3NumberData() { destroyStoredValue(); }
+    ~V3_عدد_Data() { destroy_Stored_مقدار(); }
 
     // m_hasOrigParamName is ownership bookkeeping for an AstConst side-table entry, not part of
     // the numeric value. Copies/moves of V3NumberData must not claim the destination has metadata.
-    V3NumberData(const V3NumberData& other)
+    V3_عدد_Data(ثابت V3_عدد_Data& other)
         : m_width{other.m_width}
         , m_type{other.m_type}
         , m_sized{other.m_sized}
@@ -166,25 +166,25 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            initDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+        اگر (other.is_Inline_عدد()) {
+            init_Inline_عدد(other.m_inline_عدد);
+        } وگرنه اگر (other.is_Dynamic_عدد()) {
+            init_Dynamic_عدد(other.m_dynamic_عدد);
+        } وگرنه اگر (other.isString()) {
             initString(other.m_string);
         }
     }
 
-    V3NumberData& operator=(const V3NumberData& other) {
-        if (other.isInlineNumber()) {
-            destroyStoredValue();
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            reinitWithOrAssignDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+    V3_عدد_Data& operator=(ثابت V3_عدد_Data& other) {
+        اگر (other.is_Inline_عدد()) {
+            destroy_Stored_مقدار();
+            init_Inline_عدد(other.m_inline_عدد);
+        } وگرنه اگر (other.is_Dynamic_عدد()) {
+            reinit_With_Or_Assign_Dynamic_عدد(other.m_dynamic_عدد);
+        } وگرنه اگر (other.isString()) {
             reinitWithOrAssignString(other.m_string);
-        } else {
-            destroyStoredValue();
+        } وگرنه {
+            destroy_Stored_مقدار();
         }
         m_width = other.m_width;
         m_type = other.m_type;
@@ -194,10 +194,10 @@ public:
         m_isNull = other.m_isNull;
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
-        return *this;
+        بازگشت *this;
     }
 
-    V3NumberData(V3NumberData&& other)
+    V3_عدد_Data(V3_عدد_Data&& other)
         : m_width{other.m_width}
         , m_type{other.m_type}
         , m_sized{other.m_sized}
@@ -207,26 +207,26 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            initDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+        اگر (other.is_Inline_عدد()) {
+            init_Inline_عدد(other.m_inline_عدد);
+        } وگرنه اگر (other.is_Dynamic_عدد()) {
+            init_Dynamic_عدد(std::move(other.m_dynamic_عدد));
+        } وگرنه اگر (other.isString()) {
             initString(std::move(other.m_string));
         }
-        other.m_type = V3NumberDataType::UNINITIALIZED;
+        other.m_type = V3_عدد_Data_Type::UNINITIALIZED;
     }
 
-    V3NumberData& operator=(V3NumberData&& other) {
-        if (other.isInlineNumber()) {
-            destroyStoredValue();
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            reinitWithOrAssignDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+    V3_عدد_Data& operator=(V3_عدد_Data&& other) {
+        اگر (other.is_Inline_عدد()) {
+            destroy_Stored_مقدار();
+            init_Inline_عدد(other.m_inline_عدد);
+        } وگرنه اگر (other.is_Dynamic_عدد()) {
+            reinit_With_Or_Assign_Dynamic_عدد(std::move(other.m_dynamic_عدد));
+        } وگرنه اگر (other.isString()) {
             reinitWithOrAssignString(std::move(other.m_string));
-        } else {
-            destroyStoredValue();
+        } وگرنه {
+            destroy_Stored_مقدار();
         }
         m_width = other.m_width;
         m_type = other.m_type;
@@ -236,641 +236,641 @@ public:
         m_isNull = other.m_isNull;
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
-        other.m_type = V3NumberDataType::UNINITIALIZED;
-        return *this;
+        other.m_type = V3_عدد_Data_Type::UNINITIALIZED;
+        بازگشت *this;
     }
 
     // ACCESSORS
-    ValueAndX* num() {
-        UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+    مقدار_And_X* رقم() {
+        UASSERT(is_عدد(), "`num` member accessed when data type is " << m_type);
+        بازگشت is_Inline_عدد() ? m_inline_عدد.data() : m_dynamic_عدد.data();
     }
-    const ValueAndX* num() const VL_MT_SAFE {
-        UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+    ثابت مقدار_And_X* رقم() ثابت VL_MT_SAFE {
+        UASSERT(is_عدد(), "`num` member accessed when data type is " << m_type);
+        بازگشت is_Inline_عدد() ? m_inline_عدد.data() : m_dynamic_عدد.data();
     }
     std::string& str() {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        بازگشت m_string;
     }
-    const std::string& str() const VL_MT_SAFE {
+    ثابت std::string& str() ثابت VL_MT_SAFE {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        بازگشت m_string;
     }
 
-    int width() const VL_MT_SAFE { return m_width; }
-    V3NumberDataType type() const VL_MT_SAFE { return m_type; }
+    صحیح width() ثابت VL_MT_SAFE { بازگشت m_width; }
+    V3_عدد_Data_Type type() ثابت VL_MT_SAFE { بازگشت m_type; }
 
     // METHODS
-    void resize(int bitsCount) {
-        if (m_width == bitsCount) return;
-        if (bitsToWords(m_width) == bitsToWords(bitsCount)) {
-            m_width = bitsCount;
-            return;
+    تهی resize(صحیح bits_شمار) {
+        اگر (m_width == bits_شمار) بازگشت;
+        اگر (bits_To_واژگان(m_width) == bits_To_واژگان(bits_شمار)) {
+            m_width = bits_شمار;
+            بازگشت;
         }
-        if (isDynamicNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
-                m_dynamicNumber.resize(bitsToWords(bitsCount));
-            } else {
-                const auto dynamicBits = std::move(m_dynamicNumber);
-                destroyDynamicNumber();
-                initInlineNumber();
-                std::memcpy(m_inlineNumber.data(), dynamicBits.data(), sizeof(m_inlineNumber));
+        اگر (is_Dynamic_عدد()) {
+            اگر (bits_شمار > MAX_INLINE_WIDTH) {
+                m_dynamic_عدد.resize(bits_To_واژگان(bits_شمار));
+            } وگرنه {
+                ثابت auto dynamicBits = std::move(m_dynamic_عدد);
+                destroy_Dynamic_عدد();
+                init_Inline_عدد();
+                std::memcpy(m_inline_عدد.data(), dynamicBits.data(), اندازه(m_inline_عدد));
             }
-        } else if (isInlineNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
-                const auto bits = m_inlineNumber;
-                initDynamicNumber(bitsToWords(bitsCount));
-                std::memcpy(m_dynamicNumber.data(), bits.data(), sizeof(bits));
+        } وگرنه اگر (is_Inline_عدد()) {
+            اگر (bits_شمار > MAX_INLINE_WIDTH) {
+                ثابت auto bits = m_inline_عدد;
+                init_Dynamic_عدد(bits_To_واژگان(bits_شمار));
+                std::memcpy(m_dynamic_عدد.data(), bits.data(), اندازه(bits));
             }
         }
-        m_width = bitsCount;
+        m_width = bits_شمار;
     }
 
-    void setString() {
+    تهی setString() {
         // If there has been a string already it is kept intact.
-        if (isString()) return;
-        if (isDynamicNumber()) destroyDynamicNumber();
+        اگر (isString()) بازگشت;
+        اگر (is_Dynamic_عدد()) destroy_Dynamic_عدد();
         initString();
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_عدد_Data_Type::STRING;
     }
-    void setString(std::string&& s) {
+    تهی setString(std::string&& s) {
         reinitWithOrAssignString(std::move(s));
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_عدد_Data_Type::STRING;
     }
-    void setString(const std::string& s) {
+    تهی setString(ثابت std::string& s) {
         reinitWithOrAssignString(s);
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_عدد_Data_Type::STRING;
     }
 
-    void setDouble() {
-        destroyStoredValue();
-        if (!isInlineNumber()) initInlineNumber();
-        m_type = V3NumberDataType::DOUBLE;
+    تهی setDouble() {
+        destroy_Stored_مقدار();
+        اگر (!is_Inline_عدد()) init_Inline_عدد();
+        m_type = V3_عدد_Data_Type::DOUBLE;
         resize(64);
     }
 
-    void setLogic() {
-        if (isString()) destroyString();
-        if (!isNumber()) {
-            if (m_width <= MAX_INLINE_WIDTH) {
-                initInlineNumber();
-            } else {
-                initDynamicNumber(bitsToWords(m_width));
+    تهی setLogic() {
+        اگر (isString()) destroyString();
+        اگر (!is_عدد()) {
+            اگر (m_width <= MAX_INLINE_WIDTH) {
+                init_Inline_عدد();
+            } وگرنه {
+                init_Dynamic_عدد(bits_To_واژگان(m_width));
             }
         }
-        m_type = V3NumberDataType::LOGIC;
+        m_type = V3_عدد_Data_Type::LOGIC;
         resize(m_width);
     }
 
-private:
-    static constexpr int bitsToWords(int bitsCount) VL_PURE { return (bitsCount + 31) / 32; }
+خصوصی:
+    ایستا constexpr صحیح bits_To_واژگان(صحیح bits_شمار) VL_PURE { بازگشت (bits_شمار + 31) / 32; }
 
-    bool isNumber() const VL_MT_SAFE {
-        return m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC;
+    bool is_عدد() ثابت VL_MT_SAFE {
+        بازگشت m_type == V3_عدد_Data_Type::DOUBLE || m_type == V3_عدد_Data_Type::LOGIC;
     }
-    bool isInlineNumber() const VL_MT_SAFE {
-        return (m_width <= MAX_INLINE_WIDTH)
-               && (m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC);
+    bool is_Inline_عدد() ثابت VL_MT_SAFE {
+        بازگشت (m_width <= MAX_INLINE_WIDTH)
+               && (m_type == V3_عدد_Data_Type::DOUBLE || m_type == V3_عدد_Data_Type::LOGIC);
     }
-    bool isDynamicNumber() const VL_MT_SAFE {
-        return (m_width > MAX_INLINE_WIDTH) && (m_type == V3NumberDataType::LOGIC);
+    bool is_Dynamic_عدد() ثابت VL_MT_SAFE {
+        بازگشت (m_width > MAX_INLINE_WIDTH) && (m_type == V3_عدد_Data_Type::LOGIC);
     }
-    bool isString() const VL_MT_SAFE { return m_type == V3NumberDataType::STRING; }
+    bool isString() ثابت VL_MT_SAFE { بازگشت m_type == V3_عدد_Data_Type::STRING; }
 
     template <typename... Args>
-    void initInlineNumber(Args&&... args) {
-        new (&m_inlineNumber) std::array<ValueAndX, INLINE_WORDS>(std::forward<Args>(args)...);
+    تهی init_Inline_عدد(Args&&... args) {
+        new (&m_inline_عدد) std::array<مقدار_And_X, INLINE_واژگان>(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    void initDynamicNumber(Args&&... args) {
-        new (&m_dynamicNumber) std::vector<ValueAndX>(std::forward<Args>(args)...);
+    تهی init_Dynamic_عدد(Args&&... args) {
+        new (&m_dynamic_عدد) std::vector<مقدار_And_X>(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    void initString(Args&&... args) {
+    تهی initString(Args&&... args) {
         new (&m_string) std::string(std::forward<Args>(args)...);
     }
 
     string formatDecimal();
 
-    void destroyDynamicNumber() { m_dynamicNumber.~vector(); }
-    void destroyString() { m_string.~string(); }
-    void destroyStoredValue() {
-        if (isString())
+    تهی destroy_Dynamic_عدد() { m_dynamic_عدد.~vector(); }
+    تهی destroyString() { m_string.~string(); }
+    تهی destroy_Stored_مقدار() {
+        اگر (isString())
             destroyString();
-        else if (isDynamicNumber())
-            destroyDynamicNumber();
+        وگرنه اگر (is_Dynamic_عدد())
+            destroy_Dynamic_عدد();
     }
 
     template <typename T>
-    void reinitWithOrAssignDynamicNumber(T&& s) {
-        if (isDynamicNumber()) {
-            m_dynamicNumber = std::forward<T>(s);
-            return;
+    تهی reinit_With_Or_Assign_Dynamic_عدد(T&& s) {
+        اگر (is_Dynamic_عدد()) {
+            m_dynamic_عدد = std::forward<T>(s);
+            بازگشت;
         }
-        if (isString()) destroyString();
-        initDynamicNumber(std::forward<T>(s));
+        اگر (isString()) destroyString();
+        init_Dynamic_عدد(std::forward<T>(s));
     }
     template <typename T>
-    void reinitWithOrAssignString(T&& s) {
-        if (isString()) {
+    تهی reinitWithOrAssignString(T&& s) {
+        اگر (isString()) {
             m_string = std::forward<T>(s);
-            return;
+            بازگشت;
         }
-        if (isDynamicNumber()) destroyDynamicNumber();
+        اگر (is_Dynamic_عدد()) destroy_Dynamic_عدد();
         initString(std::forward<T>(s));
     }
 };
 
-class V3Number final {
+class V3_عدد final {
     // TYPES
-    using ValueAndX = V3NumberData::ValueAndX;
-    using V3NumberDataType = V3NumberData::V3NumberDataType;
+    using مقدار_And_X = V3_عدد_Data::مقدار_And_X;
+    using V3_عدد_Data_Type = V3_عدد_Data::V3_عدد_Data_Type;
 
     // MEMBERS
-    V3NumberData m_data;
-    AstNode* m_nodep = nullptr;  // Parent node - for error reporting only
-    FileLine* m_fileline = nullptr;  // Source location - if no parent node is reasonable
+    V3_عدد_Data m_data;
+    Ast_گره* m_nodep = nullptr;  // Parent node - for error reporting only
+    File_سطر* m_fileline = nullptr;  // Source location - if no parent node is reasonable
 
     // METHODS
-    void setNull() {
+    تهی setNull() {
         m_data.setLogic();
         m_data.m_isNull = true;
         m_data.m_autoExtend = true;
     }
-    V3Number& setSingleBits(char value);
-    void fillBits(int destLsb, int width, char value);
-    void copyBits(int destLsb, const V3Number& source, int sourceLsb, int width);
-    V3Number& setString(const string& str) {
+    V3_عدد& setSingleBits(نویسه مقدار);
+    تهی fillBits(صحیح destLsb, صحیح width, نویسه مقدار);
+    تهی copyBits(صحیح destLsb, ثابت V3_عدد& source, صحیح sourceLsb, صحیح width);
+    V3_عدد& setString(ثابت string& str) {
         m_data.setString(str);
-        return *this;
+        بازگشت *this;
     }
-    void opCleanThis(bool warnOnTruncation = false);
+    تهی opCleanThis(bool warnOnTruncation = false);
 
-public:
-    void nodep(AstNode* nodep) VL_MT_STABLE;
-    AstNode* nodep() const VL_MT_SAFE { return m_nodep; }  // For debug only
-    FileLine* fileline() const VL_MT_SAFE { return m_fileline; }
-    V3Number& setZero();
-    V3Number& setQuad(uint64_t value);
-    V3Number& setLong(uint32_t value);
-    V3Number& setLongS(int32_t value);
-    V3Number& setDouble(double value);
-    void setBitX0(int bit);
-    void setBit(int bit, char value) {  // Note: must be initialized as number and pre-zeroed!
-        if (bit >= m_data.width()) return;
-        const uint32_t mask = (1UL << (bit & 31));
-        ValueAndX& v = m_data.num()[bit / 32];
-        if (value == '0' || value == 0) {
-            v.m_value &= ~mask;
-            v.m_valueX &= ~mask;
-        } else if (value == '1' || value == 1) {
-            v.m_value |= mask;
-            v.m_valueX &= ~mask;
-        } else if (value == 'z' || value == 2) {
-            v.m_value &= ~mask;
-            v.m_valueX |= mask;
-        } else {  // X
-            v.m_value |= mask;
-            v.m_valueX |= mask;
+عمومی:
+    تهی nodep(Ast_گره* nodep) VL_MT_STABLE;
+    Ast_گره* nodep() ثابت VL_MT_SAFE { بازگشت m_nodep; }  // For debug only
+    File_سطر* fileline() ثابت VL_MT_SAFE { بازگشت m_fileline; }
+    V3_عدد& setZero();
+    V3_عدد& setQuad(uint64_t مقدار);
+    V3_عدد& setLong(uint32_t مقدار);
+    V3_عدد& setLongS(int32_t مقدار);
+    V3_عدد& setDouble(دوگانه مقدار);
+    تهی setBitX0(صحیح bit);
+    تهی setBit(صحیح bit, نویسه مقدار) {  // Note: must be initialized as number and pre-zeroed!
+        اگر (bit >= m_data.width()) بازگشت;
+        ثابت uint32_t mask = (1UL << (bit & 31));
+        مقدار_And_X& v = m_data.رقم()[bit / 32];
+        اگر (مقدار == '0' || مقدار == 0) {
+            v.m_مقدار &= ~mask;
+            v.m_مقدار_X &= ~mask;
+        } وگرنه اگر (مقدار == '1' || مقدار == 1) {
+            v.m_مقدار |= mask;
+            v.m_مقدار_X &= ~mask;
+        } وگرنه اگر (مقدار == 'z' || مقدار == 2) {
+            v.m_مقدار &= ~mask;
+            v.m_مقدار_X |= mask;
+        } وگرنه {  // X
+            v.m_مقدار |= mask;
+            v.m_مقدار_X |= mask;
         }
     }
 
-private:
-    char bitIs(int bit) const {
-        if (bit >= m_data.width() || bit < 0) {
+خصوصی:
+    نویسه bitIs(صحیح bit) ثابت {
+        اگر (bit >= m_data.width() || bit < 0) {
             // We never sign extend
-            return '0';
+            بازگشت '0';
         }
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                        | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ("01zx"[(((v.m_مقدار & (1UL << (bit & 31))) ? 1 : 0)
+                        | ((v.m_مقدار_X & (1UL << (bit & 31))) ? 2 : 0))]);
     }
-    char bitIsExtend(int bit, int lbits) const {
+    نویسه bitIsExtend(صحیح bit, صحیح lbits) ثابت {
         // lbits usually = width, but for C optimizations width=32_bits, lbits = 32_or_less
-        if (bit < 0) return '0';
+        اگر (bit < 0) بازگشت '0';
         UASSERT(lbits <= m_data.width(), "Extend of wrong size");
-        if (bit >= lbits) {
+        اگر (bit >= lbits) {
             bit = lbits ? lbits - 1 : 0;
-            const ValueAndX v = m_data.num()[bit / 32];
+            ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
             // We do sign extend
-            return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                            | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+            بازگشت ("01zx"[(((v.m_مقدار & (1UL << (bit & 31))) ? 1 : 0)
+                            | ((v.m_مقدار_X & (1UL << (bit & 31))) ? 2 : 0))]);
         }
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                        | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ("01zx"[(((v.m_مقدار & (1UL << (bit & 31))) ? 1 : 0)
+                        | ((v.m_مقدار_X & (1UL << (bit & 31))) ? 2 : 0))]);
     }
 
-public:
-    bool bitIs0(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return !bitIsXZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value | v.m_valueX) & (1UL << (bit & 31))) == 0;
+عمومی:
+    bool bitIs0(صحیح bit) ثابت VL_MT_SAFE {
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت !bitIsXZ(m_data.width() - 1);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((v.m_مقدار | v.m_مقدار_X) & (1UL << (bit & 31))) == 0;
     }
-    bool bitIs1(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return false;
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+    bool bitIs1(صحیح bit) ثابت VL_MT_SAFE {
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت false;
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((v.m_مقدار & (1UL << (bit & 31))) && !(v.m_مقدار_X & (1UL << (bit & 31))));
     }
-    bool bitIs1Extend(int bit) const {
+    bool bitIs1Extend(صحیح bit) ثابت {
         // Correct number of zero bits/width matters
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIs1Extend(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت bitIs1Extend(m_data.width() - 1);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((v.m_مقدار & (1UL << (bit & 31))) && !(v.m_مقدار_X & (1UL << (bit & 31))));
     }
-    bool bitIsX(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsX(صحیح bit) ثابت VL_MT_SAFE {
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت bitIsZ(m_data.width() - 1);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((v.m_مقدار & (1UL << (bit & 31))) && (v.m_مقدار_X & (1UL << (bit & 31))));
     }
-    bool bitIsXZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsXZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsXZ(صحیح bit) ثابت VL_MT_SAFE {
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت bitIsXZ(m_data.width() - 1);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((v.m_مقدار_X & (1UL << (bit & 31))));
     }
-    bool bitIsZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((~v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsZ(صحیح bit) ثابت VL_MT_SAFE {
+        اگر (!is_عدد()) بازگشت false;
+        اگر (bit < 0) بازگشت false;
+        اگر (bit >= m_data.width()) بازگشت bitIsZ(m_data.width() - 1);
+        ثابت مقدار_And_X v = m_data.رقم()[bit / 32];
+        بازگشت ((~v.m_مقدار & (1UL << (bit & 31))) && (v.m_مقدار_X & (1UL << (bit & 31))));
     }
 
-private:
-    uint32_t bitsValue(int lsb, int nbits) const VL_MT_SAFE {
+خصوصی:
+    uint32_t bits_مقدار(صحیح lsb, صحیح nbits) ثابت VL_MT_SAFE {
         uint32_t v = 0;
-        for (int bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
-        return v;
+        برای (صحیح bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
+        بازگشت v;
     }
 
-    int countX(int lsb, int nbits) const VL_MT_SAFE;
-    int countZ(int lsb, int nbits) const VL_MT_SAFE;
+    صحیح شمار_X(صحیح lsb, صحیح nbits) ثابت VL_MT_SAFE;
+    صحیح شمار_Z(صحیح lsb, صحیح nbits) ثابت VL_MT_SAFE;
 
-    int words() const VL_MT_SAFE { return ((width() + 31) / 32); }
-    uint32_t hiWordMask() const VL_MT_SAFE {
+    صحیح واژگان() ثابت VL_MT_SAFE { بازگشت ((width() + 31) / 32); }
+    uint32_t hiWordMask() ثابت VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return VL_MASK_I(width());
+        بازگشت VL_MASK_I(width());
     }
 
-    V3Number& opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus);
+    V3_عدد& opModDivGuts(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs, bool is_modulus);
 
-public:
+عمومی:
     // CONSTRUCTORS
-    explicit V3Number(AstNode* nodep) { init(nodep, 1); }
-    V3Number(AstNode* nodep, int width) {  // 0=unsized
+    explicit V3_عدد(Ast_گره* nodep) { init(nodep, 1); }
+    V3_عدد(Ast_گره* nodep, صحیح width) {  // 0=unsized
         init(nodep, width, width > 0);
     }
     // Construct with value, changing to new width
-    V3Number(AstNode* nodep, int width, const V3Number& value) {
+    V3_عدد(Ast_گره* nodep, صحیح width, ثابت V3_عدد& مقدار) {
         init(nodep, width, width > 0);
-        opAssign(value);
+        opAssign(مقدار);
     }
-    V3Number(AstNode* nodep, int width, uint32_t value, bool sized = true) {
+    V3_عدد(Ast_گره* nodep, صحیح width, uint32_t مقدار, bool sized = true) {
         init(nodep, width, sized);
-        m_data.num()[0].m_value = value;
+        m_data.رقم()[0].m_مقدار = مقدار;
         opCleanThis();
     }
-    V3Number(FileLine* flp, int width, uint32_t value, bool sized = true) {
+    V3_عدد(File_سطر* flp, صحیح width, uint32_t مقدار, bool sized = true) {
         init(nullptr, width, sized);
         m_fileline = flp;
-        m_data.num()[0].m_value = value;
+        m_data.رقم()[0].m_مقدار = مقدار;
         opCleanThis();
     }
     // Create from a verilog 32'hxxxx number.
-    class VerilogNumberLiteral {};  // For creator type-overload selection
-    V3Number(AstNode* nodep, VerilogNumberLiteral, const char* sourcep) { create(nodep, sourcep); }
-    V3Number(FileLine* flp, VerilogNumberLiteral, const char* sourcep) { create(flp, sourcep); }
+    class Verilog_عدد_Literal {};  // For creator type-overload selection
+    V3_عدد(Ast_گره* nodep, Verilog_عدد_Literal, ثابت نویسه* sourcep) { create(nodep, sourcep); }
+    V3_عدد(File_سطر* flp, Verilog_عدد_Literal, ثابت نویسه* sourcep) { create(flp, sourcep); }
     class VerilogStringLiteral {};  // For creator type-overload selection
-    V3Number(AstNode* nodep, VerilogStringLiteral, const string& str);
+    V3_عدد(Ast_گره* nodep, VerilogStringLiteral, ثابت string& str);
     class Double {};
-    V3Number(AstNode* nodep, Double, double value) {
+    V3_عدد(Ast_گره* nodep, Double, دوگانه مقدار) {
         init(nodep, 64);
-        setDouble(value);
+        setDouble(مقدار);
     }
     class String {};
-    V3Number(AstNode* nodep, String, const string& value) {
+    V3_عدد(Ast_گره* nodep, String, ثابت string& مقدار) {
         init(nodep);
-        setString(value);
+        setString(مقدار);
         m_data.m_fromString = true;
     }
     class OneStep {};
-    V3Number(AstNode* nodep, OneStep) {
+    V3_عدد(Ast_گره* nodep, OneStep) {
         init(nodep, 64);
         m_data.m_is1Step = true;
     }
     class Null {};
-    V3Number(AstNode* nodep, Null) {
+    V3_عدد(Ast_گره* nodep, Null) {
         init(nodep);
         setNull();
     }
-    explicit V3Number(const V3Number* nump, int width = 1) {
+    explicit V3_عدد(ثابت V3_عدد* nump, صحیح width = 1) {
         init(nullptr, width);
         m_fileline = nump->fileline();
     }
-    V3Number(const V3Number* nump, int width, uint32_t value) {
+    V3_عدد(ثابت V3_عدد* nump, صحیح width, uint32_t مقدار) {
         init(nullptr, width);
-        m_data.num()[0].m_value = value;
+        m_data.رقم()[0].m_مقدار = مقدار;
         opCleanThis();
         m_fileline = nump->fileline();
     }
-    V3Number(AstNode* nodep, const AstNodeDType* nodedtypep);
+    V3_عدد(Ast_گره* nodep, ثابت Ast_گره_DType* nodedtypep);
 
-    V3Number(const V3Number& other) = default;
-    V3Number& operator=(const V3Number& other) = default;
+    V3_عدد(ثابت V3_عدد& other) = پیشفرض;
+    V3_عدد& operator=(ثابت V3_عدد& other) = پیشفرض;
 
-    V3Number(V3Number&& other) = default;
-    V3Number& operator=(V3Number&& other) = default;
+    V3_عدد(V3_عدد&& other) = پیشفرض;
+    V3_عدد& operator=(V3_عدد&& other) = پیشفرض;
 
-    ~V3Number() = default;
+    ~V3_عدد() = پیشفرض;
 
-private:
-    void selfTestThis();
-    void create(AstNode* nodep, const char* sourcep) {
+خصوصی:
+    تهی selfTestThis();
+    تهی create(Ast_گره* nodep, ثابت نویسه* sourcep) {
         init(nodep, 0);
         m_fileline = nullptr;
         create(sourcep);
     }
-    void create(FileLine* flp, const char* sourcep) {
+    تهی create(File_سطر* flp, ثابت نویسه* sourcep) {
         init(nullptr, 0);
         m_fileline = flp;
         create(sourcep);
     }
-    void create(const char* sourcep);
-    void init(AstNode* nodep, int swidth = -1, bool sized = true) {
+    تهی create(ثابت نویسه* sourcep);
+    تهی init(Ast_گره* nodep, صحیح swidth = -1, bool sized = true) {
         this->nodep(nodep);
-        if (swidth >= 0) {
-            if (swidth == 0) {
+        اگر (swidth >= 0) {
+            اگر (swidth == 0) {
                 swidth = 1;
                 sized = false;
             }
             m_data.setLogic();
             m_data.resize(swidth);
             m_data.m_sized = sized;
-            for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-        } else {
+            برای (صحیح i = 0; i < واژگان(); ++i) m_data.رقم()[i] = {0, 0};
+        } وگرنه {
             m_data.resize(1);
             m_data.m_sized = false;
         }
     }
-    static string displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE;
-    string displayed(const string& vformat) const VL_MT_STABLE {
-        return displayed(m_fileline, vformat);
+    ایستا string displayPad(size_t fmtsize, نویسه pad, bool چپ, ثابت string& in) VL_PURE;
+    string displayed(ثابت string& vformat) ثابت VL_MT_STABLE {
+        بازگشت displayed(m_fileline, vformat);
     }
-    void warnTooMany(const string& value);
+    تهی warnTooMany(ثابت string& مقدار);
 
-public:
-    void v3errorEnd(const std::ostringstream& sstr) const VL_RELEASE(V3Error::s().m_mutex);
-    void v3errorEndFatal(const std::ostringstream& sstr) const VL_ATTR_NORETURN
+عمومی:
+    تهی v3errorEnd(ثابت std::ostringstream& sstr) ثابت VL_RELEASE(V3Error::s().m_mutex);
+    تهی v3errorEndFatal(ثابت std::ostringstream& sstr) ثابت VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex);
-    void width(int width, bool sized = true) {
+    تهی width(صحیح width, bool sized = true) {
         m_data.m_sized = sized;
         m_data.resize(width);
     }
 
     // SETTERS
-    V3Number& setAllBitsXRemoved();
-    V3Number& setAllBitsX();
-    V3Number& setAllBitsZ();
-    V3Number& setAllBits0();
-    V3Number& setAllBits1();
-    V3Number& setValue1();
+    V3_عدد& setAllBitsXRemoved();
+    V3_عدد& setAllBitsX();
+    V3_عدد& setAllBitsZ();
+    V3_عدد& setAllBits0();
+    V3_عدد& setAllBits1();
+    V3_عدد& setValue1();
     // IE if nbits=1, then 0b1, if 2->0b11, if 3->0b111 etc
-    V3Number& setMask(int nbits, int lsb = 0);
+    V3_عدد& setMask(صحیح nbits, صحیح lsb = 0);
 
     // ACCESSORS
-    string ascii(bool prefixed = true, bool cleanVerilog = false) const VL_MT_STABLE;
-    string displayed(const AstNode* nodep, const string& vformat,
-                     const VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) const VL_MT_STABLE;
-    string displayed(FileLine* fl, const string& vformat,
-                     const VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) const VL_MT_STABLE;
-    string displayedEnum(const AstSFormatArg* argp, const string& vformat) const VL_MT_STABLE;
-    string displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE;
-    static string displayedEnumName(const AstEnumItem* itemp);
-    static bool displayedFmtHasArg(char format, bool isScan);
-    string emitC() const VL_MT_STABLE;
-    int width() const VL_MT_SAFE { return m_data.width(); }
-    int widthToFit() const;  // Minimum width that can represent this number (~== log2(num)+1)
-    bool sized() const VL_MT_SAFE { return m_data.m_sized; }
-    bool autoExtend() const VL_MT_SAFE { return m_data.m_autoExtend; }
-    bool isFromString() const { return m_data.m_fromString; }
-    bool hasOrigParamName() const { return m_data.m_hasOrigParamName; }
-    void hasOrigParamName(bool flag) { m_data.m_hasOrigParamName = flag; }
-    V3NumberDataType dataType() const VL_MT_SAFE { return m_data.type(); }
-    void dataType(V3NumberDataType newType) {
-        if (dataType() == newType) return;
-        UASSERT(newType != V3NumberDataType::UNINITIALIZED, "Can't set type to UNINITIALIZED.");
-        switch (newType) {
-        case V3NumberDataType::STRING: m_data.setString(); break;
-        case V3NumberDataType::DOUBLE: m_data.setDouble(); break;
-        case V3NumberDataType::LOGIC: m_data.setLogic(); break;
-        case V3NumberDataType::UNINITIALIZED: break;
+    string ascii(bool prefixed = true, bool cleanVerilog = false) ثابت VL_MT_STABLE;
+    string displayed(ثابت Ast_گره* nodep, ثابت string& vformat,
+                     ثابت VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) ثابت VL_MT_STABLE;
+    string displayed(File_سطر* fl, ثابت string& vformat,
+                     ثابت VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) ثابت VL_MT_STABLE;
+    string displayedEnum(ثابت AstSFormatArg* argp, ثابت string& vformat) ثابت VL_MT_STABLE;
+    string displayedEnumName(ثابت AstEnumDType* dtypep) ثابت VL_MT_STABLE;
+    ایستا string displayedEnumName(ثابت AstEnumItem* itemp);
+    ایستا bool displayedFmtHasArg(نویسه format, bool isScan);
+    string emitC() ثابت VL_MT_STABLE;
+    صحیح width() ثابت VL_MT_SAFE { بازگشت m_data.width(); }
+    صحیح widthToFit() ثابت;  // Minimum width that can represent this number (~== log2(num)+1)
+    bool sized() ثابت VL_MT_SAFE { بازگشت m_data.m_sized; }
+    bool autoExtend() ثابت VL_MT_SAFE { بازگشت m_data.m_autoExtend; }
+    bool isFromString() ثابت { بازگشت m_data.m_fromString; }
+    bool hasOrigParamName() ثابت { بازگشت m_data.m_hasOrigParamName; }
+    تهی hasOrigParamName(bool flag) { m_data.m_hasOrigParamName = flag; }
+    V3_عدد_Data_Type dataType() ثابت VL_MT_SAFE { بازگشت m_data.type(); }
+    تهی dataType(V3_عدد_Data_Type newType) {
+        اگر (dataType() == newType) بازگشت;
+        UASSERT(newType != V3_عدد_Data_Type::UNINITIALIZED, "Can't set type to UNINITIALIZED.");
+        انتخاب (newType) {
+        حالت V3_عدد_Data_Type::STRING: m_data.setString(); بشکن;
+        حالت V3_عدد_Data_Type::DOUBLE: m_data.setDouble(); بشکن;
+        حالت V3_عدد_Data_Type::LOGIC: m_data.setLogic(); بشکن;
+        حالت V3_عدد_Data_Type::UNINITIALIZED: بشکن;
         }
     }
     // Only correct for parsing of numbers from strings, otherwise not used
     // (use AstConst::isSigned())
-    bool isSigned() const VL_MT_SAFE { return m_data.m_signed; }
-    void isSigned(bool ssigned) { m_data.m_signed = ssigned; }
-    bool isDouble() const VL_MT_SAFE { return dataType() == V3NumberDataType::DOUBLE; }
-    bool isString() const VL_MT_SAFE { return dataType() == V3NumberDataType::STRING; }
-    bool isOpaque() const VL_MT_SAFE { return isDouble() || isString(); }
-    bool isNumber() const VL_MT_SAFE {
-        return m_data.type() == V3NumberDataType::LOGIC
-               || m_data.type() == V3NumberDataType::DOUBLE;
+    bool isSigned() ثابت VL_MT_SAFE { بازگشت m_data.m_signed; }
+    تهی isSigned(bool ssigned) { m_data.m_signed = ssigned; }
+    bool isDouble() ثابت VL_MT_SAFE { بازگشت dataType() == V3_عدد_Data_Type::DOUBLE; }
+    bool isString() ثابت VL_MT_SAFE { بازگشت dataType() == V3_عدد_Data_Type::STRING; }
+    bool isOpaque() ثابت VL_MT_SAFE { بازگشت isDouble() || isString(); }
+    bool is_عدد() ثابت VL_MT_SAFE {
+        بازگشت m_data.type() == V3_عدد_Data_Type::LOGIC
+               || m_data.type() == V3_عدد_Data_Type::DOUBLE;
     }
-    bool isNegative() const VL_MT_SAFE {
+    bool isNegative() ثابت VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return !isString() && bitIs1(width() - 1);
+        بازگشت !isString() && bitIs1(width() - 1);
     }
-    bool is1Step() const VL_MT_SAFE { return m_data.m_is1Step; }
-    bool isNull() const VL_MT_SAFE { return m_data.m_isNull; }
-    bool isFourState() const VL_MT_SAFE;
-    bool hasZ() const {
-        if (isString()) return false;
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            if ((~v.m_value) & v.m_valueX) return true;
+    bool is1Step() ثابت VL_MT_SAFE { بازگشت m_data.m_is1Step; }
+    bool isNull() ثابت VL_MT_SAFE { بازگشت m_data.m_isNull; }
+    bool isFourState() ثابت VL_MT_SAFE;
+    bool hasZ() ثابت {
+        اگر (isString()) بازگشت false;
+        برای (صحیح i = 0; i < واژگان(); ++i) {
+            ثابت مقدار_And_X v = m_data.رقم()[i];
+            اگر ((~v.m_مقدار) & v.m_مقدار_X) بازگشت true;
         }
-        return false;
+        بازگشت false;
     }
-    bool isAllZ() const VL_MT_SAFE;
-    bool isAllX() const VL_MT_SAFE;
-    bool isEqZero() const VL_MT_SAFE;
-    bool isNeqZero() const;
-    bool isBitsZero(int msb, int lsb) const;
-    bool isBroken(int vwidth) const;
-    bool isEqOne() const;
-    bool isEqAllOnes(int optwidth = 0) const;
-    bool isCaseEq(const V3Number& rhs) const;  // operator==
-    bool isLtXZ(const V3Number& rhs) const;  // operator< with XZ compared
-    bool isAnyX() const VL_MT_SAFE;
-    bool isAnyXZ() const;
-    bool isAnyZ() const VL_MT_SAFE;
-    bool isMsbXZ() const {
+    bool isAllZ() ثابت VL_MT_SAFE;
+    bool isAllX() ثابت VL_MT_SAFE;
+    bool isEqZero() ثابت VL_MT_SAFE;
+    bool isNeqZero() ثابت;
+    bool isBitsZero(صحیح msb, صحیح lsb) ثابت;
+    bool isBroken(صحیح vwidth) ثابت;
+    bool isEqOne() ثابت;
+    bool isEqAllOnes(صحیح optwidth = 0) ثابت;
+    bool isCaseEq(ثابت V3_عدد& rhs) ثابت;  // operator==
+    bool isLtXZ(ثابت V3_عدد& rhs) ثابت;  // operator< with XZ compared
+    bool isAnyX() ثابت VL_MT_SAFE;
+    bool isAnyXZ() ثابت;
+    bool isAnyZ() ثابت VL_MT_SAFE;
+    bool isMsbXZ() ثابت {
         // Correct number of zero bits/width matters
-        return bitIsXZ(width() - 1);
+        بازگشت bitIsXZ(width() - 1);
     }
-    bool fitsInUInt() const VL_MT_SAFE;
-    uint32_t toUInt() const VL_MT_SAFE;
-    int32_t toSInt() const VL_MT_SAFE;
-    uint64_t toUQuad() const VL_MT_SAFE;
-    int64_t toSQuad() const VL_MT_SAFE;
-    string toString() const VL_MT_SAFE;
-    string toDecimalS() const VL_MT_STABLE;  // return ASCII signed decimal number
-    string toDecimalU() const VL_MT_STABLE;  // return ASCII unsigned decimal number
+    bool fitsInUInt() ثابت VL_MT_SAFE;
+    uint32_t toUInt() ثابت VL_MT_SAFE;
+    int32_t toSInt() ثابت VL_MT_SAFE;
+    uint64_t toUQuad() ثابت VL_MT_SAFE;
+    int64_t toSQuad() ثابت VL_MT_SAFE;
+    string toString() ثابت VL_MT_SAFE;
+    string toDecimalS() ثابت VL_MT_STABLE;  // return ASCII signed decimal number
+    string toDecimalU() ثابت VL_MT_STABLE;  // return ASCII unsigned decimal number
     // return ASCII real number, with the fewest of 15 or 17 digits that is exact
-    string toRealString() const VL_MT_STABLE;
-    double toDouble() const VL_MT_SAFE;
-    V3Hash toHash() const;
-    uint32_t edataWord(int eword) const;
-    uint8_t dataByte(int byte) const;
-    uint32_t countBits(const V3Number& ctrl) const;
-    uint32_t countBits(const V3Number& ctrl1, const V3Number& ctrl2, const V3Number& ctrl3) const;
-    uint32_t countOnes() const;
-    uint32_t mostSetBitP1() const;  // Highest bit set + 1, e.g. for 16 return 5, for 0 return 0
-    uint32_t leastSetBitP1() const;  // Lowest bit set + 1, e.g. for 14 return 2, for 0 return 0
+    string toRealString() ثابت VL_MT_STABLE;
+    دوگانه toDouble() ثابت VL_MT_SAFE;
+    V3Hash toHash() ثابت;
+    uint32_t edataWord(صحیح eword) ثابت;
+    uint8_t dataByte(صحیح byte) ثابت;
+    uint32_t شمار_Bits(ثابت V3_عدد& ctrl) ثابت;
+    uint32_t شمار_Bits(ثابت V3_عدد& ctrl1, ثابت V3_عدد& ctrl2, ثابت V3_عدد& ctrl3) ثابت;
+    uint32_t شمار_Ones() ثابت;
+    uint32_t mostSetBitP1() ثابت;  // Highest bit set + 1, e.g. for 16 return 5, for 0 return 0
+    uint32_t leastSetBitP1() ثابت;  // Lowest bit set + 1, e.g. for 14 return 2, for 0 return 0
 
     // Operators
-    bool operator<(const V3Number& rhs) const { return isLtXZ(rhs); }
+    bool operator<(ثابت V3_عدد& rhs) ثابت { بازگشت isLtXZ(rhs); }
 
     // STATICS
-    static bool epsilonEqual(double a, double b);  // True if number within Epsilon of the other
-    static bool epsilonIntegral(double a);  // True if number rounds to integer within Epsilon
-    static int log2b(uint32_t num);
-    static int log2bQuad(uint64_t num);
-    static void selfTest();
+    ایستا bool epsilonEqual(دوگانه a, دوگانه b);  // True if number within Epsilon of the other
+    ایستا bool epsilonIntegral(دوگانه a);  // True if number rounds to integer within Epsilon
+    ایستا صحیح log2b(uint32_t رقم);
+    ایستا صحیح log2bQuad(uint64_t رقم);
+    ایستا تهی selfTest();
 
     // MATH
     // "this" is the output, as we need the output width before some computations
-    V3Number& opBitsNonXZ(const V3Number& lhs);  // 0/1->1, X/Z->0
-    V3Number& opBitsOne(const V3Number& lhs);  // 1->1, 0/X/Z->0
-    V3Number& opBitsXZ(const V3Number& lhs);  // 0/1->0, X/Z->1
-    V3Number& opBitsZ(const V3Number& lhs);  // Z->1, 0/1/X->0
+    V3_عدد& opBitsNonXZ(ثابت V3_عدد& lhs);  // 0/1->1, X/Z->0
+    V3_عدد& opBitsOne(ثابت V3_عدد& lhs);  // 1->1, 0/X/Z->0
+    V3_عدد& opBitsXZ(ثابت V3_عدد& lhs);  // 0/1->0, X/Z->1
+    V3_عدد& opBitsZ(ثابت V3_عدد& lhs);  // Z->1, 0/1/X->0
     //
-    V3Number& opAssign(const V3Number& lhs);
-    V3Number& opAssignNonXZ(const V3Number& lhs, bool ignoreXZ = true);
-    V3Number& opExtendS(const V3Number& lhs, uint32_t lbits);  // Sign extension
-    V3Number& opExtendXZ(const V3Number& lhs, uint32_t lbits);  // X/Z extension
-    V3Number& opRedOr(const V3Number& lhs);
-    V3Number& opRedAnd(const V3Number& lhs);
-    V3Number& opRedXor(const V3Number& lhs);
-    V3Number& opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                          const V3Number& ctrl3);
-    V3Number& opCountOnes(const V3Number& lhs);
-    V3Number& opIsUnknown(const V3Number& lhs);
-    V3Number& opOneHot(const V3Number& lhs);
-    V3Number& opOneHot0(const V3Number& lhs);
-    V3Number& opCLog2(const V3Number& lhs);
-    V3Number& opMostSetBitP1(const V3Number& lhs);
-    V3Number& opClean(const V3Number& lhs, uint32_t bits);
-    V3Number& opConcat(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLenN(const V3Number& lhs);
-    V3Number& opRepl(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opRepl(const V3Number& lhs, uint32_t rhsval);
-    V3Number& opStreamL(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb);
-    V3Number& opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval);
-    V3Number& opSelInto(const V3Number& lhs, const V3Number& lsb, int width);
-    V3Number& opSelInto(const V3Number& lhs, int lsbval, int width);
-    V3Number& opCvtPackString(const V3Number& lhs);
-    V3Number& opToLowerN(const V3Number& lhs);
-    V3Number& opToUpperN(const V3Number& lhs);
-    V3Number& opCaseEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opCaseNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opWildEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opWildNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opBufIf1(const V3Number& ens, const V3Number& if1s);
-    V3Number& opSetRange(uint32_t lsb, uint32_t width, char bitValue);
+    V3_عدد& opAssign(ثابت V3_عدد& lhs);
+    V3_عدد& opAssignNonXZ(ثابت V3_عدد& lhs, bool ignoreXZ = true);
+    V3_عدد& opExtendS(ثابت V3_عدد& lhs, uint32_t lbits);  // Sign extension
+    V3_عدد& opExtendXZ(ثابت V3_عدد& lhs, uint32_t lbits);  // X/Z extension
+    V3_عدد& opRedOr(ثابت V3_عدد& lhs);
+    V3_عدد& opRedAnd(ثابت V3_عدد& lhs);
+    V3_عدد& opRedXor(ثابت V3_عدد& lhs);
+    V3_عدد& op_شمار_Bits(ثابت V3_عدد& عبارت, ثابت V3_عدد& ctrl1, ثابت V3_عدد& ctrl2,
+                          ثابت V3_عدد& ctrl3);
+    V3_عدد& op_شمار_Ones(ثابت V3_عدد& lhs);
+    V3_عدد& opIsUnknown(ثابت V3_عدد& lhs);
+    V3_عدد& opOneHot(ثابت V3_عدد& lhs);
+    V3_عدد& opOneHot0(ثابت V3_عدد& lhs);
+    V3_عدد& opCLog2(ثابت V3_عدد& lhs);
+    V3_عدد& opMostSetBitP1(ثابت V3_عدد& lhs);
+    V3_عدد& opClean(ثابت V3_عدد& lhs, uint32_t bits);
+    V3_عدد& opConcat(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLenN(ثابت V3_عدد& lhs);
+    V3_عدد& opRepl(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opRepl(ثابت V3_عدد& lhs, uint32_t rhsval);
+    V3_عدد& opStreamL(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opSel(ثابت V3_عدد& lhs, ثابت V3_عدد& msb, ثابت V3_عدد& lsb);
+    V3_عدد& opSel(ثابت V3_عدد& lhs, uint32_t msbval, uint32_t lsbval);
+    V3_عدد& opSelInto(ثابت V3_عدد& lhs, ثابت V3_عدد& lsb, صحیح width);
+    V3_عدد& opSelInto(ثابت V3_عدد& lhs, صحیح lsbval, صحیح width);
+    V3_عدد& opCvtPackString(ثابت V3_عدد& lhs);
+    V3_عدد& opToLowerN(ثابت V3_عدد& lhs);
+    V3_عدد& opToUpperN(ثابت V3_عدد& lhs);
+    V3_عدد& opCaseEq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opCaseNeq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opWildEq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opWildNeq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opBufIf1(ثابت V3_عدد& ens, ثابت V3_عدد& if1s);
+    V3_عدد& opSetRange(uint32_t lsb, uint32_t width, نویسه bit_مقدار);
     // "standard" math
-    V3Number& opNot(const V3Number& lhs);
-    V3Number& opLogNot(const V3Number& lhs);
-    V3Number& opLogAnd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogOr(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogIf(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNegate(const V3Number& lhs);
-    V3Number& opAdd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSub(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMul(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMulS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opDiv(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opDivS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opModDiv(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opModDivS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opPow(const V3Number& lhs, const V3Number& rhs, bool lsign = false,
+    V3_عدد& opNot(ثابت V3_عدد& lhs);
+    V3_عدد& opLogNot(ثابت V3_عدد& lhs);
+    V3_عدد& opLogAnd(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLogOr(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLogEq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLogIf(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opNegate(ثابت V3_عدد& lhs);
+    V3_عدد& opAdd(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opSub(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opMul(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opMulS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opDiv(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opDivS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opModDiv(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opModDivS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opPow(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs, bool lsign = false,
                     bool rsign = false);
-    V3Number& opPowSU(const V3Number& lhs, const V3Number& rhs);  // Signed lhs, unsigned rhs
-    V3Number& opPowSS(const V3Number& lhs, const V3Number& rhs);  // Signed lhs, signed rhs
-    V3Number& opPowUS(const V3Number& lhs, const V3Number& rhs);  // Unsigned lhs, signed rhs
-    V3Number& opAnd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opXor(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opOr(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opShiftR(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opShiftRS(const V3Number& lhs, const V3Number& rhs,  // Arithmetic w/carry
+    V3_عدد& opPowSU(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed lhs, unsigned rhs
+    V3_عدد& opPowSS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed lhs, signed rhs
+    V3_عدد& opPowUS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Unsigned lhs, signed rhs
+    V3_عدد& opAnd(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opXor(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opOr(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opShiftR(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opShiftRS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs,  // Arithmetic w/carry
                         uint32_t lbits);
-    V3Number& opShiftL(const V3Number& lhs, const V3Number& rhs);
+    V3_عدد& opShiftL(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
     // Comparisons
-    V3Number& opEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGt(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opGte(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opLt(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opLte(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteS(const V3Number& lhs, const V3Number& rhs);  // Signed
+    V3_عدد& opEq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opNeq(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGt(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGtS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opGte(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGteS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opLt(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLtS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
+    V3_عدد& opLte(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLteS(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);  // Signed
 
     // "D" - double (aka real) math
-    V3Number& opIToRD(const V3Number& lhs, bool isSigned = false);
-    V3Number& opISToRD(const V3Number& lhs) { return opIToRD(lhs, true); }
-    V3Number& opRToIS(const V3Number& lhs);
-    V3Number& opRToIRoundS(const V3Number& lhs);
-    V3Number& opRealToBits(const V3Number& lhs);
-    V3Number& opBitsToRealD(const V3Number& lhs);
-    V3Number& opNegateD(const V3Number& lhs);
-    V3Number& opAddD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSubD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMulD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opDivD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opPowD(const V3Number& lhs, const V3Number& rhs);
+    V3_عدد& opIToRD(ثابت V3_عدد& lhs, bool isSigned = false);
+    V3_عدد& opISToRD(ثابت V3_عدد& lhs) { بازگشت opIToRD(lhs, true); }
+    V3_عدد& opRToIS(ثابت V3_عدد& lhs);
+    V3_عدد& opRToIRoundS(ثابت V3_عدد& lhs);
+    V3_عدد& opRealToBits(ثابت V3_عدد& lhs);
+    V3_عدد& opBitsToRealD(ثابت V3_عدد& lhs);
+    V3_عدد& opNegateD(ثابت V3_عدد& lhs);
+    V3_عدد& opAddD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opSubD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opMulD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opDivD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opPowD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
     // Comparisons
-    V3Number& opEqD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeqD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteD(const V3Number& lhs, const V3Number& rhs);
+    V3_عدد& opEqD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opNeqD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGtD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGteD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLtD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLteD(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
 
     // "N" - string operations
-    V3Number& opAtoN(const V3Number& lhs, int base);
-    V3Number& opNToI(const V3Number& lhs);
-    V3Number& opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths);
-    V3Number& opGetcN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths);
-    V3Number& opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase);
-    V3Number& opConcatN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opReplN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opReplN(const V3Number& lhs, uint32_t rhsval);
-    V3Number& opEqN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeqN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteN(const V3Number& lhs, const V3Number& rhs);
+    V3_عدد& opAtoN(ثابت V3_عدد& lhs, صحیح base);
+    V3_عدد& opNToI(ثابت V3_عدد& lhs);
+    V3_عدد& opPutcN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs, ثابت V3_عدد& ths);
+    V3_عدد& opGetcN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opSubstrN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs, ثابت V3_عدد& ths);
+    V3_عدد& opCompareNN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs, bool ignoreCase);
+    V3_عدد& opConcatN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opReplN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opReplN(ثابت V3_عدد& lhs, uint32_t rhsval);
+    V3_عدد& opEqN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opNeqN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGtN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opGteN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLtN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
+    V3_عدد& opLteN(ثابت V3_عدد& lhs, ثابت V3_عدد& rhs);
 };
-inline std::ostream& operator<<(std::ostream& os, const V3Number& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+درونخطی std::ostream& operator<<(std::ostream& os, ثابت V3_عدد& rhs) VL_MT_SAFE {
+    بازگشت os << rhs.ascii();
 }
 
 #endif  // Guard

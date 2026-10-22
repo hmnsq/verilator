@@ -17,8 +17,8 @@
 #ifndef VERILATOR_V3LINKCELLS_H_
 #define VERILATOR_V3LINKCELLS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 class VInFilter;
@@ -27,8 +27,8 @@ class V3ParseSym;
 //============================================================================
 
 class V3LinkCells final {
-public:
-    static void link(AstNetlist* nodep, VInFilter* filterp) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی link(AstNetlist* nodep, VInFilter* filterp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

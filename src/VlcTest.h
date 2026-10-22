@@ -17,14 +17,14 @@
 #ifndef VERILATOR_VLCTEST_H_
 #define VERILATOR_VLCTEST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "VlcBucket.h"
-#include "VlcPoint.h"
+#شامل "VlcBucket.h"
+#شامل "VlcPoint.h"
 
-#include <map>
-#include <vector>
+#شامل <map>
+#شامل <vector>
 
 //********************************************************************
 // VlcTest - a single testrun i.e. a file containing coverage data
@@ -32,42 +32,42 @@
 class VlcTest final {
     // MEMBERS
     string m_name;  //< Name of the test
-    double m_computrons;  //< Runtime for the test
+    دوگانه m_computrons;  //< Runtime for the test
     uint64_t m_testrun;  //< Test run number, for database use
     uint64_t m_rank = 0;  //< Execution rank suggestion
     uint64_t m_rankPoints = 0;  //< Ranked additional points
     uint64_t m_user = 0;  //< User data for algorithms (not persisted in .dat file)
     VlcBuckets m_buckets;  //< Coverage data for each coverage point
 
-public:
+عمومی:
     // CONSTRUCTORS
-    VlcTest(const string& name, uint64_t testrun, double comp)
+    VlcTest(ثابت string& name, uint64_t testrun, دوگانه comp)
         : m_name{name}
         , m_computrons{comp}
         , m_testrun{testrun} {}
-    ~VlcTest() = default;
+    ~VlcTest() = پیشفرض;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    double computrons() const { return m_computrons; }
-    uint64_t testrun() const { return m_testrun; }
-    VlcBuckets& buckets() { return m_buckets; }
-    uint64_t bucketsCovered() const { return m_buckets.bucketsCovered(); }
-    uint64_t rank() const { return m_rank; }
-    void rank(uint64_t flag) { m_rank = flag; }
-    uint64_t rankPoints() const { return m_rankPoints; }
-    void rankPoints(uint64_t flag) { m_rankPoints = flag; }
-    uint64_t user() const { return m_user; }
-    void user(uint64_t flag) { m_user = flag; }
+    ثابت string& name() ثابت { بازگشت m_name; }
+    دوگانه computrons() ثابت { بازگشت m_computrons; }
+    uint64_t testrun() ثابت { بازگشت m_testrun; }
+    VlcBuckets& buckets() { بازگشت m_buckets; }
+    uint64_t bucketsCovered() ثابت { بازگشت m_buckets.bucketsCovered(); }
+    uint64_t rank() ثابت { بازگشت m_rank; }
+    تهی rank(uint64_t flag) { m_rank = flag; }
+    uint64_t rankPoints() ثابت { بازگشت m_rankPoints; }
+    تهی rankPoints(uint64_t flag) { m_rankPoints = flag; }
+    uint64_t user() ثابت { بازگشت m_user; }
+    تهی user(uint64_t flag) { m_user = flag; }
 
     // METHODS
-    static void dumpHeader() {
+    ایستا تهی dumpHeader() {
         std::cout << "Tests:\n";
         // std::cout<<"  Testrun, Computrons,";  // Currently not loaded
         std::cout << "  Covered,     Rank,  RankPts,  Filename\n";
     }
-    void dump(bool bucketsToo) const {
-        if (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
+    تهی dump(bool bucketsToo) ثابت {
+        اگر (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
             std::cout << "  " << std::setw(8) << std::setfill('0') << testrun()  // LCOV_EXCL_LINE
                       << ",  " << std::setw(7) << std::setfill(' ')
                       << computrons()  // LCOV_EXCL_LINE
@@ -77,7 +77,7 @@ public:
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rank();
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rankPoints();
         std::cout << ",  \"" << name() << "\"\n";
-        if (bucketsToo) m_buckets.dump();
+        اگر (bucketsToo) m_buckets.dump();
     }
 };
 
@@ -85,41 +85,41 @@ public:
 // VlcTests - Container of all tests
 
 class VlcTests final {
-public:
+عمومی:
     // TYPES
     using ByName = std::vector<VlcTest*>;
 
-private:
+خصوصی:
     // MEMBERS
     ByName m_tests;  //< List of all tests
 
-    static int debug() { return V3Error::debugDefault(); }
+    ایستا صحیح debug() { بازگشت V3Error::debugDefault(); }
 
-public:
+عمومی:
     // ITERATORS
     using iterator = ByName::iterator;
-    ByName::iterator begin() { return m_tests.begin(); }
-    ByName::iterator end() { return m_tests.end(); }
+    ByName::iterator begin() { بازگشت m_tests.begin(); }
+    ByName::iterator end() { بازگشت m_tests.end(); }
 
     // CONSTRUCTORS
-    VlcTests() = default;
+    VlcTests() = پیشفرض;
     ~VlcTests() {
-        for (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
+        برای (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
     }
 
     // METHODS
-    void dump(bool bucketsToo) {
+    تهی dump(bool bucketsToo) {
         UINFO(2, "dumpTests...");
         VlcTest::dumpHeader();
-        for (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
+        برای (ثابت VlcTest* ثابت testp : m_tests) testp->dump(bucketsToo);
     }
-    VlcTest* newTest(const string& name, uint64_t testrun, double comp) {
-        VlcTest* const testp = new VlcTest{name, testrun, comp};
-        m_tests.push_back(testp);
-        return testp;
+    VlcTest* newTest(ثابت string& name, uint64_t testrun, دوگانه comp) {
+        VlcTest* ثابت testp = new VlcTest{name, testrun, comp};
+        m_tests.افزودن_back(testp);
+        بازگشت testp;
     }
-    void clearUser() {
-        for (const auto& testp : m_tests) testp->user(0);
+    تهی clearUser() {
+        برای (ثابت auto& testp : m_tests) testp->user(0);
     }
 };
 

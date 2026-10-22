@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LINKWITH_H_
 #define VERILATOR_V3LINKWITH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LinkWith final {
-public:
-    static void linkWith(AstNetlist* rootp) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی linkWith(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

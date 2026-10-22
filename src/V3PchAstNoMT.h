@@ -23,25 +23,25 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3DebugBisect.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#شامل "V3Ast.h"
+#شامل "V3Broken.h"
+#شامل "V3Container.h"
+#شامل "V3DebugBisect.h"
+#شامل "V3Error.h"
+#شامل "V3FileLine.h"
+#شامل "V3FunctionTraits.h"
+#شامل "V3Global.h"
+#شامل "V3Mutex.h"
+#شامل "V3Number.h"
+#شامل "V3Options.h"
+#شامل "V3StdFuture.h"
+#شامل "V3String.h"
 
-#include <algorithm>
-#include <map>
-#include <utility>
+#شامل <algorithm>
+#شامل <map>
+#شامل <utility>
 
 #endif  // Guard

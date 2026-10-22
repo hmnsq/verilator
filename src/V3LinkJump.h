@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LINKJUMP_H_
 #define VERILATOR_V3LINKJUMP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LinkJump final {
-public:
-    static void linkJump(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی linkJump(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

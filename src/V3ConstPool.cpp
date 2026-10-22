@@ -14,136 +14,136 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#شامل "V3PchAstMT.h"
 
-#include "V3ConstPool.h"
+#شامل "V3ConstPool.h"
 
-#include "V3Hasher.h"
+#شامل "V3Hasher.h"
 
 //######################################################################
 // V3ConstPool
 
-V3Hash V3ConstPool::hashValue(const AstNode* nodep) {
+V3Hash V3ConstPool::hash_مقدار(ثابت Ast_گره* nodep) {
     // Hash what 'equalValue' compares
     V3Hash hash{nodep->type().hash()};
-    hash += nodep->dtypep()->cType("", false, false);
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->num().toHash();
-    if (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
-        const uint64_t size
+    hash += nodep->dtypep()->cType("", نادرست, نادرست);
+    اگر (ثابت AstConst* ثابت constp = VN_CAST(nodep, Const)) بازگشت hash + constp->رقم().toHash();
+    اگر (ثابت AstConsArray* ثابت consp = VN_CAST(nodep, ConsArray)) {
+        ثابت uint64_t size
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
-        return hash;
+        برای (uint64_t n = 0; n < size; ++n) hash += hash_مقدار(consp->valuep(n));
+        بازگشت hash;
     }
-    return hash + V3Hasher::uncachedHash(nodep);
+    بازگشت hash + V3Hasher::uncachedHash(nodep);
 }
 
-bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
-    if (ap->type() != bp->type()) return false;
-    if (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
-        return false;
+منطقی V3ConstPool::equal_مقدار(ثابت Ast_گره* ap, ثابت Ast_گره* bp) {
+    اگر (ap->type() != bp->type()) بازگشت نادرست;
+    اگر (ap->dtypep()->cType("", نادرست, نادرست) != bp->dtypep()->cType("", نادرست, نادرست)) {
+        بازگشت نادرست;
     }
     // Compare constants by value, which also checks the width
-    if (const AstConst* const constp = VN_CAST(ap, Const)) {
-        return constp->num().isCaseEq(VN_AS(bp, Const)->num());
+    اگر (ثابت AstConst* ثابت constp = VN_CAST(ap, Const)) {
+        بازگشت constp->رقم().isCaseEq(VN_AS(bp, Const)->رقم());
     }
     // Compare unpacked arrays by element values, as equal arrays might differ in their range,
     // and in which elements are given or defaulted
-    if (const AstConsArray* const aConsp = VN_CAST(ap, ConsArray)) {
-        const AstConsArray* const bConsp = VN_AS(bp, ConsArray);
-        const uint64_t size
+    اگر (ثابت AstConsArray* ثابت aConsp = VN_CAST(ap, ConsArray)) {
+        ثابت AstConsArray* ثابت bConsp = VN_AS(bp, ConsArray);
+        ثابت uint64_t size
             = VN_AS(aConsp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) {
-            if (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) return false;
+        برای (uint64_t n = 0; n < size; ++n) {
+            اگر (!equal_مقدار(aConsp->valuep(n), bConsp->valuep(n))) بازگشت نادرست;
         }
-        return true;
+        بازگشت درست;
     }
-    return ap->sameTree(bp);
+    بازگشت ap->same_درخت(bp);
 }
 
-void V3ConstPool::rebuildCache() {
-    m_cacheValid = true;
+تهی V3ConstPool::rebuildCache() {
+    m_cacheValid = درست;
     m_scopep = nullptr;
     m_entries.clear();
     m_varScopes.clear();
-    AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-    for (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
-            if (m_stage == Stage::SCOPED) m_scopep = scopep;
-            continue;
+    AstPackage* ثابت pkgp = v3Global.rootp()->constPoolPkgp();
+    برای (Ast_گره* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        اگر (AstScope* ثابت scopep = VN_CAST(nodep, Scope)) {
+            اگر (m_stage == Stage::SCOPED) m_scopep = scopep;
+            ادامه;
         }
         // Otherwise must be a variable
-        AstVar* const varp = VN_AS(nodep, Var);
+        AstVar* ثابت varp = VN_AS(nodep, Var);
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Unmarked variable in constant pool");
-        m_entries.insert(varp);
+        m_entries.درج(varp);
     }
-    if (m_scopep) {
-        for (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
-            m_varScopes.insert({vscp->varp(), vscp});
+    اگر (m_scopep) {
+        برای (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
+            m_varScopes.درج({vscp->varp(), vscp});
         }
     }
 }
 
-AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
-    UASSERT_OBJ(initp->isConstantTree(), initp, "Const pool value is not constant");
+AstVarRef* V3ConstPool::find(Ast_گره_عبارت* initp) {
+    UASSERT_OBJ(initp->is_Constant_درخت(), initp, "Const pool value is not constant");
     V3ConstPool& self = instance();
-    if (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
+    اگر (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
 
-    FileLine* const flp = initp->fileline();
-    AstNodeDType* const dtypep = initp->dtypep();
+    File_سطر* ثابت flp = initp->fileline();
+    Ast_گره_DType* ثابت dtypep = initp->dtypep();
 
     // Look up/create the variable with this value
-    const auto pair = self.m_entries.insertLazy(initp, [&]() {
-        uint32_t& numberr = self.m_nextNumber[initp->type()];
-        const std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
+    ثابت auto pair = self.m_entries.درج_Lazy(initp, [&]() {
+        uint32_t& numberr = self.m_next_عدد[initp->type()];
+        ثابت std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
+        AstVar* ثابت varp = جدید AstVar{flp, VVarType::MODULETEMP, name, dtypep};
         varp->setConstPoolEntry();
         varp->lifetime(VLifetime::STATIC_EXPLICIT);
-        varp->isConst(true);
-        varp->valuep(initp->cloneTree(false));
+        varp->isConst(درست);
+        varp->valuep(initp->clone_درخت(نادرست));
         v3Global.rootp()->constPoolPkgp()->addStmtsp(varp);
-        return varp;
+        بازگشت varp;
     });
-    AstVar* const varp = *pair.first;
+    AstVar* ثابت varp = *pair.first;
 
     // Create a read reference to the entry, of the right form for the current stage
     AstVarRef* refp = nullptr;
-    switch (self.m_stage) {
-    case Stage::UNSCOPED: {
+    انتخاب (self.m_stage) {
+    حالت Stage::UNSCOPED: {
         // Before V3Scope, reference via the package, as any other package variable
-        AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-        refp = new AstVarRef{flp, pkgp, varp, VAccess::READ};
-        break;
+        AstPackage* ثابت pkgp = v3Global.rootp()->constPoolPkgp();
+        refp = جدید AstVarRef{flp, pkgp, varp, VAccess::READ};
+        بشکن;
     }
-    case Stage::SCOPED: {
+    حالت Stage::SCOPED: {
         // While scoped, reference the VarScope, creating it for a new entry, or if removed
-        const auto vscpPair = self.m_varScopes.insertLazy(varp, [&]() {
-            AstVarScope* const vscp = new AstVarScope{varp->fileline(), self.m_scopep, varp};
+        ثابت auto vscpPair = self.m_varScopes.درج_Lazy(varp, [&]() {
+            AstVarScope* ثابت vscp = جدید AstVarScope{varp->fileline(), self.m_scopep, varp};
             self.m_scopep->addVarsp(vscp);
-            return std::pair<const AstVar*, AstVarScope*>{varp, vscp};
+            بازگشت std::pair<ثابت AstVar*, AstVarScope*>{varp, vscp};
         });
-        refp = new AstVarRef{flp, vscpPair.first->second, VAccess::READ};
-        break;
+        refp = جدید AstVarRef{flp, vscpPair.first->second, VAccess::READ};
+        بشکن;
     }
-    case Stage::DESCOPED: {
+    حالت Stage::DESCOPED: {
         // After V3Descope, no VarScope is needed
-        refp = new AstVarRef{flp, varp, VAccess::READ};
-        break;
+        refp = جدید AstVarRef{flp, varp, VAccess::READ};
+        بشکن;
     }
     }
 
     // The entry might have been created with a different, but compatible dtype
     refp->dtypep(dtypep);
-    return refp;
+    بازگشت refp;
 }
 
-const char* V3ConstPool::broken() {
-    const V3ConstPool& self = instance();
-    if (!self.m_cacheValid) return nullptr;
+ثابت نویسه* V3ConstPool::broken() {
+    ثابت V3ConstPool& self = instance();
+    اگر (!self.m_cacheValid) بازگشت nullptr;
     BROKEN_RTN(self.m_scopep && !self.m_scopep->brokeExists());
-    for (const AstVar* const varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
-    for (const auto& pair : self.m_varScopes) {
+    برای (ثابت AstVar* ثابت varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
+    برای (ثابت auto& pair : self.m_varScopes) {
         BROKEN_RTN(!pair.first->brokeExists());
         BROKEN_RTN(!pair.second->brokeExists());
     }
-    return nullptr;
+    بازگشت nullptr;
 }

@@ -19,21 +19,21 @@
 #ifndef VERILATOR_V3LINKDOTIFACECAPTURE_H_
 #define VERILATOR_V3LINKDOTIFACECAPTURE_H_
 
-#include "config_build.h"
+#شامل "config_build.h"
 
-#include "V3Ast.h"
+#شامل "V3Ast.h"
 
-#include <deque>
-#include <functional>
-#include <string>
-#include <unordered_set>
+#شامل <deque>
+#شامل <functional>
+#شامل <string>
+#شامل <unordered_set>
 
 class VSymEnt;
 
 // Capture record of an AstRefDType, shared by all clones of that reference
 class VIfaceCaptureTag final {
-public:
-    enum class Kind : uint8_t {
+عمومی:
+    شمارش class Kind : uint8_t {
         TYPEDEF,  // Refers to a typedef in the interface
         PARAM_TYPE  // Refers to a type parameter of the interface
     };
@@ -44,57 +44,57 @@ public:
 };
 
 class V3LinkDotIfaceCapture final {
-    static std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
-    static bool s_enabled;
+    ایستا std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
+    ایستا bool s_enabled;
 
     // --- Internal-only methods (not called outside V3LinkDotIfaceCapture.cpp) ---
-    static void enable(bool flag);  // LCOV_EXCL_LINE
-    static void reset();
-    static void clearModuleCache();
-    static AstIfaceRefDType* ifaceRefFromVarDType(AstNodeDType* dtypep);
+    ایستا تهی enable(bool flag);  // LCOV_EXCL_LINE
+    ایستا تهی reset();
+    ایستا تهی clearModuleCache();
+    ایستا AstIfaceRefDType* ifaceRefFromVarDType(Ast_گره_DType* dtypep);
     // Point a reference at a typedef and fix its other links.
-    static void retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
+    ایستا تهی retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
     // Same, for a parameter type.
-    static void retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
+    ایستا تهی retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
     // Tag a reference captured in capturedInp
-    static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                    VIfaceCaptureTag::Kind kind, const string& cellPath,
-                    const string& ownerModName);
-    static int resolveCapturedRefs();
-    static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
+    ایستا تهی tag(AstRefDType* refp, ثابت Ast_گره_Module* capturedInp,
+                    VIfaceCaptureTag::Kind kind, ثابت string& cellPath,
+                    ثابت string& ownerModName);
+    ایستا صحیح resolveCapturedRefs();
+    ایستا تهی verifyNoDeadRefs(ثابت std::unordered_set<ثابت Ast_گره*>& liveNodes);
 
-public:
-    static bool enabled() { return s_enabled; }
+عمومی:
+    ایستا bool enabled() { بازگشت s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
-    static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
-    static AstNodeModule* findOwnerModule(AstNode* nodep);
+    ایستا ثابت VIfaceCaptureTag* captureTag(AstRefDType* refp);
+    ایستا Ast_گره_Module* findOwnerModule(Ast_گره* nodep);
     // Find a Typedef by name in a module's top-level statements
-    static AstTypedef* findTypedefInModule(AstNodeModule* modp, const string& name);
+    ایستا AstTypedef* findTypedefInModule(Ast_گره_Module* modp, ثابت string& name);
     // Find a NodeDType by name and VNType in a module's top-level statements
-    static AstNodeDType* findDTypeInModule(AstNodeModule* modp, const string& name, VNType type);
+    ایستا Ast_گره_DType* findDTypeInModule(Ast_گره_Module* modp, ثابت string& name, VNType type);
     // Find a ParamTypeDType by name in a module's top-level statements
-    static AstParamTypeDType* findParamTypeInModule(AstNodeModule* modp, const string& name);
+    ایستا AstParamTypeDType* findParamTypeInModule(Ast_گره_Module* modp, ثابت string& name);
     // Retarget a captured reference at the same-named target in targetModp.
-    static bool retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp);
-    static void addParamType(AstRefDType* refp, const string& cellPath, AstNodeModule* ownerModp,
-                             AstParamTypeDType* paramTypep, const string& paramTypeOwnerModName);
+    ایستا bool retargetRefToModule(AstRefDType* refp, Ast_گره_Module* targetModp);
+    ایستا تهی addParamType(AstRefDType* refp, ثابت string& cellPath, Ast_گره_Module* ownerModp,
+                             AstParamTypeDType* paramTypep, ثابت string& paramTypeOwnerModName);
 
     // Walk a dot-separated cell path (e.g. "cca_io.tlb_io") starting from
     // startModp, returning the module at the end of the path.  Returns
     // nullptr if any component cannot be resolved.
-    static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
+    ایستا Ast_گره_Module* followCellPath(Ast_گره_Module* startModp, ثابت string& cellPath);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
-                                      const std::string& dotText, VSymEnt* dotSymp,
-                                      AstNodeModule* modp,
-                                      const std::function<std::string()>& indentFn);
+    ایستا تهی captureTypedefContext(AstRefDType* refp, ثابت نویسه* stageLabel, صحیح dotPos,
+                                      ثابت std::string& dotText, VSymEnt* dotSymp,
+                                      Ast_گره_Module* modp,
+                                      ثابت std::function<std::string()>& indentFn);
 
     // Debug: dump all captured references
-    static void dumpEntries(const string& label);
+    ایستا تهی dumpEntries(ثابت string& label);
 
     // Called after V3Param but before V3Dead to fix any remaining cross-interface refs
     // that still point to template nodes (which will be deleted by V3Dead).
-    static void finalizeIfaceCapture();
+    ایستا تهی finalizeIfaceCapture();
 };
 
 #endif  // VERILATOR_V3LINKDOTIFACECAPTURE_H_

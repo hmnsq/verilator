@@ -17,60 +17,60 @@
 #ifndef VERILATOR_V3FILE_H_
 #define VERILATOR_V3FILE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Stats.h"
+#شامل "V3Error.h"
+#شامل "V3Stats.h"
 
-#include <array>
-#include <fstream>
-#include <list>
-#include <memory>
-#include <set>
-#include <stack>
-#include <vector>
+#شامل <array>
+#شامل <fstream>
+#شامل <list>
+#شامل <memory>
+#شامل <set>
+#شامل <stack>
+#شامل <vector>
 
-class AstNode;
+class Ast_گره;
 
 //============================================================================
 // V3File: Create streams, recording dependency information
 
 class V3File final {
-public:
-    static std::ifstream* new_ifstream(const string& filename) {
+عمومی:
+    ایستا std::ifstream* new_ifstream(ثابت string& filename) {
         addSrcDepend(filename);
-        return new_ifstream_nodepend(filename);
+        بازگشت new_ifstream_nodepend(filename);
     }
-    static std::ifstream* new_ifstream_nodepend(const string& filename) VL_MT_SAFE {
-        return new std::ifstream{filename.c_str()};
+    ایستا std::ifstream* new_ifstream_nodepend(ثابت string& filename) VL_MT_SAFE {
+        بازگشت new std::ifstream{filename.c_str()};
     }
-    static std::ofstream* new_ofstream(const string& filename, bool append = false) {
+    ایستا std::ofstream* new_ofstream(ثابت string& filename, bool append = false) {
         addTgtDepend(filename);
-        return new_ofstream_nodepend(filename, append);
+        بازگشت new_ofstream_nodepend(filename, append);
     }
-    static std::ofstream* new_ofstream_nodepend(const string& filename, bool append = false) {
+    ایستا std::ofstream* new_ofstream_nodepend(ثابت string& filename, bool append = false) {
         createMakeDirFor(filename);
-        if (append) return new std::ofstream{filename.c_str(), std::ios::app};
-        return new std::ofstream{filename.c_str()};
+        اگر (append) بازگشت new std::ofstream{filename.c_str(), std::ios::app};
+        بازگشت new std::ofstream{filename.c_str()};
     }
-    static FILE* new_fopen_w(const string& filename) {
+    ایستا FILE* new_fopen_w(ثابت string& filename) {
         createMakeDirFor(filename);
         addTgtDepend(filename);
-        return fopen(filename.c_str(), "w");
+        بازگشت fopen(filename.c_str(), "w");
     }
 
     // Dependencies
-    static void addSrcDepend(const string& filename) VL_MT_SAFE;
-    static void addTgtDepend(const string& filename) VL_MT_SAFE;
-    static void writeDepend(const string& filename);
-    static std::vector<string> getAllDeps();
-    static void writeTimes(const string& filename, const string& cmdlineIn);
-    static bool checkTimes(const string& filename, const string& cmdlineIn);
+    ایستا تهی addSrcDepend(ثابت string& filename) VL_MT_SAFE;
+    ایستا تهی addTgtDepend(ثابت string& filename) VL_MT_SAFE;
+    ایستا تهی writeDepend(ثابت string& filename);
+    ایستا std::vector<string> getAllDeps();
+    ایستا تهی writeTimes(ثابت string& filename, ثابت string& cmdlineIn);
+    ایستا bool checkTimes(ثابت string& filename, ثابت string& cmdlineIn);
 
     // Directory utilities
-    static void createMakeDirFor(const string& filename);
-    static void createMakeDir();
+    ایستا تهی createMakeDirFor(ثابت string& filename);
+    ایستا تهی createMakeDir();
 };
 
 //============================================================================
@@ -79,23 +79,23 @@ public:
 class VInFilterImp;
 
 class VInFilter final {
-public:
+عمومی:
     // TYPES
     using StrList = std::list<std::string>;
 
-private:
+خصوصی:
     VInFilterImp* m_impp;
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(VInFilter);
 
-public:
-    explicit VInFilter(const string& command);
+عمومی:
+    explicit VInFilter(ثابت string& command);
     ~VInFilter();
 
     // METHODS
     // Read file contents and return it.  Return true on success.
-    bool readWholefile(const string& filename, StrList& outl);
+    bool readWholefile(ثابت string& filename, StrList& outl);
 };
 
 //============================================================================
@@ -103,137 +103,137 @@ public:
 
 class V3OutFormatter VL_NOT_FINAL {
     // TYPES
-public:
-    enum AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
-    enum Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
+عمومی:
+    شمارش AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
+    شمارش Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
 
-private:
+خصوصی:
     // MEMBERS
-    const Language m_lang;  // Indenting Verilog code
-    int m_blockIndent;  // Characters per block indent
-    int m_commaWidth;  // Width after which to break at ,'s
-    int m_lineno = 1;
-    int m_column = 0;
-    int m_nobreak = false;  // Basic operator or begin paren, don't break next
-    int m_sourceLastLineno = 0;
-    int m_sourceLastFilenameno = 0;
+    ثابت Language m_lang;  // Indenting Verilog code
+    صحیح m_blockIndent;  // Characters per block indent
+    صحیح m_commaWidth;  // Width after which to break at ,'s
+    صحیح m_lineno = 1;
+    صحیح m_column = 0;
+    صحیح m_nobreak = false;  // Basic operator or begin paren, don't break next
+    صحیح m_sourceLastLineno = 0;
+    صحیح m_sourceLastFilenameno = 0;
     bool m_prependIndent = true;
     bool m_inStringLiteral = false;  // Inside a quote
     bool m_inBackslash = false;  // Inside a backslash
-    int m_indentLevel = 0;  // Current {} indentation
-    std::stack<int> m_parenVec;  // Stack of columns where last ( was
-    int m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
+    صحیح m_indentLevel = 0;  // Current {} indentation
+    std::پشته<صحیح> m_parenVec;  // Stack of columns where last ( was
+    صحیح m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
 
-    int endLevels(const char* strg);
-    void putcNoTracking(char chr);
+    صحیح endLevels(ثابت نویسه* strg);
+    تهی putcNoTracking(نویسه chr);
 
-public:
+عمومی:
     explicit V3OutFormatter(Language lang);
-    virtual ~V3OutFormatter() = default;
+    مجازی ~V3OutFormatter() = پیشفرض;
     // ACCESSORS
-    void blockIndent(int flag) { m_blockIndent = flag; }
+    تهی blockIndent(صحیح flag) { m_blockIndent = flag; }
     // METHODS
-    void printf(const char* fmt...) VL_ATTR_PRINTF(2);
-    void puts(const char* strg) { putns(nullptr, strg); }
-    void puts(const string& strg) { putns(nullptr, strg); }
-    void putns(const AstNode* nodep, const char* strg);
-    void putns(const AstNode* nodep, const string& strg) { putns(nodep, strg.c_str()); }
-    void putsNoTracking(const string& strg);
-    void putsQuoted(const string& strg);
-    void putBreak();  // Print linebreak if line is too wide
-    void putBreakExpr();  // Print linebreak in expression if line is too wide
-    void putbs(const char* strg) {
-        putBreakExpr();
+    تهی printf(ثابت نویسه* fmt...) VL_ATTR_PRINTF(2);
+    تهی puts(ثابت نویسه* strg) { putns(nullptr, strg); }
+    تهی puts(ثابت string& strg) { putns(nullptr, strg); }
+    تهی putns(ثابت Ast_گره* nodep, ثابت نویسه* strg);
+    تهی putns(ثابت Ast_گره* nodep, ثابت string& strg) { putns(nodep, strg.c_str()); }
+    تهی putsNoTracking(ثابت string& strg);
+    تهی putsQuoted(ثابت string& strg);
+    تهی putBreak();  // Print linebreak if line is too wide
+    تهی put_Break_عبارت();  // Print linebreak in expression if line is too wide
+    تهی putbs(ثابت نویسه* strg) {
+        put_Break_عبارت();
         putns(nullptr, strg);
     }
-    void putbs(const string& strg) {
-        putBreakExpr();
+    تهی putbs(ثابت string& strg) {
+        put_Break_عبارت();
         putns(nullptr, strg);
     }
-    void putnbs(const AstNode* nodep, const string& strg) {
-        putBreakExpr();
+    تهی putnbs(ثابت Ast_گره* nodep, ثابت string& strg) {
+        put_Break_عبارت();
         putns(nodep, strg);
     }
-    bool exceededWidth() const { return m_column > m_commaWidth; }
-    void indentInc() { m_indentLevel += m_blockIndent; }
-    void indentDec() {
+    bool exceededWidth() ثابت { بازگشت m_column > m_commaWidth; }
+    تهی indentInc() { m_indentLevel += m_blockIndent; }
+    تهی indentDec() {
         m_indentLevel -= m_blockIndent;
         UASSERT(m_indentLevel >= 0, "Underflow of indentation");
     }
-    void blockInc() { m_parenVec.push(m_indentLevel + m_blockIndent); }
-    void blockDec() {
-        if (!m_parenVec.empty()) m_parenVec.pop();
+    تهی blockInc() { m_parenVec.افزودن(m_indentLevel + m_blockIndent); }
+    تهی blockDec() {
+        اگر (!m_parenVec.empty()) m_parenVec.برداشت();
     }
-    void ensureNewLine() {
-        if (!m_nobreak) puts("\n");
+    تهی ensure_New_سطر() {
+        اگر (!m_nobreak) puts("\n");
     }
     // STATIC METHODS
-    static const std::string& indentSpaces(int num);
+    ایستا ثابت std::string& indentSpaces(صحیح رقم);
     // Add escaped characters to strings
-    static string quoteNameControls(const string& namein, Language lang = LA_C) VL_PURE;
-    static bool tokenMatch(const char* cp, const char* cmp);
-    static bool tokenNotStart(const char* cp);  // Import/export meaning no endfunction
-    static bool tokenStart(const char* cp);
-    static bool tokenEnd(const char* cp);
+    ایستا string quoteNameControls(ثابت string& namein, Language lang = LA_C) VL_PURE;
+    ایستا bool tokenMatch(ثابت نویسه* cp, ثابت نویسه* cmp);
+    ایستا bool tokenNotStart(ثابت نویسه* cp);  // Import/export meaning no endfunction
+    ایستا bool tokenStart(ثابت نویسه* cp);
+    ایستا bool tokenEnd(ثابت نویسه* cp);
 
     // CALLBACKS - MUST OVERRIDE
-    virtual void putcOutput(char chr) = 0;
-    virtual void putsOutput(const char* str) = 0;
+    مجازی تهی putcOutput(نویسه chr) = 0;
+    مجازی تهی putsOutput(ثابت نویسه* str) = 0;
 };
 
 //============================================================================
 // V3OutFile: A class for printing to a file, with automatic indentation of C++ code.
 
-class V3OutFile VL_NOT_FINAL : public V3OutFormatter {
+class V3OutFile VL_NOT_FINAL : عمومی V3OutFormatter {
     // Size of m_bufferp.
     // 128kB has been experimentally determined to be in the zone of buffer sizes that work best.
     // It is also considered to be the smallest I/O buffer size in GNU coreutils (io_blksize) that
     // allows to best minimize syscall overhead.
     // The hard boundaries are CPU L2/L3 cache size on the top and filesystem block size
     // on the bottom.
-    static constexpr std::size_t WRITE_BUFFER_SIZE_BYTES = 128 * 1024;
+    ایستا constexpr std::size_t WRITE_BUFFER_SIZE_BYTES = 128 * 1024;
 
     // MEMBERS
-    const std::string m_filename;
+    ثابت std::string m_filename;
     FILE* m_fp = nullptr;
     std::size_t m_usedBytes = 0;  // Number of bytes stored in m_bufferp
     std::size_t m_writtenBytes = 0;  // Number of bytes written to output
-    std::unique_ptr<std::array<char, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
+    std::unique_ptr<std::array<نویسه, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
 
-public:
-    V3OutFile(const string& filename, V3OutFormatter::Language lang);
-    V3OutFile(const V3OutFile&) = delete;
-    V3OutFile& operator=(const V3OutFile&) = delete;
+عمومی:
+    V3OutFile(ثابت string& filename, V3OutFormatter::Language lang);
+    V3OutFile(ثابت V3OutFile&) = delete;
+    V3OutFile& operator=(ثابت V3OutFile&) = delete;
     V3OutFile(V3OutFile&&) = delete;
     V3OutFile& operator=(V3OutFile&&) = delete;
     ~V3OutFile() override;
 
-    std::string filename() const { return m_filename; }
+    std::string filename() ثابت { بازگشت m_filename; }
 
-    void putsForceIncs();
+    تهی putsForceIncs();
 
-    void statRecordWritten() {
+    تهی statRecordWritten() {
         writeBlock();
         V3Stats::addStatSum(V3Stats::STAT_CPP_CHARS, m_writtenBytes);
     }
 
-private:
-    void writeBlock() {
-        if (VL_LIKELY(m_usedBytes > 0)) {
+خصوصی:
+    تهی writeBlock() {
+        اگر (VL_LIKELY(m_usedBytes > 0)) {
             fwrite(m_bufferp->data(), m_usedBytes, 1, m_fp);
             m_writtenBytes += m_usedBytes;
             m_usedBytes = 0;
         }
     }
     // CALLBACKS
-    void putcOutput(char chr) override {
+    تهی putcOutput(نویسه chr) override {
         m_bufferp->at(m_usedBytes++) = chr;
-        if (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
+        اگر (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
     }
-    void putsOutput(const char* str) override {
+    تهی putsOutput(ثابت نویسه* str) override {
         std::size_t len = strlen(str);
         std::size_t availableBytes = WRITE_BUFFER_SIZE_BYTES - m_usedBytes;
-        while (VL_UNLIKELY(len >= availableBytes)) {
+        وقتی (VL_UNLIKELY(len >= availableBytes)) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, availableBytes);
             m_usedBytes = WRITE_BUFFER_SIZE_BYTES;
             writeBlock();
@@ -241,54 +241,54 @@ private:
             len -= availableBytes;
             availableBytes = WRITE_BUFFER_SIZE_BYTES;
         }
-        if (len > 0) {
+        اگر (len > 0) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, len);
             m_usedBytes += len;
         }
     }
 };
 
-class V3OutCFile VL_NOT_FINAL : public V3OutFile {
-    int m_guard = false;  // Created header guard
-    int m_private;  // 1 = Most recently emitted private:, 2 = public:
-public:
-    explicit V3OutCFile(const string& filename,
+class V3OutCFile VL_NOT_FINAL : عمومی V3OutFile {
+    صحیح m_guard = false;  // Created header guard
+    صحیح m_private;  // 1 = Most recently emitted private:, 2 = public:
+عمومی:
+    explicit V3OutCFile(ثابت string& filename,
                         V3OutFormatter::Language lang = V3OutFormatter::LA_C)
         : V3OutFile{filename, lang} {
         resetPrivate();
     }
     ~V3OutCFile() override { statRecordWritten(); }
-    virtual void putsHeader() { puts("// Verilated -*- C++ -*-\n"); }
-    virtual void putsIntTopInclude() { putsForceIncs(); }
-    virtual void putsGuard();
-    virtual void putsEndGuard() {
-        if (m_guard) puts("\n#endif  // guard\n");
+    مجازی تهی putsHeader() { puts("// Verilated -*- C++ -*-\n"); }
+    مجازی تهی puts_Int_بالاترین_Include() { putsForceIncs(); }
+    مجازی تهی putsGuard();
+    مجازی تهی putsEndGuard() {
+        اگر (m_guard) puts("\n#endif  // guard\n");
     }
     // Print out public/privates
-    void resetPrivate() { m_private = 0; }
-    void putsPrivate(bool setPrivate) {
-        if (setPrivate && m_private != 1) {
+    تهی resetPrivate() { m_private = 0; }
+    تهی putsPrivate(bool setPrivate) {
+        اگر (setPrivate && m_private != 1) {
             puts("private:\n");
             m_private = 1;
-        } else if (!setPrivate && m_private != 2) {
+        } وگرنه اگر (!setPrivate && m_private != 2) {
             puts("public:\n");
             m_private = 2;
         }
     }
 };
 
-class V3OutJsonFile final : public V3OutFile {
+class V3OutJsonFile final : عمومی V3OutFile {
     // CONSTANTS
-    static constexpr const char* INDENT = "    ";  // Single indent (4, per JSON std)
+    ایستا constexpr ثابت نویسه* INDENT = "    ";  // Single indent (4, per JSON std)
 
     // MEMBERS
-private:
-    std::stack<char> m_scope;  // Stack of ']' and '}'  to close currently open scopes
+خصوصی:
+    std::پشته<نویسه> m_scope;  // Stack of ']' and '}'  to close currently open scopes
     std::string m_prefix;  // Prefix emitted before each line in current scope
-    std::stack<bool> m_empty;  // Current scope is empty, no comma later
+    std::پشته<bool> m_empty;  // Current scope is empty, no comma later
 
-public:
-    explicit V3OutJsonFile(const string& filename)
+عمومی:
+    explicit V3OutJsonFile(ثابت string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_JSON} {
         begin();
     }
@@ -296,56 +296,56 @@ public:
         end();
         puts("\n");
     }
-    virtual void putsHeader() {}
+    مجازی تهی putsHeader() {}
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    تهی puts(ثابت نویسه* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
-    void puts(const string& strg) { putsNoTracking(strg); }
+    تهی puts(ثابت string& strg) { putsNoTracking(strg); }
 
     // METHODS
-    V3OutJsonFile& begin(const std::string& name, char type = '{') {
+    V3OutJsonFile& begin(ثابت std::string& name, نویسه type = '{') {
         comma();
         puts(m_prefix + "\"" + name + "\": " + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
-        return *this;
+        m_scope.افزودن(type == '{' ? '}' : ']');
+        اگر (!m_empty.empty()) m_empty.بالاترین() = false;
+        m_empty.افزودن(true);
+        بازگشت *this;
     }
-    V3OutJsonFile& begin(char type = '{') {
+    V3OutJsonFile& begin(نویسه type = '{') {
         comma();
         puts(m_prefix + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
-        return *this;
+        m_scope.افزودن(type == '{' ? '}' : ']');
+        اگر (!m_empty.empty()) m_empty.بالاترین() = false;
+        m_empty.افزودن(true);
+        بازگشت *this;
     }
 
     // Put a named value
-    V3OutJsonFile& put(const std::string& name, const char* valuep) {
-        return putNamed(name, std::string{valuep}, true);
+    V3OutJsonFile& put(ثابت std::string& name, ثابت نویسه* valuep) {
+        بازگشت putNamed(name, std::string{valuep}, true);
     }
-    V3OutJsonFile& put(const std::string& name, const std::string& value) {
-        return putNamed(name, value, true);
+    V3OutJsonFile& put(ثابت std::string& name, ثابت std::string& مقدار) {
+        بازگشت putNamed(name, مقدار, true);
     }
-    V3OutJsonFile& put(const std::string& name, bool value) {
-        return putNamed(name, value ? "true" : "false", false);
+    V3OutJsonFile& put(ثابت std::string& name, bool مقدار) {
+        بازگشت putNamed(name, مقدار ? "true" : "false", false);
     }
-    V3OutJsonFile& put(const std::string& name, int value) {
-        return putNamed(name, std::to_string(value), false);
+    V3OutJsonFile& put(ثابت std::string& name, صحیح مقدار) {
+        بازگشت putNamed(name, std::to_string(مقدار), false);
     }
 
     // Put unnamed value
-    V3OutJsonFile& put(const std::string& value) { return putNamed("", value, true); }
-    V3OutJsonFile& put(bool value) { return putNamed("", value ? "true" : "false", false); }
-    V3OutJsonFile& put(int value) { return putNamed("", std::to_string(value), false); }
+    V3OutJsonFile& put(ثابت std::string& مقدار) { بازگشت putNamed("", مقدار, true); }
+    V3OutJsonFile& put(bool مقدار) { بازگشت putNamed("", مقدار ? "true" : "false", false); }
+    V3OutJsonFile& put(صحیح مقدار) { بازگشت putNamed("", std::to_string(مقدار), false); }
 
-    V3OutJsonFile& putList(const std::string& name, const std::vector<std::string>& list) {
-        if (list.empty()) return *this;
+    V3OutJsonFile& putList(ثابت std::string& name, ثابت std::vector<std::string>& list) {
+        اگر (list.empty()) بازگشت *this;
         begin(name, '[');
-        for (const std::string& str : list) put(str);
-        return end();
+        برای (ثابت std::string& str : list) put(str);
+        بازگشت end();
     }
 
     V3OutJsonFile& end() {
@@ -353,92 +353,92 @@ public:
         m_prefix.erase(m_prefix.end() - strlen(INDENT), m_prefix.end());
         UASSERT(!m_scope.empty(), "end() without begin()");
         UASSERT(!m_empty.empty(), "end() without begin()");
-        puts("\n" + m_prefix + m_scope.top());
-        m_scope.pop();
-        m_empty.pop();
-        return *this;
+        puts("\n" + m_prefix + m_scope.بالاترین());
+        m_scope.برداشت();
+        m_empty.برداشت();
+        بازگشت *this;
     }
 
     V3OutJsonFile& operator+=(V3OutJsonFile& /*cursor*/) {
         // Meaningless syntax sugar, at least for now
-        return *this;
+        بازگشت *this;
     }
 
-private:
-    void comma() {
-        if (m_empty.empty()) return;
-        if (!m_empty.top()) puts(",\n");
-        m_empty.top() = true;
+خصوصی:
+    تهی comma() {
+        اگر (m_empty.empty()) بازگشت;
+        اگر (!m_empty.بالاترین()) puts(",\n");
+        m_empty.بالاترین() = true;
     }
-    V3OutJsonFile& putNamed(const std::string& name, const std::string& value, bool quoted) {
+    V3OutJsonFile& putNamed(ثابت std::string& name, ثابت std::string& مقدار, bool quoted) {
         comma();
-        const string valueQ
-            = quoted ? "\""s + V3OutFormatter::quoteNameControls(value) + "\"" : value;
-        if (name.empty()) {
-            puts(m_prefix + valueQ);
-        } else {
-            puts(m_prefix + "\"" + name + "\": " + valueQ);
+        ثابت string مقدار_Q
+            = quoted ? "\""s + V3OutFormatter::quoteNameControls(مقدار) + "\"" : مقدار;
+        اگر (name.empty()) {
+            puts(m_prefix + مقدار_Q);
+        } وگرنه {
+            puts(m_prefix + "\"" + name + "\": " + مقدار_Q);
         }
-        m_empty.top() = false;
-        return *this;
+        m_empty.بالاترین() = false;
+        بازگشت *this;
     }
 };
 
-class V3OutMkFile final : public V3OutFile {
-public:
-    explicit V3OutMkFile(const string& filename)
+class V3OutMkFile final : عمومی V3OutFile {
+عمومی:
+    explicit V3OutMkFile(ثابت string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_MK} {}
-    ~V3OutMkFile() override = default;
-    virtual void putsHeader() { puts("# Verilated -*- Makefile -*-\n"); }
+    ~V3OutMkFile() override = پیشفرض;
+    مجازی تهی putsHeader() { puts("# Verilated -*- Makefile -*-\n"); }
     // No automatic indentation yet.
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    تهی puts(ثابت نویسه* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
-    void puts(const string& strg) { putsNoTracking(strg); }
+    تهی puts(ثابت string& strg) { putsNoTracking(strg); }
     // Put VARIABLE = VALUE
-    void putSet(const string& var, const string& value) {
-        puts(VString::dot(var + " =", " ", value) + "\n");
+    تهی putSet(ثابت string& var, ثابت string& مقدار) {
+        puts(VString::dot(var + " =", " ", مقدار) + "\n");
     }
     // Put VARIABLE ?= VALUE
-    void putSetQ(const string& var, const string& value) {
-        puts(VString::dot(var + " ?=", " ", value) + "\n");
+    تهی putSetQ(ثابت string& var, ثابت string& مقدار) {
+        puts(VString::dot(var + " ?=", " ", مقدار) + "\n");
     }
 };
 
-class V3OutVFile final : public V3OutCFile {
-public:
-    explicit V3OutVFile(const string& filename)
+class V3OutVFile final : عمومی V3OutCFile {
+عمومی:
+    explicit V3OutVFile(ثابت string& filename)
         : V3OutCFile{filename, V3OutFormatter::LA_VERILOG} {}
-    ~V3OutVFile() override = default;
-    void putsHeader() override { puts("// Verilated -*- Verilog -*-\n"); }
+    ~V3OutVFile() override = پیشفرض;
+    تهی putsHeader() override { puts("// Verilated -*- Verilog -*-\n"); }
 };
 
-class V3OutXmlFile final : public V3OutFile {
-public:
-    explicit V3OutXmlFile(const string& filename)
+class V3OutXmlFile final : عمومی V3OutFile {
+عمومی:
+    explicit V3OutXmlFile(ثابت string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_XML} {
         blockIndent(2);
     }
-    ~V3OutXmlFile() override = default;
-    virtual void putsHeader() { puts("<?xml version=\"1.0\" ?>\n"); }
+    ~V3OutXmlFile() override = پیشفرض;
+    مجازی تهی putsHeader() { puts("<?xml version=\"1.0\" ?>\n"); }
 };
 
 //============================================================================
 // V3OutStream: A class for printing formatted code to any std::ostream
 
-class V3OutStream VL_NOT_FINAL : public V3OutFormatter {
+class V3OutStream VL_NOT_FINAL : عمومی V3OutFormatter {
     // MEMBERS
     std::ostream& m_ostream;
 
     VL_UNCOPYABLE(V3OutStream);
     VL_UNMOVABLE(V3OutStream);
 
-public:
+عمومی:
     V3OutStream(std::ostream& ostream, V3OutFormatter::Language lang);
-    ~V3OutStream() override = default;
+    ~V3OutStream() override = پیشفرض;
 
-    void putcOutput(char chr) override { m_ostream << chr; };
-    void putsOutput(const char* str) override { m_ostream << str; };
+    تهی putcOutput(نویسه chr) override { m_ostream << chr; };
+    تهی putsOutput(ثابت نویسه* str) override { m_ostream << str; };
 };
 
 //============================================================================
@@ -447,17 +447,17 @@ public:
 class VIdProtectImp;
 
 class VIdProtect final {
-public:
+عمومی:
     // METHODS
     // Return 'in' only if not protecting (e.g. for emitting a comment)
-    static string ifNoProtect(const string& in) VL_MT_SAFE;
+    ایستا string ifNoProtect(ثابت string& in) VL_MT_SAFE;
     // Rename to a new encoded string (unless earlier passthru'ed)
-    static string protect(const string& old) VL_MT_SAFE { return protectIf(old, true); }
-    static string protectIf(const string& old, bool doIt = true) VL_MT_SAFE;
+    ایستا string protect(ثابت string& old) VL_MT_SAFE { بازگشت protectIf(old, true); }
+    ایستا string protectIf(ثابت string& old, bool doIt = true) VL_MT_SAFE;
     // Rename words to a new encoded string
-    static string protectWordsIf(const string& old, bool doIt = true) VL_MT_SAFE;
+    ایستا string protect_واژگان_If(ثابت string& old, bool doIt = true) VL_MT_SAFE;
     // Write map of renames to output file
-    static void writeMapFile(const string& filename);
+    ایستا تهی writeMapFile(ثابت string& filename);
 };
 
 #endif  // Guard

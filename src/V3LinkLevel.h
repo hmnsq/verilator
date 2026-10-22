@@ -17,27 +17,27 @@
 #ifndef VERILATOR_V3LINKLEVEL_H_
 #define VERILATOR_V3LINKLEVEL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#شامل "V3Ast.h"
+#شامل "V3Error.h"
 
-#include <vector>
+#شامل <vector>
 
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::vector<Ast_گره_Module*>;
 
-    static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    ایستا تهی timescaling(ثابت ModVec& mods) VL_MT_DISABLED;
+    ایستا تهی wrap_بالاترین_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    ایستا تهی wrap_بالاترین_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
-public:
-    static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی modSortByLevel() VL_MT_DISABLED;
+    ایستا تهی wrap_بالاترین(AstNetlist* rootp) VL_MT_DISABLED;
+    ایستا تهی non_Wrap_بالاترین(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

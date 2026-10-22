@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#شامل "VlcOptions.h"
+#شامل "VlcPoint.h"
+#شامل "VlcSource.h"
+#شامل "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_بالاترین final {
+عمومی:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+خصوصی:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    تهی annotateCalc();
+    تهی annotateCalcNeeded();
+    تهی annotateOutputFiles(ثابت string& dirname);
 
-public:
+عمومی:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_بالاترین() = پیشفرض;
+    ~Vlc_بالاترین() = پیشفرض;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { بازگشت m_tests; }
+    VlcPoints& points() { بازگشت m_points; }
+    VlcSources& sources() { بازگشت m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    تهی annotate(ثابت string& dirname);
+    تهی printHierarchyReport();
+    تهی printTypeSummary();
+    تهی readCoverage(ثابت string& filename, bool nonfatal = false);
+    تهی writeCoverage(ثابت string& filename);
+    تهی writeInfo(ثابت string& filename);
 
-    void rank();
+    تهی rank();
 };
 
 //######################################################################

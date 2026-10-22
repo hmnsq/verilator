@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3ACTIVE_H_
 #define VERILATOR_V3ACTIVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Active final {
-public:
-    static void activeAll(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی activeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

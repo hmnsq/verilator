@@ -22,7 +22,7 @@
  }
 #endif
 // clang-format on
-#include "V3ParseGrammar.h"  // Defines YYTYPE; before including bison header
+#شامل "V3ParseGrammar.h"  // Defines YYTYPE; before including bison header
 
 #define YYERROR_VERBOSE 1  // For prior to Bison 3.6
 #define YYINITDEPTH 10000  // Older bisons ignore YYMAXDEPTH
@@ -32,38 +32,38 @@
 // Pick up new lexer
 #define yylex PARSEP->tokenToBison
 
-#define BBCOVERIGN(fl, msg) (fl)->v3warn(COVERIGN, msg)
-#define BBUNSUP(fl, msg) (fl)->v3warn(E_UNSUPPORTED, msg)
+#define BBCOVERIGN(fl, پیام) (fl)->v3warn(COVERIGN, پیام)
+#define BBUNSUP(fl, پیام) (fl)->v3warn(E_UNSUPPORTED, پیام)
 #define GATEUNSUP(fl, tok) \
     { BBUNSUP((fl), "Unsupported: Verilog 1995 gate primitive: " << (tok)); }
 #define RISEFALLDLYUNSUP(nodep) \
-    if (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
+    اگر (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
         nodep->v3warn(RISEFALLDLY, "Unsupported: turn-off delays. Ignoring the third delay"); \
     }
 #define MINTYPMAXDLYUNSUP(nodep) \
-    if (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
+    اگر (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
         nodep->v3warn( \
             MINTYPMAXDLY, \
             "Unsupported: minimum/typical/maximum delay expressions. Using the typical delay"); \
     }
 // Apply a delay to all continuous assignments under listp
-static void DELAY_LIST(AstNode* listp, AstDelay* delayp) {
-    if (!delayp) return;
-    for (AstNode* nodep = listp; nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Implicit)) continue;
-        AstAlways* const alwaysp = VN_AS(nodep, Always);
-        AstAssignW* const assignp = VN_AS(alwaysp->stmtsp(), AssignW);
-        assignp->timingControlp(delayp->backp() ? delayp->cloneTree(false) : delayp);
+ایستا تهی DELAY_LIST(Ast_گره* listp, AstDelay* delayp) {
+    اگر (!delayp) بازگشت;
+    برای (Ast_گره* nodep = listp; nodep; nodep = nodep->nextp()) {
+        اگر (VN_IS(nodep, Implicit)) ادامه;
+        AstAlways* ثابت alwaysp = VN_AS(nodep, Always);
+        AstAssignW* ثابت assignp = VN_AS(alwaysp->stmtsp(), AssignW);
+        assignp->timingControlp(delayp->backp() ? delayp->clone_درخت(false) : delayp);
     }
 }
 // Apply a strength to all continuous assignments under listp
-static void STRENGTH_LIST(AstNode* listp, AstStrengthSpec* specp) {
-    if (!specp) return;
-    for (AstNode* nodep = listp; nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Implicit)) continue;
-        AstAlways* const alwaysp = VN_AS(nodep, Always);
-        AstAssignW* const assignp = VN_AS(alwaysp->stmtsp(), AssignW);
-        assignp->strengthSpecp(specp->backp() ? specp->cloneTree(false) : specp);
+ایستا تهی STRENGTH_LIST(Ast_گره* listp, AstStrengthSpec* specp) {
+    اگر (!specp) بازگشت;
+    برای (Ast_گره* nodep = listp; nodep; nodep = nodep->nextp()) {
+        اگر (VN_IS(nodep, Implicit)) ادامه;
+        AstAlways* ثابت alwaysp = VN_AS(nodep, Always);
+        AstAssignW* ثابت assignp = VN_AS(alwaysp->stmtsp(), AssignW);
+        assignp->strengthSpecp(specp->backp() ? specp->clone_درخت(false) : specp);
     }
 }
 //======================================================================
@@ -72,35 +72,35 @@ static void STRENGTH_LIST(AstNode* listp, AstStrengthSpec* specp) {
 #define PARSEP V3ParseImp::parsep()
 #define GRAMMARP V3ParseGrammar::singletonp()
 
-const VBasicDTypeKwd LOGIC = VBasicDTypeKwd::LOGIC;  // Shorthand "LOGIC"
-const VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
+ثابت VBasicDTypeKwd LOGIC = VBasicDTypeKwd::LOGIC;  // Shorthand "LOGIC"
+ثابت VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
 
 //======================================================================
 // Macro functions
 
 // Only use in empty rules, so lines point at beginnings
-#define CRELINE() (PARSEP->bisonLastFileline()->copyOrSameFileLineApplied())
+#define CRELINE() (PARSEP->bisonLastFileline()->copy_Or_Same_File_سطر_Applied())
 #define FILELINE_OR_CRE(nodep) ((nodep) ? (nodep)->fileline() : CRELINE())
 
 #define VARRESET_LIST(decl) VARRESET__PVT(decl, 1)  // Start of pinlist
 #define VARRESET_NONLIST(decl) VARRESET__PVT(decl, 0);  // Not in a pinlist
-#define VARRESET__PVT(decl, pinNumStart) \
+#define VARRESET__PVT(decl, pin_رقم_Start) \
     { \
         VARDECL(decl); \
         VARIO(NONE); \
         VARDTYPE_NDECL(nullptr); \
-        GRAMMARP->m_pinNum = (pinNumStart); \
+        GRAMMARP->m_pin_رقم = (pin_رقم_Start); \
         GRAMMARP->m_varLifetime = VLifetime::NONE; \
         GRAMMARP->m_varDeclTyped = false; \
     }
-#define VARDECL(type) \
-    { GRAMMARP->m_varDecl = VVarType::type; }
-#define VARIO(type) \
-    { GRAMMARP->m_varIO = VDirection::type; }
+#define VARDECL(نوع) \
+    { GRAMMARP->m_varDecl = VVarType::نوع; }
+#define VARIO(نوع) \
+    { GRAMMARP->m_varIO = VDirection::نوع; }
 // Set direction to default-input when detect inside an ANSI port list
 #define VARIOANSI() \
     { \
-        if (GRAMMARP->m_varIO == VDirection::NONE) VARIO(INPUT); \
+        اگر (GRAMMARP->m_varIO == VDirection::NONE) VARIO(درون_داد); \
     }
 #define VARLIFE(flag) \
     { GRAMMARP->m_varLifetime = flag; }
@@ -115,7 +115,7 @@ const VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
 #define VARDONEA(fl, name, array, attrs) GRAMMARP->createVariable((fl), (name), (array), (attrs))
 #define VARDONEP(portp, array, attrs) \
     GRAMMARP->createVariable((portp)->fileline(), (portp)->name(), (array), (attrs))
-#define PINNUMINC() (GRAMMARP->m_pinNum++)
+#define PINNUMINC() (GRAMMARP->m_pin_رقم++)
 
 #define GATERANGE(rangep) \
     { GRAMMARP->m_gateRangep = rangep; }
@@ -131,13 +131,13 @@ const VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
 #define DEL(...) \
     { \
         /* cppcheck-suppress constVariable */ \
-        AstNode* const nodeps[] = {__VA_ARGS__}; \
-        for (AstNode* const nodep : nodeps) \
-            if (nodep) nodep->deleteTree(); \
+        Ast_گره* ثابت nodeps[] = {__VA_ARGS__}; \
+        برای (Ast_گره* ثابت nodep : nodeps) \
+            اگر (nodep) nodep->delete_درخت(); \
     }
 
-static void ERRSVKWD(FileLine* fileline, const string& tokname) {
-    static int s_toldonce = 0;
+ایستا تهی ERRSVKWD(File_سطر* fileline, ثابت string& tokname) {
+    ایستا صحیح s_toldonce = 0;
     fileline->v3error(
         "Unexpected '"s + tokname + "': '" + tokname
         + "' is a SystemVerilog keyword misused as an identifier."
@@ -147,30 +147,30 @@ static void ERRSVKWD(FileLine* fileline, const string& tokname) {
                          : ""));
 }
 
-static void ASSIGNEQEXPR(FileLine* fileline) {
+ایستا تهی ASSIGNEQEXPR(File_سطر* fileline) {
     fileline->v3warn(ASSIGNEQEXPR,
                      "Assignment '=' inside expression\n"
                          << fileline->warnMore()
                          << "... Was a '==' intended, or suggest use a separate statement");
 }
 
-static void UNSUPREAL(FileLine* fileline) {
+ایستا تهی UNSUPREAL(File_سطر* fileline) {
     fileline->v3warn(SHORTREAL,
                      "Unsupported: shortreal being promoted to real (suggest use real instead)");
 }
 
 //======================================================================
 
-void yyerror(const char* errmsg) { PARSEP->bisonLastFileline()->v3error(errmsg); }
+تهی yyerror(ثابت نویسه* errmsg) { PARSEP->bisonLastFileline()->v3error(errmsg); }
 
-template <typename T_Node, typename T_Next>
-static T_Node* addNextNull(T_Node* nodep, T_Next* nextp) {
-    return AstNode::addNextNull<T_Node, T_Next>(nodep, nextp);
+template <typename T_گره, typename T_Next>
+ایستا T_گره* addNextNull(T_گره* nodep, T_Next* nextp) {
+    بازگشت Ast_گره::addNextNull<T_گره, T_Next>(nodep, nextp);
 }
 
 //======================================================================
 
-class AstSenTree;
+class Ast_Sen_درخت;
 // clang-format off
 %}
 
@@ -276,7 +276,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yVLT_D_FUNCTION "--function"
 %token<fl>              yVLT_D_HIER_DPI "--hier-dpi"
 %token<fl>              yVLT_D_LEVELS   "--levels"
-%token<fl>              yVLT_D_LINES    "--lines"
+%token<fl>              y_VLT_D_سطرها    "--lines"
 %token<fl>              yVLT_D_MATCH    "--match"
 %token<fl>              yVLT_D_MODEL    "--model"
 %token<fl>              yVLT_D_MODULE   "--module"
@@ -286,7 +286,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yVLT_D_RULE     "--rule"
 %token<fl>              yVLT_D_Q        "--q"
 %token<fl>              yVLT_D_RESET    "--reset"
-%token<fl>              yVLT_D_RESET_VALUE "--reset_value"
+%token<fl>              y_VLT_D_RESET_مقدار "--reset_value"
 %token<fl>              yVLT_D_SCOPE    "--scope"
 %token<fl>              yVLT_D_TASK     "--task"
 %token<fl>              yVLT_D_VAR      "--var"
@@ -438,7 +438,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yINCLUDE        "include"
 %token<fl>              yINITIAL        "initial"
 %token<fl>              yINOUT          "inout"
-%token<fl>              yINPUT          "input"
+%token<fl>              y_درون_داد          "input"
 %token<fl>              yINSIDE         "inside"
 %token<fl>              yINSTANCE       "instance"
 %token<fl>              yINT            "int"
@@ -691,7 +691,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_FWRITEO      "$fwriteo"
 %token<fl>              yD_GET_INITIAL_RANDOM_SEED "$get_initial_random_seed"
 %token<fl>              yD_GLOBAL_CLOCK "$global_clock"
-%token<fl>              yD_HIGH         "$high"
+%token<fl>              y_D_بالا         "$high"
 %token<fl>              yD_HYPOT        "$hypot"
 %token<fl>              yD_INCREMENT    "$increment"
 %token<fl>              yD_INFERRED_DISABLE "$inferred_disable"
@@ -699,10 +699,10 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_ISUNBOUNDED  "$isunbounded"
 %token<fl>              yD_ISUNKNOWN    "$isunknown"
 %token<fl>              yD_ITOR         "$itor"
-%token<fl>              yD_LEFT         "$left"
+%token<fl>              y_D_چپ         "$left"
 %token<fl>              yD_LN           "$ln"
 %token<fl>              yD_LOG10        "$log10"
-%token<fl>              yD_LOW          "$low"
+%token<fl>              y_D_کم          "$low"
 %token<fl>              yD_MONITOR      "$monitor"
 %token<fl>              yD_MONITORB     "$monitorb"
 %token<fl>              yD_MONITORH     "$monitorh"
@@ -721,9 +721,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_REALTIME     "$realtime"
 %token<fl>              yD_REALTOBITS   "$realtobits"
 %token<fl>              yD_REWIND       "$rewind"
-%token<fl>              yD_RIGHT        "$right"
+%token<fl>              y_D_راست        "$right"
 %token<fl>              yD_RISING_GCLK  "$rising_gclk"
-%token<fl>              yD_ROOT         "$root"
+%token<fl>              y_D_ریشه         "$root"
 %token<fl>              yD_ROSE         "$rose"
 %token<fl>              yD_ROSE_GCLK    "$rose_gclk"
 %token<fl>              yD_RTOI         "$rtoi"
@@ -1050,8 +1050,8 @@ description:                    // ==IEEE: description
         |       interface_declaration                   { }
         |       program_declaration                     { }
         |       package_declaration                     { }
-        |       package_itemTop                         { if ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
-        |       bind_directive                          { if ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
+        |       package_item_بالاترین                         { اگر ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
+        |       bind_directive                          { اگر ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
         |       config_declaration                      { }
         //                      // Verilator only
         |       yaT_RESETALL                            { }  // Else, under design, and illegal based on IEEE 22.3
@@ -1077,17 +1077,17 @@ timeunits_declaration<nodep>:   // ==IEEE: timeunits_declaration
 package_declaration:            // ==IEEE: package_declaration
                 packageFront package_itemListE yENDPACKAGE endLabelE
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
-                          if ($2) $1->addStmtsp($2);
+                          اگر ($2) $1->addStmtsp($2);
                           GRAMMARP->endLabel($<fl>4, $1, $4); }
         ;
 
-packageFront<nodeModulep>:
+packageFront<گره_Modulep>:
                 yPACKAGE lifetimeE idAny ';'
                         { $$ = new AstPackage{$<fl>3, *$3, PARSEP->libname()};
-                          if ($$->name() == "std") {
-                              if ($$->fileline()->filename() != V3Options::getStdPackagePath()) {
+                          اگر ($$->name() == "std") {
+                              اگر ($$->fileline()->filename() != V3Options::getStdPackagePath()) {
                                   $$->v3error("Redeclaring the 'std' package is not allowed");
-                              } else {
+                              } وگرنه {
                                   PARSEP->rootp()->stdPackagep(VN_AS($$, Package));
                               }
                           }
@@ -1118,7 +1118,7 @@ package_item<nodep>:            // ==IEEE: package_item
         |       sigAttrScope                            { $$ = nullptr; }
         ;
 
-package_itemTop<nodep>:         // ==IEEE: package_item
+package_item_بالاترین<nodep>:         // ==IEEE: package_item
 
                 package_or_generate_item_declNoChecker  { $$ = $1; }
         |       checker_declaration
@@ -1180,7 +1180,7 @@ package_import_item<nodep>:     // ==IEEE: package_import_item
 
 package_import_itemObj<strp>:   // IEEE: part of package_import_item
                 idAny/*package_identifier*/             { $<fl>$ = $<fl>1; $$ = $1; }
-        |       '*'                                     { $<fl>$ = $<fl>1; static string star = "*"; $$ = &star; }
+        |       '*'                                     { $<fl>$ = $<fl>1; ایستا string star = "*"; $$ = &star; }
         ;
 
 package_export_declaration<nodep>: // IEEE: package_export_declaration
@@ -1209,15 +1209,15 @@ module_declaration:             // ==IEEE: module_declaration
         /*cont*/    module_itemListE yENDMODULE endLabelE
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
                           $1->hasParameterList($<flag>2);
-                          if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
+                          اگر ($2) $1->addStmtsp($2);
+                          اگر ($3) $1->addStmtsp($3);
+                          اگر ($5) $1->addStmtsp($5);
                           GRAMMARP->endLabel($<fl>7, $1, $7); }
         |       udpFront portsStarE ';'
         /*cont*/    module_itemListE yENDPRIMITIVE endLabelE
                         { $1->modTrace(false);  // Stash for implicit wires, etc
-                          if ($2) $1->addStmtsp($2);
-                          if ($4) $1->addStmtsp($4);
+                          اگر ($2) $1->addStmtsp($2);
+                          اگر ($4) $1->addStmtsp($4);
                           GRAMMARP->m_tracingParse = true;
                           GRAMMARP->endLabel($<fl>6, $1, $6); }
         //
@@ -1226,7 +1226,7 @@ module_declaration:             // ==IEEE: module_declaration
                         // We allow modules to be declared after instantiations, so harmless
         ;
 
-modFront<nodeModulep>:
+modFront<گره_Modulep>:
         //                      // General note: all *Front functions must call symPushNew before
         //                      // any formal arguments, as the arguments must land in the new scope.
                 yMODULE lifetimeE idAny
@@ -1251,7 +1251,7 @@ importsAndParametersE<nodep>:   // IEEE: common part of module_declaration, inte
                           $<flag>$ = $<flag>2; }  // hasParameterList
         ;
 
-udpFront<nodeModulep>:
+udpFront<گره_Modulep>:
                 yPRIMITIVE lifetimeE idAny
                         { $$ = new AstPrimitive{$<fl>3, *$3, PARSEP->libname()};
                           $$->inLibrary(true);
@@ -1262,31 +1262,31 @@ udpFront<nodeModulep>:
                           PARSEP->rootp()->addModulesp($$); }
         ;
 
-parameter_value_assignmentInstE<pinp>:      // IEEE: [ parameter_value_assignment ] for instance
+parameter_مقدار_assignment_Inst_E<pinp>:      // IEEE: [ parameter_value_assignment ] for instance
                 /* empty */                             { $$ = nullptr; }
-        |       parameter_value_assignmentInst          { $$ = $1; }
+        |       parameter_مقدار_assignment_Inst          { $$ = $1; }
         ;
 
-parameter_value_assignmentClassE<pinp>:      // IEEE: [ parameter_value_assignment ] for classes
+parameter_مقدار_assignment_Class_E<pinp>:      // IEEE: [ parameter_value_assignment ] for classes
                 /* empty */                             { $$ = nullptr; }
-        |       parameter_value_assignmentClass         { $$ = $1; }
+        |       parameter_مقدار_assignment_Class         { $$ = $1; }
         ;
 
-parameter_value_assignmentInst<pinp>:       // IEEE: parameter_value_assignment for instance
+parameter_مقدار_assignment_Inst<pinp>:       // IEEE: parameter_value_assignment for instance
                 '#' '(' instParamListE ')'              { $$ = $3; }
         //                      // Parentheses are optional around a single parameter
         //                      // IMPORTANT: Below hardcoded in tokenPipeScanParam
         |       '#' yaINTNUM                            { $$ = new AstPin{$<fl>2, 1, "", new AstConst{$<fl>2, *$2}}; }
         |       '#' yaFLOATNUM                          { $$ = new AstPin{$<fl>2, 1, "",
                                                                           new AstConst{$<fl>2, AstConst::RealDouble{}, $2}}; }
-        |       '#' timeNumAdjusted                     { $$ = new AstPin{$<fl>2, 1, "", $2}; }
+        |       '#' time_رقم_Adjusted                     { $$ = new AstPin{$<fl>2, 1, "", $2}; }
         |       '#' idClassSel                          { $$ = new AstPin{$<fl>2, 1, "", $2}; }
         //                      // Not needed in Verilator:
         //                      // Side effect of combining *_instantiations
         //                      // '#' delay_value      { UNSUP }
         ;
 
-parameter_value_assignmentClass<pinp>:  // IEEE: parameter_value_assignment (for classes)
+parameter_مقدار_assignment_Class<pinp>:  // IEEE: parameter_value_assignment (for classes)
         //                      // Like parameter_value_assignment, but for classes only, which always have #()
                 '#' '(' instParamListE ')'              { $$ = $3; }
         ;
@@ -1349,13 +1349,13 @@ list_of_ports<nodep>:           // IEEE: list_of_ports + list_of_port_declaratio
 
 portAndTagE<nodep>:
                 /* empty */
-                        { const int p = PINNUMINC();
-                          const string name = "__pinNumber" + cvtToStr(p);
+                        { ثابت صحیح p = PINNUMINC();
+                          ثابت string name = "__pinNumber" + cvtToStr(p);
                           $$ = new AstPort{CRELINE(), p, name};
                           AstVar* varp = new AstVar{CRELINE(), VVarType::WIRE, name, VFlagChildDType{},
                                                     new AstBasicDType{CRELINE(), LOGIC_IMPLICIT}};
-                          varp->declDirection(VDirection::INPUT);
-                          varp->direction(VDirection::INPUT);
+                          varp->declDirection(VDirection::درون_داد);
+                          varp->direction(VDirection::درون_داد);
                           varp->ansi(false);
                           varp->declTyped(true);
                           varp->trace(false);
@@ -1388,7 +1388,7 @@ port<nodep>:                    // ==IEEE: port
                 portDirNetE id/*interface*/ '.' idAny/*modport*/ portSig variable_dimensionListE sigAttrListE
                         { // VAR for now, but V3LinkCells may call setIfcaeRef on it later
                           $$ = $5; VARDECL(VAR); VARIO(NONE);
-                          AstNodeDType* const dtp = new AstIfaceRefDType{$<fl>2, $<fl>4, "", *$2, *$4};
+                          Ast_گره_DType* ثابت dtp = new AstIfaceRefDType{$<fl>2, $<fl>4, "", *$2, *$4};
                           VARDTYPE(dtp); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $6, $7)); }
         |       portDirNetE yINTERFACE                           portSig variable_dimensionListE sigAttrListE
@@ -1399,7 +1399,7 @@ port<nodep>:                    // ==IEEE: port
         |       portDirNetE yINTERCONNECT signingE rangeListE portSig variable_dimensionListE sigAttrListE
                         { $$ = $5;
                           BBUNSUP($<fl>2, "Unsupported: interconnect");
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                                     new AstBasicDType{$2, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $6, $7)); }
@@ -1442,50 +1442,50 @@ port<nodep>:                    // ==IEEE: port
         |       portDirNetE data_type           portSig variable_dimensionListE sigAttrListE
                         { $$ = $3; VARDTYPE($2); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $4, $5)); }
-        |       portDirNetE data_type           portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE data_type           portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $3; VARDTYPE($2); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
+                          اگر (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
         |       portDirNetE yVAR data_type      portSig variable_dimensionListE sigAttrListE
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE yVAR data_type      portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE yVAR data_type      portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
+                          اگر (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
         |       portDirNetE yVAR implicit_typeE portSig variable_dimensionListE sigAttrListE
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE yVAR implicit_typeE portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE yVAR implicit_typeE portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
+                          اگر (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
         |       portDirNetE signing             portSig variable_dimensionListE sigAttrListE
                         { $$ = $3;
-                          AstNodeDType* const dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
+                          Ast_گره_DType* ثابت dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
                           VARDTYPE_NDECL(dtp); VARIOANSI();
                           addNextNull($$, VARDONEP($$, $4, $5)); }
-        |       portDirNetE signing             portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE signing             portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $3;
-                          AstNodeDType* const dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
+                          Ast_گره_DType* ثابت dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
                           VARDTYPE_NDECL(dtp); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
+                          اگر (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
         |       portDirNetE signingE rangeList  portSig variable_dimensionListE sigAttrListE
                         { $$ = $4;
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                                     new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE_NDECL(dtp);
                           addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE signingE rangeList  portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE signingE rangeList  portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $4;
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                                     new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE_NDECL(dtp);
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
+                          اگر (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
         |       portDirNetE /*implicit*/        portSig variable_dimensionListE sigAttrListE
                         { $$ = $2; /*VARDTYPE-same*/ addNextNull($$, VARDONEP($$, $3, $4)); }
-        |       portDirNetE /*implicit*/        portSig variable_dimensionListE sigAttrListE '=' constExpr
+        |       portDirNetE /*implicit*/        portSig variable_dimensionListE sigAttrListE '=' const_عبارت
                         { $$ = $2; /*VARDTYPE-same*/
-                          if (AstVar* vp = VARDONEP($$, $3, $4)) { addNextNull($$, vp); vp->valuep($6); } }
+                          اگر (AstVar* vp = VARDONEP($$, $3, $4)) { addNextNull($$, vp); vp->valuep($6); } }
         //                      //   IEEE: '.' port_identifier '(' [ expression ] ')'
-        |       portDirNetE /*implicit*/ '.' portSig '(' expr ')'
+        |       portDirNetE /*implicit*/ '.' portSig '(' عبارت ')'
                         { $$ = $3; DEL($5);
                           BBUNSUP($<fl>2, "Unsupported: complex ports (IEEE 1800-2023 23.2.2.1/2)"); }
         //                      // IEEE: part of (non-ansi) port_reference
@@ -1533,16 +1533,16 @@ interface_declaration:          // IEEE: interface_declaration + interface_nonan
         //                      // timeunits_declarationE is instead in interface_item
                 intFront importsAndParametersE portsStarE ';'
                         interface_itemListE yENDINTERFACE endLabelE
-                        { if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
+                        { اگر ($2) $1->addStmtsp($2);
+                          اگر ($3) $1->addStmtsp($3);
+                          اگر ($5) $1->addStmtsp($5);
                           $1->hasParameterList($<flag>2); }
         |       yEXTERN intFront parameter_port_listE portsStarE ';'
                         { DEL($2->unlinkFrBack()); }
                         // We allow interfaces to be declared after instantiations, so harmless
         ;
 
-intFront<nodeModulep>:
+intFront<گره_Modulep>:
                 yINTERFACE lifetimeE idAny/*new_interface*/
                         { $$ = new AstIface{$<fl>3, *$3, PARSEP->libname()};
                           $$->inLibrary(true);
@@ -1624,16 +1624,16 @@ program_declaration:            // IEEE: program_declaration + program_nonansi_h
         /*cont*/    program_itemListE yENDPROGRAM endLabelE
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
                           $1->hasParameterList($<flag>2);
-                          if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
+                          اگر ($2) $1->addStmtsp($2);
+                          اگر ($3) $1->addStmtsp($3);
+                          اگر ($5) $1->addStmtsp($5);
                           GRAMMARP->endLabel($<fl>7, $1, $7); }
         |       yEXTERN pgmFront parameter_port_listE portsStarE ';'
                         { DEL($2->unlinkFrBack()); }
                         // We allow programs to be declared after instantiations, so harmless
         ;
 
-pgmFront<nodeModulep>:
+pgmFront<گره_Modulep>:
                 yPROGRAM lifetimeE idAny/*new_program*/
                         { $$ = new AstModule{$<fl>3, *$3, PARSEP->libname(), AstModule::Program{}};
                           $$->lifetime($2);
@@ -1704,8 +1704,8 @@ modport_item<nodep>:                    // ==IEEE: modport_item
         /*cont*/    modportPortsDeclList ')'
                         { $$ = new AstModport{$<fl>1, *$1, $4};
                           // Append any prototype tasks from import/export as interface siblings
-                          if (GRAMMARP->m_modportProtoTasksp) {
-                              $$ = AstNode::addNextNull(
+                          اگر (GRAMMARP->m_modportProtoTasksp) {
+                              $$ = Ast_گره::addNextNull(
                                   GRAMMARP->m_modportProtoTasksp, $$);
                               GRAMMARP->m_modportProtoTasksp = nullptr;
                           } }
@@ -1749,7 +1749,7 @@ modportPortsDecl<nodep>:
                           GRAMMARP->m_modportImpExpLastIsExport = true;
                           // Export: add prototype task to interface (as sibling of modport)
                           GRAMMARP->m_modportProtoTasksp
-                              = AstNode::addNextNull(GRAMMARP->m_modportProtoTasksp, $2); }
+                              = Ast_گره::addNextNull(GRAMMARP->m_modportProtoTasksp, $2); }
         // Continuations of above after a comma.
         //                      // IEEE: modport_simple_ports_declaration
         |       modportSimplePortOrTFPort                { $$ = $1; }
@@ -1757,15 +1757,15 @@ modportPortsDecl<nodep>:
 
 modportSimplePortOrTFPort<nodep>:// IEEE: modport_simple_port or modport_tf_port, depending what keyword was earlier
                 idAny                                   { $$ = GRAMMARP->m_modportImpExpActive ?
-                                                                static_cast<AstNode*>(
+                                                                static_cast<Ast_گره*>(
                                                                   new AstModportFTaskRef{
                                                                     $<fl>1, *$1, GRAMMARP->m_modportImpExpLastIsExport} ) :
-                                                                static_cast<AstNode*>(
+                                                                static_cast<Ast_گره*>(
                                                                   new AstModportVarRef{
                                                                     $<fl>1, *$1, GRAMMARP->m_varIO} ); }
         |       '.' idAny '(' ')'                       { $$ = new AstModportVarRef{$<fl>2, *$2, GRAMMARP->m_varIO};
                                                           BBUNSUP($<fl>4, "Unsupported: Modport empty expression"); }
-        |       '.' idAny '(' expr ')'                  { $$ = new AstModportVarRef{$<fl>2, *$2, $4, GRAMMARP->m_varIO}; }
+        |       '.' idAny '(' عبارت ')'                  { $$ = new AstModportVarRef{$<fl>2, *$2, $4, GRAMMARP->m_varIO}; }
         ;
 
 //************************************************
@@ -1783,7 +1783,7 @@ list_of_genvar_identifiers<nodep>:      // IEEE: list_of_genvar_identifiers (for
 genvar_identifierDecl<varp>:            // IEEE: genvar_identifier (for declaration)
                 idAny/*new-genvar_identifier*/ sigAttrListE
                         { VARRESET_NONLIST(GENVAR);
-                          AstNodeDType* const dtp = new AstBasicDType{$<fl>1, VBasicDTypeKwd::INTEGER};
+                          Ast_گره_DType* ثابت dtp = new AstBasicDType{$<fl>1, VBasicDTypeKwd::INTEGER};
                           VARDTYPE(dtp);
                           $$ = VARDONEA($<fl>1, *$1, nullptr, $2); }
         ;
@@ -1810,7 +1810,7 @@ parameter_declarationTypeFront: // IEEE: local_ or parameter_declaration w/o ass
                         { /*VARRESET-in-varParam*/ VARDTYPE(new AstParseTypeDType{$2}); }
         |       varParamReset yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
+                          Ast_گره_DType* ثابت dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
         ;
 
 parameter_port_declarationFrontE: // IEEE: local_ or parameter_port_declaration w/o assignment
@@ -1823,7 +1823,7 @@ parameter_port_declarationFrontE: // IEEE: local_ or parameter_port_declaration 
                         { /*VARRESET-in-varParam*/
                           // Keep previous type to handle subsequent declarations.
                           // This rule is also used when the previous parameter is a type parameter
-                          if ($1) $1->v3error("parameter port declarations require 'parameter'"
+                          اگر ($1) $1->v3error("parameter port declarations require 'parameter'"
                                               " keyword before implicit data types"
                                               " (IEEE 1800-2023 6.20.1/A.2.1.1)\n"
                                               + $1->warnMore()
@@ -1838,16 +1838,16 @@ parameter_port_declarationTypeFrontE: // IEEE: parameter_port_declaration w/o as
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 varParamReset yTYPE__ETC
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2}; VARDTYPE(dtp); }
+                          Ast_گره_DType* ثابت dtp = new AstParseTypeDType{$2}; VARDTYPE(dtp); }
         |       varParamReset yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
+                          Ast_گره_DType* ثابت dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
         |       yTYPE__ETC
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$1}; VARDTYPE(dtp); }
+                          Ast_گره_DType* ثابت dtp = new AstParseTypeDType{$1}; VARDTYPE(dtp); }
         |       yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$1, $2}; VARDTYPE(dtp); }
+                          Ast_گره_DType* ثابت dtp = new AstParseTypeDType{$1, $2}; VARDTYPE(dtp); }
         ;
 
 forward_type<fwdtype>:  // ==IEEE: forward_type
@@ -1861,7 +1861,7 @@ forward_type<fwdtype>:  // ==IEEE: forward_type
 net_declaration<nodep>:         // IEEE: net_declaration - excluding implict
                 net_declarationFront netSigList ';'
                         { $$ = $2;
-                          if (GRAMMARP->m_netStrengthp) {
+                          اگر (GRAMMARP->m_netStrengthp) {
                               VL_DO_CLEAR(delete GRAMMARP->m_netStrengthp, GRAMMARP->m_netStrengthp = nullptr);
                           }
                           GRAMMARP->setNetDelay(nullptr); }
@@ -1874,7 +1874,7 @@ net_declarationFront:           // IEEE: beginning of net_declaration
         |       net_declRESET yINTERCONNECT signingE rangeListE
                         { BBUNSUP($<fl>2, "Unsupported: interconnect");
                           VARDECL(WIRE);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                                     new AstBasicDType{$2, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE_NDECL(dtp); }
         ;
@@ -1890,7 +1890,7 @@ net_scalaredE:
         |       yVECTORED                               { }
         ;
 
-net_dataTypeE<nodeDTypep>:
+net_dataTypeE<گره_DTypep>:
         //                      // If there's a SV data type there shouldn't be a delay on this wire
         //                      // Otherwise #(...) can't be determined to be a delay or parameters
         //                      // Submit this as a footnote to the committee
@@ -1931,7 +1931,7 @@ varParamReset:
 port_direction:                 // ==IEEE: port_direction + tf_port_direction
         //                      // IEEE 19.8 just "input" FIRST forces type to wire - we'll ignore that here
         //                      // Only used for ANSI declarations
-                yINPUT                                  { VARIO(INPUT); }
+                y_درون_داد                                  { VARIO(درون_داد); }
         |       yOUTPUT                                 { VARIO(OUTPUT); }
         |       yINOUT                                  { VARIO(INOUT); }
         |       yREF                                    { VARIO(REF); }
@@ -1945,7 +1945,7 @@ port_direction:                 // ==IEEE: port_direction + tf_port_direction
 
 port_directionReset:            // IEEE: port_direction that starts a port_declaraiton
         //                      // Used only for declarations outside the port list
-                yINPUT                                  { VARRESET_NONLIST(UNKNOWN); VARIO(INPUT); }
+                y_درون_داد                                  { VARRESET_NONLIST(UNKNOWN); VARIO(درون_داد); }
         |       yOUTPUT                                 { VARRESET_NONLIST(UNKNOWN); VARIO(OUTPUT); }
         |       yINOUT                                  { VARRESET_NONLIST(UNKNOWN); VARIO(INOUT); }
         |       yREF                                    { VARRESET_NONLIST(UNKNOWN); VARIO(REF); }
@@ -1970,12 +1970,12 @@ port_declaration<nodep>:        // ==IEEE: port_declaration
         /*mid*/         { VARDECL(VAR); VARDTYPE($4); }
         /*cont*/    list_of_variable_decl_assignments                   { $$ = $6; }
         |       port_directionReset port_declNetE signingE rangeList
-        /*mid*/         { AstNodeDType* const dtp = GRAMMARP->addRange(
+        /*mid*/         { Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                               new AstBasicDType{$4->fileline(), LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE_NDECL(dtp); }
         /*cont*/    list_of_variable_decl_assignments                   { $$ = $6; }
         |       port_directionReset port_declNetE signing
-        /*mid*/         { AstNodeDType* const dtp = new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $3};
+        /*mid*/         { Ast_گره_DType* ثابت dtp = new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $3};
                           VARDTYPE_NDECL(dtp); }
         /*cont*/    list_of_variable_decl_assignments                   { $$ = $5; }
         |       port_directionReset port_declNetE /*implicit*/
@@ -1992,7 +1992,7 @@ port_declaration<nodep>:        // ==IEEE: port_declaration
         //                      // IEEE: interface_identifier '.' modport_identifier list_of_interface_identifiers
         |       id/*interface*/ '.' idAny/*modport*/
         /*mid*/         { VARRESET_NONLIST(VVarType::IFACEREF);
-                          AstIfaceRefDType* const dtp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
+                          AstIfaceRefDType* ثابت dtp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
                           VARDTYPE(dtp); }
         /*cont*/    mpInstnameList
                         { $$ = VARDONEP($5, nullptr, nullptr); DEL($5); }
@@ -2047,7 +2047,7 @@ signing<signstate>:             // ==IEEE: signing
 //************************************************
 // Data Types
 
-simple_typeNoRef<nodeDTypep>:   // IEEE: simple_type without idType
+simple_typeNoRef<گره_DTypep>:   // IEEE: simple_type without idType
         //                      // IEEE: integer_type
                 integer_atom_type                       { $$ = $1; }
         |       integer_vector_type                     { $$ = $1; }
@@ -2057,7 +2057,7 @@ simple_typeNoRef<nodeDTypep>:   // IEEE: simple_type without idType
         //                      // Need to determine if generate_block_identifier can be lex-detected
         ;
 
-data_type<nodeDTypep>:          // ==IEEE: data_type
+data_type<گره_DTypep>:          // ==IEEE: data_type
         //                      // IEEE: data_type_or_incomplete_class_scoped_type parses same as this
         //                      // as can't tell them apart until link
         //                      // This expansion also replicated elsewhere, IE data_type__AndID
@@ -2070,14 +2070,14 @@ data_type<nodeDTypep>:          // ==IEEE: data_type
         //                      // IEEE: ps_covergroup_identifier
         //                      // Don't distinguish between types and classes so all these combined
         |       packageClassScopeE idType packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = GRAMMARP->createArray(refp, $3, true); }
-        |       packageClassScopeE idType parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idType parameter_مقدار_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         ;
 
-data_typeAny<nodeDTypep>:       // ==IEEE: data_type (accepting idAny)
+data_typeAny<گره_DTypep>:       // ==IEEE: data_type (accepting idAny)
         //                      // IEEE: data_type_or_incomplete_class_scoped_type parses same as this
         //                      // as can't tell them apart until link
         //                      // This expansion also replicated elsewhere, IE data_type__AndID
@@ -2090,14 +2090,14 @@ data_typeAny<nodeDTypep>:       // ==IEEE: data_type (accepting idAny)
         //                      // IEEE: ps_covergroup_identifier
         //                      // Don't distinguish between types and classes so all these combined
         |       packageClassScopeE idAny packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = GRAMMARP->createArray(refp, $3, true); }
-        |       packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idAny parameter_مقدار_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         ;
 
-data_typeBasic<nodeDTypep>:             // IEEE: part of data_type
+data_typeBasic<گره_DTypep>:             // IEEE: part of data_type
                 integer_vector_type signingE rangeListE { $1->setSignedState($2); $$ = GRAMMARP->addRange($1, $3, true); }
         //                      // IEEE: packed_dimension: unsized_dimension, legal only in DPI import
         |       integer_vector_type signingE '[' ']'
@@ -2107,17 +2107,17 @@ data_typeBasic<nodeDTypep>:             // IEEE: part of data_type
         |       non_integer_type                        { $$ = $1; }
         ;
 
-data_typeNoRef<nodeDTypep>:             // ==IEEE: data_type, excluding class_type etc references
+data_typeNoRef<گره_DTypep>:             // ==IEEE: data_type, excluding class_type etc references
                 data_typeBasic                          { $$ = $1; }
         |       struct_unionDecl packed_dimensionListE
                         { $$ = GRAMMARP->createArray(
                                    new AstDefImplicitDType{$1->fileline(),
-                                                           "__typeimpsu" + cvtToStr(GRAMMARP->s_typeImpNum++),
+                                                           "__typeimpsu" + cvtToStr(GRAMMARP->s_type_Imp_رقم++),
                                                            VFlagChildDType{}, $1}, $2, true); }
         |       enumDecl packed_dimensionListE
                         { $$ = GRAMMARP->createArray(
                                    new AstDefImplicitDType{$1->fileline(),
-                                                           "__typeimpenum" + cvtToStr(GRAMMARP->s_typeImpNum++),
+                                                           "__typeimpenum" + cvtToStr(GRAMMARP->s_type_Imp_رقم++),
                                                            VFlagChildDType{}, $1}, $2, true); }
         |       ySTRING
                         { $$ = new AstBasicDType{$1, VBasicDTypeKwd::STRING}; }
@@ -2136,63 +2136,63 @@ data_typeNoRef<nodeDTypep>:             // ==IEEE: data_type, excluding class_ty
                         { $$ = $2; }
         ;
 
-data_typeVirtual<nodeDTypep>:           // ==IEEE: data_type after yVIRTUAL [ yINTERFACE ]
+data_typeVirtual<گره_DTypep>:           // ==IEEE: data_type after yVIRTUAL [ yINTERFACE ]
         //                      // Parameters here are SV2009
                 idAny/*interface*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, "", *$1};
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, "", *$1};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
         |       idAny/*interface*/ '.' idAny/*modport*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
-        |       idAny/*interface*/ parameter_value_assignmentClass
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, nullptr, "", *$1, "", $2};
+        |       idAny/*interface*/ parameter_مقدار_assignment_Class
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, nullptr, "", *$1, "", $2};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
-        |       idAny/*interface*/ parameter_value_assignmentClass '.' idAny/*modport*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>4, "", *$1, *$4, $2};
+        |       idAny/*interface*/ parameter_مقدار_assignment_Class '.' idAny/*modport*/
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>4, "", *$1, *$4, $2};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
         ;
 
-data_type_or_void<nodeDTypep>:  // ==IEEE: data_type_or_void
+data_type_or_void<گره_DTypep>:  // ==IEEE: data_type_or_void
                 data_typeAny                            { $$ = $1; }
         |       yVOID
                         { $$ = new AstBasicDType{$1, VBasicDTypeKwd::CVOID}; }
         ;
 
-var_data_type<nodeDTypep>:              // ==IEEE: var_data_type
+var_data_type<گره_DTypep>:              // ==IEEE: var_data_type
                 data_type                               { $$ = $1; }
         |       yVAR data_type                          { $$ = $2; }
         |       yVAR implicit_typeE                     { $$ = $2; }
         ;
 
-type_referenceBoth<nodeExprp>:          // IEEE: type_reference
-                yTYPE__ETC '(' exprOrDataType ')'
+type_referenceBoth<گره_Exprp>:          // IEEE: type_reference
+                yTYPE__ETC '(' عبارت_Or_Data_Type ')'
                         { $$ = new AstAttrOf{$1, VAttrType::TYPEID, $3}; }
         ;
 
-type_referenceDecl<nodeDTypep>:         // IEEE: type_reference (as a data type for declaration)
-                yTYPE__ETC '(' exprOrDataType ')'
-                        { $$ = new AstRefDType{$1, AstRefDType::FlagTypeOfExpr{}, $3}; }
+type_referenceDecl<گره_DTypep>:         // IEEE: type_reference (as a data type for declaration)
+                yTYPE__ETC '(' عبارت_Or_Data_Type ')'
+                        { $$ = new AstRefDType{$1, AstRefDType::Flag_Type_Of_عبارت{}, $3}; }
         ;
 
-type_referenceEq<nodeExprp>:            // IEEE: type_reference (as an ==/!== expression)
-                yTYPE__EQ '(' exprOrDataType ')'
+type_referenceEq<گره_Exprp>:            // IEEE: type_reference (as an ==/!== expression)
+                yTYPE__EQ '(' عبارت_Or_Data_Type ')'
                         { $$ = new AstAttrOf{$1, VAttrType::TYPEID, $3}; }
         ;
 
-struct_unionDecl<nodeUOrStructDTypep>:  // IEEE: part of data_type
+struct_unionDecl<گره_UOr_Struct_DTypep>:  // IEEE: part of data_type
         //                      // packedSigningE is NOP for unpacked
                 ySTRUCT        packedSigningE '{'
-        /*mid*/         { $<nodeUOrStructDTypep>$ = new AstStructDType{$1, $2}; }
+        /*mid*/         { $<گره_UOr_Struct_DTypep>$ = new AstStructDType{$1, $2}; }
         /*cont*/    struct_union_memberListEnd
-                        { $$ = $<nodeUOrStructDTypep>4; $$->addMembersp($5); }
+                        { $$ = $<گره_UOr_Struct_DTypep>4; $$->addMembersp($5); }
         |       yUNION taggedSoftE packedSigningE '{'
-        /*mid*/         { $<nodeUOrStructDTypep>$ = new AstUnionDType{$1, $2 == tagged_SOFT, $2 == tagged_TAGGED, $3}; }
+        /*mid*/         { $<گره_UOr_Struct_DTypep>$ = new AstUnionDType{$1, $2 == tagged_SOFT, $2 == tagged_TAGGED, $3}; }
         /*cont*/    struct_union_memberListEnd
-                        { $$ = $<nodeUOrStructDTypep>5; $$->addMembersp($6); }
+                        { $$ = $<گره_UOr_Struct_DTypep>5; $$->addMembersp($6); }
         ;
 
 struct_union_memberListEnd<memberDTypep>: // IEEE: { struct_union_member } '}'
@@ -2233,16 +2233,16 @@ member_decl_assignment<memberDTypep>:   // Derived from IEEE: variable_decl_assi
                 idAny variable_dimensionListE
                         { $$ = new AstMemberDType{$<fl>1, *$1, VFlagChildDType{},
                                                   GRAMMARP->createArray((GRAMMARP->m_memDTypep
-                                                                         ? GRAMMARP->m_memDTypep->cloneTree(true) : nullptr),
+                                                                         ? GRAMMARP->m_memDTypep->clone_درخت(true) : nullptr),
                                                                         $2, false),
                                                   nullptr};
                           $$->rand(GRAMMARP->m_memRand);
                           PARSEP->tagNodep($$);
                         }
-        |       idAny variable_dimensionListE '=' variable_declExpr
+        |       idAny variable_dimensionListE '=' variable_decl_عبارت
                         { $$ = new AstMemberDType{$<fl>1, *$1, VFlagChildDType{},
                                                   GRAMMARP->createArray((GRAMMARP->m_memDTypep
-                                                                         ? GRAMMARP->m_memDTypep->cloneTree(true) : nullptr),
+                                                                         ? GRAMMARP->m_memDTypep->clone_درخت(true) : nullptr),
                                                                         $2, false),
                                                   $4};
                           $$->rand(GRAMMARP->m_memRand);
@@ -2265,7 +2265,7 @@ list_of_variable_decl_assignments<varp>:        // ==IEEE: list_of_variable_decl
 variable_decl_assignment<varp>: // ==IEEE: variable_decl_assignment
                 id variable_dimensionListE sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); }
-        |       id variable_dimensionListE sigAttrListE '=' variable_declExpr
+        |       id variable_dimensionListE sigAttrListE '=' variable_decl_عبارت
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); $$->valuep($5); }
         |       idSVKwd                                 { $$ = nullptr; }
         //
@@ -2284,29 +2284,29 @@ list_of_tf_variable_identifiers<nodep>: // ==IEEE: list_of_tf_variable_identifie
         ;
 
 tf_variable_identifier<varp>:           // IEEE: part of list_of_tf_variable_identifiers
-                id variable_dimensionListE sigAttrListE exprEqE
+                id variable_dimensionListE sigAttrListE عبارت_Eq_E
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          if ($4) AstNode::addNext<AstNode, AstNode>(
+                          اگر ($4) Ast_گره::addNext<Ast_گره, Ast_گره>(
                                       $$, new AstAssign{$4->fileline(), new AstParseRef{$<fl>1, *$1}, $4}); }
         ;
 
-variable_declExpr<nodep>:               // IEEE: part of variable_decl_assignment - rhs of expr
-                expr                                    { $$ = $1; }
+variable_decl_عبارت<nodep>:               // IEEE: part of variable_decl_assignment - rhs of expr
+                عبارت                                    { $$ = $1; }
         |       dynamic_array_new                       { $$ = $1; }
         |       class_newNoScope                        { $$ = $1; }
         ;
 
-variable_dimensionListE<nodeRangep>:    // IEEE: variable_dimension + empty
+variable_dimensionListE<گره_Rangep>:    // IEEE: variable_dimension + empty
                 /*empty*/                               { $$ = nullptr; }
         |       variable_dimensionList                  { $$ = $1; }
         ;
 
-variable_dimensionList<nodeRangep>:     // IEEE: variable_dimension + empty
+variable_dimensionList<گره_Rangep>:     // IEEE: variable_dimension + empty
                 variable_dimension                      { $$ = $1; }
         |       variable_dimensionList variable_dimension       { $$ = $1->addNext($2); }
         ;
 
-variable_dimension<nodeRangep>: // ==IEEE: variable_dimension
+variable_dimension<گره_Rangep>: // ==IEEE: variable_dimension
         //                      // IEEE: unsized_dimension
                 '[' ']'                                 { $$ = new AstUnsizedRange{$1}; }
         //                      // IEEE: unpacked_dimension
@@ -2314,7 +2314,7 @@ variable_dimension<nodeRangep>: // ==IEEE: variable_dimension
         //                      // IEEE: unpacked_dimension (if const_expr)
         //                      // IEEE: associative_dimension (if data_type)
         //                      // Can't tell which until see if expr is data type or not
-        |       '[' exprOrDataType ']'                  { $$ = new AstBracketRange{$1, $2}; }
+        |       '[' عبارت_Or_Data_Type ']'                  { $$ = new AstBracketRange{$1, $2}; }
         |       yP_BRASTAR ']'                          { $$ = new AstWildcardRange{$1}; }
         |       '[' '*' ']'                             { $$ = new AstWildcardRange{$1}; }
         //                      // IEEE: queue_dimension
@@ -2341,19 +2341,19 @@ taggedSoftE<taggedstate>:
 packedSigningE<signstate>:
         //                      // VSigning::NOSIGN overloaded to indicate not packed
                 /*empty*/                               { $$ = VSigning::NOSIGN; }
-        |       yPACKED signingE                        { $$ = $2; if ($$ == VSigning::NOSIGN) $$ = VSigning::UNSIGNED; }
+        |       yPACKED signingE                        { $$ = $2; اگر ($$ == VSigning::NOSIGN) $$ = VSigning::UNSIGNED; }
         ;
 
 //************************************************
 // enum
 
 // IEEE: part of data_type
-enumDecl<nodeDTypep>:
+enumDecl<گره_DTypep>:
                 yENUM enum_base_typeE '{' enum_nameList '}'
                         { $$ = new AstEnumDType{$1, VFlagChildDType{}, $2, $4}; }
         ;
 
-enum_base_typeE<nodeDTypep>:    // IEEE: enum_base_type
+enum_base_typeE<گره_DTypep>:    // IEEE: enum_base_type
                 /* empty */
                         { $$ = new AstBasicDType{CRELINE(), VBasicDTypeKwd::INT}; }
         //                      // Not in spec, but obviously "enum [1:0]" should work
@@ -2398,9 +2398,9 @@ enumNameRangeE<rangep>:          // IEEE: second part of enum_name_declaration
                         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
-enumNameStartE<nodeExprp>:      // IEEE: third part of enum_name_declaration
+enumNameStartE<گره_Exprp>:      // IEEE: third part of enum_name_declaration
                 /* empty */                             { $$ = nullptr; }
-        |       '=' constExpr                           { $$ = $2; }
+        |       '=' const_عبارت                           { $$ = $2; }
         ;
 
 intnumAsConst<constp>:
@@ -2427,7 +2427,7 @@ class_property<nodep>:          // ==IEEE: class_property, which is {property_qu
                 memberQualListE data_declarationVarClass
                         { $$ = $2; $1.applyToNodes($2); }
         |       memberQualListE type_declaration
-                        { $$ = $2; if (VN_IS($2, Typedef)) $1.applyToNodes(VN_AS($2, Typedef)); }
+                        { $$ = $2; اگر (VN_IS($2, Typedef)) $1.applyToNodes(VN_AS($2, Typedef)); }
         //                      // UNSUP: Import needs to apply local/protected from memberQualList, and error on others
         |       memberQualListE package_import_declaration
                         { $$ = $2; }
@@ -2458,27 +2458,27 @@ data_declarationVarFront:       // IEEE: part of data_declaration
                         { VARRESET_NONLIST(VAR); VARLIFE($2); VARDTYPE($3); }
         |       yVAR lifetimeE
                         { VARRESET_NONLIST(VAR); VARLIFE($2);
-                          AstNodeDType* const dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT};
+                          Ast_گره_DType* ثابت dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT};
                           VARDTYPE(dtp); }
         |       yVAR lifetimeE signingE rangeList
                         { /*VARRESET-in-ddVar*/ VARLIFE($2);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                               new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp); }
         //
         //                      // implicit_type expanded into /*empty*/ or "signingE rangeList"
         |       yCONST__ETC yVAR lifetimeE data_type
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{}, $4};
+                          Ast_گره_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlagChildDType{}, $4};
                           VARDTYPE(dtp); }
         |       yCONST__ETC yVAR lifetimeE
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
+                          Ast_گره_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
                                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           VARDTYPE(dtp); }
         |       yCONST__ETC yVAR lifetimeE signingE rangeList
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
+                          Ast_گره_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
                                   GRAMMARP->addRange(new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $4}, $5, true)};
                           VARDTYPE(dtp); }
         //
@@ -2489,7 +2489,7 @@ data_declarationVarFront:       // IEEE: part of data_declaration
                         { VARRESET_NONLIST(VAR); VARLIFE($1); VARDTYPE($2); }
         |       yCONST__ETC lifetimeE data_type
                         { VARRESET_NONLIST(VAR); VARLIFE($2);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>1, VFlagChildDType{}, $3};
+                          Ast_گره_DType* ثابت dtp = new AstConstDType{$<fl>1, VFlagChildDType{}, $3};
                           VARDTYPE(dtp); }
         //                      // = class_new is in variable_decl_assignment
         ;
@@ -2502,7 +2502,7 @@ data_declarationVarFrontClass:  // IEEE: part of data_declaration (for class_pro
         |       yVAR lifetimeE                  { VARRESET_NONLIST(VAR); VARLIFE($2); }
         |       yVAR lifetimeE signingE rangeList
                         { /*VARRESET-in-ddVar*/
-                          AstNodeDType* const dtp = GRAMMARP->addRange(new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp);
                           VARLIFE($2); }
         //
@@ -2529,16 +2529,16 @@ nettype_declaration<nodep>:  // IEEE: nettype_declaration/net_type_declaration
         /*cont*/   idAny/*nettype_identifier*/
         /*cont*/   yWITH__ETC packageClassScopeE id/*tf_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>5, *$5); BBUNSUP($<fl>1, "Unsupported: nettype with"); }
-        |       yNETTYPE packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yNETTYPE packageClassScopeE idAny parameter_مقدار_assignment_Class packed_dimensionListE
         /*cont*/   idAny/*nettype_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>6, *$6); BBUNSUP($<fl>1, "Unsupported: nettype"); }
-        |       yNETTYPE packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yNETTYPE packageClassScopeE idAny parameter_مقدار_assignment_Class packed_dimensionListE
         /*cont*/   idAny/*nettype_identifier*/
         /*cont*/   yWITH__ETC packageClassScopeE id/*tf_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>6, *$6); BBUNSUP($<fl>1, "Unsupported: nettype with"); }
         ;
 
-implicit_typeE<nodeDTypep>:             // IEEE: part of *data_type_or_implicit
+implicit_typeE<گره_DTypep>:             // IEEE: part of *data_type_or_implicit
         //                      // Also expanded in data_declaration
                 /* empty */
                         { $$ = nullptr; }
@@ -2558,7 +2558,7 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
                                 // Data_type expanded
                 yTYPEDEF data_typeNoRef
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstNodeDType* const dtp = $2;
+                        { Ast_گره_DType* ثابت dtp = $2;
                           $$ = GRAMMARP->createTypedef($<fl>3, *$3, $5, dtp, $4); }
 
         // IEEE 1800-2023 6.18 typedef: dotted or arrayed type identifier
@@ -2566,9 +2566,9 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
         |       yTYPEDEF idDottedOrArrayed
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
               { VARRESET_NONLIST(LPARAM);
-                AstParseTypeDType* const ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
+                AstParseTypeDType* ثابت ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
                 VARDTYPE(ptypep);
-                AstVar* const varp = VARDONEA($<fl>3, *$3, $4, $5);
+                AstVar* ثابت varp = VARDONEA($<fl>3, *$3, $4, $5);
                 // idDottedOrArrayed produces Dot/SelBit tree for hierarchical refs like if0[0].rq_t
                 varp->valuep($2);
                 $$ = varp; }
@@ -2576,54 +2576,54 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
         // IEEE 1800-2023 6.18 typedef with hierarchical type identifier
         // Special-case array on first component requiring a '.' after ']' to disambiguate from packed dims
         // Examples: typedef if0[0].rq_t my_t; typedef if0[0].x_if.rq_t my_t;
-        |       yTYPEDEF id '[' expr ']' '.' idDottedSelMore
+        |       yTYPEDEF id '[' عبارت ']' '.' idDottedSelMore
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
               { VARRESET_NONLIST(LPARAM);
-                AstParseTypeDType* const ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
+                AstParseTypeDType* ثابت ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
                 VARDTYPE(ptypep);
-                AstVar* const varp = VARDONEA($<fl>8, *$8, $9, $10);
-                AstNodeExpr* const arrp = new AstSelBit{$3, new AstParseRef{$<fl>2, *$2, nullptr, nullptr}, $4};
+                AstVar* ثابت varp = VARDONEA($<fl>8, *$8, $9, $10);
+                Ast_گره_عبارت* ثابت arrp = new AstSelBit{$3, new AstParseRef{$<fl>2, *$2, nullptr, nullptr}, $4};
                 varp->valuep(new AstDot{$6, false, arrp, $7});
                 $$ = varp; }
 
         |       yTYPEDEF packageClassScope idAny packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>3, *$3, $2, nullptr};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $4, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>3, *$3, $2, nullptr};
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->createArray(refp, $4, true);
                           $$ = GRAMMARP->createTypedef($<fl>5, *$5, $7, dtp, $6); }
-        |       yTYPEDEF packageClassScope idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yTYPEDEF packageClassScope idAny parameter_مقدار_assignment_Class packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>3, *$3, $2, $4};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $5, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>3, *$3, $2, $4};
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->createArray(refp, $5, true);
                           $$ = GRAMMARP->createTypedef($<fl>6, *$6, $8, dtp, $7); }
 
         // Type alias without packed dimensions: typedef existing_t new_t;
         |       yTYPEDEF idAny idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
                           $$ = GRAMMARP->createTypedef($<fl>3, *$3, $5, refp, $4); }
 
         // IEEE 1800-2023 6.18.2 typedef with packed dimensions on an existing type identifier
         // Disambiguated from interface array access by requiring ':' inside the brackets
         // (applies to both plain identifiers and type identifiers)
-        |       yTYPEDEF id '[' constExpr ':' constExpr ']' packed_dimensionListE
+        |       yTYPEDEF id '[' const_عبارت ':' const_عبارت ']' packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
-                          AstNodeRange* const rangep = new AstRange{$3, $4, $6};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                          Ast_گره_Range* ثابت rangep = new AstRange{$3, $4, $6};
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
                           $$ = GRAMMARP->createTypedef($<fl>9, *$9, $11, dtp, $10); }
 
         // Same as above but for type identifiers (parameter types, etc.)
-        |       yTYPEDEF idType '[' constExpr ':' constExpr ']' packed_dimensionListE
+        |       yTYPEDEF idType '[' const_عبارت ':' const_عبارت ']' packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
-                          AstNodeRange* const rangep = new AstRange{$3, $4, $6};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                          Ast_گره_Range* ثابت rangep = new AstRange{$3, $4, $6};
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
                           $$ = GRAMMARP->createTypedef($<fl>9, *$9, $11, dtp, $10); }
 
-        |       yTYPEDEF idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yTYPEDEF idAny parameter_مقدار_assignment_Class packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, $3};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $4, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, $3};
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->createArray(refp, $4, true);
                           $$ = GRAMMARP->createTypedef($<fl>5, *$5, $7, dtp, $6); }
 
         //                      // idAny as also allows redeclaring same typedef again
@@ -2653,7 +2653,7 @@ dtypeAttr<nodep>:
         ;
 
 vlTag:                          // verilator tag handling
-                yVL_TAG                                 { if (PARSEP->tagNodep()) PARSEP->tagNodep()->tag(*$1); }
+                yVL_TAG                                 { اگر (PARSEP->tagNodep()) PARSEP->tagNodep()->tag(*$1); }
         ;
 
 //************************************************
@@ -2765,7 +2765,7 @@ net_alias<nodep>:               // IEEE: net_alias
                           $$ = new AstAlias{$1, $2}; }
         ;
 
-aliasEqList<nodeExprp>:                    // IEEE: part of net_alias
+aliasEqList<گره_Exprp>:                    // IEEE: part of net_alias
                 '=' variable_lvalue                     { $$ = $2; }
         |       aliasEqList '=' variable_lvalue         { $$ = $1->addNext($3); }
         ;
@@ -2788,7 +2788,7 @@ modDefaultClocking<nodep>:  // IEEE: part of module_or_generate_item_declaration
         ;
 
 defaultDisable<nodep>:  // IEEE: part of module_/checker_or_generate_item_declaration
-                yDEFAULT yDISABLE yIFF expr/*expression_or_dist*/ ';'
+                yDEFAULT yDISABLE yIFF عبارت/*expression_or_dist*/ ';'
                         { $$ = new AstDefaultDisable{$1, $4}; }
         ;
 
@@ -2921,11 +2921,11 @@ c_generate_item<nodep>:  // IEEE: generate_item (for checkers)
         ;
 
 conditional_generate_construct<nodep>:  // ==IEEE: conditional_generate_construct
-                yCASE '(' exprTypeCompare ')' ~c~case_generate_itemList yENDCASE
+                yCASE '(' عبارت_Type_Compare ')' ~c~case_generate_itemList yENDCASE
                         { $$ = new AstGenCase{$1, $3, $5}; }
-        |       yIF '(' exprTypeCompare ')' ~c~generate_block_or_null %prec prLOWER_THAN_ELSE
+        |       yIF '(' عبارت_Type_Compare ')' ~c~generate_block_or_null %prec prLOWER_THAN_ELSE
                         { $$ = new AstGenIf{$1, $3, $5, nullptr}; }
-        |       yIF '(' exprTypeCompare ')' ~c~generate_block_or_null yELSE ~c~generate_block_or_null
+        |       yIF '(' عبارت_Type_Compare ')' ~c~generate_block_or_null yELSE ~c~generate_block_or_null
                         { $$ = new AstGenIf{$1, $3, $5, $7}; }
         ;
 
@@ -2934,16 +2934,16 @@ c_conditional_generate_construct<nodep>:  // IEEE: conditional_generate_construc
         ;
 
 loop_generate_construct<nodep>: // ==IEEE: loop_generate_construct
-                yFOR '(' genvar_initialization ';' expr ';' genvar_iteration ')' ~c~generate_block_or_null
+                yFOR '(' genvar_initialization ';' عبارت ';' genvar_iteration ')' ~c~generate_block_or_null
                         { // Convert BEGIN(...) to BEGIN(GENFOR(...)), as we need the BEGIN to hide the local genvar
                           AstGenBlock* lowerp = VN_CAST($9, GenBlock);
                           UASSERT_OBJ(!$9 || lowerp, $9, "Child of GENFOR should have been begin");
-                          AstNode* const itemsp = lowerp && lowerp->itemsp() ? lowerp->itemsp()->unlinkFrBackWithNext() : nullptr;
-                          AstGenBlock* const blkp = new AstGenBlock{$1, lowerp ? lowerp->name() : "", nullptr, true};
+                          Ast_گره* ثابت itemsp = lowerp && lowerp->itemsp() ? lowerp->itemsp()->unlinkFrBackWithNext() : nullptr;
+                          AstGenBlock* ثابت blkp = new AstGenBlock{$1, lowerp ? lowerp->name() : "", nullptr, true};
                           // V3LinkDot detects BEGIN(GENFOR(...)) as a special case
-                          AstNode* initp = $3;
-                          AstNode* const varp = $3;
-                          if (VN_IS(varp, Var)) {  // Genvar
+                          Ast_گره* initp = $3;
+                          Ast_گره* ثابت varp = $3;
+                          اگر (VN_IS(varp, Var)) {  // Genvar
                                 initp = varp->nextp();
                                 initp->unlinkFrBackWithNext();  // Detach 2nd from varp, make 1st init
                                 blkp->addItemsp(varp);
@@ -2961,49 +2961,49 @@ c_loop_generate_construct<nodep>:  // IEEE: loop_generate_construct (for checker
         ;
 
 genvar_initialization<nodep>:   // ==IEEE: genvar_initialization
-                parseRefBase '=' expr                     { $$ = new AstAssign{$2, $1, $3}; }
-        |       yGENVAR genvar_identifierDecl '=' constExpr
-                        { $$ = $2; AstNode::addNext<AstNode, AstNode>($$,
+                parseRefBase '=' عبارت                     { $$ = new AstAssign{$2, $1, $3}; }
+        |       yGENVAR genvar_identifierDecl '=' const_عبارت
+                        { $$ = $2; Ast_گره::addNext<Ast_گره, Ast_گره>($$,
                                        new AstAssign{$3, new AstVarRef{$2->fileline(), $2, VAccess::WRITE}, $4}); }
         ;
 
 genvar_iteration<nodep>:        // ==IEEE: genvar_iteration
-                parseRefBase '='          expr
+                parseRefBase '='          عبارت
                         { $$ = new AstAssign{$2, $1, $3}; }
-        |       parseRefBase yP_PLUSEQ    expr
-                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_MINUSEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_TIMESEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstMul{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_DIVEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstDiv{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_MODEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstModDiv{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_ANDEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstAnd{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_OREQ      expr
-                        { $$ = new AstAssign{$2, $1, new AstOr{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_XOREQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstXor{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SLEFTEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftL{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SRIGHTEQ  expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftR{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SSRIGHTEQ expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftRS{$2, $1->cloneTreePure(true), $3}}; }
+        |       parseRefBase yP_PLUSEQ    عبارت
+                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_MINUSEQ   عبارت
+                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_TIMESEQ   عبارت
+                        { $$ = new AstAssign{$2, $1, new AstMul{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_DIVEQ     عبارت
+                        { $$ = new AstAssign{$2, $1, new AstDiv{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_MODEQ     عبارت
+                        { $$ = new AstAssign{$2, $1, new AstModDiv{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_ANDEQ     عبارت
+                        { $$ = new AstAssign{$2, $1, new AstAnd{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_OREQ      عبارت
+                        { $$ = new AstAssign{$2, $1, new AstOr{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_XOREQ     عبارت
+                        { $$ = new AstAssign{$2, $1, new AstXor{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_SLEFTEQ   عبارت
+                        { $$ = new AstAssign{$2, $1, new AstShiftL{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_SRIGHTEQ  عبارت
+                        { $$ = new AstAssign{$2, $1, new AstShiftR{$2, $1->clone_درخت_Pure(true), $3}}; }
+        |       parseRefBase yP_SSRIGHTEQ عبارت
+                        { $$ = new AstAssign{$2, $1, new AstShiftRS{$2, $1->clone_درخت_Pure(true), $3}}; }
         //                      // inc_or_dec_operator
         |       yP_PLUSPLUS   parseRefBase
-                        { $$ = new AstAssign{$1, $2, new AstAdd{$1, $2->cloneTreePure(true),
+                        { $$ = new AstAssign{$1, $2, new AstAdd{$1, $2->clone_درخت_Pure(true),
                                                                 new AstConst{$1, AstConst::StringToParse{}, "'b1"}}}; }
         |       yP_MINUSMINUS parseRefBase
-                        { $$ = new AstAssign{$1, $2, new AstSub{$1, $2->cloneTreePure(true),
+                        { $$ = new AstAssign{$1, $2, new AstSub{$1, $2->clone_درخت_Pure(true),
                                                                 new AstConst{$1, AstConst::StringToParse{}, "'b1"}}}; }
         |       parseRefBase yP_PLUSPLUS
-                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->cloneTreePure(true),
+                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->clone_درخت_Pure(true),
                                                                 new AstConst{$2, AstConst::StringToParse{}, "'b1"}}}; }
         |       parseRefBase yP_MINUSMINUS
-                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->cloneTreePure(true),
+                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->clone_درخت_Pure(true),
                                                                 new AstConst{$2, AstConst::StringToParse{}, "'b1"}}}; }
         ;
 
@@ -3035,7 +3035,7 @@ assignList<alwaysp>:
         ;
 
 assignOne<alwaysp>:
-                variable_lvalue '=' expr                { AstAssignW* const ap = new AstAssignW{$2, $1, $3};
+                variable_lvalue '=' عبارت                { AstAssignW* ثابت ap = new AstAssignW{$2, $1, $3};
                                                           $$ = new AstAlways{ap}; }
         ;
 
@@ -3043,7 +3043,7 @@ delay_or_event_controlE<nodep>:  // IEEE: delay_or_event_control plus empty
                 /* empty */                             { $$ = nullptr; }
         |       delay_control                           { $$ = $1; }
         |       event_control                           { $$ = $1; }
-        |       yREPEAT '(' expr ')' event_control
+        |       yREPEAT '(' عبارت ')' event_control
                         { $$ = $5; BBUNSUP($1, "Unsupported: repeat event control"); }
         ;
 
@@ -3053,7 +3053,7 @@ delay_controlE<delayp>:
         ;
 
 delay_control<delayp>:   //== IEEE: delay_control
-                '#' delay_value
+                '#' delay_مقدار
                         { $$ = new AstDelay{$<fl>1, $2, false}; }
         |       '#' '(' minTypMax ')'
                         { $$ = new AstDelay{$<fl>1, $3, false}; }
@@ -3064,21 +3064,21 @@ delay_control<delayp>:   //== IEEE: delay_control
                         { $$ = new AstDelay{$<fl>1, $3, false}; $$->fallDelay($5); RISEFALLDLYUNSUP($7); DEL($7); }
         ;
 
-delay_value<nodeExprp>:         // ==IEEE:delay_value
+delay_مقدار<گره_Exprp>:         // ==IEEE:delay_value
         //                      // IEEE: ps_identifier
                 idClass                                 { $$ = $1; }
         |       yaINTNUM                                { $$ = new AstConst{$<fl>1, *$1}; }
         |       yaFLOATNUM                              { $$ = new AstConst{$<fl>1, AstConst::RealDouble{}, $1}; }
-        |       timeNumAdjusted                         { $$ = $1; }
+        |       time_رقم_Adjusted                         { $$ = $1; }
         |       y1STEP                                  { $$ = new AstConst{$<fl>1, AstConst::OneStep{}}; }
         ;
 
-minTypMax<nodeExprp>:           // IEEE: mintypmax_expression and constant_mintypmax_expression
-                expr                               { $$ = $1; }
-        |       expr ':' expr ':' expr { $$ = $3; MINTYPMAXDLYUNSUP($3); DEL($1); DEL($5); }
+minTypMax<گره_Exprp>:           // IEEE: mintypmax_expression and constant_mintypmax_expression
+                عبارت                               { $$ = $1; }
+        |       عبارت ':' عبارت ':' عبارت { $$ = $3; MINTYPMAXDLYUNSUP($3); DEL($1); DEL($5); }
         ;
 
-minTypMaxE<nodeExprp>:
+minTypMaxE<گره_Exprp>:
                 /*empty*/                               { $$ = nullptr; }
         |       minTypMax                               { $$ = $1; }
         ;
@@ -3091,12 +3091,12 @@ netSigList<varp>:               // IEEE: list_of_port_identifiers
 netSig<varp>:                   // IEEE: net_decl_assignment -  one element from list_of_port_identifiers
                 netId variable_dimensionListE sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); }
-        |       netId variable_dimensionListE sigAttrListE '=' expr
+        |       netId variable_dimensionListE sigAttrListE '=' عبارت
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          AstDelay* const delayp = $$->delayp() ? $$->delayp()->unlinkFrBack() : nullptr;
-                          AstAssignW* const assignp = new AstAssignW{$4, new AstParseRef{$<fl>1, *$1}, $5, delayp};
-                          if (GRAMMARP->m_netStrengthp) assignp->strengthSpecp(GRAMMARP->m_netStrengthp->cloneTree(false));
-                          AstNode::addNext<AstNode, AstNode>($$, new AstAlways{assignp}); }
+                          AstDelay* ثابت delayp = $$->delayp() ? $$->delayp()->unlinkFrBack() : nullptr;
+                          AstAssignW* ثابت assignp = new AstAssignW{$4, new AstParseRef{$<fl>1, *$1}, $5, delayp};
+                          اگر (GRAMMARP->m_netStrengthp) assignp->strengthSpecp(GRAMMARP->m_netStrengthp->clone_درخت(false));
+                          Ast_گره::addNext<Ast_گره, Ast_گره>($$, new AstAlways{assignp}); }
         ;
 
 netId<strp>:
@@ -3149,47 +3149,47 @@ sigAttr<nodep>:
         |       yVL_FSM_STATE_FULL                      { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_STATE_FULL}; }
         ;
 
-rangeListE<nodeRangep>:         // IEEE: [{packed_dimension}]
+rangeListE<گره_Rangep>:         // IEEE: [{packed_dimension}]
                 /* empty */                             { $$ = nullptr; }
         |       rangeList                               { $$ = $1; }
         ;
 
-rangeList<nodeRangep>:          // IEEE: {packed_dimension}
+rangeList<گره_Rangep>:          // IEEE: {packed_dimension}
                 anyrange                                { $$ = $1; }
         |       rangeList anyrange                      { $$ = $1->addNext($2); }
         ;
 
-anyrange<nodeRangep>:
-                '[' constExpr ':' constExpr ']'         { $$ = new AstRange{$1, $2, $4}; }
+anyrange<گره_Rangep>:
+                '[' const_عبارت ':' const_عبارت ']'         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
-part_select_rangeList<nodePreSelp>:  // IEEE: part_select_range (as used after function calls)
+part_select_rangeList<گره_Pre_Selp>:  // IEEE: part_select_range (as used after function calls)
                 part_select_range                        { $$ = $1; }
         |       part_select_rangeList part_select_range  { $$ = GRAMMARP->scrubSel($1, $2); }
         ;
 
-part_select_range<nodePreSelp>:
-                '[' expr ']'
+part_select_range<گره_Pre_Selp>:
+                '[' عبارت ']'
                         { $$ = new AstSelBit{$1, new AstParseHolder{$1}, $2}; }
-        |       '[' constExpr ':' constExpr ']'
+        |       '[' const_عبارت ':' const_عبارت ']'
                         { $$ = new AstSelExtract{$1, new AstParseHolder{$1}, $2, $4}; }
-        |       '[' expr yP_PLUSCOLON constExpr ']'
+        |       '[' عبارت yP_PLUSCOLON const_عبارت ']'
                         { $$ = new AstSelPlus{$1, new AstParseHolder{$1}, $2, $4}; }
-        |       '[' expr yP_MINUSCOLON constExpr ']'
+        |       '[' عبارت yP_MINUSCOLON const_عبارت ']'
                         { $$ = new AstSelMinus{$1, new AstParseHolder{$1}, $2, $4}; }
         ;
 
-packed_dimensionListE<nodeRangep>:      // IEEE: [{ packed_dimension }]
+packed_dimensionListE<گره_Rangep>:      // IEEE: [{ packed_dimension }]
                 /* empty */                             { $$ = nullptr; }
         |       packed_dimensionList                    { $$ = $1; }
         ;
 
-packed_dimensionList<nodeRangep>:       // IEEE: { packed_dimension }
+packed_dimensionList<گره_Rangep>:       // IEEE: { packed_dimension }
                 packed_dimension                        { $$ = $1; }
         |       packed_dimensionList packed_dimension   { $$ = $1->addNext($2); }
         ;
 
-packed_dimension<nodeRangep>:   // ==IEEE: packed_dimension
+packed_dimension<گره_Rangep>:   // ==IEEE: packed_dimension
                 anyrange                                { $$ = $1; }
         |       '[' ']'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: [] dimensions"); }
@@ -3201,10 +3201,10 @@ packed_dimension<nodeRangep>:   // ==IEEE: packed_dimension
 param_assignment<varp>:         // ==IEEE: param_assignment
         //                      // IEEE: constant_param_expression
         //                      // constant_param_expression: '$' is in expr
-                id/*new-parameter*/ variable_dimensionListE sigAttrListE exprOrDataTypeEqE
+                id/*new-parameter*/ variable_dimensionListE sigAttrListE عبارت_Or_Data_Type_Eq_E
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          if ($4) $$->valuep($4);
-                          else if (!GRAMMARP->m_pinAnsi)
+                          اگر ($4) $$->valuep($4);
+                          وگرنه اگر (!GRAMMARP->m_pinAnsi)
                               $$->v3warn(PARAMNODEFAULT, "Parameter without default requires"
                                          " ANSI-style parameter list (IEEE 1800-2023 6.20.1): "
                                          << $$->prettyNameQ()); }
@@ -3221,7 +3221,7 @@ type_assignment<varp>:          // ==IEEE: type_assignment
         //                      // which get resolved to types during linking
                 idAny/*new-parameter*/ sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2); }
-        |       idAny/*new-parameter*/ sigAttrListE '=' exprOrDataType
+        |       idAny/*new-parameter*/ sigAttrListE '=' عبارت_Or_Data_Type
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
                           // V3LinkParse will wrap this in RequireDType when creating ParamTypeDType
                           $$->valuep($4); }
@@ -3240,20 +3240,20 @@ list_of_defparam_assignments<nodep>:    //== IEEE: list_of_defparam_assignments
         ;
 
 defparam_assignment<nodep>:     // ==IEEE: defparam_assignment
-                defparamIdRangeList '.' defparamIdRange '=' expr
+                defparamIdRangeList '.' defparamIdRange '=' عبارت
                         { $$ = new AstDefParam{$4, $1, *$3, $5}; }
-        |       defparamIdRange '=' expr
+        |       defparamIdRange '=' عبارت
                         { $$ = nullptr; BBUNSUP($2, "Unsupported: defparam with no dot");
                           DEL($3); }
         ;
 
-defparamIdRangeList<nodeExprp>:  // IEEE: part of defparam_assignment
-                defparamIdRangeExpr                     { $$ = $1; }
-        |       defparamIdRangeList '.' defparamIdRangeExpr
+defparamIdRangeList<گره_Exprp>:  // IEEE: part of defparam_assignment
+                defparam_Id_Range_عبارت                     { $$ = $1; }
+        |       defparamIdRangeList '.' defparam_Id_Range_عبارت
                         { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-defparamIdRangeExpr<nodeExprp>:  // IEEE: part of defparam_assignment
+defparam_Id_Range_عبارت<گره_Exprp>:  // IEEE: part of defparam_assignment
                 idAny
                         { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
         |       idAny part_select_rangeList
@@ -3287,13 +3287,13 @@ etcInst<nodep>:                 // IEEE: module_instantiation + gate_instantiati
 instDecl<nodep>:
         //                      // Disambigurated from data_declaration based on
         //                      // idInst which is found as IEEE requires a later '('
-                idInst parameter_value_assignmentInstE
+                idInst parameter_مقدار_assignment_Inst_E
         /*mid*/         { INSTPREP($<fl>1, *$1, $2); }
         /*cont*/    instnameList ';'
                         { $$ = $4;
                           GRAMMARP->m_impliedDecl = false;
-                          if (GRAMMARP->m_instParamp) {
-                              VL_DO_CLEAR(GRAMMARP->m_instParamp->deleteTree(),
+                          اگر (GRAMMARP->m_instParamp) {
+                              VL_DO_CLEAR(GRAMMARP->m_instParamp->delete_درخت(),
                                           GRAMMARP->m_instParamp = nullptr);
                           } }
         //
@@ -3329,25 +3329,25 @@ instnameParenUdpn<nodep>:  // IEEE: part of udp_instance when no name_of_instanc
                         { $$ = GRAMMARP->createCell($<fl>1, "", $2, nullptr); }
         ;
 
-instRangeListE<nodeRangep>:
+instRangeListE<گره_Rangep>:
                 /* empty */                             { $$ = nullptr; }
         |       instRangeList                           { $$ = $1; }
         ;
 
-instRangeList<nodeRangep>:
+instRangeList<گره_Rangep>:
                 instRange                               { $$ = $1; }
         |       instRangeList instRange                 { $$ = addNextNull($1, $2); }
         ;
 
-instRange<nodeRangep>:
-                '[' constExpr ']'
+instRange<گره_Rangep>:
+                '[' const_عبارت ']'
                         { $$ = new AstRange{$1, new AstConst{$1, 0}, new AstSub{$1, $2, new AstConst{$1, 1}}, true}; }
-        |       '[' constExpr ':' constExpr ']'
+        |       '[' const_عبارت ':' const_عبارت ']'
                         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
 instParamListE<pinp>:
-                { GRAMMARP->pinPush(); } instParamItListE   { $$ = $2; GRAMMARP->pinPop(CRELINE()); }
+                { GRAMMARP->pin_افزودن(); } instParamItListE   { $$ = $2; GRAMMARP->pin_برداشت(CRELINE()); }
         ;
 
 instPinListE<pinp>:
@@ -3386,7 +3386,7 @@ instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
                           $$->svDotName(true); $$->svImplicit(true); }
         //                      // mintypmax is expanded here, as it might be a UDP or gate primitive
         //                      // data_type for 'parameter type' hookups
-        |       '.' idAny '(' exprOrDataType ')'
+        |       '.' idAny '(' عبارت_Or_Data_Type ')'
                         { $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $4};
                           $$->svDotName(true); }
         //UNSUP | '.' idAny '(' exprOrDataType/*expr*/ ':' expr ')'
@@ -3398,7 +3398,7 @@ instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
         //UNSUP            $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $6};
         //UNSUP            $$->svDotName(true); }
         //                      // data_type for 'parameter type' hookups
-        |       exprOrDataType
+        |       عبارت_Or_Data_Type
                         { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
         //UNSUP | exprOrDataType/*expr*/ ':' expr
         //UNSUP          { MINTYPMAXDLYUNSUP($1); DEL($1);
@@ -3425,13 +3425,13 @@ instPinItemE<pinp>:             // IEEE: named_port_connection + empty
                           $$->svDotName(true); $$->svImplicit(true); }
         //                      // mintypmax is expanded here, as it might be a UDP or gate primitive
         //UNSUP               pev_expr below
-        |       '.' idAny '(' expr ')'
+        |       '.' idAny '(' عبارت ')'
                         { $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $4};
                           $$->svDotName(true); }
         //UNSUP '.' idAny '(' pev_expr ':' expr ')'     { }
         //UNSUP '.' idAny '(' pev_expr ':' expr ':' expr ')' { }
         //
-        |       expr                                    { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
+        |       عبارت                                    { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
         //UNSUP expr ':' expr                           { }
         //UNSUP expr ':' expr ':' expr                  { }
         ;
@@ -3445,20 +3445,20 @@ attr_event_controlE<senTreep>:
         ;
 
 attr_event_control<senTreep>:   // ==IEEE: event_control
-                '@' '(' event_expression ')'            { $$ = new AstSenTree{$1, $3}; }
-        |       '@' '(' '*' ')'                         { $$ = GRAMMARP->createSenTreeDotStar($1); }
-        |       '@' '*'                                 { $$ = GRAMMARP->createSenTreeDotStar($1); }
+                '@' '(' event_expression ')'            { $$ = new Ast_Sen_درخت{$1, $3}; }
+        |       '@' '(' '*' ')'                         { $$ = GRAMMARP->create_Sen_درخت_Dot_Star($1); }
+        |       '@' '*'                                 { $$ = GRAMMARP->create_Sen_درخت_Dot_Star($1); }
         ;
 
 event_control<senTreep>:        // ==IEEE: event_control
         // UNSUP: Needs alignment with IEEE event_control and clocking_event
-                '@' '(' '*' ')'                         { $$ = GRAMMARP->createSenTreeDotStar($1); }
-        |       '@' '*'                                 { $$ = GRAMMARP->createSenTreeDotStar($1); }
+                '@' '(' '*' ')'                         { $$ = GRAMMARP->create_Sen_درخت_Dot_Star($1); }
+        |       '@' '*'                                 { $$ = GRAMMARP->create_Sen_درخت_Dot_Star($1); }
         //                      // IEEE: clocking_event
-        |       '@' '(' event_expression ')'            { $$ = new AstSenTree{$1, $3}; }
+        |       '@' '(' event_expression ')'            { $$ = new Ast_Sen_درخت{$1, $3}; }
         //                      // IEEE: hierarchical_event_identifier
         //                      // UNSUP below should be idClassSel
-        |       '@' senitemVar                          { $$ = new AstSenTree{$1, $2}; } /* For events only */
+        |       '@' senitemVar                          { $$ = new Ast_Sen_درخت{$1, $2}; } /* For events only */
         //                      // IEEE: sequence_instance
         //                      // sequence_instance without parens matches idClassSel above.
         //                      // Ambiguity: "'@' sequence (-for-sequence" versus
@@ -3482,9 +3482,9 @@ event_expression<senItemp>:     // IEEE: event_expression - split over several
 
 senitem<senItemp>:              // IEEE: part of event_expression, non-'OR' ',' terms
                 senitemEdge                             { $$ = $1; }
-        |       expr
+        |       عبارت
                         { $$ = new AstSenItem{$<fl>1, VEdgeType::ET_CHANGED, $1}; }
-        |       expr yIFF expr
+        |       عبارت yIFF عبارت
                         { $$ = new AstSenItem{$<fl>1, VEdgeType::ET_CHANGED, $1, $3}; }
         ;
 
@@ -3494,17 +3494,17 @@ senitemVar<senItemp>:
         ;
 
 senitemEdge<senItemp>:          // IEEE: part of event_expression
-                yPOSEDGE expr
+                yPOSEDGE عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_POSEDGE, $2}; }
-        |       yNEGEDGE expr
+        |       yNEGEDGE عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_NEGEDGE, $2}; }
-        |       yEDGE expr
+        |       yEDGE عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_BOTHEDGE, $2}; }
-        |       yPOSEDGE expr yIFF expr
+        |       yPOSEDGE عبارت yIFF عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_POSEDGE, $2, $4}; }
-        |       yNEGEDGE expr yIFF expr
+        |       yNEGEDGE عبارت yIFF عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_NEGEDGE, $2, $4}; }
-        |       yEDGE expr yIFF expr
+        |       yEDGE عبارت yIFF عبارت
                         { $$ = new AstSenItem{$1, VEdgeType::ET_BOTHEDGE, $2, $4}; }
         ;
 
@@ -3571,19 +3571,19 @@ block_item_declaration<nodep>:  // ==IEEE: block_item_declaration
         |       let_declaration                         { $$ = $1; }
         ;
 
-stmtListE<nodeStmtp>:
+stmtListE<گره_Stmtp>:
                 /*empty*/                               { $$ = nullptr; }
         |       stmtList                                { $$ = $1; }
         ;
 
-stmtList<nodeStmtp>:
+stmtList<گره_Stmtp>:
                 stmt                               { $$ = $1; }
         |       stmtList stmt                      { $$ = addNextNull($1, $2); }
         //
         |       stmtList error ';'                      { $$ = $1; }  // LCOV_EXCL_LINE
         ;
 
-stmt<nodeStmtp>:                    // IEEE: statement + statement_or_null + seq_block + par_block
+stmt<گره_Stmtp>:                    // IEEE: statement + statement_or_null + seq_block + par_block
                 statement_item                          { $$ = $1; }
         //                      // S05 block creation rule
         |       id/*block_identifier*/ ':' statement_item       { $$ = new AstBegin{$<fl>1, *$1, $3, false}; }
@@ -3594,7 +3594,7 @@ stmt<nodeStmtp>:                    // IEEE: statement + statement_or_null + seq
         |       par_blockPreId                          { $$ = $1; }
         ;
 
-statement_item<nodeStmtp>:          // IEEE: statement_item
+statement_item<گره_Stmtp>:          // IEEE: statement_item
         //                      // IEEE: operator_assignment
                 foperator_assignment ';'                { $$ = $1; }
         //
@@ -3604,63 +3604,63 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         |       fexprLvalue yP_EQ__NEW dynamic_array_new ';'   { $$ = new AstAssign{$2, $1, $3}; }
         |       fexprLvalue yP_EQ__NEW class_new ';'    { $$ = new AstAssign{$2, $1, $3}; }
         //                      // IEEE: inc_or_dec_expression
-        |       finc_or_dec_expression ';'              { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       finc_or_dec_expression ';'              { $$ = new Ast_Stmt_عبارت{$<fl>1, $1}; }
         //
         //                      // IEEE: nonblocking_assignment
-        |       fexprLvalue yP_LTE delay_or_event_controlE expr ';'
+        |       fexprLvalue yP_LTE delay_or_event_controlE عبارت ';'
                         { $$ = new AstAssignDly{$2, $1, $4, $3}; }
         //                      // IEEE: clocking_drive ';'
-        |       fexprLvalue yP_LTE cycle_delay expr ';'
+        |       fexprLvalue yP_LTE cycle_delay عبارت ';'
                         { $$ = new AstAssignDly{$2, $1, $4, $3}; }
         //UNSUP cycle_delay fexprLvalue yP_LTE ';'      { UNSUP }
-        |       yASSIGN variable_lvalue '=' delay_or_event_controlE expr ';'
+        |       yASSIGN variable_lvalue '=' delay_or_event_controlE عبارت ';'
                         { $$ = new AstAssignCont{$1, $2, $5, $4};
                           $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.setHasAssignDeassign(); }
         |       yDEASSIGN variable_lvalue ';'
                         { $$ = new AstDeassign{$1, $2};
                           $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.setHasAssignDeassign(); }
-        |       yFORCE variable_lvalue '=' expr ';'
+        |       yFORCE variable_lvalue '=' عبارت ';'
                         { $$ = new AstAssignForce{$1, $2, $4}; v3Global.setHasForceableSignals(); }
         |       yRELEASE variable_lvalue ';'
                         { $$ = new AstRelease{$1, $2}; v3Global.setHasForceableSignals(); }
         //
         //                      // IEEE: case_statement
         |       unique_priorityE caseStart caseAttrE case_itemList yENDCASE
-                        { $$ = $2; if ($4) $2->addItemsp($4);
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
+                        { $$ = $2; اگر ($4) $2->addItemsp($4);
+                          اگر ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          اگر ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          اگر ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
         // case matches uses patterns, not expressions
         |       unique_priorityE caseStart caseAttrE yMATCHES case_matches_itemList yENDCASE
-                        { $$ = $2; if ($5) $2->addItemsp($5);
+                        { $$ = $2; اگر ($5) $2->addItemsp($5);
                           $2->caseMatchesSet();
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
+                          اگر ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          اگر ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          اگر ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
         |       unique_priorityE caseStart caseAttrE yINSIDE case_inside_itemList yENDCASE
-                        { $$ = $2; if ($5) $2->addItemsp($5);
-                          if (!$2->caseSimple()) $4->v3error("Illegal to have inside on a casex/casez");
+                        { $$ = $2; اگر ($5) $2->addItemsp($5);
+                          اگر (!$2->caseSimple()) $4->v3error("Illegal to have inside on a casex/casez");
                           $2->caseInsideSet();
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
+                          اگر ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          اگر ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          اگر ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
         //
         //                      // IEEE: conditional_statement
-        |       unique_priorityE yIF '(' expr ')' stmt     %prec prLOWER_THAN_ELSE
-                        { AstIf* const newp = new AstIf{$2, $4,
+        |       unique_priorityE yIF '(' عبارت ')' stmt     %prec prLOWER_THAN_ELSE
+                        { AstIf* ثابت newp = new AstIf{$2, $4,
                               PARSEP->newBlock($2, $6)};
                           $$ = newp;
-                          if ($1 == uniq_UNIQUE) newp->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
-        |       unique_priorityE yIF '(' expr ')' stmt yELSE stmt
-                        { AstIf* const newp = new AstIf{$2, $4,
+                          اگر ($1 == uniq_UNIQUE) newp->uniquePragma(true);
+                          اگر ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
+                          اگر ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
+        |       unique_priorityE yIF '(' عبارت ')' stmt yELSE stmt
+                        { AstIf* ثابت newp = new AstIf{$2, $4,
                               PARSEP->newBlock($2, $6),
                               PARSEP->newBlock($2, $8)};
                           $$ = newp;
-                          if ($1 == uniq_UNIQUE) newp->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
+                          اگر ($1 == uniq_UNIQUE) newp->uniquePragma(true);
+                          اگر ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
+                          اگر ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
         //
         //                      // IEEE: subroutine_call_statement
         //                      // IEEE says we then expect a function call
@@ -3669,28 +3669,28 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         //                      // so parse as if task
         //                      // Alternative would be shim with new AstVoidStmt.
         |       yVOID yP_TICK '(' task_subroutine_callNoMethod ')' ';'
-                        { AstNodeExpr* const exprp = $4;
-                          AstNode* callp = exprp;
-                          while (AstDot* const dotp = VN_CAST(callp, Dot)) callp = dotp->rhsp();
-                          FileLine* const newfl = new FileLine{callp->fileline()};
+                        { Ast_گره_عبارت* ثابت exprp = $4;
+                          Ast_گره* callp = exprp;
+                          وقتی (AstDot* ثابت dotp = VN_CAST(callp, Dot)) callp = dotp->rhsp();
+                          File_سطر* ثابت newfl = new File_سطر{callp->fileline()};
                           newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
                           callp->fileline(newfl);
                           $$ = exprp->makeStmt(); }
-        |       yVOID yP_TICK '(' expr '.' task_subroutine_callNoMethod ')' ';'
-                        { AstNodeExpr* const exprp = new AstDot{$5, false, $4, $6};
-                          FileLine* const newfl = new FileLine{$6->fileline()};
+        |       yVOID yP_TICK '(' عبارت '.' task_subroutine_callNoMethod ')' ';'
+                        { Ast_گره_عبارت* ثابت exprp = new AstDot{$5, false, $4, $6};
+                          File_سطر* ثابت newfl = new File_سطر{$6->fileline()};
                           newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
                           $6->fileline(newfl);
                           $$ = exprp->makeStmt(); }
-        |       yVOID yP_TICK '(' system_f_only_expr_call ')' ';'
-                        { $$ = new AstStmtExpr{$<fl>4, $4};
-                          FileLine* const newfl = new FileLine{$$->fileline()};
+        |       yVOID yP_TICK '(' system_f_only_عبارت_call ')' ';'
+                        { $$ = new Ast_Stmt_عبارت{$<fl>4, $4};
+                          File_سطر* ثابت newfl = new File_سطر{$$->fileline()};
                           newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
                           $$->fileline(newfl); }
         //                      // Any system function as a task
-        |       yVOID yP_TICK '(' system_f_or_t_expr_call ')' ';'
-                        { $$ = new AstStmtExpr{$<fl>4, $4};
-                          FileLine* const newfl = new FileLine{$$->fileline()};
+        |       yVOID yP_TICK '(' system_f_or_t_عبارت_call ')' ';'
+                        { $$ = new Ast_Stmt_عبارت{$<fl>4, $4};
+                          File_سطر* ثابت newfl = new File_سطر{$$->fileline()};
                           newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
                           $$->fileline(newfl); }
         //
@@ -3705,63 +3705,63 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
                           PARSEP->importIfInStd($1, "process", true);
                         }
         //                      // IEEE: event_trigger
-        |       yP_MINUSGT expr ';'
+        |       yP_MINUSGT عبارت ';'
                         { $$ = new AstFireEvent{$1, $2, false}; }
-        |       yP_MINUSGTGT delay_or_event_controlE expr ';'
+        |       yP_MINUSGTGT delay_or_event_controlE عبارت ';'
                         { $$ = new AstFireEvent{$1, $3, true}; }
         //
         // do/for/forever/while loops all modelled as AstLoop
-        |       yDO stmt yWHILE '(' expr ')' ';'
-                        { AstLoop* const loopp = new AstLoop{$1, $2};
+        |       yDO stmt yWHILE '(' عبارت ')' ';'
+                        { AstLoop* ثابت loopp = new AstLoop{$1, $2};
                           loopp->addContsp(new AstLoopTest{$<fl>5, loopp, $5});
                           $$ = loopp; }
-        |       yFOR  '(' { VARRESET_NONLIST(UNKNOWN); } for_initializationE ';' exprE ';' for_stepE ')' stmt
-                        { AstBegin* const blockp = new AstBegin{$1, "", $4, true};
-                          AstLoop* const loopp = new AstLoop{$1};
-                          if ($6) loopp->addStmtsp(new AstLoopTest{$<fl>6, loopp, $6});
+        |       yFOR  '(' { VARRESET_NONLIST(UNKNOWN); } for_initializationE ';' عبارت_E ';' for_stepE ')' stmt
+                        { AstBegin* ثابت blockp = new AstBegin{$1, "", $4, true};
+                          AstLoop* ثابت loopp = new AstLoop{$1};
+                          اگر ($6) loopp->addStmtsp(new AstLoopTest{$<fl>6, loopp, $6});
                           loopp->addStmtsp($10);
                           loopp->addContsp($8);
                           blockp->addStmtsp(loopp);
                           $$ = blockp; }
         |       yFOREVER stmt
-                        { AstLoop* const loopp = new AstLoop{$1, $2};
+                        { AstLoop* ثابت loopp = new AstLoop{$1, $2};
                           $$ = loopp; }
-        |       yWHILE '(' expr ')' stmt
-                        { AstLoop* const loopp = new AstLoop{$1};
+        |       yWHILE '(' عبارت ')' stmt
+                        { AstLoop* ثابت loopp = new AstLoop{$1};
                           loopp->addStmtsp(new AstLoopTest{$<fl>3, loopp, $3});
                           loopp->addStmtsp($5);
                           $$ = loopp; }
         // Other loop statements
-        |       yREPEAT '(' expr ')' stmt          { $$ = new AstRepeat{$1, $3, $5}; }
+        |       yREPEAT '(' عبارت ')' stmt          { $$ = new AstRepeat{$1, $3, $5}; }
         //                      // IEEE says array_identifier here, but dotted accepted in VMM and 1800-2009
         |       yFOREACH '(' idClassSelForeach ')' stmt
                         { $$ = new AstBegin{$1, "", new AstForeach{$1, $3, $5}, true}; }
         //
         //                      // IEEE: jump_statement
         |       yRETURN ';'                             { $$ = new AstReturn{$1}; }
-        |       yRETURN expr ';'                        { $$ = new AstReturn{$1, $2}; }
+        |       yRETURN عبارت ';'                        { $$ = new AstReturn{$1, $2}; }
         |       yBREAK ';'                              { $$ = new AstBreak{$1}; }
         |       yCONTINUE ';'                           { $$ = new AstContinue{$1}; }
         //
         |       par_block                               { $$ = $1; }
         //                      // IEEE: procedural_timing_control_statement + procedural_timing_control
         |       delay_control stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2) {
-                              if ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
+                        { Ast_گره_Stmt* nextp = nullptr;
+                          اگر ($2) {
+                              اگر ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), گره_Stmt);
                               $1->addStmtsp($2);
                           }
                           $$ = $1;
                           addNextNull($$, nextp); }
         |       event_control stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2 && $2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
+                        { Ast_گره_Stmt* nextp = nullptr;
+                          اگر ($2 && $2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), گره_Stmt);
                           $$ = new AstEventControl{FILELINE_OR_CRE($1), $1, $2};
                           addNextNull($$, nextp); }
         |       cycle_delay stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2) {
-                              if ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
+                        { Ast_گره_Stmt* nextp = nullptr;
+                          اگر ($2) {
+                              اگر ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), گره_Stmt);
                               $1->addStmtsp($2);
                           }
                           $$ = $1;
@@ -3769,7 +3769,7 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         |       seq_block                               { $$ = $1; }
         //
         //                      // IEEE: wait_statement
-        |       yWAIT '(' expr ')' stmt            { $$ = new AstWait{$1, $3, $5}; }
+        |       yWAIT '(' عبارت ')' stmt            { $$ = new AstWait{$1, $3, $5}; }
         |       yWAIT yFORK ';'                         { $$ = new AstWaitFork{$1}; }
         //                      // action_block expanded here
         |       yWAIT_ORDER '(' vrdList ')' stmt %prec prLOWER_THAN_ELSE
@@ -3806,55 +3806,55 @@ statementVerilatorPragmas<pragmap>:
                         { $$ = new AstPragma{$1, VPragmaType::UNROLL_FULL}; }
         ;
 
-foperator_assignment<nodeStmtp>:    // IEEE: operator_assignment (for first part of expression)
-                fexprLvalue '=' delay_or_event_controlE expr    { $$ = new AstAssign{$2, $1, $4, $3}; }
+foperator_assignment<گره_Stmtp>:    // IEEE: operator_assignment (for first part of expression)
+                fexprLvalue '=' delay_or_event_controlE عبارت    { $$ = new AstAssign{$2, $1, $4, $3}; }
         //
-        |       fexprLvalue yP_PLUSEQ    expr
+        |       fexprLvalue yP_PLUSEQ    عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Add, $2, $1, $3}; }
-        |       fexprLvalue yP_MINUSEQ   expr
+        |       fexprLvalue yP_MINUSEQ   عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Sub, $2, $1, $3}; }
-        |       fexprLvalue yP_TIMESEQ   expr
+        |       fexprLvalue yP_TIMESEQ   عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Mul, $2, $1, $3}; }
-        |       fexprLvalue yP_DIVEQ     expr
+        |       fexprLvalue yP_DIVEQ     عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Div, $2, $1, $3}; }
-        |       fexprLvalue yP_MODEQ     expr
+        |       fexprLvalue yP_MODEQ     عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::ModDiv, $2, $1, $3}; }
-        |       fexprLvalue yP_ANDEQ     expr
+        |       fexprLvalue yP_ANDEQ     عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::And, $2, $1, $3}; }
-        |       fexprLvalue yP_OREQ      expr
+        |       fexprLvalue yP_OREQ      عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Or, $2, $1, $3}; }
-        |       fexprLvalue yP_XOREQ     expr
+        |       fexprLvalue yP_XOREQ     عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::Xor, $2, $1, $3}; }
-        |       fexprLvalue yP_SLEFTEQ   expr
+        |       fexprLvalue yP_SLEFTEQ   عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftL, $2, $1, $3}; }
-        |       fexprLvalue yP_SRIGHTEQ  expr
+        |       fexprLvalue yP_SRIGHTEQ  عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftR, $2, $1, $3}; }
-        |       fexprLvalue yP_SSRIGHTEQ expr
+        |       fexprLvalue yP_SSRIGHTEQ عبارت
                         { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftRS, $2, $1, $3}; }
         ;
 
-inc_or_dec_expression<nodeExprp>:   // ==IEEE: inc_or_dec_expression
+inc_or_dec_expression<گره_Exprp>:   // ==IEEE: inc_or_dec_expression
         //                      // Need fexprScope instead of variable_lvalue to prevent conflict
-                ~l~exprScope yP_PLUSPLUS
+                ~l~عبارت_Scope yP_PLUSPLUS
                         { $<fl>$ = $<fl>1; $$ = new AstPostInc{$2, $1}; }
-        |       ~l~exprScope yP_MINUSMINUS
+        |       ~l~عبارت_Scope yP_MINUSMINUS
                         { $<fl>$ = $<fl>1; $$ = new AstPostDec{$2, $1}; }
         //                      // Need expr instead of variable_lvalue to prevent conflict
-        |       yP_PLUSPLUS     expr
+        |       yP_PLUSPLUS     عبارت
                         { $<fl>$ = $<fl>1; $$ = new AstPreInc{$1, $2}; }
-        |       yP_MINUSMINUS   expr
+        |       yP_MINUSMINUS   عبارت
                         { $<fl>$ = $<fl>1; $$ = new AstPreDec{$1, $2}; }
         ;
 
-finc_or_dec_expression<nodeExprp>:  // ==IEEE: inc_or_dec_expression
+finc_or_dec_expression<گره_Exprp>:  // ==IEEE: inc_or_dec_expression
                 BISONPRE_COPY(inc_or_dec_expression,{s/~l~/f/g})        // {copied}
         ;
 
-sinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for sequence_expression)
+sinc_or_dec_expression<گره_Exprp>:  // IEEE: inc_or_dec_expression (for sequence_expression)
                 BISONPRE_COPY(inc_or_dec_expression,{s/~l~/s/g})        // {copied}
         ;
 
-pinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for property_expression)
+pinc_or_dec_expression<گره_Exprp>:  // IEEE: inc_or_dec_expression (for property_expression)
                 BISONPRE_COPY(inc_or_dec_expression,{s/~l~/p/g})        // {copied}
         ;
 
@@ -3866,7 +3866,7 @@ pinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for property
 //UNSUP         BISONPRE_COPY(inc_or_dec_expression,{s/~l~/pev_/g})     // {copied}
 //UNSUP ;
 
-class_new<nodeExprp>:    // IEEE: class_new
+class_new<گره_Exprp>:    // IEEE: class_new
         //                      // See V3ParseImp::tokenPipeScanEqNew that searches for '=' ... yNEW__LEX
                 class_newNoScope
                         { $$ = $1; }
@@ -3878,16 +3878,16 @@ class_new<nodeExprp>:    // IEEE: class_new
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstNew{$2, $4, true}); }
         ;
 
-class_newNoScope<nodeExprp>:    // IEEE: class_new but no packageClassScope
+class_newNoScope<گره_Exprp>:    // IEEE: class_new but no packageClassScope
         //                      // Special precedence so (...) doesn't match expr
                 yNEW__ETC                               { $$ = new AstNew{$1}; }
-        |       yNEW__ETC expr                          { $$ = new AstNewCopy{$1, $2}; }
+        |       yNEW__ETC عبارت                          { $$ = new AstNewCopy{$1, $2}; }
         |       yNEW__PAREN '(' list_of_argumentsE ')'  { $$ = new AstNew{$1, $3}; }
         ;
 
-dynamic_array_new<nodeExprp>:   // ==IEEE: dynamic_array_new
-                yNEW__ETC '[' expr ']'                  { $$ = new AstNewDynamic{$1, $3, nullptr}; }
-        |       yNEW__ETC '[' expr ']' '(' expr ')'     { $$ = new AstNewDynamic{$1, $3, $6}; }
+dynamic_array_new<گره_Exprp>:   // ==IEEE: dynamic_array_new
+                yNEW__ETC '[' عبارت ']'                  { $$ = new AstNewDynamic{$1, $3, nullptr}; }
+        |       yNEW__ETC '[' عبارت ']' '(' عبارت ')'     { $$ = new AstNewDynamic{$1, $3, $6}; }
         ;
 
 //************************************************
@@ -3901,11 +3901,11 @@ unique_priorityE<uniqstate>:    // IEEE: unique_priority + empty
         ;
 
 caseStart<casep>:               // IEEE: part of case_statement
-                yCASE  '(' exprTypeCompare ')'
+                yCASE  '(' عبارت_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASE, $3, nullptr}; }
-        |       yCASEX '(' exprTypeCompare ')'
+        |       yCASEX '(' عبارت_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASEX, $3, nullptr}; }
-        |       yCASEZ '(' exprTypeCompare ')'
+        |       yCASEZ '(' عبارت_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASEZ, $3, nullptr}; }
         ;
 
@@ -3936,13 +3936,13 @@ case_inside_itemList<caseItemp>:        // IEEE: { case_inside_item + range_list
 case_matches_itemList<caseItemp>:    // IEEE: { case_pattern_item + ... }
         //                      // IEEE: case_pattern_item ::= pattern [&&& expr] : stmt
         //                      // pattern includes expr for tagged void members (tagged id)
-                patternNoExpr colon stmt                   { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       expr colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
+                pattern_No_عبارت colon stmt                   { $$ = new AstCaseItem{$2, $1, $3}; }
+        |       عبارت colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
         |       yDEFAULT colon stmt                        { $$ = new AstCaseItem{$1, nullptr, $3}; }
         |       yDEFAULT stmt                              { $$ = new AstCaseItem{$1, nullptr, $2}; }
-        |       case_matches_itemList patternNoExpr colon stmt
+        |       case_matches_itemList pattern_No_عبارت colon stmt
                         { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
-        |       case_matches_itemList expr colon stmt
+        |       case_matches_itemList عبارت colon stmt
                         { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
         |       case_matches_itemList yDEFAULT stmt        { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $3}); }
         |       case_matches_itemList yDEFAULT colon stmt  { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $4}); }
@@ -3950,30 +3950,30 @@ case_matches_itemList<caseItemp>:    // IEEE: { case_pattern_item + ... }
 
 rand_case_itemList<caseItemp>:       // IEEE: { rand_case_item + ... }
         //                      // Randcase syntax doesn't have default, or expression lists
-                expr colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       rand_case_itemList expr colon stmt         { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
+                عبارت colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
+        |       rand_case_itemList عبارت colon stmt         { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
         ;
 
-range_list<nodeExprp>:     // ==IEEE: range_list/open_range_list + value_range/open_value_range
-                value_range                             { $$ = $1; }
-        |       range_list ',' value_range              { $$ = $1->addNext($3); }
+range_list<گره_Exprp>:     // ==IEEE: range_list/open_range_list + value_range/open_value_range
+                مقدار_range                             { $$ = $1; }
+        |       range_list ',' مقدار_range              { $$ = $1->addNext($3); }
         ;
 
-value_range<nodeExprp>:         // ==IEEE: value_range/open_value_range
-                expr                                    { $$ = $1; }
-        |       '[' expr ':' expr ']'                   { $$ = new AstInsideRange{$1, $2, $4}; }
+مقدار_range<گره_Exprp>:         // ==IEEE: value_range/open_value_range
+                عبارت                                    { $$ = $1; }
+        |       '[' عبارت ':' عبارت ']'                   { $$ = new AstInsideRange{$1, $2, $4}; }
         //                      // IEEE-2023: added all four:
         //                      // Skipped as '$' is part of our expr
         //                      // IEEE-2023: '[' '$' ':' expr ']'
         //                      // Skipped as '$' is part of our expr
         //                      // IEEE-2023: '[' expr ':' '$' ']'
-        |       '[' expr yP_PLUSSLASHMINUS expr ']'
+        |       '[' عبارت yP_PLUSSLASHMINUS عبارت ']'
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: +/- range"); DEL($2, $4); }
-        |       '[' expr yP_PLUSPCTMINUS expr ']'
+        |       '[' عبارت yP_PLUSPCTMINUS عبارت ']'
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: +%- range"); DEL($2, $4); }
         ;
 
-covergroup_value_range<nodeExprp>:  // ==IEEE-2012: covergroup_value_range
+covergroup_مقدار_range<گره_Exprp>:  // ==IEEE-2012: covergroup_value_range
                 cgexpr                                  { $$ = $1; }
         |       '[' cgexpr ':' cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: covergroup value range '[...]'"); DEL($2, $4); }
@@ -3988,12 +3988,12 @@ covergroup_value_range<nodeExprp>:  // ==IEEE-2012: covergroup_value_range
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: covergroup value range '[...]'"); DEL($2, $4); }
         ;
 
-caseCondList<nodeExprp>:        // IEEE: part of case_item
-                exprTypeCompare                         { $$ = $1; }
-        |       caseCondList ',' exprTypeCompare        { $$ = $1->addNext($3); }
+caseCondList<گره_Exprp>:        // IEEE: part of case_item
+                عبارت_Type_Compare                         { $$ = $1; }
+        |       caseCondList ',' عبارت_Type_Compare        { $$ = $1->addNext($3); }
         ;
 
-patternNoExpr<nodeExprp>:       // IEEE: pattern **Excluding Expr*
+pattern_No_عبارت<گره_Exprp>:       // IEEE: pattern **Excluding Expr*
                 '.' idAny/*variable*/
                         { $$ = new AstPatternVar{$1, *$2}; }
         |       yP_DOTSTAR
@@ -4002,9 +4002,9 @@ patternNoExpr<nodeExprp>:       // IEEE: pattern **Excluding Expr*
         //                      // IEEE: tagged member_identifier [ pattern ]
         //                      // Standalone "yTAGGED__NONPRIMARY idAny" is handled via expr in patternOne
         //                      // Here, we need to treat yTAGGED and yTAGGED__NONPRIMARY identically.
-        |       yTAGGED idAny/*member_identifier*/ patternNoExpr
+        |       yTAGGED idAny/*member_identifier*/ pattern_No_عبارت
                         { $$ = new AstTaggedPattern{$1, *$2, $3}; }
-        |       yTAGGED__NONPRIMARY idAny/*member_identifier*/ patternNoExpr
+        |       yTAGGED__NONPRIMARY idAny/*member_identifier*/ pattern_No_عبارت
                         { $$ = new AstTaggedPattern{$1, *$2, $3}; }
         //                      // "yP_TICKBRA patternList '}'" part of expr under assignment_pattern
         ;
@@ -4015,10 +4015,10 @@ patternList<nodep>:             // IEEE: part of pattern
         ;
 
 patternOne<nodep>:              // IEEE: part of pattern
-                expr
-                        { if ($1) $$ = new AstPatMember{$1->fileline(), $1, nullptr, nullptr}; else $$ = nullptr; }
-        |       expr '{' argsExprList '}'               { $$ = new AstPatMember{$2, $3, nullptr, $1}; }
-        |       patternNoExpr                           { $$ = $1; }
+                عبارت
+                        { اگر ($1) $$ = new AstPatMember{$1->fileline(), $1, nullptr, nullptr}; وگرنه $$ = nullptr; }
+        |       عبارت '{' args_عبارت_List '}'               { $$ = new AstPatMember{$2, $3, nullptr, $1}; }
+        |       pattern_No_عبارت                           { $$ = $1; }
         ;
 
 patternMemberList<nodep>:       // IEEE: part of pattern and assignment_pattern
@@ -4027,14 +4027,14 @@ patternMemberList<nodep>:       // IEEE: part of pattern and assignment_pattern
         ;
 
 patternMemberOne<patMemberp>:   // IEEE: part of pattern and assignment_pattern
-                patternKey ':' expr                     { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
-        |       patternKey ':' patternNoExpr            { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
+                pattern_کلید ':' عبارت                     { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
+        |       pattern_کلید ':' pattern_No_عبارت            { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
         //                      // From assignment_pattern_key
-        |       yDEFAULT ':' expr                       { $$ = new AstPatMember{$1, $3, nullptr, nullptr}; $$->isDefault(true); }
-        |       yDEFAULT ':' patternNoExpr              { AstPatMember* const patp = new AstPatMember{$1, $3, nullptr, nullptr}; patp->isDefault(true); $$ = patp; }
+        |       yDEFAULT ':' عبارت                       { $$ = new AstPatMember{$1, $3, nullptr, nullptr}; $$->isDefault(true); }
+        |       yDEFAULT ':' pattern_No_عبارت              { AstPatMember* ثابت patp = new AstPatMember{$1, $3, nullptr, nullptr}; patp->isDefault(true); $$ = patp; }
         ;
 
-patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_pattern_key, assignment_pattern_key
+pattern_کلید<nodep>:              // IEEE: merge structure_pattern_key, array_pattern_key, assignment_pattern_key
         //                      // IEEE: structure_pattern_key: member_identifier | assignment_pattern_key
         //                      // IEEE: array_pattern_key: constant_expression | assignment_pattern_key
         //                      // Verilator:
@@ -4043,8 +4043,8 @@ patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_patt
         //                      //   (if structure).  Both spell the same in expr, so the
         //                      //   bare-identifier case becomes a Text node and V3LinkDot
         //                      //   resolves which one it is.
-                expr
-                        { $$ = GRAMMARP->createPatternKey($1); }
+                عبارت
+                        { $$ = GRAMMARP->create_Pattern_کلید($1); }
         //                      // IEEE: assignment_pattern_key
         |       simple_typeNoRef
                         { $$ = $1; }
@@ -4052,7 +4052,7 @@ patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_patt
         //                      // expanded from simple_type ps_parameter_identifier (part of simple_type)
         //                      // (simple_type ps_parameter_identifier is part of expr above)
         |       packageClassScopeE idType
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = refp; }
         ;
 
@@ -4085,28 +4085,28 @@ for_initializationItemList<nodep>:      // IEEE: [for_variable_declaration...]
 
 for_initializationItem<nodep>:          // IEEE: variable_assignment + for_variable_declaration
         //                      // IEEE: for_variable_declaration
-                data_type idAny/*new*/ '=' expr
+                data_type idAny/*new*/ '=' عبارت
                         { VARRESET_NONLIST(VAR); VARDTYPE($1);
-                          AstVar* const varp = VARDONEA($<fl>2, *$2, nullptr, nullptr);
+                          AstVar* ثابت varp = VARDONEA($<fl>2, *$2, nullptr, nullptr);
                           varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                           $$ = varp;
                           $$->addNext(new AstAssign{$3, new AstParseRef{$<fl>2, *$2}, $4}); }
         //                      // IEEE-2012:
-        |       yVAR data_type idAny/*new*/ '=' expr
+        |       yVAR data_type idAny/*new*/ '=' عبارت
                         { VARRESET_NONLIST(VAR); VARDTYPE($2);
-                          AstVar* const varp = VARDONEA($<fl>3, *$3, nullptr, nullptr);
+                          AstVar* ثابت varp = VARDONEA($<fl>3, *$3, nullptr, nullptr);
                           varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                           $$ = varp;
                           $$->addNext(new AstAssign{$4, new AstParseRef{$<fl>3, *$3}, $5}); }
         //                      // IEEE: variable_assignment
         //                      // UNSUP variable_lvalue below
-        |       id/*newOrExisting*/ '=' expr
-                        { if (GRAMMARP->m_varDecl) {
-                              AstVar* const varp = VARDONEA($<fl>1, *$1, nullptr, nullptr);
+        |       id/*newOrExisting*/ '=' عبارت
+                        { اگر (GRAMMARP->m_varDecl) {
+                              AstVar* ثابت varp = VARDONEA($<fl>1, *$1, nullptr, nullptr);
                               varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                               $$ = varp;
                               $$->addNext(new AstAssign{$2, new AstParseRef{$<fl>1, *$1}, $3});
-                          } else {
+                          } وگرنه {
                               $$ = new AstAssign{$2, new AstParseRef{$<fl>1, *$1}, $3};
                           }
                         }
@@ -4124,7 +4124,7 @@ for_step<nodep>:                // IEEE: for_step
 
 for_step_assignment<nodep>:     // ==IEEE: for_step_assignment
                 foperator_assignment                    { $$ = $1; }
-        |       finc_or_dec_expression                  { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       finc_or_dec_expression                  { $$ = new Ast_Stmt_عبارت{$<fl>1, $1}; }
         //                      // IEEE: function_subroutine_call
         |       task_subroutine_callNoSemi              { $$ = $1; }
         ;
@@ -4142,14 +4142,14 @@ loop_variableE<nodep>:          // IEEE: part of loop_variables
 //************************************************
 // Functions/tasks
 
-taskRef<nodeExprp>:            // IEEE: part of tf_call
+taskRef<گره_Exprp>:            // IEEE: part of tf_call
                 id                                      { $$ = new AstTaskRef{$<fl>1, *$1}; }
         |       id '(' list_of_argumentsE ')'           { $$ = new AstTaskRef{$<fl>1, *$1, $3}; }
         |       packageClassScope id '(' list_of_argumentsE ')'
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstTaskRef{$<fl>2, *$2, $4}); }
         ;
 
-funcRef<nodeExprp>:             // IEEE: part of tf_call
+funcRef<گره_Exprp>:             // IEEE: part of tf_call
         //                      // package_scope/hierarchical_... is part of expr, so just need ID
         //                      //      making-a                id-is-a
         //                      //      -----------------       ------------------
@@ -4167,14 +4167,14 @@ funcRef<nodeExprp>:             // IEEE: part of tf_call
         //UNSUP: idDottedSel is really just id to allow dotted method calls
         ;
 
-task_subroutine_callNoSemi<nodeStmtp>:  // similar to IEEE task_subroutine_call but without ';'
+task_subroutine_callNoSemi<گره_Stmtp>:  // similar to IEEE task_subroutine_call but without ';'
         //                      // Expr included here to resolve our not knowing what is a method call
         //                      // Expr here must result in a subroutine_call
                 task_subroutine_callNoMethod            { $$ = $1->makeStmt(); }
         |       fexpr '.' task_subroutine_callNoMethod  { $$ = (new AstDot{$<fl>2, false, $1, $3})->makeStmt(); }
         |       system_t_stmt_call                      { $$ = $1; }
         //                      // Any system function as a task
-        |       system_f_or_t_expr_call                 { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       system_f_or_t_عبارت_call                 { $$ = new Ast_Stmt_عبارت{$<fl>1, $1}; }
         //                      // Not here in IEEE; from class_constructor_declaration
         //                      // Because we've joined class_constructor_declaration into generic functions
         //                      // Way over-permissive;
@@ -4182,13 +4182,13 @@ task_subroutine_callNoSemi<nodeStmtp>:  // similar to IEEE task_subroutine_call 
         |       fexpr '.' class_newNoScope              { $$ = (new AstDot{$<fl>2, false, $1, $3})->makeStmt(); }
         ;
 
-task_subroutine_callNoMethod<nodeExprp>:    // function_subroutine_callNoMethod (as task)
+task_subroutine_callNoMethod<گره_Exprp>:    // function_subroutine_callNoMethod (as task)
         //                      // IEEE: tf_call
                 taskRef                                 { $$ = $1; }
         //                      // funcref below not task ref to avoid conflict, must later handle either
-        |       funcRef yWITH__PAREN '(' expr ')'       { $$ = new AstWithParse{$2, $1, $4}; }
+        |       funcRef yWITH__PAREN '(' عبارت ')'       { $$ = new AstWithParse{$2, $1, $4}; }
         //                      // can call as method and yWITH without parenthesis
-        |       id yWITH__PAREN '(' expr ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
+        |       id yWITH__PAREN '(' عبارت ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
         //                      // IEEE: method_call requires a "." so is in expr
         //                      // IEEE: ['std::'] not needed, as normal std package resolution will find it
         //                      // IEEE: randomize_call
@@ -4196,20 +4196,20 @@ task_subroutine_callNoMethod<nodeExprp>:    // function_subroutine_callNoMethod 
         //                      // Note yNULL is already part of expressions, so they come for free
         |       funcRef yWITH__CUR constraint_block     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
         |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_block
-                                                        { AstWithParse* const withParsep
+                                                        { AstWithParse* ثابت withParsep
                                                               = new AstWithParse{$2, $1, $4, $6};
                                                           withParsep->restricted(true);
                                                           $$ = withParsep; }
         ;
 
-function_subroutine_callNoMethod<nodeExprp>:        // IEEE: function_subroutine_call (as function)
+function_subroutine_callNoMethod<گره_Exprp>:        // IEEE: function_subroutine_call (as function)
         //                      // IEEE: tf_call
                 funcRef                                 { $$ = $1; }
-        |       funcRef yWITH__PAREN '(' expr ')'       { $$ = new AstWithParse{$2, $1, $4}; }
+        |       funcRef yWITH__PAREN '(' عبارت ')'       { $$ = new AstWithParse{$2, $1, $4}; }
         //                      // can call as method and yWITH without parenthesis
-        |       id yWITH__PAREN '(' expr ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
-        |       system_f_only_expr_call                 { $$ = $1; }
-        |       system_f_or_t_expr_call                 { $$ = $1; }
+        |       id yWITH__PAREN '(' عبارت ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
+        |       system_f_only_عبارت_call                 { $$ = $1; }
+        |       system_f_or_t_عبارت_call                 { $$ = $1; }
         //                      // IEEE: method_call requires a "." so is in expr
         //                      // IEEE: ['std::'] not needed, as normal std package resolution will find it
         //                      // IEEE: randomize_call
@@ -4217,163 +4217,163 @@ function_subroutine_callNoMethod<nodeExprp>:        // IEEE: function_subroutine
         //                      // Note yNULL is already part of expressions, so they come for free
         |       funcRef yWITH__CUR constraint_block     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
         |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_block
-                                                        { AstWithParse* const withParsep
+                                                        { AstWithParse* ثابت withParsep
                                                               = new AstWithParse{$2, $1, $4, $6};
                                                           withParsep->restricted(true);
                                                           $$ = withParsep; }
         ;
 
-system_t_stmt_call<nodeStmtp>:  // IEEE: part of system_tf_call (as task returning statement)
+system_t_stmt_call<گره_Stmtp>:  // IEEE: part of system_tf_call (as task returning statement)
         //
-                yaD_PLI systemDpiArgsE                  { AstTaskRef* const refp = new AstTaskRef{$<fl>1, *$1, $2};
+                yaD_PLI systemDpiArgsE                  { AstTaskRef* ثابت refp = new AstTaskRef{$<fl>1, *$1, $2};
                                                           refp->pli(true);
                                                           $$ = refp->makeStmt(); }
         //
-        |       yD_DUMPPORTS '(' idDottedSel ',' expr ')'  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $5}; DEL($3);
+        |       yD_DUMPPORTS '(' idDottedSel ',' عبارت ')'  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $5}; DEL($3);
                                                           $$->addNext(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                                      new AstConst{$<fl>1, 1}}); }
-        |       yD_DUMPPORTS '(' ',' expr ')'           { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $4};
+        |       yD_DUMPPORTS '(' ',' عبارت ')'           { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $4};
                                                           $$->addNext(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                                      new AstConst{$<fl>1, 1}}); }
-        |       yD_DUMPFILE '(' expr ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $3}; }
+        |       yD_DUMPFILE '(' عبارت ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $3}; }
         |       yD_DUMPVARS parenE                      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                               new AstConst{$<fl>1, 0}}; }
-        |       yD_DUMPVARS '(' expr ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; }
-        |       yD_DUMPVARS '(' expr ',' exprList ')'   { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; DEL($5); }
+        |       yD_DUMPVARS '(' عبارت ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; }
+        |       yD_DUMPVARS '(' عبارت ',' عبارت_List ')'   { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; DEL($5); }
         |       yD_DUMPALL parenE                       { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; }
-        |       yD_DUMPALL '(' expr ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; DEL($3); }
+        |       yD_DUMPALL '(' عبارت ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; DEL($3); }
         |       yD_DUMPFLUSH parenE                     { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; }
-        |       yD_DUMPFLUSH '(' expr ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; DEL($3); }
-        |       yD_DUMPLIMIT '(' expr ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; }
-        |       yD_DUMPLIMIT '(' expr ',' expr ')'      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; DEL($5); }
+        |       yD_DUMPFLUSH '(' عبارت ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; DEL($3); }
+        |       yD_DUMPLIMIT '(' عبارت ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; }
+        |       yD_DUMPLIMIT '(' عبارت ',' عبارت ')'      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; DEL($5); }
         |       yD_DUMPOFF parenE                       { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; }
-        |       yD_DUMPOFF '(' expr ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; DEL($3); }
+        |       yD_DUMPOFF '(' عبارت ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; DEL($3); }
         |       yD_DUMPON parenE                        { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; }
-        |       yD_DUMPON '(' expr ')'                  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; DEL($3); }
+        |       yD_DUMPON '(' عبارت ')'                  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; DEL($3); }
         //
         |       yD_C '(' cStrList ')' {
                     AstCStmtUser* cstmtp = nullptr;
-                    if (!v3Global.opt.ignc()) {
+                    اگر (!v3Global.opt.ignc()) {
                         cstmtp = new AstCStmtUser{$1, true};
                         cstmtp->add($3);
                     }
                     $$ = cstmtp;
                 }
-        |       yD_SDF_ANNOTATE '(' exprEListE ')'      { $$ = nullptr; $1->v3warn(SPECIFYIGN, "Ignoring unsupported: $sdf_annotate"); DEL($3); }
-        |       yD_STACKTRACE parenE                    { $$ = new AstStackTraceT{$1}; }
-        |       yD_SYSTEM '(' expr ')'                  { $$ = new AstSystemT{$1, $3}; }
+        |       yD_SDF_ANNOTATE '(' عبارت_EList_E ')'      { $$ = nullptr; $1->v3warn(SPECIFYIGN, "Ignoring unsupported: $sdf_annotate"); DEL($3); }
+        |       yD_STACKTRACE parenE                    { $$ = new Ast_پشته_Trace_T{$1}; }
+        |       yD_SYSTEM '(' عبارت ')'                  { $$ = new AstSystemT{$1, $3}; }
         //
         |       yD_EXIT parenE                          { $$ = new AstFinish{$1}; }
         //
-        |       yD_FCLOSE '(' expr ')'                  { $$ = new AstFClose{$1, $3}; }
+        |       yD_FCLOSE '(' عبارت ')'                  { $$ = new AstFClose{$1, $3}; }
         |       yD_FFLUSH parenE                        { $$ = new AstFFlush{$1, nullptr}; }
-        |       yD_FFLUSH '(' expr ')'                  { $$ = new AstFFlush{$1, $3}; }
+        |       yD_FFLUSH '(' عبارت ')'                  { $$ = new AstFFlush{$1, $3}; }
         |       yD_FINISH parenE                        { $$ = new AstFinish{$1}; }
-        |       yD_FINISH '(' expr ')'                  { $$ = new AstFinish{$1}; DEL($3); }
+        |       yD_FINISH '(' عبارت ')'                  { $$ = new AstFinish{$1}; DEL($3); }
         |       yD_STOP parenE                          { $$ = new AstStop{$1, false}; }
-        |       yD_STOP '(' expr ')'                    { $$ = new AstStop{$1, false}; DEL($3); }
+        |       yD_STOP '(' عبارت ')'                    { $$ = new AstStop{$1, false}; DEL($3); }
         //
-        |       yD_SFORMAT '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, false, $3, $5}; }
-        |       yD_SWRITE  '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'd'}; }
-        |       yD_SWRITEB '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'b'}; }
-        |       yD_SWRITEH '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'h'}; }
-        |       yD_SWRITEO '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'o'}; }
+        |       yD_SFORMAT '(' عبارت ',' عبارت_Disp_List ')'        { $$ = new AstSFormat{$1, false, $3, $5}; }
+        |       yD_SWRITE  '(' عبارت ',' عبارت_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'd'}; }
+        |       yD_SWRITEB '(' عبارت ',' عبارت_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'b'}; }
+        |       yD_SWRITEH '(' عبارت ',' عبارت_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'h'}; }
+        |       yD_SWRITEO '(' عبارت ',' عبارت_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'o'}; }
         //
         |       yD_DISPLAY parenE                               { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr}; }
-        |       yD_DISPLAY '(' commasE exprDispList ')'         { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4}; }
+        |       yD_DISPLAY '(' commasE عبارت_Disp_List ')'         { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4}; }
         |       yD_DISPLAYB parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'b'}; }
-        |       yD_DISPLAYB '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'b'}; }
+        |       yD_DISPLAYB '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'b'}; }
         |       yD_DISPLAYH parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'h'}; }
-        |       yD_DISPLAYH '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'h'}; }
+        |       yD_DISPLAYH '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'h'}; }
         |       yD_DISPLAYO parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'o'}; }
-        |       yD_DISPLAYO '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'o'}; }
-        |       yD_MONITOR  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4}; }
-        |       yD_MONITORB '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'b'}; }
-        |       yD_MONITORH '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'h'}; }
-        |       yD_MONITORO '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'o'}; }
-        |       yD_STROBE   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4}; }
-        |       yD_STROBEB  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'b'}; }
-        |       yD_STROBEH  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'h'}; }
-        |       yD_STROBEO  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'o'}; }
+        |       yD_DISPLAYO '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'o'}; }
+        |       yD_MONITOR  '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4}; }
+        |       yD_MONITORB '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'b'}; }
+        |       yD_MONITORH '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'h'}; }
+        |       yD_MONITORO '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'o'}; }
+        |       yD_STROBE   '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4}; }
+        |       yD_STROBEB  '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'b'}; }
+        |       yD_STROBEH  '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'h'}; }
+        |       yD_STROBEO  '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'o'}; }
         |       yD_WRITE    parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITE    '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4}; }
+        |       yD_WRITE    '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4}; }
         |       yD_WRITEB   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEB   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'b'}; }
+        |       yD_WRITEB   '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'b'}; }
         |       yD_WRITEH   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEH   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'h'}; }
+        |       yD_WRITEH   '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'h'}; }
         |       yD_WRITEO   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEO   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'o'}; }
-        |       yD_FDISPLAY '(' expr ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr}; }
-        |       yD_FDISPLAY '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5}; }
-        |       yD_FDISPLAYB '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'b'}; }
-        |       yD_FDISPLAYB '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'b'}; }
-        |       yD_FDISPLAYH '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'h'}; }
-        |       yD_FDISPLAYH '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'h'}; }
-        |       yD_FDISPLAYO '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'o'}; }
-        |       yD_FDISPLAYO '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'o'}; }
-        |       yD_FMONITOR  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5}; }
-        |       yD_FMONITORB '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'b'}; }
-        |       yD_FMONITORH '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'h'}; }
-        |       yD_FMONITORO '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'o'}; }
-        |       yD_FSTROBE   '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, nullptr}; }
-        |       yD_FSTROBE   '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5}; }
-        |       yD_FSTROBEB  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'b'}; }
-        |       yD_FSTROBEH  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'h'}; }
-        |       yD_FSTROBEO  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'o'}; }
-        |       yD_FWRITE   '(' expr ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, nullptr}; }
-        |       yD_FWRITE   '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5}; }
-        |       yD_FWRITEB  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'b'}; }
-        |       yD_FWRITEH  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'h'}; }
-        |       yD_FWRITEO  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'o'}; }
+        |       yD_WRITEO   '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'o'}; }
+        |       yD_FDISPLAY '(' عبارت ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr}; }
+        |       yD_FDISPLAY '(' عبارت ',' عبارت_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5}; }
+        |       yD_FDISPLAYB '(' عبارت ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'b'}; }
+        |       yD_FDISPLAYB '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'b'}; }
+        |       yD_FDISPLAYH '(' عبارت ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'h'}; }
+        |       yD_FDISPLAYH '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'h'}; }
+        |       yD_FDISPLAYO '(' عبارت ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'o'}; }
+        |       yD_FDISPLAYO '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'o'}; }
+        |       yD_FMONITOR  '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5}; }
+        |       yD_FMONITORB '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'b'}; }
+        |       yD_FMONITORH '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'h'}; }
+        |       yD_FMONITORO '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'o'}; }
+        |       yD_FSTROBE   '(' عبارت ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, nullptr}; }
+        |       yD_FSTROBE   '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5}; }
+        |       yD_FSTROBEB  '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'b'}; }
+        |       yD_FSTROBEH  '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'h'}; }
+        |       yD_FSTROBEO  '(' عبارت ',' عبارت_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'o'}; }
+        |       yD_FWRITE   '(' عبارت ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, nullptr}; }
+        |       yD_FWRITE   '(' عبارت ',' عبارت_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5}; }
+        |       yD_FWRITEB  '(' عبارت ',' عبارت_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'b'}; }
+        |       yD_FWRITEH  '(' عبارت ',' عبارت_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'h'}; }
+        |       yD_FWRITEO  '(' عبارت ',' عبارت_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'o'}; }
         |       yD_INFO     parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, nullptr}; }
-        |       yD_INFO     '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, $4}; }
+        |       yD_INFO     '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, $4}; }
         |       yD_WARNING  parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, nullptr}; }
-        |       yD_WARNING  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, $4}; }
+        |       yD_WARNING  '(' commasE عبارت_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, $4}; }
         |       yD_ERROR    parenE                              { $$ = GRAMMARP->createDisplayError($1); }
-        |       yD_ERROR    '(' commasE exprDispList ')'
+        |       yD_ERROR    '(' commasE عبارت_Disp_List ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_ERROR, nullptr, $4};
                           $$->addNext(new AstStop{$1, false}); }
         |       yD_FATAL    parenE
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, nullptr};
                           $$->addNext(new AstStop{$1, true}); }
-        |       yD_FATAL    '(' expr ')'
+        |       yD_FATAL    '(' عبارت ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, nullptr};
                           $$->addNext(new AstStop{$1, true}); DEL($3); }
-        |       yD_FATAL    '(' expr ',' exprDispList ')'
+        |       yD_FATAL    '(' عبارت ',' عبارت_Disp_List ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, $5};
                           $$->addNext(new AstStop{$1, true}); DEL($3); }
         //
-        |       yD_ASSERTCTL '(' expr ')'                                            { $$ = new AstAssertCtl{$1, $3}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ')'                                  { $$ = new AstAssertCtl{$1, $3, $5}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ')'                        { $$ = new AstAssertCtl{$1, $3, $5, $7}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ',' exprE ')'              { $$ = new AstAssertCtl{$1, $3, $5, $7, $9}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ',' exprE ',' exprList ')' { $$ = new AstAssertCtl{$1, $3, $5, $7, $9, $11}; }
-        |       yD_ASSERTFAILOFF '(' expr ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3}; }
-        |       yD_ASSERTFAILOFF '(' exprE ',' exprList ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTCTL '(' عبارت ')'                                            { $$ = new AstAssertCtl{$1, $3}; }
+        |       yD_ASSERTCTL '(' عبارت ',' عبارت_E ')'                                  { $$ = new AstAssertCtl{$1, $3, $5}; }
+        |       yD_ASSERTCTL '(' عبارت ',' عبارت_E ',' عبارت_E ')'                        { $$ = new AstAssertCtl{$1, $3, $5, $7}; }
+        |       yD_ASSERTCTL '(' عبارت ',' عبارت_E ',' عبارت_E ',' عبارت_E ')'              { $$ = new AstAssertCtl{$1, $3, $5, $7, $9}; }
+        |       yD_ASSERTCTL '(' عبارت ',' عبارت_E ',' عبارت_E ',' عبارت_E ',' عبارت_List ')' { $$ = new AstAssertCtl{$1, $3, $5, $7, $9, $11}; }
+        |       yD_ASSERTFAILOFF '(' عبارت ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3}; }
+        |       yD_ASSERTFAILOFF '(' عبارت_E ',' عبارت_List ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTFAILOFF parenE                         { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7}; }
-        |       yD_ASSERTFAILON '(' expr ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3}; }
-        |       yD_ASSERTFAILON '(' exprE ',' exprList ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTFAILON '(' عبارت ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3}; }
+        |       yD_ASSERTFAILON '(' عبارت_E ',' عبارت_List ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTFAILON parenE                          { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7}; }
-        |       yD_ASSERTKILL '(' expr ')'                      { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3}; }
-        |       yD_ASSERTKILL '(' exprE ',' exprList ')'        { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3, $5}; }
+        |       yD_ASSERTKILL '(' عبارت ')'                      { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3}; }
+        |       yD_ASSERTKILL '(' عبارت_E ',' عبارت_List ')'        { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3, $5}; }
         |       yD_ASSERTKILL parenE                            { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7}; }
-        |       yD_ASSERTNONVACUOUSON '(' expr ')'                 { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3}; }
-        |       yD_ASSERTNONVACUOUSON '(' exprE ',' exprList ')'   { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTNONVACUOUSON '(' عبارت ')'                 { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3}; }
+        |       yD_ASSERTNONVACUOUSON '(' عبارت_E ',' عبارت_List ')'   { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTNONVACUOUSON parenE                       { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7}; }
-        |       yD_ASSERTOFF '(' expr ')'                       { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3}; }
-        |       yD_ASSERTOFF '(' exprE ',' exprList ')'         { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3, $5}; }
+        |       yD_ASSERTOFF '(' عبارت ')'                       { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3}; }
+        |       yD_ASSERTOFF '(' عبارت_E ',' عبارت_List ')'         { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3, $5}; }
         |       yD_ASSERTOFF parenE                             { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7}; }
-        |       yD_ASSERTON '(' expr ')'                        { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3}; }
-        |       yD_ASSERTON '(' exprE ',' exprList ')'          { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3, $5}; }
+        |       yD_ASSERTON '(' عبارت ')'                        { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3}; }
+        |       yD_ASSERTON '(' عبارت_E ',' عبارت_List ')'          { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3, $5}; }
         |       yD_ASSERTON parenE                              { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7}; }
-        |       yD_ASSERTPASSOFF '(' expr ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3}; }
-        |       yD_ASSERTPASSOFF '(' exprE ',' exprList ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTPASSOFF '(' عبارت ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3}; }
+        |       yD_ASSERTPASSOFF '(' عبارت_E ',' عبارت_List ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTPASSOFF parenE                         { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7}; }
-        |       yD_ASSERTPASSON '(' expr ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3}; }
-        |       yD_ASSERTPASSON '(' exprE ',' exprList ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTPASSON '(' عبارت ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3}; }
+        |       yD_ASSERTPASSON '(' عبارت_E ',' عبارت_List ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTPASSON parenE                          { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7}; }
-        |       yD_ASSERTVACUOUSOFF '(' expr ')'                { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3}; }
-        |       yD_ASSERTVACUOUSOFF '(' exprE ',' exprList ')'  { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTVACUOUSOFF '(' عبارت ')'                { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3}; }
+        |       yD_ASSERTVACUOUSOFF '(' عبارت_E ',' عبارت_List ')'  { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTVACUOUSOFF parenE                      { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7}; }
         //
         |       yD_MONITOROFF parenE                    { $$ = new AstMonitorOff{$1, true}; }
@@ -4382,42 +4382,42 @@ system_t_stmt_call<nodeStmtp>:  // IEEE: part of system_tf_call (as task returni
         |       yD_PRINTTIMESCALE                       { $$ = new AstPrintTimeScale{$1}; }
         |       yD_PRINTTIMESCALE '(' ')'               { $$ = new AstPrintTimeScale{$1}; }
         |       yD_PRINTTIMESCALE '(' idClassSel ')'    { $$ = new AstPrintTimeScale{$1}; DEL($3); }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ',' exprE ',' exprE ')'
+        |       yD_TIMEFORMAT '(' عبارت_E ',' عبارت_E ',' عبارت_E ',' عبارت_E ')'
                         { $$ = new AstTimeFormat{$1, $3, $5, $7, $9}; }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ',' exprE ')'
+        |       yD_TIMEFORMAT '(' عبارت_E ',' عبارت_E ',' عبارت_E ')'
                         { $$ = new AstTimeFormat{$1, $3, $5, $7, nullptr}; }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ')'
+        |       yD_TIMEFORMAT '(' عبارت_E ',' عبارت_E ')'
                         { $$ = new AstTimeFormat{$1, $3, $5, nullptr, nullptr}; }
-        |       yD_TIMEFORMAT '(' exprE ')'
+        |       yD_TIMEFORMAT '(' عبارت_E ')'
                         { $$ = new AstTimeFormat{$1, $3, nullptr, nullptr, nullptr}; }
         //
-        |       yD_READMEMB '(' expr ',' idClassSel ')'                         { $$ = new AstReadMem{$1, false, $3, $5, nullptr, nullptr}; }
-        |       yD_READMEMB '(' expr ',' idClassSel ',' expr ')'                { $$ = new AstReadMem{$1, false, $3, $5, $7, nullptr}; }
-        |       yD_READMEMB '(' expr ',' idClassSel ',' expr ',' expr ')'       { $$ = new AstReadMem{$1, false, $3, $5, $7, $9}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ')'                         { $$ = new AstReadMem{$1, true,  $3, $5, nullptr, nullptr}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ',' expr ')'                { $$ = new AstReadMem{$1, true,  $3, $5, $7, nullptr}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ',' expr ',' expr ')'       { $$ = new AstReadMem{$1, true,  $3, $5, $7, $9}; }
+        |       yD_READMEMB '(' عبارت ',' idClassSel ')'                         { $$ = new AstReadMem{$1, false, $3, $5, nullptr, nullptr}; }
+        |       yD_READMEMB '(' عبارت ',' idClassSel ',' عبارت ')'                { $$ = new AstReadMem{$1, false, $3, $5, $7, nullptr}; }
+        |       yD_READMEMB '(' عبارت ',' idClassSel ',' عبارت ',' عبارت ')'       { $$ = new AstReadMem{$1, false, $3, $5, $7, $9}; }
+        |       yD_READMEMH '(' عبارت ',' idClassSel ')'                         { $$ = new AstReadMem{$1, true,  $3, $5, nullptr, nullptr}; }
+        |       yD_READMEMH '(' عبارت ',' idClassSel ',' عبارت ')'                { $$ = new AstReadMem{$1, true,  $3, $5, $7, nullptr}; }
+        |       yD_READMEMH '(' عبارت ',' idClassSel ',' عبارت ',' عبارت ')'       { $$ = new AstReadMem{$1, true,  $3, $5, $7, $9}; }
         //
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, false, $3, $5, nullptr, nullptr}; }
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ',' expr ')'               { $$ = new AstWriteMem{$1, false, $3, $5, $7, nullptr}; }
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ',' expr ',' expr ')'      { $$ = new AstWriteMem{$1, false, $3, $5, $7, $9}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, true,  $3, $5, nullptr, nullptr}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ',' expr ')'               { $$ = new AstWriteMem{$1, true,  $3, $5, $7, nullptr}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ',' expr ',' expr ')'      { $$ = new AstWriteMem{$1, true,  $3, $5, $7, $9}; }
+        |       yD_WRITEMEMB '(' عبارت ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, false, $3, $5, nullptr, nullptr}; }
+        |       yD_WRITEMEMB '(' عبارت ',' idClassSel ',' عبارت ')'               { $$ = new AstWriteMem{$1, false, $3, $5, $7, nullptr}; }
+        |       yD_WRITEMEMB '(' عبارت ',' idClassSel ',' عبارت ',' عبارت ')'      { $$ = new AstWriteMem{$1, false, $3, $5, $7, $9}; }
+        |       yD_WRITEMEMH '(' عبارت ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, true,  $3, $5, nullptr, nullptr}; }
+        |       yD_WRITEMEMH '(' عبارت ',' idClassSel ',' عبارت ')'               { $$ = new AstWriteMem{$1, true,  $3, $5, $7, nullptr}; }
+        |       yD_WRITEMEMH '(' عبارت ',' idClassSel ',' عبارت ',' عبارت ')'      { $$ = new AstWriteMem{$1, true,  $3, $5, $7, $9}; }
         //
-        |       yD_CAST '(' expr ',' expr ')'
-                        { FileLine* const fl_nowarn = new FileLine{$1};
+        |       yD_CAST '(' عبارت ',' عبارت ')'
+                        { File_سطر* ثابت fl_nowarn = new File_سطر{$1};
                           fl_nowarn->warnOff(V3ErrorCode::WIDTH, true);
                           $$ = new AstAssertIntrinsic{fl_nowarn, new AstCastDynamic{fl_nowarn, $5, $3},
                                                       nullptr, nullptr}; }
         ;
 
-system_f_only_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (for functions returning expressions)
+system_f_only_عبارت_call<گره_Exprp>:  // IEEE: part of system_tf_call (for functions returning expressions)
                 yaD_PLI systemDpiArgsE                  { $$ = new AstFuncRef{$<fl>1, *$1, $2}; VN_CAST($$, FuncRef)->pli(true); }
         //
         |       yD_C '(' cStrList ')' {
                     AstCExprUser* cexprp = nullptr;
-                    if (!v3Global.opt.ignc()) {
+                    اگر (!v3Global.opt.ignc()) {
                         cexprp = new AstCExprUser{$1};
                         cexprp->add($3);
                     }
@@ -4425,138 +4425,138 @@ system_f_only_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (for functi
                 }
         |       yD_CPURE '(' cStrList ')' {
                     AstCExprUser* cexprp = nullptr;
-                    if (!v3Global.opt.ignc()) {
+                    اگر (!v3Global.opt.ignc()) {
                         cexprp = new AstCExprUser{$1, AstCExprUser::Pure{}};
                         cexprp->add($3);
                     }
                     $$ = cexprp;
                 }
-        |       yD_CAST '(' expr ',' expr ')'           { $$ = new AstCastDynamic{$1, $5, $3}; }
-        |       yD_STACKTRACE parenE                    { $$ = new AstStackTraceF{$1}; }
-        |       yD_SYSTEM  '(' expr ')'                 { $$ = new AstSystemF{$1, $3}; }
+        |       yD_CAST '(' عبارت ',' عبارت ')'           { $$ = new AstCastDynamic{$1, $5, $3}; }
+        |       yD_STACKTRACE parenE                    { $$ = new Ast_پشته_Trace_F{$1}; }
+        |       yD_SYSTEM  '(' عبارت ')'                 { $$ = new AstSystemF{$1, $3}; }
         ;
 
-system_f_or_t_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (can be task or func)
-                yD_ACOS '(' expr ')'                    { $$ = new AstAcosD{$1, $3}; }
-        |       yD_ACOSH '(' expr ')'                   { $$ = new AstAcoshD{$1, $3}; }
-        |       yD_ASIN '(' expr ')'                    { $$ = new AstAsinD{$1, $3}; }
-        |       yD_ASINH '(' expr ')'                   { $$ = new AstAsinhD{$1, $3}; }
-        |       yD_ATAN '(' expr ')'                    { $$ = new AstAtanD{$1, $3}; }
-        |       yD_ATAN2 '(' expr ',' expr ')'          { $$ = new AstAtan2D{$1, $3, $5}; }
-        |       yD_ATANH '(' expr ')'                   { $$ = new AstAtanhD{$1, $3}; }
-        |       yD_BITS '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3}; }
-        |       yD_BITS '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3, $5}; }
-        |       yD_BITSTOREAL '(' expr ')'              { $$ = new AstBitsToRealD{$1, $3}; }
-        |       yD_BITSTOSHORTREAL '(' expr ')'         { $$ = new AstBitsToRealD{$1, $3}; UNSUPREAL($1); }
-        |       yD_CEIL '(' expr ')'                    { $$ = new AstCeilD{$1, $3}; }
-        |       yD_CHANGED '(' expr ')'                 { $$ = new AstLogNot{$1, new AstStable{$1, $3, nullptr}}; }
-        |       yD_CHANGED '(' expr ',' expr ')'
-                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}}; }
-        |       yD_CHANGED_GCLK '(' expr ')'
-                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}}; }
-        |       yD_CHANGING_GCLK '(' expr ')'
+system_f_or_t_عبارت_call<گره_Exprp>:  // IEEE: part of system_tf_call (can be task or func)
+                yD_ACOS '(' عبارت ')'                    { $$ = new AstAcosD{$1, $3}; }
+        |       yD_ACOSH '(' عبارت ')'                   { $$ = new AstAcoshD{$1, $3}; }
+        |       yD_ASIN '(' عبارت ')'                    { $$ = new AstAsinD{$1, $3}; }
+        |       yD_ASINH '(' عبارت ')'                   { $$ = new AstAsinhD{$1, $3}; }
+        |       yD_ATAN '(' عبارت ')'                    { $$ = new AstAtanD{$1, $3}; }
+        |       yD_ATAN2 '(' عبارت ',' عبارت ')'          { $$ = new AstAtan2D{$1, $3, $5}; }
+        |       yD_ATANH '(' عبارت ')'                   { $$ = new AstAtanhD{$1, $3}; }
+        |       yD_BITS '(' عبارت_Or_Data_Type ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3}; }
+        |       yD_BITS '(' عبارت_Or_Data_Type ',' عبارت ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3, $5}; }
+        |       yD_BITSTOREAL '(' عبارت ')'              { $$ = new AstBitsToRealD{$1, $3}; }
+        |       yD_BITSTOSHORTREAL '(' عبارت ')'         { $$ = new AstBitsToRealD{$1, $3}; UNSUPREAL($1); }
+        |       yD_CEIL '(' عبارت ')'                    { $$ = new AstCeilD{$1, $3}; }
+        |       yD_CHANGED '(' عبارت ')'                 { $$ = new AstLogNot{$1, new AstStable{$1, $3, nullptr}}; }
+        |       yD_CHANGED '(' عبارت ',' عبارت ')'
+                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->create_Sen_درخت_Changed($1, $5)}}; }
+        |       yD_CHANGED_GCLK '(' عبارت ')'
+                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}}; }
+        |       yD_CHANGING_GCLK '(' عبارت ')'
                         { $$ = new AstLogNot{$1, new AstSteady{$1, $3}}; }
-        |       yD_CLOG2 '(' expr ')'                   { $$ = new AstCLog2{$1, $3}; }
-        |       yD_COS '(' expr ')'                     { $$ = new AstCosD{$1, $3}; }
-        |       yD_COSH '(' expr ')'                    { $$ = new AstCoshD{$1, $3}; }
-        |       yD_COUNTBITS '(' expr ',' expr ')'              { $$ = new AstCountBits{$1, $3, $5}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ')'             { $$ = new AstCountBits{$1, $3, $5, $7}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ',' expr ')'    { $$ = new AstCountBits{$1, $3, $5, $7, $9}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ',' expr ',' exprList ')'
-                        { $$ = new AstCountBits{$1, $3, $5, $7, $9};
+        |       yD_CLOG2 '(' عبارت ')'                   { $$ = new AstCLog2{$1, $3}; }
+        |       yD_COS '(' عبارت ')'                     { $$ = new AstCosD{$1, $3}; }
+        |       yD_COSH '(' عبارت ')'                    { $$ = new AstCoshD{$1, $3}; }
+        |       yD_COUNTBITS '(' عبارت ',' عبارت ')'              { $$ = new Ast_شمار_Bits{$1, $3, $5}; }
+        |       yD_COUNTBITS '(' عبارت ',' عبارت ',' عبارت ')'             { $$ = new Ast_شمار_Bits{$1, $3, $5, $7}; }
+        |       yD_COUNTBITS '(' عبارت ',' عبارت ',' عبارت ',' عبارت ')'    { $$ = new Ast_شمار_Bits{$1, $3, $5, $7, $9}; }
+        |       yD_COUNTBITS '(' عبارت ',' عبارت ',' عبارت ',' عبارت ',' عبارت_List ')'
+                        { $$ = new Ast_شمار_Bits{$1, $3, $5, $7, $9};
                           BBUNSUP($11, "Unsupported: $countbits with more than 3 control fields"); }
-        |       yD_COUNTONES '(' expr ')'               { $$ = new AstCountOnes{$1, $3}; }
-        |       yD_DIMENSIONS '(' exprOrDataType ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_DIMENSIONS, $3}; }
-        |       yD_DIST_CHI_SQUARE '(' expr ',' expr ')'        { $$ = new AstDistChiSquare{$1, $3, $5}; }
-        |       yD_DIST_ERLANG '(' expr ',' expr ',' expr ')'   { $$ = new AstDistErlang{$1, $3, $5, $7}; }
-        |       yD_DIST_EXPONENTIAL '(' expr ',' expr ')'       { $$ = new AstDistExponential{$1, $3, $5}; }
-        |       yD_DIST_NORMAL '(' expr ',' expr ',' expr ')'   { $$ = new AstDistNormal{$1, $3, $5, $7}; }
-        |       yD_DIST_POISSON '(' expr ',' expr ')'   { $$ = new AstDistPoisson{$1, $3, $5}; }
-        |       yD_DIST_T '(' expr ',' expr ')'         { $$ = new AstDistT{$1, $3, $5}; }
-        |       yD_DIST_UNIFORM '(' expr ',' expr ',' expr ')'  { $$ = new AstDistUniform{$1, $3, $5, $7}; }
-        |       yD_EXP '(' expr ')'                     { $$ = new AstExpD{$1, $3}; }
-        |       yD_FALLING_GCLK '(' expr ')'            { $$ = new AstFalling{$1, $3}; }
-        |       yD_FELL '(' expr ')'                    { $$ = new AstFell{$1, $3, nullptr}; }
-        |       yD_FELL '(' expr ',' expr ')'           { $$ = new AstFell{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_FELL_GCLK '(' expr ')'               { $$ = new AstFell{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_FEOF '(' expr ')'                    { $$ = new AstFEof{$1, $3}; }
-        |       yD_FERROR '(' expr ',' idClassSel ')'   { $$ = new AstFError{$1, $3, $5}; }
-        |       yD_FGETC '(' expr ')'                   { $$ = new AstFGetC{$1, $3}; }
-        |       yD_FGETS '(' expr ',' expr ')'          { $$ = new AstFGetS{$1, $3, $5}; }
-        |       yD_FOPEN '(' expr ')'                   { $$ = new AstFOpenMcd{$1, $3}; }
-        |       yD_FOPEN '(' expr ',' expr ')'          { $$ = new AstFOpen{$1, $3, $5}; }
-        |       yD_FREAD '(' expr ',' expr ')'          { $$ = new AstFRead{$1, $3, $5, nullptr, nullptr}; }
-        |       yD_FREAD '(' expr ',' expr ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, $7, nullptr}; }
-        |       yD_FREAD '(' expr ',' expr ',' expr ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, $7, $9}; }
-        |       yD_FREAD '(' expr ',' expr ',' ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, nullptr, $8}; }
-        |       yD_FREWIND '(' expr ')'                 { $$ = new AstFRewind{$1, $3}; }
-        |       yD_FUTURE_GCLK '(' expr ')'             { $$ = new AstFuture{$1, $3, nullptr}; }
-        |       yD_FLOOR '(' expr ')'                   { $$ = new AstFloorD{$1, $3}; }
-        |       yD_FSCANF '(' expr ',' str commaVRDListE ')'    { $$ = new AstFScanF{$1, *$5, $3, $6}; }
-        |       yD_FSEEK '(' expr ',' expr ',' expr ')' { $$ = new AstFSeek{$1, $3, $5, $7}; }
-        |       yD_FTELL '(' expr ')'                   { $$ = new AstFTell{$1, $3}; }
+        |       yD_COUNTONES '(' عبارت ')'               { $$ = new Ast_شمار_Ones{$1, $3}; }
+        |       yD_DIMENSIONS '(' عبارت_Or_Data_Type ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_DIMENSIONS, $3}; }
+        |       yD_DIST_CHI_SQUARE '(' عبارت ',' عبارت ')'        { $$ = new AstDistChiSquare{$1, $3, $5}; }
+        |       yD_DIST_ERLANG '(' عبارت ',' عبارت ',' عبارت ')'   { $$ = new AstDistErlang{$1, $3, $5, $7}; }
+        |       yD_DIST_EXPONENTIAL '(' عبارت ',' عبارت ')'       { $$ = new AstDistExponential{$1, $3, $5}; }
+        |       yD_DIST_NORMAL '(' عبارت ',' عبارت ',' عبارت ')'   { $$ = new AstDistNormal{$1, $3, $5, $7}; }
+        |       yD_DIST_POISSON '(' عبارت ',' عبارت ')'   { $$ = new AstDistPoisson{$1, $3, $5}; }
+        |       yD_DIST_T '(' عبارت ',' عبارت ')'         { $$ = new AstDistT{$1, $3, $5}; }
+        |       yD_DIST_UNIFORM '(' عبارت ',' عبارت ',' عبارت ')'  { $$ = new AstDistUniform{$1, $3, $5, $7}; }
+        |       yD_EXP '(' عبارت ')'                     { $$ = new AstExpD{$1, $3}; }
+        |       yD_FALLING_GCLK '(' عبارت ')'            { $$ = new AstFalling{$1, $3}; }
+        |       yD_FELL '(' عبارت ')'                    { $$ = new AstFell{$1, $3, nullptr}; }
+        |       yD_FELL '(' عبارت ',' عبارت ')'           { $$ = new AstFell{$1, $3, GRAMMARP->create_Sen_درخت_Changed($1, $5)}; }
+        |       yD_FELL_GCLK '(' عبارت ')'               { $$ = new AstFell{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_FEOF '(' عبارت ')'                    { $$ = new AstFEof{$1, $3}; }
+        |       yD_FERROR '(' عبارت ',' idClassSel ')'   { $$ = new AstFError{$1, $3, $5}; }
+        |       yD_FGETC '(' عبارت ')'                   { $$ = new AstFGetC{$1, $3}; }
+        |       yD_FGETS '(' عبارت ',' عبارت ')'          { $$ = new AstFGetS{$1, $3, $5}; }
+        |       yD_FOPEN '(' عبارت ')'                   { $$ = new AstFOpenMcd{$1, $3}; }
+        |       yD_FOPEN '(' عبارت ',' عبارت ')'          { $$ = new AstFOpen{$1, $3, $5}; }
+        |       yD_FREAD '(' عبارت ',' عبارت ')'          { $$ = new AstFRead{$1, $3, $5, nullptr, nullptr}; }
+        |       yD_FREAD '(' عبارت ',' عبارت ',' عبارت ')'  { $$ = new AstFRead{$1, $3, $5, $7, nullptr}; }
+        |       yD_FREAD '(' عبارت ',' عبارت ',' عبارت ',' عبارت ')'  { $$ = new AstFRead{$1, $3, $5, $7, $9}; }
+        |       yD_FREAD '(' عبارت ',' عبارت ',' ',' عبارت ')'  { $$ = new AstFRead{$1, $3, $5, nullptr, $8}; }
+        |       yD_FREWIND '(' عبارت ')'                 { $$ = new AstFRewind{$1, $3}; }
+        |       yD_FUTURE_GCLK '(' عبارت ')'             { $$ = new AstFuture{$1, $3, nullptr}; }
+        |       yD_FLOOR '(' عبارت ')'                   { $$ = new AstFloorD{$1, $3}; }
+        |       yD_FSCANF '(' عبارت ',' str commaVRDListE ')'    { $$ = new AstFScanF{$1, *$5, $3, $6}; }
+        |       yD_FSEEK '(' عبارت ',' عبارت ',' عبارت ')' { $$ = new AstFSeek{$1, $3, $5, $7}; }
+        |       yD_FTELL '(' عبارت ')'                   { $$ = new AstFTell{$1, $3}; }
         |       yD_GET_INITIAL_RANDOM_SEED parenE      { $$ = new AstGetInitialRandomSeed{$1}; }
         |       yD_GLOBAL_CLOCK parenE                  { $$ = GRAMMARP->createGlobalClockParseRef($1); }
-        |       yD_HIGH '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_HIGH, $3, nullptr}; }
-        |       yD_HIGH '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_HIGH, $3, $5}; }
-        |       yD_HYPOT '(' expr ',' expr ')'          { $$ = new AstHypotD{$1, $3, $5}; }
-        |       yD_INCREMENT '(' exprOrDataType ')'     { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, nullptr}; }
-        |       yD_INCREMENT '(' exprOrDataType ',' expr ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, $5}; }
+        |       y_D_بالا '(' عبارت_Or_Data_Type ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_بالا, $3, nullptr}; }
+        |       y_D_بالا '(' عبارت_Or_Data_Type ',' عبارت ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_بالا, $3, $5}; }
+        |       yD_HYPOT '(' عبارت ',' عبارت ')'          { $$ = new AstHypotD{$1, $3, $5}; }
+        |       yD_INCREMENT '(' عبارت_Or_Data_Type ')'     { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, nullptr}; }
+        |       yD_INCREMENT '(' عبارت_Or_Data_Type ',' عبارت ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, $5}; }
         |       yD_INFERRED_DISABLE parenE              { $$ = new AstInferredDisable{$1}; }
-        |       yD_ISUNBOUNDED '(' expr ')'             { $$ = new AstIsUnbounded{$1, $3}; }
-        |       yD_ISUNKNOWN '(' expr ')'               { $$ = new AstIsUnknown{$1, $3}; }
-        |       yD_ITOR '(' expr ')'                    { $$ = new AstIToRD{$1, $3}; }
-        |       yD_LEFT '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_LEFT, $3, nullptr}; }
-        |       yD_LEFT '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_LEFT, $3, $5}; }
-        |       yD_LN '(' expr ')'                      { $$ = new AstLogD{$1, $3}; }
-        |       yD_LOG10 '(' expr ')'                   { $$ = new AstLog10D{$1, $3}; }
-        |       yD_LOW '(' exprOrDataType ')'           { $$ = new AstAttrOf{$1, VAttrType::DIM_LOW, $3, nullptr}; }
-        |       yD_LOW '(' exprOrDataType ',' expr ')'  { $$ = new AstAttrOf{$1, VAttrType::DIM_LOW, $3, $5}; }
-        |       yD_ONEHOT '(' expr ')'                  { $$ = new AstOneHot{$1, $3}; }
-        |       yD_ONEHOT0 '(' expr ')'                 { $$ = new AstOneHot0{$1, $3}; }
-        |       yD_PAST '(' expr ')'                    { $$ = new AstPast{$1, $3}; }
-        |       yD_PAST '(' expr ',' exprE ')'          { $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST '(' expr ',' exprE ',' exprE ')'
-                        { if ($7) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
+        |       yD_ISUNBOUNDED '(' عبارت ')'             { $$ = new AstIsUnbounded{$1, $3}; }
+        |       yD_ISUNKNOWN '(' عبارت ')'               { $$ = new AstIsUnknown{$1, $3}; }
+        |       yD_ITOR '(' عبارت ')'                    { $$ = new AstIToRD{$1, $3}; }
+        |       y_D_چپ '(' عبارت_Or_Data_Type ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_چپ, $3, nullptr}; }
+        |       y_D_چپ '(' عبارت_Or_Data_Type ',' عبارت ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_چپ, $3, $5}; }
+        |       yD_LN '(' عبارت ')'                      { $$ = new AstLogD{$1, $3}; }
+        |       yD_LOG10 '(' عبارت ')'                   { $$ = new AstLog10D{$1, $3}; }
+        |       y_D_کم '(' عبارت_Or_Data_Type ')'           { $$ = new AstAttrOf{$1, VAttrType::DIM_کم, $3, nullptr}; }
+        |       y_D_کم '(' عبارت_Or_Data_Type ',' عبارت ')'  { $$ = new AstAttrOf{$1, VAttrType::DIM_کم, $3, $5}; }
+        |       yD_ONEHOT '(' عبارت ')'                  { $$ = new AstOneHot{$1, $3}; }
+        |       yD_ONEHOT0 '(' عبارت ')'                 { $$ = new AstOneHot0{$1, $3}; }
+        |       yD_PAST '(' عبارت ')'                    { $$ = new AstPast{$1, $3}; }
+        |       yD_PAST '(' عبارت ',' عبارت_E ')'          { $$ = new AstPast{$1, $3, $5}; }
+        |       yD_PAST '(' عبارت ',' عبارت_E ',' عبارت_E ')'
+                        { اگر ($7) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
                           DEL($7);
                           $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST '(' expr ',' exprE ',' exprE ',' clocking_eventE ')'
-                        { if ($7 || $9) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
+        |       yD_PAST '(' عبارت ',' عبارت_E ',' عبارت_E ',' clocking_eventE ')'
+                        { اگر ($7 || $9) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
                           DEL($7, $9);
                           $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST_GCLK '(' expr ')'               { $$ = new AstPast{$1, $3, nullptr, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_POW '(' expr ',' expr ')'            { $$ = new AstPowD{$1, $3, $5}; }
-        |       yD_RANDOM '(' expr ')'                  { $$ = new AstRand{$1, $3, false}; }
+        |       yD_PAST_GCLK '(' عبارت ')'               { $$ = new AstPast{$1, $3, nullptr, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_POW '(' عبارت ',' عبارت ')'            { $$ = new AstPowD{$1, $3, $5}; }
+        |       yD_RANDOM '(' عبارت ')'                  { $$ = new AstRand{$1, $3, false}; }
         |       yD_RANDOM parenE                        { $$ = new AstRand{$1, nullptr, false}; }
         |       yD_REALTIME parenE                      { $$ = new AstTimeD{$1, VTimescale{VTimescale::NONE}}; }
-        |       yD_REALTOBITS '(' expr ')'              { $$ = new AstRealToBits{$1, $3}; }
-        |       yD_REWIND '(' expr ')'                  { $$ = new AstFSeek{$1, $3, new AstConst{$1, 0}, new AstConst{$1, 0}}; }
-        |       yD_RIGHT '(' exprOrDataType ')'         { $$ = new AstAttrOf{$1, VAttrType::DIM_RIGHT, $3, nullptr}; }
-        |       yD_RIGHT '(' exprOrDataType ',' expr ')'        { $$ = new AstAttrOf{$1, VAttrType::DIM_RIGHT, $3, $5}; }
-        |       yD_RISING_GCLK '(' expr ')'             { $$ = new AstRising{$1, $3}; }
-        |       yD_ROSE '(' expr ')'                    { $$ = new AstRose{$1, $3, nullptr}; }
-        |       yD_ROSE '(' expr ',' expr ')'           { $$ = new AstRose{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_ROSE_GCLK '(' expr ')'               { $$ = new AstRose{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_RTOI '(' expr ')'                    { $$ = new AstRToIS{$1, $3}; }
-        |       yD_SAMPLED '(' expr ')'                 { $$ = new AstSampled{$1, $3, $3->dtypep()}; }
-        |       yD_SFORMATF '(' exprDispList ')'        { $$ = new AstSFormatF{$1, AstSFormatF::ExprFormat{}, $3, 'd', false}; }
-        |       yD_SHORTREALTOBITS '(' expr ')'         { $$ = new AstRealToBits{$1, $3}; UNSUPREAL($1); }
-        |       yD_SIGNED '(' expr ')'                  { $$ = new AstSigned{$1, $3}; }
-        |       yD_SIN '(' expr ')'                     { $$ = new AstSinD{$1, $3}; }
-        |       yD_SINH '(' expr ')'                    { $$ = new AstSinhD{$1, $3}; }
-        |       yD_SIZE '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, nullptr}; }
-        |       yD_SIZE '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, $5}; }
-        |       yD_SQRT '(' expr ')'                    { $$ = new AstSqrtD{$1, $3}; }
-        |       yD_SSCANF '(' expr ',' str commaVRDListE ')'    { $$ = new AstSScanF{$1, *$5, $3, $6}; }
-        |       yD_STABLE '(' expr ')'                  { $$ = new AstStable{$1, $3, nullptr}; }
-        |       yD_STABLE '(' expr ',' expr ')'         { $$ = new AstStable{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_STABLE_GCLK '(' expr ')'             { $$ = new AstStable{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_STEADY_GCLK '(' expr ')'             { $$ = new AstSteady{$1, $3}; }
+        |       yD_REALTOBITS '(' عبارت ')'              { $$ = new AstRealToBits{$1, $3}; }
+        |       yD_REWIND '(' عبارت ')'                  { $$ = new AstFSeek{$1, $3, new AstConst{$1, 0}, new AstConst{$1, 0}}; }
+        |       y_D_راست '(' عبارت_Or_Data_Type ')'         { $$ = new AstAttrOf{$1, VAttrType::DIM_راست, $3, nullptr}; }
+        |       y_D_راست '(' عبارت_Or_Data_Type ',' عبارت ')'        { $$ = new AstAttrOf{$1, VAttrType::DIM_راست, $3, $5}; }
+        |       yD_RISING_GCLK '(' عبارت ')'             { $$ = new AstRising{$1, $3}; }
+        |       yD_ROSE '(' عبارت ')'                    { $$ = new AstRose{$1, $3, nullptr}; }
+        |       yD_ROSE '(' عبارت ',' عبارت ')'           { $$ = new AstRose{$1, $3, GRAMMARP->create_Sen_درخت_Changed($1, $5)}; }
+        |       yD_ROSE_GCLK '(' عبارت ')'               { $$ = new AstRose{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_RTOI '(' عبارت ')'                    { $$ = new AstRToIS{$1, $3}; }
+        |       yD_SAMPLED '(' عبارت ')'                 { $$ = new AstSampled{$1, $3, $3->dtypep()}; }
+        |       yD_SFORMATF '(' عبارت_Disp_List ')'        { $$ = new AstSFormatF{$1, AstSFormatF::عبارت_Format{}, $3, 'd', false}; }
+        |       yD_SHORTREALTOBITS '(' عبارت ')'         { $$ = new AstRealToBits{$1, $3}; UNSUPREAL($1); }
+        |       yD_SIGNED '(' عبارت ')'                  { $$ = new AstSigned{$1, $3}; }
+        |       yD_SIN '(' عبارت ')'                     { $$ = new AstSinD{$1, $3}; }
+        |       yD_SINH '(' عبارت ')'                    { $$ = new AstSinhD{$1, $3}; }
+        |       yD_SIZE '(' عبارت_Or_Data_Type ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, nullptr}; }
+        |       yD_SIZE '(' عبارت_Or_Data_Type ',' عبارت ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, $5}; }
+        |       yD_SQRT '(' عبارت ')'                    { $$ = new AstSqrtD{$1, $3}; }
+        |       yD_SSCANF '(' عبارت ',' str commaVRDListE ')'    { $$ = new AstSScanF{$1, *$5, $3, $6}; }
+        |       yD_STABLE '(' عبارت ')'                  { $$ = new AstStable{$1, $3, nullptr}; }
+        |       yD_STABLE '(' عبارت ',' عبارت ')'         { $$ = new AstStable{$1, $3, GRAMMARP->create_Sen_درخت_Changed($1, $5)}; }
+        |       yD_STABLE_GCLK '(' عبارت ')'             { $$ = new AstStable{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_STEADY_GCLK '(' عبارت ')'             { $$ = new AstSteady{$1, $3}; }
         |       yD_STIME parenE
                         { $$ = new AstSel{$1, new AstTime{$1, VTimescale{VTimescale::NONE}}, 0, 32}; }
-        |       yD_TAN '(' expr ')'                     { $$ = new AstTanD{$1, $3}; }
-        |       yD_TANH '(' expr ')'                    { $$ = new AstTanhD{$1, $3}; }
-        |       yD_TESTPLUSARGS '(' expr ')'            { $$ = new AstTestPlusArgs{$1, $3}; }
+        |       yD_TAN '(' عبارت ')'                     { $$ = new AstTanD{$1, $3}; }
+        |       yD_TANH '(' عبارت ')'                    { $$ = new AstTanhD{$1, $3}; }
+        |       yD_TESTPLUSARGS '(' عبارت ')'            { $$ = new AstTestPlusArgs{$1, $3}; }
         |       yD_TIME parenE                          { $$ = new AstTime{$1, VTimescale{VTimescale::NONE}}; }
         |       yD_TIMEPRECISION                        { $$ = new AstTimePrecision{$1}; }
         |       yD_TIMEPRECISION '(' ')'                { $$ = new AstTimePrecision{$1}; }
@@ -4564,15 +4564,15 @@ system_f_or_t_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (can be tas
         |       yD_TIMEUNIT                             { $$ = new AstTimeUnit{$1}; }
         |       yD_TIMEUNIT '(' ')'                     { $$ = new AstTimeUnit{$1}; }
         |       yD_TIMEUNIT '(' idClassSel ')'          { $$ = new AstTimeUnit{$1}; DEL($3); }
-        |       yD_TYPENAME '(' exprOrDataType ')'      { $$ = new AstAttrOf{$1, VAttrType::TYPENAME, $3}; }
-        |       yD_UNGETC '(' expr ',' expr ')'         { $$ = new AstFUngetC{$1, $5, $3}; }  // Arg swap to file first
-        |       yD_UNPACKED_DIMENSIONS '(' exprOrDataType ')'   { $$ = new AstAttrOf{$1, VAttrType::DIM_UNPK_DIMENSIONS, $3}; }
-        |       yD_UNSIGNED '(' expr ')'                { $$ = new AstUnsigned{$1, $3}; }
-        |       yD_URANDOM '(' expr ')'                 { $$ = new AstRand{$1, $3, true}; }
+        |       yD_TYPENAME '(' عبارت_Or_Data_Type ')'      { $$ = new AstAttrOf{$1, VAttrType::TYPENAME, $3}; }
+        |       yD_UNGETC '(' عبارت ',' عبارت ')'         { $$ = new AstFUngetC{$1, $5, $3}; }  // Arg swap to file first
+        |       yD_UNPACKED_DIMENSIONS '(' عبارت_Or_Data_Type ')'   { $$ = new AstAttrOf{$1, VAttrType::DIM_UNPK_DIMENSIONS, $3}; }
+        |       yD_UNSIGNED '(' عبارت ')'                { $$ = new AstUnsigned{$1, $3}; }
+        |       yD_URANDOM '(' عبارت ')'                 { $$ = new AstRand{$1, $3, true}; }
         |       yD_URANDOM parenE                       { $$ = new AstRand{$1, nullptr, true}; }
-        |       yD_URANDOM_RANGE '(' expr ')'           { $$ = new AstURandomRange{$1, $3, new AstConst{$1, 0}}; }
-        |       yD_URANDOM_RANGE '(' expr ',' expr ')'  { $$ = new AstURandomRange{$1, $3, $5}; }
-        |       yD_VALUEPLUSARGS '(' expr ',' expr ')'  { $$ = new AstValuePlusArgs{$1, $3, $5}; }
+        |       yD_URANDOM_RANGE '(' عبارت ')'           { $$ = new AstURandomRange{$1, $3, new AstConst{$1, 0}}; }
+        |       yD_URANDOM_RANGE '(' عبارت ',' عبارت ')'  { $$ = new AstURandomRange{$1, $3, $5}; }
+        |       yD_VALUEPLUSARGS '(' عبارت ',' عبارت ')'  { $$ = new Ast_مقدار_Plus_Args{$1, $3, $5}; }
         ;
 
 severity_system_task<nodep>: // IEEE: severity_system_task/elaboration_severity_system_task (1800-2009)
@@ -4583,22 +4583,22 @@ severity_system_task<nodep>: // IEEE: severity_system_task/elaboration_severity_
 severity_system_task_guts<nodep>:    // IEEE: part of severity_system_task (1800-2009)
         //                      // $fatal first argument is exit number, must be constant
                 yD_INFO parenE                          { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, nullptr}; }
-        |       yD_INFO '(' exprList ')'                { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, $3}; }
+        |       yD_INFO '(' عبارت_List ')'                { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, $3}; }
         |       yD_WARNING parenE                       { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, nullptr}; }
-        |       yD_WARNING '(' exprList ')'             { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, $3}; }
+        |       yD_WARNING '(' عبارت_List ')'             { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, $3}; }
         |       yD_ERROR parenE                         { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, nullptr}; }
-        |       yD_ERROR '(' exprList ')'               { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, $3}; }
+        |       yD_ERROR '(' عبارت_List ')'               { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, $3}; }
         |       yD_FATAL parenE                         { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; }
-        |       yD_FATAL '(' expr ')'                   { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; DEL($3); }
-        |       yD_FATAL '(' expr ',' exprListE ')'     { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, $5}; DEL($3); }
+        |       yD_FATAL '(' عبارت ')'                   { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; DEL($3); }
+        |       yD_FATAL '(' عبارت ',' عبارت_List_E ')'     { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, $5}; DEL($3); }
         ;
 
 systemDpiArgsE<argp>:           // IEEE: part of system_if_call for arguments of $dpi call
                 parenE                                  { $$ = nullptr; }
-        |       '(' exprList ')'                        { $$ = GRAMMARP->argWrapList($2); }
+        |       '(' عبارت_List ')'                        { $$ = GRAMMARP->argWrapList($2); }
         ;
 
-property_actual_arg<nodeExprp>:  // ==IEEE: property_actual_arg
+property_actual_arg<گره_Exprp>:  // ==IEEE: property_actual_arg
         //                      // IEEE: property_expr
         //                      // IEEE: sequence_actual_arg
         //UNSUP pev_expr                                { $$ = $1; }
@@ -4608,8 +4608,8 @@ property_actual_arg<nodeExprp>:  // ==IEEE: property_actual_arg
         //                      // property_expr already includes sequence_expr
         ;
 
-exprOrDataType<nodep>:          // expr | data_type: combined to prevent conflicts
-                expr                                    { $$ = $1; }
+عبارت_Or_Data_Type<nodep>:          // expr | data_type: combined to prevent conflicts
+                عبارت                                    { $$ = $1; }
         //                      // data_type includes id that overlaps expr, so special flavor
         //                      // data_type expanded:
         |       data_typeNoRef                          { $$ = $1; }
@@ -4617,8 +4617,8 @@ exprOrDataType<nodep>:          // expr | data_type: combined to prevent conflic
         //                      // Conflicts with non-type id, resolved in V3LinkDot
         //                      // NO: packageClassScopeE idType packed_dimensionListE
         //
-        |       packageClassScopeE idType parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idType parameter_مقدار_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         //                      // not in spec, but needed for $past(sig,1,,@(posedge clk))
         //UNSUP event_control                           { }
@@ -4640,14 +4640,14 @@ exprOrDataType<nodep>:          // expr | data_type: combined to prevent conflic
 
 list_of_argumentsE<argp>:  // IEEE: [list_of_arguments]
                 argsDottedList                          { $$ = $1; }
-        |       argsExprListE
-                        { if ($1->emptyConnectNoNext()) {
-                              $1->deleteTree(); $$ = nullptr;  // Mis-created when have 'func()'
-                          } else { $$ = $1; } }
-        |       argsExprListE ',' argsDottedList        { $$ = addNextNull($1, $3); }
+        |       args_عبارت_List_E
+                        { اگر ($1->emptyConnectNoNext()) {
+                              $1->delete_درخت(); $$ = nullptr;  // Mis-created when have 'func()'
+                          } وگرنه { $$ = $1; } }
+        |       args_عبارت_List_E ',' argsDottedList        { $$ = addNextNull($1, $3); }
         ;
 
-task_declaration<nodeFTaskp>:   // ==IEEE: task_declaration
+task_declaration<گره_FTaskp>:   // ==IEEE: task_declaration
                 yTASK dynamic_override_specifiersE lifetimeE taskId tfGuts yENDTASK endLabelE
                         { $$ = $4; $$->addStmtsp($5);
                           $$->baseOverride($2);
@@ -4655,14 +4655,14 @@ task_declaration<nodeFTaskp>:   // ==IEEE: task_declaration
                           GRAMMARP->endLabel($<fl>7, $$, $7); }
         ;
 
-task_prototype<nodeFTaskp>:             // ==IEEE: task_prototype
+task_prototype<گره_FTaskp>:             // ==IEEE: task_prototype
                 yTASK dynamic_override_specifiersE taskId '(' tf_port_listE ')'
                         { $$ = $3; $$->addStmtsp($5); $$->prototype(true); }
         |       yTASK dynamic_override_specifiersE taskId
                         { $$ = $3; $$->prototype(true); }
         ;
 
-function_declaration<nodeFTaskp>:       // IEEE: function_declaration + function_body_declaration
+function_declaration<گره_FTaskp>:       // IEEE: function_declaration + function_body_declaration
                 yFUNCTION dynamic_override_specifiersE lifetimeE funcId funcIsolateE tfGuts yENDFUNCTION endLabelE
                         { $$ = $4; $$->addStmtsp($6);
                           $$->baseOverride($2);
@@ -4675,14 +4675,14 @@ function_declaration<nodeFTaskp>:       // IEEE: function_declaration + function
                           GRAMMARP->endLabel($<fl>8, $$, $8); }
         ;
 
-function_prototype<nodeFTaskp>: // IEEE: function_prototype
+function_prototype<گره_FTaskp>: // IEEE: function_prototype
                 yFUNCTION dynamic_override_specifiersE funcId '(' tf_port_listE ')'
                         { $$ = $3; $$->addStmtsp($5); $$->prototype(true); }
         |       yFUNCTION dynamic_override_specifiersE funcId
                         { $$ = $3; $$->prototype(true); }
         ;
 
-class_constructor_prototype<nodeFTaskp>:        // ==IEEE: class_constructor_prototype
+class_constructor_prototype<گره_FTaskp>:        // ==IEEE: class_constructor_prototype
         //                      // IEEE has no dynamic_override_specifiersE,
         //                      // but required to avoid conflicts, so we must check after parsing
                 yFUNCTION dynamic_override_specifiersE funcIdNew '(' class_constructor_arg_listE ')' ';'
@@ -4696,7 +4696,7 @@ funcIsolateE<cint>:
         |       yVL_ISOLATE_ASSIGNMENTS                 { $$ = 1; }
         ;
 
-method_prototype<nodeFTaskp>:
+method_prototype<گره_FTaskp>:
                 task_prototype                          { $$ = $1; }
         |       function_prototype                      { $$ = $1; }
         ;
@@ -4712,7 +4712,7 @@ lifetime<lifetime>:             // ==IEEE: lifetime
         |       yAUTOMATIC                              { $$ = VLifetime::AUTOMATIC_EXPLICIT; }
         ;
 
-taskId<nodeFTaskp>:
+taskId<گره_FTaskp>:
                 id
                         { $$ = new AstTask{$<fl>$, *$1, nullptr};
                           $$->verilogTask(true); }
@@ -4729,7 +4729,7 @@ taskId<nodeFTaskp>:
                           $$->classMethod(true); }
         ;
 
-funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part of function_body_declaration
+funcId<گره_FTaskp>:             // IEEE: function_data_type_or_implicit + part of function_body_declaration
         //                      // IEEE: function_data_type_or_implicit must be expanded here to prevent conflict
         //                      // function_data_type expanded here to prevent conflicts with
         //                      // implicit_type:empty vs data_type:ID
@@ -4746,11 +4746,11 @@ funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part o
                         { $$ = $2;
                           $$->fvarp($1); }
         |       packageClassScopeE idInstType packed_dimensionListE fIdScoped
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = $4;
                           $$->fvarp(GRAMMARP->createArray(refp, $3, true)); }
-        |       packageClassScopeE idInstType parameter_value_assignmentClass packed_dimensionListE fIdScoped
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idInstType parameter_مقدار_assignment_Class packed_dimensionListE fIdScoped
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = $5;
                           $$->fvarp(GRAMMARP->createArray(refp, $4, true)); }
         //                      // To verilator tasks are the same as void functions (we separately detect time passing)
@@ -4760,7 +4760,7 @@ funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part o
                           $$->verilogFunction(true); }
         ;
 
-funcIdNew<nodeFTaskp>:          // IEEE: from class_constructor_declaration
+funcIdNew<گره_FTaskp>:          // IEEE: from class_constructor_declaration
                 yNEW__ETC
                         { $$ = new AstFunc{$<fl>1, "new", nullptr, nullptr};
                           $$->verilogFunction(true);
@@ -4834,7 +4834,7 @@ tf_item_declarationVerilator<nodep>:    // Verilator extensions
 tf_port_listE<nodep>:           // IEEE: tf_port_list + empty
         //                      // Empty covered by tf_port_item
                 /*empty*/
-        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(INPUT); }
+        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(درون_داد); }
         /*cont*/    tf_port_listList                    { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
         ;
 
@@ -4845,7 +4845,7 @@ tf_port_listList<nodep>:        // IEEE: part of tf_port_list
 
 class_constructor_arg_listE<nodep>:  // IEEE: class_constructor_arg_list or empty
                 /*empty*/
-        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(INPUT); }
+        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(درون_داد); }
         /*cont*/    class_constructor_arg_listList      { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
         ;
 
@@ -4869,11 +4869,11 @@ tf_port_item<nodep>:            // ==IEEE: tf_port_item
 tf_port_itemFront:              // IEEE: part of tf_port_item, which has the data type
                 data_type                               { VARDTYPE($1); }
         |       signingE rangeList
-                        { AstNodeDType* const dtp = GRAMMARP->addRange(
+                        { Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                               new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true);
                           VARDTYPE(dtp); }
         |       signing
-                        { AstNodeDType* const dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1};
+                        { Ast_گره_DType* ثابت dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1};
                           VARDTYPE(dtp); }
         |       yVAR data_type                          { VARDTYPE($2); }
         |       yVAR implicit_typeE                     { VARDTYPE($2); }
@@ -4881,11 +4881,11 @@ tf_port_itemFront:              // IEEE: part of tf_port_item, which has the dat
         |       tf_port_itemDir /*implicit*/            { VARDTYPE(nullptr); /*default_nettype-see spec*/ }
         |       tf_port_itemDir data_type               { VARDTYPE($2); }
         |       tf_port_itemDir signingE rangeList
-                        { AstNodeDType* const dtp = GRAMMARP->addRange(
+                        { Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                               new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE(dtp); }
         |       tf_port_itemDir signing
-                        { AstNodeDType* const dtp = new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $2};
+                        { Ast_گره_DType* ثابت dtp = new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $2};
                           VARDTYPE(dtp); }
         |       tf_port_itemDir yVAR data_type          { VARDTYPE($3); }
         |       tf_port_itemDir yVAR implicit_typeE     { VARDTYPE($3); }
@@ -4896,8 +4896,8 @@ tf_port_itemDir:                // IEEE: part of tf_port_item, direction
         ;
 
 tf_port_itemAssignment<varp>:   // IEEE: part of tf_port_item, which has assignment
-                id variable_dimensionListE sigAttrListE exprEqE
-                        { $$ = VARDONEA($<fl>1, *$1, $2, $3); if ($4) $$->valuep($4); }
+                id variable_dimensionListE sigAttrListE عبارت_Eq_E
+                        { $$ = VARDONEA($<fl>1, *$1, $2, $3); اگر ($4) $$->valuep($4); }
         ;
 
 parenE:
@@ -4912,40 +4912,40 @@ parenE:
 //                              // IEEE: built_in_method_call
 //                              //   method_call_root not needed, part of expr resolution
 //                              // What's left is below array_methodNoRoot
-array_methodNoRoot<nodeFTaskRefp>:
+array_method_No_ریشه<گره_FTask_Refp>:
                 yOR                                     { $$ = new AstFuncRef{$1, "or"}; }
         |       yAND                                    { $$ = new AstFuncRef{$1, "and"}; }
         |       yXOR                                    { $$ = new AstFuncRef{$1, "xor"}; }
         |       yUNIQUE                                 { $$ = new AstFuncRef{$1, "unique"}; }
         ;
 
-array_methodWith<nodeExprp>:
-                array_methodNoRoot parenE               { $$ = $1; }
-        |       array_methodNoRoot parenE yWITH__PAREN '(' expr ')'
+array_methodWith<گره_Exprp>:
+                array_method_No_ریشه parenE               { $$ = $1; }
+        |       array_method_No_ریشه parenE yWITH__PAREN '(' عبارت ')'
                         { $$ = new AstWithParse{$3, $1, $5}; }
-        |       array_methodNoRoot '(' expr ')' yWITH__PAREN '(' expr ')'
+        |       array_method_No_ریشه '(' عبارت ')' yWITH__PAREN '(' عبارت ')'
                         { $$ = new AstWithParse{$5, $1, $7}; $1->addArgsp(new AstArg{$<fl>3, "", $3}); }
         ;
 
 dpi_import_export<nodep>:       // ==IEEE: dpi_import_export
                 yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE function_prototype ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          اگر (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
                           $5->dpiPure($3 == iprop_PURE);
                           $5->dpiImport(true);
                           GRAMMARP->checkDpiVer($1, *$2); v3Global.dpi(true); }
         |       yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE function_prototype yVL_DPI_C_DECL yaSTRING ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          اگر (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
                           $5->dpiPure($3 == iprop_PURE);
                           $5->dpiImport(true);
-                          if (*$7 != "") $5->dpiCDecl(*$7);
+                          اگر (*$7 != "") $5->dpiCDecl(*$7);
                           GRAMMARP->checkDpiVer($1, *$2); v3Global.dpi(true); }
         |       yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE task_prototype ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          اگر (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
                           $5->dpiPure($3 == iprop_PURE);
                           $5->dpiImport(true);
@@ -4960,7 +4960,7 @@ dpi_import_export<nodep>:       // ==IEEE: dpi_import_export
         ;
 
 dpi_importLabelE<strp>:         // IEEE: part of dpi_import_export
-                /* empty */                             { static string s; $$ = &s; }
+                /* empty */                             { ایستا string s; $$ = &s; }
         |       idAny/*c_identifier*/ '='               { $$ = $1; $<fl>$ = $<fl>1; }
         ;
 
@@ -4982,119 +4982,119 @@ dpi_tf_import_propertyE<iprop>: // IEEE: [ dpi_function_import_property + dpi_ta
 // ~p~ means this is a (p)arenthetized expression
 //     it will get replaced by "", or "s"equence
 
-exprEqE<nodeExprp>:             // IEEE: optional '=' expression (part of param_assignment)
+عبارت_Eq_E<گره_Exprp>:             // IEEE: optional '=' expression (part of param_assignment)
         //                      // constant_param_expression: '$' is in expr
                 /*empty*/                               { $$ = nullptr; }
-        |       '=' expr                                { $$ = $2; }
+        |       '=' عبارت                                { $$ = $2; }
         ;
 
-exprOrDataTypeEqE<nodep>:       // IEEE: optional '=' expression (part of param_assignment)
+عبارت_Or_Data_Type_Eq_E<nodep>:       // IEEE: optional '=' expression (part of param_assignment)
         //                      // constant_param_expression: '$' is in expr
                 /*empty*/                               { $$ = nullptr; }
-        |       '=' exprOrDataType                      { $$ = $2; }
+        |       '=' عبارت_Or_Data_Type                      { $$ = $2; }
         ;
 
-constExpr<nodeExprp>:
-                expr                                    { $$ = $1; }
+const_عبارت<گره_Exprp>:
+                عبارت                                    { $$ = $1; }
         ;
 
-exprE<nodeExprp>:               // IEEE: optional expression
+عبارت_E<گره_Exprp>:               // IEEE: optional expression
                 /*empty*/                               { $$ = nullptr; }
-        |       expr                                    { $$ = $1; }
+        |       عبارت                                    { $$ = $1; }
         ;
 
-expr<nodeExprp>:                // IEEE: part of expression/constant_expression/primary
+عبارت<گره_Exprp>:                // IEEE: part of expression/constant_expression/primary
         // *SEE BELOW*          // IEEE: primary/constant_primary
         //
         //                      // IEEE: unary_operator primary
-                '+' ~r~expr     %prec prUNARYARITH      { $$ = $2; }
-        |       '-' ~r~expr     %prec prUNARYARITH      { $$ = new AstNegate{$1, $2}; }
-        |       '!' ~r~expr     %prec prNEGATION        { $$ = new AstLogNot{$1, $2}; }
-        |       '&' ~r~expr     %prec prREDUCTION       { $$ = new AstRedAnd{$1, $2}; }
-        |       '~' ~r~expr     %prec prNEGATION        { $$ = new AstNot{$1, $2}; }
-        |       '|' ~r~expr     %prec prREDUCTION       { $$ = new AstRedOr{$1, $2}; }
-        |       '^' ~r~expr     %prec prREDUCTION       { $$ = new AstRedXor{$1, $2}; }
-        |       yP_NAND ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedAnd{$1, $2}}; }
-        |       yP_NOR  ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedOr{$1, $2}}; }
-        |       yP_XNOR ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedXor{$1, $2}}; }
+                '+' ~r~عبارت     %prec prUNARYARITH      { $$ = $2; }
+        |       '-' ~r~عبارت     %prec prUNARYARITH      { $$ = new AstNegate{$1, $2}; }
+        |       '!' ~r~عبارت     %prec prNEGATION        { $$ = new AstLogNot{$1, $2}; }
+        |       '&' ~r~عبارت     %prec prREDUCTION       { $$ = new AstRedAnd{$1, $2}; }
+        |       '~' ~r~عبارت     %prec prNEGATION        { $$ = new AstNot{$1, $2}; }
+        |       '|' ~r~عبارت     %prec prREDUCTION       { $$ = new AstRedOr{$1, $2}; }
+        |       '^' ~r~عبارت     %prec prREDUCTION       { $$ = new AstRedXor{$1, $2}; }
+        |       yP_NAND ~r~عبارت %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedAnd{$1, $2}}; }
+        |       yP_NOR  ~r~عبارت %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedOr{$1, $2}}; }
+        |       yP_XNOR ~r~عبارت %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedXor{$1, $2}}; }
         //
         //                      // IEEE: inc_or_dec_expression
         |       ~l~inc_or_dec_expression                { $<fl>$ = $<fl>1; $$ = $1; }
         //
         //                      // IEEE: '(' operator_assignment ')'
         //                      // Need exprScope of variable_lvalue to prevent conflict
-        |       '(' ~p~exprScope '='          expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, $4},
-                                               $2->cloneTreePure(true)};
+        |       '(' ~p~عبارت_Scope '='          عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, $4},
+                                               $2->clone_درخت_Pure(true)};
                           ASSIGNEQEXPR($<fl>3); }
-        |       '(' ~p~exprScope yP_PLUSEQ    expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstAdd{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_MINUSEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstSub{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_TIMESEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstMul{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_DIVEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstDiv{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_MODEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstModDiv{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_ANDEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstAnd{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_OREQ      expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstOr{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_XOREQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstXor{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SLEFTEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftL{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SRIGHTEQ  expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftR{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SSRIGHTEQ expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftRS{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_PLUSEQ    عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstAdd{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_MINUSEQ   عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstSub{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_TIMESEQ   عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstMul{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_DIVEQ     عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstDiv{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_MODEQ     عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstModDiv{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_ANDEQ     عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstAnd{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_OREQ      عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstOr{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_XOREQ     عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstXor{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_SLEFTEQ   عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstShiftL{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_SRIGHTEQ  عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstShiftR{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
+        |       '(' ~p~عبارت_Scope yP_SSRIGHTEQ عبارت ')'
+                        { $$ = new Ast_عبارت_Stmt{$1, new AstAssign{$3, $2, new AstShiftRS{$3, $2->clone_درخت_Pure(true), $4}},
+                                               $2->clone_درخت_Pure(true)}; }
         //
         //                      // IEEE: expression binary_operator expression
-        |       ~l~expr '+' ~r~expr                     { $$ = new AstAdd{$2, $1, $3}; }
-        |       ~l~expr '-' ~r~expr                     { $$ = new AstSub{$2, $1, $3}; }
-        |       ~l~expr '*' ~r~expr                     { $$ = new AstMul{$2, $1, $3}; }
-        |       ~l~expr '/' ~r~expr                     { $$ = new AstDiv{$2, $1, $3}; }
-        |       ~l~expr '%' ~r~expr                     { $$ = new AstModDiv{$2, $1, $3}; }
-        |       ~l~expr yP_EQUAL ~r~expr                { $$ = new AstEq{$2, $1, $3}; }
-        |       ~l~expr yP_NOTEQUAL ~r~expr             { $$ = new AstNeq{$2, $1, $3}; }
-        |       ~l~expr yP_CASEEQUAL ~r~expr            { $$ = new AstEqCase{$2, $1, $3}; }
-        |       ~l~expr yP_CASENOTEQUAL ~r~expr         { $$ = new AstNeqCase{$2, $1, $3}; }
-        |       ~l~expr yP_WILDEQUAL ~r~expr            { $$ = new AstEqWild{$2, $1, $3}; }
-        |       ~l~expr yP_WILDNOTEQUAL ~r~expr         { $$ = new AstNeqWild{$2, $1, $3}; }
-        |       ~l~expr yP_ANDAND ~r~expr               { $$ = new AstLogAnd{$2, $1, $3}; }
-        |       ~l~expr yP_OROR ~r~expr                 { $$ = new AstLogOr{$2, $1, $3}; }
-        |       ~l~expr yP_POW ~r~expr                  { $$ = new AstPow{$2, $1, $3}; }
-        |       ~l~expr '<' ~r~expr                     { $$ = new AstLt{$2, $1, $3}; }
-        |       ~l~expr '>' ~r~expr                     { $$ = new AstGt{$2, $1, $3}; }
-        |       ~l~expr yP_GTE ~r~expr                  { $$ = new AstGte{$2, $1, $3}; }
-        |       ~l~expr '&' ~r~expr                     { $$ = new AstAnd{$2, $1, $3}; }
-        |       ~l~expr '|' ~r~expr                     { $$ = new AstOr{$2, $1, $3}; }
-        |       ~l~expr '^' ~r~expr                     { $$ = new AstXor{$2, $1, $3}; }
-        |       ~l~expr yP_XNOR ~r~expr                 { $$ = new AstNot{$2, new AstXor{$2, $1, $3}}; }
-        |       ~l~expr yP_NOR ~r~expr
+        |       ~l~عبارت '+' ~r~عبارت                     { $$ = new AstAdd{$2, $1, $3}; }
+        |       ~l~عبارت '-' ~r~عبارت                     { $$ = new AstSub{$2, $1, $3}; }
+        |       ~l~عبارت '*' ~r~عبارت                     { $$ = new AstMul{$2, $1, $3}; }
+        |       ~l~عبارت '/' ~r~عبارت                     { $$ = new AstDiv{$2, $1, $3}; }
+        |       ~l~عبارت '%' ~r~عبارت                     { $$ = new AstModDiv{$2, $1, $3}; }
+        |       ~l~عبارت yP_EQUAL ~r~عبارت                { $$ = new AstEq{$2, $1, $3}; }
+        |       ~l~عبارت yP_NOTEQUAL ~r~عبارت             { $$ = new AstNeq{$2, $1, $3}; }
+        |       ~l~عبارت yP_CASEEQUAL ~r~عبارت            { $$ = new AstEqCase{$2, $1, $3}; }
+        |       ~l~عبارت yP_CASENOTEQUAL ~r~عبارت         { $$ = new AstNeqCase{$2, $1, $3}; }
+        |       ~l~عبارت yP_WILDEQUAL ~r~عبارت            { $$ = new AstEqWild{$2, $1, $3}; }
+        |       ~l~عبارت yP_WILDNOTEQUAL ~r~عبارت         { $$ = new AstNeqWild{$2, $1, $3}; }
+        |       ~l~عبارت yP_ANDAND ~r~عبارت               { $$ = new AstLogAnd{$2, $1, $3}; }
+        |       ~l~عبارت yP_OROR ~r~عبارت                 { $$ = new AstLogOr{$2, $1, $3}; }
+        |       ~l~عبارت yP_POW ~r~عبارت                  { $$ = new AstPow{$2, $1, $3}; }
+        |       ~l~عبارت '<' ~r~عبارت                     { $$ = new AstLt{$2, $1, $3}; }
+        |       ~l~عبارت '>' ~r~عبارت                     { $$ = new AstGt{$2, $1, $3}; }
+        |       ~l~عبارت yP_GTE ~r~عبارت                  { $$ = new AstGte{$2, $1, $3}; }
+        |       ~l~عبارت '&' ~r~عبارت                     { $$ = new AstAnd{$2, $1, $3}; }
+        |       ~l~عبارت '|' ~r~عبارت                     { $$ = new AstOr{$2, $1, $3}; }
+        |       ~l~عبارت '^' ~r~عبارت                     { $$ = new AstXor{$2, $1, $3}; }
+        |       ~l~عبارت yP_XNOR ~r~عبارت                 { $$ = new AstNot{$2, new AstXor{$2, $1, $3}}; }
+        |       ~l~عبارت yP_NOR ~r~عبارت
                         { $$ = new AstNot{$2, new AstOr{$2, $1, $3}};
                           $2->v3error("Syntax error: '~|' is not a 'nor' binary operator, but a unary '~ |'"
                                       << YYNEWLINE << $<fl>1->warnMore() << "... Suggest '~ (... | ...)'"); }
-        |       ~l~expr yP_NAND ~r~expr
+        |       ~l~عبارت yP_NAND ~r~عبارت
                         { $$ = new AstNot{$2, new AstAnd{$2, $1, $3}};
                           $2->v3error("Syntax error: '~&' is not a 'nand' binary operator, but a unary '~ &'"
                                       << YYNEWLINE << $<fl>1->warnMore() << "... Suggest '~ (... & ...)'"); }
-        |       ~l~expr yP_SLEFT ~r~expr                { $$ = new AstShiftL{$2, $1, $3}; }
-        |       ~l~expr yP_SRIGHT ~r~expr               { $$ = new AstShiftR{$2, $1, $3}; }
-        |       ~l~expr yP_SSRIGHT ~r~expr              { $$ = new AstShiftRS{$2, $1, $3}; }
-        |       ~l~expr yP_LTMINUSGT ~r~expr            { $$ = new AstLogEq{$2, $1, $3}; }
+        |       ~l~عبارت yP_SLEFT ~r~عبارت                { $$ = new AstShiftL{$2, $1, $3}; }
+        |       ~l~عبارت yP_SRIGHT ~r~عبارت               { $$ = new AstShiftR{$2, $1, $3}; }
+        |       ~l~عبارت yP_SSRIGHT ~r~عبارت              { $$ = new AstShiftRS{$2, $1, $3}; }
+        |       ~l~عبارت yP_LTMINUSGT ~r~عبارت            { $$ = new AstLogEq{$2, $1, $3}; }
         //
         //                      // IEEE: expression binary_operator expression (type compare see IEEE footnote)
         |       type_referenceEq yP_CASEEQUAL type_referenceBoth     { $$ = new AstEqT{$2, $1, $3}; }
@@ -5107,54 +5107,54 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         //                      // the bare-expression RHS as a boolean
         //                      // (AstLogIf), constraint_expression has one
         //                      // production per non-expression RHS shape.
-        |       ~l~expr yP_MINUSGT ~r~expr              { $$ = new AstLogIf{$2, $1, $3}; }
+        |       ~l~عبارت yP_MINUSGT ~r~عبارت              { $$ = new AstLogIf{$2, $1, $3}; }
         //
         //                      // <= is special, as we need to disambiguate it with <= assignment
         //                      // We copy all of expr to fexpr and rename this token to a fake one.
-        |       ~l~expr yP_LTE~f__IGNORE~ ~r~expr       { $$ = new AstLte{$2, $1, $3}; }
+        |       ~l~عبارت yP_LTE~f__IGNORE~ ~r~عبارت       { $$ = new AstLte{$2, $1, $3}; }
         //
         //                      // IEEE: conditional_expression
-        |       ~l~expr '?' ~r~expr ':' ~r~expr         { $$ = new AstCond{$2, $1, $3, $5}; }
+        |       ~l~عبارت '?' ~r~عبارت ':' ~r~عبارت         { $$ = new AstCond{$2, $1, $3, $5}; }
         //
         //                      // IEEE: inside_expression
-        |       ~l~expr yINSIDE '{' range_list '}'      { $$ = new AstInside{$2, $1, $4}; }
+        |       ~l~عبارت yINSIDE '{' range_list '}'      { $$ = new AstInside{$2, $1, $4}; }
         //
         //                      // IEEE: tagged_union_expression
         //                      // yTAGGED__NONPRIMARY = tokenPipeline determined no primary follows
         |       yTAGGED__NONPRIMARY idAny/*member*/ %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, nullptr}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, nullptr}; }
         //                      // yTAGGED = primary follows; handle specific primary types
         //                      // Parenthesized expression
-        |       yTAGGED idAny/*member*/ '(' expr ')' %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $4}; }
+        |       yTAGGED idAny/*member*/ '(' عبارت ')' %prec prTAGGED
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, $4}; }
         //                      // Assignment patterns like tagged Add '{a, b, c}
         |       yTAGGED idAny/*member*/ assignment_pattern %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $3}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, $3}; }
         //                      // Integer literal
         |       yTAGGED idAny/*member*/ yaINTNUM %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, *$3}}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, new AstConst{$<fl>3, *$3}}; }
         //                      // Float literal
         |       yTAGGED idAny/*member*/ yaFLOATNUM %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, AstConst::RealDouble{}, $3}}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, new AstConst{$<fl>3, AstConst::RealDouble{}, $3}}; }
         //                      // String literal
         |       yTAGGED idAny/*member*/ yaSTRING %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, AstConst::VerilogStringLiteral{}, *$3}}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, new AstConst{$<fl>3, AstConst::VerilogStringLiteral{}, *$3}}; }
         //                      // null literal
         |       yTAGGED idAny/*member*/ yNULL %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$3, AstConst::Null{}}}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, new AstConst{$3, AstConst::Null{}}}; }
         //                      // Identifier as value
         |       yTAGGED idAny/*member*/ idAny %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstParseRef{$<fl>3, *$3, nullptr, nullptr}}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, new AstParseRef{$<fl>3, *$3, nullptr, nullptr}}; }
         //                      // Concatenation
         |       yTAGGED idAny/*member*/ '{' cateList '}' %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $4}; }
+                        { $$ = new Ast_Tagged_عبارت{$1, *$2, $4}; }
         //
         //======================// IEEE: primary/constant_primary
         //
         //                      // IEEE: primary_literal (minus string, which is handled specially)
         |       yaINTNUM                                { $$ = new AstConst{$<fl>1, *$1}; }
         |       yaFLOATNUM                              { $$ = new AstConst{$<fl>1, AstConst::RealDouble{}, $1}; }
-        |       timeNumAdjusted                         { $$ = $1; }
+        |       time_رقم_Adjusted                         { $$ = $1; }
         |       strAsInt~noStr__IGNORE~                 { $$ = $1; }
         //
         //                      // IEEE: "... hierarchical_identifier select"  see below
@@ -5167,15 +5167,15 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         //                      // Part of exprOkLvalue below
         //
         //                      // IEEE: multiple_concatenation/constant_multiple_concatenation
-        |       '{' constExpr '{' cateList '}' '}'
+        |       '{' const_عبارت '{' cateList '}' '}'
                         { $$ = new AstReplicate{$3, $4, $2}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr ']'
+        |       '{' const_عبارت '{' cateList '}' '}' '[' عبارت ']'
                         { $$ = new AstSelBit{$7, new AstReplicate{$3, $4, $2}, $8}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' constExpr ':' constExpr ']'
+        |       '{' const_عبارت '{' cateList '}' '}' '[' const_عبارت ':' const_عبارت ']'
                         { $$ = new AstSelExtract{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr yP_PLUSCOLON constExpr ']'
+        |       '{' const_عبارت '{' cateList '}' '}' '[' عبارت yP_PLUSCOLON const_عبارت ']'
                         { $$ = new AstSelPlus{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr yP_MINUSCOLON constExpr ']'
+        |       '{' const_عبارت '{' cateList '}' '}' '[' عبارت yP_MINUSCOLON const_عبارت ']'
                         { $$ = new AstSelMinus{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
         //                      // UNSUP some other rules above
         //
@@ -5186,45 +5186,45 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         |       function_subroutine_callNoMethod part_select_rangeList
                         { $$ = GRAMMARP->scrubSel($1, $2); }
         //                      // method_call
-        |       ~l~expr '.' function_subroutine_callNoMethod
+        |       ~l~عبارت '.' function_subroutine_callNoMethod
                         { $$ = new AstDot{$2, false, $1, $3}; }
-        |       ~l~expr '.' function_subroutine_callNoMethod part_select_rangeList
+        |       ~l~عبارت '.' function_subroutine_callNoMethod part_select_rangeList
                         { $$ = GRAMMARP->scrubSel(new AstDot{$2, false, $1, $3}, $4); }
         //                      // method_call:array_method requires a '.'
-        |       ~l~expr '.' array_methodWith
+        |       ~l~عبارت '.' array_methodWith
                         { $$ = new AstDot{$2, false, $1, $3}; }
-        |       ~l~expr '.' array_methodWith part_select_rangeList
+        |       ~l~عبارت '.' array_methodWith part_select_rangeList
                         { $$ = GRAMMARP->scrubSel(new AstDot{$2, false, $1, $3}, $4); }
         //
         //                      // IEEE: let_expression
         //                      // see funcRef
         //
         //                      // IEEE: '(' mintypmax_expression ')'
-        |       ~noPar__IGNORE~'(' expr ')'             { $$ = $2; }
-        |       ~noPar__IGNORE~'(' expr ':' expr ':' expr ')'
+        |       ~noPar__IGNORE~'(' عبارت ')'             { $$ = $2; }
+        |       ~noPar__IGNORE~'(' عبارت ':' عبارت ':' عبارت ')'
                         { $$ = $4; MINTYPMAXDLYUNSUP($4); DEL($2); DEL($6); }
         //                      // PSL rule
-        |       '_' '(' expr ')'                        { $$ = $3; }    // Arbitrary Verilog inside PSL
+        |       '_' '(' عبارت ')'                        { $$ = $3; }    // Arbitrary Verilog inside PSL
         //
         //                      // IEEE: cast/constant_cast
         //                      // expanded from casting_type
-        |       simple_typeNoRef yP_TICK '(' expr ')'
+        |       simple_typeNoRef yP_TICK '(' عبارت ')'
                         { $$ = new AstCast{$2, $4, VFlagChildDType{}, $1}; }
         //                      // expanded from simple_type ps_type_identifier (part of simple_type)
         //                      // expanded from simple_type ps_parameter_identifier (part of simple_type)
         //                      // Causes conflict, so handled post-parse
         //                      // NO: packageClassScopeE idType yP_TICK '(' expr ')'
         //
-        |       yTYPE__ETC '(' exprOrDataType ')' yP_TICK '(' expr ')'
+        |       yTYPE__ETC '(' عبارت_Or_Data_Type ')' yP_TICK '(' عبارت ')'
                         { $$ = new AstCast{$1, $7, VFlagChildDType{},
-                                           new AstRefDType{$1, AstRefDType::FlagTypeOfExpr{}, $3}}; }
-        |       ySIGNED yP_TICK '(' expr ')'            { $$ = new AstSigned{$1, $4}; }
-        |       yUNSIGNED yP_TICK '(' expr ')'          { $$ = new AstUnsigned{$1, $4}; }
-        |       ySTRING yP_TICK '(' expr ')'            { $$ = new AstCvtPackString{$1, $4}; }
-        |       yCONST__ETC yP_TICK '(' expr ')'        { $$ = $4; }  // Not linting const presently
+                                           new AstRefDType{$1, AstRefDType::Flag_Type_Of_عبارت{}, $3}}; }
+        |       ySIGNED yP_TICK '(' عبارت ')'            { $$ = new AstSigned{$1, $4}; }
+        |       yUNSIGNED yP_TICK '(' عبارت ')'          { $$ = new AstUnsigned{$1, $4}; }
+        |       ySTRING yP_TICK '(' عبارت ')'            { $$ = new AstCvtPackString{$1, $4}; }
+        |       yCONST__ETC yP_TICK '(' عبارت ')'        { $$ = $4; }  // Not linting const presently
         //                      // Spec only allows primary with addition of a type reference
         //                      // We'll be more general, and later assert LHS was a type.
-        |       ~l~expr yP_TICK '(' expr ')'            { $$ = new AstCastParse{$2, $4, $1}; }
+        |       ~l~عبارت yP_TICK '(' عبارت ')'            { $$ = new AstCastParse{$2, $4, $1}; }
         //
         //                      // IEEE: assignment_pattern_expression
         //                      // IEEE: streaming_concatenation
@@ -5241,28 +5241,28 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         //----------------------
         //
         //                      // Part of expr that may also be used as lvalue
-        |       ~l~exprOkLvalue                         { $$ = $1; }
+        |       ~l~عبارت_Ok_Lvalue                         { $$ = $1; }
         //
         //----------------------
         //
         //                      // IEEE: cond_predicate - here to avoid reduce problems
         //                      // Note expr includes cond_pattern
-        |       ~l~expr yP_ANDANDAND ~r~expr            { $$ = new AstConst{$2, AstConst::BitFalse{}};
+        |       ~l~عبارت yP_ANDANDAND ~r~عبارت            { $$ = new AstConst{$2, AstConst::BitFalse{}};
                                                           BBUNSUP($<fl>2, "Unsupported: &&& expression"); }
         //
         //                      // IEEE: cond_pattern - here to avoid reduce problems
         //                      // "expr yMATCHES pattern"
         //                      // IEEE: pattern - expanded here to avoid conflicts
-        |       ~l~expr yMATCHES patternNoExpr          { $$ = new AstMatches{$2, $1, $3}; }
-        |       ~l~expr yMATCHES ~r~expr                { $$ = new AstMatches{$2, $1, $3}; }
+        |       ~l~عبارت yMATCHES pattern_No_عبارت          { $$ = new AstMatches{$2, $1, $3}; }
+        |       ~l~عبارت yMATCHES ~r~عبارت                { $$ = new AstMatches{$2, $1, $3}; }
         //
         //                      // IEEE: expression_or_dist - here to avoid reduce problems
         //                      // "expr yDIST '{' dist_list '}'"
-        |       ~l~expr yDIST '{' dist_list '}'         { $$ = new AstDist{$2, $1, $4}; }
+        |       ~l~عبارت yDIST '{' dist_list '}'         { $$ = new AstDist{$2, $1, $4}; }
         ;
 
-fexpr<nodeExprp>:                   // For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(expr,{s/~l~/f/g; s/~r~/f/g; s/~f__IGNORE~/__IGNORE/g;})   // {copied}
+fexpr<گره_Exprp>:                   // For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(عبارت,{s/~l~/f/g; s/~r~/f/g; s/~f__IGNORE~/__IGNORE/g;})   // {copied}
         ;
 
 //UNSUPpev_expr<nodeExprp>:  // IEEE: event_expression
@@ -5294,42 +5294,42 @@ fexpr<nodeExprp>:                   // For use as first part of statement (disam
 //UNSUP |       '(' event_expression ':' expr ':' expr ')'      { $<fl>$ = $<fl>1; $$ = "(...)"; }
 //UNSUP ;
 
-exprNoStr<nodeExprp>:               // expression with string removed
-                BISONPRE_COPY(expr,{s/~noStr__IGNORE~/Ignore/g;})       // {copied}
+عبارت_No_Str<گره_Exprp>:               // expression with string removed
+                BISONPRE_COPY(عبارت,{s/~noStr__IGNORE~/Ignore/g;})       // {copied}
         ;
 
-exprOkLvalue<nodeExprp>:            // expression that's also OK to use as a variable_lvalue
-                ~l~exprScope                            { $$ = $1; }
+عبارت_Ok_Lvalue<گره_Exprp>:            // expression that's also OK to use as a variable_lvalue
+                ~l~عبارت_Scope                            { $$ = $1; }
         //                      // IEEE: concatenation/constant_concatenation
         //                      // Replicate(1) required as otherwise "{a}" would not be self-determined
         |       '{' cateList '}'                        { $$ = new AstReplicate{$1, $2, 1}; }
-        |       '{' cateList '}' '[' expr ']'           { $$ = new AstSelBit{$4, new AstReplicate{$1, $2, 1}, $5}; }
-        |       '{' cateList '}' '[' constExpr ':' constExpr ']'
+        |       '{' cateList '}' '[' عبارت ']'           { $$ = new AstSelBit{$4, new AstReplicate{$1, $2, 1}, $5}; }
+        |       '{' cateList '}' '[' const_عبارت ':' const_عبارت ']'
                                                         { $$ = new AstSelExtract{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
-        |       '{' cateList '}' '[' expr yP_PLUSCOLON constExpr ']'
+        |       '{' cateList '}' '[' عبارت yP_PLUSCOLON const_عبارت ']'
                                                         { $$ = new AstSelPlus{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
-        |       '{' cateList '}' '[' expr yP_MINUSCOLON constExpr ']'
+        |       '{' cateList '}' '[' عبارت yP_MINUSCOLON const_عبارت ']'
                                                         { $$ = new AstSelMinus{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
         //                      // IEEE: assignment_pattern_expression
         //                      // IEEE: [ assignment_pattern_expression_type ] == [ ps_type_id /ps_paremeter_id/data_type]
         //                      // We allow more here than the spec requires
         //UNSUP ~l~exprScope assignment_pattern         { UNSUP }
-        |       data_type assignment_pattern            { $$ = $2; if ($2) $2->childDTypep($1); }
+        |       data_type assignment_pattern            { $$ = $2; اگر ($2) $2->childDTypep($1); }
         |       assignment_pattern                      { $$ = $1; }
         //
         |       streaming_concatenation                 { $$ = $1; }
         ;
 
-fexprOkLvalue<nodeExprp>:           // exprOkLValue, For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/f/g}) // {copied}
+fexprOkLvalue<گره_Exprp>:           // exprOkLValue, For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(عبارت_Ok_Lvalue,{s/~l~/f/g}) // {copied}
         ;
 
-sexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by sequence_expr
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/s/g}) // {copied}
+sexprOkLvalue<گره_Exprp>:  // exprOkLValue, For use by sequence_expr
+                BISONPRE_COPY(عبارت_Ok_Lvalue,{s/~l~/s/g}) // {copied}
         ;
 
-pexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by property_expr
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/p/g}) // {copied}
+pexprOkLvalue<گره_Exprp>:  // exprOkLValue, For use by property_expr
+                BISONPRE_COPY(عبارت_Ok_Lvalue,{s/~l~/p/g}) // {copied}
         ;
 
 //UNSUPev_exprOkLvalue<nodeExprp>:  // exprOkLValue, For use by ev_expr
@@ -5340,11 +5340,11 @@ pexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by property_expr
 //UNSUP         BISONPRE_COPY(exprOkLvalue,{s/~l~/pev_/g})      // {copied}
 //UNSUP ;
 
-fexprLvalue<nodeExprp>:             // For use as first part of statement (disambiguates <=)
+fexprLvalue<گره_Exprp>:             // For use as first part of statement (disambiguates <=)
                 fexprOkLvalue                           { $<fl>$ = $<fl>1; $$ = $1; }
         ;
 
-exprScope<nodeExprp>:               // scope and variable for use to inside an expression
+عبارت_Scope<گره_Exprp>:               // scope and variable for use to inside an expression
         //                      // Here we've split method_call_root | implicit_class_handle | class_scope | package_scope
         //                      // from the object being called and let expr's "." deal with resolving it.
         //                      // (note method_call_root was simplified to require a primary in 1800-2009)
@@ -5353,17 +5353,17 @@ exprScope<nodeExprp>:               // scope and variable for use to inside an e
         //                      // Or method_call_body without parenthesis
         //                      // See also varRefClassBit, which is the non-expr version of most of this
                 yTHIS                                   { $$ = new AstParseRef{$<fl>1, "this"}; }
-        |       yD_ROOT                                 { $$ = new AstParseRef{$<fl>1, "$root"}; }
+        |       y_D_ریشه                                 { $$ = new AstParseRef{$<fl>1, "$root"}; }
         |       idArrayed                               { $$ = $1; }
         |       packageClassScope idArrayed             { $$ = AstDot::newIfPkg($2->fileline(), $1, $2); }
-        |       ~l~expr '.' idArrayed                   { $$ = new AstDot{$<fl>2, false, $1, $3}; }
+        |       ~l~عبارت '.' idArrayed                   { $$ = new AstDot{$<fl>2, false, $1, $3}; }
         //                      // expr below must be a "yTHIS"
-        |       ~l~expr '.' ySUPER
-                        { AstParseRef* const anodep = VN_CAST($1, ParseRef);
-                          if (anodep && anodep->name() == "this") {
+        |       ~l~عبارت '.' ySUPER
+                        { AstParseRef* ثابت anodep = VN_CAST($1, ParseRef);
+                          اگر (anodep && anodep->name() == "this") {
                               $$ = new AstParseRef{$<fl>1, "super"};
-                              $1->deleteTree();
-                          } else {
+                              $1->delete_درخت();
+                          } وگرنه {
                               $$ = $1;  $$->v3error("Syntax error: 'super' must be first name component, or after 'this.'");
                           }
                         }
@@ -5371,16 +5371,16 @@ exprScope<nodeExprp>:               // scope and variable for use to inside an e
         |       ySUPER                                  { $$ = new AstParseRef{$<fl>1, "super"}; }
         ;
 
-fexprScope<nodeExprp>:              // exprScope, For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(exprScope,{s/~l~/f/g})    // {copied}
+fexprScope<گره_Exprp>:              // exprScope, For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(عبارت_Scope,{s/~l~/f/g})    // {copied}
         ;
 
-sexprScope<nodeExprp>:  // exprScope, For use by sequence_expr
-                BISONPRE_COPY(exprScope,{s/~l~/s/g})    // {copied}
+sexprScope<گره_Exprp>:  // exprScope, For use by sequence_expr
+                BISONPRE_COPY(عبارت_Scope,{s/~l~/s/g})    // {copied}
         ;
 
-pexprScope<nodeExprp>:  // exprScope, For use by property_expr
-                BISONPRE_COPY(exprScope,{s/~l~/p/g})    // {copied}
+pexprScope<گره_Exprp>:  // exprScope, For use by property_expr
+                BISONPRE_COPY(عبارت_Scope,{s/~l~/p/g})    // {copied}
         ;
 
 //UNSUPev_exprScope<nodeExprp>:  // exprScope, For use by ev_expr
@@ -5393,40 +5393,40 @@ pexprScope<nodeExprp>:  // exprScope, For use by property_expr
 
 // PLI calls exclude "" as integers, they're strings
 // For $c("foo","bar") we want "bar" as a string, not a Verilog integer.
-exprStrText<nodep>:
-                exprNoStr                               { $$ = $1; }
+عبارت_Str_Text<nodep>:
+                عبارت_No_Str                               { $$ = $1; }
         |       yaSTRING                                { $$ = new AstText{$<fl>1, GRAMMARP->textQuoted($<fl>1, *$1)}; }
         ;
 
-exprTypeCompare<nodeExprp>:
-                expr                                    { $$ = $1; }
+عبارت_Type_Compare<گره_Exprp>:
+                عبارت                                    { $$ = $1; }
         |       type_referenceBoth                      { $$ = $1; }
         ;
 
 cStrList<nodep>:
-                exprStrText                             { $$ = $1; }
-        |       exprStrText ',' cStrList                { $$ = $1->addNext($3); }
+                عبارت_Str_Text                             { $$ = $1; }
+        |       عبارت_Str_Text ',' cStrList                { $$ = $1->addNext($3); }
         ;
 
-cateList<nodeExprp>:
+cateList<گره_Exprp>:
         //                      // Not just 'expr' to prevent conflict via stream_concOrExprOrType
                 stream_expression                       { $$ = $1; }
         |       cateList ',' stream_expression          { $$ = new AstConcat{$2, $1, $3}; }
         ;
 
-exprListE<nodeExprp>:
+عبارت_List_E<گره_Exprp>:
                 /* empty */                             { $$ = nullptr; }
-        |       exprList                                { $$ = $1; }
+        |       عبارت_List                                { $$ = $1; }
         ;
 
-exprList<nodeExprp>:
-                expr                                    { $$ = $1; }
-        |       exprList ',' expr                       { $$ = $1->addNext($3); }
+عبارت_List<گره_Exprp>:
+                عبارت                                    { $$ = $1; }
+        |       عبارت_List ',' عبارت                       { $$ = $1->addNext($3); }
         ;
 
 // identifier_list for 'with' in inline randomize constraints (IEEE 1800-2023 18.7).
 // Only simple identifiers; non-identifier expressions are parse errors.
-inlineConstraintIdList<nodeExprp>:
+inlineConstraintIdList<گره_Exprp>:
                 id                                      { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
         |       inlineConstraintIdList ',' id           { $$ = $1->addNext(
                                                              new AstParseRef{$<fl>3, *$3, nullptr, nullptr}); }
@@ -5434,25 +5434,25 @@ inlineConstraintIdList<nodeExprp>:
 
 // Optional identifier_list. Empty 'with () {...}' differs from bare 'with {...}'
 // via AstWithParse::restricted().
-inlineConstraintIdListE<nodeExprp>:
+inlineConstraintIdListE<گره_Exprp>:
                 /* empty */                             { $$ = nullptr; }
         |       inlineConstraintIdList                  { $$ = $1; }
         ;
 
-exprEListE<nodep>:  // expression list with empty commas allowed
-                exprE                                   { $$ = $1; }
-        |       exprEListE ',' exprE                    { $$ = addNextNull($1, $3); }
+عبارت_EList_E<nodep>:  // expression list with empty commas allowed
+                عبارت_E                                   { $$ = $1; }
+        |       عبارت_EList_E ',' عبارت_E                    { $$ = addNextNull($1, $3); }
         ;
 
-exprDispList<nodeExprp>:            // exprList for within $display
-                expr                                    { $$ = $1; }
-        |       exprDispList ',' expr                   { $$ = $1->addNext($3); }
+عبارت_Disp_List<گره_Exprp>:            // exprList for within $display
+                عبارت                                    { $$ = $1; }
+        |       عبارت_Disp_List ',' عبارت                   { $$ = $1->addNext($3); }
         //                      // ,, creates a space in $display
-        |       exprDispList ',' /*empty*/
+        |       عبارت_Disp_List ',' /*empty*/
                         { $$ = $1->addNext(new AstConst{$<fl>2, AstConst::VerilogStringLiteral{}, " "}); }
         ;
 
-vrdList<nodeExprp>:
+vrdList<گره_Exprp>:
                 idClassSel                              { $$ = $1; }
         |       vrdList ',' idClassSel                  { $$ = $1->addNext($3); }
         ;
@@ -5462,19 +5462,19 @@ commasE:
         |       ',' commasE                             { } /* ignored */
         ;
 
-commaVRDListE<nodeExprp>:
+commaVRDListE<گره_Exprp>:
                 /* empty */                             { $$ = nullptr; }
         |       ',' vrdList                             { $$ = $2; }
         ;
 
-argsExprList<nodeExprp>:        // IEEE: part of list_of_arguments (used where ,, isn't legal)
-                expr                                    { $$ = $1; }
-        |       argsExprList ',' expr                   { $$ = $1->addNext($3); }
+args_عبارت_List<گره_Exprp>:        // IEEE: part of list_of_arguments (used where ,, isn't legal)
+                عبارت                                    { $$ = $1; }
+        |       args_عبارت_List ',' عبارت                   { $$ = $1->addNext($3); }
         ;
 
-argsExprListE<argp>:       // IEEE: part of list_of_arguments
-                argsExprOneE                            { $$ = $1; }
-        |       argsExprListE ',' argsExprOneE          { $$ = $1->addNext($3); }
+args_عبارت_List_E<argp>:       // IEEE: part of list_of_arguments
+                args_عبارت_One_E                            { $$ = $1; }
+        |       args_عبارت_List_E ',' args_عبارت_One_E          { $$ = $1->addNext($3); }
         ;
 
 //UNSUPpev_argsExprListE<nodeExprp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5482,9 +5482,9 @@ argsExprListE<argp>:       // IEEE: part of list_of_arguments
 //UNSUP |       pev_argsExprListE ',' pev_argsExprOneE  { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-argsExprOneE<argp>:        // IEEE: part of list_of_arguments
+args_عبارت_One_E<argp>:        // IEEE: part of list_of_arguments
                 /*empty*/                               { $$ = new AstArg{CRELINE(), "", nullptr}; }
-        |       expr                                    { $$ = new AstArg{$1->fileline(), "", $1}; }
+        |       عبارت                                    { $$ = new AstArg{$1->fileline(), "", $1}; }
         ;
 
 //UNSUPpev_argsExprOneE<nodeExprp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5504,7 +5504,7 @@ argsDottedList<argp>:      // IEEE: part of list_of_arguments
 
 argsDotted<argp>:          // IEEE: part of list_of_arguments
                 '.' idAny '(' ')'                       { $$ = new AstArg{$<fl>2, *$2, nullptr}; }
-        |       '.' idAny '(' expr ')'                  { $$ = new AstArg{$<fl>2, *$2, $4}; }
+        |       '.' idAny '(' عبارت ')'                  { $$ = new AstArg{$<fl>2, *$2, $4}; }
         ;
 
 //UNSUPpev_argsDotted<argp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5512,7 +5512,7 @@ argsDotted<argp>:          // IEEE: part of list_of_arguments
 //UNSUP |       '.' idAny '(' pev_expr ')'              { $$ = new AstArg{$<fl>2, *$2, $4}; }
 //UNSUP ;
 
-streaming_concatenation<nodeStreamp>: // ==IEEE: streaming_concatenation
+streaming_concatenation<گره_Streamp>: // ==IEEE: streaming_concatenation
         //                      // Need to disambiguate {<< expr-{ ... expr-} stream_concat }
         //                      // From                 {<< stream-{ ... stream-} }
         //                      // Likewise simple_type's idScoped from constExpr's idScope
@@ -5525,38 +5525,38 @@ streaming_concatenation<nodeStreamp>: // ==IEEE: streaming_concatenation
         |       '{' yP_SRIGHT stream_concatenation '}'
                         { $$ = new AstStreamR{$2, $3, new AstConst{$2, 1}}; }
         |       '{' yP_SLEFT  stream_expressionOrDataType stream_concatenation '}'
-                        { $$ = new AstStreamL{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_NUMBER, $3}}; }
+                        { $$ = new AstStreamL{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_عدد, $3}}; }
         |       '{' yP_SRIGHT stream_expressionOrDataType stream_concatenation '}'
-                        { $$ = new AstStreamR{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_NUMBER, $3}}; }
+                        { $$ = new AstStreamR{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_عدد, $3}}; }
         ;
 
-stream_concatenation<nodeExprp>:    // ==IEEE: stream_concatenation
+stream_concatenation<گره_Exprp>:    // ==IEEE: stream_concatenation
         //                      // '{' { stream_expression } '}'
                 '{' cateList '}'                        { $$ = $2; }
         ;
 
-stream_expression<nodeExprp>:   // ==IEEE: stream_expression
+stream_expression<گره_Exprp>:   // ==IEEE: stream_expression
         //                      // IEEE: array_range_expression expanded below
-                expr                                    { $$ = $1; }
-        |       expr yWITH__BRA '[' expr ']'
+                عبارت                                    { $$ = $1; }
+        |       عبارت yWITH__BRA '[' عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr ':' expr ']'
+        |       عبارت yWITH__BRA '[' عبارت ':' عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_PLUSCOLON  expr ']'
+        |       عبارت yWITH__BRA '[' عبارت yP_PLUSCOLON  عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_MINUSCOLON expr ']'
+        |       عبارت yWITH__BRA '[' عبارت yP_MINUSCOLON عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
         ;
 
 stream_expressionOrDataType<nodep>:     // IEEE: from streaming_concatenation
-                exprOrDataType                          { $$ = $1; }
-        |       expr yWITH__BRA '[' expr ']'
+                عبارت_Or_Data_Type                          { $$ = $1; }
+        |       عبارت yWITH__BRA '[' عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr ':' expr ']'
+        |       عبارت yWITH__BRA '[' عبارت ':' عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_PLUSCOLON  expr ']'
+        |       عبارت yWITH__BRA '[' عبارت yP_PLUSCOLON  عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_MINUSCOLON expr ']'
+        |       عبارت yWITH__BRA '[' عبارت yP_MINUSCOLON عبارت ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
         ;
 
@@ -5570,12 +5570,12 @@ letId<letp>:  // IEEE: pert of let_declaration
         ;
 
 let_declaration<letp>:  // IEEE: let_declaration
-                yLET letId '=' expr ';'
+                yLET letId '=' عبارت ';'
                         { $$ = $2;
-                          $$->addStmtsp(new AstStmtExpr{$1, $4}); }
-        |       yLET letId '(' let_port_listE ')' '=' expr ';'
+                          $$->addStmtsp(new Ast_Stmt_عبارت{$1, $4}); }
+        |       yLET letId '(' let_port_listE ')' '=' عبارت ';'
                         { $$ = $2;
-                          $$->addStmtsp(new AstStmtExpr{$1, $7});
+                          $$->addStmtsp(new Ast_Stmt_عبارت{$1, $7});
                           $$->addStmtsp($4); }
         ;
 
@@ -5593,28 +5593,28 @@ let_port_list<nodep>:   // IEEE: let_port_list
 
 let_port_item<varp>:  // IEEE: let_port_Item
         //                      // IEEE: Expanded let_formal_type
-                yUNTYPED idAny/*formal_port_identifier*/ variable_dimensionListE exprEqE
+                yUNTYPED idAny/*formal_port_identifier*/ variable_dimensionListE عبارت_Eq_E
                         { $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          اگر ($4) $$->valuep($4);
                           PINNUMINC(); }
-        |       data_type idAny/*formal_port_identifier*/ variable_dimensionListE exprEqE
+        |       data_type idAny/*formal_port_identifier*/ variable_dimensionListE عبارت_Eq_E
                         { BBUNSUP($<fl>1, "Unsupported: let typed ports");
                           $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          اگر ($4) $$->valuep($4);
                           PINNUMINC(); }
-        |       implicit_typeE id/*formal_port_identifier*/ variable_dimensionListE exprEqE
-                        { if ($1) BBUNSUP($<fl>1, "Unsupported: let typed ports");
+        |       implicit_typeE id/*formal_port_identifier*/ variable_dimensionListE عبارت_Eq_E
+                        { اگر ($1) BBUNSUP($<fl>1, "Unsupported: let typed ports");
                           $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          اگر ($4) $$->valuep($4);
                           PINNUMINC(); }
         ;
 
@@ -5717,116 +5717,116 @@ gateRangeE<nodep>:
         ;
 
 gateBuf<nodep>:
-                gateFront variable_lvalue ',' exprList ')'
-                        { AstNodeExpr* inp = $4;
-                          while (inp->nextp()) inp = VN_AS(inp->nextp(), NodeExpr);
-                          $$ = new AstImplicit{$<fl>1, inp->cloneTree(false)};
-                          AstNodeExpr* const rhsp = GRAMMARP->createGatePin(inp->cloneTree(false));
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' عبارت_List ')'
+                        { Ast_گره_عبارت* inp = $4;
+                          وقتی (inp->nextp()) inp = VN_AS(inp->nextp(), گره_عبارت);
+                          $$ = new AstImplicit{$<fl>1, inp->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = GRAMMARP->createGatePin(inp->clone_درخت(false));
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
-                          for (AstNodeExpr* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), NodeExpr)) {
-                              AstNodeExpr* const pinRhsp = GRAMMARP->createGatePin(inp->cloneTree(false));
-                              AstAssignW* const pinAssp = new AstAssignW{$<fl>1, outp->cloneTree(false), pinRhsp};
+                          برای (Ast_گره_عبارت* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), گره_عبارت)) {
+                              Ast_گره_عبارت* ثابت pinRhsp = GRAMMARP->createGatePin(inp->clone_درخت(false));
+                              AstAssignW* ثابت pinAssp = new AstAssignW{$<fl>1, outp->clone_درخت(false), pinRhsp};
                               $$->addNext(new AstAlways{pinAssp});
                           }
                           DEL($1); DEL($4); }
         ;
 gateNot<nodep>:
-                gateFront variable_lvalue ',' exprList ')'
-                        { AstNodeExpr* inp = $4;
-                          while (inp->nextp()) inp = VN_AS(inp->nextp(), NodeExpr);
-                          $$ = new AstImplicit{$<fl>1, inp->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->cloneTree(false))};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' عبارت_List ')'
+                        { Ast_گره_عبارت* inp = $4;
+                          وقتی (inp->nextp()) inp = VN_AS(inp->nextp(), گره_عبارت);
+                          $$ = new AstImplicit{$<fl>1, inp->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->clone_درخت(false))};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
-                          for (AstNodeExpr* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), NodeExpr)) {
-                              AstNodeExpr* const pinRhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->cloneTree(false))};
-                              AstAssignW* const pinAssp = new AstAssignW{$<fl>1, outp->cloneTree(false), pinRhsp};
+                          برای (Ast_گره_عبارت* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), گره_عبارت)) {
+                              Ast_گره_عبارت* ثابت pinRhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->clone_درخت(false))};
+                              AstAssignW* ثابت pinAssp = new AstAssignW{$<fl>1, outp->clone_درخت(false), pinRhsp};
                               $$->addNext(new AstAlways{pinAssp});
                           }
                           DEL($1, $4); }
         ;
 gateBufif0<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' gate_Pin_عبارت ',' gate_Pin_عبارت ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->addExprsp($4->clone_درخت(false));
+                          Ast_گره_عبارت* ثابت rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, $4};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateBufif1<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, $6, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' gate_Pin_عبارت ',' gate_Pin_عبارت ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->addExprsp($4->clone_درخت(false));
+                          Ast_گره_عبارت* ثابت rhsp = new AstBufIf1{$<fl>1, $6, $4};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNotif0<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, new AstNot{$<fl>1, $4}};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' gate_Pin_عبارت ',' gate_Pin_عبارت ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->addExprsp($4->clone_درخت(false));
+                          Ast_گره_عبارت* ثابت rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, new AstNot{$<fl>1, $4}};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNotif1<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, $6, new AstNot{$<fl>1, $4}};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                gateFront variable_lvalue ',' gate_Pin_عبارت ',' gate_Pin_عبارت ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->addExprsp($4->clone_درخت(false));
+                          Ast_گره_عبارت* ثابت rhsp = new AstBufIf1{$<fl>1, $6, new AstNot{$<fl>1, $4}};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateAnd<nodep>:
                 gateFront variable_lvalue ',' gateAndPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = $4;
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNand<nodep>:
                 gateFront variable_lvalue ',' gateAndPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateOr<nodep>:
                 gateFront variable_lvalue ',' gateOrPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = $4;
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNor<nodep>:
                 gateFront variable_lvalue ',' gateOrPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateXor<nodep>:
                 gateFront variable_lvalue ',' gateXorPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = $4;
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
 gateXnor<nodep>:
                 gateFront variable_lvalue ',' gateXorPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گره_عبارت* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          AstAssignW* ثابت ap = new AstAssignW{$<fl>1, $2, rhsp};
                           $$->addNext(new AstAlways{ap});
                           DEL($1); }
         ;
@@ -5845,25 +5845,25 @@ gateFront<nodep>:
         |       gateRangeE '('                          { $$ = $1; $<fl>$ = $<fl>2; }
         ;
 
-gateAndPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateAndPinList ',' gatePinExpr          { $$ = new AstAnd{$2, $1, $3}; }
+gateAndPinList<گره_Exprp>:
+                gate_Pin_عبارت                             { $$ = $1; }
+        |       gateAndPinList ',' gate_Pin_عبارت          { $$ = new AstAnd{$2, $1, $3}; }
         ;
-gateOrPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateOrPinList ',' gatePinExpr           { $$ = new AstOr{$2, $1, $3}; }
+gateOrPinList<گره_Exprp>:
+                gate_Pin_عبارت                             { $$ = $1; }
+        |       gateOrPinList ',' gate_Pin_عبارت           { $$ = new AstOr{$2, $1, $3}; }
         ;
-gateXorPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateXorPinList ',' gatePinExpr          { $$ = new AstXor{$2, $1, $3}; }
+gateXorPinList<گره_Exprp>:
+                gate_Pin_عبارت                             { $$ = $1; }
+        |       gateXorPinList ',' gate_Pin_عبارت          { $$ = new AstXor{$2, $1, $3}; }
         ;
-gateUnsupPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateUnsupPinList ',' gatePinExpr        { $$ = addNextNull($1, $3); }
+gateUnsupPinList<گره_Exprp>:
+                gate_Pin_عبارت                             { $$ = $1; }
+        |       gateUnsupPinList ',' gate_Pin_عبارت        { $$ = addNextNull($1, $3); }
         ;
 
-gatePinExpr<nodeExprp>:
-                expr                                    { $$ = GRAMMARP->createGatePin($1); }
+gate_Pin_عبارت<گره_Exprp>:
+                عبارت                                    { $$ = GRAMMARP->createGatePin($1); }
         ;
 
 strength0<strength>:
@@ -5924,25 +5924,25 @@ combinational_body<nodep>:      // IEEE: combinational_body + sequential_body
         ;
 
 tableEntryList<udpTableLinep>:  // IEEE: { combinational_entry + sequential_entry }
-                tableLine                              { $$ = $1; }
-        |       tableEntryList tableLine               { $$ = addNextNull($1, $2); }
+                table_سطر                              { $$ = $1; }
+        |       tableEntryList table_سطر               { $$ = addNextNull($1, $2); }
         ;
 
-tableLine<udpTableLinep>:
-                tableInputList yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
-                        { $$ = new AstUdpTableLine{AstUdpTableLine::UdpCombo{}, $<fl>1, $1, $3}; }
-        |       tableInputList yaTABLE_LRSEP tablelVal yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
-                        { $$ = new AstUdpTableLine{AstUdpTableLine::UdpSequential{}, $<fl>1, $1, $3, $5}; }
+table_سطر<udpTableLinep>:
+                table_درون_داد_List yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
+                        { $$ = new Ast_Udp_Table_سطر{Ast_Udp_Table_سطر::UdpCombo{}, $<fl>1, $1, $3}; }
+        |       table_درون_داد_List yaTABLE_LRSEP tablelVal yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
+                        { $$ = new Ast_Udp_Table_سطر{Ast_Udp_Table_سطر::UdpSequential{}, $<fl>1, $1, $3, $5}; }
         ;
 
-tableInputList<udpTableLineValp>:
+table_درون_داد_List<udp_Table_سطر_Valp>:
                 tablelVal                            { $$ = $1; }
-        |       tableInputList tablelVal             { $$ = addNextNull($1, $2); }
+        |       table_درون_داد_List tablelVal             { $$ = addNextNull($1, $2); }
         ;
 
-tablelVal<udpTableLineValp>:
-                yaTABLE_FIELD                          { $$ = new AstUdpTableLineVal{$<fl>1, *$1}; }
-        |       '(' yaTABLE_FIELD yaTABLE_FIELD ')'    { $$ = new AstUdpTableLineVal{$<fl>2, *$2 + *$3}; }
+tablelVal<udp_Table_سطر_Valp>:
+                yaTABLE_FIELD                          { $$ = new Ast_Udp_Table_سطر_Val{$<fl>1, *$1}; }
+        |       '(' yaTABLE_FIELD yaTABLE_FIELD ')'    { $$ = new Ast_Udp_Table_سطر_Val{$<fl>2, *$2 + *$3}; }
         ;
 
 //************************************************
@@ -5967,7 +5967,7 @@ specify_item<nodep>:                // ==IEEE: specify_item
         |       system_timing_check                     { $$ = $1; }
         |       junkToSemiList ';'
                         { $$ = nullptr;
-                          if (!GRAMMARP->m_specifyignWarned) {
+                          اگر (!GRAMMARP->m_specifyignWarned) {
                               GRAMMARP->m_specifyignWarned = true;
                               $1->v3warn(SPECIFYIGN, "Ignoring unsupported: specify block construct");
                           }
@@ -5983,11 +5983,11 @@ specparam_declarationFront:     // IEEE: part of specparam_declaration
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 ySPECPARAM
                         { VARRESET_NONLIST(SPECPARAM);
-                          AstNodeDType* dtp = new AstBasicDType{$1, VBasicDTypeKwd::DOUBLE};
+                          Ast_گره_DType* dtp = new AstBasicDType{$1, VBasicDTypeKwd::DOUBLE};
                           VARDTYPE(dtp); }
         |       ySPECPARAM packed_dimension
                         { VARRESET_NONLIST(SPECPARAM);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گره_DType* ثابت dtp = GRAMMARP->addRange(
                                     new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT}, $2, true);
                           VARDTYPE(dtp); }
         ;
@@ -6000,17 +6000,17 @@ list_of_specparam_assignments<varp>:  // ==IEEE: list_of_specparam_assignments
 specparam_assignment<varp>:     // ==IEEE: specparam_assignment
                 idNotPathpulse sigAttrListE '=' minTypMax
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($4) $$->valuep($4); }
+                          اگر ($4) $$->valuep($4); }
         //                      // IEEE: pulse_control_specparam
         //                      // LRM grammar requires '(' as the first token after assignment,
         //                      // but IEEE provides an example in 30.7.1 where it is omitted.
         //                      // Other simulators also support it.
         |       idPathpulse sigAttrListE '=' minTypMax
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($4) $$->valuep($4); }
+                          اگر ($4) $$->valuep($4); }
         |       idPathpulse sigAttrListE '=' '(' minTypMax ',' minTypMax ')'
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($5) $$->valuep($5);
+                          اگر ($5) $$->valuep($5);
                           DEL($7); }
         ;
 
@@ -6033,17 +6033,17 @@ setuphold_timing_check<nodep>:      // ==IEEE: $setuphold_timing_check
                         { $$ = new AstSetuphold{$1, $3, $5, $17, $19}; DEL($7, $9, $13, $15); }
         ;
 
-timing_check_event<nodeExprp>:      // ==IEEE: $timing_check_event
+timing_check_event<گره_Exprp>:      // ==IEEE: $timing_check_event
                 terminal_identifier                                                         { $$ = $1; }
         |       yPOSEDGE terminal_identifier                                                { $$ = $2; }
         |       yNEGEDGE terminal_identifier                                                { $$ = $2; }
         |       yEDGE terminal_identifier                                                   { $$ = $2; }
         |       yEDGE '[' edge_descriptor_list ']' terminal_identifier                      { $$ = $5; }
-        |       terminal_identifier yP_ANDANDAND expr                                       { $$ = $1; DEL($3); }
-        |       yPOSEDGE terminal_identifier yP_ANDANDAND expr                              { $$ = $2; DEL($4); }
-        |       yNEGEDGE terminal_identifier yP_ANDANDAND expr                              { $$ = $2; DEL($4); }
-        |       yEDGE terminal_identifier yP_ANDANDAND expr                                 { $$ = $2; DEL($4); }
-        |       yEDGE '[' edge_descriptor_list ']' terminal_identifier yP_ANDANDAND expr    { $$ = $5; DEL($7); }
+        |       terminal_identifier yP_ANDANDAND عبارت                                       { $$ = $1; DEL($3); }
+        |       yPOSEDGE terminal_identifier yP_ANDANDAND عبارت                              { $$ = $2; DEL($4); }
+        |       yNEGEDGE terminal_identifier yP_ANDANDAND عبارت                              { $$ = $2; DEL($4); }
+        |       yEDGE terminal_identifier yP_ANDANDAND عبارت                                 { $$ = $2; DEL($4); }
+        |       yEDGE '[' edge_descriptor_list ']' terminal_identifier yP_ANDANDAND عبارت    { $$ = $5; DEL($7); }
         ;
 
 edge_descriptor_list:
@@ -6051,17 +6051,17 @@ edge_descriptor_list:
         |       edge_descriptor_list ',' yaEDGEDESC   {  }
         ;
 
-timing_check_limit<nodeExprp>:
-                expr                      { $$ = $1; }
-        |       expr ':' expr ':' expr    { $$ = $3; DEL($1, $5); }
+timing_check_limit<گره_Exprp>:
+                عبارت                      { $$ = $1; }
+        |       عبارت ':' عبارت ':' عبارت    { $$ = $3; DEL($1, $5); }
         ;
 
-delayed_referenceE<nodeExprp>:
+delayed_referenceE<گره_Exprp>:
                 /*empty*/                               { $$ = nullptr; }
         |       terminal_identifier                     { $$ = $1; }
         ;
 
-terminal_identifier<nodeExprp>:
+terminal_identifier<گره_Exprp>:
                 idArrayed     { $$ = $1; }
         ;
 
@@ -6135,18 +6135,18 @@ idCC<strp>:                     // IEEE: class/package then ::
         ;
 
 idRandomize<strp>:              // Keyword as an identifier
-                yRANDOMIZE                              { static string s = "randomize"; $$ = &s; $<fl>$ = $<fl>1; }
+                yRANDOMIZE                              { ایستا string s = "randomize"; $$ = &s; $<fl>$ = $<fl>1; }
         ;
 
 idSVKwd<strp>:                  // Warn about non-forward compatible Verilog 2001 code
         //                      // yBIT, yBYTE won't work here as causes conflicts
                 yDO
-                        { static string s = "do"   ; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
+                        { ایستا string s = "do"   ; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
         |       yFINAL
-                        { static string s = "final"; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
+                        { ایستا string s = "final"; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
         ;
 
-variable_lvalue<nodeExprp>:     // IEEE: variable_lvalue or net_lvalue
+variable_lvalue<گره_Exprp>:     // IEEE: variable_lvalue or net_lvalue
         //                      // Note many variable_lvalue's must use exprOkLvalue when arbitrary expressions may also exist
                 idClassSel                              { $$ = $1; }
         |       '{' variable_lvalueConcList '}'         { $$ = $2; }
@@ -6158,7 +6158,7 @@ variable_lvalue<nodeExprp>:     // IEEE: variable_lvalue or net_lvalue
         |       streaming_concatenation                 { $$ = $1; }
         ;
 
-variable_lvalueConcList<nodeExprp>:  // IEEE: part of variable_lvalue: '{' variable_lvalue { ',' variable_lvalue } '}'
+variable_lvalueConcList<گره_Exprp>:  // IEEE: part of variable_lvalue: '{' variable_lvalue { ',' variable_lvalue } '}'
                 variable_lvalue                                 { $$ = $1; }
         |       variable_lvalueConcList ',' variable_lvalue     { $$ = new AstConcat{$2, $1, $3}; }
         ;
@@ -6168,7 +6168,7 @@ variable_lvalueConcList<nodeExprp>:  // IEEE: part of variable_lvalue: '{' varia
 //UNSUP |       variable_lvalueList ',' variable_lvalue { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-idClass<nodeExprp>:             // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
+idClass<گره_Exprp>:             // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
                 idDotted                                { $$ = $1; }
         //                      // IEEE: [ implicit_class_handle . | package_scope ] hierarchical_variable_identifier select
         |       yTHIS '.' idDotted
@@ -6181,7 +6181,7 @@ idClass<nodeExprp>:             // Misc Ref to dotted, and/or arrayed, and/or bi
         |       packageClassScope idDotted              { $$ = new AstDot{$<fl>2, true, $1, $2}; }
         ;
 
-idClassSel<nodeExprp>:          // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
+idClassSel<گره_Exprp>:          // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
                 idDottedSel                             { $$ = $1; }
         //                      // IEEE: [ implicit_class_handle . | package_scope ] hierarchical_variable_identifier select
         |       yTHIS '.' idDottedSel
@@ -6211,37 +6211,37 @@ idClassSelForeach<foreachHeaderp>:
 
 // Dotted identifier for typedef - must have at least one '.'
 // First component is plain id or id with array index, subsequent components can have arrays
-idDottedOrArrayed<nodeExprp>:
+idDottedOrArrayed<گره_Exprp>:
                 id '.' idArrayed
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, *$1, nullptr, nullptr}, $3}; }
         |       idDottedOrArrayed '.' idArrayed
                         { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-idDotted<nodeExprp>:
-                yD_ROOT '.' idDottedMore
+idDotted<گره_Exprp>:
+                y_D_ریشه '.' idDottedMore
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3}; }
         |       idDottedMore                            { $$ = $1; }
         ;
 
-idDottedSel<nodeExprp>:
-                yD_ROOT '.' idDottedSelMore
+idDottedSel<گره_Exprp>:
+                y_D_ریشه '.' idDottedSelMore
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3}; }
         |       idDottedSelMore                         { $$ = $1; }
         ;
 
 idDottedForeach<foreachHeaderp>:
-                yD_ROOT '.' idDottedMoreForeach
+                y_D_ریشه '.' idDottedMoreForeach
                         { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3->fromp()->unlinkFrBack()}); $$ = $3; }
         |       idDottedMoreForeach                     { $$ = $1; }
         ;
 
-idDottedMore<nodeExprp>:
+idDottedMore<گره_Exprp>:
                 parseRefBase                            { $$ = $1; }
         |       idDottedMore '.' parseRefBase           { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-idDottedSelMore<nodeExprp>:
+idDottedSelMore<گره_Exprp>:
                 idArrayed                               { $$ = $1; }
         |       idDottedSelMore '.' idArrayed           { $$ = new AstDot{$2, false, $1, $3}; }
         ;
@@ -6257,28 +6257,28 @@ idDottedMoreForeach<foreachHeaderp>:
 // we'll assume so and cleanup later.
 // id below includes:
 //       enum_identifier
-idArrayed<nodeExprp>:               // IEEE: id + select
+idArrayed<گره_Exprp>:               // IEEE: id + select
                 id
                         { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
         //                      // IEEE: id + part_select_range/constant_part_select_range
-        |       idArrayed '[' expr ']'                          { $$ = new AstSelBit{$2, $1, $3}; }  // Or AstArraySel, don't know yet.
-        |       idArrayed '[' constExpr ':' constExpr ']'       { $$ = new AstSelExtract{$2, $1, $3, $5}; }
+        |       idArrayed '[' عبارت ']'                          { $$ = new AstSelBit{$2, $1, $3}; }  // Or AstArraySel, don't know yet.
+        |       idArrayed '[' const_عبارت ':' const_عبارت ']'       { $$ = new AstSelExtract{$2, $1, $3, $5}; }
         //                      // IEEE: id + indexed_range/constant_indexed_range
-        |       idArrayed '[' expr yP_PLUSCOLON  constExpr ']'  { $$ = new AstSelPlus{$2, $1, $3, $5}; }
-        |       idArrayed '[' expr yP_MINUSCOLON constExpr ']'  { $$ = new AstSelMinus{$2, $1, $3, $5}; }
+        |       idArrayed '[' عبارت yP_PLUSCOLON  const_عبارت ']'  { $$ = new AstSelPlus{$2, $1, $3, $5}; }
+        |       idArrayed '[' عبارت yP_MINUSCOLON const_عبارت ']'  { $$ = new AstSelMinus{$2, $1, $3, $5}; }
         ;
 
 idArrayedForeach<foreachHeaderp>:    // IEEE: id + select (under foreach expression)
                 parseRefBase  // Malformed, but accept for better error reporting
                         { $$ = new AstForeachHeader{$<fl>1, $1, nullptr}; }
-        |       idArrayed '[' expr ']'
+        |       idArrayed '[' عبارت ']'
                         { $$ = new AstForeachHeader{$2, $1, $3}; }
         |       idArrayed '[' ']'
                         { $$ = new AstForeachHeader{$2, $1, new AstEmpty{$3}}; }
         |       idArrayed '[' parseRefBase ',' loop_variables ']'
-                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<AstNode*>($3), $5)}; }
+                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<Ast_گره*>($3), $5)}; }
         |       idArrayed '[' ',' loop_variables ']'
-                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<AstNode*>(new AstEmpty{$3}), $4)}; }
+                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<Ast_گره*>(new AstEmpty{$3}), $4)}; }
         ;
 
 // ParseRef without any dots or vectorizaion
@@ -6291,13 +6291,13 @@ str<strp>:                      // yaSTRING but with \{escapes} need decoded
                 yaSTRING                                { $$ = PARSEP->newString(GRAMMARP->unquoteString($<fl>1, *$1)); }
         ;
 
-strAsInt<nodeExprp>:
+strAsInt<گره_Exprp>:
                 yaSTRING
                         { // Numeric context, so IEEE 1800-2017 11.10.3 "" is a "\000"
                           $$ = new AstConst{$<fl>1, AstConst::VerilogStringLiteral{}, GRAMMARP->unquoteString($<fl>1, *$1)}; }
         ;
 
-strAsIntIgnore<nodeExprp>:          // strAsInt, but never matches for when expr shouldn't parse strings
+strAsIntIgnore<گره_Exprp>:          // strAsInt, but never matches for when expr shouldn't parse strings
                 yaSTRING__IGNORE                        { $$ = nullptr; yyerror("Impossible token"); }
         ;
 
@@ -6309,7 +6309,7 @@ startLabelE<strp>:
 endLabelE<strp>:
                 /* empty */                             { $$ = nullptr; $<fl>$ = nullptr; }
         |       ':' idAny                               { $$ = $2; $<fl>$ = $<fl>2; }
-        |       ':' yNEW__ETC                           { static string n = "new"; $$ = &n; $<fl>$ = $<fl>2; }
+        |       ':' yNEW__ETC                           { ایستا string n = "new"; $$ = &n; $<fl>$ = $<fl>2; }
         ;
 
 //************************************************
@@ -6317,15 +6317,15 @@ endLabelE<strp>:
 
 clocking_declaration<nodep>:            // IEEE: clocking_declaration
                 yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, *$2, new AstSenTree{$<fl>2, $3}, $5, false, false}; }
+                        { $$ = new AstClocking{$<fl>2, *$2, new Ast_Sen_درخت{$<fl>2, $3}, $5, false, false}; }
         |       yDEFAULT yCLOCKING clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, "", new AstSenTree{$<fl>2, $3}, $5, true, false}; }
+                        { $$ = new AstClocking{$<fl>2, "", new Ast_Sen_درخت{$<fl>2, $3}, $5, true, false}; }
         |       yDEFAULT yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>3, *$3, new AstSenTree{$<fl>3, $4}, $6, true, false}; }
+                        { $$ = new AstClocking{$<fl>3, *$3, new Ast_Sen_درخت{$<fl>3, $4}, $6, true, false}; }
         |       yGLOBAL__CLOCKING yCLOCKING clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, "", new AstSenTree{$<fl>2, $3}, $5, false, true}; }
+                        { $$ = new AstClocking{$<fl>2, "", new Ast_Sen_درخت{$<fl>2, $3}, $5, false, true}; }
         |       yGLOBAL__CLOCKING yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>3, *$3, new AstSenTree{$<fl>3, $4}, $6, false, true}; }
+                        { $$ = new AstClocking{$<fl>3, *$3, new Ast_Sen_درخت{$<fl>3, $4}, $6, false, true}; }
         ;
 
 clocking_eventE<senItemp>:      // IEEE: optional clocking_event
@@ -6350,33 +6350,33 @@ clocking_itemListE<nodep>:
 
 clocking_itemList<nodep>:  // IEEE: [ clocking_item ]
                 clocking_item                           { $$ = $1; }
-        |       clocking_itemList clocking_item         { if ($1) $$ = addNextNull($1, $2); }
+        |       clocking_itemList clocking_item         { اگر ($1) $$ = addNextNull($1, $2); }
         ;
 
 clocking_item<nodep>:   // IEEE: clocking_item
-                yDEFAULT yINPUT clocking_skew ';'       { $$ = new AstClockingItem{$<fl>1, VDirection::INPUT, $3, nullptr}; }
+                yDEFAULT y_درون_داد clocking_skew ';'       { $$ = new AstClockingItem{$<fl>1, VDirection::درون_داد, $3, nullptr}; }
         |       yDEFAULT yOUTPUT clocking_skew ';'      { $$ = new AstClockingItem{$<fl>1, VDirection::OUTPUT, $3, nullptr}; }
-        |       yDEFAULT yINPUT clocking_skew yOUTPUT clocking_skew ';'
-                        { $$ = new AstClockingItem{$<fl>1, VDirection::INPUT, $3, nullptr};
+        |       yDEFAULT y_درون_داد clocking_skew yOUTPUT clocking_skew ';'
+                        { $$ = new AstClockingItem{$<fl>1, VDirection::درون_داد, $3, nullptr};
                           $$->addNext(new AstClockingItem{$<fl>4, VDirection::OUTPUT, $5, nullptr}); }
-        |       yINPUT clocking_skewE list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, $2, $3); }
+        |       y_درون_داد clocking_skewE list_of_clocking_decl_assign ';'
+                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::درون_داد, $2, $3); }
         |       yOUTPUT clocking_skewE list_of_clocking_decl_assign ';'
                         { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::OUTPUT, $2, $3); }
-        |       yINPUT clocking_skewE yOUTPUT clocking_skewE list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, $2, $5->cloneTree(true));
+        |       y_درون_داد clocking_skewE yOUTPUT clocking_skewE list_of_clocking_decl_assign ';'
+                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::درون_داد, $2, $5->clone_درخت(true));
                           $$->addNext(GRAMMARP->makeClockingItemList($<fl>3, VDirection::OUTPUT, $4, $5)); }
         |       yINOUT list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, nullptr, $2->cloneTree(true));
+                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::درون_داد, nullptr, $2->clone_درخت(true));
                           $$->addNext(GRAMMARP->makeClockingItemList($<fl>1, VDirection::OUTPUT, nullptr, $2)); }
         |       assertion_item_declaration
                         { $$ = $1;
-                          for (AstNode* nodep = $1; nodep; nodep = nodep->nextp()) {
-                              if (!VN_IS(nodep, Sequence)) {
+                          برای (Ast_گره* nodep = $1; nodep; nodep = nodep->nextp()) {
+                              اگر (!VN_IS(nodep, Sequence)) {
                                   $$ = nullptr;
                                   BBUNSUP(nodep, "Unsupported: assertion items in clocking blocks");
                                   DEL($1);
-                                  break;
+                                  بشکن;
                               }
                           }
                         }
@@ -6389,19 +6389,19 @@ list_of_clocking_decl_assign<nodep>:  // IEEE: list_of_clocking_decl_assign
         ;
 
 clocking_decl_assign<nodep>:    // IEEE: clocking_decl_assign
-                idAnyAsParseRef/*new-signal_identifier*/ exprEqE
-                        { AstParseRef* const refp = $1;
+                idAnyAsParseRef/*new-signal_identifier*/ عبارت_Eq_E
+                        { AstParseRef* ثابت refp = $1;
                           $$ = refp;
-                          if ($2) $$ = new AstAssign{$<fl>2, refp, $2}; }
+                          اگر ($2) $$ = new AstAssign{$<fl>2, refp, $2}; }
         ;
 
-clocking_skewE<nodeExprp>:          // IEEE: [clocking_skew]
+clocking_skewE<گره_Exprp>:          // IEEE: [clocking_skew]
                 /* empty */                             { $$ = nullptr; }
         |       clocking_skew                           { $$ = $1; }
         ;
 
-clocking_skew<nodeExprp>:           // IEEE: clocking_skew
-                delay_control                           { $$ = $1->lhsp()->unlinkFrBack(); $1->deleteTree(); }
+clocking_skew<گره_Exprp>:           // IEEE: clocking_skew
+                delay_control                           { $$ = $1->lhsp()->unlinkFrBack(); $1->delete_درخت(); }
         |      yPOSEDGE delay_controlE                  { $$ = nullptr;
                                                           BBUNSUP($1, "Unsupported: clocking event edge override"); DEL($2); }
         |      yNEGEDGE delay_controlE                  { $$ = nullptr;
@@ -6415,7 +6415,7 @@ cycle_delay<delayp>:  // IEEE: cycle_delay
                         { $$ = new AstDelay{$<fl>1, new AstConst{$<fl>2, *$2}, true}; }
         |      yP_POUNDPOUND idAnyAsParseRef
                         { $$ = new AstDelay{$<fl>1, $2, true}; }
-        |      yP_POUNDPOUND '(' expr ')'
+        |      yP_POUNDPOUND '(' عبارت ')'
                         { $$ = new AstDelay{$<fl>1, $3, true}; }
         ;
 
@@ -6440,7 +6440,7 @@ deferred_immediate_assertion_item<nodep>:       // ==IEEE: deferred_immediate_as
                         { $$ = new AstBegin{$<fl>1, *$1, $3, true}; }
         ;
 
-procedural_assertion_statement<nodeStmtp>:  // ==IEEE: procedural_assertion_statement
+procedural_assertion_statement<گره_Stmtp>:  // ==IEEE: procedural_assertion_statement
                 concurrent_assertion_statement          { $$ = $1; }
         |       immediate_assertion_statement           { $$ = $1; }
         //                      // IEEE: checker_instantiation
@@ -6448,21 +6448,21 @@ procedural_assertion_statement<nodeStmtp>:  // ==IEEE: procedural_assertion_stat
         //UNSUP checker_instantiation                   { $$ = $1; }
         ;
 
-immediate_assertion_statement<nodeStmtp>:   // ==IEEE: immediate_assertion_statement
+immediate_assertion_statement<گره_Stmtp>:   // ==IEEE: immediate_assertion_statement
                 simple_immediate_assertion_statement    { $$ = $1; }
         |       deferred_immediate_assertion_statement  { $$ = $1; }
         ;
 
-simple_immediate_assertion_statement<nodeStmtp>:    // ==IEEE: simple_immediate_assertion_statement
+simple_immediate_assertion_statement<گره_Stmtp>:    // ==IEEE: simple_immediate_assertion_statement
         //                      // action_block expanded here, for compatibility with AstAssert
-                assertOrAssume '(' expr ')' stmt %prec prLOWER_THAN_ELSE
+                assertOrAssume '(' عبارت ')' stmt %prec prLOWER_THAN_ELSE
                         { $$ = new AstAssert{$<fl>1, $3, $5, nullptr, VAssertType::SIMPLE_IMMEDIATE, $1}; }
-        |       assertOrAssume '(' expr ')'           yELSE stmt
+        |       assertOrAssume '(' عبارت ')'           yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $3, nullptr, $6, VAssertType::SIMPLE_IMMEDIATE, $1}; }
-        |       assertOrAssume '(' expr ')' stmt yELSE stmt
+        |       assertOrAssume '(' عبارت ')' stmt yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $3, $5, $7, VAssertType::SIMPLE_IMMEDIATE, $1}; }
         //                      // IEEE: simple_immediate_cover_statement
-        |       yCOVER '(' expr ')' stmt                { $$ = new AstCover{$1, $3, $5, VAssertType::SIMPLE_IMMEDIATE}; }
+        |       yCOVER '(' عبارت ')' stmt                { $$ = new AstCover{$1, $3, $5, VAssertType::SIMPLE_IMMEDIATE}; }
         ;
 
 assertOrAssume<assertdirectivetypeen>:
@@ -6472,22 +6472,22 @@ assertOrAssume<assertdirectivetypeen>:
 
 final_zero<asserttypeen>:                     // IEEE: part of deferred_immediate_assertion_statement
                 '#' yaINTNUM
-                        { if ($2->isNeqZero()) { $<fl>2->v3error("Deferred assertions must use '#0' (IEEE 1800-2023 16.4)"); }
+                        { اگر ($2->isNeqZero()) { $<fl>2->v3error("Deferred assertions must use '#0' (IEEE 1800-2023 16.4)"); }
                           $$ = VAssertType::OBSERVED_DEFERRED_IMMEDIATE; }
         //                      // 1800-2012:
         |       yFINAL                                                  { $$ = VAssertType::FINAL_DEFERRED_IMMEDIATE; }
         ;
 
-deferred_immediate_assertion_statement<nodeStmtp>:  // ==IEEE: deferred_immediate_assertion_statement
+deferred_immediate_assertion_statement<گره_Stmtp>:  // ==IEEE: deferred_immediate_assertion_statement
         //                      // IEEE: deferred_immediate_assert_statement
-                assertOrAssume final_zero '(' expr ')' stmt %prec prLOWER_THAN_ELSE
+                assertOrAssume final_zero '(' عبارت ')' stmt %prec prLOWER_THAN_ELSE
                         { $$ = new AstAssert{$<fl>1, $4, $6, nullptr, $2, $1}; }
-        |       assertOrAssume final_zero '(' expr ')'           yELSE stmt
+        |       assertOrAssume final_zero '(' عبارت ')'           yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $4, nullptr, $7, $2, $1}; }
-        |       assertOrAssume final_zero '(' expr ')' stmt yELSE stmt
+        |       assertOrAssume final_zero '(' عبارت ')' stmt yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $4, $6, $8, $2, $1}; }
         //                      // IEEE: deferred_immediate_cover_statement
-        |       yCOVER final_zero '(' expr ')' stmt     { $$ = new AstCover{$1, $4, $6, $2}; }
+        |       yCOVER final_zero '(' عبارت ')' stmt     { $$ = new AstCover{$1, $4, $6, $2}; }
         ;
 
 concurrent_assertion_item<nodep>:       // IEEE: concurrent_assertion_item
@@ -6498,7 +6498,7 @@ concurrent_assertion_item<nodep>:       // IEEE: concurrent_assertion_item
         //                      // identical to module_instantiation; see etcInst
         ;
 
-concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_statement
+concurrent_assertion_statement<گره_Stmtp>:  // ==IEEE: concurrent_assertion_statement
         //                      // IEEE: assert_property_statement
         //                      // IEEE: assume_property_statement
         //                      // action_block expanded here
@@ -6517,25 +6517,25 @@ concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_stat
         //                      // flag drives V3AssertNfa to fire stmt per end-of-match
         //                      // (IEEE 1800-2023 16.14.3), not per property success.
         |       yCOVER ySEQUENCE '(' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), nullptr, nullptr, $4},
                               $6, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
         |       yCOVER ySEQUENCE '(' clocking_event sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), $4, nullptr, $5},
                               $7, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
-        |       yCOVER ySEQUENCE '(' clocking_event yDISABLE yIFF '(' expr/*expression_or_dist*/ ')' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+        |       yCOVER ySEQUENCE '(' clocking_event yDISABLE yIFF '(' عبارت/*expression_or_dist*/ ')' sexpr ')' stmt
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), $4, $8, $10},
                               $12, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
-        |       yCOVER ySEQUENCE '(' yDISABLE yIFF '(' expr/*expression_or_dist*/ ')' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+        |       yCOVER ySEQUENCE '(' yDISABLE yIFF '(' عبارت/*expression_or_dist*/ ')' sexpr ')' stmt
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$7->fileline(), nullptr, $7, $9},
                               $11, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
@@ -6545,7 +6545,7 @@ concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_stat
                         { $$ = new AstRestrict{$1, $4}; }
         ;
 
-property_declaration<nodeFTaskp>:  // ==IEEE: property_declaration
+property_declaration<گره_FTaskp>:  // ==IEEE: property_declaration
                 property_declarationFront property_port_listE ';' property_declarationBody
                         yENDPROPERTY endLabelE
                         { $$ = $1;
@@ -6556,7 +6556,7 @@ property_declaration<nodeFTaskp>:  // ==IEEE: property_declaration
                           GRAMMARP->m_typedPropertyPort = false; }
         ;
 
-property_declarationFront<nodeFTaskp>:  // IEEE: part of property_declaration
+property_declarationFront<گره_FTaskp>:  // IEEE: part of property_declaration
                 yPROPERTY idAny/*property_identifier*/
                         { $$ = new AstProperty{$<fl>2, *$2, nullptr};
                           GRAMMARP->m_insideProperty = true; }
@@ -6609,12 +6609,12 @@ property_port_itemAssignment<nodep>:  // IEEE: part of property_port_item/sequen
 
 property_port_itemDirE:
                 /* empty */
-                        { VARIO(INPUT); }
+                        { VARIO(درون_داد); }
         |       yLOCAL__ETC
-                        { VARIO(INPUT);
+                        { VARIO(درون_داد);
                           BBUNSUP($1, "Unsupported: property port 'local'"); }
-        |       yLOCAL__ETC yINPUT
-                        { VARIO(INPUT);
+        |       yLOCAL__ETC y_درون_داد
+                        { VARIO(درون_داد);
                           BBUNSUP($1, "Unsupported: property port 'local'"); }
         ;
 
@@ -6635,7 +6635,7 @@ assertion_variable_declarationList<nodep>:  // IEEE: part of assertion_variable_
                         { $$ = addNextNull($1, $2); }
         ;
 
-sequence_declaration<nodeFTaskp>:  // ==IEEE: sequence_declaration
+sequence_declaration<گره_FTaskp>:  // ==IEEE: sequence_declaration
                 sequence_declarationFront sequence_port_listE ';' sequence_declarationBody
         /*cont*/    yENDSEQUENCE endLabelE
                         { $$ = $1;
@@ -6648,7 +6648,7 @@ sequence_declaration<nodeFTaskp>:  // ==IEEE: sequence_declaration
                         }
         ;
 
-sequence_declarationFront<nodeFTaskp>:  // IEEE: part of sequence_declaration
+sequence_declarationFront<گره_FTaskp>:  // IEEE: part of sequence_declaration
                 ySEQUENCE idAny/*new_sequence*/
                         { $$ = new AstSequence{$<fl>2, *$2, nullptr}; }
         ;
@@ -6663,14 +6663,14 @@ sequence_port_listE<nodep>:  // IEEE: [ ( [ sequence_port_list ] ) ]
                 property_port_listE                     { $$ = $1; }
         ;
 
-property_formal_typeNoDt<nodeDTypep>:  // IEEE: property_formal_type (w/o implicit)
+property_formal_typeNoDt<گره_DTypep>:  // IEEE: property_formal_type (w/o implicit)
                 sequence_formal_typeNoDt                { $$ = $1; }
         |       yPROPERTY
                         { $$ = nullptr; GRAMMARP->m_typedPropertyPort = false;
                           BBUNSUP($1, "Unsupported: property argument data type"); }
         ;
 
-sequence_formal_typeNoDt<nodeDTypep>:  // ==IEEE: sequence_formal_type (w/o data_type_or_implicit)
+sequence_formal_typeNoDt<گره_DTypep>:  // ==IEEE: sequence_formal_type (w/o data_type_or_implicit)
                         // IEEE: data_type_or_implicit
                         // implicit expanded where used
                 ySEQUENCE
@@ -6699,21 +6699,21 @@ sequence_declarationBody<nodep>:  // IEEE: part of sequence_declaration
 property_spec<propSpecp>:               // IEEE: property_spec
         //UNSUP: This rule has been super-specialized to what is supported now
         //UNSUP remove below
-                '@' '(' senitem ')' yDISABLE yIFF '(' expr ')' property_exprSpec
+                '@' '(' senitem ')' yDISABLE yIFF '(' عبارت ')' property_عبارت_Spec
                         { $$ = $10; $$->fileline($1); $$->sensesp($3); $$->disablep($8); }
-        |       '@' '(' senitem ')' property_exprSpec
+        |       '@' '(' senitem ')' property_عبارت_Spec
                         { $$ = $5; $$->fileline($1); $$->sensesp($3); }
-        |       '@' senitemVar property_exprSpec
+        |       '@' senitemVar property_عبارت_Spec
                         { $$ = $3; $$->fileline($1); $$->sensesp($2); }
-        |       yDISABLE yIFF '(' expr ')' '@' '(' senitem ')' property_exprSpec
+        |       yDISABLE yIFF '(' عبارت ')' '@' '(' senitem ')' property_عبارت_Spec
                         { $$ = $10; $$->fileline($1); $$->sensesp($8); $$->disablep($4); }
         //UNSUP remove above
-        |       yDISABLE yIFF '(' expr ')' property_exprSpec
+        |       yDISABLE yIFF '(' عبارت ')' property_عبارت_Spec
                         { $$ = $6; $$->fileline($4->fileline()); $$->disablep($4); }
-        |       property_exprSpec                       { $$ = $1; }
+        |       property_عبارت_Spec                       { $$ = $1; }
         ;
 
-property_exprSpec<propSpecp>:  // A property expression plus explicit weak/strong strength
+property_عبارت_Spec<propSpecp>:  // A property expression plus explicit weak/strong strength
                 pexpr
                         { $$ = new AstPropSpec{$1->fileline(), nullptr, nullptr, $1}; }
         |       ySTRONG '(' sexpr ')'
@@ -6722,15 +6722,15 @@ property_exprSpec<propSpecp>:  // A property expression plus explicit weak/stron
                         { $$ = new AstPropSpec{$1, nullptr, nullptr, $3, VPropStrength::WEAK}; }
         ;
 
-property_exprCaseIf<nodeExprp>:  // IEEE: part of property_expr for if/case
-                yCASE '(' expr/*expression_or_dist*/ ')' property_case_itemList yENDCASE
+property_عبارت_Case_If<گره_Exprp>:  // IEEE: part of property_expr for if/case
+                yCASE '(' عبارت/*expression_or_dist*/ ')' property_case_itemList yENDCASE
                         { $$ = PARSEP->makePropertyCase($1, $3, $5); }
-        |       yCASE '(' expr/*expression_or_dist*/ ')' yENDCASE
+        |       yCASE '(' عبارت/*expression_or_dist*/ ')' yENDCASE
                         { $$ = PARSEP->makePropertyCase($1, $3, nullptr); }
-        |       yIF '(' expr/*expression_or_dist*/ ')' pexpr  %prec prIF
+        |       yIF '(' عبارت/*expression_or_dist*/ ')' pexpr  %prec prIF
                         { $$ = new AstImplication{$1, $3, $5, true}; }
-        |       yIF '(' expr/*expression_or_dist*/ ')' pexpr yELSE pexpr
-                        { AstNodeExpr* const elseCondp = new AstLogNot{$1, $3->cloneTreePure(false)};
+        |       yIF '(' عبارت/*expression_or_dist*/ ')' pexpr yELSE pexpr
+                        { Ast_گره_عبارت* ثابت elseCondp = new AstLogNot{$1, $3->clone_درخت_Pure(false)};
                           $$ = new AstSAnd{$1, new AstImplication{$1, $3, $5, true},
                                            new AstImplication{$1, elseCondp, $7, true},
                                            /*propertyControl=*/true}; }
@@ -6776,7 +6776,7 @@ property_case_item<caseItemp>:  // ==IEEE: property_case_item
 //UNSUP |       BISONPRE_COPY_ONCE(expr,{s/~l~/pev_/g; s/~p~/pev_/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })    // {copied}
 //UNSUP ;
 
-pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regexps just add an "p" to expr.)
+pexpr<گره_Exprp>:  // IEEE: property_expr  (The name pexpr is important as regexps just add an "p" to expr.)
         //
         //                      // IEEE: sequence_expr
         //                      // Expanded below
@@ -6797,7 +6797,7 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
         //
         //                      // IEEE-2009: property_statement
         //                      // IEEE-2012: yIF and yCASE
-        |       property_exprCaseIf                     { $$ = $1; }
+        |       property_عبارت_Case_If                     { $$ = $1; }
         //
         //                      // IEEE: "sequence_expr yP_POUNDMINUSPD pexpr" (followed-by #-#/#=#)
         //                      // Reuses AstImplication with m_isFollowedBy to carry non-vacuous-fail polarity
@@ -6809,15 +6809,15 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
                         { $$ = $2; BBUNSUP($1, "Unsupported: nexttime (in property expression)"); }
         |       yS_NEXTTIME pexpr
                         { $$ = $2; BBUNSUP($1, "Unsupported: s_nexttime (in property expression)"); }
-        |       yNEXTTIME '[' constExpr ']' pexpr %prec yNEXTTIME
+        |       yNEXTTIME '[' const_عبارت ']' pexpr %prec yNEXTTIME
                         { $$ = $5; BBUNSUP($1, "Unsupported: nexttime[] (in property expression)"); DEL($3); }
-        |       yS_NEXTTIME '[' constExpr ']' pexpr %prec yS_NEXTTIME
+        |       yS_NEXTTIME '[' const_عبارت ']' pexpr %prec yS_NEXTTIME
                         { $$ = $5; BBUNSUP($1, "Unsupported: s_nexttime[] (in property expression)"); DEL($3); }
         |       yALWAYS pexpr  %prec prALWAYS
                         { $$ = $2; }
-        |       yALWAYS '[' constExpr ':' constExpr ']' pexpr  %prec prALWAYS
+        |       yALWAYS '[' const_عبارت ':' const_عبارت ']' pexpr  %prec prALWAYS
                         { $$ = new AstPropAlways{$1, $7, $3, $5, false}; }
-        |       yS_ALWAYS '[' constExpr ':' constExpr ']' pexpr  %prec prS_ALWAYS
+        |       yS_ALWAYS '[' const_عبارت ':' const_عبارت ']' pexpr  %prec prS_ALWAYS
                         { $$ = new AstPropAlways{$1, $7, $3, $5, true}; }
         |       yS_ALWAYS pexpr  %prec prS_ALWAYS
                         { $$ = new AstPropAlways{$1, $2, new AstUnbounded{$1}, new AstUnbounded{$1}, true}; }
@@ -6843,13 +6843,13 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
         //                      // yIFF also used by event_expression
         |       ~o~pexpr yIFF pexpr
                         { $$ = new AstLogEq{$2, $1, $3}; }
-        |       yACCEPT_ON '(' expr/*expression_or_dist*/ ')' pexpr  %prec prACCEPT_ON
+        |       yACCEPT_ON '(' عبارت/*expression_or_dist*/ ')' pexpr  %prec prACCEPT_ON
                         { $$ = new AstAbortOn{$1, VAbortKind::ACCEPT_ON, $3, $5}; }
-        |       yREJECT_ON '(' expr/*expression_or_dist*/ ')' pexpr  %prec prREJECT_ON
+        |       yREJECT_ON '(' عبارت/*expression_or_dist*/ ')' pexpr  %prec prREJECT_ON
                         { $$ = new AstAbortOn{$1, VAbortKind::REJECT_ON, $3, $5}; }
-        |       ySYNC_ACCEPT_ON '(' expr/*expression_or_dist*/ ')' pexpr %prec prSYNC_ACCEPT_ON
+        |       ySYNC_ACCEPT_ON '(' عبارت/*expression_or_dist*/ ')' pexpr %prec prSYNC_ACCEPT_ON
                         { $$ = new AstAbortOn{$1, VAbortKind::SYNC_ACCEPT_ON, $3, $5}; }
-        |       ySYNC_REJECT_ON '(' expr/*expression_or_dist*/ ')' pexpr %prec prSYNC_REJECT_ON
+        |       ySYNC_REJECT_ON '(' عبارت/*expression_or_dist*/ ')' pexpr %prec prSYNC_REJECT_ON
                         { $$ = new AstAbortOn{$1, VAbortKind::SYNC_REJECT_ON, $3, $5}; }
         //
         //                      // IEEE: "property_instance"
@@ -6866,10 +6866,10 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
         |       BISONPRE_COPY_ONCE(sexpr,{s/~p~s/p/g; })        // {copied}
         //
         //============= expr rules copied for property_expr
-        |       BISONPRE_COPY_ONCE(expr,{s/~l~/p/g; s/~p~/p/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
+        |       BISONPRE_COPY_ONCE(عبارت,{s/~l~/p/g; s/~p~/p/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
         ;
 
-sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as regexps just add an "s" to expr.)
+sexpr<گره_Exprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as regexps just add an "s" to expr.)
         //                      // ********* RULES COPIED IN sequence_exprProp
         //                      // For precedence, see IEEE 17.7.1
         //
@@ -6886,15 +6886,15 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //                      // sexpr/*sexpression_or_dist*/  --- Hardcoded below
         //                      // Consecutive repetition (IEEE 1800-2023 16.9.2)
         //                      // [*N] exact count
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR const_عبارت ']'
                         { $$ = new AstSConsRep{$<fl>2, $1, $3}; }
         //                      // [*N:M] bounded range or [*N:$] unbounded range
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR const_عبارت ':' const_عبارت ']'
                         {
-                            if (VN_IS($5, Unbounded)) {
+                            اگر (VN_IS($5, Unbounded)) {
                                 DEL($5);
                                 $$ = new AstSConsRep{$<fl>2, $1, $3, nullptr, true};
-                            } else {
+                            } وگرنه {
                                 $$ = new AstSConsRep{$<fl>2, $1, $3, $5, false};
                             }
                         }
@@ -6907,16 +6907,16 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
                         { $$ = new AstSConsRep{$<fl>2, $1,
                               new AstConst{$<fl>2, 0u}, nullptr, true}; }
         //                      // IEEE: goto_repetition (single count form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT const_عبارت ']'
                         { $$ = new AstSGotoRep{$<fl>2, $1, $3}; }
         //                      // IEEE: goto_repetition (range form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT const_عبارت ':' const_عبارت ']'
                         { $$ = new AstSGotoRep{$<fl>2, $1, $3, $5}; }
         //                      // IEEE: nonconsecutive_repetition (single count form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ const_عبارت ']'
                         { $$ = new AstSNonConsRep{$<fl>2, $1, $3}; }
         //                      // IEEE: nonconsecutive_repetition (range form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ const_عبارت ':' const_عبارت ']'
                         { $$ = new AstSNonConsRep{$<fl>2, $1, $3, $5}; }
         //                      // All boolean_abbrev forms are now handled above:
         //                      // [*N], [*N:M], [+], [*] via AstSConsRep
@@ -6935,7 +6935,7 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //                      // "'(' sexpr ')' boolean_abbrev" matches "[sexpr:'(' expr ')'] boolean_abbrev" so we can drop it
         |       '(' ~p~sexpr ')'                        { $$ = $2; }
         |       '(' ~p~sexpr ',' sequence_match_itemList ')'
-                        { $$ = new AstExprStmt{$3, $4, $2}; }
+                        { $$ = new Ast_عبارت_Stmt{$3, $4, $2}; }
         //
         //                      // AND/OR are between pexprs OR sexprs (IEEE 1800-2023 16.9.2, 16.11.2)
         //                      // For expression-level (boolean) operands, AstLogAnd/AstLogOr is correct.
@@ -6963,7 +6963,7 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //UNSUP clocking_event ~p~sexpr %prec prSEQ_CLOCKING    { }
         //
         //============= expr rules copied for sequence_expr
-        |       BISONPRE_COPY_ONCE(expr,{s/~l~/s/g; s/~p~/s/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
+        |       BISONPRE_COPY_ONCE(عبارت,{s/~l~/s/g; s/~p~/s/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
         ;
 
 cycle_delay_range<delayp>:  // IEEE: ==cycle_delay_range
@@ -6972,14 +6972,14 @@ cycle_delay_range<delayp>:  // IEEE: ==cycle_delay_range
                         { $$ = new AstDelay{$1, $2, true}; }
         |       yP_POUNDPOUND idAny
                         { $$ = new AstDelay{$1, new AstParseRef{$<fl>2, *$2}, true}; }
-        |       yP_POUNDPOUND '(' constExpr ')'
+        |       yP_POUNDPOUND '(' const_عبارت ')'
                         { $$ = new AstDelay{$1, $3, true}; }
         //                      // In 1800-2009 ONLY:
         //                      // IEEE: yP_POUNDPOUND constant_primary
         //                      // UNSUP: This causes a big grammar ambiguity
         //                      // as ()'s mismatch between primary and the following statement
         //                      // the sv-ac committee has been asked to clarify  (Mantis 1901)
-        |       yP_POUNDPOUND '[' constExpr ':' constExpr ']'
+        |       yP_POUNDPOUND '[' const_عبارت ':' const_عبارت ']'
                         { $$ = new AstDelay{$1, $3, true};
                                                                                                         $$->rhsp($5); }
         |       yP_POUNDPOUND yP_BRASTAR ']'
@@ -7015,12 +7015,12 @@ covergroup_declaration<nodep>:  // ==IEEE: covergroup_declaration
                  yCOVERGROUP idAny cgPortListE coverage_eventE ';'
         /*cont*/    coverage_spec_or_optionListE
         /*cont*/ yENDGROUP endLabelE
-                        { AstSenTree* clockp = nullptr;
-                          AstNode* sampleArgsp = nullptr;
-                          if ($4) {
-                              if (VN_IS($4, SenItem)) {
-                                  clockp = new AstSenTree{$<fl>1, VN_AS($4, SenItem)};
-                              } else {
+                        { Ast_Sen_درخت* clockp = nullptr;
+                          Ast_گره* sampleArgsp = nullptr;
+                          اگر ($4) {
+                              اگر (VN_IS($4, SenItem)) {
+                                  clockp = new Ast_Sen_درخت{$<fl>1, VN_AS($4, SenItem)};
+                              } وگرنه {
                                   sampleArgsp = $4;
                               }
                           }
@@ -7043,8 +7043,8 @@ cgPortListE<nodep>:
         |       '(' tf_port_listE ')'                   { $$ = $2; }
         ;
 
-cgexpr<nodeExprp>:  // IEEE-2012: covergroup_expression, before that just expression
-                expr                                    { $$ = $1; }
+cgexpr<گره_Exprp>:  // IEEE-2012: covergroup_expression, before that just expression
+                عبارت                                    { $$ = $1; }
         ;
 
 coverage_spec_or_optionListE<nodep>:  // IEEE: [{coverage_spec_or_option}]
@@ -7067,50 +7067,50 @@ coverage_spec_or_option<nodep>:  // ==IEEE: coverage_spec_or_option
 
 coverage_option<nodep>:  // ==IEEE: coverage_option
         //                      // option/type_option aren't really keywords
-                id/*yOPTION | yTYPE_OPTION*/ '.' idAny/*member_identifier*/ '=' expr
+                id/*yOPTION | yTYPE_OPTION*/ '.' idAny/*member_identifier*/ '=' عبارت
                         { $$ = nullptr;
-                          if (*$1 == "option" || *$1 == "type_option") {
-                              const bool typeOpt = (*$1 == "type_option");
+                          اگر (*$1 == "option" || *$1 == "type_option") {
+                              ثابت bool typeOpt = (*$1 == "type_option");
                               VCoverOptionType optType = VCoverOptionType::UNKNOWN;
                               bool valid = true;
-                              if (!typeOpt) {
+                              اگر (!typeOpt) {
                                   // IEEE 1800-2023 Table 19-1 option.* names and ignored legacy names
-                                  if      (*$3 == "at_least")                optType = VCoverOptionType::AT_LEAST;
-                                  else if (*$3 == "auto_bin_max")            optType = VCoverOptionType::AUTO_BIN_MAX;
-                                  else if (*$3 == "comment")                 optType = VCoverOptionType::COMMENT;
-                                  else if (*$3 == "cross_auto_bin_max")      optType = VCoverOptionType::CROSS_AUTO_BIN_MAX;
-                                  else if (*$3 == "cross_num_print_missing") optType = VCoverOptionType::CROSS_NUM_PRINT_MISSING;
-                                  else if (*$3 == "cross_retain_auto_bins")  optType = VCoverOptionType::CROSS_RETAIN_AUTO_BINS;
-                                  else if (*$3 == "detect_overlap")          optType = VCoverOptionType::DETECT_OVERLAP;
-                                  else if (*$3 == "get_inst_coverage")       optType = VCoverOptionType::GET_INST_COVERAGE;
-                                  else if (*$3 == "goal")                    optType = VCoverOptionType::GOAL;
-                                  else if (*$3 == "name")                    optType = VCoverOptionType::NAME;
-                                  else if (*$3 == "per_instance")            optType = VCoverOptionType::PER_INSTANCE;
-                                  else if (*$3 == "weight")                  optType = VCoverOptionType::WEIGHT;
-                                  else {
+                                  اگر      (*$3 == "at_least")                optType = VCoverOptionType::AT_LEAST;
+                                  وگرنه اگر (*$3 == "auto_bin_max")            optType = VCoverOptionType::AUTO_BIN_MAX;
+                                  وگرنه اگر (*$3 == "comment")                 optType = VCoverOptionType::COMMENT;
+                                  وگرنه اگر (*$3 == "cross_auto_bin_max")      optType = VCoverOptionType::CROSS_AUTO_BIN_MAX;
+                                  وگرنه اگر (*$3 == "cross_num_print_missing") optType = VCoverOptionType::CROSS_رقم_PRINT_MISSING;
+                                  وگرنه اگر (*$3 == "cross_retain_auto_bins")  optType = VCoverOptionType::CROSS_RETAIN_AUTO_BINS;
+                                  وگرنه اگر (*$3 == "detect_overlap")          optType = VCoverOptionType::DETECT_OVERLAP;
+                                  وگرنه اگر (*$3 == "get_inst_coverage")       optType = VCoverOptionType::GET_INST_COVERAGE;
+                                  وگرنه اگر (*$3 == "goal")                    optType = VCoverOptionType::GOAL;
+                                  وگرنه اگر (*$3 == "name")                    optType = VCoverOptionType::NAME;
+                                  وگرنه اگر (*$3 == "per_instance")            optType = VCoverOptionType::PER_INSTANCE;
+                                  وگرنه اگر (*$3 == "weight")                  optType = VCoverOptionType::WEIGHT;
+                                  وگرنه {
                                       $<fl>1->v3error("Unknown coverage option name 'option."
                                                       << *$3 << "'"
                                                       << "; not a valid option (IEEE 1800-2023 Table 19-1)");
                                       valid = false;
                                   }
-                              } else {
+                              } وگرنه {
                                   // IEEE 1800-2023 Table 19-3: type_option.* names
-                                  if      (*$3 == "comment")          optType = VCoverOptionType::COMMENT;
-                                  else if (*$3 == "distribute_first") optType = VCoverOptionType::DISTRIBUTE_FIRST;
-                                  else if (*$3 == "goal")             optType = VCoverOptionType::GOAL;
-                                  else if (*$3 == "merge_instances")  optType = VCoverOptionType::MERGE_INSTANCES;
-                                  else if (*$3 == "real_interval")    optType = VCoverOptionType::REAL_INTERVAL;
-                                  else if (*$3 == "strobe")           optType = VCoverOptionType::STROBE;
-                                  else if (*$3 == "weight")           optType = VCoverOptionType::WEIGHT;
-                                  else {
+                                  اگر      (*$3 == "comment")          optType = VCoverOptionType::COMMENT;
+                                  وگرنه اگر (*$3 == "distribute_first") optType = VCoverOptionType::DISTRIBUTE_FIRST;
+                                  وگرنه اگر (*$3 == "goal")             optType = VCoverOptionType::GOAL;
+                                  وگرنه اگر (*$3 == "merge_instances")  optType = VCoverOptionType::MERGE_INSTANCES;
+                                  وگرنه اگر (*$3 == "real_interval")    optType = VCoverOptionType::REAL_INTERVAL;
+                                  وگرنه اگر (*$3 == "strobe")           optType = VCoverOptionType::STROBE;
+                                  وگرنه اگر (*$3 == "weight")           optType = VCoverOptionType::WEIGHT;
+                                  وگرنه {
                                       // Specific message for option.* names used under type_option.*
-                                      if (*$3 == "at_least" || *$3 == "auto_bin_max"
+                                      اگر (*$3 == "at_least" || *$3 == "auto_bin_max"
                                           || *$3 == "cross_num_print_missing" || *$3 == "cross_retain_auto_bins"
                                           || *$3 == "detect_overlap" || *$3 == "get_inst_coverage"
                                           || *$3 == "name" || *$3 == "per_instance") {
                                           $<fl>1->v3error("'type_option." << *$3
                                               << "' is not valid; use 'option." << *$3 << "' instead");
-                                      } else {
+                                      } وگرنه {
                                           $<fl>1->v3error("Unknown coverage type option name 'type_option."
                                               << *$3 << "'"
                                               << "; not a valid type option (IEEE 1800-2023 Table 19-3)");
@@ -7118,12 +7118,12 @@ coverage_option<nodep>:  // ==IEEE: coverage_option
                                       valid = false;
                                   }
                               }
-                              if (valid) {
+                              اگر (valid) {
                                   $$ = new AstCgOptionAssign{$<fl>1, typeOpt, optType, *$3, $5};
-                              } else {
+                              } وگرنه {
                                   DEL($5);
                               }
-                          } else {
+                          } وگرنه {
                               $<fl>1->v3error("Syntax error; expected 'option' or 'type_option': '" << *$1 << "'");
                               DEL($5);
                           } }
@@ -7131,33 +7131,33 @@ coverage_option<nodep>:  // ==IEEE: coverage_option
 
 cover_point<nodep>:  // ==IEEE: cover_point
         //              // [ [ data_type_or_implicit ] cover_point_identifier ':' ] yCOVERPOINT
-                yCOVERPOINT expr iffE bins_or_empty
+                yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>1, "", $2, $3, $4}; }
         //                      // IEEE-2012: class_scope before an ID
-        |       id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>3, *$1, $4, $5, $6}; }
         //                      // data_type_or_implicit expansion
-        |       data_type id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       data_type id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>4, *$2, $5, $6, $7};
                           DEL($1); }
-        |       yVAR data_type id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       yVAR data_type id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       yVAR implicit_typeE id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       yVAR implicit_typeE id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       signingE rangeList id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       signingE rangeList id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       signing id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       signing id/*cover_point_id*/ ':' yCOVERPOINT عبارت iffE bins_or_empty
                         { $$ = new AstCoverpoint{$<fl>4, *$2, $5, $6, $7}; }
         //                      // IEEE-2012:
         |       bins_or_empty                           { $$ = $1; }
         ;
 
-iffE<nodeExprp>:  // IEEE: part of cover_point, others
+iffE<گره_Exprp>:  // IEEE: part of cover_point, others
                 /* empty */                             { $$ = nullptr; }
-        |       yIFF '(' expr ')'
+        |       yIFF '(' عبارت ')'
                         { $$ = $3; /* Keep iff condition for coverpoint */ }
         ;
 
@@ -7186,10 +7186,10 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
                         { $$ = GRAMMARP->coverBinArray(new AstCoverBin{$<fl>2, *$2, $6, false, false, false, $8}, $3); }
         |       yBINS idAny/*bin_identifier*/ '[' cgexpr ']' iffE
                         { // Check for automatic bins: bins auto[N]
-                          if (*$2 == "auto") {
+                          اگر (*$2 == "auto") {
                               $$ = new AstCoverBin{$<fl>2, *$2, $4};
                               DEL($6);
-                          } else {
+                          } وگرنه {
                               $$ = nullptr;
                               BBCOVERIGN($<fl>2, "Unsupported: 'bins' array (non-auto)");
                               DEL($4, $6);
@@ -7232,19 +7232,19 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
         //
         //                      // cgexpr part of trans_list
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_TRANSITION}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yIGNORE_BINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_IGNORE}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yILLEGAL_BINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_ILLEGAL}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yWILDCARD yBINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($4); BBCOVERIGN($<fl>1, "Unsupported: 'wildcard' transition list in cover bin"); DEL($6, $7);}
@@ -7256,17 +7256,17 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_DEFAULT};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yIGNORE_BINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_IGNORE};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yILLEGAL_BINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_ILLEGAL};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          اگر ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT ySEQUENCE iffE
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($3); BBCOVERIGN($<fl>6, "Unsupported: 'sequence' in default cover bin"); DEL($7); }
@@ -7276,12 +7276,12 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($3); BBCOVERIGN($<fl>6, "Unsupported: 'sequence' in default cover bin"); DEL($7); }
         ;
 
-bins_orBraE<nodeExprp>:  // IEEE: part of bins_or_options: AstUnbounded for '[]', else the size
+bins_orBraE<گره_Exprp>:  // IEEE: part of bins_or_options: AstUnbounded for '[]', else the size
                 /* empty */                             { $$ = nullptr; }
         |       '[' ']'                                 { $$ = new AstUnbounded{$<fl>1}; }
         |       '[' cgexpr ']'
                         { $$ = $2;
-                          if (VN_IS($2, Unbounded)) $2->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)"); }
+                          اگر (VN_IS($2, Unbounded)) $2->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)"); }
         ;
 
 trans_list<nodep>:  // ==IEEE: trans_list
@@ -7291,13 +7291,13 @@ trans_list<nodep>:  // ==IEEE: trans_list
 
 trans_set<nodep>:  // ==IEEE: trans_set (returns AstCoverTransSet)
                 trans_range_list                        {
-                        AstCoverTransItem* const itemp = static_cast<AstCoverTransItem*>($1);
+                        AstCoverTransItem* ثابت itemp = static_cast<AstCoverTransItem*>($1);
                         $$ = new AstCoverTransSet{$<fl>1, itemp};
                 }
         |       trans_set yP_EQGT trans_range_list
                 {
-                        AstCoverTransSet* const setp = static_cast<AstCoverTransSet*>($1);
-                        AstCoverTransItem* const itemp = static_cast<AstCoverTransItem*>($3);
+                        AstCoverTransSet* ثابت setp = static_cast<AstCoverTransSet*>($1);
+                        AstCoverTransItem* ثابت itemp = static_cast<AstCoverTransItem*>($3);
                         setp->addItemsp(itemp);
                         $$ = setp;
                 }
@@ -7329,30 +7329,30 @@ trans_item<nodep>:  // ==IEEE: range_list (returns range list node)
         ;
 
 covergroup_range_list<nodep>:  // ==IEEE: covergroup_range_list
-                covergroup_value_range                  { $$ = $1; }
-        |       covergroup_range_list ',' covergroup_value_range        { $$ = addNextNull($1, $3); }
+                covergroup_مقدار_range                  { $$ = $1; }
+        |       covergroup_range_list ',' covergroup_مقدار_range        { $$ = addNextNull($1, $3); }
         ;
 
 
 cover_cross<nodep>:  // ==IEEE: cover_cross
-                id/*cover_point_identifier*/ ':' yCROSS list_of_cross_items iffE cross_body
+                id/*cover_point_identifier*/ ':' yCROSS list_of_cross_اقلام iffE cross_body
                         {
-                          AstCoverCross* const nodep = new AstCoverCross{$<fl>3, *$1,
+                          AstCoverCross* ثابت nodep = new AstCoverCross{$<fl>3, *$1,
                                                           VN_AS($4, CoverpointRef), $5};
-                          if ($6) nodep->addBinsp($6);
+                          اگر ($6) nodep->addBinsp($6);
                           $$ = nodep;
                         }
-        |       yCROSS list_of_cross_items iffE cross_body
+        |       yCROSS list_of_cross_اقلام iffE cross_body
                         {
-                          AstCoverCross* const nodep = new AstCoverCross{$<fl>1,
-                                                          "__cross" + cvtToStr(GRAMMARP->s_typeImpNum++),
+                          AstCoverCross* ثابت nodep = new AstCoverCross{$<fl>1,
+                                                          "__cross" + cvtToStr(GRAMMARP->s_type_Imp_رقم++),
                                                           VN_AS($2, CoverpointRef), $3};
-                          if ($4) nodep->addBinsp($4);
+                          اگر ($4) nodep->addBinsp($4);
                           $$ = nodep;
                         }
         ;
 
-list_of_cross_items<nodep>:  // ==IEEE: list_of_cross_items
+list_of_cross_اقلام<nodep>:  // ==IEEE: list_of_cross_items
                 cross_item ',' cross_item               { $$ = addNextNull($1, $3); }
         |       cross_item ',' cross_item ',' cross_itemList
                         { $$ = addNextNull(addNextNull($1, $3), $5); }
@@ -7372,11 +7372,11 @@ cross_item<nodep>:  // ==IEEE: cross_item
         //                      // and handled exactly as before.
                 idDotted
                         {
-                          if (AstParseRef* const refp = VN_CAST($1, ParseRef)) {
+                          اگر (AstParseRef* ثابت refp = VN_CAST($1, ParseRef)) {
                               // Standard: simple cover_point_identifier / variable_identifier
                               $$ = new AstCoverpointRef{refp->fileline(), refp->name()};
-                              VL_DO_DANGLING(refp->deleteTree(), refp);
-                          } else {
+                              VL_DO_DANGLING(refp->delete_درخت(), refp);
+                          } وگرنه {
                               // Verilator extension beyond strict IEEE (cross_item is a simple
                               // identifier): some tools accept a hierarchical/dotted reference.
                               // Carry the reference expression (still an AstDot here) out of the
@@ -7427,10 +7427,10 @@ select_expression<nodep>:  // ==IEEE: select_expression
         //                      // '&&' and '||', which end the count (IEEE 1800-2023 footnote 30).
         //                      // A count could end in a function call followed by its 'with', so
         //                      // a selection with a count is filtered further only in parentheses.
-        |       select_expression_r yWITH__PAREN '(' cgexpr ')' yMATCHES expr %prec yP_ANDAND
+        |       select_expression_r yWITH__PAREN '(' cgexpr ')' yMATCHES عبارت %prec yP_ANDAND
                         { $$ = new AstCoverCrossWith{$2, $1, $4, $7}; }
         //                      // IEEE: cross_set_expression yMATCHES integer_covergroup_expression
-        |       idAny '(' list_of_argumentsE ')' yMATCHES expr %prec yP_ANDAND
+        |       idAny '(' list_of_argumentsE ')' yMATCHES عبارت %prec yP_ANDAND
                         { $$ = nullptr; BBCOVERIGN($<fl>1, "Unsupported: function call in coverage select expression"); DEL($3, $6); }
         |       select_expression yP_ANDAND select_expression
                         { $$ = new AstCoverCrossSelect{$2, $1, $3, false}; }
@@ -7474,7 +7474,7 @@ select_expression_r<nodep>:
         //UNSUP                 // Above are all removed, replace with:
         ;
 
-bins_expression<nodeExprp>:  // ==IEEE: bins_expression
+bins_expression<گره_Exprp>:  // ==IEEE: bins_expression
         //                      // "cover_point_identifier" and "variable_identifier" look identical
         // IEEE specifies:
         // bins_expression ::=
@@ -7491,12 +7491,12 @@ coverage_eventE<nodep>:  // IEEE: [ coverage_event ]
         |       clocking_event
                         { $$ = $1; }  // Keep the clocking event for automatic sampling
         |       yWITH__ETC yFUNCTION idAny/*"sample"*/ '(' tf_port_listE ')'
-                        { if (*$3 != "sample") {
+                        { اگر (*$3 != "sample") {
                             $<fl>3->v3error("Coverage sampling function must be named 'sample'"
                                             " (IEEE 1800-2023 19.8.1)");
                             $$ = nullptr;
                             DEL($5);
-                          } else {
+                          } وگرنه {
                             $$ = $5;
                           }
                         }
@@ -7523,7 +7523,7 @@ hierarchical_btf_identifier<nodep>:  // ==IEEE: hierarchical_btf_identifier
 //**********************************************************************
 // Randsequence
 
-randsequence_statement<nodeStmtp>:  // ==IEEE: randsequence_statement
+randsequence_statement<گره_Stmtp>:  // ==IEEE: randsequence_statement
                 yRANDSEQUENCE '(' ')' rs_productionList yENDSEQUENCE
                         { $$ = new AstRandSequence{$1, "", $4};
                           v3Global.useRandSequence(true); }
@@ -7593,16 +7593,16 @@ rs_production_list<rSProdListp>:  // ==IEEE: rs_production_list
                         { $$ = new AstRSProdList{$1, new AstConst{$2, AstConst::RealDouble{}, 0.5}, $3};
                           $$->randJoin(true);
                           $$->addProdsp($4); }
-        |       yRAND yJOIN '(' expr ')' rs_production_item rs_production_itemList
+        |       yRAND yJOIN '(' عبارت ')' rs_production_item rs_production_itemList
                         { $$ = new AstRSProdList{$1, $4, $6};
                           $$->randJoin(true);
                           $$->addProdsp($7); }
         ;
 
-rs_weight_specification<nodeExprp>:  // ==IEEE: rs_weight_specification
+rs_weight_specification<گره_Exprp>:  // ==IEEE: rs_weight_specification
                 intnumAsConst                           { $$ = $1; }
         |       idClassSel/*ps_identifier*/             { $$ = $1; }
-        |       '(' expr ')'                            { $$ = $2; }
+        |       '(' عبارت ')'                            { $$ = $2; }
         ;
 
 rs_code_block<nodep>:  // ==IEEE: rs_code_block
@@ -7629,15 +7629,15 @@ rs_prod<nodep>:  // ==IEEE: rs_prod
                 rs_production_item                      { $$ = $1; }
         |       rs_code_block                           { $$ = $1; }
         //                      // IEEE: rs_if_else
-        |       yIF '(' expr ')' rs_production_item %prec prLOWER_THAN_ELSE
+        |       yIF '(' عبارت ')' rs_production_item %prec prLOWER_THAN_ELSE
                         { $$ = new AstIf{$<fl>1, $3, $5, nullptr}; }
-        |       yIF '(' expr ')' rs_production_item yELSE rs_production_item
+        |       yIF '(' عبارت ')' rs_production_item yELSE rs_production_item
                         { $$ = new AstIf{$<fl>1, $3, $5, $7}; }
         //                      // IEEE: rs_repeat
-        |       yREPEAT '(' expr ')' rs_production_item
+        |       yREPEAT '(' عبارت ')' rs_production_item
                                { $$ = new AstRepeat{$<fl>1, $3, $5}; }
         //                      // IEEE: rs_case
-        |       yCASE '(' expr ')' rs_case_itemList yENDCASE
+        |       yCASE '(' عبارت ')' rs_case_itemList yENDCASE
                         { $$ = new AstCase{$<fl>1, VCaseType::CT_RANDSEQUENCE, $3, $5}; }
         ;
 
@@ -7670,17 +7670,17 @@ rs_case_item<caseItemp>:  // ==IEEE: rs_case_item
 //**********************************************************************
 // Checker
 
-checker_declaration<nodeModulep>:  // ==IEEE: part of checker_declaration
+checker_declaration<گره_Modulep>:  // ==IEEE: part of checker_declaration
                 checkerFront checker_port_listE ';'
                         checker_or_generate_itemListE yENDCHECKER endLabelE
                         { $$ = $1;
                           $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));
-                          if ($2) $1->addStmtsp($2);
-                          if ($4) $1->addStmtsp($4);
+                          اگر ($2) $1->addStmtsp($2);
+                          اگر ($4) $1->addStmtsp($4);
                           GRAMMARP->endLabel($<fl>6, $1, $6); }
         ;
 
-checkerFront<nodeModulep>:  // IEEE: part of checker_declaration
+checkerFront<گره_Modulep>:  // IEEE: part of checker_declaration
                 yCHECKER idAny/*checker_identifier*/
                         { $$ = new AstModule{$<fl>2, *$2, PARSEP->libname(), AstModule::Checker{}};
                           $$->modTrace(GRAMMARP->allTracingOn($$->fileline()));
@@ -7724,8 +7724,8 @@ checker_port_itemFront:  // IEEE: part of checker_port_item
         ;
 
 checker_port_directionE:  // IEEE: [ checker_port_direction ]
-                /* empty */                             { VARIO(INPUT); }
-        |       yINPUT                                  { VARIO(INPUT); }
+                /* empty */                             { VARIO(درون_داد); }
+        |       y_درون_داد                                  { VARIO(درون_داد); }
         |       yOUTPUT                                 { VARIO(OUTPUT); }
         ;
 
@@ -7873,7 +7873,7 @@ classImplementsList<classExtendsp>:     // IEEE: part of class_declaration
                         { $$ = addNextNull($1, $3); }
         ;
 
-class_typeExtImpList<nodeExprp>:  // IEEE: class_type: "[package_scope] id [ parameter_value_assignment ]"
+class_typeExtImpList<گره_Exprp>:  // IEEE: class_type: "[package_scope] id [ parameter_value_assignment ]"
         //                      // but allow yaID__aTYPE for extends/implements
         //                      // If you follow the rules down, class_type is really a list via ps_class_identifier
                 class_typeExtImpOne                     { $$ = $1; }
@@ -7881,7 +7881,7 @@ class_typeExtImpList<nodeExprp>:  // IEEE: class_type: "[package_scope] id [ par
                         { $$ = new AstDot{$<fl>1, true, $1, $3}; }
         ;
 
-class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either get a package_scope component or class
+class_typeExtImpOne<گره_Exprp>:  // part of IEEE: class_type, where we either get a package_scope component or class
         //                      // If you follow the rules down, class_type is really a list via ps_class_identifier
         //                      // Not listed in IEEE, but see bug627 any parameter type maybe a class
         //                      // If idAny below is a class, parameter_value is legal
@@ -7889,11 +7889,11 @@ class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either ge
         //                      // If idAny below is otherwise, not legal
                 idAny
         /*mid*/         { /* no nextId as not refing it above this*/ }
-        /*cont*/    parameter_value_assignmentClassE
+        /*cont*/    parameter_مقدار_assignment_Class_E
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $3}; }
         |       idCC
         /*mid*/         { /* no nextId as not refing it above this*/ }
-        /*cont*/    parameter_value_assignmentClassE
+        /*cont*/    parameter_مقدار_assignment_Class_E
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $3}; }
         //
         //                      // package_sopeIdFollows expanded
@@ -7908,11 +7908,11 @@ class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either ge
 
 //=== Below rules assume special scoping per above
 
-packageClassScopeNoId<nodeExprp>:  // IEEE: [package_scope] not followed by yaID
+packageClassScopeNoId<گره_Exprp>:  // IEEE: [package_scope] not followed by yaID
                 packageClassScope                       { $$ = $1; }
         ;
 
-packageClassScopeE<nodeExprp>:  // IEEE: [package_scope]
+packageClassScopeE<گره_Exprp>:  // IEEE: [package_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // TODO: To support classes should return generic type, not packagep
@@ -7921,7 +7921,7 @@ packageClassScopeE<nodeExprp>:  // IEEE: [package_scope]
         |       packageClassScope                       { $$ = $1; }
         ;
 
-packageClassScope<nodeExprp>:   // IEEE: class_scope
+packageClassScope<گره_Exprp>:   // IEEE: class_scope
         //                      // IEEE: "class_type yP_COLONCOLON"
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
@@ -7933,7 +7933,7 @@ packageClassScope<nodeExprp>:   // IEEE: class_scope
                         { $$ = new AstDot{$2, true, $1, $3}; }
         ;
 
-packageClassScopeList<nodeExprp>:   // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
+packageClassScopeList<گره_Exprp>:   // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
         //                      // Or IEEE: [package_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
@@ -7944,7 +7944,7 @@ packageClassScopeList<nodeExprp>:   // IEEE: class_type: "id [ parameter_value_a
                         { $$ = new AstDot{$<fl>2, true, $1, $2}; }
         ;
 
-packageClassScopeItem<nodeExprp>:   // IEEE: package_scope or [package_scope]::[class_scope]
+packageClassScopeItem<گره_Exprp>:   // IEEE: package_scope or [package_scope]::[class_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
@@ -7954,13 +7954,13 @@ packageClassScopeItem<nodeExprp>:   // IEEE: package_scope or [package_scope]::[
         /*cont*/    yP_COLONCOLON
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, nullptr}; }
         //
-        |       idCC parameter_value_assignmentClass
+        |       idCC parameter_مقدار_assignment_Class
         /*mid*/         { }
         /*cont*/    yP_COLONCOLON
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $2}; }
         ;
 
-dollarUnitNextId<nodeExprp>:    // $unit
+dollarUnitNextId<گره_Exprp>:    // $unit
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // Must call nextId without any additional tokens following
@@ -7968,7 +7968,7 @@ dollarUnitNextId<nodeExprp>:    // $unit
                         { $$ = new AstClassOrPackageRef{$1, "$unit", nullptr, nullptr}; }
         ;
 
-localNextId<nodeExprp>:         // local::
+localNextId<گره_Exprp>:         // local::
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // Must call nextId without any additional tokens following
@@ -7999,14 +7999,14 @@ class_item<nodep>:                      // ==IEEE: class_item
         |       timeunits_declaration                   { $$ = $1; }
         |       covergroup_declaration
                         {
-                          if ($1) {
+                          اگر ($1) {
                               // Also declares an instance variable, of the covergroup's type
-                              AstVar* const newp = new AstVar{$1->fileline(), VVarType::VAR,
+                              AstVar* ثابت newp = new AstVar{$1->fileline(), VVarType::VAR,
                                   $1->name(), VFlagChildDType{},
                                   new AstRefDType($1->fileline(), $1->name())};
                               newp->embeddedCovergroup(true);
                               $$ = addNextNull($1, newp);
-                          } else {
+                          } وگرنه {
                               $$ = nullptr;
                           }
                         }
@@ -8121,15 +8121,15 @@ constraint_block_item<nodep>:  // ==IEEE: constraint_block_item
                         { $$ = new AstConstraintBefore{$1, $2, $4}; }
         ;
 
-solve_before_list<nodeExprp>:  // ==IEEE: solve_before_list
+solve_before_list<گره_Exprp>:  // ==IEEE: solve_before_list
                 constraint_primary                              { $$ = $1; }
         |       solve_before_list ',' constraint_primary        { $$ = addNextNull($1, $3); }
         ;
 
-constraint_primary<nodeExprp>:  // ==IEEE: constraint_primary
+constraint_primary<گره_Exprp>:  // ==IEEE: constraint_primary
         //                      // exprScope more general than:
         //                      // [ implicit_class_handle '.' | class_scope ] hierarchical_identifier select [ '(' ')' ]
-                exprScope                                       { $$ = $1; }
+                عبارت_Scope                                       { $$ = $1; }
         ;
 
 constraint_expressionList<nodep>:  // ==IEEE: { constraint_expression }
@@ -8142,11 +8142,11 @@ constraint_expressionList<nodep>:  // ==IEEE: { constraint_expression }
         ;
 
 constraint_expression<nodep>:  // ==IEEE: constraint_expression
-                expr/*expression_or_dist*/ ';'
-                        { $$ = new AstConstraintExpr{$1->fileline(), $1}; }
+                عبارت/*expression_or_dist*/ ';'
+                        { $$ = new Ast_Constraint_عبارت{$1->fileline(), $1}; }
         //                      // 1800-2012:
-        |       ySOFT expr/*expression_or_dist*/ ';'
-                        { AstConstraintExpr* const newp = new AstConstraintExpr{$1, $2};
+        |       ySOFT عبارت/*expression_or_dist*/ ';'
+                        { Ast_Constraint_عبارت* ثابت newp = new Ast_Constraint_عبارت{$1, $2};
                           newp->isSoft(true);
                           $$ = newp; }
         //                      // 1800-2012:
@@ -8163,31 +8163,31 @@ constraint_expression<nodep>:  // ==IEEE: constraint_expression
         //                      // statement V3Randomize already knows how to
         //                      // lower (with disable-soft hoisted by the
         //                      // ConstraintExprVisitor pre-pass).
-        |       expr yP_MINUSGT '{' constraint_expressionList '}'
+        |       عبارت yP_MINUSGT '{' constraint_expressionList '}'
                         { $$ = new AstConstraintIf{$2, $1, $4, nullptr}; }
-        |       expr yP_MINUSGT yIF '(' expr ')' constraint_set %prec prLOWER_THAN_ELSE
+        |       عبارت yP_MINUSGT yIF '(' عبارت ')' constraint_set %prec prLOWER_THAN_ELSE
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintIf{$3, $5, $7, nullptr}, nullptr}; }
-        |       expr yP_MINUSGT yIF '(' expr ')' constraint_set yELSE constraint_set
+        |       عبارت yP_MINUSGT yIF '(' عبارت ')' constraint_set yELSE constraint_set
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintIf{$3, $5, $7, $9}, nullptr}; }
-        |       expr yP_MINUSGT yFOREACH '(' idClassSelForeach ')' constraint_set
+        |       عبارت yP_MINUSGT yFOREACH '(' idClassSelForeach ')' constraint_set
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintForeach{$3, $5, $7}, nullptr}; }
-        |       expr yP_MINUSGT yUNIQUE '{' range_list '}' ';'
+        |       عبارت yP_MINUSGT yUNIQUE '{' range_list '}' ';'
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintUnique{$3, $5}, nullptr}; }
-        |       expr yP_MINUSGT ySOFT expr ';'
-                        { AstConstraintExpr* const innerp = new AstConstraintExpr{$3, $4};
+        |       عبارت yP_MINUSGT ySOFT عبارت ';'
+                        { Ast_Constraint_عبارت* ثابت innerp = new Ast_Constraint_عبارت{$3, $4};
                           innerp->isSoft(true);
                           $$ = new AstConstraintIf{$2, $1, innerp, nullptr}; }
-        |       expr yP_MINUSGT yDISABLE ySOFT constraint_primary ';'
-                        { AstConstraintExpr* const innerp = new AstConstraintExpr{$3, $5};
+        |       عبارت yP_MINUSGT yDISABLE ySOFT constraint_primary ';'
+                        { Ast_Constraint_عبارت* ثابت innerp = new Ast_Constraint_عبارت{$3, $5};
                           innerp->isDisableSoft(true);
                           $$ = new AstConstraintIf{$2, $1, innerp, nullptr}; }
-        |       yIF '(' expr ')' constraint_set %prec prLOWER_THAN_ELSE
+        |       yIF '(' عبارت ')' constraint_set %prec prLOWER_THAN_ELSE
                         { $$ = new AstConstraintIf{$1, $3, $5, nullptr}; }
-        |       yIF '(' expr ')' constraint_set yELSE constraint_set
+        |       yIF '(' عبارت ')' constraint_set yELSE constraint_set
                         { $$ = new AstConstraintIf{$1, $3, $5, $7}; }
         //                      // IEEE says array_identifier here, but dotted accepted in VMM + 1800-2009
         |       yFOREACH '(' idClassSelForeach ')' constraint_set
@@ -8197,7 +8197,7 @@ constraint_expression<nodep>:  // ==IEEE: constraint_expression
                         { $$ = new AstConstraintForeach{$2, $4, $6, true}; }
         //                      // soft is 1800-2012
         |       yDISABLE ySOFT constraint_primary ';'
-                        { AstConstraintExpr* const newp = new AstConstraintExpr{$1, $3};
+                        { Ast_Constraint_عبارت* ثابت newp = new Ast_Constraint_عبارت{$1, $3};
                           newp->isDisableSoft(true);
                           $$ = newp; }
         //
@@ -8219,14 +8219,14 @@ dist_list<distItemp>:  // ==IEEE: dist_list
         ;
 
 dist_item<distItemp>:  // ==IEEE: dist_item + dist_weight
-                value_range
+                مقدار_range
                         { $$ = new AstDistItem{$1->fileline(), $1, new AstConst{$1->fileline(), 1}}; }
-        |       value_range yP_COLONEQ  expr
+        |       مقدار_range yP_COLONEQ  عبارت
                         { $$ = new AstDistItem{$2, $1, $3}; }
-        |       value_range yP_COLONDIV expr
+        |       مقدار_range yP_COLONDIV عبارت
                         { $$ = new AstDistItem{$2, $1, $3}; $$->isWhole(true); }
         //                      // IEEE 1800-2023 added:
-        |       yDEFAULT yP_COLONDIV expr
+        |       yDEFAULT yP_COLONDIV عبارت
                         { BBUNSUP($<fl>2, "Unsupported: 'default :/' constraint");
                           $$ = nullptr; DEL($3); }
         ;
@@ -8245,7 +8245,7 @@ constraintStaticE<cbool>:  // IEEE: part of extern_constraint_declaration
 //**********************************************************************
 // Constants
 
-timeNumAdjusted<nodeExprp>:         // Time constant, adjusted to module's time units/precision
+time_رقم_Adjusted<گره_Exprp>:         // Time constant, adjusted to module's time units/precision
                 yaTIMENUM
                         { $$ = new AstTimeImport{$<fl>1, new AstConst{$<fl>1, AstConst::RealDouble{}, $1}}; }
         ;
@@ -8266,7 +8266,7 @@ config_declaration:  // == IEEE: config_declaration
                 yCONFIG idAny/*config_identifier*/ ';'
         /*cont*/    configParameterListE design_statement config_rule_statementListE
         /*cont*/    yENDCONFIG endLabelE
-                { AstConfig* const newp = new AstConfig{$1, PARSEP->libname(), *$2};
+                { AstConfig* ثابت newp = new AstConfig{$1, PARSEP->libname(), *$2};
                   newp->addDesignp($5);
                   newp->addItemsp($4);
                   newp->addItemsp($6);
@@ -8333,14 +8333,14 @@ config_rule_statement<nodep>:  // == IEEE: config_rule_statement
                         { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-inst_name<nodeExprp>:  // == IEEE: inst_name
+inst_name<گره_Exprp>:  // == IEEE: inst_name
                 idAnyAsParseRef/*topmodule_identifier*/
                         { $$ = $1; }
         |       idAnyAsParseRef/*topmodule_identifier*/ inst_nameInstanceList
                         { $$ = new AstDot{$<fl>1, false, $1, $2}; }
         ;
 
-inst_nameInstanceList<nodeExprp>:  // IEEE: part of inst_name
+inst_nameInstanceList<گره_Exprp>:  // IEEE: part of inst_name
                 '.' idAnyAsParseRef/*instance_identifier*/
                         { $$ = $2; }
         |       inst_nameInstanceList '.' idAnyAsParseRef/*instance_identifier*/
@@ -8352,7 +8352,7 @@ liblist_clause<nodep>:  // == IEEE: liblist_clause
         |       yLIBLIST liblistLibraryList             { $$ = $2; }
         ;
 
-liblistLibraryList<nodeExprp>:  // IEEE: part of liblist_clause
+liblistLibraryList<گره_Exprp>:  // IEEE: part of liblist_clause
                 idAnyAsParseRef/*library_identifier*/
                         { $$ = $1; }
         |       liblistLibraryList idAnyAsParseRef/*library_identifier*/
@@ -8384,7 +8384,7 @@ useAssignment<pinp>:  // IEEE: part of use_clause
         //                      // IEEE: named_parameter_assignment
                 '.' idAny/*parameter_identifier*/ '(' ')'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: 'config use' parameter assignment"); }
-        |       '.' idAny/*parameter_identifier*/ '(' exprOrDataType ')'
+        |       '.' idAny/*parameter_identifier*/ '(' عبارت_Or_Data_Type ')'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: 'config use' parameter assignment"); DEL($4); }
         ;
 
@@ -8401,7 +8401,7 @@ library_declaration<nodep>:  // IEEE: library_declaration
                 yLIBRARY yaSTRING file_path_specList incdirE ';'
                         { $$ = new AstLibrary{$<fl>1, *$2, $3, $4}; }
         ;
-incdirE<nodeExprp>:  // IEEE: [ '-' yINCDIR file_path_specList ';']
+incdirE<گره_Exprp>:  // IEEE: [ '-' yINCDIR file_path_specList ';']
                 /* empty */                             { $$ = nullptr; }
                                 // https://accellera.mantishub.io/view.php?id=1166
         |       yINCDIR file_path_specList              { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config incdir"); }
@@ -8409,11 +8409,11 @@ incdirE<nodeExprp>:  // IEEE: [ '-' yINCDIR file_path_specList ';']
 include_statement<nodep>:  // IEEE: include_statement
                 yINCLUDE file_path_spec ';'             { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config include"); }
         ;
-file_path_specList<nodeExprp>:  // IEEE: file_path_spec { ',' file_path_spec }
+file_path_specList<گره_Exprp>:  // IEEE: file_path_spec { ',' file_path_spec }
                 file_path_spec                          { $$ = $1; }
         |       file_path_specList ',' file_path_spec   { $$ = addNextNull($1, $3); }
         ;
-file_path_spec<nodeExprp>:  // IEEE: file_path_spec
+file_path_spec<گره_Exprp>:  // IEEE: file_path_spec
                 yaSTRING { $$ = new AstParseRef{$<fl>1, *$1}; }
         ;
 
@@ -8426,58 +8426,58 @@ vltItem:
                         { V3Control::addIgnore($1, false, "*", 0, 0); }
         |       vltOffFront vltDFile
                         { V3Control::addIgnore($1, false, *$2, 0, 0); }
-        |       vltOffFront vltDFile yVLT_D_LINES yaINTNUM
+        |       vltOffFront vltDFile y_VLT_D_سطرها yaINTNUM
                         { V3Control::addIgnore($1, false, *$2, $4->toUInt(), $4->toUInt()); }
-        |       vltOffFront vltDFile yVLT_D_LINES yaINTNUM '-' yaINTNUM
+        |       vltOffFront vltDFile y_VLT_D_سطرها yaINTNUM '-' yaINTNUM
                         { V3Control::addIgnore($1, false, *$2, $4->toUInt(), $6->toUInt()); }
         |       vltOffFront vltDFile vltDMatch
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { اگر (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
+                          } وگرنه {
                               V3Control::addIgnoreMatch($1, *$2, "", *$3);
                           }}
         |       vltOffFront vltDFile vltDContents
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { اگر (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
+                          } وگرنه {
                               V3Control::addIgnoreMatch($1, *$2, *$3, "*");
                           }}
         |       vltOffFront vltDFile vltDContents vltDMatch
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { اگر (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
+                          } وگرنه {
                               V3Control::addIgnoreMatch($1, *$2, *$3, *$4);
                           }}
         |       vltOffFront vltDScope
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { اگر ($1 != V3ErrorCode::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off");
-                          } else {
+                          } وگرنه {
                               V3Control::addScopeTraceOn(false, *$2, 0);
                           }}
         |       vltOffFront vltDScope vltDLevels
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { اگر ($1 != V3ErrorCode::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off_off");
-                          } else {
+                          } وگرنه {
                               V3Control::addScopeTraceOn(false, *$2, $3->toUInt());
                           }}
         |       vltOnFront
                         { V3Control::addIgnore($1, true, "*", 0, 0); }
         |       vltOnFront vltDFile
                         { V3Control::addIgnore($1, true, *$2, 0, 0); }
-        |       vltOnFront vltDFile yVLT_D_LINES yaINTNUM
+        |       vltOnFront vltDFile y_VLT_D_سطرها yaINTNUM
                         { V3Control::addIgnore($1, true, *$2, $4->toUInt(), $4->toUInt()); }
-        |       vltOnFront vltDFile yVLT_D_LINES yaINTNUM '-' yaINTNUM
+        |       vltOnFront vltDFile y_VLT_D_سطرها yaINTNUM '-' yaINTNUM
                         { V3Control::addIgnore($1, true, *$2, $4->toUInt(), $6->toUInt()); }
         |       vltOnFront vltDScope
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { اگر ($1 != V3ErrorCode::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off");
-                          } else {
+                          } وگرنه {
                               V3Control::addScopeTraceOn(true, *$2, 0);
                           }}
         |       vltOnFront vltDScope vltDLevels
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { اگر ($1 != V3ErrorCode::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off_off");
-                          } else {
+                          } وگرنه {
                               V3Control::addScopeTraceOn(true, *$2, $3->toUInt());
                           }}
         |       vltVarAttrFront vltDModuleE vltDFTaskE vltVarAttrSpecE attr_event_controlE
@@ -8488,13 +8488,13 @@ vltItem:
                         { V3Control::addInline($<fl>1, *$2, *$3, $1); }
         |       yVLT_COVERAGE_BLOCK_OFF vltDFile
                         { V3Control::addCoverageBlockOff(*$2, 0); }
-        |       yVLT_COVERAGE_BLOCK_OFF vltDFile yVLT_D_LINES yaINTNUM
+        |       yVLT_COVERAGE_BLOCK_OFF vltDFile y_VLT_D_سطرها yaINTNUM
                         { V3Control::addCoverageBlockOff(*$2, $4->toUInt()); }
         |       yVLT_COVERAGE_BLOCK_OFF vltDModule vltDBlock
                         { V3Control::addCoverageBlockOff(*$2, *$3); }
         |       yVLT_FULL_CASE vltDFile
                         { V3Control::addCaseFull(*$2, 0); }
-        |       yVLT_FULL_CASE vltDFile yVLT_D_LINES yaINTNUM
+        |       yVLT_FULL_CASE vltDFile y_VLT_D_سطرها yaINTNUM
                         { V3Control::addCaseFull(*$2, $4->toUInt()); }
         |       yVLT_HIER_BLOCK vltDModuleE
                         { V3Control::addModulePragma(*$2, VPragmaType::HIER_BLOCK); }
@@ -8506,13 +8506,13 @@ vltItem:
                         { V3Control::addHierWorkers($<fl>1, *$2, $3->toSInt()); }
         |       yVLT_PARALLEL_CASE vltDFile
                         { V3Control::addCaseParallel(*$2, 0); }
-        |       yVLT_PARALLEL_CASE vltDFile yVLT_D_LINES yaINTNUM
+        |       yVLT_PARALLEL_CASE vltDFile y_VLT_D_سطرها yaINTNUM
                         { V3Control::addCaseParallel(*$2, $4->toUInt()); }
         |       yVLT_PROFILE_DATA vltDHierDpi vltDCost
                         { V3Control::addProfileData($<fl>1, *$2, $3->toUQuad()); }
         |       yVLT_PROFILE_DATA vltDModel vltDMtask vltDCost
                         { V3Control::addProfileData($<fl>1, *$2, *$3, $4->toUQuad()); }
-        |       yVLT_FSM_REGISTER_WRAPPER vltDModule vltDFsmD vltDFsmQ vltDFsmClock vltDFsmResetE vltDFsmResetValueE
+        |       yVLT_FSM_REGISTER_WRAPPER vltDModule vltDFsmD vltDFsmQ vltDFsmClock vltDFsmResetE vlt_DFsm_Reset_مقدار_E
                         { V3Control::addFsmRegisterWrapper($<fl>1, *$2, *$3, *$4, *$5, *$6, *$7); }
         |       yVLT_VERILATOR_LIB vltDModule
                         { V3Control::addModulePragma(*$2, VPragmaType::VERILATOR_LIB); }
@@ -8525,7 +8525,7 @@ vltOffFront<errcodeen>:
         |       yVLT_LINT_OFF                           { $$ = V3ErrorCode::I_LINT; }
         |       yVLT_LINT_OFF yVLT_D_RULE idAny
                         { $$ = V3ErrorCode{*$3};
-                          if ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
+                          اگر ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
         ;
 
 vltOnFront<errcodeen>:
@@ -8535,7 +8535,7 @@ vltOnFront<errcodeen>:
         |       yVLT_LINT_ON                            { $$ = V3ErrorCode::I_LINT; }
         |       yVLT_LINT_ON yVLT_D_RULE idAny
                         { $$ = V3ErrorCode{*$3};
-                          if ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
+                          اگر ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
         ;
 
 vltDBlock<strp>:  // --block <arg>
@@ -8567,13 +8567,13 @@ vltDFsmQ<strp>:  // --q <arg>
         ;
 
 vltDFsmResetE<strp>:  // [--reset <arg>]
-                /* empty */                             { static string empty; $$ = &empty; }
+                /* empty */                             { ایستا string empty; $$ = &empty; }
         |       yVLT_D_RESET str                        { $$ = $2; }
         ;
 
-vltDFsmResetValueE<strp>:  // [--reset_value <arg>]
-                /* empty */                             { static string empty; $$ = &empty; }
-        |       yVLT_D_RESET_VALUE str                  { $$ = $2; }
+vlt_DFsm_Reset_مقدار_E<strp>:  // [--reset_value <arg>]
+                /* empty */                             { ایستا string empty; $$ = &empty; }
+        |       y_VLT_D_RESET_مقدار str                  { $$ = $2; }
         ;
 
 vltDHierDpi<strp>:  // --hier-dpi <arg>
@@ -8602,7 +8602,7 @@ vltDModule<strp>:  // --module <arg>
 
 vltDModuleE<strp>:  // [--module <arg>]
                 /* empty */
-                        { static string unit = "$unit"; $$ = &unit; }  // .vlt uses prettyName
+                        { ایستا string unit = "$unit"; $$ = &unit; }  // .vlt uses prettyName
         |       vltDModule
                         { $$ = $1; }
         ;
@@ -8612,7 +8612,7 @@ vltDScope<strp>:  // --scope <arg>
         ;
 
 vltDFTaskE<strp>:
-                /* empty */                             { static string empty; $$ = &empty; }
+                /* empty */                             { ایستا string empty; $$ = &empty; }
         |       yVLT_D_FUNCTION str                     { $$ = $2; }
         |       yVLT_D_TASK str                         { $$ = $2; }
         ;
@@ -8628,7 +8628,7 @@ vltInlineFront<cbool>:
 
 vltVarAttrSpecE<strp>:
                 /* empty */
-                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::VAR; static std::string empty; $$ = &empty; }
+                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::VAR; ایستا std::string empty; $$ = &empty; }
         |       yVLT_D_PARAM str
                         { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::PARAM; $$ = $2; }
         |       yVLT_D_PORT str

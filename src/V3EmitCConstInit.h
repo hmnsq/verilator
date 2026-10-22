@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
+#شامل "V3Ast.h"
+#شامل "V3EmitCBase.h"
+#شامل "V3Error.h"
 
-#include <cinttypes>
+#شامل <cinttypes>
 
 //######################################################################
 // Emitter that can emit NodeCons expressions
 
-class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
+class EmitCConstInit VL_NOT_FINAL : عمومی EmitCBaseVisitorConst {
     // METHODS
-    static uint32_t tabModulus(const AstNodeDType* dtypep) {
-        const uint32_t elemBytes = dtypep->widthTotalBytes();
-        return dtypep->isString() ? 1  // String
+    ایستا uint32_t tabModulus(ثابت Ast_گره_DType* dtypep) {
+        ثابت uint32_t elemBytes = dtypep->widthTotalBytes();
+        بازگشت dtypep->isString() ? 1  // String
                : elemBytes <= 2   ? 8  // CData, SData
                : elemBytes <= 4   ? 4  // IData
                : elemBytes <= 8   ? 2  // QData
                                   : 1;
     }
 
-    void emitConsArray(AstConsArray* nodep) {
-        const AstUnpackArrayDType* const dtypep
+    تهی emitConsArray(AstConsArray* nodep) {
+        ثابت AstUnpackArrayDType* ثابت dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const uint64_t size = dtypep->elementsConst();
+        ثابت uint64_t size = dtypep->elementsConst();
         uint32_t tabMod = tabModulus(dtypep->subDTypep());
-        if (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        اگر (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
+        برای (ثابت AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+            اگر (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         ofp()->putsNoTracking("{");
         puts("\n");
-        for (uint64_t n = 0; n < size; ++n) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(nodep->valuep(n));
+        برای (uint64_t n = 0; n < size; ++n) {
+            اگر (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_مقدار(nodep->valuep(n));
         }
         puts("\n");
         ofp()->putsNoTracking("}");
@@ -60,21 +60,21 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
     // 'size, default, {{key, value}, ...}', where the size and default are optional, or nothing
     // if empty
     template <typename T_Item>
-    void emitKeyedConsItems(AstNodeExpr* sizep, AstNodeExpr* defaultp, T_Item* itemsp) {
-        if (!sizep && !defaultp && !itemsp) return;
+    تهی emit_Keyed_Cons_اقلام(Ast_گره_عبارت* sizep, Ast_گره_عبارت* defaultp, T_Item* itemsp) {
+        اگر (!sizep && !defaultp && !itemsp) بازگشت;
         puts("\n");
-        for (AstNodeExpr* const valuep : {sizep, defaultp}) {
-            if (!valuep) continue;
-            emitValue(valuep);
+        برای (Ast_گره_عبارت* ثابت valuep : {sizep, defaultp}) {
+            اگر (!valuep) ادامه;
+            emit_مقدار(valuep);
             puts(",\n");
         }
         puts("{");
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (itemp != itemsp) puts(",");
+        برای (T_Item* itemp = itemsp; itemp; itemp = Ast_گره::as<T_Item>(itemp->nextp())) {
+            اگر (itemp != itemsp) puts(",");
             puts("\n{");
-            emitValue(itemp->keyp());
+            emit_مقدار(itemp->keyp());
             puts(", ");
-            emitValue(itemp->valuep());
+            emit_مقدار(itemp->valuep());
             puts("}");
         }
         puts("\n}");
@@ -83,128 +83,128 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
 
     // The items, 'tabMod' per line if all are constants, otherwise one per line
     template <typename T_Item>
-    void emitUnkeyedConsItems(T_Item* itemsp, uint32_t tabMod) {
-        if (!itemsp) return;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+    تهی emit_Unkeyed_Cons_اقلام(T_Item* itemsp, uint32_t tabMod) {
+        اگر (!itemsp) بازگشت;
+        برای (T_Item* itemp = itemsp; itemp; itemp = Ast_گره::as<T_Item>(itemp->nextp())) {
+            اگر (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         puts("\n");
         uint64_t n = 0;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(itemp->valuep());
+        برای (T_Item* itemp = itemsp; itemp; itemp = Ast_گره::as<T_Item>(itemp->nextp())) {
+            اگر (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_مقدار(itemp->valuep());
             ++n;
         }
         puts("\n");
     }
 
     // Emit a value
-    void emitValue(AstNodeExpr* nodep) {
+    تهی emit_مقدار(Ast_گره_عبارت* nodep) {
         // Either a value constructor
-        if (AstNodeCons* const consp = VN_CAST(nodep, NodeCons)) {
+        اگر (Ast_گره_Cons* ثابت consp = VN_CAST(nodep, گره_Cons)) {
             emitValCons(consp);
-            return;
+            بازگشت;
         }
         // Or a constant
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(nodep, Const)) {
+            ثابت V3_عدد& رقم = constp->رقم();
+            UASSERT_OBJ(!رقم.isFourState(), constp, "4-state value in emitted constant");
             // A narrow constant is a literal, which converts implicitly wherever a value is used
             // (This also covers string, double and null, which don't need type prefix)
-            if (!constp->isWide()) {
-                putns(constp, num.emitC());
-                return;
+            اگر (!constp->isWide()) {
+                putns(constp, رقم.emitC());
+                بازگشت;
             }
             // Otherwise need the type prefix (naked braced lists cannot be deduced by templates)
             putnbs(constp, constp->dtypep()->cType("", false, false));
             emitInitializer(nodep);
-            return;
+            بازگشت;
         }
         // Or an arbitrary expression, emitted via the derived visitor
         iterateConst(nodep);
     }
 
-    void emitInitializerBody(AstNodeExpr* nodep) {
-        if (AstConsArray* const arrayp = VN_CAST(nodep, ConsArray)) {
+    تهی emitInitializerBody(Ast_گره_عبارت* nodep) {
+        اگر (AstConsArray* ثابت arrayp = VN_CAST(nodep, ConsArray)) {
             emitConsArray(arrayp);
-            return;
+            بازگشت;
         }
-        if (AstConsAssoc* const assocp = VN_CAST(nodep, ConsAssoc)) {
-            emitKeyedConsItems(nullptr, assocp->defaultp(), assocp->itemsp());
-            return;
+        اگر (AstConsAssoc* ثابت assocp = VN_CAST(nodep, ConsAssoc)) {
+            emit_Keyed_Cons_اقلام(nullptr, assocp->defaultp(), assocp->itemsp());
+            بازگشت;
         }
-        if (AstConsWildcard* const wildp = VN_CAST(nodep, ConsWildcard)) {
-            emitKeyedConsItems(nullptr, wildp->defaultp(), wildp->itemsp());
-            return;
+        اگر (AstConsWildcard* ثابت wildp = VN_CAST(nodep, ConsWildcard)) {
+            emit_Keyed_Cons_اقلام(nullptr, wildp->defaultp(), wildp->itemsp());
+            بازگشت;
         }
-        AstConsDynArray* const dynp = VN_CAST(nodep, ConsDynArray);
-        if (dynp && dynp->sizep()) {
-            emitKeyedConsItems(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
-            return;
+        AstConsDynArray* ثابت dynp = VN_CAST(nodep, ConsDynArray);
+        اگر (dynp && dynp->sizep()) {
+            emit_Keyed_Cons_اقلام(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
+            بازگشت;
         }
-        if (dynp) {
-            emitUnkeyedConsItems(dynp->itemsp(),
+        اگر (dynp) {
+            emit_Unkeyed_Cons_اقلام(dynp->itemsp(),
                                  tabModulus(dynp->dtypep()->skipRefp()->subDTypep()));
-            return;
+            بازگشت;
         }
-        if (AstConsQueue* const queuep = VN_CAST(nodep, ConsQueue)) {
-            emitUnkeyedConsItems(queuep->itemsp(),
+        اگر (AstConsQueue* ثابت queuep = VN_CAST(nodep, ConsQueue)) {
+            emit_Unkeyed_Cons_اقلام(queuep->itemsp(),
                                  tabModulus(queuep->dtypep()->skipRefp()->subDTypep()));
-            return;
+            بازگشت;
         }
-        if (AstConsStruct* const structp = VN_CAST(nodep, ConsStruct)) {
-            emitUnkeyedConsItems(structp->itemsp(), 1);  // Members of mixed types
-            return;
+        اگر (AstConsStruct* ثابت structp = VN_CAST(nodep, ConsStruct)) {
+            emit_Unkeyed_Cons_اقلام(structp->itemsp(), 1);  // Members of mixed types
+            بازگشت;
         }
-        if (VN_IS(nodep, Unbounded)) {
+        اگر (VN_IS(nodep, Unbounded)) {
             // A public parameter's '$', which is only special during elaboration, so use zero
             puts("0");
-            return;
+            بازگشت;
         }
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
-            if (!constp->isWide()) {
-                puts(num.emitC());
-                return;
+        اگر (ثابت AstConst* ثابت constp = VN_CAST(nodep, Const)) {
+            ثابت V3_عدد& رقم = constp->رقم();
+            UASSERT_OBJ(!رقم.isFourState(), constp, "4-state value in emitted constant");
+            اگر (!constp->isWide()) {
+                puts(رقم.emitC());
+                بازگشت;
             }
 
             ofp()->putsNoTracking("{");  // The initializer of m_storage within the VlWide
-            const int words = constp->widthWords();
-            const int tabMod = 4;
-            if (words > tabMod) puts("\n");
-            for (int n = 0; n < words; ++n) {
-                if (n) puts((n % tabMod) ? ", " : ",\n");
-                ofp()->printf("0x%08" PRIx32, num.edataWord(n));
+            ثابت صحیح واژگان = constp->width_واژگان();
+            ثابت صحیح tabMod = 4;
+            اگر (واژگان > tabMod) puts("\n");
+            برای (صحیح n = 0; n < واژگان; ++n) {
+                اگر (n) puts((n % tabMod) ? ", " : ",\n");
+                ofp()->printf("0x%08" PRIx32, رقم.edataWord(n));
             }
-            if (words > tabMod) puts("\n");
+            اگر (واژگان > tabMod) puts("\n");
             ofp()->putsNoTracking("}");
-            return;
+            بازگشت;
         }
         nodep->v3fatalSrc("Unknown node type in emitInitializerBody: " << nodep->prettyTypeName());
     }
 
     // Emit the braced initializer for the given value '{...}'
-    void emitInitializer(AstNodeExpr* nodep) {
+    تهی emitInitializer(Ast_گره_عبارت* nodep) {
         putns(nodep, "{");
         emitInitializerBody(nodep);
         puts("}");
     }
 
-protected:
+محافظتشده:
     // Emit a C++ value constructor: 'Type{...}'
-    void emitValCons(AstNodeCons* nodep) {
+    تهی emitValCons(Ast_گره_Cons* nodep) {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         emitInitializer(nodep);
     }
 
     // Emit the C++ variable definition 'Type name{...}'
-    void emitVarDefn(const AstVar* varp) {
-        const std::string name = varp->constPoolEntry()
+    تهی emitVarDefn(ثابت AstVar* varp) {
+        ثابت std::string name = varp->constPoolEntry()
                                      ? EmitCUtil::constPoolName(varp)
                                      : EmitCUtil::prefixNameProtect(EmitCParentModule::get(varp))
                                            + "::" + varp->nameProtect();
         putnbs(varp, varp->dtypep()->cType(name, false, false));
-        emitInitializer(VN_AS(varp->valuep(), NodeExpr));
+        emitInitializer(VN_AS(varp->valuep(), گره_عبارت));
     }
 };

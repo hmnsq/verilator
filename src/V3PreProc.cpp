@@ -16,26 +16,26 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3PreProc.h"
+#شامل "V3PreProc.h"
 
-#include "V3Control.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3LanguageWords.h"
-#include "V3PreExpr.h"
-#include "V3PreLex.h"
-#include "V3PreShell.h"
-#include "V3String.h"
+#شامل "V3Control.h"
+#شامل "V3Error.h"
+#شامل "V3File.h"
+#شامل "V3Global.h"
+#شامل "V3LanguageWords.h"
+#شامل "V3PreExpr.h"
+#شامل "V3PreLex.h"
+#شامل "V3PreShell.h"
+#شامل "V3String.h"
 
-#include <algorithm>
-#include <cstdlib>
-#include <fstream>
-#include <stack>
-#include <vector>
+#شامل <algorithm>
+#شامل <cstdlib>
+#شامل <fstream>
+#شامل <stack>
+#شامل <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -43,92 +43,92 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Build in LEX script
 
 #define yyFlexLexer V3Lexer
-#include "V3PreLex.yy.cpp"
+#شامل "V3PreLex.yy.cpp"
 #undef yyFlexLexer
 
 // YYSTYPE yylval;
 
 //*************************************************************************
 
-class VDefine final {
+رده VDefine final {
     // Define class.  One for each define.
     // string    m_name;         // Name of the define (list is keyed by this)
-    FileLine* const m_fileline;  // Where it was declared
-    const string m_value;  // Value of define
-    const string m_params;  // Parameters
-    const bool m_cmdline;  // Set on command line, don't `undefineall
-public:
-    VDefine(FileLine* fl, const string& value, const string& params, bool cmdline)
+    File_سطر* ثابت m_fileline;  // Where it was declared
+    ثابت string m_مقدار;  // Value of define
+    ثابت string m_params;  // Parameters
+    ثابت منطقی m_cmdline;  // Set on command line, don't `undefineall
+عمومی:
+    VDefine(File_سطر* fl, ثابت string& مقدار, ثابت string& params, منطقی cmdline)
         : m_fileline{fl}
-        , m_value{value}
+        , m_مقدار{مقدار}
         , m_params{params}
         , m_cmdline{cmdline} {}
-    FileLine* fileline() const { return m_fileline; }
-    string value() const { return m_value; }
-    string params() const { return m_params; }
-    bool cmdline() const { return m_cmdline; }
+    File_سطر* fileline() ثابت { بازگشت m_fileline; }
+    string مقدار() ثابت { بازگشت m_مقدار; }
+    string params() ثابت { بازگشت m_params; }
+    منطقی cmdline() ثابت { بازگشت m_cmdline; }
 };
 
 //*************************************************************************
 
-class VDefineRef final {
+رده VDefineRef final {
     // One for each pending define substitution
-    const string m_name;  // Define last name being defined
-    const string m_params;  // Define parameter list for next expansion
+    ثابت string m_name;  // Define last name being defined
+    ثابت string m_params;  // Define parameter list for next expansion
     string m_nextarg;  // String being built for next argument
-    int m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
+    صحیح m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
 
     std::vector<string> m_args;  // List of define arguments
-public:
-    string name() const { return m_name; }
-    string params() const { return m_params; }
-    string nextarg() const { return m_nextarg; }
-    void nextarg(const string& value) { m_nextarg = value; }
-    int parenLevel() const { return m_parenLevel; }
-    void parenLevel(int value) { m_parenLevel = value; }
-    std::vector<string>& args() { return m_args; }
-    VDefineRef(const string& name, const string& params)
+عمومی:
+    string name() ثابت { بازگشت m_name; }
+    string params() ثابت { بازگشت m_params; }
+    string nextarg() ثابت { بازگشت m_nextarg; }
+    تهی nextarg(ثابت string& مقدار) { m_nextarg = مقدار; }
+    صحیح parenLevel() ثابت { بازگشت m_parenLevel; }
+    تهی parenLevel(صحیح مقدار) { m_parenLevel = مقدار; }
+    std::vector<string>& args() { بازگشت m_args; }
+    VDefineRef(ثابت string& name, ثابت string& params)
         : m_name{name}
         , m_params{params} {}
-    ~VDefineRef() = default;
+    ~VDefineRef() = پیشفرض;
 };
 
 //*************************************************************************
 /// Data for parsing on/off
 
-class VPreIfEntry final {
+رده VPreIfEntry final {
     // One for each pending ifdef/ifndef
-    const bool m_on;  // Current parse for this ifdef level is "on"
-    const bool m_everOn;  // Some if term in elsif tree has been on
-public:
-    bool on() const { return m_on; }
-    bool everOn() const { return m_everOn; }
-    VPreIfEntry(bool on, bool everOn)
+    ثابت منطقی m_on;  // Current parse for this ifdef level is "on"
+    ثابت منطقی m_everOn;  // Some if term in elsif tree has been on
+عمومی:
+    منطقی on() ثابت { بازگشت m_on; }
+    منطقی everOn() ثابت { بازگشت m_everOn; }
+    VPreIfEntry(منطقی on, منطقی everOn)
         : m_on{on}
         , m_everOn{everOn || on} {}  // Note everOn includes new state
-    ~VPreIfEntry() = default;
+    ~VPreIfEntry() = پیشفرض;
 };
 
 //*************************************************************************
 // Data for a preprocessor instantiation.
 
-class V3PreProcImp final : public V3PreProc {
-public:
+رده V3PreProcImp final : عمومی V3PreProc {
+عمومی:
     // TYPES
-    using DefinesMap = std::map<const std::string, VDefine>;
+    using DefinesMap = std::map<ثابت std::string, VDefine>;
     using StrList = VInFilter::StrList;
 
     // Defines list
     DefinesMap m_defines;  ///< Map of defines
 
     // STATE
-    const V3PreProc* m_preprocp = nullptr;  ///< Object we're holding data for
+    ثابت V3PreProc* m_preprocp = nullptr;  ///< Object we're holding data for
     V3PreLex* m_lexp = nullptr;  ///< Current lexer state (nullptr = closed)
-    int m_lastLineno = 0;  // Last line number (stall detection)
-    int m_tokensOnLine = 0;  // Number of tokens on line (stall detection)
+    صحیح m_lastLineno = 0;  // Last line number (stall detection)
+    صحیح m_tokens_On_سطر = 0;  // Number of tokens on line (stall detection)
 
-    enum ProcState : uint8_t {
-        ps_TOP,
+    شمارش ProcState : uint8_t {
+        ps_بالاترین,
         ps_DEFNAME_UNDEF,
         ps_DEFNAME_DEFINE,
         ps_DEFNAME_IFDEF,
@@ -139,262 +139,262 @@ public:
         ps_DEFPAREN,
         ps_DEFVALUE,
         ps_ERRORNAME,
-        ps_EXPR_IFDEF,
-        ps_EXPR_IFNDEF,
-        ps_EXPR_ELSIF,
+        ps_عبارت_IFDEF,
+        ps_عبارت_IFNDEF,
+        ps_عبارت_ELSIF,
         ps_INCNAME,
         ps_JOIN,
         ps_STRIFY
     };
-    static const char* procStateName(ProcState s) {
-        static const char* const states[]
+    ایستا ثابت نویسه* procStateName(ProcState s) {
+        ایستا ثابت نویسه* ثابت states[]
             = {"ps_TOP",           "ps_DEFNAME_UNDEF",  "ps_DEFNAME_DEFINE",
                "ps_DEFNAME_IFDEF", "ps_DEFNAME_IFNDEF", "ps_DEFNAME_ELSIF",
                "ps_DEFARG",        "ps_DEFFORM",        "ps_DEFPAREN",
                "ps_DEFVALUE",      "ps_ERRORNAME",      "ps_EXPR_IFDEF",
                "ps_EXPR_IFNDEF",   "ps_EXPR_ELSIF",     "ps_INCNAME",
                "ps_JOIN",          "ps_STRIFY"};
-        return states[s];
+        بازگشت states[s];
     }
 
-    std::stack<ProcState> m_states;  ///< Current state of parser
-    int m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
-    bool m_incError = false;  ///< Include error found
+    std::پشته<ProcState> m_states;  ///< Current state of parser
+    صحیح m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
+    منطقی m_incError = نادرست;  ///< Include error found
     string m_lastSym;  ///< Last symbol name found.
     string m_formals;  ///< Last formals found
 
     // For getRawToken/ `line insertion
-    string m_lineCmt;  ///< Line comment(s) to be returned
-    bool m_lineCmtNl = false;  ///< Newline needed before inserting lineCmt
-    int m_lineAdd = 0;  ///< Empty lines to return to maintain line count
-    bool m_rawAtBol = true;  ///< Last rawToken left us at beginning of line
+    string m_سطر_Cmt;  ///< Line comment(s) to be returned
+    منطقی m_سطر_Cmt_Nl = نادرست;  ///< Newline needed before inserting lineCmt
+    صحیح m_سطر_Add = 0;  ///< Empty lines to return to maintain line count
+    منطقی m_rawAtBol = درست;  ///< Last rawToken left us at beginning of line
 
     // For getFinalToken
-    bool m_finAhead = false;  ///< Have read a token ahead
-    int m_finToken = 0;  ///< Last token read
+    منطقی m_finAhead = نادرست;  ///< Have read a token ahead
+    صحیح m_finToken = 0;  ///< Last token read
     string m_finBuf;  ///< Last yytext read
-    bool m_finAtBol = true;  ///< Last getFinalToken left us at beginning of line
-    FileLine* m_finFilelinep = nullptr;  ///< Location of last returned token (internal only)
+    منطقی m_finAtBol = درست;  ///< Last getFinalToken left us at beginning of line
+    File_سطر* m_finFilelinep = nullptr;  ///< Location of last returned token (internal only)
 
     // For stringification
     string m_strify;  ///< Text to be stringified
 
     // For defines
-    std::stack<VDefineRef> m_defRefs;  ///< Pending define substitution
-    std::stack<VPreIfEntry> m_ifdefStack;  ///< Stack of true/false emitting evaluations
+    std::پشته<VDefineRef> m_defRefs;  ///< Pending define substitution
+    std::پشته<VPreIfEntry> m_ifdef_پشته;  ///< Stack of true/false emitting evaluations
     unsigned m_defDepth = 0;  ///< How many `defines deep
-    bool m_defPutJoin = false;  ///< Insert `` after substitution
+    منطقی m_defPutJoin = نادرست;  ///< Insert `` after substitution
 
     // For `` join
-    std::stack<string> m_joinStack;  ///< Text on lhs of join
+    std::پشته<string> m_join_پشته;  ///< Text on lhs of join
 
     // for `ifdef () expressions
-    V3PreExpr m_exprParser;  ///< Parser for () expression
-    int m_exprParenLevel = 0;  ///< Number of ( deep in `ifdef () expression
+    V3_Pre_عبارت m_عبارت_Parser;  ///< Parser for () expression
+    صحیح m_عبارت_Paren_Level = 0;  ///< Number of ( deep in `ifdef () expression
 
     // For getline()
-    string m_lineChars;  ///< Characters left for next line
+    string m_سطر_Chars;  ///< Characters left for next line
 
     string m_tokenBuf;  // Token buffer, to avoid repeated alloc/free
 
-    void v3errorEnd(std::ostringstream& str) VL_RELEASE(V3Error::s().m_mutex) {
+    تهی v3errorEnd(std::ostringstream& str) VL_RELEASE(V3Error::s().m_mutex) {
         fileline()->v3errorEnd(str);
     }
 
-    static const char* tokenName(int tok);
-    void debugToken(int tok, const char* cmtp);
-    void parseTop();
-    void parseUndef();
+    ایستا ثابت نویسه* tokenName(صحیح tok);
+    تهی debugToken(صحیح tok, ثابت نویسه* cmtp);
+    تهی parse_بالاترین();
+    تهی parseUndef();
 
-private:
+خصوصی:
     // Internal methods
-    void endOfOneFile();
+    تهی endOfOneFile();
     string defineSubst(VDefineRef* refp);
 
-    bool defExists(const string& name);
-    bool defCmdline(const string& name);
-    string defValue(const string& name);
-    string defParams(const string& name);
-    FileLine* defFileline(const string& name);
+    منطقی defExists(ثابت string& name);
+    منطقی defCmdline(ثابت string& name);
+    string def_مقدار(ثابت string& name);
+    string defParams(ثابت string& name);
+    File_سطر* defFileline(ثابت string& name);
 
-    string commentCleanup(const string& text);
-    bool commentTokenMatch(string& cmdr, const char* strg);
-    static string trimWhitespace(const string& strg, bool trailing);
-    void unputString(const string& strg);
-    void unputDefrefString(const string& strg);
+    string commentCleanup(ثابت string& text);
+    منطقی commentTokenMatch(string& cmdr, ثابت نویسه* strg);
+    ایستا string trimWhitespace(ثابت string& strg, منطقی trailing);
+    تهی unputString(ثابت string& strg);
+    تهی unputDefrefString(ثابت string& strg);
 
-    void parsingOn() {
+    تهی parsingOn() {
         m_off--;
-        if (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
+        اگر (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
         // addLineComment no longer needed; getFinalToken will correct.
     }
-    void parsingOff() { m_off++; }
+    تهی parsingOff() { m_off++; }
 
-    int getRawToken();
-    int getStateToken();
-    int getFinalToken(string& buf);
+    صحیح getRawToken();
+    صحیح getStateToken();
+    صحیح getFinalToken(string& buf);
 
-    ProcState state() const { return m_states.top(); }
-    bool stateIsDefname() const {
-        return state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
+    ProcState state() ثابت { بازگشت m_states.بالاترین(); }
+    منطقی stateIsDefname() ثابت {
+        بازگشت state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
                || state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                || state() == ps_DEFNAME_ELSIF;
     }
-    void statePush(ProcState state) { m_states.push(state); }
-    void statePop() {
-        m_states.pop();
-        if (VL_UNCOVERABLE(m_states.empty())) {
+    تهی state_افزودن(ProcState state) { m_states.افزودن(state); }
+    تهی state_برداشت() {
+        m_states.برداشت();
+        اگر (VL_UNCOVERABLE(m_states.empty())) {
             fileline()->v3fatalSrc("Pop of parser state with nothing on stack");
-            m_states.push(ps_TOP);  // LCOV_EXCL_LINE
+            m_states.افزودن(ps_بالاترین);  // LCOV_EXCL_LINE
         }
     }
-    void stateChange(ProcState state) {
-        statePop();
-        statePush(state);
+    تهی stateChange(ProcState state) {
+        state_برداشت();
+        state_افزودن(state);
     }
 
-public:
+عمومی:
     // METHODS, called from upper level shell
-    void openFile(FileLine* fl, VInFilter* filterp, const string& filename) override;
-    bool isEof() const override { return m_lexp->curStreamp()->m_eof; }
-    void forceEof() { m_lexp->curStreamp()->m_eof = true; }
+    تهی openFile(File_سطر* fl, VInFilter* filterp, ثابت string& filename) override;
+    منطقی isEof() ثابت override { بازگشت m_lexp->curStreamp()->m_eof; }
+    تهی forceEof() { m_lexp->curStreamp()->m_eof = درست; }
     string getline() override;
-    void insertUnreadback(const string& text) override { m_lineCmt += text; }
-    void insertUnreadbackAtBol(const string& text);
-    void addLineComment(int enterExit);
-    void dumpDefines(std::ostream& os) override;
-    void candidateDefines(VSpellCheck* spellerp) override;
+    تهی درج_Unreadback(ثابت string& text) override { m_سطر_Cmt += text; }
+    تهی درج_Unreadback_At_Bol(ثابت string& text);
+    تهی add_سطر_Comment(صحیح enterExit);
+    تهی dumpDefines(std::ostream& os) override;
+    تهی candidateDefines(VSpellCheck* spellerp) override;
 
     // METHODS, callbacks
-    void comment(const string& text) override;  // Comment detected (if keepComments==2)
-    void include(const string& filename) override;  // Request a include file be processed
-    void undef(const string& name) override;
-    virtual void undefineall();
-    void define(FileLine* fl, const string& name, const string& value, const string& params,
-                bool cmdline) override;
-    string removeDefines(const string& text) override;  // Remove defines in a text string
+    تهی comment(ثابت string& text) override;  // Comment detected (if keepComments==2)
+    تهی include(ثابت string& filename) override;  // Request a include file be processed
+    تهی undef(ثابت string& name) override;
+    مجازی تهی undefineall();
+    تهی define(File_سطر* fl, ثابت string& name, ثابت string& مقدار, ثابت string& params,
+                منطقی cmdline) override;
+    string removeDefines(ثابت string& text) override;  // Remove defines in a text string
 
     // CONSTRUCTORS
-    V3PreProcImp() { m_states.push(ps_TOP); }
+    V3PreProcImp() { m_states.افزودن(ps_بالاترین); }
     // cppcheck-suppress duplInheritedMember
-    void configure(FileLine* filelinep) {
+    تهی configure(File_سطر* filelinep) {
         // configure() separate from constructor to avoid calling abstract functions
-        m_preprocp = this;  // Silly, but to make code more similar to Verilog-Perl
-        m_finFilelinep = new FileLine{filelinep->filename()};
+        m_preprocp = این;  // Silly, but to make code more similar to Verilog-Perl
+        m_finFilelinep = جدید File_سطر{filelinep->filename()};
         m_finFilelinep->lineno(1);
         // Create lexer
-        m_lexp = new V3PreLex{this, filelinep};
+        m_lexp = جدید V3PreLex{این, filelinep};
         m_lexp->m_keepComments = keepComments();
         m_lexp->m_keepWhitespace = keepWhitespace();
         m_lexp->m_pedantic = pedantic();
     }
     ~V3PreProcImp() override {
-        if (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
+        اگر (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
     }
 };
 
 //*************************************************************************
 // Creation
 
-V3PreProc* V3PreProc::createPreProc(FileLine* fl) {
-    V3PreProcImp* const preprocp = new V3PreProcImp;
+V3PreProc* V3PreProc::createPreProc(File_سطر* fl) {
+    V3PreProcImp* ثابت preprocp = جدید V3PreProcImp;
     preprocp->configure(fl);
-    return preprocp;
+    بازگشت preprocp;
 }
 
-void V3PreProc::selfTest() VL_MT_DISABLED { V3PreExpr::selfTest(); }
+تهی V3PreProc::selfTest() VL_MT_DISABLED { V3_Pre_عبارت::selfTest(); }
 
 //*************************************************************************
 // Defines
 
-void V3PreProcImp::undef(const string& name) {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
-        insertUnreadback("`undef " + name + "\n");
+تهی V3PreProcImp::undef(ثابت string& name) {
+    اگر (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+        درج_Unreadback("`undef " + name + "\n");
     m_defines.erase(name);
 }
-void V3PreProcImp::undefineall() {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
-        insertUnreadback("`undefineall\n");
-    for (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
+تهی V3PreProcImp::undefineall() {
+    اگر (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+        درج_Unreadback("`undefineall\n");
+    برای (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
         nextit = it;
         ++nextit;
-        if (!it->second.cmdline()) m_defines.erase(it);
+        اگر (!it->second.cmdline()) m_defines.erase(it);
     }
 }
-bool V3PreProcImp::defExists(const string& name) {
-    const auto iter = m_defines.find(name);
-    return (iter != m_defines.end());
+منطقی V3PreProcImp::defExists(ثابت string& name) {
+    ثابت auto iter = m_defines.find(name);
+    بازگشت (iter != m_defines.end());
 }
-bool V3PreProcImp::defCmdline(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) { return false; }
-    return iter->second.cmdline();
+منطقی V3PreProcImp::defCmdline(ثابت string& name) {
+    ثابت auto iter = m_defines.find(name);
+    اگر (iter == m_defines.end()) { بازگشت نادرست; }
+    بازگشت iter->second.cmdline();
 }
-string V3PreProcImp::defValue(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+string V3PreProcImp::def_مقدار(ثابت string& name) {
+    ثابت auto iter = m_defines.find(name);
+    اگر (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        بازگشت "";
     }
-    return iter->second.value();
+    بازگشت iter->second.مقدار();
 }
-string V3PreProcImp::defParams(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+string V3PreProcImp::defParams(ثابت string& name) {
+    ثابت auto iter = m_defines.find(name);
+    اگر (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        بازگشت "";
     }
-    return iter->second.params();
+    بازگشت iter->second.params();
 }
-FileLine* V3PreProcImp::defFileline(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) return nullptr;
-    return iter->second.fileline();
+File_سطر* V3PreProcImp::defFileline(ثابت string& name) {
+    ثابت auto iter = m_defines.find(name);
+    اگر (iter == m_defines.end()) بازگشت nullptr;
+    بازگشت iter->second.fileline();
 }
-void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
-                          const string& params, bool cmdline) {
-    UINFO(4, "DEFINE '" << name << "' as '" << value << "' params '" << params << "'");
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
+تهی V3PreProcImp::define(File_سطر* fl, ثابت string& name, ثابت string& مقدار,
+                          ثابت string& params, منطقی cmdline) {
+    UINFO(4, "DEFINE '" << name << "' as '" << مقدار << "' params '" << params << "'");
+    اگر (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
         // Any newlines in the string must have backslash escape so can re-parse properly
         // If there was a comment with backslash, it got stripped because IEEE says
         // the backslash is not part of the value
         string out;
-        out.reserve(value.size());
-        for (string::size_type pos = 0; pos < value.size(); ++pos) {
-            if (value[pos] == '\n' && (pos == 0 || value[pos - 1] != '\\')) out += '\\';
-            out += value[pos];
+        out.reserve(مقدار.size());
+        برای (string::size_type pos = 0; pos < مقدار.size(); ++pos) {
+            اگر (مقدار[pos] == '\n' && (pos == 0 || مقدار[pos - 1] != '\\')) out += '\\';
+            out += مقدار[pos];
         }
-        insertUnreadback("`define " + name + params + (out.empty() ? "" : " ") + out + "\n");
+        درج_Unreadback("`define " + name + params + (out.empty() ? "" : " ") + out + "\n");
     }
-    if (!V3LanguageWords::isKeyword("`"s + name).empty()) {
+    اگر (!V3_Language_واژگان::isKeyword("`"s + name).empty()) {
         fl->v3error("Attempting to define built-in directive: '`" << name
                                                                   << "' (IEEE 1800-2023 22.5.1)");
-    } else {
-        if (defExists(name)) {
-            if (defCmdline(name) && !cmdline) {
+    } وگرنه {
+        اگر (defExists(name)) {
+            اگر (defCmdline(name) && !cmdline) {
                 fl->v3warn(DEFOVERRIDE,
                            "Overriding define: '"
-                               << name << "' with value: '" << value
-                               << "' to existing command line define value: '" << defValue(name)
+                               << name << "' with value: '" << مقدار
+                               << "' to existing command line define value: '" << def_مقدار(name)
                                << (params == "" ? "" : " ") << params << "'\n"
                                << fl->warnContextPrimary() << '\n'
                                << defFileline(name)->warnOther()
                                << "... Location of previous definition, with value: '"
-                               << defValue(name) << (defParams(name).empty() ? "" : " ")
+                               << def_مقدار(name) << (defParams(name).empty() ? "" : " ")
                                << defParams(name) << "'\n"
                                << defFileline(name)->warnContextSecondary());
-                return;
-            } else {
-                if (!(defValue(name) == value
+                بازگشت;
+            } وگرنه {
+                اگر (!(def_مقدار(name) == مقدار
                       && defParams(name) == params)) {  // Duplicate defs are OK
                     fl->v3warn(REDEFMACRO,
                                "Redefining existing define: '"
-                                   << name << "', with different value: '" << value
+                                   << name << "', with different value: '" << مقدار
                                    << (params == "" ? "" : " ") << params << "'\n"
                                    << fl->warnContextPrimary() << '\n'
                                    << defFileline(name)->warnOther()
                                    << "... Location of previous definition, with value: '"
-                                   << defValue(name) << (defParams(name).empty() ? "" : " ")
+                                   << def_مقدار(name) << (defParams(name).empty() ? "" : " ")
                                    << defParams(name) << "'\n"
                                    << defFileline(name)->warnContextSecondary());
                 }
@@ -402,125 +402,125 @@ void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
             }
         }
 
-        m_defines.emplace(name, VDefine{fl, value, params, cmdline});
+        m_defines.emplace(name, VDefine{fl, مقدار, params, cmdline});
     }
 }
 
-string V3PreProcImp::removeDefines(const string& text) {
+string V3PreProcImp::removeDefines(ثابت string& text) {
     string val;
     string rtnsym = text;
-    for (int loopprevent = 0; loopprevent < 100; loopprevent++) {
+    برای (صحیح loopprevent = 0; loopprevent < 100; loopprevent++) {
         string xsym = rtnsym;
-        if (xsym[0] == '`') xsym.erase(0, 1);
-        if (defExists(xsym)) {
-            val = defValue(xsym);
-            if (val != rtnsym) {
+        اگر (xsym[0] == '`') xsym.erase(0, 1);
+        اگر (defExists(xsym)) {
+            val = def_مقدار(xsym);
+            اگر (val != rtnsym) {
                 rtnsym = val;  // Prevent infinite loop if have `define X X
-            } else {
-                break;
+            } وگرنه {
+                بشکن;
             }
-        } else {
-            break;
+        } وگرنه {
+            بشکن;
         }
     }
-    return rtnsym;  // NA
+    بازگشت rtnsym;  // NA
 }
 
 //**********************************************************************
 // Comments
 
-void V3PreProcImp::include(const string& filename) {
+تهی V3PreProcImp::include(ثابت string& filename) {
     // Include seen.  Ask the preprocessor shell to call back around to us
     V3PreShell::preprocInclude(fileline(), filename);
 }
 
-string V3PreProcImp::commentCleanup(const string& text) {
+string V3PreProcImp::commentCleanup(ثابت string& text) {
     // Cleanup comment for easier parsing (call before commentTokenMatch)
     string cmd = text;
     string::size_type pos;
-    while ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
-    while (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
-    return cmd;
+    وقتی ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
+    وقتی ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
+    وقتی ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
+    وقتی ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
+    وقتی ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
+    وقتی ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
+    وقتی (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
+    بازگشت cmd;
 }
 
-bool V3PreProcImp::commentTokenMatch(string& cmdr, const char* strg) {
-    int len = std::strlen(strg);
-    if (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
-        if (std::isspace(cmdr[len])) len++;
+منطقی V3PreProcImp::commentTokenMatch(string& cmdr, ثابت نویسه* strg) {
+    صحیح len = std::strlen(strg);
+    اگر (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
+        اگر (std::isspace(cmdr[len])) len++;
         cmdr = cmdr.substr(len);
-        return true;
-    } else {
-        return false;
+        بازگشت درست;
+    } وگرنه {
+        بازگشت نادرست;
     }
 }
 
-void V3PreProcImp::comment(const string& text) {
+تهی V3PreProcImp::comment(ثابت string& text) {
     // Comment detected.  Only keep relevant data.
-    bool printed = false;
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
-        insertUnreadback(text);
-        printed = true;
+    منطقی printed = نادرست;
+    اگر (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
+        درج_Unreadback(text);
+        printed = درست;
     }
 
-    const char* cp = text.c_str();
-    if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
+    ثابت نویسه* cp = text.c_str();
+    اگر (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
         cp += 2;
-    } else {
-        return;
+    } وگرنه {
+        بازگشت;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    وقتی (std::isspace(*cp)) ++cp;
 
-    bool synth = false;
-    bool vlcomment = false;
-    if ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
+    منطقی synth = نادرست;
+    منطقی vlcomment = نادرست;
+    اگر ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
         cp += std::strlen("verilator");
-        if (*cp == '_') {
+        اگر (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*verilator {...}*/ not /*verilator_{...}*/");
-            return;
+            بازگشت;
         }
-        vlcomment = true;
-    } else if (VString::startsWith(cp, "synopsys")) {
+        vlcomment = درست;
+    } وگرنه اگر (VString::startsWith(cp, "synopsys")) {
         cp += std::strlen("synopsys");
-        if (*cp == '_') {
+        اگر (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*synopsys {...}*/ not /*synopsys_{...}*/");
-            return;
+            بازگشت;
         }
-        synth = true;
-    } else if (VString::startsWith(cp, "cadence")) {
+        synth = درست;
+    } وگرنه اگر (VString::startsWith(cp, "cadence")) {
         cp += std::strlen("cadence");
-        synth = true;
-    } else if (VString::startsWith(cp, "pragma")) {
+        synth = درست;
+    } وگرنه اگر (VString::startsWith(cp, "pragma")) {
         cp += std::strlen("pragma");
-        synth = true;
-    } else if (VString::startsWith(cp, "ambit synthesis")) {
+        synth = درست;
+    } وگرنه اگر (VString::startsWith(cp, "ambit synthesis")) {
         cp += std::strlen("ambit synthesis");
-        synth = true;
-    } else {
-        return;
+        synth = درست;
+    } وگرنه {
+        بازگشت;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    وقتی (std::isspace(*cp)) ++cp;
     string cmd = commentCleanup(string{cp});
     // cmd now is comment without extra spaces and "verilator" prefix
 
-    if (synth) {
-        if (v3Global.opt.assertOn()) {
+    اگر (synth) {
+        اگر (v3Global.opt.assertOn()) {
             // one_hot, one_cold, (full_case, parallel_case)
-            if (commentTokenMatch(cmd /*ref*/, "full_case")) {
-                if (!printed) insertUnreadback("/*verilator full_case*/");
+            اگر (commentTokenMatch(cmd /*ref*/, "full_case")) {
+                اگر (!printed) درج_Unreadback("/*verilator full_case*/");
             }
-            if (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
-                if (!printed) insertUnreadback("/*verilator parallel_case*/");
+            اگر (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
+                اگر (!printed) درج_Unreadback("/*verilator parallel_case*/");
             }
             // if (commentTokenMatch(cmd/*ref*/, "one_hot")) {
             //  insertUnreadback ("/*verilator one_hot*/ "+cmd+";");
@@ -530,36 +530,36 @@ void V3PreProcImp::comment(const string& text) {
             //}
             // else ignore the comment we don't recognize
         }  // else no assertions
-    } else if (vlcomment
+    } وگرنه اگر (vlcomment
                // Drop 'public' if disabled on the command line
                && !(v3Global.opt.publicOff() && VString::startsWith(cmd, "public"))
                // Drop 'fargs', they are handled separately during option parsing
                && !VString::startsWith(cmd, "fargs")) {
-        if (VString::startsWith(cmd, "public_flat_rw")) {
+        اگر (VString::startsWith(cmd, "public_flat_rw")) {
             // "/*verilator public_flat_rw @(foo) */" -> "/*verilator public_flat_rw*/ @(foo)"
             string::size_type endOfCmd = std::strlen("public_flat_rw");
-            while (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
+            وقتی (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
             string baseCmd = cmd.substr(0, endOfCmd);
             string arg = cmd.substr(endOfCmd);
-            while (std::isspace(arg[0])) arg = arg.substr(1);
-            if (arg.size() && baseCmd == "public_flat_rw_on")
+            وقتی (std::isspace(arg[0])) arg = arg.substr(1);
+            اگر (arg.size() && baseCmd == "public_flat_rw_on")
                 baseCmd += "_sns";  // different cmd for applying sensitivity
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
-        } else if (VString::startsWith(cmd, "dpi_c_decl")) {
+            اگر (!printed) درج_Unreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
+        } وگرنه اگر (VString::startsWith(cmd, "dpi_c_decl")) {
             // "/*verilator dpi_c_decl foo(bar) */" -> "/*verilator dpi_c_decl*/ \"foo(bar)\""
             string baseCmd = cmd.substr(0, std::strlen("dpi_c_decl"));
             string::size_type startOfArg = baseCmd.size();
-            while (std::isspace(cmd[startOfArg])) startOfArg++;
+            وقتی (std::isspace(cmd[startOfArg])) startOfArg++;
             string arg = cmd.substr(startOfArg);
-            if (arg.empty()) {
+            اگر (arg.empty()) {
                 fileline()->v3warn(
                     BADVLTPRAGMA,
                     "No function declaration provided in /*verilator dpi_c_decl*/ meta-comment");
-                return;
+                بازگشت;
             }
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
-        } else {
-            if (!printed) insertUnreadback("/*verilator " + cmd + "*/");
+            اگر (!printed) درج_Unreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
+        } وگرنه {
+            اگر (!printed) درج_Unreadback("/*verilator " + cmd + "*/");
         }
     }
 }
@@ -567,62 +567,62 @@ void V3PreProcImp::comment(const string& text) {
 //*************************************************************************
 // VPreProc Methods.
 
-FileLine* V3PreProc::fileline() {
-    const V3PreProcImp* idatap = static_cast<V3PreProcImp*>(this);
-    return idatap->m_lexp->m_tokFilelinep;
+File_سطر* V3PreProc::fileline() {
+    ثابت V3PreProcImp* idatap = static_cast<V3PreProcImp*>(این);
+    بازگشت idatap->m_lexp->m_tokFilelinep;
 }
 
 //**********************************************************************
 // Parser Utilities
 
-const char* V3PreProcImp::tokenName(int tok) {
-    switch (tok) {
-    case VP_BACKQUOTE: return ("BACKQUOTE");
-    case VP_COMMENT: return ("COMMENT");
-    case VP_DEFARG: return ("DEFARG");
-    case VP_DEFFORM: return ("DEFFORM");
-    case VP_DEFINE: return ("DEFINE");
-    case VP_DEFREF: return ("DEFREF");
-    case VP_DEFREF_JOIN: return ("DEFREF_JOIN");
-    case VP_DEFVALUE: return ("DEFVALUE");
-    case VP_ELSE: return ("ELSE");
-    case VP_ELSIF: return ("ELSIF");
-    case VP_ENDIF: return ("ENDIF");
-    case VP_EOF: return ("EOF");
-    case VP_EOF_ERROR: return ("EOF_ERROR");
-    case VP_ERROR: return ("ERROR");
-    case VP_IFDEF: return ("IFDEF");
-    case VP_IFNDEF: return ("IFNDEF");
-    case VP_JOIN: return ("JOIN");
-    case VP_INCLUDE: return ("INCLUDE");
-    case VP_LINE: return ("LINE");
-    case VP_STRIFY: return ("STRIFY");
-    case VP_STRING: return ("STRING");
-    case VP_SYMBOL: return ("SYMBOL");
-    case VP_SYMBOL_JOIN: return ("SYMBOL_JOIN");
-    case VP_TEXT: return ("TEXT");
-    case VP_UNDEF: return ("UNDEF");
-    case VP_UNDEFINEALL: return ("UNDEFINEALL");
-    case VP_WHITE: return ("WHITE");
-    default: return ("?");
+ثابت نویسه* V3PreProcImp::tokenName(صحیح tok) {
+    انتخاب (tok) {
+    حالت VP_BACKQUOTE: بازگشت ("BACKQUOTE");
+    حالت VP_COMMENT: بازگشت ("COMMENT");
+    حالت VP_DEFARG: بازگشت ("DEFARG");
+    حالت VP_DEFFORM: بازگشت ("DEFFORM");
+    حالت VP_DEFINE: بازگشت ("DEFINE");
+    حالت VP_DEFREF: بازگشت ("DEFREF");
+    حالت VP_DEFREF_JOIN: بازگشت ("DEFREF_JOIN");
+    حالت VP_DEFVALUE: بازگشت ("DEFVALUE");
+    حالت VP_ELSE: بازگشت ("ELSE");
+    حالت VP_ELSIF: بازگشت ("ELSIF");
+    حالت VP_ENDIF: بازگشت ("ENDIF");
+    حالت VP_EOF: بازگشت ("EOF");
+    حالت VP_EOF_ERROR: بازگشت ("EOF_ERROR");
+    حالت VP_ERROR: بازگشت ("ERROR");
+    حالت VP_IFDEF: بازگشت ("IFDEF");
+    حالت VP_IFNDEF: بازگشت ("IFNDEF");
+    حالت VP_JOIN: بازگشت ("JOIN");
+    حالت VP_INCLUDE: بازگشت ("INCLUDE");
+    حالت VP_سطر: بازگشت ("LINE");
+    حالت VP_STRIFY: بازگشت ("STRIFY");
+    حالت VP_STRING: بازگشت ("STRING");
+    حالت VP_نماد: بازگشت ("SYMBOL");
+    حالت VP_نماد_JOIN: بازگشت ("SYMBOL_JOIN");
+    حالت VP_TEXT: بازگشت ("TEXT");
+    حالت VP_UNDEF: بازگشت ("UNDEF");
+    حالت VP_UNDEFINEALL: بازگشت ("UNDEFINEALL");
+    حالت VP_WHITE: بازگشت ("WHITE");
+    پیشفرض: بازگشت ("?");
     }
 }
 
-void V3PreProcImp::unputString(const string& strg) {
+تهی V3PreProcImp::unputString(ثابت string& strg) {
     // Note: The preliminary call in ::openFile bypasses this function
     // We used to just m_lexp->unputString(strg.c_str());
     // However this can lead to "flex scanner push-back overflow"
     // so instead we scan from a temporary buffer, then on EOF return.
     // This is also faster than the old scheme, amazingly.
-    if (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
+    اگر (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
         v3fatalSrc("bufferStack missing current buffer; will return incorrectly");
         // Hard to debug lost text as won't know till much later
     }
     m_lexp->scanBytes(strg);
 }
 
-void V3PreProcImp::unputDefrefString(const string& strg) {
-    const int multiline = std::count(strg.begin(), strg.end(), '\n');
+تهی V3PreProcImp::unputDefrefString(ثابت string& strg) {
+    ثابت صحیح multiline = std::شمار(strg.begin(), strg.end(), '\n');
     unputString(strg);
     // A define that inserts multiple newlines are really attributed to one source line,
     // so temporarily don't increment lineno.
@@ -630,23 +630,23 @@ void V3PreProcImp::unputDefrefString(const string& strg) {
     m_lexp->curStreamp()->m_ignNewlines += multiline;
 }
 
-string V3PreProcImp::trimWhitespace(const string& strg, bool trailing) {
+string V3PreProcImp::trimWhitespace(ثابت string& strg, منطقی trailing) {
     // Remove leading whitespace
     string out = strg;
     string::size_type leadspace = 0;
-    while (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
-    if (leadspace) out.erase(0, leadspace);
+    وقتی (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
+    اگر (leadspace) out.erase(0, leadspace);
     // Remove trailing whitespace
-    if (trailing) {
+    اگر (trailing) {
         string::size_type trailspace = 0;
-        while (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
+        وقتی (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
             ++trailspace;
         // Don't remove \{space_or_newline}
-        if (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
+        اگر (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
             --trailspace;
-        if (trailspace) out.erase(out.length() - trailspace, trailspace);
+        اگر (trailspace) out.erase(out.length() - trailspace, trailspace);
     }
-    return out;
+    بازگشت out;
 }
 
 string V3PreProcImp::defineSubst(VDefineRef* refp) {
@@ -659,278 +659,278 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
     // parameterized define is used many, many times, we could cache the
     // parsed result.
     UINFO(4, "defineSubstIn  `" << refp->name() << " " << refp->params());
-    for (unsigned i = 0; i < refp->args().size(); i++) {
+    برای (unsigned i = 0; i < refp->args().size(); i++) {
         UINFO(4, "defineArg[" << i << "] = '" << refp->args()[i] << "'");
     }
     // Grab value
-    const string value = defValue(refp->name());
-    UINFO(4, "defineValue    '" << V3PreLex::cleanDbgStrg(value) << "'");
+    ثابت string مقدار = def_مقدار(refp->name());
+    UINFO(4, "defineValue    '" << V3PreLex::cleanDbgStrg(مقدار) << "'");
 
-    std::map<const string, string> argValueByName;
+    std::map<ثابت string, string> arg_مقدار_By_Name;
     {  // Parse argument list into map
-        unsigned numArgs = 0;
+        unsigned رقم_Args = 0;
         string argName;
-        int paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
+        صحیح paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
         string token;
-        bool quote = false;
-        bool haveDefault = false;
+        منطقی quote = نادرست;
+        منطقی haveDefault = نادرست;
         // Note there's a leading ( and trailing ), so parens==1 is the base parsing level
-        const string params = refp->params();  // Must keep str in scope to get pointer
-        const char* cp = params.c_str();
-        if (*cp == '(') cp++;
-        for (; *cp; cp++) {
+        ثابت string params = refp->params();  // Must keep str in scope to get pointer
+        ثابت نویسه* cp = params.c_str();
+        اگر (*cp == '(') cp++;
+        برای (; *cp; cp++) {
             // UINFO(4, "   Parse  Paren=" << paren << "  Arg=" << numArgs << "  token='" << token
             //                             << "' Parse=" << cp);
-            if (!quote && paren == 1) {
-                if (*cp == ')' || *cp == ',') {
-                    string valueDef;
-                    if (haveDefault) {
-                        valueDef = token;
-                    } else {
+            اگر (!quote && paren == 1) {
+                اگر (*cp == ')' || *cp == ',') {
+                    string مقدار_Def;
+                    اگر (haveDefault) {
+                        مقدار_Def = token;
+                    } وگرنه {
                         argName = token;
                     }
-                    argName = trimWhitespace(argName, true);
-                    UINFO(4, "    Got Arg=" << numArgs << "  argName='" << argName
-                                            << "'  default='" << valueDef << "'");
+                    argName = trimWhitespace(argName, درست);
+                    UINFO(4, "    Got Arg=" << رقم_Args << "  argName='" << argName
+                                            << "'  default='" << مقدار_Def << "'");
                     // Parse it
-                    if (argName != "") {
-                        if (refp->args().size() > numArgs) {
+                    اگر (argName != "") {
+                        اگر (refp->args().size() > رقم_Args) {
                             // A call `def( a ) must be equivalent to `def(a ), so trimWhitespace
                             // At one point we didn't trim trailing
                             // whitespace, but this confuses `"
-                            const string arg = trimWhitespace(refp->args()[numArgs], true);
-                            if (arg != "") valueDef = arg;
-                        } else if (!haveDefault) {
+                            ثابت string arg = trimWhitespace(refp->args()[رقم_Args], درست);
+                            اگر (arg != "") مقدار_Def = arg;
+                        } وگرنه اگر (!haveDefault) {
                             fileline()->v3error("Define missing argument '" + argName
                                                 + "' for: " + refp->name());
-                            return " `" + refp->name() + " ";
+                            بازگشت " `" + refp->name() + " ";
                         }
-                        numArgs++;
+                        رقم_Args++;
                     }
-                    argValueByName[argName] = valueDef;
+                    arg_مقدار_By_Name[argName] = مقدار_Def;
                     // Prepare for next
                     argName = "";
                     token = "";
-                    haveDefault = false;
-                    continue;
-                } else if (*cp == '=') {
-                    haveDefault = true;
+                    haveDefault = نادرست;
+                    ادامه;
+                } وگرنه اگر (*cp == '=') {
+                    haveDefault = درست;
                     argName = token;
                     token = "";
-                    continue;
+                    ادامه;
                 }
             }
-            if (cp[0] == '\\' && cp[1]) {
+            اگر (cp[0] == '\\' && cp[1]) {
                 token += cp[0];  // \{any} Put out literal next character
                 token += cp[1];
                 cp++;
-                continue;
+                ادامه;
             }
-            if (!quote) {
-                if (*cp == '(' || *cp == '{' || *cp == '[') {
+            اگر (!quote) {
+                اگر (*cp == '(' || *cp == '{' || *cp == '[') {
                     paren++;
-                } else if (*cp == ')' || *cp == '}' || *cp == ']') {
+                } وگرنه اگر (*cp == ')' || *cp == '}' || *cp == ']') {
                     paren--;
                 }
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) token += *cp;
+            اگر (*cp == '"') quote = !quote;
+            اگر (*cp) token += *cp;
         }
-        if (refp->args().size() > numArgs
+        اگر (refp->args().size() > رقم_Args
             // `define X() is ok to call with nothing
-            && !(refp->args().size() == 1 && numArgs == 0
-                 && trimWhitespace(refp->args()[0], false) == "")) {
+            && !(refp->args().size() == 1 && رقم_Args == 0
+                 && trimWhitespace(refp->args()[0], نادرست) == "")) {
             fileline()->v3error("Define passed too many arguments: " + refp->name());
-            return " `" + refp->name() + " ";
+            بازگشت " `" + refp->name() + " ";
         }
     }
 
     string out;
     {  // Parse substitution define using arguments
         string argName;
-        bool quote = false;
-        bool triquote = false;
-        bool backslashesc = false;  // In \.....{space} block
+        منطقی quote = نادرست;
+        منطقی triquote = نادرست;
+        منطقی backslashesc = نادرست;  // In \.....{space} block
         // Note we go through the loop once more at the nullptr end-of-string
-        for (const char* cp = value.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
+        برای (ثابت نویسه* cp = مقدار.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
             // UINFO(4, "CH " << *cp << "  an " << argName);
-            if (!quote && !triquote && *cp == '\\') {
-                backslashesc = true;
-            } else if (std::isspace(*cp)) {
-                backslashesc = false;
+            اگر (!quote && !triquote && *cp == '\\') {
+                backslashesc = درست;
+            } وگرنه اگر (std::isspace(*cp)) {
+                backslashesc = نادرست;
             }
-            if (!quote && !triquote) {
-                if (std::isalpha(*cp)  //
+            اگر (!quote && !triquote) {
+                اگر (std::isalpha(*cp)  //
                     || *cp == '_'  //
                     || *cp == '$'  // Won't replace system functions, since no $ in argValueByName
                     || (argName != "" && std::isdigit(*cp))) {
                     argName += *cp;
-                    continue;
+                    ادامه;
                 }
-                if (argName != "") {
+                اگر (argName != "") {
                     // Found a possible variable substitution
-                    const auto iter = argValueByName.find(argName);
-                    if (iter != argValueByName.end()) {
+                    ثابت auto iter = arg_مقدار_By_Name.find(argName);
+                    اگر (iter != arg_مقدار_By_Name.end()) {
                         // Substitute
-                        const string subst = iter->second;
-                        if (subst == "") {
+                        ثابت string subst = iter->second;
+                        اگر (subst == "") {
                             // Normally `` is removed later, but with no token after, we're
                             // otherwise stuck, so remove proceeding ``
-                            if (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
+                            اگر (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
                                 out.resize(out.size() - 2);
                             }
-                        } else {
+                        } وگرنه {
                             out += subst;
                         }
-                    } else {
+                    } وگرنه {
                         out += argName;
                     }
                     argName = "";
                 }
                 // Check for `` only after we've detected end-of-argname
-                if (cp[0] == '`' && cp[1] == '`') {
-                    if (backslashesc) {
+                اگر (cp[0] == '`' && cp[1] == '`') {
+                    اگر (backslashesc) {
                         // Don't put out the ``, we're forming an escape
                         // which will not expand further later
-                    } else {
+                    } وگرنه {
                         out += "``";  // `` must get removed later, as `FOO```BAR must pre-expand
                                       // FOO and BAR
                         // See also removal in empty substitutes above
                     }
                     cp++;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '"') {
+                    ادامه;
+                } وگرنه اگر (cp[0] == '`' && cp[1] == '"') {
                     out += "`\"";  // `" means to put out a " without enabling quote mode (sort of)
                     // however we must expand any macro calls inside it first.
                     // So keep it `", so we don't enter quote mode.
                     cp++;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
+                    ادامه;
+                } وگرنه اگر (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
                     out += "`\\`\"";  // `\`" means to put out a backslash quote
                     // Leave it literal until we parse the VP_STRIFY string
                     cp += 3;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '\\') {
+                    ادامه;
+                } وگرنه اگر (cp[0] == '`' && cp[1] == '\\') {
                     out += '\\';  // `\ means to put out a backslash
                     cp++;
-                    continue;
-                } else if (cp[0] == '\\' && cp[1] == '\n') {
+                    ادامه;
+                } وگرنه اگر (cp[0] == '\\' && cp[1] == '\n') {
                     // We kept the \\n when we lexed because we don't want whitespace
                     // trimming to mis-drop the final \\n
                     // At replacement time we need the standard newline.
                     out += "\n";  // \\n newline
                     cp++;
-                    continue;
+                    ادامه;
                 }
             }
-            if (cp[0] == '\\' && cp[1] == '\"') {
+            اگر (cp[0] == '\\' && cp[1] == '\"') {
                 out += cp[0];  // \{any} Put out literal next character
                 out += cp[1];
                 cp++;
-                continue;
-            } else if (cp[0] == '\\') {
+                ادامه;
+            } وگرنه اگر (cp[0] == '\\') {
                 // Normally \{any} would put out literal next character
                 // Instead we allow "`define A(nm) \nm" to expand, per proposed mantis1537
                 out += cp[0];
-                continue;
+                ادامه;
             }
-            if (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
+            اگر (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
                 triquote = !triquote;
                 out += "\"\"\"";
                 cp += 2;
-                continue;
+                ادامه;
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) out += *cp;
+            اگر (*cp == '"') quote = !quote;
+            اگر (*cp) out += *cp;
         }
     }
 
     UINFO(4, "defineSubstOut '" << V3PreLex::cleanDbgStrg(out) << "'");
-    return out;
+    بازگشت out;
 }
 
 //**********************************************************************
 // Parser routines
 
-void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filename) {
+تهی V3PreProcImp::openFile(File_سطر*, VInFilter* filterp, ثابت string& filename) {
     // Open a new file, possibly overriding the current one which is active.
-    if (m_incError) return;
+    اگر (m_incError) بازگشت;
     m_lexp->setYYDebug(debug() >= 5);
     V3File::addSrcDepend(filename);
 
     // Read a list<string> with the whole file.
     StrList wholefile;
-    const bool ok = filterp->readWholefile(filename, wholefile /*ref*/);
-    if (!ok) {
+    ثابت منطقی ok = filterp->readWholefile(filename, wholefile /*ref*/);
+    اگر (!ok) {
         fileline()->v3error("File not found: " + filename);
-        return;
+        بازگشت;
     }
 
-    if (!m_preprocp->isEof()) {  // IE not the first file.
+    اگر (!m_preprocp->isEof()) {  // IE not the first file.
         // We allow the same include file twice, because occasionally it pops
         // up, with guards preventing a real recursion.
-        if (m_lexp->m_streampStack.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
+        اگر (m_lexp->m_streamp_پشته.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
             fileline()->v3error("Recursive inclusion of file: " + filename);
             // Include might be a tree of includes that is O(n^2) or worse.
             // Once hit this error then, ignore all further includes so can unwind.
-            m_incError = true;
-            return;
+            m_incError = درست;
+            بازگشت;
         }
         // There's already a file active.  Push it to work on the new one.
-        addLineComment(0);
+        add_سطر_Comment(0);
     }
 
     // Save file contents for future error reporting
-    FileLine* const flsp = new FileLine{filename};
+    File_سطر* ثابت flsp = جدید File_سطر{filename};
     flsp->lineno(1);
     flsp->newContent();
-    for (const string& i : wholefile) flsp->contentp()->pushText(i);
+    برای (ثابت string& i : wholefile) flsp->contentp()->افزودن_Text(i);
 
     // Save contents for V3Control --contents
-    if (filename != V3Options::getStdPackagePath()) {
-        bool containsVlt = false;
-        for (const string& i : wholefile) {
+    اگر (filename != V3Options::getStdPackagePath()) {
+        منطقی containsVlt = نادرست;
+        برای (ثابت string& i : wholefile) {
             // TODO this is overly sensitive, might be in a comment
-            if (i.find("`verilator_config") != string::npos) {
-                containsVlt = true;
-                break;
+            اگر (i.find("`verilator_config") != string::npos) {
+                containsVlt = درست;
+                بشکن;
             }
         }
-        if (!containsVlt) {
-            for (const string& i : wholefile) V3Control::contentsPushText(i);
+        اگر (!containsVlt) {
+            برای (ثابت string& i : wholefile) V3Control::contents_افزودن_Text(i);
         }
     }
 
     // Create new stream structure
     m_lexp->scanNewFile(flsp);
-    addLineComment(1);  // Enter
+    add_سطر_Comment(1);  // Enter
 
     // Filter all DOS CR's en masse.  This avoids bugs with lexing CRs in the wrong places.
     // This will also strip them from strings, but strings aren't supposed
     // to be multi-line without a "\"
-    int eof_newline = 0;  // Number of characters following last newline
-    int eof_lineno = 1;
-    for (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
+    صحیح eof_newline = 0;  // Number of characters following last newline
+    صحیح eof_lineno = 1;
+    برای (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
         // We don't end-loop at \0 as we allow and strip mid-string '\0's (for now).
-        bool strip = false;
-        const char* const sp = it->data();
-        const char* const ep = sp + it->length();
+        منطقی strip = نادرست;
+        ثابت نویسه* ثابت sp = it->data();
+        ثابت نویسه* ثابت ep = sp + it->length();
         // Only process if needed, as saves extra string allocations
-        for (const char* cp = sp; cp < ep; cp++) {
-            if (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
-                strip = true;
-            } else if (VL_UNLIKELY(*cp == '\n')) {
+        برای (ثابت نویسه* cp = sp; cp < ep; cp++) {
+            اگر (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
+                strip = درست;
+            } وگرنه اگر (VL_UNLIKELY(*cp == '\n')) {
                 eof_newline = 0;
                 ++eof_lineno;
-            } else {
+            } وگرنه {
                 ++eof_newline;
             }
         }
-        if (strip) {
+        اگر (strip) {
             string out;
             out.reserve(it->length());
-            for (const char* cp = sp; cp < ep; cp++) {
-                if (!(*cp == '\r' || *cp == '\0')) out += *cp;
+            برای (ثابت نویسه* cp = sp; cp < ep; cp++) {
+                اگر (!(*cp == '\r' || *cp == '\0')) out += *cp;
             }
             *it = out;
         }
@@ -942,8 +942,8 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     }
 
     // Warning check
-    if (eof_newline) {
-        FileLine* const fl = new FileLine{flsp};
+    اگر (eof_newline) {
+        File_سطر* ثابت fl = جدید File_سطر{flsp};
         fl->contentLineno(eof_lineno);
         fl->column(eof_newline + 1, eof_newline + 1);
         V3Control::applyIgnores(fl);  // As preprocessor hasn't otherwise applied yet
@@ -952,112 +952,112 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     }
 }
 
-void V3PreProcImp::insertUnreadbackAtBol(const string& text) {
+تهی V3PreProcImp::درج_Unreadback_At_Bol(ثابت string& text) {
     // Insert insuring we're at the beginning of line, for `line
     // We don't always add a leading newline, as it may result in extra unreadback(newlines).
-    if (m_lineCmt == "") {
-        m_lineCmtNl = true;
-    } else if (m_lineCmt[m_lineCmt.length() - 1] != '\n') {
-        insertUnreadback("\n");
+    اگر (m_سطر_Cmt == "") {
+        m_سطر_Cmt_Nl = درست;
+    } وگرنه اگر (m_سطر_Cmt[m_سطر_Cmt.length() - 1] != '\n') {
+        درج_Unreadback("\n");
     }
-    insertUnreadback(text);
+    درج_Unreadback(text);
 }
 
-void V3PreProcImp::addLineComment(int enterExit) {
-    if (lineDirectives()) {
-        insertUnreadbackAtBol(m_lexp->curFilelinep()->lineDirectiveStrg(enterExit));
+تهی V3PreProcImp::add_سطر_Comment(صحیح enterExit) {
+    اگر (سطر_Directives()) {
+        درج_Unreadback_At_Bol(m_lexp->curFilelinep()->سطر_Directive_Strg(enterExit));
     }
 }
 
-void V3PreProcImp::dumpDefines(std::ostream& os) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+تهی V3PreProcImp::dumpDefines(std::ostream& os) {
+    برای (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
         os << "`define " << it->first;
         // No need to print "()" below as already part of params()
-        if (!it->second.params().empty()) os << it->second.params();
-        if (!it->second.value().empty()) os << " " << it->second.value();
+        اگر (!it->second.params().empty()) os << it->second.params();
+        اگر (!it->second.مقدار().empty()) os << " " << it->second.مقدار();
         os << '\n';
     }
 }
 
-void V3PreProcImp::candidateDefines(VSpellCheck* spellerp) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
-        spellerp->pushCandidate("`"s + it->first);
+تهی V3PreProcImp::candidateDefines(VSpellCheck* spellerp) {
+    برای (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+        spellerp->افزودن_Candidate("`"s + it->first);
     }
 }
 
-int V3PreProcImp::getRawToken() {
+صحیح V3PreProcImp::getRawToken() {
     // Get a token from the file, whatever it may be.
-    while (true) {
+    وقتی (درست) {
     next_tok:
-        if (m_lineAdd) {
-            m_lineAdd--;
-            m_rawAtBol = true;
+        اگر (m_سطر_Add) {
+            m_سطر_Add--;
+            m_rawAtBol = درست;
             yyourtext("\n", 1);
-            if (debug() >= 5) debugToken(VP_WHITE, "LNA");
-            return VP_WHITE;
+            اگر (debug() >= 5) debugToken(VP_WHITE, "LNA");
+            بازگشت VP_WHITE;
         }
-        if (m_lineCmt != "") {
+        اگر (m_سطر_Cmt != "") {
             // We have some `line directive or other processed data to return to the user.
-            static string s_rtncmt;  // Keep the c string till next call
-            s_rtncmt = m_lineCmt;
-            if (m_lineCmtNl) {
-                if (!m_rawAtBol) s_rtncmt.insert(0, "\n");
-                m_lineCmtNl = false;
+            ایستا string s_rtncmt;  // Keep the c string till next call
+            s_rtncmt = m_سطر_Cmt;
+            اگر (m_سطر_Cmt_Nl) {
+                اگر (!m_rawAtBol) s_rtncmt.درج(0, "\n");
+                m_سطر_Cmt_Nl = نادرست;
             }
             yyourtext(s_rtncmt.c_str(), s_rtncmt.length());
-            m_lineCmt = "";
-            if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-            if (state() == ps_DEFVALUE) {
-                V3PreLex::s_currentLexp->appendDefValue(yyourtext(), yyourleng());
-                goto next_tok;
-            } else {
-                if (debug() >= 5) debugToken(VP_TEXT, "LCM");
-                return VP_TEXT;
+            m_سطر_Cmt = "";
+            اگر (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+            اگر (state() == ps_DEFVALUE) {
+                V3PreLex::s_currentLexp->append_Def_مقدار(yyourtext(), yyourleng());
+                برو next_tok;
+            } وگرنه {
+                اگر (debug() >= 5) debugToken(VP_TEXT, "LCM");
+                بازگشت VP_TEXT;
             }
         }
-        if (isEof()) return VP_EOF;
+        اگر (isEof()) بازگشت VP_EOF;
 
         // Snarf next token from the file
         m_lexp->curFilelinep()->startToken();
-        int tok = m_lexp->lex();
-        if (debug() >= 5) debugToken(tok, "RAW");
+        صحیح tok = m_lexp->lex();
+        اگر (debug() >= 5) debugToken(tok, "RAW");
 
-        if (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
+        اگر (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
             m_lastLineno = m_lexp->m_tokFilelinep->lineno();
-            m_tokensOnLine = 0;
-        } else if (++m_tokensOnLine > v3Global.opt.preprocTokenLimit()) {
+            m_tokens_On_سطر = 0;
+        } وگرنه اگر (++m_tokens_On_سطر > v3Global.opt.preprocTokenLimit()) {
             fileline()->v3error("Too many preprocessor tokens on a line (>"
                                 + cvtToStr(v3Global.opt.preprocTokenLimit())
                                 + "); perhaps recursive `define");
             tok = VP_EOF_ERROR;
         }
 
-        if (tok == VP_EOF || tok == VP_EOF_ERROR) {
+        اگر (tok == VP_EOF || tok == VP_EOF_ERROR) {
             // An error might be in an unexpected point, so stop parsing
-            if (tok == VP_EOF_ERROR) forceEof();
+            اگر (tok == VP_EOF_ERROR) forceEof();
             // A EOF on an include, stream will find the EOF, after adding needed `lines
-            goto next_tok;
+            برو next_tok;
         }
 
-        if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-        return tok;
+        اگر (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+        بازگشت tok;
     }
 }
 
-void V3PreProcImp::debugToken(int tok, const char* cmtp) {
-    const static int s_debugFileline
+تهی V3PreProcImp::debugToken(صحیح tok, ثابت نویسه* cmtp) {
+    ثابت ایستا صحیح s_debugFileline
         = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
-    if (debug() >= 5) {
+    اگر (debug() >= 5) {
         string buf{yyourtext(), yyourleng()};
         string::size_type pos;
-        while ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
-        while ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+        وقتی ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
+        وقتی ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
+        ثابت string flcol = m_lexp->m_tokFilelinep->ascii_سطر_Col();
         UINFO(0, flcol << ": " << cmtp << " " << (m_off ? "of" : "on") << " "
-                       << procStateName(state()) << "(" << static_cast<int>(m_states.size())
+                       << procStateName(state()) << "(" << static_cast<صحیح>(m_states.size())
                        << ") dr" << m_defRefs.size() << ":  <" << m_lexp->currentStartState()
                        << ">" << tokenName(tok) << ": " << buf);
-        if (s_debugFileline >= 9) {
+        اگر (s_debugFileline >= 9) {
             std::cout << m_lexp->m_tokFilelinep->warnContextSecondary() << endl;
         }
     }
@@ -1066,45 +1066,45 @@ void V3PreProcImp::debugToken(int tok, const char* cmtp) {
 // Sorry, we're not using bison/yacc. It doesn't handle returning white space
 // in the middle of parsing other tokens.
 
-int V3PreProcImp::getStateToken() {
+صحیح V3PreProcImp::getStateToken() {
     // Return the next state-determined token
-    while (true) {
+    وقتی (درست) {
     next_tok:
-        if (isEof()) return VP_EOF;
-        int tok = getRawToken();
+        اگر (isEof()) بازگشت VP_EOF;
+        صحیح tok = getRawToken();
 
         // Most states emit white space and comments between tokens. (Unless collecting a string)
-        if (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) return tok;
-        if (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
-        if (tok == VP_COMMENT) {
-            if (!m_off) {
-                if (m_lexp->m_keepComments == KEEPCMT_SUB) {
+        اگر (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) بازگشت tok;
+        اگر (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
+        اگر (tok == VP_COMMENT) {
+            اگر (!m_off) {
+                اگر (m_lexp->m_keepComments == KEEPCMT_SUB) {
                     string rtn;
                     rtn.assign(yyourtext(), yyourleng());
                     comment(rtn);
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
-                    if (m_lineCmt.empty()) insertUnreadback(" ");
-                } else if (m_lexp->m_keepComments) {
-                    return tok;
-                } else {
+                    اگر (m_سطر_Cmt.empty()) درج_Unreadback(" ");
+                } وگرنه اگر (m_lexp->m_keepComments) {
+                    بازگشت tok;
+                } وگرنه {
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
-                    insertUnreadback(" ");
+                    درج_Unreadback(" ");
                 }
             }
             // We're off or processed the comment specially.  If there are newlines
             // in it, we also return the newlines as TEXT so that the linenumber
             // count is maintained for downstream tools
-            for (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
-                if (yyourtext()[len] == '\n') m_lineAdd++;
+            برای (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
+                اگر (yyourtext()[len] == '\n') m_سطر_Add++;
             }
-            goto next_tok;
+            برو next_tok;
         }
-        if (tok == VP_LINE) {
-            addLineComment(m_lexp->m_enterExit);
-            goto next_tok;
+        اگر (tok == VP_سطر) {
+            add_سطر_Comment(m_lexp->m_enterExit);
+            برو next_tok;
         }
 
-        if (tok == VP_DEFREF_JOIN) {
+        اگر (tok == VP_DEFREF_JOIN) {
             // Here's something fun and unspecified as yet:
             // The existence of non-existence of a base define changes `` expansion
             //  `define QA_b zzz
@@ -1116,420 +1116,420 @@ int V3PreProcImp::getStateToken() {
             //  `define Q1 `QA()``_b  // -> a_b
             // This may be a side effect of how `UNDEFINED remains as `UNDEFINED,
             // but it screws up our method here.  So hardcode it.
-            const std::string name(yyourtext() + 1, yyourleng() - 1);
-            if (defExists(name)) {  // JOIN(DEFREF)
+            ثابت std::string name(yyourtext() + 1, yyourleng() - 1);
+            اگر (defExists(name)) {  // JOIN(DEFREF)
                 // Put back the `` and process the defref
                 UINFO(5, "```: define " << name << " exists, expand first");
                 // After define, unputString("``").  Not now as would lose yyourtext()
-                m_defPutJoin = true;
+                m_defPutJoin = درست;
                 UINFO(5, "TOKEN now DEFREF");
                 tok = VP_DEFREF;
-            } else {  // DEFREF(JOIN)
+            } وگرنه {  // DEFREF(JOIN)
                 UINFO(5, "```: define " << name << " doesn't exist, join first");
                 // FALLTHRU, handle as with VP_SYMBOL_JOIN
             }
         }
-        if (state() == ps_STRIFY) {
+        اگر (state() == ps_STRIFY) {
             // Ignore joins and symbol joins in stringify as they don't affect the final string
-            if (tok == VP_JOIN) goto next_tok;
-            if (tok == VP_SYMBOL_JOIN) tok = VP_SYMBOL;
+            اگر (tok == VP_JOIN) برو next_tok;
+            اگر (tok == VP_نماد_JOIN) tok = VP_نماد;
         }
-        if (tok == VP_SYMBOL_JOIN  // not else if, can fallthru from above if()
+        اگر (tok == VP_نماد_JOIN  // not else if, can fallthru from above if()
             || tok == VP_DEFREF_JOIN || tok == VP_JOIN) {
             // a`` -> string doesn't include the ``, so can just grab next and continue
-            const std::string out(yyourtext(), yyourleng());
+            ثابت std::string out(yyourtext(), yyourleng());
             UINFO(5, "`` LHS:" << out);
             // a``b``c can have multiple joins, so we need a stack
-            m_joinStack.push(out);
-            statePush(ps_JOIN);
-            goto next_tok;
+            m_join_پشته.افزودن(out);
+            state_افزودن(ps_JOIN);
+            برو next_tok;
         }
 
         // Deal with some special parser states
-        switch (state()) {
-        case ps_TOP: {
-            break;
+        انتخاب (state()) {
+        حالت ps_بالاترین: {
+            بشکن;
         }
-        case ps_DEFNAME_UNDEF:  // FALLTHRU
-        case ps_DEFNAME_DEFINE:  // FALLTHRU
-        case ps_DEFNAME_IFDEF:  // FALLTHRU
-        case ps_DEFNAME_IFNDEF:  // FALLTHRU
-        case ps_DEFNAME_ELSIF: {
-            if (tok == VP_SYMBOL) {
+        حالت ps_DEFNAME_UNDEF:  // FALLTHRU
+        حالت ps_DEFNAME_DEFINE:  // FALLTHRU
+        حالت ps_DEFNAME_IFDEF:  // FALLTHRU
+        حالت ps_DEFNAME_IFNDEF:  // FALLTHRU
+        حالت ps_DEFNAME_ELSIF: {
+            اگر (tok == VP_نماد) {
                 m_lastSym.assign(yyourtext(), yyourleng());
-                if (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
-                    bool enable = defExists(m_lastSym);
+                اگر (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
+                    منطقی enable = defExists(m_lastSym);
                     UINFO(4, "Ifdef " << m_lastSym << (enable ? " ON" : " OFF"));
-                    if (state() == ps_DEFNAME_IFNDEF) enable = !enable;
-                    m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                    if (!enable) parsingOff();
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_ELSIF) {
-                    if (m_ifdefStack.empty()) {
+                    اگر (state() == ps_DEFNAME_IFNDEF) enable = !enable;
+                    m_ifdef_پشته.emplace(VPreIfEntry{enable, نادرست});
+                    اگر (!enable) parsingOff();
+                    state_برداشت();
+                    برو next_tok;
+                } وگرنه اگر (state() == ps_DEFNAME_ELSIF) {
+                    اگر (m_ifdef_پشته.empty()) {
                         fileline()->v3error("`elsif with no matching `if");
-                    } else {
+                    } وگرنه {
                         // Handle `else portion
-                        const VPreIfEntry lastIf = m_ifdefStack.top();
-                        m_ifdefStack.pop();
-                        if (!lastIf.on()) parsingOn();
+                        ثابت VPreIfEntry lastIf = m_ifdef_پشته.بالاترین();
+                        m_ifdef_پشته.برداشت();
+                        اگر (!lastIf.on()) parsingOn();
                         // Handle `if portion
-                        const bool enable = !lastIf.everOn() && defExists(m_lastSym);
+                        ثابت منطقی enable = !lastIf.everOn() && defExists(m_lastSym);
                         UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
-                        m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                        if (!enable) parsingOff();
+                        m_ifdef_پشته.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                        اگر (!enable) parsingOff();
                     }
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_UNDEF) {
-                    if (!m_off) {
+                    state_برداشت();
+                    برو next_tok;
+                } وگرنه اگر (state() == ps_DEFNAME_UNDEF) {
+                    اگر (!m_off) {
                         UINFO(4, "Undef " << m_lastSym);
                         undef(m_lastSym);
                     }
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_DEFINE) {
+                    state_برداشت();
+                    برو next_tok;
+                } وگرنه اگر (state() == ps_DEFNAME_DEFINE) {
                     // m_lastSym already set.
                     stateChange(ps_DEFFORM);
-                    m_lexp->pushStateDefForm();
-                    goto next_tok;
-                } else {  // LCOV_EXCL_LINE
+                    m_lexp->افزودن_State_Def_Form();
+                    برو next_tok;
+                } وگرنه {  // LCOV_EXCL_LINE
                     v3fatalSrc("Bad case");
                 }
-                goto next_tok;
-            } else if (tok == VP_TEXT) {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT) {
                 // IE, something like comment between define and symbol
-                if (yyourleng() == 1 && yyourtext()[0] == '('
+                اگر (yyourleng() == 1 && yyourtext()[0] == '('
                     && (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                         || state() == ps_DEFNAME_ELSIF)) {
                     UINFO(4, "ifdef() start (");
-                    m_lexp->pushStateExpr();
-                    m_exprParser.reset(fileline());
-                    m_exprParenLevel = 1;
-                    switch (state()) {
-                    case ps_DEFNAME_IFDEF: stateChange(ps_EXPR_IFDEF); break;
-                    case ps_DEFNAME_IFNDEF: stateChange(ps_EXPR_IFNDEF); break;
-                    case ps_DEFNAME_ELSIF: stateChange(ps_EXPR_ELSIF); break;
-                    default: v3fatalSrc("bad case");
+                    m_lexp->افزودن_State_عبارت();
+                    m_عبارت_Parser.reset(fileline());
+                    m_عبارت_Paren_Level = 1;
+                    انتخاب (state()) {
+                    حالت ps_DEFNAME_IFDEF: stateChange(ps_عبارت_IFDEF); بشکن;
+                    حالت ps_DEFNAME_IFNDEF: stateChange(ps_عبارت_IFNDEF); بشکن;
+                    حالت ps_DEFNAME_ELSIF: stateChange(ps_عبارت_ELSIF); بشکن;
+                    پیشفرض: v3fatalSrc("bad case");
                     }
-                    goto next_tok;
+                    برو next_tok;
                 }
-                if (!m_off) {
-                    return tok;
-                } else {
-                    goto next_tok;
+                اگر (!m_off) {
+                    بازگشت tok;
+                } وگرنه {
+                    برو next_tok;
                 }
-            } else if (tok == VP_DEFREF) {
+            } وگرنه اگر (tok == VP_DEFREF) {
                 // IE, `ifdef `MACRO(x): Substitute and come back here when state pops.
-                break;
-            } else {
+                بشکن;
+            } وگرنه {
                 fileline()->v3error("Expecting define name. Found: "s + tokenName(tok));
-                goto next_tok;
+                برو next_tok;
             }
         }
-        case ps_EXPR_IFDEF:  // FALLTHRU
-        case ps_EXPR_IFNDEF:  // FALLTHRU
-        case ps_EXPR_ELSIF: {
+        حالت ps_عبارت_IFDEF:  // FALLTHRU
+        حالت ps_عبارت_IFNDEF:  // FALLTHRU
+        حالت ps_عبارت_ELSIF: {
             // `ifdef ( *here*
-            FileLine* const flp = m_lexp->m_tokFilelinep;
-            if (tok == VP_SYMBOL) {
+            File_سطر* ثابت flp = m_lexp->m_tokFilelinep;
+            اگر (tok == VP_نماد) {
                 m_lastSym.assign(yyourtext(), yyourleng());
-                const bool exists = defExists(m_lastSym);
-                if (exists) {
-                    const std::string value = defValue(m_lastSym);
-                    if (VString::removeWhitespace(value) == "0") {
+                ثابت منطقی exists = defExists(m_lastSym);
+                اگر (exists) {
+                    ثابت std::string مقدار = def_مقدار(m_lastSym);
+                    اگر (VString::removeWhitespace(مقدار) == "0") {
                         flp->v3warn(
                             PREPROCZERO,
                             "Preprocessor expression evaluates define with 0: '"
-                                << m_lastSym << "' with value '" << value
+                                << m_lastSym << "' with value '" << مقدار
                                 << "'\n"
                                    "... Suggest change define '"
                                 << m_lastSym
                                 << "' to non-zero value if used in preprocessor expression");
                     }
                 }
-                m_exprParser.pushInput(V3PreExprToken{flp, exists});
-                goto next_tok;
-            } else if (tok == VP_WHITE) {
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
-                UASSERT(m_exprParenLevel, "Underflow of ); should have exited ps_EXPR earlier?");
-                if (--m_exprParenLevel > 0) {
-                    m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET});
-                    goto next_tok;
-                } else {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, exists});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_WHITE) {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::BRA});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
+                UASSERT(m_عبارت_Paren_Level, "Underflow of ); should have exited ps_EXPR earlier?");
+                اگر (--m_عبارت_Paren_Level > 0) {
+                    m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::KET});
+                    برو next_tok;
+                } وگرنه {
                     // Done with parsing expression
-                    bool enable = m_exprParser.result();
+                    منطقی enable = m_عبارت_Parser.result();
                     UINFO(4, "ifdef() result=" << enable);
-                    if (state() == ps_EXPR_IFDEF || state() == ps_EXPR_IFNDEF) {
-                        if (state() == ps_EXPR_IFNDEF) enable = !enable;
-                        m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                        if (!enable) parsingOff();
-                        statePop();
-                        goto next_tok;
-                    } else if (state() == ps_EXPR_ELSIF) {
-                        if (m_ifdefStack.empty()) {
+                    اگر (state() == ps_عبارت_IFDEF || state() == ps_عبارت_IFNDEF) {
+                        اگر (state() == ps_عبارت_IFNDEF) enable = !enable;
+                        m_ifdef_پشته.emplace(VPreIfEntry{enable, نادرست});
+                        اگر (!enable) parsingOff();
+                        state_برداشت();
+                        برو next_tok;
+                    } وگرنه اگر (state() == ps_عبارت_ELSIF) {
+                        اگر (m_ifdef_پشته.empty()) {
                             fileline()->v3error("`elsif with no matching `if");
-                        } else {
+                        } وگرنه {
                             // Handle `else portion
-                            const VPreIfEntry lastIf = m_ifdefStack.top();
-                            m_ifdefStack.pop();
-                            if (!lastIf.on()) parsingOn();
+                            ثابت VPreIfEntry lastIf = m_ifdef_پشته.بالاترین();
+                            m_ifdef_پشته.برداشت();
+                            اگر (!lastIf.on()) parsingOn();
                             // Handle `if portion
                             enable = !lastIf.everOn() && enable;
                             UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
-                            m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                            if (!enable) parsingOff();
+                            m_ifdef_پشته.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                            اگر (!enable) parsingOff();
                         }
-                        statePop();
+                        state_برداشت();
                     }
-                    goto next_tok;
+                    برو next_tok;
                 }
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV});
-                goto next_tok;
-            } else {
-                if (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
-                    return tok;
-                } else {
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::LNOT});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::LAND});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::LOR});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::IMP});
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
+                m_عبارت_Parser.افزودن_درون_داد(V3_Pre_عبارت_Token{flp, V3_Pre_عبارت_Token::EQV});
+                برو next_tok;
+            } وگرنه {
+                اگر (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
+                    بازگشت tok;
+                } وگرنه {
                     fileline()->v3error("Syntax error in `ifdef () expression; unexpected: '"s
                                         + tokenName(tok) + "'");
                 }
-                goto next_tok;
+                برو next_tok;
             }
         }
-        case ps_DEFFORM: {
-            if (tok == VP_DEFFORM) {
-                m_formals = m_lexp->m_defValue;
-                if (debug() >= 5) {
+        حالت ps_DEFFORM: {
+            اگر (tok == VP_DEFFORM) {
+                m_formals = m_lexp->m_def_مقدار;
+                اگر (debug() >= 5) {
                     cout << "DefFormals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }
                 stateChange(ps_DEFVALUE);
-                m_lexp->pushStateDefValue();
-                goto next_tok;
-            } else if (tok == VP_TEXT) {
+                m_lexp->افزودن_State_Def_مقدار();
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT) {
                 // IE, something like comment in formals
-                if (!m_off) return tok;
-                goto next_tok;
-            } else {
+                اگر (!m_off) بازگشت tok;
+                برو next_tok;
+            } وگرنه {
                 fileline()->v3error("Expecting define formal arguments. Found: "s + tokenName(tok)
                                     + "\n");
-                goto next_tok;
+                برو next_tok;
             }
         }
-        case ps_DEFVALUE: {
-            static string s_newlines;
+        حالت ps_DEFVALUE: {
+            ایستا string s_newlines;
             s_newlines = "\n";  // Always start with trailing return
-            if (tok == VP_DEFVALUE) {
-                if (debug() >= 5) {  // LCOV_EXCL_START
-                    cout << "DefValue='" << V3PreLex::cleanDbgStrg(m_lexp->m_defValue)
+            اگر (tok == VP_DEFVALUE) {
+                اگر (debug() >= 5) {  // LCOV_EXCL_START
+                    cout << "DefValue='" << V3PreLex::cleanDbgStrg(m_lexp->m_def_مقدار)
                          << "'  formals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }  // LCOV_EXCL_STOP
                 // Add any formals
-                const string formals = m_formals;
-                string value = m_lexp->m_defValue;
+                ثابت string formals = m_formals;
+                string مقدار = m_lexp->m_def_مقدار;
                 // Remove returns
                 // Not removing returns in values has two problems,
                 // 1. we need to correct line numbers with `line after each substitution
                 // 2. Substituting in " .... " with embedded returns requires \ escape.
                 //    This is very difficult in the presence of `", so we
                 //    keep the \ before the newline.
-                for (size_t i = 0; i < formals.length(); i++) {
-                    if (formals[i] == '\n') s_newlines += "\n";
+                برای (size_t i = 0; i < formals.length(); i++) {
+                    اگر (formals[i] == '\n') s_newlines += "\n";
                 }
-                for (size_t i = 0; i < value.length(); i++) {
-                    if (value[i] == '\n') s_newlines += "\n";
+                برای (size_t i = 0; i < مقدار.length(); i++) {
+                    اگر (مقدار[i] == '\n') s_newlines += "\n";
                 }
-                if (!m_off) {
+                اگر (!m_off) {
                     // Remove leading and trailing whitespace
-                    value = trimWhitespace(value, true);
+                    مقدار = trimWhitespace(مقدار, درست);
                     // Define it
                     UINFO(4, "Define " << m_lastSym << " " << formals << " = '"
-                                       << V3PreLex::cleanDbgStrg(value) << "'");
-                    define(fileline(), m_lastSym, value, formals, false);
+                                       << V3PreLex::cleanDbgStrg(مقدار) << "'");
+                    define(fileline(), m_lastSym, مقدار, formals, نادرست);
                 }
-            } else {
+            } وگرنه {
                 v3fatalSrc("Bad define text, unexpected "s + tokenName(tok) + "\n");
             }
-            statePop();
+            state_برداشت();
             // DEFVALUE is terminated by a return, but lex can't return both tokens.
             // Thus, we emit a return here.
             yyourtext(s_newlines.c_str(), s_newlines.length());
-            return VP_WHITE;
+            بازگشت VP_WHITE;
         }
-        case ps_DEFPAREN: {
-            if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+        حالت ps_DEFPAREN: {
+            اگر (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
                 stateChange(ps_DEFARG);
-                goto next_tok;
-            } else {
+                برو next_tok;
+            } وگرنه {
                 UASSERT(!m_defRefs.empty(), "Shouldn't be in DEFPAREN w/o active defref");
-                const VDefineRef* const refp = &(m_defRefs.top());
+                ثابت VDefineRef* ثابت refp = &(m_defRefs.بالاترین());
                 fileline()->v3error("Expecting ( to begin argument list for define reference `"s
                                     + refp->name());
-                statePop();
-                goto next_tok;
+                state_برداشت();
+                برو next_tok;
             }
         }
-        case ps_DEFARG: {
+        حالت ps_DEFARG: {
             UASSERT(!m_defRefs.empty(), "Shouldn't be in DEFARG w/o active defref");
-            VDefineRef* refp = &(m_defRefs.top());
-            refp->nextarg(refp->nextarg() + m_lexp->m_defValue);
-            m_lexp->m_defValue = "";
+            VDefineRef* refp = &(m_defRefs.بالاترین());
+            refp->nextarg(refp->nextarg() + m_lexp->m_def_مقدار);
+            m_lexp->m_def_مقدار = "";
             UINFO(4, "defarg++ " << refp->nextarg());
-            if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
-                refp->args().push_back(refp->nextarg());
+            اگر (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
+                refp->args().افزودن_back(refp->nextarg());
                 stateChange(ps_DEFARG);
-                m_lexp->pushStateDefArg(1);
+                m_lexp->افزودن_State_Def_Arg(1);
                 refp->nextarg("");
-                goto next_tok;
-            } else if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
                 // Substitute in and prepare for next action
                 // Similar code in non-parenthesized define (Search for END_OF_DEFARG)
-                refp->args().push_back(refp->nextarg());
+                refp->args().افزودن_back(refp->nextarg());
                 string out;
-                if (!m_off) {
+                اگر (!m_off) {
                     out = defineSubst(refp);
                     // NOP: out = m_preprocp->defSubstitute(out);
                 }
-                VL_DO_DANGLING(m_defRefs.pop(), refp);
-                statePop();
-                if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
-                    if (state()
+                VL_DO_DANGLING(m_defRefs.برداشت(), refp);
+                state_برداشت();
+                اگر (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    اگر (state()
                         == ps_JOIN) {  // Handle {left}```FOO(ARG) where `FOO(ARG) might be empty
-                        UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                        const string lhs = m_joinStack.top();
-                        m_joinStack.pop();
-                        out.insert(0, lhs);
+                        UASSERT(!m_join_پشته.empty(), "`` join stack empty, but in a ``");
+                        ثابت string lhs = m_join_پشته.بالاترین();
+                        m_join_پشته.برداشت();
+                        out.درج(0, lhs);
                         UINFO(5, "``-end-defarg Out:" << out);
-                        statePop();
+                        state_برداشت();
                     }
-                    if (!m_off) {
+                    اگر (!m_off) {
                         unputDefrefString(out);
                     }
                     // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                    else if (stateIsDefname()) {
+                    وگرنه اگر (stateIsDefname()) {
                         unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                     }
                     // Stringification may still be inside another macro's argument list.
-                    m_lexp->m_parenLevel = m_defRefs.empty() ? 0 : m_defRefs.top().parenLevel();
-                } else {  // Finished a defref inside a upper defref,
+                    m_lexp->m_parenLevel = m_defRefs.empty() ? 0 : m_defRefs.بالاترین().parenLevel();
+                } وگرنه {  // Finished a defref inside a upper defref,
                           // and not under stringification or join.
                     // Can't subst now, or
                     // `define a(ign) x,y
                     // foo(`a(ign),`b)  would break because a contains comma
-                    refp = &(m_defRefs.top());  // We popped, so new top
-                    refp->nextarg(refp->nextarg() + m_lexp->m_defValue + out);
-                    m_lexp->m_defValue = "";
+                    refp = &(m_defRefs.بالاترین());  // We popped, so new top
+                    refp->nextarg(refp->nextarg() + m_lexp->m_def_مقدار + out);
+                    m_lexp->m_def_مقدار = "";
                     m_lexp->m_parenLevel = refp->parenLevel();
                     // Will go to ps_DEFARG, as we're under another define
                 }
-                goto next_tok;
-            } else if (tok == VP_DEFREF) {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_DEFREF) {
                 // Expand it, then state will come back here
                 // Value of building argument is data before the lower defref
                 // we'll append it when we push the argument.
-                break;
-            } else if (tok == VP_SYMBOL || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
+                بشکن;
+            } وگرنه اگر (tok == VP_نماد || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
                 string rtn;
                 rtn.assign(yyourtext(), yyourleng());
                 refp->nextarg(refp->nextarg() + rtn);
-                goto next_tok;
-            } else if (tok == VP_STRIFY) {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_STRIFY) {
                 // We must expand stringification, when done will return to this state
-                statePush(ps_STRIFY);
-                goto next_tok;
-            } else {
+                state_افزودن(ps_STRIFY);
+                برو next_tok;
+            } وگرنه {
                 fileline()->v3error(
                     "Expecting ) or , to end argument list for define reference. Found: "s
                     + tokenName(tok));
-                statePop();
-                goto next_tok;
+                state_برداشت();
+                برو next_tok;
             }
         }
-        case ps_INCNAME: {
-            if (tok == VP_STRING) {
-                statePop();
+        حالت ps_INCNAME: {
+            اگر (tok == VP_STRING) {
+                state_برداشت();
                 m_lastSym.assign(yyourtext(), yyourleng());
                 UINFO(4, "Include " << m_lastSym);
                 // Drop leading and trailing quotes.
                 m_lastSym.erase(0, 1);
                 m_lastSym.erase(m_lastSym.length() - 1, 1);
                 include(m_lastSym);
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
                 // include <filename>
                 stateChange(ps_INCNAME);  // Still
-                m_lexp->pushStateIncFilename();
-                goto next_tok;
-            } else if (tok == VP_DEFREF || tok == VP_STRIFY) {
+                m_lexp->افزودن_State_Inc_Filename();
+                برو next_tok;
+            } وگرنه اگر (tok == VP_DEFREF || tok == VP_STRIFY) {
                 // Expand it, then state will come back here
-                break;
-            } else {
-                statePop();
+                بشکن;
+            } وگرنه {
+                state_برداشت();
                 fileline()->v3error("Expecting include filename. Found: "s + tokenName(tok));
-                goto next_tok;
+                برو next_tok;
             }
             // GCC 13.3.0 with -O0 throws a false 'this statement may fall through' without this:
             VL_UNREACHABLE;
         }
-        case ps_ERRORNAME: {
-            if (tok == VP_STRING) {
-                if (!m_off) {
+        حالت ps_ERRORNAME: {
+            اگر (tok == VP_STRING) {
+                اگر (!m_off) {
                     m_lastSym.assign(yyourtext(), yyourleng());
                     fileline()->v3error(m_lastSym);
                 }
-                statePop();
-                goto next_tok;
-            } else {
+                state_برداشت();
+                برو next_tok;
+            } وگرنه {
                 fileline()->v3error("Expecting `error string. Found: "s + tokenName(tok));
-                statePop();
-                goto next_tok;
+                state_برداشت();
+                برو next_tok;
             }
         }
-        case ps_JOIN: {
-            if (tok == VP_SYMBOL || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
-                UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                const string lhs = m_joinStack.top();
-                m_joinStack.pop();
+        حالت ps_JOIN: {
+            اگر (tok == VP_نماد || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
+                UASSERT(!m_join_پشته.empty(), "`` join stack empty, but in a ``");
+                ثابت string lhs = m_join_پشته.بالاترین();
+                m_join_پشته.برداشت();
                 UINFO(5, "`` LHS:" << lhs);
-                const string rhs(yyourtext(), yyourleng());
+                ثابت string rhs(yyourtext(), yyourleng());
                 UINFO(5, "`` RHS:" << rhs);
-                const string out = lhs + rhs;
+                ثابت string out = lhs + rhs;
                 UINFO(5, "`` Out:" << out);
                 unputString(out);
-                statePop();
-                goto next_tok;
-            } else if (tok == VP_EOF || tok == VP_COMMENT) {
+                state_برداشت();
+                برو next_tok;
+            } وگرنه اگر (tok == VP_EOF || tok == VP_COMMENT) {
                 // Other compilers just ignore this, so no warning
                 // "Expecting symbol to terminate ``; whitespace etc cannot
                 // follow ``. Found: "+tokenName(tok)+"\n"
-                const string lhs = m_joinStack.top();
-                m_joinStack.pop();
+                ثابت string lhs = m_join_پشته.بالاترین();
+                m_join_پشته.برداشت();
                 unputString(lhs);
-                statePop();
-                goto next_tok;
-            } else {
+                state_برداشت();
+                برو next_tok;
+            } وگرنه {
                 // `define, etc, fall through and expand.  Pop back here.
-                break;
+                بشکن;
             }
         }
-        case ps_STRIFY: {
-            if (tok == VP_STRIFY) {
+        حالت ps_STRIFY: {
+            اگر (tok == VP_STRIFY) {
                 // Quote what's in the middle of the stringification
                 // Note a `" MACRO_WITH(`") `" doesn't need to be handled (we don't need a stack)
                 // That behavior isn't specified, and other simulators vary widely
@@ -1540,277 +1540,277 @@ int V3PreProcImp::getStateToken() {
                 // The spec is silent about this either way; simulators vary
                 std::replace(out.begin(), out.end(), '\n', ' ');
                 unputString("\""s + out + "\"");
-                statePop();
-                goto next_tok;
-            } else if (tok == VP_EOF) {
+                state_برداشت();
+                برو next_tok;
+            } وگرنه اگر (tok == VP_EOF) {
                 fileline()->v3error("`\" not terminated at EOF");
-                break;
-            } else if (tok == VP_BACKQUOTE) {
+                بشکن;
+            } وگرنه اگر (tok == VP_BACKQUOTE) {
                 m_strify += "\\\"";
-                goto next_tok;
-            } else if (tok == VP_DEFREF) {
+                برو next_tok;
+            } وگرنه اگر (tok == VP_DEFREF) {
                 // Spec says to expand macros inside `"
                 // Substitute it into the stream, then return here
-                break;
-            } else {
+                بشکن;
+            } وگرنه {
                 // Append token to eventual string
                 m_strify.append(yyourtext(), yyourleng());
-                goto next_tok;
+                برو next_tok;
             }
         }
-        default: v3fatalSrc("Bad case");
+        پیشفرض: v3fatalSrc("Bad case");
         }
         // Default is to do top level expansion of some tokens
-        switch (tok) {
-        case VP_INCLUDE:
-            if (!m_off) {
-                statePush(ps_INCNAME);
+        انتخاب (tok) {
+        حالت VP_INCLUDE:
+            اگر (!m_off) {
+                state_افزودن(ps_INCNAME);
             }  // Else incname looks like normal text, that will be ignored
-            goto next_tok;
-        case VP_UNDEF: statePush(ps_DEFNAME_UNDEF); goto next_tok;
-        case VP_DEFINE:
+            برو next_tok;
+        حالت VP_UNDEF: state_افزودن(ps_DEFNAME_UNDEF); برو next_tok;
+        حالت VP_DEFINE:
             // No m_off check here, as a `ifdef NEVER `define FOO(`endif)  should work
-            statePush(ps_DEFNAME_DEFINE);
-            goto next_tok;
-        case VP_IFDEF: statePush(ps_DEFNAME_IFDEF); goto next_tok;
-        case VP_IFNDEF: statePush(ps_DEFNAME_IFNDEF); goto next_tok;
-        case VP_ELSIF: statePush(ps_DEFNAME_ELSIF); goto next_tok;
-        case VP_ELSE:
-            if (m_ifdefStack.empty()) {
+            state_افزودن(ps_DEFNAME_DEFINE);
+            برو next_tok;
+        حالت VP_IFDEF: state_افزودن(ps_DEFNAME_IFDEF); برو next_tok;
+        حالت VP_IFNDEF: state_افزودن(ps_DEFNAME_IFNDEF); برو next_tok;
+        حالت VP_ELSIF: state_افزودن(ps_DEFNAME_ELSIF); برو next_tok;
+        حالت VP_ELSE:
+            اگر (m_ifdef_پشته.empty()) {
                 fileline()->v3error("`else with no matching `if");
-            } else {
-                const VPreIfEntry lastIf = m_ifdefStack.top();
-                m_ifdefStack.pop();
-                const bool enable = !lastIf.everOn();
+            } وگرنه {
+                ثابت VPreIfEntry lastIf = m_ifdef_پشته.بالاترین();
+                m_ifdef_پشته.برداشت();
+                ثابت منطقی enable = !lastIf.everOn();
                 UINFO(4, "Else " << (enable ? " ON" : " OFF"));
-                m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                if (!lastIf.on()) parsingOn();
-                if (!enable) parsingOff();
+                m_ifdef_پشته.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                اگر (!lastIf.on()) parsingOn();
+                اگر (!enable) parsingOff();
             }
-            goto next_tok;
-        case VP_ENDIF:
+            برو next_tok;
+        حالت VP_ENDIF:
             UINFO(4, "Endif ");
-            if (m_ifdefStack.empty()) {
+            اگر (m_ifdef_پشته.empty()) {
                 fileline()->v3error("`endif with no matching `if");
-            } else {
-                const VPreIfEntry lastIf = m_ifdefStack.top();
-                m_ifdefStack.pop();
-                if (!lastIf.on()) parsingOn();
+            } وگرنه {
+                ثابت VPreIfEntry lastIf = m_ifdef_پشته.بالاترین();
+                m_ifdef_پشته.برداشت();
+                اگر (!lastIf.on()) parsingOn();
                 // parsingOn() really only enables parsing if
                 // all ifdef's above this want it on
             }
-            goto next_tok;
+            برو next_tok;
 
-        case VP_DEFREF: {
+        حالت VP_DEFREF: {
             // m_off not right here, but inside substitution, to make this work:
             // `ifdef NEVER `DEFUN(`endif)
-            const string name(yyourtext() + 1, yyourleng() - 1);
+            ثابت string name(yyourtext() + 1, yyourleng() - 1);
             UINFO(4, "DefRef " << name);
-            if (m_defPutJoin) {
-                m_defPutJoin = false;
+            اگر (m_defPutJoin) {
+                m_defPutJoin = نادرست;
                 unputString("``");
             }
-            if (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
+            اگر (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
                 fileline()->v3error("Recursive `define substitution: `" + name);
-                goto next_tok;
+                برو next_tok;
             }
             // Substitute
-            if (!defExists(name)) {  // Not found, return original string as-is
+            اگر (!defExists(name)) {  // Not found, return original string as-is
                 m_defDepth = 0;
                 UINFO(4, "Defref `" << name << " => not_defined");
-                if (m_off) {
-                    goto next_tok;
-                } else {
+                اگر (m_off) {
+                    برو next_tok;
+                } وگرنه {
                     // We want final text of `name, but that would cause
                     // recursion, so use a special character to get it through
                     unputDefrefString("`\032"s + name);
-                    goto next_tok;
+                    برو next_tok;
                 }
-            } else {
-                const string params = defParams(name);
-                if (params == "0" || params == "") {  // Found, as simple substitution
+            } وگرنه {
+                ثابت string params = defParams(name);
+                اگر (params == "0" || params == "") {  // Found, as simple substitution
                     string out;
-                    if (!m_off) {
+                    اگر (!m_off) {
                         VDefineRef tempref{name, ""};
                         out = defineSubst(&tempref);
                     }
                     // Similar code in parenthesized define (Search for END_OF_DEFARG)
                     // NOP: out = m_preprocp->defSubstitute(out);
-                    if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    اگر (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
                         // Just output the substitution
-                        if (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
-                            UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                            const string lhs = m_joinStack.top();
-                            m_joinStack.pop();
-                            out.insert(0, lhs);
+                        اگر (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
+                            UASSERT(!m_join_پشته.empty(), "`` join stack empty, but in a ``");
+                            ثابت string lhs = m_join_پشته.بالاترین();
+                            m_join_پشته.برداشت();
+                            out.درج(0, lhs);
                             UINFO(5, "``-end-defref Out:" << out);
-                            statePop();
+                            state_برداشت();
                         }
-                        if (!m_off) {
+                        اگر (!m_off) {
                             unputDefrefString(out);
                         }
                         // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                        else if (stateIsDefname()) {
+                        وگرنه اگر (stateIsDefname()) {
                             unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                         }
-                    } else {
+                    } وگرنه {
                         // Inside another define, and not under stringification or join.
                         // Can't subst now, or
                         // `define a x,y
                         // foo(`a,`b)  would break because a contains comma
-                        VDefineRef* const refp = &(m_defRefs.top());
-                        refp->nextarg(refp->nextarg() + m_lexp->m_defValue + out);
-                        m_lexp->m_defValue = "";
+                        VDefineRef* ثابت refp = &(m_defRefs.بالاترین());
+                        refp->nextarg(refp->nextarg() + m_lexp->m_def_مقدار + out);
+                        m_lexp->m_def_مقدار = "";
                     }
-                    goto next_tok;
-                } else {  // Found, with parameters
+                    برو next_tok;
+                } وگرنه {  // Found, with parameters
                     UINFO(4, "Defref `" << name << " => parameterized");
                     // The CURRENT macro needs the paren saved, it's not a
                     // property of the child macro
-                    if (!m_defRefs.empty()) m_defRefs.top().parenLevel(m_lexp->m_parenLevel);
+                    اگر (!m_defRefs.empty()) m_defRefs.بالاترین().parenLevel(m_lexp->m_parenLevel);
                     m_defRefs.emplace(VDefineRef{name, params});
-                    statePush(ps_DEFPAREN);
-                    m_lexp->pushStateDefArg(0);
-                    goto next_tok;
+                    state_افزودن(ps_DEFPAREN);
+                    m_lexp->افزودن_State_Def_Arg(0);
+                    برو next_tok;
                 }
             }
             v3fatalSrc("Bad case");  // FALLTHRU
-            goto next_tok;  // above fatal means unreachable, but fixes static analysis warning
+            برو next_tok;  // above fatal means unreachable, but fixes static analysis warning
         }
-        case VP_ERROR: {
-            statePush(ps_ERRORNAME);
-            goto next_tok;
+        حالت VP_ERROR: {
+            state_افزودن(ps_ERRORNAME);
+            برو next_tok;
         }
-        case VP_EOF:
-            if (!m_ifdefStack.empty()) fileline()->v3error("`ifdef not terminated at EOF");
-            return tok;
-        case VP_UNDEFINEALL:
-            if (!m_off) {
+        حالت VP_EOF:
+            اگر (!m_ifdef_پشته.empty()) fileline()->v3error("`ifdef not terminated at EOF");
+            بازگشت tok;
+        حالت VP_UNDEFINEALL:
+            اگر (!m_off) {
                 UINFO(4, "Undefineall ");
                 undefineall();
             }
-            goto next_tok;
-        case VP_STRIFY:
+            برو next_tok;
+        حالت VP_STRIFY:
             // We must expand macros in the body of the stringification
             // Then, when done, form a final string to return
             // (it could be used as a include filename, for example, so need the string token)
-            statePush(ps_STRIFY);
-            goto next_tok;
-        case VP_SYMBOL:
-        case VP_STRING:
-        case VP_TEXT: {
+            state_افزودن(ps_STRIFY);
+            برو next_tok;
+        حالت VP_نماد:
+        حالت VP_STRING:
+        حالت VP_TEXT: {
             m_defDepth = 0;
-            if (!m_off) {
-                return tok;
-            } else {
-                goto next_tok;
+            اگر (!m_off) {
+                بازگشت tok;
+            } وگرنه {
+                برو next_tok;
             }
         }
-        case VP_WHITE:  // Handled at top of loop
-        case VP_COMMENT:  // Handled at top of loop
-        case VP_DEFFORM:  // Handled by state=ps_DEFFORM;
-        case VP_DEFVALUE:  // Handled by state=ps_DEFVALUE;
-        default:  // LCOV_EXCL_LINE
+        حالت VP_WHITE:  // Handled at top of loop
+        حالت VP_COMMENT:  // Handled at top of loop
+        حالت VP_DEFFORM:  // Handled by state=ps_DEFFORM;
+        حالت VP_DEFVALUE:  // Handled by state=ps_DEFVALUE;
+        پیشفرض:  // LCOV_EXCL_LINE
             v3fatalSrc("Internal error: Unexpected token "s + tokenName(tok) + "\n");
-            break;  // LCOV_EXCL_LINE
+            بشکن;  // LCOV_EXCL_LINE
         }
-        return tok;
+        بازگشت tok;
     }
 }
 
-int V3PreProcImp::getFinalToken(string& buf) {
+صحیح V3PreProcImp::getFinalToken(string& buf) {
     // Return the next user-visible token in the input stream.
     // Includes and such are handled here, and are never seen by the caller.
-    if (!m_finAhead) {
-        m_finAhead = true;
+    اگر (!m_finAhead) {
+        m_finAhead = درست;
         m_finToken = getStateToken();
         m_finBuf.assign(yyourtext(), yyourleng());
     }
-    const int tok = m_finToken;
+    ثابت صحیح tok = m_finToken;
     buf = m_finBuf;
-    if (false && debug() >= 5) {
-        const string bufcln = V3PreLex::cleanDbgStrg(buf);
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+    اگر (نادرست && debug() >= 5) {
+        ثابت string bufcln = V3PreLex::cleanDbgStrg(buf);
+        ثابت string flcol = m_lexp->m_tokFilelinep->ascii_سطر_Col();
         UINFO(0, flcol << ": FIN:      " << tokenName(tok) << ": " << bufcln);
     }
     // Track `line
-    const char* bufp = buf.c_str();
-    while (*bufp == '\n') bufp++;
-    if ((tok == VP_TEXT || tok == VP_LINE) && VString::startsWith(bufp, "`line ")) {
-        int enter;
-        m_finFilelinep->lineDirective(bufp, enter /*ref*/);
-    } else {
-        if (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->lineDirectives()) {
-            if (const int outBehind
+    ثابت نویسه* bufp = buf.c_str();
+    وقتی (*bufp == '\n') bufp++;
+    اگر ((tok == VP_TEXT || tok == VP_سطر) && VString::startsWith(bufp, "`line ")) {
+        صحیح enter;
+        m_finFilelinep->سطر_Directive(bufp, enter /*ref*/);
+    } وگرنه {
+        اگر (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->سطر_Directives()) {
+            اگر (ثابت صحیح outBehind
                 = (m_lexp->m_tokFilelinep->lastLineno() - m_finFilelinep->lastLineno())) {
-                if (debug() >= 5) {
-                    const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+                اگر (debug() >= 5) {
+                    ثابت string flcol = m_lexp->m_tokFilelinep->ascii_سطر_Col();
                     UINFO(0, flcol << ": FIN: readjust, fin at " << m_finFilelinep->lastLineno()
                                    << "  request at " << m_lexp->m_tokFilelinep->lastLineno());
                 }
                 m_finFilelinep->filename(m_lexp->m_tokFilelinep->filename());
                 m_finFilelinep->lineno(m_lexp->m_tokFilelinep->lastLineno());
-                if (outBehind > 0
-                    && (outBehind <= static_cast<int>(V3PreProc::NEWLINES_VS_TICKLINE))) {
+                اگر (outBehind > 0
+                    && (outBehind <= static_cast<صحیح>(V3PreProc::NEWLINES_VS_TICKLINE))) {
                     // Output stream is behind, send newlines to get back in sync
                     // (Most likely because we're completing a disabled `endif)
-                    if (m_preprocp->keepWhitespace()) {
+                    اگر (m_preprocp->keepWhitespace()) {
                         buf = std::string(outBehind, '\n');  // () for char repeat
-                        return VP_TEXT;
+                        بازگشت VP_TEXT;
                     }
-                } else {
+                } وگرنه {
                     // Need to backup, use `line
-                    buf = m_finFilelinep->lineDirectiveStrg(0);
-                    return VP_LINE;
+                    buf = m_finFilelinep->سطر_Directive_Strg(0);
+                    بازگشت VP_سطر;
                 }
             }
         }
         // Track newlines in prep for next token
-        for (const char& c : buf) {
-            if (c == '\n') {
-                m_finAtBol = true;
+        برای (ثابت نویسه& c : buf) {
+            اگر (c == '\n') {
+                m_finAtBol = درست;
                 m_finFilelinep->linenoInc();
-            } else {
-                m_finAtBol = false;
+            } وگرنه {
+                m_finAtBol = نادرست;
             }
         }
     }
-    m_finAhead = false;  // Consumed the token
-    return tok;
+    m_finAhead = نادرست;  // Consumed the token
+    بازگشت tok;
 }
 
 string V3PreProcImp::getline() {
     // Get a single line from the parse stream.  Buffer unreturned text until the newline.
-    if (isEof()) return "";
-    const char* rtnp;
-    bool gotEof = false;
-    while (nullptr == (rtnp = std::strchr(m_lineChars.c_str(), '\n')) && !gotEof) {
+    اگر (isEof()) بازگشت "";
+    ثابت نویسه* rtnp;
+    منطقی gotEof = نادرست;
+    وقتی (nullptr == (rtnp = std::strchr(m_سطر_Chars.c_str(), '\n')) && !gotEof) {
         m_tokenBuf.clear();
-        const int tok = getFinalToken(m_tokenBuf /*ref*/);
-        if (debug() >= 5) {
-            const string bufcln = V3PreLex::cleanDbgStrg(m_tokenBuf);
-            const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+        ثابت صحیح tok = getFinalToken(m_tokenBuf /*ref*/);
+        اگر (debug() >= 5) {
+            ثابت string bufcln = V3PreLex::cleanDbgStrg(m_tokenBuf);
+            ثابت string flcol = m_lexp->m_tokFilelinep->ascii_سطر_Col();
             UINFO(0, flcol << ": GETFETC:  " << tokenName(tok) << ": " << bufcln);
         }
-        if (tok == VP_EOF) {
+        اگر (tok == VP_EOF) {
             // Add a final newline, if the user forgot the final \n.
-            if (m_lineChars != "" && m_lineChars[m_lineChars.length() - 1] != '\n') {
-                m_lineChars.append("\n");
+            اگر (m_سطر_Chars != "" && m_سطر_Chars[m_سطر_Chars.length() - 1] != '\n') {
+                m_سطر_Chars.append("\n");
             }
-            gotEof = true;
-        } else {
-            m_lineChars.append(m_tokenBuf);
+            gotEof = درست;
+        } وگرنه {
+            m_سطر_Chars.append(m_tokenBuf);
         }
     }
 
     // Make new string with data up to the newline.
-    const int len = rtnp - m_lineChars.c_str() + 1;
-    string theLine(m_lineChars, 0, len);
-    m_lineChars = m_lineChars.erase(0, len);  // Remove returned characters
-    if (debug() >= 4) {
-        const string lncln = V3PreLex::cleanDbgStrg(theLine);
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+    ثابت صحیح len = rtnp - m_سطر_Chars.c_str() + 1;
+    string the_سطر(m_سطر_Chars, 0, len);
+    m_سطر_Chars = m_سطر_Chars.erase(0, len);  // Remove returned characters
+    اگر (debug() >= 4) {
+        ثابت string lncln = V3PreLex::cleanDbgStrg(the_سطر);
+        ثابت string flcol = m_lexp->m_tokFilelinep->ascii_سطر_Col();
         UINFO(0, flcol << ": GETLINE:  " << lncln);
     }
-    return theLine;
+    بازگشت the_سطر;
 }

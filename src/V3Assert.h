@@ -17,36 +17,36 @@
 #ifndef VERILATOR_V3ASSERT_H_
 #define VERILATOR_V3ASSERT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Ast.h"
+#شامل "V3Ast.h"
 
 //============================================================================
 
 class V3AssertCommon final {
-public:
-    static void collectDefaultDisable(AstNetlist* nodep) VL_MT_DISABLED;
-    static void lowerSequenceEvents(AstNetlist* nodep) VL_MT_DISABLED;
-    static string assertCtlGetCall(const char* query, VAssertType type,
+عمومی:
+    ایستا تهی collectDefaultDisable(AstNetlist* nodep) VL_MT_DISABLED;
+    ایستا تهی lowerSequenceEvents(AstNetlist* nodep) VL_MT_DISABLED;
+    ایستا string assertCtlGetCall(ثابت نویسه* query, VAssertType type,
                                    VAssertDirectiveType directiveType) VL_MT_DISABLED;
     // Check an SVA value is within the implementation limit, else report it on nodep
-    static bool checkSvaValueLimit(AstNode* nodep, const AstConst* constp,
-                                   const char* what) VL_MT_DISABLED;
+    ایستا bool check_Sva_مقدار_Limit(Ast_گره* nodep, ثابت AstConst* constp,
+                                   ثابت نویسه* what) VL_MT_DISABLED;
     // Fold the bounds of a cycle delay in a sequence, and check they are non-negative
     // elaboration-time constants (IEEE 1800-2023 16.7). If not, report it on errp, and replace
     // them with constants, so later steps do not fail after the error.
-    static void checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) VL_MT_DISABLED;
+    ایستا تهی checkSvaCycleDelay(AstDelay* nodep, Ast_گره* errp) VL_MT_DISABLED;
     // True if the expression references a formal argument of a sequence or property
-    static bool refsSvaFormal(const AstNode* nodep) VL_MT_DISABLED;
+    ایستا bool refsSvaFormal(ثابت Ast_گره* nodep) VL_MT_DISABLED;
     // Check the cycle delays of a sequence or property instance, after its formal arguments are
     // replaced with the actual arguments (IEEE 1800-2023 16.8), reporting errors on instp
-    static void checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) VL_MT_DISABLED;
+    ایستا تهی checkSvaInstanceDelays(Ast_گره* nodep, Ast_گره* instp) VL_MT_DISABLED;
 };
 
 class V3Assert final {
-public:
-    static void assertAll(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی assertAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

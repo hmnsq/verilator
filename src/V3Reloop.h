@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3RELOOP_H_
 #define VERILATOR_V3RELOOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Reloop final {
-public:
-    static void reloopAll(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی reloopAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

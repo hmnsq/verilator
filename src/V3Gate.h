@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3GATE_H_
 #define VERILATOR_V3GATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Gate final {
-public:
-    static void gateAll(AstNetlist* nodep) VL_MT_DISABLED;
+عمومی:
+    ایستا تهی gateAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#شامل "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#شامل "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#شامل <iomanip>
+#شامل <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,121 +31,121 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+رده StatsVisitor final : عمومی VNVisitorConst {
+    ساختار Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::رقم_TYPES()> m_stat_Type_شمار{};
         // Prediction of given type
         std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    ثابت منطقی m_fastOnly;  // When true, consider only fast functions
+    منطقی m_empty = درست;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
     std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
+    std::vector<std::map<ثابت std::string, uint32_t>>
         m_statVarWidthNames;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    تهی شمار_Then_Iterate_Children(Ast_گره* nodep) {
+        ++m_accump->m_stat_Type_شمار[nodep->type()];
+        اگر (nodep->type() != VNType::Netlist) m_empty = نادرست;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    تهی visit(AstVar* nodep) override {
+        اگر (nodep->dtypep()) {
+            اگر (!nodep->constPoolEntry()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
+                اگر (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
                     m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
+                    اگر (v3Global.opt.statsVars()) {  //
                         m_statVarWidthNames.resize(nodep->width() + 5);
                     }
                 }
                 ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
+                اگر (v3Global.opt.statsVars()) {
                     ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        شمار_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    تهی visit(Ast_گره_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        شمار_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    تهی visit(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        اگر (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        شمار_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    تهی visit(Ast_گره* nodep) override { شمار_Then_Iterate_Children(nodep); }
 
-public:
+عمومی:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, ثابت std::string& stage, منطقی fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        اگر (m_empty) بازگشت;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        ثابت auto addStat = [&](ثابت std::string& name, دوگانه شمار, unsigned precision = 0) {
+            V3Stats::addStat(stage, name, شمار, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        برای (unsigned i = 0; i < m_statVarWidths.size(); i++) {
+            اگر (ثابت uint64_t شمار = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
+                ثابت std::string prefix = ss.str();
+                اگر (v3Global.opt.statsVars()) {
+                    برای (ثابت auto& it : m_statVarWidthNames.at(i)) {
                         addStat(prefix + " " + it.first, it.second);
                     }
-                } else {
-                    addStat(prefix, count);
+                } وگرنه {
+                    addStat(prefix, شمار);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        ثابت auto typeName
+            = [](size_t t) { بازگشت std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        ثابت auto typeSize
+            = [](size_t t) { بازگشت VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        size_t total_گره_Memory_Usage = 0;
+        برای (size_t t = 0; t < VNType::رقم_TYPES(); ++t) {
+            اگر (ثابت uint64_t شمار = m_counters.m_stat_Type_شمار[t]) {
+                total_گره_Memory_Usage += شمار * typeSize(t);
+                addStat("Node count, " + typeName(t), شمار);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        addStat("Node mem TOTAL (MiB)", total_گره_Memory_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
+        برای (size_t t = 0; t < VNType::رقم_TYPES(); ++t) {
+            اگر (ثابت uint64_t شمار = m_counters.m_stat_Type_شمار[t]) {
+                ثابت دوگانه share = 100.0 * شمار * typeSize(t) / total_گره_Memory_Usage;
                 addStat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
+        برای (صحیح t = 0; t < VBranchPred::_ENUM_END; ++t) {
+            اگر (ثابت uint64_t c = m_counters.m_statPred[t]) {
                 addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+تهی V3Stats::statsStageAll(AstNetlist* nodep, ثابت std::string& stage, منطقی fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3STATS_H_
 #define VERILATOR_V3STATS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#شامل "config_build.h"
+#شامل "verilatedos.h"
 
-#include "V3Error.h"
+#شامل "V3Error.h"
 
 class AstNetlist;
 
@@ -28,38 +28,38 @@ class AstNetlist;
 
 class VDouble0 final {
     // Double counter, initializes to zero for easy use
-    double m_d = 0.0;  ///< Count of occurrences/ value
-public:
+    دوگانه m_d = 0.0;  ///< Count of occurrences/ value
+عمومی:
     // METHODS
-    VDouble0() = default;
-    ~VDouble0() = default;
+    VDouble0() = پیشفرض;
+    ~VDouble0() = پیشفرض;
 
     // Implicit conversion operators:
-    explicit VDouble0(const uint64_t v)
-        : m_d{static_cast<double>(v)} {}
-    operator double() const { return m_d; }
+    explicit VDouble0(ثابت uint64_t v)
+        : m_d{static_cast<دوگانه>(v)} {}
+    operator دوگانه() ثابت { بازگشت m_d; }
 
     // Explicit operators:
     VDouble0& operator++() {  // prefix
         ++m_d;
-        return *this;
+        بازگشت *this;
     }
-    VDouble0 operator++(int) {  // postfix
-        const VDouble0 old = *this;
+    VDouble0 operator++(صحیح) {  // postfix
+        ثابت VDouble0 old = *this;
         ++m_d;
-        return old;
+        بازگشت old;
     }
-    VDouble0& operator=(const double v) {
+    VDouble0& operator=(ثابت دوگانه v) {
         m_d = v;
-        return *this;
+        بازگشت *this;
     }
-    VDouble0& operator+=(const double v) {
+    VDouble0& operator+=(ثابت دوگانه v) {
         m_d += v;
-        return *this;
+        بازگشت *this;
     }
-    VDouble0& operator-=(const double v) {
+    VDouble0& operator-=(ثابت دوگانه v) {
         m_d -= v;
-        return *this;
+        بازگشت *this;
     }
 };
 
@@ -67,94 +67,94 @@ public:
 
 class V3Statistic final {
     // A statistical entry we want published into the database
-    const string m_name;  ///< Name of this statistic
-    double m_value;  ///< Value of statistic (count, ratio, etc.)
+    ثابت string m_name;  ///< Name of this statistic
+    دوگانه m_مقدار;  ///< Value of statistic (count, ratio, etc.)
     unsigned m_precision;  ///< Precision to print with (number of fractional digits)
-    const string m_stage;  ///< Runtime stage
-    const bool m_sumit;  ///< Do summation of similar stats
-    const bool m_perf;  ///< Performance section
+    ثابت string m_stage;  ///< Runtime stage
+    ثابت bool m_sumit;  ///< Do summation of similar stats
+    ثابت bool m_perf;  ///< Performance section
     bool m_printit = true;  ///< Print the results
-public:
+عمومی:
     // METHODS
-    string stage() const VL_MT_SAFE { return m_stage; }
-    string name() const VL_MT_SAFE { return m_name; }
-    double value() const VL_MT_SAFE { return m_value; }
-    unsigned precision() const VL_MT_SAFE { return m_precision; }
-    bool sumit() const VL_MT_SAFE { return m_sumit; }
-    bool perf() const VL_MT_SAFE { return m_perf; }
-    bool printit() const VL_MT_SAFE { return m_printit; }
-    virtual void dump(std::ofstream& os) const VL_MT_SAFE;
-    void combineWith(V3Statistic* otherp) {
-        m_value += otherp->value();
+    string stage() ثابت VL_MT_SAFE { بازگشت m_stage; }
+    string name() ثابت VL_MT_SAFE { بازگشت m_name; }
+    دوگانه مقدار() ثابت VL_MT_SAFE { بازگشت m_مقدار; }
+    unsigned precision() ثابت VL_MT_SAFE { بازگشت m_precision; }
+    bool sumit() ثابت VL_MT_SAFE { بازگشت m_sumit; }
+    bool perf() ثابت VL_MT_SAFE { بازگشت m_perf; }
+    bool printit() ثابت VL_MT_SAFE { بازگشت m_printit; }
+    مجازی تهی dump(std::ofstream& os) ثابت VL_MT_SAFE;
+    تهی combineWith(V3Statistic* otherp) {
+        m_مقدار += otherp->مقدار();
         otherp->m_printit = false;
     }
     // CONSTRUCTORS
-    V3Statistic(const string& stage, const string& name, double value, unsigned precision,
+    V3Statistic(ثابت string& stage, ثابت string& name, دوگانه مقدار, unsigned precision,
                 bool sumit, bool perf)
         : m_name{name}
-        , m_value{value}
+        , m_مقدار{مقدار}
         , m_precision{precision}
         , m_stage{stage}
         , m_sumit{sumit}
         , m_perf{perf} {}
-    virtual ~V3Statistic() = default;
+    مجازی ~V3Statistic() = پیشفرض;
 };
 
 //============================================================================
 
 class V3Stats final {
-    static V3Mutex s_mutex;  // Protects accesses
+    ایستا V3Mutex s_mutex;  // Protects accesses
 
-public:
+عمومی:
     // Symbolic names for some statistics that are later read by summaryReport()
-    static constexpr const char* STAT_CPP_CHARS = "Output, C++ bytes written";
-    static constexpr const char* STAT_CPP_FILES = "Output, C++ files written";
-    static constexpr const char* STAT_CPUTIME = "CPU time, Total (sec)";
-    static constexpr const char* STAT_MODEL_SIZE = "Size prediction, Model total (bytes)";
-    static constexpr const char* STAT_SOURCE_CHARS = "Input, Verilog bytes read";
-    static constexpr const char* STAT_SOURCE_MODULES = "Input, Verilog modules read";
-    static constexpr const char* STAT_WALLTIME = "Wall time, Total (sec)";
-    static constexpr const char* STAT_WALLTIME_BUILD = "Wall time, Build (sec)";
-    static constexpr const char* STAT_WALLTIME_CVT = "Wall time, Conversion (sec)";
-    static constexpr const char* STAT_WALLTIME_ELAB = "Wall time, Elaboration (sec)";
+    ایستا constexpr ثابت نویسه* STAT_CPP_CHARS = "Output, C++ bytes written";
+    ایستا constexpr ثابت نویسه* STAT_CPP_FILES = "Output, C++ files written";
+    ایستا constexpr ثابت نویسه* STAT_CPUTIME = "CPU time, Total (sec)";
+    ایستا constexpr ثابت نویسه* STAT_MODEL_SIZE = "Size prediction, Model total (bytes)";
+    ایستا constexpr ثابت نویسه* STAT_SOURCE_CHARS = "Input, Verilog bytes read";
+    ایستا constexpr ثابت نویسه* STAT_SOURCE_MODULES = "Input, Verilog modules read";
+    ایستا constexpr ثابت نویسه* STAT_WALLTIME = "Wall time, Total (sec)";
+    ایستا constexpr ثابت نویسه* STAT_WALLTIME_BUILD = "Wall time, Build (sec)";
+    ایستا constexpr ثابت نویسه* STAT_WALLTIME_CVT = "Wall time, Conversion (sec)";
+    ایستا constexpr ثابت نویسه* STAT_WALLTIME_ELAB = "Wall time, Elaboration (sec)";
 
-    static void addStat(const V3Statistic&);
-    static void addStat(const string& stage, const string& name, double value,
+    ایستا تهی addStat(ثابت V3Statistic&);
+    ایستا تهی addStat(ثابت string& stage, ثابت string& name, دوگانه مقدار,
                         unsigned precision = 0) {
-        addStat(V3Statistic{stage, name, value, precision, false, false});
+        addStat(V3Statistic{stage, name, مقدار, precision, false, false});
     }
-    static void addStat(const string& name, double value, unsigned precision = 0) {
-        addStat(V3Statistic{"*", name, value, precision, false, false});
+    ایستا تهی addStat(ثابت string& name, دوگانه مقدار, unsigned precision = 0) {
+        addStat(V3Statistic{"*", name, مقدار, precision, false, false});
     }
     // Add summary statistic - Threadsafe _unlike most other functions here_
-    static void addStatSum(const char* name, double count) VL_MT_SAFE_EXCLUDES(s_mutex) {
+    ایستا تهی addStatSum(ثابت نویسه* name, دوگانه شمار) VL_MT_SAFE_EXCLUDES(s_mutex) {
         // Avoid memory blow-up when called frequently with zero adds,
         // e.g. from V3Const invoked on individual expressions.
-        if (count == 0.0) return;
-        const V3LockGuard lock{s_mutex};
-        addStat(V3Statistic{"*", name, count, 0, true, false});
+        اگر (شمار == 0.0) بازگشت;
+        ثابت V3LockGuard lock{s_mutex};
+        addStat(V3Statistic{"*", name, شمار, 0, true, false});
     }
-    static void addStatSum(const std::string& name, double count) {
-        addStatSum(name.c_str(), count);
+    ایستا تهی addStatSum(ثابت std::string& name, دوگانه شمار) {
+        addStatSum(name.c_str(), شمار);
     }
-    static void addStatPerf(const string& name, double value) {
-        addStat(V3Statistic{"*", name, value, 6, true, true});
+    ایستا تهی addStatPerf(ثابت string& name, دوگانه مقدار) {
+        addStat(V3Statistic{"*", name, مقدار, 6, true, true});
     }
     /// Return value of statistic, or zero if not found
-    static double getStatSum(const string& name);
-    static uint64_t getStatSumQ(const string& name) {
-        return static_cast<uint64_t>(getStatSum(name));
+    ایستا دوگانه getStatSum(ثابت string& name);
+    ایستا uint64_t getStatSumQ(ثابت string& name) {
+        بازگشت static_cast<uint64_t>(getStatSum(name));
     }
     /// Called each stage
-    static void statsStage(const string& name);
+    ایستا تهی statsStage(ثابت string& name);
     /// Called by the top level, and error path, to collect statistics
-    static void statsStageAll(AstNetlist* nodep, const string& stage, bool fastOnly = false);
+    ایستا تهی statsStageAll(AstNetlist* nodep, ثابت string& stage, bool fastOnly = false);
     /// Called by the top level to dump the statistics
-    static void statsReport();
+    ایستا تهی statsReport();
     /// Called by debug dumps
-    static void infoHeader(std::ofstream& os, const string& prefix);
+    ایستا تهی infoHeader(std::ofstream& os, ثابت string& prefix);
     /// Called for final build report
-    static void summaryReport();
+    ایستا تهی summaryReport();
 };
 
 #endif  // Guard
