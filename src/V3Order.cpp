@@ -83,18 +83,18 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    만약 (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
     graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    만약 (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
     graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    만약 (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
 }
 
 //######################################################################
@@ -117,14 +117,14 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
     // Build the move graph
     OrderMoveDomScope::clear();
     const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    만약 (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
 
     // The ordered statements, if there are any
     AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
+    만약 (!moveGraphp->empty()) {
+        만약 (parallel) {
             stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
+        } 아니면 {
             stmtsp = createSerial(*moveGraphp, tag, slow);
         }
         // Should have consumed all vertices
@@ -133,13 +133,13 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
     OrderMoveDomScope::clear();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    만약 (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    위해 (auto* const lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    만약 (!stmtsp) 반환 nullptr;
 
     // Create the result function
     AstNetlist* const netlistp = v3Global.rootp();
@@ -154,12 +154,12 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
         resp->isConst(false);
         resp->declPrivate(true);
         scopeTopp->addBlocksp(resp);
-        return resp;
+        반환 resp;
     }();
 
     // Assemble the body
     funcp->addStmtsp(stmtsp);
 
     // Done
-    return funcp;
+    반환 funcp;
 }

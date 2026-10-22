@@ -48,14 +48,14 @@ public:
             = {// These must match the `begin_keywords values
                " ERROR",    "1364-1995", "1364-2001", "1364-2005", "1800-2005",
                "1800-2009", "1800-2012", "1800-2017", "1800-2023"};
-        return names[m_e];
+        반환 names[m_e];
     }
-    static V3LangCode mostRecent() VL_MT_SAFE { return V3LangCode{L1800_2023}; }
+    static V3LangCode mostRecent() VL_MT_SAFE { 반환 V3LangCode{L1800_2023}; }
     bool systemVerilog() const {
-        return m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
+        반환 m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
                || m_e == L1800_2023;
     }
-    bool legal() const { return m_e != L_ERROR; }
+    bool legal() const { 반환 m_e != L_ERROR; }
     //
     enum en m_e;
     V3LangCode()
@@ -64,9 +64,9 @@ public:
     constexpr V3LangCode(en _e)
         : m_e{_e} {}
     explicit V3LangCode(const char* textp);
-    explicit V3LangCode(int _e)
+    explicit V3LangCode(정수 _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { 반환 m_e; }
 };
 
 //######################################################################

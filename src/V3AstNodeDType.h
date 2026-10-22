@@ -35,16 +35,16 @@ class AstNodeDType VL_NOT_FINAL : public AstNode {
     // but it's currently so prevalent in the code we leave it here.
     // Note the below members are included in AstTypeTable::Key lookups
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_width = 0;  // (also in AstTypeTable::Key) Bit width of operation
+    정수 m_width = 0;  // (also in AstTypeTable::Key) Bit width of operation
     // (also in AstTypeTable::Key) If unsized, bitwidth of minimum implementation
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_widthMin = 0;
+    정수 m_widthMin = 0;
     // dist-ast-dump-suppress  // Part of dumpSmall
     VSigning m_numeric;  // (also in AstTypeTable::Key) Node is signed
     // dist-ast-dump-suppress  // Part of dumpSmall
     bool m_generic = false;  // Simple globally referenced type, don't garbage collect
     // Unique number assigned to each dtype during creation for IEEE matching
-    static int s_uniqueNum;
+    static 정수 s_uniqueNum;
 
 protected:
     // CONSTRUCTORS
@@ -66,89 +66,89 @@ public:
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     virtual void dumpSmall(std::ostream& str) const VL_MT_STABLE;
-    bool hasDType() const override VL_MT_SAFE { return true; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
     /// Require VlUnpacked, instead of [] for POD elements.
     /// A non-POD object is always compound, but some POD elements
     /// are compound when methods calls operate on object, or when
     /// under another compound-requiring object e.g. class
     virtual bool isCompound() const = 0;
     // Integral or packed, allowed inside an unpacked union/struct
-    virtual bool isIntegralOrPacked() const { return !isCompound(); }
+    virtual bool isIntegralOrPacked() const { 반환 !isCompound(); }
     // (Slow) recurse down to find basic data type
     virtual AstBasicDType* basicp() const VL_MT_STABLE = 0;
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type
-    const AstNodeDType* skipRefp() const VL_MT_STABLE { return skipRefIterp(true, true); }
+    const AstNodeDType* skipRefp() const VL_MT_STABLE { 반환 skipRefIterp(true, true); }
     AstNodeDType* skipRefp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type,
     // Returns null if not resolved
     const AstNodeDType* skipRefOrNullp() const VL_MT_STABLE {
-        return skipRefIterp(true, true, false);
+        반환 skipRefIterp(true, true, false);
     }
     AstNodeDType* skipRefOrNullp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|EnumDType to ConstDType
-    const AstNodeDType* skipRefToConstp() const { return skipRefIterp(false, true); }
+    const AstNodeDType* skipRefToConstp() const { 반환 skipRefIterp(false, true); }
     AstNodeDType* skipRefToConstp() {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->skipRefIterp(false, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType
-    const AstNodeDType* skipRefToEnump() const { return skipRefIterp(true, false); }
+    const AstNodeDType* skipRefToEnump() const { 반환 skipRefIterp(true, false); }
     AstNodeDType* skipRefToEnump() {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->skipRefIterp(true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType,
     // Returns null if not resolved
-    const AstNodeDType* skipRefToEnumOrNullp() const { return skipRefIterp(true, false, false); }
+    const AstNodeDType* skipRefToEnumOrNullp() const { 반환 skipRefIterp(true, false, false); }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType to other type
-    const AstNodeDType* skipRefToNonRefp() const { return skipRefIterp(false, false); }
+    const AstNodeDType* skipRefToNonRefp() const { 반환 skipRefIterp(false, false); }
     AstNodeDType* skipRefToNonRefp() {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->skipRefIterp(false, false));
     }
     // If array, returns element dtype, otherwise returns skipRef dtype
     // If skipRef is false, RefDTypes are not followed (safe before typedef linking)
     const AstNodeDType* elemDTypep(bool skipRef = true) const VL_MT_STABLE;
     AstNodeDType* elemDTypep(bool skipRef = true) VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
+        반환 const_cast<AstNodeDType*>(
             static_cast<const AstNodeDType*>(this)->elemDTypep(skipRef));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    virtual int widthAlignBytes() const = 0;
+    virtual 정수 widthAlignBytes() const = 0;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    virtual int widthTotalBytes() const = 0;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    virtual 정수 widthTotalBytes() const = 0;
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
     // Iff has a non-null refDTypep(), as generic node function
-    virtual AstNodeDType* virtRefDTypep() const { return nullptr; }
+    virtual AstNodeDType* virtRefDTypep() const { 반환 nullptr; }
     // Iff has refDTypep(), set as generic node function
     virtual void virtRefDTypep(AstNodeDType* nodep) {}
     // Iff has a non-null second dtypep, as generic node function
-    virtual AstNodeDType* virtRefDType2p() const { return nullptr; }
+    virtual AstNodeDType* virtRefDType2p() const { 반환 nullptr; }
     // Iff has second dtype, set as generic node function
     virtual void virtRefDType2p(AstNodeDType* nodep) {}
     // Assignable equivalence.  Calls skipRefToNonRefp() during comparisons.
     bool similarDType(const AstNodeDType* samep) const;
     // Iff has a non-null subDTypep(), as generic node function
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE { return nullptr; }
-    virtual AstNodeDType* subDType2p() const VL_MT_STABLE { return nullptr; }
-    virtual bool isAggregateType() const { return false; }
+    virtual AstNodeDType* subDTypep() const VL_MT_STABLE { 반환 nullptr; }
+    virtual AstNodeDType* subDType2p() const VL_MT_STABLE { 반환 nullptr; }
+    virtual bool isAggregateType() const { 반환 false; }
     // True for unpacked, dynamic, queue, and associative arrays (not packed arrays)
     bool isNonPackedArray() const;
     virtual bool isFourstate() const;
     // Ideally an IEEE $typename
-    virtual string prettyDTypeName(bool) const { return prettyTypeName(); }
-    string prettyDTypeNameQ(bool full = false) const { return "'" + prettyDTypeName(full) + "'"; }
-    string stateDTypeName() const { return this->isFourstate() ? "(4-state)" : "(2-state)"; }
+    virtual string prettyDTypeName(bool) const { 반환 prettyTypeName(); }
+    string prettyDTypeNameQ(bool full = false) const { 반환 "'" + prettyDTypeName(full) + "'"; }
+    string stateDTypeName() const { 반환 this->isFourstate() ? "(4-state)" : "(2-state)"; }
     //
     // Changing the width may confuse the data type resolution, so must clear
     // TypeTable cache after use.
-    void widthForce(int width, int widthMin) {
+    void widthForce(정수 width, 정수 widthMin) {
         m_width = width;
         m_widthMin = widthMin;
     }
@@ -159,20 +159,20 @@ public:
         m_numeric = nodep->m_numeric;
     }
     //
-    int width() const VL_MT_STABLE { return m_width; }
+    정수 width() const VL_MT_STABLE { 반환 m_width; }
     void numeric(VSigning flag) { m_numeric = flag; }
-    bool isSigned() const VL_MT_STABLE { return m_numeric.isSigned(); }
-    bool isNosign() const VL_MT_SAFE { return m_numeric.isNosign(); }
-    VSigning numeric() const VL_MT_STABLE { return m_numeric; }
-    int widthWords() const VL_MT_STABLE { return VL_WORDS_I(width()); }
-    int widthMin() const VL_MT_STABLE {  // If sized, the size,
+    bool isSigned() const VL_MT_STABLE { 반환 m_numeric.isSigned(); }
+    bool isNosign() const VL_MT_SAFE { 반환 m_numeric.isNosign(); }
+    VSigning numeric() const VL_MT_STABLE { 반환 m_numeric; }
+    정수 widthWords() const VL_MT_STABLE { 반환 VL_WORDS_I(width()); }
+    정수 widthMin() const VL_MT_STABLE {  // If sized, the size,
                                          // if unsized the min digits to represent it
-        return m_widthMin ? m_widthMin : m_width;
+        반환 m_widthMin ? m_widthMin : m_width;
     }
-    int widthPow2() const;
+    정수 widthPow2() const;
     void widthMinFromWidth() { m_widthMin = m_width; }
-    bool widthSized() const VL_MT_SAFE { return !m_widthMin || m_widthMin == m_width; }
-    bool generic() const VL_MT_SAFE { return m_generic; }
+    bool widthSized() const VL_MT_SAFE { 반환 !m_widthMin || m_widthMin == m_width; }
+    bool generic() const VL_MT_SAFE { 반환 m_generic; }
     void generic(bool flag) { m_generic = flag; }
     std::pair<uint32_t, uint32_t> dimensions(bool includeBasic) const;
     uint32_t arrayUnpackedElements() const;  // 1, or total multiplication of all dimensions
@@ -181,19 +181,19 @@ public:
     // Whether is a string, or an unpacked array or structure containing one
     bool containsString() const;
     bool containsUnpackedStruct() const;
-    int widthStream() const;
+    정수 widthStream() const;
     string vlEnumType() const;  // Return VerilatedVarType: VLVT_UINT32, etc
     string vlEnumPackedAgg() const;  // Return VLVF_PACKED_AGG etc flags, or empty
-    static int uniqueNumInc() { return ++s_uniqueNum; }
+    static 정수 uniqueNumInc() { 반환 ++s_uniqueNum; }
     const char* charIQWN() const {
-        return (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
+        반환 (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
     }
     string cType(const string& name, bool forFunc, bool isRef, bool packed = false) const;
     // Represents a C++ LiteralType? (can be constexpr)
     bool isLiteralType() const VL_MT_STABLE;
     // C++ type (as emitted by cType) is trivially default constructible and destructible?
     bool isTriviallyConstructible() const VL_MT_STABLE;
-    virtual bool isDynamicallySized() const { return false; }
+    virtual bool isDynamicallySized() const { 반환 false; }
 
 private:
     class CTypeRecursed;
@@ -205,7 +205,7 @@ class AstNodeArrayDType VL_NOT_FINAL : public AstNodeDType {
     // @astgen op2 := rangep : Optional[AstRange] // array bounds
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-    AstNode* rangenp() const { return reinterpret_cast<AstNode*>(rangep()); }
+    AstNode* rangenp() const { 반환 reinterpret_cast<AstNode*>(rangep()); }
 
 protected:
     AstNodeArrayDType(VNType t, FileLine* fl)
@@ -218,38 +218,38 @@ public:
     void dumpSmall(std::ostream& str) const override;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return hi() == asamep->hi() && rangenp()->sameTree(asamep->rangenp())
+        반환 hi() == asamep->hi() && rangenp()->sameTree(asamep->rangenp())
                && subDTypep() == asamep->subDTypep();
     }  // HashedDT doesn't recurse, so need to check children
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return elementsConst() == asamep->elementsConst()
+        반환 elementsConst() == asamep->elementsConst()
                && subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
     AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep()->basicp();
+        반환 subDTypep()->basicp();
     }  // (Slow) recurse down to find basic data type
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override {
-        return elementsConst() * subDTypep()->widthTotalBytes();
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override {
+        반환 elementsConst() * subDTypep()->widthTotalBytes();
     }
-    inline int left() const VL_MT_STABLE;
-    inline int right() const VL_MT_STABLE;
-    inline int hi() const VL_MT_STABLE;
-    inline int lo() const VL_MT_STABLE;
-    inline int elementsConst() const VL_MT_STABLE;
+    inline 정수 left() const VL_MT_STABLE;
+    inline 정수 right() const VL_MT_STABLE;
+    inline 정수 hi() const VL_MT_STABLE;
+    inline 정수 lo() const VL_MT_STABLE;
+    inline 정수 elementsConst() const VL_MT_STABLE;
     inline VNumRange declRange() const VL_MT_STABLE;
 };
 class AstNodeUOrStructDType VL_NOT_FINAL : public AstNodeDType {
@@ -259,7 +259,7 @@ class AstNodeUOrStructDType VL_NOT_FINAL : public AstNodeDType {
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Package emitted with
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    const 정수 m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
     bool m_packed;  // Packed struct/union, else unpacked
     bool m_isFourstate = false;  // V3Width computes; true if any member is 4-state
     bool m_constrainedRand = false;  // True if struct has constraint expression
@@ -283,26 +283,26 @@ protected:
 
 public:
     ASTGEN_MEMBERS_AstNodeUOrStructDType;
-    int uniqueNum() const { return m_uniqueNum; }
+    정수 uniqueNum() const { 반환 m_uniqueNum; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     string prettyDTypeName(bool) const override;
-    bool isCompound() const override { return !packed(); }
+    bool isCompound() const override { 반환 !packed(); }
     // For basicp() we reuse the size to indicate a "fake" basic type of same size
     AstBasicDType* basicp() const override VL_MT_STABLE {
-        if (!m_packed) return nullptr;
-        return (isFourstate()
+        만약 (!m_packed) 반환 nullptr;
+        반환 (isFourstate()
                     ? VN_AS(findLogicRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
                             BasicDType)
                     : VN_AS(findBitRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
                             BasicDType));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    정수 widthAlignBytes() const override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
+    정수 widthTotalBytes() const override;
     bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
     void name(const string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
     void typedefName(const string& name) { m_typedefName = name; }
@@ -310,24 +310,24 @@ public:
     string dpiName() const;
     // C typedef of the unpacked structure for DPI (IEEE 1800-2023 H.7.3)
     string dpiTypedef() const;
-    bool packed() const VL_MT_SAFE { return m_packed; }
+    bool packed() const VL_MT_SAFE { 반환 m_packed; }
     void packed(bool flag) { m_packed = flag; }
     // packed() but as don't support unpacked, presently all structs
-    static bool packedUnsup() { return true; }
+    static bool packedUnsup() { 반환 true; }
     void isFourstate(bool flag) { m_isFourstate = flag; }
-    bool isFourstate() const override VL_MT_SAFE { return m_isFourstate; }
-    static int lo() VL_MT_STABLE { return 0; }
-    int hi() const VL_MT_STABLE {
-        return dtypep()->width() - 1;
+    bool isFourstate() const override VL_MT_SAFE { 반환 m_isFourstate; }
+    static 정수 lo() VL_MT_STABLE { 반환 0; }
+    정수 hi() const VL_MT_STABLE {
+        반환 dtypep()->width() - 1;
     }  // Packed classes look like arrays
-    VNumRange declRange() const VL_MT_STABLE { return VNumRange{hi(), lo()}; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
+    VNumRange declRange() const VL_MT_STABLE { 반환 VNumRange{hi(), lo()}; }
+    AstNodeModule* classOrPackagep() const { 반환 m_classOrPackagep; }
     void classOrPackagep(AstNodeModule* classpackagep) { m_classOrPackagep = classpackagep; }
-    bool isConstrainedRand() const { return m_constrainedRand; }
+    bool isConstrainedRand() const { 반환 m_constrainedRand; }
     void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    bool emitToString() const { return m_emitToString; }
+    bool emitToString() const { 반환 m_emitToString; }
     void setEmitToString() { m_emitToString = true; }
-    bool isAggregateType() const override { return !packed(); }
+    bool isAggregateType() const override { 반환 !packed(); }
 };
 
 // === Concrete node types =====================================================
@@ -347,9 +347,9 @@ public:
         this->valuep(valuep);
     }
     ASTGEN_MEMBERS_AstEnumItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
     void name(const string& flag) override { m_name = flag; }
 };
 
@@ -380,46 +380,46 @@ public:
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
         BROKEN_RTN(!((m_keyDTypep && !childDTypep()) || (!m_keyDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        if (!asamep->subDTypep()) return false;
-        if (!asamep->keyDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep() && keyDTypep() == asamep->keyDTypep());
+        만약 (!asamep->subDTypep()) 반환 false;
+        만약 (!asamep->keyDTypep()) 반환 false;
+        반환 (subDTypep() == asamep->subDTypep() && keyDTypep() == asamep->keyDTypep());
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
+        반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
                && asamep->keyDTypep() && keyDTypep()->similarDType(asamep->keyDTypep());
     }
     string prettyDTypeName(bool full) const override;
     void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* getChild2DTypep() const override { return keyChildDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
+    AstNodeDType* getChild2DTypep() const override { 반환 keyChildDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     AstNodeDType* subDType2p() const override VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+        반환 m_keyDTypep ? m_keyDTypep : keyChildDTypep();
     }
-    bool isAggregateType() const override { return true; }
+    bool isAggregateType() const override { 반환 true; }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeDType* virtRefDType2p() const override { return m_keyDTypep; }
+    AstNodeDType* virtRefDType2p() const override { 반환 m_keyDTypep; }
     void virtRefDType2p(AstNodeDType* nodep) override { keyDTypep(nodep); }
     //
     AstNodeDType* keyDTypep() const VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+        반환 m_keyDTypep ? m_keyDTypep : keyChildDTypep();
     }
     void keyDTypep(AstNodeDType* nodep) { m_keyDTypep = nodep; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
+    bool isCompound() const override { 반환 true; }
+    bool isDynamicallySized() const override { 반환 true; }
 };
 class AstBasicDType final : public AstNodeDType {
     // Builtin atomic/vectored data type
@@ -429,7 +429,7 @@ class AstBasicDType final : public AstNodeDType {
         // dist-ast-dump-suppress  // Part of dumpSmall
         VNumRange m_nrange;  // (also in VBasicTypeKey) Numeric msb/lsb (if non-opaque keyword)
         bool operator==(const Members& rhs) const {
-            return rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
+            반환 rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
         }
     } m;
     // See also in AstNodeDType: m_width, m_widthMin, m_numeric(issigned)
@@ -438,30 +438,30 @@ public:
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, signst, 0, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogicPacked, int wantwidth)
+    AstBasicDType(FileLine* fl, VFlagLogicPacked, 정수 wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogic2StatePacked, int wantwidth)
+    AstBasicDType(FileLine* fl, VFlagLogic2StatePacked, 정수 wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC2STATE, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagBitPacked, int wantwidth)
+    AstBasicDType(FileLine* fl, VFlagBitPacked, 정수 wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::BIT, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int widthmin)
+    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, 정수 wantwidth, 정수 widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, wantwidth, widthmin, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, int widthmin)
+    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, 정수 widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, range.elements(), widthmin, nullptr);
         m.m_nrange = range;  // as init() presumes lsb==0, but range.lsb() might not be
     }
     // See also addRange in verilog.y
 private:
-    void init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int wantwidthmin,
+    void init(VBasicDTypeKwd kwd, VSigning numer, 정수 wantwidth, 정수 wantwidthmin,
               AstRange* rangep);
 
 public:
@@ -471,88 +471,88 @@ public:
     // width/widthMin/numeric compared elsewhere
     bool sameNode(const AstNode* samep) const override;
     bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m.m_keyword.typeName(); }
+    string name() const override VL_MT_STABLE { 반환 m.m_keyword.typeName(); }
     string prettyDTypeName(bool full) const override;
     const char* broken() const override {
         BROKEN_RTN(dtypep() != this);
         BROKEN_RTN(v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH
                    && widthMin() > width());
-        return nullptr;
+        반환 nullptr;
     }
     void setSignedState(const VSigning& signst) {
         // Note NOSIGN does NOT change the state; this is required by the parser
-        if (signst == VSigning::UNSIGNED) {
+        만약 (signst == VSigning::UNSIGNED) {
             numeric(signst);
-        } else if (signst == VSigning::SIGNED) {
+        } 아니면 만약 (signst == VSigning::SIGNED) {
             numeric(signst);
         }
     }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return (AstBasicDType*)this; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 (AstBasicDType*)this; }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    정수 widthAlignBytes() const override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
-    bool isFourstate() const override { return keyword().isFourstate(); }
+    정수 widthTotalBytes() const override;
+    bool isFourstate() const override { 반환 keyword().isFourstate(); }
     VBasicDTypeKwd keyword() const VL_MT_SAFE {  // Avoid using - use isSomething accessors instead
-        return m.m_keyword;
+        반환 m.m_keyword;
     }
-    bool isBitLogic() const { return keyword().isBitLogic(); }
-    bool isBit() const { return keyword().isBit(); }
-    bool isCHandle() const VL_MT_STABLE { return keyword().isCHandle(); }
-    bool isDouble() const VL_MT_STABLE { return keyword().isDouble(); }
-    bool isEvent() const VL_MT_STABLE { return keyword() == VBasicDTypeKwd::EVENT; }
-    bool isForkSync() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::FORK_SYNC; }
-    bool isProcessRef() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
+    bool isBitLogic() const { 반환 keyword().isBitLogic(); }
+    bool isBit() const { 반환 keyword().isBit(); }
+    bool isCHandle() const VL_MT_STABLE { 반환 keyword().isCHandle(); }
+    bool isDouble() const VL_MT_STABLE { 반환 keyword().isDouble(); }
+    bool isEvent() const VL_MT_STABLE { 반환 keyword() == VBasicDTypeKwd::EVENT; }
+    bool isForkSync() const VL_MT_SAFE { 반환 keyword() == VBasicDTypeKwd::FORK_SYNC; }
+    bool isProcessRef() const VL_MT_SAFE { 반환 keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
     bool isDelayScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
+        반환 keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
     }
     bool isTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
+        반환 keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
     }
     bool isDynamicTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
+        반환 keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
     }
     bool isRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
+        반환 keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
     }
     bool isStdRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
+        반환 keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
     }
     bool isCovergroupInstHandle() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
+        반환 keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
     }
-    bool isOpaque() const VL_MT_SAFE { return keyword().isOpaque(); }
-    bool isString() const VL_MT_STABLE { return keyword().isString(); }
-    bool isZeroInit() const { return keyword().isZeroInit(); }
-    bool isRanged() const { return rangep() || m.m_nrange.ranged(); }
+    bool isOpaque() const VL_MT_SAFE { 반환 keyword().isOpaque(); }
+    bool isString() const VL_MT_STABLE { 반환 keyword().isString(); }
+    bool isZeroInit() const { 반환 keyword().isZeroInit(); }
+    bool isRanged() const { 반환 rangep() || m.m_nrange.ranged(); }
     bool isDpiBitVec() const {  // DPI uses svBitVecVal
-        return keyword() == VBasicDTypeKwd::BIT && isRanged();
+        반환 keyword() == VBasicDTypeKwd::BIT && isRanged();
     }
     bool isDpiLogicVec() const {  // DPI uses svLogicVecVal
-        return keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
+        반환 keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
     }
     bool isDpiCLayout() const {
-        return keyword().isDpiCLayout()
+        반환 keyword().isDpiCLayout()
                || (keyword().isSameish(VBasicDTypeKwd::LOGIC) && !isRanged());
     }
     bool isDpiPrimitive() const {  // DPI uses a primitive type
-        return !isDpiBitVec() && !isDpiLogicVec();
+        반환 !isDpiBitVec() && !isDpiLogicVec();
     }
     // Generally the lo/hi/left/right funcs should be used instead of nrange()
-    const VNumRange& nrange() const { return m.m_nrange; }
-    inline int hi() const;
-    inline int lo() const;
-    inline int elements() const;
-    int left() const { return ascending() ? lo() : hi(); }  // How to show a declaration
-    int right() const { return ascending() ? hi() : lo(); }
+    const VNumRange& nrange() const { 반환 m.m_nrange; }
+    inline 정수 hi() const;
+    inline 정수 lo() const;
+    inline 정수 elements() const;
+    정수 left() const { 반환 ascending() ? lo() : hi(); }  // How to show a declaration
+    정수 right() const { 반환 ascending() ? hi() : lo(); }
     inline bool ascending() const;
-    bool implicit() const { return keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
-    bool untyped() const { return keyword() == VBasicDTypeKwd::UNTYPED; }
-    VNumRange declRange() const { return isRanged() ? VNumRange{left(), right()} : VNumRange{}; }
+    bool implicit() const { 반환 keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
+    bool untyped() const { 반환 keyword() == VBasicDTypeKwd::UNTYPED; }
+    VNumRange declRange() const { 반환 isRanged() ? VNumRange{left(), right()} : VNumRange{}; }
     void cvtRangeConst();  // Convert to smaller representation
-    bool isCompound() const override { return isString(); }
-    bool isIntegralOrPacked() const override { return keyword().isIntNumeric(); }
+    bool isCompound() const override { 반환 isString(); }
+    bool isIntegralOrPacked() const override { 반환 keyword().isIntNumeric(); }
 };
 class AstBracketArrayDType final : public AstNodeDType {
     // Associative/Queue/Normal array data type, ie "[dtype_or_expr]"
@@ -567,16 +567,16 @@ public:
         this->elementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstBracketArrayDType;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return childDTypep(); }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 childDTypep(); }
     // METHODS
     // Will be removed in V3Width, which relies on this
     // being a child not a dtype pointed node
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(0); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(0); }
-    bool isCompound() const override { return true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 false; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { V3ERROR_NA_RETURN(0); }
+    정수 widthTotalBytes() const override { V3ERROR_NA_RETURN(0); }
+    bool isCompound() const override { 반환 true; }
 };
 class AstCDType final : public AstNodeDType {
     // Raw "C" data type passed directly to output
@@ -591,24 +591,24 @@ public:
     ASTGEN_MEMBERS_AstCDType;
     bool sameNode(const AstNode* samep) const override {
         const AstCDType* const asamep = VN_DBG_AS(samep, CDType);
-        return m_name == asamep->m_name;
+        반환 m_name == asamep->m_name;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    string prettyDTypeName(bool) const override { return m_name; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 sameNode(samep); }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
+    string prettyDTypeName(bool) const override { 반환 m_name; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 8; }  // Assume
-    int widthTotalBytes() const override { return 8; }  // Assume
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 8; }  // Assume
+    정수 widthTotalBytes() const override { 반환 8; }  // Assume
+    bool isCompound() const override { 반환 true; }
     // Return the global runtime type storing the requested number of bits.
-    static string typeToHold(int width) {
-        if (width <= 8) return "::CData";
-        if (width <= 16) return "::SData";
-        if (width <= VL_IDATASIZE) return "::IData";
-        if (width <= VL_QUADSIZE) return "::QData";
+    static string typeToHold(정수 width) {
+        만약 (width <= 8) 반환 "::CData";
+        만약 (width <= 16) 반환 "::SData";
+        만약 (width <= VL_IDATASIZE) 반환 "::IData";
+        만약 (width <= VL_QUADSIZE) 반환 "::QData";
 
-        return "::VlWide<" + std::to_string(VL_WORDS_I(width)) + ">";
+        반환 "::VlWide<" + std::to_string(VL_WORDS_I(width)) + ">";
     }
 };
 class AstClassRefDType final : public AstNodeDType {
@@ -629,7 +629,7 @@ public:
     // METHODS
     bool sameNode(const AstNode* samep) const override {
         const AstClassRefDType* const asamep = VN_DBG_AS(samep, ClassRefDType);
-        return (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
+        반환 (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
                 && m_rawPointer == asamep->m_rawPointer);
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override;
@@ -639,20 +639,20 @@ public:
     string prettyDTypeName(bool full) const override;
     string prettyNameMsg() const override;
     string name() const override VL_MT_STABLE;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 0; }
+    정수 widthTotalBytes() const override { 반환 0; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeModule* classOrPackagep() const { 반환 m_classOrPackagep; }
     void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    AstClass* classp() const VL_MT_STABLE { return m_classp; }
+    AstClass* classp() const VL_MT_STABLE { 반환 m_classp; }
     void classp(AstClass* nodep) { m_classp = nodep; }
-    bool rawPointer() const { return m_rawPointer; }
+    bool rawPointer() const { 반환 m_rawPointer; }
     void rawPointer(bool flag) { m_rawPointer = flag; }
     static void selfTest();
-    bool isCompound() const override { return true; }
+    bool isCompound() const override { 반환 true; }
 };
 class AstConstDType final : public AstNodeDType {
     // const data type, ie "const some_dtype var_name [2:0]"
@@ -672,29 +672,29 @@ public:
     ASTGEN_MEMBERS_AstConstDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstConstDType* const sp = VN_DBG_AS(samep, ConstDType);
-        return (m_refDTypep == sp->m_refDTypep);
+        반환 (m_refDTypep == sp->m_refDTypep);
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return skipRefp()->similarDType(samep->skipRefp());
+        반환 skipRefp()->similarDType(samep->skipRefp());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
     bool isCompound() const override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        반환 false;
     }
 };
 class AstConstraintRefDType final : public AstNodeDType {
@@ -705,17 +705,17 @@ public:
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstConstraintRefDType;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool undead() const override { 반환 true; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 1; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstCoverCrossDType final : public AstNodeDType {
     // Borrowed pointer to VlCoverCrossT<...> or construction-time VlCoverCrossDyn.
@@ -741,29 +741,29 @@ public:
     ASTGEN_MEMBERS_AstCoverCrossDType;
     const char* broken() const override {
         BROKEN_RTN(m_dimensions == 0);
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
         const AstCoverCrossDType* const sp = VN_DBG_AS(samep, CoverCrossDType);
-        return dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
+        반환 dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
                && autoBins() == sp->autoBins() && binWords() == sp->binWords()
                && isDynamic() == sp->isDynamic();
     }  // LCOV_EXCL_STOP
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     void dumpSmall(std::ostream& str) const override;
-    uint32_t dimensions() const { return m_dimensions; }
-    uint32_t tuples() const { return m_tuples; }
-    uint32_t bins() const { return m_bins; }
-    uint32_t autoBins() const { return m_autoBins; }
-    uint64_t binWords() const { return m_binWords; }
-    bool isDynamic() const { return m_dynamic; }
+    uint32_t dimensions() const { 반환 m_dimensions; }
+    uint32_t tuples() const { 반환 m_tuples; }
+    uint32_t bins() const { 반환 m_bins; }
+    uint32_t autoBins() const { 반환 m_autoBins; }
+    uint64_t binWords() const { 반환 m_binWords; }
+    bool isDynamic() const { 반환 m_dynamic; }
     string cppTemplateArgs() const;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 sizeof(void*); }
+    정수 widthTotalBytes() const override { 반환 sizeof(void*); }
+    bool isCompound() const override { 반환 true; }
 };
 class AstCoverpointDType final : public AstNodeDType {
     // Borrowed pointer to a covergroup coverpoint runtime, 'VlCoverpointT<hitBound>*'.
@@ -779,19 +779,19 @@ public:
     ASTGEN_MEMBERS_AstCoverpointDType;
     const char* broken() const override {
         BROKEN_RTN(m_hitBound < 1);
-        return nullptr;
+        반환 nullptr;
     }
     // V3Covergroup interns these one-per-hitBound into the type table, so identity is
     // equality; there is never a second node with the same bound to compare against.
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
     void dumpSmall(std::ostream& str) const override;
     // ACCESSORS
-    uint32_t hitBound() const { return m_hitBound; }
+    uint32_t hitBound() const { 반환 m_hitBound; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 sizeof(void*); }
+    정수 widthTotalBytes() const override { 반환 sizeof(void*); }
+    bool isCompound() const override { 반환 true; }
 };
 class AstDefImplicitDType final : public AstNodeDType {
     // For parsing enum/struct/unions that are declared with a variable rather than typedef
@@ -799,7 +799,7 @@ class AstDefImplicitDType final : public AstNodeDType {
     // After link, these become typedefs
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     string m_name;  // Data type name
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    const 정수 m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
 public:
     AstDefImplicitDType(FileLine* fl, const string& name, VFlagChildDType, AstNodeDType* dtp)
@@ -814,25 +814,25 @@ public:
         , m_name{other.m_name}
         , m_uniqueNum{uniqueNumInc()} {}
     ASTGEN_MEMBERS_AstDefImplicitDType;
-    int uniqueNum() const { return m_uniqueNum; }
+    정수 uniqueNum() const { 반환 m_uniqueNum; }
     bool sameNode(const AstNode* samep) const override {
         const AstDefImplicitDType* const sp = VN_DBG_AS(samep, DefImplicitDType);
-        return uniqueNum() == sp->uniqueNum();
+        반환 uniqueNum() == sp->uniqueNum();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 sameNode(samep); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+        반환 dtypep() ? dtypep() : childDTypep();
     }
     // METHODS
     // op1 = Range of variable
-    AstNodeDType* dtypeSkipRefp() const { return dtypep()->skipRefp(); }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
-    string name() const override VL_MT_STABLE { return m_name; }
+    AstNodeDType* dtypeSkipRefp() const { 반환 dtypep()->skipRefp(); }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 dtypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 dtypep()->widthTotalBytes(); }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
     void name(const string& flag) override { m_name = flag; }
-    bool isCompound() const override { return false; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstDynArrayDType final : public AstNodeDType {
     // Dynamic array data type, ie "[]"
@@ -854,33 +854,33 @@ public:
     ASTGEN_MEMBERS_AstDynArrayDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        if (!asamep->subDTypep()) return false;
-        return subDTypep() == asamep->subDTypep();
+        만약 (!asamep->subDTypep()) 반환 false;
+        반환 subDTypep() == asamep->subDTypep();
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+        반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
     string prettyDTypeName(bool full) const override;
     void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
-    bool isAggregateType() const override { return true; }
+    bool isAggregateType() const override { 반환 true; }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
+    bool isCompound() const override { 반환 true; }
+    bool isDynamicallySized() const override { 반환 true; }
 };
 class AstEmptyQueueDType final : public AstNodeDType {
     // For EmptyQueue
@@ -891,17 +891,17 @@ public:
     }
     ASTGEN_MEMBERS_AstEmptyQueueDType;
     void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool undead() const override { 반환 true; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 1; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstEnumDType final : public AstNodeDType {
     // Parents: TYPEDEF/MODULE
@@ -911,7 +911,7 @@ class AstEnumDType final : public AstNodeDType {
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    const 정수 m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
 public:
     AstEnumDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstEnumItem* itemsp)
@@ -931,20 +931,20 @@ public:
     ASTGEN_MEMBERS_AstEnumDType;
 
     const char* broken() const override;
-    int uniqueNum() const { return m_uniqueNum; }
+    정수 uniqueNum() const { 반환 m_uniqueNum; }
     bool sameNode(const AstNode* samep) const override {
         const AstEnumDType* const sp = VN_DBG_AS(samep, EnumDType);
-        return uniqueNum() == sp->uniqueNum();
+        반환 uniqueNum() == sp->uniqueNum();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 sameNode(samep); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
     void name(const string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
     void typedefName(const string& name) { m_typedefName = name; }
@@ -953,15 +953,15 @@ public:
     void dumpSmall(std::ostream& str) const override;
     string prettyDTypeName(bool full) const override;
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
     size_t itemCount() const {
         size_t count = 0;
-        for (AstNode* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++count;
-        return count;
+        위해 (AstNode* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++count;
+        반환 count;
     }
-    bool isCompound() const override { return false; }
+    bool isCompound() const override { 반환 false; }
 };
 
 class AstIfaceGenericDType final : public AstNodeDType {
@@ -982,21 +982,21 @@ public:
     }
     ASTGEN_MEMBERS_AstIfaceGenericDType;
     void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool undead() const override { 반환 true; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    string modportName() const { return m_modportName; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }
-    FileLine* modportFileline() const { return m_modportFileline; }
-    string name() const override { return m_modportName; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 1; }
+    string modportName() const { 반환 m_modportName; }
+    bool isModport() { 반환 !m_modportName.empty(); }
+    bool isCompound() const override { 반환 true; }
+    FileLine* modportFileline() const { 반환 m_modportFileline; }
+    string name() const override { 반환 m_modportName; }
 };
 
 class AstIfaceRefDType final : public AstNodeDType {
@@ -1041,40 +1041,40 @@ public:
     void dumpJson(std::ostream& str = std::cout) const override;
     void dumpSmall(std::ostream& str) const override;
     string prettyDTypeName(bool full) const override;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         // Each occurrence of a virtual interface type parses to its own node,
         // so pointer identity is insufficient; compare the referenced
         // interface instead, same equivalence as AstNode::computeCastable uses.
         const AstIfaceRefDType* const asamep = VN_DBG_AS(samep, IfaceRefDType);
-        return ifaceViaCellp() && ifaceViaCellp() == asamep->ifaceViaCellp()
+        반환 ifaceViaCellp() && ifaceViaCellp() == asamep->ifaceViaCellp()
                && modportName() == asamep->modportName() && isVirtual() == asamep->isVirtual();
     }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    bool isVirtual() const { return m_virtual; }
+    정수 widthAlignBytes() const override { 반환 0; }
+    정수 widthTotalBytes() const override { 반환 0; }
+    bool isVirtual() const { 반환 m_virtual; }
     void isVirtual(bool flag) {
         m_virtual = flag;
-        if (flag) v3Global.setHasVirtIfaces();
+        만약 (flag) v3Global.setHasVirtIfaces();
     }
-    FileLine* modportFileline() const { return m_modportFileline; }
+    FileLine* modportFileline() const { 반환 m_modportFileline; }
     void modportFileline(FileLine* const modportFileline) { m_modportFileline = modportFileline; }
-    string cellName() const { return m_cellName; }
+    string cellName() const { 반환 m_cellName; }
     void cellName(const string& name) { m_cellName = name; }
-    string ifaceName() const { return m_ifaceName; }
-    string ifaceNameQ() const { return "'" + prettyName(ifaceName()) + "'"; }
+    string ifaceName() const { 반환 m_ifaceName; }
+    string ifaceNameQ() const { 반환 "'" + prettyName(ifaceName()) + "'"; }
     void ifaceName(const string& name) { m_ifaceName = name; }
     void modportName(const string& modportName) { m_modportName = modportName; }
-    string modportName() const { return m_modportName; }
+    string modportName() const { 반환 m_modportName; }
     AstIface* ifaceViaCellp() const;  // Use cellp or ifacep
-    AstIface* ifacep() const { return m_ifacep; }
+    AstIface* ifacep() const { 반환 m_ifacep; }
     void ifacep(AstIface* nodep) { m_ifacep = nodep; }
-    AstCell* cellp() const { return m_cellp; }
+    AstCell* cellp() const { 반환 m_cellp; }
     void cellp(AstCell* nodep) { m_cellp = nodep; }
-    AstModport* modportp() const { return m_modportp; }
+    AstModport* modportp() const { 반환 m_modportp; }
     void modportp(AstModport* modportp) { m_modportp = modportp; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }  // But not relevant
+    bool isModport() { 반환 !m_modportName.empty(); }
+    bool isCompound() const override { 반환 true; }  // But not relevant
 };
 class AstMemberDType final : public AstNodeDType {
     // A member of a struct/union
@@ -1085,7 +1085,7 @@ class AstMemberDType final : public AstNodeDType {
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name of variable
     string m_tag;  // Holds the string of the verilator tag -- used in JSON output.
-    int m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
+    정수 m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
     bool m_constrainedRand = false;  // Member has a constraint expression
     VRandAttr m_rand;  // Randomizability of this member (rand, randc, etc)
 public:
@@ -1111,41 +1111,41 @@ public:
     void dumpJson(std::ostream& str = std::cout) const override;
     void dumpSmall(std::ostream& str) const override;
     string prettyDTypeName(bool full) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    string name() const override VL_MT_STABLE { 반환 m_name; }  // * = Var name
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeUOrStructDType* getChildStructp();
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
     //
     // (Slow) recurse down to find basic data type (Note don't need virtual -
     // AstVar isn't a NodeDType)
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
     // op1 = Range of variable (Note don't need virtual - AstVar isn't a NodeDType)
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
+    AstNodeDType* dtypeSkipRefp() const { 반환 subDTypep()->skipRefp(); }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
     // METHODS
     void name(const string& name) override { m_name = name; }
-    string tag() const override { return m_tag; }
+    string tag() const override { 반환 m_tag; }
     void tag(const string& text) override { m_tag = text; }
-    int lsb() const { return m_lsb; }
-    void lsb(int lsb) { m_lsb = lsb; }
+    정수 lsb() const { 반환 m_lsb; }
+    void lsb(정수 lsb) { m_lsb = lsb; }
     bool isCompound() const override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        반환 false;
     }
-    bool isConstrainedRand() const { return m_constrainedRand; }
+    bool isConstrainedRand() const { 반환 m_constrainedRand; }
     void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    VRandAttr rand() const { return m_rand; }
+    VRandAttr rand() const { 반환 m_rand; }
     void rand(const VRandAttr flag) { m_rand = flag; }
 };
 class AstNBACommitQueueDType final : public AstNodeDType {
@@ -1162,17 +1162,17 @@ public:
     ASTGEN_MEMBERS_AstNBACommitQueueDType;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return m_subDTypep; }
-    bool partial() const { return m_partial; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 m_subDTypep; }
+    bool partial() const { 반환 m_partial; }
     bool sameNode(const AstNode* samep) const override {
         const AstNBACommitQueueDType* const asamep = VN_DBG_AS(samep, NBACommitQueueDType);
-        return m_partial == asamep->m_partial;
+        반환 m_partial == asamep->m_partial;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 24; }
-    bool isCompound() const override { return true; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 24; }
+    bool isCompound() const override { 반환 true; }
 };
 class AstParamTypeDType final : public AstNodeDType {
     // Parents: MODULE
@@ -1195,29 +1195,29 @@ public:
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
     string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+        반환 dtypep() ? dtypep() : childDTypep();
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstParamTypeDType* const sp = VN_DBG_AS(samep, ParamTypeDType);
-        return this->subDTypep()->similarDType(sp->subDTypep());
+        반환 this->subDTypep()->similarDType(sp->subDTypep());
     }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
+    정수 widthAlignBytes() const override { 반환 dtypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 dtypep()->widthTotalBytes(); }
     // METHODS
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
     void name(const string& flag) override { m_name = flag; }
-    VVarType varType() const { return m_varType; }  // * = Type of variable
-    VFwdType fwdType() const { return m_fwdType; }
-    bool isParam() const { return true; }
-    bool isGParam() const { return (varType() == VVarType::GPARAM); }
+    VVarType varType() const { 반환 m_varType; }  // * = Type of variable
+    VFwdType fwdType() const { 반환 m_fwdType; }
+    bool isParam() const { 반환 true; }
+    bool isGParam() const { 반환 (varType() == VVarType::GPARAM); }
     bool isCompound() const override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        반환 false;
     }
 };
 class AstParseTypeDType final : public AstNodeDType {
@@ -1230,19 +1230,19 @@ public:
         : ASTGEN_SUPER_ParseTypeDType(fl)
         , m_fwdType{fwdType} {}
     ASTGEN_MEMBERS_AstParseTypeDType;
-    AstNodeDType* dtypep() const VL_MT_STABLE { return nullptr; }
+    AstNodeDType* dtypep() const VL_MT_STABLE { 반환 nullptr; }
     // METHODS
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 0; }
+    정수 widthTotalBytes() const override { 반환 0; }
     bool isCompound() const override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        반환 false;
     }
-    VFwdType fwdType() const { return m_fwdType; }
+    VFwdType fwdType() const { 반환 m_fwdType; }
 };
 class AstQueueDType final : public AstNodeDType {
     // Queue array data type, ie "[ $ ]"
@@ -1267,34 +1267,34 @@ public:
     ASTGEN_MEMBERS_AstQueueDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+        만약 (!asamep->subDTypep()) 반환 false;
+        반환 (subDTypep() == asamep->subDTypep());
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+        반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
     void dumpSmall(std::ostream& str) const override;
     string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
-    bool isAggregateType() const override { return true; }
+    bool isAggregateType() const override { 반환 true; }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    inline int boundConst() const VL_MT_STABLE;
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    inline 정수 boundConst() const VL_MT_STABLE;
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
+    bool isCompound() const override { 반환 true; }
+    bool isDynamicallySized() const override { 반환 true; }
 };
 class AstRefDType final : public AstNodeDType {
     // @astgen op1 := typeofp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
@@ -1326,48 +1326,48 @@ public:
     AstRefDType(FileLine* fl, FlagTypeOfExpr, AstNode* typeofp)
         : ASTGEN_SUPER_RefDType(fl) {
         this->typeofp(typeofp);
-        if (AstNodeDType* const dtp = VN_CAST(typeofp, NodeDType)) refDTypep(dtp);
+        만약 (AstNodeDType* const dtp = VN_CAST(typeofp, NodeDType)) refDTypep(dtp);
     }
     ASTGEN_MEMBERS_AstRefDType;
     // METHODS
     bool sameNode(const AstNode* samep) const override {
         const AstRefDType* const asamep = VN_DBG_AS(samep, RefDType);
-        return (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
+        반환 (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
                 && m_name == asamep->m_name && m_classOrPackagep == asamep->m_classOrPackagep);
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return subDTypep()->similarDType(samep->subDTypep());
+        반환 subDTypep()->similarDType(samep->subDTypep());
     }
     const char* broken() const override;
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
     void dumpSmall(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() const override VL_MT_STABLE { 반환 m_name; }
     string prettyDTypeName(bool full) const override {
-        return subDTypep() ? subDTypep()->prettyDTypeName(full) : prettyName();
+        반환 subDTypep() ? subDTypep()->prettyDTypeName(full) : prettyName();
     }
     AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep() ? subDTypep()->basicp() : nullptr;
+        반환 subDTypep() ? subDTypep()->basicp() : nullptr;
     }
     AstNodeDType* subDTypep() const override VL_MT_STABLE;
-    AstNodeDType* getChildDTypep() const override { return VN_CAST(typeofp(), NodeDType); }
-    int widthAlignBytes() const override { return dtypeSkipRefp()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypeSkipRefp()->widthTotalBytes(); }
+    AstNodeDType* getChildDTypep() const override { 반환 VN_CAST(typeofp(), NodeDType); }
+    정수 widthAlignBytes() const override { 반환 dtypeSkipRefp()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 dtypeSkipRefp()->widthTotalBytes(); }
     void name(const string& flag) override { m_name = flag; }
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
-    AstTypedef* typedefp() const VL_MT_SAFE { return m_typedefp; }
+    AstNodeDType* dtypeSkipRefp() const { 반환 subDTypep()->skipRefp(); }
+    AstTypedef* typedefp() const VL_MT_SAFE { 반환 m_typedefp; }
     void typedefp(AstTypedef* nodep) { m_typedefp = nodep; }
-    AstNodeDType* refDTypep() const VL_MT_SAFE { return m_refDTypep; }
+    AstNodeDType* refDTypep() const VL_MT_SAFE { 반환 m_refDTypep; }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return refDTypep(); }
+    AstNodeDType* virtRefDTypep() const override { 반환 refDTypep(); }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
+    AstNodeModule* classOrPackagep() const { 반환 m_classOrPackagep; }
     void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    const VIfaceCaptureTag* captureTagp() const { return m_captureTagp; }
+    const VIfaceCaptureTag* captureTagp() const { 반환 m_captureTagp; }
     void captureTagp(const VIfaceCaptureTag* tagp) { m_captureTagp = tagp; }
     bool isCompound() const override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        반환 false;
     }
 };
 class AstRequireDType final : public AstNodeDType {
@@ -1383,17 +1383,17 @@ public:
     // METHODS
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstRequireDType* const asamep = VN_DBG_AS(samep, RequireDType);
-        return subDTypep()->similarDType(asamep->subDTypep());
+        반환 subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
         // Used for recursive definition checking
-        if (AstNodeDType* const dtp = VN_CAST(lhsp(), NodeDType)) return dtp;
+        만약 (AstNodeDType* const dtp = VN_CAST(lhsp(), NodeDType)) 반환 dtp;
 
-        return nullptr;
+        반환 nullptr;
     }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(1); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(1); }
+    정수 widthAlignBytes() const override { V3ERROR_NA_RETURN(1); }
+    정수 widthTotalBytes() const override { V3ERROR_NA_RETURN(1); }
     bool isCompound() const override { V3ERROR_NA_RETURN(false); }
 };
 class AstSampleQueueDType final : public AstNodeDType {
@@ -1409,31 +1409,31 @@ public:
     ASTGEN_MEMBERS_AstSampleQueueDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override {
         const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+        만약 (!asamep->subDTypep()) 반환 false;
+        반환 (subDTypep() == asamep->subDTypep());
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override {
         const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+        반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
     void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     // op1 = Range of variable
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 sizeof(std::map<std::string, std::string>); }
+    정수 widthTotalBytes() const override { 반환 sizeof(std::map<std::string, std::string>); }
+    bool isCompound() const override { 반환 true; }
 };
 class AstStreamDType final : public AstNodeDType {
     // Stream data type, used only as data type of stream operations
@@ -1445,17 +1445,17 @@ public:
     }
     ASTGEN_MEMBERS_AstStreamDType;
     void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool undead() const override { 반환 true; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 this == samep; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 1; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstUnsizedArrayDType final : public AstNodeDType {
     // Unsized/open-range Array data type, ie "some_dtype var_name []"
@@ -1477,23 +1477,23 @@ public:
     ASTGEN_MEMBERS_AstUnsizedArrayDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override;
     bool similarDTypeNode(const AstNodeDType* samep) const override;
     void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 subDTypep()->widthAlignBytes(); }
+    정수 widthTotalBytes() const override { 반환 subDTypep()->widthTotalBytes(); }
+    bool isCompound() const override { 반환 true; }
 };
 class AstVoidDType final : public AstNodeDType {
     // For e.g. a function returning void
@@ -1504,17 +1504,17 @@ public:
     }
     ASTGEN_MEMBERS_AstVoidDType;
     void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
+    bool hasDType() const override VL_MT_SAFE { 반환 true; }
+    bool maybePointedTo() const override VL_MT_SAFE { 반환 true; }
+    bool undead() const override { 반환 true; }
+    AstNodeDType* subDTypep() const override VL_MT_STABLE { 반환 nullptr; }
+    AstNodeDType* virtRefDTypep() const override { 반환 nullptr; }
     void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return true; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool similarDTypeNode(const AstNodeDType* samep) const override { 반환 true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 nullptr; }
+    정수 widthAlignBytes() const override { 반환 1; }
+    정수 widthTotalBytes() const override { 반환 1; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstWildcardArrayDType final : public AstNodeDType {
     // Wildcard index type associative array data type, ie "some_dtype var_name [*]"
@@ -1531,25 +1531,25 @@ public:
     ASTGEN_MEMBERS_AstWildcardArrayDType;
     const char* broken() const override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        반환 nullptr;
     }
     bool sameNode(const AstNode* samep) const override;
     bool similarDTypeNode(const AstNodeDType* samep) const override;
     void dumpSmall(std::ostream& str) const override;
     string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    AstNodeDType* getChildDTypep() const override { 반환 childDTypep(); }
     AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+        반환 m_refDTypep ? m_refDTypep : childDTypep();
     }
     void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
+    AstNodeDType* virtRefDTypep() const override { 반환 m_refDTypep; }
     void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() const override VL_MT_STABLE { 반환 subDTypep()->basicp(); }
+    정수 widthAlignBytes() const override { 반환 sizeof(std::map<std::string, std::string>); }
+    정수 widthTotalBytes() const override { 반환 sizeof(std::map<std::string, std::string>); }
+    bool isCompound() const override { 반환 true; }
+    bool isDynamicallySized() const override { 반환 true; }
 };
 
 // === AstNodeArrayDType ===
@@ -1560,7 +1560,7 @@ public:
     inline AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep);
     ASTGEN_MEMBERS_AstPackArrayDType;
     string prettyDTypeName(bool full) const override;
-    bool isCompound() const override { return false; }
+    bool isCompound() const override { 반환 false; }
 };
 class AstUnpackArrayDType final : public AstNodeArrayDType {
     // Array data type, ie "some_dtype var_name [2:0]"
@@ -1591,18 +1591,18 @@ public:
     string prettyDTypeName(bool full) const override;
     bool sameNode(const AstNode* samep) const override {
         const AstUnpackArrayDType* const sp = VN_DBG_AS(samep, UnpackArrayDType);
-        return m_isCompound == sp->m_isCompound;
+        반환 m_isCompound == sp->m_isCompound;
     }
     bool similarDTypeNode(const AstNodeDType* samep) const override;
-    bool isAggregateType() const override { return true; }
+    bool isAggregateType() const override { 반환 true; }
     // True iff 'otherp' is an array of the same shape, with
     // at least one dimension reversed ascending/descending.
     bool isReverseOf(const AstNodeDType* otherp) const;
     // Outer dimension comes first. The first element is this node.
     std::vector<AstUnpackArrayDType*> unpackDimensions();
     void isCompound(bool flag) { m_isCompound = flag; }
-    bool isCompound() const override VL_MT_SAFE { return m_isCompound; }
-    bool isIntegralOrPacked() const override { return false; }
+    bool isCompound() const override VL_MT_SAFE { 반환 m_isCompound; }
+    bool isIntegralOrPacked() const override { 반환 false; }
 };
 
 // === AstNodeUOrStructDType ===
@@ -1612,7 +1612,7 @@ public:
     AstStructDType(FileLine* fl, VSigning numericUnpack)
         : ASTGEN_SUPER_StructDType(fl, numericUnpack) {}
     ASTGEN_MEMBERS_AstStructDType;
-    string verilogKwd() const override { return "struct"; }
+    string verilogKwd() const override { 반환 "struct"; }
 };
 class AstUnionDType final : public AstNodeUOrStructDType {
     bool m_isSoft;  // Is a "union soft"
@@ -1628,9 +1628,9 @@ public:
         packed(packed() | m_isSoft);
     }
     ASTGEN_MEMBERS_AstUnionDType;
-    string verilogKwd() const override { return "union"; }
-    bool isSoft() const { return m_isSoft; }
-    bool isTagged() const { return m_isTagged; }
+    string verilogKwd() const override { 반환 "union"; }
+    bool isSoft() const { 반환 m_isSoft; }
+    bool isTagged() const { 반환 m_isTagged; }
     bool sameNode(const AstNode* samep) const override;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;

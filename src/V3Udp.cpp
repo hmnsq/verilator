@@ -44,11 +44,11 @@ class UdpVisitor final : public VNVisitor {
 
     void visit(AstInitial* nodep) override {
         VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+        만약 (m_primp) m_inInitial = true;
         iterateChildren(nodep);
     }
     void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+        만약 (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
     void visit(AstPrimitive* nodep) override {
@@ -65,14 +65,14 @@ class UdpVisitor final : public VNVisitor {
     }
     void visit(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
+        만약 (m_primp) {
+            만약 (nodep->isIO()) {
+                만약 (nodep->isInput()) {
                     m_inputVars.push_back(nodep);
-                } else {
+                } 아니면 {
                     m_outputVars.push_back(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
+                만약 ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
                     m_isFirstOutput = true;
                 }
             }
@@ -81,12 +81,12 @@ class UdpVisitor final : public VNVisitor {
     }
     void visit(AstUdpTable* nodep) override {
         FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
+        만약 (m_outputVars.size() != 1) {
             m_outputVars.back()->v3error(
                 m_outputVars.size()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
+        만약 (!m_isFirstOutput && m_outputVars.size()) {
             m_inputVars[0]->v3error("First UDP port must be the output port");
         }
         m_oFieldVarp = m_outputVars[0];
@@ -100,10 +100,10 @@ class UdpVisitor final : public VNVisitor {
     }
     void visit(AstUdpTableLine* nodep) override {
         FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
+        만약 (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
+        만약 (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
@@ -114,16 +114,16 @@ class UdpVisitor final : public VNVisitor {
         AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
                                            new AstConst{fl, AstConst::BitTrue{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        위해 (AstVar* const varp : m_inputVars) {
+            만약 (!iNodep) break;
+            만약 (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                만약 (isEdgeTrig(valName)) {
+                    만약 (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    만약 (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
                         VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
                     }
@@ -131,51 +131,51 @@ class UdpVisitor final : public VNVisitor {
                         fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
                                            new AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
+                만약 (valName == "0" || valName == "f") {
                     logandp = new AstLogAnd{
                         fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
+                } 아니면 만약 (valName == "1" || valName == "r") {
                     logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                } 아니면 만약 (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    만약 (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                    만약 (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+                    반환;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        위해 (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
+        만약 (inputvars != m_inputVars.size()) {
             nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
                                                                          << ", got " << inputvars);
         }
 
         string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        만약 (oValName == "-") {
+            만약 (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+            만약 (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+            반환;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
+        만약 (!nodep->udpIsCombo()) {
+            만약 (oNodep->name() == "0") {
                 logandp = new AstLogAnd{
                     fl, logandp,
                     new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+            } 아니면 만약 (oNodep->name() == "1") {
                 logandp
                     = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+            } 아니면 만약 (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                만약 (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                만약 (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+                반환;
             }
         }
 
@@ -185,15 +185,15 @@ class UdpVisitor final : public VNVisitor {
         AstNodeStmt* const assignp
             = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
         AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        만약 (nodep->udpIsCombo()) {
+            만약 (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
             m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            만약 (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+            반환;
         }
-        if (!isSequentOutputSig(oValName)) {
+        만약 (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
         m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
@@ -203,53 +203,53 @@ class UdpVisitor final : public VNVisitor {
     void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
     static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+        만약 (valName == "x" || valName == "X") 반환 false;
+        만약 (valName == "*") 반환 true;
+        만약 (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            반환 true;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        만약 (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            반환 true;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        만약 (valName.size() == 2) {
+            만약 (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            아니면 만약 (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            아니면 만약 (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            반환 true;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        만약 (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        반환 false;
     }
     static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+        반환 (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
     static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+        반환 (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
     AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
         AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
         AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+        만약 (isDelayed) 반환 new AstAssignDly{fl, lhsp, rhsp};
+        반환 new AstAssign{fl, lhsp, rhsp};
     }
     static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
         V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
+        만약 (fieldNames == "0") {
             outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
+        } 아니면 만약 (fieldNames == "1") {
             outputNum.setBit(0, 1);
-        } else {
+        } 아니면 {
             outputNum.setBit(0, 'x');
         }
-        return outputNum;
+        반환 outputNum;
     }
 
 public:

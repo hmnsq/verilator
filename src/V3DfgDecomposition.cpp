@@ -45,9 +45,9 @@ class SplitIntoComponents final {
         queue.reserve(m_dfg.size());
 
         // Any sort of interesting logic must involve a variable, so we only need to iterate them
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
+        위해 (DfgVertexVar& vtx : m_dfg.varVertices()) {
             // If already assigned this vertex to a component, then continue
-            if (m_component[vtx]) continue;
+            만약 (m_component[vtx]) continue;
 
             // Start depth first traversal at this vertex
             queue.push_back(&vtx);
@@ -59,7 +59,7 @@ class SplitIntoComponents final {
                 queue.pop_back();
 
                 // Move on if already visited
-                if (m_component[item]) continue;
+                만약 (m_component[item]) continue;
 
                 // Assign to current component
                 m_component[item] = m_componentCounter;
@@ -67,13 +67,13 @@ class SplitIntoComponents final {
                 // Enqueue all sources and sinks of this vertex.
                 item.foreachSource([&](DfgVertex& src) {
                     queue.push_back(&src);
-                    return false;
+                    반환 false;
                 });
                 item.foreachSink([&](DfgVertex& dst) {
                     queue.push_back(&dst);
-                    return false;
+                    반환 false;
                 });
-            } while (!queue.empty());
+            } 동안 (!queue.empty());
 
             // Done with this component
             ++m_componentCounter;
@@ -82,11 +82,11 @@ class SplitIntoComponents final {
 
     template <typename Vertex>
     void moveVertices(DfgVertex::List<Vertex>& list) {
-        for (DfgVertex* const vtxp : list.unlinkable()) {
-            if (const size_t component = m_component[vtxp]) {
+        위해 (DfgVertex* const vtxp : list.unlinkable()) {
+            만약 (const size_t component = m_component[vtxp]) {
                 m_dfg.removeVertex(*vtxp);
                 m_components[component - 1]->addVertex(*vtxp);
-            } else {
+            } 아니면 {
                 // This vertex is not connected to a variable and is hence unused, remove here
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
             }
@@ -100,7 +100,7 @@ class SplitIntoComponents final {
         colorComponents();
         // Allocate the component graphs
         m_components.resize(m_componentCounter - 1);
-        for (size_t i = 1; i < m_componentCounter; ++i) {
+        위해 (size_t i = 1; i < m_componentCounter; ++i) {
             m_components[i - 1].reset(new DfgGraph{m_dfg.ctx(), m_prefix + cvtToStr(i - 1)});
         }
         // Move the vertices to the component graphs
@@ -114,12 +114,12 @@ class SplitIntoComponents final {
 
 public:
     static std::vector<std::unique_ptr<DfgGraph>> apply(DfgGraph& dfg, const std::string& label) {
-        return std::move(SplitIntoComponents{dfg, label}.m_components);
+        반환 std::move(SplitIntoComponents{dfg, label}.m_components);
     }
 };
 
 std::vector<std::unique_ptr<DfgGraph>> DfgGraph::splitIntoComponents(const std::string& label) {
-    return SplitIntoComponents::apply(*this, label);
+    반환 SplitIntoComponents::apply(*this, label);
 }
 
 class ExtractCyclicComponents final {
@@ -137,13 +137,13 @@ class ExtractCyclicComponents final {
     // METHODS
     void addVertexAndExpandSiblings(DfgVertex& vtx, uint64_t component) {
         // Do not go past a variable, we will partition the graph there
-        if (vtx.is<DfgVertexVar>()) return;
+        만약 (vtx.is<DfgVertexVar>()) 반환;
         // Pick up component value reference
         uint64_t& vtxComponentr = m_component.at(vtx);
         // Don't need to recurse if the vertex is already in the same component,
         // it was either marked through an earlier traversal, in which case it
         // was processed recursively, or it will be processed later.
-        if (vtxComponentr == component) return;
+        만약 (vtxComponentr == component) 반환;
         // Because all cycles are through a variable, we can't reach another SCC.
         UASSERT_OBJ(!vtxComponentr, &vtx, "Cycle without variable involvement");
         // Put this vertex in the component, and continue recursively
@@ -155,11 +155,11 @@ class ExtractCyclicComponents final {
         UASSERT_OBJ(m_component.at(vtx) == component, &vtx, "Traversal didn't stop");
         vtx.foreachSink([&](DfgVertex& v) {
             addVertexAndExpandSiblings(v, component);
-            return false;
+            반환 false;
         });
         vtx.foreachSource([&](DfgVertex& v) {
             addVertexAndExpandSiblings(v, component);
-            return false;
+            반환 false;
         });
     }
 
@@ -170,8 +170,8 @@ class ExtractCyclicComponents final {
         // go through a variable that is not part of the destination SCC. This
         // holds because no operation vertex can have multiple sinks at this
         // point (constants have no inputs, so they are not in an SCC).
-        if (m_doExpensiveChecks) {
-            for (DfgVertex& vtx : m_dfg.opVertices()) {
+        만약 (m_doExpensiveChecks) {
+            위해 (DfgVertex& vtx : m_dfg.opVertices()) {
                 UASSERT_OBJ(!vtx.hasMultipleSinks(), &vtx, "Operation has multiple sinks");
             }
         }
@@ -181,19 +181,19 @@ class ExtractCyclicComponents final {
         // cyclic variable, put both its 'srcp' and 'defaultp' into the same
         // component if they are not variables themselves. The assertions below
         // must hold because of the assumption above.
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
+        위해 (const DfgVertexVar& vtx : m_dfg.varVertices()) {
             const uint64_t varComponent = m_component.at(vtx);
-            if (!varComponent) continue;
-            if (DfgVertex* const srcp = vtx.srcp()) {
-                if (!srcp->is<DfgVertexVar>()) {
+            만약 (!varComponent) continue;
+            만약 (DfgVertex* const srcp = vtx.srcp()) {
+                만약 (!srcp->is<DfgVertexVar>()) {
                     uint64_t& srcComponent = m_component.at(srcp);
                     UASSERT_OBJ(!srcComponent || srcComponent == varComponent, srcp,
                                 "Cycle through 'srcp' that does not go through variable.");
                     srcComponent = varComponent;
                 }
             }
-            if (DfgVertex* const defp = vtx.defaultp()) {
-                if (!defp->is<DfgVertexVar>()) {
+            만약 (DfgVertex* const defp = vtx.defaultp()) {
+                만약 (!defp->is<DfgVertexVar>()) {
                     uint64_t& defComponent = m_component.at(defp);
                     UASSERT_OBJ(!defComponent || defComponent == varComponent, defp,
                                 "Cycle through 'defaultp' that does not go through variable");
@@ -207,8 +207,8 @@ class ExtractCyclicComponents final {
         // so only need to process op vertices. We do this by starting a DFS
         // from each vertex that is part of a component and add all reachable
         // non-variable vertices to the same.
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (const uint64_t targetComponent = m_component.at(vtx)) {
+        위해 (DfgVertex& vtx : m_dfg.opVertices()) {
+            만약 (const uint64_t targetComponent = m_component.at(vtx)) {
                 expandSiblings(vtx, targetComponent);
             }
         }
@@ -218,17 +218,17 @@ class ExtractCyclicComponents final {
     DfgVertexVar* getClone(DfgVertexVar& vtx, uint64_t component) {
         UASSERT_OBJ(m_component.at(vtx) != component, &vtx, "Vertex is in that component");
         DfgVertexVar*& clonep = m_clones[&vtx][component];
-        if (!clonep) {
-            if (DfgVarPacked* const pVtxp = vtx.cast<DfgVarPacked>()) {
+        만약 (!clonep) {
+            만약 (DfgVarPacked* const pVtxp = vtx.cast<DfgVarPacked>()) {
                 clonep = new DfgVarPacked{m_dfg, pVtxp->vscp()};
-            } else if (DfgVarArray* const aVtxp = vtx.cast<DfgVarArray>()) {
+            } 아니면 만약 (DfgVarArray* const aVtxp = vtx.cast<DfgVarArray>()) {
                 clonep = new DfgVarArray{m_dfg, aVtxp->vscp()};
             }
             UASSERT_OBJ(clonep, &vtx, "Unhandled 'DfgVertexVar' sub-type");
             m_component[clonep] = component;
             clonep->tmpForp(vtx.tmpForp());
         }
-        return clonep;
+        반환 clonep;
     }
 
     // Fix edges that cross components
@@ -236,17 +236,17 @@ class ExtractCyclicComponents final {
         const uint64_t component = m_component.at(vtx);
 
         // Fix up srcp and dstp (they must be the same component, or variable)
-        if (DfgVertex* const sp = vtx.srcp()) {
+        만약 (DfgVertex* const sp = vtx.srcp()) {
             const uint64_t srcComponent = m_component.at(sp);
-            if (srcComponent != component) {
+            만약 (srcComponent != component) {
                 UASSERT_OBJ(sp->is<DfgVertexVar>(), &vtx, "'srcp' in different component");
                 getClone(vtx, srcComponent)->srcp(sp);
                 vtx.srcp(nullptr);
             }
         }
-        if (DfgVertex* const dp = vtx.defaultp()) {
+        만약 (DfgVertex* const dp = vtx.defaultp()) {
             const uint64_t defaultComponent = m_component.at(dp);
-            if (defaultComponent != component) {
+            만약 (defaultComponent != component) {
                 UASSERT_OBJ(dp->is<DfgVertexVar>(), &vtx, "'defaultp' in different component");
                 getClone(vtx, defaultComponent)->defaultp(dp);
                 vtx.defaultp(nullptr);
@@ -256,24 +256,24 @@ class ExtractCyclicComponents final {
         std::vector<DfgVertex*> sinkps;
         vtx.foreachSink([&](DfgVertex& sink) {
             sinkps.emplace_back(&sink);
-            return false;
+            반환 false;
         });
-        for (DfgVertex* const sinkp : sinkps) {
+        위해 (DfgVertex* const sinkp : sinkps) {
             const uint64_t sinkComponent = m_component.at(sinkp);
             // Same component is OK
-            if (sinkComponent == component) continue;
+            만약 (sinkComponent == component) continue;
             DfgVertex* const clonep = getClone(vtx, sinkComponent);
-            for (size_t i = 0; i < sinkp->nInputs(); ++i) {
-                if (sinkp->inputp(i) == &vtx) sinkp->inputp(i, clonep);
+            위해 (size_t i = 0; i < sinkp->nInputs(); ++i) {
+                만약 (sinkp->inputp(i) == &vtx) sinkp->inputp(i, clonep);
             }
         }
     }
 
     template <typename Vertex>
     void moveVertices(DfgVertex::List<Vertex>& list) {
-        for (DfgVertex* const vtxp : list.unlinkable()) {
+        위해 (DfgVertex* const vtxp : list.unlinkable()) {
             DfgVertex& vtx = *vtxp;
-            if (const uint64_t component = m_component.at(vtx)) {
+            만약 (const uint64_t component = m_component.at(vtx)) {
                 m_dfg.removeVertex(vtx);
                 m_components[component - 1]->addVertex(vtx);
             }
@@ -283,13 +283,13 @@ class ExtractCyclicComponents final {
     void checkEdges(DfgGraph& dfg) const {
         // Check that edges only cross components at variable boundaries
         dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (vtx.is<DfgVarPacked>()) return;
+            만약 (vtx.is<DfgVarPacked>()) 반환;
             const uint64_t component = m_component.at(vtx);
             vtx.foreachSink([&](DfgVertex& snk) {
-                if (snk.is<DfgVertexVar>()) return false;  // OK to cross at variables
+                만약 (snk.is<DfgVertexVar>()) 반환 false;  // OK to cross at variables
                 UASSERT_OBJ(component == m_component.at(snk), &vtx,
                             "Edge crossing components without variable involvement");
-                return false;
+                반환 false;
             });
         });
     }
@@ -303,11 +303,11 @@ class ExtractCyclicComponents final {
         dfg.forEachVertex([&](const DfgVertex& vtx) {
             vtx.foreachSource([&](const DfgVertex& src) {
                 UASSERT_OBJ(vertices.count(&src), &vtx, "Source vertex not in graph");
-                return false;
+                반환 false;
             });
             vtx.foreachSink([&](const DfgVertex& snk) {
                 UASSERT_OBJ(vertices.count(&snk), &snk, "Sink vertex not in graph");
-                return false;
+                반환 false;
             });
         });
     }
@@ -315,7 +315,7 @@ class ExtractCyclicComponents final {
     void extractComponents(uint32_t nComponents) {
         // Allocate result graphs
         m_components.resize(nComponents);
-        for (uint32_t i = 0; i < nComponents; ++i) {
+        위해 (uint32_t i = 0; i < nComponents; ++i) {
             m_components[i].reset(new DfgGraph{m_dfg.ctx(), m_prefix + cvtToStr(i)});
         }
 
@@ -324,17 +324,17 @@ class ExtractCyclicComponents final {
         // boundaries). Note that fixing up the edges can create clones of variables. Clones do
         // not need fixing up, so we do not need to iterate them.
         const DfgVertex* const lastp = m_dfg.varVertices().backp();
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
+        위해 (DfgVertexVar& vtx : m_dfg.varVertices()) {
             // Fix up the edges crossing components
             fixEdges(vtx);
             // Don't iterate clones added during this loop
-            if (&vtx == lastp) break;
+            만약 (&vtx == lastp) break;
         }
 
         // Check results for consistency
-        if (VL_UNLIKELY(m_doExpensiveChecks)) {
+        만약 (VL_UNLIKELY(m_doExpensiveChecks)) {
             checkEdges(m_dfg);
-            for (const auto& dfgp : m_components) checkEdges(*dfgp);
+            위해 (const auto& dfgp : m_components) checkEdges(*dfgp);
         }
 
         // Move other vertices to their component graphs
@@ -345,9 +345,9 @@ class ExtractCyclicComponents final {
         moveVertices(m_dfg.opVertices());
 
         // Check results for consistency
-        if (VL_UNLIKELY(m_doExpensiveChecks)) {
+        만약 (VL_UNLIKELY(m_doExpensiveChecks)) {
             checkGraph(m_dfg);
-            for (const auto& dfgp : m_components) checkGraph(*dfgp);
+            위해 (const auto& dfgp : m_components) checkGraph(*dfgp);
         }
     }
 
@@ -358,7 +358,7 @@ class ExtractCyclicComponents final {
         // Find all the non-trivial SCCs (and trivial cycles) in the graph
         const uint32_t nSCCs = V3DfgPasses::colorStronglyConnectedComponents(dfg, m_component);
         // If the graph was acyclic (which should be the common case), then we are done.
-        if (!nSCCs) return;
+        만약 (!nSCCs) 반환;
         // Ensure that component boundaries are always at variables, by expanding SCCs
         expandComponents();
         // Extract the components
@@ -367,11 +367,11 @@ class ExtractCyclicComponents final {
 
 public:
     static std::vector<std::unique_ptr<DfgGraph>> apply(DfgGraph& dfg, const std::string& label) {
-        return std::move(ExtractCyclicComponents{dfg, label}.m_components);
+        반환 std::move(ExtractCyclicComponents{dfg, label}.m_components);
     }
 };
 
 std::vector<std::unique_ptr<DfgGraph>>
 DfgGraph::extractCyclicComponents(const std::string& label) {
-    return ExtractCyclicComponents::apply(*this, label);
+    반환 ExtractCyclicComponents::apply(*this, label);
 }

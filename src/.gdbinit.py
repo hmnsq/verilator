@@ -12,11 +12,11 @@ def _vltgdb_get_dump(node):
     gdb.execute(f'set $_gdb_dump_json_str = AstNode::dumpTreeJsonGdb({node})')
     dump = gdb.execute('printf "%s", $_gdb_dump_json_str', to_string=True)
     gdb.execute('call (void)free($_gdb_dump_json_str)')
-    return dump
+    반환 dump
 
 
 def _vltgdb_tmpfile():
-    return tempfile.NamedTemporaryFile(mode="wt")  # write, text mode
+    반환 tempfile.NamedTemporaryFile(mode="wt")  # write, text mode
 
 
 def _vltgdb_fwrite(file, s):
@@ -42,11 +42,11 @@ class AstseeCmd(gdb.Command):
 
     def _null_check(self, old, new):
         err = ""
-        if old == "<nullptr>\n":
+        만약 old == "<nullptr>\n":
             err += "old == <nullptr>\n"
-        if new == "<nullptr>\n":
+        만약 new == "<nullptr>\n":
             err += "new == <nullptr>"
-        if err:
+        만약 err:
             raise gdb.GdbError(err.strip("\n"))
 
     def invoke(self, arg_str, from_tty):
@@ -58,13 +58,13 @@ class AstseeCmd(gdb.Command):
         astsee_args = astsee.parser.parse_args(gdb.string_to_argv(arg_str))
         with _vltgdb_tmpfile() as oldfile, _vltgdb_tmpfile() as newfile, _vltgdb_tmpfile(
         ) as metafile:
-            if astsee_args.file:
+            만약 astsee_args.file:
                 _vltgdb_fwrite(oldfile, _vltgdb_get_dump(astsee_args.file))
                 astsee_args.file = oldfile.name
-            if astsee_args.newfile:
+            만약 astsee_args.newfile:
                 _vltgdb_fwrite(newfile, _vltgdb_get_dump(astsee_args.newfile))
                 astsee_args.newfile = newfile.name
-            if astsee_args.meta is None:
+            만약 astsee_args.meta is None:
                 # pass
                 gdb.execute(f'call AstNode::dumpJsonMetaFileGdb("{metafile.name}")')
                 astsee_args.meta = metafile.name

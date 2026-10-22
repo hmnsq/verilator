@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
+template <typename T_Node, typename T_Data, 정수 N_UserN>
 class AstUserAllocatorBase VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
     static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
@@ -36,42 +36,42 @@ private:
     std::deque<T_Data> m_allocated;
 
     T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        만약 VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            반환 user.to<T_Data*>();
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            반환 user.to<T_Data*>();
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
+            반환 user.to<T_Data*>();
+        } 아니면 {
             const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+            반환 user.to<T_Data*>();
         }
     }
 
     void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        만약 VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } 아니면 {
             nodep->user4u(VNUser{userp});
         }
     }
 
 protected:
     AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        만약 VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } 아니면 만약 VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             VNUser3InUse::check();
-        } else {
+        } 아니면 {
             VNUser4InUse::check();
         }
     }
@@ -83,23 +83,23 @@ public:
     template <typename... Args>
     T_Data& operator()(T_Node* nodep, Args&&... args) {
         T_Data* userp = getUserp(nodep);
-        if (!userp) {
+        만약 (!userp) {
             m_allocated.emplace_back(std::forward<Args>(args)...);
             userp = &m_allocated.back();
             setUserp(nodep, userp);
         }
-        return *userp;
+        반환 *userp;
     }
 
     // Get a reference to the user data
     T_Data& operator()(const T_Node* nodep) const {
         T_Data* const userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        반환 *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_Data* tryGet(const T_Node* nodep) const { 반환 getUserp(nodep); }
 
     void clear() { m_allocated.clear(); }
 };

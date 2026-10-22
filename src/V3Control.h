@@ -44,15 +44,15 @@ public:
         VAR  // Select any matching AstVar (including params and ports)
     };
 
-    static void addCaseFull(const string& file, int lineno);
-    static void addCaseParallel(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& file, int lineno);
+    static void addCaseFull(const string& file, 정수 lineno);
+    static void addCaseParallel(const string& file, 정수 lineno);
+    static void addCoverageBlockOff(const string& file, 정수 lineno);
     static void addCoverageBlockOff(const string& module, const string& blockname);
-    static void addHierWorkers(FileLine* fl, const string& model, int workers);
+    static void addHierWorkers(FileLine* fl, const string& model, 정수 workers);
     static void addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
                                       const string& q, const string& clock, const string& reset,
                                       const string& resetValue);
-    static void addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max);
+    static void addIgnore(V3ErrorCode code, bool on, const string& filename, 정수 min, 정수 max);
     static void addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
                                const string& match);
     static void addInline(FileLine* fl, const string& module, const string& ftask, bool on);
@@ -60,7 +60,7 @@ public:
     static void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost);
     static void addProfileData(FileLine* fl, const string& model, const string& key,
                                uint64_t cost);
-    static void addScopeTraceOn(bool on, const string& scope, int levels);
+    static void addScopeTraceOn(bool on, const string& scope, 정수 levels);
     static void addVarAttr(FileLine* fl, const string& module, const string& ftask,
                            VarSpecKind kind, const string& pattern, VAttrType type,
                            AstSenTree* nodep);
@@ -74,7 +74,7 @@ public:
     static void applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
                              AstVar* varp);
 
-    static int getHierWorkers(const string& model);
+    static 정수 getHierWorkers(const string& model);
     static FileLine* getHierWorkersFileLine(const string& model);
     static const FsmRegisterWrapper* getFsmRegisterWrapper(const string& module);
     static uint64_t getProfileData(const string& hierDpi);

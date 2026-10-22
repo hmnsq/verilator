@@ -39,21 +39,21 @@ v3errorIniter v3errorInit;
 
 V3ErrorCode::V3ErrorCode(const char* msgp) {
     // Return error encoding for given string, or ERROR, which is a bad code
-    for (int codei = V3ErrorCode::EC_MIN; codei < V3ErrorCode::_ENUM_MAX; codei++) {
+    위해 (정수 codei = V3ErrorCode::EC_MIN; codei < V3ErrorCode::_ENUM_MAX; codei++) {
         const V3ErrorCode code{codei};
-        if (0 == VL_STRCASECMP(msgp, code.ascii())) {
+        만약 (0 == VL_STRCASECMP(msgp, code.ascii())) {
             m_e = code;
-            if (isRenamed()) m_e = renamedTo().m_e;
-            return;
+            만약 (isRenamed()) m_e = renamedTo().m_e;
+            반환;
         }
     }
     m_e = V3ErrorCode::EC_ERROR;
 }
 
 string V3ErrorCode::url() const {
-    if (!isNamed())
-        return "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
-    return "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
+    만약 (!isNamed())
+        반환 "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
+    반환 "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
 }
 
 //######################################################################
@@ -61,34 +61,34 @@ string V3ErrorCode::url() const {
 //
 
 bool V3ErrorGuarded::isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex) {
-    if (code.hardError()) return true;
-    if (supp) return false;
-    if (code.severityInfo()) return false;
-    if (pretendError(code)) return true;
-    return false;
+    만약 (code.hardError()) 반환 true;
+    만약 (supp) 반환 false;
+    만약 (code.severityInfo()) 반환 false;
+    만약 (pretendError(code)) 반환 true;
+    반환 false;
 }
 
 string V3ErrorGuarded::msgPrefix() VL_REQUIRES(m_mutex) {
     const V3ErrorCode code = m_message.code();
     const bool supp = m_errorSuppressed;
-    if (supp) return "-arning-suppressed-" + std::string{code.ascii()} + ": ";
-    if (code.severityInfo()) return "-Info: ";
-    if (code == V3ErrorCode::EC_FATAL) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALMANY) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALSRC) return "%Error: Internal Error: ";
-    if (code == V3ErrorCode::EC_ERROR) return "%Error: ";
-    if (isError(code, supp)) return "%Error-" + std::string{code.ascii()} + ": ";
-    return "%Warning-" + std::string{code.ascii()} + ": ";
+    만약 (supp) 반환 "-arning-suppressed-" + std::string{code.ascii()} + ": ";
+    만약 (code.severityInfo()) 반환 "-Info: ";
+    만약 (code == V3ErrorCode::EC_FATAL) 반환 "%Error: ";
+    만약 (code == V3ErrorCode::EC_FATALMANY) 반환 "%Error: ";
+    만약 (code == V3ErrorCode::EC_FATALSRC) 반환 "%Error: Internal Error: ";
+    만약 (code == V3ErrorCode::EC_ERROR) 반환 "%Error: ";
+    만약 (isError(code, supp)) 반환 "%Error-" + std::string{code.ascii()} + ": ";
+    반환 "%Warning-" + std::string{code.ascii()} + ": ";
 }
 
 void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
-    if (V3Error::debugDefault()) {
+    만약 (V3Error::debugDefault()) {
         std::cerr << msgPrefix() << "Aborting since under --debug" << endl;
         V3Error::vlAbort();
     }
 
 #ifndef V3ERROR_NO_GLOBAL_
-    if (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
+    만약 (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
         // No static destructors are called, thus must be called manually.
         VL_GCOV_DUMP();
         // Exit without triggering any global destructors. Used to prevent
@@ -96,14 +96,14 @@ void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
         ::_exit(1);  // LCOV_EXCL_LINE
     }
     v3Global.vlExit(1);
-#else
+#아니면
     std::exit(1);
 #endif
 }
 
 string V3ErrorGuarded::warnMoreSpaces() VL_REQUIRES(m_mutex) {
     UASSERT_STATIC(!m_message.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
-    return string(msgPrefix().size(), ' ');
+    반환 string(msgPrefix().size(), ' ');
 }
 
 void V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
@@ -126,7 +126,7 @@ void V3ErrorGuarded::v3errorEnd(const std::ostringstream& sstr, const string& ex
     static bool s_firedTooMany = false;
     v3errorEndGuts(sstr, extra, fileline);
     m_message.clear();
-    if (errorLimit() && errorCount() >= errorLimit() && !s_firedTooMany) {
+    만약 (errorLimit() && errorCount() >= errorLimit() && !s_firedTooMany) {
         s_firedTooMany = true;
         // Recurses here
         v3errorEnd((v3errorPrep(V3ErrorCode::EC_FATALMANY),
@@ -144,18 +144,18 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
                                     FileLine* fileline) VL_REQUIRES(m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
-#if defined(__COVERITY__) || defined(__cppcheck__)
-    if (m_errorCode == V3ErrorCode::EC_FATAL) __coverity_panic__(x);
+#만약 defined(__COVERITY__) || defined(__cppcheck__)
+    만약 (m_errorCode == V3ErrorCode::EC_FATAL) __coverity_panic__(x);
 #endif
 
     UASSERT_STATIC(!m_message.isClear(), "v3errorEnd() outside of v3errorPrep...v3errorEnd");
     m_message.fileline(fileline);
 
     // Skip suppressed messages
-    if (m_errorSuppressed) {
+    만약 (m_errorSuppressed) {
         // On debug, show only non default-off warning to prevent pages of warnings
-        if (m_message.code().defaultsOff()) return;
-        if (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_message.code()))) return;
+        만약 (m_message.code().defaultsOff()) 반환;
+        만약 (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_message.code()))) 반환;
         m_showedSuppressed.set(m_message.code(), true);
     }
     string msg
@@ -165,27 +165,27 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
     string firstLine = msg;
     {
         const string::size_type pos = firstLine.find('\n');
-        if (pos != string::npos) {
+        만약 (pos != string::npos) {
             firstLine.erase(pos, firstLine.length() - pos);
             firstLine += "...";
         }
     }
-    if (m_errorSuppressed) msg = firstLine;
+    만약 (m_errorSuppressed) msg = firstLine;
     // Suppress duplicate messages
-    if (!m_messages.insert(firstLine).second) return;
+    만약 (!m_messages.insert(firstLine).second) 반환;
 
     msg = VString::replaceSubstr(msg, V3Error::warnMore(), warnMoreSpaces());
 
     string msg_additional;
     {
         const string::size_type pos = msg.find(V3Error::warnAdditionalInfo());
-        if (pos != string::npos) {
+        만약 (pos != string::npos) {
             msg_additional = msg.substr(pos + V3Error::warnAdditionalInfo().size());
             msg.erase(pos);
         }
     }
     msg += '\n';  // Trailing newlines generally not put on messages so add
-    if (!extra.empty() && !m_errorSuppressed) {
+    만약 (!extra.empty() && !m_errorSuppressed) {
         string extraMsg = VString::replaceSubstr(extra, V3Error::warnMore(), warnMoreSpaces());
         extraMsg = warnMoreSpaces() + extraMsg + "\n";
         const size_t pos = msg.find('\n');
@@ -193,78 +193,78 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
     }
     // Output
     string text;
-    if (
+    만약 (
 #ifndef V3ERROR_NO_GLOBAL_
         !(v3Global.opt.quietExit() && m_message.code() == V3ErrorCode::EC_FATALMANY)
-#else
+#아니면
         true
 #endif
     )
         text += msg;
-    if (m_errorSuppressed || m_message.code().severityInfo()) {
+    만약 (m_errorSuppressed || m_message.code().severityInfo()) {
         std::cerr << V3Error::stripMetaText(text, false);
         m_message.text(text);
 #ifndef V3ERROR_NO_GLOBAL_
         V3DiagSarif::pushMessage(m_message);
 #endif
-    } else {
+    } 아니면 {
         const bool anError = isError(m_message.code(), m_errorSuppressed);
-        if (m_message.code()
+        만약 (m_message.code()
                 != V3ErrorCode::EC_FATALMANY  // Not verbose on final too-many-errors error
             && !m_describedEachWarn.test(m_message.code())) {
             m_describedEachWarn.set(m_message.code(), true);
-            if (m_message.code() >= V3ErrorCode::EC_FIRST_NAMED) {
+            만약 (m_message.code() >= V3ErrorCode::EC_FIRST_NAMED) {
                 text += warnMoreSpaces() + "... For " + (anError ? "error" : "warning")
                         + " description see " + m_message.code().url() + '\n';
-            } else if (m_errCount >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
+            } 아니면 만약 (m_errCount >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
                 m_tellInternal = true;
                 text += warnMoreSpaces()
                         + "... This fatal error may be caused by the earlier error(s);"
                           " resolve those first.\n";
-            } else if (!m_tellManual) {
+            } 아니면 만약 (!m_tellManual) {
                 m_tellManual = true;
                 text += warnMoreSpaces() + "... See the manual at " + m_message.code().url()
                         + " for more assistance.\n";
             }
-            if (!m_pretendError.test(m_message.code()) && !m_message.code().hardError()) {
+            만약 (!m_pretendError.test(m_message.code()) && !m_message.code().hardError()) {
                 text += warnMoreSpaces() + "... Use \"/* verilator lint_off "
                         + m_message.code().ascii()
                         + " */\" and lint_on around source to disable this message.\n";
-                if (m_message.code().dangerous()) {
+                만약 (m_message.code().dangerous()) {
                     text += warnMoreSpaces() + "*** See " + m_message.code().url()
                             + " before disabling this,\n";
                     text += warnMoreSpaces() + "else you may end up with different sim results.\n";
                 }
             }
         }
-        if (!msg_additional.empty()) text += msg_additional;
+        만약 (!msg_additional.empty()) text += msg_additional;
         std::cerr << V3Error::stripMetaText(text, false);
         m_message.text(text);
 #ifndef V3ERROR_NO_GLOBAL_
         V3DiagSarif::pushMessage(m_message);
 #endif
 
-        if (anError) {
+        만약 (anError) {
             incErrors();
-        } else {
+        } 아니면 {
             incWarnings();
         }
-        if (m_message.code().severityFatal()) {
+        만약 (m_message.code().severityFatal()) {
             static bool s_inFatal = false;
             // cppcheck-suppress duplicateConditionalAssign // Used by VlcMain.cpp
-            if (!s_inFatal) {
+            만약 (!s_inFatal) {
                 s_inFatal = true;
 #ifndef V3ERROR_NO_GLOBAL_
-                if (dumpTreeLevel() || dumpTreeJsonLevel() || debug()) {
+                만약 (dumpTreeLevel() || dumpTreeJsonLevel() || debug()) {
                     V3Broken::allowMidvisitorCheck(true);
-                    if (dumpTreeLevel()) {
+                    만약 (dumpTreeLevel()) {
                         v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("final.tree", 990));
                     }
-                    if (dumpTreeJsonLevel()) {
+                    만약 (dumpTreeJsonLevel()) {
                         v3Global.rootp()->dumpTreeJsonFile(
                             v3Global.debugFilename("final.tree.json", 990));
                     }
-                    if (debug()) {
+                    만약 (debug()) {
                         execErrorExitCb();
                         V3Stats::statsStageAll(v3Global.rootp(), "Final");
                         V3Stats::statsReport();
@@ -276,7 +276,7 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
             }
 
             vlAbortOrExit();
-        } else if (anError) {
+        } 아니면 만약 (anError) {
             // We don't dump tree on any error because a Visitor may be in middle of
             // a tree cleanup and cause a false broken problem.
             execErrorExitCb();
@@ -288,7 +288,7 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
 // V3Error class functions
 
 void V3Error::init() {
-    for (int i = 0; i < V3ErrorCode::_ENUM_MAX; i++) {
+    위해 (정수 i = 0; i < V3ErrorCode::_ENUM_MAX; i++) {
         const V3ErrorCode code{i};
         describedEachWarn(code, false);
         pretendError(code, code.pretendError());
@@ -297,33 +297,33 @@ void V3Error::init() {
     assert(std::string{V3ErrorCode{V3ErrorCode::_ENUM_MAX}.ascii()} == " MAX");
 }
 
-string V3Error::lineStr(const char* filename, int lineno) VL_PURE {
+string V3Error::lineStr(const char* filename, 정수 lineno) VL_PURE {
     std::ostringstream out;
     out << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
-    out << std::string(std::max<int>(0, 20 - static_cast<int>(out.str().length())), ' ');
-    return out.str();
+    out << std::string(std::max<정수>(0, 20 - static_cast<정수>(out.str().length())), ' ');
+    반환 out.str();
 }
 
 string V3Error::stripMetaText(const string& text, bool stripContext) VL_PURE {
     string result;
     result.reserve(text.size());
-    int inBegins = 0;
-    for (string::size_type pos = 0; pos < text.size();) {
+    정수 inBegins = 0;
+    위해 (string::size_type pos = 0; pos < text.size();) {
         // string::starts_with is C++20
-        if (0 == text.compare(pos, std::strlen("__WARN"), "__WARN")) {
-            if (0 == text.compare(pos, std::strlen("__WARNRELATED("), "__WARNRELATED(")) {
-                while (pos < text.size() && text[pos] != ')') ++pos;
-                if (pos < text.size() && text[pos] == ')') ++pos;
+        만약 (0 == text.compare(pos, std::strlen("__WARN"), "__WARN")) {
+            만약 (0 == text.compare(pos, std::strlen("__WARNRELATED("), "__WARNRELATED(")) {
+                동안 (pos < text.size() && text[pos] != ')') ++pos;
+                만약 (pos < text.size() && text[pos] == ')') ++pos;
                 continue;
             }
-            if (0
+            만약 (0
                 == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_BEGIN),
                                 V3Error::WARN_CONTEXT_BEGIN)) {
                 pos += std::strlen(V3Error::WARN_CONTEXT_BEGIN);
                 ++inBegins;
                 continue;
             }
-            if (0
+            만약 (0
                 == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_END),
                                 V3Error::WARN_CONTEXT_END)) {
                 pos += std::strlen(V3Error::WARN_CONTEXT_END);
@@ -333,25 +333,25 @@ string V3Error::stripMetaText(const string& text, bool stripContext) VL_PURE {
                 continue;
             }
         }
-        if (!stripContext || inBegins == 0) {
+        만약 (!stripContext || inBegins == 0) {
             // Remove double newlines
-            if (!(text[pos] == '\n' && !result.empty() && result[result.size() - 1] == '\n'))
+            만약 (!(text[pos] == '\n' && !result.empty() && result[result.size() - 1] == '\n'))
                 result += text[pos];
         }
         ++pos;
     }
-    return result;
+    반환 result;
 }
 
 void V3Error::abortIfWarnings() {
-    if (!isErrorOrWarn()) return;
+    만약 (!isErrorOrWarn()) 반환;
     const bool exwarn = warnFatal() && warnCount();
-    if (errorCount() && exwarn) {
+    만약 (errorCount() && exwarn) {
         v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s), "  //
                                       << V3Error::s().warnCount() << " warning(s)\n");
-    } else if (errorCount()) {
+    } 아니면 만약 (errorCount()) {
         v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s)\n");
-    } else {
+    } 아니면 {
         v3fatalMany("Exiting due to " << std::dec << V3Error::s().warnCount() << " warning(s)\n");
     }
 }
@@ -369,12 +369,12 @@ void V3Error::vlAbort() {
 std::ostringstream& V3Error::v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex) {
     V3Error::s().m_mutex.lock();
     s().v3errorPrep(code);
-    return v3errorStr();
+    반환 v3errorStr();
 }
-std::ostringstream& V3Error::v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+std::ostringstream& V3Error::v3errorPrepFileLine(V3ErrorCode code, const char* file, 정수 line)
     VL_ACQUIRE(s().m_mutex) {
     v3errorPrep(code) << file << ":" << std::dec << line << ": ";
-    return v3errorStr();
+    반환 v3errorStr();
 }
 void V3Error::v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
     VL_RELEASE(s().m_mutex) {

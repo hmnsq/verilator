@@ -46,14 +46,14 @@ public:
     ~V3PreExprToken() = default;
     const char* ascii() const {
         static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        반환 names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
+    FileLine* fileline() const { 반환 m_fileline; }
+    token_t token() const { 반환 m_token; }
+    bool isValue() const { 반환 m_token == ZERO || m_token == ONE; }
     bool value() const {
         UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+        반환 m_token == ONE;
     }
 };
 
@@ -76,7 +76,7 @@ class V3PreExpr final {
     };
     static const char* actionAscii(action_t en) {
         static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+        반환 names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -139,8 +139,8 @@ class V3PreExpr final {
         V3PreExpr parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        위해 (const char* cp = expr.c_str(); *cp; ++cp) {
+            만약 (tstart) {
                 tstart = false;
                 switch (*cp) {
                 case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
@@ -154,7 +154,7 @@ class V3PreExpr final {
                 case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
                 default: break;
                 }
-            } else if (*cp == ' ') {
+            } 아니면 만약 (*cp == ' ') {
                 tstart = true;
             }
         }
@@ -172,14 +172,14 @@ class V3PreExpr final {
         m_values.push_back(token);
     }
     V3PreExprToken popValue() {
-        if (m_values.empty()) {
+        만약 (m_values.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            반환 V3PreExprToken{m_firstFileline, false};
         }
         const V3PreExprToken tok = m_values.back();
         m_values.pop_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        반환 tok;
     }
     void reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
@@ -188,15 +188,15 @@ class V3PreExpr final {
         m_ops.pop_back();
         switch (tok.token()) {
         case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
+            동안 (m_ops.back().token() != V3PreExprToken::END
                    && m_ops.back().token() != V3PreExprToken::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
+            만약 (m_ops.back().token() == V3PreExprToken::BRA) {
                 m_ops.pop_back();
-            } else {
+            } 아니면 {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                반환;
             }
             break;
         }
@@ -236,11 +236,11 @@ class V3PreExpr final {
         }
     }
     void parse() {
-        while (!m_inputs.empty()) {
+        동안 (!m_inputs.empty()) {
             const V3PreExprToken tok = m_inputs.front();
             m_inputs.pop_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
+            만약 (tok.isValue()) {
                 pushValue(tok);
                 continue;
             }
@@ -259,7 +259,7 @@ class V3PreExpr final {
                 break;
             case AA:  // Accept
                 break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); 반환;
             }
         }
     }
@@ -276,14 +276,14 @@ public:
         pushOp(V3PreExprToken{flp, V3PreExprToken::END});
     }
     void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+        만약 (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
         m_inputs.push_back(token);
     }
     bool result() {
         pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
         parse();
-        return popValue().value();
+        반환 popValue().value();
     }
     static void selfTest() VL_MT_DISABLED { selfTestImp(); }
 };

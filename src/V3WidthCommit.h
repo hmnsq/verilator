@@ -28,16 +28,16 @@
 class V3WidthCommit final {
 public:
     static AstConst* newIfConstCommitSize(AstConst* nodep) {
-        if (((nodep->dtypep()->width() != nodep->num().width()) || !nodep->num().sized())
+        만약 (((nodep->dtypep()->width() != nodep->num().width()) || !nodep->num().sized())
             && !nodep->num().isString()) {  // Need to force the number from unsized to sized
             V3Number num{nodep, nodep->dtypep()->width(), nodep->num()};
             num.isSigned(nodep->isSigned());
             AstConst* const newp = new AstConst{nodep->fileline(), num};
             newp->dtypeFrom(nodep);
             newp->user1(true);
-            return newp;
+            반환 newp;
         }
-        return nullptr;
+        반환 nullptr;
     }
 
     // Final step... Mark all widths as equal

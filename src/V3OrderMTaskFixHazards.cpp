@@ -117,10 +117,10 @@ class DpiImportCallVisitor final : public VNVisitor {
     bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
     // METHODS
     void visit(AstCFunc* nodep) override {
-        if (!m_tracingCall) return;
+        만약 (!m_tracingCall) 반환;
         m_tracingCall = false;
-        if (nodep->dpiImportWrapper()) {
-            if (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
+        만약 (nodep->dpiImportWrapper()) {
+            만약 (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
                                  : !v3Global.opt.threadsDpiUnpure()) {
                 // If hierarchical DPI wrapper cost is not found or is of a 0 cost,
                 // we have a normal DPI which induces DPI hazard by default.
@@ -143,7 +143,7 @@ class DpiImportCallVisitor final : public VNVisitor {
     explicit DpiImportCallVisitor(AstNode* nodep) { iterate(nodep); }
 
 public:
-    static bool hasDpiHazard(AstNode* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
+    static bool hasDpiHazard(AstNode* nodep) { 반환 DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
 };
 
 //######################################################################
@@ -179,21 +179,21 @@ class FixDataHazards final {
                 // Order by critical path
                 const uint64_t aCp = ap->cpExclusive<GraphWay::FORWARD>();
                 const uint64_t bCp = bp->cpExclusive<GraphWay::FORWARD>();
-                if (aCp != bCp) return aCp < bCp;
+                만약 (aCp != bCp) 반환 aCp < bCp;
                 // Break ties by stable id
-                return *ap < *bp;
+                반환 *ap < *bp;
             }
         };
         // Set of ready vertices. Initialized to the entry MTask.
         std::set<LogicMTask*, MTaskCmp> ready{m_mTaskGraph.entryp()};
         // 'user' also used to count remaining dependencies of each MTask. Initialize it.
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+        위해 (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
             vtx.user(static_cast<uint32_t>(vtx.inEdges().size()));
         }
         // Next sequence number to assign to each MTask.
         uint32_t seq = 0;
         // Process ready vertices in critical path order.
-        while (!ready.empty()) {
+        동안 (!ready.empty()) {
             // Pick up and detach the ready MTask with the smallest critical path.
             const auto it = ready.begin();
             LogicMTask* const mtaskp = *it;
@@ -201,11 +201,11 @@ class FixDataHazards final {
             // Assign the next sequence number to the MTask
             mtaskp->user(++seq);
             // Decrement edge count of successors and add to ready set if no dependencies left
-            for (V3GraphEdge& edge : mtaskp->outEdges()) {
+            위해 (V3GraphEdge& edge : mtaskp->outEdges()) {
                 LogicMTask* const top = static_cast<LogicMTask*>(edge.top());
                 const uint32_t nDeps = top->user() - 1;
                 top->user(nDeps);
-                if (!nDeps) ready.insert(top);
+                만약 (!nDeps) ready.insert(top);
             }
         }
         UASSERT(seq == m_mTaskGraph.vertices().size(), "MTask graph is cyclic");
@@ -214,33 +214,33 @@ class FixDataHazards final {
     // Gather every variable access, resolved to the MTask performing it.
     std::vector<Access> gatherAccesses() {
         std::vector<Access> accesses;
-        int nVars = 0;
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+        정수 nVars = 0;
+        위해 (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            for (const OrderMoveVertex& mVtx : mtask.vertexList()) {
+            위해 (const OrderMoveVertex& mVtx : mtask.vertexList()) {
                 const OrderLogicVertex* const lVtxp = mVtx.logicp();
-                if (!lVtxp) continue;
-                for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
+                만약 (!lVtxp) continue;
+                위해 (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
                     AstVarScope* const vscp = acc.m_vscp;
-                    if (!vscp->user1()) vscp->user1(++nVars);
+                    만약 (!vscp->user1()) vscp->user1(++nVars);
                     accesses.push_back({vscp, &mtask, acc.m_access});
                 }
             }
         }
-        return accesses;
+        반환 accesses;
     }
 
     // Add an edge ordering 'fromp' before 'top', unless they are already ordered
     void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* top) {
         // Nothing to order within a single MTask
-        if (fromp == top) return;
+        만약 (fromp == top) 반환;
         UASSERT_OBJ(fromp->user() < top->user(), fromp,
                     "Edge must run in increasing sequence order");
         // Already directly ordered. This is an O(1) set lookup, and catches the common case of
         // a dependency the OrderGraph already provided.
-        if (fromp->hasEdgeTo(top)) return;
+        만약 (fromp->hasEdgeTo(top)) 반환;
         // Otherwise check if already ordered
-        if (m_mTaskGraph.pathExists(fromp, top, nullptr)) return;
+        만약 (m_mTaskGraph.pathExists(fromp, top, nullptr)) 반환;
         // Unordered. Add an edge between them.
         m_mTaskGraph.addEdge(fromp, top);
     }
@@ -250,28 +250,28 @@ class FixDataHazards final {
     void serializeVariable(const Access* beginp, const Access* endp) {
         // Nothing to order if at most one MTask accesses this variable. Each MTask appears at
         // most once in the range, see the assertion below, so this is just the range size.
-        if (endp - beginp < 2) return;
+        만약 (endp - beginp < 2) 반환;
 
         std::vector<LogicMTask*>& pendingReaders = m_scratch;
         pendingReaders.clear();
         LogicMTask* prevWriterp = nullptr;
-        for (const Access* accp = beginp; accp != endp; ++accp) {
+        위해 (const Access* accp = beginp; accp != endp; ++accp) {
             // The OrderLogicVertices record one access per variable, and at this point each MTask
             // holds exactly one logic block, so an MTask cannot appear twice here.
             UASSERT_OBJ(accp == beginp || accp[-1].m_mtaskp != accp->m_mtaskp, accp->m_mtaskp,
                         "Multiple accesses of a variable in an MTask");
             LogicMTask* const mtaskp = accp->m_mtaskp;
-            if (accp->m_access.isWriteOrRW()) {
+            만약 (accp->m_access.isWriteOrRW()) {
                 // Reads since the previous write must complete before this write
-                for (LogicMTask* const readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
+                위해 (LogicMTask* const readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
                 // Consecutive writes must be ordered. If a read came between them, the edges to
                 // and from that read imply it already.
-                if (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
+                만약 (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
                 pendingReaders.clear();
                 prevWriterp = mtaskp;
-            } else {
+            } 아니면 {
                 // This read must happen after the preceding write
-                if (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
+                만약 (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
                 pendingReaders.push_back(mtaskp);
             }
         }
@@ -280,25 +280,25 @@ class FixDataHazards final {
     // Serialize the given MTasks, in sequence number order
     void serializeMTasks(std::vector<LogicMTask*>& mtaskps) {
         std::sort(mtaskps.begin(), mtaskps.end(), [](const LogicMTask* ap, const LogicMTask* bp) {
-            return ap->user() < bp->user();
+            반환 ap->user() < bp->user();
         });
         mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.end()), mtaskps.end());
-        for (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
+        위해 (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
     }
 
     bool hasDpiHazard(LogicMTask* mtaskp) {
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
+        위해 (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
             OrderLogicVertex* const lvtxp = mVtx.logicp();
-            if (!lvtxp) continue;
+            만약 (!lvtxp) continue;
             // NOTE: We don't handle DPI exports. If testbench code calls a DPI-exported function
             // at any time during eval() we may have a data hazard. (Likewise in non-threaded mode
             // if an export messes with an ordered variable we're broken.)
 
             // Find all calls to DPI-imported functions, we can put those into a serial order at
             // least. That should solve the most likely DPI-related data hazards.
-            if (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) return true;
+            만약 (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) 반환 true;
         }
-        return false;
+        반환 false;
     }
 
     // CONSTRUCTOR
@@ -311,14 +311,14 @@ class FixDataHazards final {
         std::vector<Access> accesses = gatherAccesses();
         // Sort by variable (to group by variable), then by sequence number of the accessing MTask
         std::sort(accesses.begin(), accesses.end(), [](const Access& a, const Access& b) {
-            if (a.m_vscp != b.m_vscp) return a.m_vscp->user1() < b.m_vscp->user1();
-            return a.m_mtaskp->user() < b.m_mtaskp->user();
+            만약 (a.m_vscp != b.m_vscp) 반환 a.m_vscp->user1() < b.m_vscp->user1();
+            반환 a.m_mtaskp->user() < b.m_mtaskp->user();
         });
 
         // Serialize the accesses of each variable
-        for (size_t i = 0; i < accesses.size();) {
+        위해 (size_t i = 0; i < accesses.size();) {
             size_t end = i + 1;
-            while (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
+            동안 (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
             serializeVariable(accesses.data() + i, accesses.data() + end);
             i = end;
         }
@@ -329,20 +329,20 @@ class FixDataHazards final {
         // so this should not hurt performance too much.
         {
             m_scratch.clear();
-            for (const Access& access : accesses) {
-                if (!access.m_access.isWriteOrRW()) continue;
-                if (!access.m_vscp->varp()->isSc()) continue;
+            위해 (const Access& access : accesses) {
+                만약 (!access.m_access.isWriteOrRW()) continue;
+                만약 (!access.m_vscp->varp()->isSc()) continue;
                 m_scratch.push_back(access.m_mtaskp);
             }
             serializeMTasks(m_scratch);
         }
 
         // Serialize DPI calls unless user gave '--threads-dpi none'.
-        if (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
+        만약 (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
             m_scratch.clear();
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+            위해 (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
                 LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-                if (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
+                만약 (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
             }
             serializeMTasks(m_scratch);
         }

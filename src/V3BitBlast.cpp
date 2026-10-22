@@ -86,22 +86,22 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // A read of a variable: a constant bit select or a whole VarRef
     struct RdRef final {
         AstNodeExpr* exprp;  // Sel, or the VarRef if whole
-        int lsb;  // First bit read
-        int msb;  // Last bit read
+        정수 lsb;  // First bit read
+        정수 msb;  // Last bit read
     };
 
     // A write of a variable: a constant bit select or a whole VarRef
     struct WrRef final {
         AstNodeExpr* exprp;  // The Sel, or the VarRef if whole
         AstNodeAssign* assignp;  // The assignment, if it can be expanded
-        int lsb;  // The first bit written
-        int msb;  // The last bit written
+        정수 lsb;  // The first bit written
+        정수 msb;  // The last bit written
     };
 
     // A fragment of a split AstVarScope
     struct Fragment final {
-        int lsb;  // The first bit in the variable
-        int msb;  // The last bit in the variable
+        정수 lsb;  // The first bit in the variable
+        정수 msb;  // The last bit in the variable
         AstVarScope* vscp;  // The AstVarScope of the fragment
     };
 
@@ -124,7 +124,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // STATE
     // The fragment AstVars created so far, by LSB and MSB. AstVarScopes with the same
     // fragment share its AstVar.
-    AstUser2Allocator<AstVar, std::map<std::pair<int, int>, AstVar*>> m_fragmentVarps;
+    AstUser2Allocator<AstVar, std::map<std::pair<정수, 정수>, AstVar*>> m_fragmentVarps;
     AstUser1Allocator<AstVarScope, VscpInfo> m_vscpInfos;
     std::vector<AstVarScope*> m_vscps;  // AstVarScopes of eligible variables, in encounter order
     AstNodeAssign* m_assignp = nullptr;  // The enclosing assignment, if it can be expanded
@@ -139,7 +139,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
     static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
         // Only warn if user requested splitting
-        if (!varp->attrSplitVar()) return;
+        만약 (!varp->attrSplitVar()) 반환;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
                                      << " marked split_var but will not be split because "
                                      << reasonp);
@@ -151,32 +151,32 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // until the whole netlist is visited.
     static bool isEligible(AstVar* varp) {
         // Compute and cache eligibility on first encounter
-        if (!varp->user1()) {
+        만약 (!varp->user1()) {
             const bool eligible = [&]() {
                 const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
                 // Packed types only
-                if (!dtypep->isIntegralOrPacked()) return false;
+                만약 (!dtypep->isIntegralOrPacked()) 반환 false;
                 // Wider than one bit
-                if (dtypep->width() <= 1) return false;
+                만약 (dtypep->width() <= 1) 반환 false;
                 // Check properties
                 const char* const reasonp = varp->cannotSplitKindReason();
                 // Warn that it cannot be split if user explicitly requested splitting
-                if (reasonp) warnNoSplit(varp, varp, reasonp);
+                만약 (reasonp) warnNoSplit(varp, varp, reasonp);
                 // Eligible if no refusal reason returned
-                return !reasonp;
+                반환 !reasonp;
             }();
             varp->user1(2 | eligible);
         }
         // Return the cached result
-        return varp->user1() & 1;
+        반환 varp->user1() & 1;
     }
 
     // The VscpInfo of the AstVarScope of an eligible variable
     VscpInfo& vscpInfoOf(AstVarScope* vscp) {
-        if (VscpInfo* const infop = m_vscpInfos.tryGet(vscp)) return *infop;
+        만약 (VscpInfo* const infop = m_vscpInfos.tryGet(vscp)) 반환 *infop;
         // Also record on first encounter
         m_vscps.push_back(vscp);
-        return m_vscpInfos(vscp);
+        반환 m_vscpInfos(vscp);
     }
 
     // Record step methods
@@ -184,25 +184,25 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Block splitting of the AstVarScope, due to the construct in 'wherep'
     static void block(AstVar* varp, VscpInfo& info, const AstNode* wherep) {
         warnNoSplit(varp, wherep, "it is referenced in an unsupported way");
-        if (info.blocked) return;
+        만약 (info.blocked) 반환;
         info.blocked = true;
         info.rdRefs.clear();
         info.wrRefs.clear();
     }
 
     // Record the reference 'exprp' of bits 'lsb' to 'msb' through 'refp'
-    void record(AstNodeExpr* exprp, AstVarRef* refp, int lsb, int msb) {
+    void record(AstNodeExpr* exprp, AstVarRef* refp, 정수 lsb, 정수 msb) {
         AstVar* const varp = refp->varp();
-        if (!isEligible(varp)) return;
+        만약 (!isEligible(varp)) 반환;
         VscpInfo& info = vscpInfoOf(refp->varScopep());
         // RW reference blocks splitting
-        if (refp->access().isRW()) block(varp, info, exprp);
+        만약 (refp->access().isRW()) block(varp, info, exprp);
         // Don't recod if blocked (due to RW above, or any other reason from elsewhere)
-        if (info.blocked) return;
+        만약 (info.blocked) 반환;
         // Record reference
-        if (refp->access().isReadOnly()) {
+        만약 (refp->access().isReadOnly()) {
             info.rdRefs.push_back({exprp, lsb, msb});
-            return;
+            반환;
         }
         // A write as an assignment LHS can be expanded into assignments to multiple fragments
         const bool canExpand = m_assignp && exprp == m_assignp->lhsp();
@@ -220,12 +220,12 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Decision step methods
 
     // The AstVar of the fragment of 'varp' of bits 'lsb' to 'msb', created on first use
-    AstVar* fragmentVarp(AstVar* varp, int lsb, int msb) {
+    AstVar* fragmentVarp(AstVar* varp, 정수 lsb, 정수 msb) {
         AstVar*& fragVarpr = m_fragmentVarps(varp)[{lsb, msb}];
-        if (fragVarpr) return fragVarpr;
-        const int width = msb - lsb + 1;
+        만약 (fragVarpr) 반환 fragVarpr;
+        const 정수 width = msb - lsb + 1;
         std::string name = varp->name() + "__BRA__" + AstNode::encodeNumber(msb);
-        if (width > 1) name += AstNode::encodeName(":") + AstNode::encodeNumber(lsb);
+        만약 (width > 1) name += AstNode::encodeName(":") + AstNode::encodeNumber(lsb);
         name += "__KET__";
         AstNodeDType* const dtypep = varp->dtypep()->isFourstate()
                                          ? varp->findLogicDType(width, width, VSigning::UNSIGNED)
@@ -233,44 +233,44 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         fragVarpr = new AstVar{varp->fileline(), varp->varType(), name, dtypep};
         fragVarpr->propagateSplitAttrFrom(varp);
         varp->addHereThisAsNext(fragVarpr);
-        return fragVarpr;
+        반환 fragVarpr;
     }
 
     // Decide whether to split the AstVarScope, and if so, create its fragments
     void decide(AstVarScope* vscp, VscpInfo& info) {
-        if (info.blocked) return;
+        만약 (info.blocked) 반환;
         AstVar* const varp = vscp->varp();
         // Split automatically if all references are disjoint or identical bit selects
         const bool isAuto = [&]() {
-            std::vector<std::pair<int, int>> ranges;  // [lsb, msb] inclusive
-            for (const RdRef& ref : info.rdRefs) {
-                if (VN_IS(ref.exprp, VarRef)) return false;
+            std::vector<std::pair<정수, 정수>> ranges;  // [lsb, msb] inclusive
+            위해 (const RdRef& ref : info.rdRefs) {
+                만약 (VN_IS(ref.exprp, VarRef)) 반환 false;
                 ranges.emplace_back(ref.lsb, ref.msb);
             }
-            for (const WrRef& ref : info.wrRefs) {
-                if (VN_IS(ref.exprp, VarRef)) return false;
+            위해 (const WrRef& ref : info.wrRefs) {
+                만약 (VN_IS(ref.exprp, VarRef)) 반환 false;
                 ranges.emplace_back(ref.lsb, ref.msb);
             }
             std::sort(ranges.begin(), ranges.end());
-            for (size_t i = 0; i + 1 < ranges.size(); ++i) {
-                const std::pair<int, int>& a = ranges[i];
-                const std::pair<int, int>& b = ranges[i + 1];
-                if (a != b && a.second >= b.first) return false;
+            위해 (size_t i = 0; i + 1 < ranges.size(); ++i) {
+                const std::pair<정수, 정수>& a = ranges[i];
+                const std::pair<정수, 정수>& b = ranges[i + 1];
+                만약 (a != b && a.second >= b.first) 반환 false;
             }
-            return true;
+            반환 true;
         }();
         // Otherwise only if requested
-        if (!isAuto && !varp->attrSplitVar()) return;
+        만약 (!isAuto && !varp->attrSplitVar()) 반환;
         // The fragment boundaries are the boundaries of the ranges written,
         // and of the range referenced, as bits outside of it are not used
-        int lsb = varp->width();
-        int msb = -1;
-        for (const RdRef& ref : info.rdRefs) {
+        정수 lsb = varp->width();
+        정수 msb = -1;
+        위해 (const RdRef& ref : info.rdRefs) {
             lsb = std::min(lsb, ref.lsb);
             msb = std::max(msb, ref.msb);
         }
-        std::vector<int> bounds;
-        for (const WrRef& ref : info.wrRefs) {
+        std::vector<정수> bounds;
+        위해 (const WrRef& ref : info.wrRefs) {
             lsb = std::min(lsb, ref.lsb);
             msb = std::max(msb, ref.msb);
             bounds.push_back(ref.lsb);
@@ -281,27 +281,27 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         std::sort(bounds.begin(), bounds.end());
         bounds.erase(std::unique(bounds.begin(), bounds.end()), bounds.end());
         // Nothing to do if the only fragment is the whole variable
-        if (bounds.size() == 2 && lsb == 0 && msb == varp->width() - 1) return;
+        만약 (bounds.size() == 2 && lsb == 0 && msb == varp->width() - 1) 반환;
         // Writes that cannot be expanded must write one fragment
-        for (const WrRef& ref : info.wrRefs) {
+        위해 (const WrRef& ref : info.wrRefs) {
             // On the LHS of assignment it can be expanded
-            if (ref.assignp) continue;
+            만약 (ref.assignp) continue;
             // If write is to a whole fragment, it can be replaced
-            if (*std::upper_bound(bounds.begin(), bounds.end(), ref.lsb) == ref.msb + 1) {
+            만약 (*std::upper_bound(bounds.begin(), bounds.end(), ref.lsb) == ref.msb + 1) {
                 continue;
             }
             // Otherwise can't split
             warnNoSplit(varp, ref.exprp, "it is written in an unsupported way");
-            return;
+            반환;
         }
 
         // Splitting this variable
         ++(isAuto ? m_statSplitAuto : m_statSplitAttr);
 
         // Create the fragment AstVarScopes
-        for (size_t i = 0; i + 1 < bounds.size(); ++i) {
-            const int lsb = bounds[i];
-            const int msb = bounds[i + 1] - 1;
+        위해 (size_t i = 0; i + 1 < bounds.size(); ++i) {
+            const 정수 lsb = bounds[i];
+            const 정수 msb = bounds[i + 1] - 1;
             AstVar* const fragVarp = fragmentVarp(varp, lsb, msb);
             AstVarScope* const newp = new AstVarScope{vscp->fileline(), vscp->scopep(), fragVarp};
             vscp->addHereThisAsNext(newp);
@@ -313,25 +313,25 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Rewrite step methods
 
     // Index of the fragment containing bit 'bit'
-    static size_t fragmentIndex(const VscpInfo& info, int bit) {
+    static size_t fragmentIndex(const VscpInfo& info, 정수 bit) {
         const auto it = std::upper_bound(info.fragments.begin(), info.fragments.end(), bit,
-                                         [](int b, const Fragment& fragment) {  //
-                                             return b <= fragment.msb;
+                                         [](정수 b, const Fragment& fragment) {  //
+                                             반환 b <= fragment.msb;
                                          });
-        return it - info.fragments.begin();
+        반환 it - info.fragments.begin();
     }
 
     // Replace the read 'ref' with the bits of the fragments it overlaps
     void rewriteRead(const RdRef& ref, const VscpInfo& info) {
         FileLine* const flp = ref.exprp->fileline();
         AstNodeExpr* resultp = nullptr;
-        for (size_t i = fragmentIndex(info, ref.lsb); i < info.fragments.size(); ++i) {
+        위해 (size_t i = fragmentIndex(info, ref.lsb); i < info.fragments.size(); ++i) {
             const Fragment& fragment = info.fragments[i];
-            if (fragment.lsb > ref.msb) break;
-            const int partLsb = std::max(ref.lsb, fragment.lsb);
-            const int partMsb = std::min(ref.msb, fragment.msb);
+            만약 (fragment.lsb > ref.msb) break;
+            const 정수 partLsb = std::max(ref.lsb, fragment.lsb);
+            const 정수 partMsb = std::min(ref.msb, fragment.msb);
             AstNodeExpr* bitsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
-            if (partLsb != fragment.lsb || partMsb != fragment.msb) {
+            만약 (partLsb != fragment.lsb || partMsb != fragment.msb) {
                 bitsp = new AstSel{flp, bitsp, partLsb - fragment.lsb, partMsb - partLsb + 1};
             }
             // Higher bits go to the left
@@ -345,17 +345,17 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // each fragment. It must be pure and cheap, and must not read a fragment being written, which
     // it cannot, as it is wider than one fragment, and its reads were rewritten into fragments.
     static bool isSelectable(const AstNodeExpr* nodep) {
-        if (VN_IS(nodep, Const)) return true;
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            if (!VN_IS(selp->lsbp(), Const)) return false;
+        만약 (VN_IS(nodep, Const)) 반환 true;
+        만약 (const AstSel* const selp = VN_CAST(nodep, Sel)) {
+            만약 (!VN_IS(selp->lsbp(), Const)) 반환 false;
             nodep = selp->fromp();
         }
         const AstVarRef* const refp = VN_CAST(nodep, VarRef);
-        if (!refp) return false;
+        만약 (!refp) 반환 false;
         // Not a forced variable (trips several bugs in V3Force)
-        if (refp->varp()->isForced()) return false;
+        만약 (refp->varp()->isForced()) 반환 false;
         // Not a SystemC variable, which can only be accessed whole, not selected from.
-        return !refp->varp()->isSc();
+        반환 !refp->varp()->isSc();
     }
 
     // Replace the write 'ref' with the fragments it covers
@@ -366,10 +366,10 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         UASSERT_OBJ(info.fragments[first].lsb == ref.lsb, ref.exprp,
                     "Write not at fragment boundary");
         // If one fragment, write it instead
-        if (first == last) {
+        만약 (first == last) {
             ref.exprp->replaceWith(new AstVarRef{flp, info.fragments[first].vscp, VAccess::WRITE});
             VL_DO_DANGLING(pushDeletep(ref.exprp), ref.exprp);
-            return;
+            반환;
         }
         // Otherwise it must be an assignment LHS: expand the assignment into
         // an assignment to each fragment
@@ -377,7 +377,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         AstNodeExpr* rhsp = origp->rhsp()->unlinkFrBack();
         // Unless its bits can be selected directly, assign the RHS to a temporary first, so it
         // is evaluated once, and reads the fragments before any of them is written
-        if (!isSelectable(rhsp)) {
+        만약 (!isSelectable(rhsp)) {
             ++m_statTmps;
             AstVarScope* const tmpp = m_tmps.make(flp, scopep, rhsp->dtypep());
             AstVarRef* const tmpRefp = new AstVarRef{flp, tmpp, VAccess::WRITE};
@@ -385,10 +385,10 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
             rhsp = new AstVarRef{flp, tmpp, VAccess::READ};
         }
         // Assign each fragment its bits of the RHS
-        for (size_t i = first; i <= last; ++i) {
+        위해 (size_t i = first; i <= last; ++i) {
             const Fragment& fragment = info.fragments[i];
-            const int lsb = fragment.lsb - ref.lsb;  // LSB of the fragment's bits in the RHS
-            const int width = fragment.msb - fragment.lsb + 1;
+            const 정수 lsb = fragment.lsb - ref.lsb;  // LSB of the fragment's bits in the RHS
+            const 정수 width = fragment.msb - fragment.lsb + 1;
             AstVarRef* const lhsp = new AstVarRef{flp, fragment.vscp, VAccess::WRITE};
             AstSel* const selp = new AstSel{flp, rhsp->cloneTreePure(false), lsb, width};
             origp->addHereThisAsNext(origp->cloneType(lhsp, selp));
@@ -399,8 +399,8 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
 
     // The combinational AstActive of the scope, cached
     static AstActive* comboActive(AstScope* scopep) {
-        if (!scopep->user2p()) scopep->user2p(scopep->comboActivep(true));
-        return VN_AS(scopep->user2p(), Active);
+        만약 (!scopep->user2p()) scopep->user2p(scopep->comboActivep(true));
+        반환 VN_AS(scopep->user2p(), Active);
     }
 
     // VISITORS
@@ -411,17 +411,17 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
     void visit(AstSel* nodep) override {
         AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef);
-        if (!refp || !isEligible(refp->varp())) {
+        만약 (!refp || !isEligible(refp->varp())) {
             iterateChildrenConst(nodep);
-            return;
+            반환;
         }
         // Must be constant and in range. V3Unknown only guards the LSB, so a select with
         // the LSB in range, but the MSB beyond the variable can reach here.
         const AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp || lsbp->toSInt() + nodep->widthConst() > refp->varp()->width()) {
+        만약 (!lsbp || lsbp->toSInt() + nodep->widthConst() > refp->varp()->width()) {
             block(refp->varp(), vscpInfoOf(refp->varScopep()), refp);
             iterateConst(nodep->lsbp());
-            return;
+            반환;
         }
         // Record partial access
         record(nodep, refp, lsbp->toSInt(), lsbp->toSInt() + nodep->widthConst() - 1);
@@ -434,7 +434,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         iterateChildrenConst(nodep);
         // The AstVarScope is not known, so all of them are blocked, by making it ineligible
         AstVar* const varp = nodep->varp();
-        if (!isEligible(varp)) return;
+        만약 (!isEligible(varp)) 반환;
         varp->user1(2);  // Mark not eligible
         warnNoSplit(varp, nodep, "it is referenced in an unsupported way");
     }
@@ -445,32 +445,32 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         iterateConst(netlistp);
 
         // Decide which AstVarScopes are split, unless the variable became ineligible
-        for (AstVarScope* const vscp : m_vscps) {
-            if (isEligible(vscp->varp())) decide(vscp, m_vscpInfos(vscp));
+        위해 (AstVarScope* const vscp : m_vscps) {
+            만약 (isEligible(vscp->varp())) decide(vscp, m_vscpInfos(vscp));
         }
 
         // Rewrite the reads, then the writes, which might move the reads in their RHS
-        for (AstVarScope* const vscp : m_vscps) {
+        위해 (AstVarScope* const vscp : m_vscps) {
             const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            for (const RdRef& ref : info.rdRefs) rewriteRead(ref, info);
+            만약 (info.fragments.empty()) continue;
+            위해 (const RdRef& ref : info.rdRefs) rewriteRead(ref, info);
         }
-        for (AstVarScope* const vscp : m_vscps) {
+        위해 (AstVarScope* const vscp : m_vscps) {
             const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            for (const WrRef& ref : info.wrRefs) rewriteWrite(vscp->scopep(), ref, info);
+            만약 (info.fragments.empty()) continue;
+            위해 (const WrRef& ref : info.wrRefs) rewriteWrite(vscp->scopep(), ref, info);
         }
 
         // Drive variables that must be kept from their fragments
-        for (AstVarScope* const vscp : m_vscps) {
+        위해 (AstVarScope* const vscp : m_vscps) {
             const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
+            만약 (info.fragments.empty()) continue;
+            만약 (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
             AstActive* const activep = comboActive(vscp->scopep());
             FileLine* const flp = vscp->fileline();
-            for (const Fragment& fragment : info.fragments) {
+            위해 (const Fragment& fragment : info.fragments) {
                 AstVarRef* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-                const int width = fragment.msb - fragment.lsb + 1;
+                const 정수 width = fragment.msb - fragment.lsb + 1;
                 AstSel* const lhsp = new AstSel{flp, lhsRefp, fragment.lsb, width};
                 AstVarRef* const rhsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
                 activep->addStmtsp(new AstAlways{new AstAssignW{flp, lhsp, rhsp}});

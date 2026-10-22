@@ -48,16 +48,16 @@ public:
     ~VlcTest() = default;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    double computrons() const { return m_computrons; }
-    uint64_t testrun() const { return m_testrun; }
-    VlcBuckets& buckets() { return m_buckets; }
-    uint64_t bucketsCovered() const { return m_buckets.bucketsCovered(); }
-    uint64_t rank() const { return m_rank; }
+    const string& name() const { 반환 m_name; }
+    double computrons() const { 반환 m_computrons; }
+    uint64_t testrun() const { 반환 m_testrun; }
+    VlcBuckets& buckets() { 반환 m_buckets; }
+    uint64_t bucketsCovered() const { 반환 m_buckets.bucketsCovered(); }
+    uint64_t rank() const { 반환 m_rank; }
     void rank(uint64_t flag) { m_rank = flag; }
-    uint64_t rankPoints() const { return m_rankPoints; }
+    uint64_t rankPoints() const { 반환 m_rankPoints; }
     void rankPoints(uint64_t flag) { m_rankPoints = flag; }
-    uint64_t user() const { return m_user; }
+    uint64_t user() const { 반환 m_user; }
     void user(uint64_t flag) { m_user = flag; }
 
     // METHODS
@@ -67,7 +67,7 @@ public:
         std::cout << "  Covered,     Rank,  RankPts,  Filename\n";
     }
     void dump(bool bucketsToo) const {
-        if (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
+        만약 (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
             std::cout << "  " << std::setw(8) << std::setfill('0') << testrun()  // LCOV_EXCL_LINE
                       << ",  " << std::setw(7) << std::setfill(' ')
                       << computrons()  // LCOV_EXCL_LINE
@@ -77,7 +77,7 @@ public:
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rank();
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rankPoints();
         std::cout << ",  \"" << name() << "\"\n";
-        if (bucketsToo) m_buckets.dump();
+        만약 (bucketsToo) m_buckets.dump();
     }
 };
 
@@ -93,33 +93,33 @@ private:
     // MEMBERS
     ByName m_tests;  //< List of all tests
 
-    static int debug() { return V3Error::debugDefault(); }
+    static 정수 debug() { 반환 V3Error::debugDefault(); }
 
 public:
     // ITERATORS
     using iterator = ByName::iterator;
-    ByName::iterator begin() { return m_tests.begin(); }
-    ByName::iterator end() { return m_tests.end(); }
+    ByName::iterator begin() { 반환 m_tests.begin(); }
+    ByName::iterator end() { 반환 m_tests.end(); }
 
     // CONSTRUCTORS
     VlcTests() = default;
     ~VlcTests() {
-        for (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
+        위해 (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
     }
 
     // METHODS
     void dump(bool bucketsToo) {
         UINFO(2, "dumpTests...");
         VlcTest::dumpHeader();
-        for (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
+        위해 (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
     }
     VlcTest* newTest(const string& name, uint64_t testrun, double comp) {
         VlcTest* const testp = new VlcTest{name, testrun, comp};
         m_tests.push_back(testp);
-        return testp;
+        반환 testp;
     }
     void clearUser() {
-        for (const auto& testp : m_tests) testp->user(0);
+        위해 (const auto& testp : m_tests) testp->user(0);
     }
 };
 

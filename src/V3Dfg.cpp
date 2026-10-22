@@ -37,28 +37,28 @@ DfgGraph::~DfgGraph() {
 }
 
 void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
-    if (otherps.empty()) return;
+    만약 (otherps.empty()) 반환;
 
     // NODE STATE
     // AstVarScope::user2p() -> corresponding DfgVertexVar* in 'this' graph
     const VNUser2InUse user2InUse;
 
     // Set up Ast Variable -> DfgVertexVar map for 'this' graph
-    for (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
+    위해 (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
 
     // Merge in each of the other graphs
-    for (const std::unique_ptr<DfgGraph>& otherp : otherps) {
+    위해 (const std::unique_ptr<DfgGraph>& otherp : otherps) {
         // Process variables
-        for (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
+        위해 (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
             // Variabels that are present in 'this', make them use the DfgVertexVar in 'this'.
-            if (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
+            만약 (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
                 DfgVertex* const srcp = vtxp->srcp();
                 DfgVertex* const defaultp = vtxp->defaultp();
                 UASSERT_OBJ(!(srcp || defaultp) || (!altp->srcp() && !altp->defaultp()), vtxp,
                             "At most one alias should be driven");
                 vtxp->replaceWith(altp);
-                if (srcp) altp->srcp(srcp);
-                if (defaultp) altp->defaultp(defaultp);
+                만약 (srcp) altp->srcp(srcp);
+                만약 (defaultp) altp->defaultp(defaultp);
                 VL_DO_DANGLING(vtxp->unlinkDelete(*otherp), vtxp);
                 continue;
             }
@@ -71,7 +71,7 @@ void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
         }
         m_varVertices.splice(m_varVertices.end(), otherp->m_varVertices);
         // Process Ast references
-        for (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
+        위해 (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
             vtxp->m_userGeneration = 0;
 #ifdef VL_DEBUG
             vtxp->m_dfgp = this;
@@ -79,7 +79,7 @@ void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
         }
         m_astVertices.splice(m_astVertices.end(), otherp->m_astVertices);
         // Process constants
-        for (DfgConst& vtx : otherp->m_constVertices) {
+        위해 (DfgConst& vtx : otherp->m_constVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
             vtx.m_dfgp = this;
@@ -87,7 +87,7 @@ void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
         }
         m_constVertices.splice(m_constVertices.end(), otherp->m_constVertices);
         // Process operations
-        for (DfgVertex& vtx : otherp->m_opVertices) {
+        위해 (DfgVertex& vtx : otherp->m_opVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
             vtx.m_dfgp = this;
@@ -104,15 +104,15 @@ DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
                                    const DfgDataType& dtype, AstScope* scopep) {
     AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
     // Create and return the corresponding variable vertex
-    if (dtype.isArray()) return new DfgVarArray{*this, vscp};
-    return new DfgVarPacked{*this, vscp};
+    만약 (dtype.isArray()) 반환 new DfgVarArray{*this, vscp};
+    반환 new DfgVarPacked{*this, vscp};
 }
 
-static const std::string toDotId(const DfgVertex& vtx) { return '"' + cvtToHex(&vtx) + '"'; }
+static const std::string toDotId(const DfgVertex& vtx) { 반환 '"' + cvtToHex(&vtx) + '"'; }
 
 // Dump one DfgVertex in Graphviz format
 static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
-    if (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
+    만약 (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
         const AstVarScope* const vscp = varVtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
@@ -124,8 +124,8 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // Address
         os << '\n' << cvtToHex(varVtxp);
         // Original variable, if any
-        if (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
-            if (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
+        만약 (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
+            만약 (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
         }
         // Type and fanout
         os << '\n';
@@ -140,11 +140,11 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // End 'label'
         os << '"';
         // Shape
-        if (varVtxp->is<DfgVarPacked>()) {
+        만약 (varVtxp->is<DfgVarPacked>()) {
             os << ", shape=box";
-        } else if (varVtxp->is<DfgVarArray>()) {
+        } 아니면 만약 (varVtxp->is<DfgVarArray>()) {
             os << ", shape=box3d";
-        } else {
+        } 아니면 {
             varVtxp->v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         // Color
@@ -157,10 +157,10 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
+    만약 (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
         const AstVarScope* const vscp = prevVtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
@@ -178,11 +178,11 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // End 'label'
         os << '"';
         // Shape
-        if (prevVtxp->isPacked()) {
+        만약 (prevVtxp->isPacked()) {
             os << ", shape=box";
-        } else if (prevVtxp->isArray()) {
+        } 아니면 만약 (prevVtxp->isArray()) {
             os << ", shape=box3d";
-        } else {
+        } 아니면 {
             prevVtxp->v3fatalSrc("Unhandled variable type");
         }
         // Color
@@ -191,28 +191,28 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
+    만약 (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
         const V3Number& num = constVtxp->num();
 
         os << toDotId(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
+        만약 (num.width() <= 32 && !num.isSigned()) {
             os << constVtxp->width() << "'d" << num.toUInt() << '\n';
             os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
-        } else {
+        } 아니면 {
             os << num.ascii() << '\n';
         }
         os << cvtToHex(constVtxp) << '\n';
         os << '"';
         os << ", shape=plain";
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
+    만약 (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
         const uint32_t lsb = selVtxp->lsb();
         const uint32_t msb = lsb + selVtxp->width() - 1;
         os << toDotId(vtx);
@@ -220,31 +220,31 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << cvtToHex(selVtxp) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        만약 (vtx.hasMultipleSinks()) {
             os << ", shape=doublecircle";
-        } else {
+        } 아니면 {
             os << ", shape=circle";
         }
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
+    만약 (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
         os << toDotId(vtx);
         os << " [label=\"" << vtx.typeName() << '\n';
         os << cvtToHex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        만약 (vtx.hasMultipleSinks()) {
             os << ", shape=doubleoctagon";
-        } else {
+        } 아니면 {
             os << ", shape=octagon";
         }
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
+    만약 (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
         os << toDotId(vtx);
         std::stringstream ss;
         V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
@@ -264,10 +264,10 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        반환;
     }
 
-    if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
+    만약 (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
         os << toDotId(vtx);
         std::stringstream ss;
         V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
@@ -289,7 +289,7 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        반환;
     }
 
     os << toDotId(vtx);
@@ -297,9 +297,9 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     os << cvtToHex(&vtx) << '\n';
     vtx.dtype().astDtypep()->dumpSmall(os);
     os << " / F" << vtx.fanout() << '"';
-    if (vtx.hasMultipleSinks()) {
+    만약 (vtx.hasMultipleSinks()) {
         os << ", shape=doublecircle";
-    } else {
+    } 아니면 {
         os << ", shape=circle";
     }
     os << "]\n";
@@ -314,20 +314,20 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     os << "rankdir=LR\n";
 
     // If predicate not given, dump everything
-    if (!p) p = [](const DfgVertex&) { return true; };
+    만약 (!p) p = [](const DfgVertex&) { 반환 true; };
 
     std::unordered_set<const DfgVertex*> emitted;
     // Emit all vertices associated with a DfgLogic
     forEachVertex([&](const DfgVertex& vtx) {
         const DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp) return;
-        if (logicp->synth().empty()) return;
-        if (!p(vtx)) return;
+        만약 (!logicp) 반환;
+        만약 (logicp->synth().empty()) 반환;
+        만약 (!p(vtx)) 반환;
         os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
         dumpDotVertex(os, *logicp);
         emitted.insert(logicp);
-        for (DfgVertex* const vtxp : logicp->synth()) {
-            if (!p(*vtxp)) continue;
+        위해 (DfgVertex* const vtxp : logicp->synth()) {
+            만약 (!p(*vtxp)) continue;
             dumpDotVertex(os, *vtxp);
             emitted.insert(vtxp);
         }
@@ -335,17 +335,17 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     });
     // Emit all remaining vertices
     forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
-        if (!p(vtx)) return;
+        만약 (emitted.count(&vtx)) 반환;
+        만약 (!p(vtx)) 반환;
         dumpDotVertex(os, vtx);
     });
     // Emit all edges
     forEachVertex([&](const DfgVertex& vtx) {
-        if (!p(vtx)) return;
-        for (size_t i = 0; i < vtx.nInputs(); ++i) {
+        만약 (!p(vtx)) 반환;
+        위해 (size_t i = 0; i < vtx.nInputs(); ++i) {
             DfgVertex* const srcp = vtx.inputp(i);
-            if (!srcp) continue;
-            if (!p(*srcp)) continue;
+            만약 (!srcp) continue;
+            만약 (!p(*srcp)) continue;
             os << toDotId(*srcp) << " -> " << toDotId(vtx);
             os << " [headlabel=\"" << vtx.srcName(i) << "\"]";
             os << '\n';
@@ -363,13 +363,13 @@ std::string DfgGraph::dumpDotString(const std::string& label,
                                     std::function<bool(const DfgVertex&)> p) const {
     std::stringstream ss;
     dumpDot(ss, label, p);
-    return ss.str();
+    반환 ss.str();
 }
 
 void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label,
                            std::function<bool(const DfgVertex&)> p) const {
     const std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
-    if (os->fail()) v3fatal("Can't write file: " << filename);
+    만약 (os->fail()) v3fatal("Can't write file: " << filename);
     dumpDot(*os.get(), label, p);
     os->close();
 }
@@ -377,7 +377,7 @@ void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label
 void DfgGraph::dumpDotFilePrefixed(const std::string& label,
                                    std::function<bool(const DfgVertex&)> p) const {
     std::string filename = name();
-    if (!label.empty()) filename += "-" + label;
+    만약 (!label.empty()) filename += "-" + label;
     dumpDotFile(v3Global.debugFilename(filename) + ".dot", label, p);
 }
 
@@ -390,37 +390,37 @@ dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
     std::unique_ptr<std::unordered_set<const DfgVertex*>> resp{
         new std::unordered_set<const DfgVertex*>{}};
     // Depth first traversal
-    while (!queue.empty()) {
+    동안 (!queue.empty()) {
         // Pop next work item
         const DfgVertex* const vtxp = queue.back();
         queue.pop_back();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        만약 (!resp->insert(vtxp).second) continue;
         // Enqueue all siblings of this vertex.
-        if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
+        만약 VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
             vtxp->foreachSink([&](const DfgVertex& sink) {
                 queue.push_back(&sink);
-                return false;
+                반환 false;
             });
-        } else {
+        } 아니면 {
             vtxp->foreachSource([&](const DfgVertex& src) {
                 queue.push_back(&src);
-                return false;
+                반환 false;
             });
         }
     }
     // Done
-    return resp;
+    반환 resp;
 }
 
 std::unique_ptr<std::unordered_set<const DfgVertex*>>
 DfgGraph::sourceCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<false>(vtxps);
+    반환 dfgGraphCollectCone<false>(vtxps);
 }
 
 std::unique_ptr<std::unordered_set<const DfgVertex*>>
 DfgGraph::sinkCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<true>(vtxps);
+    반환 dfgGraphCollectCone<true>(vtxps);
 }
 
 std::unique_ptr<std::unordered_set<const DfgVertex*>>
@@ -432,23 +432,23 @@ DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) con
     // Expand neihborhood by 'n' hops
     size_t begin = 0;
     size_t end = vec.size();
-    for (size_t hops = 1; hops <= n; ++hops) {
-        for (size_t i = begin; i < end; ++i) {
+    위해 (size_t hops = 1; hops <= n; ++hops) {
+        위해 (size_t i = begin; i < end; ++i) {
             const DfgVertex* const vtxp = vec[i];
             vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
-                return false;
+                만약 (res.insert(&dst).second) vec.push_back(&dst);
+                반환 false;
             });
             vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
-                return false;
+                만약 (res.insert(&src).second) vec.push_back(&src);
+                반환 false;
             });
         }
         begin = end;
         end = vec.size();
     }
     // Move out the results
-    return std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
+    반환 std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
 }
 
 //------------------------------------------------------------------------------
@@ -465,9 +465,9 @@ DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataT
 }
 
 bool DfgVertex::unsafe() const {
-    if (is<DfgMux>()) return true;
-    if (is<DfgArraySel>()) return !as<DfgArraySel>()->bitp()->is<DfgConst>();
-    return false;
+    만약 (is<DfgMux>()) 반환 true;
+    만약 (is<DfgArraySel>()) 반환 !as<DfgArraySel>()->bitp()->is<DfgConst>();
+    반환 false;
 }
 
 void DfgVertex::typeCheck(const DfgGraph& dfg) const {
@@ -479,57 +479,57 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
     switch (type()) {
     case VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
-        return;
+        반환;
     }
     case VDfgType::CReset: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        반환;
     }
     case VDfgType::AstRd: {
         const DfgAstRd& v = *as<DfgAstRd>();
         CHECK(v.isPacked() || v.isArray(), "Should be Packed or Array type");
-        return;
+        반환;
     }
     case VDfgType::VarArray:
     case VDfgType::VarPacked: {
         const DfgVertexVar& v = *as<DfgVertexVar>();
         CHECK(!v.defaultp() || v.defaultp()->dtype() == v.dtype(), "'defaultp' should match");
         CHECK(!v.srcp() || v.srcp()->dtype() == v.dtype(), "'srcp' should match");
-        return;
+        반환;
     }
     case VDfgType::Prev: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        반환;
     }
     case VDfgType::SpliceArray:
     case VDfgType::SplicePacked: {
         const DfgVertexSplice& v = *as<DfgVertexSplice>();
         v.foreachDriver([&](const DfgVertex& src, uint32_t lo) {
             CHECK(src.dtype() == DfgDataType::select(v.dtype(), lo, src.size()), "driver");
-            return false;
+            반환 false;
         });
-        return;
+        반환;
     }
     case VDfgType::Logic: {
         CHECK(dtype().isNull(), "Should be Null type");
-        return;
+        반환;
     }
     case VDfgType::Unresolved: {
         CHECK(!dtype().isNull(), "Should not be Null type");
-        return;
+        반환;
     }
     case VDfgType::UnitArray: {
         const DfgUnitArray& v = *as<DfgUnitArray>();
         CHECK(v.isArray(), "Should be Array type");
         CHECK(v.size() == 1, "Should be one element");
         CHECK(v.srcp()->dtype() == v.dtype().elemDtype(), "Input should be the element type");
-        return;
+        반환;
     }
     case VDfgType::Sel: {
         const DfgSel& v = *as<DfgSel>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.dtype() == DfgDataType::select(v.srcp()->dtype(), v.lsb(), v.size()), "sel");
-        return;
+        반환;
     }
     case VDfgType::MatchMasked: {
         const DfgMatchMasked& v = *as<DfgMatchMasked>();
@@ -538,7 +538,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.lhsp()->isPacked(), "Lhs should be packed");
         CHECK(v.matchp()->isPacked(), "Match should be Packed type");
         CHECK(v.matchp()->is<DfgVertexVar>(), "Match should be a variable");
-        return;
+        반환;
     }
     case VDfgType::Mux: {
         const DfgMux& v = *as<DfgMux>();
@@ -546,13 +546,13 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.fromp()->isPacked(), "Source operand should be Packed type");
         CHECK(v.fromp()->size() >= v.size(), "Source operand should not be narrower");
         CHECK(v.lsbp()->isPacked(), "Index should be Packed type");
-        return;
+        반환;
     }
     case VDfgType::ArraySel: {
         const DfgArraySel& v = *as<DfgArraySel>();
         CHECK(v.dtype() == v.fromp()->dtype().elemDtype(), "Element type should match");
         CHECK(v.bitp()->isPacked(), "Index should be Packed type");
-        return;
+        반환;
     }
 
     case VDfgType::Add:
@@ -569,14 +569,14 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->dtype() == dtype(), "RHS should be same type");
-        return;
+        반환;
     }
 
     case VDfgType::Negate:
     case VDfgType::Not: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "Input should be same type");
-        return;
+        반환;
     }
 
     case VDfgType::ShiftL:
@@ -585,7 +585,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        반환;
     }
 
     case VDfgType::Concat: {
@@ -594,7 +594,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.lhsp()->isPacked(), "LHS should be Packed type");
         CHECK(v.rhsp()->isPacked(), "RHS should be Packed type");
         CHECK(v.size() == v.rhsp()->size() + v.lhsp()->size(), "Concat result mismatch");
-        return;
+        반환;
     }
 
     case VDfgType::Rep: {
@@ -602,7 +602,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "'srcp' should be same type");
         CHECK(v.size() % v.srcp()->size() == 0, "Not a replicate");
-        return;
+        반환;
     }
 
     case VDfgType::StreamL:
@@ -611,7 +611,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "Slice size should be Packed type");
-        return;
+        반환;
     }
 
     case VDfgType::Eq:
@@ -630,7 +630,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
     case VDfgType::LteS: {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->dtype() == inputp(1)->dtype(), "Sides should match");
-        return;
+        반환;
     }
 
     case VDfgType::Extend:
@@ -638,7 +638,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->isPacked(), "Operand should be same type");
         CHECK(inputp(0)->size() < size(), "Operand should be narrower");
-        return;
+        반환;
     }
 
     case VDfgType::LogAnd:
@@ -648,7 +648,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "LHS should be Packed type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        반환;
     }
 
     case VDfgType::LogNot:
@@ -659,7 +659,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
     case VDfgType::OneHot0: {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "Operand should be Packed type");
-        return;
+        반환;
     }
 
     case VDfgType::Cond: {
@@ -668,7 +668,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.condp()->isPacked(), "Condition should be Packed type");
         CHECK(v.thenp()->dtype() == v.dtype(), "Then should be same type");
         CHECK(v.elsep()->dtype() == v.dtype(), "Else should be same type");
-        return;
+        반환;
     }
 
     case VDfgType::CountOnes: {
@@ -676,7 +676,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
         CHECK(v.size() == 32U, "Should yield a 32-bit result");
-        return;
+        반환;
     }
 
     case VDfgType::Pow:
@@ -686,7 +686,7 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        반환;
     }
     }
 #undef CHECK
@@ -696,81 +696,81 @@ uint32_t DfgVertex::fanout() const {
     uint32_t result = 0;
     foreachSink([&](const DfgVertex&) {
         ++result;
-        return false;
+        반환 false;
     });
-    return result;
+    반환 result;
 }
 
 DfgVertexVar* DfgVertex::getResultVar() {
     // It's easy if the vertex is already a variable ...
-    if (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) return varp;
+    만약 (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) 반환 varp;
 
     // Inspect existing variables written by this vertex, and choose one
     DfgVertexVar* resp = nullptr;
     // cppcheck-has-bug-suppress constParameter
     this->foreachSink([&resp](DfgVertex& sink) {
         DfgVertexVar* const varp = sink.cast<DfgVertexVar>();
-        if (!varp) return false;
+        만약 (!varp) 반환 false;
 
         // Do not use it if value might differ from its drivers
-        if (varp->isVolatile()) return false;
+        만약 (varp->isVolatile()) 반환 false;
 
         // First variable found
-        if (!resp) {
+        만약 (!resp) {
             resp = varp;
-            return false;
+            반환 false;
         }
 
         // Prefer those variables that must be kept anyway
-        if (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
-            if (!resp->hasExtRdRefs()) resp = varp;
-            return false;
+        만약 (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
+            만약 (!resp->hasExtRdRefs()) resp = varp;
+            반환 false;
         }
-        if (resp->hasDfgRefs() != varp->hasDfgRefs()) {
-            if (!resp->hasDfgRefs()) resp = varp;
-            return false;
+        만약 (resp->hasDfgRefs() != varp->hasDfgRefs()) {
+            만약 (!resp->hasDfgRefs()) resp = varp;
+            반환 false;
         }
 
         // Prefer real variables over temporaries
         const bool resIsTemp = resp->vscp()->varp()->isTemp();
         const bool varIsTemp = varp->vscp()->varp()->isTemp();
-        if (resIsTemp != varIsTemp) {
-            if (resIsTemp) resp = varp;
-            return false;
+        만약 (resIsTemp != varIsTemp) {
+            만약 (resIsTemp) resp = varp;
+            반환 false;
         }
-        if (!resp->tmpForp() != !varp->tmpForp()) {
-            if (resp->tmpForp()) resp = varp;
-            return false;
+        만약 (!resp->tmpForp() != !varp->tmpForp()) {
+            만약 (resp->tmpForp()) resp = varp;
+            반환 false;
         }
 
         // Prefer the earlier one in source order
         const FileLine& oldFlp = *(resp->fileline());
         const FileLine& newFlp = *(varp->fileline());
-        if (const int cmp = oldFlp.operatorCompare(newFlp)) {
-            if (cmp > 0) resp = varp;
-            return false;
+        만약 (const 정수 cmp = oldFlp.operatorCompare(newFlp)) {
+            만약 (cmp > 0) resp = varp;
+            반환 false;
         }
         // Prefer the one with the lexically smaller name
-        if (const int cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
-            if (cmp > 0) resp = varp;
-            return false;
+        만약 (const 정수 cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
+            만약 (cmp > 0) resp = varp;
+            반환 false;
         }
         // 'resp' and 'varp' are all the same, keep using the existing 'resp'
-        return false;
+        반환 false;
     });
-    return resp;
+    반환 resp;
 }
 
 AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED {
     // If this is a variable, we are done
-    if (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
-        return varp->vscp()->scopep();
+    만약 (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
+        반환 varp->vscp()->scopep();
     }
 
     // Try the result var first if instructed (usully only in the recursive case)
-    if (tryResultVar) {
-        if (const DfgVertexVar* const varp = this->getResultVar()) {
-            return varp->vscp()->scopep();
+    만약 (tryResultVar) {
+        만약 (const DfgVertexVar* const varp = this->getResultVar()) {
+            반환 varp->vscp()->scopep();
         }
     }
 
@@ -778,7 +778,7 @@ AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
     AstScope*& resultr = cache[this];
-    if (!resultr) {
+    만약 (!resultr) {
         // Mark to prevent infinite recursion on circular graphs - should never be called on such
         resultr = reinterpret_cast<AstScope*>(1);
         // Find scope based on sources, falling back on the root scope. Never use a package
@@ -786,11 +786,11 @@ AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED
         AstScope* foundp = nullptr;
         foreachSource([&](DfgVertex& src) {
             AstScope* const scp = src.scopep(cache, true);
-            if (scp != rootp && !VN_IS(scp->modp(), Package)) {
+            만약 (scp != rootp && !VN_IS(scp->modp(), Package)) {
                 foundp = scp;
-                return true;
+                반환 true;
             }
-            return false;
+            반환 false;
         });
         resultr = foundp ? foundp : rootp;
     }
@@ -800,12 +800,12 @@ AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED
                 "DfgVertex::scopep called on graph with circular operations");
 
     // Done
-    return resultr;
+    반환 resultr;
 }
 
 void DfgVertex::unlinkDelete(DfgGraph& dfg) {
     // Unlink sink edges
-    while (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
+    동안 (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
     // Remove from graph
     dfg.removeVertex(*this);
     // Delete - this will unlink sources
@@ -818,15 +818,15 @@ void DfgVertex::unlinkDelete(DfgGraph& dfg) {
 std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t size) {
     DfgVertex* const srcp = this->srcp();
     // Not driven at all
-    if (!srcp) return {nullptr, 0};
+    만약 (!srcp) 반환 {nullptr, 0};
     // If volatile, can have other drivers
-    if (isVolatile()) return {nullptr, 0};
+    만약 (isVolatile()) 반환 {nullptr, 0};
     // Don't inline CReset
-    if (srcp->is<DfgCReset>()) return {nullptr, 0};
+    만약 (srcp->is<DfgCReset>()) 반환 {nullptr, 0};
 
     // If not driven via a splice, then it is driven whole, at the same offsets
     DfgVertexSplice* const splicep = srcp->cast<DfgVertexSplice>();
-    if (!splicep) return {srcp, lo};
+    만약 (!splicep) 반환 {srcp, lo};
 
     // Find the driver that covers the whole searched range, if there is a single one
     const uint32_t hi = lo + size - 1;
@@ -836,21 +836,21 @@ std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_
     splicep->foreachDriver([&](DfgVertex& src, const uint32_t dLo) {
         const uint32_t dHi = dLo + src.size() - 1;
         // Note whether it overlaps the searched range, so the default cannot be used
-        if (dLo <= hi && lo <= dHi) useDefault = false;
+        만약 (dLo <= hi && lo <= dHi) useDefault = false;
         // If it does not cover the whole searched range, move on
-        if (lo < dLo || dHi < hi) return false;
+        만약 (lo < dLo || dHi < hi) 반환 false;
         // Save the driver that covers the whole searched range
         driverp = &src;
         driverLo = dLo;
-        return true;
+        반환 true;
     });
 
     // If a single driver covers the searched range, it is the one
-    if (driverp) return {driverp, lo - driverLo};
+    만약 (driverp) 반환 {driverp, lo - driverLo};
     // Otherwise the default driver is responsible for it, if nothing else overlaps it
-    if (useDefault) return {defaultp(), lo};
+    만약 (useDefault) 반환 {defaultp(), lo};
     // Not driven by a single vertex
-    return {nullptr, 0};
+    반환 {nullptr, 0};
 }
 
 //######################################################################
@@ -870,38 +870,38 @@ class DfgPatternString final {
     static std::string toLetters(size_t value, bool lowerCase = false) {
         const char base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        do { s += static_cast<char>(base + value % 26); } 동안 (value /= 26);
+        반환 s;
     }
 
     const std::string& internConst(const DfgConst& vtx) {
         const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+        만약 (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
+        반환 pair.first->second;
     }
 
     const std::string& internSelLsb(uint32_t value) {
         const auto pair = m_internedSelLsbs.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
-        return pair.first->second;
+        만약 (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
+        반환 pair.first->second;
     }
 
     const std::string& internWordWidth(uint32_t value) {
         const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+        만약 (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
+        반환 pair.first->second;
     }
 
     const std::string& internWideWidth(uint32_t value) {
         const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+        만약 (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
+        반환 pair.first->second;
     }
 
     const std::string& internVertex(const DfgVertex& vtx) {
         const auto pair = m_internedVertices.emplace(&vtx, "");
-        if (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
-        return pair.first->second;
+        만약 (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
+        반환 pair.first->second;
     }
 
     void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
@@ -912,45 +912,45 @@ class DfgPatternString final {
                                                    .first->second;
         value.first += 1;
         value.second = std::max(value.second, depth);
-        if (!depth) return;
+        만약 (!depth) 반환;
         vtx.foreachSource([&](const DfgVertex& src) {
             recordMultiplicityAndDepth(src, depth - 1);
-            return false;
+            반환 false;
         });
     }
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
     void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
-        if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
+        만약 (const DfgConst* const constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            만약 (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isOnes()) {
+            } 아니면 만약 (constp->isOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } 아니면 {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } 아니면 만약 (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
             // Base case 2: vertex appearing multiple times
             m_os << internVertex(vtx);
-        } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {
+        } 아니면 만약 (!vtx.foreachSource([&](const DfgVertex&) { 반환 true; })) {
             // Base case 3: vertex with no inputs (input variable)
             m_os << '(' << vtx.typeName() << ')';
-        } else if (depth == 0) {
+        } 아니면 만약 (depth == 0) {
             // Base case 4: deep vertex (apperaing only once)
             m_os << "_";
-        } else {
+        } 아니면 {
             // Recursively print an S-expression for the vertex
             m_os << '(';
             // Name
             m_os << vtx.typeName();
             // Specials
-            if (const DfgSel* const selp = vtx.cast<DfgSel>()) {
+            만약 (const DfgSel* const selp = vtx.cast<DfgSel>()) {
                 m_os << '@';
-                if (selp->lsb() == 0) {
+                만약 (selp->lsb() == 0) {
                     m_os << '0';
-                } else {
+                } 아니면 {
                     m_os << internSelLsb(selp->lsb());
                 }
             }
@@ -958,7 +958,7 @@ class DfgPatternString final {
             vtx.foreachSource([&](const DfgVertex& src) {
                 m_os << ' ';
                 render(src, depth - 1, false);
-                return false;
+                반환 false;
             });
             // S-expression end
             m_os << ')';
@@ -966,21 +966,21 @@ class DfgPatternString final {
 
         // Annotate type
         m_os << ':';
-        if (!vtx.dtype().isPacked()) {
+        만약 (!vtx.dtype().isPacked()) {
             vtx.dtype().astDtypep()->dumpSmall(m_os);
-        } else {
+        } 아니면 {
             const uint32_t width = vtx.size();
-            if (width == 1) {
+            만약 (width == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
+            } 아니면 만약 (width <= VL_QUADSIZE) {
                 m_os << internWordWidth(width);
-            } else {
+            } 아니면 {
                 m_os << internWideWidth(width);
             }
         }
 
         // Mark it if it has multiple sinks
-        if (vtx.hasMultipleSinks()) m_os << '*';
+        만약 (vtx.hasMultipleSinks()) m_os << '*';
     }
 
 public:
@@ -990,14 +990,14 @@ public:
         render(vtx, depth, false);
         using Pair = std::pair<std::string, const DfgVertex*>;
         std::vector<Pair> vertices;
-        for (const auto& pair : m_multiplicityAndDepth) {
-            if (pair.second.first == 1) continue;
+        위해 (const auto& pair : m_multiplicityAndDepth) {
+            만약 (pair.second.first == 1) continue;
             vertices.emplace_back(internVertex(*pair.first), pair.first);
         }
         std::sort(vertices.begin(), vertices.end(), [](const Pair& a, const Pair& b) {  //
-            return a.first < b.first;
+            반환 a.first < b.first;
         });
-        for (const Pair& pair : vertices) {
+        위해 (const Pair& pair : vertices) {
             m_os << " | " << pair.first << " is ";
             render(*pair.second, m_multiplicityAndDepth.at(pair.second).second);
         }
@@ -1007,7 +1007,7 @@ public:
 std::string DfgVertex::patternString(uint32_t depth) const {
     std::ostringstream oss;
     DfgPatternString{oss, *this, depth};
-    return oss.str();
+    반환 oss.str();
 }
 
 //------------------------------------------------------------------------------

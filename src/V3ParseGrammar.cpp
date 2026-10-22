@@ -30,46 +30,46 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //======================================================================
 // V3ParseImp functions requiring bison state
 
-int V3ParseImp::bisonParse() {
+정수 V3ParseImp::bisonParse() {
     // Use --debugi-bison 9 to enable this
-    if (PARSEP->debugBison() >= 9) yydebug = 1;
-    return yyparse();
+    만약 (PARSEP->debugBison() >= 9) yydebug = 1;
+    반환 yyparse();
 }
 
-const char* V3ParseImp::tokenName(int token) {
-#if YYDEBUG || YYERROR_VERBOSE
+const char* V3ParseImp::tokenName(정수 token) {
+#만약 YYDEBUG || YYERROR_VERBOSE
     static const char** nameTablep = nullptr;
-    if (!nameTablep) {
-        int size;
-        for (size = 0; yytname[size]; ++size) {}
+    만약 (!nameTablep) {
+        정수 size;
+        위해 (size = 0; yytname[size]; ++size) {}
         nameTablep = new const char*[size];
         // Workaround bug in bison's which have '!' in yytname but not token values
-        int iout = 0;
-        for (int i = 0; yytname[i]; ++i) {
-            if (yytname[i][0] == '\'') continue;
+        정수 iout = 0;
+        위해 (정수 i = 0; yytname[i]; ++i) {
+            만약 (yytname[i][0] == '\'') continue;
             nameTablep[iout++] = yytname[i];
         }
     }
-    if (token >= 255) {
-        return nameTablep[token - 255];
-    } else {
+    만약 (token >= 255) {
+        반환 nameTablep[token - 255];
+    } 아니면 {
         static char s_ch[2];
         s_ch[0] = token;
         s_ch[1] = '\0';
-        return s_ch;
+        반환 s_ch;
     }
-#else
-    return "";
+#아니면
+    반환 "";
 #endif
 }
 
 void V3ParseImp::candidatePli(VSpellCheck* spellerp) {
-#if !YYERROR_VERBOSE
+#만약 !YYERROR_VERBOSE
 #error "Need lex token names"
 #endif
-    for (int i = 0; yytname[i]; ++i) {
-        if (yytname[i][0] != '\"') continue;
-        if (yytname[i][1] != '$') continue;
+    위해 (정수 i = 0; yytname[i]; ++i) {
+        만약 (yytname[i][0] != '\"') continue;
+        만약 (yytname[i][1] != '$') continue;
         spellerp->pushCandidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
     }
 }
@@ -87,54 +87,54 @@ void V3ParseImp::parserClear() {
 AstArg* V3ParseGrammar::argWrapList(AstNodeExpr* nodep) {
     // Convert list of expressions to list of arguments
     AstArg* outp = nullptr;
-    while (nodep) {
+    동안 (nodep) {
         AstNodeExpr* const nextp = VN_AS(nodep->nextp(), NodeExpr);
-        if (nextp) nextp->unlinkFrBackWithNext();
+        만약 (nextp) nextp->unlinkFrBackWithNext();
         outp = AstNode::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
         nodep = nextp;
     }
-    return outp;
+    반환 outp;
 }
 
-AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, int value) {
+AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, 정수 value) {
     AstAssignW* assignp = new AstAssignW{fileline, new AstParseRef{fileline, name},
                                          value ? new AstConst{fileline, AstConst::All1{}}
                                                : new AstConst{fileline, AstConst::All0{}}};
     AstStrengthSpec* strengthSpecp
         = new AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
     assignp->strengthSpecp(strengthSpecp);
-    return assignp;
+    반환 assignp;
 }
 
 AstRange* V3ParseGrammar::scrubRangeMulti(AstNodeRange* nrangep) {
     // Remove any UnsizedRange's from list; preserves multi-dim chain via nextp().
-    for (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
+    위해 (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
         nextp = VN_AS(nodep->nextp(), NodeRange);
-        if (!VN_IS(nodep, Range)) {
+        만약 (!VN_IS(nodep, Range)) {
             nodep->v3error(
                 "Unsupported or syntax error: Unsized range in instance or other declaration");
             nodep->unlinkFrBack();
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
         }
     }
-    return VN_CAST(nrangep, Range);
+    반환 VN_CAST(nrangep, Range);
 }
 AstRange* V3ParseGrammar::scrubRange(AstNodeRange* nrangep) {
     AstRange* const rangep = scrubRangeMulti(nrangep);
-    if (rangep && rangep->nextp()) {
+    만약 (rangep && rangep->nextp()) {
         // Gate primitives only support a single dimension
         rangep->nextp()->v3warn(E_UNSUPPORTED, "Unsupported: Multidimensional gate instances.");
         rangep->nextp()->unlinkFrBackWithNext()->deleteTree();
     }
-    return rangep;
+    반환 rangep;
 }
 
 AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED {
     // SEL(PARSELVALUE, ...) -> SEL(fromp, ...)
     AstNodePreSel* subSelp = selp;
-    while (true) {
-        if (VN_IS(subSelp->fromp(), ParseHolder)) break;
-        if (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
+    동안 (true) {
+        만약 (VN_IS(subSelp->fromp(), ParseHolder)) break;
+        만약 (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
             subSelp = lowerSelp;
             continue;
         }
@@ -143,7 +143,7 @@ AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp)
     AstNode* subSelFromp = subSelp->fromp();
     subSelFromp->replaceWith(fromp);
     VL_DO_DANGLING(subSelFromp->deleteTree(), subSelFromp);
-    return selp;
+    반환 selp;
 }
 
 AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nrangep,
@@ -151,92 +151,92 @@ AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nra
     // Split RANGE0-RANGE1-RANGE2
     // into ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
     AstNodeDType* arrayp = basep;
-    if (nrangep) {  // Maybe no range - return unmodified base type
-        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
-        while (nrangep) {
+    만약 (nrangep) {  // Maybe no range - return unmodified base type
+        동안 (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
+        동안 (nrangep) {
             AstNodeRange* const prevp = VN_AS(nrangep->backp(), NodeRange);
-            if (prevp) nrangep->unlinkFrBack();
+            만약 (prevp) nrangep->unlinkFrBack();
             AstRange* const rangep = VN_CAST(nrangep, Range);
-            if (rangep && isPacked) {
+            만약 (rangep && isPacked) {
                 arrayp
                     = new AstPackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp, rangep};
-            } else if (rangep
+            } 아니면 만약 (rangep
                        && (VN_IS(rangep->leftp(), Unbounded)
                            || VN_IS(rangep->rightp(), Unbounded))) {
                 arrayp = new AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                            rangep->rightp()->cloneTree(true)};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (rangep) {
+            } 아니면 만약 (rangep) {
                 arrayp = new AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
                                                  rangep};
-            } else if (VN_IS(nrangep, UnsizedRange)) {
+            } 아니면 만약 (VN_IS(nrangep, UnsizedRange)) {
                 arrayp = new AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, BracketRange)) {
+            } 아니면 만약 (VN_IS(nrangep, BracketRange)) {
                 const AstBracketRange* const arangep = VN_AS(nrangep, BracketRange);
                 AstNode* const keyp = arangep->elementsp()->unlinkFrBack();
                 arrayp = new AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                                   keyp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, WildcardRange)) {
+            } 아니면 만약 (VN_IS(nrangep, WildcardRange)) {
                 arrayp = new AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else {
+            } 아니면 {
                 UASSERT_OBJ(0, nrangep, "Expected range or unsized range");
             }
             nrangep = prevp;
         }
     }
-    return arrayp;
+    반환 arrayp;
 }
 
 AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
                                        AstNodeRange* arrayp, AstNode* attrsp) {
     UINFO(5, "  creVar " << name << "  decl=" << GRAMMARP->m_varDecl << "  io="
                          << GRAMMARP->m_varIO << "  dt=" << (GRAMMARP->m_varDTypep ? "set" : ""));
-    if (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
+    만약 (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
         && GRAMMARP->m_varDecl == VVarType::PORT) {
         // Just a port list with variable name (not v2k format); AstPort already created
-        if (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
-        if (attrsp) {
+        만약 (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
+        만약 (attrsp) {
             // TODO: Merge attributes across list? Or warn attribute is ignored
             VL_DO_DANGLING(attrsp->deleteTree(), attrsp);
         }
-        return nullptr;
+        반환 nullptr;
     }
 
     AstNodeDType* const dtypep = [&]() -> AstNodeDType* {
-        if (GRAMMARP->m_varDecl == VVarType::WREAL) {
+        만약 (GRAMMARP->m_varDecl == VVarType::WREAL) {
             // dtypep might not be null, might be implicit LOGIC before we knew better
-            return new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
+            반환 new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
         }
-        if (GRAMMARP->m_varDTypep) {
+        만약 (GRAMMARP->m_varDTypep) {
             // May make new variables with same type, so clone
-            return GRAMMARP->m_varDTypep->cloneTree(false);
+            반환 GRAMMARP->m_varDTypep->cloneTree(false);
         }
         // Created implicitly
-        if (m_insideProperty) {
-            if (m_typedPropertyPort) {
+        만약 (m_insideProperty) {
+            만약 (m_typedPropertyPort) {
                 fileline->v3warn(E_UNSUPPORTED, "Untyped property port following a typed port");
             }
-            return new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
+            반환 new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
         }
-        return new AstBasicDType{fileline, LOGIC_IMPLICIT};
+        반환 new AstBasicDType{fileline, LOGIC_IMPLICIT};
     }();
 
     // UINFO(0,"CREVAR "<<fileline->ascii()<<" decl="<<GRAMMARP->m_varDecl.ascii()<<"
     // io="<<GRAMMARP->m_varIO.ascii()<<endl);
     VVarType type = GRAMMARP->m_varDecl;
-    if (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
-        if (GRAMMARP->m_varIO.isAny()) {
+    만약 (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
+        만약 (GRAMMARP->m_varIO.isAny()) {
             type = VVarType::PORT;
-        } else {
+        } 아니면 {
             fileline->v3fatalSrc("Unknown signal type declared: " << type.ascii());
         }
     }
-    if (type == VVarType::GENVAR) {
+    만약 (type == VVarType::GENVAR) {
         // Should be impossible as the grammar blocks this, but...
-        if (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
+        만약 (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
     }
 
     // Split RANGE0-RANGE1-RANGE2 into
@@ -248,22 +248,22 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     nodep->ansi(m_pinAnsi);
     nodep->declTyped(m_varDeclTyped);
     nodep->lifetime(m_varLifetime);
-    if (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
-    if (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
-    if (GRAMMARP->m_varIO != VDirection::NONE) {
+    만약 (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
+    만약 (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
+    만약 (GRAMMARP->m_varIO != VDirection::NONE) {
         nodep->declDirection(GRAMMARP->m_varIO);
         nodep->direction(GRAMMARP->m_varIO);
     }
 
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
+    만약 (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 0);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
+    만약 (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 1);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (VN_IS(dtypep, ParseTypeDType)) {
+    만약 (VN_IS(dtypep, ParseTypeDType)) {
         // Parser needs to know what is a type
         AstNode* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
         AstNode::addNext<AstNode, AstNode>(nodep, newp);
@@ -272,26 +272,26 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     // We need to autosize parameters and integers separately
     //
     // Propagate from current module tracing state
-    if (nodep->isGenVar()) {
+    만약 (nodep->isGenVar()) {
         nodep->trace(false);
-    } else if (nodep->isParam() && !v3Global.opt.traceParams()) {
+    } 아니면 만약 (nodep->isParam() && !v3Global.opt.traceParams()) {
         nodep->trace(false);
-    } else {
+    } 아니면 {
         nodep->trace(allTracingOn(nodep->fileline()));
     }
-    if (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
+    만약 (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
 
     // Remember the last variable created, so we can attach attributes to it in later parsing
     GRAMMARP->m_varAttrp = nodep;
     PARSEP->tagNodep(GRAMMARP->m_varAttrp);
-    return nodep;
+    반환 nodep;
 }
 
 string V3ParseGrammar::unquoteString(FileLine* fileline, const std::string& text) {
     string errMsg;
     string res = VString::unquoteSVString(text, errMsg);
-    if (!errMsg.empty()) fileline->v3error(errMsg.c_str());
-    return res;
+    만약 (!errMsg.empty()) fileline->v3error(errMsg.c_str());
+    반환 res;
 }
 
-int V3ParseGrammar::s_typeImpNum = 0;
+정수 V3ParseGrammar::s_typeImpNum = 0;

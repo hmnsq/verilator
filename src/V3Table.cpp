@@ -40,15 +40,15 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
 // 1MB is max table size (better be lots of instructs to be worth it!)
-static constexpr int TABLE_MAX_BYTES = 1 * 1024 * 1024;
+static constexpr 정수 TABLE_MAX_BYTES = 1 * 1024 * 1024;
 // 64MB is close to max memory of some systems (256MB or so), so don't get out of control
-static constexpr int TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
+static constexpr 정수 TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
 // Worth no more than 8 bytes of data to replace an instruction
-static constexpr int TABLE_SPACE_TIME_MULT = 8;
+static constexpr 정수 TABLE_SPACE_TIME_MULT = 8;
 // If < 32 instructions, not worth the effort
-static constexpr int TABLE_MIN_NODE_COUNT = 32;
+static constexpr 정수 TABLE_MIN_NODE_COUNT = 32;
 // Assume an instruction is 4 bytes
-static constexpr int TABLE_BYTES_PER_INST = 4;
+static constexpr 정수 TABLE_BYTES_PER_INST = 4;
 
 //######################################################################
 
@@ -81,7 +81,7 @@ public:
         : m_fl{fl} {}
 
     ~TableBuilder() {
-        if (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
+        만약 (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
     }
 
     void setTableSize(AstNodeDType* elemDType, unsigned size) {
@@ -89,13 +89,13 @@ public:
         UASSERT_OBJ(size > 0, m_fl, "Size zero");
         // TODO: Assert elemDType is a packed type
         // Create data type
-        const int width = elemDType->width();
+        const 정수 width = elemDType->width();
         AstNodeDType* const subDTypep
             = elemDType->isString() || elemDType->isDouble()
                   ? elemDType
                   : v3Global.rootp()->findBitDType(width, width, VSigning::UNSIGNED);
         AstUnpackArrayDType* const tableDTypep = new AstUnpackArrayDType{
-            m_fl, subDTypep, new AstRange{m_fl, static_cast<int>(size), 0}};
+            m_fl, subDTypep, new AstRange{m_fl, static_cast<정수>(size), 0}};
         v3Global.rootp()->typeTablep()->addTypesp(tableDTypep);
         // Create table initializer (with default value 0)
         AstConst* const defaultp
@@ -108,17 +108,17 @@ public:
     void addValue(unsigned index, const V3Number& value) {
         UASSERT_OBJ(!m_varScopep, m_fl, "Table variable already created");
         // Default value is zero/empty string so don't add it
-        if (value.isString() ? value.toString().empty() : value.isEqZero()) return;
+        만약 (value.isString() ? value.toString().empty() : value.isEqZero()) 반환;
         m_consp->valuep(index, new AstConst{m_fl, value});
     }
 
     AstVarScope* varScopep() {
-        if (!m_varScopep) {
+        만약 (!m_varScopep) {
             AstVarRef* const refp = V3ConstPool::find(m_consp);
             m_varScopep = refp->varScopep();
             VL_DO_DANGLING(refp->deleteTree(), refp);
         }
-        return m_varScopep;
+        반환 m_varScopep;
     }
 };
 
@@ -138,14 +138,14 @@ public:
         , m_ord{ord}
         , m_tableBuilder{varScopep->fileline()} {}
 
-    AstVarScope* varScopep() const { return m_varScopep; }
-    string name() const { return varScopep()->varp()->name(); }
-    unsigned ord() const { return m_ord; }
+    AstVarScope* varScopep() const { 반환 m_varScopep; }
+    string name() const { 반환 varScopep()->varp()->name(); }
+    unsigned ord() const { 반환 m_ord; }
     void setMayBeUnassigned() { m_mayBeUnassigned = true; }
-    bool mayBeUnassigned() const { return m_mayBeUnassigned; }
+    bool mayBeUnassigned() const { 반환 m_mayBeUnassigned; }
     void setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
     void addValue(unsigned index, const V3Number& value) { m_tableBuilder.addValue(index, value); }
-    AstVarScope* tabeVarScopep() { return m_tableBuilder.varScopep(); }
+    AstVarScope* tabeVarScopep() { 반환 m_tableBuilder.varScopep(); }
 };
 
 //######################################################################
@@ -177,13 +177,13 @@ public:
         // Called by TableSimulateVisitor on each unique varref encountered
         UINFO(9, "   SimVARREF " << nodep);
         AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOrRW()) {
+        만약 (nodep->access().isWriteOrRW()) {
             // We'll make the table with a separate natural alignment for each output var, so
             // always have 8, 16 or 32 bit widths, so use widthTotalBytes
             m_outWidthBytes += nodep->varp()->dtypeSkipRefp()->widthTotalBytes();
             m_outVarps.emplace_back(vscp, static_cast<unsigned>(m_outVarps.size()));
         }
-        if (nodep->access().isReadOrRW()) {
+        만약 (nodep->access().isReadOrRW()) {
             m_inWidthBits += nodep->varp()->width();
             m_inVarps.push_back(vscp);
         }
@@ -212,25 +212,25 @@ private:
         // Instruction count bytes (ok, it's space also not time :)
         const double time  // max(_, 1), so we won't divide by zero
             = std::max<double>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
-        if (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
-        if (chkvis.isCoverage()) {
+        만약 (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
+        만약 (chkvis.isCoverage()) {
             chkvis.clearOptimizable(nodep, "Table removes coverage points");
         }
         // cppcheck-suppress knownConditionTrueFalse // set by TableSimulateVisitor
-        if (!m_outWidthBytes || !m_inWidthBits) {
+        만약 (!m_outWidthBytes || !m_inWidthBits) {
             chkvis.clearOptimizable(nodep, "Table has no outputs");
         }
-        if (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
+        만약 (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
             chkvis.clearOptimizable(nodep, "Table has too few nodes involved");
         }
         // cppcheck-suppress knownConditionTrueFalse
-        if (space > TABLE_MAX_BYTES) {
+        만약 (space > TABLE_MAX_BYTES) {
             chkvis.clearOptimizable(nodep, "Table takes too much space");
         }
-        if (space > time * TABLE_SPACE_TIME_MULT) {
+        만약 (space > time * TABLE_SPACE_TIME_MULT) {
             chkvis.clearOptimizable(nodep, "Table has bad tradeoff");
         }
-        if (m_totalBytes > TABLE_TOTAL_BYTES) {
+        만약 (m_totalBytes > TABLE_TOTAL_BYTES) {
             chkvis.clearOptimizable(nodep, "Table out of memory");
         }
         UINFO(4, "  Test: Opt=" << (chkvis.optimizable() ? "OK" : "NO") << ", Instrs="
@@ -238,11 +238,11 @@ private:
                                 << " in width (bits)=" << m_inWidthBits << " out width (bytes)="
                                 << m_outWidthBytes << " Spacetime=" << (space / time) << "("
                                 << space << "/" << time << ")" << ": " << nodep);
-        if (chkvis.optimizable()) {
+        만약 (chkvis.optimizable()) {
             UINFO(3, " Table Optimize spacetime=" << (space / time) << " " << nodep);
             m_totalBytes += space;
         }
-        return chkvis.optimizable();
+        반환 chkvis.optimizable();
     }
 
     void replaceWithTable(AstAlways* nodep) {
@@ -261,7 +261,7 @@ private:
             VL_MASK_I(m_inWidthBits));
 
         // Set sizes of output tables
-        for (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
+        위해 (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
 
         // Populate the tables
         createTables(nodep, outputAssignedTableBuilder);
@@ -282,7 +282,7 @@ private:
         // We could bail on these cases, or we can have a "change it" boolean.
         // We've chosen the latter route, since recirc is common in large FSMs.
         TableSimulateVisitor simvis{this};
-        for (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
+        위해 (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
             const uint32_t inValue = i;
             // Make a new simulation structure so we can set new input values
             UINFO(8, " Simulating " << std::hex << inValue);
@@ -293,7 +293,7 @@ private:
 
             // Set all inputs to the constant
             uint32_t shift = 0;
-            for (AstVarScope* invscp : m_inVarps) {
+            위해 (AstVarScope* invscp : m_inVarps) {
                 // LSB is first variable, so extract it that way
                 const AstConst cnst{invscp->fileline(), AstConst::WidthedValue{}, invscp->width(),
                                     VL_MASK_I(invscp->width()) & (inValue >> shift)};
@@ -312,14 +312,14 @@ private:
                             << simvis.whyNotMessage());
 
             // Build output value tables and the assigned flags table
-            V3Number outputAssignedMask{nodep, static_cast<int>(m_outVarps.size()), 0};
-            for (TableOutputVar& tov : m_outVarps) {
-                if (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
+            V3Number outputAssignedMask{nodep, static_cast<정수>(m_outVarps.size()), 0};
+            위해 (TableOutputVar& tov : m_outVarps) {
+                만약 (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
                     UINFO(8, "   Output " << tov.name() << " = " << *outnump);
                     UASSERT_OBJ(!outnump->isAnyXZ(), outnump, "Table should not contain X/Z");
                     outputAssignedMask.setBit(tov.ord(), 1);  // Mark output as assigned
                     tov.addValue(inValue, *outnump);
-                } else {
+                } 아니면 {
                     UINFO(8, "   Output " << tov.name() << " not set for this input");
                     tov.setMayBeUnassigned();
                 }
@@ -334,28 +334,28 @@ private:
         // Concat inputs into a single temp variable (inside always)
         // First var in inVars becomes the LSB of the concat
         AstNodeExpr* concatp = nullptr;
-        for (AstVarScope* invscp : m_inVarps) {
+        위해 (AstVarScope* invscp : m_inVarps) {
             AstVarRef* const refp = new AstVarRef{fl, invscp, VAccess::READ};
-            if (concatp) {
+            만약 (concatp) {
                 concatp = new AstConcat{fl, refp, concatp};
-            } else {
+            } 아니면 {
                 concatp = refp;
             }
         }
 
-        return new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
+        반환 new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
     }
 
     AstArraySel* select(FileLine* fl, AstVarScope* fromp, AstVarScope* indexp) {
         AstVarRef* const fromRefp = new AstVarRef{fl, fromp, VAccess::READ};
         AstVarRef* const indexRefp = new AstVarRef{fl, indexp, VAccess::READ};
-        return new AstArraySel{fl, fromRefp, indexRefp};
+        반환 new AstArraySel{fl, fromRefp, indexRefp};
     }
 
     void createOutputAssigns(AstNode* nodep, AstNode* stmtsp, AstVarScope* indexVscp,
                              AstVarScope* outputAssignedTableVscp) {
         FileLine* const fl = nodep->fileline();
-        for (TableOutputVar& tov : m_outVarps) {
+        위해 (TableOutputVar& tov : m_outVarps) {
             AstNodeExpr* const alhsp = new AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
             AstNodeExpr* const arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
             AstNode* outsetp = m_assignDly
@@ -363,15 +363,15 @@ private:
                                    : static_cast<AstNode*>(new AstAssign{fl, alhsp, arhsp});
 
             // If this output is unassigned on some code paths, wrap the assignment in an If
-            if (tov.mayBeUnassigned()) {
-                V3Number outputChgMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            만약 (tov.mayBeUnassigned()) {
+                V3Number outputChgMask{nodep, static_cast<정수>(m_outVarps.size()), 0};
                 outputChgMask.setBit(tov.ord(), 1);
                 AstNodeExpr* const condp
                     = new AstNeq{fl,
                                  new AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
                                             new AstConst{fl, outputChgMask}},
                                  new AstConst{fl, AstConst::WidthedValue{},
-                                              static_cast<int>(m_outVarps.size()), 0}};
+                                              static_cast<정수>(m_outVarps.size()), 0}};
                 outsetp = new AstIf{fl, condp, outsetp};
             }
 
@@ -389,7 +389,7 @@ private:
     }
     void visit(AstAlways* nodep) override {
         UINFO(4, "  ALWAYS  " << nodep);
-        if (treeTest(nodep)) {
+        만약 (treeTest(nodep)) {
             // Well, then, I'll be a memory hog.
             replaceWithTable(nodep);
         }

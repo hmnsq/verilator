@@ -58,8 +58,8 @@ struct EdgeKey final {
     }
     // Sort first by critical path, then by ID
     bool operator<(const EdgeKey& other) const {
-        if (m_cp != other.m_cp) return m_cp < other.m_cp;
-        return m_id < other.m_id;
+        만약 (m_cp != other.m_cp) 반환 m_cp < other.m_cp;
+        반환 m_id < other.m_id;
     }
 };
 
@@ -78,8 +78,8 @@ struct PropagatePendingKey final {
     }
     // Sort first by increment, then by ID
     bool operator<(const PropagatePendingKey& other) const {
-        if (m_increment != other.m_increment) return m_increment < other.m_increment;
-        return m_id < other.m_id;
+        만약 (m_increment != other.m_increment) 반환 m_increment < other.m_increment;
+        반환 m_id < other.m_id;
     }
 };
 
@@ -114,12 +114,12 @@ public:
     inline LogicMTask* fromMTaskp() const;
     inline LogicMTask* toMTaskp() const;
 
-    uint64_t cachedCp(GraphWay way) const { return m_edgeHeapNode[way].key().m_cp; }
-    uint32_t cachedId(GraphWay way) const { return m_edgeHeapNode[way].key().m_id; }
+    uint64_t cachedCp(GraphWay way) const { 반환 m_edgeHeapNode[way].key().m_cp; }
+    uint32_t cachedId(GraphWay way) const { 반환 m_edgeHeapNode[way].key().m_id; }
     // Convert from the address of the m_edgeHeapNode[way] in an MTaskEdge back to the MTaskEdge
     static const MTaskEdge* toMTaskEdge(GraphWay way, const EdgeHeap::Node* nodep) {
         const size_t offset = VL_OFFSETOF(MTaskEdge, m_edgeHeapNode[way]);
-        return reinterpret_cast<const MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - offset);
+        반환 reinterpret_cast<const MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - offset);
     }
 };
 
@@ -173,18 +173,18 @@ public:
     VL_UNMOVABLE(LogicMTask);
 
     // METHODS
-    OrderMoveVertex::List& vertexList() { return m_mVertices; }
-    uint32_t id() const { return m_id; }
-    bool operator<(const LogicMTask& rhs) const { return id() < rhs.id(); }
+    OrderMoveVertex::List& vertexList() { 반환 m_mVertices; }
+    uint32_t id() const { 반환 m_id; }
+    bool operator<(const LogicMTask& rhs) const { 반환 id() < rhs.id(); }
 
-    uint64_t cost() const VL_MT_SAFE { return m_cost; }
+    uint64_t cost() const VL_MT_SAFE { 반환 m_cost; }
     template <GraphWay::en N_Way>
     uint64_t cpExclusive() const {
-        return m_cpExclusive[N_Way];
+        반환 m_cpExclusive[N_Way];
     }
     template <GraphWay::en N_Way>
     uint64_t cpInclusive() const {
-        return m_cpExclusive[N_Way] + m_cost;
+        반환 m_cpExclusive[N_Way] + m_cost;
     }
     // The critical path of this MTask without considering the given edge.
     template <GraphWay::en N_Way>
@@ -200,14 +200,14 @@ public:
         const EdgeHeap::Node* const maxp = edgeHeap.max();
         UDEBUGONLY(UASSERT(maxp, "Edge not in heap"););
         // If 'edgep' is not the critical path edge, return its critical path
-        if (MTaskEdge::toMTaskEdge(inv, maxp) != edgep) return maxp->key().m_cp;
+        만약 (MTaskEdge::toMTaskEdge(inv, maxp) != edgep) 반환 maxp->key().m_cp;
         // Otherwise return the second-worst path, if there is one
         const EdgeHeap::Node* const secp = edgeHeap.secondMax();
-        if (!secp) return 0;
-        return secp->key().m_cp;
+        만약 (!secp) 반환 0;
+        반환 secp->key().m_cp;
     }
 
-    bool hasEdgeTo(LogicMTask* dependentp) const { return m_dependents.count(dependentp); }
+    bool hasEdgeTo(LogicMTask* dependentp) const { 반환 m_dependents.count(dependentp); }
 
     // For Graphviz dumps only
     std::string name() const override VL_MT_STABLE {
@@ -216,7 +216,7 @@ public:
             << " | cpFwd " << m_cpExclusive[GraphWay::FORWARD]  //
             << " | cost " << cost()  //
             << " | cpRev " << m_cpExclusive[GraphWay::REVERSE];
-        return out.str();
+        반환 out.str();
     }
 
 private:
@@ -226,7 +226,7 @@ private:
     uint64_t cpExclusiveFromEdges() const {
         constexpr GraphWay inv = GraphWay{N_Way}.invert();
         const EdgeHeap::Node* const maxp = m_edgeHeap[inv].max();
-        return maxp ? maxp->key().m_cp : 0;
+        반환 maxp ? maxp->key().m_cp : 0;
     }
     template <GraphWay::en N_Way>
     void cpExclusive(uint64_t cp) {
@@ -323,10 +323,10 @@ class OrderMTaskGraph final : public V3Graph {
 
 public:
     // ACCESSORS
-    OrderMoveGraph& moveGraph() const { return m_moveGraph; }
-    LogicMTask* entryp() const { return m_entryp; }
-    LogicMTask* exitp() const { return m_exitp; }
-    bool slowAsserts() const { return m_slowAsserts; }
+    OrderMoveGraph& moveGraph() const { 반환 m_moveGraph; }
+    LogicMTask* entryp() const { 반환 m_entryp; }
+    LogicMTask* exitp() const { 반환 m_exitp; }
+    bool slowAsserts() const { 반환 m_slowAsserts; }
 
     // METHODS
     uint64_t totalCost() const;  // O(V), called once
@@ -336,7 +336,7 @@ public:
     // non-nullptr it must connect fromp and top.
     bool pathExists(LogicMTask* fromp, LogicMTask* top, const MTaskEdge* excludedEdgep) {
         ++m_currentGeneration;
-        return pathExistsImpl(fromp, top, excludedEdgep);
+        반환 pathExistsImpl(fromp, top, excludedEdgep);
     }
 
     // Add an edge to the graph, update impacted critical paths
@@ -384,9 +384,9 @@ MTaskEdge::MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top
 
 template <GraphWay::en N_Way>
 LogicMTask* MTaskEdge::furtherMTaskp() const {
-    return static_cast<LogicMTask*>(this->furtherp<N_Way>());
+    반환 static_cast<LogicMTask*>(this->furtherp<N_Way>());
 }
-LogicMTask* MTaskEdge::fromMTaskp() const { return static_cast<LogicMTask*>(fromp()); }
-LogicMTask* MTaskEdge::toMTaskp() const { return static_cast<LogicMTask*>(top()); }
+LogicMTask* MTaskEdge::fromMTaskp() const { 반환 static_cast<LogicMTask*>(fromp()); }
+LogicMTask* MTaskEdge::toMTaskp() const { 반환 static_cast<LogicMTask*>(top()); }
 
 #endif  // Guard

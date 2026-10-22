@@ -58,19 +58,19 @@ public:
     template <typename... Args>
     T_Elem* alloc(Args&&... args) {
         // If no free slots available, then make some
-        if (!m_freep) {
+        만약 (!m_freep) {
             // Allocate in chunks for efficiency
             m_allocated.emplace_back(new Slot[N_ChunkSize]);
             // Chain the new slots into the free list
             Slot* const chunkp = m_allocated.back().get();
-            for (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
+            위해 (size_t i = 1; i < N_ChunkSize; ++i) chunkp[i - 1].m_nextFreep = &chunkp[i];
             chunkp[N_ChunkSize - 1].m_nextFreep = nullptr;
             m_freep = chunkp;
         }
         // Free slots are available, pick up the first one
         Slot* const slotp = m_freep;
         m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        반환 new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
     }
 
     // Destroy an element, and return its slot for future allocation

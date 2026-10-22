@@ -47,7 +47,7 @@
 // C type of a DPI basic type passed as a primitive C type (IEEE 1800-2023 H.7.4)
 static string dpiPrimitiveType(const AstBasicDType* basicp) {
     const VBasicDTypeKwd keyword = basicp->keyword();
-    return (keyword.isDpiUnsignable() && !basicp->isSigned() ? "unsigned " : "")
+    반환 (keyword.isDpiUnsignable() && !basicp->isSigned() ? "unsigned " : "")
            + string{keyword.dpiType()};
 }
 
@@ -56,11 +56,11 @@ static string dpiMemberDecl(const AstNodeDType* dtypep, const string& name);
 // C structure declaration of an unpacked structure for DPI
 static string dpiStructDecl(const AstNodeUOrStructDType* sdtypep) {
     string decl = "struct {\n";
-    for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    위해 (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         decl += dpiMemberDecl(itemp->subDTypep(), itemp->prettyName()) + ";\n";
     }
-    return decl + "}";
+    반환 decl + "}";
 }
 
 // C declaration of member 'name' of type 'dtypep' of a DPI structure
@@ -68,48 +68,48 @@ static string dpiMemberDecl(const AstNodeDType* dtypep, const string& name) {
     // Unpacked arrays are C arrays (IEEE 1800-2023 H.7.3)
     string dims;
     dtypep = dtypep->skipRefp();
-    while (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+    동안 (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
         dims += "[" + cvtToStr(arrayp->elementsConst()) + "]";
         dtypep = arrayp->subDTypep()->skipRefp();
     }
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
-    if (sdtypep && !sdtypep->packed()) {
+    만약 (sdtypep && !sdtypep->packed()) {
         // Declared here if no typedef names it
         const string type
             = sdtypep->dpiName().empty() ? dpiStructDecl(sdtypep) : sdtypep->dpiName();
-        return type + " " + name + dims;
+        반환 type + " " + name + dims;
     }
     const AstBasicDType* const basicp = dtypep->basicp();
-    if (basicp->isDpiPrimitive()) return dpiPrimitiveType(basicp) + " " + name + dims;
+    만약 (basicp->isDpiPrimitive()) 반환 dpiPrimitiveType(basicp) + " " + name + dims;
     // Canonical representation of packed arrays (IEEE 1800-2023 H.7.7)
-    return (basicp->isDpiBitVec() ? "svBitVecVal " : "svLogicVecVal ") + name + dims
+    반환 (basicp->isDpiBitVec() ? "svBitVecVal " : "svLogicVecVal ") + name + dims
            + "[SV_PACKED_DATA_NELEMS(" + cvtToStr(dtypep->width()) + ")]";
 }
 
 class DpiTypesToStringConverter VL_NOT_FINAL{public : virtual string openArray(const AstVar*)
-                                                 const {return "const svOpenArrayHandle";
+                                                 const {반환 "const svOpenArrayHandle";
 }
 virtual string bitLogicVector(const AstVar* /*varp*/, bool isBit) const {
-    return isBit ? "svBitVecVal" : "svLogicVecVal";
+    반환 isBit ? "svBitVecVal" : "svLogicVecVal";
 }
-virtual string primitive(const AstVar* varp) const { return dpiPrimitiveType(varp->basicp()); }
+virtual string primitive(const AstVar* varp) const { 반환 dpiPrimitiveType(varp->basicp()); }
 // Unpacked structure, or unpacked array of
 virtual string unpackedStruct(const AstVar* varp) const {
-    return VN_AS(varp->dtypep()->elemDTypep(), NodeUOrStructDType)->dpiName();
+    반환 VN_AS(varp->dtypep()->elemDTypep(), NodeUOrStructDType)->dpiName();
 }
 string convert(const AstVar* varp) const {
-    if (varp->isDpiOpenArray()) {
-        return openArray(varp);
-    } else if (const AstBasicDType* const basicp = varp->basicp()) {
-        if (basicp->isDpiBitVec() || basicp->isDpiLogicVec()) {
-            return bitLogicVector(varp, basicp->isDpiBitVec());
-        } else {
-            return primitive(varp);
+    만약 (varp->isDpiOpenArray()) {
+        반환 openArray(varp);
+    } 아니면 만약 (const AstBasicDType* const basicp = varp->basicp()) {
+        만약 (basicp->isDpiBitVec() || basicp->isDpiLogicVec()) {
+            반환 bitLogicVector(varp, basicp->isDpiBitVec());
+        } 아니면 {
+            반환 primitive(varp);
         }
-    } else if (varp->dtypep()->containsUnpackedStruct()) {
-        return unpackedStruct(varp);
-    } else {
-        return "UNKNOWN";
+    } 아니면 만약 (varp->dtypep()->containsUnpackedStruct()) {
+        반환 unpackedStruct(varp);
+    } 아니면 {
+        반환 "UNKNOWN";
     }
 }
 }
@@ -122,17 +122,17 @@ public:
     string render(const string& name, bool isRef) const VL_MT_SAFE {
         string out;
         out += m_type;
-        if (!name.empty()) out += " ";
-        if (isRef) {
-            if (!m_dims.empty()) out += "(";
+        만약 (!name.empty()) out += " ";
+        만약 (isRef) {
+            만약 (!m_dims.empty()) out += "(";
             out += "&";
             out += name;
-            if (!m_dims.empty()) out += ")";
-        } else {
+            만약 (!m_dims.empty()) out += ")";
+        } 아니면 {
             out += name;
         }
         out += m_dims;
-        return out;
+        반환 out;
     }
 };
 
@@ -141,12 +141,12 @@ public:
 
 void dumpNodeListJson(std::ostream& os, const AstNode* nodep, const std::string& listName,
                       const string& indent) {
-    if (!nodep) return;
+    만약 (!nodep) 반환;
     os << ',';
     os << '\n' << indent + " \"" << listName << "\": [\n";
-    for (; nodep; nodep = nodep->nextp()) {
+    위해 (; nodep; nodep = nodep->nextp()) {
         nodep->dumpTreeJson(os, indent + "  ");
-        if (nodep->nextp()) os << ',';
+        만약 (nodep->nextp()) os << ',';
         os << '\n';
     }
     os << indent << ']';
@@ -161,12 +161,12 @@ static void dumpFileInfo(std::ostream& os, const FileLine* fileinfop) {
 }
 
 static AstDelay* getLhsNetDelayRecurse(const AstNodeExpr* const nodep) {
-    if (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-        if (refp->varp()->delayp()) return refp->varp()->delayp();
-    } else if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-        return getLhsNetDelayRecurse(selp->fromp());
+    만약 (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
+        만약 (refp->varp()->delayp()) 반환 refp->varp()->delayp();
+    } 아니면 만약 (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
+        반환 getLhsNetDelayRecurse(selp->fromp());
     }
-    return nullptr;
+    반환 nullptr;
 }
 
 //======================================================================
@@ -175,48 +175,48 @@ static AstDelay* getLhsNetDelayRecurse(const AstNodeExpr* const nodep) {
 // Identifier 'name' as a hierarchical name holds it, escaped unless a simple identifier, e.g.
 // '\a.b ' (IEEE 1800-2023 23.6), so that the names of distinct types differ, as of covergroup
 // '\gen.cg' and covergroup 'cg' of generate block 'gen'
-static string dtypeNameIdent(const string& name) { return AstNode::vpiName(name); }
+static string dtypeNameIdent(const string& name) { 반환 AstNode::vpiName(name); }
 
 // Text of a constant parameter value, given the data type of the parameter, or if 'sized' of the
 // value, as of an untyped parameter
 static string dtypeNameConst(const V3Number& num, const AstNodeDType* dtypep, bool sized) {
-    if (num.isNull()) return "null";
-    if (num.isDouble()) return num.toRealString();
+    만약 (num.isNull()) 반환 "null";
+    만약 (num.isDouble()) 반환 num.toRealString();
     const AstBasicDType* const basicp = dtypep ? dtypep->basicp() : nullptr;
-    if (num.isString() || (basicp && basicp->isString())) {
+    만약 (num.isString() || (basicp && basicp->isString())) {
         // Escaped as a string literal, so the quotes enclose the whole value, as
         // VString::quotedEnd() finds
-        return '"' + V3OutFormatter::quoteNameControls(num.toString()) + '"';
+        반환 '"' + V3OutFormatter::quoteNameControls(num.toString()) + '"';
     }
     // Sized and signed as the parameter, as the value may not be yet
-    const int width = (dtypep && dtypep->width()) ? dtypep->width() : num.width();
+    const 정수 width = (dtypep && dtypep->width()) ? dtypep->width() : num.width();
     V3Number value{&num, width};
-    if (num.isSigned() && num.width() < width) {
+    만약 (num.isSigned() && num.width() < width) {
         value.opExtendS(num, num.width());
-    } else {
+    } 아니면 {
         value.opAssign(num);
     }
-    if (const AstEnumDType* const enump = VN_CAST(dtypep, EnumDType)) {
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
+    만약 (const AstEnumDType* const enump = VN_CAST(dtypep, EnumDType)) {
+        위해 (const AstEnumItem* itemp = enump->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
             const AstConst* const constp = VN_CAST(itemp->valuep(), Const);
-            if (constp && !constp->num().isAnyXZ() && value.isCaseEq(constp->num())) {
-                return dtypeNameIdent(itemp->name());
+            만약 (constp && !constp->num().isAnyXZ() && value.isCaseEq(constp->num())) {
+                반환 dtypeNameIdent(itemp->name());
             }
         }
     }
-    if (value.isAnyXZ()) return value.ascii(true, true);
+    만약 (value.isAnyXZ()) 반환 value.ascii(true, true);
     const bool isSigned = dtypep ? dtypep->isSigned() : num.isSigned();
     // Sized as $typename names values (IEEE 1800-2023 20.6.1), so that the specializations of
     // values of other types are named apart, unless of the type of an unsized decimal literal
-    if (sized && (width != 32 || !isSigned)) {
+    만약 (sized && (width != 32 || !isSigned)) {
         const string prefix = cvtToStr(width) + (isSigned ? "'sd" : "'d");
-        if (!isSigned || !value.isNegative()) return prefix + value.toDecimalU();
+        만약 (!isSigned || !value.isNegative()) 반환 prefix + value.toDecimalU();
         V3Number magnitude{&num, width};
         magnitude.opNegate(value);
-        return "-" + prefix + magnitude.toDecimalU();
+        반환 "-" + prefix + magnitude.toDecimalU();
     }
-    return isSigned ? value.toDecimalS() : value.toDecimalU();
+    반환 isSigned ? value.toDecimalS() : value.toDecimalU();
 }
 
 // Text of a parameter value, given the data type of the parameter, or if 'untyped' the parameter
@@ -226,18 +226,18 @@ static string dtypeNameValue(const AstNode* valuep, const AstNodeDType* dtypep,
     const AstConst* const constp = VN_CAST(valuep, Const);
     // Of the data type of the value, as constant folding can leave the signedness there, not on
     // the number
-    if (untyped && constp) dtypep = constp->dtypep();
+    만약 (untyped && constp) dtypep = constp->dtypep();
     // The enum or other type the data type stands for, or nullptr if not yet resolved
-    if (dtypep) dtypep = dtypep->skipRefToEnumOrNullp();
-    if (constp) return dtypeNameConst(constp->num(), dtypep, untyped);
-    if (const AstConsArray* const consp = VN_CAST(valuep, ConsArray)) {
+    만약 (dtypep) dtypep = dtypep->skipRefToEnumOrNullp();
+    만약 (constp) 반환 dtypeNameConst(constp->num(), dtypep, untyped);
+    만약 (const AstConsArray* const consp = VN_CAST(valuep, ConsArray)) {
         const AstNodeDType* const elemDTypep = dtypep ? dtypep->subDTypep() : nullptr;
         // Keys count from the lowest index, while elements are listed from the left index
         const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
-        const int lo = adtypep ? adtypep->declRange().lo() : 0;
+        const 정수 lo = adtypep ? adtypep->declRange().lo() : 0;
         const bool descending = adtypep && !adtypep->declRange().ascending();
         std::vector<const AstConsArrayItem*> itemps;
-        for (const AstConsArrayItem* itemp = consp->itemsp(); itemp;
+        위해 (const AstConsArrayItem* itemp = consp->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
             itemps.push_back(itemp);
         }
@@ -245,46 +245,46 @@ static string dtypeNameValue(const AstNode* valuep, const AstNodeDType* dtypep,
         const size_t elements
             = adtypep ? static_cast<size_t>(adtypep->declRange().elements()) : itemps.size();
         bool indexed = consp->defaultp() || itemps.size() != elements;
-        for (size_t n = 0; n < itemps.size(); ++n) {
-            if (itemps[n]->index() != n) indexed = true;
+        위해 (size_t n = 0; n < itemps.size(); ++n) {
+            만약 (itemps[n]->index() != n) indexed = true;
         }
         string result = "'{";
         const char* sepp = "";
         const auto addElem = [&](const AstConsArrayItem* itemp) {
             result += sepp;
             sepp = ",";
-            if (indexed) result += cvtToStr(static_cast<int64_t>(itemp->index()) + lo) + ":";
+            만약 (indexed) result += cvtToStr(static_cast<int64_t>(itemp->index()) + lo) + ":";
             result += dtypeNameValue(itemp->valuep(), elemDTypep);
         };
-        if (descending) {
-            for (auto it = itemps.crbegin(); it != itemps.crend(); ++it) addElem(*it);
-        } else {
-            for (const AstConsArrayItem* const itemp : itemps) addElem(itemp);
+        만약 (descending) {
+            위해 (auto it = itemps.crbegin(); it != itemps.crend(); ++it) addElem(*it);
+        } 아니면 {
+            위해 (const AstConsArrayItem* const itemp : itemps) addElem(itemp);
         }
-        if (consp->defaultp()) {
+        만약 (consp->defaultp()) {
             result += sepp + "default:"s + dtypeNameValue(consp->defaultp(), elemDTypep);
         }
-        return result + "}";
+        반환 result + "}";
     }
-    if (const AstConsStruct* const consp = VN_CAST(valuep, ConsStruct)) {
+    만약 (const AstConsStruct* const consp = VN_CAST(valuep, ConsStruct)) {
         string result = "'{";
         const char* sepp = "";
-        for (const AstConsStructItem* itemp = consp->itemsp(); itemp;
+        위해 (const AstConsStructItem* itemp = consp->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             result += sepp + dtypeNameValue(itemp->valuep(), itemp->memberp());
             sepp = ",";
         }
-        return result + "}";
+        반환 result + "}";
     }
     // Not yet a constant, as a default value until V3Param has elaborated the class
-    return "?";
+    반환 "?";
 }
 
 // Whether 'nodep' is a parameter that the name of the design unit declaring it holds
 static bool dtypeNameIsParam(const AstNode* nodep) {
-    if (const AstVar* const varp = VN_CAST(nodep, Var)) return varp->isGParam();
+    만약 (const AstVar* const varp = VN_CAST(nodep, Var)) 반환 varp->isGParam();
     const AstParamTypeDType* const ptypep = VN_CAST(nodep, ParamTypeDType);
-    return ptypep && ptypep->isGParam();
+    반환 ptypep && ptypep->isGParam();
 }
 
 // Call 'f' with each parameter that the name of design unit 'modp' holds, as indexed by the
@@ -292,12 +292,12 @@ static bool dtypeNameIsParam(const AstNode* nodep) {
 template <typename T_Func>
 static void dtypeNameForeachParam(const AstNodeModule* modp, const T_Func& f) {
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (const std::vector<AstNode*>* const paramsp = scopesp ? scopesp->paramsp(modp) : nullptr) {
-        for (const AstNode* const paramp : *paramsp) f(paramp);
-        return;
+    만약 (const std::vector<AstNode*>* const paramsp = scopesp ? scopesp->paramsp(modp) : nullptr) {
+        위해 (const AstNode* const paramp : *paramsp) f(paramp);
+        반환;
     }
-    for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (dtypeNameIsParam(stmtp)) f(stmtp);
+    위해 (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        만약 (dtypeNameIsParam(stmtp)) f(stmtp);
     }
 }
 
@@ -307,16 +307,16 @@ static string dtypeNameParams(const AstNodeModule* modp, bool full) {
     string result;
     dtypeNameForeachParam(modp, [&](const AstNode* paramp) {
         string valueName;
-        if (const AstVar* const varp = VN_CAST(paramp, Var)) {
+        만약 (const AstVar* const varp = VN_CAST(paramp, Var)) {
             valueName = dtypeNameValue(varp->valuep(), varp->subDTypep(), varp->untypedParam());
-        } else {
+        } 아니면 {
             const AstParamTypeDType* const ptypep = VN_AS(paramp, ParamTypeDType);
             // Or '?' if not yet resolved, as a default until V3Param has elaborated the class
             valueName = ptypep->skipRefToEnumOrNullp() ? ptypep->prettyDTypeName(full) : "?";
         }
         result += (result.empty() ? "#(" : ",") + valueName;
     });
-    return result.empty() ? "" : result + ")";
+    반환 result.empty() ? "" : result + ")";
 }
 
 // Whether the parameters that the name of design unit 'modp' holds are widthed, so final
@@ -325,11 +325,11 @@ static bool dtypeNameParamsFinal(const AstNodeModule* modp) {
     dtypeNameForeachParam(modp, [&](const AstNode* paramp) {
         // A parameter type is widthed once resolved, not once V3Width visits it
         const AstParamTypeDType* const ptypep = VN_CAST(paramp, ParamTypeDType);
-        if (!paramp->didWidth() || (ptypep && VN_IS(ptypep->subDTypep(), RequireDType))) {
+        만약 (!paramp->didWidth() || (ptypep && VN_IS(ptypep->subDTypep(), RequireDType))) {
             final = false;
         }
     });
-    return final;
+    반환 final;
 }
 
 // Name of a class, without its scope or parameters
@@ -337,10 +337,10 @@ static string dtypeNameClass(const AstClass* classp) {
     // An embedded covergroup declares an anonymous type, and an instance variable of it named
     // by the covergroup (IEEE 1800-2023 19.4), so the type is named as the variable, as other
     // simulators do
-    if (classp->covergroupEnclosingClassp()) {
-        return dtypeNameIdent(classp->embeddedCovergroupName());
+    만약 (classp->covergroupEnclosingClassp()) {
+        반환 dtypeNameIdent(classp->embeddedCovergroupName());
     }
-    return dtypeNameIdent(classp->origName());
+    반환 dtypeNameIdent(classp->origName());
 }
 
 // The generate block or design unit declaring 'nodep', or nullptr if none, as at the top, as
@@ -348,11 +348,11 @@ static string dtypeNameClass(const AstClass* classp) {
 static AstNode* dtypeNameOuterp(const AstNode* nodep) {
     AstNode* outerp = nullptr;
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (scopesp && scopesp->outerp(nodep, outerp)) return outerp;
-    for (outerp = nodep->aboveLoopp(); outerp; outerp = outerp->aboveLoopp()) {
-        if (VN_IS(outerp, NodeModule) || VN_IS(outerp, GenBlock)) break;
+    만약 (scopesp && scopesp->outerp(nodep, outerp)) 반환 outerp;
+    위해 (outerp = nodep->aboveLoopp(); outerp; outerp = outerp->aboveLoopp()) {
+        만약 (VN_IS(outerp, NodeModule) || VN_IS(outerp, GenBlock)) break;
     }
-    return outerp;
+    반환 outerp;
 }
 
 // Prefix of the names of the types generate block or design unit 'scopep' declares, so with the
@@ -360,44 +360,44 @@ static AstNode* dtypeNameOuterp(const AstNode* nodep) {
 // 'top.gen[0].', or "" if none, as at the top.  Kept by the VDTypeNameScopes in use, if any, once
 // final, as its parameters are widthed, else clears 'finalr'.
 static string dtypeNamePrefix(const AstNode* scopep, bool& finalr) {
-    if (!scopep) return "";
+    만약 (!scopep) 반환 "";
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (const string* const prefixp = scopesp ? scopesp->prefixp(scopep) : nullptr) {
-        return *prefixp;
+    만약 (const string* const prefixp = scopesp ? scopesp->prefixp(scopep) : nullptr) {
+        반환 *prefixp;
     }
     bool final = true;
     const string outer = dtypeNamePrefix(dtypeNameOuterp(scopep), final);
     string prefix;
-    if (const AstGenBlock* const blockp = VN_CAST(scopep, GenBlock)) {
+    만약 (const AstGenBlock* const blockp = VN_CAST(scopep, GenBlock)) {
         prefix = blockp->dtypeNameInnerScope(outer);
-    } else {
+    } 아니면 {
         const AstNodeModule* const modp = VN_AS(scopep, NodeModule);
         prefix = modp->dtypeNameInnerScope(outer);
-        if (scopesp) final = final && dtypeNameParamsFinal(modp);
+        만약 (scopesp) final = final && dtypeNameParamsFinal(modp);
     }
-    if (scopesp && final) scopesp->prefix(scopep, prefix);
+    만약 (scopesp && final) scopesp->prefix(scopep, prefix);
     finalr = finalr && final;
-    return prefix;
+    반환 prefix;
 }
 
 // Prefix of the name of a type for the scopes declaring it, see dtypeNamePrefix()
 static string dtypeNameScopeOf(const AstNode* nodep) {
     bool final = true;
-    return dtypeNamePrefix(dtypeNameOuterp(nodep), final);
+    반환 dtypeNamePrefix(dtypeNameOuterp(nodep), final);
 }
 
 // Name in full of a structure, union, or enumeration, as given by the typedef declaring it, if
 // any, with the scope of the typedef, or as 'frozen' once it moved off the typedef
 static string dtypeNameTypedef(const AstNodeDType* dtypep, const string& frozen) {
-    if (!frozen.empty()) return frozen;
+    만약 (!frozen.empty()) 반환 frozen;
     const AstTypedef* const typedefp = VN_CAST(dtypep->backp(), Typedef);
-    return typedefp ? typedefp->dtypeName() : dtypep->prettyName();
+    반환 typedefp ? typedefp->dtypeName() : dtypep->prettyName();
 }
 
 // Name of a type of a kind given by a keyword, e.g. 'struct $unit::s_t', or just the keyword if
 // anonymous
 static string dtypeNameKwd(const string& kwd, const string& name) {
-    return name.empty() ? kwd : kwd + " " + name;
+    반환 name.empty() ? kwd : kwd + " " + name;
 }
 
 //======================================================================
@@ -412,21 +412,21 @@ VDTypeNameScopes::VDTypeNameScopes(AstNetlist* nodep)
 }
 VDTypeNameScopes::~VDTypeNameScopes() { s_currentp = m_prevp; }
 void VDTypeNameScopes::index(AstNode* nodep, AstNode* scopep) {
-    for (; nodep; nodep = nodep->nextp()) {
+    위해 (; nodep; nodep = nodep->nextp()) {
         // Only statements declare types
-        if (VN_IS(nodep, NodeExpr) || VN_IS(nodep, NodeDType)) continue;
+        만약 (VN_IS(nodep, NodeExpr) || VN_IS(nodep, NodeDType)) continue;
         AstNode* innerp = scopep;
-        if (VN_IS(nodep, Typedef)) {
+        만약 (VN_IS(nodep, Typedef)) {
             m_outerps.emplace(nodep, scopep);
             continue;  // Of a data type, so declares no more
-        } else if (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
+        } 아니면 만약 (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
             m_outerps.emplace(nodep, scopep);
             std::vector<AstNode*>& paramps = m_paramps[nodep];
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (dtypeNameIsParam(stmtp)) paramps.push_back(stmtp);
+            위해 (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                만약 (dtypeNameIsParam(stmtp)) paramps.push_back(stmtp);
             }
             innerp = nodep;
-        } else if (VN_IS(nodep, GenBlock)) {
+        } 아니면 만약 (VN_IS(nodep, GenBlock)) {
             m_outerps.emplace(nodep, scopep);
             innerp = nodep;
         }
@@ -438,20 +438,20 @@ void VDTypeNameScopes::index(AstNode* nodep, AstNode* scopep) {
 }
 bool VDTypeNameScopes::outerp(const AstNode* nodep, AstNode*& outerpr) const {
     const auto it = m_outerps.find(nodep);
-    if (it == m_outerps.end()) return false;
+    만약 (it == m_outerps.end()) 반환 false;
     outerpr = it->second;
-    return true;
+    반환 true;
 }
 const std::vector<AstNode*>* VDTypeNameScopes::paramsp(const AstNode* modp) const {
     const auto it = m_paramps.find(modp);
-    return it == m_paramps.end() ? nullptr : &it->second;
+    반환 it == m_paramps.end() ? nullptr : &it->second;
 }
 void VDTypeNameScopes::prefix(const AstNode* scopep, const std::string& prefix) const {
     m_prefixes.emplace(scopep, prefix);
 }
 const std::string* VDTypeNameScopes::prefixp(const AstNode* scopep) const {
     const auto it = m_prefixes.find(scopep);
-    return it == m_prefixes.end() ? nullptr : &it->second;
+    반환 it == m_prefixes.end() ? nullptr : &it->second;
 }
 
 //======================================================================
@@ -466,30 +466,30 @@ void AstNode::dump(std::ostream& str) const {
         << fileline()->firstColumnLetters() << "}";
     const auto dumpUser = [&str](const char* prefix, const VNUser& user) {
         const std::string s = user.dumpStr([](const void* p) -> std::string {
-            return nodeAddr(reinterpret_cast<const AstNode*>(p));
+            반환 nodeAddr(reinterpret_cast<const AstNode*>(p));
         });
-        if (!s.empty()) str << prefix << s;
+        만약 (!s.empty()) str << prefix << s;
     };
     dumpUser(" u1=", user1u());
     dumpUser(" u2=", user2u());
     dumpUser(" u3=", user3u());
     dumpUser(" u4=", user4u());
-    if (hasDType()) {
+    만약 (hasDType()) {
         // Final @ so less likely to by accident read it as a nodep
-        if (dtypep() == this) {
+        만약 (dtypep() == this) {
             str << " @dt=this@";
-        } else {
+        } 아니면 {
             str << " @dt=" << nodeAddr(dtypep()) << "@";
         }
-        if (const AstNodeDType* const dtp = dtypep()) dtp->dumpSmall(str);
-    } else {  // V3Broken will throw an error
-        if (dtypep()) str << " %Error-dtype-exp=null,got=" << nodeAddr(dtypep());
+        만약 (const AstNodeDType* const dtp = dtypep()) dtp->dumpSmall(str);
+    } 아니면 {  // V3Broken will throw an error
+        만약 (dtypep()) str << " %Error-dtype-exp=null,got=" << nodeAddr(dtypep());
     }
-    if (fileline()->erroringOn()) str << " [ERRORING]";
-    if (name() != "") {
-        if (VN_IS(this, Const)) {
+    만약 (fileline()->erroringOn()) str << " [ERRORING]";
+    만약 (name() != "") {
+        만약 (VN_IS(this, Const)) {
             str << "  " << name();  // Already quoted
-        } else {
+        } 아니면 {
             str << "  " << V3OutFormatter::quoteNameControls(name());
         }
     }
@@ -498,18 +498,18 @@ void AstNode::dump(std::ostream& str) const {
 // Routines for dumping dict fields (NOTE: due to leading ',' they can't be used for first
 // field in dict)
 void AstNode::dumpJsonNum(std::ostream& os, const std::string& name, int64_t val) {
-    if (val) os << ",\"" << name << "\":" << val;
+    만약 (val) os << ",\"" << name << "\":" << val;
 }
 void AstNode::dumpJsonBoolIf(std::ostream& os, const std::string& name, bool val) {
-    if (val) os << ",\"" << name << "\":" << (val ? "true" : "false");
+    만약 (val) os << ",\"" << name << "\":" << (val ? "true" : "false");
 }
 void AstNode::dumpJsonStr(std::ostream& os, const std::string& name, const std::string& val) {
-    if (!val.empty())
+    만약 (!val.empty())
         os << ",\"" << name << "\":\"" << V3OutFormatter::quoteNameControls(val) << '"';
 }
 void AstNode::dumpJsonPtr(std::ostream& os, const std::string& name, const AstNode* const valp) {
     v3Global.saveJsonPtrFieldName(name);
-    if (!valp) return;
+    만약 (!valp) 반환;
     const std::string addr = v3Global.opt.jsonIds() ? v3Global.ptrToId(valp) : cvtToHex(valp);
     os << ",\"" << name << "\":\"" << addr << '"';
 }
@@ -519,12 +519,12 @@ void AstNode::dumpTreeJson(std::ostream& os, const string& indent) const {
     dumpJsonPtr(os, "addr", this);
     dumpFileInfo(os, fileline());
 #ifdef VL_DEBUG
-    if (v3Global.opt.jsonEditNums()) dumpJsonNum(os, "editNum", editCount());
+    만약 (v3Global.opt.jsonEditNums()) dumpJsonNum(os, "editNum", editCount());
 #endif
-    if (hasDType()) {
+    만약 (hasDType()) {
         dumpJsonPtrFunc(os, dtypep);
-    } else {  // V3Broken will throw an error
-        if (dtypep()) {
+    } 아니면 {  // V3Broken will throw an error
+        만약 (dtypep()) {
             dumpJsonStr(os, "dtypep", " %Error-dtype-exp=null,got=" + nodeAddr(dtypep()));
         }
     }
@@ -537,15 +537,15 @@ bool AstNode::isDisableQueuePushSelfStmt() {
     // Detect LinkJump-generated registration:
     // __VprocessQueue_*.push_back(std::process::self())
     AstStmtExpr* const stmtExprp = VN_CAST(this, StmtExpr);
-    if (!stmtExprp) return false;
+    만약 (!stmtExprp) 반환 false;
     AstCMethodHard* const methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
-    if (!methodp || methodp->name() != "push_back") return false;
+    만약 (!methodp || methodp->name() != "push_back") 반환 false;
     AstNode* const basep = methodp->fromp()->baseFromp(false);
-    if (AstVarRef* const refp = VN_CAST(basep, VarRef)) return refp->varp()->processQueue();
-    if (AstMemberSel* const selp = VN_CAST(basep, MemberSel)) {
-        return selp->varp() && selp->varp()->processQueue();
+    만약 (AstVarRef* const refp = VN_CAST(basep, VarRef)) 반환 refp->varp()->processQueue();
+    만약 (AstMemberSel* const selp = VN_CAST(basep, MemberSel)) {
+        반환 selp->varp() && selp->varp()->processQueue();
     }
-    return false;
+    반환 false;
 }
 
 //======================================================================
@@ -563,9 +563,9 @@ void AstAbortOn::dumpJson(std::ostream& str) const {
 void AstActive::dump(std::ostream& str) const {
     Super::dump(str);
     str << " => ";
-    if (sentreep()) {
+    만약 (sentreep()) {
         sentreep()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
@@ -577,7 +577,7 @@ void AstAddrOfCFunc::dump(std::ostream& str) const {
 }
 void AstAlways::dump(std::ostream& str) const {
     Super::dump(str);
-    if (keyword() != VAlwaysKwd::ALWAYS) str << " [" << keyword().ascii() << "]";
+    만약 (keyword() != VAlwaysKwd::ALWAYS) str << " [" << keyword().ascii() << "]";
 }
 void AstAlways::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "keyword", keyword().ascii());
@@ -586,7 +586,7 @@ void AstAlways::dumpJson(std::ostream& str) const {
 const char* AstAnd::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    반환 nullptr;
 }
 AstAssertCtl::AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType,
                            uint32_t directiveType, AstNodeExpr* levelp, AstNodeExpr* itemsp)
@@ -598,8 +598,8 @@ AstAssertCtl::AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assert
     this->assertTypesp(new AstConst{fl, assertType});
     this->directiveTypesp(new AstConst{fl, directiveType});
     // Parser creates these but are unused, nuke them
-    if (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
-    if (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
+    만약 (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
+    만약 (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
 }
 AstAssertCtl::AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp,
                            AstNodeExpr* directiveTypep, AstNodeExpr* levelp, AstNodeExpr* itemsp)
@@ -611,32 +611,32 @@ AstAssertCtl::AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr*
     this->assertTypesp(assertTypesp);
     this->directiveTypesp(directiveTypep);
     // Parser creates these but are unused, nuke them
-    if (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
-    if (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
+    만약 (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
+    만약 (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
 }
 void AstAssertCtl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
+    만약 (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
         str << " [" << ctlType().ascii() << "]";
         str << " [" << assertTypes().ascii() << "]";
         str << " [" << directiveTypes().ascii() << "]";
     }
 }
 void AstAssertCtl::dumpJson(std::ostream& str) const {
-    if (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
+    만약 (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
         dumpJsonStr(str, "ctlType", ctlType().ascii());
         dumpJsonStr(str, "assertTypes", assertTypes().ascii());
         dumpJsonStr(str, "directiveTypes", directiveTypes().ascii());
     }
     dumpJsonGen(str);
 }
-AstDelay* AstAssignW::getLhsNetDelay() const { return getLhsNetDelayRecurse(lhsp()); }
+AstDelay* AstAssignW::getLhsNetDelay() const { 반환 getLhsNetDelayRecurse(lhsp()); }
 void AstAssocArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
     str << "[assoc-" << nodeAddr(keyDTypep()) << "]";
 }
 string AstAssocArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[" + keyDTypep()->prettyDTypeName(full) + "]";
+    반환 subDTypep()->prettyDTypeName(full) + "$[" + keyDTypep()->prettyDTypeName(full) + "]";
 }
 void AstAttrOf::dump(std::ostream& str) const {
     Super::dump(str);
@@ -647,7 +647,7 @@ void AstAttrOf::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 void AstBasicDType::cvtRangeConst() {
-    if (rangep() && VN_IS(rangep()->leftp(), Const) && VN_IS(rangep()->rightp(), Const)) {
+    만약 (rangep() && VN_IS(rangep()->leftp(), Const) && VN_IS(rangep()->rightp(), Const)) {
         m.m_nrange = VNumRange{rangep()->leftConst(), rangep()->rightConst()};
         rangep()->unlinkFrBackWithNext()->deleteTree();
         rangep(nullptr);
@@ -656,16 +656,16 @@ void AstBasicDType::cvtRangeConst() {
 void AstBasicDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " kwd=" << keyword().ascii();
-    if (isRanged() && !rangep()) str << " range=[" << left() << ":" << right() << "]";
+    만약 (isRanged() && !rangep()) str << " range=[" << left() << ":" << right() << "]";
 }
 void AstBasicDType::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "keyword", keyword().ascii());
-    if (isRanged() && !rangep()) {
+    만약 (isRanged() && !rangep()) {
         dumpJsonStr(str, "range", std::to_string(left()) + ":" + std::to_string(right()));
     }
     dumpJsonGen(str);
 }
-void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int wantwidthmin,
+void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, 정수 wantwidth, 정수 wantwidthmin,
                          AstRange* rangep) {
     // wantwidth=0 means figure it out, but if a widthmin is >=0
     //    we allow width 0 so that {{0{x}},y} works properly
@@ -673,28 +673,28 @@ void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int 
     m.m_keyword = kwd;
     // Implicitness: // "parameter X" is implicit and sized from initial
     // value, "parameter reg x" not
-    if (keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT) {
-        if (rangep || wantwidth) m.m_keyword = VBasicDTypeKwd::LOGIC;
+    만약 (keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT) {
+        만약 (rangep || wantwidth) m.m_keyword = VBasicDTypeKwd::LOGIC;
     }
-    if (numer == VSigning::NOSIGN) {
-        if (keyword().isSigned()) {
+    만약 (numer == VSigning::NOSIGN) {
+        만약 (keyword().isSigned()) {
             numer = VSigning::SIGNED;
-        } else if (keyword().isUnsigned()) {
+        } 아니면 만약 (keyword().isUnsigned()) {
             numer = VSigning::UNSIGNED;
         }
     }
     numeric(numer);
-    if (!rangep && (wantwidth || wantwidthmin >= 0)) {  // Constant width
-        if (wantwidth > 1) m.m_nrange.init(wantwidth - 1, 0, false);
-        const int wmin = wantwidthmin >= 0 ? wantwidthmin : wantwidth;
+    만약 (!rangep && (wantwidth || wantwidthmin >= 0)) {  // Constant width
+        만약 (wantwidth > 1) m.m_nrange.init(wantwidth - 1, 0, false);
+        const 정수 wmin = wantwidthmin >= 0 ? wantwidthmin : wantwidth;
         widthForce(wantwidth, wmin);
-    } else if (!rangep) {  // Set based on keyword properties
+    } 아니면 만약 (!rangep) {  // Set based on keyword properties
         // V3Width will pull from this width
-        if (keyword().width() > 1 && !isOpaque()) {
+        만약 (keyword().width() > 1 && !isOpaque()) {
             m.m_nrange.init(keyword().width() - 1, 0, false);
         }
         widthForce(keyword().width(), keyword().width());
-    } else {
+    } 아니면 {
         widthForce(rangep->elementsConst(),
                    rangep->elementsConst());  // Maybe unknown if parameters underneath it
     }
@@ -705,59 +705,59 @@ string AstBasicDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
     os << keyword().typeName();
     // In full, as for $typename, with signing other than the default (IEEE 1800-2023 20.6.1)
-    if (full && keyword().isIntNumeric() && isSigned() != keyword().isSigned()) {
+    만약 (full && keyword().isIntNumeric() && isSigned() != keyword().isSigned()) {
         os << (isSigned() ? " signed" : " unsigned");
     }
-    if (isRanged() && !rangep() && keyword().width() <= 1) {
+    만약 (isRanged() && !rangep() && keyword().width() <= 1) {
         os << "[" << left() << ":" << right() << "]";
     }
-    return os.str();
+    반환 os.str();
 }
 bool AstBasicDType::sameNode(const AstNode* samep) const {
     const AstBasicDType* const sp = VN_DBG_AS(samep, BasicDType);
-    if (!(m == sp->m)) return false;
-    if (numeric() != sp->numeric()) return false;
-    if (!rangep() && !sp->rangep()) return true;
-    return rangep() && rangep()->sameTree(sp->rangep());
+    만약 (!(m == sp->m)) 반환 false;
+    만약 (numeric() != sp->numeric()) 반환 false;
+    만약 (!rangep() && !sp->rangep()) 반환 true;
+    반환 rangep() && rangep()->sameTree(sp->rangep());
 }
 bool AstBasicDType::similarDTypeNode(const AstNodeDType* samep) const {
-    if (sameNode(samep)) return true;
+    만약 (sameNode(samep)) 반환 true;
     const AstBasicDType* const sp = VN_DBG_AS(samep, BasicDType);
-    if (!m.m_keyword.isSameish(sp->m.m_keyword)) return false;
+    만약 (!m.m_keyword.isSameish(sp->m.m_keyword)) 반환 false;
     // IEEE 1800-2023 6.22.2: equivalent by bit width, not range direction
-    if (m.m_nrange.ranged() != sp->m.m_nrange.ranged()) return false;
-    if (m.m_nrange.elements() != sp->m.m_nrange.elements()) return false;
+    만약 (m.m_nrange.ranged() != sp->m.m_nrange.ranged()) 반환 false;
+    만약 (m.m_nrange.elements() != sp->m.m_nrange.elements()) 반환 false;
     // Squash so NOSIGN == UNSIGNED
-    if (numeric().isSigned() != sp->numeric().isSigned()) return false;
-    if (!rangep() && !sp->rangep()) return true;
-    return rangep() && rangep()->sameTree(sp->rangep());
+    만약 (numeric().isSigned() != sp->numeric().isSigned()) 반환 false;
+    만약 (!rangep() && !sp->rangep()) 반환 true;
+    반환 rangep() && rangep()->sameTree(sp->rangep());
 }
-int AstBasicDType::widthAlignBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return 4;
+정수 AstBasicDType::widthAlignBytes() const {
+    만약 (width() <= 8) {
+        반환 1;
+    } 아니면 만약 (width() <= 16) {
+        반환 2;
+    } 아니면 만약 (isQuad()) {
+        반환 8;
+    } 아니면 {
+        반환 4;
     }
 }
-int AstBasicDType::widthTotalBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return widthWords() * (VL_EDATASIZE / 8);
+정수 AstBasicDType::widthTotalBytes() const {
+    만약 (width() <= 8) {
+        반환 1;
+    } 아니면 만약 (width() <= 16) {
+        반환 2;
+    } 아니면 만약 (isQuad()) {
+        반환 8;
+    } 아니면 {
+        반환 widthWords() * (VL_EDATASIZE / 8);
     }
 }
 void AstBegin::dump(std::ostream& str) const {
     Super::dump(str);
-    if (implied()) str << " [IMPLIED]";
-    if (needProcess()) str << " [NPRC]";
+    만약 (implied()) str << " [IMPLIED]";
+    만약 (needProcess()) str << " [NPRC]";
 }
 void AstBegin::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, implied);
@@ -766,7 +766,7 @@ void AstBegin::dumpJson(std::ostream& str) const {
 }
 void AstCAwait::dump(std::ostream& str) const {
     Super::dump(str);
-    if (sentreep()) {
+    만약 (sentreep()) {
         str << " => ";
         sentreep()->dump(str);
     }
@@ -782,7 +782,7 @@ void AstCCast::dumpJson(std::ostream& str) const {
 }
 void AstCExpr::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_pure) str << " [PURE]";
+    만약 (m_pure) str << " [PURE]";
 }
 void AstCExpr::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_pure);
@@ -790,7 +790,7 @@ void AstCExpr::dumpJson(std::ostream& str) const {
 }
 void AstCExprUser::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_pure) str << " [PURE]";
+    만약 (m_pure) str << " [PURE]";
 }
 void AstCExprUser::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_pure);
@@ -798,8 +798,8 @@ void AstCExprUser::dumpJson(std::ostream& str) const {
 }
 void AstCFile::dump(std::ostream& str) const {
     Super::dump(str);
-    if (source()) str << " [SRC]";
-    if (slow()) str << " [SLOW]";
+    만약 (source()) str << " [SRC]";
+    만약 (slow()) str << " [SLOW]";
 }
 void AstCFile::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, source);
@@ -808,32 +808,32 @@ void AstCFile::dumpJson(std::ostream& str) const {
 }
 void AstCFunc::dump(std::ostream& str) const {
     Super::dump(str);
-    if (slow()) str << " [SLOW]";
-    if (isStatic()) str << " [STATIC]";
-    if (dpiContext()) str << " [DPICTX]";
-    if (dpiExportDispatcher()) str << " [DPIED]";
-    if (dpiExportImpl()) str << " [DPIEI]";
-    if (dpiImportPrototype()) str << " [DPIIP]";
-    if (dpiImportWrapper()) str << " [DPIIW]";
-    if (dpiPure()) str << " [DPIPURE]";
-    if (isConstructor()) str << " [CTOR]";
-    if (isDestructor()) str << " [DTOR]";
-    if (isMethod()) str << " [METHOD]";
-    if (isLoose()) str << " [LOOSE]";
-    if (isUnlikely()) str << " [UNL]";
-    if (isVirtual()) str << " [VIRT]";
-    if (isCoroutine()) str << " [CORO]";
-    if (needProcess()) str << " [NPRC]";
-    if (entryPoint()) str << " [ENTRY]";
-    if (noLife()) str << " [NOLIFE]";
-    if (voidSelf()) str << " [VOIDSELF]";
-    if (isConst().isKnown()) str << (isConst().trueKnown() ? " [CONST]" : " [!CONST]");
-    if (m_cost) str << " cost=" << m_cost;
-    if (!m_rtnType.empty()) str << " rt=" << m_rtnType;
-    if (!m_argTypes.empty()) str << " (" << m_argTypes << ")";
-    if (!ifdef().empty()) str << " ifdef=" << ifdef();
-    if (!cname().empty() && cname() != name()) str << " c=" << cname();
-    if (!dpiCDecl().empty()) str << " cdecl=" << dpiCDecl();
+    만약 (slow()) str << " [SLOW]";
+    만약 (isStatic()) str << " [STATIC]";
+    만약 (dpiContext()) str << " [DPICTX]";
+    만약 (dpiExportDispatcher()) str << " [DPIED]";
+    만약 (dpiExportImpl()) str << " [DPIEI]";
+    만약 (dpiImportPrototype()) str << " [DPIIP]";
+    만약 (dpiImportWrapper()) str << " [DPIIW]";
+    만약 (dpiPure()) str << " [DPIPURE]";
+    만약 (isConstructor()) str << " [CTOR]";
+    만약 (isDestructor()) str << " [DTOR]";
+    만약 (isMethod()) str << " [METHOD]";
+    만약 (isLoose()) str << " [LOOSE]";
+    만약 (isUnlikely()) str << " [UNL]";
+    만약 (isVirtual()) str << " [VIRT]";
+    만약 (isCoroutine()) str << " [CORO]";
+    만약 (needProcess()) str << " [NPRC]";
+    만약 (entryPoint()) str << " [ENTRY]";
+    만약 (noLife()) str << " [NOLIFE]";
+    만약 (voidSelf()) str << " [VOIDSELF]";
+    만약 (isConst().isKnown()) str << (isConst().trueKnown() ? " [CONST]" : " [!CONST]");
+    만약 (m_cost) str << " cost=" << m_cost;
+    만약 (!m_rtnType.empty()) str << " rt=" << m_rtnType;
+    만약 (!m_argTypes.empty()) str << " (" << m_argTypes << ")";
+    만약 (!ifdef().empty()) str << " ifdef=" << ifdef();
+    만약 (!cname().empty() && cname() != name()) str << " c=" << cname();
+    만약 (!dpiCDecl().empty()) str << " cdecl=" << dpiCDecl();
 }
 void AstCFunc::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, slow);
@@ -863,23 +863,23 @@ void AstCFunc::dumpJson(std::ostream& str) const {
 }
 void AstCFuncHard::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_purity.get()) str << " [PURE]";
+    만약 (m_purity.get()) str << " [PURE]";
 }
 void AstCFuncHard::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_purity.get());
     dumpJsonGen(str);
 }
 bool AstCFuncHard::getPurity() {
-    if (!function().isPure()) return false;
-    for (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-        if (!argp->isPure()) return false;
+    만약 (!function().isPure()) 반환 false;
+    위해 (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+        만약 (!argp->isPure()) 반환 false;
     }
-    return true;
+    반환 true;
 }
 void AstCMethodHard::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_purity.get()) str << " [PURE]";
-    if (usePtr()) str << " [USEPTR]";
+    만약 (m_purity.get()) str << " [PURE]";
+    만약 (usePtr()) str << " [USEPTR]";
 }
 void AstCMethodHard::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_purity.get());
@@ -887,29 +887,29 @@ void AstCMethodHard::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 bool AstCMethodHard::getPurity() {
-    if (method() == VCMethod::DYN_AT_WRITE_APPEND
+    만약 (method() == VCMethod::DYN_AT_WRITE_APPEND
         || method() == VCMethod::DYN_AT_WRITE_APPEND_BACK) {
         // Treat atWriteAppend as pure if the argument is a loop iterator
-        if (const AstNodeExpr* const argp = pinsp()) {
-            if (const AstVarRef* const varrefp = VN_CAST(argp, VarRef)) {
-                if (varrefp->varp()->isUsedLoopIdx()) return true;
+        만약 (const AstNodeExpr* const argp = pinsp()) {
+            만약 (const AstVarRef* const varrefp = VN_CAST(argp, VarRef)) {
+                만약 (varrefp->varp()->isUsedLoopIdx()) 반환 true;
             }
         }
-        return false;
+        반환 false;
     }
-    if (!method().isPure()) return false;
-    if (!fromp()->isPure()) return false;
-    for (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-        if (!argp->isPure()) return false;
+    만약 (!method().isPure()) 반환 false;
+    만약 (!fromp()->isPure()) 반환 false;
+    위해 (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+        만약 (!argp->isPure()) 반환 false;
     }
-    return true;
+    반환 true;
 }
-int AstCMethodHard::instrCount() const {
-    return 0;  // TODO
+정수 AstCMethodHard::instrCount() const {
+    반환 0;  // TODO
 }
 void AstCReset::dump(std::ostream& str) const {
     Super::dump(str);
-    if (constructing()) str << " [CONS]";
+    만약 (constructing()) str << " [CONS]";
 }
 void AstCReset::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, constructing);
@@ -917,15 +917,15 @@ void AstCReset::dumpJson(std::ostream& str) const {
 }
 void AstCStmt::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!stmtType().isNone()) str << " [" << stmtType().ascii() << "]";
+    만약 (!stmtType().isNone()) str << " [" << stmtType().ascii() << "]";
 }
 void AstCStmt::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
-    if (!stmtType().isNone()) dumpJsonStr(str, "stmtType", stmtType().ascii());
+    만약 (!stmtType().isNone()) dumpJsonStr(str, "stmtType", stmtType().ascii());
 }
 void AstCStmtUser::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!fromDollarC()) str << " [$C]";
+    만약 (!fromDollarC()) str << " [$C]";
 }
 void AstCStmtUser::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, fromDollarC);
@@ -942,11 +942,11 @@ void AstCUse::dumpJson(std::ostream& str) const {
 void AstCase::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << m_caseType.ascii() << "]";
-    if (fullPragma()) str << " [FULL]";
-    if (parallelPragma()) str << " [PAR]";
-    if (priorityPragma()) str << " [PRI]";
-    if (uniquePragma()) str << " [UNQ]";
-    if (unique0Pragma()) str << " [UNQ0]";
+    만약 (fullPragma()) str << " [FULL]";
+    만약 (parallelPragma()) str << " [PAR]";
+    만약 (priorityPragma()) str << " [PRI]";
+    만약 (uniquePragma()) str << " [UNQ]";
+    만약 (unique0Pragma()) str << " [UNQ0]";
 }
 void AstCase::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "caseType", m_caseType.ascii());
@@ -958,22 +958,22 @@ void AstCase::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 string AstCase::pragmaString() const {
-    if (fullPragma() && parallelPragma()) return "synthesis full_case parallel_case";
-    if (fullPragma()) return "synthesis full_case";
-    if (parallelPragma()) return "synthesis parallel_case";
-    if (uniquePragma()) return "unique case";
-    if (unique0Pragma()) return "unique0 case";
-    if (priorityPragma()) return "priority case";
-    return "";
+    만약 (fullPragma() && parallelPragma()) 반환 "synthesis full_case parallel_case";
+    만약 (fullPragma()) 반환 "synthesis full_case";
+    만약 (parallelPragma()) 반환 "synthesis parallel_case";
+    만약 (uniquePragma()) 반환 "unique case";
+    만약 (unique0Pragma()) 반환 "unique0 case";
+    만약 (priorityPragma()) 반환 "priority case";
+    반환 "";
 }
 void AstCell::dump(std::ostream& str) const {
     Super::dump(str);
-    if (recursive()) str << " [RECURSIVE]";
-    if (arrayIdx() >= 0) str << " [ARRAYIDX=" << arrayIdx() << "]";
-    if (modp()) {
+    만약 (recursive()) str << " [RECURSIVE]";
+    만약 (arrayIdx() >= 0) str << " [ARRAYIDX=" << arrayIdx() << "]";
+    만약 (modp()) {
         str << " -> ";
         modp()->dump(str);
-    } else {
+    } 아니면 {
         str << " ->UNLINKED:" << modName();
     }
 }
@@ -982,7 +982,7 @@ void AstCell::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, origName);
     dumpJsonStrFunc(str, verilogName);
     dumpJsonBoolFuncIf(str, recursive);
-    if (arrayIdx() >= 0) dumpJsonNumFunc(str, arrayIdx);
+    만약 (arrayIdx() >= 0) dumpJsonNumFunc(str, arrayIdx);
     dumpJsonGen(str);
 }
 void AstCellInline::dump(std::ostream& str) const {
@@ -1003,7 +1003,7 @@ void AstCellInlineScope::dumpJson(std::ostream& str) const {
 }
 void AstCgOptionAssign::dump(std::ostream& str) const {
     str << " [" << optType().ascii() << "]";
-    if (typeOption()) str << " [TYPEOPT]";
+    만약 (typeOption()) str << " [TYPEOPT]";
     Super::dump(str);
 }
 void AstCgOptionAssign::dumpJson(std::ostream& str) const {
@@ -1013,50 +1013,50 @@ void AstCgOptionAssign::dumpJson(std::ostream& str) const {
 }
 AstClass* AstClass::baseMostClassp() {
     AstClass* basep = this;
-    while (basep->extendsp() && basep->extendsp()->classp()) {
+    동안 (basep->extendsp() && basep->extendsp()->classp()) {
         basep = basep->extendsp()->classp();
     }
-    return basep;
+    반환 basep;
 }
 string AstClass::dtypeName(bool full) const {
     const string& frozen = full ? m_dtypeNameFull : m_dtypeNameShort;
-    if (!frozen.empty()) return frozen;
-    return dtypeNameCalc(full, full ? dtypeNameScope() : "");
+    만약 (!frozen.empty()) 반환 frozen;
+    반환 dtypeNameCalc(full, full ? dtypeNameScope() : "");
 }
 string AstClass::dtypeNameCalc(bool full, const string& scope) const {
     // A parameter may lead back to the class, which is then named without parameters
-    if (m_dtypeNameBusy) return scope + dtypeNameClass(this);
+    만약 (m_dtypeNameBusy) 반환 scope + dtypeNameClass(this);
     m_dtypeNameBusy = true;
     const string name = scope + dtypeNameClass(this) + dtypeNameParams(this, full);
     m_dtypeNameBusy = false;
-    return name;
+    반환 name;
 }
 void AstClass::dtypeNameFreeze() {
     m_dtypeNameFull = dtypeName(true);
     m_dtypeNameShort = dtypeName(false);
 }
 string AstClass::dtypeNameIn(const string& scope) const {
-    return m_dtypeNameFull.empty() ? dtypeNameCalc(true, scope) : m_dtypeNameFull;
+    반환 m_dtypeNameFull.empty() ? dtypeNameCalc(true, scope) : m_dtypeNameFull;
 }
 string AstClass::dtypeNameScope() const {
     // The package, interface, module, or class declaring the class, so named with the values of
     // its parameters, unless since moved to the top, as by V3Class after dtypeNameFreeze()
-    return dtypeNameScopeOf(this);
+    반환 dtypeNameScopeOf(this);
 }
 void AstClass::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCovergroup()) str << " [CG]";
-    if (isExtended()) str << " [EXT]";
-    if (isInterfaceClass()) str << " [IFCCLS]";
-    if (isPrintedFrom()) str << " [PRINTED]";
-    if (isVirtual()) str << " [VIRT]";
-    if (needRNG()) str << " [NRNG]";
-    if (hasRandVarsUpdate()) str << "[RANDVARUPD]";
-    if (useVirtualPublic()) str << " [VIRPUB]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
-    if (cgAutoBinMax()) str << " cost=" << cgAutoBinMax();
-    if (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
-    if (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
+    만약 (isCovergroup()) str << " [CG]";
+    만약 (isExtended()) str << " [EXT]";
+    만약 (isInterfaceClass()) str << " [IFCCLS]";
+    만약 (isPrintedFrom()) str << " [PRINTED]";
+    만약 (isVirtual()) str << " [VIRT]";
+    만약 (needRNG()) str << " [NRNG]";
+    만약 (hasRandVarsUpdate()) str << "[RANDVARUPD]";
+    만약 (useVirtualPublic()) str << " [VIRPUB]";
+    만약 (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    만약 (cgAutoBinMax()) str << " cost=" << cgAutoBinMax();
+    만약 (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
+    만약 (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
 }
 void AstClass::dumpJson(std::ostream& str) const {
     // dumpJsonNumFunc(str, declTokenNum);  // Not dumped as adding token changes whole file
@@ -1068,20 +1068,20 @@ void AstClass::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, needRNG);
     dumpJsonBoolFuncIf(str, hasRandVarsUpdate);
     dumpJsonBoolFuncIf(str, useVirtualPublic);
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    만약 (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonNumFunc(str, cgAutoBinMax);
-    if (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
-    if (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
+    만약 (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
+    만약 (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
     dumpJsonGen(str);
 }
 string AstClass::embeddedCovergroupName() const {
     const string prefix = embeddedCovergroupTypeName("");
     UASSERT_OBJ(VString::startsWith(origName(), prefix), this,
                 "Not the type of an embedded covergroup");
-    return origName().substr(prefix.size());
+    반환 origName().substr(prefix.size());
 }
 bool AstClass::isCacheableChild(const AstNode* nodep) {
-    return VN_IS(nodep, Var) || VN_IS(nodep, Typedef)
+    반환 VN_IS(nodep, Var) || VN_IS(nodep, Typedef)
            || (VN_IS(nodep, Constraint) && !VN_AS(nodep, Constraint)->isExternProto())
            || VN_IS(nodep, EnumItemRef)
            || (VN_IS(nodep, NodeFTask) && !VN_AS(nodep, NodeFTask)->isExternProto())
@@ -1089,29 +1089,29 @@ bool AstClass::isCacheableChild(const AstNode* nodep) {
 }
 bool AstClass::isClassExtendedFrom(const AstClass* refClassp, const AstClass* baseClassp) {
     // TAIL RECURSIVE
-    if (!refClassp || !baseClassp) return false;
-    if (refClassp == baseClassp) return true;
-    if (!refClassp->extendsp()) return false;
-    return isClassExtendedFrom(refClassp->extendsp()->classp(), baseClassp);
+    만약 (!refClassp || !baseClassp) 반환 false;
+    만약 (refClassp == baseClassp) 반환 true;
+    만약 (!refClassp->extendsp()) 반환 false;
+    반환 isClassExtendedFrom(refClassp->extendsp()->classp(), baseClassp);
 }
 AstClass* AstClassExtends::classOrNullp() const {
     const AstNodeDType* const dtp = dtypep() ? dtypep() : childDTypep();
     const AstClassRefDType* const refp = VN_CAST(dtp, ClassRefDType);
-    if (refp && !refp->paramsp()) {
+    만약 (refp && !refp->paramsp()) {
         // Class already resolved
-        return refp->classp();
+        반환 refp->classp();
     }
-    return nullptr;
+    반환 nullptr;
 }
 AstClass* AstClassExtends::classp() const {
     AstClass* const clsp = classOrNullp();
     UASSERT_OBJ(clsp, this, "Extended class is unresolved");
-    return clsp;
+    반환 clsp;
 }
 void AstClassExtends::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isImplements()) str << " [IMPL]";
-    if (parameterized()) str << " [PAR]";
+    만약 (isImplements()) str << " [IMPL]";
+    만약 (parameterized()) str << " [PAR]";
 }
 void AstClassExtends::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isImplements);
@@ -1121,42 +1121,42 @@ void AstClassExtends::dumpJson(std::ostream& str) const {
 AstNodeModule* AstClassOrPackageRef::classOrPackageSkipp(const bool doRefs) const {
     AstNode* foundp = m_classOrPackageNodep;
     AstNode* lastp = nullptr;
-    while (foundp != lastp) {
+    동안 (foundp != lastp) {
         lastp = foundp;
-        if (AstNodeDType* const anodep = VN_CAST(foundp, NodeDType)) {
+        만약 (AstNodeDType* const anodep = VN_CAST(foundp, NodeDType)) {
             foundp = anodep->skipRefOrNullp();
         }
-        if (doRefs) {
-            if (const AstTypedef* const anodep = VN_CAST(foundp, Typedef)) {
+        만약 (doRefs) {
+            만약 (const AstTypedef* const anodep = VN_CAST(foundp, Typedef)) {
                 foundp = anodep->subDTypep();
-            } else if (const AstClassRefDType* const anodep = VN_CAST(foundp, ClassRefDType)) {
+            } 아니면 만약 (const AstClassRefDType* const anodep = VN_CAST(foundp, ClassRefDType)) {
                 foundp = anodep->classp();
             }
         }
     }
-    return VN_CAST(foundp, NodeModule);
+    반환 VN_CAST(foundp, NodeModule);
 }
 void AstClassOrPackageRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackageNodep()) str << " cpkg=" << nodeAddr(classOrPackageNodep());
+    만약 (classOrPackageNodep()) str << " cpkg=" << nodeAddr(classOrPackageNodep());
     str << " -> ";
-    if (classOrPackageNodep()) {
+    만약 (classOrPackageNodep()) {
         classOrPackageNodep()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
 void AstClassOrPackageRef::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstClassRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
-    if (classp()) {
+    만약 (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
+    만약 (classp()) {
         str << " -> ";
         classp()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
-    if (rawPointer()) str << " [RAWPTR]";
+    만약 (rawPointer()) str << " [RAWPTR]";
 }
 void AstClassRefDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, rawPointer);
@@ -1166,14 +1166,14 @@ void AstClassRefDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
     str << "class:" << name();
 }
-string AstClassRefDType::name() const { return classp() ? classp()->name() : "<unlinked>"; }
+string AstClassRefDType::name() const { 반환 classp() ? classp()->name() : "<unlinked>"; }
 string AstClassRefDType::prettyDTypeName(bool full) const {
     // Until V3Param specializes the class for the parameters, just name the class
-    if (!classp() || paramsp()) return dtypeNameKwd("class", prettyName());
-    return dtypeNameKwd("class", classp()->dtypeName(full));
+    만약 (!classp() || paramsp()) 반환 dtypeNameKwd("class", prettyName());
+    반환 dtypeNameKwd("class", classp()->dtypeName(full));
 }
 string AstClassRefDType::prettyNameMsg() const {
-    return (classp() && !paramsp()) ? classp()->prettyNameMsg() : prettyName();
+    반환 (classp() && !paramsp()) ? classp()->prettyNameMsg() : prettyName();
 }
 void AstClassRefDType::selfTest() {
     FileLine* const fl = new FileLine{FileLine::commandLineFilename()};
@@ -1187,30 +1187,30 @@ void AstClassRefDType::selfTest() {
 }
 bool AstClassRefDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstClassRefDType* const asamep = VN_DBG_AS(samep, ClassRefDType);
-    if (m_classp != asamep->m_classp) return false;
+    만약 (m_classp != asamep->m_classp) 반환 false;
     // Compare type parameters so C#(int) != C#(string)
     const AstPin* lp = paramsp();
     const AstPin* rp = asamep->paramsp();
-    while (lp && rp) {
-        if (!lp->exprp() != !rp->exprp()) return false;
-        if (lp->exprp()) {
+    동안 (lp && rp) {
+        만약 (!lp->exprp() != !rp->exprp()) 반환 false;
+        만약 (lp->exprp()) {
             const AstNodeDType* const lDtp = VN_CAST(lp->exprp(), NodeDType);
             const AstNodeDType* const rDtp = VN_CAST(rp->exprp(), NodeDType);
-            if (lDtp && rDtp) {
-                if (!lDtp->similarDType(rDtp)) return false;
-            } else {
-                if (!lp->exprp()->sameTree(rp->exprp())) return false;
+            만약 (lDtp && rDtp) {
+                만약 (!lDtp->similarDType(rDtp)) 반환 false;
+            } 아니면 {
+                만약 (!lp->exprp()->sameTree(rp->exprp())) 반환 false;
             }
         }
         lp = VN_CAST(lp->nextp(), Pin);
         rp = VN_CAST(rp->nextp(), Pin);
     }
-    return !lp && !rp;
+    반환 !lp && !rp;
 }
 void AstClocking::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDefault()) str << " [DEFAULT]";
-    if (isGlobal()) str << " [GLOBAL]";
+    만약 (isDefault()) str << " [DEFAULT]";
+    만약 (isGlobal()) str << " [GLOBAL]";
 }
 void AstClocking::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDefault);
@@ -1218,7 +1218,7 @@ void AstClocking::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstVar* AstClocking::ensureEventp(bool childDType) {
-    if (!eventp()) {
+    만약 (!eventp()) {
         AstVar* const evp
             = childDType ? new AstVar{fileline(), VVarType::MODULETEMP, m_name, VFlagChildDType{},
                                       new AstBasicDType{fileline(), VBasicDTypeKwd::EVENT}}
@@ -1232,11 +1232,11 @@ AstVar* AstClocking::ensureEventp(bool childDType) {
             new AstFireEvent{fileline(), new AstVarRef{fileline(), evp, VAccess::WRITE}, false}});
         v3Global.setHasEvents();
     }
-    return eventp();
+    반환 eventp();
 }
 void AstClockingItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction().isAny()) str << " " << direction();
+    만약 (direction().isAny()) str << " " << direction();
 }
 void AstClockingItem::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "direction", direction().ascii());
@@ -1244,7 +1244,7 @@ void AstClockingItem::dumpJson(std::ostream& str) const {
 }
 void AstComment::dump(std::ostream& str) const {
     Super::dump(str);
-    if (showAt()) str << " [SHOWAT]";
+    만약 (showAt()) str << " [SHOWAT]";
 }
 void AstComment::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, showAt);
@@ -1252,7 +1252,7 @@ void AstComment::dumpJson(std::ostream& str) const {
 }
 void AstCompareNN::dump(std::ostream& str) const {
     Super::dump(str);
-    if (ignoreCase()) str << " [IGNORECASE]";
+    만약 (ignoreCase()) str << " [IGNORECASE]";
 }
 void AstCompareNN::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, ignoreCase);
@@ -1262,28 +1262,28 @@ AstCond::AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeEx
     : ASTGEN_SUPER_Cond(fl, condp, thenp, elsep) {
     UASSERT_OBJ(thenp, this, "No thenp expression");
     UASSERT_OBJ(elsep, this, "No elsep expression");
-    if (thenp->isClassHandleValue() && elsep->isClassHandleValue()) {
+    만약 (thenp->isClassHandleValue() && elsep->isClassHandleValue()) {
         // Get the most-deriving class type that both arguments can be casted to.
         AstNodeDType* const commonClassTypep = getCommonClassTypep(thenp, elsep);
         UASSERT_OBJ(commonClassTypep, this, "No common base class exists");
         dtypep(commonClassTypep);
-    } else {
+    } 아니면 {
         dtypeFrom(thenp);
     }
 }
 void AstConfig::dump(std::ostream& str) const {
     Super::dump(str);
     str << " configname=" << configname();
-    if (libname() != "work") str << " libname=" << libname();
+    만약 (libname() != "work") str << " libname=" << libname();
 }
 void AstConfig::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, configname);
-    if (libname() != "work") dumpJsonStr(str, "libname=", libname());
+    만약 (libname() != "work") dumpJsonStr(str, "libname=", libname());
     dumpJsonGen(str);
 }
 void AstConfigRule::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCell()) str << " [CELL]";
+    만약 (isCell()) str << " [CELL]";
 }
 void AstConfigRule::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCell);
@@ -1291,7 +1291,7 @@ void AstConfigRule::dumpJson(std::ostream& str) const {
 }
 void AstConfigUse::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConfig()) str << " [CONFIG]";
+    만약 (isConfig()) str << " [CONFIG]";
 }
 void AstConfigUse::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConfig);
@@ -1302,7 +1302,7 @@ const char* AstConsArray::broken() const {
     BROKEN_RTN(!arrayp);
     // Each map entry is the next item, so the items are in increasing index order
     const AstConsArrayItem* itemp = itemsp();
-    for (const auto& pair : m_itemps) {
+    위해 (const auto& pair : m_itemps) {
         BROKEN_RTN(!itemp || itemp->index() != pair.first || itemp != pair.second);
         itemp = VN_AS(itemp->nextp(), ConsArrayItem);
     }
@@ -1310,13 +1310,13 @@ const char* AstConsArray::broken() const {
     // Must be complete: every element given, or has a default
     const size_t elements = arrayp->elementsConst();
     BROKEN_RTN(!defaultp() && m_itemps.size() != elements);
-    return nullptr;
+    반환 nullptr;
 }
 void AstConsArray::cloneRelink() {
     cloneRelinkGen();
     // The copied map has the indices of the cloned items, in the same order
     AstConsArrayItem* itemp = itemsp();
-    for (auto& pair : m_itemps) {
+    위해 (auto& pair : m_itemps) {
         UASSERT_OBJ(itemp && itemp->index() == pair.first, this, "Cloned items out of order");
         pair.second = itemp;
         itemp = VN_AS(itemp->nextp(), ConsArrayItem);
@@ -1325,17 +1325,17 @@ void AstConsArray::cloneRelink() {
 void AstConsArray::spliceValues(uint64_t index, AstNodeExpr* arrayp) {
     const bool ascending = VN_AS(dtypep()->skipRefp(), UnpackArrayDType)->declRange().ascending();
     const AstUnpackArrayDType* const srcp = VN_AS(arrayp->dtypep()->skipRefp(), UnpackArrayDType);
-    const int elements = srcp->elementsConst();
-    for (int n = 0; n < elements; ++n) {
+    const 정수 elements = srcp->elementsConst();
+    위해 (정수 n = 0; n < elements; ++n) {
         // Element 'n' from the left of 'arrayp', counted from its lo
-        const int srcIndex = srcp->declRange().ascending() ? n : elements - 1 - n;
+        const 정수 srcIndex = srcp->declRange().ascending() ? n : elements - 1 - n;
         AstNodeExpr* elemp;
-        if (const AstConsArray* const consp = VN_CAST(arrayp, ConsArray)) {
+        만약 (const AstConsArray* const consp = VN_CAST(arrayp, ConsArray)) {
             elemp = consp->valuep(srcIndex)->cloneTree(false);
-        } else if (AstSliceSel* const slicep = VN_CAST(arrayp, SliceSel)) {
+        } 아니면 만약 (AstSliceSel* const slicep = VN_CAST(arrayp, SliceSel)) {
             elemp = new AstArraySel{arrayp->fileline(), slicep->fromp()->cloneTreePure(false),
                                     slicep->declRange().lo() + srcIndex};
-        } else {
+        } 아니면 {
             elemp = new AstArraySel{arrayp->fileline(), arrayp->cloneTreePure(false), srcIndex};
         }
         valuep(ascending ? index + n : index - n, elemp);
@@ -1344,16 +1344,16 @@ void AstConsArray::spliceValues(uint64_t index, AstNodeExpr* arrayp) {
 }
 AstNodeExpr* AstConsArray::valuep(uint64_t index) const {
     const auto it = m_itemps.find(index);
-    return it == m_itemps.end() ? defaultp() : it->second->valuep();
+    반환 it == m_itemps.end() ? defaultp() : it->second->valuep();
 }
 void AstConsArray::valuep(uint64_t index, AstNodeExpr* newp) {
     const auto it = m_itemps.lower_bound(index);
     UASSERT_OBJ(it == m_itemps.end() || it->first != index, this,
                 "Array value element already given " << index);
     AstConsArrayItem* const itemp = new AstConsArrayItem{fileline(), index, newp};
-    if (it == m_itemps.end()) {
+    만약 (it == m_itemps.end()) {
         addNOp2p(itemp);
-    } else {
+    } 아니면 {
         it->second->addHereThisAsNext(itemp);
     }
     m_itemps.emplace_hint(it, index, itemp);
@@ -1371,32 +1371,32 @@ const char* AstConsDynArray::broken() const {
     // Default only valid if sizep is present
     BROKEN_RTN(defaultp() && !sizep());
     // Items are keyed exactly when sizep is present
-    for (const AstConsDynArrayItem* itemp = itemsp(); itemp;
+    위해 (const AstConsDynArrayItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsDynArrayItem)) {
         BROKEN_RTN(!itemp->keyp() != !sizep());
     }
-    return nullptr;
+    반환 nullptr;
 }
 const char* AstConsStruct::broken() const {
     const AstStructDType* const structp = VN_CAST(dtypep()->skipRefp(), StructDType);
     BROKEN_RTN(!structp || structp->packed());
     // An item for each member, in order
     const AstMemberDType* memberp = structp->membersp();
-    for (const AstConsStructItem* itemp = itemsp(); itemp;
+    위해 (const AstConsStructItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
         BROKEN_RTN(itemp->memberp() != memberp);
         memberp = VN_AS(memberp->nextp(), MemberDType);
     }
     BROKEN_RTN(memberp);
-    return nullptr;
+    반환 nullptr;
 }
 AstNodeExpr* AstConsStruct::memberValuep(const string& name) const {
-    for (AstConsStructItem* itemp = itemsp(); itemp;
+    위해 (AstConsStructItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-        if (itemp->memberp()->name() == name) return itemp->valuep();
+        만약 (itemp->memberp()->name() == name) 반환 itemp->valuep();
     }
     v3fatalSrc("Structure value without member '" << name << "'");
-    return nullptr;
+    반환 nullptr;
 }
 void AstConsStructItem::dump(std::ostream& str) const {
     Super::dump(str);
@@ -1406,26 +1406,26 @@ void AstConsStructItem::dump(std::ostream& str) const {
 void AstConst::cloneRelink() {
     // Preserve parameter-origin metadata across AST clones; the side-table key must be this
     // new AstConst, not the original node.
-    if (const AstConst* const oldp = clonep()) {
+    만약 (const AstConst* const oldp = clonep()) {
         const string name = oldp->origParamName();
         m_num.hasOrigParamName(false);
-        if (!name.empty()) origParamName(name);
+        만약 (!name.empty()) origParamName(name);
     }
     m_num.nodep(this);
 }
 void AstConst::dump(std::ostream& str) const {
     Super::dump(str);
     const string name = origParamName();
-    if (!name.empty()) str << " origParamName=" << name;
+    만약 (!name.empty()) str << " origParamName=" << name;
 }
 void AstConst::dumpJson(std::ostream& str) const {
     const string name = origParamName();
-    if (!name.empty()) dumpJsonStr(str, "origParamName", name);
+    만약 (!name.empty()) dumpJsonStr(str, "origParamName", name);
     dumpJsonGen(str);
 }
 string AstConst::origParamName() const {
-    if (!m_num.hasOrigParamName()) return "";
-    return v3Global.rootp()->astConstOrigParamName(this);
+    만약 (!m_num.hasOrigParamName()) 반환 "";
+    반환 v3Global.rootp()->astConstOrigParamName(this);
 }
 void AstConst::origParamName(const string& name) {
     UASSERT(!name.empty(), "Empty originating parameter name");
@@ -1434,16 +1434,16 @@ void AstConst::origParamName(const string& name) {
 }
 AstConst* AstConst::parseParamLiteral(FileLine* fl, const string& literal) {
     bool success = false;
-    if (literal[0] == '"') {
+    만약 (literal[0] == '"') {
         // This is a string
         const string v = literal.substr(1, literal.find('"', 1) - 1);
-        return new AstConst{fl, AstConst::VerilogStringLiteral{}, v};
-    } else if (literal.find_first_of(".eEpP") != string::npos) {
+        반환 new AstConst{fl, AstConst::VerilogStringLiteral{}, v};
+    } 아니면 만약 (literal.find_first_of(".eEpP") != string::npos) {
         // This may be a real
         const double v = VString::parseDouble(literal, &success);
-        if (success) return new AstConst{fl, AstConst::RealDouble{}, v};
+        만약 (success) 반환 new AstConst{fl, AstConst::RealDouble{}, v};
     }
-    if (!success) {
+    만약 (!success) {
         // This is either an integer or an error
         // We first try to convert it as C literal. If strtol returns
         // 0 this is either an error or 0 was parsed. But in any case
@@ -1452,37 +1452,37 @@ AstConst* AstConst::parseParamLiteral(FileLine* fl, const string& literal) {
         // the string after the number, this is invalid C and we try
         // the Verilog literal parser.
         char* endp;
-        const int v = strtol(literal.c_str(), &endp, 0);
-        if ((v != 0) && (v != 1) && (endp[0] == 0)) {  // C literal
-            return new AstConst{fl, AstConst::Signed32{}, v};
-        } else {  // Try a Verilog literal (fatals if not)
-            return new AstConst{fl, AstConst::StringToParse{}, literal.c_str()};
+        const 정수 v = strtol(literal.c_str(), &endp, 0);
+        만약 ((v != 0) && (v != 1) && (endp[0] == 0)) {  // C literal
+            반환 new AstConst{fl, AstConst::Signed32{}, v};
+        } 아니면 {  // Try a Verilog literal (fatals if not)
+            반환 new AstConst{fl, AstConst::StringToParse{}, literal.c_str()};
         }
     }
-    return nullptr;
+    반환 nullptr;
 }
 bool AstConst::sameValueType(const AstConst* samep) const {
-    if (num().isDouble() != samep->num().isDouble()) return false;
-    if (num().isString() != samep->num().isString()) return false;
+    만약 (num().isDouble() != samep->num().isDouble()) 반환 false;
+    만약 (num().isString() != samep->num().isString()) 반환 false;
     // Constant folding can leave the signedness on the dtype, not the V3Number
-    return num().isOpaque() || (width() == samep->width() && isSigned() == samep->isSigned());
+    반환 num().isOpaque() || (width() == samep->width() && isSigned() == samep->isSigned());
 }
 AstConst::~AstConst() {
     // Only rare constants carry originating parameter-name metadata. For all other AstConst nodes,
     // the V3Number bit keeps this destructor from touching AstNetlist's side table. When the bit
     // is set, erase the entry before this AstConst address can be reused by a different node.
-    if (m_num.hasOrigParamName()) v3Global.rootp()->astConstOrigParamNameErase(this);
+    만약 (m_num.hasOrigParamName()) v3Global.rootp()->astConstOrigParamNameErase(this);
 }
 void AstConstraint::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isExternDef()) str << " [EXTDEF]";
-    if (isExternExplicit())
+    만약 (isExternDef()) str << " [EXTDEF]";
+    만약 (isExternExplicit())
         str << " [PROTOEXP]";
-    else if (isExternProto())
+    아니면 만약 (isExternProto())
         str << " [PROTO]";
-    if (isKwdPure()) str << " [KWDPURE]";
-    if (isStatic()) str << " [STATIC]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    만약 (isKwdPure()) str << " [KWDPURE]";
+    만약 (isStatic()) str << " [STATIC]";
+    만약 (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
 }
 void AstConstraint::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isExternDef);
@@ -1490,13 +1490,13 @@ void AstConstraint::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isExternProto);
     dumpJsonBoolFuncIf(str, isKwdPure);
     dumpJsonBoolFuncIf(str, isStatic);
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    만약 (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonGen(str);
 }
 void AstConstraintExpr::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDisableSoft()) str << " [DISSOFT]";
-    if (isSoft()) str << " [SOFT]";
+    만약 (isDisableSoft()) str << " [DISSOFT]";
+    만약 (isSoft()) str << " [SOFT]";
 }
 void AstConstraintExpr::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDisableSoft);
@@ -1505,17 +1505,17 @@ void AstConstraintExpr::dumpJson(std::ostream& str) const {
 }
 void AstConstraintForeach::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSoft()) str << "[SOFT]";
+    만약 (isSoft()) str << "[SOFT]";
 }
 void AstConstraintForeach::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isSoft);
     dumpJsonGen(str);
 }
-string AstConstraintRef::name() const { return constrp()->name(); }
+string AstConstraintRef::name() const { 반환 constrp()->name(); }
 void AstCover::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCoverSeq()) str << " [COVERSEQ]";
-    if (isSeqEvent()) str << " [SEQEVENT]";
+    만약 (isCoverSeq()) str << " [COVERSEQ]";
+    만약 (isSeqEvent()) str << " [SEQEVENT]";
 }
 void AstCover::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCoverSeq);
@@ -1525,8 +1525,8 @@ void AstCover::dumpJson(std::ostream& str) const {
 void AstCoverBin::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << m_binsType.ascii();
-    if (m_isArray) str << "[]";
-    if (m_isWildcard) str << "[*]";
+    만약 (m_isArray) str << "[]";
+    만약 (m_isWildcard) str << "[*]";
 }
 void AstCoverBin::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1536,7 +1536,7 @@ void AstCoverBin::dumpJson(std::ostream& str) const {
 }
 void AstCoverBinsof::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isNegated()) str << " [NEGATED]";
+    만약 (isNegated()) str << " [NEGATED]";
 }
 void AstCoverBinsof::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1544,15 +1544,15 @@ void AstCoverBinsof::dumpJson(std::ostream& str) const {
 }
 void AstCoverCross::dump(std::ostream& str) const { Super::dump(str); }
 void AstCoverCross::dumpJson(std::ostream& str) const { Super::dumpJson(str); }
-string AstCoverCrossBin::verilogKwd() const { return binsType().ascii(); }
+string AstCoverCrossBin::verilogKwd() const { 반환 binsType().ascii(); }
 string AstCoverCrossDType::cppTemplateArgs() const {
-    return cvtToStr(dimensions()) + ", " + cvtToStr(tuples()) + ", " + cvtToStr(bins()) + ", "
+    반환 cvtToStr(dimensions()) + ", " + cvtToStr(tuples()) + ", " + cvtToStr(bins()) + ", "
            + cvtToStr(autoBins()) + ", " + cvtToStr(binWords());
 }
 void AstCoverCrossDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << cppTemplateArgs() << "]";
-    if (isDynamic()) str << " [DYNAMIC]";
+    만약 (isDynamic()) str << " [DYNAMIC]";
 }
 void AstCoverCrossDType::dumpJson(std::ostream& str) const {
     dumpJsonNumFunc(str, dimensions);
@@ -1578,12 +1578,12 @@ void AstCoverCrossSelect::dumpJson(std::ostream& str) const {
 void AstCoverInc::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (declp()) {
+    만약 (declp()) {
         declp()->dump(str);
-    } else {
+    } 아니면 {
         str << "%E:UNLINKED";
     }
-    if (isDuplicate()) str << " [DUPLICATE]";
+    만약 (isDuplicate()) str << " [DUPLICATE]";
 }
 void AstCoverInc::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDuplicate);
@@ -1592,7 +1592,7 @@ void AstCoverInc::dumpJson(std::ostream& str) const {
 void AstCoverOption::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << m_optType.ascii();
-    if (typeOption()) str << " [TYPEOPT]";
+    만약 (typeOption()) str << " [TYPEOPT]";
 }
 void AstCoverOption::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1601,12 +1601,12 @@ void AstCoverOption::dumpJson(std::ostream& str) const {
 }
 void AstCoverOtherDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!linescov().empty()) str << " lc=" << linescov();
-    if (!fsmVar().empty()) str << " fv=" << fsmVar();
-    if (!fsmFrom().empty()) str << " ff=" << fsmFrom();
-    if (!fsmTo().empty()) str << " ft=" << fsmTo();
-    if (!fsmTag().empty()) str << " fg=" << fsmTag();
-    if (offset()) str << " offset=" << offset();
+    만약 (!linescov().empty()) str << " lc=" << linescov();
+    만약 (!fsmVar().empty()) str << " fv=" << fsmVar();
+    만약 (!fsmFrom().empty()) str << " ff=" << fsmFrom();
+    만약 (!fsmTo().empty()) str << " ft=" << fsmTo();
+    만약 (!fsmTag().empty()) str << " fg=" << fsmTag();
+    만약 (offset()) str << " offset=" << offset();
 }
 void AstCoverOtherDecl::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1619,18 +1619,18 @@ void AstCoverOtherDecl::dumpJson(std::ostream& str) const {
 }
 void AstCoverToggleDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (range().ranged()) str << " range=[" << range().left() << ":" << range().right() << "]";
+    만약 (range().ranged()) str << " range=[" << range().left() << ":" << range().right() << "]";
 }
 void AstCoverToggleDecl::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
-    if (range().ranged()) {
+    만약 (range().ranged()) {
         dumpJsonStr(str, "range",
                     std::to_string(range().left()) + ":" + std::to_string(range().right()));
     }
 }
 void AstCoverTransItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_repType != VTransRepType::NONE) str << " " << m_repType.ascii();
+    만약 (m_repType != VTransRepType::NONE) str << " " << m_repType.ascii();
 }
 void AstCoverTransItem::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1664,7 +1664,7 @@ void AstCvtArrayToArray::dumpJson(std::ostream& str) const {
 }
 void AstDelay::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCycleDelay()) str << " [CYCLE]";
+    만약 (isCycleDelay()) str << " [CYCLE]";
 }
 void AstDelay::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCycleDelay);
@@ -1672,14 +1672,14 @@ void AstDelay::dumpJson(std::ostream& str) const {
 }
 const char* AstDisable::broken() const {
     BROKEN_RTN(!m_targetp && !targetRefp());
-    return nullptr;
+    반환 nullptr;
 }
 void AstDisable::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (targetp()) {
+    만약 (targetp()) {
         targetp()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
@@ -1693,7 +1693,7 @@ void AstDisplay::dumpJson(std::ostream& str) const {
 }
 void AstDistItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isWhole()) str << " [WHOLE]";
+    만약 (isWhole()) str << " [WHOLE]";
 }
 void AstDistItem::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isWhole);
@@ -1701,7 +1701,7 @@ void AstDistItem::dumpJson(std::ostream& str) const {
 }
 void AstDot::dump(std::ostream& str) const {
     Super::dump(str);
-    if (colon()) str << " [::]";
+    만약 (colon()) str << " [::]";
 }
 void AstDot::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, colon);
@@ -1709,7 +1709,7 @@ void AstDot::dumpJson(std::ostream& str) const {
 }
 void AstDpiExport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (cname() != "" && cname() != name()) str << " [c=" << cname() << "]";
+    만약 (cname() != "" && cname() != name()) str << " [c=" << cname() << "]";
 }
 void AstDpiExport::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "cname", cname());
@@ -1728,7 +1728,7 @@ void AstDynArrayDType::dumpSmall(std::ostream& str) const {
     str << "$[]";
 }
 string AstDynArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[]";
+    반환 subDTypep()->prettyDTypeName(full) + "$[]";
 }
 void AstElabDisplay::dump(std::ostream& str) const {
     Super::dump(str);
@@ -1744,16 +1744,16 @@ void AstEmptyQueueDType::dumpSmall(std::ostream& str) const {
 }
 const char* AstEnumDType::broken() const {
     BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-    return nullptr;
+    반환 nullptr;
 }
 void AstEnumDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " enum";
-    if (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
+    만약 (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
 }
 void AstEnumDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "enum", true);
-    if (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
+    만약 (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
     dumpJsonGen(str);
 }
 void AstEnumDType::dumpSmall(std::ostream& str) const {
@@ -1762,20 +1762,20 @@ void AstEnumDType::dumpSmall(std::ostream& str) const {
 }
 string AstEnumDType::prettyDTypeName(bool full) const {
     // Without the items, as other simulators, which would make for long names
-    return dtypeNameKwd("enum", full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
+    반환 dtypeNameKwd("enum", full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
 }
 const char* AstEnumItemRef::broken() const {
-    if (v3Global.assertDTypesResolved()) BROKEN_RTN(!itemp());
-    return nullptr;
+    만약 (v3Global.assertDTypesResolved()) BROKEN_RTN(!itemp());
+    반환 nullptr;
 }
 void AstEnumItemRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (!dotted().empty()) str << " .=" << dotted();
+    만약 (containsGenBlock()) str << " [GENBLK]";
+    만약 (!dotted().empty()) str << " .=" << dotted();
     str << " -> ";
-    if (itemp()) {
+    만약 (itemp()) {
         itemp()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
@@ -1785,21 +1785,21 @@ void AstEnumItemRef::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstNodeBiop* AstEq::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstEqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstEqD{fl, lhsp, rhsp};
-    } else {
-        return new AstEq{fl, lhsp, rhsp};
+    만약 (lhsp->isString() && rhsp->isString()) {
+        반환 new AstEqN{fl, lhsp, rhsp};
+    } 아니면 만약 (lhsp->isDouble() && rhsp->isDouble()) {
+        반환 new AstEqD{fl, lhsp, rhsp};
+    } 아니면 {
+        반환 new AstEq{fl, lhsp, rhsp};
     }
 }
 AstNodeBiop* AstEqWild::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstEqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstEqD{fl, lhsp, rhsp};
-    } else {
-        return new AstEqWild{fl, lhsp, rhsp};
+    만약 (lhsp->isString() && rhsp->isString()) {
+        반환 new AstEqN{fl, lhsp, rhsp};
+    } 아니면 만약 (lhsp->isDouble() && rhsp->isDouble()) {
+        반환 new AstEqD{fl, lhsp, rhsp};
+    } 아니면 {
+        반환 new AstEqWild{fl, lhsp, rhsp};
     }
 }
 AstExecGraph::AstExecGraph(FileLine* fileline, const string& name,
@@ -1811,17 +1811,17 @@ AstExecGraph::AstExecGraph(FileLine* fileline, const string& name,
 }
 const char* AstExecGraph::broken() const {
     BROKEN_RTN(!m_depGraphp);
-    for (const V3GraphVertex& vtx : m_depGraphp->vertices()) {
+    위해 (const V3GraphVertex& vtx : m_depGraphp->vertices()) {
         const ExecMTask* const mtaskp = vtx.as<ExecMTask>();
         const AstCFunc* const funcp = mtaskp->funcp();
         BROKEN_RTN(!funcp || !funcp->brokeExists());
     }
-    return nullptr;
+    반환 nullptr;
 }
 AstExecGraph::~AstExecGraph() { VL_DO_DANGLING(delete m_depGraphp, m_depGraphp); }
 void AstExprStmt::dump(std::ostream& str) const {
     Super::dump(str);
-    if (hasResult()) str << " [HASRESULT]";
+    만약 (hasResult()) str << " [HASRESULT]";
 }
 void AstExprStmt::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "hasResult", hasResult());
@@ -1829,7 +1829,7 @@ void AstExprStmt::dumpJson(std::ostream& str) const {
 }
 void AstFireEvent::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDelayed()) str << " [DLY]";
+    만약 (isDelayed()) str << " [DLY]";
 }
 void AstFireEvent::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDelayed);
@@ -1838,7 +1838,7 @@ void AstFireEvent::dumpJson(std::ostream& str) const {
 void AstFork::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << joinType() << "]";
-    if (immediateStart()) str << " [IMMEDIATE]";
+    만약 (immediateStart()) str << " [IMMEDIATE]";
 }
 void AstFork::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "joinType", joinType().ascii());
@@ -1849,12 +1849,12 @@ string AstGenBlock::dtypeNameInnerScope(const string& outer) const {
     // A named generate block is a scope (IEEE 1800-2023 27.6), so the types of distinct blocks,
     // as of the iterations of a loop, are named apart; an unnamed block, as around the 'if' of an
     // 'else if', is not a scope
-    return name().empty() ? outer : outer + dtypeNameIdent(name()) + ".";
+    반환 name().empty() ? outer : outer + dtypeNameIdent(name()) + ".";
 }
 void AstGenBlock::dump(std::ostream& str) const {
     Super::dump(str);
-    if (implied()) str << " [IMPLIED]";
-    if (unnamed()) str << " [UNNAMED]";
+    만약 (implied()) str << " [IMPLIED]";
+    만약 (unnamed()) str << " [UNNAMED]";
 }
 void AstGenBlock::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, implied);
@@ -1864,9 +1864,9 @@ void AstGenBlock::dumpJson(std::ostream& str) const {
 void AstIf::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << verilogKwd();
-    if (priorityPragma()) str << " [PRI]";
-    if (uniquePragma()) str << " [UNQ]";
-    if (unique0Pragma()) str << " [UNQ0]";
+    만약 (priorityPragma()) str << " [PRI]";
+    만약 (uniquePragma()) str << " [UNQ]";
+    만약 (unique0Pragma()) str << " [UNQ0]";
 }
 void AstIf::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "kwd", verilogKwd());
@@ -1877,8 +1877,8 @@ void AstIf::dumpJson(std::ostream& str) const {
 }
 string AstIface::dtypeName(bool full) const {
     const string& frozen = full ? m_dtypeNameFull : m_dtypeNameShort;
-    if (!frozen.empty()) return frozen;
-    return dtypeNameIdent(origName()) + dtypeNameParams(this, full);
+    만약 (!frozen.empty()) 반환 frozen;
+    반환 dtypeNameIdent(origName()) + dtypeNameParams(this, full);
 }
 void AstIface::dtypeNameFreeze() {
     m_dtypeNameFull = dtypeName(true);
@@ -1886,14 +1886,14 @@ void AstIface::dtypeNameFreeze() {
 }
 void AstIface::dump(std::ostream& str) const {
     Super::dump(str);
-    if (hasVirtualRef()) str << " [VIRTREF]";
-    if (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
-    if (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
+    만약 (hasVirtualRef()) str << " [VIRTREF]";
+    만약 (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
+    만약 (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
 }
 void AstIface::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "hasVirtualRef", hasVirtualRef());
-    if (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
-    if (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
+    만약 (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
+    만약 (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
     dumpJsonGen(str);
 }
 void AstIfaceGenericDType::dumpSmall(std::ostream& str) const {
@@ -1902,17 +1902,17 @@ void AstIfaceGenericDType::dumpSmall(std::ostream& str) const {
 }
 void AstIfaceRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isVirtual()) str << " [VIRT]";
-    if (cellName() != "") str << " cell=" << cellName();
-    if (ifaceName() != "") str << " if=" << ifaceName();
-    if (modportName() != "") str << " mp=" << modportName();
-    if (cellp()) {
+    만약 (isVirtual()) str << " [VIRT]";
+    만약 (cellName() != "") str << " cell=" << cellName();
+    만약 (ifaceName() != "") str << " if=" << ifaceName();
+    만약 (modportName() != "") str << " mp=" << modportName();
+    만약 (cellp()) {
         str << " c-> ";
         cellp()->dump(str);
-    } else if (ifacep()) {
+    } 아니면 만약 (ifacep()) {
         str << " i-> ";
         ifacep()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
@@ -1929,24 +1929,24 @@ void AstIfaceRefDType::dumpSmall(std::ostream& str) const {
 }
 // We need these here, because the classes they point to aren't defined when we declare the class
 AstIface* AstIfaceRefDType::ifaceViaCellp() const {
-    return ((m_cellp && m_cellp->modp()) ? VN_AS(m_cellp->modp(), Iface) : m_ifacep);
+    반환 ((m_cellp && m_cellp->modp()) ? VN_AS(m_cellp->modp(), Iface) : m_ifacep);
 }
 string AstIfaceRefDType::prettyDTypeName(bool full) const {
     string result = isVirtual() ? "virtual interface " : "interface ";
     // Until V3Param specializes the interface for the parameters, just name the interface
     const AstIface* const ifacep = paramsp() ? nullptr : ifaceViaCellp();
-    if (ifacep) {
+    만약 (ifacep) {
         result += ifacep->dtypeName(full);
-    } else {
+    } 아니면 {
         result += prettyName(ifaceName());
     }
-    if (!modportName().empty()) result += "." + prettyName(modportName());
-    return result;
+    만약 (!modportName().empty()) result += "." + prettyName(modportName());
+    반환 result;
 }
 void AstImplication::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isOverlapped()) str << " [overlapped]";
-    if (isFollowedBy()) str << " [followed-by]";
+    만약 (isOverlapped()) str << " [overlapped]";
+    만약 (isFollowedBy()) str << " [followed-by]";
 }
 void AstImplication::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1958,48 +1958,48 @@ AstNodeExpr* AstInsideRange::newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* l
     const bool lhsUnbounded = VN_IS(lhsp, Unbounded);
     const bool rhsUnbounded = VN_IS(rhsp, Unbounded);
 
-    if (lhsUnbounded && rhsUnbounded) {
+    만약 (lhsUnbounded && rhsUnbounded) {
         fileline()->v3warn(INSIDETRUE,
                            "Unbounded on both sides of inside range [$:$] is always true");
         VL_DO_DANGLING(exprp->deleteTree(), exprp);
         VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
         VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-        return new AstConst{fileline(), AstConst::BitTrue{}};
+        반환 new AstConst{fileline(), AstConst::BitTrue{}};
     }
 
-    if (lhsUnbounded) {
+    만약 (lhsUnbounded) {
         // [$:N] - only check expr <= rhs
         // Use exprp directly (not cloned) so ExprStmt side effects are preserved
         VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
         AstNodeExpr* const bp = new AstLte{fileline(), exprp, rhsp};
         bp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, true);
-        return bp;
-    } else if (rhsUnbounded) {
+        반환 bp;
+    } 아니면 만약 (rhsUnbounded) {
         // [N:$] - only check expr >= lhs
         VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
         AstNodeExpr* const ap = new AstGte{fileline(), exprp, lhsp};
         ap->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, true);
-        return ap;
+        반환 ap;
     }
 
     // Normal case: [N:M] - check expr >= lhs && expr <= rhs
     AstNodeExpr* const ap = new AstGte{fileline(), exprp, lhsp};
     AstNodeExpr* lteLhsp;
-    if (const AstExprStmt* const exprStmt = VN_CAST(exprp, ExprStmt)) {
+    만약 (const AstExprStmt* const exprStmt = VN_CAST(exprp, ExprStmt)) {
         lteLhsp = exprStmt->resultp()->cloneTreePure(true);
-    } else {
+    } 아니면 {
         lteLhsp = exprp->cloneTreePure(true);
     }
     AstNodeExpr* const bp = new AstLte{fileline(), lteLhsp, rhsp};
     ap->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, true);
     bp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, true);
-    return new AstLogAnd{fileline(), ap, bp};
+    반환 new AstLogAnd{fileline(), ap, bp};
 }
 void AstIntfRef::dump(std::ostream& str) const {  // LCOV_EXCL_START
     Super::dump(str);
-    if (parentName() != "") str << " parent=" << parentName();
-    if (baseName() != "") str << " base=" << baseName();
-    if (modportName() != "") str << " mp=" << modportName();
+    만약 (parentName() != "") str << " parent=" << parentName();
+    만약 (baseName() != "") str << " base=" << baseName();
+    만약 (modportName() != "") str << " mp=" << modportName();
 }  // LCOV_EXCL_STOP
 void AstIntfRef::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, parentName);
@@ -2008,32 +2008,32 @@ void AstIntfRef::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 bool AstJumpBlock::getPurityRecurse() const {
-    for (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (!stmtp->isPure()) return false;
+    위해 (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        만약 (!stmtp->isPure()) 반환 false;
     }
-    return true;
+    반환 true;
 }
 bool AstJumpBlock::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 const char* AstJumpGo::broken() const {
     BROKEN_RTN(!blockp()->brokeExistsAbove());
-    return nullptr;
+    반환 nullptr;
 }
 void AstJumpGo::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (blockp()) {
+    만약 (blockp()) {
         blockp()->dump(str);
-    } else {
+    } 아니면 {
         str << "%E:UNLINKED";
     }
 }
 void AstJumpGo::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstLambdaArgRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (index()) str << "[INDEX]";
+    만약 (index()) str << "[INDEX]";
 }
 void AstLambdaArgRef::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "index", index());
@@ -2041,7 +2041,7 @@ void AstLambdaArgRef::dumpJson(std::ostream& str) const {
 }
 void AstLogNot::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fromProperty()) str << " [fromProperty]";
+    만약 (fromProperty()) str << " [fromProperty]";
 }
 void AstLogNot::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, fromProperty);
@@ -2049,9 +2049,9 @@ void AstLogNot::dumpJson(std::ostream& str) const {
 }
 void AstLoop::dump(std::ostream& str) const {
     Super::dump(str);
-    if (unroll().isSetTrue())
+    만약 (unroll().isSetTrue())
         str << " [unrollfull]";
-    else if (unroll().isSetFalse())
+    아니면 만약 (unroll().isSetFalse())
         str << " [unrollnone]";
 }
 void AstLoop::dumpJson(std::ostream& str) const {
@@ -2063,7 +2063,7 @@ void AstLoop::dumpJson(std::ostream& str) const {
 }
 const char* AstLoopTest::broken() const {
     BROKEN_RTN(!loopp()->brokeExistsAbove());
-    return nullptr;
+    반환 nullptr;
 }
 void AstLoopTest::dump(std::ostream& str) const {
     Super::dump(str);
@@ -2075,32 +2075,32 @@ uint32_t AstMatchMasked::fold(const V3Number& lhs, AstVar* matchVarp) {
     V3Number numMask{matchVarp, lhs.width(), 0};
     V3Number numBits{matchVarp, lhs.width(), 0};
     V3Number numAnd{matchVarp, lhs.width(), 0};
-    const int width = lhs.width();
-    const int entryWidth = VL_WORDS_I(width) * VL_EDATASIZE;
+    const 정수 width = lhs.width();
+    const 정수 entryWidth = VL_WORDS_I(width) * VL_EDATASIZE;
     uint32_t i = 0;
-    while (true) {
-        const int lsb = 2 * i * entryWidth;
-        const int msb = lsb + width - 1;
+    동안 (true) {
+        const 정수 lsb = 2 * i * entryWidth;
+        const 정수 msb = lsb + width - 1;
         numMask.opSel(numTable, msb, lsb);
         numBits.opSel(numTable, msb + entryWidth, lsb + entryWidth);
         numAnd.opAnd(numMask, lhs);
-        if (numAnd.isCaseEq(numBits)) break;
+        만약 (numAnd.isCaseEq(numBits)) break;
         ++i;
     }
-    return i;
+    반환 i;
 }
 void AstMemberDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConstrainedRand()) str << " [CSRAND]";
-    if (rand().isRandomizable()) str << " [" << rand() << "]";
-    if (lsb()) str << " lsb=" << lsb();
-    if (name() != "") str << " name=" << name();
-    if (tag() != "") str << " tag=" << tag();
+    만약 (isConstrainedRand()) str << " [CSRAND]";
+    만약 (rand().isRandomizable()) str << " [" << rand() << "]";
+    만약 (lsb()) str << " lsb=" << lsb();
+    만약 (name() != "") str << " name=" << name();
+    만약 (tag() != "") str << " tag=" << tag();
 }
 void AstMemberDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConstrainedRand);
-    if (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
-    if (lsb() != 0) dumpJsonStr(str, "lsb", std::to_string(lsb()));
+    만약 (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
+    만약 (lsb() != 0) dumpJsonStr(str, "lsb", std::to_string(lsb()));
     dumpJsonStrFunc(str, name);
     dumpJsonStrFunc(str, tag);
     dumpJsonGen(str);
@@ -2111,15 +2111,15 @@ void AstMemberDType::dumpSmall(std::ostream& str) const {
 }
 AstNodeUOrStructDType* AstMemberDType::getChildStructp() {
     AstNodeDType* subdtp = skipRefp();
-    while (AstNodeArrayDType* const asubdtp = VN_CAST(subdtp, NodeArrayDType)) {
+    동안 (AstNodeArrayDType* const asubdtp = VN_CAST(subdtp, NodeArrayDType)) {
         subdtp = asubdtp->subDTypep();
     }
     // It's possible that `subdtp` is still a ref type, so skip it.
-    return VN_CAST(subdtp->skipRefp(), NodeUOrStructDType);  // Maybe nullptr
+    반환 VN_CAST(subdtp->skipRefp(), NodeUOrStructDType);  // Maybe nullptr
 }
 string AstMemberDType::prettyDTypeName(bool full) const {
     // Named as the member's type, as for $typename of a member (IEEE 1800-2023 20.6.1)
-    return subDTypep()->prettyDTypeName(full);
+    반환 subDTypep()->prettyDTypeName(full);
 }
 AstMemberSel::AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp)
     : ASTGEN_SUPER_MemberSel(fl)
@@ -2131,9 +2131,9 @@ AstMemberSel::AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp)
 void AstMemberSel::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << access().arrow() << " ";
-    if (varp()) {
+    만약 (varp()) {
         varp()->dump(str);
-    } else {
+    } 아니면 {
         str << "%E:UNLINKED";
     }
 }
@@ -2143,26 +2143,26 @@ void AstMemberSel::dumpJson(std::ostream& str) const {
 }
 bool AstMemberSel::sameNode(const AstNode* samep) const {
     const AstMemberSel* const sp = VN_DBG_AS(samep, MemberSel);
-    return sp && access() == sp->access() && fromp()->isSame(sp->fromp()) && name() == sp->name()
+    반환 sp && access() == sp->access() && fromp()->isSame(sp->fromp()) && name() == sp->name()
            && (varp() == sp->varp() || (varp() && sp->varp() && varp()->sameNode(sp->varp())));
 }
 void AstModportClockingRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (clockingp()) {
+    만약 (clockingp()) {
         str << " -> ";
         clockingp()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
 void AstModportFTaskRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isExport()) str << " EXPORT";
-    if (isImport()) str << " IMPORT";
-    if (ftaskp()) {
+    만약 (isExport()) str << " EXPORT";
+    만약 (isImport()) str << " IMPORT";
+    만약 (ftaskp()) {
         str << " -> ";
         ftaskp()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
@@ -2173,11 +2173,11 @@ void AstModportFTaskRef::dumpJson(std::ostream& str) const {
 }
 void AstModportVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction().isAny()) str << " " << direction();
-    if (varp()) {
+    만약 (direction().isAny()) str << " " << direction();
+    만약 (varp()) {
         str << " -> ";
         varp()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
@@ -2187,9 +2187,9 @@ void AstModportVarRef::dumpJson(std::ostream& str) const {
 }
 void AstModule::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isChecker()) str << " [CHECKER]";
-    if (isProgram()) str << " [PROGRAM]";
-    if (hasGenericIface()) str << " [HASGENERICIFACE]";
+    만약 (isChecker()) str << " [CHECKER]";
+    만약 (isProgram()) str << " [PROGRAM]";
+    만약 (hasGenericIface()) str << " [HASGENERICIFACE]";
 }
 void AstModule::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isChecker);
@@ -2199,7 +2199,7 @@ void AstModule::dumpJson(std::ostream& str) const {
 }
 void AstMonitorOff::dump(std::ostream& str) const {
     Super::dump(str);
-    if (off()) str << " [OFF]";
+    만약 (off()) str << " [OFF]";
 }
 void AstMonitorOff::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, off);
@@ -2207,19 +2207,19 @@ void AstMonitorOff::dumpJson(std::ostream& str) const {
 }
 void AstNBACommitQueueDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (partial()) str << " [PARTIAL]";
+    만약 (partial()) str << " [PARTIAL]";
 }
 void AstNBACommitQueueDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, partial);
     dumpJsonGen(str);
 }
 AstNodeBiop* AstNeq::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstNeqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstNeqD{fl, lhsp, rhsp};
-    } else {
-        return new AstNeq{fl, lhsp, rhsp};
+    만약 (lhsp->isString() && rhsp->isString()) {
+        반환 new AstNeqN{fl, lhsp, rhsp};
+    } 아니면 만약 (lhsp->isDouble() && rhsp->isDouble()) {
+        반환 new AstNeqD{fl, lhsp, rhsp};
+    } 아니면 {
+        반환 new AstNeq{fl, lhsp, rhsp};
     }
 }
 AstNetlist::AstNetlist()
@@ -2239,11 +2239,11 @@ AstNetlist::AstNetlist()
     addModulesp(m_constPoolPkgp);
 }
 void AstNetlist::addEvalStats(const std::string& phase) {
-    if (!v3Global.opt.stats()) return;
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    만약 (!v3Global.opt.stats()) 반환;
+    위해 (정수 i = 0; i < VEval::_ENUM_END; ++i) {
         VEval eval{i};
         AstCFunc* const funcp = m_evalFuncps[i];
-        if (!funcp) continue;
+        만약 (!funcp) continue;
         const uint32_t nodes = funcp->nodeCount();
         const uint32_t instr = V3InstrCount::count(funcp, false);
         V3Stats::addStat("Size of eval, nodes - '" + eval.tag() + "', " + phase, nodes);
@@ -2251,10 +2251,10 @@ void AstNetlist::addEvalStats(const std::string& phase) {
     }
 }
 string AstNetlist::astConstOrigParamName(const AstConst* nodep) const {
-    if (!nodep->num().hasOrigParamName()) return "";
+    만약 (!nodep->num().hasOrigParamName()) 반환 "";
     const auto it = m_constOrigParamNames.find(nodep);
     UASSERT_OBJ(it != m_constOrigParamNames.end(), nodep, "Missing originating parameter name");
-    return it->second;
+    반환 it->second;
 }
 void AstNetlist::astConstOrigParamName(const AstConst* nodep, const string& name) {
     UASSERT(!name.empty(), "Empty originating parameter name");
@@ -2264,10 +2264,10 @@ void AstNetlist::astConstOrigParamNameErase(const AstConst* nodep) {
     m_constOrigParamNames.erase(nodep);
 }
 const char* AstNetlist::broken() const {
-    for (const AstVar* const varp : m_deferredParamVarps) {
+    위해 (const AstVar* const varp : m_deferredParamVarps) {
         BROKEN_RTN(!varp || !varp->brokeExists());
     }
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    위해 (정수 i = 0; i < VEval::_ENUM_END; ++i) {
         const AstCFunc* const funcp = m_evalFuncps[i];
         const AstCFunc* const dumpp = m_dumpTriggersFuncps[i];
         BROKEN_RTN(funcp && !funcp->brokeExists());
@@ -2276,17 +2276,17 @@ const char* AstNetlist::broken() const {
         BROKEN_RTN(funcp && VEval{i}.hasTriggers() && !dumpp);
         BROKEN_RTN(dumpp && !VEval{i}.hasTriggers());
     }
-    return nullptr;
+    반환 nullptr;
 }
 const AstNodeModule* AstNetlist::containingModule(const AstNode* nodep) {
-    if (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) return modp;
+    만약 (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) 반환 modp;
     const auto it = m_containingModules.find(nodep);
-    if (it != m_containingModules.end()) return it->second;
+    만약 (it != m_containingModules.end()) 반환 it->second;
     // Only true parents are followed.
     AstNode* const abovep = nodep->aboveLoopp();
     const AstNodeModule* const modp = abovep ? containingModule(abovep) : nullptr;
     m_containingModules[nodep] = modp;
-    return modp;
+    반환 modp;
 }
 void AstNetlist::createTopScope(AstScope* scopep) {
     UASSERT(scopep, "Must not be nullptr");
@@ -2308,17 +2308,17 @@ void AstNetlist::deleteContents() {
     m_containingModules.clear();
     m_evalFuncps.fill(nullptr);
     m_dumpTriggersFuncps.fill(nullptr);
-    if (op1p()) op1p()->unlinkFrBackWithNext()->deleteTree();
-    if (op2p()) op2p()->unlinkFrBackWithNext()->deleteTree();
-    if (op3p()) op3p()->unlinkFrBackWithNext()->deleteTree();
-    if (op4p()) op4p()->unlinkFrBackWithNext()->deleteTree();
+    만약 (op1p()) op1p()->unlinkFrBackWithNext()->deleteTree();
+    만약 (op2p()) op2p()->unlinkFrBackWithNext()->deleteTree();
+    만약 (op3p()) op3p()->unlinkFrBackWithNext()->deleteTree();
+    만약 (op4p()) op4p()->unlinkFrBackWithNext()->deleteTree();
 #undef VN_DELETE_ONE
 }
 void AstNetlist::dump(std::ostream& str) const {
     Super::dump(str);
-    if (timescaleSpecified()) str << " [TIMESCALES]";
+    만약 (timescaleSpecified()) str << " [TIMESCALES]";
     str << " [" << timeunit() << "/" << timeprecision() << "]";
-    if (resolvedTopModuleName() != "") str << " top=" << resolvedTopModuleName();
+    만약 (resolvedTopModuleName() != "") str << " top=" << resolvedTopModuleName();
 }
 void AstNetlist::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "timescaleSpecified", timescaleSpecified());
@@ -2330,7 +2330,7 @@ void AstNetlist::dumpJson(std::ostream& str) const {
 AstCFunc* AstNetlist::dumpTriggersFuncp(VEval eval) {
     UASSERT(eval.hasTriggers(), "Region has no triggers to dump: " << eval.ascii());
     evalFuncp(eval);
-    return m_dumpTriggersFuncps[eval];
+    반환 m_dumpTriggersFuncps[eval];
 }
 AstCFunc* AstNetlist::evalFuncp(VEval eval) {
     const auto newEvalFunc = [this](const std::string& name, bool slow) {
@@ -2345,55 +2345,55 @@ AstCFunc* AstNetlist::evalFuncp(VEval eval) {
         funcp->entryPoint(true);
         funcp->keepIfEmpty(true);
         scopeTopp->addBlocksp(funcp);
-        return funcp;
+        반환 funcp;
     };
-    if (m_evalFuncps[eval]) return m_evalFuncps[eval];
+    만약 (m_evalFuncps[eval]) 반환 m_evalFuncps[eval];
     // Create all entry points at once, in order, as the runtime calls every one, even if empty
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    위해 (정수 i = 0; i < VEval::_ENUM_END; ++i) {
         const VEval ieval{i};
         AstCFunc* const funcp = newEvalFunc(ieval.funcName(), ieval.slow());
         m_evalFuncps[ieval] = funcp;
         // Only the iterated functions report whether they did any work
-        if (ieval.isIterated()) funcp->rtnType("bool");
+        만약 (ieval.isIterated()) funcp->rtnType("bool");
         // Only a region with a trigger vector has anything to dump
-        if (ieval.hasTriggers()) {
+        만약 (ieval.hasTriggers()) {
             m_dumpTriggersFuncps[ieval] = newEvalFunc(ieval.dumpTriggersFuncName(), true);
         }
     }
-    return m_evalFuncps[eval];
+    반환 m_evalFuncps[eval];
 }
 AstFuncRef* AstNetlist::stdPackageProcessSelfp(FileLine* flp) const {
     UASSERT(v3Global.rootp()->stdPackageProcessp(), "'std' should be imported");
     AstFunc* selfp = nullptr;
-    for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+    위해 (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
          itemp = itemp->nextp()) {
-        if (itemp->name() == "self") selfp = VN_AS(itemp, Func);
+        만약 (itemp->name() == "self") selfp = VN_AS(itemp, Func);
     }
     UASSERT(selfp, "'std::process::self' should be found");
     AstFuncRef* const processSelfp = new AstFuncRef{flp, selfp};
     processSelfp->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-    return processSelfp;
+    반환 processSelfp;
 }
 AstVarScope* AstNetlist::stlFirstIterationp() {
-    if (!m_stlFirstIterationp) {
+    만약 (!m_stlFirstIterationp) {
         m_stlFirstIterationp = topScopep()->createTemp("__VstlFirstIteration", 1);
     }
     AstVarScope* const vscp = m_stlFirstIterationp;
-    return vscp;
+    반환 vscp;
 }
 void AstNetlist::timeprecisionMerge(FileLine*, const VTimescale& value) {
     const VTimescale prec = v3Global.opt.timeComputePrec(value);
-    if (prec.isNone() || prec == m_timeprecision) {
-    } else if (m_timeprecision.isNone()) {
+    만약 (prec.isNone() || prec == m_timeprecision) {
+    } 아니면 만약 (m_timeprecision.isNone()) {
         m_timeprecision = prec;
-    } else if (prec < m_timeprecision) {
+    } 아니면 만약 (prec < m_timeprecision) {
         m_timeprecision = prec;
     }
 }
 void AstNew::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isImplicit()) str << " [IMPLICIT]";
-    if (isScoped()) str << " [SCOPED]";
+    만약 (isImplicit()) str << " [IMPLICIT]";
+    만약 (isScoped()) str << " [SCOPED]";
 }
 void AstNew::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isImplicit);
@@ -2402,7 +2402,7 @@ void AstNew::dumpJson(std::ostream& str) const {
 }
 void AstNodeArrayDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCompound()) str << " [COMPOUND]";
+    만약 (isCompound()) str << " [COMPOUND]";
     str << " " << declRange();
 }
 void AstNodeArrayDType::dumpJson(std::ostream& str) const {
@@ -2412,29 +2412,29 @@ void AstNodeArrayDType::dumpJson(std::ostream& str) const {
 }
 void AstNodeArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
-    if (auto* const adtypep = VN_CAST(this, UnpackArrayDType)) {
+    만약 (auto* const adtypep = VN_CAST(this, UnpackArrayDType)) {
         // uc = packed compound object, u = unpacked POD
         str << (adtypep->isCompound() ? "uc" : "u");
-    } else {
+    } 아니면 {
         str << "p";
     }
     str << declRange();
 }
 void AstNodeAssign::dump(std::ostream& str) const {
     Super::dump(str);
-    if (timingControlp()) str << " [TIMING=" << nodeAddr(timingControlp()) << "]";
+    만약 (timingControlp()) str << " [TIMING=" << nodeAddr(timingControlp()) << "]";
 }
 const char* AstNodeBiop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 bool AstNodeBiop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 void AstNodeBlock::dump(std::ostream& str) const {
     Super::dump(str);
-    if (unnamed()) str << " [UNNAMED]";
+    만약 (unnamed()) str << " [UNNAMED]";
 }
 void AstNodeBlock::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, unnamed);
@@ -2442,24 +2442,24 @@ void AstNodeBlock::dumpJson(std::ostream& str) const {
 }
 void AstNodeCCall::dump(std::ostream& str) const {
     Super::dump(str);
-    if (superReference()) str << " [SUPERREF]";
-    if (funcp()) {
+    만약 (superReference()) str << " [SUPERREF]";
+    만약 (funcp()) {
         str << " " << funcp()->name() << " => ";
         funcp()->dump(str);
-    } else {
+    } 아니면 {
         str << " " << name();
     }
 }
 void AstNodeCCall::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, superReference);
-    if (funcp()) dumpJsonStr(str, "funcName", funcp()->name());
+    만약 (funcp()) dumpJsonStr(str, "funcName", funcp()->name());
     dumpJsonStr(str, "argTypes", argTypes());
     dumpJsonGen(str);
 }
-bool AstNodeCCall::isPure() { return funcp()->dpiPure(); }
+bool AstNodeCCall::isPure() { 반환 funcp()->dpiPure(); }
 void AstNodeCons::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_knownConstantTree) str << " [CONSTTREE]";
+    만약 (m_knownConstantTree) str << " [CONSTTREE]";
 }
 void AstNodeCons::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "knownConstantTree", m_knownConstantTree);
@@ -2467,7 +2467,7 @@ void AstNodeCons::dumpJson(std::ostream& str) const {
 }
 void AstNodeConsItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_knownConstantTree) str << " [CONSTTREE]";
+    만약 (m_knownConstantTree) str << " [CONSTTREE]";
 }
 void AstNodeConsItem::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "knownConstantTree", m_knownConstantTree);
@@ -2475,22 +2475,22 @@ void AstNodeConsItem::dumpJson(std::ostream& str) const {
 }
 void AstNodeCoverDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (localBinNum()) str << " lbin=" << localBinNum();
-    if (perInstance()) str << " [PERINST]";
-    if (!page().empty()) str << " page=" << page();
-    if (!hier().empty()) str << " hier=" << hier();
-    if (this->dataDeclNullp()) {
+    만약 (localBinNum()) str << " lbin=" << localBinNum();
+    만약 (perInstance()) str << " [PERINST]";
+    만약 (!page().empty()) str << " page=" << page();
+    만약 (!hier().empty()) str << " hier=" << hier();
+    만약 (this->dataDeclNullp()) {
         static bool s_recursing = false;
         str << " -> ";
-        if (s_recursing) {
+        만약 (s_recursing) {
             str << "%ErrorRECURSIVE";
-        } else {
+        } 아니면 {
             s_recursing = true;
             this->dataDeclNullp()->dump(str);
             s_recursing = false;
         }
-    } else {
-        if (binNum()) str << " bin" << std::dec << binNum();
+    } 아니면 {
+        만약 (binNum()) str << " bin" << std::dec << binNum();
     }
 }
 void AstNodeCoverDecl::dumpJson(std::ostream& str) const {
@@ -2505,8 +2505,8 @@ void AstNodeCoverOrAssert::dump(std::ostream& str) const {
     Super::dump(str);
     str << " ["s + this->directive().ascii() + "]";
     str << " ["s + this->userType().ascii() + "]";
-    if (immediate()) str << " [IMMEDIATE]";
-    if (senFromAlways()) str << " [SENALW]";
+    만약 (immediate()) str << " [IMMEDIATE]";
+    만약 (senFromAlways()) str << " [SENALW]";
 }
 void AstNodeCoverOrAssert::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "directive", this->directive().ascii());
@@ -2517,21 +2517,21 @@ void AstNodeCoverOrAssert::dumpJson(std::ostream& str) const {
 }
 uint32_t AstNodeDType::arrayUnpackedElements() const {
     uint32_t entries = 1;
-    for (const AstNodeDType* dtypep = this; dtypep;) {
+    위해 (const AstNodeDType* dtypep = this; dtypep;) {
         dtypep = dtypep->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
             entries *= adtypep->elementsConst();
             dtypep = adtypep->subDTypep();
-        } else {
+        } 아니면 {
             // AstBasicDType - nothing below, 1
             break;
         }
     }
-    return entries;
+    반환 entries;
 }
 string AstNodeDType::cType(const string& name, bool /*forFunc*/, bool isRef, bool packed) const {
     const CTypeRecursed info = cTypeRecurse(false, packed);
-    return info.render(name, isRef);
+    반환 info.render(name, isRef);
 }
 AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packed) const {
     // Legacy compound argument currently just passed through and unused
@@ -2539,62 +2539,62 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
     CTypeRecursed info;
 
     const AstNodeDType* const dtypep = this->skipRefp();
-    if (const auto* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
+    만약 (const auto* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed key = adtypep->keyDTypep()->cTypeRecurse(true, false);
         const CTypeRecursed val = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlAssocArray<" + key.m_type + ", " + val.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, CDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = adtypep->name();
-    } else if (const auto* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlAssocArray<::std::string, " + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlQueue<" + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, QueueDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, QueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlQueue<" + sub.m_type;
         // + 1 below as VlQueue uses 0 to mean unlimited, 1 to mean size() max is 1
-        if (adtypep->boundp()) info.m_type += ", " + cvtToStr(adtypep->boundConst() + 1);
+        만약 (adtypep->boundp()) info.m_type += ", " + cvtToStr(adtypep->boundConst() + 1);
         info.m_type += ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CoverCrossDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, CoverCrossDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = adtypep->isDynamic()
                           ? "::VlCoverCrossDyn*"
                           : "::VlCoverCrossT<" + adtypep->cppTemplateArgs() + ">*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CoverpointDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, CoverpointDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = "::VlCoverpointT<" + cvtToStr(adtypep->hitBound()) + ">*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, SampleQueueDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, SampleQueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlSampleQueue<" + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const string className = EmitCUtil::prefixNameProtect(adtypep);
         info.m_type = adtypep->rawPointer() ? className + "*" : "::VlClassRef<" + className + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, IfaceRefDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, IfaceRefDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = EmitCUtil::prefixNameProtect(adtypep->ifaceViaCellp()) + "*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
-        if (adtypep->isCompound()) compound = true;
+        만약 (adtypep->isCompound()) compound = true;
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(compound, false);
         info.m_type = "::VlUnpacked<" + sub.m_type;
         info.m_type += ", " + cvtToStr(adtypep->declRange().elements());
         info.m_type += ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, NBACommitQueueDType)) {
+    } 아니면 만약 (const auto* const adtypep = VN_CAST(dtypep, NBACommitQueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         compound = true;
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(compound, false);
         AstNodeDType* eDTypep = adtypep->subDTypep();
         unsigned rank = 0;
-        while (AstUnpackArrayDType* const uaDTypep = VN_CAST(eDTypep, UnpackArrayDType)) {
+        동안 (AstUnpackArrayDType* const uaDTypep = VN_CAST(eDTypep, UnpackArrayDType)) {
             eDTypep = uaDTypep->subDTypep()->skipRefp();
             ++rank;
         }
@@ -2604,60 +2604,60 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
         info.m_type += ", " + eDTypep->cTypeRecurse(compound, false).m_type;
         info.m_type += ", " + std::to_string(rank);
         info.m_type += ">";
-    } else if (packed && (VN_IS(dtypep, PackArrayDType))) {
+    } 아니면 만약 (packed && (VN_IS(dtypep, PackArrayDType))) {
         const AstPackArrayDType* const adtypep = VN_CAST(dtypep, PackArrayDType);
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(false, true);
         info.m_type = std::move(sub.m_type);
         info.m_dims = "[" + cvtToStr(adtypep->elementsConst()) + "]" + sub.m_dims;
-    } else if (VN_IS(dtypep, NodeUOrStructDType)
+    } 아니면 만약 (VN_IS(dtypep, NodeUOrStructDType)
                && (!VN_AS(dtypep, NodeUOrStructDType)->packed() || packed)) {
         const AstNodeUOrStructDType* const sdtypep = VN_AS(dtypep, NodeUOrStructDType);
         UASSERT_OBJ(!packed || sdtypep->packed(), this,
                     "Unsupported type for packed struct or union");
         info.m_type = EmitCUtil::prefixNameProtect(sdtypep);
-    } else if (const AstBasicDType* const bdtypep = dtypep->basicp()) {
+    } 아니면 만약 (const AstBasicDType* const bdtypep = dtypep->basicp()) {
         // We don't print msb()/lsb() as multidim packed would require recursion,
         // and may confuse users as C++ data is stored always with bit 0 used
         const string bitvec = (!bdtypep->isOpaque() && !v3Global.opt.protectIds())
                                   ? "/*" + cvtToStr(dtypep->width() - 1) + ":0*/"
                                   : "";
-        if (bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
+        만약 (bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
             info.m_type = "const char*";
-        } else if (bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
+        } 아니면 만약 (bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
             info.m_type = "const ::VerilatedScope*";
-        } else if (bdtypep->keyword().isDouble()) {
+        } 아니면 만약 (bdtypep->keyword().isDouble()) {
             info.m_type = "double";
-        } else if (bdtypep->keyword().isString()) {
+        } 아니면 만약 (bdtypep->keyword().isString()) {
             info.m_type = "::std::string";
-        } else if (bdtypep->keyword().isMTaskState()) {
+        } 아니면 만약 (bdtypep->keyword().isMTaskState()) {
             info.m_type = "::VlMTaskVertex";
-        } else if (bdtypep->isDelayScheduler()) {
+        } 아니면 만약 (bdtypep->isDelayScheduler()) {
             info.m_type = "::VlDelayScheduler";
-        } else if (bdtypep->isTriggerScheduler()) {
+        } 아니면 만약 (bdtypep->isTriggerScheduler()) {
             info.m_type = "::VlTriggerScheduler";
-        } else if (bdtypep->isDynamicTriggerScheduler()) {
+        } 아니면 만약 (bdtypep->isDynamicTriggerScheduler()) {
             info.m_type = "::VlDynamicTriggerScheduler";
-        } else if (bdtypep->isForkSync()) {
+        } 아니면 만약 (bdtypep->isForkSync()) {
             info.m_type = "::VlForkSync";
-        } else if (bdtypep->isProcessRef()) {
+        } 아니면 만약 (bdtypep->isProcessRef()) {
             info.m_type = "::VlProcessRef";
-        } else if (bdtypep->isRandomGenerator()) {
+        } 아니면 만약 (bdtypep->isRandomGenerator()) {
             info.m_type = "::VlRandomizer";
-        } else if (bdtypep->isStdRandomGenerator()) {
+        } 아니면 만약 (bdtypep->isStdRandomGenerator()) {
             info.m_type = "::VlStdRandomizer";
-        } else if (bdtypep->isCovergroupInstHandle()) {
+        } 아니면 만약 (bdtypep->isCovergroupInstHandle()) {
             info.m_type = "::VlCovInstHandle";
-        } else if (bdtypep->isEvent()) {
+        } 아니면 만약 (bdtypep->isEvent()) {
             info.m_type = v3Global.assignsEvents() ? "::VlAssignableEvent" : "::VlEvent";
-        } else if (dtypep->widthMin() <= 8) {  // Handle unpacked arrays; not bdtypep->width
+        } 아니면 만약 (dtypep->widthMin() <= 8) {  // Handle unpacked arrays; not bdtypep->width
             info.m_type = "::CData" + bitvec;
-        } else if (dtypep->widthMin() <= 16) {
+        } 아니면 만약 (dtypep->widthMin() <= 16) {
             info.m_type = "::SData" + bitvec;
-        } else if (dtypep->widthMin() <= VL_IDATASIZE) {
+        } 아니면 만약 (dtypep->widthMin() <= VL_IDATASIZE) {
             info.m_type = "::IData" + bitvec;
-        } else if (dtypep->isQuad()) {
+        } 아니면 만약 (dtypep->isQuad()) {
             info.m_type = "::QData" + bitvec;
-        } else if (dtypep->isWide()) {
+        } 아니면 만약 (dtypep->isWide()) {
             info.m_type = "::VlWide<" + cvtToStr(dtypep->widthWords()) + ">" + bitvec;
         }
         // CData, SData, IData, QData or VlWide are packed type.
@@ -2667,169 +2667,169 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
                                 || VString::startsWith(info.m_type, "::QData")
                                 || VString::startsWith(info.m_type, "::VlWide");
         UASSERT_OBJ(!packed || packedType, this, "Unsupported type for packed struct or union");
-    } else {
+    } 아니면 {
         v3fatalSrc("Unknown data type in var type emitter: " << dtypep->prettyName());
     }
 
     UASSERT_OBJ(!compound || info.m_dims.empty(), this, "Declaring C array inside compound type");
 
-    return info;
+    반환 info;
 }
 bool AstNodeDType::containsString() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->containsString();
+    만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        반환 adtypep->subDTypep()->containsString();
     }
-    if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    만약 (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        위해 (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (itemp->subDTypep()->containsString()) return true;
+            만약 (itemp->subDTypep()->containsString()) 반환 true;
         }
-        return false;
+        반환 false;
     }
-    return dtypep->isString();
+    반환 dtypep->isString();
 }
 bool AstNodeDType::containsUnpackedStruct() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->containsUnpackedStruct();
+    만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        반환 adtypep->subDTypep()->containsUnpackedStruct();
     }
     const AstStructDType* const sdtypep = VN_CAST(dtypep, StructDType);
-    return sdtypep && !sdtypep->packed();
+    반환 sdtypep && !sdtypep->packed();
 }
 std::pair<uint32_t, uint32_t> AstNodeDType::dimensions(bool includeBasic) const {
     // How many array dimensions (packed,unpacked) does this Var have?
     uint32_t packed = 0;
     uint32_t unpacked = 0;
-    for (const AstNodeDType* dtypep = this; dtypep;) {
+    위해 (const AstNodeDType* dtypep = this; dtypep;) {
         dtypep = dtypep->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-        if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
-            if (VN_IS(adtypep, PackArrayDType)) {
+        만약 (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+            만약 (VN_IS(adtypep, PackArrayDType)) {
                 ++packed;
-            } else {
+            } 아니면 {
                 ++unpacked;
             }
             dtypep = adtypep->subDTypep();
             continue;
-        } else if (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)
+        } 아니면 만약 (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)
                    || VN_IS(dtypep, AssocArrayDType) || VN_IS(dtypep, WildcardArrayDType)) {
             unpacked++;
             dtypep = dtypep->subDTypep();
             continue;
-        } else if (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
-            if (includeBasic && (adtypep->isRanged() || adtypep->isString())) packed++;
-        } else if (VN_IS(dtypep, StructDType)) {
+        } 아니면 만약 (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
+            만약 (includeBasic && (adtypep->isRanged() || adtypep->isString())) packed++;
+        } 아니면 만약 (VN_IS(dtypep, StructDType)) {
             packed++;
         }
         break;
     }
-    return std::make_pair(packed, unpacked);
+    반환 std::make_pair(packed, unpacked);
 }
 void AstNodeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (generic()) str << " [GENERIC]";
-    if (const AstNodeDType* const dtp = virtRefDTypep()) {
+    만약 (generic()) str << " [GENERIC]";
+    만약 (const AstNodeDType* const dtp = virtRefDTypep()) {
         str << " refdt=" << nodeAddr(dtp);
         dtp->dumpSmall(str);
     }
 }
 void AstNodeDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, generic);
-    if (isSigned() && !isDouble()) dumpJsonBoolIf(str, "signed", true);
+    만약 (isSigned() && !isDouble()) dumpJsonBoolIf(str, "signed", true);
     dumpJsonGen(str);
 }
 void AstNodeDType::dumpSmall(std::ostream& str) const VL_MT_STABLE {
     str << "(" << (generic() ? "G/" : "") << ((isSigned() && !isDouble()) ? "s" : "")
         << (isNosign() ? "n" : "") << (isDouble() ? "d" : "") << (isString() ? "str" : "");
-    if (!isDouble() && !isString()) str << "w" << (widthSized() ? "" : "u") << width();
-    if (!widthSized()) str << "/" << widthMin();
+    만약 (!isDouble() && !isString()) str << "w" << (widthSized() ? "" : "u") << width();
+    만약 (!widthSized()) str << "/" << widthMin();
     str << ")";
 }
 const AstNodeDType* AstNodeDType::elemDTypep(bool skipRef) const {
     const AstNodeDType* dtypep = this;
-    while (true) {
-        if (skipRef) dtypep = dtypep->skipRefp();
-        if (const AstBracketArrayDType* const adtypep = VN_CAST(dtypep, BracketArrayDType)) {
+    동안 (true) {
+        만약 (skipRef) dtypep = dtypep->skipRefp();
+        만약 (const AstBracketArrayDType* const adtypep = VN_CAST(dtypep, BracketArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
+        } 아니면 만약 (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
+        } 아니면 만약 (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        } 아니면 만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else {
+        } 아니면 {
             break;
         }
     }
-    return dtypep;
+    반환 dtypep;
 }
-bool AstNodeDType::isFourstate() const { return basicp() && basicp()->isFourstate(); }
+bool AstNodeDType::isFourstate() const { 반환 basicp() && basicp()->isFourstate(); }
 bool AstNodeDType::isLiteralType() const VL_MT_STABLE {
-    if (const auto* const dtypep = VN_CAST(skipRefp(), BasicDType)) {
-        return dtypep->keyword().isLiteralType();
-    } else if (const auto* const dtypep = VN_CAST(skipRefp(), UnpackArrayDType)) {
+    만약 (const auto* const dtypep = VN_CAST(skipRefp(), BasicDType)) {
+        반환 dtypep->keyword().isLiteralType();
+    } 아니면 만약 (const auto* const dtypep = VN_CAST(skipRefp(), UnpackArrayDType)) {
         // basicp() is null for e.g. an array of unpacked structs, which is not literal
         const AstBasicDType* const basicp = dtypep->basicp();
-        return basicp && basicp->isLiteralType();
-    } else if (const auto* const dtypep = VN_CAST(skipRefp(), StructDType)) {
+        반환 basicp && basicp->isLiteralType();
+    } 아니면 만약 (const auto* const dtypep = VN_CAST(skipRefp(), StructDType)) {
         // Currently all structs are packed, later this can be expanded to
         // 'forall members _.isLiteralType()'
-        return dtypep->packed();
-    } else {
-        return false;
+        반환 dtypep->packed();
+    } 아니면 {
+        반환 false;
     }
 }
 bool AstNodeDType::isNonPackedArray() const {
-    return VN_IS(this, UnpackArrayDType) || VN_IS(this, DynArrayDType) || VN_IS(this, QueueDType)
+    반환 VN_IS(this, UnpackArrayDType) || VN_IS(this, DynArrayDType) || VN_IS(this, QueueDType)
            || VN_IS(this, AssocArrayDType);
 }
 bool AstNodeDType::isStreamableFixedAggregate() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->isStreamableFixedAggregate();
-    } else if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (sdtypep->packed()) return true;
-        if (!VN_IS(sdtypep, StructDType)) return false;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        반환 adtypep->subDTypep()->isStreamableFixedAggregate();
+    } 아니면 만약 (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        만약 (sdtypep->packed()) 반환 true;
+        만약 (!VN_IS(sdtypep, StructDType)) 반환 false;
+        위해 (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->dtypep()->isStreamableFixedAggregate()) return false;
+            만약 (!itemp->dtypep()->isStreamableFixedAggregate()) 반환 false;
         }
-        return true;
+        반환 true;
     }
-    return dtypep->isIntegralOrPacked() || dtypep->isDouble();
+    반환 dtypep->isIntegralOrPacked() || dtypep->isDouble();
 }
 bool AstNodeDType::isTriviallyConstructible() const VL_MT_STABLE {
     // Mirrors the cases in cTypeRecurse
     const AstNodeDType* const dtypep = skipRefp();
     // Containers
-    if (VN_IS(dtypep, AssocArrayDType)) return false;
-    if (VN_IS(dtypep, CDType)) return false;
-    if (VN_IS(dtypep, WildcardArrayDType)) return false;
-    if (VN_IS(dtypep, DynArrayDType)) return false;
-    if (VN_IS(dtypep, QueueDType)) return false;
-    if (VN_IS(dtypep, SampleQueueDType)) return false;
-    if (VN_IS(dtypep, NBACommitQueueDType)) return false;
+    만약 (VN_IS(dtypep, AssocArrayDType)) 반환 false;
+    만약 (VN_IS(dtypep, CDType)) 반환 false;
+    만약 (VN_IS(dtypep, WildcardArrayDType)) 반환 false;
+    만약 (VN_IS(dtypep, DynArrayDType)) 반환 false;
+    만약 (VN_IS(dtypep, QueueDType)) 반환 false;
+    만약 (VN_IS(dtypep, SampleQueueDType)) 반환 false;
+    만약 (VN_IS(dtypep, NBACommitQueueDType)) 반환 false;
     // Pointers
-    if (VN_IS(dtypep, CoverCrossDType)) return true;
-    if (VN_IS(dtypep, CoverpointDType)) return true;
-    if (VN_IS(dtypep, IfaceRefDType)) return true;
+    만약 (VN_IS(dtypep, CoverCrossDType)) 반환 true;
+    만약 (VN_IS(dtypep, CoverpointDType)) 반환 true;
+    만약 (VN_IS(dtypep, IfaceRefDType)) 반환 true;
     // Others
-    if (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {  //
-        return adtypep->rawPointer();
+    만약 (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {  //
+        반환 adtypep->rawPointer();
     }
-    if (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->isTriviallyConstructible();
+    만약 (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        반환 adtypep->subDTypep()->isTriviallyConstructible();
     }
-    if (const auto* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (sdtypep->packed()) return true;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    만약 (const auto* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        만약 (sdtypep->packed()) 반환 true;
+        위해 (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->dtypep()->isTriviallyConstructible()) return false;
+            만약 (!itemp->dtypep()->isTriviallyConstructible()) 반환 false;
         }
-        return true;
+        반환 true;
     }
-    if (const AstBasicDType* const bdtypep = dtypep->basicp()) {
-        return !bdtypep->isOpaque() || bdtypep->isDouble()
+    만약 (const AstBasicDType* const bdtypep = dtypep->basicp()) {
+        반환 !bdtypep->isOpaque() || bdtypep->isDouble()
                || bdtypep->keyword() == VBasicDTypeKwd::CHARPTR
                || bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR;
     }
@@ -2839,9 +2839,9 @@ bool AstNodeDType::similarDType(const AstNodeDType* samep) const {
     const AstNodeDType* nodep = this;
     nodep = nodep->skipRefToNonRefp();
     samep = samep->skipRefToNonRefp();
-    if (nodep == samep) return true;
-    if (nodep->type() != samep->type()) return false;
-    return nodep->similarDTypeNode(samep);
+    만약 (nodep == samep) 반환 true;
+    만약 (nodep->type() != samep->type()) 반환 false;
+    반환 nodep->similarDTypeNode(samep);
 }
 const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
                                                bool assertOn) const VL_MT_STABLE {
@@ -2852,21 +2852,21 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
     // which is the common case and should be fast.
     {
         const AstNodeDType* nodep = this;
-        for (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
-            if (VN_IS(nodep, MemberDType)  //
+        위해 (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
+            만약 (VN_IS(nodep, MemberDType)  //
                 || VN_IS(nodep, ParamTypeDType)  //
                 || VN_IS(nodep, RefDType)  //
                 || VN_IS(nodep, RequireDType)  //
                 || (VN_IS(nodep, ConstDType) && skipConst)  //
                 || (VN_IS(nodep, EnumDType) && skipEnum)) {
-                if (const AstNodeDType* subp = nodep->subDTypep()) {
+                만약 (const AstNodeDType* subp = nodep->subDTypep()) {
                     nodep = subp;
                     continue;
                 }
-                if (assertOn) nodep->v3fatalSrc(nodep->prettyTypeName() << " not linked to type");
-                return nullptr;
+                만약 (assertOn) nodep->v3fatalSrc(nodep->prettyTypeName() << " not linked to type");
+                반환 nullptr;
             }
-            return nodep;
+            반환 nodep;
         }
     }
 
@@ -2879,13 +2879,13 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
         bool isCyclic = false;
         std::ostringstream ss;
         const AstNodeDType* nodep = this;
-        for (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
-            if (!visited.emplace(nodep).second) {
+        위해 (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
+            만약 (!visited.emplace(nodep).second) {
                 isCyclic = true;
                 break;
             }
             // Skip internal scaffolding nodes (e.g. REQUIREDTYPE) with no user-visible name
-            if (depth < MAX_CHAIN_DISPLAY && !nodep->name().empty()) {
+            만약 (depth < MAX_CHAIN_DISPLAY && !nodep->name().empty()) {
                 FileLine* const flp = nodep->fileline();
                 ss << '\n'
                    << flp->warnOther() << "... Type chain: " << nodep->prettyTypeName() << '\n'
@@ -2894,13 +2894,13 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
             nodep = nodep->subDTypep();
         }
         std::ostringstream& os = V3Error::v3errorStr();
-        if (isCyclic) {
+        만약 (isCyclic) {
             os << "Recursive type definition";
-        } else {
+        } 아니면 {
             os << "Type definition over " << MAX_TYPEDEF_DEPTH << " types deep";
         }
         os << ss.str();
-        if (visited.size() > MAX_CHAIN_DISPLAY) {
+        만약 (visited.size() > MAX_CHAIN_DISPLAY) {
             os << '\n'
                << this->fileline()->warnMore() << "... and "
                << (visited.size() - MAX_CHAIN_DISPLAY) << " more";
@@ -2909,159 +2909,159 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
     }
 
     // Not resolved
-    return nullptr;
+    반환 nullptr;
 }
 string AstNodeDType::vlEnumPackedAgg() const {
     // Packed struct/union element, so VPI can select its members
     const AstNodeDType* dtypep = skipRefp();
-    while (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+    동안 (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
         dtypep = adtypep->subDTypep()->skipRefp();
     }
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
-    if (!sdtypep || !sdtypep->packed()) return "";
-    return VN_IS(sdtypep, UnionDType) ? "|VLVF_PACKED_AGG|VLVF_PACKED_UNION" : "|VLVF_PACKED_AGG";
+    만약 (!sdtypep || !sdtypep->packed()) 반환 "";
+    반환 VN_IS(sdtypep, UnionDType) ? "|VLVF_PACKED_AGG|VLVF_PACKED_UNION" : "|VLVF_PACKED_AGG";
 }
 string AstNodeDType::vlEnumType() const {
     string arg;
     const AstNodeDType* dtypep = skipRefp();
-    while (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+    동안 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         dtypep = adtypep->subDTypep()->skipRefp();
     }
     const AstBasicDType* const bdtypep = dtypep->basicp();
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
     const bool strtype = bdtypep && bdtypep->keyword() == VBasicDTypeKwd::STRING;
-    if (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
-        return "VLVT_PTR";
-    } else if (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
-        return "VLVT_PTR";
-    } else if (strtype) {
+    만약 (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
+        반환 "VLVT_PTR";
+    } 아니면 만약 (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
+        반환 "VLVT_PTR";
+    } 아니면 만약 (strtype) {
         arg += "VLVT_STRING";
-    } else if (isDouble()) {
+    } 아니면 만약 (isDouble()) {
         arg += "VLVT_REAL";
-    } else if (sdtypep && !sdtypep->packed()) {
+    } 아니면 만약 (sdtypep && !sdtypep->packed()) {
         arg += VN_IS(sdtypep, StructDType) ? "VLVT_STRUCT" : "VLVT_UNION";
-    } else if (dtypep->isCompound() || (bdtypep && bdtypep->isEvent())) {
+    } 아니면 만약 (dtypep->isCompound() || (bdtypep && bdtypep->isEvent())) {
         // Queue, class handle, event etc.: widthMin() is not their storage size
-        return "";
-    } else if (widthMin() <= 8) {
+        반환 "";
+    } 아니면 만약 (widthMin() <= 8) {
         arg += "VLVT_UINT8";
-    } else if (widthMin() <= 16) {
+    } 아니면 만약 (widthMin() <= 16) {
         arg += "VLVT_UINT16";
-    } else if (widthMin() <= VL_IDATASIZE) {
+    } 아니면 만약 (widthMin() <= VL_IDATASIZE) {
         arg += "VLVT_UINT32";
-    } else if (isQuad()) {
+    } 아니면 만약 (isQuad()) {
         arg += "VLVT_UINT64";
-    } else if (isWide()) {
+    } 아니면 만약 (isWide()) {
         arg += "VLVT_WDATA";
     }
     // else return "VLVT_UNKNOWN"
-    return arg;
+    반환 arg;
 }
-int AstNodeDType::widthPow2() const {
+정수 AstNodeDType::widthPow2() const {
     // I.e.  width 30 returns 32, width 32 returns 32.
     // cppcheck-suppress shadowFunction
     const uint32_t width = this->width();
-    for (int p2 = 30; p2 >= 0; p2--) {
-        if (width > (1UL << p2)) return (1UL << (p2 + 1));
+    위해 (정수 p2 = 30; p2 >= 0; p2--) {
+        만약 (width > (1UL << p2)) 반환 (1UL << (p2 + 1));
     }
-    return 1;
+    반환 1;
 }
-int AstNodeDType::widthStream() const {
+정수 AstNodeDType::widthStream() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->widthStream() * adtypep->elementsConst();
-    } else if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (!VN_IS(sdtypep, StructDType) || sdtypep->packed()) return width();
-        int width = 0;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    만약 (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        반환 adtypep->subDTypep()->widthStream() * adtypep->elementsConst();
+    } 아니면 만약 (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        만약 (!VN_IS(sdtypep, StructDType) || sdtypep->packed()) 반환 width();
+        정수 width = 0;
+        위해 (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             width += itemp->dtypep()->widthStream();
         }
-        return width;
+        반환 width;
     }
-    return dtypep->width();
+    반환 dtypep->width();
 }
 // What is the base variable (or const) this dereferences?
 AstNode* AstNodeExpr::baseFromp(bool overMembers) {
     AstNode* nodep = this;
-    while (nodep) {
-        if (VN_IS(nodep, ArraySel)) {
+    동안 (nodep) {
+        만약 (VN_IS(nodep, ArraySel)) {
             nodep = VN_AS(nodep, ArraySel)->fromp();
             continue;
-        } else if (VN_IS(nodep, Sel)) {
+        } 아니면 만약 (VN_IS(nodep, Sel)) {
             nodep = VN_AS(nodep, Sel)->fromp();
             continue;
-        } else if (VN_IS(nodep, AssocSel)) {
+        } 아니면 만약 (VN_IS(nodep, AssocSel)) {
             nodep = VN_AS(nodep, AssocSel)->fromp();
             continue;
-        } else if (VN_IS(nodep, WildcardSel)) {
+        } 아니면 만약 (VN_IS(nodep, WildcardSel)) {
             nodep = VN_AS(nodep, WildcardSel)->fromp();
             continue;
-        } else if (VN_IS(nodep, CMethodHard)) {
+        } 아니면 만약 (VN_IS(nodep, CMethodHard)) {
             nodep = VN_AS(nodep, CMethodHard)->fromp();
             continue;
-        } else if (overMembers && VN_IS(nodep, MemberSel)) {
+        } 아니면 만약 (overMembers && VN_IS(nodep, MemberSel)) {
             nodep = VN_AS(nodep, MemberSel)->fromp();
             continue;
-        } else if (overMembers && VN_IS(nodep, StructSel)) {
+        } 아니면 만약 (overMembers && VN_IS(nodep, StructSel)) {
             nodep = VN_AS(nodep, StructSel)->fromp();
             continue;
         }
         // AstNodePreSel stashes the associated variable under an ATTROF
         // of VAttrType::VAR_BASE so it isn't constified
-        else if (VN_IS(nodep, AttrOf)) {
+        아니면 만약 (VN_IS(nodep, AttrOf)) {
             nodep = VN_AS(nodep, AttrOf)->fromp();
             continue;
-        } else if (VN_IS(nodep, NodePreSel)) {
-            if (VN_AS(nodep, NodePreSel)->attrp()) {
+        } 아니면 만약 (VN_IS(nodep, NodePreSel)) {
+            만약 (VN_AS(nodep, NodePreSel)->attrp()) {
                 nodep = VN_AS(nodep, NodePreSel)->attrp();
-            } else {
+            } 아니면 {
                 nodep = VN_AS(nodep, NodePreSel)->fromp();
             }
             continue;
-        } else {
+        } 아니면 {
             break;
         }
     }
-    return nodep;
+    반환 nodep;
 }
 void AstNodeExpr::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeExpr::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 VAccess AstNodeExpr::getVAccessRecurse() const {
     const AstNodeExpr* const exprp = getVAccessTargetRecurse();
-    if (!exprp) return VAccess::READ;  // nothing found so, it is rvalue
-    if (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
-        return varrefp->access();
+    만약 (!exprp) 반환 VAccess::READ;  // nothing found so, it is rvalue
+    만약 (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
+        반환 varrefp->access();
     }
-    if (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-        return memberSelp->access();
+    만약 (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
+        반환 memberSelp->access();
     }
-    if (const AstSelBit* const selpBitp = VN_CAST(exprp, SelBit)) return selpBitp->access();
+    만약 (const AstSelBit* const selpBitp = VN_CAST(exprp, SelBit)) 반환 selpBitp->access();
     exprp->v3fatalSrc("Unexpected expression type");
     // Maybe getVAccessTargetRecurse() has been updated and this function didn't?
 }
 const AstNodeExpr* AstNodeExpr::getVAccessTargetRecurse() const {
     // Given an expression, recurse to find the expression which decides about VAccess etc.
-    if (VN_IS(this, NodeVarRef)) return this;
-    if (VN_IS(this, MemberSel)) return this;
-    if (VN_IS(this, SelBit)) return this;
-    if (const AstNodeSel* const anodep = VN_CAST(this, NodeSel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    만약 (VN_IS(this, NodeVarRef)) 반환 this;
+    만약 (VN_IS(this, MemberSel)) 반환 this;
+    만약 (VN_IS(this, SelBit)) 반환 this;
+    만약 (const AstNodeSel* const anodep = VN_CAST(this, NodeSel)) {
+        반환 anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstSel* const anodep = VN_CAST(this, Sel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    만약 (const AstSel* const anodep = VN_CAST(this, Sel)) {
+        반환 anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstArraySel* const anodep = VN_CAST(this, ArraySel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    만약 (const AstArraySel* const anodep = VN_CAST(this, ArraySel)) {
+        반환 anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstStructSel* const anodep = VN_CAST(this, StructSel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    만약 (const AstStructSel* const anodep = VN_CAST(this, StructSel)) {
+        반환 anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstConcat* const anodep = VN_CAST(this, Concat)) {
+    만약 (const AstConcat* const anodep = VN_CAST(this, Concat)) {
         // Enough to check only one side, as both must be same otherwise malformed
-        return anodep->lhsp()->getVAccessTargetRecurse();
+        반환 anodep->lhsp()->getVAccessTargetRecurse();
     }
-    if (const AstCMethodHard* const anodep = VN_CAST(this, CMethodHard)) {
+    만약 (const AstCMethodHard* const anodep = VN_CAST(this, CMethodHard)) {
         switch (anodep->method()) {
         case VCMethod::ARRAY_AT:
         case VCMethod::ARRAY_AT_BACK:
@@ -3069,11 +3069,11 @@ const AstNodeExpr* AstNodeExpr::getVAccessTargetRecurse() const {
         case VCMethod::DYN_AT_WRITE_APPEND:
         case VCMethod::DYN_AT_WRITE_APPEND_BACK:
             // Used for things like Queue/AssocArray/DynArray
-            return anodep->fromp()->getVAccessTargetRecurse();
+            반환 anodep->fromp()->getVAccessTargetRecurse();
         default: break;
         }
     }
-    return nullptr;  // nothing found
+    반환 nullptr;  // nothing found
 }
 bool AstNodeExpr::isConstantTree() const {
     // Check the tree is composed only of Const, NodeCons and NodeConsItem. Record it on each
@@ -3082,7 +3082,7 @@ bool AstNodeExpr::isConstantTree() const {
         bool m_constant = true;  // Tree checked so far is constant
 
         void iterateCached(AstNode* nodep, bool& knownr) {
-            if (!m_constant || knownr) return;
+            만약 (!m_constant || knownr) 반환;
             iterateChildrenConst(nodep);
             knownr = m_constant;
         }
@@ -3099,37 +3099,37 @@ bool AstNodeExpr::isConstantTree() const {
         explicit IsConstantTreeVisitor(AstNode* nodep) { iterateConst(nodep); }
 
     public:
-        static bool apply(AstNodeExpr* nodep) { return IsConstantTreeVisitor{nodep}.m_constant; }
+        static bool apply(AstNodeExpr* nodep) { 반환 IsConstantTreeVisitor{nodep}.m_constant; }
     };
-    return IsConstantTreeVisitor::apply(const_cast<AstNodeExpr*>(this));
+    반환 IsConstantTreeVisitor::apply(const_cast<AstNodeExpr*>(this));
 }
 const char* AstNodeFTask::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 void AstNodeFTask::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classMethod()) str << " [METHOD]";
-    if (dpiExport()) str << " [DPIX]";
-    if (dpiImport()) str << " [DPII]";
-    if (dpiOpenChild()) str << " [DPIOPENCHILD]";
-    if (dpiOpenParent()) str << " [DPIOPENPARENT]";
-    if (isExternDef()) str << " [EXTDEF]";
-    if (isExternProto()) str << " [EXTPROTO]";
-    if (isVirtual()) str << " [VIRT]";
-    if (keepAlive()) str << " [KALIVE]";
-    if (prototype()) str << " [PROTOTYPE]";
-    if (pureVirtual()) str << " [PUREVIRTUAL]";
-    if (recursive()) str << " [RECURSIVE]";
-    if (taskPublic()) str << " [PUBLIC]";
-    if (isStatic()) str << " [STATIC]";
-    if (verilogTask()) str << " [VTASK]";
-    if (verilogFunction()) str << " [VFUNC]";
-    if (needProcess()) str << " [NPRC]";
-    if (!ifacePortName().empty()) str << " ifp=" << ifacePortName();
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
-    if ((dpiImport() || dpiExport()) && cname() != name()) str << " [c=" << cname() << "]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    만약 (classMethod()) str << " [METHOD]";
+    만약 (dpiExport()) str << " [DPIX]";
+    만약 (dpiImport()) str << " [DPII]";
+    만약 (dpiOpenChild()) str << " [DPIOPENCHILD]";
+    만약 (dpiOpenParent()) str << " [DPIOPENPARENT]";
+    만약 (isExternDef()) str << " [EXTDEF]";
+    만약 (isExternProto()) str << " [EXTPROTO]";
+    만약 (isVirtual()) str << " [VIRT]";
+    만약 (keepAlive()) str << " [KALIVE]";
+    만약 (prototype()) str << " [PROTOTYPE]";
+    만약 (pureVirtual()) str << " [PUREVIRTUAL]";
+    만약 (recursive()) str << " [RECURSIVE]";
+    만약 (taskPublic()) str << " [PUBLIC]";
+    만약 (isStatic()) str << " [STATIC]";
+    만약 (verilogTask()) str << " [VTASK]";
+    만약 (verilogFunction()) str << " [VFUNC]";
+    만약 (needProcess()) str << " [NPRC]";
+    만약 (!ifacePortName().empty()) str << " ifp=" << ifacePortName();
+    만약 (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    만약 ((dpiImport() || dpiExport()) && cname() != name()) str << " [c=" << cname() << "]";
+    만약 (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
 }
 void AstNodeFTask::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "method", classMethod());
@@ -3147,51 +3147,51 @@ void AstNodeFTask::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, taskPublic);
     dumpJsonStr(str, "ifacePortName", ifacePortName());
     dumpJsonStr(str, "lifetime", lifetime().ascii());
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    만약 (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonStrFunc(str, cname);
     dumpJsonGen(str);
 }
 bool AstNodeFTask::getPurityRecurse() const {
-    if (this->dpiImport()) return this->dpiPure();
+    만약 (this->dpiImport()) 반환 this->dpiPure();
     // Check the list of statements if it contains any impure statement
     // or any write reference to a variable that isn't an automatic function local.
-    for (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-            if (varp->isInoutOrRef()) return false;
+    위해 (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        만약 (const AstVar* const varp = VN_CAST(stmtp, Var)) {
+            만약 (varp->isInoutOrRef()) 반환 false;
         }
-        if (!stmtp->isPure()) return false;
-        if (stmtp->exists([](AstNode* const nodep) {
-                if (AstNodeVarRef* const varrefp = VN_CAST(nodep, VarRef)) {
-                    return (!varrefp->varp()->isFuncLocal()
+        만약 (!stmtp->isPure()) 반환 false;
+        만약 (stmtp->exists([](AstNode* const nodep) {
+                만약 (AstNodeVarRef* const varrefp = VN_CAST(nodep, VarRef)) {
+                    반환 (!varrefp->varp()->isFuncLocal()
                             || varrefp->varp()->lifetime().isStatic())
                            && varrefp->access().isWriteOrRW();
                 }
-                return !nodep->isPure();
+                반환 !nodep->isPure();
             }))
-            return false;
+            반환 false;
     }
-    return true;
+    반환 true;
 }
 bool AstNodeFTask::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 const char* AstNodeFTaskRef::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 void AstNodeFTaskRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (pli()) str << " [PLI]";
-    if (superReference()) str << " [SUPERREF]";
+    만약 (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    만약 (containsGenBlock()) str << " [GENBLK]";
+    만약 (pli()) str << " [PLI]";
+    만약 (superReference()) str << " [SUPERREF]";
     str << " -> ";
-    if (dotted() != "") str << ".=" << dotted() << " ";
-    if (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
-    if (taskp()) {
+    만약 (dotted() != "") str << ".=" << dotted() << " ";
+    만약 (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
+    만약 (taskp()) {
         taskp()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
@@ -3207,35 +3207,35 @@ bool AstNodeFTaskRef::getPurityRecurse() const {
     // cppcheck-suppress shadowFunction
     AstNodeFTask* const taskp = this->taskp();
     // Unlinked yet, so treat as impure
-    if (!taskp) return false;
+    만약 (!taskp) 반환 false;
     // First compute the purity of arguments
-    for (AstArg* argp = this->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-        if (!argp->isPure()) return false;
+    위해 (AstArg* argp = this->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+        만약 (!argp->isPure()) 반환 false;
     }
-    return taskp->isPure();
+    반환 taskp->isPure();
 }
-bool AstNodeFTaskRef::isGateOptimizable() const { return m_taskp && m_taskp->isGateOptimizable(); }
+bool AstNodeFTaskRef::isGateOptimizable() const { 반환 m_taskp && m_taskp->isGateOptimizable(); }
 bool AstNodeFTaskRef::isPure() {
-    if (!this->taskp()) {
+    만약 (!this->taskp()) {
         // The task isn't linked yet, so it's assumed that it is impure, but the value shouldn't be
         // cached.
-        return false;
-    } else {
-        if (!m_purity.isCached()) {
+        반환 false;
+    } 아니면 {
+        만약 (!m_purity.isCached()) {
             m_purity.set(true);  // To prevent infinite recursion, set to true before getting
                                  // the actual purity. If there are impure statements in the
                                  // task/function, they'll taint this call anyway.
             m_purity.set(this->getPurityRecurse());
         }
-        return m_purity.get();
+        반환 m_purity.get();
     }
 }
 void AstNodeFile::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeFile::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstNodeIf::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isBoundsCheck()) str << " [BOUNDS]";
-    if (!branchPred().unknown()) str << " [" << branchPred().asciiShort() << "]";
+    만약 (isBoundsCheck()) str << " [BOUNDS]";
+    만약 (!branchPred().unknown()) str << " [" << branchPred().asciiShort() << "]";
 }
 void AstNodeIf::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "isBoundsCheck", isBoundsCheck());
@@ -3243,34 +3243,34 @@ void AstNodeIf::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 string AstNodeModule::dtypeNameInnerScope(const string& outer) const {
-    if (const AstClass* const classp = VN_CAST(this, Class)) {
-        return classp->dtypeNameIn(outer) + "::";
+    만약 (const AstClass* const classp = VN_CAST(this, Class)) {
+        반환 classp->dtypeNameIn(outer) + "::";
     }
-    if (const AstIface* const ifacep = VN_CAST(this, Iface)) return ifacep->dtypeName(true) + ".";
+    만약 (const AstIface* const ifacep = VN_CAST(this, Iface)) 반환 ifacep->dtypeName(true) + ".";
     // '$unit' is no identifier, so not escaped
-    if (isDollarUnit()) return "$unit::";
-    if (VN_IS(this, Package)) return dtypeNameIdent(origName()) + "::";
-    return dtypeNameIdent(origName()) + dtypeNameParams(this, true) + ".";
+    만약 (isDollarUnit()) 반환 "$unit::";
+    만약 (VN_IS(this, Package)) 반환 dtypeNameIdent(origName()) + "::";
+    반환 dtypeNameIdent(origName()) + dtypeNameParams(this, true) + ".";
 }
 void AstNodeModule::dump(std::ostream& str) const {
     Super::dump(str);
     str << "  L" << level();
     str << " D" << depth();
-    if (modPublic()) str << " [P]";
-    if (inLibrary()) str << " [LIB]";
-    if (ctorVarReset()) str << " [CVRESET]";
-    if (dead()) str << " [DEAD]";
-    if (recursiveClone()) {
+    만약 (modPublic()) str << " [P]";
+    만약 (inLibrary()) str << " [LIB]";
+    만약 (ctorVarReset()) str << " [CVRESET]";
+    만약 (dead()) str << " [DEAD]";
+    만약 (recursiveClone()) {
         str << " [RECURSIVE-CLONE]";
-    } else if (recursive()) {
+    } 아니면 만약 (recursive()) {
         str << " [RECURSIVE]";
     }
-    if (parameterizedTemplate()) str << " [PAR-TEMPL]";
-    if (verilatorLib()) str << " [VERILATOR-LIB]";
-    if (unconnectedDrive().isTrue()) str << " [UCDRV]";
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    만약 (parameterizedTemplate()) str << " [PAR-TEMPL]";
+    만약 (verilatorLib()) str << " [VERILATOR-LIB]";
+    만약 (unconnectedDrive().isTrue()) str << " [UCDRV]";
+    만약 (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
     str << " [" << timeunit() << "]";
-    if (libname() != "work") str << " libname=" << libname();
+    만약 (libname() != "work") str << " libname=" << libname();
 }
 void AstNodeModule::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, origName);
@@ -3287,21 +3287,21 @@ void AstNodeModule::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "unconnectedDrive", unconnectedDrive().ascii());
     dumpJsonStr(str, "lifetime", lifetime().ascii());
     dumpJsonStr(str, "timeunit", timeunit().ascii());
-    if (libname() != "work") dumpJsonStr(str, "libname=", libname());
+    만약 (libname() != "work") dumpJsonStr(str, "libname=", libname());
     dumpJsonGen(str);
 }
 const char* AstNodePreSel::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 bool AstNodePreSel::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 void AstNodeProcedure::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSuspendable()) str << " [SUSP]";
-    if (needProcess()) str << " [NPRC]";
+    만약 (isSuspendable()) str << " [SUSP]";
+    만약 (needProcess()) str << " [NPRC]";
 }
 void AstNodeProcedure::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isSuspendable);
@@ -3310,118 +3310,118 @@ void AstNodeProcedure::dumpJson(std::ostream& str) const {
 }
 const char* AstNodeQuadop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 bool AstNodeQuadop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 void AstNodeRange::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeRange::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstNodeReadWriteMem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isHex()) str << " [HEX]";
+    만약 (isHex()) str << " [HEX]";
 }
 void AstNodeReadWriteMem::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isHex);
     dumpJsonGen(str);
 }
-int AstNodeSel::bitConst() const {
+정수 AstNodeSel::bitConst() const {
     const AstConst* const constp = VN_AS(bitp(), Const);
-    return (constp ? constp->toSInt() : 0);
+    반환 (constp ? constp->toSInt() : 0);
 }
 void AstNodeStmt::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeStmt::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 const char* AstNodeTriop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    반환 nullptr;
 }
 void AstNodeTriop::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeTriop::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 bool AstNodeTriop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    반환 m_purity.get();
 }
 string AstNodeUOrStructDType::dpiName() const {
     // C has no scopes, so the name the typedef declaring it gives, without the scope
-    return m_typedefName.substr(m_typedefName.find_last_of(".:") + 1);
+    반환 m_typedefName.substr(m_typedefName.find_last_of(".:") + 1);
 }
 string AstNodeUOrStructDType::dpiTypedef() const {
-    return "typedef " + dpiStructDecl(this) + " " + dpiName() + ";\n";
+    반환 "typedef " + dpiStructDecl(this) + " " + dpiName() + ";\n";
 }
 void AstNodeUOrStructDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packed()) str << " [PACKED]";
-    if (isFourstate()) str << " [4STATE]";
-    if (isConstrainedRand()) str << " [CSRAND]";
-    if (emitToString()) str << " [EMITSTR]";
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
-    if (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
+    만약 (packed()) str << " [PACKED]";
+    만약 (isFourstate()) str << " [4STATE]";
+    만약 (isConstrainedRand()) str << " [CSRAND]";
+    만약 (emitToString()) str << " [EMITSTR]";
+    만약 (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    만약 (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
 }
 void AstNodeUOrStructDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, packed);
     dumpJsonBoolFuncIf(str, isConstrainedRand);
     dumpJsonBoolFuncIf(str, isFourstate);
     dumpJsonBoolFuncIf(str, emitToString);
-    if (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
+    만약 (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
     dumpJsonGen(str);
 }
 string AstNodeUOrStructDType::prettyDTypeName(bool full) const {
     // Without the members, as other simulators, which would make for long names
-    return dtypeNameKwd(verilogKwd(), full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
+    반환 dtypeNameKwd(verilogKwd(), full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
 }
 bool AstNodeUOrStructDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstNodeUOrStructDType* const sp = VN_DBG_AS(samep, NodeUOrStructDType);
-    if (m_packed != sp->m_packed) return false;
-    if (fileline()->tokenNum() != sp->fileline()->tokenNum()) return false;
+    만약 (m_packed != sp->m_packed) 반환 false;
+    만약 (fileline()->tokenNum() != sp->fileline()->tokenNum()) 반환 false;
     const AstMemberDType* lp = membersp();
     const AstMemberDType* rp = sp->membersp();
-    while (lp && rp) {
-        if (lp->name() != rp->name()) return false;
-        if (lp->width() != rp->width()) return false;
-        if (!lp->subDTypep()->similarDType(rp->subDTypep())) return false;
+    동안 (lp && rp) {
+        만약 (lp->name() != rp->name()) 반환 false;
+        만약 (lp->width() != rp->width()) 반환 false;
+        만약 (!lp->subDTypep()->similarDType(rp->subDTypep())) 반환 false;
         lp = VN_CAST(lp->nextp(), MemberDType);
         rp = VN_CAST(rp->nextp(), MemberDType);
     }
-    return !lp && !rp;
+    반환 !lp && !rp;
 }
-int AstNodeUOrStructDType::widthAlignBytes() const {
+정수 AstNodeUOrStructDType::widthAlignBytes() const {
     // Could do max across members but that would be slow,
     // instead intuit based on total structure size
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (width() <= 32) {
-        return 4;
-    } else {
-        return 8;
+    만약 (width() <= 8) {
+        반환 1;
+    } 아니면 만약 (width() <= 16) {
+        반환 2;
+    } 아니면 만약 (width() <= 32) {
+        반환 4;
+    } 아니면 {
+        반환 8;
     }
 }
-int AstNodeUOrStructDType::widthTotalBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return widthWords() * (VL_EDATASIZE / 8);
+정수 AstNodeUOrStructDType::widthTotalBytes() const {
+    만약 (width() <= 8) {
+        반환 1;
+    } 아니면 만약 (width() <= 16) {
+        반환 2;
+    } 아니면 만약 (isQuad()) {
+        반환 8;
+    } 아니면 {
+        반환 widthWords() * (VL_EDATASIZE / 8);
     }
 }
 const char* AstNodeUniop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != lhsp()->isPure());
-    return nullptr;
+    반환 nullptr;
 }
 void AstNodeUniop::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeUniop::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 bool AstNodeUniop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(lhsp()->isPure());
-    return m_purity.get();
+    만약 (!m_purity.isCached()) m_purity.set(lhsp()->isPure());
+    반환 m_purity.get();
 }
 void AstNodeVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    만약 (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
     str << " " << access().arrow() << " ";
 }
 void AstNodeVarRef::dumpJson(std::ostream& str) const {
@@ -3430,17 +3430,17 @@ void AstNodeVarRef::dumpJson(std::ostream& str) const {
 }
 const char* AstNot::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    반환 nullptr;
 }
 const char* AstOr::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    반환 nullptr;
 }
 void AstPExprClause::dump(std::ostream& str) const {
     Super::dump(str);
-    if (pass()) str << " [PASS]";
-    if (vacuous()) str << " [VACUOUS]";
+    만약 (pass()) str << " [PASS]";
+    만약 (vacuous()) str << " [VACUOUS]";
 }
 void AstPExprClause::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, pass);
@@ -3449,15 +3449,15 @@ void AstPExprClause::dumpJson(std::ostream& str) const {
 }
 string AstPackArrayDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
-    if (const auto subp = subDTypep()) os << subp->prettyDTypeName(full);
+    만약 (const auto subp = subDTypep()) os << subp->prettyDTypeName(full);
     os << declRange();
-    return os.str();
+    반환 os.str();
 }
 void AstPackageExport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packagep()) {
+    만약 (packagep()) {
         str << " -> " << packagep();
-    } else {
+    } 아니면 {
         str << " ->UNLINKED:" << pkgName();
     }
 }
@@ -3467,24 +3467,24 @@ void AstPackageExport::dumpJson(std::ostream& str) const {
 }
 void AstPackageImport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packagep()) {
+    만약 (packagep()) {
         str << " -> " << packagep();
-    } else {
+    } 아니면 {
         str << " ->UNLINKED:" << pkgName();
     }
 }
 void AstPackageImport::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstPackageImport::pkgNameFrom() {
-    if (packagep()) m_pkgName = packagep()->name();
+    만약 (packagep()) m_pkgName = packagep()->name();
 }
 void AstParamTypeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
+    만약 (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
     str << " [" << varType().ascii() << "]";
-    if (subDTypep()) {
+    만약 (subDTypep()) {
         str << " -> ";
         subDTypep()->dump(str);
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
@@ -3495,12 +3495,12 @@ void AstParamTypeDType::dumpJson(std::ostream& str) const {
 }
 string AstParamTypeDType::prettyDTypeName(bool full) const {
     // Named as the type it stands for, as is a reference to it, or if not yet resolved, by name
-    if (!skipRefToEnumOrNullp()) return prettyName();
-    return subDTypep()->prettyDTypeName(full);
+    만약 (!skipRefToEnumOrNullp()) 반환 prettyName();
+    반환 subDTypep()->prettyDTypeName(full);
 }
 void AstParseTypeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
+    만약 (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
 }
 void AstParseTypeDType::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "fwdType", fwdType().ascii());
@@ -3508,7 +3508,7 @@ void AstParseTypeDType::dumpJson(std::ostream& str) const {
 }
 void AstPast::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propertyTiming()) str << " [PROPERTY_TIMING]";
+    만약 (propertyTiming()) str << " [PROPERTY_TIMING]";
 }
 void AstPast::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, propertyTiming);
@@ -3516,8 +3516,8 @@ void AstPast::dumpJson(std::ostream& str) const {
 }
 void AstPatMember::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConcat()) str << " [CONCAT]";
-    if (isDefault()) str << " [DEFAULT]";
+    만약 (isConcat()) str << " [CONCAT]";
+    만약 (isDefault()) str << " [DEFAULT]";
 }
 void AstPatMember::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConcat);
@@ -3526,26 +3526,26 @@ void AstPatMember::dumpJson(std::ostream& str) const {
 }
 void AstPin::dump(std::ostream& str) const {
     Super::dump(str);
-    if (modVarp()) {
+    만약 (modVarp()) {
         str << " -> ";
         modVarp()->dump(str);
-    } else {
+    } 아니면 {
         str << " ->UNLINKED";
     }
-    if (param()) str << " [PAR]";
-    if (!paramPath().empty()) str << " paramPath=" << paramPath();
-    if (svDotName()) str << " [.n]";
-    if (svImplicit()) str << " [.SV]";
+    만약 (param()) str << " [PAR]";
+    만약 (!paramPath().empty()) str << " paramPath=" << paramPath();
+    만약 (svDotName()) str << " [.n]";
+    만약 (svImplicit()) str << " [.SV]";
 }
 void AstPin::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, param);
     dumpJsonBoolFuncIf(str, svDotName);
     dumpJsonBoolFuncIf(str, svImplicit);
-    if (!paramPath().empty()) dumpJsonStr(str, "paramPath", paramPath());
+    만약 (!paramPath().empty()) dumpJsonStr(str, "paramPath", paramPath());
     dumpJsonGen(str);
 }
 string AstPin::prettyOperatorName() const {
-    return modVarp()
+    반환 modVarp()
                ? ((modVarp()->direction().isAny() ? modVarp()->direction().prettyName() + " " : "")
                   + "port connection " + modVarp()->prettyNameQ())
                : "port connection";
@@ -3553,13 +3553,13 @@ string AstPin::prettyOperatorName() const {
 void AstPragma::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << pragType();
-    if (pragType() == VPragmaType::TIMEUNIT_SET) {  //
+    만약 (pragType() == VPragmaType::TIMEUNIT_SET) {  //
         str << " timescale=" << timescale();
     }
 }
 void AstPragma::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "pragType", pragType().ascii());
-    if (pragType() == VPragmaType::TIMEUNIT_SET) {
+    만약 (pragType() == VPragmaType::TIMEUNIT_SET) {
         dumpJsonStr(str, "timescale", timescale().ascii());
     }
     dumpJsonGen(str);
@@ -3574,7 +3574,7 @@ void AstPrintTimeScale::dumpJson(std::ostream& str) const {
 }
 void AstPropAlways::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isStrong()) str << " [strong]";
+    만약 (isStrong()) str << " [strong]";
 }
 void AstPropAlways::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isStrong);
@@ -3582,18 +3582,18 @@ void AstPropAlways::dumpJson(std::ostream& str) const {
 }
 void AstPropSpec::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propStrength() != VPropStrength::DEFAULT) {
+    만약 (propStrength() != VPropStrength::DEFAULT) {
         str << " [" << VString::upcase(propStrength().ascii()) << "]";
     }
 }
 void AstPropSpec::dumpJson(std::ostream& str) const {
-    if (propStrength() != VPropStrength::DEFAULT)
+    만약 (propStrength() != VPropStrength::DEFAULT)
         dumpJsonStr(str, "strength", propStrength().ascii());
     dumpJsonGen(str);
 }
 void AstPull::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction()) str << " [UP]";
+    만약 (direction()) str << " [UP]";
 }
 void AstPull::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, direction);
@@ -3605,12 +3605,12 @@ void AstQueueDType::dumpSmall(std::ostream& str) const {
 }
 string AstQueueDType::prettyDTypeName(bool full) const {
     string str = subDTypep()->prettyDTypeName(full) + "$[$";
-    if (boundConst()) str += ":" + cvtToStr(boundConst());
-    return str + "]";
+    만약 (boundConst()) str += ":" + cvtToStr(boundConst());
+    반환 str + "]";
 }
 void AstRSProdList::dump(std::ostream& str) const {
     Super::dump(str);
-    if (randJoin()) str << " [RANDJOIN]";
+    만약 (randJoin()) str << " [RANDJOIN]";
 }
 void AstRSProdList::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, randJoin);
@@ -3618,7 +3618,7 @@ void AstRSProdList::dumpJson(std::ostream& str) const {
 }
 void AstRand::dump(std::ostream& str) const {
     Super::dump(str);
-    if (urandom()) str << " [U]";
+    만약 (urandom()) str << " [U]";
 }
 void AstRand::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "urandom", urandom());
@@ -3629,13 +3629,13 @@ void AstRandSequence::dump(std::ostream& str) const {
     str << " start=" << start();
 }
 void AstRandSequence::dumpJson(std::ostream& str) const {
-    if (!start().empty()) dumpJsonStr(str, "start", start());
+    만약 (!start().empty()) dumpJsonStr(str, "start", start());
     dumpJsonGen(str);
 }
 void AstRange::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fromBracket()) str << " [FB]";
-    if (ascending()) str << " [ASCENDING]";
+    만약 (fromBracket()) str << " [FB]";
+    만약 (ascending()) str << " [ASCENDING]";
 }
 void AstRange::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, ascending);
@@ -3643,28 +3643,28 @@ void AstRange::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 const char* AstRefDType::broken() const {
-    if (v3Global.assertDTypesResolved()) BROKEN_RTN(captureTagp());
-    return nullptr;
+    만약 (v3Global.assertDTypesResolved()) BROKEN_RTN(captureTagp());
+    반환 nullptr;
 }
 void AstRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (typedefp() || subDTypep()) {
+    만약 (typedefp() || subDTypep()) {
         static bool s_recursing = false;
-        if (!s_recursing) {  // Prevent infinite dump if circular typedefs
+        만약 (!s_recursing) {  // Prevent infinite dump if circular typedefs
             s_recursing = true;
-            if (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
-            if (refDTypep()) str << " refDTypep=" << nodeAddr(refDTypep());
-            if (typedefp()) str << " typedefp=" << nodeAddr(typedefp());
+            만약 (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
+            만약 (refDTypep()) str << " refDTypep=" << nodeAddr(refDTypep());
+            만약 (typedefp()) str << " typedefp=" << nodeAddr(typedefp());
 
             str << " -> ";
-            if (const AstNodeDType* const subp = subDTypep()) {
+            만약 (const AstNodeDType* const subp = subDTypep()) {
                 subp->dump(str);
-            } else if (const AstTypedef* const subp = typedefp()) {
+            } 아니면 만약 (const AstTypedef* const subp = typedefp()) {
                 subp->dump(str);
             }
             s_recursing = false;
         }
-    } else {
+    } 아니면 {
         str << " -> UNLINKED";
     }
 }
@@ -3674,12 +3674,12 @@ void AstRefDType::dumpSmall(std::ostream& str) const {
     str << "ref";
 }
 AstNodeDType* AstRefDType::subDTypep() const VL_MT_STABLE {
-    if (typedefp()) return typedefp()->subDTypep();
-    return refDTypep();  // Maybe nullptr
+    만약 (typedefp()) 반환 typedefp()->subDTypep();
+    반환 refDTypep();  // Maybe nullptr
 }
 void AstSAnd::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propertyControl()) str << " [PROPERTY_CONTROL]";
+    만약 (propertyControl()) str << " [PROPERTY_CONTROL]";
 }
 void AstSAnd::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, propertyControl);
@@ -3687,7 +3687,7 @@ void AstSAnd::dumpJson(std::ostream& str) const {
 }
 void AstSConsRep::dump(std::ostream& str) const {  // LCOV_EXCL_START
     Super::dump(str);
-    if (unbounded()) str << " [unbounded]";
+    만약 (unbounded()) str << " [unbounded]";
 }
 void AstSConsRep::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, unbounded);
@@ -3703,28 +3703,28 @@ void AstSFormatArg::dumpJson(std::ostream& str) const {
 }
 VFormatAttr AstSFormatArg::formatAttrDefauled(const AstSFormatArg* nodep,
                                               const AstNodeDType* dtypep) {
-    if (nodep) return nodep->formatAttr();
+    만약 (nodep) 반환 nodep->formatAttr();
     // Used to initially assign the formatArg
     // Later, V3Randomize creates raw %s's without SFormatArg's that have string arguments
-    if (!dtypep) return VFormatAttr{};
+    만약 (!dtypep) 반환 VFormatAttr{};
     const AstNodeDType* skipDtypep = dtypep->skipRefp();
-    if (skipDtypep->isDouble()) return VFormatAttr{VFormatAttr::DOUBLE};
-    if (skipDtypep->isString()) return VFormatAttr{VFormatAttr::STRING};
-    return VFormatAttr{};
+    만약 (skipDtypep->isDouble()) 반환 VFormatAttr{VFormatAttr::DOUBLE};
+    만약 (skipDtypep->isString()) 반환 VFormatAttr{VFormatAttr::STRING};
+    반환 VFormatAttr{};
 }
 void AstSFormatF::dump(std::ostream& str) const {
     Super::dump(str);
-    if (missingArgChar() != 'd') str << " [" << missingArgChar() << "]";
-    if (exprFormat()) str << " [EXPRFMT]";
-    if (hidden()) str << " [HID]";
-    if (optionalFormat()) str << " [OPTFMT]";
+    만약 (missingArgChar() != 'd') str << " [" << missingArgChar() << "]";
+    만약 (exprFormat()) str << " [EXPRFMT]";
+    만약 (hidden()) str << " [HID]";
+    만약 (optionalFormat()) str << " [OPTFMT]";
 }
 void AstSFormatF::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
     dumpJsonBoolFuncIf(str, exprFormat);
     dumpJsonBoolFuncIf(str, hidden);
     dumpJsonBoolFuncIf(str, optionalFormat);
-    if (missingArgChar() != 'd')
+    만약 (missingArgChar() != 'd')
         dumpJsonStr(str, "missingArgChar", std::to_string(missingArgChar()));
 }
 void AstSampleQueueDType::dumpSmall(std::ostream& str) const {
@@ -3733,7 +3733,7 @@ void AstSampleQueueDType::dumpSmall(std::ostream& str) const {
 }
 void AstSampled::dump(std::ostream& str) const {
     Super::dump(str);
-    if (internal()) str << " [INTERNAL]";
+    만약 (internal()) str << " [INTERNAL]";
 }
 void AstSampled::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, internal);
@@ -3741,11 +3741,11 @@ void AstSampled::dumpJson(std::ostream& str) const {
 }
 AstActive* AstScope::comboActivep(bool create) {
     // Use an existing one
-    for (AstNode* nodep = blocksp(); nodep; nodep = nodep->nextp()) {
+    위해 (AstNode* nodep = blocksp(); nodep; nodep = nodep->nextp()) {
         AstActive* const activep = VN_CAST(nodep, Active);
-        if (activep && activep->hasCombo()) return activep;
+        만약 (activep && activep->hasCombo()) 반환 activep;
     }
-    if (!create) return nullptr;
+    만약 (!create) 반환 nullptr;
     // Otherwise create a new one
     FileLine* const flp = fileline();
     AstSenItem* const senItemp = new AstSenItem{flp, AstSenItem::Combo{}};
@@ -3753,7 +3753,7 @@ AstActive* AstScope::comboActivep(bool create) {
     AstActive* const activep = new AstActive{flp, "", senTreep};
     activep->senTreeStorep(activep->sentreep());
     addBlocksp(activep);
-    return activep;
+    반환 activep;
 }
 void AstScope::dump(std::ostream& str) const {
     Super::dump(str);
@@ -3765,29 +3765,29 @@ void AstScope::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 string AstScope::nameDotless() const {
     string result = shortName();
     string::size_type pos;
-    while ((pos = result.find('.')) != string::npos) result.replace(pos, 1, "__");
-    return result;
+    동안 ((pos = result.find('.')) != string::npos) result.replace(pos, 1, "__");
+    반환 result;
 }
 string AstScope::prettyNameMsg() const {
     // The scope of a class is named after the class as $typename would, as the scope's name has
     // the class's internal name. A class made since elaboration has no such name, so keeps the
     // scope's name.
     const AstClass* const classp = VN_CAST(modp(), Class);
-    if (!classp || !classp->dtypeNameFrozen()) return prettyName();
-    return classp->dtypeName(true);
+    만약 (!classp || !classp->dtypeNameFrozen()) 반환 prettyName();
+    반환 classp->dtypeName(true);
 }
 bool AstScope::sameNode(const AstNode* samep) const {
     const AstScope* const asamep = VN_DBG_AS(samep, Scope);
-    return name() == asamep->name()
+    반환 name() == asamep->name()
            && ((!aboveScopep() && !asamep->aboveScopep())
                || (aboveScopep() && asamep->aboveScopep()
                    && aboveScopep()->name() == asamep->aboveScopep()->name()));
 }
 void AstScopeName::dump(std::ostream& str) const {
     Super::dump(str);
-    if (dpiExport()) str << " [DPIEX]";
-    if (forFormat()) str << " [FMT]";
-    if (selfRelative()) str << " [SELFREL]";
+    만약 (dpiExport()) str << " [DPIEX]";
+    만약 (forFormat()) str << " [FMT]";
+    만약 (selfRelative()) str << " [SELFREL]";
     str << " scopeAttr=\"" << m_scopeAttr << "\"";
     str << " scopeEntr=\"" << m_scopeEntr << "\"";
 }
@@ -3801,33 +3801,33 @@ void AstScopeName::dumpJson(std::ostream& str) const {
 }
 std::string AstScopeName::scopeNameFormatter(const std::string& text) {
     std::string out = text;
-    if (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
-    if (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
-    if (out.substr(0, 1) == ".") out.replace(0, 1, "");
+    만약 (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
+    만약 (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
+    만약 (out.substr(0, 1) == ".") out.replace(0, 1, "");
     std::string::size_type pos;
-    while ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
-    while ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
-    return out;
+    동안 ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
+    동안 ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
+    반환 out;
 }
 std::string AstScopeName::scopePrettyNameFormatter(const std::string& text) {
     std::string out = text;
     // TOP will be replaced by top->name()
-    if (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
-    if (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
-    if (out.substr(0, 1) == ".") out.replace(0, 1, "");
-    return AstNode::prettyName(out);
+    만약 (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
+    만약 (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
+    만약 (out.substr(0, 1) == ".") out.replace(0, 1, "");
+    반환 AstNode::prettyName(out);
 }
 void AstSel::dump(std::ostream& str) const {
     Super::dump(str);
     str << " widthConst=" << this->widthConst();
-    if (declRange().ranged()) {
+    만약 (declRange().ranged()) {
         str << " decl" << declRange() << "]";
-        if (declElWidth() != 1) str << "/" << declElWidth();
+        만약 (declElWidth() != 1) str << "/" << declElWidth();
     }
 }
 void AstSel::dumpJson(std::ostream& str) const {
     dumpJsonNumFunc(str, widthConst);
-    if (declRange().ranged()) {
+    만약 (declRange().ranged()) {
         dumpJsonStr(str, "declRange", cvtToStr(declRange()));
         dumpJsonNumFunc(str, declElWidth);
     }
@@ -3851,56 +3851,56 @@ void AstSenItem::dumpJson(std::ostream& str) const {
 }
 bool AstSenTree::hasClocked() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isClocked()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isClocked()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasCombo() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isComboOrStar()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isComboOrStar()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasEdge() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->edgeType().anEdge()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->edgeType().anEdge()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasFinal() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isFinal()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isFinal()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasHybrid() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isHybrid()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isHybrid()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasInitial() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isInitial()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isInitial()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 bool AstSenTree::hasStatic() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isStatic()) return true;
+    위해 (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        만약 (senp->isStatic()) 반환 true;
     }
-    return false;
+    반환 false;
 }
 void AstSequence::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isReferenced()) str << " [REFED]";
+    만약 (isReferenced()) str << " [REFED]";
 }
 void AstSequence::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isReferenced);
@@ -3908,15 +3908,15 @@ void AstSequence::dumpJson(std::ostream& str) const {
 }
 void AstSliceSel::dump(std::ostream& str) const {
     Super::dump(str);
-    if (declRange().ranged()) str << " decl" << declRange();
+    만약 (declRange().ranged()) str << " decl" << declRange();
 }
 void AstSliceSel::dumpJson(std::ostream& str) const {
-    if (declRange().ranged()) dumpJsonStr(str, "declRange", cvtToStr(declRange()));
+    만약 (declRange().ranged()) dumpJsonStr(str, "declRange", cvtToStr(declRange()));
     dumpJsonGen(str);
 }
 void AstStop::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isFatal()) str << " [FATAL]";
+    만약 (isFatal()) str << " [FATAL]";
 }
 void AstStop::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isFatal);
@@ -3946,7 +3946,7 @@ void AstSystemCSection::dumpJson(std::ostream& str) const {
 void AstText::dump(std::ostream& str) const {
     Super::dump(str);
     std::string txt = text();
-    if (txt.size() > 120) {
+    만약 (txt.size() > 120) {
         txt.resize(120);
         txt += " ... omitted ...";
     }
@@ -3985,7 +3985,7 @@ void AstTimeImport::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstVarScope* AstTopScope::createTemp(const string& name, unsigned width) {
-    return createTemp(name, findBitDType(width, width, VSigning::UNSIGNED));
+    반환 createTemp(name, findBitDType(width, width, VSigning::UNSIGNED));
 }
 AstVarScope* AstTopScope::createTemp(const string& name, AstNodeDType* dtypep) {
     UASSERT_OBJ(VString::startsWith(name, "__V"), this,
@@ -3995,24 +3995,24 @@ AstVarScope* AstTopScope::createTemp(const string& name, AstNodeDType* dtypep) {
     scopep()->modp()->addStmtsp(varp);
     AstVarScope* const vscp = new AstVarScope{flp, scopep(), varp};
     scopep()->addVarsp(vscp);
-    return vscp;
+    반환 vscp;
 }
 void AstTraceDecl::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << varType().ascii() << "]";
-    if (inDtypeFunc()) str << " [DT]";
-    if (codeAssigned()) str << " [code=" << code() << "]";
-    if (dtypeCallp()) str << " [dtypeCallp=" << dtypeCallp() << "]";
-    if (showname() != "") str << " showname=" << showname();
-    if (arrayRange().ranged()) str << " arr=" << arrayRange().ascii();
-    if (bitRange().ranged()) str << " bits=" << bitRange().ascii();
+    만약 (inDtypeFunc()) str << " [DT]";
+    만약 (codeAssigned()) str << " [code=" << code() << "]";
+    만약 (dtypeCallp()) str << " [dtypeCallp=" << dtypeCallp() << "]";
+    만약 (showname() != "") str << " showname=" << showname();
+    만약 (arrayRange().ranged()) str << " arr=" << arrayRange().ascii();
+    만약 (bitRange().ranged()) str << " bits=" << bitRange().ascii();
     str << " dd=" << declDirection().ascii();
 }
 void AstTraceDecl::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, inDtypeFunc);
     dumpJsonNumFunc(str, code);
-    if (bitRange().ranged()) dumpJsonStr(str, "bitRange", bitRange().ascii());
-    if (arrayRange().ranged()) dumpJsonStr(str, "arrayRange", arrayRange().ascii());
+    만약 (bitRange().ranged()) dumpJsonStr(str, "bitRange", bitRange().ascii());
+    만약 (arrayRange().ranged()) dumpJsonStr(str, "arrayRange", arrayRange().ascii());
     dumpJsonStr(str, "showname", showname());
     dumpJsonStr(str, "declDirection", declDirection().ascii());
     dumpJsonStr(str, "varType", varType().ascii());
@@ -4022,9 +4022,9 @@ void AstTraceInc::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << traceType().ascii() << "]";
     str << " -> ";
-    if (declp()) {
+    만약 (declp()) {
         declp()->dump(str);
-    } else {
+    } 아니면 {
         str << "%E:UNLINKED";
     }
 }
@@ -4035,9 +4035,9 @@ void AstTraceInc::dumpJson(std::ostream& str) const {
 }
 void AstTracePushPrefix::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_quotedPrefix) str << " [QUOTE]";
-    if (left() || right()) str << " [" << left() << ":" << right() << "]";
-    if (prefix() != "") str << " prefix=" << prefix();
+    만약 (m_quotedPrefix) str << " [QUOTE]";
+    만약 (left() || right()) str << " [" << left() << ":" << right() << "]";
+    만약 (prefix() != "") str << " prefix=" << prefix();
     str << " [" << prefixType().ascii() << "]";
 }
 void AstTracePushPrefix::dumpJson(std::ostream& str) const {
@@ -4059,11 +4059,11 @@ AstTriggered::AstTriggered(FileLine* fl, AstVarScope* trigVscp,
 void AstTriggered::dump(std::ostream& str) const {
     Super::dump(str);
     str << " indices=";
-    for (size_t i = 0; i < m_indices.size(); ++i) str << (i ? "," : "") << m_indices[i];
+    위해 (size_t i = 0; i < m_indices.size(); ++i) str << (i ? "," : "") << m_indices[i];
 }
 void AstTriggered::dumpJson(std::ostream& str) const {
     std::string text;
-    for (size_t i = 0; i < m_indices.size(); ++i) {
+    위해 (size_t i = 0; i < m_indices.size(); ++i) {
         text += (i ? "," : "") + std::to_string(m_indices[i]);
     }
     dumpJsonStr(str, "indices", text);
@@ -4071,22 +4071,22 @@ void AstTriggered::dumpJson(std::ostream& str) const {
 }
 AstTypeTable::AstTypeTable(FileLine* fl)
     : ASTGEN_SUPER_TypeTable(fl) {
-    for (int i = 0; i < VBasicDTypeKwd::_ENUM_MAX; ++i) m_basicps[i] = nullptr;
+    위해 (정수 i = 0; i < VBasicDTypeKwd::_ENUM_MAX; ++i) m_basicps[i] = nullptr;
 }
 void AstTypeTable::clearCache() {
     // When we mass-change widthMin in V3WidthCommit, we need to correct the table.
     // Just clear out the maps; the search functions will be used to rebuild the map
-    for (auto& itr : m_basicps) itr = nullptr;
+    위해 (auto& itr : m_basicps) itr = nullptr;
     m_detailedMap.clear();
     // Clear generic()'s so dead detection will work
-    for (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) bdtypep->generic(false);
+    위해 (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
+        만약 (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) bdtypep->generic(false);
     }
 }
 void AstTypeTable::dump(std::ostream& str) const {
     Super::dump(str);
-    for (int i = 0; i < static_cast<int>(VBasicDTypeKwd::_ENUM_MAX); ++i) {
-        if (const AstBasicDType* const subnodep = m_basicps[i]) {
+    위해 (정수 i = 0; i < static_cast<정수>(VBasicDTypeKwd::_ENUM_MAX); ++i) {
+        만약 (const AstBasicDType* const subnodep = m_basicps[i]) {
             str << '\n';  // Newline from caller, so newline first
             str << "\t\t" << std::setw(8) << VBasicDTypeKwd{i}.ascii();
             str << "  -> ";
@@ -4095,7 +4095,7 @@ void AstTypeTable::dump(std::ostream& str) const {
     }
     {
         const DetailedMap& mapr = m_detailedMap;
-        for (const auto& itr : mapr) {
+        위해 (const auto& itr : mapr) {
             const AstBasicDType* const dtypep = itr.second;
             str << '\n';  // Newline from caller, so newline first
             str << "\t\tdetailed  ->  ";
@@ -4108,98 +4108,98 @@ void AstTypeTable::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 AstBasicDType* AstTypeTable::findBasicDType(FileLine* fl, VBasicDTypeKwd kwd) {
     // Because the detailed map doesn't update m_basicps, check the detailed
     // map for this same node. Also adds this new node to the detailed map
-    if (!m_basicps[kwd]) {
+    만약 (!m_basicps[kwd]) {
         AstBasicDType basic{fl, kwd};
         m_basicps[kwd] = findCreateSameDType(basic);
     }
-    return m_basicps[kwd];
+    반환 m_basicps[kwd];
 }
 AstConstraintRefDType* AstTypeTable::findConstraintRefDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_constraintRefp)) {
+    만약 (VL_UNLIKELY(!m_constraintRefp)) {
         AstConstraintRefDType* const newp = new AstConstraintRefDType{fl};
         addTypesp(newp);
         m_constraintRefp = newp;
     }
-    return m_constraintRefp;
+    반환 m_constraintRefp;
 }
 AstBasicDType* AstTypeTable::findCreateSameDType(AstBasicDType& node) {
     const VBasicTypeKey key{node.width(), node.widthMin(), node.numeric(), node.keyword(),
                             node.nrange()};
     AstBasicDType*& entryr = m_detailedMap[key];
-    if (!entryr) {
+    만약 (!entryr) {
         entryr = node.cloneTree(false);
         entryr->generic(true);
         addTypesp(entryr);
     }
-    return entryr;
+    반환 entryr;
 }
 AstEmptyQueueDType* AstTypeTable::findEmptyQueueDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_emptyQueuep)) {
+    만약 (VL_UNLIKELY(!m_emptyQueuep)) {
         AstEmptyQueueDType* const newp = new AstEmptyQueueDType{fl};
         addTypesp(newp);
         m_emptyQueuep = newp;
     }
-    return m_emptyQueuep;
+    반환 m_emptyQueuep;
 }
 // cppcheck-suppress duplInheritedMember
 AstBasicDType* AstTypeTable::findInsertSameDType(AstBasicDType* nodep) {
     const VBasicTypeKey key{nodep->width(), nodep->widthMin(), nodep->numeric(), nodep->keyword(),
                             nodep->nrange()};
     auto pair = m_detailedMap.emplace(key, nodep);
-    if (pair.second) nodep->generic(true);
+    만약 (pair.second) nodep->generic(true);
     // No addTypesp; the upper function that called new() is responsible for adding
-    return pair.first->second;
+    반환 pair.first->second;
 }
-AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, int width,
-                                               int widthMin, VSigning numeric) {
+AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, 정수 width,
+                                               정수 widthMin, VSigning numeric) {
     AstBasicDType basic{fl, kwd, numeric, width, widthMin};
-    return findCreateSameDType(basic);
+    반환 findCreateSameDType(basic);
 }
 AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd,
-                                               const VNumRange& range, int widthMin,
+                                               const VNumRange& range, 정수 widthMin,
                                                VSigning numeric) {
     AstBasicDType basic{fl, kwd, numeric, range, widthMin};
-    return findCreateSameDType(basic);
+    반환 findCreateSameDType(basic);
 }
 AstQueueDType* AstTypeTable::findQueueIndexDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_queueIndexp)) {
+    만약 (VL_UNLIKELY(!m_queueIndexp)) {
         AstQueueDType* const newp = new AstQueueDType{fl, AstNode::findUInt32DType(), nullptr};
         addTypesp(newp);
         m_queueIndexp = newp;
     }
-    return m_queueIndexp;
+    반환 m_queueIndexp;
 }
 AstStreamDType* AstTypeTable::findStreamDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_streamp)) {
+    만약 (VL_UNLIKELY(!m_streamp)) {
         AstStreamDType* const newp = new AstStreamDType{fl};
         addTypesp(newp);
         m_streamp = newp;
     }
-    return m_streamp;
+    반환 m_streamp;
 }
 AstVoidDType* AstTypeTable::findVoidDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_voidp)) {
+    만약 (VL_UNLIKELY(!m_voidp)) {
         AstVoidDType* const newp = new AstVoidDType{fl};
         addTypesp(newp);
         m_voidp = newp;
     }
-    return m_voidp;
+    반환 m_voidp;
 }
 void AstTypeTable::repairCache() {
     // After we mass-change widthMin in V3WidthCommit, we need to correct the table.
     clearCache();
-    for (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
+    위해 (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
+        만약 (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
             (void)findInsertSameDType(bdtypep);
         }
     }
 }
-string AstTypedef::dtypeName() const { return dtypeNameScopeOf(this) + dtypeNameIdent(name()); }
+string AstTypedef::dtypeName() const { 반환 dtypeNameScopeOf(this) + dtypeNameIdent(name()); }
 void AstTypedef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (attrPublic()) str << " [PUBLIC]";
-    if (isUnderClass()) str << " [UNDCLS]";
-    if (subDTypep()) {
+    만약 (attrPublic()) str << " [PUBLIC]";
+    만약 (isUnderClass()) str << " [UNDCLS]";
+    만약 (subDTypep()) {
         str << " -> ";
         subDTypep()->dump(str);
     }
@@ -4220,7 +4220,7 @@ void AstTypedefFwd::dumpJson(std::ostream& str) const {
 }
 void AstUdpTableLine::dump(std::ostream& str) const {
     Super::dump(str);
-    if (udpIsCombo()) str << " [COMBO]";
+    만약 (udpIsCombo()) str << " [COMBO]";
 }
 void AstUdpTableLine::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, udpIsCombo);
@@ -4228,8 +4228,8 @@ void AstUdpTableLine::dumpJson(std::ostream& str) const {
 }
 void AstUnionDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSoft()) str << " [soft]";
-    if (isTagged()) str << " [tagged]";
+    만약 (isSoft()) str << " [soft]";
+    만약 (isTagged()) str << " [tagged]";
 }
 void AstUnionDType::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -4238,11 +4238,11 @@ void AstUnionDType::dumpJson(std::ostream& str) const {
 }
 bool AstUnionDType::sameNode(const AstNode* samep) const {
     const AstUnionDType* const asamep = VN_DBG_AS(samep, UnionDType);
-    return m_isSoft == asamep->m_isSoft && m_isTagged == asamep->m_isTagged;
+    반환 m_isSoft == asamep->m_isSoft && m_isTagged == asamep->m_isTagged;
 }
 void AstUnpackArrayDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCompound()) str << " [COMPOUND]";
+    만약 (isCompound()) str << " [COMPOUND]";
     str << " " << declRange();
 }
 void AstUnpackArrayDType::dumpJson(std::ostream& str) const {
@@ -4253,14 +4253,14 @@ bool AstUnpackArrayDType::isReverseOf(const AstNodeDType* otherp) const {
     bool reversed = false;
     const AstUnpackArrayDType* thisp = this;
     const AstUnpackArrayDType* thatp = VN_CAST(otherp->skipRefp(), UnpackArrayDType);
-    while (thisp && thatp) {
-        if (thisp->elementsConst() != thatp->elementsConst()) return false;
-        if (thisp->declRange().ascending() != thatp->declRange().ascending()) reversed = true;
+    동안 (thisp && thatp) {
+        만약 (thisp->elementsConst() != thatp->elementsConst()) 반환 false;
+        만약 (thisp->declRange().ascending() != thatp->declRange().ascending()) reversed = true;
         thisp = VN_CAST(thisp->subDTypep()->skipRefp(), UnpackArrayDType);
         thatp = VN_CAST(thatp->subDTypep()->skipRefp(), UnpackArrayDType);
     }
     // Same shape only with the same number of dimensions
-    return reversed && !thisp && !thatp;
+    반환 reversed && !thisp && !thatp;
 }
 string AstUnpackArrayDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
@@ -4268,29 +4268,29 @@ string AstUnpackArrayDType::prettyDTypeName(bool full) const {
     // Unfortunately we need a single $ for the first unpacked, and all
     // dimensions shown in "reverse" order
     AstNodeDType* subp = subDTypep()->skipRefp();
-    while (AstUnpackArrayDType* adtypep = VN_CAST(subp, UnpackArrayDType)) {
+    동안 (AstUnpackArrayDType* adtypep = VN_CAST(subp, UnpackArrayDType)) {
         ranges += cvtToStr(adtypep->declRange());
         subp = adtypep->subDTypep()->skipRefp();
     }
     os << subp->prettyDTypeName(full) << "$" << ranges;
-    return os.str();
+    반환 os.str();
 }
 bool AstUnpackArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstUnpackArrayDType* const asamep = VN_DBG_AS(samep, UnpackArrayDType);
-    return hi() == asamep->hi() && rangep()->sameTree(asamep->rangep())
+    반환 hi() == asamep->hi() && rangep()->sameTree(asamep->rangep())
            && subDTypep()->similarDType(asamep->subDTypep());
 }
 std::vector<AstUnpackArrayDType*> AstUnpackArrayDType::unpackDimensions() {
     std::vector<AstUnpackArrayDType*> dims;
-    for (AstUnpackArrayDType* unpackp = this; unpackp;) {
+    위해 (AstUnpackArrayDType* unpackp = this; unpackp;) {
         dims.push_back(unpackp);
-        if (AstNodeDType* const subp = unpackp->subDTypep()) {
+        만약 (AstNodeDType* const subp = unpackp->subDTypep()) {
             unpackp = VN_CAST(subp->skipRefp(), UnpackArrayDType);
-        } else {
+        } 아니면 {
             unpackp = nullptr;
         }
     }
-    return dims;
+    반환 dims;
 }
 void AstUnsizedArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
@@ -4298,17 +4298,17 @@ void AstUnsizedArrayDType::dumpSmall(std::ostream& str) const {
 }
 bool AstUnsizedArrayDType::sameNode(const AstNode* samep) const {
     const AstUnsizedArrayDType* const asamep = VN_DBG_AS(samep, UnsizedArrayDType);
-    if (!asamep->subDTypep()) return false;
-    return (subDTypep() == asamep->subDTypep());
+    만약 (!asamep->subDTypep()) 반환 false;
+    반환 (subDTypep() == asamep->subDTypep());
 }
 bool AstUnsizedArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstUnsizedArrayDType* const asamep = VN_DBG_AS(samep, UnsizedArrayDType);
-    return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
 }
 void AstUntil::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isStrong()) str << " [strong]";
-    if (isOverlapping()) str << " [overlapping]";
+    만약 (isStrong()) str << " [strong]";
+    만약 (isOverlapping()) str << " [overlapping]";
 }
 void AstUntil::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -4318,51 +4318,51 @@ void AstUntil::dumpJson(std::ostream& str) const {
 void AstVFile::dump(std::ostream& str) const { Super::dump(str); }
 void AstVFile::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 string AstVar::cPubArgType(bool named, bool forReturn) const {
-    if (forReturn) named = false;
+    만약 (forReturn) named = false;
     string arg;
-    if (isWide() && isReadOnly()) arg += "const ";
+    만약 (isWide() && isReadOnly()) arg += "const ";
     const bool asRef = !forReturn && (isWritable() || this->isRef() || this->isConstRef());
-    if (VN_IS(dtypeSkipRefp(), BasicDType) && !dtypeSkipRefp()->isDouble()
+    만약 (VN_IS(dtypeSkipRefp(), BasicDType) && !dtypeSkipRefp()->isDouble()
         && !dtypeSkipRefp()->isString()) {
         // Backward compatible type declaration
-        if (widthMin() == 1) {
+        만약 (widthMin() == 1) {
             arg += "bool";
-        } else if (widthMin() <= VL_IDATASIZE) {
+        } 아니면 만약 (widthMin() <= VL_IDATASIZE) {
             arg += "uint32_t";
-        } else if (widthMin() <= VL_QUADSIZE) {
+        } 아니면 만약 (widthMin() <= VL_QUADSIZE) {
             arg += "uint64_t";
-        } else {
+        } 아니면 {
             arg += "uint32_t";  // []'s added later
         }
-        if (isWide()) {
-            if (forReturn) {
+        만약 (isWide()) {
+            만약 (forReturn) {
                 v3warn(E_UNSUPPORTED, "Unsupported: Public functions with >64 bit outputs; "
                                       "make an output of a public task instead");
             }
             arg += " (& " + name();
             arg += ")[" + cvtToStr(widthWords()) + "]";
-        } else {
-            if (asRef) arg += "&";
-            if (named) arg += " " + name();
+        } 아니면 {
+            만약 (asRef) arg += "&";
+            만약 (named) arg += " " + name();
         }
-    } else {
+    } 아니면 {
         // Newer internal-compatible types
         arg += dtypep()->cType((named ? name() : std::string{}), true, asRef);
     }
-    return arg;
+    반환 arg;
 }
 const char* AstVar::cannotSplitKindReason() const {
-    if (!isSignal() && !isTemp()) return "it is not a regular signal or temporary";
-    if (isConst()) return "it is a constant";
-    if (isPrimaryIO()) return "it is a primary input or output";
-    if (isFuncLocal() && isIO()) return "it is a function argument";
-    if (isRef()) return "it is a ref port";
-    if (isSigPublic()) return "it is public";
-    if (isForced()) return "it is forceable";
-    if (isReadByDpi()) return "it is read via DPI";
-    if (isWrittenByDpi()) return "it is written via DPI";
-    if (delayp()) return "it has a net delay";
-    return nullptr;
+    만약 (!isSignal() && !isTemp()) 반환 "it is not a regular signal or temporary";
+    만약 (isConst()) 반환 "it is a constant";
+    만약 (isPrimaryIO()) 반환 "it is a primary input or output";
+    만약 (isFuncLocal() && isIO()) 반환 "it is a function argument";
+    만약 (isRef()) 반환 "it is a ref port";
+    만약 (isSigPublic()) 반환 "it is public";
+    만약 (isForced()) 반환 "it is forceable";
+    만약 (isReadByDpi()) 반환 "it is read via DPI";
+    만약 (isWrittenByDpi()) 반환 "it is written via DPI";
+    만약 (delayp()) 반환 "it has a net delay";
+    반환 nullptr;
 }
 void AstVar::combineType(VVarType type) {
     // These flags get combined with the existing settings of the flags.
@@ -4370,49 +4370,49 @@ void AstVar::combineType(VVarType type) {
     // when we combine wires cross-hierarchy we need a union of all characteristics.
     m_varType = type;
     // These flags get combined with the existing settings of the flags.
-    if (type == VVarType::TRIWIRE || type == VVarType::TRI0 || type == VVarType::TRI1) {
+    만약 (type == VVarType::TRIWIRE || type == VVarType::TRI0 || type == VVarType::TRI1) {
         m_tristate = true;
     }
-    if (type == VVarType::TRI0) m_isPulldown = true;
-    if (type == VVarType::TRI1) m_isPullup = true;
-    if (type.isParam()) m_isConst = true;
+    만약 (type == VVarType::TRI0) m_isPulldown = true;
+    만약 (type == VVarType::TRI1) m_isPullup = true;
+    만약 (type.isParam()) m_isConst = true;
 }
 void AstVar::combineType(const AstVar* otherp) {
     // "this" is the port var. otherp is the reg var, or vice-versa
     propagateAttrFrom(otherp);
     combineType(otherp->varType());
-    if (otherp->isSigPublic()) sigPublic(true);
-    if (otherp->isSigModPublic()) sigModPublic(true);
-    if (otherp->isSigUserRdPublic()) sigUserRdPublic(true);
-    if (otherp->isSigUserRWPublic()) sigUserRWPublic(true);
-    if (otherp->varType() == VVarType::PORT) {
+    만약 (otherp->isSigPublic()) sigPublic(true);
+    만약 (otherp->isSigModPublic()) sigModPublic(true);
+    만약 (otherp->isSigUserRdPublic()) sigUserRdPublic(true);
+    만약 (otherp->isSigUserRWPublic()) sigUserRWPublic(true);
+    만약 (otherp->varType() == VVarType::PORT) {
         varType(otherp->varType());
         direction(otherp->direction());
     }
-    if (otherp->icoMaybeWritten()) icoMaybeWritten(true);
+    만약 (otherp->icoMaybeWritten()) icoMaybeWritten(true);
 }
 string AstVar::dpiArgType(bool named, bool forReturn, bool cpp) const {
-    if (forReturn) {
-        return DpiTypesToStringConverter{}.convert(this);
-    } else {
+    만약 (forReturn) {
+        반환 DpiTypesToStringConverter{}.convert(this);
+    } 아니면 {
         class converter final : public DpiTypesToStringConverter {
             const bool m_cpp;  // Qualify C structures, as class members may hide them in C++
             string bitLogicVector(const AstVar* varp, bool isBit) const override {
-                return string{varp->isReadOnly() ? "const " : ""}
+                반환 string{varp->isReadOnly() ? "const " : ""}
                        + DpiTypesToStringConverter::bitLogicVector(varp, isBit) + '*';
             }
             string primitive(const AstVar* varp) const override {
                 string type = DpiTypesToStringConverter::primitive(varp);
-                if (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
-                    if (!varp->isWritable() && varp->basicp()->keyword() != VBasicDTypeKwd::STRING)
+                만약 (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
+                    만약 (!varp->isWritable() && varp->basicp()->keyword() != VBasicDTypeKwd::STRING)
                         type = "const " + type;
                     type += "*";
                 }
-                return type;
+                반환 type;
             }
             string unpackedStruct(const AstVar* varp) const override {
                 // Passed by reference (IEEE 1800-2023 H.8.4)
-                return string{varp->isReadOnly() ? "const " : ""} + (m_cpp ? "::" : "")
+                반환 string{varp->isReadOnly() ? "const " : ""} + (m_cpp ? "::" : "")
                        + DpiTypesToStringConverter::unpackedStruct(varp) + '*';
             }
 
@@ -4421,46 +4421,46 @@ string AstVar::dpiArgType(bool named, bool forReturn, bool cpp) const {
                 : m_cpp{cpp} {}
         };
         string arg = converter{cpp}.convert(this);
-        if (named) arg += " " + name();
-        return arg;
+        만약 (named) arg += " " + name();
+        반환 arg;
     }
 }
 string AstVar::dpiTmpVarType(const string& varName) const {
     class converter final : public DpiTypesToStringConverter {
         const string m_name;  // Variable name
         string arraySuffix(const AstVar* varp, size_t n) const {
-            if (const AstUnpackArrayDType* const unpackp
+            만약 (const AstUnpackArrayDType* const unpackp
                 = VN_CAST(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // Convert multi dimensional unpacked array to 1D array
-                if (n == 0) n = 1;
+                만약 (n == 0) n = 1;
                 n *= unpackp->arrayUnpackedElements();
-                return '[' + cvtToStr(n) + ']';
-            } else if (n > 0) {
-                return '[' + cvtToStr(n) + ']';
-            } else {
-                return "";
+                반환 '[' + cvtToStr(n) + ']';
+            } 아니면 만약 (n > 0) {
+                반환 '[' + cvtToStr(n) + ']';
+            } 아니면 {
+                반환 "";
             }
         }
         string openArray(const AstVar* varp) const override {
-            return DpiTypesToStringConverter::openArray(varp) + ' ' + m_name
+            반환 DpiTypesToStringConverter::openArray(varp) + ' ' + m_name
                    + arraySuffix(varp, 0);
         }
         string bitLogicVector(const AstVar* varp, bool isBit) const override {
             string type = DpiTypesToStringConverter::bitLogicVector(varp, isBit);
             type += ' ' + m_name + arraySuffix(varp, varp->widthWords());
-            return type;
+            반환 type;
         }
         string primitive(const AstVar* varp) const override {
             string type = DpiTypesToStringConverter::primitive(varp);
-            if (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
-                if (!varp->isWritable() && varp->basicp()->isCHandle()) type = "const " + type;
+            만약 (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
+                만약 (!varp->isWritable() && varp->basicp()->isCHandle()) type = "const " + type;
             }
             type += ' ' + m_name + arraySuffix(varp, 0);
-            return type;
+            반환 type;
         }
         string unpackedStruct(const AstVar* varp) const override {
             // An array even if not an unpacked array, as passed by reference
-            return DpiTypesToStringConverter::unpackedStruct(varp) + ' ' + m_name
+            반환 DpiTypesToStringConverter::unpackedStruct(varp) + ' ' + m_name
                    + arraySuffix(varp, 1);
         }
 
@@ -4468,58 +4468,58 @@ string AstVar::dpiTmpVarType(const string& varName) const {
         explicit converter(const string& name)
             : m_name{name} {}
     };
-    return converter{varName}.convert(this);
+    반환 converter{varName}.convert(this);
 }
 void AstVar::dump(std::ostream& str) const {
     Super::dump(str);
-    if (libInoutId()) str << " libInoutId=" << libInoutId();
-    if (libInoutEnable()) str << " [LIBINOUTEN]";
-    if (isIO()) str << " " << direction().ascii();
-    if (declDirection() != direction()) str << " dd=" << direction().ascii();
-    if (constPoolEntry()) str << " [CONSTPOOL]";
-    if (covergroupRefMember()) str << " [CGREF]";
-    if (embeddedCovergroup()) str << " [EMBCG]";
-    if (isSc()) str << " [SC]";
-    if (isPrimaryIO()) str << (isInout() ? " [PIO]" : (isWritable() ? " [PO]" : " [PI]"));
-    if (isPrimaryClock()) str << " [PCLK]";
-    if (isConst()) str << " [CONST]";
-    if (isPullup()) str << " [PULLUP]";
-    if (isPulldown()) str << " [PULLDOWN]";
-    if (isIfaceArraySplit()) str << " [IFACEARRAYSPLIT]";
-    if (isSigPublic()) str << " [P]";
-    if (isSigUserRdPublic()) str << " [PRD]";
-    if (isSigUserRWPublic()) str << " [PWR]";
-    if (isReadByDpi()) str << " [DPIRD]";
-    if (isWrittenByDpi()) str << " [DPIWR]";
-    if (isInternal()) str << " [INTERNAL]";
-    if (isLatched()) str << " [LATCHED]";
-    if (isUsedLoopIdx()) str << " [LOOPIDX]";
-    if (rand().isRandomizable()) str << " [" << rand().ascii() << "]";
-    if (noCReset()) str << " [!CRST]";
-    if (noReset()) str << " [!RST]";
-    if (processQueue()) str << " [PROCQ]";
-    if (sampled()) str << " [SAMPLED]";
-    if (attrFsmState()) str << " [aFSMSTATE]";
-    if (attrFsmArcInclCond()) str << " [aFSMARCCOND]";
-    if (attrFsmState() || attrFsmArcInclCond()) str << " [" << attrFsmStateExpand() << "]";
-    if (attrFileDescr()) str << " [aFD]";
-    if (isFuncReturn()) {
+    만약 (libInoutId()) str << " libInoutId=" << libInoutId();
+    만약 (libInoutEnable()) str << " [LIBINOUTEN]";
+    만약 (isIO()) str << " " << direction().ascii();
+    만약 (declDirection() != direction()) str << " dd=" << direction().ascii();
+    만약 (constPoolEntry()) str << " [CONSTPOOL]";
+    만약 (covergroupRefMember()) str << " [CGREF]";
+    만약 (embeddedCovergroup()) str << " [EMBCG]";
+    만약 (isSc()) str << " [SC]";
+    만약 (isPrimaryIO()) str << (isInout() ? " [PIO]" : (isWritable() ? " [PO]" : " [PI]"));
+    만약 (isPrimaryClock()) str << " [PCLK]";
+    만약 (isConst()) str << " [CONST]";
+    만약 (isPullup()) str << " [PULLUP]";
+    만약 (isPulldown()) str << " [PULLDOWN]";
+    만약 (isIfaceArraySplit()) str << " [IFACEARRAYSPLIT]";
+    만약 (isSigPublic()) str << " [P]";
+    만약 (isSigUserRdPublic()) str << " [PRD]";
+    만약 (isSigUserRWPublic()) str << " [PWR]";
+    만약 (isReadByDpi()) str << " [DPIRD]";
+    만약 (isWrittenByDpi()) str << " [DPIWR]";
+    만약 (isInternal()) str << " [INTERNAL]";
+    만약 (isLatched()) str << " [LATCHED]";
+    만약 (isUsedLoopIdx()) str << " [LOOPIDX]";
+    만약 (rand().isRandomizable()) str << " [" << rand().ascii() << "]";
+    만약 (noCReset()) str << " [!CRST]";
+    만약 (noReset()) str << " [!RST]";
+    만약 (processQueue()) str << " [PROCQ]";
+    만약 (sampled()) str << " [SAMPLED]";
+    만약 (attrFsmState()) str << " [aFSMSTATE]";
+    만약 (attrFsmArcInclCond()) str << " [aFSMARCCOND]";
+    만약 (attrFsmState() || attrFsmArcInclCond()) str << " [" << attrFsmStateExpand() << "]";
+    만약 (attrFileDescr()) str << " [aFD]";
+    만약 (isFuncReturn()) {
         str << " [FUNCRTN]";
-    } else if (isFuncLocal()) {
+    } 아니면 만약 (isFuncLocal()) {
         str << " [FUNC]";
     }
-    if (hasUserInit()) str << " [UINIT]";
-    if (icoMaybeWritten()) str << " [ICOMAYBEWRITTEN]";
-    if (isClockingDriven()) str << " [CLOCKINGDRIVEN]";
-    if (isDpiOpenArray()) str << " [DPIOPENA]";
-    if (ignorePostWrite()) str << " [IGNPWR]";
-    if (ignoreSchedWrite()) str << " [IGNWR]";
-    if (isStdRandomizeArg()) str << " [STDRANDARG]";
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    만약 (hasUserInit()) str << " [UINIT]";
+    만약 (icoMaybeWritten()) str << " [ICOMAYBEWRITTEN]";
+    만약 (isClockingDriven()) str << " [CLOCKINGDRIVEN]";
+    만약 (isDpiOpenArray()) str << " [DPIOPENA]";
+    만약 (ignorePostWrite()) str << " [IGNPWR]";
+    만약 (ignoreSchedWrite()) str << " [IGNWR]";
+    만약 (isStdRandomizeArg()) str << " [STDRANDARG]";
+    만약 (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
     str << " " << varType();
 }
 void AstVar::dumpJson(std::ostream& str) const {
-    if (libInoutId()) dumpJsonNumFunc(str, libInoutId);
+    만약 (libInoutId()) dumpJsonNumFunc(str, libInoutId);
     dumpJsonBoolFuncIf(str, libInoutEnable);
     dumpJsonStrFunc(str, origName);
     dumpJsonStrFunc(str, verilogName);
@@ -4544,7 +4544,7 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, sampled);
     dumpJsonBoolFuncIf(str, attrFsmState);
     dumpJsonBoolFuncIf(str, attrFsmArcInclCond);
-    if (attrFsmState() || attrFsmArcInclCond()) {
+    만약 (attrFsmState() || attrFsmArcInclCond()) {
         dumpJsonStr(str, "attrFsmStateExpand", attrFsmStateExpand().ascii());
     }
     dumpJsonBoolFuncIf(str, attrFileDescr);
@@ -4556,7 +4556,7 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isStdRandomizeArg);
     dumpJsonStr(str, "lifetime", lifetime().ascii());
     dumpJsonStr(str, "varType", varType().ascii());
-    if (dtypep()) dumpJsonStr(str, "dtypeName", dtypep()->name());
+    만약 (dtypep()) dumpJsonStr(str, "dtypeName", dtypep()->name());
     dumpJsonBoolFuncIf(str, isSigUserRdPublic);
     dumpJsonBoolFuncIf(str, isSigUserRWPublic);
     dumpJsonBoolFuncIf(str, isReadByDpi);
@@ -4568,90 +4568,90 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, hasUserInit);
     dumpJsonBoolFuncIf(str, ignorePostWrite);
     dumpJsonBoolFuncIf(str, ignoreSchedWrite);
-    if (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
+    만약 (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
     dumpJsonGen(str);
 }
 bool AstVar::isScBigUint() const {
     // Pragma has the highest priority
-    if (m_attrScBigUint) return true;
-    return ((isSc() && v3Global.opt.pinsScBigUint() && width() >= 65 && width() <= 512)
+    만약 (m_attrScBigUint) 반환 true;
+    반환 ((isSc() && v3Global.opt.pinsScBigUint() && width() >= 65 && width() <= 512)
             && !isScBv());
 }
 bool AstVar::isScBv() const {
-    return ((isSc() && width() >= v3Global.opt.pinsBv()) || m_attrScBv);
+    반환 ((isSc() && width() >= v3Global.opt.pinsBv()) || m_attrScBv);
 }
-bool AstVar::isScQuad() const { return (isSc() && isQuad() && !isScBv() && !isScBigUint()); }
+bool AstVar::isScQuad() const { 반환 (isSc() && isQuad() && !isScBv() && !isScBigUint()); }
 bool AstVar::isScUint() const {
-    return ((isSc() && v3Global.opt.pinsScUint() && width() >= 2 && width() <= 64) && !isScBv());
+    반환 ((isSc() && v3Global.opt.pinsScUint() && width() >= 2 && width() <= 64) && !isScBv());
 }
 bool AstVar::isScUintBool() const {
-    return (isSc() && v3Global.opt.pinsScUintBool() && width() == 1);
+    반환 (isSc() && v3Global.opt.pinsScUintBool() && width() == 1);
 }
 bool AstVar::isSigPublic() const {
-    return (m_sigPublic || (v3Global.opt.allPublic() && !isTemp() && !isGenVar()))
+    반환 (m_sigPublic || (v3Global.opt.allPublic() && !isTemp() && !isGenVar()))
            && !isIfaceRef();
 }
 string AstVar::scType() const {
-    if (isScBigUint()) {
-        return ("sc_dt::sc_biguint<"s + cvtToStr(widthMin())
+    만약 (isScBigUint()) {
+        반환 ("sc_dt::sc_biguint<"s + cvtToStr(widthMin())
                 + "> ");  // Keep the space so don't get >>
-    } else if (isScUint() || isScUintBool()) {
-        return ("sc_dt::sc_uint<"s + cvtToStr(widthMin())
+    } 아니면 만약 (isScUint() || isScUintBool()) {
+        반환 ("sc_dt::sc_uint<"s + cvtToStr(widthMin())
                 + "> ");  // Keep the space so don't get >>
-    } else if (isScBv()) {
-        return ("sc_dt::sc_bv<"s + cvtToStr(widthMin()) + "> ");  // Keep the space so don't get >>
-    } else if (widthMin() == 1) {
-        return "bool";
-    } else if (widthMin() <= VL_IDATASIZE) {
-        if (widthMin() <= 8 && v3Global.opt.pinsUint8()) {
-            return "uint8_t";
-        } else if (widthMin() <= 16 && v3Global.opt.pinsUint8()) {
-            return "uint16_t";
-        } else {
-            return "uint32_t";
+    } 아니면 만약 (isScBv()) {
+        반환 ("sc_dt::sc_bv<"s + cvtToStr(widthMin()) + "> ");  // Keep the space so don't get >>
+    } 아니면 만약 (widthMin() == 1) {
+        반환 "bool";
+    } 아니면 만약 (widthMin() <= VL_IDATASIZE) {
+        만약 (widthMin() <= 8 && v3Global.opt.pinsUint8()) {
+            반환 "uint8_t";
+        } 아니면 만약 (widthMin() <= 16 && v3Global.opt.pinsUint8()) {
+            반환 "uint16_t";
+        } 아니면 {
+            반환 "uint32_t";
         }
-    } else if (isDouble()) {
-        return "double";
-    } else {
-        return "uint64_t";
+    } 아니면 만약 (isDouble()) {
+        반환 "double";
+    } 아니면 {
+        반환 "uint64_t";
     }
 }
 AstVar* AstVar::scVarRecurse(AstNode* nodep) {
     // See if this is a SC assignment; if so return that type
     // Historically sc variables are identified by a variable
     // attribute. TODO it would better be a data type attribute.
-    if (AstVar* const anodep = VN_CAST(nodep, Var)) {
-        if (anodep->isSc()) {
-            return anodep;
-        } else {
-            return nullptr;
+    만약 (AstVar* const anodep = VN_CAST(nodep, Var)) {
+        만약 (anodep->isSc()) {
+            반환 anodep;
+        } 아니면 {
+            반환 nullptr;
         }
-    } else if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
-        if (vrefp->varp()->isSc()) {
-            return vrefp->varp();
-        } else {
-            return nullptr;
+    } 아니면 만약 (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
+        만약 (vrefp->varp()->isSc()) {
+            반환 vrefp->varp();
+        } 아니면 {
+            반환 nullptr;
         }
-    } else if (const AstArraySel* const arraySelp = VN_CAST(nodep, ArraySel)) {
-        if (AstVar* const p = scVarRecurse(arraySelp->fromp())) return p;
+    } 아니면 만약 (const AstArraySel* const arraySelp = VN_CAST(nodep, ArraySel)) {
+        만약 (AstVar* const p = scVarRecurse(arraySelp->fromp())) 반환 p;
     }
-    return nullptr;
+    반환 nullptr;
 }
 string AstVar::verilogKwd() const {
-    if (isIO()) {
-        return direction().verilogKwd();
-    } else if (isTristate()) {
-        return "tri";
-    } else if (varType() == VVarType::WIRE) {
-        return "wire";
-    } else if (varType() == VVarType::WREAL) {
-        return "wreal";
-    } else if (varType() == VVarType::IFACEREF) {
-        return "ifaceref";
-    } else if (dtypep()) {
-        return dtypep()->name();
-    } else {
-        return "UNKNOWN";
+    만약 (isIO()) {
+        반환 direction().verilogKwd();
+    } 아니면 만약 (isTristate()) {
+        반환 "tri";
+    } 아니면 만약 (varType() == VVarType::WIRE) {
+        반환 "wire";
+    } 아니면 만약 (varType() == VVarType::WREAL) {
+        반환 "wreal";
+    } 아니면 만약 (varType() == VVarType::IFACEREF) {
+        반환 "ifaceref";
+    } 아니면 만약 (dtypep()) {
+        반환 dtypep()->name();
+    } 아니면 {
+        반환 "UNKNOWN";
     }
 }
 string AstVar::vlArgType(bool named, bool forReturn, bool forFunc, bool asRef,
@@ -4661,71 +4661,71 @@ string AstVar::vlArgType(bool named, bool forReturn, bool forFunc, bool asRef,
     asRef = asRef || isDpiOpenArray() || (forFunc && (isWritable() || isRef() || isConstRef()));
 
     string oname;
-    if (named) oname = VIdProtect::protectIf(name(), protect());
-    if (forFunc && (isReadOnly() || constRef) && asRef) {
-        if (VN_IS(dtypep()->skipRefp(), IfaceRefDType)) {
-            return dtypep()->cType("", forFunc, false) + " const &" + oname;
+    만약 (named) oname = VIdProtect::protectIf(name(), protect());
+    만약 (forFunc && (isReadOnly() || constRef) && asRef) {
+        만약 (VN_IS(dtypep()->skipRefp(), IfaceRefDType)) {
+            반환 dtypep()->cType("", forFunc, false) + " const &" + oname;
         }
-        return "const " + dtypep()->cType(oname, forFunc, asRef);
+        반환 "const " + dtypep()->cType(oname, forFunc, asRef);
     }
-    return dtypep()->cType(oname, forFunc, asRef);
+    반환 dtypep()->cType(oname, forFunc, asRef);
 }
 string AstVar::vlEnumDir(bool forMember) const {
     string out;
-    if (isInout()) {
+    만약 (isInout()) {
         out = "VLVD_INOUT";
-    } else if (isWritable()) {
+    } 아니면 만약 (isWritable()) {
         out = "VLVD_OUT";
-    } else if (isNonOutput()) {
+    } 아니면 만약 (isNonOutput()) {
         out = "VLVD_IN";
-    } else {
+    } 아니면 {
         out = "VLVD_NODIR";
     }
     //
-    if (isSigUserRWPublic()) {
+    만약 (isSigUserRWPublic()) {
         out += "|VLVF_PUB_RW";
-    } else if (isSigUserRdPublic()) {
+    } 아니면 만약 (isSigUserRdPublic()) {
         out += "|VLVF_PUB_RD";
     }
-    if (isForceable() && !forMember) out += "|VLVF_FORCEABLE";
-    if (isContinuously()) out += "|VLVF_CONTINUOUSLY";
+    만약 (isForceable() && !forMember) out += "|VLVF_FORCEABLE";
+    만약 (isContinuously()) out += "|VLVF_CONTINUOUSLY";
     //
-    if (const AstBasicDType* const bdtypep = basicp()) {
-        if (bdtypep->keyword().isDpiCLayout() || (isDpiOpenArray() && bdtypep->isDpiCLayout())) {
+    만약 (const AstBasicDType* const bdtypep = basicp()) {
+        만약 (bdtypep->keyword().isDpiCLayout() || (isDpiOpenArray() && bdtypep->isDpiCLayout())) {
             out += "|VLVF_DPI_CLAY";
         }
     }
     //
-    if (dtypep()->skipRefp()->isSigned() && !forMember) out += "|VLVF_SIGNED";
+    만약 (dtypep()->skipRefp()->isSigned() && !forMember) out += "|VLVF_SIGNED";
     //
-    if (AstBasicDType* const basicp = dtypep()->skipRefp()->basicp()) {
-        if (basicp->keyword() == VBasicDTypeKwd::BIT && !forMember) out += "|VLVF_BITVAR";
+    만약 (AstBasicDType* const basicp = dtypep()->skipRefp()->basicp()) {
+        만약 (basicp->keyword() == VBasicDTypeKwd::BIT && !forMember) out += "|VLVF_BITVAR";
     }
-    if (isNet()) out += "|VLVF_NET";
-    if (!forMember) out += dtypep()->vlEnumPackedAgg();
-    return out;
+    만약 (isNet()) out += "|VLVF_NET";
+    만약 (!forMember) out += dtypep()->vlEnumPackedAgg();
+    반환 out;
 }
-string AstVar::vlEnumType() const { return dtypep()->vlEnumType(); }
+string AstVar::vlEnumType() const { 반환 dtypep()->vlEnumType(); }
 string AstVar::vlPropDecl(const string& propName) const {
     string out;
 
-    std::vector<int> plims;  // Packed dimension limits
-    std::vector<int> ulims;  // Unpacked dimension limits
+    std::vector<정수> plims;  // Packed dimension limits
+    std::vector<정수> ulims;  // Unpacked dimension limits
 
-    if (const AstBasicDType* const bdtypep = basicp()) {
-        for (const AstNodeDType* dtp = dtypep(); dtp;) {
+    만약 (const AstBasicDType* const bdtypep = basicp()) {
+        위해 (const AstNodeDType* dtp = dtypep(); dtp;) {
             dtp = dtp->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtp, NodeArrayDType)) {
-                if (VN_IS(dtp, PackArrayDType)) {
+            만약 (const AstNodeArrayDType* const adtypep = VN_CAST(dtp, NodeArrayDType)) {
+                만약 (VN_IS(dtp, PackArrayDType)) {
                     plims.push_back(adtypep->declRange().left());
                     plims.push_back(adtypep->declRange().right());
-                } else {
+                } 아니면 {
                     ulims.push_back(adtypep->declRange().left());
                     ulims.push_back(adtypep->declRange().right());
                 }
                 dtp = adtypep->subDTypep();
-            } else {
-                if (bdtypep->isRanged()) {
+            } 아니면 {
+                만약 (bdtypep->isRanged()) {
                     plims.push_back(bdtypep->left());
                     plims.push_back(bdtypep->right());
                 }
@@ -4734,26 +4734,26 @@ string AstVar::vlPropDecl(const string& propName) const {
         }
     }
 
-    if (!ulims.empty()) {
+    만약 (!ulims.empty()) {
         out += "static const int " + propName + "__ulims[";
         out += cvtToStr(ulims.size());
         out += "] = {";
         auto it = ulims.cbegin();
         out += cvtToStr(*it);
-        while (++it != ulims.cend()) {
+        동안 (++it != ulims.cend()) {
             out += ", ";
             out += cvtToStr(*it);
         }
         out += "};\n";
     }
 
-    if (!plims.empty()) {
+    만약 (!plims.empty()) {
         out += "static const int " + propName + "__plims[";
         out += cvtToStr(plims.size());
         out += "] = {";
         auto it = plims.cbegin();
         out += cvtToStr(*it);
-        while (++it != plims.cend()) {
+        동안 (++it != plims.cend()) {
             out += ", ";
             out += cvtToStr(*it);
         }
@@ -4766,54 +4766,54 @@ string AstVar::vlPropDecl(const string& propName) const {
     out += vlEnumType();  // VLVT_UINT32 etc
     out += ", " + vlEnumDir();  // VLVD_IN etc
 
-    if (!ulims.empty()) {
+    만약 (!ulims.empty()) {
         out += ", VerilatedVarProps::Unpacked{}";
         out += ", " + cvtToStr(ulims.size() / 2);
         out += ", " + propName + "__ulims";
     }
 
-    if (!plims.empty()) {
+    만약 (!plims.empty()) {
         out += ", VerilatedVarProps::Packed{}";
         out += ", " + cvtToStr(plims.size() / 2);
         out += ", " + propName + "__plims";
     }
 
     out += ");\n";
-    return out;
+    반환 out;
 }
 const char* AstVarRef::broken() const {
     // Even after assertDTypesResolved(), V3Scope will set varp() to null, but name won't be ""
     BROKEN_RTN(!varp() && name().empty());
-    return nullptr;
+    반환 nullptr;
 }
 void AstVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (varScopep()) {
+    만약 (varScopep()) {
         varScopep()->dump(str);
-    } else if (varp()) {
+    } 아니면 만약 (varp()) {
         varp()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
 void AstVarRef::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
-int AstVarRef::instrCount() const {
+정수 AstVarRef::instrCount() const {
     // Account for the target of hard-coded method calls as just an address computation
-    if (const AstCMethodHard* const callp = VN_CAST(backp(), CMethodHard)) {
-        if (callp->fromp() == this) return 1;
+    만약 (const AstCMethodHard* const callp = VN_CAST(backp(), CMethodHard)) {
+        만약 (callp->fromp() == this) 반환 1;
     }
     // Otherwise as a load/store
-    return widthInstrs() * (access().isReadOrRW() ? INSTR_COUNT_LD : 1);
+    반환 widthInstrs() * (access().isReadOrRW() ? INSTR_COUNT_LD : 1);
 }
-bool AstVarRef::sameNode(const AstNode* samep) const { return sameNode(VN_DBG_AS(samep, VarRef)); }
+bool AstVarRef::sameNode(const AstNode* samep) const { 반환 sameNode(VN_DBG_AS(samep, VarRef)); }
 void AstVarScope::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isTrace()) str << " [T]";
-    if (scopep()) str << " [scopep=" << nodeAddr(scopep()) << "]";
-    if (varp()) {
+    만약 (isTrace()) str << " [T]";
+    만약 (scopep()) str << " [scopep=" << nodeAddr(scopep()) << "]";
+    만약 (varp()) {
         str << " -> ";
         varp()->dump(str);
-    } else {
+    } 아니면 {
         str << " ->UNLINKED";
     }
 }
@@ -4823,19 +4823,19 @@ void AstVarScope::dumpJson(std::ostream& str) const {
 }
 bool AstVarScope::sameNode(const AstNode* samep) const {
     const AstVarScope* const asamep = VN_DBG_AS(samep, VarScope);
-    return varp()->sameNode(asamep->varp()) && scopep()->sameNode(asamep->scopep());
+    반환 varp()->sameNode(asamep->varp()) && scopep()->sameNode(asamep->scopep());
 }
 void AstVarXRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (readOnlyModport()) str << " [ROMODPORT]";
+    만약 (containsGenBlock()) str << " [GENBLK]";
+    만약 (readOnlyModport()) str << " [ROMODPORT]";
     str << ".=" << dotted() << " ";
-    if (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
-    if (varScopep()) {
+    만약 (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
+    만약 (varScopep()) {
         varScopep()->dump(str);
-    } else if (varp()) {
+    } 아니면 만약 (varp()) {
         varp()->dump(str);
-    } else {
+    } 아니면 {
         str << "UNLINKED";
     }
 }
@@ -4855,24 +4855,24 @@ void AstWildcardArrayDType::dumpSmall(std::ostream& str) const {
     str << "[*]";
 }
 string AstWildcardArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[*]";
+    반환 subDTypep()->prettyDTypeName(full) + "$[*]";
 }
 bool AstWildcardArrayDType::sameNode(const AstNode* samep) const {
     const AstWildcardArrayDType* const asamep = VN_DBG_AS(samep, WildcardArrayDType);
-    if (!asamep->subDTypep()) return false;
-    return (subDTypep() == asamep->subDTypep());
+    만약 (!asamep->subDTypep()) 반환 false;
+    반환 (subDTypep() == asamep->subDTypep());
 }
 bool AstWildcardArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstWildcardArrayDType* const asamep = VN_DBG_AS(samep, WildcardArrayDType);
-    return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    반환 asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
 }
 void AstWith::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_restricted) {
+    만약 (m_restricted) {
         str << " [RESTRICTED={";
         bool first = true;
-        for (const std::string& n : m_restrictedNames) {
-            if (!first) str << ",";
+        위해 (const std::string& n : m_restrictedNames) {
+            만약 (!first) str << ",";
             str << n;
             first = false;
         }
@@ -4881,11 +4881,11 @@ void AstWith::dump(std::ostream& str) const {
 }
 void AstWith::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "restricted", m_restricted);
-    if (m_restricted) {
+    만약 (m_restricted) {
         std::string joined;
         bool first = true;
-        for (const std::string& n : m_restrictedNames) {
-            if (!first) joined += ",";
+        위해 (const std::string& n : m_restrictedNames) {
+            만약 (!first) joined += ",";
             joined += n;
             first = false;
         }
@@ -4895,7 +4895,7 @@ void AstWith::dumpJson(std::ostream& str) const {
 }
 void AstWithParse::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_restricted) str << " [RESTRICTED]";
+    만약 (m_restricted) str << " [RESTRICTED]";
 }
 void AstWithParse::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "restricted", m_restricted);
@@ -4904,5 +4904,5 @@ void AstWithParse::dumpJson(std::ostream& str) const {
 const char* AstXor::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    반환 nullptr;
 }

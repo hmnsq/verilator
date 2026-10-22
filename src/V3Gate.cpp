@@ -54,10 +54,10 @@ public:
     ~GateEitherVertex() override = default;
 
     // ACCESSORS
-    bool reducible() const { return m_reducible; }
-    bool dedupable() const { return m_dedupable; }
-    bool consumed() const { return m_consumed; }
-    bool staticInit() const { return m_staticInit; }
+    bool reducible() const { 반환 m_reducible; }
+    bool dedupable() const { 반환 m_dedupable; }
+    bool consumed() const { 반환 m_consumed; }
+    bool staticInit() const { 반환 m_staticInit; }
     void setConsumed(const char* /*consumedReason*/) {
         // if (!m_consumed) UINFO(0, "\t\tSetConsumed " << consumedReason << " " << this);
         m_consumed = true;
@@ -77,7 +77,7 @@ public:
     }
 
     // DOT debug
-    std::string dotStyle() const override { return m_consumed ? "" : "dotted"; }
+    std::string dotStyle() const override { 반환 m_consumed ? "" : "dotted"; }
 };
 
 class GateVarVertex final : public GateEitherVertex {
@@ -94,25 +94,25 @@ public:
     ~GateVarVertex() override = default;
 
     // ACCESSORS
-    AstVarScope* varScp() const VL_MT_STABLE { return m_varScp; }
-    bool isTop() const { return m_isTop; }
+    AstVarScope* varScp() const VL_MT_STABLE { 반환 m_varScp; }
+    bool isTop() const { 반환 m_isTop; }
     void setIsTop() { m_isTop = true; }
-    bool isClock() const { return m_isClock; }
+    bool isClock() const { 반환 m_isClock; }
     void setIsClock() { m_isClock = true; }
-    AstNode* rstSyncNodep() const { return m_rstSyncNodep; }
+    AstNode* rstSyncNodep() const { 반환 m_rstSyncNodep; }
     void rstSyncNodep(AstNode* nodep) { m_rstSyncNodep = nodep; }
-    AstNode* rstAsyncNodep() const { return m_rstAsyncNodep; }
+    AstNode* rstAsyncNodep() const { 반환 m_rstAsyncNodep; }
     void rstAsyncNodep(AstNode* nodep) { m_rstAsyncNodep = nodep; }
 
     // METHODS
     void propagateAttrFrom(GateVarVertex* fromp) {
         varScp()->varp()->propagateAttrFrom(fromp->varScp()->varp());
-        if (fromp->isClock()) setIsClock();
+        만약 (fromp->isClock()) setIsClock();
     }
 
     // DOT debug
-    std::string name() const override VL_MT_STABLE { return varScp()->name(); }
-    std::string dotColor() const override { return "green"; }
+    std::string name() const override VL_MT_STABLE { 반환 varScp()->name(); }
+    std::string dotColor() const override { 반환 "green"; }
 };
 
 class GateLogicVertex final : public GateEitherVertex {
@@ -129,21 +129,21 @@ public:
     ~GateLogicVertex() override = default;
 
     // ACCESSORS
-    FileLine* fileline() const override { return nodep()->fileline(); }
-    AstNode* nodep() const { return m_nodep; }
-    AstActive* activep() const { return m_activep; }
-    bool slow() const { return m_slow; }
+    FileLine* fileline() const override { 반환 nodep()->fileline(); }
+    AstNode* nodep() const { 반환 m_nodep; }
+    AstActive* activep() const { 반환 m_activep; }
+    bool slow() const { 반환 m_slow; }
 
     // DOT debug
-    std::string name() const override { return m_nodep->fileline()->ascii(); }
-    std::string dotColor() const override { return "red"; }
+    std::string name() const override { 반환 m_nodep->fileline()->ascii(); }
+    std::string dotColor() const override { 반환 "red"; }
 };
 
 class GateEdge final : public V3GraphEdge {
-    std::string dotLabel() const override { return std::to_string(weight()); }
+    std::string dotLabel() const override { 반환 std::to_string(weight()); }
 
 public:
-    GateEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight)
+    GateEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, 정수 weight)
         : V3GraphEdge{graphp, fromp, top, weight} {}
 };
 
@@ -155,35 +155,35 @@ class GateGraph final : public V3Graph {
 public:
     GateVarVertex* makeVarVertex(AstVarScope* vscp) {
         GateVarVertex* vVtxp = reinterpret_cast<GateVarVertex*>(vscp->user1p());
-        if (!vVtxp) {
+        만약 (!vVtxp) {
             UINFO(6, "New vertex " << vscp);
             vVtxp = new GateVarVertex{this, vscp};
             vscp->user1p(vVtxp);
-            if (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
+            만약 (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
                 // Can be read/written to via the referenced actual interface
                 vVtxp->clearReducibleAndDedupable("VirtIface");
                 vVtxp->setConsumed("VirtIface");
             }
-            if (vscp->varp()->isSigPublic()) {
+            만약 (vscp->varp()->isSigPublic()) {
                 // Public signals shouldn't be changed, pli code might be messing with them
                 vVtxp->clearReducibleAndDedupable("SigPublic");
                 vVtxp->setConsumed("SigPublic");
             }
-            if (vscp->varp()->isIO() && vscp->scopep()->isTop()) {
+            만약 (vscp->varp()->isIO() && vscp->scopep()->isTop()) {
                 // We may need to convert to/from sysc/reg sigs
                 vVtxp->setIsTop();
                 vVtxp->clearReducibleAndDedupable("isTop");
                 vVtxp->setConsumed("isTop");
             }
         }
-        return vVtxp;
+        반환 vVtxp;
     }
 
-    void addEdge(GateVarVertex* srcp, GateLogicVertex* dstp, int weight) {
+    void addEdge(GateVarVertex* srcp, GateLogicVertex* dstp, 정수 weight) {
         new GateEdge{this, srcp, dstp, weight};
     }
 
-    void addEdge(GateLogicVertex* srcp, GateVarVertex* dstp, int weight) {
+    void addEdge(GateLogicVertex* srcp, GateVarVertex* dstp, 정수 weight) {
         new GateEdge{this, srcp, dstp, weight};
     }
 };
@@ -206,8 +206,8 @@ class GateBuildVisitor final : public VNVisitorConst {
 
     // METHODS
     void checkNode(AstNode* nodep) {
-        if (nodep->isOutputter()) m_logicVertexp->setConsumed("outputter");
-        if (nodep->isTimingControl()) {
+        만약 (nodep->isOutputter()) m_logicVertexp->setConsumed("outputter");
+        만약 (nodep->isTimingControl()) {
             m_logicVertexp->clearReducibleAndDedupable("TimingControl");
             m_logicVertexp->setConsumed("TimingControl");
         }
@@ -221,15 +221,15 @@ class GateBuildVisitor final : public VNVisitorConst {
 
         // m_activep is null under AstCFunc's, that's ok.
         m_logicVertexp = new GateLogicVertex{m_graphp, nodep, m_activep, slow};
-        if (nonReducibleReason) {
+        만약 (nonReducibleReason) {
             m_logicVertexp->clearReducibleAndDedupable(nonReducibleReason);
-        } else if (m_inClockedActive) {
+        } 아니면 만약 (m_inClockedActive) {
             m_logicVertexp->clearReducible("Clocked logic");  // but dedupable
-        } else if (m_inStaticActive || m_inInitialActive) {
+        } 아니면 만약 (m_inStaticActive || m_inInitialActive) {
             // Runs only once, so its output must not be treated as live combinational logic
             m_logicVertexp->setStaticInit();
         }
-        if (consumeReason) m_logicVertexp->setConsumed(consumeReason);
+        만약 (consumeReason) m_logicVertexp->setConsumed(consumeReason);
         checkNode(nodep);
         iterateChildrenConst(nodep);
     }
@@ -278,34 +278,34 @@ class GateBuildVisitor final : public VNVisitorConst {
     void visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSenItem);
         m_inSenItem = true;
-        if (m_logicVertexp) {  // Already under logic, e.g.: AstEventControl
+        만약 (m_logicVertexp) {  // Already under logic, e.g.: AstEventControl
             iterateChildrenConst(nodep);
-        } else {  // Standalone item, under a SenTree or an Active
+        } 아니면 {  // Standalone item, under a SenTree or an Active
             iterateLogic(nodep, false, nullptr, "senItem");
         }
     }
     void visit(AstNodeVarRef* nodep) override {
-        if (!m_logicVertexp) return;
+        만약 (!m_logicVertexp) 반환;
 
         AstVarScope* const vscp = nodep->varScopep();
         GateVarVertex* const vVtxp = m_graphp->makeVarVertex(vscp);
 
-        if (m_inSenItem) {
+        만약 (m_inSenItem) {
             vVtxp->setIsClock();
             vscp->user2(true);
-        } else if (m_inEdgeActive && nodep->access().isReadOnly()) {
+        } 아니면 만약 (m_inEdgeActive && nodep->access().isReadOnly()) {
             // For SYNCASYNCNET
-            if (vscp->user2()) {
-                if (!vVtxp->rstAsyncNodep()) vVtxp->rstAsyncNodep(nodep);
-            } else {
-                if (!vVtxp->rstSyncNodep()) vVtxp->rstSyncNodep(nodep);
+            만약 (vscp->user2()) {
+                만약 (!vVtxp->rstAsyncNodep()) vVtxp->rstAsyncNodep(nodep);
+            } 아니면 {
+                만약 (!vVtxp->rstSyncNodep()) vVtxp->rstSyncNodep(nodep);
             }
         }
 
         // We use weight of one; if we ref the var more than once, when we simplify,
         // the weight will increase
-        if (nodep->access().isWriteOrRW()) m_graphp->addEdge(m_logicVertexp, vVtxp, 1);
-        if (nodep->access().isReadOrRW()) m_graphp->addEdge(vVtxp, m_logicVertexp, 1);
+        만약 (nodep->access().isWriteOrRW()) m_graphp->addEdge(m_logicVertexp, vVtxp, 1);
+        만약 (nodep->access().isReadOrRW()) m_graphp->addEdge(vVtxp, m_logicVertexp, 1);
     }
     void visit(AstConcat* nodep) override {
         UASSERT_OBJ(!(VN_IS(nodep->backp(), NodeAssign)
@@ -316,7 +316,7 @@ class GateBuildVisitor final : public VNVisitorConst {
 
     //--------------------
     void visit(AstNode* nodep) override {
-        if (m_logicVertexp) checkNode(nodep);
+        만약 (m_logicVertexp) checkNode(nodep);
         iterateChildrenConst(nodep);
     }
 
@@ -325,7 +325,7 @@ class GateBuildVisitor final : public VNVisitorConst {
 
 public:
     static std::unique_ptr<GateGraph> apply(AstNetlist* netlistp) {
-        return std::unique_ptr<GateGraph>{GateBuildVisitor{netlistp}.m_graphp};
+        반환 std::unique_ptr<GateGraph>{GateBuildVisitor{netlistp}.m_graphp};
     }
 };
 
@@ -335,17 +335,17 @@ public:
 static void v3GateWarnSyncAsync(GateGraph& graph) {
     // AstVar::user2            -> bool: Warned about SYNCASYNCNET
     const VNUser2InUse user2InUse;
-    for (V3GraphVertex& vtx : graph.vertices()) {
-        if (const GateVarVertex* const vvertexp = vtx.cast<GateVarVertex>()) {
+    위해 (V3GraphVertex& vtx : graph.vertices()) {
+        만약 (const GateVarVertex* const vvertexp = vtx.cast<GateVarVertex>()) {
             const AstVarScope* const vscp = vvertexp->varScp();
             const AstNode* const sp = vvertexp->rstSyncNodep();
             const AstNode* const ap = vvertexp->rstAsyncNodep();
-            if (ap && sp && !vscp->varp()->user2()) {
+            만약 (ap && sp && !vscp->varp()->user2()) {
                 // This is somewhat wrong, as marking one flop as ok for sync
                 // may mean a different flop now fails.  However it's a pain to
                 // then report a warning in a new place - we should report them all at once.
                 // Instead, we will disable if any disabled
-                if (!vscp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
+                만약 (!vscp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
                     && !ap->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
                     && !sp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)) {
                     vscp->varp()->user2(true);  // Warn only once per signal
@@ -368,14 +368,14 @@ static void v3GateWarnSyncAsync(GateGraph& graph) {
 class GateConcatVisitor final : public VNVisitorConst {
     // STATE
     const AstVarScope* m_vscp = nullptr;  // Varscope we're trying to find
-    int m_offset = 0;  // Current offset of varscope
-    int m_found_offset = 0;  // Found offset of varscope
+    정수 m_offset = 0;  // Current offset of varscope
+    정수 m_found_offset = 0;  // Found offset of varscope
     bool m_found = false;  // Offset found
 
     // VISITORS
     // TODO: This is broken, what if there is logic in between? {a, ~clk}
     void visit(AstNodeVarRef* nodep) override {
-        if (nodep->varScopep() == m_vscp && !nodep->user2() && !m_found) {
+        만약 (nodep->varScopep() == m_vscp && !nodep->user2() && !m_found) {
             // A concatenation may use the same var multiple times
             // But the graph will initially have an edge per instance
             nodep->user2(true);
@@ -394,14 +394,14 @@ class GateConcatVisitor final : public VNVisitorConst {
 
 public:
     // PUBLIC METHODS
-    bool concatOffset(AstConcat* concatp, AstVarScope* vscp, int& offsetr) {
+    bool concatOffset(AstConcat* concatp, AstVarScope* vscp, 정수& offsetr) {
         m_vscp = vscp;
         m_offset = 0;
         m_found = false;
         // Iterate
         iterateConst(concatp);
         offsetr = m_found_offset;
-        return m_found;
+        반환 m_found;
     }
 };
 
@@ -421,82 +421,82 @@ class GateOkVisitor final : public VNVisitorConst {
     const bool m_buffersOnly;
     // VarRef on lhs of assignment (what we're replacing)
     const AstNodeVarRef* m_lhsVarRef = nullptr;
-    int m_ops = 0;  // Operation count
+    정수 m_ops = 0;  // Operation count
 
     // METHODS
     void clearSimple(const char* because) {
-        if (m_isSimple) UINFO(9, "Clear simple " << because);
+        만약 (m_isSimple) UINFO(9, "Clear simple " << because);
         m_isSimple = false;
     }
 
     // VISITORS
     void visit(AstNodeVarRef* nodep) override {
-        if (!m_isSimple) return;
+        만약 (!m_isSimple) 반환;
 
         ++m_ops;
         // Don't want to eliminate the VL_ASSIGN_S*
-        if (nodep->varScopep()->varp()->isSc()) clearSimple("SystemC sig");
+        만약 (nodep->varScopep()->varp()->isSc()) clearSimple("SystemC sig");
 
-        if (nodep->access().isRW()) {
+        만약 (nodep->access().isRW()) {
             clearSimple("R/W");
-            return;
+            반환;
         }
 
         // We only allow a LHS ref for the var being set, and a RHS ref for
         // something else being read.
         AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOnly()) {
-            if (m_lhsVarRef) clearSimple(">1 write refs");
+        만약 (nodep->access().isWriteOnly()) {
+            만약 (m_lhsVarRef) clearSimple(">1 write refs");
             m_lhsVarRef = nodep;
-        } else {
+        } 아니면 {
             // TODO: possible bug, should it be >= 1 as add is below?
-            if (m_readVscps.size() > 1) {
-                if (m_buffersOnly) clearSimple(">1 rhs varRefs");
+            만약 (m_readVscps.size() > 1) {
+                만약 (m_buffersOnly) clearSimple(">1 rhs varRefs");
             }
             m_readVscps.push_back(vscp);
         }
     }
     void visit(AstNodeAssign* nodep) override {
-        if (!m_isSimple) return;
+        만약 (!m_isSimple) 반환;
 
         m_substitutionp = nodep->rhsp();
-        if (!VN_IS(nodep->lhsp(), NodeVarRef)) {
+        만약 (!VN_IS(nodep->lhsp(), NodeVarRef)) {
             clearSimple("ASSIGN(non-VARREF)");
-        } else if (nodep->isTimingControl()) {
+        } 아니면 만약 (nodep->isTimingControl()) {
             clearSimple("Timing control");
-        } else {
+        } 아니면 {
             iterateChildrenConst(nodep);
         }
-        if (m_buffersOnly && !VN_IS(nodep->rhsp(), VarRef)) {
+        만약 (m_buffersOnly && !VN_IS(nodep->rhsp(), VarRef)) {
             clearSimple("Not a buffer (goes to a clock)");
         }
     }
     void visit(AstCReset* /*nodep*/) override {
-        if (!m_isSimple) return;
+        만약 (!m_isSimple) 반환;
         // CReset is pure because we can optimize assignments, but if is
         // the only assignment to a variable we still need to initial
         // assign to get randomization etc
         clearSimple("CReset");
     }
     void visit(AstMatchMasked* nodep) override {
-        if (!m_isSimple) return;
+        만약 (!m_isSimple) 반환;
         // This node can be expensive
         clearSimple("MatchMasked");
     }
     //--------------------
     void visit(AstNode* nodep) override {
-        if (!m_isSimple) return;  // Fastpath
+        만약 (!m_isSimple) 반환;  // Fastpath
 
-        if (++m_ops > v3Global.opt.gateStmts()) {
+        만약 (++m_ops > v3Global.opt.gateStmts()) {
             clearSimple("--gate-stmts exceeded");
-            return;
+            반환;
         }
 
-        if (!(m_dedupe ? nodep->isGateDedupable() : nodep->isGateOptimizable())  //
+        만약 (!(m_dedupe ? nodep->isGateDedupable() : nodep->isGateOptimizable())  //
             || !nodep->isPure() || nodep->isBrancher()) {
             UINFO(5, "Non optimizable type: " << nodep);
             clearSimple("Non optimizable type");
-            return;
+            반환;
         }
 
         iterateChildrenConst(nodep);
@@ -510,29 +510,29 @@ public:
         // Iterate
         iterateConst(nodep);
         // Check results
-        if (!m_substitutionp) {
+        만약 (!m_substitutionp) {
             clearSimple("No assignment found\n");
-            return;
+            반환;
         }
-        if (m_isSimple && m_lhsVarRef) {
-            for (const AstVarScope* const vscp : m_readVscps) {
-                if (m_lhsVarRef->varScopep() == vscp) {
+        만약 (m_isSimple && m_lhsVarRef) {
+            위해 (const AstVarScope* const vscp : m_readVscps) {
+                만약 (m_lhsVarRef->varScopep() == vscp) {
                     clearSimple("Circular logic\n");
-                    return;
+                    반환;
                 }
             }
         }
     }
     ~GateOkVisitor() override = default;
     // PUBLIC METHODS
-    bool isSimple() const { return m_isSimple; }
+    bool isSimple() const { 반환 m_isSimple; }
     AstNodeExpr* substitutionp() const {
         UASSERT(m_isSimple, "Can't substitute non-simple");
-        return m_substitutionp;
+        반환 m_substitutionp;
     }
-    const std::vector<AstVarScope*>& readVscps() const { return m_readVscps; }
+    const std::vector<AstVarScope*>& readVscps() const { 반환 m_readVscps; }
     bool varAssigned(const AstVarScope* scopep) const {
-        return m_lhsVarRef && (m_lhsVarRef->varScopep() == scopep);
+        반환 m_lhsVarRef && (m_lhsVarRef->varScopep() == scopep);
     }
 };
 
@@ -561,66 +561,66 @@ class GateInline final {
     // METHODS
     static bool isCheap(const AstNodeExpr* exprp) {
         // Constant is cheap
-        if (VN_IS(exprp, Const)) return true;
+        만약 (VN_IS(exprp, Const)) 반환 true;
         // Variable reference is cheap
-        if (VN_IS(exprp, NodeVarRef)) return true;
+        만약 (VN_IS(exprp, NodeVarRef)) 반환 true;
         // AstSel is cheap if the fromp is cheap, and not a wide needing bit swizzling
-        if (const AstSel* const selp = VN_CAST(exprp, Sel)) {
-            if (!isCheap(selp->fromp())) return false;
-            if (!selp->isWide()) return true;
-            if (!VN_IS(selp->lsbp(), Const)) return false;
-            if (selp->lsbConst() % VL_EDATASIZE != 0) return false;
-            return true;
+        만약 (const AstSel* const selp = VN_CAST(exprp, Sel)) {
+            만약 (!isCheap(selp->fromp())) 반환 false;
+            만약 (!selp->isWide()) 반환 true;
+            만약 (!VN_IS(selp->lsbp(), Const)) 반환 false;
+            만약 (selp->lsbConst() % VL_EDATASIZE != 0) 반환 false;
+            반환 true;
         }
         // AstArraySel is cheap if the fromp is cheap
-        if (const AstArraySel* const aselp = VN_CAST(exprp, ArraySel)) {
-            return isCheap(aselp->fromp());
+        만약 (const AstArraySel* const aselp = VN_CAST(exprp, ArraySel)) {
+            반환 isCheap(aselp->fromp());
         }
         // Otherwise it is not cheap
-        return false;
+        반환 false;
     }
 
     bool shouldInline(GateVarVertex* vVtxp, GateLogicVertex* lVtxp, size_t nReads,
                       AstNodeExpr* substp, bool allowMultiIn) {
         // Always inline constants
-        if (VN_IS(substp, Const)) return true;
+        만약 (VN_IS(substp, Const)) 반환 true;
         // Don't inline non-constant static initializers - these are scheduled differently
-        if (lVtxp->staticInit()) return false;
+        만약 (lVtxp->staticInit()) 반환 false;
         // Inline simple variable references
-        if (VN_IS(substp, VarRef)) return true;
+        만약 (VN_IS(substp, VarRef)) 반환 true;
         // Only inline arrays if a simple variable or constant
-        if (VN_IS(vVtxp->varScp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
+        만약 (VN_IS(vVtxp->varScp()->dtypep()->skipRefp(), UnpackArrayDType)) 반환 false;
         // Inline if reads no variables - unfolded constant expression, nullary builtin e.g.: $time
-        if (nReads == 0) return true;
+        만약 (nReads == 0) 반환 true;
         // If it reads one variable, inline if not wide, or if cheap
-        if (nReads == 1 && (!substp->isWide() || isCheap(substp))) return true;
+        만약 (nReads == 1 && (!substp->isWide() || isCheap(substp))) 반환 true;
         // Don't inline on first round if reads more than one variable
-        if (nReads > 1 && !allowMultiIn) return false;
+        만약 (nReads > 1 && !allowMultiIn) 반환 false;
         // Reads multiple variables, or is expensive to compute.
         // Inline if used only once, ignoring slow code, or dead code that can be deleted.
-        int n = 0;
-        for (V3GraphEdge& edge : vVtxp->outEdges()) {
+        정수 n = 0;
+        위해 (V3GraphEdge& edge : vVtxp->outEdges()) {
             const GateLogicVertex* const dstVtxp = edge.top()->as<GateLogicVertex>();
             // Ignore slow code, or if the destination is not used
-            if (dstVtxp->slow()) continue;
-            if (dstVtxp->outEmpty() && !dstVtxp->consumed()) continue;
+            만약 (dstVtxp->slow()) continue;
+            만약 (dstVtxp->outEmpty() && !dstVtxp->consumed()) continue;
             n += edge.weight();
-            if (n > 1) {
+            만약 (n > 1) {
                 ++m_statNotInlined;
-                return false;
+                반환 false;
             }
         }
-        return true;
+        반환 true;
     }
 
     void recordSubstitution(AstVarScope* vscp, AstNodeExpr* substp, AstNode* logicp) {
         m_hasPending.emplace(logicp, ++m_ord);  // It's OK if already present
         const auto pair = m_substitutions(logicp).emplace(vscp, nullptr);
-        if (pair.second) pair.first->second = substp->cloneTreePure(false);
+        만약 (pair.second) pair.first->second = substp->cloneTreePure(false);
     }
 
     void commitSubstitutions(AstNode* logicp) {
-        if (!m_hasPending.erase(logicp)) return;  // Had no pending substitutions
+        만약 (!m_hasPending.erase(logicp)) 반환;  // Had no pending substitutions
 
         Substitutions& substitutions = m_substitutions(logicp);
         UASSERT_OBJ(!substitutions.empty(), logicp, "No pending substitutions");
@@ -632,10 +632,10 @@ class GateInline final {
             // See if this variable has a substitution
             AstVarScope* const vscp = nodep->varScopep();
             const auto& it = substitutions.find(vscp);
-            if (it == substitutions.end()) return;
+            만약 (it == substitutions.end()) 반환;
 
             // Do not substitute circular logic
-            if (!replaced.insert(vscp).second) return;
+            만약 (!replaced.insert(vscp).second) 반환;
 
             // Substitute nodep with substp
             AstNodeExpr* const substp = it->second;
@@ -649,9 +649,9 @@ class GateInline final {
             // to point to the logic IE what we're replacing with. However, a VARREF should point
             // to the original as it's otherwise confusing to throw warnings that point to a PIN
             // rather than where the pin us used.
-            if (VN_IS(newp, VarRef)) newp->fileline(nodep->fileline());
+            만약 (VN_IS(newp, VarRef)) newp->fileline(nodep->fileline());
             // Make the newp an rvalue like nodep.
-            if (AstNodeVarRef* const varrefp = VN_CAST(newp, NodeVarRef)) {
+            만약 (AstNodeVarRef* const varrefp = VN_CAST(newp, NodeVarRef)) {
                 varrefp->access(VAccess::READ);
             }
             // Replace the node
@@ -668,7 +668,7 @@ class GateInline final {
 
         AstNode* const simplifiedp = V3Const::constifyEdit(logicp);
         UASSERT_OBJ(simplifiedp == logicp, simplifiedp, "Should not remove whole logic");
-        for (const auto& pair : substitutions) pair.second->deleteTree();
+        위해 (const auto& pair : substitutions) pair.second->deleteTree();
         substitutions.clear();
     }
 
@@ -676,25 +676,25 @@ class GateInline final {
         // Consider "inlining" variables
         auto& vertices = m_graph.vertices();
         const auto ffToVarVtx = [&](V3GraphVertex::List::iterator it) {
-            while (it != vertices.end() && !(*it).is<GateVarVertex>()) ++it;
-            return it;
+            동안 (it != vertices.end() && !(*it).is<GateVarVertex>()) ++it;
+            반환 it;
         };
         V3GraphVertex::List::iterator vIt = ffToVarVtx(vertices.begin());
-        while (vIt != vertices.end()) {
+        동안 (vIt != vertices.end()) {
             GateVarVertex* const vVtxp = (*vIt).as<GateVarVertex>();
             // vVtxp and it's driving logic might be deleted, so grab next up front
             vIt = ffToVarVtx(++vIt);
 
             // Nothing to inline if no driver, or multiple drivers ...
-            if (!vVtxp->inSize1()) continue;
+            만약 (!vVtxp->inSize1()) continue;
 
             // Can't inline if non-reducible, etc
-            if (!vVtxp->reducible()) continue;
+            만약 (!vVtxp->reducible()) continue;
 
             // Grab the driving logic
             GateLogicVertex* const lVtxp
                 = vVtxp->inEdges().frontp()->fromp()->as<GateLogicVertex>();
-            if (!lVtxp->reducible()) continue;
+            만약 (!lVtxp->reducible()) continue;
             AstNode* const logicp = lVtxp->nodep();
 
             // Commit pending optimizations to driving logic, as we will re-analyze
@@ -704,9 +704,9 @@ class GateInline final {
             const GateOkVisitor okVisitor{logicp, false, false};
 
             // Was it ok?
-            if (!okVisitor.isSimple()) continue;
+            만약 (!okVisitor.isSimple()) continue;
             // If the varScope is already removed from logicp, no need to try substitution.
-            if (!okVisitor.varAssigned(vVtxp->varScp())) continue;
+            만약 (!okVisitor.varAssigned(vVtxp->varScp())) continue;
 
             // Expression we are considering to substitute with
             AstNodeExpr* const substp = V3Const::constifyEdit(okVisitor.substitutionp());
@@ -714,7 +714,7 @@ class GateInline final {
             const size_t nReads = okVisitor.readVscps().size();
 
             // Check if it should be inlined
-            if (!shouldInline(vVtxp, lVtxp, nReads, substp, allowMultiIn)) continue;
+            만약 (!shouldInline(vVtxp, lVtxp, nReads, substp, allowMultiIn)) continue;
 
             // Process it
             ++m_statInlined;
@@ -722,7 +722,7 @@ class GateInline final {
             // Variable we are considering to substitute
             AstVarScope* const vscp = vVtxp->varScp();
 
-            if (debug() >= 9) {
+            만약 (debug() >= 9) {
                 vscp->dumpTree("substituting: ");
                 substp->dumpTree("        with: ");
             }
@@ -731,34 +731,34 @@ class GateInline final {
             const std::unordered_set<AstVarScope*> readVscps{readVscpsVec.begin(),
                                                              readVscpsVec.end()};
 
-            for (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
+            위해 (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
                 GateLogicVertex* const dstVtxp = edgep->top()->as<GateLogicVertex>();
 
                 // Do not inline anything other than buffers and inverters into
                 // sensitivity lists. If the signal becomes constant, we might
                 // miss an initialization time edge.
-                if (VN_IS(dstVtxp->nodep(), SenItem)) {
+                만약 (VN_IS(dstVtxp->nodep(), SenItem)) {
                     AstNode* nodep = substp;
-                    if (AstNot* const notp = VN_CAST(nodep, Not)) nodep = notp->lhsp();
-                    if (!VN_IS(nodep, VarRef)) continue;
+                    만약 (AstNot* const notp = VN_CAST(nodep, Not)) nodep = notp->lhsp();
+                    만약 (!VN_IS(nodep, VarRef)) continue;
                 }
 
                 // If the consumer logic writes one of the variables that the substitution
                 // is reading, then we would get a cycles, so we cannot do that.
                 bool canInline = true;
-                for (const V3GraphEdge& dedge : dstVtxp->outEdges()) {
+                위해 (const V3GraphEdge& dedge : dstVtxp->outEdges()) {
                     const GateVarVertex* const consVVertexp = dedge.top()->as<GateVarVertex>();
-                    if (readVscps.count(consVVertexp->varScp())) {
+                    만약 (readVscps.count(consVVertexp->varScp())) {
                         canInline = false;
                         break;
                     }
                 }
 
-                if (!canInline) continue;  // Cannot optimize this replacement
+                만약 (!canInline) continue;  // Cannot optimize this replacement
 
                 UINFOTREE(9, dstVtxp->nodep(), "", "inside");
 
-                if (logicp == dstVtxp->nodep()) {
+                만약 (logicp == dstVtxp->nodep()) {
                     // This is a bit involved. The graph tells us that the logic is circular
                     // (driver is same as sink), however, okVisitor rejects a circular driver
                     // and we would not reach here if the driver logic was actually circular.
@@ -776,7 +776,7 @@ class GateInline final {
 
                 // If the new replacement referred to a signal,
                 // Correct the graph to point to this new generating variable
-                for (AstVarScope* const newVscp : okVisitor.readVscps()) {
+                위해 (AstVarScope* const newVscp : okVisitor.readVscps()) {
                     GateVarVertex* const varvertexp = m_graph.makeVarVertex(newVscp);
                     m_graph.addEdge(varvertexp, dstVtxp, 1);
                     // Propagate clock attribute onto generating node
@@ -789,7 +789,7 @@ class GateInline final {
             }
 
             // If removed all usage
-            if (vVtxp->outEmpty()) {
+            만약 (vVtxp->outEmpty()) {
                 // Remove Variable vertex
                 VL_DO_DANGLING(vVtxp->unlinkDelete(&m_graph), vVtxp);
                 // Remove driving logic and vertex
@@ -811,9 +811,9 @@ class GateInline final {
         using Pair = std::pair<AstNode*, size_t>;
         std::vector<Pair> pending{m_hasPending.begin(), m_hasPending.end()};
         std::sort(pending.begin(), pending.end(), [](const Pair& a, const Pair& b) {  //
-            return a.second < b.second;
+            반환 a.second < b.second;
         });
-        for (const auto& pair : pending) commitSubstitutions(pair.first);
+        위해 (const auto& pair : pending) commitSubstitutions(pair.first);
     }
 
     ~GateInline() {
@@ -868,14 +868,14 @@ class GateDedupeHash final : public V3DupFinderUserSame {
         // or having the same sensitivities anyway, so if this becomes a problem, it can be
         // improved which should also speed things up), and AstNodeExpr for if conditions, which
         // are hopefully small.
-        return node1p == node2p || (node1p && node1p->sameTree(node2p));
+        반환 node1p == node2p || (node1p && node1p->sameTree(node2p));
     }
 
     // Callback from V3DupFinder::findDuplicate
     bool isSame(AstNode* node1p, AstNode* node2p) override {
         UASSERT_OBJ(node1p == m_currRhsp, m_currRhsp, "Comparing to unexpected node");
         const auto& aux2 = m_auxNodeExpr(VN_AS(node2p, NodeExpr));
-        return m_auxCurRhsp.parentp->type() == aux2.parentp->type()  //
+        반환 m_auxCurRhsp.parentp->type() == aux2.parentp->type()  //
                && same(m_auxCurRhsp.activep, aux2.activep)  //
                && same(m_auxCurRhsp.condp, aux2.condp);
     }
@@ -894,12 +894,12 @@ public:
 
         // Check for a duplicate, if found return its assignment
         const auto it = m_dupFinder.findDuplicate(m_currRhsp, this);
-        if (it != m_dupFinder.end()) return m_auxNodeExpr(VN_AS(it->second, NodeExpr)).parentp;
+        만약 (it != m_dupFinder.end()) 반환 m_auxNodeExpr(VN_AS(it->second, NodeExpr)).parentp;
 
         // Insert new node
         m_dupFinder.insert(m_currRhsp);
         m_auxNodeExpr(m_currRhsp) = m_auxCurRhsp;
-        return nullptr;
+        반환 nullptr;
     }
 };
 
@@ -928,26 +928,26 @@ class GateDedupeVarVisitor final : public VNVisitorConst {
 
     // VISITORS
     void visit(AstNodeAssign* nodep) override {
-        if (!m_dedupable) return;
+        만약 (!m_dedupable) 반환;
 
         // I think we could safely dedupe an always block with multiple
         // non-blocking statements, but erring on side of caution here
-        if (!m_assignp) {
+        만약 (!m_assignp) {
             m_assignp = nodep;
-            m_dedupable = !nodep->exists([](AstExprStmt*) { return true; });
-            return;
+            m_dedupable = !nodep->exists([](AstExprStmt*) { 반환 true; });
+            반환;
         }
 
         m_dedupable = false;
     }
 
     void visit(AstAlways* nodep) override {
-        if (!m_dedupable) return;
+        만약 (!m_dedupable) 반환;
 
-        if (!m_always) {
+        만약 (!m_always) {
             m_always = true;
             iterateAndNextConstNull(nodep->stmtsp());
-            return;
+            반환;
         }
 
         m_dedupable = false;
@@ -958,14 +958,14 @@ class GateDedupeVarVisitor final : public VNVisitorConst {
     //    if (...)
     //       foo = ...; // or foo <= ...;
     void visit(AstNodeIf* nodep) override {
-        if (!m_dedupable) return;
+        만약 (!m_dedupable) 반환;
 
-        if (m_always && !m_ifCondp && !nodep->elsesp()) {
+        만약 (m_always && !m_ifCondp && !nodep->elsesp()) {
             // we're under an always, this is the first IF, and there's no else
             m_ifCondp = nodep->condp();
-            m_dedupable = !m_ifCondp->exists([](AstExprStmt*) { return true; });
+            m_dedupable = !m_ifCondp->exists([](AstExprStmt*) { 반환 true; });
             iterateAndNextConstNull(nodep->thensp());
-            return;
+            반환;
         }
 
         m_dedupable = false;
@@ -986,19 +986,19 @@ public:
         m_always = false;
         m_dedupable = true;
         iterateConst(logicp);
-        if (m_dedupable && m_assignp) {
+        만약 (m_dedupable && m_assignp) {
             const AstNode* const lhsp = m_assignp->lhsp();
             // Possible todo, handle more complex lhs expressions
             // A logic vertex may also contain a function argument assignment.
             const AstNodeVarRef* const lRefp = VN_CAST(lhsp, NodeVarRef);
-            if (lRefp && lRefp->varScopep() == consumerVscp) {
-                if (const AstNodeAssign* const dup
+            만약 (lRefp && lRefp->varScopep() == consumerVscp) {
+                만약 (const AstNodeAssign* const dup
                     = m_ghash.hashAndFindDupe(m_assignp, activep, m_ifCondp)) {
-                    return static_cast<AstNodeVarRef*>(dup->lhsp());
+                    반환 static_cast<AstNodeVarRef*>(dup->lhsp());
                 }
             }
         }
-        return nullptr;
+        반환 nullptr;
     }
 };
 
@@ -1017,20 +1017,20 @@ class GateDedupe final {
 
     void visit(GateVarVertex* vVtxp) {
         // Break loops; before user2 set so hit this vertex later
-        if (m_depth > GATE_DEDUP_MAX_DEPTH) return;
+        만약 (m_depth > GATE_DEDUP_MAX_DEPTH) 반환;
 
         // Check that we haven't been here before
-        if (vVtxp->varScp()->user2SetOnce()) return;
+        만약 (vVtxp->varScp()->user2SetOnce()) 반환;
 
         VL_RESTORER(m_depth);
         ++m_depth;
-        if (!vVtxp->inSize1()) return;
+        만약 (!vVtxp->inSize1()) 반환;
 
         AstNodeVarRef* dupRefp = nullptr;
-        for (V3GraphEdge& edge : vVtxp->inEdges()) {
+        위해 (V3GraphEdge& edge : vVtxp->inEdges()) {
             dupRefp = visit(edge.fromp()->as<GateLogicVertex>(), vVtxp);
         }
-        if (!dupRefp) return;
+        만약 (!dupRefp) 반환;
 
         UASSERT_OBJ(vVtxp->dedupable(), vVtxp->varScp(),
                     "GateLogicVertex* visit should have returned nullptr "
@@ -1038,26 +1038,26 @@ class GateDedupe final {
 
         GateLogicVertex* const lVtxp = vVtxp->inEdges().frontp()->fromp()->as<GateLogicVertex>();
         const GateOkVisitor okVisitor{lVtxp->nodep(), false, true};
-        if (!okVisitor.isSimple()) return;
+        만약 (!okVisitor.isSimple()) 반환;
 
         ++m_statDedupLogic;
         GateVarVertex* const dupVVtxp = dupRefp->varScopep()->user1u().to<GateVarVertex*>();
         UINFO(4, "replacing " << vVtxp << " with " << dupVVtxp);
 
         // Replace all of this varvertex's consumers with dupRefp
-        for (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
+        위해 (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
             const GateLogicVertex* const consumerVtxp = edgep->top()->as<GateLogicVertex>();
             AstNode* const consumerp = consumerVtxp->nodep();
             UINFO(9, "elim src vtx" << lVtxp << " node " << lVtxp->nodep());
             UINFO(9, "elim cons vtx" << consumerVtxp << " node " << consumerp);
             UINFO(9, "elim var vtx " << vVtxp << " node " << vVtxp->varScp());
             UINFO(9, "replace with " << dupRefp);
-            if (lVtxp == consumerVtxp) {
+            만약 (lVtxp == consumerVtxp) {
                 UINFO(9, "skipping as self-recirculates");
-            } else {
+            } 아니면 {
                 // Substitute consumer logic
                 consumerp->foreach([&](AstNodeVarRef* refp) {
-                    if (refp->varScopep() != vVtxp->varScp()) return;
+                    만약 (refp->varScopep() != vVtxp->varScp()) 반환;
 
                     UASSERT_OBJ(refp->access().isReadOnly(), refp, "Can't replace a write ref");
 
@@ -1077,7 +1077,7 @@ class GateDedupe final {
         }
 
         // Remove inputs links
-        while (V3GraphEdge* const edgep = vVtxp->inEdges().frontp()) {
+        동안 (V3GraphEdge* const edgep = vVtxp->inEdges().frontp()) {
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
 
@@ -1088,31 +1088,31 @@ class GateDedupe final {
     // Given iterated logic, starting at consumerVtxp, returns a varref that
     // has the same logic input, or nullptr if none
     AstNodeVarRef* visit(GateLogicVertex* lVtxp, const GateVarVertex* consumerVtxp) {
-        for (V3GraphEdge& edge : lVtxp->inEdges()) visit(edge.fromp()->as<GateVarVertex>());
+        위해 (V3GraphEdge& edge : lVtxp->inEdges()) visit(edge.fromp()->as<GateVarVertex>());
 
-        if (lVtxp->dedupable() && consumerVtxp->dedupable()) {
+        만약 (lVtxp->dedupable() && consumerVtxp->dedupable()) {
             // TODO: Doing a simple pointer comparison of activep won't work
             // optimally for statements under generated clocks. Statements under
             // different generated clocks will never compare as equal, even if the
             // generated clocks are deduped into one clock.
-            return m_varVisitor.findDupe(lVtxp->nodep(), consumerVtxp->varScp(), lVtxp->activep());
+            반환 m_varVisitor.findDupe(lVtxp->nodep(), consumerVtxp->varScp(), lVtxp->activep());
         }
-        return nullptr;
+        반환 nullptr;
     }
 
     explicit GateDedupe(GateGraph& graph) {
         // Traverse starting from each of the clocks
         UINFO(9, "Gate dedupe() clocks:");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
-                if (vVtxp->isClock()) visit(vVtxp);
+        위해 (V3GraphVertex& vtx : graph.vertices()) {
+            만약 (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
+                만약 (vVtxp->isClock()) visit(vVtxp);
             }
         }
         // Traverse starting from each of the outputs
         UINFO(9, "Gate dedupe() outputs:");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
-                if (vVtxp->isTop() && vVtxp->varScp()->varp()->isWritable()) visit(vVtxp);
+        위해 (V3GraphVertex& vtx : graph.vertices()) {
+            만약 (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
+                만약 (vVtxp->isTop() && vVtxp->varScp()->varp()->isWritable()) visit(vVtxp);
             }
         }
     }
@@ -1135,17 +1135,17 @@ class GateMergeAssignments final {
     AstSel* merge(AstSel* prevSelp, AstSel* currSelp) {
         const AstVarRef* const pRefp = VN_CAST(prevSelp->fromp(), VarRef);
         AstVarRef* const cRefp = VN_CAST(currSelp->fromp(), VarRef);
-        if (!pRefp || !cRefp || !cRefp->sameNode(pRefp)) return nullptr;  // not the same var
+        만약 (!pRefp || !cRefp || !cRefp->sameNode(pRefp)) 반환 nullptr;  // not the same var
 
         const AstConst* const pstart = VN_CAST(prevSelp->lsbp(), Const);
         const AstConst* const cstart = VN_CAST(currSelp->lsbp(), Const);
-        if (!pstart || !cstart) return nullptr;  // too complicated
+        만약 (!pstart || !cstart) 반환 nullptr;  // too complicated
 
-        if (currSelp->msbConst() + 1 == prevSelp->lsbConst()) {
-            return new AstSel{cRefp->fileline(), cRefp->cloneTree(false), currSelp->lsbConst(),
+        만약 (currSelp->msbConst() + 1 == prevSelp->lsbConst()) {
+            반환 new AstSel{cRefp->fileline(), cRefp->cloneTree(false), currSelp->lsbConst(),
                               prevSelp->widthConst() + currSelp->widthConst()};
-        } else {
-            return nullptr;
+        } 아니면 {
+            반환 nullptr;
         }
     }
 
@@ -1153,19 +1153,19 @@ class GateMergeAssignments final {
         GateLogicVertex* prevLVtxp = nullptr;
         AstAssignW* prevAssignp = nullptr;
 
-        for (V3GraphEdge* const edgep : vVtxp->inEdges().unlinkable()) {
+        위해 (V3GraphEdge* const edgep : vVtxp->inEdges().unlinkable()) {
             GateLogicVertex* const lVtxp = edgep->fromp()->as<GateLogicVertex>();
-            if (!lVtxp->outSize1()) continue;
+            만약 (!lVtxp->outSize1()) continue;
 
             AstAlways* const alwaysp = VN_CAST(lVtxp->nodep(), Always);
-            if (!alwaysp || !alwaysp->stmtsp() || alwaysp->stmtsp()->nextp()) return;
+            만약 (!alwaysp || !alwaysp->stmtsp() || alwaysp->stmtsp()->nextp()) 반환;
             AstAssignW* const assignp = VN_CAST(alwaysp->stmtsp(), AssignW);
-            if (!assignp) continue;
+            만약 (!assignp) continue;
 
-            if (!VN_IS(assignp->lhsp(), Sel)) continue;
+            만약 (!VN_IS(assignp->lhsp(), Sel)) continue;
 
             // First assign with Sel-lhs, or not under the same active
-            if (!prevLVtxp || prevLVtxp->activep() != lVtxp->activep()) {
+            만약 (!prevLVtxp || prevLVtxp->activep() != lVtxp->activep()) {
                 prevLVtxp = lVtxp;
                 prevAssignp = assignp;
                 continue;
@@ -1174,7 +1174,7 @@ class GateMergeAssignments final {
             AstSel* const prevSelp = VN_AS(prevAssignp->lhsp(), Sel);
             AstSel* const currSelp = VN_AS(assignp->lhsp(), Sel);
 
-            if (AstSel* const newSelp = merge(prevSelp, currSelp)) {
+            만약 (AstSel* const newSelp = merge(prevSelp, currSelp)) {
                 UINFO(5, "assemble to new sel: " << newSelp);
                 // replace preSel with newSel
                 prevSelp->replaceWith(newSelp);
@@ -1191,7 +1191,7 @@ class GateMergeAssignments final {
                 m_toRemove.emplace_back(lVtxp);
 
                 // Update the graph
-                while (V3GraphEdge* const iedgep = lVtxp->inEdges().frontp()) {
+                동안 (V3GraphEdge* const iedgep = lVtxp->inEdges().frontp()) {
                     GateVarVertex* const fromVtxp = iedgep->fromp()->as<GateVarVertex>();
                     m_graph.addEdge(fromVtxp, prevLVtxp, 1);
                     VL_DO_DANGLING(iedgep->unlinkDelete(), iedgep);
@@ -1200,7 +1200,7 @@ class GateMergeAssignments final {
                 // Delete the out-edges of lVtxp (there is only one, we checked earlier)
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
                 ++m_statAssignMerged;
-            } else {
+            } 아니면 {
                 prevLVtxp = lVtxp;
                 prevAssignp = assignp;
             }
@@ -1210,11 +1210,11 @@ class GateMergeAssignments final {
     explicit GateMergeAssignments(GateGraph& graph)
         : m_graph{graph} {
         UINFO(6, "mergeAssigns");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) process(vVtxp);
+        위해 (V3GraphVertex& vtx : graph.vertices()) {
+            만약 (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) process(vVtxp);
         }
         // Delete merged assignments
-        for (GateLogicVertex* const lVtxp : m_toRemove) {
+        위해 (GateLogicVertex* const lVtxp : m_toRemove) {
             AstNode* const nodep = lVtxp->nodep();
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
             VL_DO_DANGLING(lVtxp->unlinkDelete(&m_graph), lVtxp);
@@ -1239,11 +1239,11 @@ class GateUnused final {
     // METHODS
 
     void markRecurse(GateEitherVertex* vtxp) {
-        if (vtxp->user()) return;  // Already marked
+        만약 (vtxp->user()) 반환;  // Already marked
         vtxp->user(true);
         vtxp->setConsumed("propagated");
         // Walk sources and mark them too
-        for (V3GraphEdge& edge : vtxp->inEdges()) {
+        위해 (V3GraphEdge& edge : vtxp->inEdges()) {
             GateEitherVertex* const fromVtxp = static_cast<GateEitherVertex*>(edge.fromp());
             markRecurse(fromVtxp);
         }
@@ -1252,17 +1252,17 @@ class GateUnused final {
     // Mark all vertices that feed a consumed vertex
     void mark() {
         m_graph.userClearVertices();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
+        위해 (V3GraphVertex& vtx : m_graph.vertices()) {
             GateEitherVertex& eVtx = static_cast<GateEitherVertex&>(vtx);
-            if (eVtx.consumed()) markRecurse(&eVtx);
+            만약 (eVtx.consumed()) markRecurse(&eVtx);
         }
     }
 
     static void warnUnused(const AstNode* const nodep) {
-        if (nodep->fileline()->warnIsOff(V3ErrorCode::UNUSEDLOOP)) return;
+        만약 (nodep->fileline()->warnIsOff(V3ErrorCode::UNUSEDLOOP)) 반환;
 
-        if (const AstNodeProcedure* const procedurep = VN_CAST(nodep, NodeProcedure)) {
-            if (procedurep->stmtsp())
+        만약 (const AstNodeProcedure* const procedurep = VN_CAST(nodep, NodeProcedure)) {
+            만약 (procedurep->stmtsp())
                 procedurep->stmtsp()->foreach([](const AstLoop* const loopp) {  //
                     loopp->v3warn(UNUSEDLOOP, "Loop is not used and will be optimized out");
                     loopp->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
@@ -1272,9 +1272,9 @@ class GateUnused final {
 
     // Remove unused logic
     void remove() {
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            if (GateLogicVertex* const lVtxp = vtxp->cast<GateLogicVertex>()) {
-                if (!lVtxp->consumed() && lVtxp->activep()) {  // activep is nullptr under cfunc
+        위해 (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
+            만약 (GateLogicVertex* const lVtxp = vtxp->cast<GateLogicVertex>()) {
+                만약 (!lVtxp->consumed() && lVtxp->activep()) {  // activep is nullptr under cfunc
                     AstNode* const nodep = lVtxp->nodep();
                     warnUnused(nodep);
 
@@ -1306,7 +1306,7 @@ void V3Gate::gateAll(AstNetlist* netlistp) {
     {
         // Build the graph
         std::unique_ptr<GateGraph> graphp = GateBuildVisitor::apply(netlistp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_graph");
+        만약 (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_graph");
 
         // Warn, before loss of sync/async pointers
         v3GateWarnSyncAsync(*graphp);
@@ -1314,31 +1314,31 @@ void V3Gate::gateAll(AstNetlist* netlistp) {
         // Remove redundant edges. Edge weighs are added, so a variable read twice by
         // the same logic block will have and edge to the logic block with weight 2
         graphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_simp");
+        만약 (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_simp");
 
         // Remove unused logic
         GateUnused::apply(*graphp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_unused");
+        만약 (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_unused");
 
         // Inline variables
         GateInline::apply(*graphp);
-        if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_inline");
+        만약 (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_inline");
 
         // Remove redundant logic
-        if (v3Global.opt.fDedupe()) {
+        만약 (v3Global.opt.fDedupe()) {
             GateDedupe::apply(*graphp);
-            if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_dedup");
+            만약 (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_dedup");
         }
 
         // Merge assignments
-        if (v3Global.opt.fAssemble()) {
+        만약 (v3Global.opt.fAssemble()) {
             GateMergeAssignments::apply(*graphp);
-            if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_merge");
+            만약 (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_merge");
         }
 
         // Remove unused logic
         GateUnused::apply(*graphp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_final");
+        만약 (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_final");
     }
 
     V3Global::dumpCheckGlobalTree("gate", 0, dumpTreeEitherLevel() >= 3);

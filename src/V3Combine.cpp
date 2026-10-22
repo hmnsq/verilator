@@ -58,14 +58,14 @@ class CombineVisitor final : VNVisitor {
     // METHODS
 
     void removeEmptyFunctions(std::list<AstCFunc*>& funcps) {
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
+        위해 (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
             AstCFunc* const funcp = *it;
             nit = it;
             ++nit;
 
-            if (funcp->emptyBody()) {
+            만약 (funcp->emptyBody()) {
                 // Delete call sites
-                for (AstCCall* const callp : m_callSites(funcp)) {
+                위해 (AstCCall* const callp : m_callSites(funcp)) {
                     UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
                                 "Deleting non-statement call");
                     VL_DO_DANGLING(callp->backp()->unlinkFrBack()->deleteTree(), callp);
@@ -86,21 +86,21 @@ class CombineVisitor final : VNVisitor {
         bool replaced = false;
 
         // Replace all identical functions with the first function in the list
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
+        위해 (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
             AstCFunc* const funcp = *it;
             nit = it;
             ++nit;
 
             // Remove functions already replaced in the previous iteration
-            if (funcp->user2()) {
+            만약 (funcp->user2()) {
                 funcps.erase(it);
                 VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
                 continue;
             }
 
-            while (true) {
+            동안 (true) {
                 auto dit = dupFinder.findDuplicate(funcp);
-                if (dit == dupFinder.end()) break;
+                만약 (dit == dupFinder.end()) break;
 
                 AstCFunc* oldp = VN_AS(dit->second, CFunc);
                 AstCFunc* newp = funcp;
@@ -110,7 +110,7 @@ class CombineVisitor final : VNVisitor {
                 // necessary because replacing a call site in a later function might have made that
                 // function equivalent to an earlier function, but we want the first equivalent
                 // function in the list to be the canonical one.
-                if (oldp->user3()) std::swap(oldp, newp);
+                만약 (oldp->user3()) std::swap(oldp, newp);
 
                 // Something is being replaced
                 UINFO(9, "Replacing " << oldp);
@@ -122,7 +122,7 @@ class CombineVisitor final : VNVisitor {
                 oldp->user2(true);
 
                 // Redirect the calls
-                for (AstCCall* const callp : m_callSites(oldp)) {
+                위해 (AstCCall* const callp : m_callSites(oldp)) {
                     // For sanity check only
                     const V3Hash oldHash = m_hasher(callp);
 
@@ -140,28 +140,28 @@ class CombineVisitor final : VNVisitor {
 
                 // If we just replaced the function we are iterating (because there was an
                 // equivalent earlier in the list), then move on, as this is on longer a candidate
-                if (oldp == funcp) break;
+                만약 (oldp == funcp) break;
             }
 
             // Mark as function earlier in list of functions.
             funcp->user3(true);
         }
 
-        return replaced;
+        반환 replaced;
     }
 
     // cppcheck-suppress constParameterPointer
     void process(AstNetlist* netlistp) {
         // First, remove empty functions. We need to do this separately, because removing
         // calls can change the hashes of the callers.
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
+        위해 (AstNodeModule* modulep = netlistp->modulesp(); modulep;
              modulep = VN_AS(modulep->nextp(), NodeModule)) {
             removeEmptyFunctions(m_cfuncs(modulep).m_fast);
             removeEmptyFunctions(m_cfuncs(modulep).m_slow);
         }
 
         // Combine functions within each module
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
+        위해 (AstNodeModule* modulep = netlistp->modulesp(); modulep;
              modulep = VN_AS(modulep->nextp(), NodeModule)) {
             // Put fast functions first, so they are preferred over slow functions
             auto funcps = std::move(m_cfuncs(modulep).m_fast);
@@ -170,12 +170,12 @@ class CombineVisitor final : VNVisitor {
             V3DupFinder dupFinder{m_hasher};
 
             // First, hash all functions
-            for (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
+            위해 (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
 
             // Iterate to fixed point
             {
                 const VNUser2InUse user2InUse;
-                while (combinePass(funcps, dupFinder)) {}
+                동안 (combinePass(funcps, dupFinder)) {}
             }
         }
     }
@@ -195,20 +195,20 @@ class CombineVisitor final : VNVisitor {
     }
     void visit(AstCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->dontCombine()) return;
+        만약 (nodep->dontCombine()) 반환;
         auto& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
         coll.emplace_back(nodep);
     }
     void visit(AstCCall* nodep) override {
         iterateChildrenConst(nodep);
         AstCFunc* const funcp = nodep->funcp();
-        if (funcp->dontCombine()) return;
+        만약 (funcp->dontCombine()) 반환;
         m_callSites(funcp).emplace_back(nodep);
     }
 
     void visit(AstAddrOfCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->funcp()->dontCombine()) return;
+        만약 (nodep->funcp()->dontCombine()) 반환;
         // LCOV_EXCL_START
         // We cannot yet handle references via AstAddrOfCFunc, but currently those are
         // only used in tracing functions, which are not combined. Blow up in case this changes.
