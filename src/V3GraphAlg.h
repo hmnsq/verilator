@@ -38,7 +38,7 @@ protected:
         , m_edgeFuncp{edgeFuncp} {}
     ~GraphAlg() = default;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool followEdge(V3GraphEdge* edgep) { върни (edgep->weight() && (m_edgeFuncp)(edgep)); }
 };
 
 //============================================================================

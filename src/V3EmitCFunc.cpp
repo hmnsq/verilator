@@ -28,12 +28,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 bool EmitCFunc::emitSimpleOk(AstNodeExpr* nodep) {
     // Can we put out a simple (A + B) instead of VL_ADD_III(A,B)?
-    if (nodep->emitSimpleOperator() == "") return false;
-    if (nodep->isWide()) return false;
-    if (nodep->op1p() && nodep->op1p()->isWide()) return false;
-    if (nodep->op2p() && nodep->op2p()->isWide()) return false;
-    if (nodep->op3p() && nodep->op3p()->isWide()) return false;
-    return true;
+    ако (nodep->emitSimpleOperator() == "") върни false;
+    ако (nodep->isWide()) върни false;
+    ако (nodep->op1p() && nodep->op1p()->isWide()) върни false;
+    ако (nodep->op2p() && nodep->op2p()->isWide()) върни false;
+    ако (nodep->op3p() && nodep->op3p()->isWide()) върни false;
+    върни true;
 }
 
 void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, AstNode* rhsp,
@@ -58,30 +58,30 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
     bool usesQueue = false;
     string nextComma;
     auto commaOut = [&out, &nextComma]() {
-        if (!nextComma.empty()) {
+        ако (!nextComma.empty()) {
             out += nextComma;
             nextComma = "";
         }
     };
 
     auto putOut = [this, &out]() {
-        if (!out.empty()) puts(out);
+        ако (!out.empty()) puts(out);
         out = "";
     };
 
-    for (string::const_iterator pos = format.begin(); pos != format.end(); ++pos) {
-        if (pos[0] == ',') {
+    за (string::const_iterator pos = format.begin(); pos != format.end(); ++pos) {
+        ако (pos[0] == ',') {
             // Remember we need to add one, but don't do yet to avoid ",)"
-            if (needComma) {
-                if (pos[1] == ' ') {
+            ако (needComma) {
+                ако (pos[1] == ' ') {
                     nextComma = ", ";
-                } else {
+                } иначе {
                     nextComma = ",";
                 }
                 needComma = false;
             }
-            if (pos[1] == ' ') ++pos;  // Must do even if no nextComma
-        } else if (pos[0] == '%') {
+            ако (pos[1] == ' ') ++pos;  // Must do even if no nextComma
+        } иначе ако (pos[0] == '%') {
             ++pos;
             bool detail = false;
             AstNode* detailp = nullptr;
@@ -108,20 +108,20 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
                 detailp = thsp;
                 break;
             case 'P':
-                if (nodep->isWide() && !usesQueue) {
+                ако (nodep->isWide() && !usesQueue) {
                     UASSERT_OBJ(m_wideTempRefp, nodep,
                                 "Wide op " << nodep->prettyTypeName()
                                            << " w/ no temp, perhaps missing op in V3EmitC?");
                     commaOut();
                     putOut();
-                    if (!m_wideTempRefp->selfPointer().isEmpty()) {
+                    ако (!m_wideTempRefp->selfPointer().isEmpty()) {
                         emitDereference(m_wideTempRefp,
                                         m_wideTempRefp->selfPointerProtect(m_useSelfForThis));
                     }
                     out += varName(m_wideTempRefp->varp());
                     m_wideTempRefp = nullptr;
                     needComma = true;
-                } else if (usesQueue) {
+                } иначе ако (usesQueue) {
                     commaOut();
                     putOut();
                     iterateAndNextConstNull(nodep->backp()->op2p());
@@ -131,21 +131,21 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
                 break;
             default: nodep->v3fatalSrc("Unknown emitOperator format code: %" << pos[0]); break;
             }
-            if (detail) {
+            ако (detail) {
                 // Get next letter of %[nlrt]
                 ++pos;
                 switch (pos[0]) {
                 case 'q':
                     putOut();
                     // If we are assigning this to a queue we need to get the return type
-                    if (VN_IS(detailp->backp(), Assign)
+                    ако (VN_IS(detailp->backp(), Assign)
                         && VN_IS(detailp->backp()->op2p()->dtypep()->skipRefp(), QueueDType)) {
                         puts("R");  // R for queue
                         usesQueue = true;
-                    } else if (VN_IS(detailp->dtypep()->skipRefp(), QueueDType)
+                    } иначе ако (VN_IS(detailp->dtypep()->skipRefp(), QueueDType)
                                || VN_IS(detailp->dtypep()->skipRefp(), StreamDType)) {
                         puts("R");  // R for queue
-                    } else {
+                    } иначе {
                         emitIQW(detailp);
                     }
                     break;
@@ -155,11 +155,11 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
                     needComma = true;
                     break;
                 case 'W':
-                    if (lhsp->isWide()) {
+                    ако (lhsp->isWide()) {
                         commaOut();
                         out += cvtToStr(lhsp->widthWords());
                         needComma = true;
-                    } else if (VN_IS(lhsp, StreamR)) {
+                    } иначе ако (VN_IS(lhsp, StreamR)) {
                         commaOut();
                         out += cvtToStr(rhsp->widthWords());
                         needComma = true;
@@ -177,16 +177,16 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
                     break;
                 }
             }
-        } else if (pos[0] == ')') {
+        } иначе ако (pos[0] == ')') {
             nextComma = "";
             out += ')';
-        } else if (pos[0] == '(') {
+        } иначе ако (pos[0] == '(') {
             commaOut();
             needComma = false;
             out += '(';
-        } else {
+        } иначе {
             // Normal text
-            if (std::isalnum(pos[0])) needComma = true;
+            ако (std::isalnum(pos[0])) needComma = true;
             commaOut();
             out += pos[0];
         }
@@ -196,12 +196,12 @@ void EmitCFunc::emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, 
 
 bool EmitCFunc::displayEmitHeader(AstNode* nodep) {
     bool isStmt = false;
-    if (const AstFScanF* const dispp = VN_CAST(nodep, FScanF)) {
+    ако (const AstFScanF* const dispp = VN_CAST(nodep, FScanF)) {
         isStmt = false;
         putns(nodep, "VL_FSCANF_INX(");
         iterateConst(dispp->filep());
         puts(",");
-    } else if (const AstSScanF* const dispp = VN_CAST(nodep, SScanF)) {
+    } иначе ако (const AstSScanF* const dispp = VN_CAST(nodep, SScanF)) {
         isStmt = false;
         putns(nodep, "VL_SSCANF_I");
         emitIQW(dispp->fromp());
@@ -210,32 +210,32 @@ bool EmitCFunc::displayEmitHeader(AstNode* nodep) {
         puts(",");
         iterateConst(dispp->fromp());
         puts(",");
-    } else if (const AstDisplay* const dispp = VN_CAST(nodep, Display)) {
+    } иначе ако (const AstDisplay* const dispp = VN_CAST(nodep, Display)) {
         isStmt = true;
-        if (dispp->filep()) {
+        ако (dispp->filep()) {
             putns(nodep, "VL_FWRITEF_NX(");
             iterateConst(dispp->filep());
             puts(",");
-        } else {
+        } иначе {
             putns(nodep, "VL_WRITEF_NX(");
         }
-    } else if (const AstSFormat* const dispp = VN_CAST(nodep, SFormat)) {
+    } иначе ако (const AstSFormat* const dispp = VN_CAST(nodep, SFormat)) {
         isStmt = true;
         puts("VL_SFORMAT_NX(");
-        if (!dispp->lhsp()->dtypep()->isString()) {
+        ако (!dispp->lhsp()->dtypep()->isString()) {
             puts(cvtToStr(dispp->lhsp()->widthMin()));
             putbs(",");
         }
         iterateConst(dispp->lhsp());
         emitDatap(dispp->lhsp());
         putbs(",");
-    } else if (VN_IS(nodep, SFormatF)) {
+    } иначе ако (VN_IS(nodep, SFormatF)) {
         isStmt = false;
         putns(nodep, "VL_SFORMATF_N_NX(");
-    } else {
+    } иначе {
         nodep->v3fatalSrc("Unknown displayEmit node type");
     }
-    return isStmt;
+    върни isStmt;
 }
 
 void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullptr for AstScan
@@ -244,19 +244,19 @@ void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullp
     const bool exprFormat = fmtp && fmtp->exprFormat();
     bool needsScope = exprFormat;
     bool needsTimescale = exprFormat;
-    int formatArgs = 0;
-    if (!exprFormat) {
+    цяло formatArgs = 0;
+    ако (!exprFormat) {
         // Check display and argument count to head-off later runtime issues
         bool inPct = false;
         bool ignore = false;
-        for (char ch : vformat) {
+        за (char ch : vformat) {
             // UINFO(1, "Parse '" << *pos << "'  IP" << inPct << " List " << cvtToHex(elistp));
-            if (!inPct && ch == '%') {
+            ако (!inPct && ch == '%') {
                 inPct = true;
                 ignore = false;
-            } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
-            } else if (!inPct) {  // Normal text
-            } else {  // Format character
+            } иначе ако (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+            } иначе ако (!inPct) {  // Normal text
+            } иначе {  // Format character
                 inPct = false;
                 ch = std::tolower(ch);
                 switch (ch) {
@@ -271,103 +271,103 @@ void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullp
                     ++formatArgs;
                     break;
                 default:
-                    if (!ignore && V3Number::displayedFmtHasArg(ch, isScan)) ++formatArgs;
+                    ако (!ignore && V3Number::displayedFmtHasArg(ch, isScan)) ++formatArgs;
                     break;
                 }
             }
         }
     }
 
-    if (vformat.empty() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
-        return;  // NOP
+    ако (vformat.empty() && VN_IS(nodep, Display))  // not fscanf etc, as they need to return value
+        върни;  // NOP
 
     const bool isStmt = displayEmitHeader(nodep);
 
-    if (exprFormat) {
+    ако (exprFormat) {
         UASSERT_OBJ(exprsp, nodep, "Missing format expression");
         iterateConst(exprsp);
         emitDatap(exprsp);
         exprsp = exprsp->nextp();
-    } else {
+    } иначе {
         ofp()->putsQuoted(vformat);
     }
 
-    int exprArgs = 0;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) ++exprArgs;
-    if (VL_UNCOVERABLE(!exprFormat && exprArgs != formatArgs)) {  // LCOV_EXCL_START
+    цяло exprArgs = 0;
+    за (AstNode* argp = exprsp; argp; argp = argp->nextp()) ++exprArgs;
+    ако (VL_UNCOVERABLE(!exprFormat && exprArgs != formatArgs)) {  // LCOV_EXCL_START
         // expectDisplay() checks this first, so probably internal error if found here
         nodep->v3error("Internal: Missing or extra arguments for $display-like format, "
                        << " expression had " << exprArgs << ", format had " << formatArgs);
     }  // LCOV_EXCL_STOP
 
     // argc for error check. Also MSVC++ requires va_args to not be off a reference
-    int argc = 0;
-    if (needsScope) ++argc;
-    if (needsTimescale) ++argc;
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    цяло argc = 0;
+    ако (needsScope) ++argc;
+    ако (needsTimescale) ++argc;
+    за (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
         ++argc;
         const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-        if (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
+        ако (fargp && fargp->formatAttr().isEnum()) ++argc;  // Additional name argument
     }
     ofp()->puts("," + std::to_string(argc));
 
-    if (needsScope) {
+    ако (needsScope) {
         AstScopeName* const scopenamep = fmtp ? fmtp->scopeNamep() : nullptr;
         UASSERT_OBJ(scopenamep, nodep, "Display with %m but no AstScopeName");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::SCOPE}.ascii() + "'");
-        if (scopenamep->selfRelative()) {
+        ако (scopenamep->selfRelative()) {
             // vlNamep is catName(name(), instance), so starts with '.' when the model is unnamed
             const string namep = string{m_useSelfForThis ? "vlSelf" : "this"} + "->vlNamep";
             ofp()->puts(",(vlSymsp->name()[0] ? " + namep + " : " + namep + " + 1),");
             ofp()->putsQuoted(scopenamep->scopeAttr());
-        } else {
+        } иначе {
             ofp()->puts(",vlSymsp->name(),");
             ofp()->putsQuoted(scopenamep->scopePrettySymName());
         }
     }
 
-    if (needsTimescale) {
+    ако (needsTimescale) {
         VTimescale timeunit = VTimescale::NONE;
-        if (const AstDisplay* const anodep = VN_CAST(nodep, Display)) {
+        ако (const AstDisplay* const anodep = VN_CAST(nodep, Display)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSFormat* const anodep = VN_CAST(nodep, SFormat)) {
+        } иначе ако (const AstSFormat* const anodep = VN_CAST(nodep, SFormat)) {
             timeunit = anodep->fmtp()->timeunit();
-        } else if (const AstSScanF* const anodep = VN_CAST(nodep, SScanF)) {
+        } иначе ако (const AstSScanF* const anodep = VN_CAST(nodep, SScanF)) {
             timeunit = anodep->timeunit();
-        } else if (const AstSFormatF* const anodep = VN_CAST(nodep, SFormatF)) {
+        } иначе ако (const AstSFormatF* const anodep = VN_CAST(nodep, SFormatF)) {
             timeunit = anodep->timeunit();
         }
         UASSERT_OBJ(!timeunit.isNone(), nodep,
                     "Use of %t must be under AstDisplay, AstSFormat, or AstSFormatF, or "
                     "SScanF, and timeunit set");
         ofp()->puts(", '"s + VFormatAttr{VFormatAttr::TIMEUNIT}.ascii() + "'");
-        ofp()->puts(","s + cvtToStr((int)timeunit.powerOfTen()));
+        ofp()->puts(","s + cvtToStr((цяло)timeunit.powerOfTen()));
     }
 
     // Arguments
-    for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+    за (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
         ofp()->indentInc();
         ofp()->putbs("");
         AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
         AstNode* const subargp = fargp ? fargp->exprp() : argp;
         const VFormatAttr formatAttr = AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep());
         puts(", '"s + formatAttr.ascii() + '\'');
-        if (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
+        ако (formatAttr.isSigned() || formatAttr.isUnsigned() || formatAttr.isEnum())
             puts("," + cvtToStr(subargp->widthMin()));
         const bool addrof = isScan || formatAttr.isString() || formatAttr.isComplex();
         const bool wideEnum = formatAttr.isEnum() && subargp->isWide();
         puts(",");
-        if (wideEnum) puts("static_cast<const EData*>(");
-        if (addrof) puts("&(");
-        if (VN_IS(subargp, StreamR))
+        ако (wideEnum) puts("static_cast<const EData*>(");
+        ако (addrof) puts("&(");
+        ако (VN_IS(subargp, StreamR))
             emitStreamR(
                 VN_CAST(subargp, StreamR),
                 nodep);  // This has to be done here because streamR doesn't know what it returns
-        else { iterateConst(subargp); }
-        if (addrof) puts(")");
-        if (!addrof) emitDatap(argp);
-        if (wideEnum) puts(")");
-        if (formatAttr.isEnum()) {
+        иначе { iterateConst(subargp); }
+        ако (addrof) puts(")");
+        ако (!addrof) emitDatap(argp);
+        ако (wideEnum) puts(")");
+        ако (formatAttr.isEnum()) {
             puts(", '"s + VFormatAttr{VFormatAttr::STRING}.ascii() + "', &(");
             iterateConst(fargp->namep());
             puts(")");
@@ -376,9 +376,9 @@ void EmitCFunc::displayNode(AstNode* nodep, AstSFormatF* fmtp,  // fmtp is nullp
     }
 
     // End
-    if (isStmt) {
+    ако (isStmt) {
         puts(");\n");
-    } else {
+    } иначе {
         puts(") ");
     }
 }
@@ -387,24 +387,24 @@ void EmitCFunc::emitCCallArgs(const AstNodeCCall* nodep, const string& selfPoint
                               bool inProcess) {
     putns(nodep, "(");
     bool comma = false;
-    if (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
+    ако (nodep->funcp()->isLoose() && !nodep->funcp()->isStatic()) {
         UASSERT_OBJ(!selfPointer.empty(), nodep, "Call to loose method without self pointer");
         puts(selfPointer);
         comma = true;
     }
-    if (nodep->funcp()->needProcess()) {
-        if (comma) puts(", ");
-        if (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
+    ако (nodep->funcp()->needProcess()) {
+        ако (comma) puts(", ");
+        ако (VN_IS(nodep->backp(), CAwait) || !nodep->funcp()->isCoroutine()) {
             puts("vlProcess");
-        } else if (inProcess) {
+        } иначе ако (inProcess) {
             puts("std::make_shared<VlProcess>(vlProcess)");
-        } else {
+        } иначе {
             puts("std::make_shared<VlProcess>()");
         }
         comma = true;
     }
-    if (!nodep->argTypes().empty()) {
-        if (comma) puts(", ");
+    ако (!nodep->argTypes().empty()) {
+        ако (comma) puts(", ");
         puts(nodep->argTypes());
         comma = true;
     }
@@ -413,15 +413,15 @@ void EmitCFunc::emitCCallArgs(const AstNodeCCall* nodep, const string& selfPoint
 }
 
 std::string EmitCFunc::dereferenceString(const std::string& pointer) const {
-    if (pointer[0] == '(' && pointer[1] == '&') {
+    ако (pointer[0] == '(' && pointer[1] == '&') {
         // remove "address of" followed by immediate dereference
         // Note: this relies on only the form '(&OBJECT)' being used by Verilator
-        return pointer.substr(2, pointer.length() - 3) + '.';
-    } else {
-        if (pointer == "vlSelf" && m_usevlSelfRef) {
-            return "vlSelfRef.";
-        } else {
-            return pointer + "->";
+        върни pointer.substr(2, pointer.length() - 3) + '.';
+    } иначе {
+        ако (pointer == "vlSelf" && m_usevlSelfRef) {
+            върни "vlSelfRef.";
+        } иначе {
+            върни pointer + "->";
         }
     }
 }
@@ -430,17 +430,17 @@ void EmitCFunc::emitDereference(AstNode* nodep, const string& pointer) {
 }
 
 void EmitCFunc::emitCvtPackStr(AstNode* nodep) {
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+    ако (const AstConst* const constp = VN_CAST(nodep, Const)) {
         emitConstantString(constp);
-    } else if (VN_IS(nodep->dtypep(), StreamDType)) {
+    } иначе ако (VN_IS(nodep->dtypep(), StreamDType)) {
         putnbs(nodep, "VL_CVT_PACK_STR_ND(");
         iterateAndNextConstNull(nodep);
         puts(")");
-    } else {
+    } иначе {
         putnbs(nodep, "VL_CVT_PACK_STR_N");
         emitIQW(nodep);
         puts("(");
-        if (nodep->isWide()) {
+        ако (nodep->isWide()) {
             // Note argument width, not node width (which is always 32)
             puts(cvtToStr(nodep->widthWords()));
             puts(", ");
@@ -453,9 +453,9 @@ void EmitCFunc::emitCvtPackStr(AstNode* nodep) {
 void EmitCFunc::emitConstant(AstConst* nodep) {
     // Put out constant set to the specified variable, or given variable in a string
     const V3Number& num = nodep->num();
-    if (num.isFourState()) {
+    ако (num.isFourState()) {
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: 4-state numbers in this context");
-        return;
+        върни;
     }
     putns(nodep, num.emitC());
 }
@@ -464,7 +464,7 @@ void EmitCFunc::emitConstantString(const AstConst* nodep) {
     // Const might be a Verilog array-type string, but need to always output std::string
     putnbs(nodep, "std::string{");
     const string str = nodep->num().toString();
-    if (!str.empty()) putsQuoted(str);
+    ако (!str.empty()) putsQuoted(str);
     puts("}");
 }
 
@@ -478,14 +478,14 @@ void EmitCFunc::emitVarReset(const string& prefix, AstVar* varp, bool constructi
               ? varName(varp)
               : vlSelf + varName(varp);
     const string newPrefix = prefix + varNameProtected;
-    if (varp->isIO() && m_modp->isTop() && optSystemC()) {
+    ако (varp->isIO() && m_modp->isTop() && optSystemC()) {
         // System C top I/O doesn't need loading, as the lower level subinst code does it.}
-    } else if (varp->isParam()) {
+    } иначе ако (varp->isParam()) {
         UASSERT_OBJ(varp->valuep(), varp, "No init for a param?");
         // If a simple CONST value we initialize it using an enum
         // If an ARRAYINIT we initialize it using an initial block similar to a signal
         // puts("// parameter "+varp->nameProtect()+" = "+varp->valuep()->name()+"\n");
-    } else {
+    } иначе {
         putns(varp,
               emitVarResetRecurse(varp, constructing, newPrefix, dtypep, 0, "", varp->valuep()));
     }
@@ -493,54 +493,54 @@ void EmitCFunc::emitVarReset(const string& prefix, AstVar* varp, bool constructi
 
 string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
                                       const string& varNameProtected, AstNodeDType* dtypep,
-                                      int depth, const string& suffix, const AstNode* valuep) {
+                                      цяло depth, const string& suffix, const AstNode* valuep) {
     dtypep = dtypep->skipRefp();
     AstBasicDType* const basicp = dtypep->basicp();
     // Returns string to do resetting, empty to do nothing (which caller should handle)
-    if (AstAssocArrayDType* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
+    ако (AstAssocArrayDType* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
         // Access std::array as C array
         const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        върни pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                      depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (AstWildcardArrayDType* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
+    } иначе ако (AstWildcardArrayDType* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
         // Access std::array as C array
         const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        върни pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                      depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, CDType)) {
-        return "";  // Constructor does it
-    } else if (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
-        return "";  // Covergroup constructor creates the runtime and assigns the pointer
-    } else if (const AstClassRefDType* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
-        return adtypep->rawPointer() ? varNameProtected + suffix + " = nullptr;\n" : "";
-    } else if (VN_IS(dtypep, IfaceRefDType)) {
-        return varNameProtected + suffix + " = nullptr;\n";
-    } else if (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
+    } иначе ако (VN_IS(dtypep, CDType)) {
+        върни "";  // Constructor does it
+    } иначе ако (VN_IS(dtypep, CoverCrossDType) || VN_IS(dtypep, CoverpointDType)) {
+        върни "";  // Covergroup constructor creates the runtime and assigns the pointer
+    } иначе ако (const AstClassRefDType* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
+        върни adtypep->rawPointer() ? varNameProtected + suffix + " = nullptr;\n" : "";
+    } иначе ако (VN_IS(dtypep, IfaceRefDType)) {
+        върни varNameProtected + suffix + " = nullptr;\n";
+    } иначе ако (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
         const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        върни pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                      depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
+    } иначе ако (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
         const string pre = constructing ? "" : varNameProtected + suffix + ".clear();\n";
-        return pre
+        върни pre
                + emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                      depth + 1, suffix + ".atDefault()", nullptr);
-    } else if (VN_IS(dtypep, SampleQueueDType)) {
-        return "";
-    } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+    } иначе ако (VN_IS(dtypep, SampleQueueDType)) {
+        върни "";
+    } иначе ако (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         UASSERT_OBJ(adtypep->hi() >= adtypep->lo(), varp,
                     "Should have swapped msb & lsb earlier.");
         const AstNodeDType* const elementp = adtypep->subDTypep()->skipRefp();
-        if (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
+        ако (!varp->isFuncLocal() && elementp->isIntegralOrPacked()) {
             // Scoped reset has no array-index input or mutable RNG state. Initialize one
             // element, then fill in the optimized runtime even when this code is cold.
             const string first
                 = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                       depth + 1, suffix + "[0]", nullptr);
             const string array = varNameProtected + suffix;
-            return first + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
+            върни first + "VL_UNPACKED_FILL(" + array + ".data(), sizeof(" + array + "[0]), "
                    + cvtToStr(adtypep->elementsConst()) + ");\n";
         }
         const string ivar = "__Vi"s + cvtToStr(depth);
@@ -550,39 +550,39 @@ string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
             = emitVarResetRecurse(varp, constructing, varNameProtected, adtypep->subDTypep(),
                                   depth + 1, suffix + "[" + ivar + "]", nullptr);
         const string post = "}\n";
-        return below.empty() ? "" : pre + below + post;
-    } else if (VN_IS(dtypep, NodeUOrStructDType) && !VN_AS(dtypep, NodeUOrStructDType)->packed()) {
+        върни below.empty() ? "" : pre + below + post;
+    } иначе ако (VN_IS(dtypep, NodeUOrStructDType) && !VN_AS(dtypep, NodeUOrStructDType)->packed()) {
         const AstNodeUOrStructDType* const sdtypep = VN_AS(dtypep, NodeUOrStructDType);
         string literal;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        за (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             const std::string line = emitVarResetRecurse(
                 varp, constructing, varNameProtected + suffix + "." + itemp->nameProtect(),
                 itemp->dtypep(), depth + 1, "", itemp->valuep());
-            if (!line.empty()) literal += line;
+            ако (!line.empty()) literal += line;
         }
-        return literal;
-    } else if (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
-        if (constructing) return "";  // String's constructor deals with it
-        return varNameProtected + suffix + ".clear();\n";
-    } else if (basicp && basicp->isForkSync()) {
-        return "";
-    } else if (basicp && basicp->isProcessRef()) {
-        return "";
-    } else if (basicp && basicp->isDelayScheduler()) {
-        return "";
-    } else if (basicp && basicp->isTriggerScheduler()) {
-        return "";
-    } else if (basicp && basicp->isDynamicTriggerScheduler()) {
-        return "";
-    } else if (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
-        return "";
-    } else if (basicp && basicp->isCovergroupInstHandle()) {
+        върни literal;
+    } иначе ако (basicp && basicp->keyword() == VBasicDTypeKwd::STRING) {
+        ако (constructing) върни "";  // String's constructor deals with it
+        върни varNameProtected + suffix + ".clear();\n";
+    } иначе ако (basicp && basicp->isForkSync()) {
+        върни "";
+    } иначе ако (basicp && basicp->isProcessRef()) {
+        върни "";
+    } иначе ако (basicp && basicp->isDelayScheduler()) {
+        върни "";
+    } иначе ако (basicp && basicp->isTriggerScheduler()) {
+        върни "";
+    } иначе ако (basicp && basicp->isDynamicTriggerScheduler()) {
+        върни "";
+    } иначе ако (basicp && (basicp->isRandomGenerator() || basicp->isStdRandomGenerator())) {
+        върни "";
+    } иначе ако (basicp && basicp->isCovergroupInstHandle()) {
         // The handle's own constructor deals with it.
-        return "";
-    } else if (basicp && (basicp->isEvent())) {
-        return "VlAssignableEvent{};\n";
-    } else if (basicp) {
+        върни "";
+    } иначе ако (basicp && (basicp->isEvent())) {
+        върни "VlAssignableEvent{};\n";
+    } иначе ако (basicp) {
         const bool zeroit
             = (varp->attrFileDescr()  // Zero so we don't do file IO if never $fopen
                || varp->isFuncLocal()  // Randomization too slow
@@ -594,22 +594,22 @@ string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
                        : (v3Global.opt.xInitial() == "fast" || v3Global.opt.xInitial() == "0")));
         const bool slow = !varp->isFuncLocal() && !varp->isClassMember();
         splitSizeInc(1);
-        if (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
+        ако (dtypep->isWide()) {  // Handle unpacked; not basicp->isWide
             string out;
-            if (valuep) {
+            ако (valuep) {
                 const AstConst* const constp = VN_AS(valuep, Const);
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
-                for (int w = 0; w < dtypep->widthWords(); ++w) {
+                за (цяло w = 0; w < dtypep->widthWords(); ++w) {
                     out += varNameProtected + suffix + "[" + cvtToStr(w) + "] = ";
                     out += cvtToStr(constp->num().edataWord(w)) + "U;\n";
                 }
-            } else {
+            } иначе {
                 out += zeroit ? (slow ? "VL_ZERO_RESET_W(" : "VL_ZERO_W(")
                               : (varp->isXTemp() ? "VL_SCOPED_RAND_RESET_ASSIGN_W("
                                                  : "VL_SCOPED_RAND_RESET_W(");
                 out += cvtToStr(dtypep->widthMin());
                 out += ", " + varNameProtected + suffix;
-                if (!zeroit) {
+                ако (!zeroit) {
                     emitVarResetScopeHash();
                     const uint64_t salt = VString::hashMurmur(varp->prettyName());
                     out += ", ";
@@ -620,10 +620,10 @@ string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
                 }
                 out += ");\n";
             }
-            return out;
-        } else {
+            върни out;
+        } иначе {
             string out = varNameProtected + suffix;
-            if (valuep) {
+            ако (valuep) {
                 out += " = ";
                 // TODO cleanup code shared between here, V3EmitCConstInit.h,
                 // EmitCFunc::emitVarReset, EmitCFunc::emitConstant
@@ -631,32 +631,32 @@ string EmitCFunc::emitVarResetRecurse(const AstVar* varp, bool constructing,
                 UASSERT_OBJ(constp, varp, "non-const initializer for variable");
                 out += cvtToStr(constp->num().edataWord(0)) + "U;\n";
                 out += ";\n";
-            } else if (zeroit) {
+            } иначе ако (zeroit) {
                 out += " = 0;\n";
-            } else {
+            } иначе {
                 emitVarResetScopeHash();
                 const uint64_t salt = VString::hashMurmur(varp->prettyName());
                 out += " = VL_SCOPED_RAND_RESET_";
-                if (varp->isXTemp()) out += "ASSIGN_";
+                ако (varp->isXTemp()) out += "ASSIGN_";
                 out += dtypep->charIQWN();
                 out += "(" + cvtToStr(dtypep->widthMin()) + ", "
                        + (m_classOrPackage ? m_classOrPackageHash : "__VscopeHash") + ", "
                        + std::to_string(salt) + "ull);\n";
             }
-            return out;
+            върни out;
         }
-    } else {  // LCOV_EXCL_BR_LINE
+    } иначе {  // LCOV_EXCL_BR_LINE
         v3fatalSrc("Unknown node type in reset generator: " << varp->prettyTypeName());
     }
-    return "";
+    върни "";
 }
 
 void EmitCFunc::emitVarResetScopeHash() {
-    if (VL_LIKELY(m_createdScopeHash)) { return; }
-    if (m_classOrPackage) {
+    ако (VL_LIKELY(m_createdScopeHash)) { върни; }
+    ако (m_classOrPackage) {
         m_classOrPackageHash
             = std::to_string(VString::hashMurmur(m_classOrPackage->name())) + "ULL";
-    } else {
+    } иначе {
         puts(string("const uint64_t __VscopeHash = VL_MURMUR64_HASH(")
              + (m_useSelfForThis ? "vlSelf" : "this") + "->vlNamep);\n");
     }

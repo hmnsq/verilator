@@ -67,19 +67,19 @@ class V3SharedTmps final {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            върни hash.value();
         }
         size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
+            върни (*this)(key.m_modp, key.m_name, key.m_dtypep);
         }
     };
     struct KeyEqual final {
         bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
                         const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
+            върни key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
         }
         bool operator()(const Key& a, const Key& b) const {
-            return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+            върни (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
         }
     };
     struct Tmps final {
@@ -114,15 +114,15 @@ public:
                       const std::string& name = "") {
         const AstNodeModule* const modp = scopep->modp();
         const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+            върни std::make_pair(Key{modp, name, dtypep}, Tmps{});
         });
         Tmps& tmps = pair.first.value();
         const size_t n = tmps.m_nUsed[scopep]++;
-        if (n < tmps.m_varps.size()) {
+        ако (n < tmps.m_varps.size()) {
             ++m_nReused;
-        } else {
+        } иначе {
             std::string uniqueName = m_prefix + "_";
-            if (!name.empty()) uniqueName += name + "_";
+            ако (!name.empty()) uniqueName += name + "_";
             uniqueName += std::to_string(m_nVars++);
             AstVar* const varp = new AstVar{flp, m_varType, uniqueName, dtypep};
             scopep->modp()->addStmtsp(varp);
@@ -130,16 +130,16 @@ public:
         }
         AstVarScope* const vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
         scopep->addVarsp(vscp);
-        return vscp;
+        върни vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
     AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
                       const std::string& name = "") {
-        return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
+        върни make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
     }
 
     // Number of temporaries using an existing variable
-    size_t nReused() const { return m_nReused; }
+    size_t nReused() const { върни m_nReused; }
 };
 
 #endif  // Guard

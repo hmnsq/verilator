@@ -30,46 +30,46 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //======================================================================
 // V3ParseImp functions requiring bison state
 
-int V3ParseImp::bisonParse() {
+цяло V3ParseImp::bisonParse() {
     // Use --debugi-bison 9 to enable this
-    if (PARSEP->debugBison() >= 9) yydebug = 1;
-    return yyparse();
+    ако (PARSEP->debugBison() >= 9) yydebug = 1;
+    върни yyparse();
 }
 
-const char* V3ParseImp::tokenName(int token) {
-#if YYDEBUG || YYERROR_VERBOSE
+const char* V3ParseImp::tokenName(цяло token) {
+#ако YYDEBUG || YYERROR_VERBOSE
     static const char** nameTablep = nullptr;
-    if (!nameTablep) {
-        int size;
-        for (size = 0; yytname[size]; ++size) {}
+    ако (!nameTablep) {
+        цяло size;
+        за (size = 0; yytname[size]; ++size) {}
         nameTablep = new const char*[size];
         // Workaround bug in bison's which have '!' in yytname but not token values
-        int iout = 0;
-        for (int i = 0; yytname[i]; ++i) {
-            if (yytname[i][0] == '\'') continue;
+        цяло iout = 0;
+        за (цяло i = 0; yytname[i]; ++i) {
+            ако (yytname[i][0] == '\'') continue;
             nameTablep[iout++] = yytname[i];
         }
     }
-    if (token >= 255) {
-        return nameTablep[token - 255];
-    } else {
+    ако (token >= 255) {
+        върни nameTablep[token - 255];
+    } иначе {
         static char s_ch[2];
         s_ch[0] = token;
         s_ch[1] = '\0';
-        return s_ch;
+        върни s_ch;
     }
-#else
-    return "";
+#иначе
+    върни "";
 #endif
 }
 
 void V3ParseImp::candidatePli(VSpellCheck* spellerp) {
-#if !YYERROR_VERBOSE
+#ако !YYERROR_VERBOSE
 #error "Need lex token names"
 #endif
-    for (int i = 0; yytname[i]; ++i) {
-        if (yytname[i][0] != '\"') continue;
-        if (yytname[i][1] != '$') continue;
+    за (цяло i = 0; yytname[i]; ++i) {
+        ако (yytname[i][0] != '\"') continue;
+        ако (yytname[i][1] != '$') continue;
         spellerp->pushCandidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
     }
 }
@@ -87,54 +87,54 @@ void V3ParseImp::parserClear() {
 AstArg* V3ParseGrammar::argWrapList(AstNodeExpr* nodep) {
     // Convert list of expressions to list of arguments
     AstArg* outp = nullptr;
-    while (nodep) {
+    докато (nodep) {
         AstNodeExpr* const nextp = VN_AS(nodep->nextp(), NodeExpr);
-        if (nextp) nextp->unlinkFrBackWithNext();
+        ако (nextp) nextp->unlinkFrBackWithNext();
         outp = AstNode::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
         nodep = nextp;
     }
-    return outp;
+    върни outp;
 }
 
-AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, int value) {
+AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, цяло value) {
     AstAssignW* assignp = new AstAssignW{fileline, new AstParseRef{fileline, name},
                                          value ? new AstConst{fileline, AstConst::All1{}}
                                                : new AstConst{fileline, AstConst::All0{}}};
     AstStrengthSpec* strengthSpecp
         = new AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
     assignp->strengthSpecp(strengthSpecp);
-    return assignp;
+    върни assignp;
 }
 
 AstRange* V3ParseGrammar::scrubRangeMulti(AstNodeRange* nrangep) {
     // Remove any UnsizedRange's from list; preserves multi-dim chain via nextp().
-    for (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
+    за (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
         nextp = VN_AS(nodep->nextp(), NodeRange);
-        if (!VN_IS(nodep, Range)) {
+        ако (!VN_IS(nodep, Range)) {
             nodep->v3error(
                 "Unsupported or syntax error: Unsized range in instance or other declaration");
             nodep->unlinkFrBack();
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
         }
     }
-    return VN_CAST(nrangep, Range);
+    върни VN_CAST(nrangep, Range);
 }
 AstRange* V3ParseGrammar::scrubRange(AstNodeRange* nrangep) {
     AstRange* const rangep = scrubRangeMulti(nrangep);
-    if (rangep && rangep->nextp()) {
+    ако (rangep && rangep->nextp()) {
         // Gate primitives only support a single dimension
         rangep->nextp()->v3warn(E_UNSUPPORTED, "Unsupported: Multidimensional gate instances.");
         rangep->nextp()->unlinkFrBackWithNext()->deleteTree();
     }
-    return rangep;
+    върни rangep;
 }
 
 AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED {
     // SEL(PARSELVALUE, ...) -> SEL(fromp, ...)
     AstNodePreSel* subSelp = selp;
-    while (true) {
-        if (VN_IS(subSelp->fromp(), ParseHolder)) break;
-        if (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
+    докато (true) {
+        ако (VN_IS(subSelp->fromp(), ParseHolder)) break;
+        ако (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
             subSelp = lowerSelp;
             continue;
         }
@@ -143,7 +143,7 @@ AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp)
     AstNode* subSelFromp = subSelp->fromp();
     subSelFromp->replaceWith(fromp);
     VL_DO_DANGLING(subSelFromp->deleteTree(), subSelFromp);
-    return selp;
+    върни selp;
 }
 
 AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nrangep,
@@ -151,92 +151,92 @@ AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nra
     // Split RANGE0-RANGE1-RANGE2
     // into ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
     AstNodeDType* arrayp = basep;
-    if (nrangep) {  // Maybe no range - return unmodified base type
-        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
-        while (nrangep) {
+    ако (nrangep) {  // Maybe no range - return unmodified base type
+        докато (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
+        докато (nrangep) {
             AstNodeRange* const prevp = VN_AS(nrangep->backp(), NodeRange);
-            if (prevp) nrangep->unlinkFrBack();
+            ако (prevp) nrangep->unlinkFrBack();
             AstRange* const rangep = VN_CAST(nrangep, Range);
-            if (rangep && isPacked) {
+            ако (rangep && isPacked) {
                 arrayp
                     = new AstPackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp, rangep};
-            } else if (rangep
+            } иначе ако (rangep
                        && (VN_IS(rangep->leftp(), Unbounded)
                            || VN_IS(rangep->rightp(), Unbounded))) {
                 arrayp = new AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                            rangep->rightp()->cloneTree(true)};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (rangep) {
+            } иначе ако (rangep) {
                 arrayp = new AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
                                                  rangep};
-            } else if (VN_IS(nrangep, UnsizedRange)) {
+            } иначе ако (VN_IS(nrangep, UnsizedRange)) {
                 arrayp = new AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, BracketRange)) {
+            } иначе ако (VN_IS(nrangep, BracketRange)) {
                 const AstBracketRange* const arangep = VN_AS(nrangep, BracketRange);
                 AstNode* const keyp = arangep->elementsp()->unlinkFrBack();
                 arrayp = new AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                                   keyp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else if (VN_IS(nrangep, WildcardRange)) {
+            } иначе ако (VN_IS(nrangep, WildcardRange)) {
                 arrayp = new AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
                 VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
-            } else {
+            } иначе {
                 UASSERT_OBJ(0, nrangep, "Expected range or unsized range");
             }
             nrangep = prevp;
         }
     }
-    return arrayp;
+    върни arrayp;
 }
 
 AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
                                        AstNodeRange* arrayp, AstNode* attrsp) {
     UINFO(5, "  creVar " << name << "  decl=" << GRAMMARP->m_varDecl << "  io="
                          << GRAMMARP->m_varIO << "  dt=" << (GRAMMARP->m_varDTypep ? "set" : ""));
-    if (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
+    ако (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
         && GRAMMARP->m_varDecl == VVarType::PORT) {
         // Just a port list with variable name (not v2k format); AstPort already created
-        if (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
-        if (attrsp) {
+        ако (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
+        ако (attrsp) {
             // TODO: Merge attributes across list? Or warn attribute is ignored
             VL_DO_DANGLING(attrsp->deleteTree(), attrsp);
         }
-        return nullptr;
+        върни nullptr;
     }
 
     AstNodeDType* const dtypep = [&]() -> AstNodeDType* {
-        if (GRAMMARP->m_varDecl == VVarType::WREAL) {
+        ако (GRAMMARP->m_varDecl == VVarType::WREAL) {
             // dtypep might not be null, might be implicit LOGIC before we knew better
-            return new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
+            върни new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
         }
-        if (GRAMMARP->m_varDTypep) {
+        ако (GRAMMARP->m_varDTypep) {
             // May make new variables with same type, so clone
-            return GRAMMARP->m_varDTypep->cloneTree(false);
+            върни GRAMMARP->m_varDTypep->cloneTree(false);
         }
         // Created implicitly
-        if (m_insideProperty) {
-            if (m_typedPropertyPort) {
+        ако (m_insideProperty) {
+            ако (m_typedPropertyPort) {
                 fileline->v3warn(E_UNSUPPORTED, "Untyped property port following a typed port");
             }
-            return new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
+            върни new AstBasicDType{fileline, VBasicDTypeKwd::UNTYPED};
         }
-        return new AstBasicDType{fileline, LOGIC_IMPLICIT};
+        върни new AstBasicDType{fileline, LOGIC_IMPLICIT};
     }();
 
     // UINFO(0,"CREVAR "<<fileline->ascii()<<" decl="<<GRAMMARP->m_varDecl.ascii()<<"
     // io="<<GRAMMARP->m_varIO.ascii()<<endl);
     VVarType type = GRAMMARP->m_varDecl;
-    if (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
-        if (GRAMMARP->m_varIO.isAny()) {
+    ако (type == VVarType::UNKNOWN) {  // e.g. "output" non-ANSI standalone direction (vs "reg")
+        ако (GRAMMARP->m_varIO.isAny()) {
             type = VVarType::PORT;
-        } else {
+        } иначе {
             fileline->v3fatalSrc("Unknown signal type declared: " << type.ascii());
         }
     }
-    if (type == VVarType::GENVAR) {
+    ако (type == VVarType::GENVAR) {
         // Should be impossible as the grammar blocks this, but...
-        if (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
+        ако (arrayp) fileline->v3error("Genvars may not be arrayed: " << name);  // LCOV_EXCL_LINE
     }
 
     // Split RANGE0-RANGE1-RANGE2 into
@@ -248,22 +248,22 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     nodep->ansi(m_pinAnsi);
     nodep->declTyped(m_varDeclTyped);
     nodep->lifetime(m_varLifetime);
-    if (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
-    if (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
-    if (GRAMMARP->m_varIO != VDirection::NONE) {
+    ако (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
+    ако (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
+    ако (GRAMMARP->m_varIO != VDirection::NONE) {
         nodep->declDirection(GRAMMARP->m_varIO);
         nodep->direction(GRAMMARP->m_varIO);
     }
 
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
+    ако (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 0);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
+    ако (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
         AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 1);
         AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
     }
-    if (VN_IS(dtypep, ParseTypeDType)) {
+    ако (VN_IS(dtypep, ParseTypeDType)) {
         // Parser needs to know what is a type
         AstNode* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
         AstNode::addNext<AstNode, AstNode>(nodep, newp);
@@ -272,26 +272,26 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     // We need to autosize parameters and integers separately
     //
     // Propagate from current module tracing state
-    if (nodep->isGenVar()) {
+    ако (nodep->isGenVar()) {
         nodep->trace(false);
-    } else if (nodep->isParam() && !v3Global.opt.traceParams()) {
+    } иначе ако (nodep->isParam() && !v3Global.opt.traceParams()) {
         nodep->trace(false);
-    } else {
+    } иначе {
         nodep->trace(allTracingOn(nodep->fileline()));
     }
-    if (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
+    ако (nodep->varType().isVPIAccessible()) nodep->addAttrsp(GRAMMARP->cloneScopedSigAttr());
 
     // Remember the last variable created, so we can attach attributes to it in later parsing
     GRAMMARP->m_varAttrp = nodep;
     PARSEP->tagNodep(GRAMMARP->m_varAttrp);
-    return nodep;
+    върни nodep;
 }
 
 string V3ParseGrammar::unquoteString(FileLine* fileline, const std::string& text) {
     string errMsg;
     string res = VString::unquoteSVString(text, errMsg);
-    if (!errMsg.empty()) fileline->v3error(errMsg.c_str());
-    return res;
+    ако (!errMsg.empty()) fileline->v3error(errMsg.c_str());
+    върни res;
 }
 
-int V3ParseGrammar::s_typeImpNum = 0;
+цяло V3ParseGrammar::s_typeImpNum = 0;

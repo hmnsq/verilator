@@ -26,8 +26,8 @@ namespace {
 class CaptureUtil final {
 public:
     static std::string taskNameQ(const AstNodeFTask* taskp) {
-        if (!taskp) return "<null>";
-        return taskp->prettyNameQ();
+        ако (!taskp) върни "<null>";
+        върни taskp->prettyNameQ();
     }
 };
 
@@ -72,7 +72,7 @@ private:
     }
 
     void visit(AstNodeVarRef* nodep) override {
-        if (m_curTaskp && nodep->access().isWriteOrRW()
+        ако (m_curTaskp && nodep->access().isWriteOrRW()
             && (nodep->varp()->hasUserInit() || !m_inInitialSetup)) {
             UINFO(9, "undriven capture direct write in " << CaptureUtil::taskNameQ(m_curTaskp)
                                                          << " var=" << nodep->varp()->prettyNameQ()
@@ -85,8 +85,8 @@ private:
 
     void visit(AstNodeFTaskRef* nodep) override {
         // Record the call edge if resolved
-        if (m_curTaskp) {
-            if (const AstNodeFTask* const calleep = nodep->taskp()) {
+        ако (m_curTaskp) {
+            ако (const AstNodeFTask* const calleep = nodep->taskp()) {
                 UINFO(9, "undriven capture call edge " << CaptureUtil::taskNameQ(
                              m_curTaskp) << " -> " << CaptureUtil::taskNameQ(calleep));
                 m_cap.noteCallEdge(m_curTaskp, calleep);
@@ -104,10 +104,10 @@ V3UndrivenCapture::V3UndrivenCapture(AstNetlist* netlistp) {
     gather(netlistp);
 
     // Compute summaries for all tasks
-    for (const auto& kv : m_info) (void)computeWriteSummary(kv.first);
+    за (const auto& kv : m_info) (void)computeWriteSummary(kv.first);
 
     // Release the filter memory
-    for (auto& kv : m_info) {
+    за (auto& kv : m_info) {
         kv.second.calleesSet.clear();
         kv.second.calleesSet.rehash(0);
         kv.second.directWritesSet.clear();
@@ -123,24 +123,24 @@ void V3UndrivenCapture::gather(AstNetlist* netlistp) {
 const std::vector<AstVar*>& V3UndrivenCapture::writeSummary(const AstNodeFTask* taskp) {
     // Ensure entry exists even if empty
     (void)m_info[taskp];
-    return computeWriteSummary(taskp);
+    върни computeWriteSummary(taskp);
 }
 
 const std::vector<AstVar*>& V3UndrivenCapture::computeWriteSummary(const AstNodeFTask* taskp) {
     FTaskInfo& info = m_info[taskp];
 
-    if (info.state == State::DONE) {
+    ако (info.state == State::DONE) {
         UINFO(9, "undriven capture writeSummary cached size="
                      << info.writeSummary.size() << " for " << CaptureUtil::taskNameQ(taskp));
-        return info.writeSummary;
+        върни info.writeSummary;
     }
-    if (info.state == State::VISITING) {
+    ако (info.state == State::VISITING) {
         UINFO(9, "undriven capture recursion detected at "
                      << CaptureUtil::taskNameQ(taskp)
                      << " returning directWrites size=" << info.directWrites.size());
         // Cycle detected. return directWrites only to guarantee termination.
-        if (info.writeSummary.empty()) info.writeSummary = info.directWrites;
-        return info.writeSummary;
+        ако (info.writeSummary.empty()) info.writeSummary = info.directWrites;
+        върни info.writeSummary;
     }
 
     info.state = State::VISITING;
@@ -153,17 +153,17 @@ const std::vector<AstVar*>& V3UndrivenCapture::computeWriteSummary(const AstNode
 
     // Simple lambda for filtering duplicates
     auto addVar = [&](AstVar* v) {
-        if (seen.insert(v).second) info.writeSummary.push_back(v);
+        ако (seen.insert(v).second) info.writeSummary.push_back(v);
     };
 
     // Start with direct writes
-    for (AstVar* v : info.directWrites) addVar(v);
+    за (AstVar* v : info.directWrites) addVar(v);
 
     // Add callee summaries
-    for (const AstNodeFTask* calleep : info.callees) {
-        if (m_info.find(calleep) == m_info.end()) continue;
+    за (const AstNodeFTask* calleep : info.callees) {
+        ако (m_info.find(calleep) == m_info.end()) continue;
         const std::vector<AstVar*>& sub = computeWriteSummary(calleep);
-        for (AstVar* v : sub) addVar(v);
+        за (AstVar* v : sub) addVar(v);
     }
 
     UINFO(9, "undriven capture writeSummary computed size=" << info.writeSummary.size() << " for "
@@ -171,7 +171,7 @@ const std::vector<AstVar*>& V3UndrivenCapture::computeWriteSummary(const AstNode
 
     // We are done, so set the m_info state correctly and return the vector of variables
     info.state = State::DONE;
-    return info.writeSummary;
+    върни info.writeSummary;
 }
 
 void V3UndrivenCapture::noteTask(const AstNodeFTask* taskp) { (void)m_info[taskp]; }
@@ -181,17 +181,17 @@ void V3UndrivenCapture::noteDirectWrite(const AstNodeFTask* taskp, AstVar* varp)
 
     // Exclude function return variable (not an externally visible side-effect)
     AstVar* const retVarp = VN_CAST(taskp->fvarp(), Var);
-    if (retVarp && varp == retVarp) return;
+    ако (retVarp && varp == retVarp) върни;
 
     // Filter out duplicates.
-    if (info.directWritesSet.insert(varp).second) info.directWrites.push_back(varp);
+    ако (info.directWritesSet.insert(varp).second) info.directWrites.push_back(varp);
 }
 
 void V3UndrivenCapture::noteCallEdge(const AstNodeFTask* callerp, const AstNodeFTask* calleep) {
     FTaskInfo& callerInfo = m_info[callerp];
     // Prevents duplicate entries from being appended, if calleep already exists then insert will
     // return false, and then is not inserted into the callees vector.
-    if (callerInfo.calleesSet.insert(calleep).second) { callerInfo.callees.push_back(calleep); }
+    ако (callerInfo.calleesSet.insert(calleep).second) { callerInfo.callees.push_back(calleep); }
     // Ensure callee entry exists, if already exists then this is a no-op.  unordered_map<> so
     // cheap.
     (void)m_info[calleep];

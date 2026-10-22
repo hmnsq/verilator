@@ -25,60 +25,60 @@
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
+цяло AstNode::width() const VL_MT_STABLE { върни dtypep() ? dtypep()->width() : 0; }
+цяло AstNode::widthMin() const VL_MT_STABLE { върни dtypep() ? dtypep()->widthMin() : 0; }
 bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+    върни dtypep() && dtypep()->width() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+цяло AstNode::widthInstrs() const {
+    върни (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
 }
 bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+    върни dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
 bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+    върни dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
 bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+    върни dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
 bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+    върни dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool AstNode::isSigned() const VL_MT_STABLE { върни dtypep() && dtypep()->isSigned(); }
 
 bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+    върни (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
+bool AstNode::isNull() const { върни VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
 bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+    върни (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
 }
 bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+    върни (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
+bool AstNode::isOne() const { върни (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
 bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+    върни (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
 bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+    върни (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
 bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+    върни sameTreeIter(this, node2p, true, false);
 }
 bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+    върни sameTreeIter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+цяло AstNodeArrayDType::left() const VL_MT_STABLE { върни rangep()->leftConst(); }
+цяло AstNodeArrayDType::right() const VL_MT_STABLE { върни rangep()->rightConst(); }
+цяло AstNodeArrayDType::hi() const VL_MT_STABLE { върни rangep()->hiConst(); }
+цяло AstNodeArrayDType::lo() const VL_MT_STABLE { върни rangep()->loConst(); }
+цяло AstNodeArrayDType::elementsConst() const VL_MT_STABLE { върни rangep()->elementsConst(); }
+VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { върни VNumRange{left(), right()}; }
 
 AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
@@ -86,7 +86,7 @@ AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(FileLine* fl, цяло left, цяло right)
     : ASTGEN_SUPER_Range(fl) {
     leftp(new AstConst{fl, static_cast<uint32_t>(left)});
     rightp(new AstConst{fl, static_cast<uint32_t>(right)});
@@ -96,13 +96,13 @@ AstRange::AstRange(FileLine* fl, const VNumRange& range)
     leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
     rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
+цяло AstRange::leftConst() const VL_MT_STABLE {
     const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+    върни (constp ? constp->toSInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
+цяло AstRange::rightConst() const VL_MT_STABLE {
     const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+    върни (constp ? constp->toSInt() : 0);
 }
 
 AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
@@ -112,7 +112,7 @@ AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
+    const цяло width = subDTypep()->width() * rangep->elementsConst();
     widthForce(width, width);
 }
 AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
@@ -120,13 +120,13 @@ AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* 
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
+    const цяло width = subDTypep()->width() * rangep->elementsConst();
     widthForce(width, width);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
+цяло AstQueueDType::boundConst() const VL_MT_STABLE {
     const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+    върни (constp ? constp->toSInt() : 0);
 }
 
 AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
@@ -135,22 +135,22 @@ AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
     dtypeSetVoid();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+цяло AstBasicDType::hi() const { върни (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+цяло AstBasicDType::lo() const { върни (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+цяло AstBasicDType::elements() const {
+    върни (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
 bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+    върни (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool AstActive::hasClocked() const { върни m_sentreep->hasClocked(); }
+bool AstActive::hasCombo() const { върни m_sentreep->hasCombo(); }
+bool AstActive::hasInitial() const { върни m_sentreep->hasInitial(); }
+bool AstActive::hasStatic() const { върни m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool AstNodeModule::isDollarUnit() const { върни this == v3Global.rootp()->dollarUnitPkgp(); }
+bool AstNodeModule::isConstPool() const { върни this == v3Global.rootp()->constPoolPkgp(); }
 
 AstAlways::AstAlways(AstAssignW* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
@@ -164,7 +164,7 @@ AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr*
 
 bool AstVar::sameNode(const AstNode* samep) const {
     const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+    върни m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
@@ -178,9 +178,9 @@ AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* match
 
 AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    ако (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } иначе ако (varp) {
         m_name = varp->name();
     }
 }
@@ -194,18 +194,18 @@ AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() const { върни varp() ? varp()->name() : nameThis(); }
 
 bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+    ако (varScopep()) върни (varScopep() == samep->varScopep() && access() == samep->access());
+    върни (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
             && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
 }
 bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+    ако (varScopep()) върни (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+    върни (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
             && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
             && varp()->sameNode(samep->varp()));
 }
@@ -217,19 +217,19 @@ AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const V
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+AstStmtExpr* AstNodeExpr::makeStmt() { върни new AstStmtExpr{fileline(), this}; }
 
 AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+    върни VN_DBG_AS(op2p(), ConsArrayItem);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
 inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+    за (AstNode* curp = nodep; curp; curp = curp->backp()) {
+        ако (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) върни modp;
     }
-    return nullptr;
+    върни nullptr;
 }
 
 #endif  // Guard

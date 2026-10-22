@@ -41,7 +41,7 @@ class UnrollGenVisitor final : public VNVisitor {
     void replaceVarRef(AstNode* bodyp, AstNode* varValuep) {
         // Replace all occurances of loop variable in bodyp and next
         bodyp->foreachAndNext([this, varValuep](AstVarRef* refp) {
-            if (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
+            ако (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
                 AstNode* const newconstp = varValuep->cloneTree(false);
                 refp->replaceWith(newconstp);
                 VL_DO_DANGLING(pushDeletep(refp), refp);
@@ -52,7 +52,7 @@ class UnrollGenVisitor final : public VNVisitor {
     bool cantUnroll(AstNode* nodep, const char* reason) const {
         UINFO(4, "   Can't Unroll: " << reason << " :" << nodep);
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: Can't unroll generate for; " << reason);
-        return false;
+        върни false;
     }
 
     bool forUnrollCheck(
@@ -63,17 +63,17 @@ class UnrollGenVisitor final : public VNVisitor {
         AstNode* bodysp) {
         // To keep the IF levels low, we return as each test fails.
         UINFO(4, " FOR Check " << nodep);
-        if (initp) UINFO(6, "    Init " << initp);
-        if (condp) UINFO(6, "    Cond " << condp);
-        if (incp) UINFO(6, "    Inc  " << incp);
+        ако (initp) UINFO(6, "    Init " << initp);
+        ако (condp) UINFO(6, "    Cond " << condp);
+        ако (incp) UINFO(6, "    Inc  " << incp);
 
         // Initial value check
         AstAssign* const initAssp = VN_CAST(initp, Assign);
-        if (!initAssp) return cantUnroll(nodep, "no initial assignment");
+        ако (!initAssp) върни cantUnroll(nodep, "no initial assignment");
         UASSERT_OBJ(!(initp->nextp() && initp->nextp() != nodep), nodep,
                     "initial assignment shouldn't be a list");
-        if (!VN_IS(initAssp->lhsp(), VarRef)) {
-            return cantUnroll(nodep, "no initial assignment to simple variable");
+        ако (!VN_IS(initAssp->lhsp(), VarRef)) {
+            върни cantUnroll(nodep, "no initial assignment to simple variable");
         }
         //
         // Condition check
@@ -81,11 +81,11 @@ class UnrollGenVisitor final : public VNVisitor {
         //
         // Assignment of next value check
         const AstAssign* const incAssp = VN_CAST(incp, Assign);
-        if (!incAssp) return cantUnroll(nodep, "no increment assignment");
-        if (incAssp->nextp()) return cantUnroll(nodep, "multiple increments");
+        ако (!incAssp) върни cantUnroll(nodep, "no increment assignment");
+        ако (incAssp->nextp()) върни cantUnroll(nodep, "multiple increments");
 
         m_forVarp = VN_AS(initAssp->lhsp(), VarRef)->varp();
-        if (!m_forVarp->isGenVar()) {
+        ако (!m_forVarp->isGenVar()) {
             nodep->v3error("Non-genvar used in generate for: " << m_forVarp->prettyNameQ());
         }
         V3Const::constifyParamsEdit(initAssp->rhsp());  // rhsp may change
@@ -95,7 +95,7 @@ class UnrollGenVisitor final : public VNVisitor {
         // and the initp statements will reference a variable outside of the initp scope
         // alas, failing to simulate.
         const AstConst* const constInitp = VN_CAST(initAssp->rhsp(), Const);
-        if (!constInitp) return cantUnroll(nodep, "non-constant initializer");
+        ако (!constInitp) върни cantUnroll(nodep, "non-constant initializer");
 
         //
         // Now, make sure there's no assignment to this variable in the loop
@@ -107,28 +107,28 @@ class UnrollGenVisitor final : public VNVisitor {
         iterateAndNextNull(incp);
         m_varModeCheck = false;
         m_ignoreIncp = nullptr;
-        if (m_varAssignHit) return cantUnroll(nodep, "genvar assigned *inside* loop");
+        ако (m_varAssignHit) върни cantUnroll(nodep, "genvar assigned *inside* loop");
 
-        if (m_forkHit) return cantUnroll(nodep, "fork inside loop");
+        ако (m_forkHit) върни cantUnroll(nodep, "fork inside loop");
 
         //
         UINFO(8, "   Loop Variable: " << m_forVarp);
         UINFOTREE(9, nodep, "", "for");
 
         // Finally, we can do it
-        if (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
-            return cantUnroll(nodep, "Unable to unroll loop");
+        ако (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
+            върни cantUnroll(nodep, "Unable to unroll loop");
         }
         VL_DANGLING(nodep);
         // Cleanup
-        return true;
+        върни true;
     }
 
     bool simulateTree(AstNodeExpr* nodep, const V3Number* loopValue, const AstNode* dtypep,
                       V3Number& outNum) {
         AstNode* clonep = nodep->cloneTree(true);
         UASSERT_OBJ(clonep, nodep, "Failed to clone tree");
-        if (loopValue) {
+        ако (loopValue) {
             AstConst* varValuep = new AstConst{nodep->fileline(), *loopValue};
             // Iteration requires a back, so put under temporary node
             AstBegin* tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", clonep, false};
@@ -139,48 +139,48 @@ class UnrollGenVisitor final : public VNVisitor {
         }
         SimulateVisitor simvis;
         simvis.mainParamEmulate(clonep);
-        if (!simvis.optimizable()) {
+        ако (!simvis.optimizable()) {
             UINFO(4, "Unable to simulate");
             UINFOTREE(9, nodep, "", "_simtree");
             VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            върни false;
         }
         // Fetch the result
         const V3Number* resp = simvis.fetchNumberNull(clonep);
-        if (!resp) {
+        ако (!resp) {
             UINFO(3, "No number returned from simulation");
             VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            върни false;
         }
         // Patch up datatype
-        if (dtypep) {
+        ако (dtypep) {
             AstConst new_con{clonep->fileline(), *resp};
             new_con.dtypeFrom(dtypep);
             outNum = new_con.num();
             outNum.isSigned(dtypep->isSigned());
             VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return true;
+            върни true;
         }
         outNum = *resp;
         VL_DO_DANGLING(clonep->deleteTree(), clonep);
-        return true;
+        върни true;
     }
 
     bool forUnroller(AstGenFor* nodep, AstAssign* initp, AstNodeExpr* condp, AstNode* incp,
                      AstNode* bodysp) {
         UINFO(9, "forUnroller " << nodep);
         V3Number loopValue{nodep};
-        if (!simulateTree(initp->rhsp(), nullptr, initp, loopValue)) {  //
-            return false;
+        ако (!simulateTree(initp->rhsp(), nullptr, initp, loopValue)) {  //
+            върни false;
         }
         AstNode* stmtsp = nullptr;
-        if (initp) {
+        ако (initp) {
             initp->unlinkFrBack();  // Always a single statement; nextp() may be nodep
             // Don't add to list, we do it once, and setting loop index isn't
             // needed if we have > 1 loop, as we're constant propagating it
             pushDeletep(initp);  // Always cloned below.
         }
-        if (bodysp) {
+        ако (bodysp) {
             bodysp->unlinkFrBackWithNext();
             stmtsp = AstNode::addNext(stmtsp, bodysp);  // Maybe null if no body
         }
@@ -188,21 +188,21 @@ class UnrollGenVisitor final : public VNVisitor {
         m_forVarp->usedLoopIdx(true);
 
         AstNode* newbodysp = nullptr;
-        if (stmtsp) {
+        ако (stmtsp) {
             pushDeletep(stmtsp);  // Always cloned below.
             size_t iterCount = 0;
             const size_t iterLimit = v3Global.opt.unrollLimit();
-            while (true) {
+            докато (true) {
                 UINFO(8, "      Looping " << loopValue);
                 V3Number res{nodep};
-                if (!simulateTree(condp, &loopValue, nullptr, res)) {
+                ако (!simulateTree(condp, &loopValue, nullptr, res)) {
                     nodep->v3error("Loop unrolling failed.");
-                    return false;
+                    върни false;
                 }
-                if (!res.isEqOne()) {
+                ако (!res.isEqOne()) {
                     break;  // Done with the loop
-                } else {
-                    if (++iterCount > iterLimit) {
+                } иначе {
+                    ако (++iterCount > iterLimit) {
                         nodep->v3error("Unrolling generate loop took too long; probably this is "
                                        "an infinite loop, otherwise set '--unroll-limit' above "
                                        << iterLimit);
@@ -212,7 +212,7 @@ class UnrollGenVisitor final : public VNVisitor {
                     // Replace iterator values with constant
                     AstNode* oneloopp = stmtsp->cloneTree(true);
                     AstConst* varValuep = new AstConst{nodep->fileline(), loopValue};
-                    if (oneloopp) {
+                    ако (oneloopp) {
                         // Iteration requires a back, so put under temporary node
                         AstBegin* const tempp
                             = new AstBegin{oneloopp->fileline(), "[EditWrapper]", oneloopp, false};
@@ -229,43 +229,43 @@ class UnrollGenVisitor final : public VNVisitor {
                     // loopValue += valInc
                     const AstAssign* const incpass = VN_AS(incp, Assign);
                     V3Number newLoopValue{nodep};
-                    if (!simulateTree(incpass->rhsp(), &loopValue, incpass, newLoopValue)) {
+                    ако (!simulateTree(incpass->rhsp(), &loopValue, incpass, newLoopValue)) {
                         nodep->v3error("Loop unrolling failed");
-                        return false;
+                        върни false;
                     }
                     loopValue.opAssign(newLoopValue);
                 }
             }
         }
-        if (!newbodysp) {  // initp might have effects after the loop
-            if (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
+        ако (!newbodysp) {  // initp might have effects after the loop
+            ако (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
                 newbodysp = new AstInitial{initp->fileline(), initp->cloneTree(true)};
-            } else {
+            } иначе {
                 newbodysp = initp ? initp->cloneTree(true) : nullptr;
             }
         }
         // Replace the FOR()
-        if (newbodysp) {
+        ако (newbodysp) {
             nodep->replaceWith(newbodysp);
-        } else {
+        } иначе {
             nodep->unlinkFrBack();
         }
-        if (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
-        return true;
+        ако (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
+        върни true;
     }
 
     // VISITORS
     void visit(AstVarRef* nodep) override {
-        if (m_varModeCheck && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
+        ако (m_varModeCheck && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
             UINFO(8, "   Itervar assigned to: " << nodep);
             m_varAssignHit = true;
         }
     }
 
     void visit(AstNode* nodep) override {
-        if (m_varModeCheck && nodep == m_ignoreIncp) {
+        ако (m_varModeCheck && nodep == m_ignoreIncp) {
             // Ignore subtree that is the increment
-        } else {
+        } иначе {
             iterateChildren(nodep);
         }
     }
@@ -283,10 +283,10 @@ public:
         m_beginName = beginName;
 
         // Constify before unroll call, as it may change what is underneath.
-        if (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
-        if (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
-        if (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
-        if (nodep->condp()->isZero()) {
+        ако (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
+        ако (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
+        ако (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
+        ако (nodep->condp()->isZero()) {
             // We don't need to do any loops.  Remove the GenFor,
             // Genvar's don't care about any initial assignments.
             //
@@ -295,10 +295,10 @@ public:
             // condition, but they'll become while's which can be
             // deleted by V3Const.
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
+        } иначе ако (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
                                   nodep->itemsp())) {
             VL_DO_DANGLING(pushDeletep(nodep), nodep);  // Did replacement
-        } else {
+        } иначе {
             nodep->v3error("For loop doesn't have genvar index, or is malformed");
             // We will die, do it gracefully
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);

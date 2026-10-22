@@ -43,26 +43,26 @@ class InlineIntfRefVisitor final : public VNVisitor {
     void visit(AstNetlist* nodep) override { iterateChildrenConst(nodep->topModulep()); }
     void visit(AstCell* nodep) override {
         VL_RESTORER_COPY(m_scope);
-        if (m_scope.empty()) {
+        ако (m_scope.empty()) {
             m_scope = nodep->name();
-        } else {
+        } иначе {
             m_scope += "__DOT__" + nodep->name();
         }
 
         AstNodeModule* const modp = nodep->modp();
         // Pass Cell pointers down to the next module
-        for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+        за (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
             AstVar* const varp = pinp->modVarp();
             const AstVarRef* const varrefp = VN_CAST(pinp->exprp(), VarRef);
-            if (!varrefp) continue;
+            ако (!varrefp) continue;
 
             const AstVar* const fromVarp = varrefp->varp();
             const AstIfaceRefDType* const irdtp = VN_CAST(fromVarp->dtypep(), IfaceRefDType);
-            if (!irdtp) continue;
+            ако (!irdtp) continue;
 
             AstCell* cellp = VN_CAST(fromVarp->user1p(), Cell);
-            if (!cellp) cellp = irdtp->cellp();
-            if (!cellp) continue;
+            ако (!cellp) cellp = irdtp->cellp();
+            ако (!cellp) continue;
             varp->user1p(cellp);
             const string alias = m_scope + "__DOT__" + pinp->name();
             // Prefer the port's own dtype; the source may have no modport

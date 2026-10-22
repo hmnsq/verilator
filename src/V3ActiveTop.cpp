@@ -46,16 +46,16 @@ class ActiveTopVisitor final : public VNVisitor {
     static bool isInitial(AstNode* nodep) {
         const VNUser1InUse user1InUse;
         // Return true if no variables that read.
-        return nodep->forall([&](const AstVarRef* refp) -> bool {
+        върни nodep->forall([&](const AstVarRef* refp) -> bool {
             AstVarScope* const vscp = refp->varScopep();
             // Note: Use same heuristic as ordering does to ignore written variables
             // TODO: Use live variable analysis.
-            if (refp->access().isWriteOnly()) {
+            ако (refp->access().isWriteOnly()) {
                 vscp->user1(true);
-                return true;
+                върни true;
             }
             // Read or ReadWrite: OK if written before
-            return vscp->user1();
+            върни vscp->user1();
         });
     }
 
@@ -72,36 +72,36 @@ class ActiveTopVisitor final : public VNVisitor {
         V3Const::constifyExpensiveEdit(nodep);
         AstSenTree* sentreep = nodep->sentreep();
         UASSERT_OBJ(sentreep, nodep, "nullptr");
-        if (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
+        ако (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
             // Never executing.  Kill it.
             UASSERT_OBJ(!sentreep->sensesp()->nextp(), nodep,
                         "Never senitem should be alone, else the never should be eliminated.");
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            върни;
         }
 
         // Delete empty procedures
-        for (AstNode *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
+        за (AstNode *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstNodeProcedure* const procp = VN_CAST(stmtp, NodeProcedure)) {
-                if (!procp->stmtsp()) VL_DO_DANGLING(pushDeletep(procp->unlinkFrBack()), stmtp);
+            ако (AstNodeProcedure* const procp = VN_CAST(stmtp, NodeProcedure)) {
+                ако (!procp->stmtsp()) VL_DO_DANGLING(pushDeletep(procp->unlinkFrBack()), stmtp);
             }
         }
 
         // Delete empty actives
-        if (!nodep->stmtsp()) {
+        ако (!nodep->stmtsp()) {
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            върни;
         }
 
         // Move the SENTREE for each active up to the global level.
         // This way we'll easily see what clock domains are identical
         AstSenTree* const wantp = m_finder.getSenTree(sentreep);
         UINFO(4, "   lookdone");
-        if (wantp != sentreep) {
+        ако (wantp != sentreep) {
             // Move the active's contents to the other active
             UINFO(4, "   merge active " << sentreep << " into " << wantp);
-            if (nodep->senTreeStorep()) {
+            ако (nodep->senTreeStorep()) {
                 UASSERT_OBJ(sentreep == nodep->senTreeStorep(), nodep,
                             "sensesStore should have been deleted earlier if different");
                 sentreep->unlinkFrBack();
@@ -118,16 +118,16 @@ class ActiveTopVisitor final : public VNVisitor {
         // prune these otherwise.
         // TODO: we should warn for these if they were 'always @*' as some (including strictly
         //       compliant) simulators will never execute these.
-        if (nodep->sentreep()->hasCombo()) {
+        ако (nodep->sentreep()->hasCombo()) {
             FileLine* const flp = nodep->fileline();
             AstActive* initialp = nullptr;
-            for (AstNode *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
+            за (AstNode *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
                 nextp = logicp->nextp();
-                if (!isInitial(logicp)) continue;
-                if (!initialp) initialp = new AstActive{flp, "", m_finder.getInitial()};
+                ако (!isInitial(logicp)) continue;
+                ако (!initialp) initialp = new AstActive{flp, "", m_finder.getInitial()};
                 initialp->addStmtsp(logicp->unlinkFrBack());
             }
-            if (initialp) nodep->addHereThisAsNext(initialp);
+            ако (initialp) nodep->addHereThisAsNext(initialp);
         }
     }
     void visit(AstNodeProcedure* nodep) override {  // LCOV_EXCL_LINE

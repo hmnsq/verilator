@@ -45,18 +45,18 @@ public:
     // Find 'name' under 'nodep', caching nodep's children if needed
     AstNode* findMember(const AstNode* nodep, const std::string& name) {
         auto nit = m_map.find(nodep);
-        if (VL_UNLIKELY(nit == m_map.end())) {
+        ако (VL_UNLIKELY(nit == m_map.end())) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
         const auto mit = nit->second.find(name);
-        if (mit == nit->second.end()) return nullptr;
-        return mit->second;
+        ако (mit == nit->second.end()) върни nullptr;
+        върни mit->second;
     }
     // Insert under the given parent node the child's name
     void insert(const AstNode* nodep, AstNode* childp) {
         auto nit = m_map.find(nodep);
-        if (nit == m_map.end()) {
+        ако (nit == m_map.end()) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
@@ -67,45 +67,45 @@ private:
     void scan(const AstNode* nodep) {
         const auto nitPair = m_map.emplace(nodep, MemberMap{});
         MemberMap& mmapr = nitPair.first->second;
-        if (const AstClass* const anodep = VN_CAST(nodep, Class)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        if (AstClass::isCacheableChild(blockp)) memberInsert(mmapr, blockp);
+        ако (const AstClass* const anodep = VN_CAST(nodep, Class)) {
+            за (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                ако (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
+                    за (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        ако (AstClass::isCacheableChild(blockp)) memberInsert(mmapr, blockp);
                     }
-                } else {
-                    if (AstClass::isCacheableChild(itemp)) memberInsert(mmapr, itemp);
+                } иначе {
+                    ако (AstClass::isCacheableChild(itemp)) memberInsert(mmapr, itemp);
                 }
             }
-        } else if (const AstIface* const anodep = VN_CAST(nodep, Iface)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+        } иначе ако (const AstIface* const anodep = VN_CAST(nodep, Iface)) {
+            за (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                ако (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
+                    за (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
                         memberInsert(mmapr, blockp);
                     }
-                } else if (!VN_IS(itemp, Always)) {
+                } иначе ако (!VN_IS(itemp, Always)) {
                     memberInsert(mmapr, itemp);
                 }
             }
-        } else if (const AstNodeUOrStructDType* const anodep
+        } иначе ако (const AstNodeUOrStructDType* const anodep
                    = VN_CAST(nodep, NodeUOrStructDType)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+            за (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
                 memberInsert(mmapr, itemp);
             }
-        } else if (const AstPackage* const anodep = VN_CAST(nodep, Package)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+        } иначе ако (const AstPackage* const anodep = VN_CAST(nodep, Package)) {
+            за (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
                 memberInsert(mmapr, itemp);
             }
-        } else {
+        } иначе {
             nodep->v3fatalSrc("Unsupported node type");
         }
     }
     void memberInsert(MemberMap& mmapr, AstNode* childp, bool warn = true) {
         // Skip nodes without names (e.g., initial blocks, anonymous statements)
         // These can't be looked up by name anyway
-        if (childp->name().empty()) return;
+        ако (childp->name().empty()) върни;
         const auto mitPair = mmapr.emplace(childp->name(), childp);
-        if (VL_UNCOVERABLE(!mitPair.second && warn)) {
+        ако (VL_UNCOVERABLE(!mitPair.second && warn)) {
             // Probably an internal error, but we'll make it user friendly if happens
             childp->v3error("Duplicate declaration of member name: " << childp->prettyNameQ());
         }
