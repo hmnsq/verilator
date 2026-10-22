@@ -49,22 +49,22 @@ class DataflowOptimize final {
     V3DfgContext m_ctx;  // The context holding values that need to persist across multiple graphs
 
     void endOfStage(const std::string& name) {
-        if (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
+        གལ་ཏེ (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
     }
 
     void endOfStage(const std::string& name, const DfgGraph& dfg,
                     const std::vector<std::unique_ptr<DfgGraph>>& componentps) {
         // Dump the graphs for debugging
-        if (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
-            if (dfg.size() > 0) dfg.dumpDotFilePrefixed(name);
-            for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
-                if (componentp->size() > 0) componentp->dumpDotFilePrefixed(name);
+        གལ་ཏེ (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
+            གལ་ཏེ (dfg.size() > 0) dfg.dumpDotFilePrefixed(name);
+            ཆེད་དུ (const std::unique_ptr<DfgGraph>& componentp : componentps) {
+                གལ་ཏེ (componentp->size() > 0) componentp->dumpDotFilePrefixed(name);
             }
         }
         // Type check the graphs
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+        གལ་ཏེ (VL_UNLIKELY(v3Global.opt.debugCheck())) {
             V3DfgPasses::typeCheck(dfg);
-            for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
+            ཆེད་དུ (const std::unique_ptr<DfgGraph>& componentp : componentps) {
                 V3DfgPasses::typeCheck(*componentp);
             }
         }
@@ -76,7 +76,7 @@ class DataflowOptimize final {
     void markExternallyReferencedVariables(AstNetlist* netlistp) {
         netlistp->foreach([](AstNode* nodep) {
             // Check variable flags
-            if (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
+            གལ་ཏེ (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
                 const AstVar* const varp = vscp->varp();
                 // Force and trace have already been processed
                 const bool hasExtRd =  //
@@ -88,22 +88,22 @@ class DataflowOptimize final {
                     (varp->isPrimaryIO() && varp->isNonOutput())  // Top level port - writable
                     || varp->isSigUserRWPublic()  // Writable by user
                     ;
-                if (hasExtRd) DfgVertexVar::setHasExtRdRefs(vscp);
-                if (hasExtWr) DfgVertexVar::setHasExtWrRefs(vscp);
-                return;
+                གལ་ཏེ (hasExtRd) DfgVertexVar::setHasExtRdRefs(vscp);
+                གལ་ཏེ (hasExtWr) DfgVertexVar::setHasExtWrRefs(vscp);
+                ཕྱིར;
             }
             // Check references
-            if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (refp->access().isRW()) DfgVertexVar::setHasRWRefs(refp->varScopep());
+            གལ་ཏེ (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+                གལ་ཏེ (refp->access().isRW()) DfgVertexVar::setHasRWRefs(refp->varScopep());
                 UASSERT_OBJ(!refp->classOrPackagep(), refp, "V3Scope should have removed");
-                return;
+                ཕྱིར;
             }
             UASSERT_OBJ(!VN_IS(nodep, VarXRef), nodep, "V3Scope should have removed");
             // Check cell ports
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
+            གལ་ཏེ (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
                 // Why does this not hold?
                 UASSERT_OBJ(true || !cellp->pinsp(), cellp, "Pins should have been lowered");
-                return;
+                ཕྱིར;
             }
         });
     }
@@ -121,7 +121,7 @@ class DataflowOptimize final {
         // make all of them acyclic, then merge them back to the main graph
         {
             std::vector<std::unique_ptr<DfgGraph>> comps = dfg.extractCyclicComponents("cyclic");
-            for (const auto& cp : comps) V3DfgPasses::breakCycles(*cp, m_ctx);
+            ཆེད་དུ (const auto& cp : comps) V3DfgPasses::breakCycles(*cp, m_ctx);
             dfg.mergeGraphs(std::move(comps));
             endOfStage("breakCycles", dfg, {});
         }
@@ -133,23 +133,23 @@ class DataflowOptimize final {
 
         // Main pass pipeline - optimize each acyclic component
         {
-            for (auto& cp : comps) V3DfgPasses::removeSelects(*cp, m_ctx.m_removeSelectsContext);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::removeSelects(*cp, m_ctx.m_removeSelectsContext);
             endOfStage("removeSelects", dfg, comps);
-            for (const auto& cp : comps) V3DfgPasses::inlineVars(*cp);
+            ཆེད་དུ (const auto& cp : comps) V3DfgPasses::inlineVars(*cp);
             endOfStage("inlineVars", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext0);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext0);
             endOfStage("cse0", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::binToOneHot(*cp, m_ctx.m_binToOneHotContext);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::binToOneHot(*cp, m_ctx.m_binToOneHotContext);
             endOfStage("binToOneHot", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::peephole(*cp, m_ctx.m_peepholeContext);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::peephole(*cp, m_ctx.m_peepholeContext);
             endOfStage("peephole", dfg, comps);
 
             // Accumulate patterns for reporting
-            if (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
+            གལ་ཏེ (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
 
-            for (auto& cp : comps) V3DfgPasses::pushDownSels(*cp, m_ctx.m_pushDownSelsContext);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::pushDownSels(*cp, m_ctx.m_pushDownSelsContext);
             endOfStage("pushDownSels", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext1);
+            ཆེད་དུ (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext1);
             endOfStage("cse1", dfg, comps);
         }
 
@@ -168,16 +168,16 @@ class DataflowOptimize final {
         std::vector<AstActive*> neverActiveps;
         netlistp->foreach([&](AstActive* activep) {
             AstSenTree* const senTreep = activep->sentreep();
-            if (!senTreep) return;
+            གལ་ཏེ (!senTreep) ཕྱིར;
             const AstNode* const nodep = V3Const::constifyEdit(senTreep);
             UASSERT_OBJ(nodep == senTreep, nodep, "Should not have been repalced");
-            if (senTreep->sensesp()->isNever()) {
+            གལ་ཏེ (senTreep->sensesp()->isNever()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), nodep,
                             "Never senitem should be alone, else the never should be eliminated.");
                 neverActiveps.emplace_back(activep);
             }
         });
-        for (AstActive* const activep : neverActiveps) {
+        ཆེད་དུ (AstActive* const activep : neverActiveps) {
             VL_DO_DANGLING(activep->unlinkFrBack()->deleteTree(), activep);
         }
     }

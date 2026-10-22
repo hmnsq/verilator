@@ -38,32 +38,32 @@ class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
 public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+    ga_nanaa en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    ga_nanaa en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(ཧྲིལ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() const { ཕྱིར m_e; }
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        ཕྱིར names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { ཕྱིར m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { ཕྱིར m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { ཕྱིར m_e == OPT_TRUE; }
+    bool isSetFalse() const { ཕྱིར m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ཕྱིར lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { ཕྱིར lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { ཕྱིར lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { ཕྱིར m_filename; }
+    string libname() const { ཕྱིར m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        ཕྱིར m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        གལ་ཏེ (m_filename < rhs.m_filename) ཕྱིར true;
+        གལ་ཏེ (m_filename > rhs.m_filename) ཕྱིར false;
+        ཕྱིར m_libname < rhs.m_libname;
     }
 };
 
@@ -95,7 +95,7 @@ using VFileLibSet = std::set<VFileLibName>;
 
 class VTimescale final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,58 +107,58 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    ga_nanaa : uint8_t { TS_DEFAULT = TS_1PS };
+    ga_nanaa en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(ཧྲིལ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(dviguu_na value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        ཆེད་དུ (ཧྲིལ i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            གལ་ཏེ (multiplier() == value) bha_nga;
         }
-        if (multiplier() != value) {
+        གལ་ཏེ (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { ཕྱིར m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    static void parseSlashed(FileLine* fl, const var_na* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        ཕྱིར names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    ཧྲིལ powerOfTen() const { ཕྱིར 2 - static_cast<ཧྲིལ>(m_e); }
+    dviguu_na multiplier() const {
+        static const dviguu_na values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        ཕྱིར values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ཕྱིར lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { ཕྱིར lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { ཕྱིར lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    ཕྱིར lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
+    ཕྱིར os << rhs.ascii();
 }
 
 // ######################################################################
@@ -166,7 +166,7 @@ inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(ཧྲིལ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() const { ཕྱིར m_e; }
+    constexpr const var_na* ascii() const {
+        constexpr const var_na* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        ཕྱིར names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ཕྱིར lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ཕྱིར lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ཕྱིར lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
+    ཕྱིར os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { ཕྱིར m_origName; }
+    const string& mangledName() const { ཕྱིར m_mangledName; }
+    const ParamStrMap params() const { ཕྱིར m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    ཧྲིལ m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    ཧྲིལ         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    ཧྲིལ         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    ཧྲིལ         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    ཧྲིལ         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    ཧྲིལ         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    ཧྲིལ         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    ཧྲིལ         m_expandLimit = 256;  // main switch: --expand-limit
+    ཧྲིལ         m_gateStmts = 100;    // main switch: --gate-stmts
+    ཧྲིལ         m_hierChild = 0;      // main switch: --hierarchical-child
+    ཧྲིལ         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    ཧྲིལ         m_ifDepth = 0;      // main switch: --if-depth
+    ཧྲིལ         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    ཧྲིལ         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    ཧྲིལ         m_inlineMult = 2000;   // main switch: --inline-mult
+    ཧྲིལ         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    ཧྲིལ         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    ཧྲིལ         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    ཧྲིལ         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    ཧྲིལ         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    ཧྲིལ         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    ཧྲིལ         m_outputSplit = 20000;  // main switch: --output-split
+    ཧྲིལ         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    ཧྲིལ         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    ཧྲིལ         m_pinsBv = 65;       // main switch: --pins-bv
+    ཧྲིལ         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    ཧྲིལ         m_publicDepth = 0;   // main switch: --public-depth
+    ཧྲིལ         m_reloopLimit = 40; // main switch: --reloop-limit
+    ཧྲིལ         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    ཧྲིལ         m_threads = 1;      // main switch: --threads
+    ཧྲིལ         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    ཧྲིལ         m_traceDepth = 0;   // main switch: --trace-depth
+    ཧྲིལ         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    ཧྲིལ         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    ཧྲིལ         m_unrollCount = 64;  // main switch: --unroll-count
+    ཧྲིལ         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    ཧྲིལ         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    ཧྲིལ         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    ཧྲིལ         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    ཧྲིལ         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    ཧྲིལ         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    ཧྲིལ         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    ཧྲིལ  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,7 +489,7 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
+    void addArg(var_na** argv, size_t count, bool isForRerun);
     void addArg(const std::string& arg, bool isForRerun);
     void addLineArg(const string& arg);
     void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
@@ -501,16 +501,16 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(ཧྲིལ level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
+    static bool suffixed(const string& sw, const var_na* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static ཧྲིལ stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(ཧྲིལ level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { ཕྱིར m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { ཕྱིར m_preprocOnly; }
+    bool makePhony() const { ཕྱིར m_makePhony; }
+    bool preprocNoLine() const { ཕྱིར m_preprocNoLine; }
+    bool preprocResolve() const { ཕྱིར m_preprocResolve; }
+    ཧྲིལ preprocTokenLimit() const { ཕྱིར m_preprocTokenLimit; }
+    bool underlineZero() const { ཕྱིར m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { ཕྱིར m_systemC; }
+    bool savable() const VL_MT_SAFE { ཕྱིར m_savable; }
+    VOptionBool schedZeroDelay() const { ཕྱིར m_schedZeroDelay; }
+    bool stats() const { ཕྱིར m_stats; }
+    bool statsVars() const { ཕྱིར m_statsVars; }
+    bool stdPackage() const { ཕྱིར m_stdPackage; }
+    bool stdWaiver() const { ཕྱིར m_stdWaiver; }
+    bool assertOn() const { ཕྱིར m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { ཕྱིར m_assertCase; }
+    bool autoflush() const { ཕྱིར m_autoflush; }
+    bool bboxSys() const { ཕྱིར m_bboxSys; }
+    bool bboxUnsup() const { ཕྱིར m_bboxUnsup; }
+    bool build() const { ཕྱིར m_build; }
+    string buildDepBin() const { ཕྱིར m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { ཕྱིར m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ཕྱིར m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ཕྱིར m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { ཕྱིར m_coverageBranch; }
+    bool coverageExpr() const { ཕྱིར m_coverageExpr; }
+    bool coverageFsm() const { ཕྱིར m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { ཕྱིར m_coverageFsmExpand; }
+    ཧྲིལ coverageFsmMaxArcs() const { ཕྱིར m_coverageFsmMaxArcs; }
+    bool coverageLine() const { ཕྱིར m_coverageLine; }
+    bool coverageMergeInstances() const { ཕྱིར m_coverageMergeInstances; }
+    bool coveragePerInstance() const { ཕྱིར m_coveragePerInstance; }
+    bool coverageToggle() const { ཕྱིར m_coverageToggle; }
+    bool coverageUnderscore() const { ཕྱིར m_coverageUnderscore; }
+    bool coverageUser() const { ཕྱིར m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { ཕྱིར m_debugCheck; }
+    bool debugCollision() const { ཕྱིར m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { ཕྱིར m_debugEmitV; }
+    bool debugExitElab() const { ཕྱིར m_debugExitElab; }
+    bool debugExitParse() const { ཕྱིར m_debugExitParse; }
+    bool debugLeak() const { ཕྱིར m_debugLeak; }
+    bool debugNondeterminism() const { ཕྱིར m_debugNondeterminism; }
+    bool debugPartition() const { ཕྱིར m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { ཕྱིར m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { ཕྱིར m_debugProtect; }
+    ཧྲིལ debugRuntimeTimeout() const { ཕྱིར m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { ཕྱིར m_debugSelfTest; }
+    bool debugStackCheck() const { ཕྱིར m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { ཕྱིར m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { ཕྱིར m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { ཕྱིར m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { ཕྱིར m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { ཕྱིར m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        ཕྱིར m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { ཕྱིར m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        ཕྱིར m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        ཕྱིར m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { ཕྱིར m_emitAccessors; }
+    bool exe() const { ཕྱིར m_exe; }
+    bool flatten() const { ཕྱིར m_flatten; }
+    bool fourstate() const { ཕྱིར m_fourstate; }
+    bool gmake() const { ཕྱིར m_gmake; }
+    bool makeJson() const { ཕྱིར m_makeJson; }
+    bool threadsDpiPure() const { ཕྱིར m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { ཕྱིར m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { ཕྱིར m_threadsCoarsen; }
+    VOptionBool timing() const { ཕྱིར m_timing; }
+    bool trace() const { ཕྱིར m_trace; }
+    bool traceCoverage() const { ཕྱིར m_traceCoverage; }
+    bool traceEnabledFst() const { ཕྱིར m_traceEnabledFst; }
+    bool traceEnabledSaif() const { ཕྱིར m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { ཕྱིར m_traceEnabledVcd; }
+    bool traceParams() const { ཕྱིར m_traceParams; }
+    bool traceStructs() const { ཕྱིར m_traceStructs; }
+    bool traceUnderscore() const { ཕྱིར m_traceUnderscore; }
+    bool གཙོ() const { ཕྱིར m_main; }
+    bool outFormatOk() const { ཕྱིར m_outFormatOk; }
+    bool jsonOnly() const { ཕྱིར m_jsonOnly; }
+    bool keepTempFiles() const { ཕྱིར (V3Error::debugDefault() != 0); }
+    bool pedantic() const { ཕྱིར m_pedantic; }
+    bool pinsInoutEnables() const { ཕྱིར m_pinsInoutEnables; }
+    bool pinsScUint() const { ཕྱིར m_pinsScUint; }
+    bool pinsScUintBool() const { ཕྱིར m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { ཕྱིར m_pinsScBigUint; }
+    bool pinsUint8() const { ཕྱིར m_pinsUint8; }
+    bool preprocComments() const { ཕྱིར m_preprocComments; }
+    bool preprocDefines() const { ཕྱིར m_preprocDefines; }
+    bool profC() const { ཕྱིར m_profC; }
+    bool profCFuncs() const { ཕྱིར m_profCFuncs; }
+    bool profExec() const { ཕྱིར m_profExec; }
+    bool profPgo() const { ཕྱིར m_profPgo; }
+    bool usesProfiler() const { ཕྱིར profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { ཕྱིར m_protectIds; }
+    bool allPublic() const { ཕྱིར m_public; }
+    bool publicParams() const { ཕྱིར m_publicParams; }
+    bool publicOff() const { ཕྱིར m_publicIgnore; }
+    bool publicFlatRW() const { ཕྱིར m_publicFlatRW; }
+    ཧྲིལ publicDepth() const { ཕྱིར m_publicDepth; }
+    bool anyPublicFlat() const { ཕྱིར m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { ཕྱིར m_lintOnly; }
+    bool ignc() const { ཕྱིར m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { ཕྱིར m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { ཕྱིར m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { ཕྱིར m_quietStats; }
+    bool reportUnoptflat() const { ཕྱིར m_reportUnoptflat; }
+    bool verilate() const { ཕྱིར m_verilate; }
+    bool vpi() const { ཕྱིར m_vpi.isTrue(); }
+    bool waiverMultiline() const { ཕྱིར m_waiverMultiline; }
+    bool xInitialEdge() const { ཕྱིར m_xInitialEdge; }
+    bool serializeOnly() const { ཕྱིར m_jsonOnly; }
+    bool topIfacesSupported() const { ཕྱིར lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    ཧྲིལ buildJobs() const VL_MT_SAFE { ཕྱིར m_buildJobs; }
+    ཧྲིལ convergeLimit() const { ཕྱིར m_convergeLimit; }
+    ཧྲིལ coverageExprMax() const { ཕྱིར m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { ཕྱིར m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { ཕྱིར m_coverageMaxRealBins; }
+    ཧྲིལ coverageMaxWidth() const { ཕྱིར m_coverageMaxWidth; }
+    ཧྲིལ debugAllocRandom() const { ཕྱིར m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    ཧྲིལ expandLimit() const { ཕྱིར m_expandLimit; }
+    ཧྲིལ gateStmts() const { ཕྱིར m_gateStmts; }
+    ཧྲིལ ifDepth() const { ཕྱིར m_ifDepth; }
+    ཧྲིལ inlineCFuncs() const { ཕྱིར m_inlineCFuncs; }
+    ཧྲིལ inlineCFuncsProduct() const { ཕྱིར m_inlineCFuncsProduct; }
+    ཧྲིལ inlineMult() const { ཕྱིར m_inlineMult; }
+    ཧྲིལ instrCountDpi() const { ཕྱིར m_instrCountDpi; }
+    ཧྲིལ localizeMaxSize() const { ཕྱིར m_localizeMaxSize; }
+    bool jsonEditNums() const { ཕྱིར m_jsonEditNums; }
+    bool jsonIds() const { ཕྱིར m_jsonIds; }
+    VOptionBool makeDepend() const { ཕྱིར m_makeDepend; }
+    ཧྲིལ maxNumWidth() const { ཕྱིར m_maxNumWidth; }
+    ཧྲིལ funcRecursionDepth() const { ཕྱིར m_funcRecursion; }
+    ཧྲིལ moduleRecursionDepth() const { ཕྱིར m_moduleRecursion; }
+    ཧྲིལ outputSplit() const { ཕྱིར m_outputSplit; }
+    ཧྲིལ outputSplitCFuncs() const { ཕྱིར m_outputSplitCFuncs; }
+    ཧྲིལ outputSplitCTrace() const { ཕྱིར m_outputSplitCTrace; }
+    ཧྲིལ outputGroups() const { ཕྱིར m_outputGroups; }
+    int64_t outputGroupsSize() const { ཕྱིར m_outputGroupsSize; }
+    ཧྲིལ pinsBv() const VL_MT_SAFE { ཕྱིར m_pinsBv; }
+    ཧྲིལ reloopLimit() const { ཕྱིར m_reloopLimit; }
+    ཧྲིལ replicationLimit() const { ཕྱིར m_replicationLimit; }
+    VOptionBool skipIdentical() const { ཕྱིར m_skipIdentical; }
+    bool stopFail() const { ཕྱིར m_stopFail; }
+    ཧྲིལ threads() const VL_MT_SAFE { ཕྱིར m_threads; }
+    ཧྲིལ threadsMaxMTasks() const { ཕྱིར m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { ཕྱིར (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { ཕྱིར m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { ཕྱིར m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { ཕྱིར m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { ཕྱིར m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    ཧྲིལ traceDepth() const { ཕྱིར m_traceDepth; }
+    ཧྲིལ traceMaxArray() const { ཕྱིར m_traceMaxArray; }
+    ཧྲིལ traceMaxWidth() const { ཕྱིར m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        ཕྱིར trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    ཧྲིལ unrollCount() const { ཕྱིར m_unrollCount; }
+    ཧྲིལ unrollLimit() const { ཕྱིར m_unrollLimit; }
+    ཧྲིལ unrollStmts() const { ཕྱིར m_unrollStmts; }
+    ཧྲིལ constraintArrayLimit() const { ཕྱིར m_constraintArrayLimit; }
+    ཧྲིལ verilateJobs() const { ཕྱིར m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    ཧྲིལ compLimitBlocks() const { ཕྱིར m_compLimitBlocks; }
+    ཧྲིལ compLimitMembers() const VL_MT_SAFE { ཕྱིར m_compLimitMembers; }
+    ཧྲིལ compLimitParens() const { ཕྱིར m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        ཕྱིར m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { ཕྱིར m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { ཕྱིར m_hierParamsFile; }
+    string jsonOnlyOutput() const { ཕྱིར m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { ཕྱིར m_jsonOnlyMetaOutput; }
+    string l2Name() const { ཕྱིར m_l2Name; }
+    string libCreate() const { ཕྱིར m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        གལ་ཏེ (shared) {
             libName += ".so";
-        } else {
+        } དེ་མིན {
             libName += ".a";
         }
-        return libName;
+        ཕྱིར libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { ཕྱིར m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { ཕྱིར m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { ཕྱིར m_modPrefix; }
+    string pipeFilter() const { ཕྱིར m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { ཕྱིར m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { ཕྱིར !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { ཕྱིར m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { ཕྱིར m_noTraceTop; }
+    string unusedRegexp() const { ཕྱིར m_unusedRegexp; }
+    string waiverOutput() const { ཕྱིར m_waiverOutput; }
+    string work() const { ཕྱིར m_work; }
+    bool isWaiverOutput() const { ཕྱིར !m_waiverOutput.empty(); }
+    string xAssign() const { ཕྱིར m_xAssign; }
+    string xInitial() const { ཕྱིར m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { ཕྱིར m_cppFiles; }
+    const VStringList& cFlags() const { ཕྱིར m_cFlags; }
+    const VStringSet& compilerIncludes() const { ཕྱིར m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { ཕྱིར m_ldLibFiles; }
+    const VStringList& ldLibs() const { ཕྱིར m_ldLibs; }
+    const VStringList& makeFlags() const { ཕྱིར m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { ཕྱིར m_libraryFiles; }
+    const VStringSet& libmapFiles() const { ཕྱིར m_libmapFiles; }
+    const VFileLibList& vFiles() const { ཕྱིར m_vFiles; }
+    const VFileLibSet& vltFiles() const { ཕྱིར m_vltFiles; }
+    const VStringList& forceIncs() const { ཕྱིར m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { ཕྱིར m_fAcycSimp; }
+    bool fAssemble() const { ཕྱིར m_fAssemble; }
+    bool fBitScanLoops() const { ཕྱིར m_fBitScanLoops; }
+    bool fBitblast() const { ཕྱིར m_fBitblast; }
+    bool fCaseDecoder() const { ཕྱིར m_fCaseDecoder; }
+    bool fCaseTable() const { ཕྱིར m_fCaseTable; }
+    bool fCaseTree() const { ཕྱིར m_fCaseTree; }
+    bool fCombine() const { ཕྱིར m_fCombine; }
+    bool fConst() const { ཕྱིར m_fConst; }
+    bool fConstBeforeDfg() const { ཕྱིར m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { ཕྱིར m_fConstBitOpTree; }
+    bool fConstEager() const { ཕྱིར m_fConstEager; }
+    bool fDedupe() const { ཕྱིར m_fDedupe; }
+    bool fDfg() const { ཕྱིར m_fDfg; }
+    bool fDfgPeephole() const { ཕྱིར m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { ཕྱིར m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { ཕྱིར m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        ཕྱིར !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { ཕྱིར m_fDeadAssigns; }
+    bool fDeadCells() const { ཕྱིར m_fDeadCells; }
+    bool fDeadMethods() const { ཕྱིར m_fDeadMethods; }
+    bool fDecompose() const { ཕྱིར m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { ཕྱིར m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { ཕྱིར m_fDecomposeUnpacked; }
+    bool fExpand() const { ཕྱིར m_fExpand; }
+    bool fFuncBalanceCat() const { ཕྱིར m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { ཕྱིར m_fFuncSplitCat; }
+    bool fFunc() const { ཕྱིར fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { ཕྱིར m_fGate; }
+    VOptionBool fIcoChangeDetect() const { ཕྱིར m_fIcoChangeDetect; }
+    bool fInline() const { ཕྱིར m_fInline; }
+    bool fInlineCFuncs() const { ཕྱིར m_fInlineCFuncs; }
+    bool fInlineFuncs() const { ཕྱིར m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { ཕྱིར m_fInlineFuncsEager; }
+    bool fLife() const { ཕྱིར m_fLife; }
+    bool fLifePost() const { ཕྱིར m_fLifePost; }
+    bool fLocalize() const { ཕྱིར m_fLocalize; }
+    bool fMergeCond() const { ཕྱིར m_fMergeCond; }
+    bool fMergeCondMotion() const { ཕྱིར m_fMergeCondMotion; }
+    bool fReloop() const { ཕྱིར m_fReloop; }
+    bool fReorder() const { ཕྱིར m_fReorder; }
+    bool fSlice() const { ཕྱིར m_fSlice; }
+    ཧྲིལ fSliceElementLimit() const { ཕྱིར m_fSliceElementLimit; }
+    bool fSplit() const { ཕྱིར m_fSplit; }
+    bool fSubst() const { ཕྱིར m_fSubst; }
+    bool fSubstConst() const { ཕྱིར m_fSubstConst; }
+    bool fTable() const { ཕྱིར m_fTable; }
+    bool fTaskifyAll() const { ཕྱིར m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { ཕྱིར m_hierarchical; }
+    ཧྲིལ hierChild() const VL_MT_SAFE { ཕྱིར m_hierChild; }
+    ཧྲིལ hierThreads() const VL_MT_SAFE { ཕྱིར m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { ཕྱིར !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { ཕྱིར m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        ཕྱིར hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(ཧྲིལ argc, var_na** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, ཧྲིལ argc, var_na** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, ཧྲིལ argc, var_na** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

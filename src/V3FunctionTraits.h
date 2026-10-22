@@ -24,31 +24,31 @@
 #include <type_traits>
 
 template <typename T>
-struct FunctionTraits;
+sa_nracanaa FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
 template <typename T>
-struct FunctionTraits final
+sa_nracanaa FunctionTraits final
     : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
 
 // Specialization for pointers to member function
 template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+sa_nracanaa FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    static constexpr size_t arity = parimaa_na...(Args);
 
     // Type of result
     using result_type = T_ReturnType;
 
     // Type of arguments
     template <std::size_t N>
-    struct arg final {
+    sa_nracanaa arg final {
         using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
     };
 };
 
 template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+sa_nracanaa FunctionArgNoPointerNoCV final {
     using Traits = FunctionTraits<T_Callable>;
     using T_Arg = typename Traits::template arg<N_Index>::type;
     using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;

@@ -78,7 +78,7 @@ public:
     ~InstrCountVisitor() override = default;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instrCount() const { ཕྱིར m_instrCount; }
 
 private:
     void reset() {
@@ -87,7 +87,7 @@ private:
     }
     uint32_t startVisitBase(AstNode* nodep) {
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
-        if (m_assertNoDups && !m_inCFunc) {
+        གལ་ཏེ (m_assertNoDups && !m_inCFunc) {
             // Ensure we don't count the same node twice
             //
             // We only enable this assert for the initial LogicMTask counts
@@ -110,20 +110,20 @@ private:
         // hierarchical view of the cost when in debug mode.
         const uint32_t savedCount = m_instrCount;
         m_instrCount = nodep->instrCount();
-        return savedCount;
+        ཕྱིར savedCount;
     }
     void endVisitBase(uint32_t savedCount, AstNode* nodep) {
         UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
         markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+        གལ་ཏེ (!m_ignoreRemaining) m_instrCount += savedCount;
     }
     void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+        གལ་ཏེ (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
     void visit(AstNodeSel* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         // This covers both AstArraySel and AstWordSel
         //
         // If some vector is a bazillion dwords long, and we're selecting 1
@@ -135,7 +135,7 @@ private:
         iterateAndNextConstNull(nodep->bitp());
     }
     void visit(AstSel* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         // Similar to AstNodeSel above, a small select into a large vector
         // is not expensive. Count the cost of the AstSel itself (scales with
         // its width) and the cost of the lsbp() and widthp() nodes, but not
@@ -144,7 +144,7 @@ private:
         iterateAndNextConstNull(nodep->lsbp());
     }
     void visit(AstConcat* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         // Ignore the cost of the concat node itself. The problem with
         // counting concat is that when we have many things concatted
         // together, it's not a single operation, but this:
@@ -164,7 +164,7 @@ private:
         markCost(nodep);
     }
     void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
         const uint32_t savedCount = m_instrCount;
@@ -173,25 +173,25 @@ private:
         reset();
         iterateAndNextConstNull(nodep->thensp());
         uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        གལ་ཏེ (nodep->branchPred().unlikely()) ifCount = 0;
 
         UINFO(8, "elsesp:");
         reset();
         iterateAndNextConstNull(nodep->elsesp());
         uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        གལ་ཏེ (nodep->branchPred().likely()) elseCount = 0;
 
         reset();
-        if (ifCount >= elseCount) {
+        གལ་ཏེ (ifCount >= elseCount) {
             m_instrCount = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
+            གལ་ཏེ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } དེ་མིན {
             m_instrCount = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+            གལ་ཏེ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
     void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
         const VisitBase vb{this, nodep};
@@ -209,27 +209,27 @@ private:
         const uint32_t elseCount = m_instrCount;
 
         reset();
-        if (ifCount >= elseCount) {
+        གལ་ཏེ (ifCount >= elseCount) {
             m_instrCount = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
+            གལ་ཏེ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } དེ་མིན {
             m_instrCount = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+            གལ་ཏེ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
     void visit(AstCAwait* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         iterateChildrenConst(nodep);
         // Anything past a co_await is irrelevant
         m_ignoreRemaining = true;
     }
     void visit(AstFork* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->stmtsp());
         uint32_t totalCount = m_instrCount;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        ཆེད་དུ (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
             totalCount += m_instrCount;
@@ -254,16 +254,16 @@ private:
         UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
     }
     void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
         const auto it = m_funcCosts.find(nodep->funcp());
-        if (it == m_funcCosts.end()) {
+        གལ་ཏེ (it == m_funcCosts.end()) {
             m_tracingCall = true;
             iterateConst(nodep->funcp());
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
-        } else {
+        } དེ་མིན {
             m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
         }
     }
@@ -292,13 +292,13 @@ private:
         m_ignoreRemaining = false;
     }
     void visit(AstNodeCons* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         const VisitBase vb{this, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        གལ་ཏེ (!nodep->isConstantTree()) iterateChildrenConst(nodep);
     }
     void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
+        གལ་ཏེ (m_ignoreRemaining) ཕྱིར;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
     }
@@ -321,16 +321,16 @@ public:
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
-        if (nodep) iterateConst(nodep);
+        གལ་ཏེ (nodep) iterateConst(nodep);
     }
     ~InstrCountDumpVisitor() override = default;
 
 private:
     // METHODS
-    string indent() const { return string(m_depth, ':') + " "; }
+    string indent() const { ཕྱིར string(m_depth, ':') + " "; }
     void visit(AstNode* nodep) override {
         ++m_depth;
-        if (const unsigned costPlus1 = nodep->user2()) {
+        གལ་ཏེ (const unsigned costPlus1 = nodep->user2()) {
             *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
@@ -343,6 +343,6 @@ private:
 
 uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
     const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+    གལ་ཏེ (osp) const InstrCountDumpVisitor dumper{nodep, osp};
+    ཕྱིར visitor.instrCount();
 }

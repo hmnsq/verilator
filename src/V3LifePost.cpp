@@ -101,18 +101,18 @@ class LifePostDlyVisitor final : public VNVisitorConst {
             , m_seqNum{seqNum} {}
         Location() = delete;
 
-        T_Node* const& nodep() const { return m_nodep; }
+        T_Node* const& nodep() const { ཕྱིར m_nodep; }
 
         // "is before" - Note: Equality (concurrency) is possible iff they are independent mtasks!
         template <typename U_Node>
         bool operator<(const Location<U_Node>& that) const {
             // If they are in different mtasks under the same graph, check for a path in the graph
-            if (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
+            གལ་ཏེ (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
                 GraphPathChecker* const checkerp = m_egraphp->user1u().to<GraphPathChecker*>();
-                return checkerp->pathExistsFrom(m_mtaskp, that.m_mtaskp);
+                ཕྱིར checkerp->pathExistsFrom(m_mtaskp, that.m_mtaskp);
             }
             // Otherwise the sequence numbers work (one/both outside graph, or both in same mtask)
-            return m_seqNum < that.m_seqNum;
+            ཕྱིར m_seqNum < that.m_seqNum;
         }
     };
 
@@ -141,7 +141,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     // METHODS
     void narrowCopies(AstNodeAssign* postp, AstVarScope* dVscp,
                       const std::vector<Location<AstVarRef>>& writes) {
-        if (!dVscp->isWide()) return;
+        གལ་ཏེ (!dVscp->isWide()) ཕྱིར;
         AstNodeAssign* const prep = VN_AS(writes[0].nodep()->backp(), NodeAssign);
         UASSERT_OBJ(VN_AS(prep->lhsp(), VarRef)->varScopep()
                             == VN_AS(postp->rhsp(), VarRef)->varScopep()
@@ -149,22 +149,22 @@ class LifePostDlyVisitor final : public VNVisitorConst {
                                == VN_AS(postp->lhsp(), VarRef)->varScopep(),
                     prep, "NBA shadow pre/post assignments are not reverse copies");
 
-        int lsb = dVscp->width();
-        int end = 0;
-        for (size_t i = 1; i < writes.size(); ++i) {
+        ཧྲིལ lsb = dVscp->width();
+        ཧྲིལ end = 0;
+        ཆེད་དུ (size_t i = 1; i < writes.size(); ++i) {
             const AstSel* const selp = VN_CAST(writes[i].nodep()->backp(), Sel);
-            if (!selp || !VN_IS(selp->lsbp(), Const)) return;
-            const int start = selp->lsbConst();
-            if (start > dVscp->width() - selp->width()) return;
+            གལ་ཏེ (!selp || !VN_IS(selp->lsbp(), Const)) ཕྱིར;
+            const ཧྲིལ start = selp->lsbConst();
+            གལ་ཏེ (start > dVscp->width() - selp->width()) ཕྱིར;
             lsb = std::min(lsb, start);
             end = std::max(end, start + selp->width());
         }
         // Copy one word-aligned range enclosing all writes, including any gaps.
         lsb = VL_BITWORD_E(lsb) * VL_EDATASIZE;
         end = std::min(VL_WORDS_I(end) * VL_EDATASIZE, dVscp->width());
-        const int width = end - lsb;
-        if (width == dVscp->width()) return;
-        for (AstNodeAssign* const assignp : {prep, postp}) {
+        const ཧྲིལ width = end - lsb;
+        གལ་ཏེ (width == dVscp->width()) ཕྱིར;
+        ཆེད་དུ (AstNodeAssign* const assignp : {prep, postp}) {
             FileLine* const flp = assignp->fileline();
             assignp->lhsp(new AstSel{flp, assignp->lhsp()->unlinkFrBack(), lsb, width});
             assignp->rhsp(new AstSel{flp, assignp->rhsp()->unlinkFrBack(), lsb, width});
@@ -174,12 +174,12 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     }
 
     void squashAssignposts() {
-        for (const Location<AstNodeAssign>& assign : m_assigns) {
+        ཆེད་དུ (const Location<AstNodeAssign>& assign : m_assigns) {
             AstVarScope* const dVscp = VN_AS(assign.nodep()->rhsp(), VarRef)->varScopep();
             AstVarScope* const qVscp = VN_AS(assign.nodep()->lhsp(), VarRef)->varScopep();
 
             // We are considering deleting 'y', don't do it if referenced external to _eval__nba
-            if (dVscp->user1()) continue;
+            གལ་ཏེ (dVscp->user1()) continue;
 
             const std::vector<Location<AstVarRef>>& dWrites = m_writes[dVscp];
             UASSERT_OBJ(!dWrites.empty(), dVscp, "NBA shadow variable read but never written");
@@ -187,31 +187,31 @@ class LifePostDlyVisitor final : public VNVisitorConst {
             // *** See file header for requirements ***
 
             // Proof (1) - Only read is on the RHS of this assignment
-            if (m_reads[dVscp].size() > 1) continue;
+            གལ་ཏེ (m_reads[dVscp].size() > 1) continue;
 
             // Proof (2) - Only write is on the LHS of this assignment
-            if (m_writes[qVscp].size() > 1) continue;
+            གལ་ཏེ (m_writes[qVscp].size() > 1) continue;
 
             // Proof (3) - Should always hold
             UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), NodeAssign), dVscp,
                         "Partial first write to NBA shadow variable");
 
             // Proof (4)
-            if (dWrites.size() > 1) {
+            གལ་ཏེ (dWrites.size() > 1) {
                 // V3Order always serializes writes so they cannot be concurrent
                 UASSERT_OBJ(dWrites[0] < dWrites[1], dVscp, "Concurrent writes");
                 const bool qRdOK = [&]() {
-                    for (const Location<AstVarRef>& qRead : m_reads[qVscp]) {
-                        if (assign < qRead) continue;
+                    ཆེད་དུ (const Location<AstVarRef>& qRead : m_reads[qVscp]) {
+                        གལ་ཏེ (assign < qRead) continue;
                         // Check from 2nd write of 'd'
-                        for (size_t i = 1; i < dWrites.size(); ++i) {
-                            if (qRead < dWrites[i]) continue;
-                            return false;
+                        ཆེད་དུ (size_t i = 1; i < dWrites.size(); ++i) {
+                            གལ་ཏེ (qRead < dWrites[i]) continue;
+                            ཕྱིར false;
                         }
                     }
-                    return true;
+                    ཕྱིར true;
                 }();
-                if (!qRdOK) {
+                གལ་ཏེ (!qRdOK) {
                     narrowCopies(assign.nodep(), dVscp, dWrites);
                     continue;
                 }
@@ -229,7 +229,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     // Trace code in the given function
     void trace(AstCFunc* nodep) {
         VL_RESTORER(m_inEvalNba);
-        if (nodep == m_nbaFuncp) m_inEvalNba = true;
+        གལ་ཏེ (nodep == m_nbaFuncp) m_inEvalNba = true;
         iterateChildrenConst(nodep);
     }
 
@@ -243,11 +243,11 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // V3Order serializes all writes, and we trace AstExecGraph in
         // dependency order, so the first one we encounter during tracing should
         // always be the one. It's somewhat expensive to assert so only with debugCheck().
-        if (v3Global.opt.debugCheck()) {
-            for (auto& pair : m_writes) {
+        གལ་ཏེ (v3Global.opt.debugCheck()) {
+            ཆེད་དུ (auto& pair : m_writes) {
                 const std::vector<Location<AstVarRef>>& writes = pair.second;
                 const Location<AstVarRef>& first = writes[0];
-                for (size_t i = 1; i < writes.size(); ++i) {
+                ཆེད་དུ (size_t i = 1; i < writes.size(); ++i) {
                     UASSERT_OBJ(first < writes[i], pair.first, "First write is not the first");
                 }
             }
@@ -263,7 +263,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         nodep->foreach([](AstVarRef* nodep) {
             const AstVarScope* const vscp = nodep->varScopep();
             AstVarScope* const replacementp = VN_AS(vscp->user4p(), VarScope);
-            if (!replacementp) return;
+            གལ་ཏེ (!replacementp) ཕྱིར;
             UINFO(9, "  Replace " << nodep << " target " << vscp << " with " << replacementp);
             nodep->varScopep(replacementp);
             nodep->varp(replacementp->varp());
@@ -272,12 +272,12 @@ class LifePostDlyVisitor final : public VNVisitorConst {
 
     void visit(AstVarRef* nodep) override {
         // We only try to optimize NBA shadow variables
-        if (!nodep->varScopep()->optimizeLifePost()) return;
+        གལ་ཏེ (!nodep->varScopep()->optimizeLifePost()) ཕྱིར;
 
         // Mark variables referenced outside the 'nba' region
-        if (!m_inEvalNba) {
+        གལ་ཏེ (!m_inEvalNba) {
             nodep->varScopep()->user1(true);
-            return;
+            ཕྱིར;
         }
 
         // Consumption/generation of a variable,
@@ -285,10 +285,10 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         UASSERT_OBJ(vscp, nodep, "Scope not assigned");
 
         ++m_sequence;
-        if (nodep->access().isWriteOrRW()) {
+        གལ་ཏེ (nodep->access().isWriteOrRW()) {
             m_writes[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
-        if (nodep->access().isReadOrRW()) {
+        གལ་ཏེ (nodep->access().isReadOrRW()) {
             m_reads[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
     }
@@ -296,9 +296,9 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // Record RHS before assignment
         iterateConst(nodep->rhsp());
         // If a straight assignment between NBA variables, consider for removal
-        if (const AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (const AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (lhsp->varScopep()->optimizeLifePost()  //
+        གལ་ཏེ (const AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            གལ་ཏེ (const AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                གལ་ཏེ (lhsp->varScopep()->optimizeLifePost()  //
                     && rhsp->varScopep()->optimizeLifePost()) {
                     m_assigns.emplace_back(nodep, m_execGraphp, m_execMTaskp, ++m_sequence);
                 }
@@ -310,7 +310,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     void visit(AstNodeCCall* nodep) override {
         iterateChildrenConst(nodep);
         // Entry points are roots of the trace, no need to do it here
-        if (nodep->funcp()->entryPoint()) return;
+        གལ་ཏེ (nodep->funcp()->entryPoint()) ཕྱིར;
         // Trace cellee
         trace(nodep->funcp());
     }
@@ -328,7 +328,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // and we do not reset m_sequence, so a lower sequence number does
         // guarantee a node is not earlier than a higher sequence number, but
         // might still be concurrent.
-        for (V3GraphVertex& mtaskVtx : nodep->depGraphp()->vertices()) {
+        ཆེད་དུ (V3GraphVertex& mtaskVtx : nodep->depGraphp()->vertices()) {
             const ExecMTask* const mtaskp = mtaskVtx.as<ExecMTask>();
             VL_RESTORER(m_execMTaskp);
             m_execMTaskp = mtaskp;
@@ -337,7 +337,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     }
     void visit(AstCFunc* nodep) override {
         // Start a trace from each entry point
-        if (nodep->entryPoint()) trace(nodep);
+        གལ་ཏེ (nodep->entryPoint()) trace(nodep);
     }
     //-----
     void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }

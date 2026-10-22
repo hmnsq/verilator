@@ -36,17 +36,17 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 class VCtorType final {
 public:
-    enum en : uint8_t { MODULE, CLASS, COVERAGE };
+    ga_nanaa en : uint8_t { MODULE, CLASS, COVERAGE };
 
 private:
-    const enum en m_e;
+    const ga_nanaa en m_e;
 
 public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VCtorType(en _e)
         : m_e{_e} {}
-    bool isClass() const { return m_e == CLASS; }
-    bool isCoverage() const { return m_e == COVERAGE; }
+    bool isClass() const { ཕྱིར m_e == CLASS; }
+    bool isCoverage() const { ཕྱིར m_e == COVERAGE; }
 };
 
 class V3CCtorsBuilder final {
@@ -54,10 +54,10 @@ class V3CCtorsBuilder final {
     const string m_basename;
     const VCtorType m_type;  // What kind of constructor are we creating
     std::list<AstCFunc*> m_newFunctions;  // Created functions, latest is at back
-    int m_numStmts = 0;  // Number of statements output
+    ཧྲིལ m_numStmts = 0;  // Number of statements output
 
     AstCFunc* makeNewFunc() {
-        const int funcNum = m_newFunctions.size();
+        const ཧྲིལ funcNum = m_newFunctions.size();
         const string funcName = m_basename + "_" + cvtToStr(funcNum);
         AstCFunc* const funcp = new AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
         funcp->isStatic(false);
@@ -65,27 +65,27 @@ class V3CCtorsBuilder final {
         funcp->keepIfEmpty(true);  // TODO relax
         funcp->declPrivate(true);
         funcp->slow(!m_type.isClass());  // Only classes construct on fast path
-        if (!m_type.isCoverage()) m_modp->ctorVarReset(true);
+        གལ་ཏེ (!m_type.isCoverage()) m_modp->ctorVarReset(true);
         string preventUnusedStmt;
-        if (m_type.isClass()) {
+        གལ་ཏེ (m_type.isClass()) {
             funcp->argTypes(EmitCUtil::symClassVar());
             preventUnusedStmt = "(void)vlSymsp;  // Prevent unused variable warning";
-        } else if (m_type.isCoverage()) {
+        } དེ་མིན གལ་ཏེ (m_type.isCoverage()) {
             funcp->argTypes("bool first");
             preventUnusedStmt = "(void)first;  // Prevent unused variable warning";
         }
-        if (!preventUnusedStmt.empty()) {
+        གལ་ཏེ (!preventUnusedStmt.empty()) {
             funcp->addStmtsp(new AstCStmt{m_modp->fileline(), preventUnusedStmt});
         }
         m_modp->addStmtsp(funcp);
         m_numStmts = 0;
-        return funcp;
+        ཕྱིར funcp;
     }
 
 public:
     void add(AstNode* nodep) {
-        if (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
-        if (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
+        གལ་ཏེ (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
+        གལ་ཏེ (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
             m_newFunctions.push_back(makeNewFunc());
         }
         m_newFunctions.back()->addStmtsp(nodep);
@@ -97,25 +97,25 @@ public:
         , m_basename{basename}
         , m_type{type} {
         // Expect coverage function to always exist, so must always create at least one.
-        if (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
+        གལ་ཏེ (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
     }
 
     ~V3CCtorsBuilder() {
-        if (m_newFunctions.size() == 0) {
-        } else if (m_newFunctions.size() == 1) {
+        གལ་ཏེ (m_newFunctions.size() == 0) {
+        } དེ་མིན གལ་ཏེ (m_newFunctions.size() == 1) {
             // No split was necessary, rename the one function to the basename
             m_newFunctions.front()->name(m_basename);
-        } else {
+        } དེ་མིན {
             // Split was necessary, create root function and call all others from that
             AstCFunc* const rootFuncp = makeNewFunc();
             rootFuncp->name(m_basename);
-            for (AstCFunc* const funcp : m_newFunctions) {
+            ཆེད་དུ (AstCFunc* const funcp : m_newFunctions) {
                 AstCCall* const callp = new AstCCall{m_modp->fileline(), funcp};
                 callp->dtypeSetVoid();
-                if (m_type.isClass()) {
+                གལ་ཏེ (m_type.isClass()) {
                     callp->argTypes("vlSymsp");
-                } else {
-                    if (m_type.isCoverage()) callp->argTypes("first");
+                } དེ་མིན {
+                    གལ་ཏེ (m_type.isCoverage()) callp->argTypes("first");
                     callp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
                 }
                 rootFuncp->addStmtsp(callp->makeStmt());
@@ -143,7 +143,7 @@ class CCtorsVisitor final : public VNVisitor {
     // METHODS
     static void insertSc(AstCFunc* cfuncp, const AstNodeModule* modp, VSystemCSectionType type) {
         const auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
-        if (txtAndFlp.first.empty()) return;
+        གལ་ཏེ (txtAndFlp.first.empty()) ཕྱིར;
         // Use an AstCStmtUser as this is from user input
         AstCStmtUser* const cstmtp = new AstCStmtUser{txtAndFlp.second};
         cstmtp->add(txtAndFlp.first);
@@ -152,10 +152,10 @@ class CCtorsVisitor final : public VNVisitor {
 
     // VISITORS
     void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
-        if (const AstClass* const classp = VN_CAST(nodep, Class)) {
+        གལ་ཏེ (nodep->isConstPool()) ཕྱིར;  // Special emit rules
+        གལ་ཏེ (const AstClass* const classp = VN_CAST(nodep, Class)) {
             // Interface class may only have pure virtuals and params which do not need cctor reset
-            if (classp->isInterfaceClass()) return;
+            གལ་ཏེ (classp->isInterfaceClass()) ཕྱིར;
         }
         VL_RESTORER(m_modp);
         VL_RESTORER(m_varResetp);
@@ -166,11 +166,11 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = &var_reset;
         iterateChildren(nodep);
 
-        if (v3Global.opt.coverage()) {
+        གལ་ཏེ (v3Global.opt.coverage()) {
             V3CCtorsBuilder configure_coverage{nodep, "_configure_coverage", VCtorType::COVERAGE};
-            for (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
+            ཆེད་དུ (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
                 nextp = np->nextp();
-                if (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
+                གལ་ཏེ (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
                     // ... else we don't have a static VlSym to be able to coverage insert
                     UASSERT_OBJ(!VN_IS(nodep, Class), coverp,
                                 "NodeCoverDecl should be in class's package, not class itself");
@@ -178,7 +178,7 @@ class CCtorsVisitor final : public VNVisitor {
                 }
             }
         }
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
+        གལ་ཏེ (AstClass* const classp = VN_CAST(nodep, Class)) {
             AstCFunc* const funcp = new AstCFunc{classp->fileline(), "~", nullptr, ""};
             funcp->isDestructor(true);
             funcp->isStatic(false);
@@ -196,25 +196,25 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = nullptr;
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        if (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
+        གལ་ཏེ (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
     }
     void visit(AstCStmt* nodep) override {
-        if (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
+        གལ་ཏེ (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
             UASSERT_OBJ(m_modp, nodep, "ctor_var_reset call not under module");
             m_ctorCalls.emplace(nodep, m_modp);
         }
         iterateChildren(nodep);
     }
     void visit(AstVar* nodep) override {
-        if (nodep->needsCReset()) {
+        གལ་ཏེ (nodep->needsCReset()) {
             AstNode* const crstp = new AstAssign{
                 nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
                 new AstCReset{nodep->fileline(), nodep, true}};
-            if (m_varResetp) {
+            གལ་ཏེ (m_varResetp) {
                 m_varResetp->add(crstp);
-            } else if (m_cfuncp) {
+            } དེ་མིན གལ་ཏེ (m_cfuncp) {
                 nodep->addNextHere(crstp);
-            } else {
+            } དེ་མིན {
                 nodep->v3fatalSrc("Var needs CReset but nowhere to place it");
             }
         }
@@ -227,10 +227,10 @@ public:
     explicit CCtorsVisitor(AstNode* nodep) { iterate(nodep); }
     ~CCtorsVisitor() override {
         // Remove CStmts to ctor_var_resets that are no longer needed
-        for (auto& itr : m_ctorCalls) {
+        ཆེད་དུ (auto& itr : m_ctorCalls) {
             AstCStmt* const nodep = itr.first;
             const AstNodeModule* const modp = itr.second;
-            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            གལ་ཏེ (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
         }
     }
 };
@@ -248,20 +248,20 @@ void V3CCtors::evalAsserts() {
     funcp->slow(false);
     funcp->ifdef("VL_DEBUG");
     modp->addStmtsp(funcp);
-    for (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
-        if (AstVar* const varp = VN_CAST(np, Var)) {
-            if (varp->isPrimaryInish() && !varp->isSc()) {
-                if (const AstBasicDType* const basicp
+    ཆེད་དུ (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
+        གལ་ཏེ (AstVar* const varp = VN_CAST(np, Var)) {
+            གལ་ཏེ (varp->isPrimaryInish() && !varp->isSc()) {
+                གལ་ཏེ (const AstBasicDType* const basicp
                     = VN_CAST(varp->dtypeSkipRefp(), BasicDType)) {
-                    const int storedWidth = basicp->widthAlignBytes() * 8;
-                    const int lastWordWidth = varp->width() % storedWidth;
-                    if (lastWordWidth != 0) {
+                    const ཧྲིལ storedWidth = basicp->widthAlignBytes() * 8;
+                    const ཧྲིལ lastWordWidth = varp->width() % storedWidth;
+                    གལ་ཏེ (lastWordWidth != 0) {
                         // if (signal & CONST(upper_non_clean_mask)) { fail; }
                         AstVarRef* const vrefp
                             = new AstVarRef{varp->fileline(), varp, VAccess::READ};
                         vrefp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
                         AstNodeExpr* newp = vrefp;
-                        if (varp->isWide()) {
+                        གལ་ཏེ (varp->isWide()) {
                             newp = new AstWordSel{
                                 varp->fileline(), newp,
                                 new AstConst(varp->fileline(), varp->widthWords() - 1)};

@@ -55,13 +55,13 @@ class GraphStream final {
             , m_pos{pos}
             , m_numBlockingEdges{numBlockingEdges} {}
         // METHODS
-        const V3GraphVertex* vertexp() const { return m_vxp; }
+        const V3GraphVertex* vertexp() const { ཕྱིར m_vxp; }
         // Decrement blocking edges count, return true if the vertex is
         // newly unblocked
         bool unblock() {
             UASSERT_OBJ(m_numBlockingEdges > 0, vertexp(), "Underflow of blocking edges");
             --m_numBlockingEdges;
-            return (m_numBlockingEdges == 0);
+            ཕྱིར (m_numBlockingEdges == 0);
         }
     };
 
@@ -74,9 +74,9 @@ class GraphStream final {
             : m_lessThan{lessThan} {}
         // METHODS
         bool operator()(const VxHolder& a, const VxHolder& b) const {
-            if (m_lessThan.operator()(a.vertexp(), b.vertexp())) return true;
-            if (m_lessThan.operator()(b.vertexp(), a.vertexp())) return false;
-            return a.m_pos < b.m_pos;
+            གལ་ཏེ (m_lessThan.operator()(a.vertexp(), b.vertexp())) ཕྱིར true;
+            གལ་ཏེ (m_lessThan.operator()(b.vertexp(), a.vertexp())) ཕྱིར false;
+            ཕྱིར a.m_pos < b.m_pos;
         }
 
     private:
@@ -104,22 +104,22 @@ public:
         , m_last{m_readyVertices.end()}
         , m_way{way} {
         uint32_t pos = 0;
-        for (const V3GraphVertex& vtx : graphp->vertices()) {
+        ཆེད་དུ (const V3GraphVertex& vtx : graphp->vertices()) {
             // Every vertex initially is waiting, or ready.
-            if (way == GraphWay::FORWARD) {
-                if (vtx.inEmpty()) {
+            གལ་ཏེ (way == GraphWay::FORWARD) {
+                གལ་ཏེ (vtx.inEmpty()) {
                     const VxHolder newVx{&vtx, pos++, 0};
                     m_readyVertices.insert(newVx);
-                } else {
+                } དེ་མིན {
                     const uint32_t depCount = vtx.inEdges().size();
                     const VxHolder newVx{&vtx, pos++, depCount};
                     m_waitingVertices.emplace(&vtx, newVx);
                 }
-            } else {  // REVERSE
-                if (vtx.outEmpty()) {
+            } དེ་མིན {  // REVERSE
+                གལ་ཏེ (vtx.outEmpty()) {
                     const VxHolder newVx{&vtx, pos++, 0};
                     m_readyVertices.insert(newVx);
-                } else {
+                } དེ་མིན {
                     const uint32_t depCount = vtx.outEdges().size();
                     const VxHolder newVx{&vtx, pos++, depCount};
                     m_waitingVertices.emplace(&vtx, newVx);
@@ -158,10 +158,10 @@ public:
         const V3GraphVertex* resultp = nullptr;
 
         typename ReadyVertices::iterator curIt;
-        if (m_last == m_readyVertices.end()) {
+        གལ་ཏེ (m_last == m_readyVertices.end()) {
             // First call to nextp()
             curIt = m_readyVertices.begin();
-        } else {
+        } དེ་མིན {
             // Subsequent call to nextp()
             curIt = m_last;
             ++curIt;
@@ -170,44 +170,44 @@ public:
             // Wrap curIt. Expect to wrap, and make another pass, to find
             // newly-ready elements that could have appeared ahead of the
             // m_last iterator
-            if (curIt == m_readyVertices.end()) curIt = m_readyVertices.begin();
+            གལ་ཏེ (curIt == m_readyVertices.end()) curIt = m_readyVertices.begin();
         }
 
-        if (curIt != m_readyVertices.end()) {
+        གལ་ཏེ (curIt != m_readyVertices.end()) {
             resultp = curIt->vertexp();
             unblockDeps(resultp);
-        } else {
+        } དེ་མིན {
             // No ready vertices; waiting should be empty too, otherwise we
             // were fed a graph with cycles (which is not supported.)
             UASSERT(m_waitingVertices.empty(), "DGS fed non-DAG");
         }
 
         m_last = curIt;
-        return resultp;
+        ཕྱིར resultp;
     }
 
 private:
     void unblockDeps(const V3GraphVertex* vertexp) {
-        if (m_way == GraphWay::FORWARD) {
-            for (const V3GraphEdge& edgep : vertexp->outEdges()) {
+        གལ་ཏེ (m_way == GraphWay::FORWARD) {
+            ཆེད་དུ (const V3GraphEdge& edgep : vertexp->outEdges()) {
                 const V3GraphVertex* const toVertexp = edgep.top();
 
                 const auto it = m_waitingVertices.find(toVertexp);
                 UASSERT_OBJ(it != m_waitingVertices.end(), toVertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
+                གལ་ཏེ (it->second.unblock()) {
                     m_readyVertices.insert(it->second);
                     m_waitingVertices.erase(it);
                 }
             }
-        } else {
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
+        } དེ་མིན {
+            ཆེད་དུ (const V3GraphEdge& edge : vertexp->inEdges()) {
                 const V3GraphVertex* const fromVertexp = edge.fromp();
 
                 const auto it = m_waitingVertices.find(fromVertexp);
                 UASSERT_OBJ(it != m_waitingVertices.end(), fromVertexp,
                             "Found edge into vertex not in waiting list.");
-                if (it->second.unblock()) {
+                གལ་ཏེ (it->second.unblock()) {
                     m_readyVertices.insert(it->second);
                     m_waitingVertices.erase(it);
                 }
@@ -234,9 +234,9 @@ public:
     VL_UNCOPYABLE(GraphStreamUnordered);
     explicit GraphStreamUnordered(V3Graph* graphp, GraphWay way = GraphWay::FORWARD)
         : m_way{way} {
-        if (m_way == GraphWay::FORWARD) {
+        གལ་ཏེ (m_way == GraphWay::FORWARD) {
             init<GraphWay::FORWARD>(graphp);
-        } else {
+        } དེ་མིན {
             init<GraphWay::REVERSE>(graphp);
         }
     }
@@ -248,16 +248,16 @@ public:
     // alone do not specify a total ordering. Un-ordered vertices are returned in an arbitrary but
     // deterministic order.
     const V3GraphVertex* nextp() {
-        if (VL_UNLIKELY(m_nextIndex == m_nextVertices.size())) {
-            if (VL_UNLIKELY(m_readyVertices.empty())) return nullptr;
+        གལ་ཏེ (VL_UNLIKELY(m_nextIndex == m_nextVertices.size())) {
+            གལ་ཏེ (VL_UNLIKELY(m_readyVertices.empty())) ཕྱིར nullptr;
             m_nextIndex = 0;
             // Use swap to avoid reallocation
             m_nextVertices.swap(m_readyVertices);
             m_readyVertices.clear();
         }
         const V3GraphVertex* const resultp = m_nextVertices[m_nextIndex++];
-        if (m_way == GraphWay::FORWARD) return unblock<GraphWay::FORWARD>(resultp);
-        return unblock<GraphWay::REVERSE>(resultp);
+        གལ་ཏེ (m_way == GraphWay::FORWARD) ཕྱིར unblock<GraphWay::FORWARD>(resultp);
+        ཕྱིར unblock<GraphWay::REVERSE>(resultp);
     }
 
 private:
@@ -265,25 +265,25 @@ private:
     VL_ATTR_NOINLINE void init(V3Graph* graphp) {
         constexpr GraphWay way{N_Way};
         // Assign every vertex without an incoming edge to ready, others to waiting
-        for (V3GraphVertex& vertex : graphp->vertices()) {
+        ཆེད་དུ (V3GraphVertex& vertex : graphp->vertices()) {
             const uint32_t nDeps = vertex.edges<way.invert()>().size();
             vertex.color(nDeps);  // Using color instead of user, as user might be used by client
-            if (VL_UNLIKELY(nDeps == 0)) m_nextVertices.push_back(&vertex);
+            གལ་ཏེ (VL_UNLIKELY(nDeps == 0)) m_nextVertices.push_back(&vertex);
         }
     }
 
     template <uint8_t N_Way>  //
     VL_ATTR_NOINLINE const V3GraphVertex* unblock(const V3GraphVertex* resultp) {
         constexpr GraphWay way{N_Way};
-        for (const V3GraphEdge& edge : resultp->edges<way>()) {
+        ཆེད་དུ (const V3GraphEdge& edge : resultp->edges<way>()) {
             V3GraphVertex* const vertexp = edge.furtherp<way>();
-#if VL_DEBUG
+#གལ་ཏེ VL_DEBUG
             UASSERT_OBJ(vertexp->color() != 0, vertexp, "Should not be on waiting list");
 #endif
             vertexp->color(vertexp->color() - 1);
-            if (!vertexp->color()) m_readyVertices.push_back(vertexp);
+            གལ་ཏེ (!vertexp->color()) m_readyVertices.push_back(vertexp);
         }
-        return resultp;  // Returning input so we can tail call this method
+        ཕྱིར resultp;  // Returning input so we can tail call this method
     }
 };
 

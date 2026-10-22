@@ -29,18 +29,18 @@ class V3DiagSarifImp final {
     // MEMBERS
     std::deque<VErrorMessage> m_messages;
     std::set<V3ErrorCode> m_codes;
-    std::map<V3ErrorCode, int> m_codeIndex;
+    std::map<V3ErrorCode, ཧྲིལ> m_codeIndex;
 
     // METHODS
     void calculate() {
-        for (const VErrorMessage& msgr : m_messages)
-            if (msgr.code().isNamed()) m_codes.emplace(msgr.code());
-        int i = 0;
-        for (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
+        ཆེད་དུ (const VErrorMessage& msgr : m_messages)
+            གལ་ཏེ (msgr.code().isNamed()) m_codes.emplace(msgr.code());
+        ཧྲིལ i = 0;
+        ཆེད་དུ (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
     }
 
     void putRules(V3OutJsonFile& of) const {
-        for (const V3ErrorCode& code : m_codes) {
+        ཆེད་དུ (const V3ErrorCode& code : m_codes) {
             of.begin().put("id", code.ascii()).put("helpUri", code.url()).end();
         }
     }
@@ -54,9 +54,9 @@ class V3DiagSarifImp final {
         const string filename = V3Os::filenameRealPath(fl->filename());
         of.begin("physicalLocation");
         of.begin("artifactLocation");
-        if (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
+        གལ་ཏེ (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
             of.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
-        } else {
+        } དེ་མིན {
             of.put("uri", "file://" + filename);
         }
         of.end()
@@ -64,7 +64,7 @@ class V3DiagSarifImp final {
             .put("sourceLanguage", "systemverilog")
             .put("startLine", fl->firstLineno())
             .put("startColumn", fl->firstColumn());
-        if (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
+        གལ་ཏེ (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
         of.put("endColumn", fl->lastColumn());
         of.begin("snippit", '{');
         putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), false));
@@ -75,7 +75,7 @@ class V3DiagSarifImp final {
 
     string substrToNextRelated(const string& str) {
         const size_t pos = str.find("__WARNRELATED(", 0);
-        return (pos == std::string::npos) ? str : str.substr(0, pos);
+        ཕྱིར (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
     void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
@@ -97,22 +97,22 @@ class V3DiagSarifImp final {
         of.begin("message");
         putText(of, first_clean, first_fmt);
         of.end();
-        if (const FileLine* const fl = msg.fileline()) {
+        གལ་ཏེ (const FileLine* const fl = msg.fileline()) {
             of.begin("locations", '[').begin();
             putLocation(of, fl);
             of.end();
             of.end();
         }
 
-        if (text.find("__WARNRELATED(") != std::string::npos) {
+        གལ་ཏེ (text.find("__WARNRELATED(") != std::string::npos) {
             of.begin("relatedLocations", '[');
             size_t pos = 0;
-            while ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
+            སྐབས ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
                 const size_t start = pos + std::strlen("__WARNRELATED(");
                 size_t end = start;
-                while (end < text.size() && text[end] != ')') ++end;
+                སྐབས (end < text.size() && text[end] != ')') ++end;
                 const size_t index = std::atoi(text.substr(start, end + 1).c_str());
-                if (end < text.size()) end += std::strlen(")");
+                གལ་ཏེ (end < text.size()) end += std::strlen(")");
                 text = text.substr(end, text.size());
                 UASSERT_STATIC(index < msg.filelines().size(),
                                "Error message warnRelated without fileline");
@@ -131,7 +131,7 @@ class V3DiagSarifImp final {
             of.end();
         }
 
-        if (msg.code().isNamed())
+        གལ་ཏེ (msg.code().isNamed())
             of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
 
         of.end();
@@ -141,7 +141,7 @@ class V3DiagSarifImp final {
 public:
     static V3DiagSarifImp& s() {
         static V3DiagSarifImp s_s;
-        return s_s;
+        ཕྱིར s_s;
     }
 
     void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
@@ -175,7 +175,7 @@ public:
             .end();
 
         of.begin("results", '[');
-        for (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
+        ཆེད་དུ (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
         of.end();
 
         of.end();  // runs ]
@@ -184,12 +184,12 @@ public:
 };
 
 void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+    གལ་ཏེ (!v3Global.opt.diagnosticsSarif()) ཕྱིར;
     V3DiagSarifImp::s().pushMessage(msg);
 }
 
 void V3DiagSarif::output(bool success) {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+    གལ་ཏེ (!v3Global.opt.diagnosticsSarif()) ཕྱིར;
     UINFO(2, __FUNCTION__ << ":");
     V3DiagSarifImp::s().output(success);
 }
