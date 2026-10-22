@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#अन्तर्भाव "V3Order.h"
+#अन्तर्भाव "V3OrderGraph.h"
+#अन्तर्भाव "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#अन्तर्भाव <string>
+#अन्तर्भाव <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(ध्रुव V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ध्रुव std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            ध्रुव V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+शून्य orderOrderGraph(OrderGraph& graph, ध्रुव std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+शून्य processDomains(OrderGraph& graph,  //
+                    ध्रुव std::string& tag,  //
+                    ध्रुव ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ग्रन्थिः_Stmt* createSerial(OrderMoveGraph& moveGraph, ध्रुव std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ग्रन्थिः_Stmt* createParallel(OrderMoveGraph& moveGraph, ध्रुव std::string& tag, bool slow);
 
 };  // namespace V3Order
 

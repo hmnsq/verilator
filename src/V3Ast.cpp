@@ -14,14 +14,14 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3Broken.h"
-#include "V3File.h"
+#अन्तर्भाव "V3Broken.h"
+#अन्तर्भाव "V3File.h"
 
-#include <iomanip>
-#include <memory>
-#include <sstream>
+#अन्तर्भाव <iomanip>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <sstream>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,57 +30,57 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 uint64_t VIsCached::s_cachedCntGbl = 1;
 
-uint64_t AstNode::s_editCntLast = 0;
-uint64_t AstNode::s_editCntGbl = 0;  // Hot cache line
+uint64_t Ast_ग्रन्थिः::s_editCntLast = 0;
+uint64_t Ast_ग्रन्थिः::s_editCntGbl = 0;  // Hot cache line
 
 // To allow for fast clearing of all user pointers, we keep a "timestamp"
 // along with each userp, and thus by bumping this count we can make it look
 // as if we iterated across the entire tree to set all the userp's to null.
-int AstNode::s_cloneCntGbl = 0;
+पूर्णाङ्क Ast_ग्रन्थिः::s_cloneCntGbl = 0;
 uint32_t VNUser1InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser2InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser3InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser4InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 
-bool VNUser1InUse::s_userBusy = false;
-bool VNUser2InUse::s_userBusy = false;
-bool VNUser3InUse::s_userBusy = false;
-bool VNUser4InUse::s_userBusy = false;
+तार्किक VNUser1InUse::s_userBusy = मिच्छा;
+तार्किक VNUser2InUse::s_userBusy = मिच्छा;
+तार्किक VNUser3InUse::s_userBusy = मिच्छा;
+तार्किक VNUser4InUse::s_userBusy = मिच्छा;
 
-int AstNodeDType::s_uniqueNum = 0;
+पूर्णाङ्क Ast_ग्रन्थिः_DType::s_unique_अङ्कः = 0;
 
 //======================================================================
 // VCMethod information
 
-VCMethod VCMethod::arrayMethod(const string& name) {
-    for (int i = 0; i < _ENUM_MAX; ++i) {
-        const VCMethod method{i};
-        if (name == method.ascii()) return method;
+VCMethod VCMethod::arrayMethod(ध्रुव string& name) {
+    अत्थाय (पूर्णाङ्क i = 0; i < _ENUM_MAX; ++i) {
+        ध्रुव VCMethod method{i};
+        सचे (name == method.ascii()) पटिनिवत्त method;
     }
     v3fatalSrc("Not a method name known to VCMethod: '" << name << '\'');
-    return VCMethod{};
+    पटिनिवत्त VCMethod{};
 }
 
 //######################################################################
 // VNUser
 
-std::string VNUser::dumpStr(std::string (*fmtAddrp)(const void*)) const {
+std::string VNUser::dumpStr(std::string (*fmtAddrp)(ध्रुव शून्य*)) ध्रुव {
 #ifdef VL_USER_TYPE_CHECKS
-    if (const uint64_t* const uip = std::get_if<uint64_t>(&m_u)) return "#"s + cvtToStr(*uip);
-    if (void* const* const upp = std::get_if<void*>(&m_u)) return fmtAddrp(*upp);
-    return "";
-#else
+    सचे (ध्रुव uint64_t* ध्रुव uip = std::get_if<uint64_t>(&m_u)) पटिनिवत्त "#"s + cvtToStr(*uip);
+    सचे (शून्य* ध्रुव* ध्रुव upp = std::get_if<शून्य*>(&m_u)) पटिनिवत्त fmtAddrp(*upp);
+    पटिनिवत्त "";
+#अञ्ञथा
     // Dumps void* representation
-    if (!m_u.up) return "";
-    return fmtAddrp(m_u.up);
+    सचे (!m_u.up) पटिनिवत्त "";
+    पटिनिवत्त fmtAddrp(m_u.up);
 #endif
 }
 
 //######################################################################
 // VNType
 
-const VNTypeInfo VNType::s_typeInfoTable[VNType::NUM_TYPES()] = {
-#include "V3Ast__gen_type_info.h"  // From ./astgen
+ध्रुव VNTypeInfo VNType::s_typeInfoTable[VNType::अङ्कः_TYPES()] = {
+#अन्तर्भाव "V3Ast__gen_type_info.h"  // From ./astgen
 };
 
 std::ostream& operator<<(std::ostream& os, VNType rhs);
@@ -88,91 +88,91 @@ std::ostream& operator<<(std::ostream& os, VNType rhs);
 //######################################################################
 // VFwdType
 
-bool VFwdType::isNodeCompatible(const AstNode* nodep) const {
-    const AstNode* defp = nodep;
-    if (const AstTypedef* const adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
-    if (const AstNodeDType* const adefp = VN_CAST(defp, NodeDType))
+तार्किक VFwdType::is_ग्रन्थिः_Compatible(ध्रुव Ast_ग्रन्थिः* nodep) ध्रुव {
+    ध्रुव Ast_ग्रन्थिः* defp = nodep;
+    सचे (ध्रुव AstTypedef* ध्रुव adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
+    सचे (ध्रुव Ast_ग्रन्थिः_DType* ध्रुव adefp = VN_CAST(defp, ग्रन्थिः_DType))
         defp = adefp->skipRefToNonRefp();
-    switch (m_e) {
-    case VFwdType::NONE: return true; break;
-    case VFwdType::ENUM: return VN_IS(defp, EnumDType); break;
-    case VFwdType::STRUCT: return VN_IS(defp, StructDType); break;
-    case VFwdType::UNION: return VN_IS(defp, UnionDType); break;
-    case VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
-    case VFwdType::CLASS: return VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); break;
-    case VFwdType::GENERIC_INTERFACE: return VN_IS(defp, IfaceRefDType); break;
-    default: v3fatalSrc("Bad case");
+    विकल्प (m_e) {
+    पक्ष VFwdType::NONE: पटिनिवत्त सच्च; भङ्ग;
+    पक्ष VFwdType::ENUM: पटिनिवत्त VN_IS(defp, EnumDType); भङ्ग;
+    पक्ष VFwdType::STRUCT: पटिनिवत्त VN_IS(defp, StructDType); भङ्ग;
+    पक्ष VFwdType::UNION: पटिनिवत्त VN_IS(defp, UnionDType); भङ्ग;
+    पक्ष VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
+    पक्ष VFwdType::CLASS: पटिनिवत्त VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); भङ्ग;
+    पक्ष VFwdType::GENERIC_INTERFACE: पटिनिवत्त VN_IS(defp, IfaceRefDType); भङ्ग;
+    स्वभाव: v3fatalSrc("Bad case");
     }
     VL_UNREACHABLE;
-    return false;  // LCOV_EXCL_LINE
+    पटिनिवत्त मिच्छा;  // LCOV_EXCL_LINE
 }
 
 //######################################################################
 // VSelfPointerText
 
-const std::shared_ptr<const string> VSelfPointerText::s_emptyp = std::make_shared<string>("");
-const std::shared_ptr<const string> VSelfPointerText::s_thisp = std::make_shared<string>("this");
+ध्रुव std::shared_ptr<ध्रुव string> VSelfPointerText::s_emptyp = std::make_shared<string>("");
+ध्रुव std::shared_ptr<ध्रुव string> VSelfPointerText::s_thisp = std::make_shared<string>("this");
 
-string VSelfPointerText::replaceThis(bool useSelfForThis, const string& text) {
-    return useSelfForThis ? VString::replaceWord(text, "this", "vlSelf") : text;
+string VSelfPointerText::replaceThis(तार्किक useSelfForThis, ध्रुव string& text) {
+    पटिनिवत्त useSelfForThis ? VString::replaceWord(text, "this", "vlSelf") : text;
 }
 
-string VSelfPointerText::protect(bool useSelfForThis, bool protect) const {
-    return VIdProtect::protectWordsIf(replaceThis(useSelfForThis, asString()), protect);
+string VSelfPointerText::protect(तार्किक useSelfForThis, तार्किक protect) ध्रुव {
+    पटिनिवत्त VIdProtect::protect_शब्दाः_If(replaceThis(useSelfForThis, asString()), protect);
 }
 
 //######################################################################
 // AstNode
 
-AstNode::AstNode(VNType t, FileLine* fl)
+Ast_ग्रन्थिः::Ast_ग्रन्थिः(VNType t, File_पङ्क्तिः* fl)
     : m_type{t}
     , m_fileline{fl} {
-    m_headtailp = this;  // When made, we're a list of only a single element
+    m_headtailp = एतत्;  // When made, we're a list of only a single element
     // Attributes
-    m_flags.didWidth = false;
-    m_flags.doingWidth = false;
-    m_flags.protect = true;
+    m_flags.didWidth = मिच्छा;
+    m_flags.doingWidth = मिच्छा;
+    m_flags.protect = सच्च;
     m_flags.unused = 0;  // Initializing this avoids a read-modify-write on construction
-    editCountInc();
+    edit_गणनम्_Inc();
 }
 
-AstNode* AstNode::abovep() const {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::abovep() ध्रुव {
     // m_headtailp only valid at beginning or end of list
     // Avoid supporting at other locations as would require walking
     // list which is likely to cause performance issues.
-    UASSERT_OBJ(!m_nextp || firstAbovep(), this, "abovep() not allowed when in midlist");
-    const AstNode* const firstp = firstAbovep() ? this : m_headtailp;
-    return firstp->backp();
+    UASSERT_OBJ(!m_nextp || firstAbovep(), एतत्, "abovep() not allowed when in midlist");
+    ध्रुव Ast_ग्रन्थिः* ध्रुव firstp = firstAbovep() ? एतत् : m_headtailp;
+    पटिनिवत्त firstp->backp();
 }
-AstNode* AstNode::aboveLoopp() const {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::aboveLoopp() ध्रुव {
     // Returns parent node. Avoid using this, may have performance issues.
-    const AstNode* nodep = this;
+    ध्रुव Ast_ग्रन्थिः* nodep = एतत्;
     // Backwards over peers (versus parents)
-    while (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
-    return nodep->backp();
+    याव (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+    पटिनिवत्त nodep->backp();
 }
 
-string AstNode::encodeName(const string& namein) {
+string Ast_ग्रन्थिः::encodeName(ध्रुव string& namein) {
     // Encode signal name raw from parser, then not called again on same signal
     string out;
     out.reserve(namein.size());
-    for (auto pos = namein.begin(); pos != namein.end(); ++pos) {
-        if ((pos == namein.begin()) ? std::isalpha(pos[0])  // digits can't lead identifiers
+    अत्थाय (auto pos = namein.begin(); pos != namein.end(); ++pos) {
+        सचे ((pos == namein.begin()) ? std::isalpha(pos[0])  // digits can't lead identifiers
                                     : std::isalnum(pos[0])) {
             out += pos[0];
-        } else if (pos[0] == '_') {
+        } अञ्ञथा सचे (pos[0] == '_') {
             out += pos[0];
-            if (pos + 1 == namein.end()) break;
-            if (pos[1] == '_') {
+            सचे (pos + 1 == namein.end()) भङ्ग;
+            सचे (pos[1] == '_') {
                 ++pos;
                 out += "__05F";  // hex(_) = 0x5F
             }
-        } else {
+        } अञ्ञथा {
             // Need the leading 0 so this will never collide with
             // a user identifier nor a temp we create in Verilator.
             // We also do *NOT* use __DOT__ etc, as we search for those
             // in some replacements, and don't want to mangle the user's names.
-            const unsigned val = pos[0] & 0xff;  // Mask to avoid sign extension
+            ध्रुव unsigned val = pos[0] & 0xff;  // Mask to avoid sign extension
             std::stringstream hex;
             hex << std::setfill('0') << std::setw(2) << std::hex << val;
             out += "__0" + hex.str();
@@ -182,196 +182,196 @@ string AstNode::encodeName(const string& namein) {
     // TODO long term use VName in place of "string name"
     // Then we also won't need to save the table of hashed values
     VName vname{out};
-    return vname.hashedName();
+    पटिनिवत्त vname.hashedName();
 }
 
-string AstNode::encodeNumber(int64_t num) {
-    if (num < 0) return "__02D" + cvtToStr(-num);  // 2D=-
-    return cvtToStr(num);
+string Ast_ग्रन्थिः::encode_सङ्ख्या(int64_t अङ्कः) {
+    सचे (अङ्कः < 0) पटिनिवत्त "__02D" + cvtToStr(-अङ्कः);  // 2D=-
+    पटिनिवत्त cvtToStr(अङ्कः);
 }
 
-string AstNode::nameProtect() const { return VIdProtect::protectIf(name(), protect()); }
-string AstNode::origNameProtect() const { return VIdProtect::protectIf(origName(), protect()); }
+string Ast_ग्रन्थिः::nameProtect() ध्रुव { पटिनिवत्त VIdProtect::protectIf(name(), protect()); }
+string Ast_ग्रन्थिः::origNameProtect() ध्रुव { पटिनिवत्त VIdProtect::protectIf(origName(), protect()); }
 
-string AstNode::shortName() const {
+string Ast_ग्रन्थिः::shortName() ध्रुव {
     string pretty = name();
     string::size_type pos;
-    while ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
-    return pretty;
+    याव ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
+    पटिनिवत्त pretty;
 }
 
-string AstNode::dedotName(const string& namein) {
+string Ast_ग्रन्थिः::dedotName(ध्रुव string& namein) {
     string pretty = namein;
     string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
-    if (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    return pretty;
+    याव ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
+    सचे (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    पटिनिवत्त pretty;
 }
 
-string AstNode::nameNoArray(const string& namein) {
-    return namein.substr(0, namein.find("__BRA__"));
+string Ast_ग्रन्थिः::nameNoArray(ध्रुव string& namein) {
+    पटिनिवत्त namein.substr(0, namein.find("__BRA__"));
 }
 
-string AstNode::vcdName(const string& namein) {
+string Ast_ग्रन्थिः::vcdName(ध्रुव string& namein) {
     // VCD tracing expects space to separate hierarchy
     // Dots are reserved for dots the user put in the name
     // We earlier hashed all symbols, dehash them so user sees real name
     string pretty{VName::dehash(namein)};
     string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
-    while ((pos = pretty.find('.')) != string::npos) pretty.replace(pos, 1, " ");
+    याव ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
+    याव ((pos = pretty.find('.')) != string::npos) pretty.replace(pos, 1, " ");
     // Now convert escaped special characters, etc
-    return prettyName(pretty);
+    पटिनिवत्त prettyName(pretty);
 }
 
-string AstNode::prettyName(const string& namein) VL_PURE {
+string Ast_ग्रन्थिः::prettyName(ध्रुव string& namein) VL_PURE {
     // This function is somewhat hot, so we short-circuit some compares
     string pretty;
     pretty.reserve(namein.length());
-    for (const char* pos = namein.c_str(); *pos;) {
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    अत्थाय (ध्रुव वर्ण* pos = namein.c_str(); *pos;) {
+        सचे (pos[0] == '-' && pos[1] == '>') {  // ->
             pretty += ".";
             pos += 2;
-            continue;
+            अनुवर्त;
         }
-        if (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        सचे (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
+            सचे (0 == std::strncmp(pos, "__BRA__", 7)) {
                 pretty += "[";
                 pos += 7;
-                continue;
+                अनुवर्त;
             }
-            if (0 == std::strncmp(pos, "__KET__", 7)) {
+            सचे (0 == std::strncmp(pos, "__KET__", 7)) {
                 pretty += "]";
                 pos += 7;
-                continue;
+                अनुवर्त;
             }
-            if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            सचे (0 == std::strncmp(pos, "__DOT__", 7)) {
                 pretty += ".";
                 pos += 7;
-                continue;
+                अनुवर्त;
             }
-            if (0 == std::strncmp(pos, "__LIB__", 7)) {
+            सचे (0 == std::strncmp(pos, "__LIB__", 7)) {
                 pretty = "";  // Trim library name before module name
                 pos += 7;
-                continue;
+                अनुवर्त;
             }
-            if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            सचे (0 == std::strncmp(pos, "__PVT__", 7)) {
                 pretty += "";
                 pos += 7;
-                continue;
+                अनुवर्त;
             }
-            if (0 == std::strncmp(pos, "__Viftop", 8)) {
+            सचे (0 == std::strncmp(pos, "__Viftop", 8)) {
                 pretty += "";
                 pos += 8;
-                continue;
+                अनुवर्त;
             }
-            if (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
+            सचे (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
                 && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
+                वर्ण मानम् = 0;
+                मानम् += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
+                मानम्
                     += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
-                pretty += value;
+                pretty += मानम्;
                 pos += 5;
-                continue;
+                अनुवर्त;
             }
         }
         // Default
         pretty += pos[0];
         ++pos;
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    सचे (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    सचे (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    पटिनिवत्त pretty;
 }
 
-string AstNode::vpiName(const string& namein) {
+string Ast_ग्रन्थिः::vpiName(ध्रुव string& namein) {
     // This is slightly different from prettyName, in that when we encounter escaped characters,
     // we change that identifier to an escaped identifier, wrapping it with '\' and ' '
     // as specified in LRM 23.6
-    const size_t offset = VString::startsWith(namein, "__SYM__") ? 7 : 0;
+    ध्रुव size_t offset = VString::startsWith(namein, "__SYM__") ? 7 : 0;
     string pretty;
     pretty.reserve(namein.length());
-    bool inEscapedIdent = false;
-    int lastIdent = 0;
+    तार्किक inEscapedIdent = मिच्छा;
+    पूर्णाङ्क lastIdent = 0;
 
-    for (const char* pos = namein.c_str() + offset; *pos;) {
-        char specialChar = 0;
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    अत्थाय (ध्रुव वर्ण* pos = namein.c_str() + offset; *pos;) {
+        वर्ण specialChar = 0;
+        सचे (pos[0] == '-' && pos[1] == '>') {  // ->
             specialChar = '.';
             pos += 2;
-        } else if (pos[0] == '_' && pos[1] == '_') {  // __
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        } अञ्ञथा सचे (pos[0] == '_' && pos[1] == '_') {  // __
+            सचे (0 == std::strncmp(pos, "__BRA__", 7)) {
                 specialChar = '[';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__KET__", 7)) {
+            } अञ्ञथा सचे (0 == std::strncmp(pos, "__KET__", 7)) {
                 specialChar = ']';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            } अञ्ञथा सचे (0 == std::strncmp(pos, "__DOT__", 7)) {
                 specialChar = '.';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            } अञ्ञथा सचे (0 == std::strncmp(pos, "__PVT__", 7)) {
                 pos += 7;
-                continue;
-            } else if (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
+                अनुवर्त;
+            } अञ्ञथा सचे (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
                        && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
+                वर्ण मानम् = 0;
+                मानम् += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
+                मानम्
                     += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
 
                 // __ doesn't always imply escaped ident
-                if (value != '_') inEscapedIdent = true;
+                सचे (मानम् != '_') inEscapedIdent = सच्च;
 
-                pretty += value;
+                pretty += मानम्;
                 pos += 5;
-                continue;
+                अनुवर्त;
             }
-        } else if (pos[0] == '.') {
+        } अञ्ञथा सचे (pos[0] == '.') {
             specialChar = '.';
             ++pos;
         }
 
-        if (specialChar) {
-            if (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
+        सचे (specialChar) {
+            सचे (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
                 pretty += " ";
-                pretty.insert(lastIdent, "\\");
-                inEscapedIdent = false;
+                pretty.निवेशय(lastIdent, "\\");
+                inEscapedIdent = मिच्छा;
             }
 
             pretty += specialChar;
 
-            if (specialChar == ']' || specialChar == '.') {
+            सचे (specialChar == ']' || specialChar == '.') {
                 lastIdent = pretty.length();
-                inEscapedIdent = false;
+                inEscapedIdent = मिच्छा;
             }
-        } else {
+        } अञ्ञथा {
             pretty += pos[0];
             ++pos;
         }
     }
-    if (inEscapedIdent) {
+    सचे (inEscapedIdent) {
         pretty += " ";
-        pretty.insert(lastIdent, "\\");
+        pretty.निवेशय(lastIdent, "\\");
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    सचे (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    सचे (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    पटिनिवत्त pretty;
 }
 
-string AstNode::prettyTypeName() const {
-    if (name() == "") return typeName();
-    return std::string{typeName()} + " '" + prettyNameMsg() + "'";
+string Ast_ग्रन्थिः::prettyTypeName() ध्रुव {
+    सचे (name() == "") पटिनिवत्त typeName();
+    पटिनिवत्त std::string{typeName()} + " '" + pretty_Name_सन्देशः() + "'";
 }
 
 //######################################################################
 // Insertion
 
-void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int lineno, bool next) {
+शून्य Ast_ग्रन्थिः::debug_वृक्षः_Change(ध्रुव Ast_ग्रन्थिः* nodep, ध्रुव वर्ण* prefix, पूर्णाङ्क lineno, तार्किक next) {
 #ifdef VL_DEBUG
 // Called on all major tree changers.
 // Only for use for those really nasty bugs relating to internals
@@ -395,69 +395,69 @@ void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int line
 }
 
 template <>
-AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::addNext<Ast_ग्रन्थिः, Ast_ग्रन्थिः>(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः* newp) {
     // Add to m_nextp, returns this
     UDEBUGONLY(UASSERT_OBJ(newp, nodep, "Null item passed to addNext"););
-    debugTreeChange(nodep, "-addNextThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addNextNew: ", __LINE__, true);
-    if (!nodep)  // verilog.y and lots of other places assume this
-        return newp;
+    debug_वृक्षः_Change(nodep, "-addNextThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-addNextNew: ", __LINE__, सच्च);
+    सचे (!nodep)  // verilog.y and lots of other places assume this
+        पटिनिवत्त newp;
 
     // Find end of old list
-    AstNode* oldtailp = nodep;
-    if (oldtailp->m_nextp) {
-        if (oldtailp->m_headtailp) {
+    Ast_ग्रन्थिः* oldtailp = nodep;
+    सचे (oldtailp->m_nextp) {
+        सचे (oldtailp->m_headtailp) {
             oldtailp = oldtailp->m_headtailp;  // This=beginning of list, jump to end
             UDEBUGONLY(UASSERT_OBJ(!oldtailp->m_nextp, nodep,
                                    "Node had next, but headtail says it shouldn't"););
-        } else {
+        } अञ्ञथा {
             // Though inefficient, we are occasionally passed an
             // addNext in the middle of a list.
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            याव (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
     }
     // Link it in
     oldtailp->m_nextp = newp;
     newp->m_backp = oldtailp;
     // New tail needs the head
-    AstNode* const newtailp = newp->m_headtailp;
-    AstNode* const headp = oldtailp->m_headtailp;
+    Ast_ग्रन्थिः* ध्रुव newtailp = newp->m_headtailp;
+    Ast_ग्रन्थिः* ध्रुव headp = oldtailp->m_headtailp;
     oldtailp->m_headtailp = nullptr;  // May be written again as new head
     newp->m_headtailp = nullptr;  // May be written again as new tail
     newtailp->m_headtailp = headp;
     headp->m_headtailp = newtailp;
-    newp->editCountInc();
+    newp->edit_गणनम्_Inc();
     // No change of m_iterpp, as only changing m_nextp of current node;
     // the current node is still the one at the iteration point
 
-    debugTreeChange(nodep, "-addNextOut:", __LINE__, true);
-    return nodep;
+    debug_वृक्षः_Change(nodep, "-addNextOut:", __LINE__, सच्च);
+    पटिनिवत्त nodep;
 }
 
-void AstNode::addNextHere(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addNextHere(Ast_ग्रन्थिः* newp) {
     // Add to m_nextp on exact node passed, not at the end.
     //  'this' could be at head, tail, or both (single)
     //  'newp' could be head of single node, or list
     UASSERT(newp, "Null item passed to addNext");
     UASSERT_OBJ(!newp->backp(), newp, "New node (back) already assigned?");
-    debugTreeChange(this, "-addHereThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addHereNew: ", __LINE__, true);
-    newp->editCountInc();
+    debug_वृक्षः_Change(एतत्, "-addHereThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-addHereNew: ", __LINE__, सच्च);
+    newp->edit_गणनम्_Inc();
 
-    AstNode* const addlastp = newp->m_headtailp;  // Last node in list to be added
+    Ast_ग्रन्थिः* ध्रुव addlastp = newp->m_headtailp;  // Last node in list to be added
     UASSERT_OBJ(!addlastp->m_nextp, addlastp, "Headtailp tail isn't at the tail");
 
     // Forward links
-    AstNode* const oldnextp = this->m_nextp;
-    this->m_nextp = newp;
+    Ast_ग्रन्थिः* ध्रुव oldnextp = एतत्->m_nextp;
+    एतत्->m_nextp = newp;
     addlastp->m_nextp = oldnextp;  // Perhaps null if 'this' is not list
 
     // Backward links
-    if (oldnextp) oldnextp->m_backp = addlastp;
-    newp->m_backp = this;
+    सचे (oldnextp) oldnextp->m_backp = addlastp;
+    newp->m_backp = एतत्;
 
     // Head/tail
-    AstNode* const oldheadtailp = this->m_headtailp;
+    Ast_ग्रन्थिः* ध्रुव oldheadtailp = एतत्->m_headtailp;
     //    (!oldheadtailp)               // this was&is middle of list
     //    (oldheadtailp==this && !oldnext)// this was head AND tail (one node long list)
     //    (oldheadtailp && oldnextp)    // this was&is head of list of not just one node, not
@@ -467,12 +467,12 @@ void AstNode::addNextHere(AstNode* newp) {
     newp->m_headtailp = nullptr;  // Not at head any longer
     addlastp->m_headtailp = nullptr;  // Presume middle of list
     // newp might happen to be head/tail after all, if so will be set again below
-    if (oldheadtailp) {  // else in middle of list, no change
-        if (oldheadtailp == this) {  // this was one node
-            this->m_headtailp = addlastp;  // Was head/tail, now a tail
+    सचे (oldheadtailp) {  // else in middle of list, no change
+        सचे (oldheadtailp == एतत्) {  // this was one node
+            एतत्->m_headtailp = addlastp;  // Was head/tail, now a tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
-        } else if (!oldnextp) {  // this was tail
-            this->m_headtailp = nullptr;  // No longer a tail
+        } अञ्ञथा सचे (!oldnextp) {  // this was tail
+            एतत्->m_headtailp = nullptr;  // No longer a tail
             oldheadtailp->m_headtailp = addlastp;  // Head gets new tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
         }  // else is head, and we're inserting into the middle, so no other change
@@ -480,154 +480,154 @@ void AstNode::addNextHere(AstNode* newp) {
 
     // No change of m_iterpp, as adding after current node;
     // the current node is still the one at the iteration point
-    debugTreeChange(this, "-addHereOut: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-addHereOut: ", __LINE__, सच्च);
 }
 
-void AstNode::setOp1p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::setOp1p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to setOp1p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op1p, this, "Adding to non-empty, non-list op1"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op1p, एतत्, "Adding to non-empty, non-list op1"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op1"););
-    debugTreeChange(this, "-setOp1pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp1pNew: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-setOp1pThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-setOp1pNew: ", __LINE__, सच्च);
     m_op1p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp1pOut: ", __LINE__, false);
+    newp->edit_गणनम्_Inc();
+    newp->m_backp = एतत्;
+    debug_वृक्षः_Change(एतत्, "-setOp1pOut: ", __LINE__, मिच्छा);
 }
 
-void AstNode::setOp2p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::setOp2p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to setOp2p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op2p, this, "Adding to non-empty, non-list op2"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op2p, एतत्, "Adding to non-empty, non-list op2"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op2"););
-    debugTreeChange(this, "-setOp2pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp2pNew: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-setOp2pThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-setOp2pNew: ", __LINE__, सच्च);
     m_op2p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp2pOut: ", __LINE__, false);
+    newp->edit_गणनम्_Inc();
+    newp->m_backp = एतत्;
+    debug_वृक्षः_Change(एतत्, "-setOp2pOut: ", __LINE__, मिच्छा);
 }
 
-void AstNode::setOp3p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::setOp3p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to setOp3p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op3p, this, "Adding to non-empty, non-list op3"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op3p, एतत्, "Adding to non-empty, non-list op3"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op3"););
-    debugTreeChange(this, "-setOp3pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp3pNew: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-setOp3pThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-setOp3pNew: ", __LINE__, सच्च);
     m_op3p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp3pOut: ", __LINE__, false);
+    newp->edit_गणनम्_Inc();
+    newp->m_backp = एतत्;
+    debug_वृक्षः_Change(एतत्, "-setOp3pOut: ", __LINE__, मिच्छा);
 }
 
-void AstNode::setOp4p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::setOp4p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to setOp4p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op4p, this, "Adding to non-empty, non-list op4"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op4p, एतत्, "Adding to non-empty, non-list op4"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op4"););
-    debugTreeChange(this, "-setOp4pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp4pNew: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-setOp4pThs: ", __LINE__, मिच्छा);
+    debug_वृक्षः_Change(newp, "-setOp4pNew: ", __LINE__, सच्च);
     m_op4p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp4pOut: ", __LINE__, false);
+    newp->edit_गणनम्_Inc();
+    newp->m_backp = एतत्;
+    debug_वृक्षः_Change(एतत्, "-setOp4pOut: ", __LINE__, मिच्छा);
 }
 
-void AstNode::addOp1p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addOp1p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to addOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    सचे (!m_op1p) {
         op1p(newp);
-    } else {
+    } अञ्ञथा {
         m_op1p->addNext(newp);
     }
 }
 
-void AstNode::addOp2p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addOp2p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to addOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    सचे (!m_op2p) {
         op2p(newp);
-    } else {
+    } अञ्ञथा {
         m_op2p->addNext(newp);
     }
 }
 
-void AstNode::addOp3p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addOp3p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to addOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    सचे (!m_op3p) {
         op3p(newp);
-    } else {
+    } अञ्ञथा {
         m_op3p->addNext(newp);
     }
 }
 
-void AstNode::addOp4p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addOp4p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to addOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    सचे (!m_op4p) {
         op4p(newp);
-    } else {
+    } अञ्ञथा {
         m_op4p->addNext(newp);
     }
 }
 
-void AstNode::prependOp1p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::prependOp1p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to prependOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    सचे (!m_op1p) {
         op1p(newp);
-    } else {
+    } अञ्ञथा {
         m_op1p->addHereThisAsNext(newp);
     }
 }
 
-void AstNode::prependOp2p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::prependOp2p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to prependOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    सचे (!m_op2p) {
         op2p(newp);
-    } else {
+    } अञ्ञथा {
         m_op2p->addHereThisAsNext(newp);
     }
 }
 
-void AstNode::prependOp3p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::prependOp3p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to prependOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    सचे (!m_op3p) {
         op3p(newp);
-    } else {
+    } अञ्ञथा {
         m_op3p->addHereThisAsNext(newp);
     }
 }
 
-void AstNode::prependOp4p(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::prependOp4p(Ast_ग्रन्थिः* newp) {
     UASSERT(newp, "Null item passed to prependOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    सचे (!m_op4p) {
         op4p(newp);
-    } else {
+    } अञ्ञथा {
         m_op4p->addHereThisAsNext(newp);
     }
 }
 
-void AstNode::replaceWith(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::replaceWith(Ast_ग्रन्थिः* newp) {
     // Replace oldp with this
     // Unlike a unlink/relink, children are changed to point to the new node.
     VNRelinker repHandle;
-    this->unlinkFrBack(&repHandle);
+    एतत्->unlinkFrBack(&repHandle);
     repHandle.relink(newp);
 }
-void AstNode::replaceWithKeepDType(AstNode* newp) {
-    newp->dtypeFrom(this);
+शून्य Ast_ग्रन्थिः::replaceWithKeepDType(Ast_ग्रन्थिः* newp) {
+    newp->dtypeFrom(एतत्);
     replaceWith(newp);
 }
 
-void VNRelinker::dump(std::ostream& str) const {
+शून्य VNRelinker::dump(std::ostream& str) ध्रुव {
     str << " BK=" << reinterpret_cast<uint32_t*>(m_backp);
     str << " ITER=" << reinterpret_cast<uint32_t*>(m_iterpp);
     str << " CHG=" << (m_chg == RELINK_NEXT ? "[NEXT] " : "");
@@ -637,133 +637,133 @@ void VNRelinker::dump(std::ostream& str) const {
     str << (m_chg == RELINK_OP4 ? "[OP4] " : "");
 }
 
-AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkWNextThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::unlinkFrBackWithNext(VNRelinker* linkerp) {
+    debug_वृक्षः_Change(एतत्, "-unlinkWNextThs: ", __LINE__, सच्च);
+    Ast_ग्रन्थिः* ध्रुव oldp = एतत्;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_गणनम्_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    Ast_ग्रन्थिः* ध्रुव backp = oldp->m_backp;
+    सचे (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
         linkerp->m_iterpp = oldp->m_iterpp;
-        if (backp->m_nextp == oldp) {
+        सचे (backp->m_nextp == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        } अञ्ञथा सचे (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } अञ्ञथा सचे (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } अञ्ञथा सचे (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } अञ्ञथा सचे (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
+        } अञ्ञथा {
             oldp->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
+    सचे (backp->m_nextp == oldp) {
         backp->m_nextp = nullptr;
         // Old list gets truncated
         // New list becomes a list upon itself
         // Most common case is unlinking a entire operand tree, or all but the
         // head (else we'd probably call unlinkFrBack without next)
-        AstNode* oldtailp = backp->m_headtailp;
-        if (!oldtailp) {
+        Ast_ग्रन्थिः* oldtailp = backp->m_headtailp;
+        सचे (!oldtailp) {
             // We are in the middle of a list; we have no way to find head or tail in O(1)
             oldtailp = oldp;
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            याव (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
         // Create new head/tail of old list
-        AstNode* const oldheadp = oldtailp->m_headtailp;
+        Ast_ग्रन्थिः* ध्रुव oldheadp = oldtailp->m_headtailp;
         oldheadp->m_headtailp = oldp->m_backp;
         oldheadp->m_headtailp->m_headtailp = oldheadp;
         // Create new head/tail of extracted list
         oldp->m_headtailp = oldtailp;
         oldp->m_headtailp->m_headtailp = oldp;
-    } else if (backp->m_op1p == oldp) {
+    } अञ्ञथा सचे (backp->m_op1p == oldp) {
         backp->m_op1p = nullptr;
-    } else if (backp->m_op2p == oldp) {
+    } अञ्ञथा सचे (backp->m_op2p == oldp) {
         backp->m_op2p = nullptr;
-    } else if (backp->m_op3p == oldp) {
+    } अञ्ञथा सचे (backp->m_op3p == oldp) {
         backp->m_op3p = nullptr;
-    } else if (backp->m_op4p == oldp) {
+    } अञ्ञथा सचे (backp->m_op4p == oldp) {
         backp->m_op4p = nullptr;
-    } else {
-        this->v3fatalSrc("Unlink of node with back not pointing to it.");
+    } अञ्ञथा {
+        एतत्->v3fatalSrc("Unlink of node with back not pointing to it.");
     }
     // Relink
     oldp->m_backp = nullptr;
     // Iterator fixup
-    if (oldp->m_iterpp) {
+    सचे (oldp->m_iterpp) {
         *(oldp->m_iterpp) = nullptr;
         oldp->m_iterpp = nullptr;
     }
-    debugTreeChange(oldp, "-unlinkWNextOut: ", __LINE__, true);
-    return oldp;
+    debug_वृक्षः_Change(oldp, "-unlinkWNextOut: ", __LINE__, सच्च);
+    पटिनिवत्त oldp;
 }
 
-AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkFrBkThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::unlinkFrBack(VNRelinker* linkerp) {
+    debug_वृक्षः_Change(एतत्, "-unlinkFrBkThs: ", __LINE__, सच्च);
+    Ast_ग्रन्थिः* ध्रुव oldp = एतत्;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_गणनम्_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    Ast_ग्रन्थिः* ध्रुव backp = oldp->m_backp;
+    सचे (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
-        if (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
+        सचे (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
             linkerp->m_iterpp = oldp->m_iterpp;
             *(oldp->m_iterpp) = nullptr;
             oldp->m_iterpp = nullptr;
         }
-        if (backp->m_nextp == oldp) {
+        सचे (backp->m_nextp == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        } अञ्ञथा सचे (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } अञ्ञथा सचे (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } अञ्ञथा सचे (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } अञ्ञथा सचे (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
-            this->v3fatalSrc("Unlink of node with back not pointing to it.");
+        } अञ्ञथा {
+            एतत्->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
+    सचे (backp->m_nextp == oldp) {
         // This node gets removed from middle (or tail) of list
         // Not head, since then oldp wouldn't be a next of backp...
         backp->m_nextp = oldp->m_nextp;
-        if (backp->m_nextp) backp->m_nextp->m_backp = backp;
+        सचे (backp->m_nextp) backp->m_nextp->m_backp = backp;
         // If it was a tail, back becomes new tail
-        if (oldp->m_headtailp) {
+        सचे (oldp->m_headtailp) {
             backp->m_headtailp = oldp->m_headtailp;
             backp->m_headtailp->m_headtailp = backp;
         }
-    } else {
-        if (backp->m_op1p == oldp) {
+    } अञ्ञथा {
+        सचे (backp->m_op1p == oldp) {
             backp->m_op1p = oldp->m_nextp;
-        } else if (backp->m_op2p == oldp) {
+        } अञ्ञथा सचे (backp->m_op2p == oldp) {
             backp->m_op2p = oldp->m_nextp;
-        } else if (backp->m_op3p == oldp) {
+        } अञ्ञथा सचे (backp->m_op3p == oldp) {
             backp->m_op3p = oldp->m_nextp;
-        } else if (backp->m_op4p == oldp) {
+        } अञ्ञथा सचे (backp->m_op4p == oldp) {
             backp->m_op4p = oldp->m_nextp;
-        } else {
-            this->v3fatalSrc("Unlink of node with back not pointing to it.");
+        } अञ्ञथा {
+            एतत्->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
-        if (oldp->m_nextp) {
-            AstNode* const newheadp = oldp->m_nextp;
+        सचे (oldp->m_nextp) {
+            Ast_ग्रन्थिः* ध्रुव newheadp = oldp->m_nextp;
             newheadp->m_backp = backp;
             newheadp->m_headtailp = oldp->m_headtailp;
             newheadp->m_headtailp->m_headtailp = newheadp;
         }
     }
     // Iterator fixup
-    if (oldp->m_iterpp) {  // Only if no linker, point to next in list
-        if (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
+    सचे (oldp->m_iterpp) {  // Only if no linker, point to next in list
+        सचे (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
         *(oldp->m_iterpp) = oldp->m_nextp;
         oldp->m_iterpp = nullptr;
     }
@@ -771,43 +771,43 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
     oldp->m_nextp = nullptr;
     oldp->m_backp = nullptr;
     oldp->m_headtailp = oldp;
-    debugTreeChange(oldp, "-unlinkFrBkOut: ", __LINE__, true);
-    return oldp;
+    debug_वृक्षः_Change(oldp, "-unlinkFrBkOut: ", __LINE__, सच्च);
+    पटिनिवत्त oldp;
 }
 
-void AstNode::relink(VNRelinker* linkerp) {
-    if (debug() > 8) {
+शून्य Ast_ग्रन्थिः::relink(VNRelinker* linkerp) {
+    सचे (debug() > 8) {
         UINFO_PREFIX(" EDIT:      relink: ");
         dumpPtrs();
     }
-    AstNode* const newp = this;
+    Ast_ग्रन्थिः* ध्रुव newp = एतत्;
     UASSERT(linkerp && linkerp->m_backp, "Need non-empty linker");
     UASSERT_OBJ(!newp->m_backp, newp, "New node already linked?");
-    newp->editCountInc();
+    newp->edit_गणनम्_Inc();
 
-    if (debug() > 8) {
+    सचे (debug() > 8) {
         linkerp->dump(cout);
         cout << endl;
     }
 
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = linkerp->m_backp;
-    debugTreeChange(this, "-relinkNew: ", __LINE__, true);
-    debugTreeChange(backp, "-relinkTre: ", __LINE__, true);
+    Ast_ग्रन्थिः* ध्रुव backp = linkerp->m_backp;
+    debug_वृक्षः_Change(एतत्, "-relinkNew: ", __LINE__, सच्च);
+    debug_वृक्षः_Change(backp, "-relinkTre: ", __LINE__, सच्च);
 
-    switch (linkerp->m_chg) {
-    case VNRelinker::RELINK_NEXT: backp->addNextHere(newp); break;
-    case VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); break;
-    default: this->v3fatalSrc("Relink of node without any link to change."); break;
+    विकल्प (linkerp->m_chg) {
+    पक्ष VNRelinker::RELINK_NEXT: backp->addNextHere(newp); भङ्ग;
+    पक्ष VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); भङ्ग;
+    पक्ष VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); भङ्ग;
+    पक्ष VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); भङ्ग;
+    पक्ष VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); भङ्ग;
+    स्वभाव: एतत्->v3fatalSrc("Relink of node without any link to change."); भङ्ग;
     }
     // Relink
     newp->m_backp = backp;
     linkerp->m_backp = nullptr;
     // Iterator fixup
-    if (linkerp->m_iterpp) {
+    सचे (linkerp->m_iterpp) {
         // If we're iterating over a next() link, we need to follow links off the
         // NEW node, which is always assumed to be what we are relinking to.
         // This adds a unfortunate hot 8 bytes to every AstNode, but is faster than passing
@@ -818,22 +818,22 @@ void AstNode::relink(VNRelinker* linkerp) {
     }
     // Empty the linker so not used twice accidentally
     linkerp->m_backp = nullptr;
-    debugTreeChange(this, "-relinkOut: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-relinkOut: ", __LINE__, सच्च);
 }
 
-void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set to newp
-                            AstNode* newp) {
-    if (pointpr) {
+शून्य Ast_ग्रन्थिः::relinkOneLink(Ast_ग्रन्थिः*& pointpr,  // Ref to pointer that gets set to newp
+                            Ast_ग्रन्थिः* newp) {
+    सचे (pointpr) {
         // We know there will be at least two elements when we are done,
         //    (newp & the old list).
         // We *ALLOW* the new node to have its own next list.
         // Likewise there may be a old list.
         // Insert the whole old list following the new node's list.
         // Thus a unlink without next, followed by relink, gives the same list.
-        AstNode* const newlistlastp = newp->m_headtailp;
+        Ast_ग्रन्थिः* ध्रुव newlistlastp = newp->m_headtailp;
         UASSERT_OBJ(!(newlistlastp->m_nextp && newlistlastp != newp), newp,
                     "Headtailp tail isn't at the tail");
-        AstNode* const oldlistlastp = pointpr->m_headtailp;
+        Ast_ग्रन्थिः* ध्रुव oldlistlastp = pointpr->m_headtailp;
         UASSERT_OBJ(!(oldlistlastp->m_nextp && oldlistlastp != pointpr), newp,
                     "Old headtailp tail isn't at the tail");
         // Next links
@@ -848,117 +848,117 @@ void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set 
     pointpr = newp;
 }
 
-void AstNode::addHereThisAsNext(AstNode* newp) {
+शून्य Ast_ग्रन्थिः::addHereThisAsNext(Ast_ग्रन्थिः* newp) {
     // {back}->this->{next} becomes {back}->new->this->{next}
     UASSERT_OBJ(!newp->backp(), newp, "New node already linked?");
-    UASSERT_OBJ(this->m_backp, this, "'this' node has no back, already unlinked?");
+    UASSERT_OBJ(एतत्->m_backp, एतत्, "'this' node has no back, already unlinked?");
     UASSERT_OBJ(newp->m_headtailp, newp, "m_headtailp not set on new node");
     //
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = this->m_backp;
-    AstNode* const newLastp = newp->m_headtailp;
+    Ast_ग्रन्थिः* ध्रुव backp = एतत्->m_backp;
+    Ast_ग्रन्थिः* ध्रुव newLastp = newp->m_headtailp;
     //
-    this->editCountInc();
+    एतत्->edit_गणनम्_Inc();
     // Common linkage
-    newLastp->m_nextp = this;
-    this->m_backp = newLastp;
+    newLastp->m_nextp = एतत्;
+    एतत्->m_backp = newLastp;
     newp->m_backp = backp;
     // newLastp will not be the last node in the list as 'this' will follow it.
     // If newLastp == newp, then below handles newp becoming head
     newLastp->m_headtailp = nullptr;
     // Linkage dependent on position
-    if (backp && backp->m_nextp == this) {
+    सचे (backp && backp->m_nextp == एतत्) {
         // If 'this' is not at the head of a list, then the new node will also not be at the head
         // of a list, so we can just link in the new node in the middle.
         backp->m_nextp = newp;
         newp->m_headtailp = nullptr;
-    } else {
+    } अञ्ञथा {
         // If 'this' is at the head of a list, then the new node becomes the head of that list.
-        if (backp) {
-            if (backp->m_op1p == this) {
+        सचे (backp) {
+            सचे (backp->m_op1p == एतत्) {
                 backp->m_op1p = newp;
-            } else if (backp->m_op2p == this) {
+            } अञ्ञथा सचे (backp->m_op2p == एतत्) {
                 backp->m_op2p = newp;
-            } else if (backp->m_op3p == this) {
+            } अञ्ञथा सचे (backp->m_op3p == एतत्) {
                 backp->m_op3p = newp;
-            } else {
-                UASSERT_OBJ(backp->m_op4p == this, this, "Don't know where newp should go");
+            } अञ्ञथा {
+                UASSERT_OBJ(backp->m_op4p == एतत्, एतत्, "Don't know where newp should go");
                 backp->m_op4p = newp;
             }
         }
         // We also need to update m_headtailp.
-        AstNode* const tailp = this->m_headtailp;
-        this->m_headtailp = nullptr;
+        Ast_ग्रन्थिः* ध्रुव tailp = एतत्->m_headtailp;
+        एतत्->m_headtailp = nullptr;
         newp->m_headtailp = tailp;
         tailp->m_headtailp = newp;
     }
     // Iterator fixup
-    if (newLastp->m_iterpp) *(newLastp->m_iterpp) = this;
-    if (this->m_iterpp) {
-        *(this->m_iterpp) = newp;
-        this->m_iterpp = nullptr;
+    सचे (newLastp->m_iterpp) *(newLastp->m_iterpp) = एतत्;
+    सचे (एतत्->m_iterpp) {
+        *(एतत्->m_iterpp) = newp;
+        एतत्->m_iterpp = nullptr;
     }
     //
-    debugTreeChange(this, "-addHereThisAsNext: ", __LINE__, true);
+    debug_वृक्षः_Change(एतत्, "-addHereThisAsNext: ", __LINE__, सच्च);
 }
 
 //======================================================================
 // Clone
 
-AstNode* AstNode::cloneTreeIter(bool needPure) {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::clone_वृक्षः_Iter(तार्किक needPure) {
     // private: Clone single node and children
-    if (needPure) purityCheck();
-    AstNode* const newp = this->clone();
-    if (this->m_op1p) newp->op1p(this->m_op1p->cloneTreeIterList(needPure));
-    if (this->m_op2p) newp->op2p(this->m_op2p->cloneTreeIterList(needPure));
-    if (this->m_op3p) newp->op3p(this->m_op3p->cloneTreeIterList(needPure));
-    if (this->m_op4p) newp->op4p(this->m_op4p->cloneTreeIterList(needPure));
+    सचे (needPure) purityCheck();
+    Ast_ग्रन्थिः* ध्रुव newp = एतत्->clone();
+    सचे (एतत्->m_op1p) newp->op1p(एतत्->m_op1p->clone_वृक्षः_Iter_List(needPure));
+    सचे (एतत्->m_op2p) newp->op2p(एतत्->m_op2p->clone_वृक्षः_Iter_List(needPure));
+    सचे (एतत्->m_op3p) newp->op3p(एतत्->m_op3p->clone_वृक्षः_Iter_List(needPure));
+    सचे (एतत्->m_op4p) newp->op4p(एतत्->m_op4p->clone_वृक्षः_Iter_List(needPure));
     newp->m_iterpp = nullptr;
-    newp->clonep(this);  // Save pointers to/from both to simplify relinking.
-    this->clonep(newp);  // Save pointers to/from both to simplify relinking.
-    return newp;
+    newp->clonep(एतत्);  // Save pointers to/from both to simplify relinking.
+    एतत्->clonep(newp);  // Save pointers to/from both to simplify relinking.
+    पटिनिवत्त newp;
 }
 
-AstNode* AstNode::cloneTreeIterList(bool needPure) {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::clone_वृक्षः_Iter_List(तार्किक needPure) {
     // private: Clone list of nodes, set m_headtailp
-    AstNode* newheadp = nullptr;
-    AstNode* newtailp = nullptr;
+    Ast_ग्रन्थिः* newheadp = nullptr;
+    Ast_ग्रन्थिः* newtailp = nullptr;
     // Audited to make sure this is never nullptr
-    for (AstNode* oldp = this; oldp; oldp = oldp->m_nextp) {
-        AstNode* const newp = oldp->cloneTreeIter(needPure);
+    अत्थाय (Ast_ग्रन्थिः* oldp = एतत्; oldp; oldp = oldp->m_nextp) {
+        Ast_ग्रन्थिः* ध्रुव newp = oldp->clone_वृक्षः_Iter(needPure);
         newp->m_headtailp = nullptr;
         newp->m_backp = newtailp;
-        if (newtailp) newtailp->m_nextp = newp;
-        if (!newheadp) newheadp = newp;
+        सचे (newtailp) newtailp->m_nextp = newp;
+        सचे (!newheadp) newheadp = newp;
         newtailp = newp;
     }
     newheadp->m_headtailp = newtailp;
     newtailp->m_headtailp = newheadp;
-    return newheadp;
+    पटिनिवत्त newheadp;
 }
 
-AstNode* AstNode::cloneTree(bool cloneNextLink, bool needPure) {
-    debugTreeChange(this, "-cloneThs: ", __LINE__, cloneNextLink);
-    cloneClearTree();
-    AstNode* newp;
-    if (cloneNextLink && this->m_nextp) {
-        newp = cloneTreeIterList(needPure);
-    } else {
-        newp = cloneTreeIter(needPure);
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::clone_वृक्षः(तार्किक cloneNextLink, तार्किक needPure) {
+    debug_वृक्षः_Change(एतत्, "-cloneThs: ", __LINE__, cloneNextLink);
+    clone_Clear_वृक्षः();
+    Ast_ग्रन्थिः* newp;
+    सचे (cloneNextLink && एतत्->m_nextp) {
+        newp = clone_वृक्षः_Iter_List(needPure);
+    } अञ्ञथा {
+        newp = clone_वृक्षः_Iter(needPure);
         newp->m_nextp = nullptr;
         newp->m_headtailp = newp;
     }
     newp->m_backp = nullptr;
-    newp->cloneRelinkTree();
-    debugTreeChange(newp, "-cloneOut: ", __LINE__, true);
-    return newp;
+    newp->clone_Relink_वृक्षः();
+    debug_वृक्षः_Change(newp, "-cloneOut: ", __LINE__, सच्च);
+    पटिनिवत्त newp;
 }
 
-void AstNode::purityCheck() {
-    if (VL_UNLIKELY(!isPure())) {
-        this->v3warn(SIDEEFFECT,
+शून्य Ast_ग्रन्थिः::purityCheck() {
+    सचे (VL_UNLIKELY(!isPure())) {
+        एतत्->v3warn(SIDEEFFECT,
                      "Expression side effect may be mishandled\n"
-                         << this->warnMore()
+                         << एतत्->warnMore()
                          << "... Suggest use a temporary variable in place of this expression");
         // this->v3fatalSrc("cloneTreePure debug backtrace");  // Comment in to debug where caused
     }
@@ -967,168 +967,168 @@ void AstNode::purityCheck() {
 //======================================================================
 // Delete
 
-void AstNode::deleteNode() {
+शून्य Ast_ग्रन्थिः::delete_ग्रन्थिः() {
     // private: Delete single node. Publicly call deleteTree() instead.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    editCountInc();
+    edit_गणनम्_Inc();
     // Change links of old node so we coredump if used
-    this->m_nextp = reinterpret_cast<AstNode*>(0x1);
-    this->m_backp = reinterpret_cast<AstNode*>(0x1);
-    this->m_headtailp = reinterpret_cast<AstNode*>(0x1);
-    this->m_op1p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op2p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op3p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op4p = reinterpret_cast<AstNode*>(0x1);
-    this->m_iterpp = reinterpret_cast<AstNode**>(0x1);
-    if (
-#if !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
-        true
-#else
+    एतत्->m_nextp = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_backp = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_headtailp = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_op1p = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_op2p = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_op3p = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_op4p = reinterpret_cast<Ast_ग्रन्थिः*>(0x1);
+    एतत्->m_iterpp = reinterpret_cast<Ast_ग्रन्थिः**>(0x1);
+    सचे (
+#सचे !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
+        सच्च
+#अञ्ञथा
         !v3Global.opt.debugLeak()
 #endif
     ) {
-        delete this;
+        delete एतत्;
     }
     // Else leak massively, so each pointer is unique
     // and we can debug easier.
 }
 
-void AstNode::deleteTreeIter() {
+शून्य Ast_ग्रन्थिः::delete_वृक्षः_Iter() {
     // private: Delete list of nodes. Publicly call deleteTree() instead.
     // Audited to make sure this is never nullptr
-    for (AstNode *nodep = this, *nnextp; nodep; nodep = nnextp) {
+    अत्थाय (Ast_ग्रन्थिः *nodep = एतत्, *nnextp; nodep; nodep = nnextp) {
         nnextp = nodep->m_nextp;
         // MUST be depth first!
-        if (nodep->m_op1p) nodep->m_op1p->deleteTreeIter();
-        if (nodep->m_op2p) nodep->m_op2p->deleteTreeIter();
-        if (nodep->m_op3p) nodep->m_op3p->deleteTreeIter();
-        if (nodep->m_op4p) nodep->m_op4p->deleteTreeIter();
+        सचे (nodep->m_op1p) nodep->m_op1p->delete_वृक्षः_Iter();
+        सचे (nodep->m_op2p) nodep->m_op2p->delete_वृक्षः_Iter();
+        सचे (nodep->m_op3p) nodep->m_op3p->delete_वृक्षः_Iter();
+        सचे (nodep->m_op4p) nodep->m_op4p->delete_वृक्षः_Iter();
         nodep->m_nextp = nullptr;
         nodep->m_backp = nullptr;
-        nodep->deleteNode();
+        nodep->delete_ग्रन्थिः();
     }
 }
 
-void AstNode::deleteTree() {
+शून्य Ast_ग्रन्थिः::delete_वृक्षः() {
     // deleteTree always deletes the next link, because you must have called
     // unlinkFromBack or unlinkFromBackWithNext as appropriate before calling this.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    debugTreeChange(this, "-delTree:  ", __LINE__, true);
-    this->editCountInc();
+    debug_वृक्षः_Change(एतत्, "-delTree:  ", __LINE__, सच्च);
+    एतत्->edit_गणनम्_Inc();
     // MUST be depth first!
-    deleteTreeIter();
+    delete_वृक्षः_Iter();
 }
 
 //======================================================================
 // Memory checks
 
 #ifdef VL_LEAK_CHECKS
-void* AstNode::operator new(size_t size) {
+शून्य* Ast_ग्रन्थिः::operator नूतन(size_t size) {
     // Optimization note: Aligning to cache line is a loss, due to lost packing
-    AstNode* const objp = static_cast<AstNode*>(::operator new(size));
+    Ast_ग्रन्थिः* ध्रुव objp = static_cast<Ast_ग्रन्थिः*>(::operator नूतन(size));
     V3Broken::addNewed(objp);
-    return objp;
+    पटिनिवत्त objp;
 }
 
-void AstNode::operator delete(void* objp, size_t size) {
-    if (!objp) return;
-    const AstNode* const nodep = static_cast<AstNode*>(objp);
+शून्य Ast_ग्रन्थिः::operator delete(शून्य* objp, size_t size) {
+    सचे (!objp) पटिनिवत्त;
+    ध्रुव Ast_ग्रन्थिः* ध्रुव nodep = static_cast<Ast_ग्रन्थिः*>(objp);
     V3Broken::deleted(nodep);
     ::operator delete(objp);
 }
 #endif
 
 #ifdef VL_ALLOC_RANDOM_CHECKS
-void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
+शून्य* Ast_ग्रन्थिः::operator नूतन(size_t size) {  // VL_MT_SAFE
     // Compute the maximum node size once and cache it
-    static const size_t ASTGEN_MAX_NODE_SIZE = []() {
+    स्थिर ध्रुव size_t ASTGEN_MAX_ग्रन्थिः_SIZE = []() {
         size_t maxSize = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
+        अत्थाय (size_t t = 0; t < VNType::अङ्कः_TYPES(); ++t) {
             maxSize = std::max(maxSize, VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof);
         }
-        return maxSize;
+        पटिनिवत्त maxSize;
     }();
 
     // Make the following small to debug this routine, larger for performance and better random
     constexpr size_t POOL_SIZE = 65536;  // Ideally large enough to fit all nodes used in tests
     // Randomly select from a large pool (POOL_SIZE) of max-node sized (MAX_NODE_SIZE) pointers
-    static uint64_t s_lfsr = 0;  // LFSR, 0 = didn't initialize yet
-    if (int seed = v3Global.opt.debugAllocRandom()) {
-        static V3Mutex s_mutex;
-        const V3LockGuard lock{s_mutex};
-        static std::array<void*, POOL_SIZE> s_nodePool VL_GUARDED_BY(s_mutex);
+    स्थिर uint64_t s_lfsr = 0;  // LFSR, 0 = didn't initialize yet
+    सचे (पूर्णाङ्क seed = v3Global.opt.debugAllocRandom()) {
+        स्थिर V3Mutex s_mutex;
+        ध्रुव V3LockGuard lock{s_mutex};
+        स्थिर std::array<शून्य*, POOL_SIZE> s_ग्रन्थिः_Pool VL_GUARDED_BY(s_mutex);
         constexpr uint64_t POLYNOMIAL = 0x80000000000019e2ULL;
-        UASSERT_STATIC(size <= ASTGEN_MAX_NODE_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
-        if (!s_lfsr) {
+        UASSERT_STATIC(size <= ASTGEN_MAX_ग्रन्थिः_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
+        सचे (!s_lfsr) {
             s_lfsr = seed;
-            if (!s_lfsr) s_lfsr = ~s_lfsr;
-            for (size_t i = 0; i < POOL_SIZE; ++i) {
-                s_nodePool[i] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);
+            सचे (!s_lfsr) s_lfsr = ~s_lfsr;
+            अत्थाय (size_t i = 0; i < POOL_SIZE; ++i) {
+                s_ग्रन्थिः_Pool[i] = ::operator नूतन(ASTGEN_MAX_ग्रन्थिः_SIZE + 64);
             }
             // Sort, just to make it more obvious we are properly randomizing
-            std::sort(std::begin(s_nodePool), std::end(s_nodePool));
+            std::sort(std::begin(s_ग्रन्थिः_Pool), std::end(s_ग्रन्थिः_Pool));
         }
         // Xoroshiro128+ algorithm
         s_lfsr = (s_lfsr & 1ULL) ? ((s_lfsr >> 1ULL) ^ POLYNOMIAL) : (s_lfsr >> 1ULL);
-        const size_t index = s_lfsr % POOL_SIZE;
-        AstNode* const objp = static_cast<AstNode*>(s_nodePool[index]);
-        s_nodePool[index] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);  // For later new()
-        return objp;
-    } else {
-        AstNode* const objp = static_cast<AstNode*>(::operator new(size));
-        return objp;
+        ध्रुव size_t index = s_lfsr % POOL_SIZE;
+        Ast_ग्रन्थिः* ध्रुव objp = static_cast<Ast_ग्रन्थिः*>(s_ग्रन्थिः_Pool[index]);
+        s_ग्रन्थिः_Pool[index] = ::operator नूतन(ASTGEN_MAX_ग्रन्थिः_SIZE + 64);  // For later new()
+        पटिनिवत्त objp;
+    } अञ्ञथा {
+        Ast_ग्रन्थिः* ध्रुव objp = static_cast<Ast_ग्रन्थिः*>(::operator नूतन(size));
+        पटिनिवत्त objp;
     }
 }
-void AstNode::operator delete(void* objp, size_t size) {
+शून्य Ast_ग्रन्थिः::operator delete(शून्य* objp, size_t size) {
     // Leak due to size difference between true node and MAX_NODE_SIZE
-    (void)objp;
-    (void)size;
+    (शून्य)objp;
+    (शून्य)size;
 }
 #endif
 
 //======================================================================
 // Iterators
 
-void AstNode::iterateChildren(VNVisitor& v) {
+शून्य Ast_ग्रन्थिः::iterateChildren(VNVisitor& v) {
     // This is a very hot function
     // Optimization note: Grabbing m_op#p->m_nextp is a net loss
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNext(v);
-    if (m_op2p) m_op2p->iterateAndNext(v);
-    if (m_op3p) m_op3p->iterateAndNext(v);
-    if (m_op4p) m_op4p->iterateAndNext(v);
+    सचे (m_op1p) m_op1p->iterateAndNext(v);
+    सचे (m_op2p) m_op2p->iterateAndNext(v);
+    सचे (m_op3p) m_op3p->iterateAndNext(v);
+    सचे (m_op4p) m_op4p->iterateAndNext(v);
 }
 
-void AstNode::iterateChildrenConst(VNVisitorConst& v) {
+शून्य Ast_ग्रन्थिः::iterateChildrenConst(VNVisitorConst& v) {
     // This is a very hot function
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNextConst(v);
-    if (m_op2p) m_op2p->iterateAndNextConst(v);
-    if (m_op3p) m_op3p->iterateAndNextConst(v);
-    if (m_op4p) m_op4p->iterateAndNextConst(v);
+    सचे (m_op1p) m_op1p->iterateAndNextConst(v);
+    सचे (m_op2p) m_op2p->iterateAndNextConst(v);
+    सचे (m_op3p) m_op3p->iterateAndNextConst(v);
+    सचे (m_op4p) m_op4p->iterateAndNextConst(v);
 }
 
-void AstNode::iterateAndNext(VNVisitor& v) {
+शून्य Ast_ग्रन्थिः::iterateAndNext(VNVisitor& v) {
     // This is a very hot function
     // IMPORTANT: If you replace a node that's the target of this iterator,
     // then the NEW node will be iterated on next, it isn't skipped!
     // Future versions of this function may require the node to have a back to be iterated;
     // there's no lower level reason yet though the back must exist.
-    AstNode* nodep = this;
+    Ast_ग्रन्थिः* nodep = एतत्;
 #ifdef VL_DEBUG  // Otherwise too hot of a function for debug
     UASSERT_OBJ(!(nodep && !nodep->m_backp), nodep, "iterateAndNext node has no back");
 #endif
     // cppcheck-suppress knownConditionTrueFalse
-    if (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
-    while (nodep) {  // effectively: if (!this) return;  // Callers rely on this
-        if (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
-        AstNode* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
+    सचे (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
+    याव (nodep) {  // effectively: if (!this) return;  // Callers rely on this
+        सचे (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
+        Ast_ग्रन्थिः* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
         // Desirable check, but many places where multiple iterations are OK
         // UASSERT_OBJ(!niterp->m_iterpp, niterp, "IterateAndNext under iterateAndNext may miss
         // edits"); Optimization note: Doing PREFETCH_RW on m_iterpp is a net even
@@ -1139,141 +1139,141 @@ void AstNode::iterateAndNext(VNVisitor& v) {
         // niterp maybe nullptr, so need cast if printing
         // if (niterp != nodep) UINFO(1,"iterateAndNext edited "<<cvtToHex(nodep)
         //                             <<" now into "<<cvtToHex(niterp)<<endl);
-        if (!niterp) return;  // Perhaps node deleted inside accept
+        सचे (!niterp) पटिनिवत्त;  // Perhaps node deleted inside accept
         niterp->m_iterpp = nullptr;
-        if (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
+        सचे (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
             nodep = niterp;
-        } else {  // Unchanged node (though maybe updated m_next), just continue loop
+        } अञ्ञथा {  // Unchanged node (though maybe updated m_next), just continue loop
             nodep = niterp->m_nextp;
         }
     }
 }
 
-void AstNode::iterateListBackwardsConst(VNVisitorConst& v) {
-    AstNode* nodep = this;
-    while (nodep->m_nextp) nodep = nodep->m_nextp;
-    while (nodep) {
+शून्य Ast_ग्रन्थिः::iterateListBackwardsConst(VNVisitorConst& v) {
+    Ast_ग्रन्थिः* nodep = एतत्;
+    याव (nodep->m_nextp) nodep = nodep->m_nextp;
+    याव (nodep) {
         // Edits not supported: nodep->m_iterpp = &nodep;
         nodep->accept(v);
-        if (nodep->backp()->m_nextp == nodep) {
+        सचे (nodep->backp()->m_nextp == nodep) {
             nodep = nodep->backp();
-        } else {
+        } अञ्ञथा {
             nodep = nullptr;
         }  // else: backp points up the tree.
     }
 }
 
-void AstNode::iterateChildrenBackwardsConst(VNVisitorConst& v) {
-    if (m_op1p) m_op1p->iterateListBackwardsConst(v);
-    if (m_op2p) m_op2p->iterateListBackwardsConst(v);
-    if (m_op3p) m_op3p->iterateListBackwardsConst(v);
-    if (m_op4p) m_op4p->iterateListBackwardsConst(v);
+शून्य Ast_ग्रन्थिः::iterateChildrenBackwardsConst(VNVisitorConst& v) {
+    सचे (m_op1p) m_op1p->iterateListBackwardsConst(v);
+    सचे (m_op2p) m_op2p->iterateListBackwardsConst(v);
+    सचे (m_op3p) m_op3p->iterateListBackwardsConst(v);
+    सचे (m_op4p) m_op4p->iterateListBackwardsConst(v);
 }
 
-void AstNode::iterateAndNextConst(VNVisitorConst& v) {
+शून्य Ast_ग्रन्थिः::iterateAndNextConst(VNVisitorConst& v) {
     // Keep following the current list even if edits change it
-    AstNode* nodep = this;
-    do {
-        AstNode* const nnextp = nodep->m_nextp;
+    Ast_ग्रन्थिः* nodep = एतत्;
+    करोहि {
+        Ast_ग्रन्थिः* ध्रुव nnextp = nodep->m_nextp;
         ASTNODE_PREFETCH(nnextp);
         nodep->accept(v);
         nodep = nnextp;
-    } while (nodep);
+    } याव (nodep);
 }
 
-AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
+Ast_ग्रन्थिः* Ast_ग्रन्थिः::iterateSubtreeReturnEdits(VNVisitor& v) {
     // Some visitors perform tree edits (such as V3Const), and may even
     // replace/delete the exact nodep that the visitor is called with.  If
     // this happens, the parent will lose the handle to the node that was
     // processed.
     // To solve this, this function returns the pointer to the replacement node,
     // which in many cases is just the same node that was passed in.
-    AstNode* nodep = this;  // Note "this" may point to bogus point later in this function
-    if (VN_IS(nodep, Netlist)) {
+    Ast_ग्रन्थिः* nodep = एतत्;  // Note "this" may point to bogus point later in this function
+    सचे (VN_IS(nodep, Netlist)) {
         // Calling on top level; we know the netlist won't get replaced
         nodep->accept(v);
-    } else if (!nodep->backp()) {
+    } अञ्ञथा सचे (!nodep->backp()) {
         // Calling on standalone tree; insert a shim node so we can keep
         // track, then delete it on completion
-        AstBegin* const tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", nodep, false};
+        AstBegin* ध्रुव tempp = नूतन AstBegin{nodep->fileline(), "[EditWrapper]", nodep, मिच्छा};
         // nodep to null as may be replaced
         VL_DO_DANGLING(tempp->stmtsp()->accept(v), nodep);
         nodep = tempp->stmtsp()->unlinkFrBackWithNext();
-        VL_DO_DANGLING(tempp->deleteTree(), tempp);
-    } else {
+        VL_DO_DANGLING(tempp->delete_वृक्षः(), tempp);
+    } अञ्ञथा {
         // Use back to determine who's pointing at us (IE assume new node
         // grafts into same place as old one)
-        AstNode** nextnodepp = nullptr;
-        if (this->m_backp->m_op1p == this) {
-            nextnodepp = &(this->m_backp->m_op1p);
-        } else if (this->m_backp->m_op2p == this) {
-            nextnodepp = &(this->m_backp->m_op2p);
-        } else if (this->m_backp->m_op3p == this) {
-            nextnodepp = &(this->m_backp->m_op3p);
-        } else if (this->m_backp->m_op4p == this) {
-            nextnodepp = &(this->m_backp->m_op4p);
-        } else if (this->m_backp->m_nextp == this) {
-            nextnodepp = &(this->m_backp->m_nextp);
+        Ast_ग्रन्थिः** nextnodepp = nullptr;
+        सचे (एतत्->m_backp->m_op1p == एतत्) {
+            nextnodepp = &(एतत्->m_backp->m_op1p);
+        } अञ्ञथा सचे (एतत्->m_backp->m_op2p == एतत्) {
+            nextnodepp = &(एतत्->m_backp->m_op2p);
+        } अञ्ञथा सचे (एतत्->m_backp->m_op3p == एतत्) {
+            nextnodepp = &(एतत्->m_backp->m_op3p);
+        } अञ्ञथा सचे (एतत्->m_backp->m_op4p == एतत्) {
+            nextnodepp = &(एतत्->m_backp->m_op4p);
+        } अञ्ञथा सचे (एतत्->m_backp->m_nextp == एतत्) {
+            nextnodepp = &(एतत्->m_backp->m_nextp);
         }
-        UASSERT_OBJ(nextnodepp, this, "Node's back doesn't point to forward to node itself");
+        UASSERT_OBJ(nextnodepp, एतत्, "Node's back doesn't point to forward to node itself");
         {
             VL_DO_DANGLING(nodep->accept(v), nodep);  // nodep to null as may be replaced
         }
         nodep = *nextnodepp;  // Grab new node from point where old was connected
     }
-    return nodep;
+    पटिनिवत्त nodep;
 }
 
 //======================================================================
 
-void AstNode::cloneRelinkTree() {
+शून्य Ast_ग्रन्थिः::clone_Relink_वृक्षः() {
     // private: Cleanup clone() operation on whole tree. Publicly call cloneTree() instead.
-    for (AstNode* nodep = this; nodep; nodep = nodep->m_nextp) {
-        if (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
+    अत्थाय (Ast_ग्रन्थिः* nodep = एतत्; nodep; nodep = nodep->m_nextp) {
+        सचे (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
             nodep->m_dtypep = nodep->m_dtypep->clonep();
         }
         nodep->cloneRelink();
-        if (nodep->m_op1p) nodep->m_op1p->cloneRelinkTree();
-        if (nodep->m_op2p) nodep->m_op2p->cloneRelinkTree();
-        if (nodep->m_op3p) nodep->m_op3p->cloneRelinkTree();
-        if (nodep->m_op4p) nodep->m_op4p->cloneRelinkTree();
+        सचे (nodep->m_op1p) nodep->m_op1p->clone_Relink_वृक्षः();
+        सचे (nodep->m_op2p) nodep->m_op2p->clone_Relink_वृक्षः();
+        सचे (nodep->m_op3p) nodep->m_op3p->clone_Relink_वृक्षः();
+        सचे (nodep->m_op4p) nodep->m_op4p->clone_Relink_वृक्षः();
     }
 }
 
 //======================================================================
 // Comparison
 
-bool AstNode::gateTreeIter() const {
+तार्किक Ast_ग्रन्थिः::gate_वृक्षः_Iter() ध्रुव {
     // private: Return true if the two trees are identical
-    if (!isGateOptimizable()) return false;
-    if (m_op1p && !m_op1p->gateTreeIter()) return false;
-    if (m_op2p && !m_op2p->gateTreeIter()) return false;
-    if (m_op3p && !m_op3p->gateTreeIter()) return false;
-    if (m_op4p && !m_op4p->gateTreeIter()) return false;
-    return true;
+    सचे (!isGateOptimizable()) पटिनिवत्त मिच्छा;
+    सचे (m_op1p && !m_op1p->gate_वृक्षः_Iter()) पटिनिवत्त मिच्छा;
+    सचे (m_op2p && !m_op2p->gate_वृक्षः_Iter()) पटिनिवत्त मिच्छा;
+    सचे (m_op3p && !m_op3p->gate_वृक्षः_Iter()) पटिनिवत्त मिच्छा;
+    सचे (m_op4p && !m_op4p->gate_वृक्षः_Iter()) पटिनिवत्त मिच्छा;
+    पटिनिवत्त सच्च;
 }
 
-bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ignNext,
-                           bool gateOnly) {
+तार्किक Ast_ग्रन्थिः::same_वृक्षः_Iter(ध्रुव Ast_ग्रन्थिः* node1p, ध्रुव Ast_ग्रन्थिः* node2p, तार्किक ignNext,
+                           तार्किक gateOnly) {
     // private: Return true if the two trees are identical
     // Iterate over the list, rather than recurse, as lists might be long
-    while (true) {
-        if (!node1p && !node2p) return true;
-        if (!node1p || !node2p) return false;
-        if (node1p->type() != node2p->type()) return false;
+    याव (सच्च) {
+        सचे (!node1p && !node2p) पटिनिवत्त सच्च;
+        सचे (!node1p || !node2p) पटिनिवत्त मिच्छा;
+        सचे (node1p->type() != node2p->type()) पटिनिवत्त मिच्छा;
         UASSERT_OBJ(
             (!node1p->dtypep() && !node2p->dtypep()) || (node1p->dtypep() && node2p->dtypep()),
             node1p,
             "Comparison of a node with dtypep() with a node without dtypep()\n-node2=" << node2p);
-        if (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) return false;
-        if (!node1p->sameNode(node2p) || (gateOnly && !node1p->isGateOptimizable())) return false;
-        if (!sameTreeIter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op2p, node2p->m_op2p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op3p, node2p->m_op3p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op4p, node2p->m_op4p, false, gateOnly)) {
-            return false;
+        सचे (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) पटिनिवत्त मिच्छा;
+        सचे (!node1p->same_ग्रन्थिः(node2p) || (gateOnly && !node1p->isGateOptimizable())) पटिनिवत्त मिच्छा;
+        सचे (!same_वृक्षः_Iter(node1p->m_op1p, node2p->m_op1p, मिच्छा, gateOnly)
+            || !same_वृक्षः_Iter(node1p->m_op2p, node2p->m_op2p, मिच्छा, gateOnly)
+            || !same_वृक्षः_Iter(node1p->m_op3p, node2p->m_op3p, मिच्छा, gateOnly)
+            || !same_वृक्षः_Iter(node1p->m_op4p, node2p->m_op4p, मिच्छा, gateOnly)) {
+            पटिनिवत्त मिच्छा;
         }
-        if (ignNext) return true;
+        सचे (ignNext) पटिनिवत्त सच्च;
         node1p = node1p->m_nextp;
         node2p = node2p->m_nextp;
     }
@@ -1282,83 +1282,83 @@ bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ig
 //======================================================================
 // Debugging
 
-void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
+शून्य Ast_ग्रन्थिः::check_वृक्षः_Iter(ध्रुव Ast_ग्रन्थिः* prevBackp) ध्रुव VL_MT_STABLE {
     // private: Check a tree and children
-    UASSERT_OBJ(prevBackp == this->backp(), this, "Back node inconsistent");
-    const VNTypeInfo& typeInfo = VNType::typeInfo(this->type());
-    for (int i = 1; i <= 4; i++) {
-        AstNode* nodep = nullptr;
-        switch (i) {
-        case 1: nodep = op1p(); break;
-        case 2: nodep = op2p(); break;
-        case 3: nodep = op3p(); break;
-        case 4: nodep = op4p(); break;
-        default: this->v3fatalSrc("Bad case"); break;
+    UASSERT_OBJ(prevBackp == एतत्->backp(), एतत्, "Back node inconsistent");
+    ध्रुव VNTypeInfo& typeInfo = VNType::typeInfo(एतत्->type());
+    अत्थाय (पूर्णाङ्क i = 1; i <= 4; i++) {
+        Ast_ग्रन्थिः* nodep = nullptr;
+        विकल्प (i) {
+        पक्ष 1: nodep = op1p(); भङ्ग;
+        पक्ष 2: nodep = op2p(); भङ्ग;
+        पक्ष 3: nodep = op3p(); भङ्ग;
+        पक्ष 4: nodep = op4p(); भङ्ग;
+        स्वभाव: एतत्->v3fatalSrc("Bad case"); भङ्ग;
         }
         // cppcheck-suppress danglingTempReference
-        const char* opName = typeInfo.m_opNamep[i - 1];
-        switch (typeInfo.m_opType[i - 1]) {
-        case VNTypeInfo::OP_UNUSED:
-            UASSERT_OBJ(!nodep, this, typeInfo.m_namep << " must not use " << opName << "()");
-            break;
-        case VNTypeInfo::OP_USED:
-            UASSERT_OBJ(nodep, this,
+        ध्रुव वर्ण* opName = typeInfo.m_opNamep[i - 1];
+        विकल्प (typeInfo.m_opType[i - 1]) {
+        पक्ष VNTypeInfo::OP_UNUSED:
+            UASSERT_OBJ(!nodep, एतत्, typeInfo.m_namep << " must not use " << opName << "()");
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_USED:
+            UASSERT_OBJ(nodep, एतत्,
                         typeInfo.m_namep << " must have non-nullptr " << opName << "()");
-            UASSERT_OBJ(!nodep->nextp(), this,
+            UASSERT_OBJ(!nodep->nextp(), एतत्,
                         typeInfo.m_namep << "::" << opName
                                          << "() cannot have a non-nullptr nextp()");
-            nodep->checkTreeIter(this);
-            break;
-        case VNTypeInfo::OP_LIST:
-            if (const AstNode* const headp = nodep) {
+            nodep->check_वृक्षः_Iter(एतत्);
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_LIST:
+            सचे (ध्रुव Ast_ग्रन्थिः* ध्रुव headp = nodep) {
                 // cppcheck-suppress shadowFunction
-                const AstNode* backp = this;
-                const AstNode* tailp;
-                const AstNode* opp = headp;
-                do {
-                    opp->checkTreeIter(backp);
+                ध्रुव Ast_ग्रन्थिः* backp = एतत्;
+                ध्रुव Ast_ग्रन्थिः* tailp;
+                ध्रुव Ast_ग्रन्थिः* opp = headp;
+                करोहि {
+                    opp->check_वृक्षः_Iter(backp);
                     UASSERT_OBJ(opp == headp || !opp->nextp() || !opp->m_headtailp, opp,
                                 "Headtailp should be null in middle of lists");
                     backp = tailp = opp;
                     opp = opp->nextp();
-                } while (opp);
+                } याव (opp);
                 UASSERT_OBJ(headp->m_headtailp == tailp, headp,
                             "Tail in headtailp is inconsistent");
                 UASSERT_OBJ(tailp->m_headtailp == headp, tailp,
                             "Head in headtailp is inconsistent");
             }
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (nodep) {
-                UASSERT_OBJ(!nodep->nextp(), this,
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_OPTIONAL:
+            सचे (nodep) {
+                UASSERT_OBJ(!nodep->nextp(), एतत्,
                             typeInfo.m_namep << "::" << opName
                                              << "() cannot have a non-nullptr nextp()");
-                nodep->checkTreeIter(this);
+                nodep->check_वृक्षः_Iter(एतत्);
             }
-            break;
-        default: this->v3fatalSrc("Bad case"); break;
+            भङ्ग;
+        स्वभाव: एतत्->v3fatalSrc("Bad case"); भङ्ग;
         }
     }
-    if (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
-        if (const AstNodeExpr* const exprp = VN_CAST(this, NodeExpr)) {
-            const char* const whyp = exprp->widthMismatch();
-            if (whyp) {
-                auto dtypeStr = [](const AstNodeExpr* exprp) VL_MT_STABLE {
+    सचे (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
+        सचे (ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = VN_CAST(एतत्, ग्रन्थिः_व्यञ्जकम्)) {
+            ध्रुव वर्ण* ध्रुव whyp = exprp->widthMismatch();
+            सचे (whyp) {
+                auto dtypeStr = [](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* exprp) VL_MT_STABLE {
                     std::ostringstream ss;
                     exprp->dtypep()->dumpSmall(ss);
-                    return ss.str();
+                    पटिनिवत्त ss.str();
                 };
-                if (const AstNodeUniop* const uniopp = VN_CAST(exprp, NodeUniop)) {
+                सचे (ध्रुव Ast_ग्रन्थिः_Uniop* ध्रुव uniopp = VN_CAST(exprp, ग्रन्थिः_Uniop)) {
                     UASSERT_OBJ(!whyp, uniopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(uniopp)
                                                           << " LHS:" << dtypeStr(uniopp->lhsp()));
-                } else if (const AstNodeBiop* const biopp = VN_CAST(exprp, NodeBiop)) {
+                } अञ्ञथा सचे (ध्रुव Ast_ग्रन्थिः_Biop* ध्रुव biopp = VN_CAST(exprp, ग्रन्थिः_Biop)) {
                     UASSERT_OBJ(!whyp, biopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(biopp)
                                                           << " LHS:" << dtypeStr(biopp->lhsp())
                                                           << " RHS:" << dtypeStr(biopp->rhsp()));
-                } else {
-                    UASSERT_OBJ(false, exprp,
+                } अञ्ञथा {
+                    UASSERT_OBJ(मिच्छा, exprp,
                                 "widthMismatch detected " << whyp << " in an unexpected type");
                 }
             }
@@ -1367,27 +1367,27 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
 }
 
 // cppcheck-suppress unusedFunction  // Debug only
-char* AstNode::dumpTreeJsonGdb(const AstNode* nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
+वर्ण* Ast_ग्रन्थिः::dump_वृक्षः_Json_Gdb(ध्रुव Ast_ग्रन्थिः* nodep) {
+    सचे (!nodep) पटिनिवत्त strdup("{\"addr\":\"NULL\"}\n");
     std::stringstream nodepStream;
-    nodep->dumpTreeJson(nodepStream);
-    const std::string str = nodepStream.rdbuf()->str();
-    return strdup(str.c_str());
+    nodep->dump_वृक्षः_Json(nodepStream);
+    ध्रुव std::string str = nodepStream.rdbuf()->str();
+    पटिनिवत्त strdup(str.c_str());
 }
 // cppcheck-suppress unusedFunction  // Debug only
 // identity func to allow for passing already done dumps to jtree
-char* AstNode::dumpTreeJsonGdb(const char* str) { return strdup(str); }
+वर्ण* Ast_ग्रन्थिः::dump_वृक्षः_Json_Gdb(ध्रुव वर्ण* str) { पटिनिवत्त strdup(str); }
 // cppcheck-suppress unusedFunction  // Debug only
 // allow for passing pointer literals like 0x42.. without manual cast
-char* AstNode::dumpTreeJsonGdb(intptr_t nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
-    return dumpTreeJsonGdb(reinterpret_cast<const AstNode*>(nodep));
+वर्ण* Ast_ग्रन्थिः::dump_वृक्षः_Json_Gdb(intptr_t nodep) {
+    सचे (!nodep) पटिनिवत्त strdup("{\"addr\":\"NULL\"}\n");
+    पटिनिवत्त dump_वृक्षः_Json_Gdb(reinterpret_cast<ध्रुव Ast_ग्रन्थिः*>(nodep));
 }
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
+शून्य Ast_ग्रन्थिः::dumpGdb(ध्रुव Ast_ग्रन्थिः* nodep) {  // For GDB only  // LCOV_EXCL_START
+    सचे (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        पटिनिवत्त;
     }
     nodep->dumpGdbHeader();
     cout << "  ";
@@ -1395,62 +1395,62 @@ void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_STA
     cout << endl;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdbHeader() const {  // For GDB only  // LCOV_EXCL_START
+शून्य Ast_ग्रन्थिः::dumpGdbHeader() ध्रुव {  // For GDB only  // LCOV_EXCL_START
     dumpPtrs(cout);
     cout << "  Fileline = " << fileline() << endl;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_Gdb(ध्रुव Ast_ग्रन्थिः* nodep) {  // For GDB only  // LCOV_EXCL_START
+    सचे (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        पटिनिवत्त;
     }
     nodep->dumpGdbHeader();
-    nodep->dumpTree(cout);
+    nodep->dump_वृक्षः(cout);
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeFileGdb(const AstNode* nodep,  // LCOV_EXCL_START
-                              const char* filenamep) {  // For GDB only
-    if (!nodep) {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_File_Gdb(ध्रुव Ast_ग्रन्थिः* nodep,  // LCOV_EXCL_START
+                              ध्रुव वर्ण* filenamep) {  // For GDB only
+    सचे (!nodep) {
         cout << "<nullptr>" << endl;
-        return;
+        पटिनिवत्त;
     }
-    const string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
-    v3Global.rootp()->dumpTreeFile(filename);
+    ध्रुव string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
+    v3Global.rootp()->dump_वृक्षः_File(filename);
 }  // LCOV_EXCL_STOP
 
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::checkIter() const {
-    if (m_iterpp) {
+शून्य Ast_ग्रन्थिः::checkIter() ध्रुव {
+    सचे (m_iterpp) {
         dumpPtrs(cout);
         // Perhaps something forgot to clear m_iterpp?
-        this->v3fatalSrc("Iteration link m_iterpp should be nullptr");
+        एतत्->v3fatalSrc("Iteration link m_iterpp should be nullptr");
     }
 }
 
-void AstNode::dumpPtrs(std::ostream& os) const {
-    os << "This=" << typeName() << " " << cvtToHex(this);
+शून्य Ast_ग्रन्थिः::dumpPtrs(std::ostream& os) ध्रुव {
+    os << "This=" << typeName() << " " << cvtToHex(एतत्);
     os << " back=" << cvtToHex(backp());
-    if (nextp()) os << " next=" << cvtToHex(nextp());
-    if (m_headtailp == this) {
+    सचे (nextp()) os << " next=" << cvtToHex(nextp());
+    सचे (m_headtailp == एतत्) {
         os << " headtail=this";
-    } else {
+    } अञ्ञथा {
         os << " headtail=" << cvtToHex(m_headtailp);
     }
-    if (op1p()) os << " op1p=" << cvtToHex(op1p());
-    if (op2p()) os << " op2p=" << cvtToHex(op2p());
-    if (op3p()) os << " op3p=" << cvtToHex(op3p());
-    if (op4p()) os << " op4p=" << cvtToHex(op4p());
-    const auto dumpUser = [&os](const char* prefix, const VNUser& user) {
-        const std::string s
-            = user.dumpStr([](const void* p) -> std::string { return cvtToHex(p); });
-        if (!s.empty()) os << prefix << s;
+    सचे (op1p()) os << " op1p=" << cvtToHex(op1p());
+    सचे (op2p()) os << " op2p=" << cvtToHex(op2p());
+    सचे (op3p()) os << " op3p=" << cvtToHex(op3p());
+    सचे (op4p()) os << " op4p=" << cvtToHex(op4p());
+    ध्रुव auto dumpUser = [&os](ध्रुव वर्ण* prefix, ध्रुव VNUser& user) {
+        ध्रुव std::string s
+            = user.dumpStr([](ध्रुव शून्य* p) -> std::string { पटिनिवत्त cvtToHex(p); });
+        सचे (!s.empty()) os << prefix << s;
     };
     dumpUser(" user1p=", user1u());
     dumpUser(" user2p=", user2u());
     dumpUser(" user3p=", user3u());
     dumpUser(" user4p=", user4u());
-    if (m_iterpp) {
+    सचे (m_iterpp) {
         os << " iterpp=" << cvtToHex(m_iterpp);
         // This may cause address sanitizer failures as iterpp can be stale
         // os << "*=" << cvtToHex(*m_iterpp);
@@ -1458,74 +1458,74 @@ void AstNode::dumpPtrs(std::ostream& os) const {
     os << "\n";
 }
 
-void AstNode::dumpTree(std::ostream& os, const string& indent, int maxDepth) const {
-    static int s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
-    os << indent << " " << this << '\n';
-    if (VN_DELETED(this)) return;
-    if (debug() > 8) {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः(std::ostream& os, ध्रुव string& indent, पूर्णाङ्क maxDepth) ध्रुव {
+    स्थिर पूर्णाङ्क s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
+    os << indent << " " << एतत् << '\n';
+    सचे (VN_DELETED(एतत्)) पटिनिवत्त;
+    सचे (debug() > 8) {
         os << indent << "     ";
         dumpPtrs(os);
     }
-    if (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
+    सचे (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
         || VN_DELETED(op3p()) || VN_DELETED(op4p())) {
-        os << indent << "1/2/3/4: %E-0x1/deleted! node " << cvtToHex(this)
+        os << indent << "1/2/3/4: %E-0x1/deleted! node " << cvtToHex(एतत्)
            << endl;  // endl intentional to do flush
-        return;
+        पटिनिवत्त;
     }  // LCOV_EXCL_STOP
-    if (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
-    if (maxDepth == 1) {
-        if (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
-    } else {
-        for (const AstNode* nodep = op1p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "1:", maxDepth - 1);
+    सचे (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
+    सचे (maxDepth == 1) {
+        सचे (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
+    } अञ्ञथा {
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = op1p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_वृक्षः(os, indent + "1:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op2p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "2:", maxDepth - 1);
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = op2p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_वृक्षः(os, indent + "2:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op3p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "3:", maxDepth - 1);
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = op3p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_वृक्षः(os, indent + "3:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op4p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "4:", maxDepth - 1);
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = op4p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_वृक्षः(os, indent + "4:", maxDepth - 1);
         }
     }
 }
 
-void AstNode::dumpTreeAndNext(std::ostream& os, const string& indent, int maxDepth) const {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_And_Next(std::ostream& os, ध्रुव string& indent, पूर्णाङ्क maxDepth) ध्रुव {
     // Audited to make sure this is never nullptr
-    for (const AstNode* nodep = this; nodep; nodep = nodep->nextp()) {
-        nodep->dumpTree(os, indent, maxDepth);
+    अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = एतत्; nodep; nodep = nodep->nextp()) {
+        nodep->dump_वृक्षः(os, indent, maxDepth);
     }
 }
 
-void AstNode::dumpTreeFile(const string& filename, bool doDump) {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_File(ध्रुव string& filename, तार्किक doDump) {
     // Not const function as calls checkTree
-    if (doDump) {
+    सचे (doDump) {
         {  // Write log & close
             UINFO(2, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
-            if (logsp->fail()) v3fatal("Can't write file: " << filename);
-            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << editCountLast();
-            *logsp << "> to <e" << std::dec << editCountGbl() << ">\n";
-            if (editCountGbl() == editCountLast() && ::dumpTreeLevel() < 9) {
+            ध्रुव std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
+            सचे (logsp->fail()) v3fatal("Can't write file: " << filename);
+            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << edit_गणनम्_Last();
+            *logsp << "> to <e" << std::dec << edit_गणनम्_Gbl() << ">\n";
+            सचे (edit_गणनम्_Gbl() == edit_गणनम्_Last() && ::dump_वृक्षः_Level() < 9) {
                 *logsp << '\n';
                 *logsp << "No changes since last dump!\n";
-            } else {
-                dumpTree(*logsp);
-                editCountSetLast();  // Next dump can indicate start from here
+            } अञ्ञथा {
+                dump_वृक्षः(*logsp);
+                edit_गणनम्_Set_Last();  // Next dump can indicate start from here
             }
         }
     }
 }
 
-static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* childp,
-                         const std::string& childName) {
-    if (childp) {
+स्थिर शून्य drawChildren(std::ostream& os, ध्रुव Ast_ग्रन्थिः* thisp, ध्रुव Ast_ग्रन्थिः* childp,
+                         ध्रुव std::string& childName) {
+    सचे (childp) {
         os << "\tn" << cvtToHex(thisp) << " -> n" << cvtToHex(childp) << " [" << "label=\""
            << childName << "\" color=red];\n";
-        for (const AstNode* nodep = childp; nodep; nodep = nodep->nextp()) {
-            nodep->dumpTreeDot(os);
-            if (nodep->nextp()) {
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = childp; nodep; nodep = nodep->nextp()) {
+            nodep->dump_वृक्षः_Dot(os);
+            सचे (nodep->nextp()) {
                 os << "\tn" << cvtToHex(nodep) << " -> n" << cvtToHex(nodep->nextp()) << " ["
                    << "label=\"next\" color=red];\n";
                 os << "\t{rank=same; n" << cvtToHex(nodep) << ", n" << cvtToHex(nodep->nextp())
@@ -1535,31 +1535,31 @@ static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* 
     }
 }
 
-void AstNode::dumpTreeDot(std::ostream& os) const {
-    os << "\tn" << cvtToHex(this) << "\t[" << "label=\"" << typeName() << "\\n"
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_Dot(std::ostream& os) ध्रुव {
+    os << "\tn" << cvtToHex(एतत्) << "\t[" << "label=\"" << typeName() << "\\n"
        << name() << "\"];\n";
-    drawChildren(os, this, m_op1p, "op1");
-    drawChildren(os, this, m_op2p, "op2");
-    drawChildren(os, this, m_op3p, "op3");
-    drawChildren(os, this, m_op4p, "op4");
+    drawChildren(os, एतत्, m_op1p, "op1");
+    drawChildren(os, एतत्, m_op2p, "op2");
+    drawChildren(os, एतत्, m_op3p, "op3");
+    drawChildren(os, एतत्, m_op4p, "op4");
 }
 
-void AstNode::dumpTreeJsonFile(const string& filename, bool doDump) {
-    if (!doDump) return;
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_Json_File(ध्रुव string& filename, तार्किक doDump) {
+    सचे (!doDump) पटिनिवत्त;
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatal("Can't write file: " << filename);
-    dumpTreeJson(*treejsonp);
+    ध्रुव std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
+    सचे (treejsonp->fail()) v3fatal("Can't write file: " << filename);
+    dump_वृक्षः_Json(*treejsonp);
     *treejsonp << '\n';
 }
 
-void AstNode::dumpJsonMetaFileGdb(const char* filename) { dumpJsonMetaFile(filename); }
-void AstNode::dumpJsonMetaFile(const string& filename) {
+शून्य Ast_ग्रन्थिः::dumpJsonMetaFileGdb(ध्रुव वर्ण* filename) { dumpJsonMetaFile(filename); }
+शून्य Ast_ग्रन्थिः::dumpJsonMetaFile(ध्रुव string& filename) {
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
+    ध्रुव std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
+    सचे (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
     *treejsonp << '{';
-    FileLine::fileNameNumMapDumpJson(*treejsonp);
+    File_पङ्क्तिः::file_Name_अङ्कः_Map_Dump_Json(*treejsonp);
     *treejsonp << ',';
     v3Global.idPtrMapDumpJson(*treejsonp);
     *treejsonp << ',';
@@ -1567,393 +1567,393 @@ void AstNode::dumpJsonMetaFile(const string& filename) {
     *treejsonp << "}\n";
 }
 
-void AstNode::dumpTreeDotFile(const string& filename, bool doDump) {
-    if (doDump) {
+शून्य Ast_ग्रन्थिः::dump_वृक्षः_Dot_File(ध्रुव string& filename, तार्किक doDump) {
+    सचे (doDump) {
         UINFO(2, "Dumping " << filename);
-        const std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
-        if (treedotp->fail()) v3fatal("Can't write file: " << filename);
+        ध्रुव std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
+        सचे (treedotp->fail()) v3fatal("Can't write file: " << filename);
         *treedotp << "digraph vTree{\n";
         *treedotp << "\tgraph\t[label=\"" << filename + ".dot" << "\",\n";
         *treedotp << "\t\t labelloc=t, labeljust=l,\n";
         *treedotp << "\t\t //size=\"7.5,10\",\n"
                   << "];\n";
-        dumpTreeDot(*treedotp);
+        dump_वृक्षः_Dot(*treedotp);
         *treedotp << "}\n";
     }
 }
 
-string AstNode::instanceStr() const {
+string Ast_ग्रन्थिः::instanceStr() ध्रुव {
     // Max iterations before giving up on location search,
     // in case we have some circular reference bug.
     constexpr unsigned maxIterations = 10000;
-    unsigned iterCount = 0;
+    unsigned iter_गणनम् = 0;
     // Walk 'backp' chain
-    for (const AstNode* currp = this; currp; currp = currp->backp(), ++iterCount) {
-        if (VL_UNCOVERABLE(iterCount >= maxIterations)) return "";  // LCOV_EXCL_LINE
+    अत्थाय (ध्रुव Ast_ग्रन्थिः* currp = एतत्; currp; currp = currp->backp(), ++iter_गणनम्) {
+        सचे (VL_UNCOVERABLE(iter_गणनम् >= maxIterations)) पटिनिवत्त "";  // LCOV_EXCL_LINE
         // Prefer the enclosing scope, if there is one. This is always under the enclosing module,
         // so just pick it up when encountered
-        if (const AstScope* const scopep = VN_CAST(currp, Scope)) {
-            return scopep->isTop() ? "" : "... note: In instance " + scopep->prettyNameQ();
+        सचे (ध्रुव AstScope* ध्रुव scopep = VN_CAST(currp, Scope)) {
+            पटिनिवत्त scopep->is_शिखरम्() ? "" : "... note: In instance " + scopep->prettyNameQ();
         }
         // If scopes don't exist, report an example instance of the enclosing module
-        if (const AstModule* const modp = VN_CAST(currp, Module)) {
-            const string instanceName = modp->someInstanceName();
-            return instanceName.empty() ? "" : "... note: In instance '" + instanceName + "'";
+        सचे (ध्रुव AstModule* ध्रुव modp = VN_CAST(currp, Module)) {
+            ध्रुव string instanceName = modp->someInstanceName();
+            पटिनिवत्त instanceName.empty() ? "" : "... note: In instance '" + instanceName + "'";
         }
     }
-    return "";
+    पटिनिवत्त "";
 }
-void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
-    if (!m_fileline) {
+शून्य Ast_ग्रन्थिः::v3errorEnd(ध्रुव std::ostringstream& str) ध्रुव VL_RELEASE(V3Error::s().m_mutex) {
+    सचे (!m_fileline) {
         V3Error::v3errorEnd(str, "", nullptr);
-    } else {
+    } अञ्ञथा {
         // Don't look for instance name when warning is disabled.
         // In case of large number of warnings, this can
         // take significant amount of time
-        const string instanceStrExtra
+        ध्रुव string instanceStrExtra
             = m_fileline->warnIsOff(V3Error::s().errorCode()) ? "" : instanceStr();
         std::ostringstream nsstr;
         nsstr << str.str();
-        if (debug()) {
+        सचे (debug()) {
             nsstr << '\n';
             nsstr << "-node: ";
-            const_cast<AstNode*>(this)->dump(nsstr);
+            const_cast<Ast_ग्रन्थिः*>(एतत्)->dump(nsstr);
             nsstr << '\n';
         }
         m_fileline->v3errorEnd(nsstr, instanceStrExtra);
     }
 }
-void AstNode::v3errorEndFatal(const std::ostringstream& str) const
+शून्य Ast_ग्रन्थिः::v3errorEndFatal(ध्रुव std::ostringstream& str) ध्रुव
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
-    assert(0);  // LCOV_EXCL_LINE
+    प्रतिज्ञा(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }
 
 //======================================================================
 // Data type conversion
 
-void AstNode::dtypeChgSigned(bool flag) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing to (un)signed");
+शून्य Ast_ग्रन्थिः::dtypeChgSigned(तार्किक flag) {
+    UASSERT_OBJ(dtypep(), एतत्, "No dtype when changing to (un)signed");
     dtypeChgWidthSigned(dtypep()->width(), dtypep()->widthMin(), VSigning::fromBool(flag));
 }
-void AstNode::dtypeChgWidth(int width, int widthMin) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
+शून्य Ast_ग्रन्थिः::dtypeChgWidth(पूर्णाङ्क width, पूर्णाङ्क widthMin) {
+    UASSERT_OBJ(dtypep(), एतत्, "No dtype when changing width");
     dtypeChgWidthSigned(width, widthMin, dtypep()->numeric());
 }
 
-void AstNode::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
-    const AstNodeDType* const enumDTypep = dtypep()->skipRefToEnump();
-    if (width == dtypep()->width() && widthMin == dtypep()->widthMin()
+शून्य Ast_ग्रन्थिः::dtypeChgWidthSigned(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) {
+    UASSERT_OBJ(dtypep(), एतत्, "No dtype when changing width");
+    ध्रुव Ast_ग्रन्थिः_DType* ध्रुव enumDTypep = dtypep()->skipRefToEnump();
+    सचे (width == dtypep()->width() && widthMin == dtypep()->widthMin()
         && numeric == dtypep()->numeric()
         // Enums need to become direct sizes to avoid later ENUMVALUE errors
         && !VN_IS(enumDTypep, EnumDType)) {
-        return;  // Correct already
+        पटिनिवत्त;  // Correct already
     }
-    const AstNodeDType* const dtypep = enumDTypep->skipRefp();
+    ध्रुव Ast_ग्रन्थिः_DType* ध्रुव dtypep = enumDTypep->skipRefp();
     // This cannot be asserted yet, because V3Clean tends to change width of everything
     // UASSERT_OBJ(!dtypep->isCompound(), this, "Cannot change width of compound dtype.");
     dtypeSetBitOrLogicUnsized(width, widthMin, numeric, dtypep->isFourstate());
 }
 
-AstNodeDType* AstNode::findBasicDType(VBasicDTypeKwd kwd) const {
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findBasicDType(VBasicDTypeKwd kwd) ध्रुव {
     // For 'simple' types we use the global directory.  These are all unsized.
     // More advanced types land under the module/task/etc
-    return v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
 }
-AstNodeDType* AstNode::findBitDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findBitDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findLogicDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogic2StateDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findLogic2StateDType(पूर्णाङ्क width, पूर्णाङ्क widthMin, VSigning numeric) ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findLogicBitDType(
         fileline(), VBasicDTypeKwd::LOGIC2STATE, width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicRangeDType(const VNumRange& range, int widthMin,
-                                           VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findLogicRangeDType(ध्रुव VNumRange& range, पूर्णाङ्क widthMin,
+                                           VSigning numeric) ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              range, widthMin, numeric);
 }
-AstNodeDType* AstNode::findBitRangeDType(const VNumRange& range, int widthMin,
-                                         VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findBitRangeDType(ध्रुव VNumRange& range, पूर्णाङ्क widthMin,
+                                         VSigning numeric) ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              range, widthMin, numeric);
 }
-AstBasicDType* AstNode::findInsertSameDType(AstBasicDType* nodep) {
-    return v3Global.rootp()->typeTablep()->findInsertSameDType(nodep);
+AstBasicDType* Ast_ग्रन्थिः::find_निवेशय_Same_DType(AstBasicDType* nodep) {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->find_निवेशय_Same_DType(nodep);
 }
-AstNodeDType* AstNode::findConstraintRefDType() const {
-    return v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findConstraintRefDType() ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
 }
-AstNodeDType* AstNode::findEmptyQueueDType() const {
-    return v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findEmptyQueueDType() ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
 }
-AstNodeDType* AstNode::findQueueIndexDType() const {
-    return v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findQueueIndexDType() ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
 }
-AstNodeDType* AstNode::findStreamDType() const {
-    return v3Global.rootp()->typeTablep()->findStreamDType(fileline());
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findStreamDType() ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findStreamDType(fileline());
 }
-AstNodeDType* AstNode::findVoidDType() const {
-    return v3Global.rootp()->typeTablep()->findVoidDType(fileline());
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::findVoidDType() ध्रुव {
+    पटिनिवत्त v3Global.rootp()->typeTablep()->findVoidDType(fileline());
 }
 
-static const AstNodeDType* computeCastableBase(const AstNodeDType* nodep) {
-    while (true) {
-        if (const AstPackArrayDType* const packp = VN_CAST(nodep, PackArrayDType)) {
+स्थिर ध्रुव Ast_ग्रन्थिः_DType* computeCastableBase(ध्रुव Ast_ग्रन्थिः_DType* nodep) {
+    याव (सच्च) {
+        सचे (ध्रुव AstPackArrayDType* ध्रुव packp = VN_CAST(nodep, PackArrayDType)) {
             nodep = packp->subDTypep();
-            continue;
+            अनुवर्त;
         }
-        if (const AstNodeDType* const refp = nodep->skipRefToEnump()) {
-            if (refp != nodep) {
+        सचे (ध्रुव Ast_ग्रन्थिः_DType* ध्रुव refp = nodep->skipRefToEnump()) {
+            सचे (refp != nodep) {
                 nodep = refp;
-                continue;
+                अनुवर्त;
             }
         }
-        return nodep;
+        पटिनिवत्त nodep;
     }
 }
 
-static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                    const AstNode* fromConstp, const bool checkIfaceArgCompat) {
-    const VCastable castable = VCastable::UNSUPPORTED;
+स्थिर VCastable computeCastableImp(ध्रुव Ast_ग्रन्थिः_DType* toDtp, ध्रुव Ast_ग्रन्थिः_DType* fromDtp,
+                                    ध्रुव Ast_ग्रन्थिः* fromConstp, ध्रुव तार्किक checkIfaceArgCompat) {
+    ध्रुव VCastable castable = VCastable::UNSUPPORTED;
     toDtp = toDtp->skipRefToEnump();
     fromDtp = fromDtp->skipRefToEnump();
-    if (toDtp == fromDtp) return VCastable::SAMEISH;
-    if (toDtp->similarDType(fromDtp)) return VCastable::SAMEISH;
+    सचे (toDtp == fromDtp) पटिनिवत्त VCastable::SAMEISH;
+    सचे (toDtp->similarDType(fromDtp)) पटिनिवत्त VCastable::SAMEISH;
     // UNSUP unpacked struct/unions (treated like BasicDType)
-    const AstNodeDType* fromBaseDtp = computeCastableBase(fromDtp);
+    ध्रुव Ast_ग्रन्थिः_DType* fromBaseDtp = computeCastableBase(fromDtp);
 
-    const bool fromNumericable = VN_IS(fromBaseDtp, BasicDType) || VN_IS(fromBaseDtp, EnumDType)
+    ध्रुव तार्किक fromNumericable = VN_IS(fromBaseDtp, BasicDType) || VN_IS(fromBaseDtp, EnumDType)
                                  || VN_IS(fromBaseDtp, StreamDType)
-                                 || VN_IS(fromBaseDtp, NodeUOrStructDType);
+                                 || VN_IS(fromBaseDtp, ग्रन्थिः_UOr_Struct_DType);
 
-    const AstNodeDType* toBaseDtp = computeCastableBase(toDtp);
-    const bool toNumericable
-        = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, NodeUOrStructDType);
+    ध्रुव Ast_ग्रन्थिः_DType* toBaseDtp = computeCastableBase(toDtp);
+    ध्रुव तार्किक toNumericable
+        = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, ग्रन्थिः_UOr_Struct_DType);
 
-    if (toBaseDtp == fromBaseDtp) return VCastable::COMPATIBLE;
+    सचे (toBaseDtp == fromBaseDtp) पटिनिवत्त VCastable::COMPATIBLE;
 
-    if (toNumericable) {
-        if (fromNumericable) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toBaseDtp, EnumDType)) {
-        if (VN_IS(fromBaseDtp, EnumDType) && toDtp->sameTree(fromDtp))
-            return VCastable::ENUM_IMPLICIT;
-        if (fromNumericable) return VCastable::ENUM_EXPLICIT;
-    } else if (VN_IS(toDtp, QueueDType)
+    सचे (toNumericable) {
+        सचे (fromNumericable) पटिनिवत्त VCastable::COMPATIBLE;
+    } अञ्ञथा सचे (VN_IS(toBaseDtp, EnumDType)) {
+        सचे (VN_IS(fromBaseDtp, EnumDType) && toDtp->same_वृक्षः(fromDtp))
+            पटिनिवत्त VCastable::ENUM_IMPLICIT;
+        सचे (fromNumericable) पटिनिवत्त VCastable::ENUM_EXPLICIT;
+    } अञ्ञथा सचे (VN_IS(toDtp, QueueDType)
                && (VN_IS(fromDtp, BasicDType) || VN_IS(fromDtp, StreamDType))) {
-        return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
-        if (fromConstp->isNull()) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
-        const AstClass* const toClassp = VN_AS(toDtp, ClassRefDType)->classp();
-        const AstClass* const fromClassp = VN_AS(fromDtp, ClassRefDType)->classp();
-        const bool downcast = AstClass::isClassExtendedFrom(toClassp, fromClassp);
-        const bool upcast = AstClass::isClassExtendedFrom(fromClassp, toClassp);
-        if (upcast) return VCastable::COMPATIBLE;
-        if (downcast) return VCastable::DYNAMIC_CLASS;
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstIfaceRefDType* const toIfp
-               = VN_CAST(checkIfaceArgCompat ? toDtp->elemDTypep(true) : toDtp, IfaceRefDType)) {
+        पटिनिवत्त VCastable::COMPATIBLE;
+    } अञ्ञथा सचे (VN_IS(toDtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
+        सचे (fromConstp->isNull()) पटिनिवत्त VCastable::COMPATIBLE;
+    } अञ्ञथा सचे (VN_IS(toDtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
+        ध्रुव AstClass* ध्रुव toClassp = VN_AS(toDtp, ClassRefDType)->classp();
+        ध्रुव AstClass* ध्रुव fromClassp = VN_AS(fromDtp, ClassRefDType)->classp();
+        ध्रुव तार्किक downcast = AstClass::isClassExtendedFrom(toClassp, fromClassp);
+        ध्रुव तार्किक upcast = AstClass::isClassExtendedFrom(fromClassp, toClassp);
+        सचे (upcast) पटिनिवत्त VCastable::COMPATIBLE;
+        सचे (downcast) पटिनिवत्त VCastable::DYNAMIC_CLASS;
+        पटिनिवत्त VCastable::INCOMPATIBLE;
+    } अञ्ञथा सचे (ध्रुव AstIfaceRefDType* ध्रुव toIfp
+               = VN_CAST(checkIfaceArgCompat ? toDtp->elemDTypep(सच्च) : toDtp, IfaceRefDType)) {
         // Two interface refs are compatible if they point at the same interface
         // module (and modport, if any). Pointer-equality on the dtype isn't
         // enough since every cell binding clones the dtype.
         // Argument compatibility also requires matching virtualness for ref arguments, while
         // input arguments may bind an unqualified or same-modport source to a virtual target.
         // Argument compatibility also supports fixed-size arrays of interface references.
-        const AstIfaceRefDType* const fromIfp
-            = VN_CAST(checkIfaceArgCompat ? fromDtp->elemDTypep(true) : fromDtp, IfaceRefDType);
-        if (checkIfaceArgCompat && fromIfp && (toDtp != toIfp || fromDtp != fromIfp)) {
-            const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType);
-            const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
+        ध्रुव AstIfaceRefDType* ध्रुव fromIfp
+            = VN_CAST(checkIfaceArgCompat ? fromDtp->elemDTypep(सच्च) : fromDtp, IfaceRefDType);
+        सचे (checkIfaceArgCompat && fromIfp && (toDtp != toIfp || fromDtp != fromIfp)) {
+            ध्रुव AstUnpackArrayDType* ध्रुव toArrayp = VN_CAST(toDtp, UnpackArrayDType);
+            ध्रुव AstUnpackArrayDType* ध्रुव fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
             // IEEE 1800-2023 6.22.2: Equal-sized fixed arrays have equivalent types.
-            if (!toArrayp || !fromArrayp
+            सचे (!toArrayp || !fromArrayp
                 || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-                return VCastable::INCOMPATIBLE;
+                पटिनिवत्त VCastable::INCOMPATIBLE;
             }
-            return computeCastableImp(toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr,
+            पटिनिवत्त computeCastableImp(toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr,
                                       checkIfaceArgCompat);
         }
-        if (!fromIfp || toIfp->ifaceViaCellp() != fromIfp->ifaceViaCellp()) {
-            if (!checkIfaceArgCompat) return castable;
-            return VCastable::INCOMPATIBLE;
+        सचे (!fromIfp || toIfp->ifaceViaCellp() != fromIfp->ifaceViaCellp()) {
+            सचे (!checkIfaceArgCompat) पटिनिवत्त castable;
+            पटिनिवत्त VCastable::INCOMPATIBLE;
         }
-        const bool sameModport = toIfp->modportp() == fromIfp->modportp();
-        if (!checkIfaceArgCompat) {
-            if (!toIfp->modportp() || sameModport) return VCastable::COMPATIBLE;
-            return castable;
+        ध्रुव तार्किक sameModport = toIfp->modportp() == fromIfp->modportp();
+        सचे (!checkIfaceArgCompat) {
+            सचे (!toIfp->modportp() || sameModport) पटिनिवत्त VCastable::COMPATIBLE;
+            पटिनिवत्त castable;
         }
-        if (toIfp->isVirtual() == fromIfp->isVirtual() && sameModport) {
-            return VCastable::SAMEISH;
+        सचे (toIfp->isVirtual() == fromIfp->isVirtual() && sameModport) {
+            पटिनिवत्त VCastable::SAMEISH;
         }
         // An unqualified interface or virtual interface may bind to a modport-qualified
         // virtual interface.
-        if (toIfp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
-            return VCastable::COMPATIBLE;
+        सचे (toIfp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
+            पटिनिवत्त VCastable::COMPATIBLE;
         }
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType)) {
+        पटिनिवत्त VCastable::INCOMPATIBLE;
+    } अञ्ञथा सचे (ध्रुव AstUnpackArrayDType* ध्रुव toArrayp = VN_CAST(toDtp, UnpackArrayDType)) {
         // Equivalent if the same size with equivalent elements, the bounds may differ
         // (IEEE 1800-2023 6.22.2)
-        const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
-        if (!fromArrayp || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-            return castable;
+        ध्रुव AstUnpackArrayDType* ध्रुव fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
+        सचे (!fromArrayp || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
+            पटिनिवत्त castable;
         }
-        const VCastable subCastable = computeCastableImp(
+        ध्रुव VCastable subCastable = computeCastableImp(
             toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr, checkIfaceArgCompat);
         // Elements must match, but a nested dimension is COMPATIBLE if equivalent, and a virtual
         // interface element can refer to an interface instance
-        const AstNodeDType* const toSubp = toArrayp->subDTypep()->skipRefp();
-        if (subCastable == VCastable::SAMEISH
+        ध्रुव Ast_ग्रन्थिः_DType* ध्रुव toSubp = toArrayp->subDTypep()->skipRefp();
+        सचे (subCastable == VCastable::SAMEISH
             || (subCastable == VCastable::COMPATIBLE
                 && (VN_IS(toSubp, UnpackArrayDType) || VN_IS(toSubp, IfaceRefDType)))) {
-            return VCastable::COMPATIBLE;
+            पटिनिवत्त VCastable::COMPATIBLE;
         }
     }
-    return castable;
+    पटिनिवत्त castable;
 }
 
-VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                   const AstNode* fromConstp, const bool checkIfaceArgCompat) {
-    const auto castable = computeCastableImp(toDtp, fromDtp, fromConstp, checkIfaceArgCompat);
+VCastable Ast_ग्रन्थिः::computeCastable(ध्रुव Ast_ग्रन्थिः_DType* toDtp, ध्रुव Ast_ग्रन्थिः_DType* fromDtp,
+                                   ध्रुव Ast_ग्रन्थिः* fromConstp, ध्रुव तार्किक checkIfaceArgCompat) {
+    ध्रुव auto castable = computeCastableImp(toDtp, fromDtp, fromConstp, checkIfaceArgCompat);
     UINFO(9, "  castable=" << castable << "  for " << toDtp);
     UINFO(9, "     =?= " << fromDtp);
-    if (fromConstp) UINFO(9, "     const= " << fromConstp);
-    return castable;
+    सचे (fromConstp) UINFO(9, "     const= " << fromConstp);
+    पटिनिवत्त castable;
 }
 
-AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
+Ast_ग्रन्थिः_DType* Ast_ग्रन्थिः::getCommonClassTypep(Ast_ग्रन्थिः* node1p, Ast_ग्रन्थिः* node2p) {
     // Return the class type that both node1p and node2p are castable to.
     // If both are null, return the type of null constant.
     // If one is a class and one is null, return AstClassRefDType that points to that class.
     // If no common class type exists, return nullptr.
 
     // First handle cases with null values and when one class is a super class of the other.
-    if (VN_IS(node1p, Const)) std::swap(node1p, node2p);
+    सचे (VN_IS(node1p, Const)) std::swap(node1p, node2p);
     {
-        const VCastable castable = computeCastable(node1p->dtypep(), node2p->dtypep(), node2p);
-        if (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
-            return node1p->dtypep();
-        if (castable == VCastable::DYNAMIC_CLASS) return node2p->dtypep();
+        ध्रुव VCastable castable = computeCastable(node1p->dtypep(), node2p->dtypep(), node2p);
+        सचे (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
+            पटिनिवत्त node1p->dtypep();
+        सचे (castable == VCastable::DYNAMIC_CLASS) पटिनिवत्त node2p->dtypep();
     }
 
     AstClassRefDType* classDtypep1 = VN_CAST(node1p->dtypep()->skipRefp(), ClassRefDType);
-    while (classDtypep1) {
-        const VCastable castable = computeCastable(classDtypep1, node2p->dtypep(), node2p);
-        if (castable == VCastable::COMPATIBLE) return classDtypep1;
-        AstClassExtends* const extendsp = classDtypep1->classp()->extendsp();
-        if (!extendsp) break;
-        AstNodeDType* const edtp
+    याव (classDtypep1) {
+        ध्रुव VCastable castable = computeCastable(classDtypep1, node2p->dtypep(), node2p);
+        सचे (castable == VCastable::COMPATIBLE) पटिनिवत्त classDtypep1;
+        AstClassExtends* ध्रुव extendsp = classDtypep1->classp()->extendsp();
+        सचे (!extendsp) भङ्ग;
+        Ast_ग्रन्थिः_DType* ध्रुव edtp
             = extendsp->dtypep() ? extendsp->dtypep() : extendsp->childDTypep();
         classDtypep1 = VN_AS(edtp->skipRefp(), ClassRefDType);
     }
-    return nullptr;
+    पटिनिवत्त nullptr;
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single AstNode
 
-class VNPatternString final {
+वग्ग VNPatternString final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
-    std::map<int, std::string> m_internedWordWidths;  // Interned widths
-    std::map<int, std::string> m_internedWideWidths;  // Interned widths
+    std::map<पूर्णाङ्क, std::string> m_internedWordWidths;  // Interned widths
+    std::map<पूर्णाङ्क, std::string> m_internedWideWidths;  // Interned widths
 
     // Whether to dump the widhtMin as well
-    const bool m_dumpWidthMin = v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH;
+    ध्रुव तार्किक m_dumpWidthMin = v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    स्थिर std::string toLetters(size_t मानम्, तार्किक lowerCase = मिच्छा) {
+        ध्रुव वर्ण base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        करोहि { s += static_cast<वर्ण>(base + मानम् % 26); } याव (मानम् /= 26);
+        पटिनिवत्त s;
     }
 
-    const std::string& internConst(const AstConst& nodep) {
-        const auto pair = m_internedConsts.emplace(nodep.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    ध्रुव std::string& internConst(ध्रुव AstConst& nodep) {
+        ध्रुव auto pair = m_internedConsts.emplace(nodep.अङ्कः().ascii(मिच्छा), "");
+        सचे (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
+        पटिनिवत्त pair.first->second;
     }
 
-    const std::string& internWordWidth(int value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    ध्रुव std::string& internWordWidth(पूर्णाङ्क मानम्) {
+        ध्रुव auto pair = m_internedWordWidths.emplace(मानम्, "");
+        सचे (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, सच्च);
+        पटिनिवत्त pair.first->second;
     }
 
-    const std::string& internWideWidth(int value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    ध्रुव std::string& internWideWidth(पूर्णाङ्क मानम्) {
+        ध्रुव auto pair = m_internedWideWidths.emplace(मानम्, "");
+        सचे (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
+        पटिनिवत्त pair.first->second;
     }
 
     // True if the node has no operands (e.g. a VarRef or Const)
-    static bool isLeaf(const AstNode* nodep) {
-        const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
-        for (const VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
-            if (opType != VNTypeInfo::OP_UNUSED) return false;
+    स्थिर तार्किक isLeaf(ध्रुव Ast_ग्रन्थिः* nodep) {
+        ध्रुव VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
+        अत्थाय (ध्रुव VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
+            सचे (opType != VNTypeInfo::OP_UNUSED) पटिनिवत्त मिच्छा;
         }
-        return true;
+        पटिनिवत्त सच्च;
     }
 
     // Render operand, return true if not unused
-    void renderOperand(VNTypeInfo::OpEn opType, const AstNode* const opp, uint32_t depth) {
-        switch (opType) {
-        case VNTypeInfo::OP_UNUSED:  //
-            break;
-        case VNTypeInfo::OP_USED:  //
+    शून्य renderOperand(VNTypeInfo::OpEn opType, ध्रुव Ast_ग्रन्थिः* ध्रुव opp, uint32_t depth) {
+        विकल्प (opType) {
+        पक्ष VNTypeInfo::OP_UNUSED:  //
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_USED:  //
             m_os << ' ';
             render(opp, depth);
-            break;
-        case VNTypeInfo::OP_LIST:
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_LIST:
             m_os << " [";
-            for (const AstNode* nodep = opp; nodep; nodep = nodep->nextp()) {
-                if (nodep != opp) m_os << ", ";
+            अत्थाय (ध्रुव Ast_ग्रन्थिः* nodep = opp; nodep; nodep = nodep->nextp()) {
+                सचे (nodep != opp) m_os << ", ";
                 render(opp, depth);
             }
             m_os << ']';
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (opp) {
+            भङ्ग;
+        पक्ष VNTypeInfo::OP_OPTIONAL:
+            सचे (opp) {
                 m_os << " ";
                 render(opp, depth);
-            } else {
+            } अञ्ञथा {
                 m_os << " nil";
             }
-            break;
+            भङ्ग;
         }
     }
 
     // Render the node into the stream.
-    void render(const AstNode* nodep, uint32_t depth) {
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+    शून्य render(ध्रुव Ast_ग्रन्थिः* nodep, uint32_t depth) {
+        सचे (ध्रुव AstConst* ध्रुव constp = VN_CAST(nodep, Const)) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            सचे (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isEqAllOnes()) {
+            } अञ्ञथा सचे (constp->isEqAllOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } अञ्ञथा {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (isLeaf(nodep)) {
+        } अञ्ञथा सचे (isLeaf(nodep)) {
             // Base case 2: expression with no operands (e.g. a variable reference)
             m_os << '(' << nodep->typeName() << ')';
-        } else if (depth == 0) {
+        } अञ्ञथा सचे (depth == 0) {
             // Base case 3: deep expression
             m_os << '_';
-        } else {
+        } अञ्ञथा {
             // Recursively print an S-expression for the expression
             m_os << '(';
             // Name
             m_os << nodep->typeName();
             // Operands
-            const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
+            ध्रुव VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
             renderOperand(typeInfo.m_opType[0], nodep->op1p(), depth - 1);
             renderOperand(typeInfo.m_opType[1], nodep->op2p(), depth - 1);
             renderOperand(typeInfo.m_opType[2], nodep->op3p(), depth - 1);
@@ -1964,56 +1964,56 @@ class VNPatternString final {
 
         // Annotate type
         m_os << ':';
-        const AstNodeDType* const dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
-        if (!dtypep) {
+        ध्रुव Ast_ग्रन्थिः_DType* ध्रुव dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
+        सचे (!dtypep) {
             m_os << '?';
-        } else if (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
+        } अञ्ञथा सचे (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
             dtypep->dumpSmall(m_os);
-        } else {
-            const int width = nodep->width();
-            if (width == 1) {
+        } अञ्ञथा {
+            ध्रुव पूर्णाङ्क width = nodep->width();
+            सचे (width == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
+            } अञ्ञथा सचे (width <= VL_QUADSIZE) {
                 m_os << internWordWidth(width);
-            } else {
+            } अञ्ञथा {
                 m_os << internWideWidth(width);
             }
-            if (m_dumpWidthMin) {
+            सचे (m_dumpWidthMin) {
                 m_os << '/';
-                const int widthMin = nodep->widthMin();
-                if (widthMin == 1) {
+                ध्रुव पूर्णाङ्क widthMin = nodep->widthMin();
+                सचे (widthMin == 1) {
                     m_os << '1';
-                } else if (widthMin <= VL_QUADSIZE) {
+                } अञ्ञथा सचे (widthMin <= VL_QUADSIZE) {
                     m_os << internWordWidth(widthMin);
-                } else {
+                } अञ्ञथा {
                     m_os << internWideWidth(widthMin);
                 }
             }
         }
     }
 
-public:
-    VNPatternString(std::ostream& os, const AstNode* nodep, uint32_t depth)
+सार्वजनिक:
+    VNPatternString(std::ostream& os, ध्रुव Ast_ग्रन्थिः* nodep, uint32_t depth)
         : m_os{os} {
         render(nodep, depth);
     }
 };
 
-std::string AstNodeExpr::patternString(uint32_t depth) const {
+std::string Ast_ग्रन्थिः_व्यञ्जकम्::patternString(uint32_t depth) ध्रुव {
     std::ostringstream oss;
-    VNPatternString{oss, this, depth};
-    return oss.str();
+    VNPatternString{oss, एतत्, depth};
+    पटिनिवत्त oss.str();
 }
 
 //######################################################################
 // VNDeleter
 
-void VNDeleter::doDeletes() {
-    for (AstNode* const nodep : m_deleteps) nodep->deleteTree();
+शून्य VNDeleter::doDeletes() {
+    अत्थाय (Ast_ग्रन्थिः* ध्रुव nodep : m_deleteps) nodep->delete_वृक्षः();
     m_deleteps.clear();
 }
 
 //######################################################################
 // VNVisitor
 
-#include "V3Ast__gen_visitor_defns.h"  // From ./astgen
+#अन्तर्भाव "V3Ast__gen_visitor_defns.h"  // From ./astgen

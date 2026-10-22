@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3GRAPH_H_
 #define VERILATOR_V3GRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3List.h"
-#include "V3Rtti.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3List.h"
+#अन्तर्भाव "V3Rtti.h"
 
-#include <algorithm>
-#include <functional>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <functional>
 
-class FileLine;
+class File_पङ्क्तिः;
 class V3Graph;
 class V3GraphVertex;
 class V3GraphEdge;
@@ -39,7 +39,7 @@ class OrderLogicVertex;
 // Most graph algorithms accept an arbitrary function that returns
 // True for those edges we should honor.
 
-using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
+using V3EdgeFuncP = bool (*)(ध्रुव V3GraphEdge* edgep);
 
 //=============================================================================
 // When the Graph represents a directional acyclical graph (DAG), following
@@ -48,34 +48,34 @@ using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
 // some methods take GraphWay to programmatically select the direction.
 
 class GraphWay final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         FORWARD = 0,
         REVERSE = 1,
-        NUM_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
+        अङ्कः_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
         //          // an array dimension or loop bound.
     };
-    enum en m_e;
+    गणना en m_e;
     GraphWay()
         : m_e{FORWARD} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr GraphWay(en _e)
         : m_e{_e} {}
-    explicit constexpr GraphWay(int _e)
+    explicit constexpr GraphWay(पूर्णाङ्क _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FORWARD", "REVERSE"};
-        return names[m_e];
+    constexpr operator en() ध्रुव { पटिनिवत्त m_e; }
+    ध्रुव वर्ण* ascii() ध्रुव {
+        स्थिर constexpr ध्रुव वर्ण* ध्रुव names[] = {"FORWARD", "REVERSE"};
+        पटिनिवत्त names[m_e];
     }
     // METHODS unique to this class
-    constexpr GraphWay invert() const { return GraphWay{m_e ^ 1}; }
-    constexpr bool forward() const { return m_e == FORWARD; }
-    constexpr bool reverse() const { return m_e != FORWARD; }
+    constexpr GraphWay invert() ध्रुव { पटिनिवत्त GraphWay{m_e ^ 1}; }
+    constexpr bool forward() ध्रुव { पटिनिवत्त m_e == FORWARD; }
+    constexpr bool reverse() ध्रुव { पटिनिवत्त m_e != FORWARD; }
 };
-constexpr bool operator==(const GraphWay& lhs, const GraphWay& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const GraphWay& lhs, GraphWay::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ध्रुव GraphWay& lhs, ध्रुव GraphWay& rhs) { पटिनिवत्त lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ध्रुव GraphWay& lhs, GraphWay::en rhs) { पटिनिवत्त lhs.m_e == rhs; }
+constexpr bool operator==(GraphWay::en lhs, ध्रुव GraphWay& rhs) { पटिनिवत्त lhs == rhs.m_e; }
 
 //============================================================================
 // TODO should we have a smaller edge structure when we don't need weight etc?
@@ -83,10 +83,10 @@ constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { return lhs ==
 class V3GraphEdge VL_NOT_FINAL {
     VL_RTTI_IMPL_BASE(V3GraphEdge)
     // Wires/variables aren't edges.  Edges have only a single to/from vertex
-public:
+सार्वजनिक:
     // ENUMS
-    enum Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
-protected:
+    गणना Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
+रक्षित:
     friend class V3Graph;
     friend class V3GraphVertex;
     friend class GraphAcyc;
@@ -96,100 +96,100 @@ protected:
     V3ListLinks<V3GraphEdge> m_iLinks;  // List links to store instances of this class (in edges)
     //
     V3GraphVertex* m_fromp;  // Vertices pointing to this edge
-    V3GraphVertex* m_top;  // Vertices this edge points to
-    int m_weight;  // Weight of the connection
+    V3GraphVertex* m_शिखरम्;  // Vertices this edge points to
+    पूर्णाङ्क m_weight;  // Weight of the connection
     bool m_cutable;  // Interconnect may be broken in order sorting
-    union {
-        void* m_userp;  // Marker for some algorithms
+    सङ्घ {
+        शून्य* m_userp;  // Marker for some algorithms
         uint64_t m_user;  // Marker for some algorithms
     };
     // METHODS
-    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    शून्य init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* शिखरम्, पूर्णाङ्क weight,
               bool cutable = false) VL_MT_DISABLED;
-    void cut() { m_weight = 0; }  // 0 weight is same as disconnected
+    शून्य cut() { m_weight = 0; }  // 0 weight is same as disconnected
     // CONSTRUCTORS
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top,
-                const V3GraphEdge& old) VL_MT_DISABLED {
-        init(graphp, fromp, top, old.m_weight, old.m_cutable);
+    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* शिखरम्,
+                ध्रुव V3GraphEdge& old) VL_MT_DISABLED {
+        init(graphp, fromp, शिखरम्, old.m_weight, old.m_cutable);
     }
 
-private:
-    V3ListLinks<V3GraphEdge>& oLinks() { return m_oLinks; }
-    V3ListLinks<V3GraphEdge>& iLinks() { return m_iLinks; }
+गुप्त:
+    V3ListLinks<V3GraphEdge>& oLinks() { पटिनिवत्त m_oLinks; }
+    V3ListLinks<V3GraphEdge>& iLinks() { पटिनिवत्त m_iLinks; }
 
-public:
+सार्वजनिक:
     // List types to store instances of this class
     using OList = V3List<V3GraphEdge, &V3GraphEdge::oLinks>;
     using IList = V3List<V3GraphEdge, &V3GraphEdge::iLinks>;
 
     //! Add DAG from one node to the specified node
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* शिखरम्, पूर्णाङ्क weight,
                 bool cutable = false) VL_MT_DISABLED {
-        init(graphp, fromp, top, weight, cutable);
+        init(graphp, fromp, शिखरम्, weight, cutable);
     }
     //! Clone copy constructor.  Doesn't copy existing vertices or user/userp.
-    virtual V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
-                               V3GraphVertex* top) const VL_MT_DISABLED {
-        return new V3GraphEdge{graphp, fromp, top, *this};
+    आभास V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
+                               V3GraphVertex* शिखरम्) ध्रुव VL_MT_DISABLED {
+        पटिनिवत्त new V3GraphEdge{graphp, fromp, शिखरम्, *this};
     }
-    virtual ~V3GraphEdge() = default;
+    आभास ~V3GraphEdge() = स्वभाव;
     // METHODS
     // Return true iff of type T
     template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphEdge, T>::value,
+    bool is() ध्रुव {
+        static_assert(std::is_base_of<V3GraphEdge, T>::मानम्,
                       "'T' must be a subtype of V3GraphEdge");
-        return V3Rtti::isInstanceOf<T>(this);
+        पटिनिवत्त V3Rtti::isInstanceOf<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
     template <typename T>
     T* as() {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<T*>(this);
+        पटिनिवत्त static_cast<T*>(this);
     }
     template <typename T>
-    const T* as() const {
+    ध्रुव T* as() ध्रुव {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<const T*>(this);
+        पटिनिवत्त static_cast<ध्रुव T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
     template <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        पटिनिवत्त is<T>() ? static_cast<T*>(this) : nullptr;
     }
     template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    ध्रुव T* cast() ध्रुव {
+        पटिनिवत्त is<T>() ? static_cast<ध्रुव T*>(this) : nullptr;
     }
 
-    virtual string name() const VL_MT_DISABLED;
-    virtual string dotLabel() const { return ""; }
-    virtual string dotColor() const { return cutable() ? "yellowGreen" : "red"; }
-    virtual string dotStyle() const { return cutable() ? "dashed" : ""; }
-    virtual int sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
-    void unlinkDelete() VL_MT_DISABLED;
-    void relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
-    void relinkTop(V3GraphVertex* newTop) VL_MT_DISABLED;
+    आभास string name() ध्रुव VL_MT_DISABLED;
+    आभास string dotLabel() ध्रुव { पटिनिवत्त ""; }
+    आभास string dotColor() ध्रुव { पटिनिवत्त cutable() ? "yellowGreen" : "red"; }
+    आभास string dotStyle() ध्रुव { पटिनिवत्त cutable() ? "dashed" : ""; }
+    आभास पूर्णाङ्क sortCmp(ध्रुव V3GraphEdge* rhsp) ध्रुव VL_MT_DISABLED;
+    शून्य unlinkDelete() VL_MT_DISABLED;
+    शून्य relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
+    शून्य relink_शिखरम्(V3GraphVertex* new_शिखरम्) VL_MT_DISABLED;
     // ACCESSORS
-    int weight() const { return m_weight; }
-    void weight(int weight) { m_weight = weight; }
-    bool cutable() const { return m_cutable; }
-    void cutable(bool cutable) { m_cutable = cutable; }
-    void userp(void* user) { m_userp = user; }
-    void* userp() const { return m_userp; }
-    void user(uint64_t user) { m_user = user; }
-    uint64_t user() const { return m_user; }
-    V3GraphVertex* fromp() const { return m_fromp; }
-    V3GraphVertex* top() const { return m_top; }
+    पूर्णाङ्क weight() ध्रुव { पटिनिवत्त m_weight; }
+    शून्य weight(पूर्णाङ्क weight) { m_weight = weight; }
+    bool cutable() ध्रुव { पटिनिवत्त m_cutable; }
+    शून्य cutable(bool cutable) { m_cutable = cutable; }
+    शून्य userp(शून्य* user) { m_userp = user; }
+    शून्य* userp() ध्रुव { पटिनिवत्त m_userp; }
+    शून्य user(uint64_t user) { m_user = user; }
+    uint64_t user() ध्रुव { पटिनिवत्त m_user; }
+    V3GraphVertex* fromp() ध्रुव { पटिनिवत्त m_fromp; }
+    V3GraphVertex* शिखरम्() ध्रुव { पटिनिवत्त m_शिखरम्; }
     template <GraphWay::en N_Way>
-    V3GraphVertex* furtherp() const {
-        return N_Way == GraphWay::FORWARD ? top() : fromp();
+    V3GraphVertex* furtherp() ध्रुव {
+        पटिनिवत्त N_Way == GraphWay::FORWARD ? शिखरम्() : fromp();
     }
     // STATIC ACCESSORS
-    static bool followNotCutable(const V3GraphEdge* edgep) { return !edgep->m_cutable; }
-    static bool followAlwaysTrue(const V3GraphEdge*) { return true; }
+    स्थिर bool followNotCutable(ध्रुव V3GraphEdge* edgep) { पटिनिवत्त !edgep->m_cutable; }
+    स्थिर bool followAlwaysTrue(ध्रुव V3GraphEdge*) { पटिनिवत्त true; }
 };
 
 //============================================================================
@@ -204,135 +204,135 @@ class V3GraphVertex VL_NOT_FINAL {
     V3ListLinks<V3GraphVertex> m_links;  // List links to store instances of this class
     V3GraphEdge::OList m_outs;  // List of outbound edges
     V3GraphEdge::IList m_ins;  // List of inbound edges
-    double m_fanout;  // Order fanout
+    द्विगुण m_fanout;  // Order fanout
     uint32_t m_color;  // Color of the node
     uint32_t m_rank;  // Rank of edge
-    union {
-        void* m_userp;  // Marker for some algorithms
+    सङ्घ {
+        शून्य* m_userp;  // Marker for some algorithms
         uint32_t m_user;  // Marker for some algorithms
     };
     // ACCESSORS
-    void fanout(double fanout) { m_fanout = fanout; }
+    शून्य fanout(द्विगुण fanout) { m_fanout = fanout; }
 
-protected:
+रक्षित:
     // CONSTRUCTORS
-    V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old) VL_MT_DISABLED;
+    V3GraphVertex(V3Graph* graphp, ध्रुव V3GraphVertex& old) VL_MT_DISABLED;
 
-private:
-    V3ListLinks<V3GraphVertex>& links() { return m_links; }
+गुप्त:
+    V3ListLinks<V3GraphVertex>& links() { पटिनिवत्त m_links; }
 
-public:
+सार्वजनिक:
     // List types to store instances of this class
     using List = V3List<V3GraphVertex, &V3GraphVertex::links>;
 
     explicit V3GraphVertex(V3Graph* graphp) VL_MT_DISABLED;
     //! Clone copy constructor. Doesn't copy edges or user/userp.
-    virtual V3GraphVertex* clone(V3Graph* graphp) const VL_MT_DISABLED {
-        return new V3GraphVertex{graphp, *this};
+    आभास V3GraphVertex* clone(V3Graph* graphp) ध्रुव VL_MT_DISABLED {
+        पटिनिवत्त new V3GraphVertex{graphp, *this};
     }
-    virtual ~V3GraphVertex() = default;
-    void unlinkEdges(V3Graph* graphp) VL_MT_DISABLED;
-    void unlinkDelete(V3Graph* graphp) VL_MT_DISABLED;
+    आभास ~V3GraphVertex() = स्वभाव;
+    शून्य unlinkEdges(V3Graph* graphp) VL_MT_DISABLED;
+    शून्य unlinkDelete(V3Graph* graphp) VL_MT_DISABLED;
 
     // METHODS
     // Return true iff of type T
     template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphVertex, T>::value,
+    bool is() ध्रुव {
+        static_assert(std::is_base_of<V3GraphVertex, T>::मानम्,
                       "'T' must be a subtype of V3GraphVertex");
-        return V3Rtti::isInstanceOf<T>(this);
+        पटिनिवत्त V3Rtti::isInstanceOf<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
     template <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<T*>(this);
+        पटिनिवत्त static_cast<T*>(this);
     }
     template <typename T>
-    const T* as() const {
+    ध्रुव T* as() ध्रुव {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<const T*>(this);
+        पटिनिवत्त static_cast<ध्रुव T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
     template <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        पटिनिवत्त is<T>() ? static_cast<T*>(this) : nullptr;
     }
     template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    ध्रुव T* cast() ध्रुव {
+        पटिनिवत्त is<T>() ? static_cast<ध्रुव T*>(this) : nullptr;
     }
 
     // ACCESSORS
-    virtual string name() const { return ""; }
-    virtual string dotColor() const { return "black"; }
-    virtual string dotShape() const { return ""; }
-    virtual string dotStyle() const { return ""; }
-    virtual string dotName() const { return ""; }
-    virtual string dotRank() const { return ""; }
-    virtual uint32_t rankAdder() const { return 1; }
-    virtual FileLine* fileline() const { return nullptr; }  // nullptr for unknown
-    virtual int sortCmp(const V3GraphVertex* rhsp) const {
+    आभास string name() ध्रुव { पटिनिवत्त ""; }
+    आभास string dotColor() ध्रुव { पटिनिवत्त "black"; }
+    आभास string dotShape() ध्रुव { पटिनिवत्त ""; }
+    आभास string dotStyle() ध्रुव { पटिनिवत्त ""; }
+    आभास string dotName() ध्रुव { पटिनिवत्त ""; }
+    आभास string dotRank() ध्रुव { पटिनिवत्त ""; }
+    आभास uint32_t rankAdder() ध्रुव { पटिनिवत्त 1; }
+    आभास File_पङ्क्तिः* fileline() ध्रुव { पटिनिवत्त nullptr; }  // nullptr for unknown
+    आभास पूर्णाङ्क sortCmp(ध्रुव V3GraphVertex* rhsp) ध्रुव {
         // LHS goes first if of lower rank, or lower fanout
-        if (m_rank < rhsp->m_rank) return -1;
-        if (m_rank > rhsp->m_rank) return 1;
-        if (m_fanout < rhsp->m_fanout) return -1;
-        if (m_fanout > rhsp->m_fanout) return 1;
-        return 0;
+        सचे (m_rank < rhsp->m_rank) पटिनिवत्त -1;
+        सचे (m_rank > rhsp->m_rank) पटिनिवत्त 1;
+        सचे (m_fanout < rhsp->m_fanout) पटिनिवत्त -1;
+        सचे (m_fanout > rhsp->m_fanout) पटिनिवत्त 1;
+        पटिनिवत्त 0;
     }
-    uint32_t color() const { return m_color; }
-    void color(uint32_t color) { m_color = color; }
-    uint32_t rank() const { return m_rank; }
-    void rank(uint32_t rank) { m_rank = rank; }
-    double fanout() const { return m_fanout; }
-    void user(uint32_t user) { m_user = user; }
-    uint32_t user() const VL_MT_STABLE { return m_user; }
-    void userp(void* userp) { m_userp = userp; }
-    void* userp() const VL_MT_STABLE { return m_userp; }
-    V3GraphEdge::IList& inEdges() { return m_ins; }
-    const V3GraphEdge::IList& inEdges() const { return m_ins; }
+    uint32_t color() ध्रुव { पटिनिवत्त m_color; }
+    शून्य color(uint32_t color) { m_color = color; }
+    uint32_t rank() ध्रुव { पटिनिवत्त m_rank; }
+    शून्य rank(uint32_t rank) { m_rank = rank; }
+    द्विगुण fanout() ध्रुव { पटिनिवत्त m_fanout; }
+    शून्य user(uint32_t user) { m_user = user; }
+    uint32_t user() ध्रुव VL_MT_STABLE { पटिनिवत्त m_user; }
+    शून्य userp(शून्य* userp) { m_userp = userp; }
+    शून्य* userp() ध्रुव VL_MT_STABLE { पटिनिवत्त m_userp; }
+    V3GraphEdge::IList& inEdges() { पटिनिवत्त m_ins; }
+    ध्रुव V3GraphEdge::IList& inEdges() ध्रुव { पटिनिवत्त m_ins; }
     template <GraphWay::en N_Way>
-    inline auto& edges();
+    अन्तःस्थ auto& edges();
     template <GraphWay::en N_Way>
-    inline const auto& edges() const;
-    bool inEmpty() const { return m_ins.empty(); }
-    bool inSize1() const { return m_ins.hasSingleElement(); }
-    V3GraphEdge::OList& outEdges() { return m_outs; }
-    const V3GraphEdge::OList& outEdges() const { return m_outs; }
-    bool outEmpty() const { return m_outs.empty(); }
-    bool outSize1() const { return m_outs.hasSingleElement(); }
+    अन्तःस्थ ध्रुव auto& edges() ध्रुव;
+    bool inEmpty() ध्रुव { पटिनिवत्त m_ins.empty(); }
+    bool inSize1() ध्रुव { पटिनिवत्त m_ins.hasSingleElement(); }
+    V3GraphEdge::OList& outEdges() { पटिनिवत्त m_outs; }
+    ध्रुव V3GraphEdge::OList& outEdges() ध्रुव { पटिनिवत्त m_outs; }
+    bool outEmpty() ध्रुव { पटिनिवत्त m_outs.empty(); }
+    bool outSize1() ध्रुव { पटिनिवत्त m_outs.hasSingleElement(); }
     // METHODS
     /// Error reporting
-    void v3errorEnd(const std::ostringstream& str) const
+    शून्य v3errorEnd(ध्रुव std::ostringstream& str) ध्रुव
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
-    void v3errorEndFatal(const std::ostringstream& str) const
+    शून्य v3errorEndFatal(ध्रुव std::ostringstream& str) ध्रुव
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
     /// Edges are routed around this vertex to point from "from" directly to "to"
-    void rerouteEdges(V3Graph* graphp) VL_MT_DISABLED;
+    शून्य rerouteEdges(V3Graph* graphp) VL_MT_DISABLED;
 };
 
 std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) VL_MT_DISABLED;
 
 template <>
-inline auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
-    return m_outs;
+अन्तःस्थ auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
+    पटिनिवत्त m_outs;
 }
 
 template <>
-inline auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
-    return m_ins;
+अन्तःस्थ auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
+    पटिनिवत्त m_ins;
 }
 
 template <>
-inline const auto& V3GraphVertex::edges<GraphWay::FORWARD>() const {
-    return m_outs;
+अन्तःस्थ ध्रुव auto& V3GraphVertex::edges<GraphWay::FORWARD>() ध्रुव {
+    पटिनिवत्त m_outs;
 }
 
 template <>
-inline const auto& V3GraphVertex::edges<GraphWay::REVERSE>() const {
-    return m_ins;
+अन्तःस्थ ध्रुव auto& V3GraphVertex::edges<GraphWay::REVERSE>() ध्रुव {
+    पटिनिवत्त m_ins;
 }
 
 //============================================================================
@@ -341,26 +341,26 @@ class V3Graph VL_NOT_FINAL {
     // MEMBERS
     V3GraphVertex::List m_vertices;  // All vertices
 
-protected:
+रक्षित:
     friend class V3GraphVertex;
     friend class V3GraphEdge;
     friend class GraphAcyc;
     // METHODS
-    double orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
-    void dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                  const V3GraphEdge& edge) const VL_MT_DISABLED;
+    द्विगुण orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
+    शून्य dumpEdge(std::ostream& os, ध्रुव V3GraphVertex& vertex,
+                  ध्रुव V3GraphEdge& edge) ध्रुव VL_MT_DISABLED;
     // ACCESSORS
 
-public:
+सार्वजनिक:
     V3Graph() VL_MT_DISABLED;
-    virtual ~V3Graph() VL_MT_DISABLED;
-    virtual string dotRankDir() const { return "TB"; }  // rankdir for dot plotting
+    आभास ~V3Graph() VL_MT_DISABLED;
+    आभास string dotRankDir() ध्रुव { पटिनिवत्त "TB"; }  // rankdir for dot plotting
 
     // METHODS
-    void clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
-    bool empty() const { return m_vertices.empty(); }
-    V3GraphVertex::List& vertices() { return m_vertices; }
-    const V3GraphVertex::List& vertices() const { return m_vertices; }
+    शून्य clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
+    bool empty() ध्रुव { पटिनिवत्त m_vertices.empty(); }
+    V3GraphVertex::List& vertices() { पटिनिवत्त m_vertices; }
+    ध्रुव V3GraphVertex::List& vertices() ध्रुव { पटिनिवत्त m_vertices; }
 
     // METHODS - ALGORITHMS
 
@@ -373,55 +373,55 @@ public:
     /// Thus different color if there's no directional circuit within the subgraphs.
     /// (I.E. all loops will occur within each color, not between them.)
     /// Side-effect: changes user()
-    void stronglyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य stronglyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the maximum of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rank(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rank() VL_MT_DISABLED;
+    शून्य rank(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य rank() VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the minimu of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rankMin(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rankMin() VL_MT_DISABLED;
+    शून्य rankMin(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य rankMin() VL_MT_DISABLED;
 
     /// Sort all vertices and edges using the V3GraphVertex::sortCmp() function
-    void sortVertices() VL_MT_DISABLED;
+    शून्य sortVertices() VL_MT_DISABLED;
     /// Sort all edges and edges using the V3GraphEdge::sortCmp() function
-    void sortEdges() VL_MT_DISABLED;
+    शून्य sortEdges() VL_MT_DISABLED;
 
     /// Order all vertices by rank and fanout, lowest first
     /// Sort all vertices by rank and fanout, lowest first
     /// Sort all edges by weight, lowest first
     /// Side-effect: assigns ranks to every node, and changes user()
-    void order() VL_MT_DISABLED;
+    शून्य order() VL_MT_DISABLED;
 
     /// Similar to order() but does not assign ranks. Caller must
     /// ensure that the graph has been ranked ahead of the call.
     /// Side-effect: assigns ranks to every node, and changes user()
-    void orderPreRanked() VL_MT_DISABLED;
+    शून्य orderPreRanked() VL_MT_DISABLED;
 
     /// Make acyclical (into a tree) by breaking a minimal subset of cutable edges.
     /// Side-effect: changes rank(), changes user()
-    void acyclic(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य acyclic(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become MAX of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become SUM of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    शून्य removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
 
     /// Remove any transitive edges.  E.g. if have edges A->B, B->C, and A->C
     /// then A->C is a "transitive" edge; it's implied by the first two
     /// (assuming the DAG is a dependency graph.)
     /// This algorithm can be expensive.
-    void removeTransitiveEdges() VL_MT_DISABLED;
+    शून्य removeTransitiveEdges() VL_MT_DISABLED;
 
     /// Call loopsVertexCb on any one loop starting where specified
     /// Side-effect: changes user()
@@ -429,26 +429,26 @@ public:
 
     /// Build a subgraph of all loops starting where specified
     /// Side-effect: changes user()
-    void subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp,
+    शून्य subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp,
                       V3Graph* loopGraphp) VL_MT_DISABLED;
 
     /// Clear user()
-    void userClearVertices() VL_MT_DISABLED;
-    void userClearEdges() VL_MT_DISABLED;
+    शून्य userClearVertices() VL_MT_DISABLED;
+    शून्य userClearEdges() VL_MT_DISABLED;
 
     /// Debugging
-    void dump(std::ostream& os = std::cout) const VL_MT_DISABLED;
-    void dumpDotFile(const string& filename, bool colorAsSubgraph) const VL_MT_DISABLED;
-    void dumpDotFilePrefixed(const string& nameComment,
-                             bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpDotFilePrefixedAlways(const string& nameComment,
-                                   bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const VL_MT_DISABLED;
+    शून्य dump(std::ostream& os = std::cout) ध्रुव VL_MT_DISABLED;
+    शून्य dumpDotFile(ध्रुव string& filename, bool colorAsSubgraph) ध्रुव VL_MT_DISABLED;
+    शून्य dumpDotFilePrefixed(ध्रुव string& nameComment,
+                             bool colorAsSubgraph = false) ध्रुव VL_MT_DISABLED;
+    शून्य dumpDotFilePrefixedAlways(ध्रुव string& nameComment,
+                                   bool colorAsSubgraph = false) ध्रुव VL_MT_DISABLED;
+    शून्य dumpEdges(std::ostream& os, ध्रुव V3GraphVertex& vertex) ध्रुव VL_MT_DISABLED;
     // Print a hash of the shape of graphp. When debugging nondeterminism, this can help
     // pinpoint where it's coming from.
-    void hashGraphDebug(const char* debugName) const VL_MT_DISABLED;
+    शून्य hashGraphDebug(ध्रुव वर्ण* debugName) ध्रुव VL_MT_DISABLED;
 
-    static void selfTest() VL_MT_DISABLED;
+    स्थिर शून्य selfTest() VL_MT_DISABLED;
 
     class ParallelismReport final {
         friend class GraphAlgParallelismReport;
@@ -460,31 +460,31 @@ public:
         // Cost of the critical path, in abstract units (the same units returned by the vertexCost)
         uint64_t m_criticalPathCost = 0;
 
-        uint64_t m_vertexCount = 0;  // Number of vertexes in the graph
-        uint64_t m_edgeCount = 0;  // Number of edges in the grap
+        uint64_t m_vertex_गणनम् = 0;  // Number of vertexes in the graph
+        uint64_t m_edge_गणनम् = 0;  // Number of edges in the grap
 
-        ParallelismReport() = default;
+        ParallelismReport() = स्वभाव;
 
-    public:
-        ~ParallelismReport() = default;
-        ParallelismReport(const ParallelismReport&) = default;
-        ParallelismReport& operator=(const ParallelismReport&) = default;
+    सार्वजनिक:
+        ~ParallelismReport() = स्वभाव;
+        ParallelismReport(ध्रुव ParallelismReport&) = स्वभाव;
+        ParallelismReport& operator=(ध्रुव ParallelismReport&) = स्वभाव;
 
-        uint64_t totalGraphCost() const { return m_totalGraphCost; }
-        uint64_t criticalPathCost() const { return m_criticalPathCost; }
-        uint64_t vertexCount() const { return m_vertexCount; }
-        uint64_t edgeCount() const { return m_edgeCount; }
-        double parallelismFactor() const {
-            return (static_cast<double>(m_totalGraphCost) / m_criticalPathCost);
+        uint64_t totalGraphCost() ध्रुव { पटिनिवत्त m_totalGraphCost; }
+        uint64_t criticalPathCost() ध्रुव { पटिनिवत्त m_criticalPathCost; }
+        uint64_t vertex_गणनम्() ध्रुव { पटिनिवत्त m_vertex_गणनम्; }
+        uint64_t edge_गणनम्() ध्रुव { पटिनिवत्त m_edge_गणनम्; }
+        द्विगुण parallelismFactor() ध्रुव {
+            पटिनिवत्त (static_cast<द्विगुण>(m_totalGraphCost) / m_criticalPathCost);
         }
     };
 
     ParallelismReport
-    parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) VL_MT_DISABLED;
+    parallelismReport(std::function<uint64_t(ध्रुव V3GraphVertex*)> vertexCost) VL_MT_DISABLED;
 
     // CALLBACKS
-    virtual void loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    virtual string loopsVertexCb(V3GraphVertex* vertexp) VL_MT_DISABLED;
+    आभास शून्य loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    आभास string loopsVertexCb(V3GraphVertex* vertexp) VL_MT_DISABLED;
 };
 
 //============================================================================

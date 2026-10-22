@@ -20,61 +20,61 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DepthBlock.h"
+#अन्तर्भाव "V3DepthBlock.h"
 
-#include "V3EmitCBase.h"
+#अन्तर्भाव "V3EmitCBase.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class DepthBlockVisitor final : public VNVisitor {
+वग्ग DepthBlockVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;  // Current module
-    const AstCFunc* m_cfuncp = nullptr;  // Current function
-    int m_depth = 0;  // How deep in an expression
-    int m_deepNum = 0;  // How many functions made
+    ध्रुव Ast_ग्रन्थिः_Module* m_modp = nullptr;  // Current module
+    ध्रुव AstCFunc* m_cfuncp = nullptr;  // Current function
+    पूर्णाङ्क m_depth = 0;  // How deep in an expression
+    पूर्णाङ्क m_deep_अङ्कः = 0;  // How many functions made
 
     // METHODS
 
-    AstCFunc* createDeepFunc(AstNodeStmt* nodep) {
+    AstCFunc* createDeepFunc(Ast_ग्रन्थिः_Stmt* nodep) {
         VNRelinker relinkHandle;
         nodep->unlinkFrBack(&relinkHandle);
         // Create sub function
-        AstScope* const scopep = m_cfuncp->scopep();
-        const string name = m_cfuncp->name() + "__deep" + cvtToStr(++m_deepNum);
-        AstCFunc* const funcp = new AstCFunc{nodep->fileline(), name, scopep};
+        AstScope* ध्रुव scopep = m_cfuncp->scopep();
+        ध्रुव string name = m_cfuncp->name() + "__deep" + cvtToStr(++m_deep_अङ्कः);
+        AstCFunc* ध्रुव funcp = नूतन AstCFunc{nodep->fileline(), name, scopep};
         funcp->slow(m_cfuncp->slow());
         funcp->isStatic(m_cfuncp->isStatic());
         funcp->isLoose(m_cfuncp->isLoose());
         funcp->addStmtsp(nodep);
         scopep->addBlocksp(funcp);
         // Call sub function at the point where the body was removed from
-        AstCCall* const callp = new AstCCall{nodep->fileline(), funcp};
+        AstCCall* ध्रुव callp = नूतन AstCCall{nodep->fileline(), funcp};
         callp->dtypeSetVoid();
-        if (VN_IS(m_modp, Class)) {
+        सचे (VN_IS(m_modp, Class)) {
             funcp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         UINFO(6, "      New " << callp);
         relinkHandle.relink(callp->makeStmt());
         // Done
-        return funcp;
+        पटिनिवत्त funcp;
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_Module* nodep) override {
         UINFO(4, " MOD   " << nodep);
         VL_RESTORER(m_modp);
         m_modp = nodep;
-        m_deepNum = 0;
+        m_deep_अङ्कः = 0;
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    शून्य visit(AstCFunc* nodep) override {
         // We recurse into this.
         VL_RESTORER(m_depth);
         VL_RESTORER(m_cfuncp);
@@ -82,40 +82,40 @@ class DepthBlockVisitor final : public VNVisitor {
         m_cfuncp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstStmtExpr* nodep) override {}  // Stop recursion after introducing new function
-    void visit(AstJumpBlock*) override {}  // Stop recursion as can't break up across a jump
-    void visit(AstNodeStmt* nodep) override {
+    शून्य visit(Ast_Stmt_व्यञ्जकम्* nodep) override {}  // Stop recursion after introducing new function
+    शून्य visit(AstJumpBlock*) override {}  // Stop recursion as can't break up across a jump
+    शून्य visit(Ast_ग्रन्थिः_Stmt* nodep) override {
         ++m_depth;
-        if (m_depth > v3Global.opt.compLimitBlocks()) {  // Already done
+        सचे (m_depth > v3Global.opt.compLimitBlocks()) {  // Already done
             UINFO(4, "DeepBlocks " << m_depth << " " << nodep);
-            const AstNode* const backp = nodep->backp();  // Only for debug
+            ध्रुव Ast_ग्रन्थिः* ध्रुव backp = nodep->backp();  // Only for debug
             UINFOTREE(9, backp, "", "pre ");
-            AstCFunc* const funcp = createDeepFunc(nodep);
+            AstCFunc* ध्रुव funcp = createDeepFunc(nodep);
             iterate(funcp);
             UINFOTREE(9, backp, "", "post");
             UINFOTREE(9, funcp, "", "func");
-        } else {
+        } अञ्ञथा {
             iterateChildren(nodep);
         }
         --m_depth;
     }
 
-    void visit(AstNodeExpr*) override {}  // Accelerate
+    शून्य visit(Ast_ग्रन्थिः_व्यञ्जकम्*) override {}  // Accelerate
     //--------------------
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstVar*) override {}  // Don't hit varrefs under vars
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit DepthBlockVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~DepthBlockVisitor() override = default;
+    ~DepthBlockVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // DepthBlock class functions
 
-void V3DepthBlock::depthBlockAll(AstNetlist* nodep) {
+शून्य V3DepthBlock::depthBlockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { DepthBlockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deepblock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्षः("deepblock", 0, dump_वृक्षः_Either_Level() >= 3);
 }

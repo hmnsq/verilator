@@ -120,17 +120,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Decompose.h"
+#अन्तर्भाव "V3Decompose.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3MemberMap.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3AstUserAllocator.h"
+#अन्तर्भाव "V3MemberMap.h"
+#अन्तर्भाव "V3SharedTmps.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <algorithm>
-#include <memory>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -140,75 +140,75 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // methods. It is otherwise stateless and exists only to help separate
 // the code of the steps into logically separate classes.
 
-class DecomposeBase VL_NOT_FINAL {
-protected:
+वग्ग DecomposeBase VL_NOT_FINAL {
+रक्षित:
     // TYPES
 
     // A component (element or member) of an aggregate type
-    struct Component final {
-        AstNodeDType* dtypep;  // Type of the component
+    संरचना Component final {
+        Ast_ग्रन्थिः_DType* dtypep;  // Type of the component
         AstMemberDType* memberp;  // The member, if a struct
-        int declIdx;  // The declared index of the element, if an array
-        int lsb;  // LSB in the whole value, if packed
-        int msb;  // MSB in the whole value, if packed
+        पूर्णाङ्क declIdx;  // The declared index of the element, if an array
+        पूर्णाङ्क lsb;  // LSB in the whole value, if packed
+        पूर्णाङ्क msb;  // MSB in the whole value, if packed
     };
 
-    struct Place;  // A variable or a component of one, see below
+    संरचना Place;  // A variable or a component of one, see below
 
     // A copy between two Places, built from assignments. For unpacked
     // Places, it is always a whole copy. For packed Places, it might be a
     // partial range copy. Only used during the Decision step to track
     // which Places want to be split.
-    struct Copy final {
+    संरचना Copy final {
         Place* otherp;  // The Place at the other end
         // Following only for packed places
-        int lsb;  // The first bit covered of this end
-        int otherLsb;  // The first bit covered of the other end
-        int width;  // The number of bits covered at each end
+        पूर्णाङ्क lsb;  // The first bit covered of this end
+        पूर्णाङ्क otherLsb;  // The first bit covered of the other end
+        पूर्णाङ्क width;  // The number of bits covered at each end
     };
 
     // A 'place' represents an original variable that might be split, or one of its
     // components, recursively. See the file header for more details.
-    struct Place final {
+    संरचना Place final {
         Place* parentp = nullptr;  // The Place this is a component of, nullptr if original
         Place* rootp = nullptr;  // The original variable (root of the tree), root points to itself
-        AstNodeDType* dtypep = nullptr;  // The data type of the variable or component
+        Ast_ग्रन्थिः_DType* dtypep = nullptr;  // The data type of the variable or component
         // The AstVarScope for this Place, null for components of an unsplit Place
         AstVarScope* vscp = nullptr;
         // The component Places created so far, by index, sized on the first one created
         std::vector<std::unique_ptr<Place>> childrenp;
         std::vector<Copy> copies;  // The copies covering it, until split
-        bool splittable = true;  // Can be split (there is no reason not to)
-        bool wantsSplit = false;  // Should be split (if possible, do split)
-        bool split = false;  // Place was split
-        bool queued = false;  // On the worklist
+        तार्किक splittable = सच्च;  // Can be split (there is no reason not to)
+        तार्किक wantsSplit = मिच्छा;  // Should be split (if possible, do split)
+        तार्किक split = मिच्छा;  // Place was split
+        तार्किक queued = मिच्छा;  // On the worklist
     };
 
     // A component selected by a select chain, e.g. one step in 's.a[1][2].b[3]'
-    struct Select final {
-        AstNodeExpr* exprp;  // The select
+    संरचना Select final {
+        Ast_ग्रन्थिः_व्यञ्जकम्* exprp;  // The select
         Place* placep;  // The component
-        int lsb;  // The first bit selected from the component, for packed
+        पूर्णाङ्क lsb;  // The first bit selected from the component, for packed
     };
 
     // An assignment to expand if a side is split
-    struct Assignment final {
-        AstNodeAssign* assp;  // The assignment
+    संरचना Assignment final {
+        Ast_ग्रन्थिः_Assign* assp;  // The assignment
         Place* lPlacep;  // The Place the LHS addresses exactly, if any
         Place* rPlacep;  // The Place the RHS addresses exactly, if any
     };
 
-public:
+सार्वजनिक:
     // The state of the pass, shared by the steps
-    class State final {
+    वग्ग State final {
         // NODE STATE
         //  AstNodeDType::user4()       -> Components of the type, via dtypeComponents
         //  AstVarScope::user4()        -> Place: the original variable, via places
-        const VNUser4InUse m_user4InUse;
+        ध्रुव VNUser4InUse m_user4InUse;
 
-    public:
+    सार्वजनिक:
         // The components of the aggregate types, see DecomposeBase::dtypeComponents
-        AstUser4Allocator<AstNodeDType, std::vector<Component>> dtypeComponents;
+        AstUser4Allocator<Ast_ग्रन्थिः_DType, std::vector<Component>> dtypeComponents;
         // The Places of the original variables, see DecomposeRecord::placeOf
         AstUser4Allocator<AstVarScope, Place> places;
         std::vector<Place*> rootps;  // The original Places, in creation order
@@ -216,7 +216,7 @@ public:
         std::vector<Assignment> assignments;  // Assignments to expand if a side is split
     };
 
-protected:
+रक्षित:
     // STATE
     State& m_state;  // The state of the pass
 
@@ -229,47 +229,47 @@ protected:
     // Splittable unpacked type:
     // - Unpacked struct
     // - Unpacked array
-    static bool isUnpacked(const AstNodeDType* dtypep) {
+    स्थिर तार्किक isUnpacked(ध्रुव Ast_ग्रन्थिः_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, UnpackArrayDType)) return true;
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && !structp->packed();
+        सचे (VN_IS(dtypep, UnpackArrayDType)) पटिनिवत्त सच्च;
+        ध्रुव AstStructDType* ध्रुव structp = VN_CAST(dtypep, StructDType);
+        पटिनिवत्त structp && !structp->packed();
     }
 
     // Splittable packed type:
     // - Packed struct
     // - Packed array of width > 1 elements (that is: a multi-dimensional array).
     //   Specifically excludes e.g.: 'logic [31:0], bit_t [31:0], logic [31:0][0:0]'
-    static bool isPacked(const AstNodeDType* dtypep) {
+    स्थिर तार्किक isPacked(ध्रुव Ast_ग्रन्थिः_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            return arrayp->subDTypep()->width() > 1;
+        सचे (ध्रुव AstPackArrayDType* ध्रुव arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            पटिनिवत्त arrayp->subDTypep()->width() > 1;
         }
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && structp->packed();
+        ध्रुव AstStructDType* ध्रुव structp = VN_CAST(dtypep, StructDType);
+        पटिनिवत्त structp && structp->packed();
     }
 
     // Is the type an aggregate that can be split, as enabled by the options
-    static bool isSplittableType(const AstNodeDType* dtypep) {
-        if (isPacked(dtypep)) return v3Global.opt.fDecomposePacked();
-        if (isUnpacked(dtypep)) {
+    स्थिर तार्किक isSplittableType(ध्रुव Ast_ग्रन्थिः_DType* dtypep) {
+        सचे (isPacked(dtypep)) पटिनिवत्त v3Global.opt.fDecomposePacked();
+        सचे (isUnpacked(dtypep)) {
             // Not splittable if has member default values
-            if (const AstStructDType* const structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
-                for (const AstMemberDType* mp = structp->membersp(); mp;
+            सचे (ध्रुव AstStructDType* ध्रुव structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
+                अत्थाय (ध्रुव AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    if (mp->valuep()) return false;
+                    सचे (mp->valuep()) पटिनिवत्त मिच्छा;
                 }
             }
-            return v3Global.opt.fDecomposeUnpacked();
+            पटिनिवत्त v3Global.opt.fDecomposeUnpacked();
         }
-        return false;
+        पटिनिवत्त मिच्छा;
     }
 
     // Type of the expression. For a VarRef, this returns the type of the variable,
     // which might differ from the type of the VarRef itself after earlier optimizations.
-    static AstNodeDType* dtypeOf(const AstNodeExpr* nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp->varp()->dtypep();
-        return nodep->dtypep();
+    स्थिर Ast_ग्रन्थिः_DType* dtypeOf(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        सचे (ध्रुव AstVarRef* ध्रुव refp = VN_CAST(nodep, VarRef)) पटिनिवत्त refp->varp()->dtypep();
+        पटिनिवत्त nodep->dtypep();
     }
 
     // Components of an aggregate type. Indexed in storage order, that is:
@@ -277,7 +277,7 @@ protected:
     // - For packed structs, component 0 is the last declared member, in the LSBs
     // - For unpacked arrays, component 0 is in storage slot 0 at runtime (element at lo() index)
     // - For unpacked structs, component 0 is the last declared member, to match packed
-    const std::vector<Component>& dtypeComponents(AstNodeDType* dtypep) {
+    ध्रुव std::vector<Component>& dtypeComponents(Ast_ग्रन्थिः_DType* dtypep) {
         dtypep = dtypep->skipRefp();
         UASSERT_OBJ(isUnpacked(dtypep) || isPacked(dtypep), dtypep,
                     "dtypeComponents of non-aggregate type");
@@ -286,27 +286,27 @@ protected:
         std::vector<Component>& compsr = m_state.dtypeComponents(dtypep);
 
         // Compute on first lookup
-        if (compsr.empty()) {
-            if (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
-                const bool packed = isPacked(dtypep);
-                const VNumRange range = arrayp->declRange();
-                const bool rev = packed && range.ascending();  // Only for naming components
-                AstNodeDType* const subp = arrayp->subDTypep();
-                for (int i = 0; i < range.elements(); ++i) {
-                    const int lsb = packed ? i * subp->width() : 0;
-                    const int msb = packed ? lsb + subp->width() - 1 : 0;
+        सचे (compsr.empty()) {
+            सचे (ध्रुव Ast_ग्रन्थिः_Array_DType* ध्रुव arrayp = VN_CAST(dtypep, ग्रन्थिः_Array_DType)) {
+                ध्रुव तार्किक packed = isPacked(dtypep);
+                ध्रुव VNumRange range = arrayp->declRange();
+                ध्रुव तार्किक rev = packed && range.ascending();  // Only for naming components
+                Ast_ग्रन्थिः_DType* ध्रुव subp = arrayp->subDTypep();
+                अत्थाय (पूर्णाङ्क i = 0; i < range.elements(); ++i) {
+                    ध्रुव पूर्णाङ्क lsb = packed ? i * subp->width() : 0;
+                    ध्रुव पूर्णाङ्क msb = packed ? lsb + subp->width() - 1 : 0;
                     // The *declared* index of the element in slot i, only used for the name
-                    const int declIdx = rev ? range.hi() - i : range.lo() + i;
-                    compsr.push_back({subp, nullptr, declIdx, lsb, msb});
+                    ध्रुव पूर्णाङ्क declIdx = rev ? range.hi() - i : range.lo() + i;
+                    compsr.प्रक्षिप_back({subp, nullptr, declIdx, lsb, msb});
                 }
-            } else {
-                const AstStructDType* const structp = VN_AS(dtypep, StructDType);
-                const bool packed = isPacked(dtypep);
-                for (AstMemberDType* mp = structp->membersp(); mp;
+            } अञ्ञथा {
+                ध्रुव AstStructDType* ध्रुव structp = VN_AS(dtypep, StructDType);
+                ध्रुव तार्किक packed = isPacked(dtypep);
+                अत्थाय (AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    const int lsb = packed ? mp->lsb() : 0;
-                    const int msb = packed ? lsb + mp->width() - 1 : 0;
-                    compsr.push_back({mp->subDTypep(), mp, 0, lsb, msb});
+                    ध्रुव पूर्णाङ्क lsb = packed ? mp->lsb() : 0;
+                    ध्रुव पूर्णाङ्क msb = packed ? lsb + mp->width() - 1 : 0;
+                    compsr.प्रक्षिप_back({mp->subDTypep(), mp, 0, lsb, msb});
                 }
                 // Last member is first
                 std::reverse(compsr.begin(), compsr.end());
@@ -314,27 +314,27 @@ protected:
         }
 
         // The components of this data type
-        return compsr;
+        पटिनिवत्त compsr;
     }
 
     // Index of the component of a packed type containing bit 'bit'
-    size_t componentIndex(AstNodeDType* dtypep, int bit) {
+    size_t componentIndex(Ast_ग्रन्थिः_DType* dtypep, पूर्णाङ्क bit) {
         UASSERT_OBJ(isPacked(dtypep), dtypep, "componentIndex of non-packed type");
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
+        ध्रुव std::vector<Component>& compsr = dtypeComponents(dtypep);
         // The first component ending above the bit. This is O(log n) binary search.
-        const auto it = std::lower_bound(compsr.begin(), compsr.end(), bit,
-                                         [](const Component& comp, int b) {  //
-                                             return b > comp.msb;
+        ध्रुव auto it = std::lower_bound(compsr.begin(), compsr.end(), bit,
+                                         [](ध्रुव Component& comp, पूर्णाङ्क b) {  //
+                                             पटिनिवत्त b > comp.msb;
                                          });
-        return it - compsr.begin();
+        पटिनिवत्त it - compsr.begin();
     }
 
     // The Place for component 'idx' of 'placep', created if needed
     Place* componentOf(Place* placep, size_t idx) {
-        const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
-        if (placep->childrenp.empty()) placep->childrenp.resize(comps.size());
+        ध्रुव std::vector<Component>& comps = dtypeComponents(placep->dtypep);
+        सचे (placep->childrenp.empty()) placep->childrenp.resize(comps.size());
         std::unique_ptr<Place>& childpr = placep->childrenp.at(idx);
-        if (!childpr) {
+        सचे (!childpr) {
             childpr = std::make_unique<Place>();
             childpr->parentp = placep;
             childpr->rootp = placep->rootp;
@@ -342,115 +342,115 @@ protected:
             childpr->splittable = isSplittableType(childpr->dtypep);
             childpr->wantsSplit = placep->rootp->vscp->varp()->attrSplitVar();
         }
-        return childpr.get();
+        पटिनिवत्त childpr.get();
     }
 
     // Is 'nodep' cheap to clone
-    static bool isCheap(const AstNodeExpr* nodep) {
+    स्थिर तार्किक isCheap(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
         // Constants are cheap
-        if (VN_IS(nodep, Const)) return true;
+        सचे (VN_IS(nodep, Const)) पटिनिवत्त सच्च;
         // So are resets
-        if (VN_IS(nodep, CReset)) return true;
+        सचे (VN_IS(nodep, CReset)) पटिनिवत्त सच्च;
         // Variable references are cheap for the most part
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        सचे (ध्रुव AstVarRef* ध्रुव refp = VN_CAST(nodep, VarRef)) {
             // Not a forced variable (not cheap, but also trips several bugs in V3Force)
-            if (refp->varp()->isForced()) return false;
+            सचे (refp->varp()->isForced()) पटिनिवत्त मिच्छा;
             // Not a SystemC variable, which can only be accessed whole, not selected from.
-            if (refp->varp()->isSc()) return false;
+            सचे (refp->varp()->isSc()) पटिनिवत्त मिच्छा;
             // Otherwise the path rooted here is cheap
-            return true;
+            पटिनिवत्त सच्च;
         }
         // Bit selects only with a constant LSB
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
+        सचे (ध्रुव AstSel* ध्रुव selp = VN_CAST(nodep, Sel)) {
+            पटिनिवत्त VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
         }
         // Other selects with cheap indices are cheap
-        if (const AstArraySel* const selp = VN_CAST(nodep, ArraySel)) {
-            return isCheap(selp->bitp()) && isCheap(selp->fromp());
+        सचे (ध्रुव AstArraySel* ध्रुव selp = VN_CAST(nodep, ArraySel)) {
+            पटिनिवत्त isCheap(selp->bitp()) && isCheap(selp->fromp());
         }
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {  //
-            return isCheap(selp->fromp());
+        सचे (ध्रुव AstStructSel* ध्रुव selp = VN_CAST(nodep, StructSel)) {  //
+            पटिनिवत्त isCheap(selp->fromp());
         }
         // A zero extension of a cheap expression, e.g. of a narrow index
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {  //
-            return isCheap(extp->lhsp());
+        सचे (ध्रुव AstExtend* ध्रुव extp = VN_CAST(nodep, Extend)) {  //
+            पटिनिवत्त isCheap(extp->lhsp());
         }
         // Other expressions are not cheap
-        return false;
+        पटिनिवत्त मिच्छा;
     }
 };
 
 //######################################################################
 // Record the facts about the places, without changing the tree
 
-class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
+वग्ग DecomposeRecord final : सार्वजनिक VNVisitorConst, सार्वजनिक DecomposeBase {
     // NODE STATE
     //  AstVar::user1()             -> int: bit 0: eligible, bit 1: evaluated, see isEligible
     //  AstStructDType::user1()     -> bool: members annotated with their indices
     //  AstMemberDType::user1()     -> uint64_t: component index of the member
     //  AstNodeExpr::user1u()       -> Place*: the one an assignment side addresses exactly
-    const VNUser1InUse m_user1InUse;
+    ध्रुव VNUser1InUse m_user1InUse;
 
     // STATE
     VMemberMap m_memberMap;  // Struct members by name
-    AstNodeAssign* m_assignp = nullptr;  // The visited assignment iff splittable
+    Ast_ग्रन्थिः_Assign* m_assignp = nullptr;  // The visited assignment iff splittable
 
     // METHODS
 
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
-    static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
+    स्थिर शून्य warnNoSplit(AstVar* varp, ध्रुव Ast_ग्रन्थिः* wherep, ध्रुव वर्ण* reasonp) {
         // Only warn if user requested splitting
-        if (!varp->attrSplitVar()) return;
+        सचे (!varp->attrSplitVar()) पटिनिवत्त;
         // A packed variable might still be split by V3BitBlast, which warns if not
-        if (isPacked(varp->dtypep())) return;
+        सचे (isPacked(varp->dtypep())) पटिनिवत्त;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
                                      << " marked split_var but will not be split because "
                                      << reasonp << ".\n");
-        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, true);  // Warn only once
+        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, सच्च);  // Warn only once
     }
 
     // Is the variable eligible for splitting by its type and properties
     // Note this might be overridden by a visit to an unsupported construct,
     // so it is not completely determined until the whole netlist is visited.
-    static bool isEligible(AstVar* varp) {
+    स्थिर तार्किक isEligible(AstVar* varp) {
         // Compute and cache eligibility on first encounter
-        if (!varp->user1()) {
-            const bool eligible = [&]() {
+        सचे (!varp->user1()) {
+            ध्रुव तार्किक eligible = [&]() {
                 // Check data type
-                if (!isSplittableType(varp->dtypep())) return false;
+                सचे (!isSplittableType(varp->dtypep())) पटिनिवत्त मिच्छा;
                 // Check properties
-                const char* const reasonp = varp->cannotSplitKindReason();
+                ध्रुव वर्ण* ध्रुव reasonp = varp->cannotSplitKindReason();
                 // Warn that it cannot be split if user explicitly requested splitting
-                if (reasonp) warnNoSplit(varp, varp, reasonp);
+                सचे (reasonp) warnNoSplit(varp, varp, reasonp);
                 // Eligible if no refusal reason returned
-                return !reasonp;
+                पटिनिवत्त !reasonp;
             }();
             varp->user1(2 | eligible);
         }
         // Return the cached result
-        return varp->user1() & 1;
+        पटिनिवत्त varp->user1() & 1;
     }
 
     // The root Place for the referenced VarScope, nullptr if not eligible
-    Place* placeOf(const AstVarRef* refp) {
-        AstVarScope* const vscp = refp->varScopep();
-        if (!isEligible(vscp->varp())) return nullptr;
+    Place* placeOf(ध्रुव AstVarRef* refp) {
+        AstVarScope* ध्रुव vscp = refp->varScopep();
+        सचे (!isEligible(vscp->varp())) पटिनिवत्त nullptr;
         Place& place = m_state.places(vscp);
-        if (!place.rootp) {
+        सचे (!place.rootp) {
             place.rootp = &place;
             place.dtypep = vscp->varp()->dtypep();
             place.vscp = vscp;
             place.wantsSplit = vscp->varp()->attrSplitVar();
-            m_state.rootps.push_back(&place);
+            m_state.rootps.प्रक्षिप_back(&place);
         }
-        return &place;
+        पटिनिवत्त &place;
     }
 
     // Block the Place from splitting, due to the construct in 'wherep' which prevents splitting
-    static void block(Place* placep, const AstNode* wherep) {
-        placep->splittable = false;
+    स्थिर शून्य block(Place* placep, ध्रुव Ast_ग्रन्थिः* wherep) {
+        placep->splittable = मिच्छा;
         // Warn on the variable only, a component is split as far as possible, as requested
-        if (!placep->parentp) {
+        सचे (!placep->parentp) {
             warnNoSplit(placep->vscp->varp(), wherep, "it is referenced in an unsupported way");
         }
     }
@@ -460,97 +460,97 @@ class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
     // which is selected wants to be split, one used by a select that cannot be followed is
     // blocked. Iterates expressions not part of the select chain. The components selected are
     // appended to 'chain'.
-    Place* resolveChain(AstNodeExpr* exprp, std::vector<Select>& chain) {
+    Place* resolveChain(Ast_ग्रन्थिः_व्यञ्जकम्* exprp, std::vector<Select>& chain) {
         // Array selects correspond one to one with a component select
-        if (AstArraySel* const selp = VN_CAST(exprp, ArraySel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
+        सचे (AstArraySel* ध्रुव selp = VN_CAST(exprp, ArraySel)) {
+            सचे (Place* ध्रुव fromp = resolveChain(selp->fromp(), chain)) {
                 UASSERT_OBJ(isUnpacked(fromp->dtypep), selp, "ArraySel of non-unpacked Place");
                 // Index must be constant and in bounds
-                const AstConst* const bitp = VN_CAST(selp->bitp(), Const);
-                if (bitp && bitp->toUQuad() < dtypeComponents(fromp->dtypep).size()) {
-                    Place* const childp = componentOf(fromp, bitp->toUQuad());
-                    fromp->wantsSplit = true;
-                    chain.push_back({selp, childp, 0});
-                    return childp;
+                ध्रुव AstConst* ध्रुव bitp = VN_CAST(selp->bitp(), Const);
+                सचे (bitp && bitp->toUQuad() < dtypeComponents(fromp->dtypep).size()) {
+                    Place* ध्रुव childp = componentOf(fromp, bitp->toUQuad());
+                    fromp->wantsSplit = सच्च;
+                    chain.प्रक्षिप_back({selp, childp, 0});
+                    पटिनिवत्त childp;
                 }
                 // Otherwise block splitting of the Place
                 block(fromp, selp->fromp());
             }
             // Must visit the non-constant index
             iterateConst(selp->bitp());
-            return nullptr;
+            पटिनिवत्त nullptr;
         }
         // Struct selects correspond one to one with a component select
-        if (AstStructSel* const selp = VN_CAST(exprp, StructSel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
-                if (!isUnpacked(fromp->dtypep)) return nullptr;
-                AstStructDType* const structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
+        सचे (AstStructSel* ध्रुव selp = VN_CAST(exprp, StructSel)) {
+            सचे (Place* ध्रुव fromp = resolveChain(selp->fromp(), chain)) {
+                सचे (!isUnpacked(fromp->dtypep)) पटिनिवत्त nullptr;
+                AstStructDType* ध्रुव structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
                 // Annotate member indices of the struct on first encounter
-                if (!structp->user1SetOnce()) {
-                    const std::vector<Component>& compsr = dtypeComponents(structp);
-                    for (size_t i = 0; i < compsr.size(); ++i) compsr[i].memberp->user1(i);
+                सचे (!structp->user1SetOnce()) {
+                    ध्रुव std::vector<Component>& compsr = dtypeComponents(structp);
+                    अत्थाय (size_t i = 0; i < compsr.size(); ++i) compsr[i].memberp->user1(i);
                 }
-                const AstNode* const memberp = m_memberMap.findMember(structp, selp->name());
+                ध्रुव Ast_ग्रन्थिः* ध्रुव memberp = m_memberMap.findMember(structp, selp->name());
                 UASSERT_OBJ(memberp, selp, "Struct member not found: " << selp->name());
-                Place* const childp = componentOf(fromp, memberp->user1());
-                fromp->wantsSplit = true;
-                chain.push_back({selp, childp, 0});
-                return childp;
+                Place* ध्रुव childp = componentOf(fromp, memberp->user1());
+                fromp->wantsSplit = सच्च;
+                chain.प्रक्षिप_back({selp, childp, 0});
+                पटिनिवत्त childp;
             }
-            return nullptr;
+            पटिनिवत्त nullptr;
         }
         // A packed Sel corresponds to one or more component selects, depends on source dimensions
         // E.g. Sel(VarRef(a), 3) on 'logic [3:0][2:0][1:0]' a corresponds to a[0][1][1],
         // and will contribute 2 chain entries (the fastest varying dimension is not splittable)
-        if (AstSel* const selp = VN_CAST(exprp, Sel)) {
+        सचे (AstSel* ध्रुव selp = VN_CAST(exprp, Sel)) {
             Place* placep = resolveChain(selp->fromp(), chain);
-            if (!placep) {
+            सचे (!placep) {
                 iterateConst(selp->lsbp());
-                return nullptr;
+                पटिनिवत्त nullptr;
             }
             // Not followed with a variable LSB, or if out of range, so the Place is used whole
-            const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const);
-            if (!lsbp || lsbp->toSInt() + selp->widthConst() > placep->dtypep->width()) {
+            ध्रुव AstConst* ध्रुव lsbp = VN_CAST(selp->lsbp(), Const);
+            सचे (!lsbp || lsbp->toSInt() + selp->widthConst() > placep->dtypep->width()) {
                 block(placep, selp->fromp());
                 iterateConst(selp->lsbp());
-                return nullptr;
+                पटिनिवत्त nullptr;
             }
             // Descend into the Place containing the bits, until exact
-            int lsb = lsbp->toSInt();
-            int msb = lsb + selp->widthConst() - 1;
-            while (lsb != 0 || msb != placep->dtypep->width() - 1) {
+            पूर्णाङ्क lsb = lsbp->toSInt();
+            पूर्णाङ्क msb = lsb + selp->widthConst() - 1;
+            याव (lsb != 0 || msb != placep->dtypep->width() - 1) {
                 // Within a component of a type not split
-                if (!isPacked(placep->dtypep)) return nullptr;
-                const size_t idx = componentIndex(placep->dtypep, lsb);
+                सचे (!isPacked(placep->dtypep)) पटिनिवत्त nullptr;
+                ध्रुव size_t idx = componentIndex(placep->dtypep, lsb);
                 // Crossing components prevents splitting
-                if (idx != componentIndex(placep->dtypep, msb)) {
+                सचे (idx != componentIndex(placep->dtypep, msb)) {
                     block(placep, selp->fromp());
-                    return nullptr;
+                    पटिनिवत्त nullptr;
                 }
-                placep->wantsSplit = true;
-                const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+                placep->wantsSplit = सच्च;
+                ध्रुव Component& comp = dtypeComponents(placep->dtypep).at(idx);
                 lsb -= comp.lsb;
                 msb -= comp.lsb;
                 placep = componentOf(placep, idx);
-                chain.push_back({selp, placep, lsb});
+                chain.प्रक्षिप_back({selp, placep, lsb});
             }
-            return placep;
+            पटिनिवत्त placep;
         }
         // Base case
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) return placeOf(refp);
+        सचे (AstVarRef* ध्रुव refp = VN_CAST(exprp, VarRef)) पटिनिवत्त placeOf(refp);
         // Not a select chain
         iterateConst(exprp);
-        return nullptr;
+        पटिनिवत्त nullptr;
     }
 
     // 'nodep' references the Place 'placep' whole
-    void referencedWhole(AstNodeExpr* nodep, Place* placep) {
+    शून्य referencedWhole(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, Place* placep) {
         // If the reference is one of the sides of a splittable assignment, it can stay
-        if (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
+        सचे (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
             && isSplittableType(placep->dtypep)) {
             // Mark it for visitAssignment
             nodep->user1p(placep);
-            return;
+            पटिनिवत्त;
         }
 
         // Otherwise must block splitting of this Place
@@ -558,102 +558,102 @@ class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
     }
 
     // Visit a select expression
-    void visitSelect(AstNodeExpr* nodep) {
+    शून्य visitSelect(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
         // Resolve the select chain to the Place it addresses exactly, and also capture the chain
         std::vector<Select> chain;
-        Place* const placep = resolveChain(nodep, chain);
+        Place* ध्रुव placep = resolveChain(nodep, chain);
         // If the select addresses a Place, it references it whole, mark it as such
-        if (placep) referencedWhole(nodep, placep);
+        सचे (placep) referencedWhole(nodep, placep);
         // Record the chain for the rewriting phase
-        if (!chain.empty()) m_state.chains.push_back(std::move(chain));
+        सचे (!chain.empty()) m_state.chains.प्रक्षिप_back(std::move(chain));
     }
 
     // Do unpacked arrays of the types, at any depth, have ranges of opposite directions.
     // Assigning them pairs elements in reverse order (IEEE 1800-2023 7.6), not supported.
-    static bool hasReversedRange(const AstNodeDType* aDTypep, const AstNodeDType* bDTypep) {
-        const AstUnpackArrayDType* const aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
-        const AstUnpackArrayDType* const bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
-        if (!aArrayp || !bArrayp) return false;
-        if (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) return true;
-        return hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
+    स्थिर तार्किक hasReversedRange(ध्रुव Ast_ग्रन्थिः_DType* aDTypep, ध्रुव Ast_ग्रन्थिः_DType* bDTypep) {
+        ध्रुव AstUnpackArrayDType* ध्रुव aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
+        ध्रुव AstUnpackArrayDType* ध्रुव bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
+        सचे (!aArrayp || !bArrayp) पटिनिवत्त मिच्छा;
+        सचे (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) पटिनिवत्त सच्च;
+        पटिनिवत्त hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
     }
 
     // Assignment visitor, shared by the assignment types that can be split
-    void visitAssignment(AstNodeAssign* nodep) {
+    शून्य visitAssignment(Ast_ग्रन्थिः_Assign* nodep) {
         VL_RESTORER(m_assignp);
         // Not with timing control, or arrays of opposite directions, but always needs visiting
-        const bool reversed = hasReversedRange(dtypeOf(nodep->lhsp()), dtypeOf(nodep->rhsp()));
+        ध्रुव तार्किक reversed = hasReversedRange(dtypeOf(nodep->lhsp()), dtypeOf(nodep->rhsp()));
         m_assignp = nodep->timingControlp() || reversed ? nullptr : nodep;
         iterateChildrenConst(nodep);
-        if (!m_assignp) return;
+        सचे (!m_assignp) पटिनिवत्त;
 
         // Note overlapping LHS/RHS handled in Rewrite
 
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        Place* const lPlacep = lhsp->user1u().to<Place*>();
-        Place* const rPlacep = rhsp->user1u().to<Place*>();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsp = nodep->lhsp();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = nodep->rhsp();
+        Place* ध्रुव lPlacep = lhsp->user1u().to<Place*>();
+        Place* ध्रुव rPlacep = rhsp->user1u().to<Place*>();
 
         // Is it a splittable assignment
-        const bool splittable = [&]() {
+        ध्रुव तार्किक splittable = [&]() {
             // Assignment between two Places is splittable
-            if (lPlacep && rPlacep) return true;
+            सचे (lPlacep && rPlacep) पटिनिवत्त सच्च;
             // If the LHS is a Place, the RHS must be a splittable expression
-            if (lPlacep) {
+            सचे (lPlacep) {
                 // Packed values are always splittable, potentially through hoisting
-                if (isPacked(lPlacep->dtypep)) return true;
+                सचे (isPacked(lPlacep->dtypep)) पटिनिवत्त सच्च;
                 // Otherwise each component is assigned a select of the RHS, so it must be cheap
-                return isCheap(rhsp);
+                पटिनिवत्त isCheap(rhsp);
             }
             // If the RHS is a Place, the assignment must be expandable component-wise
-            if (rPlacep) {
+            सचे (rPlacep) {
                 // If packed, the LHS is assigned once, as LHS = { components of RHS }
-                if (isPacked(rPlacep->dtypep)) return true;
+                सचे (isPacked(rPlacep->dtypep)) पटिनिवत्त सच्च;
                 // Otherwise each component is assigned to a select of the LHS, so it must be cheap
-                return isCheap(lhsp);
+                पटिनिवत्त isCheap(lhsp);
             }
             // Otherwise not splittable
-            return false;
+            पटिनिवत्त मिच्छा;
         }();
 
         // If not splittable, the sides use their Places whole, so they are blocked
-        if (!splittable) {
-            if (rPlacep) block(rPlacep, rhsp);
-            if (lPlacep) block(lPlacep, lhsp);
-            return;
+        सचे (!splittable) {
+            सचे (rPlacep) block(rPlacep, rhsp);
+            सचे (lPlacep) block(lPlacep, lhsp);
+            पटिनिवत्त;
         }
 
         // If both sides are places, record the whole copies for the Decision phase
-        if (lPlacep && rPlacep) {
-            const int width = lPlacep->dtypep->width();  // Unused when unpacked
-            lPlacep->copies.push_back({rPlacep, 0, 0, width});
-            rPlacep->copies.push_back({lPlacep, 0, 0, width});
+        सचे (lPlacep && rPlacep) {
+            ध्रुव पूर्णाङ्क width = lPlacep->dtypep->width();  // Unused when unpacked
+            lPlacep->copies.प्रक्षिप_back({rPlacep, 0, 0, width});
+            rPlacep->copies.प्रक्षिप_back({lPlacep, 0, 0, width});
         }
         // Record for the rewriting phase
-        m_state.assignments.push_back({nodep, lPlacep, rPlacep});
+        m_state.assignments.प्रक्षिप_back({nodep, lPlacep, rPlacep});
     }
 
     // VISITORS
-    void visit(AstNodeDType*) override {}  // No references in data types
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य visit(Ast_ग्रन्थिः_DType*) override {}  // No references in data types
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { iterateChildrenConst(nodep); }
     // VISITORS - Selects that can cause splitting
-    void visit(AstArraySel* nodep) override { visitSelect(nodep); }
-    void visit(AstStructSel* nodep) override { visitSelect(nodep); }
-    void visit(AstSel* nodep) override { visitSelect(nodep); }
+    शून्य visit(AstArraySel* nodep) override { visitSelect(nodep); }
+    शून्य visit(AstStructSel* nodep) override { visitSelect(nodep); }
+    शून्य visit(AstSel* nodep) override { visitSelect(nodep); }
     // VISITORS - Assignments recordable as Copy
-    void visit(AstAssign* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignW* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
+    शून्य visit(AstAssign* nodep) override { visitAssignment(nodep); }
+    शून्य visit(AstAssignW* nodep) override { visitAssignment(nodep); }
+    शून्य visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
     // VISITORS - References to Places
-    void visit(AstVarRef* nodep) override {
+    शून्य visit(AstVarRef* nodep) override {
         // Reference not handled explicitly in splittable constructs is to the
         // whole of the Place it references, mark as such.
-        if (Place* const placep = placeOf(nodep)) referencedWhole(nodep, placep);
+        सचे (Place* ध्रुव placep = placeOf(nodep)) referencedWhole(nodep, placep);
     }
-    void visit(AstMemberSel* nodep) override {
+    शून्य visit(AstMemberSel* nodep) override {
         iterateChildrenConst(nodep);
-        AstVar* const varp = nodep->varp();
-        if (!isEligible(varp)) return;
+        AstVar* ध्रुव varp = nodep->varp();
+        सचे (!isEligible(varp)) पटिनिवत्त;
         varp->user1(2);  // Mark not eligible
         warnNoSplit(varp, nodep, "it is accessed indirectly");
     }
@@ -663,22 +663,22 @@ class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
         : DecomposeBase{state} {
         iterateConst(netlistp);
         // Block the original Places that became ineligible during traversal only
-        for (Place* const placep : m_state.rootps) {
-            if (!isEligible(placep->vscp->varp())) placep->splittable = false;
+        अत्थाय (Place* ध्रुव placep : m_state.rootps) {
+            सचे (!isEligible(placep->vscp->varp())) placep->splittable = मिच्छा;
         }
     }
 
-public:
-    static void apply(State& state, AstNetlist* netlistp) { DecomposeRecord{state, netlistp}; }
+सार्वजनिक:
+    स्थिर शून्य apply(State& state, AstNetlist* netlistp) { DecomposeRecord{state, netlistp}; }
 };
 
 //######################################################################
 // Decision, which places are split, creating their components
 
-class DecomposeDecision final : public DecomposeBase {
+वग्ग DecomposeDecision final : सार्वजनिक DecomposeBase {
     // NODE STATE
     //  AstVar::user1()             -> Split components, via m_splitVarps
-    const VNUser1InUse m_user1InUse;
+    ध्रुव VNUser1InUse m_user1InUse;
 
     // STATE
     std::vector<Place*> m_worklist;  // Places to consider splitting
@@ -692,78 +692,78 @@ class DecomposeDecision final : public DecomposeBase {
     // METHODS
 
     // Can the Place be split, as far as known
-    static bool canSplit(const Place* placep) {
+    स्थिर तार्किक canSplit(ध्रुव Place* placep) {
         // Not if not splittable
-        if (!placep->splittable) return false;
+        सचे (!placep->splittable) पटिनिवत्त मिच्छा;
         // Not if already split
-        if (placep->split) return false;
+        सचे (placep->split) पटिनिवत्त मिच्छा;
         // Original variable or its parent was already split
-        return !placep->parentp || placep->parentp->split;
+        पटिनिवत्त !placep->parentp || placep->parentp->split;
     }
 
     // Put the Place on the worklist, if it wants to be and can be split
-    void enqueue(Place* placep) {
-        if (placep->queued || !placep->wantsSplit || !canSplit(placep)) return;
-        placep->queued = true;
-        m_worklist.push_back(placep);
+    शून्य enqueue(Place* placep) {
+        सचे (placep->queued || !placep->wantsSplit || !canSplit(placep)) पटिनिवत्त;
+        placep->queued = सच्च;
+        m_worklist.प्रक्षिप_back(placep);
     }
 
     // Create the component AstVarScopes of the split Place, and set them on its components.
     // The component AstVars are shared by all scopes of the AstVar, created when first split.
-    void createComponents(Place* placep) {
-        AstVarScope* const vscp = placep->vscp;
-        AstVar* const varp = vscp->varp();
+    शून्य createComponents(Place* placep) {
+        AstVarScope* ध्रुव vscp = placep->vscp;
+        AstVar* ध्रुव varp = vscp->varp();
         std::vector<AstVar*>& varps = m_splitVarps(varp);
         // Create the component AstVars on first encounter
-        if (varps.empty()) {
-            const bool packed = isPacked(varp->dtypep());
-            if (placep->parentp) {
+        सचे (varps.empty()) {
+            ध्रुव तार्किक packed = isPacked(varp->dtypep());
+            सचे (placep->parentp) {
                 ++(packed ? m_statSplitPackedComp : m_statSplitUnpackedComp);
-            } else {
+            } अञ्ञथा {
                 ++(packed ? m_statSplitPackedOrig : m_statSplitUnpackedOrig);
             }
-            FileLine* const flp = varp->fileline();
-            const VVarType varType = varp->varType();
-            const std::string name = varp->name();
-            for (const Component& comp : dtypeComponents(varp->dtypep())) {
-                const std::string suffix
+            File_पङ्क्तिः* ध्रुव flp = varp->fileline();
+            ध्रुव VVarType varType = varp->varType();
+            ध्रुव std::string name = varp->name();
+            अत्थाय (ध्रुव Component& comp : dtypeComponents(varp->dtypep())) {
+                ध्रुव std::string suffix
                     = comp.memberp ? "__DOT__" + comp.memberp->name()
-                                   : "__BRA__" + AstNode::encodeNumber(comp.declIdx) + "__KET__";
-                AstVar* const newp = new AstVar{flp, varType, name + suffix, comp.dtypep};
+                                   : "__BRA__" + Ast_ग्रन्थिः::encode_सङ्ख्या(comp.declIdx) + "__KET__";
+                AstVar* ध्रुव newp = नूतन AstVar{flp, varType, name + suffix, comp.dtypep};
                 newp->propagateSplitAttrFrom(varp);
-                varps.push_back(newp);
+                varps.प्रक्षिप_back(newp);
                 varp->addHereThisAsNext(newp);
             }
         }
         // Create the component AstVarScopes
-        AstScope* const scopep = vscp->scopep();
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < varps.size(); ++i) {
-            AstVarScope* const newp = new AstVarScope{flp, scopep, varps[i]};
+        AstScope* ध्रुव scopep = vscp->scopep();
+        File_पङ्क्तिः* ध्रुव flp = vscp->fileline();
+        अत्थाय (size_t i = 0; i < varps.size(); ++i) {
+            AstVarScope* ध्रुव newp = नूतन AstVarScope{flp, scopep, varps[i]};
             componentOf(placep, i)->vscp = newp;
             vscp->addHereThisAsNext(newp);
         }
     }
 
     // Add the copy to the unsplit Place at its end
-    void addCopy(Place* placep, const Copy& copy) {
+    शून्य addCopy(Place* placep, ध्रुव Copy& copy) {
         UASSERT(!placep->split, "Copy added to a split Place");
         // If a Place is not splittable, only the other end matters, no need to attach
-        if (!placep->splittable) return;
+        सचे (!placep->splittable) पटिनिवत्त;
         // Add the copy to the Place
-        placep->copies.push_back(copy);
+        placep->copies.प्रक्षिप_back(copy);
         // Covering only a portion of a packed Place makes it want to be split,
         // so the copy becomes copies within its components, aligning both ends
-        if (!isPacked(placep->dtypep)) return;
-        if (copy.lsb != 0 || copy.width != placep->dtypep->width()) {
-            placep->wantsSplit = true;
+        सचे (!isPacked(placep->dtypep)) पटिनिवत्त;
+        सचे (copy.lsb != 0 || copy.width != placep->dtypep->width()) {
+            placep->wantsSplit = सच्च;
             enqueue(placep);
         }
     }
 
     // A new copy between 'width' bits of Place 'ap' from 'aLsb', and of 'bp' from 'bLsb',
     // or between the whole of them if unpacked
-    void newCopy(Place* ap, int aLsb, Place* bp, int bLsb, int width) {
+    शून्य newCopy(Place* ap, पूर्णाङ्क aLsb, Place* bp, पूर्णाङ्क bLsb, पूर्णाङ्क width) {
         UASSERT(ap != bp, "Copy within a Place");
         addCopy(ap, {bp, aLsb, bLsb, width});
         addCopy(bp, {ap, bLsb, aLsb, width});
@@ -772,53 +772,53 @@ class DecomposeDecision final : public DecomposeBase {
     // Split the copy of split Place 'placep' into copies between its components, and for
     // packed, the corresponding bits of the other end, or for unpacked, the components of the
     // other end, which then wants to be split too
-    void splitCopy(Place* placep, const Copy& copy) {
-        Place* const otherp = copy.otherp;
+    शून्य splitCopy(Place* placep, ध्रुव Copy& copy) {
+        Place* ध्रुव otherp = copy.otherp;
 
         // If packed, split the copy based on the components of this place which is being split
-        if (isPacked(placep->dtypep)) {
-            const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
+        सचे (isPacked(placep->dtypep)) {
+            ध्रुव std::vector<Component>& comps = dtypeComponents(placep->dtypep);
             // For each component of this place covered by the copy, add copy with other side
-            const int lsb = copy.lsb;
-            const int msb = copy.lsb + copy.width - 1;
-            const size_t first = componentIndex(placep->dtypep, lsb);
-            for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-                const Component& comp = comps[i];
-                const int partLsb = std::max(lsb, comp.lsb);
-                const int partMsb = std::min(msb, comp.msb);
+            ध्रुव पूर्णाङ्क lsb = copy.lsb;
+            ध्रुव पूर्णाङ्क msb = copy.lsb + copy.width - 1;
+            ध्रुव size_t first = componentIndex(placep->dtypep, lsb);
+            अत्थाय (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
+                ध्रुव Component& comp = comps[i];
+                ध्रुव पूर्णाङ्क partLsb = std::max(lsb, comp.lsb);
+                ध्रुव पूर्णाङ्क partMsb = std::min(msb, comp.msb);
                 newCopy(componentOf(placep, i), partLsb - comp.lsb, otherp,
                         copy.otherLsb + partLsb - lsb, partMsb - partLsb + 1);
             }
-            return;
+            पटिनिवत्त;
         }
 
         // Unpacked copy of a split place: the other end wants to be split too
-        otherp->wantsSplit = true;
+        otherp->wantsSplit = सच्च;
         enqueue(otherp);
         // The sides are the same shape, so pairwise whole copies
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            Place* const ap = componentOf(placep, i);
-            if (!ap->splittable) continue;
-            Place* const bp = componentOf(otherp, i);
-            if (!bp->splittable) continue;
+        ध्रुव size_t size = dtypeComponents(placep->dtypep).size();
+        अत्थाय (size_t i = 0; i < size; ++i) {
+            Place* ध्रुव ap = componentOf(placep, i);
+            सचे (!ap->splittable) अनुवर्त;
+            Place* ध्रुव bp = componentOf(otherp, i);
+            सचे (!bp->splittable) अनुवर्त;
             newCopy(ap, 0, bp, 0, ap->dtypep->width());
         }
     }
 
     // Split the Place
-    void splitPlace(Place* placep) {
+    शून्य splitPlace(Place* placep) {
         UASSERT(!placep->split, "Place split twice");
         // It is now split
-        placep->split = true;
+        placep->split = सच्च;
         // Create its components
         createComponents(placep);
         // Enqueue the components that want to be split
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) enqueue(componentOf(placep, i));
+        ध्रुव size_t size = dtypeComponents(placep->dtypep).size();
+        अत्थाय (size_t i = 0; i < size; ++i) enqueue(componentOf(placep, i));
         // Split the copies covering it, unless the other end is split, which split it already
-        for (const Copy& copy : placep->copies) {
-            if (!copy.otherp->split) splitCopy(placep, copy);
+        अत्थाय (ध्रुव Copy& copy : placep->copies) {
+            सचे (!copy.otherp->split) splitCopy(placep, copy);
         }
         placep->copies.clear();
     }
@@ -827,12 +827,12 @@ class DecomposeDecision final : public DecomposeBase {
     explicit DecomposeDecision(State& state)
         : DecomposeBase{state} {
         // Enqueue the original variables
-        for (Place* const placep : m_state.rootps) enqueue(placep);
+        अत्थाय (Place* ध्रुव placep : m_state.rootps) enqueue(placep);
         // Split enqueued places, which might make others splittable, repeat until done
-        while (!m_worklist.empty()) {
-            Place* const placep = m_worklist.back();
-            m_worklist.pop_back();
-            placep->queued = false;
+        याव (!m_worklist.empty()) {
+            Place* ध्रुव placep = m_worklist.back();
+            m_worklist.निष्कासय_back();
+            placep->queued = मिच्छा;
             splitPlace(placep);
         }
 
@@ -846,20 +846,20 @@ class DecomposeDecision final : public DecomposeBase {
                          m_statSplitPackedComp);
     }
 
-public:
-    static void apply(State& state) { DecomposeDecision{state}; }
+सार्वजनिक:
+    स्थिर शून्य apply(State& state) { DecomposeDecision{state}; }
 };
 
 //######################################################################
 // Rewrite, replacing the references to the split places
 
-class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
+वग्ग DecomposeRewrite final : सार्वजनिक VNDeleter, सार्वजनिक DecomposeBase {
     // NODE STATE
     //  AstScope::user1p()          -> AstActive*: combinational active, see comboActive
     //  AstNodeExpr::user2()        -> uint64_t: count of a term, (only in hoistTerms)
     //  AstVarScope::user2()        -> bool: component of the LHS, (only in rewriteAssignment)
     //  AstVarScope::user2()        -> int: bit 0: written, bit 1: read, (only in expandNS)
-    const VNUser1InUse m_user1InUse;
+    ध्रुव VNUser1InUse m_user1InUse;
 
     // STATE
     V3SharedTmps m_tmps{"__VdecompHoisted", VVarType::MODULETEMP};  // Temporaries of hoisted terms
@@ -871,496 +871,496 @@ class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
     // METHODS
 
     // Reference to the AstVarScope of the Place
-    static AstVarRef* newRef(FileLine* flp, const Place* placep, VAccess access) {
+    स्थिर AstVarRef* newRef(File_पङ्क्तिः* flp, ध्रुव Place* placep, VAccess access) {
         UASSERT(placep->vscp, "Place without AstVarScope");
-        return new AstVarRef{flp, placep->vscp, access};
+        पटिनिवत्त नूतन AstVarRef{flp, placep->vscp, access};
     }
 
     // Replace the longest prefix of the select chain addressing a
     // component of a split Place with a reference to the component
-    void rewriteChain(const std::vector<Select>& chain) {
+    शून्य rewriteChain(ध्रुव std::vector<Select>& chain) {
         // The last component selected of a split Place, so all before it are too
-        const Select* selectp = nullptr;
-        for (const Select& select : chain) {
-            if (select.placep->parentp->split) selectp = &select;
+        ध्रुव Select* selectp = nullptr;
+        अत्थाय (ध्रुव Select& select : chain) {
+            सचे (select.placep->parentp->split) selectp = &select;
         }
-        if (!selectp) return;
-        AstNodeExpr* const exprp = selectp->exprp;
+        सचे (!selectp) पटिनिवत्त;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = selectp->exprp;
         // The access of the variable reference at the root of the chain, under the first select
-        const VAccess access = [&]() {
-            const AstNodeExpr* rootp = chain.front().exprp;
-            while (true) {
-                if (const AstArraySel* const selp = VN_CAST(rootp, ArraySel)) {
+        ध्रुव VAccess access = [&]() {
+            ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* rootp = chain.front().exprp;
+            याव (सच्च) {
+                सचे (ध्रुव AstArraySel* ध्रुव selp = VN_CAST(rootp, ArraySel)) {
                     rootp = selp->fromp();
-                } else if (const AstStructSel* const selp = VN_CAST(rootp, StructSel)) {
+                } अञ्ञथा सचे (ध्रुव AstStructSel* ध्रुव selp = VN_CAST(rootp, StructSel)) {
                     rootp = selp->fromp();
-                } else if (const AstSel* const selp = VN_CAST(rootp, Sel)) {
+                } अञ्ञथा सचे (ध्रुव AstSel* ध्रुव selp = VN_CAST(rootp, Sel)) {
                     rootp = selp->fromp();
-                } else {
-                    return VN_AS(rootp, VarRef)->access();
+                } अञ्ञथा {
+                    पटिनिवत्त VN_AS(rootp, VarRef)->access();
                 }
             }
         }();
-        FileLine* const flp = exprp->fileline();
-        AstNodeExpr* newp = newRef(flp, selectp->placep, access);
-        if (const AstSel* const selp = VN_CAST(exprp, Sel)) {
-            const int width = selp->widthConst();
-            if (width != newp->width()) newp = new AstSel{flp, newp, selectp->lsb, width};
+        File_पङ्क्तिः* ध्रुव flp = exprp->fileline();
+        Ast_ग्रन्थिः_व्यञ्जकम्* newp = newRef(flp, selectp->placep, access);
+        सचे (ध्रुव AstSel* ध्रुव selp = VN_CAST(exprp, Sel)) {
+            ध्रुव पूर्णाङ्क width = selp->widthConst();
+            सचे (width != newp->width()) newp = नूतन AstSel{flp, newp, selectp->lsb, width};
         }
         exprp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(exprp), exprp);
     }
 
     // Select component 'idx' of 'fromp', with the components of aggregate 'dtypep'
-    AstNodeExpr* newSelect(AstNodeExpr* fromp, AstNodeDType* dtypep, size_t idx) {
-        FileLine* const flp = fromp->fileline();
-        const Component& comp = dtypeComponents(dtypep).at(idx);
+    Ast_ग्रन्थिः_व्यञ्जकम्* newSelect(Ast_ग्रन्थिः_व्यञ्जकम्* fromp, Ast_ग्रन्थिः_DType* dtypep, size_t idx) {
+        File_पङ्क्तिः* ध्रुव flp = fromp->fileline();
+        ध्रुव Component& comp = dtypeComponents(dtypep).at(idx);
         // If Packed, it's a Sel of the bits
-        if (isPacked(dtypep)) {
-            AstSel* const selp = new AstSel{flp, fromp, comp.lsb, comp.dtypep->width()};
+        सचे (isPacked(dtypep)) {
+            AstSel* ध्रुव selp = नूतन AstSel{flp, fromp, comp.lsb, comp.dtypep->width()};
             selp->dtypep(comp.dtypep);
-            return selp;
+            पटिनिवत्त selp;
         }
         // If unpacked array, it's an ArraySel
-        if (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
-            const int i = static_cast<int>(idx);
+        सचे (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
+            ध्रुव पूर्णाङ्क i = static_cast<पूर्णाङ्क>(idx);
             UASSERT_OBJ(static_cast<size_t>(i) == idx, fromp, "Index overflow");
-            return new AstArraySel{flp, fromp, i};
+            पटिनिवत्त नूतन AstArraySel{flp, fromp, i};
         }
         // Otherwise must be an unpacked struct, so a StructSel
-        AstStructSel* const selp = new AstStructSel{flp, fromp, comp.memberp->name()};
+        AstStructSel* ध्रुव selp = नूतन AstStructSel{flp, fromp, comp.memberp->name()};
         selp->dtypep(comp.dtypep);
-        return selp;
+        पटिनिवत्त selp;
     }
 
     // Leaf terms of a Concat/Replicate tree, in LSB order, or the expression itself if neither
-    static std::vector<AstNodeExpr*> concatTerms(AstNodeExpr* nodep) {
-        std::vector<AstNodeExpr*> termps;
-        std::vector<AstNodeExpr*> stack{nodep};
-        while (!stack.empty()) {
-            AstNodeExpr* const exprp = stack.back();
-            stack.pop_back();
-            if (AstConcat* const concatp = VN_CAST(exprp, Concat)) {
-                stack.push_back(concatp->lhsp());
-                stack.push_back(concatp->rhsp());
-                continue;
+    स्थिर std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> concatTerms(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> termps;
+        std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> राशिः{nodep};
+        याव (!राशिः.empty()) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = राशिः.back();
+            राशिः.निष्कासय_back();
+            सचे (AstConcat* ध्रुव concatp = VN_CAST(exprp, Concat)) {
+                राशिः.प्रक्षिप_back(concatp->lhsp());
+                राशिः.प्रक्षिप_back(concatp->rhsp());
+                अनुवर्त;
             }
-            if (AstReplicate* const repp = VN_CAST(exprp, Replicate)) {
-                const AstConst* const countp = VN_AS(repp->countp(), Const);
-                for (uint32_t i = 0; i < countp->toUInt(); ++i) stack.push_back(repp->srcp());
-                continue;
+            सचे (AstReplicate* ध्रुव repp = VN_CAST(exprp, Replicate)) {
+                ध्रुव AstConst* ध्रुव countp = VN_AS(repp->countp(), Const);
+                अत्थाय (uint32_t i = 0; i < countp->toUInt(); ++i) राशिः.प्रक्षिप_back(repp->srcp());
+                अनुवर्त;
             }
-            termps.push_back(exprp);
+            termps.प्रक्षिप_back(exprp);
         }
-        return termps;
+        पटिनिवत्त termps;
     }
 
     // Can bits of 'nodep' be selected without evaluating it more than once, see newSlice
-    static bool isSliceable(const AstNodeExpr* nodep) {
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
+    स्थिर तार्किक isSliceable(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        सचे (ध्रुव AstSel* ध्रुव selp = VN_CAST(nodep, Sel)) {
+            पटिनिवत्त VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
         }
-        if (const AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            return isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
+        सचे (ध्रुव AstConcat* ध्रुव catp = VN_CAST(nodep, Concat)) {
+            पटिनिवत्त isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
         }
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return isCheap(condp->condp()) && isSliceable(condp->thenp())
+        सचे (ध्रुव AstCond* ध्रुव condp = VN_CAST(nodep, Cond)) {
+            पटिनिवत्त isCheap(condp->condp()) && isSliceable(condp->thenp())
                    && isSliceable(condp->elsep());
         }
-        if (const AstAnd* const andp = VN_CAST(nodep, And)) {
-            return isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
+        सचे (ध्रुव AstAnd* ध्रुव andp = VN_CAST(nodep, And)) {
+            पटिनिवत्त isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
         }
-        if (const AstOr* const orp = VN_CAST(nodep, Or)) {
-            return isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
+        सचे (ध्रुव AstOr* ध्रुव orp = VN_CAST(nodep, Or)) {
+            पटिनिवत्त isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
         }
-        if (const AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
+        सचे (ध्रुव AstXor* ध्रुव xorp = VN_CAST(nodep, Xor)) {
+            पटिनिवत्त isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
         }
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            return isSliceable(extp->lhsp());
+        सचे (ध्रुव AstExtend* ध्रुव extp = VN_CAST(nodep, Extend)) {
+            पटिनिवत्त isSliceable(extp->lhsp());
         }
-        if (const AstNot* const notp = VN_CAST(nodep, Not)) {  //
-            return isSliceable(notp->lhsp());
+        सचे (ध्रुव AstNot* ध्रुव notp = VN_CAST(nodep, Not)) {  //
+            पटिनिवत्त isSliceable(notp->lhsp());
         }
-        if (const AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            return isSliceable(repp->srcp());
+        सचे (ध्रुव AstReplicate* ध्रुव repp = VN_CAST(nodep, Replicate)) {
+            पटिनिवत्त isSliceable(repp->srcp());
         }
-        return isCheap(nodep);
+        पटिनिवत्त isCheap(nodep);
     }
 
     // Select 'width' bits of 'nodep' from 'lsb', pushing the select into the operands where the
     // operation allows
-    static AstNodeExpr* newSlice(AstNodeExpr* nodep, int lsb, int width) {
-        FileLine* const flp = nodep->fileline();
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* newSlice(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, पूर्णाङ्क lsb, पूर्णाङ्क width) {
+        File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
         // A constant, as a new constant of the bits
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            V3Number num{nodep, width};
-            num.opSel(constp->num(), lsb + width - 1, lsb);
-            return new AstConst{flp, num};
+        सचे (ध्रुव AstConst* ध्रुव constp = VN_CAST(nodep, Const)) {
+            V3_सङ्ख्या अङ्कः{nodep, width};
+            अङ्कः.opSel(constp->अङ्कः(), lsb + width - 1, lsb);
+            पटिनिवत्त नूतन AstConst{flp, अङ्कः};
         }
         // A constant bit select, from the bits of what it selects from
-        if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            if (const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
-                return newSlice(selp->fromp(), lsbp->toSInt() + lsb, width);
+        सचे (AstSel* ध्रुव selp = VN_CAST(nodep, Sel)) {
+            सचे (ध्रुव AstConst* ध्रुव lsbp = VN_CAST(selp->lsbp(), Const)) {
+                पटिनिवत्त newSlice(selp->fromp(), lsbp->toSInt() + lsb, width);
             }
         }
         // A concatenation, from the RHS for the low bits, and the LHS for the high bits
-        if (AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            const int rWidth = catp->rhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < rWidth) return newSlice(catp->rhsp(), lsb, width);
-            if (lsb >= rWidth) return newSlice(catp->lhsp(), lsb - rWidth, width);
-            return new AstConcat{flp, newSlice(catp->lhsp(), 0, msb - rWidth + 1),
+        सचे (AstConcat* ध्रुव catp = VN_CAST(nodep, Concat)) {
+            ध्रुव पूर्णाङ्क rWidth = catp->rhsp()->width();
+            ध्रुव पूर्णाङ्क msb = lsb + width - 1;
+            सचे (msb < rWidth) पटिनिवत्त newSlice(catp->rhsp(), lsb, width);
+            सचे (lsb >= rWidth) पटिनिवत्त newSlice(catp->lhsp(), lsb - rWidth, width);
+            पटिनिवत्त नूतन AstConcat{flp, newSlice(catp->lhsp(), 0, msb - rWidth + 1),
                                  newSlice(catp->rhsp(), lsb, rWidth - lsb)};
         }
-        if (AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return new AstCond{flp, condp->condp()->cloneTreePure(false),
+        सचे (AstCond* ध्रुव condp = VN_CAST(nodep, Cond)) {
+            पटिनिवत्त नूतन AstCond{flp, condp->condp()->clone_वृक्षः_Pure(मिच्छा),
                                newSlice(condp->thenp(), lsb, width),
                                newSlice(condp->elsep(), lsb, width)};
         }
-        if (AstAnd* const andp = VN_CAST(nodep, And)) {
-            return new AstAnd{flp, newSlice(andp->lhsp(), lsb, width),
+        सचे (AstAnd* ध्रुव andp = VN_CAST(nodep, And)) {
+            पटिनिवत्त नूतन AstAnd{flp, newSlice(andp->lhsp(), lsb, width),
                               newSlice(andp->rhsp(), lsb, width)};
         }
-        if (AstOr* const orp = VN_CAST(nodep, Or)) {
-            return new AstOr{flp, newSlice(orp->lhsp(), lsb, width),
+        सचे (AstOr* ध्रुव orp = VN_CAST(nodep, Or)) {
+            पटिनिवत्त नूतन AstOr{flp, newSlice(orp->lhsp(), lsb, width),
                              newSlice(orp->rhsp(), lsb, width)};
         }
-        if (AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return new AstXor{flp, newSlice(xorp->lhsp(), lsb, width),
+        सचे (AstXor* ध्रुव xorp = VN_CAST(nodep, Xor)) {
+            पटिनिवत्त नूतन AstXor{flp, newSlice(xorp->lhsp(), lsb, width),
                               newSlice(xorp->rhsp(), lsb, width)};
         }
         // A zero extension, from the operand for its bits, and zeros above
-        if (AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            const int srcWidth = extp->lhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < srcWidth) return newSlice(extp->lhsp(), lsb, width);
-            if (lsb >= srcWidth) return new AstConst{flp, AstConst::WidthedValue{}, width, 0};
-            return new AstConcat{
-                flp, new AstConst{flp, AstConst::WidthedValue{}, msb - srcWidth + 1, 0},
+        सचे (AstExtend* ध्रुव extp = VN_CAST(nodep, Extend)) {
+            ध्रुव पूर्णाङ्क srcWidth = extp->lhsp()->width();
+            ध्रुव पूर्णाङ्क msb = lsb + width - 1;
+            सचे (msb < srcWidth) पटिनिवत्त newSlice(extp->lhsp(), lsb, width);
+            सचे (lsb >= srcWidth) पटिनिवत्त नूतन AstConst{flp, AstConst::Widthed_मानम्{}, width, 0};
+            पटिनिवत्त नूतन AstConcat{
+                flp, नूतन AstConst{flp, AstConst::Widthed_मानम्{}, msb - srcWidth + 1, 0},
                 newSlice(extp->lhsp(), lsb, srcWidth - lsb)};
         }
-        if (AstNot* const notp = VN_CAST(nodep, Not)) {
-            return new AstNot{flp, newSlice(notp->lhsp(), lsb, width)};
+        सचे (AstNot* ध्रुव notp = VN_CAST(nodep, Not)) {
+            पटिनिवत्त नूतन AstNot{flp, newSlice(notp->lhsp(), lsb, width)};
         }
         // A replication, from the portions of the copies overlapping the bits
-        if (AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            AstNodeExpr* const srcp = repp->srcp();
-            const int srcWidth = srcp->width();
-            const int msb = lsb + width - 1;
-            AstNodeExpr* resultp = nullptr;
-            for (int copyLsb = lsb / srcWidth * srcWidth; copyLsb <= msb; copyLsb += srcWidth) {
-                const int partLsb = std::max(lsb, copyLsb) - copyLsb;
-                const int partMsb = std::min(msb, copyLsb + srcWidth - 1) - copyLsb;
-                AstNodeExpr* const bitsp = newSlice(srcp, partLsb, partMsb - partLsb + 1);
+        सचे (AstReplicate* ध्रुव repp = VN_CAST(nodep, Replicate)) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव srcp = repp->srcp();
+            ध्रुव पूर्णाङ्क srcWidth = srcp->width();
+            ध्रुव पूर्णाङ्क msb = lsb + width - 1;
+            Ast_ग्रन्थिः_व्यञ्जकम्* resultp = nullptr;
+            अत्थाय (पूर्णाङ्क copyLsb = lsb / srcWidth * srcWidth; copyLsb <= msb; copyLsb += srcWidth) {
+                ध्रुव पूर्णाङ्क partLsb = std::max(lsb, copyLsb) - copyLsb;
+                ध्रुव पूर्णाङ्क partMsb = std::min(msb, copyLsb + srcWidth - 1) - copyLsb;
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bitsp = newSlice(srcp, partLsb, partMsb - partLsb + 1);
                 // Higher bits go to the left
-                resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+                resultp = resultp ? नूतन AstConcat{flp, bitsp, resultp} : bitsp;
             }
-            return resultp;
+            पटिनिवत्त resultp;
         }
-        AstNodeExpr* const clonep = nodep->cloneTreePure(false);
-        if (lsb == 0 && width == nodep->width()) return clonep;
-        return new AstSel{flp, clonep, lsb, width};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव clonep = nodep->clone_वृक्षः_Pure(मिच्छा);
+        सचे (lsb == 0 && width == nodep->width()) पटिनिवत्त clonep;
+        पटिनिवत्त नूतन AstSel{flp, clonep, lsb, width};
     }
 
     // Values of the components of 'nodep', with the components of 'dtypep': for a reset cloned
     // from it, for packed assembled from the portions of its terms, otherwise selected from it
-    std::vector<AstNodeExpr*> newAssignRhsps(AstNodeExpr* nodep, AstNodeDType* dtypep) {
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
-        std::vector<AstNodeExpr*> valueps;
+    std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> newAssignRhsps(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, Ast_ग्रन्थिः_DType* dtypep) {
+        ध्रुव std::vector<Component>& compsr = dtypeComponents(dtypep);
+        std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> valueps;
         valueps.reserve(compsr.size());
 
         // If CReset, it is duplicated for each component
-        if (AstCReset* const cresetp = VN_CAST(nodep, CReset)) {
-            for (const Component& comp : compsr) {
-                AstCReset* const newp = cresetp->cloneTree(false);
+        सचे (AstCReset* ध्रुव cresetp = VN_CAST(nodep, CReset)) {
+            अत्थाय (ध्रुव Component& comp : compsr) {
+                AstCReset* ध्रुव newp = cresetp->clone_वृक्षः(मिच्छा);
                 newp->dtypep(comp.dtypep);
-                valueps.push_back(newp);
+                valueps.प्रक्षिप_back(newp);
             }
-            return valueps;
+            पटिनिवत्त valueps;
         }
 
         // If packed, assemble each component from the portions of the terms overlapping it.
         // This avoids quadratic cloning then folding if the RHS is a concatenation.
-        if (isPacked(dtypep)) {
+        सचे (isPacked(dtypep)) {
             valueps.resize(compsr.size(), nullptr);
-            int lsb = 0;  // LSB of the current term
-            for (AstNodeExpr* const termp : concatTerms(nodep)) {
-                const int msb = lsb + termp->width() - 1;
-                const size_t first = componentIndex(dtypep, lsb);
-                for (size_t i = first; i < compsr.size() && compsr[i].lsb <= msb; ++i) {
-                    const Component& comp = compsr[i];
-                    const int partLsb = std::max(lsb, comp.lsb);
-                    const int partMsb = std::min(msb, comp.msb);
-                    FileLine* const flp = termp->fileline();
-                    AstNodeExpr* const sp = newSlice(termp, partLsb - lsb, partMsb - partLsb + 1);
-                    valueps[i] = valueps[i] ? new AstConcat{flp, sp, valueps[i]} : sp;
+            पूर्णाङ्क lsb = 0;  // LSB of the current term
+            अत्थाय (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव termp : concatTerms(nodep)) {
+                ध्रुव पूर्णाङ्क msb = lsb + termp->width() - 1;
+                ध्रुव size_t first = componentIndex(dtypep, lsb);
+                अत्थाय (size_t i = first; i < compsr.size() && compsr[i].lsb <= msb; ++i) {
+                    ध्रुव Component& comp = compsr[i];
+                    ध्रुव पूर्णाङ्क partLsb = std::max(lsb, comp.lsb);
+                    ध्रुव पूर्णाङ्क partMsb = std::min(msb, comp.msb);
+                    File_पङ्क्तिः* ध्रुव flp = termp->fileline();
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sp = newSlice(termp, partLsb - lsb, partMsb - partLsb + 1);
+                    valueps[i] = valueps[i] ? नूतन AstConcat{flp, sp, valueps[i]} : sp;
                 }
                 lsb = msb + 1;
             }
-            return valueps;
+            पटिनिवत्त valueps;
         }
 
         // Otherwise unpacked, so select each component
-        for (size_t i = 0; i < compsr.size(); ++i) {
-            valueps.push_back(newSelect(nodep->cloneTree(false), dtypep, i));
+        अत्थाय (size_t i = 0; i < compsr.size(); ++i) {
+            valueps.प्रक्षिप_back(newSelect(nodep->clone_वृक्षः(मिच्छा), dtypep, i));
         }
-        return valueps;
+        पटिनिवत्त valueps;
     }
 
     // Return the expression holding bits 'lsb' to 'msb' of the packed Place
-    AstNodeExpr* newBits(FileLine* flp, const Place* placep, int lsb, int msb) {
-        AstNodeDType* const dtypep = placep->dtypep;
+    Ast_ग्रन्थिः_व्यञ्जकम्* newBits(File_पङ्क्तिः* flp, ध्रुव Place* placep, पूर्णाङ्क lsb, पूर्णाङ्क msb) {
+        Ast_ग्रन्थिः_DType* ध्रुव dtypep = placep->dtypep;
         // Only splittable packed Places are split
         UASSERT_OBJ(isPacked(dtypep) || !placep->split, dtypep, "Bits of non-packed Place");
         // If not split, return the bits selected out of a reference
-        if (!placep->split) {
-            AstVarRef* const refp = newRef(flp, placep, VAccess::READ);
-            if (lsb == 0 && msb == dtypep->width() - 1) return refp;
-            return new AstSel{flp, refp, lsb, msb - lsb + 1};
+        सचे (!placep->split) {
+            AstVarRef* ध्रुव refp = newRef(flp, placep, VAccess::READ);
+            सचे (lsb == 0 && msb == dtypep->width() - 1) पटिनिवत्त refp;
+            पटिनिवत्त नूतन AstSel{flp, refp, lsb, msb - lsb + 1};
         }
         // Otherwise, assemble the bits from the components via concatenations
-        const std::vector<Component>& comps = dtypeComponents(dtypep);
-        AstNodeExpr* resultp = nullptr;
-        const size_t first = componentIndex(dtypep, lsb);
-        for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-            const Component& comp = comps[i];
-            const int partLsb = std::max(lsb, comp.lsb) - comp.lsb;
-            const int partMsb = std::min(msb, comp.msb) - comp.lsb;
-            Place* const childp = placep->childrenp.at(i).get();
-            AstNodeExpr* const bitsp = newBits(flp, childp, partLsb, partMsb);
-            resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+        ध्रुव std::vector<Component>& comps = dtypeComponents(dtypep);
+        Ast_ग्रन्थिः_व्यञ्जकम्* resultp = nullptr;
+        ध्रुव size_t first = componentIndex(dtypep, lsb);
+        अत्थाय (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
+            ध्रुव Component& comp = comps[i];
+            ध्रुव पूर्णाङ्क partLsb = std::max(lsb, comp.lsb) - comp.lsb;
+            ध्रुव पूर्णाङ्क partMsb = std::min(msb, comp.msb) - comp.lsb;
+            Place* ध्रुव childp = placep->childrenp.at(i).get();
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bitsp = newBits(flp, childp, partLsb, partMsb);
+            resultp = resultp ? नूतन AstConcat{flp, bitsp, resultp} : bitsp;
         }
-        return resultp;
+        पटिनिवत्त resultp;
     }
 
-    static void addNewAssign(AstNodeAssign* origp, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
+    स्थिर शून्य addNewAssign(Ast_ग्रन्थिः_Assign* origp, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp) {
         origp->addHereThisAsNext(origp->cloneType(lhsp, rhsp));
     }
 
     // Expand the assignment between two split Places
-    void expandSS(AstNodeAssign* origp, Place* lPlacep, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
-        const std::vector<Component>& compsr = dtypeComponents(lPlacep->dtypep);
-        if (isPacked(rPlacep->dtypep)) {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
-                AstNodeExpr* const rp = newBits(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
+    शून्य expandSS(Ast_ग्रन्थिः_Assign* origp, Place* lPlacep, Place* rPlacep) {
+        File_पङ्क्तिः* ध्रुव flp = origp->fileline();
+        ध्रुव std::vector<Component>& compsr = dtypeComponents(lPlacep->dtypep);
+        सचे (isPacked(rPlacep->dtypep)) {
+            अत्थाय (size_t i = 0; i < compsr.size(); ++i) {
+                Place* ध्रुव lChildp = lPlacep->childrenp.at(i).get();
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rp = newBits(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
                 expand(origp, lChildp, nullptr, nullptr, rp);
             }
-        } else {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
+        } अञ्ञथा {
+            अत्थाय (size_t i = 0; i < compsr.size(); ++i) {
+                Place* ध्रुव lChildp = lPlacep->childrenp.at(i).get();
                 expand(origp, lChildp, nullptr, rPlacep->childrenp.at(i).get(), nullptr);
             }
         }
     }
 
     // Expand the assignment between the split 'lPlacep' and non split 'rhsp'
-    void expandSN(AstNodeAssign* origp, Place* lPlacep, AstNodeExpr* rhsp) {
-        const std::vector<AstNodeExpr*> valueps = newAssignRhsps(rhsp, lPlacep->dtypep);
-        for (size_t i = 0; i < valueps.size(); ++i) {
+    शून्य expandSN(Ast_ग्रन्थिः_Assign* origp, Place* lPlacep, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp) {
+        ध्रुव std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> valueps = newAssignRhsps(rhsp, lPlacep->dtypep);
+        अत्थाय (size_t i = 0; i < valueps.size(); ++i) {
             expand(origp, lPlacep->childrenp.at(i).get(), nullptr, nullptr, valueps[i]);
         }
-        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(rhsp), rhsp);
     }
 
     // Expand the assignment between the non split 'lhsp' and the split 'rPlacep'
-    void expandNS(AstNodeAssign* origp, AstNodeExpr* lhsp, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
+    शून्य expandNS(Ast_ग्रन्थिः_Assign* origp, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Place* rPlacep) {
+        File_पङ्क्तिः* ध्रुव flp = origp->fileline();
         // If RHS is packed, assign the whole value assembled from the components
-        if (isPacked(rPlacep->dtypep)) {
+        सचे (isPacked(rPlacep->dtypep)) {
             addNewAssign(origp, lhsp, newBits(flp, rPlacep, 0, rPlacep->dtypep->width() - 1));
-            return;
+            पटिनिवत्त;
         }
         // Unpacked of the same shape, component-wise
-        AstNodeDType* const dtypep = dtypeOf(lhsp);
+        Ast_ग्रन्थिः_DType* ध्रुव dtypep = dtypeOf(lhsp);
         // If the LHS reads its own variable, e.g. 'a[a[0].k] = s', assigning a component could
         // change where the others go, so assemble the value in a temporary, and assign it once.
         // Not for NBAs, as the writes commit after all reads.
-        const bool readsWrittenVar = !VN_IS(origp, AssignDly) && [&]() {
-            const VNUser2InUse user2InUse;
-            return lhsp->exists([](const AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                if (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
-                if (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
-                return vscp->user2() == 3;
+        ध्रुव तार्किक readsWrittenVar = !VN_IS(origp, AssignDly) && [&]() {
+            ध्रुव VNUser2InUse user2InUse;
+            पटिनिवत्त lhsp->exists([](ध्रुव AstVarRef* refp) {
+                AstVarScope* ध्रुव vscp = refp->varScopep();
+                सचे (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
+                सचे (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
+                पटिनिवत्त vscp->user2() == 3;
             });
         }();
-        if (readsWrittenVar) {
+        सचे (readsWrittenVar) {
             ++m_statLhsReadsLhs;
-            AstScope* const scopep = rPlacep->rootp->vscp->scopep();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypep);
-            expand(origp, nullptr, new AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, nullptr);
-            addNewAssign(origp, lhsp, new AstVarRef{flp, vscp, VAccess::READ});
-            return;
+            AstScope* ध्रुव scopep = rPlacep->rootp->vscp->scopep();
+            AstVarScope* ध्रुव vscp = m_tmps.make(flp, scopep, dtypep);
+            expand(origp, nullptr, नूतन AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, nullptr);
+            addNewAssign(origp, lhsp, नूतन AstVarRef{flp, vscp, VAccess::READ});
+            पटिनिवत्त;
         }
-        const size_t size = dtypeComponents(dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            AstNodeExpr* const newLhsp = newSelect(lhsp->cloneTree(false), dtypep, i);
+        ध्रुव size_t size = dtypeComponents(dtypep).size();
+        अत्थाय (size_t i = 0; i < size; ++i) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव newLhsp = newSelect(lhsp->clone_वृक्षः(मिच्छा), dtypep, i);
             expand(origp, nullptr, newLhsp, rPlacep->childrenp.at(i).get(), nullptr);
         }
-        VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(lhsp), lhsp);
     }
 
     // Expand the assignment to the LHS from the RHS, into assignments of the type of 'origp',
     // inserted before it. Each side is either a Place, a component of a split one if not
     // split itself, or an expression, the other being nullptr.
     // Takes ownership of 'lhsp' and 'rhsp'.
-    void expand(AstNodeAssign* origp,  //
-                Place* lPlacep, AstNodeExpr* lhsp,  //
-                Place* rPlacep, AstNodeExpr* rhsp) {
+    शून्य expand(Ast_ग्रन्थिः_Assign* origp,  //
+                Place* lPlacep, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp,  //
+                Place* rPlacep, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp) {
         UASSERT_OBJ(!lPlacep != !lhsp, origp, "Exactly one of lPlacep or lhsp must be non-null");
         UASSERT_OBJ(!rPlacep != !rhsp, origp, "Exactly one of rPlacep or rhsp must be non-null");
-        FileLine* const flp = origp->fileline();
+        File_पङ्क्तिः* ध्रुव flp = origp->fileline();
         // A Place not split is referenced
-        if (lPlacep && !lPlacep->split) {
+        सचे (lPlacep && !lPlacep->split) {
             lhsp = newRef(flp, lPlacep, VAccess::WRITE);
             lPlacep = nullptr;
         }
-        if (rPlacep && !rPlacep->split) {
+        सचे (rPlacep && !rPlacep->split) {
             rhsp = newRef(flp, rPlacep, VAccess::READ);
             rPlacep = nullptr;
         }
-        if (lPlacep && rPlacep) {
+        सचे (lPlacep && rPlacep) {
             expandSS(origp, lPlacep, rPlacep);
-        } else if (lPlacep) {
+        } अञ्ञथा सचे (lPlacep) {
             expandSN(origp, lPlacep, rhsp);
-        } else if (rPlacep) {
+        } अञ्ञथा सचे (rPlacep) {
             expandNS(origp, lhsp, rPlacep);
-        } else {
+        } अञ्ञथा {
             addNewAssign(origp, lhsp, rhsp);
         }
     }
 
     // Will bits 'lsb' to 'msb' of the Place be in different variables after splitting it?
-    bool isSplitBetween(const Place* placep, int lsb, int msb) {
-        while (placep->split) {
-            const size_t idx = componentIndex(placep->dtypep, lsb);
-            if (idx != componentIndex(placep->dtypep, msb)) return true;
-            const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+    तार्किक isSplitBetween(ध्रुव Place* placep, पूर्णाङ्क lsb, पूर्णाङ्क msb) {
+        याव (placep->split) {
+            ध्रुव size_t idx = componentIndex(placep->dtypep, lsb);
+            सचे (idx != componentIndex(placep->dtypep, msb)) पटिनिवत्त सच्च;
+            ध्रुव Component& comp = dtypeComponents(placep->dtypep).at(idx);
             lsb -= comp.lsb;
             msb -= comp.lsb;
             placep = placep->childrenp.at(idx).get();
         }
-        return false;
+        पटिनिवत्त मिच्छा;
     }
 
     // Assign the RHS terms of 'origp' that expanding it to the split 'lPlacep' would
     // evaluate more than once, or that are impure, to temporaries before 'origp'
-    void hoistTerms(AstNodeAssign* origp, const Place* lPlacep) {
-        AstNodeExpr* const rhsp = origp->rhsp();
-        const std::vector<AstNodeExpr*> termps = concatTerms(rhsp);
+    शून्य hoistTerms(Ast_ग्रन्थिः_Assign* origp, ध्रुव Place* lPlacep) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = origp->rhsp();
+        ध्रुव std::vector<Ast_ग्रन्थिः_व्यञ्जकम्*> termps = concatTerms(rhsp);
         // A replicated term appears multiple times, so would be evaluated once for each
-        const VNUser2InUse user2InUse;
-        for (AstNodeExpr* const termp : termps) termp->user2Inc();
+        ध्रुव VNUser2InUse user2InUse;
+        अत्थाय (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव termp : termps) termp->user2Inc();
         // Hoist the terms, each once, before the assignment
-        AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-        int lsb = 0;  // LSB of the current term
-        for (AstNodeExpr* const termp : termps) {
-            const int tLsb = lsb;
-            const int tMsb = lsb + termp->width() - 1;
+        AstScope* ध्रुव scopep = lPlacep->rootp->vscp->scopep();
+        पूर्णाङ्क lsb = 0;  // LSB of the current term
+        अत्थाय (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव termp : termps) {
+            ध्रुव पूर्णाङ्क tLsb = lsb;
+            ध्रुव पूर्णाङ्क tMsb = lsb + termp->width() - 1;
             lsb = tMsb + 1;
 
             // Already decided, for a replicated term
-            if (!termp->user2()) continue;
+            सचे (!termp->user2()) अनुवर्त;
             // Cheap to select from
-            if (isCheap(termp)) {
+            सचे (isCheap(termp)) {
                 termp->user2(0);
-                continue;
+                अनुवर्त;
             }
             // No need to hoist if pure, appears once, and lands in one assignment
-            if (termp->isPure() && termp->user2() == 1 && !isSplitBetween(lPlacep, tLsb, tMsb)) {
-                continue;
+            सचे (termp->isPure() && termp->user2() == 1 && !isSplitBetween(lPlacep, tLsb, tMsb)) {
+                अनुवर्त;
             }
             // Bits can be selected without evaluating it more than once
-            if (isSliceable(termp)) {
+            सचे (isSliceable(termp)) {
                 termp->user2(0);
                 ++m_statSliced;
-                continue;
+                अनुवर्त;
             }
 
             // Hoist this term to a temporary assignment before the original
             termp->user2(0);
             ++m_statHoisted;
-            FileLine* const flp = termp->fileline();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, termp->dtypep());
-            termp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-            AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, termp});
+            File_पङ्क्तिः* ध्रुव flp = termp->fileline();
+            AstVarScope* ध्रुव vscp = m_tmps.make(flp, scopep, termp->dtypep());
+            termp->replaceWith(नूतन AstVarRef{flp, vscp, VAccess::READ});
+            AstVarRef* ध्रुव tmpRefp = नूतन AstVarRef{flp, vscp, VAccess::WRITE};
+            origp->addHereThisAsNext(नूतन AstAssign{flp, tmpRefp, termp});
         }
     }
 
     // Mark the AstVarScopes of the components of the split 'placep', at any depth
-    static void markComponents(const Place* placep) {
-        for (const std::unique_ptr<Place>& childp : placep->childrenp) {
-            childp->vscp->user2(true);
-            if (childp->split) markComponents(childp.get());
+    स्थिर शून्य markComponents(ध्रुव Place* placep) {
+        अत्थाय (ध्रुव std::unique_ptr<Place>& childp : placep->childrenp) {
+            childp->vscp->user2(सच्च);
+            सचे (childp->split) markComponents(childp.get());
         }
     }
 
     // Expand the assignment, if a side is split
-    void rewriteAssignment(const Assignment& assignment) {
-        Place* const lPlacep = assignment.lPlacep;
-        Place* const rPlacep = assignment.rPlacep;
-        const bool lSplit = lPlacep && lPlacep->split;
-        const bool rSplit = rPlacep && rPlacep->split;
+    शून्य rewriteAssignment(ध्रुव Assignment& assignment) {
+        Place* ध्रुव lPlacep = assignment.lPlacep;
+        Place* ध्रुव rPlacep = assignment.rPlacep;
+        ध्रुव तार्किक lSplit = lPlacep && lPlacep->split;
+        ध्रुव तार्किक rSplit = rPlacep && rPlacep->split;
         // Nothing to do if neither side is split
-        if (!lSplit && !rSplit) return;
+        सचे (!lSplit && !rSplit) पटिनिवत्त;
 
-        AstNodeAssign* const origp = assignment.assp;
+        Ast_ग्रन्थिः_Assign* ध्रुव origp = assignment.assp;
 
         // If the RHS expression reads components of the LHS, e.g. 's = {s.b, s.a}', expanding
         // would read components already written, so assign it to a temporary first. Not for
         // NBAs, as the writes commit after all reads. The LHS reading the RHS is fine, e.g.
         // 'a[s.i] = s', as the expansion only writes the LHS, so the RHS reads the same values
         // in every expanded assignment, unless they overlap, but then the RHS reads the LHS.
-        if (lSplit && !rSplit && !VN_IS(origp, AssignDly)) {
-            const VNUser2InUse user2InUse;
+        सचे (lSplit && !rSplit && !VN_IS(origp, AssignDly)) {
+            ध्रुव VNUser2InUse user2InUse;
             markComponents(lPlacep);
-            AstNodeExpr* const rhsp = origp->rhsp();
-            if (rhsp->exists([](const AstVarRef* refp) { return refp->varScopep()->user2(); })) {
-                FileLine* const flp = rhsp->fileline();
-                AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-                AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypeOf(rhsp));
-                rhsp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-                AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-                origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, rhsp});
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = origp->rhsp();
+            सचे (rhsp->exists([](ध्रुव AstVarRef* refp) { पटिनिवत्त refp->varScopep()->user2(); })) {
+                File_पङ्क्तिः* ध्रुव flp = rhsp->fileline();
+                AstScope* ध्रुव scopep = lPlacep->rootp->vscp->scopep();
+                AstVarScope* ध्रुव vscp = m_tmps.make(flp, scopep, dtypeOf(rhsp));
+                rhsp->replaceWith(नूतन AstVarRef{flp, vscp, VAccess::READ});
+                AstVarRef* ध्रुव tmpRefp = नूतन AstVarRef{flp, vscp, VAccess::WRITE};
+                origp->addHereThisAsNext(नूतन AstAssign{flp, tmpRefp, rhsp});
                 ++m_statRhsReadsLhs;
             }
         }
         // Hoist the terms of a packed RHS that would be evaluated more than once
-        if (lSplit && !rSplit && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
-        AstNodeExpr* const lhsp = origp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = origp->rhsp()->unlinkFrBack();
+        सचे (lSplit && !rSplit && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsp = origp->lhsp()->unlinkFrBack();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = origp->rhsp()->unlinkFrBack();
         // A side is used if not split, otherwise its components are
         expand(origp,  //
                lSplit ? lPlacep : nullptr, lSplit ? nullptr : lhsp,  //
                rSplit ? rPlacep : nullptr, rSplit ? nullptr : rhsp);
-        if (lSplit) VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
-        if (rSplit) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        VL_DO_DANGLING(pushDeletep(origp->unlinkFrBack()), origp);
+        सचे (lSplit) VL_DO_DANGLING(प्रक्षिप_Deletep(lhsp), lhsp);
+        सचे (rSplit) VL_DO_DANGLING(प्रक्षिप_Deletep(rhsp), rhsp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(origp->unlinkFrBack()), origp);
     }
 
     // The combinational AstActive of the scope, cached
-    static AstActive* comboActive(AstScope* scopep) {
-        if (!scopep->user1p()) scopep->user1p(scopep->comboActivep(true));
-        return VN_AS(scopep->user1p(), Active);
+    स्थिर AstActive* comboActive(AstScope* scopep) {
+        सचे (!scopep->user1p()) scopep->user1p(scopep->comboActivep(सच्च));
+        पटिनिवत्त VN_AS(scopep->user1p(), Active);
     }
 
     // Drive the split Place 'placep' from its components, recursively,
     // so the original variable has its value available.
-    void driveFromComponents(Place* placep, AstActive* activep) {
-        if (!placep->split) return;
-        AstVarScope* const vscp = placep->vscp;
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < placep->childrenp.size(); ++i) {
-            Place* const childp = placep->childrenp[i].get();
+    शून्य driveFromComponents(Place* placep, AstActive* activep) {
+        सचे (!placep->split) पटिनिवत्त;
+        AstVarScope* ध्रुव vscp = placep->vscp;
+        File_पङ्क्तिः* ध्रुव flp = vscp->fileline();
+        अत्थाय (size_t i = 0; i < placep->childrenp.size(); ++i) {
+            Place* ध्रुव childp = placep->childrenp[i].get();
             driveFromComponents(childp, activep);
-            AstNodeExpr* const rhsp = new AstVarRef{flp, childp->vscp, VAccess::READ};
-            AstNodeExpr* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            AstNodeExpr* const lhsp = newSelect(lhsRefp, placep->dtypep, i);
-            activep->addStmtsp(new AstAlways{new AstAssignW{flp, lhsp, rhsp}});
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = नूतन AstVarRef{flp, childp->vscp, VAccess::READ};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsRefp = नूतन AstVarRef{flp, vscp, VAccess::WRITE};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsp = newSelect(lhsRefp, placep->dtypep, i);
+            activep->addStmtsp(नूतन AstAlways{नूतन AstAssignW{flp, lhsp, rhsp}});
         }
     }
 
@@ -1369,16 +1369,16 @@ class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
         : DecomposeBase{state} {
         // Rewrite the references: the select chains, then expand the assignments, so the clones
         // of their sides are rewritten already
-        for (const std::vector<Select>& chain : m_state.chains) rewriteChain(chain);
-        for (const Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
+        अत्थाय (ध्रुव std::vector<Select>& chain : m_state.chains) rewriteChain(chain);
+        अत्थाय (ध्रुव Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
 
         // Drive variables that must be kept from their components
-        for (Place* const placep : m_state.rootps) {
-            if (!placep->split) continue;
-            const AstVarScope* const vscp = placep->vscp;
+        अत्थाय (Place* ध्रुव placep : m_state.rootps) {
+            सचे (!placep->split) अनुवर्त;
+            ध्रुव AstVarScope* ध्रुव vscp = placep->vscp;
             // Only traced ones at this point
-            if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
-            AstActive* const activep = comboActive(vscp->scopep());
+            सचे (!(vscp->varp()->isTrace() && vscp->isTrace())) अनुवर्त;
+            AstActive* ध्रुव activep = comboActive(vscp->scopep());
             driveFromComponents(placep, activep);
         }
 
@@ -1388,14 +1388,14 @@ class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
         V3Stats::addStat("Optimizations, Decompose, LHS reading LHS assembled", m_statLhsReadsLhs);
     }
 
-public:
-    static void apply(State& state) { DecomposeRewrite{state}; }
+सार्वजनिक:
+    स्थिर शून्य apply(State& state) { DecomposeRewrite{state}; }
 };
 
 //######################################################################
 // V3Decompose class functions
 
-void V3Decompose::decomposeAll(AstNetlist* nodep) {
+शून्य V3Decompose::decomposeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         DecomposeBase::State state;
@@ -1403,5 +1403,5 @@ void V3Decompose::decomposeAll(AstNetlist* nodep) {
         DecomposeDecision::apply(state);
         DecomposeRewrite::apply(state);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("decompose", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्षः("decompose", 0, dump_वृक्षः_Either_Level() >= 3);
 }

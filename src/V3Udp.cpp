@@ -22,244 +22,244 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Udp.h"
+#अन्तर्भाव "V3Udp.h"
 
-#include "V3Error.h"
+#अन्तर्भाव "V3Error.h"
 
-#include <vector>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class UdpVisitor final : public VNVisitor {
-    bool m_inInitial = false;  // Is inside of an initial block
+वग्ग UdpVisitor final : सार्वजनिक VNVisitor {
+    तार्किक m_inInitial = मिच्छा;  // Is inside of an initial block
     AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
+    std::vector<AstVar*> m_निवेशः_Vars;  // All the input vars in the AstPrimitive
     std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
     AstPrimitive* m_primp = nullptr;  // The current primitive
-    bool m_isFirstOutput = false;  // Whether the first IO port is output
+    तार्किक m_isFirstOutput = मिच्छा;  // Whether the first IO port is output
     AstVarRef* m_outputInitVerfp = nullptr;  // Initial output value for sequential UDP
     AstAlways* m_alwaysBlockp = nullptr;  // Main Always block in UDP transform
 
-    void visit(AstInitial* nodep) override {
+    शून्य visit(AstInitial* nodep) override {
         VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+        सचे (m_primp) m_inInitial = सच्च;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+    शून्य visit(AstAssign* nodep) override {
+        सचे (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
-    void visit(AstPrimitive* nodep) override {
+    शून्य visit(AstPrimitive* nodep) override {
         UASSERT_OBJ(!m_primp, nodep, "Primitives cannot nest");
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
         VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER_CLEAR(m_निवेशः_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
         m_outputInitVerfp = nullptr;
         m_primp = nodep;
-        m_isFirstOutput = false;
+        m_isFirstOutput = मिच्छा;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    शून्य visit(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
-                } else {
-                    m_outputVars.push_back(nodep);
+        सचे (m_primp) {
+            सचे (nodep->isIO()) {
+                सचे (nodep->is_निवेशः()) {
+                    m_निवेशः_Vars.प्रक्षिप_back(nodep);
+                } अञ्ञथा {
+                    m_outputVars.प्रक्षिप_back(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
-                    m_isFirstOutput = true;
+                सचे ((m_निवेशः_Vars.size() == 0) && (m_outputVars.size() == 1)) {
+                    m_isFirstOutput = सच्च;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
+    शून्य visit(AstUdpTable* nodep) override {
+        File_पङ्क्तिः* ध्रुव fl = nodep->fileline();
+        सचे (m_outputVars.size() != 1) {
             m_outputVars.back()->v3error(
                 m_outputVars.size()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+        सचे (!m_isFirstOutput && m_outputVars.size()) {
+            m_निवेशः_Vars[0]->v3error("First UDP port must be the output port");
         }
         m_oFieldVarp = m_outputVars[0];
 
-        m_alwaysBlockp = new AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        m_alwaysBlockp = नूतन AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
+        fl->warnOff(V3ErrorCode::LATCH, सच्च);
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
+    शून्य visit(Ast_Udp_Table_पङ्क्तिः* nodep) override {
+        File_पङ्क्तिः* ध्रुव fl = nodep->fileline();
+        सचे (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
+        सचे (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_ग्रन्थिः* iNodep = nodep->iFieldsp();
+        Ast_ग्रन्थिः* oNodep = nodep->oFieldsp();
+        Ast_Sen_वृक्षः* edgetrigp = nullptr;
 
-        AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
-                                           new AstConst{fl, AstConst::BitTrue{}}};
+        AstLogAnd* logandp = नूतन AstLogAnd{fl, नूतन AstConst{fl, AstConst::BitTrue{}},
+                                           नूतन AstConst{fl, AstConst::BitTrue{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        अत्थाय (AstVar* ध्रुव varp : m_निवेशः_Vars) {
+            सचे (!iNodep) भङ्ग;
+            सचे (Ast_Udp_Table_पङ्क्तिः_Val* linevalp = VN_CAST(iNodep, Udp_Table_पङ्क्तिः_Val)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                सचे (isEdgeTrig(valName)) {
+                    सचे (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    सचे (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(प्रक्षिप_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
-                        fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
-                                           new AstVarRef{fl, varp, VAccess::READ}}};
+                    edgetrigp = नूतन Ast_Sen_वृक्षः{
+                        fl, नूतन AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
+                                           नूतन AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
-                    logandp = new AstLogAnd{
-                        fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
-                    logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                सचे (valName == "0" || valName == "f") {
+                    logandp = नूतन AstLogAnd{
+                        fl, logandp, नूतन AstLogNot{fl, नूतन AstVarRef{fl, varp, VAccess::READ}}};
+                } अञ्ञथा सचे (valName == "1" || valName == "r") {
+                    logandp = नूतन AstLogAnd{fl, logandp, नूतन AstVarRef{fl, varp, VAccess::READ}};
+                } अञ्ञथा सचे (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    सचे (edgetrigp) VL_DO_DANGLING(प्रक्षिप_Deletep(edgetrigp), edgetrigp);
+                    सचे (logandp) VL_DO_DANGLING(प्रक्षिप_Deletep(logandp), logandp);
+                    पटिनिवत्त;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        अत्थाय (ध्रुव Ast_ग्रन्थिः* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        सचे (inputvars != m_निवेशः_Vars.size()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_निवेशः_Vars.size()
                                                                          << ", got " << inputvars);
         }
 
-        string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        string ध्रुव oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
+        सचे (oValName == "-") {
+            सचे (edgetrigp) VL_DO_DANGLING(प्रक्षिप_Deletep(edgetrigp), edgetrigp);
+            सचे (logandp) VL_DO_DANGLING(प्रक्षिप_Deletep(logandp), logandp);
+            पटिनिवत्त;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
-                logandp = new AstLogAnd{
+        सचे (!nodep->udpIsCombo()) {
+            सचे (oNodep->name() == "0") {
+                logandp = नूतन AstLogAnd{
                     fl, logandp,
-                    new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+                    नूतन AstLogNot{fl, नूतन AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
+            } अञ्ञथा सचे (oNodep->name() == "1") {
                 logandp
-                    = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+                    = नूतन AstLogAnd{fl, logandp, नूतन AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
+            } अञ्ञथा सचे (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                सचे (edgetrigp) VL_DO_DANGLING(प्रक्षिप_Deletep(edgetrigp), edgetrigp);
+                सचे (logandp) VL_DO_DANGLING(प्रक्षिप_Deletep(logandp), logandp);
+                पटिनिवत्त;
             }
         }
 
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        fl->warnOff(V3ErrorCode::LATCH, सच्च);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
-        AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        Ast_ग्रन्थिः_Stmt* ध्रुव assignp
+            = newOutputAssign(fl, get_Output_अङ्कः(nodep, oValName), edgetrigp != nullptr);
+        AstIf* ध्रुव ifp = नूतन AstIf{fl, logandp, assignp};
+        सचे (nodep->udpIsCombo()) {
+            सचे (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
             m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            सचे (edgetrigp) VL_DO_DANGLING(प्रक्षिप_Deletep(edgetrigp), edgetrigp);
+            पटिनिवत्त;
         }
-        if (!isSequentOutputSig(oValName)) {
+        सचे (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
-        m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
+        m_alwaysBlockp->addNext(नूतन AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
-    static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+    स्थिर तार्किक isEdgeTrig(std::string& valName) {
+        सचे (valName == "x" || valName == "X") पटिनिवत्त मिच्छा;
+        सचे (valName == "*") पटिनिवत्त सच्च;
+        सचे (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            पटिनिवत्त सच्च;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        सचे (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            पटिनिवत्त सच्च;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        सचे (valName.size() == 2) {
+            सचे (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            अञ्ञथा सचे (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            अञ्ञथा सचे (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            पटिनिवत्त सच्च;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        सचे (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        पटिनिवत्त मिच्छा;
     }
-    static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+    स्थिर तार्किक isCombOutputSig(ध्रुव std::string& valName) {
+        पटिनिवत्त (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
-    static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+    स्थिर तार्किक isSequentOutputSig(ध्रुव std::string& valName) {
+        पटिनिवत्त (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
-        AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+    Ast_ग्रन्थिः_Stmt* newOutputAssign(File_पङ्क्तिः* fl, ध्रुव V3_सङ्ख्या& out_अङ्कः, तार्किक isDelayed) ध्रुव {
+        AstVarRef* ध्रुव lhsp = नूतन AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
+        AstConst* ध्रुव rhsp = नूतन AstConst{fl, out_अङ्कः};
+        सचे (isDelayed) पटिनिवत्त नूतन AstAssignDly{fl, lhsp, rhsp};
+        पटिनिवत्त नूतन AstAssign{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
-        } else {
-            outputNum.setBit(0, 'x');
+    स्थिर V3_सङ्ख्या get_Output_अङ्कः(Ast_ग्रन्थिः* nodep, ध्रुव std::string& fieldNames) {
+        V3_सङ्ख्या output_अङ्कः{nodep, 1};
+        सचे (fieldNames == "0") {
+            output_अङ्कः.setBit(0, 0);
+        } अञ्ञथा सचे (fieldNames == "1") {
+            output_अङ्कः.setBit(0, 1);
+        } अञ्ञथा {
+            output_अङ्कः.setBit(0, 'x');
         }
-        return outputNum;
+        पटिनिवत्त output_अङ्कः;
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~UdpVisitor() override = default;
+    ~UdpVisitor() override = स्वभाव;
 };
 
-void V3Udp::udpResolve(AstNetlist* rootp) {
+शून्य V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
-    { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    { ध्रुव UdpVisitor visitor{rootp}; }  // Destruct before checking
+    V3Global::dump_Check_Global_वृक्षः("udp", 0, dump_वृक्षः_Either_Level() >= 3);
 }

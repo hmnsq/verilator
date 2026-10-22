@@ -18,74 +18,74 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Const.h"
-#include "V3Simulate.h"
-#include "V3Unroll.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Simulate.h"
+#अन्तर्भाव "V3Unroll.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Unroll AstGenFor
 
-class UnrollGenVisitor final : public VNVisitor {
+वग्ग UnrollGenVisitor final : सार्वजनिक VNVisitor {
     // STATE - across all visitors
     AstVar* m_forVarp = nullptr;  // Iterator variable
-    const AstNode* m_ignoreIncp = nullptr;  // Increment node to ignore
-    bool m_varModeCheck = false;  // Just checking RHS assignments
-    bool m_varAssignHit = false;  // Assign var hit
-    bool m_forkHit = false;  // Fork hit
+    ध्रुव Ast_ग्रन्थिः* m_ignoreIncp = nullptr;  // Increment node to ignore
+    तार्किक m_varModeCheck = मिच्छा;  // Just checking RHS assignments
+    तार्किक m_varAssignHit = मिच्छा;  // Assign var hit
+    तार्किक m_forkHit = मिच्छा;  // Fork hit
     std::string m_beginName;  // What name to give begin iterations
 
     // METHODS
-    void replaceVarRef(AstNode* bodyp, AstNode* varValuep) {
+    शून्य replaceVarRef(Ast_ग्रन्थिः* bodyp, Ast_ग्रन्थिः* varValuep) {
         // Replace all occurances of loop variable in bodyp and next
-        bodyp->foreachAndNext([this, varValuep](AstVarRef* refp) {
-            if (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
-                AstNode* const newconstp = varValuep->cloneTree(false);
+        bodyp->foreachAndNext([एतत्, varValuep](AstVarRef* refp) {
+            सचे (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
+                Ast_ग्रन्थिः* ध्रुव newconstp = varValuep->clone_वृक्षः(मिच्छा);
                 refp->replaceWith(newconstp);
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+                VL_DO_DANGLING(प्रक्षिप_Deletep(refp), refp);
             }
         });
     }
 
-    bool cantUnroll(AstNode* nodep, const char* reason) const {
+    तार्किक cantUnroll(Ast_ग्रन्थिः* nodep, ध्रुव वर्ण* reason) ध्रुव {
         UINFO(4, "   Can't Unroll: " << reason << " :" << nodep);
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: Can't unroll generate for; " << reason);
-        return false;
+        पटिनिवत्त मिच्छा;
     }
 
-    bool forUnrollCheck(
-        AstGenFor* const nodep,
-        AstNode* const initp,  // Maybe under nodep (no nextp), or standalone (ignore nextp)
-        AstNodeExpr* condp,
-        AstNode* const incp,  // Maybe under nodep or in bodysp
-        AstNode* bodysp) {
+    तार्किक forUnrollCheck(
+        AstGenFor* ध्रुव nodep,
+        Ast_ग्रन्थिः* ध्रुव initp,  // Maybe under nodep (no nextp), or standalone (ignore nextp)
+        Ast_ग्रन्थिः_व्यञ्जकम्* condp,
+        Ast_ग्रन्थिः* ध्रुव incp,  // Maybe under nodep or in bodysp
+        Ast_ग्रन्थिः* bodysp) {
         // To keep the IF levels low, we return as each test fails.
         UINFO(4, " FOR Check " << nodep);
-        if (initp) UINFO(6, "    Init " << initp);
-        if (condp) UINFO(6, "    Cond " << condp);
-        if (incp) UINFO(6, "    Inc  " << incp);
+        सचे (initp) UINFO(6, "    Init " << initp);
+        सचे (condp) UINFO(6, "    Cond " << condp);
+        सचे (incp) UINFO(6, "    Inc  " << incp);
 
         // Initial value check
-        AstAssign* const initAssp = VN_CAST(initp, Assign);
-        if (!initAssp) return cantUnroll(nodep, "no initial assignment");
+        AstAssign* ध्रुव initAssp = VN_CAST(initp, Assign);
+        सचे (!initAssp) पटिनिवत्त cantUnroll(nodep, "no initial assignment");
         UASSERT_OBJ(!(initp->nextp() && initp->nextp() != nodep), nodep,
                     "initial assignment shouldn't be a list");
-        if (!VN_IS(initAssp->lhsp(), VarRef)) {
-            return cantUnroll(nodep, "no initial assignment to simple variable");
+        सचे (!VN_IS(initAssp->lhsp(), VarRef)) {
+            पटिनिवत्त cantUnroll(nodep, "no initial assignment to simple variable");
         }
         //
         // Condition check
         UASSERT_OBJ(!condp->nextp(), nodep, "conditional shouldn't be a list");
         //
         // Assignment of next value check
-        const AstAssign* const incAssp = VN_CAST(incp, Assign);
-        if (!incAssp) return cantUnroll(nodep, "no increment assignment");
-        if (incAssp->nextp()) return cantUnroll(nodep, "multiple increments");
+        ध्रुव AstAssign* ध्रुव incAssp = VN_CAST(incp, Assign);
+        सचे (!incAssp) पटिनिवत्त cantUnroll(nodep, "no increment assignment");
+        सचे (incAssp->nextp()) पटिनिवत्त cantUnroll(nodep, "multiple increments");
 
         m_forVarp = VN_AS(initAssp->lhsp(), VarRef)->varp();
-        if (!m_forVarp->isGenVar()) {
+        सचे (!m_forVarp->isGenVar()) {
             nodep->v3error("Non-genvar used in generate for: " << m_forVarp->prettyNameQ());
         }
         V3Const::constifyParamsEdit(initAssp->rhsp());  // rhsp may change
@@ -94,199 +94,199 @@ class UnrollGenVisitor final : public VNVisitor {
         // however, for repeat loops, the loop variable is auto-generated
         // and the initp statements will reference a variable outside of the initp scope
         // alas, failing to simulate.
-        const AstConst* const constInitp = VN_CAST(initAssp->rhsp(), Const);
-        if (!constInitp) return cantUnroll(nodep, "non-constant initializer");
+        ध्रुव AstConst* ध्रुव constInitp = VN_CAST(initAssp->rhsp(), Const);
+        सचे (!constInitp) पटिनिवत्त cantUnroll(nodep, "non-constant initializer");
 
         //
         // Now, make sure there's no assignment to this variable in the loop
-        m_varModeCheck = true;
-        m_varAssignHit = false;
-        m_forkHit = false;
+        m_varModeCheck = सच्च;
+        m_varAssignHit = मिच्छा;
+        m_forkHit = मिच्छा;
         m_ignoreIncp = incp;
         iterateAndNextNull(bodysp);
         iterateAndNextNull(incp);
-        m_varModeCheck = false;
+        m_varModeCheck = मिच्छा;
         m_ignoreIncp = nullptr;
-        if (m_varAssignHit) return cantUnroll(nodep, "genvar assigned *inside* loop");
+        सचे (m_varAssignHit) पटिनिवत्त cantUnroll(nodep, "genvar assigned *inside* loop");
 
-        if (m_forkHit) return cantUnroll(nodep, "fork inside loop");
+        सचे (m_forkHit) पटिनिवत्त cantUnroll(nodep, "fork inside loop");
 
         //
         UINFO(8, "   Loop Variable: " << m_forVarp);
         UINFOTREE(9, nodep, "", "for");
 
         // Finally, we can do it
-        if (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
-            return cantUnroll(nodep, "Unable to unroll loop");
+        सचे (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
+            पटिनिवत्त cantUnroll(nodep, "Unable to unroll loop");
         }
         VL_DANGLING(nodep);
         // Cleanup
-        return true;
+        पटिनिवत्त सच्च;
     }
 
-    bool simulateTree(AstNodeExpr* nodep, const V3Number* loopValue, const AstNode* dtypep,
-                      V3Number& outNum) {
-        AstNode* clonep = nodep->cloneTree(true);
+    तार्किक simulate_वृक्षः(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, ध्रुव V3_सङ्ख्या* loop_मानम्, ध्रुव Ast_ग्रन्थिः* dtypep,
+                      V3_सङ्ख्या& out_अङ्कः) {
+        Ast_ग्रन्थिः* clonep = nodep->clone_वृक्षः(सच्च);
         UASSERT_OBJ(clonep, nodep, "Failed to clone tree");
-        if (loopValue) {
-            AstConst* varValuep = new AstConst{nodep->fileline(), *loopValue};
+        सचे (loop_मानम्) {
+            AstConst* varValuep = नूतन AstConst{nodep->fileline(), *loop_मानम्};
             // Iteration requires a back, so put under temporary node
-            AstBegin* tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", clonep, false};
+            AstBegin* tempp = नूतन AstBegin{nodep->fileline(), "[EditWrapper]", clonep, मिच्छा};
             replaceVarRef(tempp->stmtsp(), varValuep);
             clonep = tempp->stmtsp()->unlinkFrBackWithNext();
-            VL_DO_CLEAR(tempp->deleteTree(), tempp = nullptr);
-            VL_DO_DANGLING(pushDeletep(varValuep), varValuep);
+            VL_DO_CLEAR(tempp->delete_वृक्षः(), tempp = nullptr);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(varValuep), varValuep);
         }
         SimulateVisitor simvis;
         simvis.mainParamEmulate(clonep);
-        if (!simvis.optimizable()) {
+        सचे (!simvis.optimizable()) {
             UINFO(4, "Unable to simulate");
             UINFOTREE(9, nodep, "", "_simtree");
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            VL_DO_DANGLING(clonep->delete_वृक्षः(), clonep);
+            पटिनिवत्त मिच्छा;
         }
         // Fetch the result
-        const V3Number* resp = simvis.fetchNumberNull(clonep);
-        if (!resp) {
+        ध्रुव V3_सङ्ख्या* resp = simvis.fetch_सङ्ख्या_Null(clonep);
+        सचे (!resp) {
             UINFO(3, "No number returned from simulation");
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            VL_DO_DANGLING(clonep->delete_वृक्षः(), clonep);
+            पटिनिवत्त मिच्छा;
         }
         // Patch up datatype
-        if (dtypep) {
+        सचे (dtypep) {
             AstConst new_con{clonep->fileline(), *resp};
             new_con.dtypeFrom(dtypep);
-            outNum = new_con.num();
-            outNum.isSigned(dtypep->isSigned());
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return true;
+            out_अङ्कः = new_con.अङ्कः();
+            out_अङ्कः.isSigned(dtypep->isSigned());
+            VL_DO_DANGLING(clonep->delete_वृक्षः(), clonep);
+            पटिनिवत्त सच्च;
         }
-        outNum = *resp;
-        VL_DO_DANGLING(clonep->deleteTree(), clonep);
-        return true;
+        out_अङ्कः = *resp;
+        VL_DO_DANGLING(clonep->delete_वृक्षः(), clonep);
+        पटिनिवत्त सच्च;
     }
 
-    bool forUnroller(AstGenFor* nodep, AstAssign* initp, AstNodeExpr* condp, AstNode* incp,
-                     AstNode* bodysp) {
+    तार्किक forUnroller(AstGenFor* nodep, AstAssign* initp, Ast_ग्रन्थिः_व्यञ्जकम्* condp, Ast_ग्रन्थिः* incp,
+                     Ast_ग्रन्थिः* bodysp) {
         UINFO(9, "forUnroller " << nodep);
-        V3Number loopValue{nodep};
-        if (!simulateTree(initp->rhsp(), nullptr, initp, loopValue)) {  //
-            return false;
+        V3_सङ्ख्या loop_मानम्{nodep};
+        सचे (!simulate_वृक्षः(initp->rhsp(), nullptr, initp, loop_मानम्)) {  //
+            पटिनिवत्त मिच्छा;
         }
-        AstNode* stmtsp = nullptr;
-        if (initp) {
+        Ast_ग्रन्थिः* stmtsp = nullptr;
+        सचे (initp) {
             initp->unlinkFrBack();  // Always a single statement; nextp() may be nodep
             // Don't add to list, we do it once, and setting loop index isn't
             // needed if we have > 1 loop, as we're constant propagating it
-            pushDeletep(initp);  // Always cloned below.
+            प्रक्षिप_Deletep(initp);  // Always cloned below.
         }
-        if (bodysp) {
+        सचे (bodysp) {
             bodysp->unlinkFrBackWithNext();
-            stmtsp = AstNode::addNext(stmtsp, bodysp);  // Maybe null if no body
+            stmtsp = Ast_ग्रन्थिः::addNext(stmtsp, bodysp);  // Maybe null if no body
         }
         // Mark variable to disable some later warnings
-        m_forVarp->usedLoopIdx(true);
+        m_forVarp->usedLoopIdx(सच्च);
 
-        AstNode* newbodysp = nullptr;
-        if (stmtsp) {
-            pushDeletep(stmtsp);  // Always cloned below.
-            size_t iterCount = 0;
-            const size_t iterLimit = v3Global.opt.unrollLimit();
-            while (true) {
-                UINFO(8, "      Looping " << loopValue);
-                V3Number res{nodep};
-                if (!simulateTree(condp, &loopValue, nullptr, res)) {
+        Ast_ग्रन्थिः* newbodysp = nullptr;
+        सचे (stmtsp) {
+            प्रक्षिप_Deletep(stmtsp);  // Always cloned below.
+            size_t iter_गणनम् = 0;
+            ध्रुव size_t iterLimit = v3Global.opt.unrollLimit();
+            याव (सच्च) {
+                UINFO(8, "      Looping " << loop_मानम्);
+                V3_सङ्ख्या res{nodep};
+                सचे (!simulate_वृक्षः(condp, &loop_मानम्, nullptr, res)) {
                     nodep->v3error("Loop unrolling failed.");
-                    return false;
+                    पटिनिवत्त मिच्छा;
                 }
-                if (!res.isEqOne()) {
-                    break;  // Done with the loop
-                } else {
-                    if (++iterCount > iterLimit) {
+                सचे (!res.isEqOne()) {
+                    भङ्ग;  // Done with the loop
+                } अञ्ञथा {
+                    सचे (++iter_गणनम् > iterLimit) {
                         nodep->v3error("Unrolling generate loop took too long; probably this is "
                                        "an infinite loop, otherwise set '--unroll-limit' above "
                                        << iterLimit);
-                        break;
+                        भङ्ग;
                     }
 
                     // Replace iterator values with constant
-                    AstNode* oneloopp = stmtsp->cloneTree(true);
-                    AstConst* varValuep = new AstConst{nodep->fileline(), loopValue};
-                    if (oneloopp) {
+                    Ast_ग्रन्थिः* oneloopp = stmtsp->clone_वृक्षः(सच्च);
+                    AstConst* varValuep = नूतन AstConst{nodep->fileline(), loop_मानम्};
+                    सचे (oneloopp) {
                         // Iteration requires a back, so put under temporary node
-                        AstBegin* const tempp
-                            = new AstBegin{oneloopp->fileline(), "[EditWrapper]", oneloopp, false};
+                        AstBegin* ध्रुव tempp
+                            = नूतन AstBegin{oneloopp->fileline(), "[EditWrapper]", oneloopp, मिच्छा};
                         replaceVarRef(tempp->stmtsp(), varValuep);
                         oneloopp = tempp->stmtsp()->unlinkFrBackWithNext();
-                        VL_DO_DANGLING(tempp->deleteTree(), tempp);
+                        VL_DO_DANGLING(tempp->delete_वृक्षः(), tempp);
                     }
-                    const string index = AstNode::encodeNumber(varValuep->toSInt());
-                    const string nname = m_beginName + "__BRA__" + index + "__KET__";
-                    oneloopp = new AstGenBlock{oneloopp->fileline(), nname, oneloopp, false};
-                    VL_DO_DANGLING(pushDeletep(varValuep), varValuep);
-                    newbodysp = AstNode::addNextNull(newbodysp, oneloopp);
+                    ध्रुव string index = Ast_ग्रन्थिः::encode_सङ्ख्या(varValuep->toSInt());
+                    ध्रुव string nname = m_beginName + "__BRA__" + index + "__KET__";
+                    oneloopp = नूतन AstGenBlock{oneloopp->fileline(), nname, oneloopp, मिच्छा};
+                    VL_DO_DANGLING(प्रक्षिप_Deletep(varValuep), varValuep);
+                    newbodysp = Ast_ग्रन्थिः::addNextNull(newbodysp, oneloopp);
 
                     // loopValue += valInc
-                    const AstAssign* const incpass = VN_AS(incp, Assign);
-                    V3Number newLoopValue{nodep};
-                    if (!simulateTree(incpass->rhsp(), &loopValue, incpass, newLoopValue)) {
+                    ध्रुव AstAssign* ध्रुव incpass = VN_AS(incp, Assign);
+                    V3_सङ्ख्या new_Loop_मानम्{nodep};
+                    सचे (!simulate_वृक्षः(incpass->rhsp(), &loop_मानम्, incpass, new_Loop_मानम्)) {
                         nodep->v3error("Loop unrolling failed");
-                        return false;
+                        पटिनिवत्त मिच्छा;
                     }
-                    loopValue.opAssign(newLoopValue);
+                    loop_मानम्.opAssign(new_Loop_मानम्);
                 }
             }
         }
-        if (!newbodysp) {  // initp might have effects after the loop
-            if (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
-                newbodysp = new AstInitial{initp->fileline(), initp->cloneTree(true)};
-            } else {
-                newbodysp = initp ? initp->cloneTree(true) : nullptr;
+        सचे (!newbodysp) {  // initp might have effects after the loop
+            सचे (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
+                newbodysp = नूतन AstInitial{initp->fileline(), initp->clone_वृक्षः(सच्च)};
+            } अञ्ञथा {
+                newbodysp = initp ? initp->clone_वृक्षः(सच्च) : nullptr;
             }
         }
         // Replace the FOR()
-        if (newbodysp) {
+        सचे (newbodysp) {
             nodep->replaceWith(newbodysp);
-        } else {
+        } अञ्ञथा {
             nodep->unlinkFrBack();
         }
-        if (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
-        return true;
+        सचे (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
+        पटिनिवत्त सच्च;
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
-        if (m_varModeCheck && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
+    शून्य visit(AstVarRef* nodep) override {
+        सचे (m_varModeCheck && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
             UINFO(8, "   Itervar assigned to: " << nodep);
-            m_varAssignHit = true;
+            m_varAssignHit = सच्च;
         }
     }
 
-    void visit(AstNode* nodep) override {
-        if (m_varModeCheck && nodep == m_ignoreIncp) {
+    शून्य visit(Ast_ग्रन्थिः* nodep) override {
+        सचे (m_varModeCheck && nodep == m_ignoreIncp) {
             // Ignore subtree that is the increment
-        } else {
+        } अञ्ञथा {
             iterateChildren(nodep);
         }
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    UnrollGenVisitor() = default;
+    UnrollGenVisitor() = स्वभाव;
 
-    void unroll(AstGenFor* nodep, const std::string& beginName) {
+    शून्य unroll(AstGenFor* nodep, ध्रुव std::string& beginName) {
         m_forVarp = nullptr;  // Iterator variable
         m_ignoreIncp = nullptr;  // Increment node to ignore
-        m_varModeCheck = false;  // Just checking RHS assignments
-        m_varAssignHit = false;  // Assign var hit
-        m_forkHit = false;  // Fork hit
+        m_varModeCheck = मिच्छा;  // Just checking RHS assignments
+        m_varAssignHit = मिच्छा;  // Assign var hit
+        m_forkHit = मिच्छा;  // Fork hit
         m_beginName = beginName;
 
         // Constify before unroll call, as it may change what is underneath.
-        if (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
-        if (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
-        if (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
-        if (nodep->condp()->isZero()) {
+        सचे (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
+        सचे (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
+        सचे (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
+        सचे (nodep->condp()->isZero()) {
             // We don't need to do any loops.  Remove the GenFor,
             // Genvar's don't care about any initial assignments.
             //
@@ -294,14 +294,14 @@ public:
             // we'd need to initialize the variable to the initial
             // condition, but they'll become while's which can be
             // deleted by V3Const.
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
+        } अञ्ञथा सचे (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
                                   nodep->itemsp())) {
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);  // Did replacement
-        } else {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);  // Did replacement
+        } अञ्ञथा {
             nodep->v3error("For loop doesn't have genvar index, or is malformed");
             // We will die, do it gracefully
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
         }
     }
 };
@@ -310,8 +310,8 @@ public:
 // GenForUnroller members
 
 GenForUnroller::GenForUnroller()
-    : m_unrollerp{new UnrollGenVisitor{}} {}
+    : m_unrollerp{नूतन UnrollGenVisitor{}} {}
 GenForUnroller::~GenForUnroller() { VL_DO_DANGLING(delete m_unrollerp, m_unrollerp); }
-void GenForUnroller::unroll(AstGenFor* nodep, const std::string& beginName) {
+शून्य GenForUnroller::unroll(AstGenFor* nodep, ध्रुव std::string& beginName) {
     m_unrollerp->unroll(nodep, beginName);
 }

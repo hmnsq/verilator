@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3NAME_H_
 #define VERILATOR_V3NAME_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Name final {
-public:
-    static void nameAll(AstNetlist* nodep) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य nameAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

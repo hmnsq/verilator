@@ -25,21 +25,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstNodeExpr.h"
-#include "V3Sched.h"
+#अन्तर्भाव "V3AstNodeExpr.h"
+#अन्तर्भाव "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+नामाकाश V3Sched {
 
-namespace {
+नामाकाश {
 
-class VirtIfaceVisitor final : public VNVisitor {
-private:
+वग्ग VirtIfaceVisitor final : सार्वजनिक VNVisitor {
+गुप्त:
     // STATE
-    using IfaceMember = std::pair<const AstIface*, std::string>;
+    using IfaceMember = std::pair<ध्रुव AstIface*, std::string>;
     using IfaceCallable = std::pair<AstIface*, AstCFunc*>;
 
     // Set of (iface, member) pairs written through VIF -- defines which members need triggers
@@ -48,122 +48,122 @@ private:
     std::map<IfaceMember, std::vector<AstVarScope*>> m_candidateVscps;
     std::set<std::pair<IfaceMember, AstVarScope*>> m_seenCandidateVscps;
     // VarScope index and callable worklist for VIF method-body writes.
-    std::map<const AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
+    std::map<ध्रुव AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
     std::vector<IfaceCallable> m_reachableIfaceCallables;
     std::set<IfaceCallable> m_seenReachableIfaceCallables;
     VirtIfaceTriggers m_triggers;
 
     // METHODS
     // Returns true if statement writes across a virtual interface boundary
-    static bool writesToVirtIface(const AstNode* const nodep) {
-        return nodep->exists([](const AstMemberSel* const memberSelp) {
-            if (!memberSelp->access().isWriteOrRW()) return false;
-            AstIfaceRefDType* const dtypep
+    स्थिर तार्किक writesToVirtIface(ध्रुव Ast_ग्रन्थिः* ध्रुव nodep) {
+        पटिनिवत्त nodep->exists([](ध्रुव AstMemberSel* ध्रुव memberSelp) {
+            सचे (!memberSelp->access().isWriteOrRW()) पटिनिवत्त मिच्छा;
+            AstIfaceRefDType* ध्रुव dtypep
                 = VN_CAST(memberSelp->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            return dtypep && dtypep->isVirtual();
+            पटिनिवत्त dtypep && dtypep->isVirtual();
         });
     }
 
     // VISITORS
-    void visit(AstMemberSel* nodep) override {
+    शून्य visit(AstMemberSel* nodep) override {
         // Detect writes through VIF: the MemberSel's fromp resolves to a virtual interface type.
         // Handles both direct VIF access (vif.member) and class chain (obj.vif.member).
-        if (nodep->access().isWriteOrRW()) {
-            AstIfaceRefDType* const dtypep
+        सचे (nodep->access().isWriteOrRW()) {
+            AstIfaceRefDType* ध्रुव dtypep
                 = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            if (dtypep && dtypep->isVirtual()) {
+            सचे (dtypep && dtypep->isVirtual()) {
                 m_vifWrittenMembers.emplace(dtypep->ifacep(), nodep->varp()->name());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstCMethodCall* nodep) override {
-        if (const AstIfaceRefDType* const dtypep
+    शून्य visit(AstCMethodCall* nodep) override {
+        सचे (ध्रुव AstIfaceRefDType* ध्रुव dtypep
             = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType)) {
-            if (VL_UNCOVERABLE(!dtypep->isVirtual())) {
+            सचे (VL_UNCOVERABLE(!dtypep->isVirtual())) {
                 // Concrete interface method calls are lowered before this pass.
-            } else {
+            } अञ्ञथा {
                 addReachableIfaceCallable(dtypep->ifaceViaCellp(), nodep->funcp());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
+    शून्य visit(AstVarScope* nodep) override {
         // Collect candidate VarScopes. sensIfacep() is set on interface members
         // accessed via any MemberSel (virtual or non-virtual).
-        AstVar* const varp = nodep->varp();
-        if (varp->isTemp()) return;
-        m_vscpsByVar[varp].push_back(nodep);
-        if (const AstIface* const ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
+        AstVar* ध्रुव varp = nodep->varp();
+        सचे (varp->isTemp()) पटिनिवत्त;
+        m_vscpsByVar[varp].प्रक्षिप_back(nodep);
+        सचे (ध्रुव AstIface* ध्रुव ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_Procedure* nodep) override {
         // Disable lifetime optimization for variables in AlwaysPost blocks
         // that write to virtual interface members, as VIF reads may observe them
-        if (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
-            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(false); });
+        सचे (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
+            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(मिच्छा); });
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { iterateChildren(nodep); }
 
-    void addCandidateVscp(const AstIface* const ifacep, AstVarScope* const vscp) {
-        const IfaceMember member{ifacep, vscp->varp()->name()};
-        if (m_seenCandidateVscps.emplace(member, vscp).second)
-            m_candidateVscps[member].push_back(vscp);
+    शून्य addCandidateVscp(ध्रुव AstIface* ध्रुव ifacep, AstVarScope* ध्रुव vscp) {
+        ध्रुव IfaceMember member{ifacep, vscp->varp()->name()};
+        सचे (m_seenCandidateVscps.emplace(member, vscp).second)
+            m_candidateVscps[member].प्रक्षिप_back(vscp);
     }
 
-    void addReachableIfaceCallable(AstIface* const ifacep, AstCFunc* const funcp) {
-        const IfaceCallable callable{ifacep, funcp};
-        if (m_seenReachableIfaceCallables.emplace(callable).second) {
-            m_reachableIfaceCallables.push_back(callable);
+    शून्य addReachableIfaceCallable(AstIface* ध्रुव ifacep, AstCFunc* ध्रुव funcp) {
+        ध्रुव IfaceCallable callable{ifacep, funcp};
+        सचे (m_seenReachableIfaceCallables.emplace(callable).second) {
+            m_reachableIfaceCallables.प्रक्षिप_back(callable);
         }
     }
 
     // Build final trigger list by intersecting VIF writes with candidate VarScopes
-    void buildTriggers() {
-        for (const auto& written : m_vifWrittenMembers) {
-            const auto it = m_candidateVscps.find(written);
-            if (it == m_candidateVscps.end()) continue;
-            for (AstVarScope* const vscp : it->second) {
-                const AstIface* const ifacep = written.first;
+    शून्य buildTriggers() {
+        अत्थाय (ध्रुव auto& written : m_vifWrittenMembers) {
+            ध्रुव auto it = m_candidateVscps.find(written);
+            सचे (it == m_candidateVscps.end()) अनुवर्त;
+            अत्थाय (AstVarScope* ध्रुव vscp : it->second) {
+                ध्रुव AstIface* ध्रुव ifacep = written.first;
                 m_triggers.addTrigger(ifacep, vscp->varp(), vscp);
             }
         }
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit VirtIfaceVisitor(AstNetlist* nodep) {
         iterate(nodep);
-        for (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
-            const IfaceCallable callable = m_reachableIfaceCallables[i];
-            callable.second->foreach([this, callable](AstNodeExpr* const nodep) {
-                if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        अत्थाय (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
+            ध्रुव IfaceCallable callable = m_reachableIfaceCallables[i];
+            callable.second->foreach([एतत्, callable](Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव nodep) {
+                सचे (AstVarRef* ध्रुव refp = VN_CAST(nodep, VarRef)) {
                     // Only persistent interface storage is observable through a VIF read.
                     UASSERT_OBJ(refp->varScopep(), refp, "No var scope");
-                    AstVar* const varp = refp->varp();
-                    if (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
+                    AstVar* ध्रुव varp = refp->varp();
+                    सचे (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
                         || varp->isEvent() || !VN_IS(refp->varScopep()->scopep()->modp(), Iface)) {
-                        return;
+                        पटिनिवत्त;
                     }
                     varp->sensIfacep(callable.first);
                     m_vifWrittenMembers.emplace(callable.first, varp->name());
-                    const auto it = m_vscpsByVar.find(varp);
+                    ध्रुव auto it = m_vscpsByVar.find(varp);
                     UASSERT_OBJ(it != m_vscpsByVar.end(), varp,
                                 "No VarScope for interface member");
-                    for (AstVarScope* const vscp : it->second)
+                    अत्थाय (AstVarScope* ध्रुव vscp : it->second)
                         addCandidateVscp(callable.first, vscp);
-                } else if (AstNodeCCall* const callp = VN_CAST(nodep, NodeCCall)) {
+                } अञ्ञथा सचे (Ast_ग्रन्थिः_CCall* ध्रुव callp = VN_CAST(nodep, ग्रन्थिः_CCall)) {
                     addReachableIfaceCallable(callable.first, callp->funcp());
                 }
             });
         }
         buildTriggers();
     }
-    ~VirtIfaceVisitor() override = default;
+    ~VirtIfaceVisitor() override = स्वभाव;
 
     // METHODS
-    VirtIfaceTriggers take_triggers() { return std::move(m_triggers); }
+    VirtIfaceTriggers take_triggers() { पटिनिवत्त std::move(m_triggers); }
 };
 
 }  //namespace
@@ -171,12 +171,12 @@ public:
 VirtIfaceTriggers makeVirtIfaceTriggers(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     VirtIfaceTriggers triggers{};
-    if (v3Global.hasVirtIfaces()) {
+    सचे (v3Global.hasVirtIfaces()) {
         triggers = VirtIfaceVisitor{nodep}.take_triggers();
         // Dump after destructor so VNDeleter runs
-        V3Global::dumpCheckGlobalTree("sched_vif", 0, dumpTreeEitherLevel() >= 6);
+        V3Global::dump_Check_Global_वृक्षः("sched_vif", 0, dump_वृक्षः_Either_Level() >= 6);
     }
-    return triggers;
+    पटिनिवत्त triggers;
 }
 
 }  //namespace V3Sched

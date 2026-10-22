@@ -14,82 +14,82 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3Number.h"
+#अन्तर्भाव "V3Number.h"
 
-#include "V3File.h"
+#अन्तर्भाव "V3File.h"
 
-#include <algorithm>
-#include <cerrno>
-#include <cmath>
-#include <functional>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <cerrno>
+#अन्तर्भाव <cmath>
+#अन्तर्भाव <functional>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int MAX_SPRINTF_DOUBLE_SIZE
+constexpr पूर्णाङ्क MAX_SPRINTF_DOUBLE_SIZE
     = 1100;  // Maximum characters with a sprintf %e/%f/%g (really 1079)
 
 // Number operations build output in-place so can't call e.g. foo.opX(foo)
-#define NUM_ASSERT_OP_ARGS1(arg1) \
-    UASSERT((this != &(arg1)), "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS2(arg1, arg2) \
-    UASSERT((this != &(arg1) && this != &(arg2)), \
+#define अङ्कः_ASSERT_OP_ARGS1(arg1) \
+    UASSERT((एतत् != &(arg1)), "Number operation called with same source and dest")
+#define अङ्कः_ASSERT_OP_ARGS2(arg1, arg2) \
+    UASSERT((एतत् != &(arg1) && एतत् != &(arg2)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3)), \
+#define अङ्कः_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
+    UASSERT((एतत् != &(arg1) && एतत् != &(arg2) && एतत् != &(arg3)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3) && this != &(arg4)), \
+#define अङ्कः_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
+    UASSERT((एतत् != &(arg1) && एतत् != &(arg2) && एतत् != &(arg3) && एतत् != &(arg4)), \
             "Number operation called with same source and dest")
 
-#define NUM_ASSERT_LOGIC_ARGS1(arg1) \
-    UASSERT(((arg1).dataType() == V3NumberData::V3NumberDataType::LOGIC), \
+#define अङ्कः_ASSERT_LOGIC_ARGS1(arg1) \
+    UASSERT(((arg1).dataType() == V3_सङ्ख्या_Data::V3_सङ्ख्या_Data_Type::LOGIC), \
             "Number operation called with non-logic (double or string) argument: '" << (arg1) \
                                                                                     << '"')
-#define NUM_ASSERT_LOGIC_ARGS2(arg1, arg2) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2)
+#define अङ्कः_ASSERT_LOGIC_ARGS2(arg1, arg2) \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg1); \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg2)
 
-#define NUM_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2); \
-    NUM_ASSERT_LOGIC_ARGS1(arg3); \
-    NUM_ASSERT_LOGIC_ARGS1(arg4)
+#define अङ्कः_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg1); \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg2); \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg3); \
+    अङ्कः_ASSERT_LOGIC_ARGS1(arg4)
 
-#define NUM_ASSERT_STRING_ARGS1(arg1) \
+#define अङ्कः_ASSERT_STRING_ARGS1(arg1) \
     UASSERT((arg1).isString(), \
             "Number operation called with non-string argument: '" << (arg1) << '"')
-#define NUM_ASSERT_STRING_ARGS2(arg1, arg2) \
-    NUM_ASSERT_STRING_ARGS1(arg1); \
-    NUM_ASSERT_STRING_ARGS1(arg2)
+#define अङ्कः_ASSERT_STRING_ARGS2(arg1, arg2) \
+    अङ्कः_ASSERT_STRING_ARGS1(arg1); \
+    अङ्कः_ASSERT_STRING_ARGS1(arg2)
 
-#define NUM_ASSERT_DOUBLE_ARGS1(arg1) \
+#define अङ्कः_ASSERT_DOUBLE_ARGS1(arg1) \
     UASSERT((arg1).isDouble(), \
             "Number operation called with non-double argument: '" << (arg1) << '"')
-#define NUM_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
-    NUM_ASSERT_DOUBLE_ARGS1(arg1); \
-    NUM_ASSERT_DOUBLE_ARGS1(arg2)
+#define अङ्कः_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
+    अङ्कः_ASSERT_DOUBLE_ARGS1(arg1); \
+    अङ्कः_ASSERT_DOUBLE_ARGS1(arg2)
 
 //======================================================================
 // Errors
 
-void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
+शून्य V3_सङ्ख्या::v3errorEnd(ध्रुव std::ostringstream& str) ध्रुव VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (m_nodep) {
+    सचे (m_nodep) {
         m_nodep->v3errorEnd(nsstr);
-    } else if (m_fileline) {
+    } अञ्ञथा सचे (m_fileline) {
         m_fileline->v3errorEnd(nsstr);
-    } else {
+    } अञ्ञथा {
         V3Error::v3errorEnd(nsstr, "", nullptr);
     }
 }
 
-void V3Number::v3errorEndFatal(const std::ostringstream& str) const
+शून्य V3_सङ्ख्या::v3errorEndFatal(ध्रुव std::ostringstream& str) ध्रुव
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
-    assert(0);  // LCOV_EXCL_LINE
+    प्रतिज्ञा(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }
 
@@ -97,970 +97,970 @@ void V3Number::v3errorEndFatal(const std::ostringstream& str) const
 // Read class functions
 // CREATION
 
-V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
+V3_सङ्ख्या::V3_सङ्ख्या(Ast_ग्रन्थिः* nodep, VerilogStringLiteral, ध्रुव string& str) {
     // Create a number using a verilog string as the value, thus 8 bits per character.
-    if (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
+    सचे (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
         init(nodep, 8);
-    } else {
-        init(nodep, std::max<int>(str.length() * 8, 1));
-        for (unsigned pos = 0; pos < str.length(); ++pos) {
-            const int topos = str.length() - 1 - pos;
-            ValueAndX& v = m_data.num()[topos / 4];
-            for (int bit = 0; bit < 8; ++bit) {
-                if (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
+    } अञ्ञथा {
+        init(nodep, std::max<पूर्णाङ्क>(str.length() * 8, 1));
+        अत्थाय (unsigned pos = 0; pos < str.length(); ++pos) {
+            ध्रुव पूर्णाङ्क topos = str.length() - 1 - pos;
+            मानम्_And_X& v = m_data.अङ्कः()[topos / 4];
+            अत्थाय (पूर्णाङ्क bit = 0; bit < 8; ++bit) {
+                सचे (str[pos] & (1UL << bit)) v.m_मानम् |= (1UL << (bit + (topos % 4) * 8));
             }
         }
     }
-    m_data.m_fromString = true;
-    opCleanThis(true);
+    m_data.m_fromString = सच्च;
+    opCleanThis(सच्च);
 }
 
-V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
-    if (nodedtypep->isCHandle()) {
+V3_सङ्ख्या::V3_सङ्ख्या(Ast_ग्रन्थिः* nodep, ध्रुव Ast_ग्रन्थिः_DType* nodedtypep) {
+    सचे (nodedtypep->isCHandle()) {
         init(nodep);
         setNull();
-    } else if (nodedtypep->isDouble()) {
+    } अञ्ञथा सचे (nodedtypep->isDouble()) {
         init(nodep, 64);
         setDouble(0.0);
-    } else if (nodedtypep->isString()) {
+    } अञ्ञथा सचे (nodedtypep->isString()) {
         init(nodep);
         setString("");
-    } else {
+    } अञ्ञथा {
         init(nodep, nodedtypep->width(), nodedtypep->widthSized());
     }
 }
 
-void V3Number::create(const char* sourcep) {
+शून्य V3_सङ्ख्या::create(ध्रुव वर्ण* sourcep) {
     m_data.setLogic();
-    const char* value_startp = sourcep;
-    for (const char* cp = sourcep; *cp; ++cp) {
-        if (*cp == '\'') {
-            value_startp = cp + 1;
-            break;
+    ध्रुव वर्ण* मानम्_startp = sourcep;
+    अत्थाय (ध्रुव वर्ण* cp = sourcep; *cp; ++cp) {
+        सचे (*cp == '\'') {
+            मानम्_startp = cp + 1;
+            भङ्ग;
         }
     }
 
-    bool userSized = false;
-    bool unbased = false;
-    char base = '\0';
-    if (value_startp != sourcep) {  // Has a '
+    तार्किक userSized = मिच्छा;
+    तार्किक unbased = मिच्छा;
+    वर्ण base = '\0';
+    सचे (मानम्_startp != sourcep) {  // Has a '
         string widthn;
-        const char* cp = sourcep;
-        for (; *cp; ++cp) {
-            if (*cp == '\'') {
+        ध्रुव वर्ण* cp = sourcep;
+        अत्थाय (; *cp; ++cp) {
+            सचे (*cp == '\'') {
                 ++cp;
-                break;
+                भङ्ग;
             }
-            if (*cp != '_') widthn += *cp;
+            सचे (*cp != '_') widthn += *cp;
         }
-        while (*cp == '_') cp++;
-        if (*cp && std::tolower(*cp) == 's') {
+        याव (*cp == '_') cp++;
+        सचे (*cp && std::tolower(*cp) == 's') {
             ++cp;
-            isSigned(true);
+            isSigned(सच्च);
         }
-        if (*cp) {
+        सचे (*cp) {
             base = *cp;
             ++cp;
         }
-        value_startp = cp;
+        मानम्_startp = cp;
 
         userSized = widthn.length() != 0;
-        if (std::atoi(widthn.c_str())) {
-            if (std::atoi(widthn.c_str()) < 0
-                || std::atoi(widthn.c_str()) > v3Global.opt.maxNumWidth()) {
+        सचे (std::atoi(widthn.c_str())) {
+            सचे (std::atoi(widthn.c_str()) < 0
+                || std::atoi(widthn.c_str()) > v3Global.opt.max_अङ्कः_Width()) {
                 // atoi might convert large number to negative, so can't tell which
                 v3error("Unsupported: Width of number exceeds implementation limit: "
                         << sourcep << "  (IEEE 1800-2023 6.9.1)");
-                width(v3Global.opt.maxNumWidth(), true);
-            } else {
-                width(std::atoi(widthn.c_str()), true);
+                width(v3Global.opt.max_अङ्कः_Width(), सच्च);
+            } अञ्ञथा {
+                width(std::atoi(widthn.c_str()), सच्च);
             }
         }
-    } else {
-        unbased = true;
+    } अञ्ञथा {
+        unbased = सच्च;
         base = 'd';
     }
 
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, 0};
 
     // Special SystemVerilog unsized constructs
-    if (base == '0') {
-        width(1, false);  // So we extend it
+    सचे (base == '0') {
+        width(1, मिच्छा);  // So we extend it
         setBit(0, 0);
-        m_data.m_autoExtend = true;
-    } else if (base == '1') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = सच्च;
+    } अञ्ञथा सचे (base == '1') {
+        width(1, मिच्छा);  // So we extend it
         setBit(0, 1);
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'z') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = सच्च;
+    } अञ्ञथा सचे (std::tolower(base) == 'z') {
+        width(1, मिच्छा);  // So we extend it
         setBit(0, 'z');
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'x') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = सच्च;
+    } अञ्ञथा सचे (std::tolower(base) == 'x') {
+        width(1, मिच्छा);  // So we extend it
         setBit(0, 'x');
-        m_data.m_autoExtend = true;
+        m_data.m_autoExtend = सच्च;
     }
     // Otherwise...
-    else if (!sized()) {
+    अञ्ञथा सचे (!sized()) {
         // We don't use v3Global.opt.maxNumWidth() here, as it can be arbitrarily large,
         // and cause extremely slow parsing. We will resize the value at the end anyway.
         // We just need a width big enough to fit the constant, so we use a conservative
         // upper bound to start from. Should never need more than 4 bits per digit.
-        const int widthBound = std::max<int>(32, std::strlen(value_startp) * 4);
-        width(widthBound, false);  // Will change width below
-        if (unbased) isSigned(true);  // Also says the spec.
+        ध्रुव पूर्णाङ्क widthBound = std::max<पूर्णाङ्क>(32, std::strlen(मानम्_startp) * 4);
+        width(widthBound, मिच्छा);  // Will change width below
+        सचे (unbased) isSigned(सच्च);  // Also says the spec.
     }
 
     // Ignore leading blanks
-    while (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
-    if (!*value_startp && !m_data.m_autoExtend) {
+    याव (*मानम्_startp == '_' || std::isspace(*मानम्_startp)) ++मानम्_startp;
+    सचे (!*मानम्_startp && !m_data.m_autoExtend) {
         v3error("Number is missing value digits: " << sourcep);
     }
-    if (userSized && m_data.m_autoExtend) {
+    सचे (userSized && m_data.m_autoExtend) {
         v3error("Syntax error: size cannot be provided with '0/'1/'x/'z: "
                 << sourcep << " (IEEE 1800-2023 5.7.1)");
     }
 
-    int obit = 0;  // Start at LSB
-    int base_align = 1;
-    if (std::tolower(base) == 'd') {
+    पूर्णाङ्क obit = 0;  // Start at LSB
+    पूर्णाङ्क base_align = 1;
+    सचे (std::tolower(base) == 'd') {
         // Ignore leading zeros so we don't issue too many digit errors when lots of leading 0's
-        while (*value_startp == '_' || *value_startp == '0') ++value_startp;
+        याव (*मानम्_startp == '_' || *मानम्_startp == '0') ++मानम्_startp;
         // Convert decimal number to hex
-        int olen = 0;
+        पूर्णाङ्क olen = 0;
         uint32_t val = 0;
-        int got_x = 0;
-        int got_z = 0;
-        int got_01 = 0;
-        bool warnedTooMany = false;
-        for (const char* cp = value_startp; *cp; ++cp) {
-            switch (std::tolower(*cp)) {
-            case '0':  // FALLTHRU
-            case '1':  // FALLTHRU
-            case '2':  // FALLTHRU
-            case '3':  // FALLTHRU
-            case '4':  // FALLTHRU
-            case '5':  // FALLTHRU
-            case '6':  // FALLTHRU
-            case '7':  // FALLTHRU
-            case '8':  // FALLTHRU
-            case '9': {
-                if (olen <= 7) {  // 10000000 fits in 32 bits, so ok
+        पूर्णाङ्क got_x = 0;
+        पूर्णाङ्क got_z = 0;
+        पूर्णाङ्क got_01 = 0;
+        तार्किक warnedTooMany = मिच्छा;
+        अत्थाय (ध्रुव वर्ण* cp = मानम्_startp; *cp; ++cp) {
+            विकल्प (std::tolower(*cp)) {
+            पक्ष '0':  // FALLTHRU
+            पक्ष '1':  // FALLTHRU
+            पक्ष '2':  // FALLTHRU
+            पक्ष '3':  // FALLTHRU
+            पक्ष '4':  // FALLTHRU
+            पक्ष '5':  // FALLTHRU
+            पक्ष '6':  // FALLTHRU
+            पक्ष '7':  // FALLTHRU
+            पक्ष '8':  // FALLTHRU
+            पक्ष '9': {
+                सचे (olen <= 7) {  // 10000000 fits in 32 bits, so ok
                     // Constants are common, so for speed avoid wide math until we need it
                     val = val * 10 + (*cp - '0');
-                    m_data.num()[0].m_value = val;
-                } else {  // Wide; all previous digits are already in m_value[0]
+                    m_data.अङ्कः()[0].m_मानम् = val;
+                } अञ्ञथा {  // Wide; all previous digits are already in m_value[0]
                     // this = (this * 10)/*product*/ + (*cp-'0')/*addend*/
                     // Assumed rare; lots of optimizations are possible here
-                    V3Number product(this, width() + 4);  // +4 for overflow detection
-                    const V3Number ten(this, width() + 4, 10);
-                    const V3Number addend(this, width(), (*cp - '0'));
-                    product.opMul(*this, ten);
+                    V3_सङ्ख्या product(एतत्, width() + 4);  // +4 for overflow detection
+                    ध्रुव V3_सङ्ख्या ten(एतत्, width() + 4, 10);
+                    ध्रुव V3_सङ्ख्या addend(एतत्, width(), (*cp - '0'));
+                    product.opMul(*एतत्, ten);
                     opAdd(product, addend);
-                    if (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
+                    सचे (!warnedTooMany && product.bits_मानम्(width(), 4)) {  // Overflowed
                         warnTooMany(sourcep);
-                        warnedTooMany = true;
+                        warnedTooMany = सच्च;
                     }
                 }
                 ++olen;
                 got_01 = 1;
-                break;
+                भङ्ग;
             }
-            case 'z':
-            case '?': {
+            पक्ष 'z':
+            पक्ष '?': {
                 got_z = 1;
-                if (!userSized) width(32, false);
+                सचे (!userSized) width(32, मिच्छा);
                 setAllBitsZ();
-                break;
+                भङ्ग;
             }
-            case 'x': {
+            पक्ष 'x': {
                 got_x = 1;
-                if (!userSized) width(32, false);
+                सचे (!userSized) width(32, मिच्छा);
                 setAllBitsX();
-                break;
+                भङ्ग;
             }
-            case '_': break;
-            default: {  // LCOV_EXCL_START
+            पक्ष '_': भङ्ग;
+            स्वभाव: {  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal character in decimal constant: " << *cp);
-                break;
+                भङ्ग;
             }  // LCOV_EXCL_STOP
             }
         }
         obit = width();
-        if ((got_01 + got_x + got_z) > 1) {
-            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << value_startp);
+        सचे ((got_01 + got_x + got_z) > 1) {
+            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << मानम्_startp);
         }
-    } else {
+    } अञ्ञथा {
         // Convert bin/octal number to hex
-        for (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
+        अत्थाय (ध्रुव वर्ण* cp = मानम्_startp + std::strlen(मानम्_startp) - 1; cp >= मानम्_startp;
              cp--) {
-            if (*cp != '_' && *cp != '0' && obit >= width()) {
+            सचे (*cp != '_' && *cp != '0' && obit >= width()) {
                 warnTooMany(sourcep);
-                break;
+                भङ्ग;
             }
-            switch (std::tolower(base)) {
-            case 'b': {
+            विकल्प (std::tolower(base)) {
+            पक्ष 'b': {
                 base_align = 1;
-                switch (std::tolower(*cp)) {
-                case '0': setBit(obit++, 0); break;
-                case '1': setBit(obit++, 1); break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); break;
-                case '_': break;
-                default: v3error("Illegal character in binary constant: " << *cp);
+                विकल्प (std::tolower(*cp)) {
+                पक्ष '0': setBit(obit++, 0); भङ्ग;
+                पक्ष '1': setBit(obit++, 1); भङ्ग;
+                पक्ष 'z':
+                पक्ष '?': setBit(obit++, 'z'); भङ्ग;
+                पक्ष 'x': setBit(obit++, 'x'); भङ्ग;
+                पक्ष '_': भङ्ग;
+                स्वभाव: v3error("Illegal character in binary constant: " << *cp);
                 }
-                break;
+                भङ्ग;
             }
 
-            case 'o':
-            case 'c': {
+            पक्ष 'o':
+            पक्ष 'c': {
                 base_align = 3;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); break;
-                case '_': break;
+                विकल्प (std::tolower(*cp)) {  // clang-format off
+                पक्ष '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  भङ्ग;
+                पक्ष '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  भङ्ग;
+                पक्ष '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  भङ्ग;
+                पक्ष '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  भङ्ग;
+                पक्ष '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  भङ्ग;
+                पक्ष '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  भङ्ग;
+                पक्ष '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  भङ्ग;
+                पक्ष '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  भङ्ग;
+                पक्ष 'z':
+                पक्ष '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); भङ्ग;
+                पक्ष 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); भङ्ग;
+                पक्ष '_': भङ्ग;
                 // clang-format on
-                default: v3error("Illegal character in octal constant");
+                स्वभाव: v3error("Illegal character in octal constant");
                 }
-                break;
+                भङ्ग;
             }
 
-            case 'h':  // FALLTHRU
-            case 'x': {
+            पक्ष 'h':  // FALLTHRU
+            पक्ष 'x': {
                 base_align = 4;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'z':
-                case '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); break;
-                case 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); break;
+                विकल्प (std::tolower(*cp)) {  // clang-format off
+                पक्ष '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); भङ्ग;
+                पक्ष '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); भङ्ग;
+                पक्ष '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); भङ्ग;
+                पक्ष '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); भङ्ग;
+                पक्ष '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); भङ्ग;
+                पक्ष '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); भङ्ग;
+                पक्ष '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); भङ्ग;
+                पक्ष '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); भङ्ग;
+                पक्ष '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); भङ्ग;
+                पक्ष '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); भङ्ग;
+                पक्ष 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); भङ्ग;
+                पक्ष 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); भङ्ग;
+                पक्ष 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); भङ्ग;
+                पक्ष 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); भङ्ग;
+                पक्ष 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); भङ्ग;
+                पक्ष 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); भङ्ग;
+                पक्ष 'z':
+                पक्ष '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); भङ्ग;
+                पक्ष 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); भङ्ग;
                     // clang-format on
-                case '_': break;
-                default:  // LCOV_EXCL_START
+                पक्ष '_': भङ्ग;
+                स्वभाव:  // LCOV_EXCL_START
                     // Likely impossible as parser prevents hitting it
                     v3error("Illegal character in hex constant: " << *cp);
-                    break;
+                    भङ्ग;
                 }  // LCOV_EXCL_STOP
-                break;
+                भङ्ग;
             }
-            default:  // LCOV_EXCL_START
+            स्वभाव:  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal base character: " << base);
-                break;
+                भङ्ग;
             }  // LCOV_EXCL_STOP
         }
     }
 
     // If was unsized, trim width per IEEE 1800-2023 5.7.1
-    if (!userSized && !m_data.m_autoExtend) {
-        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), false);
+    सचे (!userSized && !m_data.m_autoExtend) {
+        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), मिच्छा);
     }
 
     // Z or X extend specific width values.  Spec says we don't 1 extend.
     // This fixes 2'bx to become 2'bxx.
-    while (obit <= width() && obit && bitIsXZ(obit - 1)) {
+    याव (obit <= width() && obit && bitIsXZ(obit - 1)) {
         setBit(obit, bitIs(obit - 1));
         ++obit;
     }
-    opCleanThis(true);
+    opCleanThis(सच्च);
 
     // printf("Dump \"%s\"  CP \"%s\"  B '%c' %d W %d\n", sourcep, value_startp, base, width(),
     // m_value[0]);
 }
 
-void V3Number::warnTooMany(const string& value) {
-    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << value << "'");
+शून्य V3_सङ्ख्या::warnTooMany(ध्रुव string& मानम्) {
+    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << मानम् << "'");
 }
 
-void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
+शून्य V3_सङ्ख्या::nodep(Ast_ग्रन्थिः* nodep) VL_MT_STABLE {
     m_nodep = nodep;
-    if (!nodep) return;
+    सचे (!nodep) पटिनिवत्त;
     m_fileline = nodep->fileline();
 }
 
 //======================================================================
 // Global
 
-bool V3Number::epsilonEqual(double a, double b) {
-    return std::fabs(a - b)
-           <= (std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(a, b)));
+तार्किक V3_सङ्ख्या::epsilonEqual(द्विगुण a, द्विगुण b) {
+    पटिनिवत्त std::fabs(a - b)
+           <= (std::numeric_limits<द्विगुण>::epsilon() * std::max(1.0, std::max(a, b)));
 }
 
-bool V3Number::epsilonIntegral(double a) {
-    const double dint = static_cast<double>(static_cast<int64_t>(a));
+तार्किक V3_सङ्ख्या::epsilonIntegral(द्विगुण a) {
+    ध्रुव द्विगुण dint = static_cast<द्विगुण>(static_cast<int64_t>(a));
     // Check all the rounding possibilities, as we did truncation above rather than rounding
-    return epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
+    पटिनिवत्त epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
 }
 
-int V3Number::log2b(uint32_t num) {
+पूर्णाङ्क V3_सङ्ख्या::log2b(uint32_t अङ्कः) {
     // See also opCLog2
-    for (int bit = 31; bit > 0; bit--) {
-        if (num & (1ULL << bit)) return bit;
+    अत्थाय (पूर्णाङ्क bit = 31; bit > 0; bit--) {
+        सचे (अङ्कः & (1ULL << bit)) पटिनिवत्त bit;
     }
-    return 0;
+    पटिनिवत्त 0;
 }
 
-int V3Number::log2bQuad(uint64_t num) {
-    if (num >> 32ULL) return 32 + log2b(num >> 32ULL);
-    return log2b(num);
+पूर्णाङ्क V3_सङ्ख्या::log2bQuad(uint64_t अङ्कः) {
+    सचे (अङ्कः >> 32ULL) पटिनिवत्त 32 + log2b(अङ्कः >> 32ULL);
+    पटिनिवत्त log2b(अङ्कः);
 }
 
 //======================================================================
 // Setters
 
-V3Number& V3Number::setZero() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_सङ्ख्या& V3_सङ्ख्या::setZero() {
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, 0};
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setQuad(uint64_t value) {
+V3_सङ्ख्या& V3_सङ्ख्या::setQuad(uint64_t मानम्) {
     setZero();
-    m_data.num()[0].m_value = value & 0xffffffffULL;
-    if (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
+    m_data.अङ्कः()[0].m_मानम् = मानम् & 0xffffffffULL;
+    सचे (width() > 32) m_data.अङ्कः()[1].m_मानम् = (मानम् >> 32ULL) & 0xffffffffULL;
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setLong(uint32_t value) {
+V3_सङ्ख्या& V3_सङ्ख्या::setLong(uint32_t मानम्) {
     setZero();
-    m_data.num()[0].m_value = value;
+    m_data.अङ्कः()[0].m_मानम् = मानम्;
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setLongS(int32_t value) {
+V3_सङ्ख्या& V3_सङ्ख्या::setLongS(int32_t मानम्) {
     setZero();
-    union {
+    सङ्घ {
         uint32_t u;
         int32_t s;
     } u;
-    u.s = value;
-    (void)u.s;
-    m_data.num()[0].m_value = u.u;
+    u.s = मानम्;
+    (शून्य)u.s;
+    m_data.अङ्कः()[0].m_मानम् = u.u;
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setDouble(double value) {
+V3_सङ्ख्या& V3_सङ्ख्या::setDouble(द्विगुण मानम्) {
     UASSERT(width() == 64, "Real operation on wrong sized number");
     m_data.setDouble();
-    union {
-        double d;
+    सङ्घ {
+        द्विगुण d;
         uint32_t u[2];
     } u;
-    u.d = value;
-    (void)u.d;
-    for (int i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0].m_value = u.u[0];
-    m_data.num()[1].m_value = u.u[1];
-    return *this;
+    u.d = मानम्;
+    (शून्य)u.d;
+    अत्थाय (पूर्णाङ्क i = 2; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, 0};
+    m_data.अङ्कः()[0].m_मानम् = u.u[0];
+    m_data.अङ्कः()[1].m_मानम् = u.u[1];
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setSingleBits(char value) {
-    for (int i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0] = {(value == '1' || value == 'x' || value == 1 || value == 3),
-                       (value == 'z' || value == 'x' || value == 2 || value == 3)};
-    return *this;
+V3_सङ्ख्या& V3_सङ्ख्या::setSingleBits(वर्ण मानम्) {
+    अत्थाय (पूर्णाङ्क i = 1 /*upper*/; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, 0};
+    m_data.अङ्कः()[0] = {(मानम् == '1' || मानम् == 'x' || मानम् == 1 || मानम् == 3),
+                       (मानम् == 'z' || मानम् == 'x' || मानम् == 2 || मानम् == 3)};
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::setAllBits0() {
+V3_सङ्ख्या& V3_सङ्ख्या::setAllBits0() {
     setZero();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setAllBits1() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
+V3_सङ्ख्या& V3_सङ्ख्या::setAllBits1() {
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {~0U, 0};
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setAllBitsX() {
+V3_सङ्ख्या& V3_सङ्ख्या::setAllBitsX() {
     // Use setAllBitsXRemoved if calling this based on a non-X/Z input value such as divide by zero
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {~0U, ~0U};
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setAllBitsZ() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
+V3_सङ्ख्या& V3_सङ्ख्या::setAllBitsZ() {
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, ~0U};
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::setAllBitsXRemoved() {
-    if (!v3Global.constRemoveXs()) {
-        return setAllBitsX();
-    } else {
+V3_सङ्ख्या& V3_सङ्ख्या::setAllBitsXRemoved() {
+    सचे (!v3Global.constRemoveXs()) {
+        पटिनिवत्त setAllBitsX();
+    } अञ्ञथा {
         // If we get a divide by zero we get Xs.
         // But after V3Unknown we have removed Xs, so use --x-assign to direct-insert 0/1
-        if (v3Global.opt.xAssign() == "1") {
-            return setAllBits1();
-        } else {
-            return setAllBits0();
+        सचे (v3Global.opt.xAssign() == "1") {
+            पटिनिवत्त setAllBits1();
+        } अञ्ञथा {
+            पटिनिवत्त setAllBits0();
         }
     }
 }
-V3Number& V3Number::setValue1() {
-    m_data.num()[0] = {1, 0};
-    for (int i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_सङ्ख्या& V3_सङ्ख्या::setValue1() {
+    m_data.अङ्कः()[0] = {1, 0};
+    अत्थाय (पूर्णाङ्क i = 1; i < शब्दाः(); ++i) m_data.अङ्कः()[i] = {0, 0};
+    पटिनिवत्त *एतत्;
 }
 
-void V3Number::setBitX0(int bit) {
+शून्य V3_सङ्ख्या::setBitX0(पूर्णाङ्क bit) {
     // Selection beyond bounds after V3Premit needs to have 0s
     // in upper bits.  Contrast to setAllBitsXRemoved which honors xAssign
     setBit(bit, v3Global.constRemoveXs() ? 0 : 'x');
 }
 
-V3Number& V3Number::setMask(int nbits, int lsb) {
+V3_सङ्ख्या& V3_सङ्ख्या::setMask(पूर्णाङ्क nbits, पूर्णाङ्क lsb) {
     setZero();
     UASSERT(lsb >= 0, "Negative destination bit range");
     fillBits(lsb, std::max(0, std::min(nbits, width() - lsb)), 1);
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
 //======================================================================
 // ACCESSORS - as strings
 
-string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
+string V3_सङ्ख्या::ascii(तार्किक prefixed, तार्किक cleanVerilog) ध्रुव VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (is1Step()) return "1step";
-    if (isNull()) return "null";
+    सचे (is1Step()) पटिनिवत्त "1step";
+    सचे (isNull()) पटिनिवत्त "null";
     std::ostringstream out;
-    if (isDouble()) {
+    सचे (isDouble()) {
         out.precision(17);
-        if (VL_UNCOVERABLE(width() != 64)) {
+        सचे (VL_UNCOVERABLE(width() != 64)) {
             out << "%E-bad-width-double";  // LCOV_EXCL_LINE
-        } else {
+        } अञ्ञथा {
             out << toDouble();
-            if (toDouble() == floor(toDouble())) out << ".0";
+            सचे (toDouble() == floor(toDouble())) out << ".0";
         }
-        return out.str();
-    } else if (isString()) {
-        return '"' + toString() + '"';
-    } else {
-        if (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
+        पटिनिवत्त out.str();
+    } अञ्ञथा सचे (isString()) {
+        पटिनिवत्त '"' + toString() + '"';
+    } अञ्ञथा {
+        सचे (VL_UNCOVERABLE((m_data.अङ्कः()[शब्दाः() - 1].m_मानम् | m_data.अङ्कः()[शब्दाः() - 1].m_मानम्_X)
                            & ~hiWordMask())) {
             out << "%E-hidden-bits";  // LCOV_EXCL_LINE
         }
     }
-    if (prefixed) {
-        if (sized()) {
+    सचे (prefixed) {
+        सचे (sized()) {
             out << width() << "'";
-        } else if (autoExtend() && width() == 1) {
+        } अञ्ञथा सचे (autoExtend() && width() == 1) {
             out << "'";
-            if (bitIs0(0)) {
+            सचे (bitIs0(0)) {
                 out << '0';
-            } else if (bitIs1(0)) {
+            } अञ्ञथा सचे (bitIs1(0)) {
                 out << '1';
-            } else if (bitIsZ(0)) {
+            } अञ्ञथा सचे (bitIsZ(0)) {
                 out << 'z';
-            } else {
+            } अञ्ञथा {
                 out << 'x';
             }
-            return out.str();
-        } else {
-            if (cleanVerilog) {
+            पटिनिवत्त out.str();
+        } अञ्ञथा {
+            सचे (cleanVerilog) {
                 out << "'";
-            } else {
+            } अञ्ञथा {
                 out << "?" << width() << "?";
             }
         }
-        if (isSigned()) out << "s";
+        सचे (isSigned()) out << "s";
     }
 
-    const bool binary = (isFourState()
-#ifdef V3NUMBER_ASCII_BINARY
+    ध्रुव तार्किक द्विमान = (isFourState()
+#ifdef V3_सङ्ख्या_ASCII_द्विमान
                          // cppcheck-suppress konwnConditionTrueFalse
-                         || true
+                         || सच्च
 #endif
     );
     // out<<"-"<<hex<<m_value[0]<<"-";
 
     // cppcheck-suppress konwnConditionTrueFalse
-    if (binary) {
+    सचे (द्विमान) {
         out << "b";
         out << displayed("%0b");
-    } else {
-        if (prefixed) out << "h";
+    } अञ्ञथा {
+        सचे (prefixed) out << "h";
         // Always deal with 4 bits at once.  Note no 4-state, it's above.
         out << displayed("%0h");
     }
-    if (isNull()) {
-        if (VL_UNCOVERABLE(!isEqZero())) {
+    सचे (isNull()) {
+        सचे (VL_UNCOVERABLE(!isEqZero())) {
             out << "-%E-null-not-zero";  // LCOV_EXCL_LINE
-        } else {
+        } अञ्ञथा {
             out << " [null]";
         }
     }
-    return out.str();
+    पटिनिवत्त out.str();
 }
 
-bool V3Number::displayedFmtHasArg(char format, bool isScan) {
+तार्किक V3_सङ्ख्या::displayedFmtHasArg(वर्ण format, तार्किक isScan) {
     // Is this a format letter that takes an argument in runtime?
-    (void)isScan;
-    switch (std::tolower(format)) {
-    case 'b': return true;  // Binary
-    case 'c': return true;  // Character
-    case 'd': return true;  // Decimal
-    case 'e': return true;  // Floating
-    case 'f': return true;  // Floating
-    case 'g': return true;  // Floating
-    case 'h': return true;  // Hex
-    case 'o': return true;  // Octal
-    case 'p': return true;  // Pattern
-    case 's': return true;  // String
-    case 't': return true;  // Time
-    case 'u': return true;  // Packed 2-state
-    case 'v': return true;  // Strength
-    case 'x': return true;  // Hex
-    case 'z': return true;  // Packed 4-state
-    case '?': return true;  // Internal: Compute format in V3Width based on data type
-    default: return false;
+    (शून्य)isScan;
+    विकल्प (std::tolower(format)) {
+    पक्ष 'b': पटिनिवत्त सच्च;  //द्विमान
+    पक्ष 'c': पटिनिवत्त सच्च;  // Character
+    पक्ष 'd': पटिनिवत्त सच्च;  // Decimal
+    पक्ष 'e': पटिनिवत्त सच्च;  // Floating
+    पक्ष 'f': पटिनिवत्त सच्च;  // Floating
+    पक्ष 'g': पटिनिवत्त सच्च;  // Floating
+    पक्ष 'h': पटिनिवत्त सच्च;  // Hex
+    पक्ष 'o': पटिनिवत्त सच्च;  // Octal
+    पक्ष 'p': पटिनिवत्त सच्च;  // Pattern
+    पक्ष 's': पटिनिवत्त सच्च;  // String
+    पक्ष 't': पटिनिवत्त सच्च;  // Time
+    पक्ष 'u': पटिनिवत्त सच्च;  // Packed 2-state
+    पक्ष 'v': पटिनिवत्त सच्च;  // Strength
+    पक्ष 'x': पटिनिवत्त सच्च;  // Hex
+    पक्ष 'z': पटिनिवत्त सच्च;  // Packed 4-state
+    पक्ष '?': पटिनिवत्त सच्च;  // Internal: Compute format in V3Width based on data type
+    स्वभाव: पटिनिवत्त मिच्छा;
     }
     // 'l'                  // Library - precomputed front string, so no arg
     // 'm'                  // Module - precomputed front string, so no arg
     // '*'                  // $scan ignore argument
 }
 
-string V3Number::displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE {
+string V3_सङ्ख्या::displayPad(size_t fmtsize, वर्ण pad, तार्किक वामः, ध्रुव string& in) VL_PURE {
     string padding;
-    if (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
-    return left ? (in + padding) : (padding + in);
+    सचे (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
+    पटिनिवत्त वामः ? (in + padding) : (padding + in);
 }
 
-string V3Number::displayedEnumName(const AstEnumItem* itemp) {
-    const string name = VIdProtect::protect(itemp->prettyName());
-    return VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
+string V3_सङ्ख्या::displayedEnumName(ध्रुव AstEnumItem* itemp) {
+    ध्रुव string name = VIdProtect::protect(itemp->prettyName());
+    पटिनिवत्त VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned वर्ण>(name[0]))
                ? name
                : "\\" + name + " ";
 }
 
-string V3Number::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
+string V3_सङ्ख्या::displayedEnumName(ध्रुव AstEnumDType* dtypep) ध्रुव VL_MT_STABLE {
+    V3_सङ्ख्या मानम्{एतत्, dtypep->width()};
+    मानम्.opAssign(*एतत्);
+    अत्थाय (ध्रुव AstEnumItem* itemp = dtypep->itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), EnumItem)) {
-        const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-        if (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
-            return displayedEnumName(itemp);
+        ध्रुव AstConst* ध्रुव constp = VN_AS(itemp->valuep(), Const);
+        सचे (!constp->अङ्कः().isAnyXZ() && मानम्.isCaseEq(constp->अङ्कः()))
+            पटिनिवत्त displayedEnumName(itemp);
     }
-    return "";
+    पटिनिवत्त "";
 }
 
-string V3Number::displayedEnum(const AstSFormatArg* argp,
-                               const string& vformat) const VL_MT_STABLE {
-    const AstEnumDType* const dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    const VFormatAttr numericAttr
+string V3_सङ्ख्या::displayedEnum(ध्रुव AstSFormatArg* argp,
+                               ध्रुव string& vformat) ध्रुव VL_MT_STABLE {
+    ध्रुव AstEnumDType* ध्रुव dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
+    V3_सङ्ख्या मानम्{एतत्, dtypep->width()};
+    मानम्.opAssign(*एतत्);
+    ध्रुव VFormatAttr numericAttr
         = dtypep->isSigned() ? VFormatAttr::SIGNED : VFormatAttr::UNSIGNED;
-    const char fmt = std::tolower(vformat.back());
-    if (fmt != 'p' && fmt != 's') return value.displayed(argp, vformat, numericAttr);
-    string name = value.displayedEnumName(dtypep);
-    if (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
-    V3Number nameNum{this};
-    nameNum.setString(name);
-    return nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
+    ध्रुव वर्ण fmt = std::tolower(vformat.back());
+    सचे (fmt != 'p' && fmt != 's') पटिनिवत्त मानम्.displayed(argp, vformat, numericAttr);
+    string name = मानम्.displayedEnumName(dtypep);
+    सचे (name.empty()) name = मानम्.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
+    V3_सङ्ख्या name_अङ्कः{एतत्};
+    name_अङ्कः.setString(name);
+    पटिनिवत्त name_अङ्कः.displayed(argp, vformat, VFormatAttr::COMPLEX);
 }
 
-string V3Number::displayed(const AstNode* nodep, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
-    return displayed(nodep->fileline(), vformat, formatAttr);
+string V3_सङ्ख्या::displayed(ध्रुव Ast_ग्रन्थिः* nodep, ध्रुव string& vformat,
+                           ध्रुव VFormatAttr& formatAttr) ध्रुव VL_MT_STABLE {
+    पटिनिवत्त displayed(nodep->fileline(), vformat, formatAttr);
 }
 
-string V3Number::displayed(FileLine* fl, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
+string V3_सङ्ख्या::displayed(File_पङ्क्तिः* fl, ध्रुव string& vformat,
+                           ध्रुव VFormatAttr& formatAttr) ध्रुव VL_MT_STABLE {
     // Similar code flow in verilated.cpp _vl_vsformat
     // Correct number of zero bits/width matters
     // UINFO(9, "displayed(\"" << vformat << "\", formatAttr=" << formatAttr);
     auto pos = vformat.cbegin();
     UASSERT(pos != vformat.cend() && pos[0] == '%',
-            "$display-like function with non-format argument " << *this);
+            "$display-like function with non-format argument " << *एतत्);
     ++pos;
-    bool left = false;
-    if (pos[0] == '-') {
-        left = true;
+    तार्किक वामः = मिच्छा;
+    सचे (pos[0] == '-') {
+        वामः = सच्च;
         ++pos;
     }
     string fmtsize;
-    for (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
+    अत्थाय (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
         fmtsize += pos[0];
     }
     string str;
 
-    char fmt = std::tolower(pos[0]);
+    वर्ण fmt = std::tolower(pos[0]);
 
     // Override user's code for certain data-type determined arguments
-    if (formatAttr.isComplex()) {
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isString()) {
-        if (fmt == 'h' || fmt == 'x') {
+    सचे (formatAttr.isComplex()) {
+        सचे (fmt != 'p') fmt = 's';  // override
+    } अञ्ञथा सचे (formatAttr.isString()) {
+        सचे (fmt == 'h' || fmt == 'x') {
             // V3Width errors on const %x of string, but V3Randomize may make a %x on a
             // string, or may have a runtime format
-            V3Number strwide{fl, static_cast<int>(toString().length()) * 8, 0};
-            strwide.opNToI(*this);
-            return strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
+            V3_सङ्ख्या strwide{fl, static_cast<पूर्णाङ्क>(toString().length()) * 8, 0};
+            strwide.opNToI(*एतत्);
+            पटिनिवत्त strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
         }
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isSigned() || formatAttr.isUnsigned()) {
-        if (fmt == 'p') {
-            if (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
+        सचे (fmt != 'p') fmt = 's';  // override
+    } अञ्ञथा सचे (formatAttr.isSigned() || formatAttr.isUnsigned()) {
+        सचे (fmt == 'p') {
+            सचे (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
                 str += "'h";
                 fmt = 'h';
-            } else {  // UVM tests require %0d
+            } अञ्ञथा {  // UVM tests require %0d
                 fmtsize = "0";
                 fmt = 'd';
             }
         }
-    } else if (formatAttr.isDouble()) {
+    } अञ्ञथा सचे (formatAttr.isDouble()) {
         // 'p' not converted to 'g' here as vformat string can't be easily changed
-        if (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
+        सचे (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
               || VL_UNCOVERABLE(fmt == 't'))) {
             // A non-float format with a float, must convert to integer then format
-            V3Number nonfloat{fl, 64, 0};
-            nonfloat.opRToIRoundS(*this);
-            return nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
+            V3_सङ्ख्या nonfloat{fl, 64, 0};
+            nonfloat.opRToIRoundS(*एतत्);
+            पटिनिवत्त nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
         }
     }
 
-    switch (fmt) {
-    case 'c': {
-        if (width() > 8)
+    विकल्प (fmt) {
+    पक्ष 'c': {
+        सचे (width() > 8)
             fl->v3warn(WIDTHTRUNC, "$display-like format of %c format of > 8 bit value");
-        const unsigned int v = bitsValue(0, 8);
-        str.push_back(static_cast<char>(v));
-        return str;
+        ध्रुव unsigned पूर्णाङ्क v = bits_मानम्(0, 8);
+        str.प्रक्षिप_back(static_cast<वर्ण>(v));
+        पटिनिवत्त str;
     }
-    case 'e':  // FALLTHRU
-    case 'f':  // FALLTHRU
-    case 'g': {
-        const double n = formatAttr.isDouble()   ? toDouble()
+    पक्ष 'e':  // FALLTHRU
+    पक्ष 'f':  // FALLTHRU
+    पक्ष 'g': {
+        ध्रुव द्विगुण n = formatAttr.isDouble()   ? toDouble()
                          : formatAttr.isSigned() ? toSQuad()
                                                  : toUQuad();
-        char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-        (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
-        return tmp;
+        वर्ण tmp[MAX_SPRINTF_DOUBLE_SIZE];
+        (शून्य)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
+        पटिनिवत्त tmp;
     }
-    case 's': {
-        if (formatAttr.isString() || formatAttr.isComplex()) {
+    पक्ष 's': {
+        सचे (formatAttr.isString() || formatAttr.isComplex()) {
             str = toString();
-        } else {
+        } अञ्ञथा {
             // Spec says always drop leading zeros, this isn't quite right, we space pad.
-            int bit = width() - 1;
-            bool start = true;
-            while ((bit % 8) != 7) ++bit;
-            for (; bit >= 0; bit -= 8) {
-                const int v = bitsValue(bit - 7, 8);
-                if (!start || v) {
-                    str += static_cast<char>((v == 0) ? ' ' : v);
-                    start = false;  // Drop leading 0s
-                } else {
-                    if (fmtsize != "0") str += ' ';
+            पूर्णाङ्क bit = width() - 1;
+            तार्किक start = सच्च;
+            याव ((bit % 8) != 7) ++bit;
+            अत्थाय (; bit >= 0; bit -= 8) {
+                ध्रुव पूर्णाङ्क v = bits_मानम्(bit - 7, 8);
+                सचे (!start || v) {
+                    str += static_cast<वर्ण>((v == 0) ? ' ' : v);
+                    start = मिच्छा;  // Drop leading 0s
+                } अञ्ञथा {
+                    सचे (fmtsize != "0") str += ' ';
                 }
             }
         }
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, ' ', left, str);
-        return str;
+        ध्रुव size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, ' ', वामः, str);
+        पटिनिवत्त str;
     }
-    case 'p': {  // Pattern
+    पक्ष 'p': {  // Pattern
         // 'p' with NUMBER was earlier converted to 'd'
-        if (formatAttr.isDouble()) {
-            const double n = formatAttr.isDouble()   ? toDouble()
+        सचे (formatAttr.isDouble()) {
+            ध्रुव द्विगुण n = formatAttr.isDouble()   ? toDouble()
                              : formatAttr.isSigned() ? toSQuad()
                                                      : toUQuad();
-            char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-            (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
-            return tmp;
+            वर्ण tmp[MAX_SPRINTF_DOUBLE_SIZE];
+            (शून्य)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
+            पटिनिवत्त tmp;
         }
-        if (formatAttr.isString())
-            return '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
-        if (formatAttr.isComplex()) return toString();
-        return "%p";
+        सचे (formatAttr.isString())
+            पटिनिवत्त '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
+        सचे (formatAttr.isComplex()) पटिनिवत्त toString();
+        पटिनिवत्त "%p";
     }
-    case 'b':  // FALLTHRU
-    case 'o':  // FALLTHRU
-    case 'h':  // FALLTHRU
-    case 'x': {
-        int bit = width() - 1;
-        if (left || !fmtsize.empty()) {
-            while (bit && bitIs0(bit)) --bit;
+    पक्ष 'b':  // FALLTHRU
+    पक्ष 'o':  // FALLTHRU
+    पक्ष 'h':  // FALLTHRU
+    पक्ष 'x': {
+        पूर्णाङ्क bit = width() - 1;
+        सचे (वामः || !fmtsize.empty()) {
+            याव (bit && bitIs0(bit)) --bit;
         }
-        switch (fmt) {
-        case 'b': {
-            for (; bit >= 0; --bit) {
-                if (bitIs0(bit)) {
+        विकल्प (fmt) {
+        पक्ष 'b': {
+            अत्थाय (; bit >= 0; --bit) {
+                सचे (bitIs0(bit)) {
                     str += '0';
-                } else if (bitIs1(bit)) {
+                } अञ्ञथा सचे (bitIs1(bit)) {
                     str += '1';
-                } else if (bitIsZ(bit)) {
+                } अञ्ञथा सचे (bitIsZ(bit)) {
                     str += 'z';
-                } else {
+                } अञ्ञथा {
                     str += 'x';
                 }
             }
-            break;
+            भङ्ग;
         }
-        case 'o': {
-            while ((bit % 3) != 2) ++bit;
-            for (; bit > 0; bit -= 3) {
-                const int numX = countX(bit - 2, 3);
-                const int numZ = countZ(bit - 2, 3);
-                if (numX == 3 || numX == width() - (bit - 2)) {
+        पक्ष 'o': {
+            याव ((bit % 3) != 2) ++bit;
+            अत्थाय (; bit > 0; bit -= 3) {
+                ध्रुव पूर्णाङ्क अङ्कः_X = गणनम्_X(bit - 2, 3);
+                ध्रुव पूर्णाङ्क अङ्कः_Z = गणनम्_Z(bit - 2, 3);
+                सचे (अङ्कः_X == 3 || अङ्कः_X == width() - (bit - 2)) {
                     str += 'x';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numZ == 3 || numZ == width() - (bit - 2)) {
+                सचे (अङ्कः_Z == 3 || अङ्कः_Z == width() - (bit - 2)) {
                     str += 'z';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numX > 0) {
+                सचे (अङ्कः_X > 0) {
                     str += 'X';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numZ > 0) {
+                सचे (अङ्कः_Z > 0) {
                     str += 'Z';
-                    continue;
+                    अनुवर्त;
                 }
-                const int v = bitsValue(bit - 2, 3);
-                str += static_cast<char>('0' + v);
+                ध्रुव पूर्णाङ्क v = bits_मानम्(bit - 2, 3);
+                str += static_cast<वर्ण>('0' + v);
             }
-            break;
+            भङ्ग;
         }
-        default: {  // h/x
-            while ((bit % 4) != 3) ++bit;
-            for (; bit > 0; bit -= 4) {
-                const int numX = countX(bit - 3, 4);
-                const int numZ = countZ(bit - 3, 4);
-                if (numX == 4 || numX == width() - (bit - 3)) {
+        स्वभाव: {  // h/x
+            याव ((bit % 4) != 3) ++bit;
+            अत्थाय (; bit > 0; bit -= 4) {
+                ध्रुव पूर्णाङ्क अङ्कः_X = गणनम्_X(bit - 3, 4);
+                ध्रुव पूर्णाङ्क अङ्कः_Z = गणनम्_Z(bit - 3, 4);
+                सचे (अङ्कः_X == 4 || अङ्कः_X == width() - (bit - 3)) {
                     str += 'x';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numZ == 4 || numZ == width() - (bit - 3)) {
+                सचे (अङ्कः_Z == 4 || अङ्कः_Z == width() - (bit - 3)) {
                     str += 'z';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numX > 0) {
+                सचे (अङ्कः_X > 0) {
                     str += 'X';
-                    continue;
+                    अनुवर्त;
                 }
-                if (numZ > 0) {
+                सचे (अङ्कः_Z > 0) {
                     str += 'Z';
-                    continue;
+                    अनुवर्त;
                 }
-                const int v = bitsValue(bit - 3, 4);
-                if (v >= 10) {
-                    str += static_cast<char>('a' + v - 10);
-                } else {
-                    str += static_cast<char>('0' + v);
+                ध्रुव पूर्णाङ्क v = bits_मानम्(bit - 3, 4);
+                सचे (v >= 10) {
+                    str += static_cast<वर्ण>('a' + v - 10);
+                } अञ्ञथा {
+                    str += static_cast<वर्ण>('0' + v);
                 }
             }
-            break;
+            भङ्ग;
         }
         }  // switch
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (left ? ' ' : '0'), left, str);
-        return str;
+        ध्रुव size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (वामः ? ' ' : '0'), वामः, str);
+        पटिनिवत्त str;
     }  // case b/d/x/o
-    case 't':  // Time
-    case 'd': {  // Unsigned decimal
-        const bool issigned = formatAttr.isSigned();
-        if (fmtsize == "" && !left) {
-            const double mantissabits = width() - (issigned ? 1 : 0);
+    पक्ष 't':  // Time
+    पक्ष 'd': {  // Unsigned decimal
+        ध्रुव तार्किक issigned = formatAttr.isSigned();
+        सचे (fmtsize == "" && !वामः) {
+            ध्रुव द्विगुण mantissabits = width() - (issigned ? 1 : 0);
             // To get the number of digits required, we want to compute
             // log10(2**mantissabits) and round it up. To be able to handle
             // a very wide mantissa, we use log2(2**mantissabits)/log2(10),
             // which is (+1.0 is for rounding bias):
-            double dchars = mantissabits / 3.321928094887362 + 1.0;
-            if (issigned) ++dchars;  // space for sign
-            fmtsize = cvtToStr(static_cast<int>(dchars));
+            द्विगुण dchars = mantissabits / 3.321928094887362 + 1.0;
+            सचे (issigned) ++dchars;  // space for sign
+            fmtsize = cvtToStr(static_cast<पूर्णाङ्क>(dchars));
         }
-        bool hasXZ = false;
-        if (isAllX()) {
+        तार्किक hasXZ = मिच्छा;
+        सचे (isAllX()) {
             str = "x";
-            hasXZ = true;
-        } else if (isAllZ()) {
+            hasXZ = सच्च;
+        } अञ्ञथा सचे (isAllZ()) {
             str = "z";
-            hasXZ = true;
-        } else if (isAnyX()) {
+            hasXZ = सच्च;
+        } अञ्ञथा सचे (isAnyX()) {
             str = "X";
-            hasXZ = true;
-        } else if (isAnyZ()) {
+            hasXZ = सच्च;
+        } अञ्ञथा सचे (isAnyZ()) {
             str = "Z";
-            hasXZ = true;
+            hasXZ = सच्च;
         }
-        if (!hasXZ) {
-            if (issigned) {
-                if (width() > 64) {
+        सचे (!hasXZ) {
+            सचे (issigned) {
+                सचे (width() > 64) {
                     str = toDecimalS();
-                } else {
+                } अञ्ञथा {
                     str = cvtToStr(toSQuad());
                 }
-            } else {
-                if (width() > 64) {
+            } अञ्ञथा {
+                सचे (width() > 64) {
                     str = toDecimalU();
-                } else {
+                } अञ्ञथा {
                     str = cvtToStr(toUQuad());
                 }
             }
         }
-        const bool zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !left;
+        ध्रुव तार्किक zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !वामः;
         // fmtsize might have changed since we parsed the %fmtsize
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), left, str);
-        return str;
+        ध्रुव size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), वामः, str);
+        पटिनिवत्त str;
     }
     // 'l'   // Library - converted to text by V3LinkResolve
-    case 'u': {  // Packed 2-state
-        for (int i = 0; i < words(); ++i) {
-            const uint32_t v = m_data.num()[i].m_value;
-            str += static_cast<char>((v >> 0) & 0xff);
-            str += static_cast<char>((v >> 8) & 0xff);
-            str += static_cast<char>((v >> 16) & 0xff);
-            str += static_cast<char>((v >> 24) & 0xff);
+    पक्ष 'u': {  // Packed 2-state
+        अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+            ध्रुव uint32_t v = m_data.अङ्कः()[i].m_मानम्;
+            str += static_cast<वर्ण>((v >> 0) & 0xff);
+            str += static_cast<वर्ण>((v >> 8) & 0xff);
+            str += static_cast<वर्ण>((v >> 16) & 0xff);
+            str += static_cast<वर्ण>((v >> 24) & 0xff);
         }
-        return str;
+        पटिनिवत्त str;
     }
-    case 'z': {  // Packed 4-state
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            str += static_cast<char>((v.m_value >> 0) & 0xff);
-            str += static_cast<char>((v.m_value >> 8) & 0xff);
-            str += static_cast<char>((v.m_value >> 16) & 0xff);
-            str += static_cast<char>((v.m_value >> 24) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 0) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 8) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 16) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 24) & 0xff);
+    पक्ष 'z': {  // Packed 4-state
+        अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+            ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+            str += static_cast<वर्ण>((v.m_मानम् >> 0) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम् >> 8) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम् >> 16) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम् >> 24) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम्_X >> 0) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम्_X >> 8) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम्_X >> 16) & 0xff);
+            str += static_cast<वर्ण>((v.m_मानम्_X >> 24) & 0xff);
         }
-        return str;
+        पटिनिवत्त str;
     }
-    case 'v': {  // Strength
-        int bit = width() - 1;
-        for (; bit >= 0; bit--) {
-            if (bitIs0(bit)) {
+    पक्ष 'v': {  // Strength
+        पूर्णाङ्क bit = width() - 1;
+        अत्थाय (; bit >= 0; bit--) {
+            सचे (bitIs0(bit)) {
                 str += "St0 ";
             }  // Yes, always a space even for bit 0
-            else if (bitIs1(bit)) {
+            अञ्ञथा सचे (bitIs1(bit)) {
                 str += "St1 ";
-            } else if (bitIsZ(bit)) {
+            } अञ्ञथा सचे (bitIsZ(bit)) {
                 str += "StZ ";
-            } else {
+            } अञ्ञथा {
                 str += "StX";
             }
         }
-        return str;
+        पटिनिवत्त str;
     }
-    default: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
+    स्वभाव: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
     }
 }
 
-string V3Number::emitC() const VL_MT_STABLE {
+string V3_सङ्ख्या::emitC() ध्रुव VL_MT_STABLE {
     constexpr size_t bufsize = 1000;
-    char sbuf[bufsize];
+    वर्ण sbuf[bufsize];
     string result;
-    if (isNull()) {
-        return "VlNull{}";
-    } else if (isDouble()) {
-        const double dnum = toDouble();
-        if (std::isinf(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+    सचे (isNull()) {
+        पटिनिवत्त "VlNull{}";
+    } अञ्ञथा सचे (isDouble()) {
+        ध्रुव द्विगुण dnum = toDouble();
+        सचे (std::isinf(dnum)) {
+            सचे (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::infinity()";
-        } else if (std::isnan(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+        } अञ्ञथा सचे (std::isnan(dnum)) {
+            सचे (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::quiet_NaN()";
-        } else {
-            const char* const fmt = (static_cast<int>(dnum) == dnum && -1000 < dnum && dnum < 1000)
+        } अञ्ञथा {
+            ध्रुव वर्ण* ध्रुव fmt = (static_cast<पूर्णाङ्क>(dnum) == dnum && -1000 < dnum && dnum < 1000)
                                         ? "%3.1f"  // Force decimal point
                                         : "%.17e";  // %e always yields a float literal
-            (void)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
-            return sbuf;
+            (शून्य)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
+            पटिनिवत्त sbuf;
         }
-    } else if (isString()) {
-        const string strg = toString();
-        const string quoted
+    } अञ्ञथा सचे (isString()) {
+        ध्रुव string strg = toString();
+        ध्रुव string quoted
             = V3OutFormatter::quoteNameControls(strg, V3OutFormatter::Language::LA_C);
         // Note: putsQuoted does not track indentation, so we use this instead
-        return '"' + quoted + "\"s";
-    } else if (words() > 2) {
+        पटिनिवत्त '"' + quoted + "\"s";
+    } अञ्ञथा सचे (शब्दाः() > 2) {
         // Note the double {{ initializer. The first { starts the initializer of the VlWide,
         // and the second starts the initializer of m_storage within the VlWide.
         // Alternative is to have constructor with std::initializer_list
-        result = "::VlWide<" + std::to_string(words()) + ">{{";
-        if (words() > 4) result += '\n';
-        for (int n = 0; n < words(); ++n) {
-            if (n) result += ((n % 4) ? ", " : ",\n");
-            (void)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
+        result = "::VlWide<" + std::to_string(शब्दाः()) + ">{{";
+        सचे (शब्दाः() > 4) result += '\n';
+        अत्थाय (पूर्णाङ्क n = 0; n < शब्दाः(); ++n) {
+            सचे (n) result += ((n % 4) ? ", " : ",\n");
+            (शून्य)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
             result += sbuf;
         }
-        if (words() > 4) result += '\n';
+        सचे (शब्दाः() > 4) result += '\n';
         result += "}}";
-    } else if (words() == 2) {  // Quad
-        const uint64_t qnum = static_cast<uint64_t>(toUQuad());
-        const char* const fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
+    } अञ्ञथा सचे (शब्दाः() == 2) {  // Quad
+        ध्रुव uint64_t qnum = static_cast<uint64_t>(toUQuad());
+        ध्रुव वर्ण* ध्रुव fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
-        return sbuf;
-    } else {
+        (शून्य)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
+        पटिनिवत्त sbuf;
+    } अञ्ञथा {
         // Always emit unsigned, if signed, will call correct signed functions
         // The 'U' must be here, to avoid <= comparisons etc ending up signed
-        const uint32_t unum = toUInt();
-        const char* const fmt = (unum < 10)      ? ("%" PRIu32 "U")
+        ध्रुव uint32_t unum = toUInt();
+        ध्रुव वर्ण* ध्रुव fmt = (unum < 10)      ? ("%" PRIu32 "U")
                                 : (width() > 16) ? ("0x%08" PRIx32 "U")
                                 : (width() > 8)  ? ("0x%04" PRIx32 "U")
                                                  : ("0x%02" PRIx32 "U");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
-        return sbuf;
+        (शून्य)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
+        पटिनिवत्त sbuf;
     }
-    return result;
+    पटिनिवत्त result;
 }
 
-string V3Number::toDecimalS() const VL_MT_STABLE {
+string V3_सङ्ख्या::toDecimalS() ध्रुव VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (isNegative()) {
-        V3Number lhsNoSign = *this;
-        lhsNoSign.opNegate(*this);
-        return "-"s + lhsNoSign.toDecimalU();
-    } else {
-        return toDecimalU();
+    सचे (isNegative()) {
+        V3_सङ्ख्या lhsNoSign = *एतत्;
+        lhsNoSign.opNegate(*एतत्);
+        पटिनिवत्त "-"s + lhsNoSign.toDecimalU();
+    } अञ्ञथा {
+        पटिनिवत्त toDecimalU();
     }
 }
 
-string V3Number::toDecimalU() const VL_MT_STABLE {
-    const int maxdecwidth = (width() + 3) * 4 / 3;
+string V3_सङ्ख्या::toDecimalU() ध्रुव VL_MT_STABLE {
+    ध्रुव पूर्णाङ्क maxdecwidth = (width() + 3) * 4 / 3;
 
     // Or (maxdecwidth+7)/8], but can't have more than 4 BCD bits per word
-    V3Number bcd(this, maxdecwidth + 4);
-    V3Number tmp(this, maxdecwidth + 4);
-    V3Number tmp2(this, maxdecwidth + 4);
+    V3_सङ्ख्या bcd(एतत्, maxdecwidth + 4);
+    V3_सङ्ख्या tmp(एतत्, maxdecwidth + 4);
+    V3_सङ्ख्या tmp2(एतत्, maxdecwidth + 4);
 
-    int from_bit = width() - 1;
+    पूर्णाङ्क from_bit = width() - 1;
     // Skip all leading zeros
-    for (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
+    अत्थाय (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
     // Double-dabble algorithm
-    for (; from_bit >= 0; --from_bit) {
+    अत्थाय (; from_bit >= 0; --from_bit) {
         // Any digits >= 5 need an add 3 (via tmp)
-        for (int nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
-            if (bcd.bitsValue(nibble_bit, 4) >= 5) {
+        अत्थाय (पूर्णाङ्क nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
+            सचे (bcd.bits_मानम्(nibble_bit, 4) >= 5) {
                 tmp2.setAllBits0();
                 tmp2.setBit(nibble_bit, 1);  // Add 3, decomposed as two bits
                 tmp2.setBit(nibble_bit + 1, 1);
@@ -1070,751 +1070,751 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
         }
         // Shift; bcd = bcd << 1
         tmp.opAssign(bcd);
-        bcd.opShiftL(tmp, V3Number(this, 32, 1));
+        bcd.opShiftL(tmp, V3_सङ्ख्या(एतत्, 32, 1));
         // bcd[0] = this[from_bit]
-        if (bitIs1(from_bit)) bcd.setBit(0, 1);
+        सचे (bitIs1(from_bit)) bcd.setBit(0, 1);
     }
 
     string output;
-    int lsb = (maxdecwidth - 1) & ~3;
-    for (; lsb > 0; lsb -= 4) {  // Skip leading zeros
-        if (bcd.bitsValue(lsb, 4)) break;
+    पूर्णाङ्क lsb = (maxdecwidth - 1) & ~3;
+    अत्थाय (; lsb > 0; lsb -= 4) {  // Skip leading zeros
+        सचे (bcd.bits_मानम्(lsb, 4)) भङ्ग;
     }
-    for (; lsb >= 0; lsb -= 4) {
-        output += static_cast<char>('0' + bcd.bitsValue(lsb, 4));  // 0..9
+    अत्थाय (; lsb >= 0; lsb -= 4) {
+        output += static_cast<वर्ण>('0' + bcd.bits_मानम्(lsb, 4));  // 0..9
     }
-    return output;
+    पटिनिवत्त output;
 }
 
-string V3Number::toRealString() const VL_MT_STABLE {
-    const double value = toDouble();
+string V3_सङ्ख्या::toRealString() ध्रुव VL_MT_STABLE {
+    ध्रुव द्विगुण मानम् = toDouble();
     // 15 digits suffice for most values, 17 digits for every value
     std::ostringstream out;
     out.precision(15);
-    out << value;
+    out << मानम्;
     string result = out.str();
-    if (std::strtod(result.c_str(), nullptr) != value) {
+    सचे (std::strtod(result.c_str(), nullptr) != मानम्) {
         out.str("");
         out.precision(17);
-        out << value;
+        out << मानम्;
         result = out.str();
     }
     // A real, as in Verilog, unless has an exponent, or is infinite or not-a-number
-    if (result.find_first_of(".en") == string::npos) result += ".0";
-    return result;
+    सचे (result.find_first_of(".en") == string::npos) result += ".0";
+    पटिनिवत्त result;
 }
 
 //======================================================================
 // ACCESSORS - as numbers
 
-bool V3Number::fitsInUInt() const VL_MT_SAFE {
-    if (isFourState()) return false;
+तार्किक V3_सङ्ख्या::fitsInUInt() ध्रुव VL_MT_SAFE {
+    सचे (isFourState()) पटिनिवत्त मिच्छा;
     // We allow wide numbers that represent values <= 32 bits
-    for (int i = 1; i < words(); ++i) {
-        if (m_data.num()[i].m_value) return false;
+    अत्थाय (पूर्णाङ्क i = 1; i < शब्दाः(); ++i) {
+        सचे (m_data.अङ्कः()[i].m_मानम्) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-uint32_t V3Number::toUInt() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUInt with 4-state " << *this);
+uint32_t V3_सङ्ख्या::toUInt() ध्रुव VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUInt with 4-state " << *एतत्);
     // We allow wide numbers that represent values <= 32 bits
-    if (VL_UNCOVERABLE(!fitsInUInt())) {
+    सचे (VL_UNCOVERABLE(!fitsInUInt())) {
         v3error("Value too wide for 32-bits expected in this context "  // LCOV_EXCL_LINE
-                << *this);
+                << *एतत्);
     }
-    return m_data.num()[0].m_value;
+    पटिनिवत्त m_data.अङ्कः()[0].m_मानम्;
 }
 
-double V3Number::toDouble() const VL_MT_SAFE {
+द्विगुण V3_सङ्ख्या::toDouble() ध्रुव VL_MT_SAFE {
     UASSERT(isDouble() && width() == 64, "Real operation on wrong sized/non-real number");
-    union {
-        double d;
+    सङ्घ {
+        द्विगुण d;
         uint32_t u[2];
     } u;
-    u.u[0] = m_data.num()[0].m_value;
-    u.u[1] = m_data.num()[1].m_value;
-    return u.d;
+    u.u[0] = m_data.अङ्कः()[0].m_मानम्;
+    u.u[1] = m_data.अङ्कः()[1].m_मानम्;
+    पटिनिवत्त u.d;
 }
 
-int32_t V3Number::toSInt() const VL_MT_SAFE {
-    if (isSigned()) {
-        const uint32_t v = toUInt();
-        const uint32_t signExtend = (-(v & (1UL << (width() - 1))));
-        const uint32_t extended = v | signExtend;
-        return static_cast<int32_t>(extended);
-    } else {
+int32_t V3_सङ्ख्या::toSInt() ध्रुव VL_MT_SAFE {
+    सचे (isSigned()) {
+        ध्रुव uint32_t v = toUInt();
+        ध्रुव uint32_t signExtend = (-(v & (1UL << (width() - 1))));
+        ध्रुव uint32_t extended = v | signExtend;
+        पटिनिवत्त static_cast<int32_t>(extended);
+    } अञ्ञथा {
         // Where we use this (widths, etc) and care about signedness,
         // we can reasonably assume the MSB isn't set on unsigned numbers.
-        return static_cast<int32_t>(toUInt());
+        पटिनिवत्त static_cast<int32_t>(toUInt());
     }
 }
 
-uint64_t V3Number::toUQuad() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUQuad with 4-state " << *this);
+uint64_t V3_सङ्ख्या::toUQuad() ध्रुव VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUQuad with 4-state " << *एतत्);
     // We allow wide numbers that represent values <= 64 bits
-    if (isDouble()) return static_cast<uint64_t>(toDouble());
-    for (int i = 2; i < words(); ++i) {
-        if (m_data.num()[i].m_value) {
-            v3error("Value too wide for 64-bits expected in this context " << *this);
-            break;
+    सचे (isDouble()) पटिनिवत्त static_cast<uint64_t>(toDouble());
+    अत्थाय (पूर्णाङ्क i = 2; i < शब्दाः(); ++i) {
+        सचे (m_data.अङ्कः()[i].m_मानम्) {
+            v3error("Value too wide for 64-bits expected in this context " << *एतत्);
+            भङ्ग;
         }
     }
-    if (width() <= 32) return (static_cast<uint64_t>(toUInt()));
-    return ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
-            | (static_cast<uint64_t>(m_data.num()[0].m_value)));
+    सचे (width() <= 32) पटिनिवत्त (static_cast<uint64_t>(toUInt()));
+    पटिनिवत्त ((static_cast<uint64_t>(m_data.अङ्कः()[1].m_मानम्) << 32ULL)
+            | (static_cast<uint64_t>(m_data.अङ्कः()[0].m_मानम्)));
 }
 
-int64_t V3Number::toSQuad() const {
-    if (isDouble()) return static_cast<int64_t>(toDouble());
-    const uint64_t v = toUQuad();
-    const uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
-    const uint64_t extended = v | signExtend;
-    return static_cast<int64_t>(extended);
+int64_t V3_सङ्ख्या::toSQuad() ध्रुव {
+    सचे (isDouble()) पटिनिवत्त static_cast<int64_t>(toDouble());
+    ध्रुव uint64_t v = toUQuad();
+    ध्रुव uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
+    ध्रुव uint64_t extended = v | signExtend;
+    पटिनिवत्त static_cast<int64_t>(extended);
 }
 
-string V3Number::toString() const {
-    UASSERT(!isFourState(), "toString with 4-state " << *this);
+string V3_सङ्ख्या::toString() ध्रुव {
+    UASSERT(!isFourState(), "toString with 4-state " << *एतत्);
     // IEEE says \000 are removed
     // If used to print a %s space padding is still required after call to here
-    if (isString()) return m_data.str();
-    int bit = width() - 1;
-    while ((bit % 8) != 7) ++bit;
+    सचे (isString()) पटिनिवत्त m_data.str();
+    पूर्णाङ्क bit = width() - 1;
+    याव ((bit % 8) != 7) ++bit;
     std::string str;
-    for (; bit >= 0; bit -= 8) {
-        const int v = bitsValue(bit - 7, 8);
-        if (v) str += static_cast<char>(v);
+    अत्थाय (; bit >= 0; bit -= 8) {
+        ध्रुव पूर्णाङ्क v = bits_मानम्(bit - 7, 8);
+        सचे (v) str += static_cast<वर्ण>(v);
     }
-    return str;
+    पटिनिवत्त str;
 }
 
-uint32_t V3Number::edataWord(int eword) const {
-    UASSERT(!isFourState(), "edataWord with 4-state " << *this);
-    return m_data.num()[eword].m_value;
+uint32_t V3_सङ्ख्या::edataWord(पूर्णाङ्क eword) ध्रुव {
+    UASSERT(!isFourState(), "edataWord with 4-state " << *एतत्);
+    पटिनिवत्त m_data.अङ्कः()[eword].m_मानम्;
 }
 
-uint8_t V3Number::dataByte(int byte) const {
-    return (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
+uint8_t V3_सङ्ख्या::dataByte(पूर्णाङ्क byte) ध्रुव {
+    पटिनिवत्त (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
 }
 
-bool V3Number::isAllZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        const uint32_t mask = i == words() - 1 ? hiWordMask() : ~0U;
-        if (((~v.m_value & v.m_valueX) & mask) != mask) return false;
+तार्किक V3_सङ्ख्या::isAllZ() ध्रुव VL_MT_SAFE {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        ध्रुव uint32_t mask = i == शब्दाः() - 1 ? hiWordMask() : ~0U;
+        सचे (((~v.m_मानम् & v.m_मानम्_X) & mask) != mask) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isAllX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
+तार्किक V3_सङ्ख्या::isAllX() ध्रुव VL_MT_SAFE {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
     uint32_t mask = hiWordMask();
-    for (int i = words() - 1; i >= 0; --i) {
-        const ValueAndX v = m_data.num()[i];
-        if ((v.m_value & v.m_valueX) ^ mask) return false;
+    अत्थाय (पूर्णाङ्क i = शब्दाः() - 1; i >= 0; --i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे ((v.m_मानम् & v.m_मानम्_X) ^ mask) पटिनिवत्त मिच्छा;
         mask = ~0U;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isEqZero() const VL_MT_SAFE {
-    if (isString()) return m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+तार्किक V3_सङ्ख्या::isEqZero() ध्रुव VL_MT_SAFE {
+    सचे (isString()) पटिनिवत्त m_data.str().empty();
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे (v.m_मानम् || v.m_मानम्_X) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isNeqZero() const {
-    if (isString()) return !m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & ~v.m_valueX) return true;
+तार्किक V3_सङ्ख्या::isNeqZero() ध्रुव {
+    सचे (isString()) पटिनिवत्त !m_data.str().empty();
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे (v.m_मानम् & ~v.m_मानम्_X) पटिनिवत्त सच्च;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-bool V3Number::isBitsZero(int msb, int lsb) const {
-    for (int i = lsb; i <= msb; ++i) {
-        if (VL_UNLIKELY(!bitIs0(i))) return false;
+तार्किक V3_सङ्ख्या::isBitsZero(पूर्णाङ्क msb, पूर्णाङ्क lsb) ध्रुव {
+    अत्थाय (पूर्णाङ्क i = lsb; i <= msb; ++i) {
+        सचे (VL_UNLIKELY(!bitIs0(i))) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isEqOne() const {
-    if (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) return false;
-    for (int i = 1; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+तार्किक V3_सङ्ख्या::isEqOne() ध्रुव {
+    सचे (m_data.अङ्कः()[0].m_मानम् != 1 || m_data.अङ्कः()[0].m_मानम्_X) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 1; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे (v.m_मानम् || v.m_मानम्_X) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isEqAllOnes(int optwidth) const {
+तार्किक V3_सङ्ख्या::isEqAllOnes(पूर्णाङ्क optwidth) ध्रुव {
     // Correct number of zero bits/width matters
-    if (!optwidth) optwidth = width();
-    for (int bit = 0; bit < optwidth; ++bit) {
-        if (!bitIs1(bit)) return false;
+    सचे (!optwidth) optwidth = width();
+    अत्थाय (पूर्णाङ्क bit = 0; bit < optwidth; ++bit) {
+        सचे (!bitIs1(bit)) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
-bool V3Number::isFourState() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+तार्किक V3_सङ्ख्या::isFourState() ध्रुव VL_MT_SAFE {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        सचे (m_data.अङ्कः()[i].m_मानम्_X) पटिनिवत्त सच्च;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-bool V3Number::isAnyX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & v.m_valueX) return true;
+तार्किक V3_सङ्ख्या::isAnyX() ध्रुव VL_MT_SAFE {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे (v.m_मानम् & v.m_मानम्_X) पटिनिवत्त सच्च;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-bool V3Number::isAnyXZ() const {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+तार्किक V3_सङ्ख्या::isAnyXZ() ध्रुव {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        सचे (m_data.अङ्कः()[i].m_मानम्_X) पटिनिवत्त सच्च;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-bool V3Number::isAnyZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (~v.m_value & v.m_valueX) return true;
+तार्किक V3_सङ्ख्या::isAnyZ() ध्रुव VL_MT_SAFE {
+    सचे (isDouble() || isString()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        ध्रुव मानम्_And_X v = m_data.अङ्कः()[i];
+        सचे (~v.m_मानम् & v.m_मानम्_X) पटिनिवत्त सच्च;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-bool V3Number::isLtXZ(const V3Number& rhs) const {
+तार्किक V3_सङ्ख्या::isLtXZ(ध्रुव V3_सङ्ख्या& rhs) ध्रुव {
     // Include X/Z in comparisons for sort ordering
-    if (isString()) return toString() < rhs.toString();
-    if (isDouble()) return toDouble() < rhs.toDouble();
-    for (int bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
-        if (bitIs1(bit) && rhs.bitIs0(bit)) return true;
-        if (rhs.bitIs1(bit) && bitIs0(bit)) return false;
-        if (bitIsXZ(bit)) return true;
-        if (rhs.bitIsXZ(bit)) return false;
+    सचे (isString()) पटिनिवत्त toString() < rhs.toString();
+    सचे (isDouble()) पटिनिवत्त toDouble() < rhs.toDouble();
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
+        सचे (bitIs1(bit) && rhs.bitIs0(bit)) पटिनिवत्त सच्च;
+        सचे (rhs.bitIs1(bit) && bitIs0(bit)) पटिनिवत्त मिच्छा;
+        सचे (bitIsXZ(bit)) पटिनिवत्त सच्च;
+        सचे (rhs.bitIsXZ(bit)) पटिनिवत्त मिच्छा;
     }
-    return false;
+    पटिनिवत्त मिच्छा;
 }
-int V3Number::countX(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsX(lsb + bitn)) ++count;
+पूर्णाङ्क V3_सङ्ख्या::गणनम्_X(पूर्णाङ्क lsb, पूर्णाङ्क nbits) ध्रुव VL_MT_SAFE {
+    पूर्णाङ्क गणनम् = 0;
+    अत्थाय (पूर्णाङ्क bitn = 0; bitn < nbits; ++bitn) {
+        सचे (lsb + bitn >= width()) पटिनिवत्त गणनम्;
+        सचे (bitIsX(lsb + bitn)) ++गणनम्;
     }
-    return count;
+    पटिनिवत्त गणनम्;
 }
-int V3Number::countZ(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsZ(lsb + bitn)) ++count;
+पूर्णाङ्क V3_सङ्ख्या::गणनम्_Z(पूर्णाङ्क lsb, पूर्णाङ्क nbits) ध्रुव VL_MT_SAFE {
+    पूर्णाङ्क गणनम् = 0;
+    अत्थाय (पूर्णाङ्क bitn = 0; bitn < nbits; ++bitn) {
+        सचे (lsb + bitn >= width()) पटिनिवत्त गणनम्;
+        सचे (bitIsZ(lsb + bitn)) ++गणनम्;
     }
-    return count;
-}
-
-int V3Number::widthToFit() const {
-    for (int bit = width() - 1; bit > 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
-    }
-    return 1;  // one bit even if number is == 0
+    पटिनिवत्त गणनम्;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl) const {
+पूर्णाङ्क V3_सङ्ख्या::widthToFit() ध्रुव {
+    अत्थाय (पूर्णाङ्क bit = width() - 1; bit > 0; bit--) {
+        सचे (!bitIs0(bit)) पटिनिवत्त bit + 1;
+    }
+    पटिनिवत्त 1;  // one bit even if number is == 0
+}
+
+uint32_t V3_सङ्ख्या::गणनम्_Bits(ध्रुव V3_सङ्ख्या& ctrl) ध्रुव {
     // Correct number of zero bits/width matters
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        switch (ctrl.bitIs(0)) {
-        case '0':
-            if (bitIs0(bit)) ++n;
-            break;
-        case '1':
-            if (bitIs1(bit)) ++n;
-            break;
-        case 'x':
-            if (bitIsX(bit)) ++n;
-            break;
-        case 'z':
-            if (bitIsZ(bit)) ++n;
-            break;
+    पूर्णाङ्क n = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        विकल्प (ctrl.bitIs(0)) {
+        पक्ष '0':
+            सचे (bitIs0(bit)) ++n;
+            भङ्ग;
+        पक्ष '1':
+            सचे (bitIs1(bit)) ++n;
+            भङ्ग;
+        पक्ष 'x':
+            सचे (bitIsX(bit)) ++n;
+            भङ्ग;
+        पक्ष 'z':
+            सचे (bitIsZ(bit)) ++n;
+            भङ्ग;
         }
     }
-    return n;
+    पटिनिवत्त n;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl1, const V3Number& ctrl2,
-                             const V3Number& ctrl3) const {
+uint32_t V3_सङ्ख्या::गणनम्_Bits(ध्रुव V3_सङ्ख्या& ctrl1, ध्रुव V3_सङ्ख्या& ctrl2,
+                             ध्रुव V3_सङ्ख्या& ctrl3) ध्रुव {
     // Correct number of zero bits/width matters
-    int n = countBits(ctrl1);
-    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
-    if ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
-        n += countBits(ctrl3);
+    पूर्णाङ्क n = गणनम्_Bits(ctrl1);
+    सचे (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += गणनम्_Bits(ctrl2);
+    सचे ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
+        n += गणनम्_Bits(ctrl3);
     }
-    return n;
+    पटिनिवत्त n;
 }
 
-uint32_t V3Number::countOnes() const {
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        if (bitIs1(bit)) ++n;
+uint32_t V3_सङ्ख्या::गणनम्_Ones() ध्रुव {
+    पूर्णाङ्क n = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (bitIs1(bit)) ++n;
     }
-    return n;
+    पटिनिवत्त n;
 }
 
-uint32_t V3Number::mostSetBitP1() const {
-    for (int bit = width() - 1; bit >= 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_सङ्ख्या::mostSetBitP1() ध्रुव {
+    अत्थाय (पूर्णाङ्क bit = width() - 1; bit >= 0; bit--) {
+        सचे (!bitIs0(bit)) पटिनिवत्त bit + 1;
     }
-    return 0;
+    पटिनिवत्त 0;
 }
 
-uint32_t V3Number::leastSetBitP1() const {
-    for (int bit = 0; bit < width(); ++bit) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_सङ्ख्या::leastSetBitP1() ध्रुव {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (!bitIs0(bit)) पटिनिवत्त bit + 1;
     }
-    return 0;
+    पटिनिवत्त 0;
 }
 
 //======================================================================
 
-V3Number& V3Number::opBitsNonXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_सङ्ख्या& V3_सङ्ख्या::opBitsNonXZ(ध्रुव V3_सङ्ख्या& lhs) {  // 0/1->1, X/Z->0
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opBitsOne(const V3Number& lhs) {  // 1->1, 0/X/Z->0
+V3_सङ्ख्या& V3_सङ्ख्या::opBitsOne(ध्रुव V3_सङ्ख्या& lhs) {  // 1->1, 0/X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit)) setBit(bit, 1);
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opBitsXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_सङ्ख्या& V3_सङ्ख्या::opBitsXZ(ध्रुव V3_सङ्ख्या& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsXZ(bit)) setBit(bit, 1);
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIsXZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_सङ्ख्या& V3_सङ्ख्या::opBitsZ(ध्रुव V3_सङ्ख्या& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsZ(bit)) setBit(bit, 1);
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIsZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
 //======================================================================
 // Operators - Simple per-bit logical ops
 
-V3Number& V3Number::opRedOr(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opRedOr(ध्रुव V3_सङ्ख्या& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            return setSingleBits(1);
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) {
+            पटिनिवत्त setSingleBits(1);
+        } अञ्ञथा सचे (lhs.bitIs0(bit)) {
+        } अञ्ञथा {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedAnd(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opRedAnd(ध्रुव V3_सङ्ख्या& lhs) {
     // Correct number of zero bits/width matters
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
-            return setSingleBits(0);
-        } else if (lhs.bitIs1(bit)) {
-        } else {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    वर्ण outc = 1;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs0(bit)) {
+            पटिनिवत्त setSingleBits(0);
+        } अञ्ञथा सचे (lhs.bitIs1(bit)) {
+        } अञ्ञथा {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedXor(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opRedXor(ध्रुव V3_सङ्ख्या& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            if (outc == 1) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) {
+            सचे (outc == 1) {
                 outc = 0;
-            } else if (outc == 0) {
+            } अञ्ञथा सचे (outc == 0) {
                 outc = 1;
             }
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+        } अञ्ञथा सचे (lhs.bitIs0(bit)) {
+        } अञ्ञथा {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                                const V3Number& ctrl3) {
+V3_सङ्ख्या& V3_सङ्ख्या::op_गणनम्_Bits(ध्रुव V3_सङ्ख्या& व्यञ्जकम्, ध्रुव V3_सङ्ख्या& ctrl1, ध्रुव V3_सङ्ख्या& ctrl2,
+                                ध्रुव V3_सङ्ख्या& ctrl3) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS4(expr, ctrl1, ctrl2, ctrl3);
-    NUM_ASSERT_LOGIC_ARGS4(expr, ctrl1, ctrl2, ctrl3);
+    अङ्कः_ASSERT_OP_ARGS4(व्यञ्जकम्, ctrl1, ctrl2, ctrl3);
+    अङ्कः_ASSERT_LOGIC_ARGS4(व्यञ्जकम्, ctrl1, ctrl2, ctrl3);
     setZero();
-    m_data.num()[0].m_value = expr.countBits(ctrl1, ctrl2, ctrl3);
+    m_data.अङ्कः()[0].m_मानम् = व्यञ्जकम्.गणनम्_Bits(ctrl1, ctrl2, ctrl3);
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opCountOnes(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_सङ्ख्या& V3_सङ्ख्या::op_गणनम्_Ones(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
-    m_data.num()[0].m_value = lhs.countOnes();
+    m_data.अङ्कः()[0].m_मानम् = lhs.गणनम्_Ones();
     opCleanThis();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opIsUnknown(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setSingleBits(lhs.isAnyXZ());
+V3_सङ्ख्या& V3_सङ्ख्या::opIsUnknown(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    पटिनिवत्त setSingleBits(lhs.isAnyXZ());
 }
-V3Number& V3Number::opOneHot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() == 1);
+V3_सङ्ख्या& V3_सङ्ख्या::opOneHot(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
+    पटिनिवत्त setSingleBits(lhs.गणनम्_Ones() == 1);
 }
-V3Number& V3Number::opOneHot0(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() <= 1);
+V3_सङ्ख्या& V3_सङ्ख्या::opOneHot0(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
+    पटिनिवत्त setSingleBits(lhs.गणनम्_Ones() <= 1);
 }
-V3Number& V3Number::opCLog2(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_सङ्ख्या& V3_सङ्ख्या::opCLog2(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
     // IE if 4, this algorithm didn't pre-subtract 1, so we need to post-correct now
-    const int adjust = (lhs.countOnes() == 1) ? 0 : 1;
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    ध्रुव पूर्णाङ्क adjust = (lhs.गणनम्_Ones() == 1) ? 0 : 1;
+    अत्थाय (पूर्णाङ्क bit = lhs.width() - 1; bit >= 0; bit--) {
+        सचे (lhs.bitIs1(bit)) {
             setLong(bit + adjust);
-            return *this;
+            पटिनिवत्त *एतत्;
         }
     }
     setZero();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opMostSetBitP1(ध्रुव V3_सङ्ख्या& lhs) {
     // Most-significant set bit plus one (bit-width / find-last-set); 0 if value is zero
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
+    अत्थाय (पूर्णाङ्क bit = lhs.width() - 1; bit >= 0; bit--) {
+        सचे (lhs.bitIs1(bit)) {
             setLong(bit + 1);
-            return *this;
+            पटिनिवत्त *एतत्;
         }
     }
     setZero();
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opLogNot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opLogNot(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     // op i, 1 bit return
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    वर्ण outc = 1;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+            गच्छ last;
+        } अञ्ञथा सचे (lhs.bitIs0(bit)) {
+        } अञ्ञथा {
             outc = 'x';
         }
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opNot(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opNot(ध्रुव V3_सङ्ख्या& lhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     // op i, L(lhs) bit return
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit)) {
+        } अञ्ञथा सचे (lhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opAnd(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
-        } else {
+        } अञ्ञथा सचे (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
+        } अञ्ञथा {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opOr(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
+        } अञ्ञथा सचे (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
             // 0
-        } else {
+        } अञ्ञथा {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opXor(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        } अञ्ञथा सचे (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
+        } अञ्ञथा सचे (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
         // else zero
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-void V3Number::fillBits(int destLsb, int width, char value) {
+शून्य V3_सङ्ख्या::fillBits(पूर्णाङ्क destLsb, पूर्णाङ्क width, वर्ण मानम्) {
     UASSERT(destLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    सचे (!width) पटिनिवत्त;
+    UASSERT(width <= एतत्->width() - destLsb, "Destination bit range exceeds number width");
 
-    const uint32_t valueWord = value == '1' || value == 'x' || value == 1 || value == 3 ? ~0U : 0;
-    const uint32_t xWord = value == 'z' || value == 'x' || value == 2 || value == 3 ? ~0U : 0;
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int word = firstWord; word <= lastWord; ++word) {
-        const int wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
-        const int wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
-        const uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
-        ValueAndX& dest = m_data.num()[word];
-        dest.m_value = (dest.m_value & ~mask) | (valueWord & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | (xWord & mask);
+    ध्रुव uint32_t मानम्_Word = मानम् == '1' || मानम् == 'x' || मानम् == 1 || मानम् == 3 ? ~0U : 0;
+    ध्रुव uint32_t xWord = मानम् == 'z' || मानम् == 'x' || मानम् == 2 || मानम् == 3 ? ~0U : 0;
+    ध्रुव पूर्णाङ्क firstWord = VL_BITWORD_E(destLsb);
+    ध्रुव पूर्णाङ्क lastWord = VL_BITWORD_E(destLsb + width - 1);
+    अत्थाय (पूर्णाङ्क word = firstWord; word <= lastWord; ++word) {
+        ध्रुव पूर्णाङ्क wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
+        ध्रुव पूर्णाङ्क wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
+        ध्रुव uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
+        मानम्_And_X& dest = m_data.अङ्कः()[word];
+        dest.m_मानम् = (dest.m_मानम् & ~mask) | (मानम्_Word & mask);
+        dest.m_मानम्_X = (dest.m_मानम्_X & ~mask) | (xWord & mask);
     }
 }
 
-void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int width) {
+शून्य V3_सङ्ख्या::copyBits(पूर्णाङ्क destLsb, ध्रुव V3_सङ्ख्या& source, पूर्णाङ्क sourceLsb, पूर्णाङ्क width) {
     UASSERT(destLsb >= 0 && sourceLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    सचे (!width) पटिनिवत्त;
+    UASSERT(width <= एतत्->width() - destLsb, "Destination bit range exceeds number width");
     UASSERT(width <= source.width() - sourceLsb, "Source bit range exceeds number width");
 
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int destWord = firstWord; destWord <= lastWord; ++destWord) {
-        const int destBit = std::max(destLsb, destWord * VL_EDATASIZE);
-        const int destOffset = VL_BITBIT_E(destBit);
-        const int sourceBit = sourceLsb + destBit - destLsb;
-        const int sourceWord = VL_BITWORD_E(sourceBit);
-        const int sourceOffset = VL_BITBIT_E(sourceBit);
-        const int copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
-        const uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
+    ध्रुव पूर्णाङ्क firstWord = VL_BITWORD_E(destLsb);
+    ध्रुव पूर्णाङ्क lastWord = VL_BITWORD_E(destLsb + width - 1);
+    अत्थाय (पूर्णाङ्क destWord = firstWord; destWord <= lastWord; ++destWord) {
+        ध्रुव पूर्णाङ्क destBit = std::max(destLsb, destWord * VL_EDATASIZE);
+        ध्रुव पूर्णाङ्क destOffset = VL_BITBIT_E(destBit);
+        ध्रुव पूर्णाङ्क sourceBit = sourceLsb + destBit - destLsb;
+        ध्रुव पूर्णाङ्क sourceWord = VL_BITWORD_E(sourceBit);
+        ध्रुव पूर्णाङ्क sourceOffset = VL_BITBIT_E(sourceBit);
+        ध्रुव पूर्णाङ्क copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
+        ध्रुव uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
 
-        const ValueAndX& sourceLo = source.m_data.num()[sourceWord];
-        uint32_t value = sourceLo.m_value >> sourceOffset;
-        uint32_t valueX = sourceLo.m_valueX >> sourceOffset;
-        if (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
-            const ValueAndX& sourceHi = source.m_data.num()[sourceWord + 1];
-            value |= sourceHi.m_value << (VL_EDATASIZE - sourceOffset);
-            valueX |= sourceHi.m_valueX << (VL_EDATASIZE - sourceOffset);
+        ध्रुव मानम्_And_X& sourceLo = source.m_data.अङ्कः()[sourceWord];
+        uint32_t मानम् = sourceLo.m_मानम् >> sourceOffset;
+        uint32_t मानम्_X = sourceLo.m_मानम्_X >> sourceOffset;
+        सचे (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
+            ध्रुव मानम्_And_X& sourceHi = source.m_data.अङ्कः()[sourceWord + 1];
+            मानम् |= sourceHi.m_मानम् << (VL_EDATASIZE - sourceOffset);
+            मानम्_X |= sourceHi.m_मानम्_X << (VL_EDATASIZE - sourceOffset);
         }
 
-        ValueAndX& dest = m_data.num()[destWord];
-        dest.m_value = (dest.m_value & ~mask) | ((value << destOffset) & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | ((valueX << destOffset) & mask);
+        मानम्_And_X& dest = m_data.अङ्कः()[destWord];
+        dest.m_मानम् = (dest.m_मानम् & ~mask) | ((मानम् << destOffset) & mask);
+        dest.m_मानम्_X = (dest.m_मानम्_X & ~mask) | ((मानम्_X << destOffset) & mask);
     }
 }
 
-V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opConcat(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized() || !rhs.sized()) {
+    सचे (!lhs.sized() || !rhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
     }
     copyBits(0, rhs, 0, rhs.width());
     copyBits(rhs.width(), lhs, 0, lhs.width());
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opLenN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opLenN(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
     setQuad(lhs.toString().length());
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
-                           const V3Number& rhs) {  // rhs is # of times to replicate
+V3_सङ्ख्या& V3_सङ्ख्या::opRepl(ध्रुव V3_सङ्ख्या& lhs,
+                           ध्रुव V3_सङ्ख्या& rhs) {  // rhs is # of times to replicate
     // Hopefully the using routine has a error check to, &rhso.
     // See also error in V3Width
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (!lhs.sized()) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
     }
-    return opRepl(lhs, rhs.toUInt());
+    पटिनिवत्त opRepl(lhs, rhs.toUInt());
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
+V3_सङ्ख्या& V3_सङ्ख्या::opRepl(ध्रुव V3_सङ्ख्या& lhs,
                            uint32_t rhsval) {  // rhs is # of times to replicate
     // i op repl, L(i)*value(rhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (v3Global.opt.replicationLimit()
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    सचे (v3Global.opt.replicationLimit()
         && rhsval > static_cast<uint32_t>(v3Global.opt.replicationLimit())) {
         v3warn(WIDTHCONCAT, "Replication of more that --replication-limit "
                                 << v3Global.opt.replicationLimit() << " is suspect: " << rhsval);
     }
     setZero();
-    for (unsigned times = 0; times < rhsval; ++times) {
-        const uint64_t destLsb = uint64_t{times} * lhs.width();
-        if (destLsb >= static_cast<uint32_t>(width())) break;
-        copyBits(static_cast<int>(destLsb), lhs, 0,
-                 std::min(lhs.width(), width() - static_cast<int>(destLsb)));
+    अत्थाय (unsigned times = 0; times < rhsval; ++times) {
+        ध्रुव uint64_t destLsb = uint64_t{times} * lhs.width();
+        सचे (destLsb >= static_cast<uint32_t>(width())) भङ्ग;
+        copyBits(static_cast<पूर्णाङ्क>(destLsb), lhs, 0,
+                 std::min(lhs.width(), width() - static_cast<पूर्णाङ्क>(destLsb)));
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opStreamL(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized()) {
+    सचे (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in streams.");
     }
     // Slice size should never exceed the lhs width
-    const int ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
-    for (int istart = 0; istart < lhs.width(); istart += ssize) {
-        const int ostart = std::max(0, lhs.width() - ssize - istart);
+    ध्रुव पूर्णाङ्क ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
+    अत्थाय (पूर्णाङ्क istart = 0; istart < lhs.width(); istart += ssize) {
+        ध्रुव पूर्णाङ्क ostart = std::max(0, lhs.width() - ssize - istart);
         copyBits(ostart, lhs, istart, std::min(ssize, lhs.width() - istart));
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opLogAnd(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char loutc = 0;
-    char routc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण loutc = 0;
+    वर्ण routc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) {
             loutc = 1;
-            break;
+            भङ्ग;
         }
-        if (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
+        सचे (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < rhs.width(); ++bit) {
+        सचे (rhs.bitIs1(bit)) {
             routc = 1;
-            break;
+            भङ्ग;
         }
-        if (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
+        सचे (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
     }
-    char outc = 'x';
-    if (routc == 1 && loutc == 1) outc = 1;
-    if (routc == 0 || loutc == 0) outc = 0;
-    return setSingleBits(outc);
+    वर्ण outc = 'x';
+    सचे (routc == 1 && loutc == 1) outc = 1;
+    सचे (routc == 0 || loutc == 0) outc = 0;
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opLogOr(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < lhs.width(); ++bit) {
+        सचे (lhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            गच्छ last;
         }
-        if (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        सचे (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < rhs.width(); ++bit) {
+        सचे (rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            गच्छ last;
         }
-        if (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        सचे (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opLogIf(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number lnot = lhs;
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_सङ्ख्या lnot = lhs;
     lnot.opLogNot(lhs);
-    return opLogOr(lnot, rhs);
+    पटिनिवत्त opLogOr(lnot, rhs);
 }
 
-V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opLogEq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number ifa = lhs;
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_सङ्ख्या ifa = lhs;
     ifa.opLogIf(lhs, rhs);
-    V3Number ifb = rhs;
+    V3_सङ्ख्या ifb = rhs;
     ifb.opLogIf(rhs, lhs);
-    return opLogAnd(ifa, ifb);
+    पटिनिवत्त opLogAnd(ifa, ifb);
 }
 
-V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opAtoN(ध्रुव V3_सङ्ख्या& lhs, पूर्णाङ्क base) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
     UASSERT(base == AstAtoN::ATOREAL || base == 2 || base == 8 || base == 10 || base == 16,
             "base must be one of AstAtoN::ATOREAL, 2, 8, 10, or 16.");
 
@@ -1823,578 +1823,578 @@ V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
     // IEEE 1800-2023 6.16.9 says '_' may exist.
     str.erase(std::remove(str.begin(), str.end(), '_'), str.end());
 
-    if (base == AstAtoN::ATOREAL) return setDouble(std::atof(str.c_str()));
+    सचे (base == AstAtoN::ATOREAL) पटिनिवत्त setDouble(std::atof(str.c_str()));
 
     errno = 0;
     auto v = std::strtol(str.c_str(), nullptr, base);
-    if (errno != 0) v = 0;
-    return setLongS(static_cast<int32_t>(v));
+    सचे (errno != 0) v = 0;
+    पटिनिवत्त setLongS(static_cast<int32_t>(v));
 }
 
-V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opPutcN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, ध्रुव V3_सङ्ख्या& ths) {
+    अङ्कः_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
     string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t c = ths.toSInt() & 0xFF;
+    ध्रुव int32_t i = rhs.toSInt();
+    ध्रुव int32_t c = ths.toSInt() & 0xFF;
     // 6.16.2:str.putc(i, c) does not change the value when i < 0 || i >= str.len() || c == 0
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
-    return setString(lstring);
+    सचे (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
+    पटिनिवत्त setString(lstring);
 }
 
-V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
+V3_सङ्ख्या& V3_सङ्ख्या::opGetcN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
+    ध्रुव string lstring = lhs.toString();
+    ध्रुव int32_t i = rhs.toSInt();
     int32_t v = 0;
     // 6.16.3:str.getc(i) returns 0 if i < 0 || i >= str.len()
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
-    return setLong(v);
+    सचे (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
+    पटिनिवत्त setLong(v);
 }
 
-V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t j = ths.toSInt();
+V3_सङ्ख्या& V3_सङ्ख्या::opSubstrN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, ध्रुव V3_सङ्ख्या& ths) {
+    अङ्कः_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
+    ध्रुव string lstring = lhs.toString();
+    ध्रुव int32_t i = rhs.toSInt();
+    ध्रुव int32_t j = ths.toSInt();
     // 6.16.8:str.substr(i, j) returns an empty string when i < 0 || j < i || j >= str.len()
     // when evaluating the third condition, j must be positive because 0 <= i <= j is guaranteed by
     // the former two conditions.
-    if (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) return setString("");
+    सचे (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) पटिनिवत्त setString("");
     // The second parameter of std::string::substr(i, n) is length, not position as SystemVerilog.
-    return setString(lstring.substr(i, j - i + 1));
+    पटिनिवत्त setString(lstring.substr(i, j - i + 1));
 }
 
-V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opCompareNN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, तार्किक ignoreCase) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
     // SystemVerilog Language Standard does not allow a string variable to contain '\0'.
     // So C functions such as strcmp() can correctly compare strings.
-    int result;
-    const string lstring = lhs.toString();
-    const string rstring = rhs.toString();
-    if (ignoreCase) {
+    पूर्णाङ्क result;
+    ध्रुव string lstring = lhs.toString();
+    ध्रुव string rstring = rhs.toString();
+    सचे (ignoreCase) {
         result = VL_STRCASECMP(lstring.c_str(), rstring.c_str());
-    } else {
+    } अञ्ञथा {
         result = std::strcmp(lstring.c_str(), rstring.c_str());
     }
-    return setLongS(result);
+    पटिनिवत्त setLongS(result);
 }
 
-V3Number& V3Number::opEq(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opEq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opEqN(lhs, rhs);
-    if (lhs.isDouble()) return opEqD(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    सचे (lhs.isString()) पटिनिवत्त opEqN(lhs, rhs);
+    सचे (lhs.isDouble()) पटिनिवत्त opEqD(lhs, rhs);
+    वर्ण outc = 1;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 0;
-            goto last;
+            गच्छ last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        सचे (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
+            गच्छ last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        सचे (lhs.bitIsXZ(bit)) outc = 'x';
+        सचे (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opNeq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opNeqN(lhs, rhs);
-    if (lhs.isDouble()) return opNeqD(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    सचे (lhs.isString()) पटिनिवत्त opNeqN(lhs, rhs);
+    सचे (lhs.isDouble()) पटिनिवत्त opNeqD(lhs, rhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 1;
-            goto last;
+            गच्छ last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        सचे (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            गच्छ last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        सचे (lhs.bitIsXZ(bit)) outc = 'x';
+        सचे (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Hash V3Number::toHash() const {
+V3Hash V3_सङ्ख्या::toHash() ध्रुव {
     // Shouldmatch isCaseEq
-    if (isString()) return V3Hash{toString()};
-    if (isDouble()) return V3Hash{toDouble()};
+    सचे (isString()) पटिनिवत्त V3Hash{toString()};
+    सचे (isDouble()) पटिनिवत्त V3Hash{toDouble()};
     V3Hash hash{width()};
-    for (int i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
-    return hash;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) hash += m_data.अङ्कः()[i].m_मानम्;
+    पटिनिवत्त hash;
 }
 
-bool V3Number::isCaseEq(const V3Number& rhs) const {
+तार्किक V3_सङ्ख्या::isCaseEq(ध्रुव V3_सङ्ख्या& rhs) ध्रुव {
     // Should match toHash
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    if (isString()) return toString() == rhs.toString();
-    if (isDouble()) return toDouble() == rhs.toDouble();
-    if (width() != rhs.width()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (!(m_data.num()[i] == rhs.m_data.num()[i])) return false;
+    सचे (isString()) पटिनिवत्त toString() == rhs.toString();
+    सचे (isDouble()) पटिनिवत्त toDouble() == rhs.toDouble();
+    सचे (width() != rhs.width()) पटिनिवत्त मिच्छा;
+    अत्थाय (पूर्णाङ्क i = 0; i < शब्दाः(); ++i) {
+        सचे (!(m_data.अङ्कः()[i] == rhs.m_data.अङ्कः()[i])) पटिनिवत्त मिच्छा;
     }
-    return true;
+    पटिनिवत्त सच्च;
 }
 
-V3Number& V3Number::opCaseEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
+V3_सङ्ख्या& V3_सङ्ख्या::opCaseEq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
 }
 
-V3Number& V3Number::opCaseNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opCaseNeq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    char outc = 0;
-    if (lhs.isString()) {
-        return opNeqN(lhs, rhs);
-    } else if (lhs.isDouble()) {
-        return opNeqD(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    वर्ण outc = 0;
+    सचे (lhs.isString()) {
+        पटिनिवत्त opNeqN(lhs, rhs);
+    } अञ्ञथा सचे (lhs.isDouble()) {
+        पटिनिवत्त opNeqD(lhs, rhs);
     }
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (lhs.bitIs(bit) != rhs.bitIs(bit)) {
             outc = 1;
-            goto last;
+            गच्छ last;
         }
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_सङ्ख्या& V3_सङ्ख्या::opWildEq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण outc = 1;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (!rhs.bitIsXZ(bit)) {
+            सचे (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                गच्छ last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            सचे (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 0;
-                goto last;
+                गच्छ last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildNeq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_सङ्ख्या& V3_सङ्ख्या::opWildNeq(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (!rhs.bitIsXZ(bit)) {
+            सचे (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                गच्छ last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            सचे (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 1;
-                goto last;
+                गच्छ last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opGt(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
-        if (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण outc = 0;
+    अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        सचे (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
+        सचे (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
+        सचे (lhs.bitIsXZ(bit)) outc = 'x';
+        सचे (rhs.bitIsXZ(bit)) outc = 'x';
     }
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opGtS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    वर्ण outc = 0;
     {
-        const int mbit = std::max(lhs.width() - 1, rhs.width() - 1);
-        if (lhs.bitIsXZ(mbit)) {
+        ध्रुव पूर्णाङ्क mbit = std::max(lhs.width() - 1, rhs.width() - 1);
+        सचे (lhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (rhs.bitIsXZ(mbit)) {
+        } अञ्ञथा सचे (rhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
+        } अञ्ञथा सचे (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
             outc = 1;  // + > -
-        } else if (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
+        } अञ्ञथा सचे (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
             outc = 0;  // - !> +
-        } else {
+        } अञ्ञथा {
             // both positive or negative, normal >
-            for (int bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
-                if (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
-                if (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
-                if (lhs.bitIsXZ(bit)) outc = 'x';
-                if (rhs.bitIsXZ(bit)) outc = 'x';
+            अत्थाय (पूर्णाङ्क bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
+                सचे (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
+                सचे (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
+                सचे (lhs.bitIsXZ(bit)) outc = 'x';
+                सचे (rhs.bitIsXZ(bit)) outc = 'x';
             }
         }
     }
-    return setSingleBits(outc);
+    पटिनिवत्त setSingleBits(outc);
 }
 
-V3Number& V3Number::opGte(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opGte(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGt(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_सङ्ख्या& eq = opEq(lhs, rhs);
+    सचे (eq.isNeqZero()) पटिनिवत्त eq;  // Return true
+    पटिनिवत्त opGt(lhs, rhs);
 }
 
-V3Number& V3Number::opGteS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opGteS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGtS(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_सङ्ख्या& eq = opEq(lhs, rhs);
+    सचे (eq.isNeqZero()) पटिनिवत्त eq;  // Return true
+    पटिनिवत्त opGtS(lhs, rhs);
 }
 
-V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { return opGt(rhs, lhs); }
-V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { return opGte(rhs, lhs); }
-V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { return opGtS(rhs, lhs); }
-V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { return opGteS(rhs, lhs); }
+V3_सङ्ख्या& V3_सङ्ख्या::opLt(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) { पटिनिवत्त opGt(rhs, lhs); }
+V3_सङ्ख्या& V3_सङ्ख्या::opLte(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) { पटिनिवत्त opGte(rhs, lhs); }
+V3_सङ्ख्या& V3_सङ्ख्या::opLtS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) { पटिनिवत्त opGtS(rhs, lhs); }
+V3_सङ्ख्या& V3_सङ्ख्या::opLteS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) { पटिनिवत्त opGteS(rhs, lhs); }
 
-V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opShiftR(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (rhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(lhs.width())) {
-        copyBits(0, lhs, static_cast<int>(rhsval),
-                 std::min(width(), lhs.width() - static_cast<int>(rhsval)));
+    सचे (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) पटिनिवत्त *एतत्;
+    ध्रुव uint32_t rhsval = rhs.toUInt();
+    सचे (rhsval < static_cast<uint32_t>(lhs.width())) {
+        copyBits(0, lhs, static_cast<पूर्णाङ्क>(rhsval),
+                 std::min(width(), lhs.width() - static_cast<पूर्णाङ्क>(rhsval)));
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t lbits) {
+V3_सङ्ख्या& V3_सङ्ख्या::opShiftRS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, uint32_t lbits) {
     // Correct number of zero bits/width matters (hence lbits passed)
     // L(lhs) bit return
     // The spec says a unsigned >>> still acts as a normal >>.
     // We presume it is signed; as that's V3Width's job to convert to opShiftR
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (rhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
-    const bool overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
-    if (!overflow) {
-        const uint32_t rhsval = rhs.toUInt();
-        if (rhsval < lbits) {
-            const int copyWidth = std::min(width(), static_cast<int>(lbits - rhsval));
-            copyBits(0, lhs, static_cast<int>(rhsval), copyWidth);
+    ध्रुव तार्किक overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
+    सचे (!overflow) {
+        ध्रुव uint32_t rhsval = rhs.toUInt();
+        सचे (rhsval < lbits) {
+            ध्रुव पूर्णाङ्क copyWidth = std::min(width(), static_cast<पूर्णाङ्क>(lbits - rhsval));
+            copyBits(0, lhs, static_cast<पूर्णाङ्क>(rhsval), copyWidth);
             fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-            return *this;
+            पटिनिवत्त *एतत्;
         }
     }
     fillBits(0, width(), lhs.bitIs(lbits - 1));  // '0/'1/'x/'z
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opShiftL(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (rhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(width())) {
-        copyBits(static_cast<int>(rhsval), lhs, 0,
-                 std::min(width() - static_cast<int>(rhsval), lhs.width()));
+    सचे (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) पटिनिवत्त *एतत्;
+    ध्रुव uint32_t rhsval = rhs.toUInt();
+    सचे (rhsval < static_cast<uint32_t>(width())) {
+        copyBits(static_cast<पूर्णाङ्क>(rhsval), lhs, 0,
+                 std::min(width() - static_cast<पूर्णाङ्क>(rhsval), lhs.width()));
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
 //======================================================================
 // Ops - Arithmetic
 
-V3Number& V3Number::opNegate(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opNegate(ध्रुव V3_सङ्ख्या& lhs) {
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    V3Number notlhs(&lhs, width());
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    सचे (lhs.isFourState()) पटिनिवत्त setAllBitsX();
+    V3_सङ्ख्या notlhs(&lhs, width());
     notlhs.opNot(lhs);
-    const V3Number one(&lhs, width(), 1);
+    ध्रुव V3_सङ्ख्या one(&lhs, width(), 1);
     opAdd(notlhs, one);
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opAdd(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
     // Addem
     uint64_t carry = 0;
-    for (int word = 0; word < words(); ++word) {
-        const uint64_t lwordval = lhs.m_data.num()[word].m_value;
-        const uint64_t rwordval = rhs.m_data.num()[word].m_value;
-        const uint64_t sum = lwordval + rwordval + carry;
-        m_data.num()[word].m_value = sum & 0xffffffffULL;
+    अत्थाय (पूर्णाङ्क word = 0; word < शब्दाः(); ++word) {
+        ध्रुव uint64_t lwordval = lhs.m_data.अङ्कः()[word].m_मानम्;
+        ध्रुव uint64_t rwordval = rhs.m_data.अङ्कः()[word].m_मानम्;
+        ध्रुव uint64_t sum = lwordval + rwordval + carry;
+        m_data.अङ्कः()[word].m_मानम् = sum & 0xffffffffULL;
         carry = sum > 0xffffffffULL;
     }
     opCleanThis();  // Just in case it produced extra bits in result
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opSub(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opSub(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Correct number of zero bits/width matters
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number negrhs(&rhs, width());
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    V3_सङ्ख्या negrhs(&rhs, width());
     negrhs.opNegate(rhs);
-    return opAdd(lhs, negrhs);
+    पटिनिवत्त opAdd(lhs, negrhs);
 }
-V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opMul(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
     setZero();
-    if (width() <= 64) {
+    सचे (width() <= 64) {
         setQuad(lhs.toUQuad() * rhs.toUQuad());
         opCleanThis();  // Mult produces extra bits in result
-    } else {
-        for (int lword = 0; lword < lhs.words(); ++lword) {
-            const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.num()[lword].m_value);
-            if (lwordval == 0) continue;
-            for (int rword = 0; rword < rhs.words(); ++rword) {
-                const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.num()[rword].m_value);
-                if (rwordval == 0) continue;
+    } अञ्ञथा {
+        अत्थाय (पूर्णाङ्क lword = 0; lword < lhs.शब्दाः(); ++lword) {
+            ध्रुव uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.अङ्कः()[lword].m_मानम्);
+            सचे (lwordval == 0) अनुवर्त;
+            अत्थाय (पूर्णाङ्क rword = 0; rword < rhs.शब्दाः(); ++rword) {
+                ध्रुव uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.अङ्कः()[rword].m_मानम्);
+                सचे (rwordval == 0) अनुवर्त;
                 uint64_t mul = lwordval * rwordval;
-                for (int qword = lword + rword; qword < words(); ++qword) {
-                    mul += static_cast<uint64_t>(m_data.num()[qword].m_value);
-                    m_data.num()[qword].m_value = (mul & 0xffffffffULL);
+                अत्थाय (पूर्णाङ्क qword = lword + rword; qword < शब्दाः(); ++qword) {
+                    mul += static_cast<uint64_t>(m_data.अङ्कः()[qword].m_मानम्);
+                    m_data.अङ्कः()[qword].m_मानम् = (mul & 0xffffffffULL);
                     mul = (mul >> 32ULL) & 0xffffffffULL;
-                    if (mul == 0) break;
+                    सचे (mul == 0) भङ्ग;
                 }
             }
         }
         opCleanThis();  // Mult produces extra bits in result
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opMulS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Signed multiply
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opMul(lhsNoSign, rhsNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    V3_सङ्ख्या lhsNoSign = lhs;
+    सचे (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_सङ्ख्या rhsNoSign = rhs;
+    सचे (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ध्रुव V3_सङ्ख्या qNoSign = opMul(lhsNoSign, rhsNoSign);
+    सचे ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } अञ्ञथा {
         opAssign(qNoSign);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opDiv(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // UINFO(9, "opdiv " << lhs << " " << rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    सचे (rhs.isEqZero()) पटिनिवत्त setAllBitsXRemoved();
+    सचे (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() / rhs.toUQuad());
-        return *this;
-    } else {
+        पटिनिवत्त *एतत्;
+    } अञ्ञथा {
         // Wide division
-        return opModDivGuts(lhs, rhs, false);
+        पटिनिवत्त opModDivGuts(lhs, rhs, मिच्छा);
     }
 }
-V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opDivS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Signed divide
     // Correct number of zero bits/width matters
     // UINFO(9, ">>divs-start " << lhs << " " << rhs);
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opDiv(lhsNoSign, rhsNoSign);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    सचे (rhs.isEqZero()) पटिनिवत्त setAllBitsXRemoved();
+    V3_सङ्ख्या lhsNoSign = lhs;
+    सचे (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_सङ्ख्या rhsNoSign = rhs;
+    सचे (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ध्रुव V3_सङ्ख्या qNoSign = opDiv(lhsNoSign, rhsNoSign);
     // UINFO(9, " >divs-mid " << lhs << " " << rhs << " " << qNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    सचे ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } अञ्ञथा {
         opAssign(qNoSign);
     }
-    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *this);
-    return *this;
+    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *एतत्);
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opModDiv(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    सचे (rhs.isEqZero()) पटिनिवत्त setAllBitsXRemoved();
+    सचे (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() % rhs.toUQuad());
-        return *this;
-    } else {
+        पटिनिवत्त *एतत्;
+    } अञ्ञथा {
         // Wide modulus
-        return opModDivGuts(lhs, rhs, true);
+        पटिनिवत्त opModDivGuts(lhs, rhs, सच्च);
     }
 }
-V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opModDivS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Signed moddiv
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opModDiv(lhsNoSign, rhsNoSign);
-    if (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    सचे (rhs.isEqZero()) पटिनिवत्त setAllBitsXRemoved();
+    V3_सङ्ख्या lhsNoSign = lhs;
+    सचे (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_सङ्ख्या rhsNoSign = rhs;
+    सचे (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    ध्रुव V3_सङ्ख्या qNoSign = opModDiv(lhsNoSign, rhsNoSign);
+    सचे (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
         opNegate(qNoSign);
-    } else {
+    } अञ्ञथा {
         opAssign(qNoSign);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus) {
+V3_सङ्ख्या& V3_सङ्ख्या::opModDivGuts(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, तार्किक is_modulus) {
     // See Knuth Algorithm D.  Computes u/v = q.r
     // This isn't massively tuned, as wide division is rare
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // Find MSB and check for zero.
-    const int lWords = lhs.words();
-    const int umsbp1 = lhs.mostSetBitP1();  // dividend
-    const int vmsbp1 = rhs.mostSetBitP1();  // divisor
-    if (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
+    ध्रुव पूर्णाङ्क l_शब्दाः = lhs.शब्दाः();
+    ध्रुव पूर्णाङ्क umsbp1 = lhs.mostSetBitP1();  // dividend
+    ध्रुव पूर्णाङ्क vmsbp1 = rhs.mostSetBitP1();  //भाजकः
+    सचे (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
         || VL_UNLIKELY(umsbp1 == 0)) {  // 0/x so short circuit and return 0
-        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *एतत्);
+        पटिनिवत्त *एतत्;
     }
 
-    const int uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
-    const int vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
+    ध्रुव पूर्णाङ्क uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
+    ध्रुव पूर्णाङ्क vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
 
-    if (vw == 1) {  // Single divisor word breaks rest of algorithm
+    सचे (vw == 1) {  // Single divisor word breaks rest of algorithm
         uint64_t k = 0;
-        for (int j = uw - 1; j >= 0; j--) {
-            const uint64_t unw64
-                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.num()[j].m_value));
-            m_data.num()[j].m_value = unw64 / static_cast<uint64_t>(rhs.m_data.num()[0].m_value);
+        अत्थाय (पूर्णाङ्क j = uw - 1; j >= 0; j--) {
+            ध्रुव uint64_t unw64
+                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.अङ्कः()[j].m_मानम्));
+            m_data.अङ्कः()[j].m_मानम् = unw64 / static_cast<uint64_t>(rhs.m_data.अङ्कः()[0].m_मानम्);
             k = unw64
-                - (static_cast<uint64_t>(m_data.num()[j].m_value)
-                   * static_cast<uint64_t>(rhs.m_data.num()[0].m_value));
+                - (static_cast<uint64_t>(m_data.अङ्कः()[j].m_मानम्)
+                   * static_cast<uint64_t>(rhs.m_data.अङ्कः()[0].m_मानम्));
         }
-        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *this << " rem=0x" << std::hex
+        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *एतत् << " rem=0x" << std::hex
                                    << k << std::dec);
-        if (is_modulus) {
+        सचे (is_modulus) {
             setZero();
-            m_data.num()[0].m_value = k;
+            m_data.अङ्कः()[0].m_मानम् = k;
         }
         opCleanThis();
-        return *this;
+        पटिनिवत्त *एतत्;
     }
 
     // +1 word as we may shift during normalization
-    uint32_t un[VL_MULS_MAX_WORDS + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
-    uint32_t vn[VL_MULS_MAX_WORDS + 1];  // v normalized
+    uint32_t un[VL_MULS_MAX_शब्दाः + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
+    uint32_t vn[VL_MULS_MAX_शब्दाः + 1];  // v normalized
 
     // Zero for ease of debugging and to save having to zero for shifts
-    for (int i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
-    for (int i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
+    अत्थाय (पूर्णाङ्क i = 0; i < l_शब्दाः; ++i) m_data.अङ्कः()[i].m_मानम् = 0;
+    अत्थाय (पूर्णाङ्क i = 0; i < l_शब्दाः + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
 
     // Algorithm requires divisor MSB to be set
     // Copy and shift to normalize divisor so MSB of vn[vw-1] is set
-    const int s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
-    const uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
-    for (int i = vw - 1; i > 0; i--) {
-        vn[i] = (rhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (rhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    ध्रुव पूर्णाङ्क s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
+    ध्रुव uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
+    अत्थाय (पूर्णाङ्क i = vw - 1; i > 0; i--) {
+        vn[i] = (rhs.m_data.अङ्कः()[i].m_मानम् << s)
+                | (shift_mask & (rhs.m_data.अङ्कः()[i - 1].m_मानम् >> (32 - s)));
     }
-    vn[0] = rhs.m_data.num()[0].m_value << s;
+    vn[0] = rhs.m_data.अङ्कः()[0].m_मानम् << s;
 
     // Copy and shift dividend by same amount; may set new upper word
-    if (s) {
-        un[uw] = lhs.m_data.num()[uw - 1].m_value >> (32 - s);
-    } else {
+    सचे (s) {
+        un[uw] = lhs.m_data.अङ्कः()[uw - 1].m_मानम् >> (32 - s);
+    } अञ्ञथा {
         un[uw] = 0;
     }
-    for (int i = uw - 1; i > 0; i--) {
-        un[i] = (lhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (lhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    अत्थाय (पूर्णाङ्क i = uw - 1; i > 0; i--) {
+        un[i] = (lhs.m_data.अङ्कः()[i].m_मानम् << s)
+                | (shift_mask & (lhs.m_data.अङ्कः()[i - 1].m_मानम् >> (32 - s)));
     }
-    un[0] = lhs.m_data.num()[0].m_value << s;
+    un[0] = lhs.m_data.अङ्कः()[0].m_मानम् << s;
 
     // printf("  un="); for (int i=5; i>=0; i--) printf(" %08x",un[i]); printf("\n");
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
     // Main loop
-    for (int j = uw - vw; j >= 0; j--) {
+    अत्थाय (पूर्णाङ्क j = uw - vw; j >= 0; j--) {
         // Estimate
-        const uint64_t unw64
+        ध्रुव uint64_t unw64
             = (static_cast<uint64_t>(un[j + vw]) << 32ULL | static_cast<uint64_t>(un[j + vw - 1]));
         uint64_t qhat = unw64 / static_cast<uint64_t>(vn[vw - 1]);
         uint64_t rhat = unw64 - qhat * static_cast<uint64_t>(vn[vw - 1]);
 
     again:
-        if (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
+        सचे (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
             qhat = qhat - 1;
             rhat = rhat + vn[vw - 1];
-            if (rhat < 0x100000000ULL) goto again;
+            सचे (rhat < 0x100000000ULL) गच्छ again;
         }
 
         int64_t t = 0;  // Must be signed
         uint64_t k = 0;
-        for (int i = 0; i < vw; ++i) {
-            const uint64_t p = qhat * vn[i];  // Multiply by estimate
+        अत्थाय (पूर्णाङ्क i = 0; i < vw; ++i) {
+            ध्रुव uint64_t p = qhat * vn[i];  // Multiply by estimate
             t = un[i + j] - k - (p & 0xFFFFFFFFULL);  // Subtract
             un[i + j] = t;
             k = (p >> 32ULL) - (t >> 32ULL);
         }
         t = un[j + vw] - k;
         un[j + vw] = t;
-        m_data.num()[j].m_value = qhat;  // Save quotient digit
+        m_data.अङ्कः()[j].m_मानम् = qhat;  // Save quotient digit
 
-        if (t < 0) {
+        सचे (t < 0) {
             // Over subtracted; correct by adding back
-            m_data.num()[j].m_value--;
+            m_data.अङ्कः()[j].m_मानम्--;
             k = 0;
-            for (int i = 0; i < vw; ++i) {
+            अत्थाय (पूर्णाङ्क i = 0; i < vw; ++i) {
                 t = static_cast<uint64_t>(un[i + j]) + static_cast<uint64_t>(vn[i]) + k;
                 un[i + j] = t;
                 k = t >> 32ULL;
@@ -2407,475 +2407,475 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
-    if (is_modulus) {  // modulus
+    सचे (is_modulus) {  // modulus
         // Need to reverse normalization on copy to output
-        for (int i = 0; i < vw; ++i) {
-            m_data.num()[i].m_value = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
+        अत्थाय (पूर्णाङ्क i = 0; i < vw; ++i) {
+            m_data.अङ्कः()[i].m_मानम् = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
         }
-        for (int i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
+        अत्थाय (पूर्णाङ्क i = vw; i < l_शब्दाः; ++i) m_data.अङ्कः()[i].m_मानम् = 0;
         opCleanThis();
-        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *this);
-        return *this;
-    } else {  // division
+        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *एतत्);
+        पटिनिवत्त *एतत्;
+    } अञ्ञथा {  // division
         opCleanThis();
-        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *एतत्);
+        पटिनिवत्त *एतत्;
     }
 }
 
-V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, bool rsign) {
+V3_सङ्ख्या& V3_सङ्ख्या::opPow(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs, तार्किक lsign, तार्किक rsign) {
     // Correct number of zero bits/width matters
     // L(i) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setValue1();  // Overrides lhs 0 -> return 1
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    सचे (lhs.isFourState() || rhs.isFourState()) पटिनिवत्त setAllBitsX();
+    सचे (rhs.isEqZero()) पटिनिवत्त setValue1();  // Overrides lhs 0 -> return 1
     // We may want to special case when the lhs is 2, so we can get larger outputs
-    if (rsign && rhs.isNegative()) {
-        if (lhs.isEqZero()) {
-            return setAllBitsXRemoved();
-        } else if (lhs.isEqOne()) {
-            return setValue1();
-        } else if (lsign && lhs.isEqAllOnes()) {
-            if (rhs.bitIs1(0)) {
-                return setAllBits1();  // -1^odd=-1
-            } else {
-                return setValue1();  // -1^even=1
+    सचे (rsign && rhs.isNegative()) {
+        सचे (lhs.isEqZero()) {
+            पटिनिवत्त setAllBitsXRemoved();
+        } अञ्ञथा सचे (lhs.isEqOne()) {
+            पटिनिवत्त setValue1();
+        } अञ्ञथा सचे (lsign && lhs.isEqAllOnes()) {
+            सचे (rhs.bitIs1(0)) {
+                पटिनिवत्त setAllBits1();  // -1^odd=-1
+            } अञ्ञथा {
+                पटिनिवत्त setValue1();  // -1^even=1
             }
         }
-        return setZero();
+        पटिनिवत्त setZero();
     }
-    if (lhs.isEqZero()) return setZero();
+    सचे (lhs.isEqZero()) पटिनिवत्त setZero();
     setZero();
-    m_data.num()[0].m_value = 1;
-    V3Number power(&lhs, width());
+    m_data.अङ्कः()[0].m_मानम् = 1;
+    V3_सङ्ख्या power(&lhs, width());
     power.opAssign(lhs);
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (bit > 0) {  // power = power*power
-            V3Number lastPower(&lhs, width());
+    अत्थाय (पूर्णाङ्क bit = 0; bit < rhs.width(); ++bit) {
+        सचे (bit > 0) {  // power = power*power
+            V3_सङ्ख्या lastPower(&lhs, width());
             lastPower.opAssign(power);
             power.opMul(lastPower, lastPower);
         }
-        if (rhs.bitIs1(bit)) {  // out *= power
-            V3Number lastOut(&lhs, width());
-            lastOut.opAssign(*this);
+        सचे (rhs.bitIs1(bit)) {  // out *= power
+            V3_सङ्ख्या lastOut(&lhs, width());
+            lastOut.opAssign(*एतत्);
             opMul(lastOut, power);
             // UINFO(0, "pow "<<lhs<<" "<<rhs<<" b"<<bit<<" pow="<<power<<" now="<<*this);
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opPowSU(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opPowSU(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, false);
+    पटिनिवत्त opPow(lhs, rhs, सच्च, मिच्छा);
 }
-V3Number& V3Number::opPowSS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opPowSS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, true);
+    पटिनिवत्त opPow(lhs, rhs, सच्च, सच्च);
 }
-V3Number& V3Number::opPowUS(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opPowUS(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, false, true);
+    पटिनिवत्त opPow(lhs, rhs, मिच्छा, सच्च);
 }
 
-V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
-    NUM_ASSERT_OP_ARGS2(ens, if1s);
-    NUM_ASSERT_LOGIC_ARGS2(ens, if1s);
+V3_सङ्ख्या& V3_सङ्ख्या::opBufIf1(ध्रुव V3_सङ्ख्या& ens, ध्रुव V3_सङ्ख्या& if1s) {
+    अङ्कः_ASSERT_OP_ARGS2(ens, if1s);
+    अङ्कः_ASSERT_LOGIC_ARGS2(ens, if1s);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (ens.bitIs1(bit)) {
+    अत्थाय (पूर्णाङ्क bit = 0; bit < width(); ++bit) {
+        सचे (ens.bitIs1(bit)) {
             setBit(bit, if1s.bitIs(bit));
-        } else {
+        } अञ्ञथा {
             setBit(bit, 'z');
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
 // Sets all bits in range to the given value
-V3Number& V3Number::opSetRange(uint32_t lsb, uint32_t width, char bitValue) {
-    if (lsb < static_cast<uint32_t>(this->width())) {
-        fillBits(static_cast<int>(lsb),
-                 static_cast<int>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
-                 bitValue);
+V3_सङ्ख्या& V3_सङ्ख्या::opSetRange(uint32_t lsb, uint32_t width, वर्ण bit_मानम्) {
+    सचे (lsb < static_cast<uint32_t>(एतत्->width())) {
+        fillBits(static_cast<पूर्णाङ्क>(lsb),
+                 static_cast<पूर्णाङ्क>(std::min(width, static_cast<uint32_t>(एतत्->width()) - lsb)),
+                 bit_मानम्);
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opAssign(const V3Number& lhs) { return opAssignNonXZ(lhs, false); }
-V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
+V3_सङ्ख्या& V3_सङ्ख्या::opAssign(ध्रुव V3_सङ्ख्या& lhs) { पटिनिवत्त opAssignNonXZ(lhs, मिच्छा); }
+V3_सङ्ख्या& V3_सङ्ख्या::opAssignNonXZ(ध्रुव V3_सङ्ख्या& lhs, तार्किक ignoreXZ) {
     // Note may be a width change during the assign.
     // Special case: opAssign unlike other ops, allows this an assignment
     // to itself; V3Simulate does this when hits "foo=foo;"
     // So no: NUM_ASSERT_OP_ARGS1(lhs);
-    if (this != &lhs) {
-        if (VL_UNLIKELY(lhs.isNull())) {
-            m_data.m_isNull = true;
-        } else if (isString()) {
-            if (VL_UNLIKELY(!lhs.isString())) {
+    सचे (एतत् != &lhs) {
+        सचे (VL_UNLIKELY(lhs.isNull())) {
+            m_data.m_isNull = सच्च;
+        } अञ्ञथा सचे (isString()) {
+            सचे (VL_UNLIKELY(!lhs.isString())) {
                 // Numbers can still be strings
                 m_data.str() = lhs.toString();
-            } else {
+            } अञ्ञथा {
                 m_data.str() = lhs.m_data.str();
             }
-        } else if (VL_UNLIKELY(lhs.isString())) {
+        } अञ्ञथा सचे (VL_UNLIKELY(lhs.isString())) {
             // Non-compatible types, see also opAToN()
             setZero();
-        } else if (lhs.isDouble()) {
+        } अञ्ञथा सचे (lhs.isDouble()) {
             setDouble(lhs.toDouble());
-        } else if (!ignoreXZ) {
+        } अञ्ञथा सचे (!ignoreXZ) {
             setZero();
             copyBits(0, lhs, 0, std::min(width(), lhs.width()));
-        } else {
-            for (int word = 0; word < words(); ++word) {
-                const uint32_t value = word < lhs.words() ? lhs.m_data.num()[word].m_value
-                                                                & ~lhs.m_data.num()[word].m_valueX
+        } अञ्ञथा {
+            अत्थाय (पूर्णाङ्क word = 0; word < शब्दाः(); ++word) {
+                ध्रुव uint32_t मानम् = word < lhs.शब्दाः() ? lhs.m_data.अङ्कः()[word].m_मानम्
+                                                                & ~lhs.m_data.अङ्कः()[word].m_मानम्_X
                                                           : 0;
-                m_data.num()[word] = {value, 0};
+                m_data.अङ्कः()[word] = {मानम्, 0};
             }
             opCleanThis();
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opNToI(const V3Number& lhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opNToI(ध्रुव V3_सङ्ख्या& lhs) {
     // String to packed number
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
     setZero();
-    const string& str = lhs.toString();
-    for (size_t n = 0; n < str.length(); ++n) {
-        const char c = str[str.length() - 1 - n];
-        for (size_t cbit = 0; cbit < 8; ++cbit) {
-            const std::bitset<8> sbit{static_cast<unsigned long long>(c)};
+    ध्रुव string& str = lhs.toString();
+    अत्थाय (size_t n = 0; n < str.length(); ++n) {
+        ध्रुव वर्ण c = str[str.length() - 1 - n];
+        अत्थाय (size_t cbit = 0; cbit < 8; ++cbit) {
+            ध्रुव std::bitset<8> sbit{static_cast<unsigned long long>(c)};
             setBit(n * 8 + cbit, sbit.test(cbit) ? 1 : 0);
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
+V3_सङ्ख्या& V3_सङ्ख्या::opExtendS(ध्रुव V3_सङ्ख्या& lhs, uint32_t lbits) {
     // Note may be a width change during the sign extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    ध्रुव पूर्णाङ्क copyWidth = std::min(width(), static_cast<पूर्णाङ्क>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
+V3_सङ्ख्या& V3_सङ्ख्या::opExtendXZ(ध्रुव V3_सङ्ख्या& lhs, uint32_t lbits) {
     // Note may be a width change during the X/Z extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    ध्रुव पूर्णाङ्क copyWidth = std::min(width(), static_cast<पूर्णाङ्क>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
+V3_सङ्ख्या& V3_सङ्ख्या::opClean(ध्रुव V3_सङ्ख्या& lhs, uint32_t bits) { पटिनिवत्त opSel(lhs, bits - 1, 0); }
 
-void V3Number::opCleanThis(bool warnOnTruncation) {
+शून्य V3_सङ्ख्या::opCleanThis(तार्किक warnOnTruncation) {
     // Clean MSB of number
-    NUM_ASSERT_LOGIC_ARGS1(*this);
-    const ValueAndX v = m_data.num()[words() - 1];
-    const uint32_t newValueMsb = v.m_value & hiWordMask();
-    const uint32_t newValueXMsb = v.m_valueX & hiWordMask();
-    if (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
+    अङ्कः_ASSERT_LOGIC_ARGS1(*एतत्);
+    ध्रुव मानम्_And_X v = m_data.अङ्कः()[शब्दाः() - 1];
+    ध्रुव uint32_t new_मानम्_Msb = v.m_मानम् & hiWordMask();
+    ध्रुव uint32_t new_मानम्_XMsb = v.m_मानम्_X & hiWordMask();
+    सचे (warnOnTruncation && (new_मानम्_Msb != v.m_मानम् || new_मानम्_XMsb != v.m_मानम्_X)) {
         // Displaying in decimal avoids hiWordMask truncation
         v3warn(WIDTHTRUNC,
                "Value too large for " << width() << " bit number: " << displayed("%d"));
     }
-    m_data.num()[words() - 1] = {newValueMsb, newValueXMsb};
+    m_data.अङ्कः()[शब्दाः() - 1] = {new_मानम्_Msb, new_मानम्_XMsb};
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb) {
-    NUM_ASSERT_OP_ARGS3(lhs, msb, lsb);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(msb, lsb);
-    if (lsb.isFourState() || msb.isFourState()) return setAllBitsX();
-    return opSel(lhs, msb.toUInt(), lsb.toUInt());
+V3_सङ्ख्या& V3_सङ्ख्या::opSel(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& msb, ध्रुव V3_सङ्ख्या& lsb) {
+    अङ्कः_ASSERT_OP_ARGS3(lhs, msb, lsb);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS2(msb, lsb);
+    सचे (lsb.isFourState() || msb.isFourState()) पटिनिवत्त setAllBitsX();
+    पटिनिवत्त opSel(lhs, msb.toUInt(), lsb.toUInt());
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opSel(ध्रुव V3_सङ्ख्या& lhs, uint32_t msbval, uint32_t lsbval) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    int copyWidth = 0;
-    if (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
-        const uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
-        copyWidth = static_cast<int>(
+    पूर्णाङ्क copyWidth = 0;
+    सचे (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
+        ध्रुव uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
+        copyWidth = static_cast<पूर्णाङ्क>(
             std::min({static_cast<uint64_t>(width()), static_cast<uint64_t>(lhs.width()) - lsbval,
                       selectedWidth}));
     }
-    copyBits(0, lhs, copyWidth ? static_cast<int>(lsbval) : 0, copyWidth);
+    copyBits(0, lhs, copyWidth ? static_cast<पूर्णाङ्क>(lsbval) : 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, v3Global.constRemoveXs() ? 0 : 'x');
     // UINFO(0, "RANGE " << lhs << " " << msb << " " << lsb << " = " << *this);
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, int width) {
-    return opSelInto(lhs, lsb.toSInt(), width);
+V3_सङ्ख्या& V3_सङ्ख्या::opSelInto(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& lsb, पूर्णाङ्क width) {
+    पटिनिवत्त opSelInto(lhs, lsb.toSInt(), width);
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
+V3_सङ्ख्या& V3_सङ्ख्या::opSelInto(ध्रुव V3_सङ्ख्या& lhs, पूर्णाङ्क lsbval, पूर्णाङ्क width) {
     // this[lsbval+width-1 : lsbval] = lhs;  Other bits of this are not affected
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     UASSERT(lsbval >= 0, "Negative destination bit range");
-    const int copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
+    ध्रुव पूर्णाङ्क copyWidth = std::max(0, std::min({width, lhs.width(), एतत्->width() - lsbval}));
     copyBits(lsbval, lhs, 0, copyWidth);
-    const int fillWidth
-        = std::max(0, std::min(width - copyWidth, this->width() - lsbval - copyWidth));
+    ध्रुव पूर्णाङ्क fillWidth
+        = std::max(0, std::min(width - copyWidth, एतत्->width() - lsbval - copyWidth));
     fillBits(lsbval + copyWidth, fillWidth, v3Global.constRemoveXs() ? 0 : 'x');
-    return *this;
+    पटिनिवत्त *एतत्;
 }
 
 //======================================================================
 // Ops - Floating point
 
-V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
+V3_सङ्ख्या& V3_सङ्ख्या::opIToRD(ध्रुव V3_सङ्ख्या& lhs, तार्किक isSigned) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(lhs);
     // IEEE says we ignore x/z in real conversions
-    V3Number noxz(lhs);
+    V3_सङ्ख्या noxz(lhs);
     noxz.opAssignNonXZ(lhs);
-    double d = 0;
-    const bool negate = isSigned && noxz.isNegative();
-    if (negate) {
-        const V3Number noxz_signed = noxz;
+    द्विगुण d = 0;
+    ध्रुव तार्किक negate = isSigned && noxz.isNegative();
+    सचे (negate) {
+        ध्रुव V3_सङ्ख्या noxz_signed = noxz;
         noxz.opNegate(noxz_signed);
     }
-    for (int bit = noxz.width() - 1; bit >= 0; bit--) {
+    अत्थाय (पूर्णाङ्क bit = noxz.width() - 1; bit >= 0; bit--) {
         // Some precision might be lost in this add, that's what we want
-        if (noxz.bitIs1(bit)) d += exp2(bit);
+        सचे (noxz.bitIs1(bit)) d += exp2(bit);
     }
-    if (negate) d = -d;
-    return setDouble(d);
+    सचे (negate) d = -d;
+    पटिनिवत्त setDouble(d);
 }
-V3Number& V3Number::opRToIS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_TRUNC(lhs.toDouble());
-    const int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
-    return setLongS(i);
+V3_सङ्ख्या& V3_सङ्ख्या::opRToIS(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS1(lhs);
+    ध्रुव द्विगुण v = VL_TRUNC(lhs.toDouble());
+    ध्रुव int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
+    पटिनिवत्त setLongS(i);
 }
-V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_ROUND(lhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opRToIRoundS(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS1(lhs);
+    ध्रुव द्विगुण v = VL_ROUND(lhs.toDouble());
     setZero();
-    union {
-        double d;
+    सङ्घ {
+        द्विगुण d;
         uint64_t q;
     } u;
     u.d = v;
-    (void)u.d;
+    (शून्य)u.d;
 
-    const int exp = static_cast<int>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
-    const int lsb = exp - 52;
-    const uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
-    if (v != 0) {
+    ध्रुव पूर्णाङ्क exp = static_cast<पूर्णाङ्क>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
+    ध्रुव पूर्णाङ्क lsb = exp - 52;
+    ध्रुव uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
+    सचे (v != 0) {
         // IEEE format: [63]=sign [62:52]=exp+1023 [51:0]=mantissa
         // This does not need to support subnormals as they are sub-integral
-        for (int bit = 0; bit <= 52; ++bit) {
-            if (mantissa & (1ULL << bit)) {
-                const int outbit = bit + lsb;
-                if (outbit >= 0) setBit(outbit, 1);
+        अत्थाय (पूर्णाङ्क bit = 0; bit <= 52; ++bit) {
+            सचे (mantissa & (1ULL << bit)) {
+                ध्रुव पूर्णाङ्क outbit = bit + lsb;
+                सचे (outbit >= 0) setBit(outbit, 1);
             }
         }
-        if (v < 0) {
-            const V3Number noSign = *this;
+        सचे (v < 0) {
+            ध्रुव V3_सङ्ख्या noSign = *एतत्;
             opNegate(noSign);
         }
     }
-    return *this;
+    पटिनिवत्त *एतत्;
 }
-V3Number& V3Number::opRealToBits(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opRealToBits(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    सङ्घ {
+        द्विगुण m_d;
         uint64_t m_v;
     } u;
     u.m_d = lhs.toDouble();
-    return setQuad(u.m_v);
+    पटिनिवत्त setQuad(u.m_v);
 }
-V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opBitsToRealD(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    सङ्घ {
+        द्विगुण m_d;
         uint64_t m_v;
     } u;
     u.m_v = lhs.toUQuad();
-    return setDouble(u.m_d);
+    पटिनिवत्त setDouble(u.m_d);
 }
-V3Number& V3Number::opNegateD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    return setDouble(-lhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opNegateD(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS1(lhs);
+    पटिनिवत्त setDouble(-lhs.toDouble());
 }
-V3Number& V3Number::opAddD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() + rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opAddD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setDouble(lhs.toDouble() + rhs.toDouble());
 }
-V3Number& V3Number::opSubD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() - rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opSubD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setDouble(lhs.toDouble() - rhs.toDouble());
 }
-V3Number& V3Number::opMulD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() * rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opMulD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setDouble(lhs.toDouble() * rhs.toDouble());
 }
-V3Number& V3Number::opDivD(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opDivD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() / rhs.toDouble());
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setDouble(lhs.toDouble() / rhs.toDouble());
 }
-V3Number& V3Number::opPowD(const V3Number& lhs, const V3Number& rhs) {
+V3_सङ्ख्या& V3_सङ्ख्या::opPowD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(pow(lhs.toDouble(), rhs.toDouble()));
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setDouble(pow(lhs.toDouble(), rhs.toDouble()));
 }
-V3Number& V3Number::opEqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() == rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opEqD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() == rhs.toDouble());
 }
-V3Number& V3Number::opNeqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() != rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opNeqD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() != rhs.toDouble());
 }
-V3Number& V3Number::opGtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() > rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opGtD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() > rhs.toDouble());
 }
-V3Number& V3Number::opGteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() >= rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opGteD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() >= rhs.toDouble());
 }
-V3Number& V3Number::opLtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() < rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opLtD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() < rhs.toDouble());
 }
-V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() <= rhs.toDouble());
+V3_सङ्ख्या& V3_सङ्ख्या::opLteD(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toDouble() <= rhs.toDouble());
 }
 
 //======================================================================
 // Ops - String
 
-V3Number& V3Number::opConcatN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setString(lhs.toString() + rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opConcatN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setString(lhs.toString() + rhs.toString());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(rhs);
-    return opReplN(lhs, rhs.toUInt());
+V3_सङ्ख्या& V3_सङ्ख्या::opReplN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
+    अङ्कः_ASSERT_LOGIC_ARGS1(rhs);
+    पटिनिवत्त opReplN(lhs, rhs.toUInt());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, uint32_t rhsval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_सङ्ख्या& V3_सङ्ख्या::opReplN(ध्रुव V3_सङ्ख्या& lhs, uint32_t rhsval) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
     string out;
     out.reserve(lhs.toString().length() * rhsval);
-    for (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
-    return setString(out);
+    अत्थाय (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
+    पटिनिवत्त setString(out);
 }
-V3Number& V3Number::opCvtPackString(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setString(lhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opCvtPackString(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    पटिनिवत्त setString(lhs.toString());
 }
-V3Number& V3Number::opToLowerN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::downcase(lhs.toString());
-    return setString(out);
+V3_सङ्ख्या& V3_सङ्ख्या::opToLowerN(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
+    ध्रुव std::string out = VString::downcase(lhs.toString());
+    पटिनिवत्त setString(out);
 }
-V3Number& V3Number::opToUpperN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::upcase(lhs.toString());
-    return setString(out);
+V3_सङ्ख्या& V3_सङ्ख्या::opToUpperN(ध्रुव V3_सङ्ख्या& lhs) {
+    अङ्कः_ASSERT_OP_ARGS1(lhs);
+    अङ्कः_ASSERT_STRING_ARGS1(lhs);
+    ध्रुव std::string out = VString::upcase(lhs.toString());
+    पटिनिवत्त setString(out);
 }
 
-V3Number& V3Number::opEqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() == rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opEqN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() == rhs.toString());
 }
-V3Number& V3Number::opNeqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() != rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opNeqN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() != rhs.toString());
 }
-V3Number& V3Number::opGtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() > rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opGtN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() > rhs.toString());
 }
-V3Number& V3Number::opGteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() >= rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opGteN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() >= rhs.toString());
 }
-V3Number& V3Number::opLtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() < rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opLtN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() < rhs.toString());
 }
-V3Number& V3Number::opLteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() <= rhs.toString());
+V3_सङ्ख्या& V3_सङ्ख्या::opLteN(ध्रुव V3_सङ्ख्या& lhs, ध्रुव V3_सङ्ख्या& rhs) {
+    अङ्कः_ASSERT_OP_ARGS2(lhs, rhs);
+    अङ्कः_ASSERT_STRING_ARGS2(lhs, rhs);
+    पटिनिवत्त setSingleBits(lhs.toString() <= rhs.toString());
 }
 
 //======================================================================
 
-void V3Number::selfTest() {
+शून्य V3_सङ्ख्या::selfTest() {
     UINFO(2, __FUNCTION__ << ":");
-    FileLine* const fl = new FileLine{FileLine::builtInFilename()};
-    V3Number num{fl, 32, 0};
-    num.selfTestThis();
+    File_पङ्क्तिः* ध्रुव fl = नूतन File_पङ्क्तिः{File_पङ्क्तिः::builtInFilename()};
+    V3_सङ्ख्या अङ्कः{fl, 32, 0};
+    अङ्कः.selfTestThis();
 }
 
-void V3Number::selfTestThis() {
+शून्य V3_सङ्ख्या::selfTestThis() {
     // The self test has a "this" so UASSERT_SELFTEST/errorEndFatal works correctly
 
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0, 0), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1e19, 1e19), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(9, 0.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1, 1 + std::numeric_limits<double>::epsilon()), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0.009, 0.00899999999999999931998839741709), true);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonEqual(0, 0), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonEqual(1e19, 1e19), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonEqual(9, 0.0001), मिच्छा);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonEqual(1, 1 + std::numeric_limits<द्विगुण>::epsilon()), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonEqual(0.009, 0.00899999999999999931998839741709), सच्च);
 
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0.9999), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-0.9999), false);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(0), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(1), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(-1), सच्च);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(1.0001), मिच्छा);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(0.9999), मिच्छा);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(-1.0001), मिच्छा);
+    UASSERT_SELFTEST(V3_सङ्ख्या::epsilonIntegral(-0.9999), मिच्छा);
 
     UASSERT_SELFTEST(log2b(0), 0);
     UASSERT_SELFTEST(log2b(1), 0);
