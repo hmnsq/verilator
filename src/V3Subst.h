@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3SUBST_H_
 #define VERILATOR_V3SUBST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Subst final {
-public:
-    static void substituteAll(AstNetlist* nodep) VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ substituteAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

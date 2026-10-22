@@ -18,16 +18,16 @@
 #ifndef VERILATOR_V3FORCE_H_
 #define VERILATOR_V3FORCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Force final {
-public:
-    static void forceAndAssignAll(AstNetlist* nodep) VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ forceAndAssignAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

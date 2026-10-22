@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 // clang-format off
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Os.h"
-#include "V3String.h"
+#ଅନ୍ତର୍ଭାଵ "V3Error.h"
+#ଅନ୍ତର୍ଭାଵ "V3FileLine.h"
+#ଅନ୍ତର୍ଭାଵ "V3Os.h"
+#ଅନ୍ତର୍ଭାଵ "V3String.h"
 #ifndef V3ERROR_NO_GLOBAL_
 # include "V3Global.h"
 # include "V3Control.h"
 # include "V3File.h"
 # include "V3Stats.h"
 #endif
-#include "V3Waiver.h"
+#ଅନ୍ତର୍ଭାଵ "V3Waiver.h"
 // clang-format on
 
-#include <algorithm>
-#include <iomanip>
-#include <limits>
-#include <unordered_set>
+#ଅନ୍ତର୍ଭାଵ <algorithm>
+#ଅନ୍ତର୍ଭାଵ <iomanip>
+#ଅନ୍ତର୍ଭାଵ <limits>
+#ଅନ୍ତର୍ଭାଵ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // FileLineSingleton class functions
 
-string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
-    constexpr int size
+string File_ଧାଡ଼ି_Singleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
+    constexpr ପୂର୍ଣ୍ଣସଂଖ୍ୟା size
         = 1 + (64 / 4);  // Each letter retires more than 4 bits of a > 64 bit number
-    char out[size];
-    char* op = out + size - 1;
+    ଅକ୍ଷର out[size];
+    ଅକ୍ଷର* op = out + size - 1;
     *--op = '\0';  // We build backwards
-    int num = fileno;
-    do {
-        *--op = 'a' + num % 26;
-        num /= 26;
-    } while (num);
-    return op;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଅଙ୍କ = fileno;
+    କର {
+        *--op = 'a' + ଅଙ୍କ % 26;
+        ଅଙ୍କ /= 26;
+    } ଯେତେବେଳେ (ଅଙ୍କ);
+    ଫେରନ୍ତୁ op;
 }
 
 //! Convert filenames to a filenameno
@@ -63,498 +63,498 @@ string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
 
 //! We associate a language with each source file, so we also set the default
 //! for this.
-FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& filename) {
-    const auto pair = m_namemap.emplace(filename, 0);
+File_ଧାଡ଼ି_Singleton::fileNameIdx_t File_ଧାଡ଼ି_Singleton::name_To_ସଂଖ୍ୟା(ଅଚଳ string& filename) {
+    ଅଚଳ auto pair = m_namemap.emplace(filename, 0);
     fileNameIdx_t& idx = pair.first->second;
-    if (pair.second) {
-        const size_t nextIdx = m_names.size();
+    ଯଦି (pair.second) {
+        ଅଚଳ size_t nextIdx = m_names.size();
         UASSERT(nextIdx <= std::numeric_limits<fileNameIdx_t>::max(),
                 "Too many input files (" + cvtToStr(nextIdx) + "+).");
         idx = static_cast<fileNameIdx_t>(nextIdx);
-        m_names.push_back(filename);
-        m_languages.push_back(V3LangCode::mostRecent());
+        m_names.ଠେଲ_back(filename);
+        m_languages.ଠେଲ_back(V3LangCode::mostRecent());
     }
-    return idx;
+    ଫେରନ୍ତୁ idx;
 }
 
-void FileLineSingleton::fileNameNumMapDumpJson(std::ostream& os) {
+ଶୂନ୍ୟ File_ଧାଡ଼ି_Singleton::file_Name_ଅଙ୍କ_Map_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"files\": {";
-    for (const auto& itr : m_namemap) {
+    ପାଇଁ (ଅଚଳ auto& itr : m_namemap) {
         std::string filename = itr.first;
-        if (filename == V3Options::getStdPackagePath()) {
+        ଯଦି (filename == V3Options::getStdPackagePath()) {
             filename = "<verilated_std>";
-        } else if (filename == V3Options::getStdWaiverPath()) {
+        } ଅନ୍ୟଥା ଯଦି (filename == V3Options::getStdWaiverPath()) {
             filename = "<verilated_std_waiver>";
         }
         os << sep << '"' << filenameLetters(itr.second) << '"' << ": {\"filename\":\"" << filename
            << '"' << ", \"realpath\":\""
            << V3OutFormatter::quoteNameControls(V3Os::filenameRealPath(itr.first)) << '"'
-           << ", \"language\":\"" << numberToLang(itr.second).ascii() << "\"}";
+           << ", \"language\":\"" << ସଂଖ୍ୟା_To_Lang(itr.second).ascii() << "\"}";
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::addMsgEnBitSet(const MsgEnBitSet& bitSet)
+File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Idx_t File_ଧାଡ଼ି_Singleton::add_ସନ୍ଦେଶ_En_Bit_Set(ଅଚଳ ସନ୍ଦେଶ_En_Bit_Set& bitSet)
     VL_MT_SAFE_EXCLUDES(m_mutex) {
-    const V3LockGuard lock{m_mutex};
-    const auto pair = m_internedMsgEnIdxs.emplace(bitSet, 0);
-    msgEnSetIdx_t& idx = pair.first->second;
-    if (pair.second) {
-        const size_t nextIdx = m_internedMsgEns.size();
-        UASSERT(nextIdx <= std::numeric_limits<msgEnSetIdx_t>::max(),
+    ଅଚଳ V3LockGuard lock{m_mutex};
+    ଅଚଳ auto pair = m_interned_ସନ୍ଦେଶ_En_Idxs.emplace(bitSet, 0);
+    ସନ୍ଦେଶ_En_Set_Idx_t& idx = pair.first->second;
+    ଯଦି (pair.second) {
+        ଅଚଳ size_t nextIdx = m_interned_ସନ୍ଦେଶ_Ens.size();
+        UASSERT(nextIdx <= std::numeric_limits<ସନ୍ଦେଶ_En_Set_Idx_t>::max(),
                 "Too many unique message enable sets (" + cvtToStr(nextIdx) + "+).");
-        idx = static_cast<msgEnSetIdx_t>(nextIdx);
-        m_internedMsgEns.push_back(bitSet);
+        idx = static_cast<ସନ୍ଦେଶ_En_Set_Idx_t>(nextIdx);
+        m_interned_ସନ୍ଦେଶ_Ens.ଠେଲ_back(bitSet);
     }
-    return idx;
+    ଫେରନ୍ତୁ idx;
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::defaultMsgEnIndex() VL_MT_SAFE {
-    MsgEnBitSet msgEnBitSet;
-    for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
-        const V3ErrorCode code{i};
+File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Idx_t File_ଧାଡ଼ି_Singleton::default_ସନ୍ଦେଶ_En_Index() VL_MT_SAFE {
+    ସନ୍ଦେଶ_En_Bit_Set ସନ୍ଦେଶ_En_Bit_Set_2;
+    ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+        ଅଚଳ V3ErrorCode code{i};
         // "-Wall" and the like only adjust the code subset, so use default enablement there
-        msgEnBitSet.set(MsgEnBitSet::Subset::CODE, code, !code.defaultsOff());
+        ସନ୍ଦେଶ_En_Bit_Set_2.set(ସନ୍ଦେଶ_En_Bit_Set::Subset::CODE, code, !code.defaultsOff());
         // The control file subset is only adjusted by the control files, everything enabled by
         // default.  (V3Control also likewise creates with this)
-        msgEnBitSet.set(MsgEnBitSet::Subset::CTRL, code, true);
+        ସନ୍ଦେଶ_En_Bit_Set_2.set(ସନ୍ଦେଶ_En_Bit_Set::Subset::CTRL, code, ସତ୍ୟ);
     }
-    return addMsgEnBitSet(msgEnBitSet);
+    ଫେରନ୍ତୁ add_ସନ୍ଦେଶ_En_Bit_Set(ସନ୍ଦେଶ_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnSetBit(msgEnSetIdx_t setIdx,
-                                                                MsgEnBitSet::Subset subset,
-                                                                V3ErrorCode code, bool value) {
+File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Idx_t File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Bit(ସନ୍ଦେଶ_En_Set_Idx_t setIdx,
+                                                                ସନ୍ଦେଶ_En_Bit_Set::Subset subset,
+                                                                V3ErrorCode code, ତାର୍କିକ ମୂଲ୍ୟ) {
     // See if state matches existing
-    bool same = true;
+    ତାର୍କିକ same = ସତ୍ୟ;
     code.forDelegateCodes([&](V3ErrorCode subcode) {
-        if (msgEn(setIdx).test(subset, subcode) != value) same = false;
+        ଯଦି (ସନ୍ଦେଶ_En(setIdx).test(subset, subcode) != ମୂଲ୍ୟ) same = ମିଥ୍ୟା;
     });
-    if (same) return setIdx;
+    ଯଦି (same) ଫେରନ୍ତୁ setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    code.forDelegateCodes([&](V3ErrorCode subcode) { msgEnBitSet.set(subset, subcode, value); });
-    return addMsgEnBitSet(msgEnBitSet);
+    ସନ୍ଦେଶ_En_Bit_Set ସନ୍ଦେଶ_En_Bit_Set_2{ସନ୍ଦେଶ_En(setIdx)};
+    code.forDelegateCodes([&](V3ErrorCode subcode) { ସନ୍ଦେଶ_En_Bit_Set_2.set(subset, subcode, ମୂଲ୍ୟ); });
+    ଫେରନ୍ତୁ add_ସନ୍ଦେଶ_En_Bit_Set(ସନ୍ଦେଶ_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgSetCtrlBitSet(msgEnSetIdx_t setIdx,
-                                                                     const VErrorBitSet& bitset) {
-    const MsgEnBitSet::Subset subset = MsgEnBitSet::Subset::CTRL;
+File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Idx_t File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_Set_Ctrl_Bit_Set(ସନ୍ଦେଶ_En_Set_Idx_t setIdx,
+                                                                     ଅଚଳ VErrorBitSet& bitset) {
+    ଅଚଳ ସନ୍ଦେଶ_En_Bit_Set::Subset subset = ସନ୍ଦେଶ_En_Bit_Set::Subset::CTRL;
     // See if state matches existing
-    if (msgEn(setIdx).getAll(subset) == bitset) return setIdx;
+    ଯଦି (ସନ୍ଦେଶ_En(setIdx).getAll(subset) == bitset) ଫେରନ୍ତୁ setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    msgEnBitSet.setAll(subset, bitset);
-    return addMsgEnBitSet(msgEnBitSet);
+    ସନ୍ଦେଶ_En_Bit_Set ସନ୍ଦେଶ_En_Bit_Set_2{ସନ୍ଦେଶ_En(setIdx)};
+    ସନ୍ଦେଶ_En_Bit_Set_2.setAll(subset, bitset);
+    ଫେରନ୍ତୁ add_ସନ୍ଦେଶ_En_Bit_Set(ସନ୍ଦେଶ_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsIdx,
-                                                             msgEnSetIdx_t rhsIdx) {
-    const MsgEnBitSet& lhs = msgEn(lhsIdx);
-    const MsgEnBitSet& rhs = msgEn(rhsIdx);
-    const MsgEnBitSet intersection{lhs, rhs};
-    if (intersection == lhs) return lhsIdx;
-    if (intersection == rhs) return rhsIdx;
-    return addMsgEnBitSet(intersection);
+File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_Set_Idx_t File_ଧାଡ଼ି_Singleton::ସନ୍ଦେଶ_En_And(ସନ୍ଦେଶ_En_Set_Idx_t lhsIdx,
+                                                             ସନ୍ଦେଶ_En_Set_Idx_t rhsIdx) {
+    ଅଚଳ ସନ୍ଦେଶ_En_Bit_Set& lhs = ସନ୍ଦେଶ_En(lhsIdx);
+    ଅଚଳ ସନ୍ଦେଶ_En_Bit_Set& rhs = ସନ୍ଦେଶ_En(rhsIdx);
+    ଅଚଳ ସନ୍ଦେଶ_En_Bit_Set intersection{lhs, rhs};
+    ଯଦି (intersection == lhs) ଫେରନ୍ତୁ lhsIdx;
+    ଯଦି (intersection == rhs) ଫେରନ୍ତୁ rhsIdx;
+    ଫେରନ୍ତୁ add_ସନ୍ଦେଶ_En_Bit_Set(intersection);
 }
 
 // ######################################################################
 //  VFileContents class functions
 
-void VFileContent::pushText(const string& text) {
+ଶୂନ୍ୟ VFileContent::ଠେଲ_Text(ଅଚଳ string& text) {
     // Similar code in WildcardContents::pushText()
-    if (m_lines.size() == 0) {
-        m_lines.emplace_back("");  // no such thing as line [0]
-        m_lines.emplace_back("");  // start with no leftover
+    ଯଦି (m_ଧାଡ଼ିଗୁଡ଼ିକ.size() == 0) {
+        m_ଧାଡ଼ିଗୁଡ଼ିକ.emplace_back("");  // no such thing as line [0]
+        m_ଧାଡ଼ିଗୁଡ଼ିକ.emplace_back("");  // start with no leftover
     }
 
     // Any leftover text is stored on largest line (might be "")
-    const string leftover = m_lines.back() + text;
-    m_lines.pop_back();
+    ଅଚଳ string leftover = m_ଧାଡ଼ିଗୁଡ଼ିକ.back() + text;
+    m_ଧାଡ଼ିଗୁଡ଼ିକ.କାଢ଼_back();
 
     // Insert line-by-line
-    string::size_type line_start = 0;
-    while (true) {
-        const string::size_type line_end = leftover.find('\n', line_start);
-        if (line_end != string::npos) {
-            const string oneline(leftover, line_start, line_end - line_start + 1);
-            m_lines.push_back(oneline);  // Keeps newline
-            UINFO(9, "PushStream[ct" << m_id << "+" << (m_lines.size() - 1) << "]: " << oneline);
-            line_start = line_end + 1;
-        } else {
-            break;
+    string::size_type ଧାଡ଼ି_start = 0;
+    ଯେତେବେଳେ (ସତ୍ୟ) {
+        ଅଚଳ string::size_type ଧାଡ଼ି_end = leftover.find('\n', ଧାଡ଼ି_start);
+        ଯଦି (ଧାଡ଼ି_end != string::npos) {
+            ଅଚଳ string oneline(leftover, ଧାଡ଼ି_start, ଧାଡ଼ି_end - ଧାଡ଼ି_start + 1);
+            m_ଧାଡ଼ିଗୁଡ଼ିକ.ଠେଲ_back(oneline);  // Keeps newline
+            UINFO(9, "PushStream[ct" << m_id << "+" << (m_ଧାଡ଼ିଗୁଡ଼ିକ.size() - 1) << "]: " << oneline);
+            ଧାଡ଼ି_start = ଧାଡ଼ି_end + 1;
+        } ଅନ୍ୟଥା {
+            ଭାଙ୍ଗ;
         }
     }
     // Keep leftover for next time
-    m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+    m_ଧାଡ଼ିଗୁଡ଼ିକ.emplace_back(string(leftover, ଧାଡ଼ି_start));  // Might be ""
 }
 
-string VFileContent::getLine(int lineno) const VL_MT_SAFE {
+string VFileContent::get_ଧାଡ଼ି(ପୂର୍ଣ୍ଣସଂଖ୍ୟା lineno) ଅଚଳ VL_MT_SAFE {
     // Return error text rather than asserting so the user isn't left without a message
     // cppcheck-suppress negativeContainerIndex
-    if (VL_UNCOVERABLE(lineno < 0 || lineno >= (int)m_lines.size())) {
-        if (debug() || v3Global.opt.debugCheck()) {
-            return ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
-        } else {
-            return "";
+    ଯଦି (VL_UNCOVERABLE(lineno < 0 || lineno >= (ପୂର୍ଣ୍ଣସଂଖ୍ୟା)m_ଧାଡ଼ିଗୁଡ଼ିକ.size())) {
+        ଯଦି (debug() || v3Global.opt.debugCheck()) {
+            ଫେରନ୍ତୁ ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "";
         }
     }
-    string text = m_lines[lineno];
+    string text = m_ଧାଡ଼ିଗୁଡ଼ିକ[lineno];
     UINFO(9, "Get Stream[ct" << m_id << "+" << lineno << "]: " << text);
-    return text;
+    ଫେରନ୍ତୁ text;
 }
 
 std::ostream& operator<<(std::ostream& os, VFileContent* contentp) {
-    if (!contentp) {
+    ଯଦି (!contentp) {
         os << "ct0";
-    } else {
+    } ଅନ୍ୟଥା {
         os << contentp->ascii();
     }
-    return os;
+    ଫେରନ୍ତୁ os;
 }
 
 // ######################################################################
 //  FileLine class functions
 
-FileLine::~FileLine() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+File_ଧାଡ଼ି::~File_ଧାଡ଼ି() {
+    ଯଦି (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
 }
 
-void FileLine::newContent() {
-    if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
-    m_contentp = new VFileContent;
+ଶୂନ୍ୟ File_ଧାଡ଼ି::newContent() {
+    ଯଦି (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
+    m_contentp = ନୂତନ VFileContent;
     m_contentp->refInc();
     m_contentLineno = 1;
 }
 
-string FileLine::lineDirectiveStrg(int enterExit) const {
-    return "`line "s + cvtToStr(lastLineno()) + " \""
+string File_ଧାଡ଼ି::ଧାଡ଼ି_Directive_Strg(ପୂର୍ଣ୍ଣସଂଖ୍ୟା enterExit) ଅଚଳ {
+    ଫେରନ୍ତୁ "`line "s + cvtToStr(lastLineno()) + " \""
            + V3OutFormatter::quoteNameControls(filename()) + "\" " + cvtToStr(enterExit) + '\n';
 }
 
-void FileLine::lineDirective(const char* textp, int& enterExitRef) {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::ଧାଡ଼ି_Directive(ଅଚଳ ଅକ୍ଷର* textp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା& enterExitRef) {
     string newFilename;
-    int newLineno = -1;
-    lineDirectiveParse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
-    if (enterExitRef != -1) {
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା newLineno = -1;
+    ଧାଡ଼ି_Directive_Parse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
+    ଯଦି (enterExitRef != -1) {
         filename(newFilename);
         lineno(newLineno);
-    } else {  // Advance line number to account for bogus `line
+    } ଅନ୍ୟଥା {  // Advance line number to account for bogus `line
         linenoInc();
     }
 }
 
-void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                                  int& enterExitRef) {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::ଧାଡ଼ି_Directive_Parse(ଅଚଳ ଅକ୍ଷର* textp, string& filenameRef, ପୂର୍ଣ୍ଣସଂଖ୍ୟା& linenoRef,
+                                  ପୂର୍ଣ୍ଣସଂଖ୍ୟା& enterExitRef) {
     // Handle `line directive
     // Does not parse streamNumber/streamLineno as the next input token
     // will come from the same stream as the previous line.
-    do {
+    କର {
         // Skip `line
-        while (*textp && std::isspace(*textp)) ++textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        ଯେତେବେଳେ (*textp && std::isspace(*textp)) ++textp;
+        ଯେତେବେଳେ (*textp && !std::isspace(*textp)) ++textp;
+        ଯେତେବେଳେ (*textp && std::isspace(*textp)) ++textp;
 
         // Grab linenumber
-        int lineNo;
-        const char* const ln = textp;
-        while (*textp && !std::isspace(*textp)) ++textp;
-        if (0 == strncmp(ln, "`__LINE__", textp - ln)) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଧାଡ଼ି_No;
+        ଅଚଳ ଅକ୍ଷର* ଅଚଳ ln = textp;
+        ଯେତେବେଳେ (*textp && !std::isspace(*textp)) ++textp;
+        ଯଦି (0 == strncmp(ln, "`__LINE__", textp - ln)) {
             // Special case - see docs - don't change other than accounting for `line itself
-            lineNo = lineno() + 1;
-        } else if (std::isdigit(*ln)) {
-            lineNo = std::atoi(ln);
-        } else {
-            break;  // Fail
+            ଧାଡ଼ି_No = lineno() + 1;
+        } ଅନ୍ୟଥା ଯଦି (std::isdigit(*ln)) {
+            ଧାଡ଼ି_No = std::atoi(ln);
+        } ଅନ୍ୟଥା {
+            ଭାଙ୍ଗ;  // Fail
         }
-        while (*textp && (std::isspace(*textp))) ++textp;
+        ଯେତେବେଳେ (*textp && (std::isspace(*textp))) ++textp;
 
         // Grab filename
-        if (*textp != '"') break;  // Fail
-        const char* const fn = ++textp;
-        while (*textp && *textp != '"') ++textp;
-        if (*textp != '"') break;  // Fail
-        string errMsg;
-        const string& parsedFilename = VString::unquoteSVString(string{fn, textp}, errMsg);
-        if (!errMsg.empty()) this->v3error(errMsg.c_str());
+        ଯଦି (*textp != '"') ଭାଙ୍ଗ;  // Fail
+        ଅଚଳ ଅକ୍ଷର* ଅଚଳ fn = ++textp;
+        ଯେତେବେଳେ (*textp && *textp != '"') ++textp;
+        ଯଦି (*textp != '"') ଭାଙ୍ଗ;  // Fail
+        string err_ସନ୍ଦେଶ;
+        ଅଚଳ string& parsedFilename = VString::unquoteSVString(string{fn, textp}, err_ସନ୍ଦେଶ);
+        ଯଦି (!err_ସନ୍ଦେଶ.empty()) ଏହି->v3error(err_ସନ୍ଦେଶ.c_str());
         ++textp;
-        while (*textp && std::isspace(*textp)) ++textp;
+        ଯେତେବେଳେ (*textp && std::isspace(*textp)) ++textp;
 
         // Grab level
-        if (!std::isdigit(*textp)) break;  // Fail
-        const int level = std::atoi(textp);
-        if (level < 0 || level >= 3) break;  // Fail
+        ଯଦି (!std::isdigit(*textp)) ଭାଙ୍ଗ;  // Fail
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା level = std::atoi(textp);
+        ଯଦି (level < 0 || level >= 3) ଭାଙ୍ଗ;  // Fail
 
-        linenoRef = lineNo;
+        linenoRef = ଧାଡ଼ି_No;
         filenameRef = parsedFilename;
         enterExitRef = level;
-        return;
-    } while (false);
+        ଫେରନ୍ତୁ;
+    } ଯେତେବେଳେ (ମିଥ୍ୟା);
 
     // Fail
     v3error("`line was not properly formed with '`line number \"filename\" level'\n");
     enterExitRef = -1;
 }
 
-void FileLine::forwardToken(const char* textp, size_t size, bool trackLines) {
-    static int s_tokenNum = 1;
-    m_tokenNum = s_tokenNum++;
-    for (const char* sp = textp; size && *sp; ++sp, --size) {
-        if (*sp == '\n') {
-            if (trackLines) linenoInc();
+ଶୂନ୍ୟ File_ଧାଡ଼ି::forwardToken(ଅଚଳ ଅକ୍ଷର* textp, size_t size, ତାର୍କିକ track_ଧାଡ଼ିଗୁଡ଼ିକ) {
+    ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା s_token_ଅଙ୍କ = 1;
+    m_token_ଅଙ୍କ = s_token_ଅଙ୍କ++;
+    ପାଇଁ (ଅଚଳ ଅକ୍ଷର* sp = textp; size && *sp; ++sp, --size) {
+        ଯଦି (*sp == '\n') {
+            ଯଦି (track_ଧାଡ଼ିଗୁଡ଼ିକ) linenoInc();
             m_lastColumn = 1;
-        } else if (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
-        } else {  // Tabs are considered one column; hence column means number of chars
+        } ଅନ୍ୟଥା ଯଦି (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
+        } ଅନ୍ୟଥା {  // Tabs are considered one column; hence column means number of chars
             ++m_lastColumn;
         }
     }
 }
 
-void FileLine::applyIgnores() {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::applyIgnores() {
 #ifndef V3ERROR_NO_GLOBAL_
-    V3Control::applyIgnores(this);  // Toggle warnings based on global config file
+    V3Control::applyIgnores(ଏହି);  // Toggle warnings based on global config file
 #endif
 }
 
-FileLine* FileLine::copyOrSameFileLineApplied() {
+File_ଧାଡ଼ି* File_ଧାଡ଼ି::copy_Or_Same_File_ଧାଡ଼ି_Applied() {
     applyIgnores();
-    return copyOrSameFileLine();
+    ଫେରନ୍ତୁ copy_Or_Same_File_ଧାଡ଼ି();
 }
 
-FileLine* FileLine::copyOrSameFileLine() {
+File_ଧାଡ଼ି* File_ଧାଡ଼ି::copy_Or_Same_File_ଧାଡ଼ି() {
     // When a fileline is "used" to produce a node, calls this function.
     // Return this, or a copy of this
     // There are often more than one token per line, thus we use the
     // same pointer as long as we're on the same line, file & warn state.
-    static FileLine* s_lastNewp = nullptr;
-    if (s_lastNewp && *s_lastNewp == *this) {  // Compares lineno, filename, etc
-        return s_lastNewp;
+    ସ୍ଥିର File_ଧାଡ଼ି* s_lastNewp = nullptr;
+    ଯଦି (s_lastNewp && *s_lastNewp == *ଏହି) {  // Compares lineno, filename, etc
+        ଫେରନ୍ତୁ s_lastNewp;
     }
-    FileLine* const newp = new FileLine{this};
+    File_ଧାଡ଼ି* ଅଚଳ newp = ନୂତନ File_ଧାଡ଼ି{ଏହି};
     s_lastNewp = newp;
-    return newp;
+    ଫେରନ୍ତୁ newp;
 }
 
-string FileLine::filebasename() const VL_MT_SAFE { return V3Os::filenameNonDir(filename()); }
+string File_ଧାଡ଼ି::filebasename() ଅଚଳ VL_MT_SAFE { ଫେରନ୍ତୁ V3Os::filenameNonDir(filename()); }
 
-string FileLine::filebasenameNoExt() const { return V3Os::filenameNonDirExt(filename()); }
+string File_ଧାଡ଼ି::filebasenameNoExt() ଅଚଳ { ଫେରନ୍ତୁ V3Os::filenameNonDirExt(filename()); }
 
-string FileLine::firstColumnLetters() const VL_MT_SAFE {
-    const char a = ((firstColumn() / 26) % 26) + 'a';
-    const char b = (firstColumn() % 26) + 'a';
-    return string(1, a) + string(1, b);
+string File_ଧାଡ଼ି::firstColumnLetters() ଅଚଳ VL_MT_SAFE {
+    ଅଚଳ ଅକ୍ଷର a = ((firstColumn() / 26) % 26) + 'a';
+    ଅଚଳ ଅକ୍ଷର b = (firstColumn() % 26) + 'a';
+    ଫେରନ୍ତୁ string(1, a) + string(1, b);
 }
 
-string FileLine::profileFuncname() const {
+string File_ଧାଡ଼ି::profileFuncname() ଅଚଳ {
     // Return string that is OK as a function name - for profiling
     string name = filebasenameNoExt();
     string::size_type pos;
-    while ((pos = name.find_first_not_of(
+    ଯେତେବେଳେ ((pos = name.find_first_not_of(
                 "abcdefghijlkmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ0123456789_"))
            != string::npos) {
         name.replace(pos, 1, "_");
     }
     name += "__l" + cvtToStr(lastLineno());
-    return name;
+    ଫେରନ୍ତୁ name;
 }
 
-string FileLine::asciiLineCol() const {
-    return (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
+string File_ଧାଡ଼ି::ascii_ଧାଡ଼ି_Col() ଅଚଳ {
+    ଫେରନ୍ତୁ (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
             + "-" + cvtToStr(lastColumn()) + "[" + (m_contentp ? m_contentp->ascii() : "ct0") + "+"
             + cvtToStr(m_contentLineno) + "]");
 }
-string FileLine::ascii() const {
+string File_ଧାଡ଼ି::ascii() ଅଚଳ {
     // For most errors especially in the parser the lastLineno is more accurate than firstLineno
-    return filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
+    ଫେରନ୍ତୁ filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
 }
-std::ostream& operator<<(std::ostream& os, FileLine* fileline) {
+std::ostream& operator<<(std::ostream& os, File_ଧାଡ଼ି* fileline) {
     os << fileline->ascii() << ": " << std::hex;
-    return (os);
+    ଫେରନ୍ତୁ (os);
 }
 
-string FileLine::warnOffParse(const string& msgs, bool turnOff) {
+string File_ଧାଡ଼ି::warnOffParse(ଅଚଳ string& msgs, ତାର୍କିକ turnOff) {
     string result;
-    for (const string& msg : VString::split(msgs, ',')) {
-        const V3ErrorCode code{msg};
-        if (!code.hardError()) {
+    ପାଇଁ (ଅଚଳ string& ସନ୍ଦେଶ : VString::split(msgs, ',')) {
+        ଅଚଳ V3ErrorCode code{ସନ୍ଦେଶ};
+        ଯଦି (!code.hardError()) {
             warnOff(code, turnOff);
-            continue;
+            ଜାରି;
         }
         // Error if not suppressed
-        if (!v3Global.opt.isFuture(msg)) result = VString::dot(result, ",", msg);
+        ଯଦି (!v3Global.opt.isFuture(ସନ୍ଦେଶ)) result = VString::dot(result, ",", ସନ୍ଦେଶ);
     }
-    return result;
+    ଫେରନ୍ତୁ result;
 }
 
-bool FileLine::warnIsOff(V3ErrorCode code) const {
-    if (!msgEn().enabled(code)) return true;
-    if (!defaultFileLine().msgEn().enabled(code)) return true;  // Global overrides local
-    return false;
+ତାର୍କିକ File_ଧାଡ଼ି::warnIsOff(V3ErrorCode code) ଅଚଳ {
+    ଯଦି (!ସନ୍ଦେଶ_En().enabled(code)) ଫେରନ୍ତୁ ସତ୍ୟ;
+    ଯଦି (!default_File_ଧାଡ଼ି().ସନ୍ଦେଶ_En().enabled(code)) ଫେରନ୍ତୁ ସତ୍ୟ;  // Global overrides local
+    ଫେରନ୍ତୁ ମିଥ୍ୟା;
 }
 
 // cppverilator-suppress constParameter
-void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
+ଶୂନ୍ୟ File_ଧାଡ଼ି::v3errorEnd(std::ostringstream& sstr, ଅଚଳ string& extra)
     VL_RELEASE(V3Error::s().m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
     std::ostringstream nsstr;  // sstr with fileline prefix and context
     std::ostringstream wsstr;  // sstr for waiver (no fileline) with context
-    if (lastLineno()) nsstr << V3Error::warnContextBegin() << this << V3Error::warnContextEnd();
+    ଯଦି (lastLineno()) nsstr << V3Error::warnContextBegin() << ଏହି << V3Error::warnContextEnd();
     nsstr << sstr.str();
     wsstr << sstr.str();
     nsstr << '\n';
     wsstr << '\n';
     std::ostringstream extrass;  // extra spaced out for prefix
-    if (!extra.empty()) {
+    ଯଦି (!extra.empty()) {
         extrass << V3Error::warnContextBegin() << std::setw(ascii().length()) << " " << ": "
                 << V3Error::warnContextEnd() << extra;
     }
-    if (warnIsOff(V3Error::s().errorCode())) {
+    ଯଦି (warnIsOff(V3Error::s().errorCode())) {
         V3Error::s().suppressThisWarning();
-    } else {
-        if (!V3Error::s().errorContexted()) {
-            const string add = warnContextPrimary();
+    } ଅନ୍ୟଥା {
+        ଯଦି (!V3Error::s().errorContexted()) {
+            ଅଚଳ string add = warnContextPrimary();
             wsstr << add;
             nsstr << add;
         }
-        const string waiverText = V3Error::stripMetaText(wsstr.str(), false);
-        m_waive = V3Control::waive(this, V3Error::s().errorCode(), waiverText);
-        if (m_waive) {
+        ଅଚଳ string waiverText = V3Error::stripMetaText(wsstr.str(), ମିଥ୍ୟା);
+        m_waive = V3Control::waive(ଏହି, V3Error::s().errorCode(), waiverText);
+        ଯଦି (m_waive) {
             V3Error::s().suppressThisWarning();
-        } else {
+        } ଅନ୍ୟଥା {
             V3Waiver::addEntry(V3Error::s().errorCode(), filename(), waiverText);
         }
     }
-    V3Error::v3errorEnd(nsstr, extrass.str(), this);
+    V3Error::v3errorEnd(nsstr, extrass.str(), ଏହି);
 }
 
-string FileLine::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
+string File_ଧାଡ଼ି::warnMore() ଅଚଳ VL_REQUIRES(V3Error::s().m_mutex) {
+    ଯଦି (lastLineno()) {
+        ଫେରନ୍ତୁ V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
                + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+    } ଅନ୍ୟଥା {
+        ଫେରନ୍ତୁ V3Error::warnMore();
     }
 }
-string FileLine::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
-    if (lastLineno()) {
-        return V3Error::s().warnRelated(this) + V3Error::warnContextBegin() + V3Error::warnMore()
+string File_ଧାଡ଼ି::warnOther() ଅଚଳ VL_REQUIRES(V3Error::s().m_mutex) {
+    ଯଦି (lastLineno()) {
+        ଫେରନ୍ତୁ V3Error::s().warnRelated(ଏହି) + V3Error::warnContextBegin() + V3Error::warnMore()
                + ascii() + ": " + V3Error::warnContextEnd();
-    } else {
-        return V3Error::warnMore();
+    } ଅନ୍ୟଥା {
+        ଫେରନ୍ତୁ V3Error::warnMore();
     }
 };
 
-string FileLine::source() const VL_MT_SAFE {
-    if (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
-        if (debug() || v3Global.opt.debugCheck()) {
+string File_ଧାଡ଼ି::source() ଅଚଳ VL_MT_SAFE {
+    ଯଦି (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
+        ଯଦି (debug() || v3Global.opt.debugCheck()) {
             // The newline here is to work around the " <line#> | "
-            return "\n%Error: internal tracking of file contents failed";
-        } else {
-            return "";
+            ଫେରନ୍ତୁ "\n%Error: internal tracking of file contents failed";
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "";
         }
     }  // LCOV_EXCL_STOP
-    return m_contentp->getLine(m_contentLineno);
+    ଫେରନ୍ତୁ m_contentp->get_ଧାଡ଼ି(m_contentLineno);
 }
-string FileLine::sourcePrefix(int toColumn) const VL_MT_SAFE {
-    const std::string src = source();
-    if (toColumn > static_cast<int>(src.length())) toColumn = static_cast<int>(src.length());
-    if (toColumn < 1) return "";
-    return src.substr(0, toColumn - 1);
+string File_ଧାଡ଼ି::sourcePrefix(ପୂର୍ଣ୍ଣସଂଖ୍ୟା toColumn) ଅଚଳ VL_MT_SAFE {
+    ଅଚଳ std::string src = source();
+    ଯଦି (toColumn > static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(src.length())) toColumn = static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(src.length());
+    ଯଦି (toColumn < 1) ଫେରନ୍ତୁ "";
+    ଫେରନ୍ତୁ src.substr(0, toColumn - 1);
 }
-string FileLine::prettySource() const VL_MT_SAFE {
+string File_ଧାଡ଼ି::prettySource() ଅଚଳ VL_MT_SAFE {
     string out = source();
     // Drop ignore trailing newline
-    const string::size_type pos = out.find('\n');
-    if (pos != string::npos) out = string(out, 0, pos);
+    ଅଚଳ string::size_type pos = out.find('\n');
+    ଯଦି (pos != string::npos) out = string(out, 0, pos);
     // Column tracking counts tabs = 1, so match that when print source
-    return VString::spaceUnprintable(out);
+    ଫେରନ୍ତୁ VString::spaceUnprintable(out);
 }
 
-string FileLine::warnContext() const {
-    if (!v3Global.opt.context()) return "";
-    if (firstLineno() == lastLineno() && firstColumn()) {
-        const string sourceLine = prettySource();
+string File_ଧାଡ଼ି::warnContext() ଅଚଳ {
+    ଯଦି (!v3Global.opt.context()) ଫେରନ୍ତୁ "";
+    ଯଦି (firstLineno() == lastLineno() && firstColumn()) {
+        ଅଚଳ string source_ଧାଡ଼ି = prettySource();
         string out;
         // Don't show super-long lines as can fill screen and unlikely to help user
-        if (!sourceLine.empty() && sourceLine.length() < SHOW_SOURCE_MAX_LENGTH
-            && sourceLine.length() >= static_cast<size_t>(lastColumn() - 1)) {
+        ଯଦି (!source_ଧାଡ଼ି.empty() && source_ଧାଡ଼ି.length() < SHOW_SOURCE_MAX_LENGTH
+            && source_ଧାଡ଼ି.length() >= static_cast<size_t>(lastColumn() - 1)) {
             string linestr = cvtToStr(firstLineno());
-            while (linestr.size() < 5) linestr = ' ' + linestr;
-            out += linestr + " | " + sourceLine + '\n';
+            ଯେତେବେଳେ (linestr.size() < 5) linestr = ' ' + linestr;
+            out += linestr + " | " + source_ଧାଡ଼ି + '\n';
             out += std::string(linestr.size(), ' ') + " | ";
             out += string((firstColumn() - 1), ' ') + '^';
             // Can't use UASSERT_OBJ used in warnings already inside the error end handler
-            if (lastColumn() > firstColumn()) {
+            ଯଦି (lastColumn() > firstColumn()) {
                 // Note lastColumn() can be <= firstColumn() in some weird preproc expansions
                 out += string((lastColumn() - firstColumn() - 1), '~');
             }
             out += '\n';
         }
-        return V3Error::warnContextBegin() + out + V3Error::warnContextEnd();
+        ଫେରନ୍ତୁ V3Error::warnContextBegin() + out + V3Error::warnContextEnd();
     }
-    return "";
+    ଫେରନ୍ତୁ "";
 }
 
-string FileLine::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
+string File_ଧାଡ଼ି::warnContextParent() ଅଚଳ VL_REQUIRES(V3Error::s().m_mutex) {
     string result;
-    for (FileLine* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
-        if (parentFl->filenameIsGlobal()) break;
+    ପାଇଁ (File_ଧାଡ଼ି* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
+        ଯଦି (parentFl->filenameIsGlobal()) ଭାଙ୍ଗ;
         result += parentFl->warnOther() + "... note: In file included from '"
                   + parentFl->filebasename() + "'\n";
     }
-    return result;
+    ଫେରନ୍ତୁ result;
 }
 
 #ifdef VL_LEAK_CHECKS
-std::unordered_set<FileLine*> fileLineLeakChecks;
+std::unordered_set<File_ଧାଡ଼ି*> file_ଧାଡ଼ି_Leak_Checks;
 
-void* FileLine::operator new(size_t size) {
-    FileLine* const objp = static_cast<FileLine*>(::operator new(size));
-    fileLineLeakChecks.insert(objp);
-    return objp;
+ଶୂନ୍ୟ* File_ଧାଡ଼ି::operator ନୂତନ(size_t size) {
+    File_ଧାଡ଼ି* ଅଚଳ objp = static_cast<File_ଧାଡ଼ି*>(::operator ନୂତନ(size));
+    file_ଧାଡ଼ି_Leak_Checks.ଭର୍ତ୍ତି(objp);
+    ଫେରନ୍ତୁ objp;
 }
 
-void FileLine::operator delete(void* objp, size_t size) {
-    if (!objp) return;
-    FileLine* const flp = static_cast<FileLine*>(objp);
-    const auto it = fileLineLeakChecks.find(flp);
-    if (it != fileLineLeakChecks.end()) {
-        fileLineLeakChecks.erase(it);
-    } else {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::operator delete(ଶୂନ୍ୟ* objp, size_t size) {
+    ଯଦି (!objp) ଫେରନ୍ତୁ;
+    File_ଧାଡ଼ି* ଅଚଳ flp = static_cast<File_ଧାଡ଼ି*>(objp);
+    ଅଚଳ auto it = file_ଧାଡ଼ି_Leak_Checks.find(flp);
+    ଯଦି (it != file_ଧାଡ଼ି_Leak_Checks.end()) {
+        file_ଧାଡ଼ି_Leak_Checks.erase(it);
+    } ଅନ୍ୟଥା {
         flp->v3fatalSrc("Deleting FileLine object that was never tracked");
     }
     ::operator delete(objp);
 }
 #endif
 
-void FileLine::stats() {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::stats() {
 #ifndef V3ERROR_NO_GLOBAL_
     V3Stats::addStatSum("FileLines, Number of filenames",
                         singleton().m_names.size());  // Max m_filenameno
     V3Stats::addStatSum("FileLines, Message enable sets",
-                        singleton().m_internedMsgEns.size());  // Max m_msgEnIdx
+                        singleton().m_interned_ସନ୍ଦେଶ_Ens.size());  // Max m_msgEnIdx
     // Don't currently have a good path to recording max line/column,
     // Infrequently useful, alternatively we could keep globals we update as make each FileLine
     // or could use fileLineLeakChecks.
 #endif
 }
 
-void FileLine::deleteAllRemaining() {
+ଶୂନ୍ୟ File_ଧାଡ଼ି::deleteAllRemaining() {
 #ifdef VL_LEAK_CHECKS
     // FileLines are allocated, but never nicely freed, as it's much faster
     // that way.  Unfortunately this makes our leak checking a big mess, so
     // only when leak checking we'll track them all and cleanup.
-    while (true) {
-        const auto it = fileLineLeakChecks.begin();
-        if (it == fileLineLeakChecks.end()) break;
+    ଯେତେବେଳେ (ସତ୍ୟ) {
+        ଅଚଳ auto it = file_ଧାଡ଼ି_Leak_Checks.begin();
+        ଯଦି (it == file_ଧାଡ଼ି_Leak_Checks.end()) ଭାଙ୍ଗ;
         delete *it;
         // Operator delete will remove the iterated object from the list.
         // Eventually the list will be empty and terminate the loop.
     }
-    fileLineLeakChecks.clear();
+    file_ଧାଡ଼ି_Leak_Checks.clear();
     singleton().clear();
 #endif
 }

@@ -35,155 +35,155 @@
 // simplified to look primarily for SLICESELs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Slice.h"
+#ଅନ୍ତର୍ଭାଵ "V3Slice.h"
 
-#include "V3Stats.h"
+#ଅନ୍ତର୍ଭାଵ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //*************************************************************************
 
-class SliceVisitor final : public VNVisitor {
+ଶ୍ରେଣୀ SliceVisitor final : ସର୍ବସାଧାରଣ VNVisitor {
     // NODE STATE
     // Cleared on netlist
     //  AstNodeAssign::user1()      -> bool.  True if find is complete
     //  AstNodeUniop::user1()       -> bool.  True if find is complete
     //  AstArraySel::user1p()       -> AstVarRef. The VarRef that the final ArraySel points to
-    const VNUser1InUse m_inuser1;
+    ଅଚଳ VNUser1InUse m_inuser1;
 
     // STATE - across all visitors
     VDouble0 m_statAssigns;  // Statistic tracking
     VDouble0 m_statSliceElementSkips;  // Statistic tracking
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNode* m_assignp = nullptr;  // Assignment we are under
-    bool m_assignError = false;  // True if the current assign already has an error
-    bool m_okConsArray = false;  // Allow ConsArray children
+    Ast_ଗଣ୍ଠି* m_assignp = nullptr;  // Assignment we are under
+    ତାର୍କିକ m_assignError = ମିଥ୍ୟା;  // True if the current assign already has an error
+    ତାର୍କିକ m_okConsArray = ମିଥ୍ୟା;  // Allow ConsArray children
 
     // METHODS
-    AstNodeExpr* cloneAndSel(AstNodeExpr* const nodep, uint64_t elements, uint64_t elemIdx,
-                             const bool needPure) {
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* cloneAndSel(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ nodep, uint64_t elements, uint64_t elemIdx,
+                             ଅଚଳ ତାର୍କିକ needPure) {
         // Insert an ArraySel, except for a few special cases
-        const AstUnpackArrayDType* const arrayp
+        ଅଚଳ AstUnpackArrayDType* ଅଚଳ arrayp
             = VN_CAST(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        if (!arrayp) {  // V3Width should have complained, but...
-            if (!m_assignError) {
+        ଯଦି (!arrayp) {  // V3Width should have complained, but...
+            ଯଦି (!m_assignError) {
                 nodep->v3error(
                     nodep->prettyTypeName()
                     << " is not an unpacked array, but is in an unpacked array context");
-            } else {
+            } ଅନ୍ୟଥା {
                 V3Error::incErrors();  // Otherwise might infinite loop
             }
-            m_assignError = true;
+            m_assignError = ସତ୍ୟ;
             // Likely will cause downstream errors
-            return nodep->cloneTree(false, needPure);
+            ଫେରନ୍ତୁ nodep->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure);
         }
-        if (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
-            if (!m_assignError) {
+        ଯଦି (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
+            ଯଦି (!m_assignError) {
                 nodep->v3error(
                     "Slices of arrays in assignments have different unpacked dimensions, "
                     << elements << " versus " << arrayp->rangep()->elementsConst());
             }
-            m_assignError = true;
+            m_assignError = ସତ୍ୟ;
             elements = 1;
             elemIdx = 0;
         }
-        AstNodeExpr* newp;
-        if (AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newp;
+        ଯଦି (AstConsArray* ଅଚଳ consp = VN_CAST(nodep, ConsArray)) {
             UINFO(9, "  cloneConsArray(" << elements << "," << elemIdx << ") " << nodep);
-            const uint64_t index
+            ଅଚଳ uint64_t index
                 = arrayp->rangep()->ascending() ? elemIdx : elements - 1 - elemIdx;
-            newp = consp->valuep(index)->cloneTree(false, needPure);
-        } else if (const AstCvtUnpackToUnpack* const cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
+            newp = consp->valuep(index)->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure);
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ AstCvtUnpackToUnpack* ଅଚଳ cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
             UINFO(9, "  cloneCvtUnpackToUnpack(" << elements << "," << elemIdx << ") " << nodep);
             // The element in the same left-to-right position of the source
-            AstNodeExpr* const elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
-            AstNodeDType* const subDTypep = arrayp->subDTypep();
-            const AstUnpackArrayDType* const subArrayp
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
+            Ast_ଗଣ୍ଠି_DType* ଅଚଳ subDTypep = arrayp->subDTypep();
+            ଅଚଳ AstUnpackArrayDType* ଅଚଳ subArrayp
                 = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
-            if (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) return elemp;
-            return new AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
-        } else if (AstCond* const snodep = VN_CAST(nodep, Cond)) {
+            ଯଦି (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) ଫେରନ୍ତୁ elemp;
+            ଫେରନ୍ତୁ ନୂତନ AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
+        } ଅନ୍ୟଥା ଯଦି (AstCond* ଅଚଳ snodep = VN_CAST(nodep, Cond)) {
             UINFO(9, "  cloneCond(" << elements << "," << elemIdx << ") " << nodep);
-            return new AstCond{snodep->fileline(), snodep->condp()->cloneTree(false, needPure),
+            ଫେରନ୍ତୁ ନୂତନ AstCond{snodep->fileline(), snodep->condp()->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure),
                                cloneAndSel(snodep->thenp(), elements, elemIdx, needPure),
                                cloneAndSel(snodep->elsep(), elements, elemIdx, needPure)};
-        } else if (const AstSliceSel* const snodep = VN_CAST(nodep, SliceSel)) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ AstSliceSel* ଅଚଳ snodep = VN_CAST(nodep, SliceSel)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = (snodep->declRange().lo()
+            ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା leOffset = (snodep->declRange().lo()
                                   + (!snodep->declRange().ascending()
                                          ? snodep->declRange().elements() - 1 - elemIdx
                                          : elemIdx));
-            newp = new AstArraySel{nodep->fileline(), snodep->fromp()->cloneTree(false, needPure),
+            newp = ନୂତନ AstArraySel{nodep->fileline(), snodep->fromp()->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure),
                                    leOffset};
-        } else if (const AstSampled* const snodep = VN_CAST(nodep, Sampled)) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ AstSampled* ଅଚଳ snodep = VN_CAST(nodep, Sampled)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const exprp = VN_AS(snodep->exprp(), NodeExpr);
-            AstNodeExpr* const selp = cloneAndSel(exprp, elements, elemIdx, needPure);
-            return new AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
-        } else if (AstExprStmt* const snodep = VN_CAST(nodep, ExprStmt)) {
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ exprp = VN_AS(snodep->exprp(), ଗଣ୍ଠି_ପଦସମଷ୍ଟି);
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ selp = cloneAndSel(exprp, elements, elemIdx, needPure);
+            ଫେରନ୍ତୁ ନୂତନ AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
+        } ଅନ୍ୟଥା ଯଦି (Ast_ପଦସମଷ୍ଟି_Stmt* ଅଚଳ snodep = VN_CAST(nodep, ପଦସମଷ୍ଟି_Stmt)) {
             UINFO(9, "  cloneExprStmt(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const resultSelp
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ resultSelp
                 = cloneAndSel(snodep->resultp(), elements, elemIdx, needPure);
-            if (snodep->stmtsp()) {
-                return new AstExprStmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
+            ଯଦି (snodep->stmtsp()) {
+                ଫେରନ୍ତୁ ନୂତନ Ast_ପଦସମଷ୍ଟି_Stmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
                                        resultSelp};
-            } else {
-                return resultSelp;
+            } ଅନ୍ୟଥା {
+                ଫେରନ୍ତୁ resultSelp;
             }
-        } else if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, NodeSel) || VN_IS(nodep, CMethodHard)
+        } ଅନ୍ୟଥା ଯଦି (VN_IS(nodep, ଗଣ୍ଠି_Var_Ref) || VN_IS(nodep, ଗଣ୍ଠି_Sel) || VN_IS(nodep, CMethodHard)
                    || VN_IS(nodep, MemberSel) || VN_IS(nodep, StructSel)) {
             UINFO(9, "  cloneSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = !arrayp->rangep()->ascending()
+            ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା leOffset = !arrayp->rangep()->ascending()
                                      ? arrayp->rangep()->elementsConst() - 1 - elemIdx
                                      : elemIdx;
-            newp = new AstArraySel{nodep->fileline(), nodep->cloneTree(false, needPure), leOffset};
-        } else {
-            if (!m_assignError) {
+            newp = ନୂତନ AstArraySel{nodep->fileline(), nodep->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure), leOffset};
+        } ଅନ୍ୟଥା {
+            ଯଦି (!m_assignError) {
                 nodep->v3error(nodep->prettyTypeName()
                                << " unexpected in assignment to unpacked array");
             }
-            m_assignError = true;
+            m_assignError = ସତ୍ୟ;
             // Likely will cause downstream errors
-            newp = nodep->cloneTree(false, needPure);
+            newp = nodep->clone_ବୃକ୍ଷ(ମିଥ୍ୟା, needPure);
         }
-        return newp;
+        ଫେରନ୍ତୁ newp;
     }
 
-    bool assignOptimize(AstNodeAssign* nodep) {
+    ତାର୍କିକ assignOptimize(Ast_ଗଣ୍ଠି_Assign* nodep) {
         // Return true if did optimization
-        AstNodeDType* const dtp = nodep->lhsp()->dtypep()->skipRefp();
-        AstNode* stp = nodep->rhsp();
-        const AstUnpackArrayDType* const arrayp = VN_CAST(dtp, UnpackArrayDType);
-        if (!arrayp) return false;
-        if (VN_IS(stp, CvtPackedToArray)) return false;
-        if (VN_IS(stp, CReset)) return false;
+        Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtp = nodep->lhsp()->dtypep()->skipRefp();
+        Ast_ଗଣ୍ଠି* stp = nodep->rhsp();
+        ଅଚଳ AstUnpackArrayDType* ଅଚଳ arrayp = VN_CAST(dtp, UnpackArrayDType);
+        ଯଦି (!arrayp) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଯଦି (VN_IS(stp, CvtPackedToArray)) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଯଦି (VN_IS(stp, CReset)) ଫେରନ୍ତୁ ମିଥ୍ୟା;
 
         // Any isSc variables must be expanded regardless of --fno-slice
-        const bool hasSc
-            = nodep->exists([&](const AstVarRef* refp) -> bool { return refp->varp()->isSc(); });
-        if (!hasSc && !v3Global.opt.fSlice()) {
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+        ଅଚଳ ତାର୍କିକ hasSc
+            = nodep->exists([&](ଅଚଳ AstVarRef* refp) -> ତାର୍କିକ { ଫେରନ୍ତୁ refp->varp()->isSc(); });
+        ଯଦି (!hasSc && !v3Global.opt.fSlice()) {
+            m_okConsArray = ସତ୍ୟ;  // VL_RESTORER in visit(AstNodeAssign)
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         }
 
         // Skip optimization if array is too large
-        const int elements = arrayp->rangep()->elementsConst();
-        const int elementLimit = v3Global.opt.fSliceElementLimit();
-        if (elements > elementLimit && elementLimit > 0) {
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା elements = arrayp->rangep()->elementsConst();
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା elementLimit = v3Global.opt.fSliceElementLimit();
+        ଯଦି (elements > elementLimit && elementLimit > 0) {
             ++m_statSliceElementSkips;
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+            m_okConsArray = ସତ୍ୟ;  // VL_RESTORER in visit(AstNodeAssign)
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         }
 
         // Skip if this is a simple a = b assignment of identical arrays
-        if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (!hasSc && lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
-                    m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-                    return false;
+        ଯଦି (AstVarRef* ଅଚଳ lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            ଯଦି (AstVarRef* ଅଚଳ rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                ଯଦି (!hasSc && lhsp->dtypep()->skipRefp()->same_ବୃକ୍ଷ(rhsp->dtypep()->skipRefp())) {
+                    m_okConsArray = ସତ୍ୟ;  // VL_RESTORER in visit(AstNodeAssign)
+                    ଫେରନ୍ତୁ ମିଥ୍ୟା;
                 }
             }
         }
@@ -195,115 +195,115 @@ class SliceVisitor final : public VNVisitor {
         // but #elements is common and all variables are realigned to start at zero
         // Assign of an ascending range slice to a descending range one must reverse
         // the elements
-        AstNodeAssign* newlistp = nullptr;
-        for (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
+        Ast_ଗଣ୍ଠି_Assign* newlistp = nullptr;
+        ପାଇଁ (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
             // Original node is replaced, so it is safe to copy it one time even if it is impure.
-            AstNodeAssign* const newp
+            Ast_ଗଣ୍ଠି_Assign* ଅଚଳ newp
                 = nodep->cloneType(cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                                    cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0));
             UINFOTREE(9, newp, "", "new");
-            newlistp = AstNode::addNext(newlistp, newp);
+            newlistp = Ast_ଗଣ୍ଠି::addNext(newlistp, newp);
         }
         UINFOTREE(9, nodep, "", "Deslice-Dn");
         nodep->replaceWith(newlistp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ବୃକ୍ଷ(), nodep);
         // Normal edit iterator will now iterate on all of the expansion assignments
         // This will potentially call this function again to resolve next level of slicing
-        return true;
+        ଫେରନ୍ତୁ ସତ୍ୟ;
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Assign* nodep) override {
         // Called recursively on newly created assignments
-        if (nodep->user1SetOnce()) return;  // Process once
+        ଯଦି (nodep->user1SetOnce()) ଫେରନ୍ତୁ;  // Process once
         UINFOTREE(9, nodep, "", "Deslice-In");
         VL_RESTORER(m_assignError);
         VL_RESTORER(m_assignp);
         VL_RESTORER(m_okConsArray);  // Set in assignOptimize
-        m_assignError = false;
+        m_assignError = ମିଥ୍ୟା;
         m_assignp = nodep;
-        if (assignOptimize(nodep)) return;
+        ଯଦି (assignOptimize(nodep)) ଫେରନ୍ତୁ;
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeCons* nodep) override {
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Cons* nodep) override {
         VL_RESTORER(m_okConsArray);
-        m_okConsArray = true;
+        m_okConsArray = ସତ୍ୟ;
         iterateChildren(nodep);
     }
-    void visit(AstConsArray* nodep) override {
+    ଶୂନ୍ୟ visit(AstConsArray* nodep) override {
         UASSERT_OBJ(!m_assignp || m_okConsArray, nodep,
                     "Array initialization should have been removed earlier");
     }
 
-    template <typename T_NodeBiop>
-    void expandBiOp(T_NodeBiop* biopp) {
-        AstNodeBiop* nodep = biopp;
-        if (nodep->user1SetOnce()) return;  // Process once
+    template <typename T_ଗଣ୍ଠି_Biop>
+    ଶୂନ୍ୟ expandBiOp(T_ଗଣ୍ଠି_Biop* biopp) {
+        Ast_ଗଣ୍ଠି_Biop* nodep = biopp;
+        ଯଦି (nodep->user1SetOnce()) ଫେରନ୍ତୁ;  // Process once
         UINFO(9, "  Bi-Eq/Neq expansion " << nodep);
 
         // Only expand if lhs is an unpacked array (we assume type checks already passed)
-        const AstNodeDType* const fromDtp = nodep->lhsp()->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
-            AstNodeBiop* logp = nullptr;
+        ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ fromDtp = nodep->lhsp()->dtypep()->skipRefp();
+        ଯଦି (ଅଚଳ AstUnpackArrayDType* ଅଚଳ adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+            Ast_ଗଣ୍ଠି_Biop* logp = nullptr;
 
-            const int elements = adtypep->rangep()->elementsConst();
-            for (int elemIdx = 0; elemIdx < elements; ++elemIdx) {
+            ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା elements = adtypep->rangep()->elementsConst();
+            ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା elemIdx = 0; elemIdx < elements; ++elemIdx) {
                 // EQ(a,b) -> LOGAND(EQ(ARRAYSEL(a,0), ARRAYSEL(b,0)), ...[1])
                 // Original node is replaced, so it is safe to copy it one time even if it is
                 // impure.
-                T_NodeBiop* const clonep = new T_NodeBiop{
+                T_ଗଣ୍ଠି_Biop* ଅଚଳ clonep = ନୂତନ T_ଗଣ୍ଠି_Biop{
                     nodep->fileline(), cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                     cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0)};
-                if (!logp) {
+                ଯଦି (!logp) {
                     logp = clonep;
-                } else {
-                    switch (nodep->type()) {
-                    case VNType::Eq:  // FALLTHRU
-                    case VNType::EqCase:
-                        logp = new AstLogAnd{nodep->fileline(), logp, clonep};
-                        break;
-                    case VNType::Neq:  // FALLTHRU
-                    case VNType::NeqCase:
-                        logp = new AstLogOr{nodep->fileline(), logp, clonep};
-                        break;
-                    default: nodep->v3fatalSrc("Unknown node type processing array slice"); break;
+                } ଅନ୍ୟଥା {
+                    ବାଛ (nodep->type()) {
+                    ସ୍ଥିତି VNType::Eq:  // FALLTHRU
+                    ସ୍ଥିତି VNType::EqCase:
+                        logp = ନୂତନ AstLogAnd{nodep->fileline(), logp, clonep};
+                        ଭାଙ୍ଗ;
+                    ସ୍ଥିତି VNType::Neq:  // FALLTHRU
+                    ସ୍ଥିତି VNType::NeqCase:
+                        logp = ନୂତନ AstLogOr{nodep->fileline(), logp, clonep};
+                        ଭାଙ୍ଗ;
+                    ପୂର୍ବନିର୍ଦ୍ଧାରିତ: nodep->v3fatalSrc("Unknown node type processing array slice"); ଭାଙ୍ଗ;
                     }
                 }
             }
             UASSERT_OBJ(logp, nodep, "Unpacked array with empty indices range");
             nodep->replaceWith(logp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ଠେଲ_Deletep(nodep), nodep);
             nodep = logp;
         }
 
         iterateChildren(nodep);
     }
 
-    void visit(AstEq* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeq* nodep) override { expandBiOp(nodep); }
-    void visit(AstEqCase* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeqCase* nodep) override { expandBiOp(nodep); }
+    ଶୂନ୍ୟ visit(AstEq* nodep) override { expandBiOp(nodep); }
+    ଶୂନ୍ୟ visit(AstNeq* nodep) override { expandBiOp(nodep); }
+    ଶୂନ୍ୟ visit(AstEqCase* nodep) override { expandBiOp(nodep); }
+    ଶୂନ୍ୟ visit(AstNeqCase* nodep) override { expandBiOp(nodep); }
 
-    void visit(AstSliceSel* nodep) override {
+    ଶୂନ୍ୟ visit(AstSliceSel* nodep) override {
         // Slice used as a bare value, e.g. a $display argument. Build it via
         // VlUnpacked::slice<N_Out>(loIdx), as DYN_SLICE already does for Queues.
         iterateChildren(nodep);
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstConst* const lop = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 32,
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ fromp = nodep->fromp()->unlinkFrBack();
+        AstConst* ଅଚଳ lop = ନୂତନ AstConst{nodep->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{}, 32,
                                            static_cast<uint32_t>(nodep->declRange().lo())};
-        AstCMethodHard* const newp
-            = new AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_SLICE};
+        AstCMethodHard* ଅଚଳ newp
+            = ନୂତନ AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_SLICE};
         newp->addPinsp(lop);
         newp->dtypeFrom(nodep);  // Reuse the already-correct sliced array dtype
-        newp->didWidth(true);
-        newp->protect(false);
+        newp->didWidth(ସତ୍ୟ);
+        newp->protect(ମିଥ୍ୟା);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ଠେଲ_Deletep(nodep), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି* nodep) override { iterateChildren(nodep); }
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
     explicit SliceVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~SliceVisitor() override {
@@ -316,8 +316,8 @@ public:
 //######################################################################
 // Link class functions
 
-void V3Slice::sliceAll(AstNetlist* nodep) {
+ଶୂନ୍ୟ V3Slice::sliceAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SliceVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("slice", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ବୃକ୍ଷ("slice", 0, dump_ବୃକ୍ଷ_Either_Level() >= 3);
 }

@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3TRACE_H_
 #define VERILATOR_V3TRACE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Trace final {
-public:
-    static void traceAll(AstNetlist* nodep) VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ traceAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

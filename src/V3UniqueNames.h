@@ -19,13 +19,13 @@
 #ifndef VERILATOR_V3UNIQUENAMES_H_
 #define VERILATOR_V3UNIQUENAMES_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3Hasher.h"
+#ଅନ୍ତର୍ଭାଵ "V3Hasher.h"
 
-#include <map>
-#include <string>
+#ଅନ୍ତର୍ଭାଵ <map>
+#ଅନ୍ତର୍ଭାଵ <string>
 
 class V3UniqueNames final {
     std::string m_prefix;  // Prefix to attach to all names
@@ -34,12 +34,12 @@ class V3UniqueNames final {
 
     bool m_addSuffix = true;  // Ad suffix or not
 
-public:
-    V3UniqueNames() = default;
-    explicit V3UniqueNames(const std::string& prefix, bool addSuffix = true)
+ସର୍ବସାଧାରଣ:
+    V3UniqueNames() = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
+    explicit V3UniqueNames(ଅଚଳ std::string& prefix, bool addSuffix = true)
         : m_prefix{prefix}
         , m_addSuffix{addSuffix} {
-        if (!m_prefix.empty()) {
+        ଯଦି (!m_prefix.empty()) {
             UASSERT(VString::startsWith(m_prefix, "__V"), "Prefix must start with '__V'");
             UASSERT(!VString::endsWith(m_prefix, "_"), "Prefix must not end with '_'");
         }
@@ -47,36 +47,36 @@ public:
 
     // Return argument, prepended with the prefix if any, then appended with a unique suffix each
     // time we are called with the same argument.
-    std::string get(const std::string& name) {
-        if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+    std::string get(ଅଚଳ std::string& name) {
+        ଯଦି (!m_addSuffix) {
+            ଯଦି (m_multiplicity.ଗଣନା_2(name) == 0) {
                 m_multiplicity[name] = 0;
-                return name;
+                ଫେରନ୍ତୁ name;
             }
-            return get(name + "__" + cvtToStr(m_multiplicity[name]++));
+            ଫେରନ୍ତୁ get(name + "__" + cvtToStr(m_multiplicity[name]++));
         }
         // NORMAL mode
-        const unsigned num = m_multiplicity[name]++;
+        ଅଚଳ unsigned ଅଙ୍କ = m_multiplicity[name]++;
         std::string result;
-        if (!m_prefix.empty()) {
+        ଯଦି (!m_prefix.empty()) {
             result += m_prefix;
             result += "_";
         }
         result += name;
         result += "__";
-        result += cvtToStr(num);
-        return result;
+        result += cvtToStr(ଅଙ୍କ);
+        ଫେରନ୍ତୁ result;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
-    std::string get(const AstNode* nodep) {
-        if (nodep == nullptr) { return get(""); }
-        return get(V3Hasher::uncachedHash(nodep).toString());
+    std::string get(ଅଚଳ Ast_ଗଣ୍ଠି* nodep) {
+        ଯଦି (nodep == nullptr) { ଫେରନ୍ତୁ get(""); }
+        ଫେରନ୍ତୁ get(V3Hasher::uncachedHash(nodep).toString());
     }
 
     // Reset to initial state (as if just constructed)
-    void reset() { m_multiplicity.clear(); }
+    ଶୂନ୍ୟ reset() { m_multiplicity.clear(); }
 };
 
 #endif  // Guard

@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ProtectLib.h"
+#ଅନ୍ତର୍ଭାଵ "V3ProtectLib.h"
 
-#include "V3Control.h"
-#include "V3Hasher.h"
-#include "V3InstrCount.h"
-#include "V3String.h"
-#include "V3Task.h"
+#ଅନ୍ତର୍ଭାଵ "V3Control.h"
+#ଅନ୍ତର୍ଭାଵ "V3Hasher.h"
+#ଅନ୍ତର୍ଭାଵ "V3InstrCount.h"
+#ଅନ୍ତର୍ଭାଵ "V3String.h"
+#ଅନ୍ତର୍ଭାଵ "V3Task.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // ProtectLib top-level visitor
 
-class ProtectVisitor final : public VNVisitor {
+ଶ୍ରେଣୀ ProtectVisitor final : ସର୍ବସାଧାରଣ VNVisitor {
     // TYPES
-    struct InoutPorts final {
+    ସଂରଚନା InoutPorts final {
         AstVar* inp = nullptr;  // Resolved input value and original public port
         AstVar* outp = nullptr;  // Library drive value
         AstVar* enp = nullptr;  // Per-bit drive enable
@@ -66,30 +66,30 @@ class ProtectVisitor final : public VNVisitor {
     AstTextBlock* m_cSeqClksp = nullptr;  // Sequential clock copy list
     AstTextBlock* m_cSeqOutsp = nullptr;  // Sequential output copy list
     AstTextBlock* m_cIgnoreParamsp = nullptr;  // Combo ignore parameter list
-    const string m_libName;
-    const string m_topName;
-    bool m_foundTop = false;  // Have seen the top module
-    bool m_hasClk = false;  // True if the top module has sequential logic
-    std::map<int, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
+    ଅଚଳ string m_libName;
+    ଅଚଳ string m_ଶୀର୍ଷ_Name;
+    ତାର୍କିକ m_found_ଶୀର୍ଷ = ମିଥ୍ୟା;  // Have seen the top module
+    ତାର୍କିକ m_hasClk = ମିଥ୍ୟା;  // True if the top module has sequential logic
+    std::map<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    ଶୂନ୍ୟ visit(AstNetlist* nodep) override {
         m_vfilep
-            = new AstVFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".sv"};
+            = ନୂତନ AstVFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".sv"};
         nodep->addFilesp(m_vfilep);
         m_cfilep
-            = new AstCFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".cpp"};
+            = ନୂତନ AstCFile{nodep->fileline(), v3Global.opt.makeDir() + "/" + m_libName + ".cpp"};
         nodep->addFilesp(m_cfilep);
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
-        if (!nodep->isTop()) {
-            return;
-        } else {
-            UASSERT_OBJ(!m_foundTop, nodep, "Multiple root modules");
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Module* nodep) override {
+        ଯଦି (!nodep->is_ଶୀର୍ଷ()) {
+            ଫେରନ୍ତୁ;
+        } ଅନ୍ୟଥା {
+            UASSERT_OBJ(!m_found_ଶୀର୍ଷ, nodep, "Multiple root modules");
         }
-        FileLine* const fl = nodep->fileline();
+        File_ଧାଡ଼ି* ଅଚଳ fl = nodep->fileline();
         // Need to know the existence of clk before createSvFile()
         m_hasClk = checkIfClockExists(nodep);
         createSvFile(fl, nodep);
@@ -100,17 +100,17 @@ class ProtectVisitor final : public VNVisitor {
         restoreInouts();
 
         // cppcheck-suppress unreadVariable
-        const V3Hash hash = V3Hasher::uncachedHash(m_cfilep);
-        m_hashValuep->add(cvtToStr(hash.value()) + ";\n");
-        m_cHashValuep->add(cvtToStr(hash.value()) + "U;\n");
-        m_foundTop = true;
+        ଅଚଳ V3Hash hash = V3Hasher::uncachedHash(m_cfilep);
+        m_hashValuep->add(cvtToStr(hash.ମୂଲ୍ୟ()) + ";\n");
+        m_cHashValuep->add(cvtToStr(hash.ମୂଲ୍ୟ()) + "U;\n");
+        m_found_ଶୀର୍ଷ = ସତ୍ୟ;
     }
 
-    void addComment(AstTextBlock* txtp, FileLine* fl, const string& comment) {
-        txtp->add(new AstComment{fl, comment});
+    ଶୂନ୍ୟ addComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl, ଅଚଳ string& comment) {
+        txtp->add(ନୂତନ AstComment{fl, comment});
     }
 
-    void configSection(AstNodeModule* /*modp*/, AstTextBlock* txtp, FileLine* /*fl*/) {
+    ଶୂନ୍ୟ configSection(Ast_ଗଣ୍ଠି_Module* /*modp*/, AstTextBlock* txtp, File_ଧାଡ଼ି* /*fl*/) {
         txtp->add("\n`ifdef VERILATOR\n");
         txtp->add("`verilator_config\n");
 
@@ -138,35 +138,35 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("`endif\n");
     }
 
-    void hashComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ hashComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Checks to make sure the .sv wrapper and library agree");
     }
 
-    void initialComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ initialComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Creates an instance of the library module at initial-time");
         addComment(txtp, fl, "(one for each instance in the user's design)");
     }
 
-    void comboComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ comboComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Updates all non-clock inputs and retrieves the results");
     }
 
-    void seqComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ seqComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Updates all clocks and retrieves the results");
     }
 
-    void comboIgnoreComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ comboIgnoreComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Need to convince some simulators that the input to the module");
         addComment(txtp, fl, "must be evaluated before evaluating the clock edge");
     }
 
-    void finalComment(AstTextBlock* txtp, FileLine* fl) {
+    ଶୂନ୍ୟ finalComment(AstTextBlock* txtp, File_ଧାଡ଼ି* fl) {
         addComment(txtp, fl, "Evaluates the library module's final process");
     }
 
-    void createSvFile(FileLine* fl, AstNodeModule* modp) {
+    ଶୂନ୍ୟ createSvFile(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_Module* modp) {
         // Comments
-        AstTextBlock* const txtp = new AstTextBlock{fl};
+        AstTextBlock* ଅଚଳ txtp = ନୂତନ AstTextBlock{fl};
         addComment(txtp, fl, "Wrapper module for DPI protected library");
         addComment(txtp, fl,
                    "This module requires lib" + m_libName + ".a or lib" + m_libName
@@ -179,15 +179,15 @@ class ProtectVisitor final : public VNVisitor {
         // Wrapper ranges preserve the original RTL, including intentional ascending ranges.
         txtp->add("/*verilator lint_save*/\n");
         txtp->add("/*verilator lint_off ASCRANGE*/\n");
-        m_modPortsp = new AstTextBlock{fl, "module " + m_libName + " (\n", ", ", ");\n\n"};
+        m_modPortsp = ନୂତନ AstTextBlock{fl, "module " + m_libName + " (\n", ", ", ");\n\n"};
         txtp->add(m_modPortsp);
 
         // Timescale
-        if (v3Global.opt.hierChild() && v3Global.rootp()->timescaleSpecified()) {
+        ଯଦି (v3Global.opt.hierChild() && v3Global.rootp()->timescaleSpecified()) {
             // Emit timescale for hierarchical Verilation if input HDL specifies timespec
             txtp->add("timeunit "s + modp->timeunit().ascii() + ";\n");
             txtp->add("timeprecision "s + +v3Global.rootp()->timeprecision().ascii() + ";\n");
-        } else {
+        } ଅନ୍ୟଥା {
             addComment(txtp, fl,
                        "Precision of submodule"
                        " (commented out to avoid requiring timescale on all modules)");
@@ -204,7 +204,7 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("import \"DPI-C\" function chandle " + m_libName
                   + "_protectlib_create(string scope__V);\n\n");
         comboComment(txtp, fl);
-        m_comboPortsp = new AstTextBlock{fl,  //
+        m_comboPortsp = ନୂତନ AstTextBlock{fl,  //
                                          "import \"DPI-C\" function longint " + m_libName
                                              + "_protectlib_combo_update(\n",  //
                                          ", ",  //
@@ -212,8 +212,8 @@ class ProtectVisitor final : public VNVisitor {
         m_comboPortsp->add("chandle handle__V\n");
         txtp->add(m_comboPortsp);
         seqComment(txtp, fl);
-        if (m_hasClk) {
-            m_seqPortsp = new AstTextBlock{fl,  //
+        ଯଦି (m_hasClk) {
+            m_seqPortsp = ନୂତନ AstTextBlock{fl,  //
                                            "import \"DPI-C\" function longint " + m_libName
                                                + "_protectlib_seq_update(\n",  //
                                            ", ",  //
@@ -222,7 +222,7 @@ class ProtectVisitor final : public VNVisitor {
             txtp->add(m_seqPortsp);
         }
         comboIgnoreComment(txtp, fl);
-        m_comboIgnorePortsp = new AstTextBlock{fl,  //
+        m_comboIgnorePortsp = ନୂତନ AstTextBlock{fl,  //
                                                "import \"DPI-C\" function void " + m_libName
                                                    + "_protectlib_combo_ignore(\n",  //
                                                ", ",  //
@@ -241,22 +241,22 @@ class ProtectVisitor final : public VNVisitor {
 
         txtp->add("chandle handle__V;\n");
         txtp->add("time last_combo_seqnum__V;\n");
-        if (m_hasClk) txtp->add("time last_seq_seqnum__V;\n");
+        ଯଦି (m_hasClk) txtp->add("time last_seq_seqnum__V;\n");
         txtp->add("\n");
 
-        m_comboDeclsp = new AstTextBlock{fl};
+        m_comboDeclsp = ନୂତନ AstTextBlock{fl};
         txtp->add(m_comboDeclsp);
-        m_seqDeclsp = new AstTextBlock{fl};
+        m_seqDeclsp = ନୂତନ AstTextBlock{fl};
         txtp->add(m_seqDeclsp);
-        m_tmpDeclsp = new AstTextBlock{fl};
+        m_tmpDeclsp = ନୂତନ AstTextBlock{fl};
         txtp->add(m_tmpDeclsp);
-        m_inoutDeclsp = new AstTextBlock{fl};
+        m_inoutDeclsp = ନୂତନ AstTextBlock{fl};
         txtp->add(m_inoutDeclsp);
 
         // CPP hash value
         addComment(txtp, fl, "Hash value to make sure this file and the corresponding");
         addComment(txtp, fl, "library agree");
-        m_hashValuep = new AstTextBlock{
+        m_hashValuep = ନୂତନ AstTextBlock{
             fl, "localparam int protectlib_hash__V /*verilator public_flat_rd*/ = 32'd", "", "\n"};
         txtp->add(m_hashValuep);
 
@@ -271,7 +271,7 @@ class ProtectVisitor final : public VNVisitor {
         // Combinatorial process
         addComment(txtp, fl, "Combinatorially evaluate changes to inputs");
         txtp->add("always_comb begin\n");
-        m_comboParamsp = new AstTextBlock{fl,  //
+        m_comboParamsp = ନୂତନ AstTextBlock{fl,  //
                                           "last_combo_seqnum__V = " + m_libName
                                               + "_protectlib_combo_update(\n",  //
                                           ",\n",  //
@@ -281,24 +281,24 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("end\n\n");
 
         // Sequential process
-        if (m_hasClk) {
+        ଯଦି (m_hasClk) {
             addComment(txtp, fl, "Evaluate clock edges");
-            m_clkSensp = new AstTextBlock{fl, "always @(", " or ", ")"};
+            m_clkSensp = ନୂତନ AstTextBlock{fl, "always @(", " or ", ")"};
             txtp->add(m_clkSensp);
             txtp->add(" begin\n");
             m_comboIgnoreParamsp
-                = new AstTextBlock{fl,  //
+                = ନୂତନ AstTextBlock{fl,  //
                                    m_libName + "_protectlib_combo_ignore(\n", ",\n", "\n);\n"};
             m_comboIgnoreParamsp->add("handle__V");
             txtp->add(m_comboIgnoreParamsp);
-            m_seqParamsp = new AstTextBlock{fl,  //
+            m_seqParamsp = ନୂତନ AstTextBlock{fl,  //
                                             "last_seq_seqnum__V <= " + m_libName
                                                 + "_protectlib_seq_update(\n",  //
                                             ",\n",  //
                                             "\n);\n"};
             m_seqParamsp->add("handle__V");
             txtp->add(m_seqParamsp);
-            m_nbAssignsp = new AstTextBlock{fl};
+            m_nbAssignsp = ନୂତନ AstTextBlock{fl};
             txtp->add(m_nbAssignsp);
             txtp->add("end\n\n");
         }
@@ -306,16 +306,16 @@ class ProtectVisitor final : public VNVisitor {
         // Select between combinatorial and sequential results
         addComment(txtp, fl, "Select between combinatorial and sequential results");
         txtp->add("always_comb begin\n");
-        if (m_hasClk) {
+        ଯଦି (m_hasClk) {
             txtp->add("if (last_seq_seqnum__V > last_combo_seqnum__V) begin\n");
-            m_seqAssignsp = new AstTextBlock{fl};
+            m_seqAssignsp = ନୂତନ AstTextBlock{fl};
             txtp->add(m_seqAssignsp);
             txtp->add("end else begin\n");
-            m_comboAssignsp = new AstTextBlock{fl};
+            m_comboAssignsp = ନୂତନ AstTextBlock{fl};
             txtp->add(m_comboAssignsp);
             txtp->add("end\n");
-        } else {
-            m_comboAssignsp = new AstTextBlock{fl};
+        } ଅନ୍ୟଥା {
+            m_comboAssignsp = ନୂତନ AstTextBlock{fl};
             txtp->add(m_comboAssignsp);
         }
         txtp->add("end\n\n");
@@ -331,31 +331,31 @@ class ProtectVisitor final : public VNVisitor {
         m_vfilep->tblockp(txtp);
     }
 
-    void castPtr(FileLine* /*fl*/, AstTextBlock* txtp) {
-        txtp->add(m_topName
+    ଶୂନ୍ୟ castPtr(File_ଧାଡ଼ି* /*fl*/, AstTextBlock* txtp) {
+        txtp->add(m_ଶୀର୍ଷ_Name
                   + "_container* const handlep__V = "  // LCOV_EXCL_LINE  // lcov bug
                     "static_cast<"
-                  + m_topName + "_container*>(vhandlep__V);\n");
+                  + m_ଶୀର୍ଷ_Name + "_container*>(vhandlep__V);\n");
     }
 
-    void createCppFile(FileLine* fl) {
+    ଶୂନ୍ୟ createCppFile(File_ଧାଡ଼ି* fl) {
         // Comments
-        AstTextBlock* const txtp = new AstTextBlock{fl};
+        AstTextBlock* ଅଚଳ txtp = ନୂତନ AstTextBlock{fl};
         addComment(txtp, fl, "Wrapper functions for DPI protected library\n");
 
         // Includes
-        txtp->add("#include \"" + m_topName + ".h\"\n");
+        txtp->add("#include \"" + m_ଶୀର୍ଷ_Name + ".h\"\n");
         txtp->add("#include \"verilated_dpi.h\"\n\n");
         txtp->add("#include <cstdio>\n");
         txtp->add("#include <cstdlib>\n\n");
 
         // Verilated module plus sequence number
         addComment(txtp, fl, "Container class to house verilated object and sequence number");
-        txtp->add("class " + m_topName + "_container: public " + m_topName + " {\n");
+        txtp->add("class " + m_ଶୀର୍ଷ_Name + "_container: public " + m_ଶୀର୍ଷ_Name + " {\n");
         txtp->add("public:\n");
         txtp->add("long long m_seqnum;\n");
-        txtp->add(m_topName + "_container(const char* scopep__V):\n");
-        txtp->add(m_topName + "(scopep__V) {}\n");
+        txtp->add(m_ଶୀର୍ଷ_Name + "_container(const char* scopep__V):\n");
+        txtp->add(m_ଶୀର୍ଷ_Name + "(scopep__V) {}\n");
         txtp->add("};\n\n");
 
         // Extern C
@@ -366,7 +366,7 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("void " + m_libName
                   + "_protectlib_check_hash"
                     "(int protectlib_hash__V) {\n");
-        m_cHashValuep = new AstTextBlock{fl, "const int expected_hash__V = ", "", ""};
+        m_cHashValuep = ନୂତନ AstTextBlock{fl, "const int expected_hash__V = ", "", ""};
         txtp->add(m_cHashValuep);
         txtp->add(/**/ "if (protectlib_hash__V != expected_hash__V) {\n");
         txtp->add(/****/ "fprintf(stderr, \"%%Error: cannot use " + m_libName
@@ -380,44 +380,44 @@ class ProtectVisitor final : public VNVisitor {
         // Initial
         initialComment(txtp, fl);
         txtp->add("void* " + m_libName + "_protectlib_create(const char* scopep__V) {\n");
-        txtp->add(/**/ m_topName + "_container* const handlep__V = new " + m_topName
+        txtp->add(/**/ m_ଶୀର୍ଷ_Name + "_container* const handlep__V = new " + m_ଶୀର୍ଷ_Name
                   + "_container{scopep__V};\n");
         txtp->add(/**/ "return handlep__V;\n");
         txtp->add("}\n\n");
 
         // Updates
         comboComment(txtp, fl);
-        m_cComboParamsp = new AstTextBlock{
+        m_cComboParamsp = ନୂତନ AstTextBlock{
             fl, "long long " + m_libName + "_protectlib_combo_update(\n", ",\n", "\n) {\n"};
         m_cComboParamsp->add("void* vhandlep__V");
         txtp->add(m_cComboParamsp);
-        m_cComboInsp = new AstTextBlock{fl};
+        m_cComboInsp = ନୂତନ AstTextBlock{fl};
         castPtr(fl, m_cComboInsp);
         txtp->add(m_cComboInsp);
         txtp->add("handlep__V->eval();\n");
-        m_cComboOutsp = new AstTextBlock{fl};
+        m_cComboOutsp = ନୂତନ AstTextBlock{fl};
         txtp->add(m_cComboOutsp);
         txtp->add("return handlep__V->m_seqnum++;\n");
         txtp->add("}\n\n");
 
-        if (m_hasClk) {
+        ଯଦି (m_hasClk) {
             seqComment(txtp, fl);
-            m_cSeqParamsp = new AstTextBlock{
+            m_cSeqParamsp = ନୂତନ AstTextBlock{
                 fl, "long long " + m_libName + "_protectlib_seq_update(\n", ",\n", "\n) {\n"};
             m_cSeqParamsp->add("void* vhandlep__V");
             txtp->add(m_cSeqParamsp);
-            m_cSeqClksp = new AstTextBlock{fl};
+            m_cSeqClksp = ନୂତନ AstTextBlock{fl};
             castPtr(fl, m_cSeqClksp);
             txtp->add(m_cSeqClksp);
             txtp->add("handlep__V->eval();\n");
-            m_cSeqOutsp = new AstTextBlock{fl};
+            m_cSeqOutsp = ନୂତନ AstTextBlock{fl};
             txtp->add(m_cSeqOutsp);
             txtp->add("return handlep__V->m_seqnum++;\n");
             txtp->add("}\n\n");
         }
 
         comboIgnoreComment(txtp, fl);
-        m_cIgnoreParamsp = new AstTextBlock{
+        m_cIgnoreParamsp = ନୂତନ AstTextBlock{
             fl, "void " + m_libName + "_protectlib_combo_ignore(\n", ",\n", "\n)\n{ }\n\n"};
         m_cIgnoreParamsp->add("void* vhandlep__V");
         txtp->add(m_cIgnoreParamsp);
@@ -434,26 +434,26 @@ class ProtectVisitor final : public VNVisitor {
         m_cfilep->tblockp(txtp);
     }
 
-    void visit(AstVar* nodep) override {
-        if (!nodep->isIO()) return;
-        if (restoreInout(nodep)) {
+    ଶୂନ୍ୟ visit(AstVar* nodep) override {
+        ଯଦି (!nodep->isIO()) ଫେରନ୍ତୁ;
+        ଯଦି (restoreInout(nodep)) {
             InoutPorts& ports = m_inouts[nodep->libInoutId()];
-            if (nodep->isInput()) {
+            ଯଦି (nodep->is_ନିବେଶ()) {
                 ports.inp = nodep;
-            } else if (nodep->libInoutEnable()) {
+            } ଅନ୍ୟଥା ଯଦି (nodep->libInoutEnable()) {
                 ports.enp = nodep;
-            } else {
+            } ଅନ୍ୟଥା {
                 ports.outp = nodep;
             }
         }
-        if (nodep->direction() == VDirection::INPUT) {
-            if (nodep->isPrimaryClock()) {
+        ଯଦି (nodep->direction() == VDirection::ନିବେଶ) {
+            ଯଦି (nodep->isPrimaryClock()) {
                 UASSERT_OBJ(m_hasClk, nodep, "checkIfClockExists() didn't find this clock");
                 handleClock(nodep);
-            } else {
-                handleDataInput(nodep);
+            } ଅନ୍ୟଥା {
+                handle_Data_ନିବେଶ(nodep);
             }
-        } else {
+        } ଅନ୍ୟଥା {
             // Ref ports were rejected during linking, and tristate lowering split all inouts.
             UASSERT_OBJ(nodep->direction() == VDirection::OUTPUT, nodep,
                         "Unexpected library port direction");
@@ -461,71 +461,71 @@ class ProtectVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode*) override {}
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି*) override {}
 
-    string cInputConnection(AstVar* varp) {
-        return V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
+    string c_ନିବେଶ_Connection(AstVar* varp) {
+        ଫେରନ୍ତୁ V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
     }
 
     // The wrapper's module ports are connected by name, so they must use the user's
     // names rather than the hashed form of long names used internally
-    static string svPortName(const AstVar* varp) {
-        return AstNode::prettyName(VName::dehash(varp->name()));
+    ସ୍ଥିର string svPortName(ଅଚଳ AstVar* varp) {
+        ଫେରନ୍ତୁ Ast_ଗଣ୍ଠି::prettyName(VName::dehash(varp->name()));
     }
 
-    static AstVar* newSvPortVar(AstVar* varp) {
-        AstVar* const newVarp = varp->cloneTree(false);
+    ସ୍ଥିର AstVar* newSvPortVar(AstVar* varp) {
+        AstVar* ଅଚଳ newVarp = varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା);
         newVarp->name(VName::dehash(varp->name()));
-        return newVarp;
+        ଫେରନ୍ତୁ newVarp;
     }
 
-    void handleClock(AstVar* varp) {
-        handleInput(varp);
-        m_seqPortsp->add(varp->cloneTree(false));
-        if (m_hasClk) {
-            const std::string pname = svPortName(varp);
+    ଶୂନ୍ୟ handleClock(AstVar* varp) {
+        handle_ନିବେଶ(varp);
+        m_seqPortsp->add(varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
+        ଯଦି (m_hasClk) {
+            ଅଚଳ std::string pname = svPortName(varp);
             m_seqParamsp->add(pname);
             m_clkSensp->add(pname);
         }
-        m_cSeqParamsp->add(varp->dpiArgType(true, false));
-        m_cSeqClksp->add(cInputConnection(varp));
+        m_cSeqParamsp->add(varp->dpiArgType(ସତ୍ୟ, ମିଥ୍ୟା));
+        m_cSeqClksp->add(c_ନିବେଶ_Connection(varp));
     }
 
-    void handleDataInput(AstVar* varp) {
-        handleInput(varp);
-        m_comboPortsp->add(varp->cloneTree(false));
+    ଶୂନ୍ୟ handle_Data_ନିବେଶ(AstVar* varp) {
+        handle_ନିବେଶ(varp);
+        m_comboPortsp->add(varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
         m_comboParamsp->add(svPortName(varp));
-        m_comboIgnorePortsp->add(varp->cloneTree(false));
-        if (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
-        m_cComboParamsp->add(varp->dpiArgType(true, false));
-        m_cComboInsp->add(cInputConnection(varp));
-        m_cIgnoreParamsp->add(varp->dpiArgType(true, false));
+        m_comboIgnorePortsp->add(varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
+        ଯଦି (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
+        m_cComboParamsp->add(varp->dpiArgType(ସତ୍ୟ, ମିଥ୍ୟା));
+        m_cComboInsp->add(c_ନିବେଶ_Connection(varp));
+        m_cIgnoreParamsp->add(varp->dpiArgType(ସତ୍ୟ, ମିଥ୍ୟା));
     }
 
-    static bool restoreInout(const AstVar* varp) {
-        return varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
+    ସ୍ଥିର ତାର୍କିକ restoreInout(ଅଚଳ AstVar* varp) {
+        ଫେରନ୍ତୁ varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
     }
 
-    void handleInput(AstVar* varp) {
-        AstVar* const portp = newSvPortVar(varp);
-        if (restoreInout(varp)) {
+    ଶୂନ୍ୟ handle_ନିବେଶ(AstVar* varp) {
+        AstVar* ଅଚଳ portp = newSvPortVar(varp);
+        ଯଦି (restoreInout(varp)) {
             portp->direction(VDirection::INOUT);
             portp->varType(VVarType::WIRE);
         }
         m_modPortsp->add(portp);
     }
 
-    void restoreInouts() {
-        for (const auto& entry : m_inouts) {
-            const InoutPorts& ports = entry.second;
+    ଶୂନ୍ୟ restoreInouts() {
+        ପାଇଁ (ଅଚଳ auto& entry : m_inouts) {
+            ଅଚଳ InoutPorts& ports = entry.second;
             UASSERT_OBJ(ports.inp && ports.outp && ports.enp, m_vfilep,
                         "Incomplete lowered library inout");
-            const string in = svPortName(ports.inp);
-            const string out = ports.outp->prettyName();
-            const string en = ports.enp->prettyName();
-            std::vector<std::pair<int, int>> dimensions;
-            const AstNodeDType* dtypep = ports.inp->dtypep()->skipRefp();
-            while (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
+            ଅଚଳ string in = svPortName(ports.inp);
+            ଅଚଳ string out = ports.outp->prettyName();
+            ଅଚଳ string en = ports.enp->prettyName();
+            std::vector<std::pair<ପୂର୍ଣ୍ଣସଂଖ୍ୟା, ପୂର୍ଣ୍ଣସଂଖ୍ୟା>> dimensions;
+            ଅଚଳ Ast_ଗଣ୍ଠି_DType* dtypep = ports.inp->dtypep()->skipRefp();
+            ଯେତେବେଳେ (ଅଚଳ Ast_ଗଣ୍ଠି_Array_DType* ଅଚଳ arrayp = VN_CAST(dtypep, ଗଣ୍ଠି_Array_DType)) {
                 // V3Slice currently rejects lowered unpacked inouts before this pass.
                 // TODO: Support unpacked inouts once V3Slice supports their lowered form.
                 UASSERT_OBJ(!VN_IS(arrayp, UnpackArrayDType), ports.inp,
@@ -533,62 +533,62 @@ class ProtectVisitor final : public VNVisitor {
                 dimensions.emplace_back(arrayp->lo(), arrayp->hi());
                 dtypep = arrayp->subDTypep()->skipRefp();
             }
-            const AstBasicDType* const basicp = dtypep->basicp();
+            ଅଚଳ AstBasicDType* ଅଚଳ basicp = dtypep->basicp();
             UASSERT_OBJ(basicp, ports.inp, "Library inout must have a packed integral type");
-            if (basicp->isRanged()) dimensions.emplace_back(basicp->lo(), basicp->hi());
-            if (dimensions.empty()) {
+            ଯଦି (basicp->isRanged()) dimensions.emplace_back(basicp->lo(), basicp->hi());
+            ଯଦି (dimensions.empty()) {
                 m_inoutDeclsp->add("assign " + in + " = " + en + " ? " + out + " : 1'bz;\n");
-            } else {
+            } ଅନ୍ୟଥା {
                 string lhs = in;
                 string rhsEn = en;
                 string rhsOut = out;
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) {
-                    const string index
+                ପାଇଁ (size_t dim = 0; dim < dimensions.size(); ++dim) {
+                    ଅଚଳ string index
                         = "__VlibInout" + cvtToStr(entry.first) + "_" + cvtToStr(dim);
-                    const int low = dimensions[dim].first;
-                    const int high = dimensions[dim].second;
-                    const int size = high - low + 1;
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା ତଳ = dimensions[dim].first;
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଉପର = dimensions[dim].second;
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା size = ଉପର - ତଳ + 1;
                     m_inoutDeclsp->add("for (genvar " + index + " = 0; " + index + " < "
                                        + cvtToStr(size) + "; ++" + index + ") begin\n");
-                    const string select = "[" + cvtToStr(low) + " + " + index + "]";
+                    ଅଚଳ string select = "[" + cvtToStr(ତଳ) + " + " + index + "]";
                     lhs += select;
                     rhsEn += select;
                     rhsOut += select;
                 }
                 m_inoutDeclsp->add("assign " + lhs + " = " + rhsEn + " ? " + rhsOut
                                    + " : 1'bz;\n");
-                for (size_t dim = 0; dim < dimensions.size(); ++dim) m_inoutDeclsp->add("end\n");
+                ପାଇଁ (size_t dim = 0; dim < dimensions.size(); ++dim) m_inoutDeclsp->add("end\n");
             }
         }
     }
 
-    static void addLocalVariable(AstTextBlock* textp, const AstVar* varp, const char* suffix) {
-        AstVar* const newVarp
-            = new AstVar{varp->fileline(), VVarType::VAR, varp->name() + suffix, varp->dtypep()};
+    ସ୍ଥିର ଶୂନ୍ୟ addLocalVariable(AstTextBlock* textp, ଅଚଳ AstVar* varp, ଅଚଳ ଅକ୍ଷର* suffix) {
+        AstVar* ଅଚଳ newVarp
+            = ନୂତନ AstVar{varp->fileline(), VVarType::VAR, varp->name() + suffix, varp->dtypep()};
         textp->add(newVarp);
     }
 
-    void handleOutput(AstVar* const varp) {
-        const std::string pname = varp->prettyName();
+    ଶୂନ୍ୟ handleOutput(AstVar* ଅଚଳ varp) {
+        ଅଚଳ std::string pname = varp->prettyName();
         // Restored inout drivers are local signals and retain their internal names.
-        const std::string portName = restoreInout(varp) ? pname : svPortName(varp);
-        if (restoreInout(varp)) {
-            AstVar* const localp = varp->cloneTree(false);
+        ଅଚଳ std::string portName = restoreInout(varp) ? pname : svPortName(varp);
+        ଯଦି (restoreInout(varp)) {
+            AstVar* ଅଚଳ localp = varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା);
             localp->direction(VDirection::NONE);
             m_inoutDeclsp->add(localp);
-        } else {
+        } ଅନ୍ୟଥା {
             m_modPortsp->add(newSvPortVar(varp));
         }
-        m_comboPortsp->add(varp->cloneTree(false));
+        m_comboPortsp->add(varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
         m_comboParamsp->add(pname + "_combo__V");
-        if (m_hasClk) {
-            m_seqPortsp->add(varp->cloneTree(false));
+        ଯଦି (m_hasClk) {
+            m_seqPortsp->add(varp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
             m_seqParamsp->add(pname + "_tmp__V");
         }
 
         addLocalVariable(m_comboDeclsp, varp, "_combo__V");
 
-        if (m_hasClk) {
+        ଯଦି (m_hasClk) {
             addLocalVariable(m_seqDeclsp, varp, "_seq__V");
             addLocalVariable(m_tmpDeclsp, varp, "_tmp__V");
 
@@ -596,30 +596,30 @@ class ProtectVisitor final : public VNVisitor {
             m_seqAssignsp->add(portName + " = " + pname + "_seq__V;\n");
         }
         m_comboAssignsp->add(portName + " = " + pname + "_combo__V;\n");
-        m_cComboParamsp->add(varp->dpiArgType(true, false));
-        m_cComboOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->") + "\n");
-        if (m_hasClk) {
-            m_cSeqParamsp->add(varp->dpiArgType(true, false));
-            m_cSeqOutsp->add(V3Task::assignInternalToDpi(varp, true, "", "", "handlep__V->")
+        m_cComboParamsp->add(varp->dpiArgType(ସତ୍ୟ, ମିଥ୍ୟା));
+        m_cComboOutsp->add(V3Task::assignInternalToDpi(varp, ସତ୍ୟ, "", "", "handlep__V->") + "\n");
+        ଯଦି (m_hasClk) {
+            m_cSeqParamsp->add(varp->dpiArgType(ସତ୍ୟ, ମିଥ୍ୟା));
+            m_cSeqOutsp->add(V3Task::assignInternalToDpi(varp, ସତ୍ୟ, "", "", "handlep__V->")
                              + "\n");
         }
     }
 
-    static bool checkIfClockExists(const AstNodeModule* modp) {
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->direction() == VDirection::INPUT && varp->isPrimaryClock()) {
-                    return true;
+    ସ୍ଥିର ତାର୍କିକ checkIfClockExists(ଅଚଳ Ast_ଗଣ୍ଠି_Module* modp) {
+        ପାଇଁ (ଅଚଳ Ast_ଗଣ୍ଠି* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ଯଦି (ଅଚଳ AstVar* ଅଚଳ varp = VN_CAST(stmtp, Var)) {
+                ଯଦି (varp->direction() == VDirection::ନିବେଶ && varp->isPrimaryClock()) {
+                    ଫେରନ୍ତୁ ସତ୍ୟ;
                 }
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
-public:
-    explicit ProtectVisitor(AstNode* nodep)
+ସର୍ବସାଧାରଣ:
+    explicit ProtectVisitor(Ast_ଗଣ୍ଠି* nodep)
         : m_libName{v3Global.opt.libCreate()}
-        , m_topName{v3Global.opt.prefix()} {
+        , m_ଶୀର୍ଷ_Name{v3Global.opt.prefix()} {
         iterate(nodep);
     }
 };
@@ -627,7 +627,7 @@ public:
 //######################################################################
 // ProtectLib class functions
 
-void V3ProtectLib::protect() {
+ଶୂନ୍ୟ V3ProtectLib::protect() {
     UINFO(2, __FUNCTION__ << ":");
     ProtectVisitor{v3Global.rootp()};
 }

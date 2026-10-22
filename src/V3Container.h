@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ଅନ୍ତର୍ଭାଵ <unordered_map>
+#ଅନ୍ତର୍ଭାଵ <unordered_set>
+#ଅନ୍ତର୍ଭାଵ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_ଚାବି>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_ଚାବି> m_ଚାବିଗୁଡ଼ିକ;  // Elements by insertion order
+    std::unordered_set<T_ଚାବି> m_ଚାବି_Set;  // Elements by key
+ସର୍ବସାଧାରଣ:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ଭର୍ତ୍ତି(ଅଚଳ T_ଚାବି& ଚାବି) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ଅଚଳ auto itFoundPair = m_ଚାବି_Set.ଭର୍ତ୍ତି(ଚାବି);
+        ଯଦି (itFoundPair.second) m_ଚାବିଗୁଡ଼ିକ.ଠେଲ_back(ଚାବି);
+        ଫେରନ୍ତୁ itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ଶୂନ୍ୟ ଭର୍ତ୍ତି(T begin, ଅଚଳ T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::ମୂଲ୍ୟ_type, T_ଚାବି>::ମୂଲ୍ୟ,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        ଯେତେବେଳେ (begin != end) {
+            ଯଦି (m_ଚାବି_Set.ଭର୍ତ୍ତି(*begin).second) m_ଚାବିଗୁଡ଼ିକ.ଠେଲ_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    ଶୂନ୍ୟ clear() {
+        m_ଚାବିଗୁଡ଼ିକ.clear();
+        m_ଚାବି_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ଅଚଳ { ଫେରନ୍ତୁ m_ଚାବିଗୁଡ଼ିକ.empty(); }
+    size_t size() ଅଚଳ { ଫେରନ୍ତୁ m_ଚାବିଗୁଡ଼ିକ.size(); }
+    bool exists(ଅଚଳ T_ଚାବି& ଚାବି) ଅଚଳ { ଫେରନ୍ତୁ m_ଚାବି_Set.find(ଚାବି) != m_ଚାବି_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_ଚାବି>::const_iterator;
+    const_iterator begin() ଅଚଳ { ଫେରନ୍ତୁ m_ଚାବିଗୁଡ଼ିକ.begin(); }
+    const_iterator end() ଅଚଳ { ଫେରନ୍ତୁ m_ଚାବିଗୁଡ଼ିକ.end(); }
 };
 
 //============================================================================

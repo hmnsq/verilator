@@ -26,268 +26,268 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3UniqueNames.h"
+#ଅନ୍ତର୍ଭାଵ "V3Dfg.h"
+#ଅନ୍ତର୍ଭାଵ "V3DfgPasses.h"
+#ଅନ୍ତର୍ଭାଵ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+ନାମାକାଶ {
 
 // Create an AstNodeExpr out of a DfgVertex. For most AstNodeExpr subtypes, this can be done
 // automatically. For the few special cases, we provide specializations below
-template <typename T_Node, typename T_Vertex, typename... Ops>
-T_Node* makeNode(const T_Vertex* vtxp, Ops... ops) {
-    T_Node* const nodep = new T_Node{vtxp->fileline(), ops...};
-    UASSERT_OBJ(nodep->width() == static_cast<int>(vtxp->width()), vtxp,
+template <typename T_ଗଣ୍ଠି, typename T_Vertex, typename... Ops>
+T_ଗଣ୍ଠି* make_ଗଣ୍ଠି(ଅଚଳ T_Vertex* vtxp, Ops... ops) {
+    T_ଗଣ୍ଠି* ଅଚଳ nodep = ନୂତନ T_ଗଣ୍ଠି{vtxp->fileline(), ops...};
+    UASSERT_OBJ(nodep->width() == static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width()), vtxp,
                 "Incorrect width in AstNode created from DfgVertex "
                     << vtxp->typeName() << ": " << nodep->width() << " vs " << vtxp->width());
-    return nodep;
+    ଫେରନ୍ତୁ nodep;
 }
 
 //======================================================================
 // Vertices needing special conversion
 
 template <>
-AstCountOnes* makeNode<AstCountOnes, DfgCountOnes, AstNodeExpr*>(  //
-    const DfgCountOnes* vtxp, AstNodeExpr* op1) {
-    AstCountOnes* const nodep = new AstCountOnes{vtxp->fileline(), op1};
-    return nodep;
+Ast_ଗଣନା_Ones* make_ଗଣ୍ଠି<Ast_ଗଣନା_Ones, Dfg_ଗଣନା_Ones, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ Dfg_ଗଣନା_Ones* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1) {
+    Ast_ଗଣନା_Ones* ଅଚଳ nodep = ନୂତନ Ast_ଗଣନା_Ones{vtxp->fileline(), op1};
+    ଫେରନ୍ତୁ nodep;
 }
 
 template <>
-AstExtend* makeNode<AstExtend, DfgExtend, AstNodeExpr*>(  //
-    const DfgExtend* vtxp, AstNodeExpr* op1) {
-    return new AstExtend{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+AstExtend* make_ଗଣ୍ଠି<AstExtend, DfgExtend, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ DfgExtend* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1) {
+    ଫେରନ୍ତୁ ନୂତନ AstExtend{vtxp->fileline(), op1, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
 }
 
 template <>
-AstExtendS* makeNode<AstExtendS, DfgExtendS, AstNodeExpr*>(  //
-    const DfgExtendS* vtxp, AstNodeExpr* op1) {
-    return new AstExtendS{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+AstExtendS* make_ଗଣ୍ଠି<AstExtendS, DfgExtendS, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ DfgExtendS* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1) {
+    ଫେରନ୍ତୁ ନୂତନ AstExtendS{vtxp->fileline(), op1, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
 }
 
 template <>
-AstShiftL* makeNode<AstShiftL, DfgShiftL, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftL* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftL{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftL* make_ଗଣ୍ଠି<AstShiftL, DfgShiftL, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ DfgShiftL* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op2) {
+    ଫେରନ୍ତୁ ନୂତନ AstShiftL{vtxp->fileline(), op1, op2, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
 }
 
 template <>
-AstShiftR* makeNode<AstShiftR, DfgShiftR, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftR* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftR{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftR* make_ଗଣ୍ଠି<AstShiftR, DfgShiftR, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ DfgShiftR* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op2) {
+    ଫେରନ୍ତୁ ନୂତନ AstShiftR{vtxp->fileline(), op1, op2, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
 }
 
 template <>
-AstShiftRS* makeNode<AstShiftRS, DfgShiftRS, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftRS* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftRS{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftRS* make_ଗଣ୍ଠି<AstShiftRS, DfgShiftRS, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  //
+    ଅଚଳ DfgShiftRS* vtxp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op1, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* op2) {
+    ଫେରନ୍ତୁ ନୂତନ AstShiftRS{vtxp->fileline(), op1, op2, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
 }
 
 }  // namespace
 
-class DfgToAstVisitor final : DfgVisitor {
+ଶ୍ରେଣୀ DfgToAstVisitor final : DfgVisitor {
     // NODE STATE
 
     // AstScope::user2p  // The combinational AstActive under this scope
-    const VNUser2InUse m_user2InUse;
+    ଅଚଳ VNUser2InUse m_user2InUse;
 
     // STATE
     V3DfgDfgToAstContext& m_ctx;  // The context for stats
-    AstNodeExpr* m_resultp = nullptr;  // The result node of the current traversal
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* m_resultp = nullptr;  // The result node of the current traversal
     AstAlways* m_alwaysp = nullptr;  // Process to add assignments to, if have a default driver
     AstActive* m_activep = nullptr;  // The AstNodeModule or AstActive to insert assigns into
 
     // METHODS
-    static AstActive* getCombActive(AstScope* scopep) {
-        if (!scopep->user2p()) {
+    ସ୍ଥିର AstActive* getCombActive(AstScope* scopep) {
+        ଯଦି (!scopep->user2p()) {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->hasCombo()) {
+            ପାଇଁ (Ast_ଗଣ୍ଠି* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                AstActive* ଅଚଳ activep = VN_CAST(nodep, Active);
+                ଯଦି (!activep) ଜାରି;
+                ଯଦି (activep->hasCombo()) {
                     scopep->user2p(activep);
-                    break;
+                    ଭାଙ୍ଗ;
                 }
             }
             // If there isn't one, create a new one
-            if (!scopep->user2p()) {
-                FileLine* const flp = scopep->fileline();
-                AstSenTree* const senTreep
-                    = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-                AstActive* const activep = new AstActive{flp, "", senTreep};
-                activep->senTreeStorep(senTreep);
+            ଯଦି (!scopep->user2p()) {
+                File_ଧାଡ଼ି* ଅଚଳ flp = scopep->fileline();
+                Ast_Sen_ବୃକ୍ଷ* ଅଚଳ senTreep
+                    = ନୂତନ Ast_Sen_ବୃକ୍ଷ{flp, ନୂତନ AstSenItem{flp, AstSenItem::Combo{}}};
+                AstActive* ଅଚଳ activep = ନୂତନ AstActive{flp, "", senTreep};
+                activep->sen_ବୃକ୍ଷ_Storep(senTreep);
                 scopep->addBlocksp(activep);
                 scopep->user2p(activep);
             }
         }
-        return VN_AS(scopep->user2p(), Active);
+        ଫେରନ୍ତୁ VN_AS(scopep->user2p(), Active);
     }
 
-    AstNodeExpr* convertDfgVertexToAstNodeExpr(DfgVertex* vtxp) {
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(DfgVertex* vtxp) {
         UASSERT_OBJ(!m_resultp, vtxp, "Result already computed");
         UASSERT_OBJ(vtxp->is<DfgVertexVar>() || vtxp->is<DfgConst>()  //
                         || !vtxp->hasMultipleSinks() || vtxp->isCheaperThanLoad(),  //
                     vtxp, "Intermediate DFG value with multiple uses");
         iterate(vtxp);
         UASSERT_OBJ(m_resultp, vtxp, "Missing result");
-        AstNodeExpr* const resultp = m_resultp;
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ resultp = m_resultp;
         m_resultp = nullptr;
-        return resultp;
+        ଫେରନ୍ତୁ resultp;
     }
 
-    void createAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
+    ଶୂନ୍ୟ createAssignment(File_ଧାଡ଼ି* flp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, DfgVertex* driverp) {
         // Keep track of statisticss
         ++m_ctx.m_resultEquations;
         // Render the driver
-        AstNodeExpr* const rhsp = convertDfgVertexToAstNodeExpr(driverp);
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ rhsp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(driverp);
         // Update LHS locations to reflect the location of the original driver
-        lhsp->foreach([&](AstNode* nodep) { nodep->fileline(flp); });
+        lhsp->foreach([&](Ast_ଗଣ୍ଠି* nodep) { nodep->fileline(flp); });
 
         // If using a process, add Assign there
-        if (m_alwaysp) {
-            m_alwaysp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
-            return;
+        ଯଦି (m_alwaysp) {
+            m_alwaysp->addStmtsp(ନୂତନ AstAssign{flp, lhsp, rhsp});
+            ଫେରନ୍ତୁ;
         }
 
         // Otherwise create an AssignW
-        AstAssignW* const ap = new AstAssignW{flp, lhsp, rhsp};
-        m_activep->addStmtsp(new AstAlways{ap});
+        AstAssignW* ଅଚଳ ap = ନୂତନ AstAssignW{flp, lhsp, rhsp};
+        m_activep->addStmtsp(ନୂତନ AstAlways{ap});
     }
 
-    void convertDriver(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
-        if (DfgSplicePacked* const sPackedp = driverp->cast<DfgSplicePacked>()) {
+    ଶୂନ୍ୟ convertDriver(File_ଧାଡ଼ି* flp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, DfgVertex* driverp) {
+        ଯଦି (DfgSplicePacked* ଅଚଳ sPackedp = driverp->cast<DfgSplicePacked>()) {
             // Partial assignment of packed value
-            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, File_ଧାଡ଼ି* dflp) {
                 // Create Sel
-                AstConst* const lsbp = new AstConst{dflp, lo};
-                const int width = static_cast<int>(src.width());
-                AstSel* const nLhsp = new AstSel{dflp, lhsp->cloneTreePure(false), lsbp, width};
+                AstConst* ଅଚଳ lsbp = ନୂତନ AstConst{dflp, lo};
+                ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(src.width());
+                AstSel* ଅଚଳ nLhsp = ନୂତନ AstSel{dflp, lhsp->clone_ବୃକ୍ଷ_Pure(ମିଥ୍ୟା), lsbp, width};
                 // Convert source
                 convertDriver(dflp, nLhsp, &src);
                 // Delete Sel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_ବୃକ୍ଷ(), nLhsp);
+                ଫେରନ୍ତୁ ମିଥ୍ୟା;
             });
-            return;
+            ଫେରନ୍ତୁ;
         }
 
-        if (DfgSpliceArray* const sArrayp = driverp->cast<DfgSpliceArray>()) {
+        ଯଦି (DfgSpliceArray* ଅଚଳ sArrayp = driverp->cast<DfgSpliceArray>()) {
             // Partial assignment of array variable
-            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, File_ଧାଡ଼ି* dflp) {
                 UASSERT_OBJ(src.size() == 1, &src, "We only handle single elements");
                 // Create ArraySel
-                AstConst* const idxp = new AstConst{dflp, lo};
-                AstArraySel* const nLhsp = new AstArraySel{dflp, lhsp->cloneTreePure(false), idxp};
+                AstConst* ଅଚଳ idxp = ନୂତନ AstConst{dflp, lo};
+                AstArraySel* ଅଚଳ nLhsp = ନୂତନ AstArraySel{dflp, lhsp->clone_ବୃକ୍ଷ_Pure(ମିଥ୍ୟା), idxp};
                 // Convert source
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+                ଯଦି (ଅଚଳ DfgUnitArray* ଅଚଳ uap = src.cast<DfgUnitArray>()) {
                     convertDriver(dflp, nLhsp, uap->srcp());
-                } else {
+                } ଅନ୍ୟଥା {
                     convertDriver(dflp, nLhsp, &src);
                 }
                 // Delete ArraySel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_ବୃକ୍ଷ(), nLhsp);
+                ଫେରନ୍ତୁ ମିଥ୍ୟା;
             });
-            return;
+            ଫେରନ୍ତୁ;
         }
 
-        if (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
+        ଯଦି (ଅଚଳ DfgUnitArray* ଅଚଳ uap = driverp->cast<DfgUnitArray>()) {
             // Single element array being assigned a unit array. Needs an ArraySel.
-            AstConst* const idxp = new AstConst{flp, 0};
-            AstArraySel* const nLhsp = new AstArraySel{flp, lhsp->cloneTreePure(false), idxp};
+            AstConst* ଅଚଳ idxp = ନୂତନ AstConst{flp, 0};
+            AstArraySel* ଅଚଳ nLhsp = ନୂତନ AstArraySel{flp, lhsp->clone_ବୃକ୍ଷ_Pure(ମିଥ୍ୟା), idxp};
             // Convert source
             convertDriver(flp, nLhsp, uap->srcp());
             // Delete ArraySel - was cloned
-            VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-            return;
+            VL_DO_DANGLING(nLhsp->delete_ବୃକ୍ଷ(), nLhsp);
+            ଫେରନ୍ତୁ;
         }
 
         // Base case: assign vertex to current lhs
-        createAssignment(flp, lhsp->cloneTreePure(false), driverp);
+        createAssignment(flp, lhsp->clone_ବୃକ୍ଷ_Pure(ମିଥ୍ୟା), driverp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    ଶୂନ୍ୟ visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("Unhandled DfgVertex: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVarPacked* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    ଶୂନ୍ୟ visit(DfgVarPacked* vtxp) override {
+        m_resultp = ନୂତନ AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgVarArray* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    ଶୂନ୍ୟ visit(DfgVarArray* vtxp) override {
+        m_resultp = ନୂତନ AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgPrev* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    ଶୂନ୍ୟ visit(DfgPrev* vtxp) override {
+        m_resultp = ନୂତନ AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgConst* vtxp) override {  //
-        m_resultp = new AstConst{vtxp->fileline(), vtxp->num()};
+    ଶୂନ୍ୟ visit(DfgConst* vtxp) override {  //
+        m_resultp = ନୂତନ AstConst{vtxp->fileline(), vtxp->ଅଙ୍କ()};
     }
-    void visit(DfgCReset* vtxp) override {
-        DfgVertex* const sinkp = vtxp->singleSink();
+    ଶୂନ୍ୟ visit(DfgCReset* vtxp) override {
+        DfgVertex* ଅଚଳ sinkp = vtxp->singleSink();
         UASSERT_OBJ(sinkp, vtxp, "CReset should only have one sink");
         UASSERT_OBJ(sinkp->is<DfgVertexVar>(), sinkp, "CReset should drive a variable");
-        AstVar* const varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
-        m_resultp = new AstCReset{vtxp->fileline(), varp, false};
+        AstVar* ଅଚଳ varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
+        m_resultp = ନୂତନ AstCReset{vtxp->fileline(), varp, ମିଥ୍ୟା};
     }
-    void visit(DfgMatchMasked* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const lhsp = convertDfgVertexToAstNodeExpr(vtxp->lhsp());
-        AstVarScope* const matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
-        m_resultp = new AstMatchMasked{flp, lhsp, new AstVarRef{flp, matchp, VAccess::READ}};
-    }
-
-    void visit(DfgRep* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const srcp = convertDfgVertexToAstNodeExpr(vtxp->srcp());
-        m_resultp = new AstReplicate{flp, srcp, vtxp->count()};
+    ଶୂନ୍ୟ visit(DfgMatchMasked* vtxp) override {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ lhsp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(vtxp->lhsp());
+        AstVarScope* ଅଚଳ matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
+        m_resultp = ନୂତନ AstMatchMasked{flp, lhsp, ନୂତନ AstVarRef{flp, matchp, VAccess::READ}};
     }
 
-    void visit(DfgSel* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstConst* const lsbp = new AstConst{flp, vtxp->lsb()};
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    ଶୂନ୍ୟ visit(DfgRep* vtxp) override {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ srcp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(vtxp->srcp());
+        m_resultp = ନୂତନ AstReplicate{flp, srcp, vtxp->ଗଣନା_2()};
     }
 
-    void visit(DfgMux* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstNodeExpr* const lsbp = convertDfgVertexToAstNodeExpr(vtxp->lsbp());
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    ଶୂନ୍ୟ visit(DfgSel* vtxp) override {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ fromp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(vtxp->fromp());
+        AstConst* ଅଚଳ lsbp = ନୂତନ AstConst{flp, vtxp->lsb()};
+        m_resultp = ନୂତନ AstSel{flp, fromp, lsbp, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
+    }
+
+    ଶୂନ୍ୟ visit(DfgMux* vtxp) override {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ fromp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(vtxp->fromp());
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ lsbp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(vtxp->lsbp());
+        m_resultp = ନୂତନ AstSel{flp, fromp, lsbp, static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(vtxp->width())};
     }
 
     // The rest of the 'visit' methods are generated by 'astgen'
-#include "V3Dfg__gen_dfg_to_ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3Dfg__gen_dfg_to_ast.h"
 
     // Constructor
     DfgToAstVisitor(DfgGraph& dfg, V3DfgDfgToAstContext& ctx)
         : m_ctx{ctx} {
-        if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+        ଯଦି (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
 
         // Convert the graph back to combinational assignments. The graph must have been
         // regularized, so we only need to render variable assignments and update Ast references.
 
         // Render variable assignments
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
+        ପାଇଁ (DfgVertexVar& vtx : dfg.varVertices()) {
             // If there is no driver (this vertex is an input to the graph), then nothing to do.
-            if (!vtx.srcp()) {
+            ଯଦି (!vtx.srcp()) {
                 UASSERT_OBJ(!vtx.defaultp(), &vtx, "Only default driver on variable");
-                continue;
+                ଜାରି;
             }
 
             ++m_ctx.m_outputVariables;
 
             // Render variable assignments
-            FileLine* const flp = vtx.driverFileLine() ? vtx.driverFileLine() : vtx.fileline();
-            AstVarRef* const lhsp = new AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
+            File_ଧାଡ଼ି* ଅଚଳ flp = vtx.driver_File_ଧାଡ଼ି() ? vtx.driver_File_ଧାଡ଼ି() : vtx.fileline();
+            AstVarRef* ଅଚଳ lhsp = ନୂତନ AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
 
             // Add it to the scope holding the target variable
             VL_RESTORER(m_activep);
@@ -295,49 +295,49 @@ class DfgToAstVisitor final : DfgVisitor {
 
             // If there is a default value, render all drivers under an AstAlways
             VL_RESTORER(m_alwaysp);
-            if (DfgVertex* const defaultp = vtx.defaultp()) {
+            ଯଦି (DfgVertex* ଅଚଳ defaultp = vtx.defaultp()) {
                 ++m_ctx.m_outputVariablesWithDefault;
-                m_alwaysp = new AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
+                m_alwaysp = ନୂତନ AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
                 m_activep->addStmtsp(m_alwaysp);
                 // The default assignment needs to go first
-                createAssignment(vtx.fileline(), lhsp->cloneTreePure(false), defaultp);
+                createAssignment(vtx.fileline(), lhsp->clone_ବୃକ୍ଷ_Pure(ମିଥ୍ୟା), defaultp);
             }
 
             // Render the drivers
             convertDriver(flp, lhsp, vtx.srcp());
 
             // convetDriver always clones lhsp
-            VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
+            VL_DO_DANGLING(lhsp->delete_ବୃକ୍ଷ(), lhsp);
         }
 
         // Update Ast References
-        for (DfgVertexAst& vtx : dfg.astVertices()) {
-            if (DfgAstRd* const rVtxp = vtx.cast<DfgAstRd>()) {
+        ପାଇଁ (DfgVertexAst& vtx : dfg.astVertices()) {
+            ଯଦି (DfgAstRd* ଅଚଳ rVtxp = vtx.cast<DfgAstRd>()) {
                 // Render the driver
-                AstNodeExpr* const exprp = convertDfgVertexToAstNodeExpr(rVtxp->srcp());
+                Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ exprp = convert_Dfg_Vertex_To_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(rVtxp->srcp());
                 // If it's the same as the reference, do not replace it so FileLines are preserved
-                if (exprp->sameTree(rVtxp->exprp())) {
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                    continue;
+                ଯଦି (exprp->same_ବୃକ୍ଷ(rVtxp->exprp())) {
+                    VL_DO_DANGLING(exprp->delete_ବୃକ୍ଷ(), exprp);
+                    ଜାରି;
                 }
                 // Replace the reference with the expression
-                if (VN_IS(exprp, VarRef)) {
+                ଯଦି (VN_IS(exprp, VarRef)) {
                     exprp->fileline(rVtxp->exprp()->fileline());
                     ++m_ctx.m_varRefsSubstituted;
-                } else {
+                } ଅନ୍ୟଥା {
                     ++m_ctx.m_expressionsInlined;
                 }
                 rVtxp->exprp()->replaceWith(exprp);
-                rVtxp->exprp()->deleteTree();
+                rVtxp->exprp()->delete_ବୃକ୍ଷ();
                 rVtxp->exprp(exprp);
             }
         }
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
 };
 
-void V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
+ଶୂନ୍ୟ V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
     DfgToAstVisitor::apply(dfg, ctx.m_dfg2AstContext);
 }

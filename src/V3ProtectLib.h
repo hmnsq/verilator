@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3PROTECTLIB_H_
 #define VERILATOR_V3PROTECTLIB_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 //============================================================================
 
 class V3ProtectLib final {
-public:
-    static void protect() VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ protect() VL_MT_DISABLED;
 };
 
 #endif  // Guard

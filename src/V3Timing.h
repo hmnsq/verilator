@@ -17,19 +17,19 @@
 #ifndef _V3TIMING_H_
 #define _V3TIMING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3Ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"
 
 //============================================================================
 
 class V3Timing final {
-public:
-    static void timingAll(AstNetlist* nodep) VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ timingAll(AstNetlist* nodep) VL_MT_DISABLED;
     // Scale a delay in the given time unit to time precision ticks, rounding real delays; #1step
     // is one tick
-    static AstNodeExpr* delayToTicks(AstNodeExpr* valuep, VTimescale timeunit) VL_MT_DISABLED;
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* delayToTicks(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep, VTimescale timeunit) VL_MT_DISABLED;
 };
 
 #endif  // Guard

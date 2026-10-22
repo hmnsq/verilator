@@ -64,22 +64,22 @@
 #ifndef VERILATOR_V3ORDERGRAPH_H_
 #define VERILATOR_V3ORDERGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3Graph.h"
+#ଅନ୍ତର୍ଭାଵ "V3Sched.h"
 
-#include <set>
-#include <vector>
+#ଅନ୍ତର୍ଭାଵ <set>
+#ଅନ୍ତର୍ଭାଵ <vector>
 
 class OrderLogicVertex;
 class OrderVarVertex;
 
 //======================================================================
 
-enum OrderWeights : uint8_t {
+ଗଣନା OrderWeights : uint8_t {
     WEIGHT_COMBO = 1,  // Breakable combo logic
     WEIGHT_POST = 2,  // Post-delayed used var
     WEIGHT_PRE = 3,  // Breakable pre-delayed used var
@@ -94,56 +94,56 @@ enum OrderWeights : uint8_t {
 // any of which being set means the logic needs to be executed.
 // Instances are interned in the OrderGraph, so can compare pointers.
 class OrderDomain final {
-    const std::set<uint32_t> m_triggers;  // The trigger indices
+    ଅଚଳ std::set<uint32_t> m_triggers;  // The trigger indices
 
-public:
-    explicit OrderDomain(const std::set<uint32_t>& triggers)
+ସର୍ବସାଧାରଣ:
+    explicit OrderDomain(ଅଚଳ std::set<uint32_t>& triggers)
         : m_triggers{triggers} {}
 
-    const std::set<uint32_t>& triggers() const { return m_triggers; }
-    bool operator<(const OrderDomain& other) const { return m_triggers < other.m_triggers; }
+    ଅଚଳ std::set<uint32_t>& triggers() ଅଚଳ { ଫେରନ୍ତୁ m_triggers; }
+    bool operator<(ଅଚଳ OrderDomain& other) ଅଚଳ { ଫେରନ୍ତୁ m_triggers < other.m_triggers; }
 };
 
-class OrderGraph final : public V3Graph {
-    const V3Sched::TriggerKit& m_trigKit;  // The TriggerKit of the triggers
-    AstVarScope* const m_trigVscp;  // The trigger vector for this graph
+class OrderGraph final : ସର୍ବସାଧାରଣ V3Graph {
+    ଅଚଳ V3Sched::TriggerKit& m_trigKit;  // The TriggerKit of the triggers
+    AstVarScope* ଅଚଳ m_trigVscp;  // The trigger vector for this graph
     std::set<OrderDomain> m_domains;  // The interned domains
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
-    OrderGraph(const V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp)
+    OrderGraph(ଅଚଳ V3Sched::TriggerKit& trigKit, AstVarScope* trigVscp)
         : m_trigKit{trigKit}
         , m_trigVscp{trigVscp} {}
 
     // METHODS
-    AstVarScope* trigVscp() const { return m_trigVscp; }
+    AstVarScope* trigVscp() ଅଚଳ { ଫେରନ୍ତୁ m_trigVscp; }
 
     // The AstSenItem the given trigger index stands for, nullptr if none
-    const AstSenItem* trigSenItemp(uint32_t index) const {
-        return m_trigKit.trigIdx2SenItem().at(index);
+    ଅଚଳ AstSenItem* trigSenItemp(uint32_t index) ଅଚଳ {
+        ଫେରନ୍ତୁ m_trigKit.trigIdx2SenItem().at(index);
     }
 
     // Get the interned instance of the given domain
-    const OrderDomain* domainp(const std::set<uint32_t>& triggers) {
-        return &*m_domains.emplace(triggers).first;
+    ଅଚଳ OrderDomain* domainp(ଅଚଳ std::set<uint32_t>& triggers) {
+        ଫେରନ୍ତୁ &*m_domains.emplace(triggers).first;
     }
 
     // Methods to add edges representing constraints, utilizing the type system to help us ensure
     // the graph remains bipartite.
-    inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
+    ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* ଶୀର୍ଷ,
+                            ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED;
+    ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* ଶୀର୍ଷ,
+                            ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED;
+    ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* ଶୀର୍ଷ,
+                            ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED;
+    ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* ଶୀର୍ଷ,
+                            ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED;
 };
 
 //======================================================================
 // Vertex types
 
-class OrderEitherVertex VL_NOT_FINAL : public V3GraphVertex {
+class OrderEitherVertex VL_NOT_FINAL : ସର୍ବସାଧାରଣ V3GraphVertex {
     VL_RTTI_IMPL(OrderEitherVertex, V3GraphVertex)
     // Event domain of vertex. For OrderLogicVertex this represents the conditions when the logic
     // block must be executed. For OrderVarVertex, this is the union of the domains of all the
@@ -152,52 +152,52 @@ class OrderEitherVertex VL_NOT_FINAL : public V3GraphVertex {
     // ordering algorithm will compute the domain automatically based on the edges representing
     // data-flow (those between OrderLogicVertex and OrderVarStdVertex), otherwise the domain is
     // as given (e.g.: for those OrderLogicVertices that represent clocked logic).
-    const OrderDomain* m_domainp;
+    ଅଚଳ OrderDomain* m_domainp;
 
-protected:
+ସୁରକ୍ଷିତ:
     // CONSTRUCTOR
-    OrderEitherVertex(OrderGraph* graphp, const OrderDomain* domainp) VL_MT_DISABLED
+    OrderEitherVertex(OrderGraph* graphp, ଅଚଳ OrderDomain* domainp) VL_MT_DISABLED
         : V3GraphVertex{graphp},
           m_domainp{domainp} {}
-    ~OrderEitherVertex() override = default;
+    ~OrderEitherVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
-public:
+ସର୍ବସାଧାରଣ:
     // METHODS
-    virtual bool domainMatters() = 0;
+    ଆଭାସୀ bool domainMatters() = 0;
 
     // ACCESSORS
-    const OrderDomain* domainp() const VL_MT_STABLE { return m_domainp; }
-    void domainp(const OrderDomain* domainp) VL_MT_DISABLED {
-#if VL_DEBUG
+    ଅଚଳ OrderDomain* domainp() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_domainp; }
+    ଶୂନ୍ୟ domainp(ଅଚଳ OrderDomain* domainp) VL_MT_DISABLED {
+#ଯଦି VL_DEBUG
         UASSERT(!m_domainp, "Domain should only be set once");
 #endif
         m_domainp = domainp;
     }
 };
 
-class OrderLogicVertex final : public OrderEitherVertex {
+class OrderLogicVertex final : ସର୍ବସାଧାରଣ OrderEitherVertex {
     VL_RTTI_IMPL(OrderLogicVertex, OrderEitherVertex)
 
-public:
+ସର୍ବସାଧାରଣ:
     // Variable access record
-    struct VarAccess final {
+    ସଂରଚନା VarAccess final {
         AstVarScope* m_vscp;  // The variable accessed
         VAccess m_access;  // The kind of access, as in the AST
     };
 
-private:
-    AstNode* const m_nodep;  // The logic this vertex represents
-    AstScope* const m_scopep;  // Scope the logic is under
-    const OrderDomain* const m_hybridp;  // Additional sensitivities for hybrid combinational logic
-    const bool m_comb;  // Is from combinational logic
+ବ୍ୟକ୍ତିଗତ:
+    Ast_ଗଣ୍ଠି* ଅଚଳ m_nodep;  // The logic this vertex represents
+    AstScope* ଅଚଳ m_scopep;  // Scope the logic is under
+    ଅଚଳ OrderDomain* ଅଚଳ m_hybridp;  // Additional sensitivities for hybrid combinational logic
+    ଅଚଳ bool m_comb;  // Is from combinational logic
     // Every variable accessed by this logic, in order of first access, at most one record per
     // variable. Only populated for multi-threaded ordering.
     std::vector<VarAccess> m_varAccesses;
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
-    OrderLogicVertex(OrderGraph* graphp, AstScope* scopep, const OrderDomain* domainp,
-                     const OrderDomain* hybridp, AstNode* nodep) VL_MT_DISABLED
+    OrderLogicVertex(OrderGraph* graphp, AstScope* scopep, ଅଚଳ OrderDomain* domainp,
+                     ଅଚଳ OrderDomain* hybridp, Ast_ଗଣ୍ଠି* nodep) VL_MT_DISABLED
         : OrderEitherVertex{graphp, domainp},
           m_nodep{nodep},
           m_scopep{scopep},
@@ -206,154 +206,154 @@ public:
         UASSERT_OBJ(scopep, nodep, "Must not be null");
         UASSERT_OBJ(!(domainp && hybridp), nodep, "Cannot have bot domainp and hybridp set");
     }
-    ~OrderLogicVertex() override = default;
+    ~OrderLogicVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { ଫେରନ୍ତୁ true; }
 
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }
-    const OrderDomain* hybridp() const { return m_hybridp; }
-    bool comb() const { return m_comb; }
-    const std::vector<VarAccess>& varAccesses() const { return m_varAccesses; }
-    void addVarAccess(AstVarScope* vscp, VAccess access) {
-        m_varAccesses.push_back({vscp, access});
+    Ast_ଗଣ୍ଠି* nodep() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_nodep; }
+    AstScope* scopep() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_scopep; }
+    ଅଚଳ OrderDomain* hybridp() ଅଚଳ { ଫେରନ୍ତୁ m_hybridp; }
+    bool comb() ଅଚଳ { ଫେରନ୍ତୁ m_comb; }
+    ଅଚଳ std::vector<VarAccess>& varAccesses() ଅଚଳ { ଫେରନ୍ତୁ m_varAccesses; }
+    ଶୂନ୍ୟ addVarAccess(AstVarScope* vscp, VAccess access) {
+        m_varAccesses.ଠେଲ_back({vscp, access});
     }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE {
-        return (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
+    string name() ଅଚଳ override VL_MT_STABLE {
+        ଫେରନ୍ତୁ (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
     }
-    string dotShape() const override { return VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
+    string dotShape() ଅଚଳ override { ଫେରନ୍ତୁ VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarVertex VL_NOT_FINAL : public OrderEitherVertex {
+class OrderVarVertex VL_NOT_FINAL : ସର୍ବସାଧାରଣ OrderEitherVertex {
     VL_RTTI_IMPL(OrderVarVertex, OrderEitherVertex)
-    AstVarScope* const m_vscp;
+    AstVarScope* ଅଚଳ m_vscp;
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
     OrderVarVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
         : OrderEitherVertex{graphp, nullptr},
           m_vscp{vscp} {}
-    ~OrderVarVertex() override = default;
+    ~OrderVarVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() ଅଚଳ { ଫେରନ୍ତୁ m_vscp; }
 
     // LCOV_EXCL_START // Debug code
-    string dotShape() const override final { return "ellipse"; }
-    virtual string nameSuffix() const VL_MT_SAFE = 0;
-    string name() const override final VL_MT_STABLE {
-        return cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
+    string dotShape() ଅଚଳ override final { ଫେରନ୍ତୁ "ellipse"; }
+    ଆଭାସୀ string nameSuffix() ଅଚଳ VL_MT_SAFE = 0;
+    string name() ଅଚଳ override final VL_MT_STABLE {
+        ଫେରନ୍ତୁ cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
     }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarStdVertex final : public OrderVarVertex {
+class OrderVarStdVertex final : ସର୍ବସାଧାରଣ OrderVarVertex {
     VL_RTTI_IMPL(OrderVarStdVertex, OrderVarVertex)
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
     OrderVarStdVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
         : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarStdVertex() override = default;
+    ~OrderVarStdVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { ଫେରନ୍ତୁ true; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return ""; }
-    string dotColor() const override { return "grey"; }
+    string nameSuffix() ଅଚଳ override VL_MT_SAFE { ଫେରନ୍ତୁ ""; }
+    string dotColor() ଅଚଳ override { ଫେରନ୍ତୁ "grey"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPreVertex final : public OrderVarVertex {
+class OrderVarPreVertex final : ସର୍ବସାଧାରଣ OrderVarVertex {
     VL_RTTI_IMPL(OrderVarPreVertex, OrderVarVertex)
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
     OrderVarPreVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
         : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPreVertex() override = default;
+    ~OrderVarPreVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ଫେରନ୍ତୁ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PRE"; }
-    string dotColor() const override { return "green"; }
+    string nameSuffix() ଅଚଳ override VL_MT_SAFE { ଫେରନ୍ତୁ "PRE"; }
+    string dotColor() ଅଚଳ override { ଫେରନ୍ତୁ "green"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPostVertex final : public OrderVarVertex {
+class OrderVarPostVertex final : ସର୍ବସାଧାରଣ OrderVarVertex {
     VL_RTTI_IMPL(OrderVarPostVertex, OrderVarVertex)
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
     OrderVarPostVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
         : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPostVertex() override = default;
+    ~OrderVarPostVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ଫେରନ୍ତୁ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "POST"; }
-    string dotColor() const override { return "red"; }
+    string nameSuffix() ଅଚଳ override VL_MT_SAFE { ଫେରନ୍ତୁ "POST"; }
+    string dotColor() ଅଚଳ override { ଫେରନ୍ତୁ "red"; }
     // LCOV_EXCL_STOP
 };
 
-class OrderVarPordVertex final : public OrderVarVertex {
+class OrderVarPordVertex final : ସର୍ବସାଧାରଣ OrderVarVertex {
     VL_RTTI_IMPL(OrderVarPordVertex, OrderVarVertex)
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTOR
     OrderVarPordVertex(OrderGraph* graphp, AstVarScope* vscp) VL_MT_DISABLED
         : OrderVarVertex{graphp, vscp} {}
-    ~OrderVarPordVertex() override = default;
+    ~OrderVarPordVertex() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { ଫେରନ୍ତୁ false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PORD"; }
-    string dotColor() const override { return "blue"; }
+    string nameSuffix() ଅଚଳ override VL_MT_SAFE { ଫେରନ୍ତୁ "PORD"; }
+    string dotColor() ଅଚଳ override { ଫେରନ୍ତୁ "blue"; }
     // LCOV_EXCL_STOP
 };
 
 //======================================================================
 // Edge type
 
-class OrderEdge final : public V3GraphEdge {
+class OrderEdge final : ସର୍ବସାଧାରଣ V3GraphEdge {
     VL_RTTI_IMPL(OrderEdge, V3GraphEdge)
     friend class OrderGraph;  // Only the OrderGraph can create these
     // CONSTRUCTOR
-    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, int weight,
-              bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
-    ~OrderEdge() override = default;
+    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* ଶୀର୍ଷ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight,
+              bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, ଶୀର୍ଷ, weight, cutable} {}
+    ~OrderEdge() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override { return cutable() ? "green" : "red"; }
+    string dotColor() ଅଚଳ override { ଫେରନ୍ତୁ cutable() ? "green" : "red"; }
     // LCOV_EXCL_STOP
 };
 
 //======================================================================
 // Inline methods
 
-void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+ଶୂନ୍ୟ OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* ଶୀର୍ଷ,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED {
+    new OrderEdge{this, fromp, ଶୀର୍ଷ, weight, /* cutable: */ false};
 }
-void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+ଶୂନ୍ୟ OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* ଶୀର୍ଷ,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED {
+    new OrderEdge{this, fromp, ଶୀର୍ଷ, weight, /* cutable: */ false};
 }
-void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+ଶୂନ୍ୟ OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* ଶୀର୍ଷ,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED {
+    new OrderEdge{this, fromp, ଶୀର୍ଷ, weight, /* cutable: */ true};
 }
-void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+ଶୂନ୍ୟ OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* ଶୀର୍ଷ,
+                             ପୂର୍ଣ୍ଣସଂଖ୍ୟା weight) VL_MT_DISABLED {
+    new OrderEdge{this, fromp, ଶୀର୍ଷ, weight, /* cutable: */ true};
 }
 
 #endif  // Guard

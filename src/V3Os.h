@@ -17,79 +17,79 @@
 #ifndef VERILATOR_V3OS_H_
 #define VERILATOR_V3OS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include <array>
+#ଅନ୍ତର୍ଭାଵ <array>
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Error.h"
+#ଅନ୍ତର୍ଭାଵ "V3Error.h"
 
 //============================================================================
 // V3Os: OS static class
 
 class V3Os final {
-public:
+ସର୍ବସାଧାରଣ:
     // METHODS (environment)
-    static string cwd() { return filenameRealPath("."); }
-    static string getenvStr(const string& envvar, const string& defaultValue);
-    static void setenvStr(const string& envvar, const string& value, const string& why);
+    ସ୍ଥିର string cwd() { ଫେରନ୍ତୁ filenameRealPath("."); }
+    ସ୍ଥିର string getenvStr(ଅଚଳ string& envvar, ଅଚଳ string& default_ମୂଲ୍ୟ);
+    ସ୍ଥିର ଶୂନ୍ୟ setenvStr(ଅଚଳ string& envvar, ଅଚଳ string& ମୂଲ୍ୟ, ଅଚଳ string& why);
 
     // METHODS (generic filename utilities)
     ///< @return concatenated path
-    static string filenameJoin(std::initializer_list<const std::string> paths) VL_PURE;
+    ସ୍ଥିର string filenameJoin(std::initializer_list<ଅଚଳ std::string> paths) VL_PURE;
     template <typename... Args>
-    static string filenameJoin(Args... args) VL_PURE {
-        return filenameJoin({args...});
+    ସ୍ଥିର string filenameJoin(Args... args) VL_PURE {
+        ଫେରନ୍ତୁ filenameJoin({args...});
     };
     ///< @return file path without repeated separators and ./ prefix
-    static string filenameCleanup(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameCleanup(ଅଚଳ string& filename) VL_PURE;
     ///< @return extension (.) part of filename
-    static string filenameExt(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameExt(ଅଚଳ string& filename) VL_PURE;
     ///< @return non-directory part of filename
-    static string filenameNonDir(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameNonDir(ଅଚଳ string& filename) VL_PURE;
     ///< @return basename of filename
-    static string filenameNonDirExt(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameNonDirExt(ଅଚଳ string& filename) VL_PURE;
     ///< @return directory part of filename
-    static string filenameDir(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameDir(ଅଚଳ string& filename) VL_PURE;
     ///< @return filename with env vars removed
-    static string filenameSubstitute(const string& filename);
+    ସ୍ଥିର string filenameSubstitute(ଅଚଳ string& filename);
     ///< @return realpath of filename
-    static string filenameRealPath(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameRealPath(ଅଚଳ string& filename) VL_PURE;
     // @return absolute path of filename, without resolving symlinks
-    static string filenameAbsolutePath(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameAbsolutePath(ଅଚଳ string& filename) VL_PURE;
     ///< @return relative path of filename, relative to base
-    static string filenameRelativePath(const string& filename, const string& base) VL_PURE;
+    ସ୍ଥିର string filenameRelativePath(ଅଚଳ string& filename, ଅଚଳ string& base) VL_PURE;
     ///< @return filename is relative
-    static bool filenameIsRel(const string& filename) VL_PURE;
+    ସ୍ଥିର bool filenameIsRel(ଅଚଳ string& filename) VL_PURE;
     ///< @return path slashed with '/'
-    static string filenameSlashPath(const string& filename) VL_PURE;
+    ସ୍ଥିର string filenameSlashPath(ଅଚଳ string& filename) VL_PURE;
 
     // METHODS (file utilities)
-    static string getline(std::istream& is, char delim = '\n');
+    ସ୍ଥିର string getline(std::istream& is, ଅକ୍ଷର delim = '\n');
 
     // METHODS (directory utilities)
-    static void createDir(const string& dirname);
-    static void filesystemFlush(const string& dirname);
-    static void filesystemFlushBuildDir(const string& dirname);
-    static void unlinkRegexp(const string& dir, const string& regexp);
+    ସ୍ଥିର ଶୂନ୍ୟ createDir(ଅଚଳ string& dirname);
+    ସ୍ଥିର ଶୂନ୍ୟ filesystemFlush(ଅଚଳ string& dirname);
+    ସ୍ଥିର ଶୂନ୍ୟ filesystemFlushBuildDir(ଅଚଳ string& dirname);
+    ସ୍ଥିର ଶୂନ୍ୟ unlinkRegexp(ଅଚଳ string& dir, ଅଚଳ string& regexp);
 
     // METHODS (memory)
-    static void releaseMemory();
+    ସ୍ଥିର ଶୂନ୍ୟ releaseMemory();
 
     // METHODS (random)
-    static uint64_t rand64(std::array<uint64_t, 2>& stater);
-    static string trueRandom(size_t size) VL_MT_SAFE;
+    ସ୍ଥିର uint64_t rand64(std::array<uint64_t, 2>& stater);
+    ସ୍ଥିର string trueRandom(size_t size) VL_MT_SAFE;
 
     // METHODS (time & performance) (See also VlOs methods)
-    static void u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
+    ସ୍ଥିର ଶୂନ୍ୟ u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
     /// Return wall time since epoch in microseconds, or 0 if not implemented
-    static uint64_t timeUsecs();
+    ସ୍ଥିର uint64_t timeUsecs();
 
     // METHODS (sub command)
     /// Run system command, returns the exit code of the child process.
-    static int system(const string& command);
-    static void selfTest();
+    ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା system(ଅଚଳ string& command);
+    ସ୍ଥିର ଶୂନ୍ୟ selfTest();
 };
 
 #endif  // Guard

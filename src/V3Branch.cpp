@@ -23,58 +23,58 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Branch.h"
+#ଅନ୍ତର୍ଭାଵ "V3Branch.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Branch state, as a visitor of each AstNode
 
-class BranchVisitor final : public VNVisitorConst {
+ଶ୍ରେଣୀ BranchVisitor final : ସର୍ବସାଧାରଣ VNVisitorConst {
     // STATE - for current visit position (use VL_RESTORER)
-    int m_unlikely = 0;  // Excuses for branch likely not taken
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_unlikely = 0;  // Excuses for branch likely not taken
 
     // VISITORS
-    void visit(AstNodeIf* nodep) override {
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_If* nodep) override {
         UINFO(4, " IF: " << nodep);
         VL_RESTORER(m_unlikely);
         // Do then
         m_unlikely = 0;
         iterateAndNextConstNull(nodep->thensp());
-        const int thenUnlikely = m_unlikely;
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା thenUnlikely = m_unlikely;
         // Do else
         m_unlikely = 0;
         iterateAndNextConstNull(nodep->elsesp());
-        const int elseUnlikely = m_unlikely;
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା elseUnlikely = m_unlikely;
         // Compute
-        if (elseUnlikely > thenUnlikely) {
+        ଯଦି (elseUnlikely > thenUnlikely) {
             nodep->branchPred(VBranchPred::BP_LIKELY);
-        } else if (elseUnlikely < thenUnlikely) {
+        } ଅନ୍ୟଥା ଯଦି (elseUnlikely < thenUnlikely) {
             nodep->branchPred(VBranchPred::BP_UNLIKELY);
         }  // else leave unknown
     }
 
-    void visit(AstNode* nodep) override {
-        if (nodep->isUnlikely()) {
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି* nodep) override {
+        ଯଦି (nodep->isUnlikely()) {
             UINFO(4, "  UNLIKELY: " << nodep);
             ++m_unlikely;
         }
         iterateChildrenConst(nodep);
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
     explicit BranchVisitor(AstNetlist* nodep) { iterateChildrenConst(nodep); }
-    ~BranchVisitor() override = default;
+    ~BranchVisitor() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 };
 
 //######################################################################
 // Branch class functions
 
-void V3Branch::branchAll(AstNetlist* nodep) {
+ଶୂନ୍ୟ V3Branch::branchAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { BranchVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("branch", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ବୃକ୍ଷ("branch", 0, dump_ବୃକ୍ଷ_Either_Level() >= 3);
 }

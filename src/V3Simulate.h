@@ -32,42 +32,42 @@
 #ifndef VERILATOR_V3SIMULATE_H_
 #define VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3AstUserAllocator.h"
+#ଅନ୍ତର୍ଭାଵ "V3Const.h"
+#ଅନ୍ତର୍ଭାଵ "V3Error.h"
+#ଅନ୍ତର୍ଭାଵ "V3Task.h"
+#ଅନ୍ତର୍ଭାଵ "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#ଅନ୍ତର୍ଭାଵ <deque>
+#ଅନ୍ତର୍ଭାଵ <set>
+#ଅନ୍ତର୍ଭାଵ <sstream>
+#ଅନ୍ତର୍ଭାଵ <stack>
+#ଅନ୍ତର୍ଭାଵ <string>
+#ଅନ୍ତର୍ଭାଵ <unordered_map>
+#ଅନ୍ତର୍ଭାଵ <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_ଗଦା_ଗଣ୍ଠି final {
+ସର୍ବସାଧାରଣ:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* ଅଚଳ m_funcp;
+    V3TaskConnects* ଅଚଳ m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_ଗଦା_ଗଣ୍ଠି(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_ଗଦା_ଗଣ୍ଠି() = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : ସର୍ବସାଧାରଣ VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    ସ୍ଥିର constexpr ପୂର୍ଣ୍ଣସଂଖ୍ୟା CALL_ଗଦା_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    ଅଚଳ VNUser1InUse m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    ଗଣନା VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    ସଂରଚନା AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* outValuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_ଗଣ୍ଠି, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
+    ସଂରଚନା ConstAllocator final {
         size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
         size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(size_t currentGeneration, Ast_ଗଣ୍ଠି* nodep) {
+            ଯଦି (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
                 m_nextFree = 0;
             }
             UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            ଯଦି (m_nextFree == m_constps.size()) {
+                m_constps.ଠେଲ_back(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* ଅଚଳ constp = m_constps[m_nextFree++];
+            constp->ଅଙ୍କ().nodep(nodep);
+            ଫେରନ୍ତୁ constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            ପାଇଁ (AstConst* ଅଚଳ constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,949 +133,949 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
+    Ast_ଗଣ୍ଠି* m_whyNotNodep;  ///< First node not optimizable
     bool m_anyAssignDly;  ///< True if found a delayed assignment
     bool m_anyAssignComb;  ///< True if found a non-delayed assignment
     bool m_inDlyAssign;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_instr_ଗଣନା;  ///< Number of nodes
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_data_ଗଣନା;  ///< Bytes of data
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_recurse_ଗଣନା = 0;  // Now deep in current recursion
+    Ast_ଗଣ୍ଠି* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
+    std::unordered_map<ଅଚଳ Ast_ଗଣ୍ଠି_DType*, ConstAllocator> m_constps;
     size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::vector<Sim_ଗଦା_ଗଣ୍ଠି*> m_call_ଗଦା;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::vector<Ast_ଗଣ୍ଠି*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_ସଂଖ୍ୟା(ଅଚଳ V3_ସଂଖ୍ୟା* nump, ଅଚଳ Ast_ଗଣ୍ଠି_DType* dtypep) {
+        ଯଦି (ଅଚଳ AstRefDType* ଅଚଳ refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
+        ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_UOr_Struct_DType* ଅଚଳ stp = VN_CAST(dtypep, ଗଣ୍ଠି_UOr_Struct_DType)) {
+            ଯଦି (stp->packed()) {
                 std::ostringstream out;
                 out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+                ପାଇଁ (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = itemp->width();
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା lsb = itemp->lsb();
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା msb = lsb + width - 1;
+                    V3_ସଂଖ୍ୟା field_ଅଙ୍କ{nump, width};
+                    field_ଅଙ୍କ.opSel(*nump, msb, lsb);
                     out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ childTypep = itemp->subDTypep()) {
+                        out << pretty_ସଂଖ୍ୟା(&field_ଅଙ୍କ, childTypep);
+                    } ଅନ୍ୟଥା {
+                        out << field_ଅଙ୍କ;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    ଯଦି (itemp->nextp()) out << ", ";
                 }
                 out << "}";
-                return out.str();
+                ଫେରନ୍ତୁ out.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ AstPackArrayDType* ଅଚଳ arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ childTypep = arrayp->subDTypep()) {
                 std::ostringstream out;
                 out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+                ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା arrayElements = arrayp->elementsConst();
+                ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା element = 0; element < arrayElements; ++element) {
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା width = childTypep->width();
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା lsb = width * element;
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା msb = lsb + width - 1;
+                    V3_ସଂଖ୍ୟା field_ଅଙ୍କ{nump, width};
+                    field_ଅଙ୍କ.opSel(*nump, msb, lsb);
+                    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା arrayElem = arrayp->lo() + element;
+                    out << arrayElem << " = " << pretty_ସଂଖ୍ୟା(&field_ଅଙ୍କ, childTypep);
+                    ଯଦି (element < arrayElements - 1) out << ", ";
                 }
                 out << "]";
-                return out.str();
+                ଫେରନ୍ତୁ out.str();
             }
         }
-        return nump->ascii();
+        ଫେରନ୍ତୁ nump->ascii();
     }
 
     // Checking METHODS
-public:
+ସର୍ବସାଧାରଣ:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    ଆଭାସୀ ଶୂନ୍ୟ varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    ଶୂନ୍ୟ clearOptimizable(Ast_ଗଣ୍ଠି* nodep /*null ok*/, ଅଚଳ string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        ଯଦି (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
+            ଯଦି (debug() >= 5) {  // LCOV_EXCL_START
                 UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+                ଯଦି (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream ଗଦା;
+            ପୂର୍ଣ୍ଣସଂଖ୍ୟା n = 0;
+            ପାଇଁ (ଅଚଳ auto& callstack : vlstd::reverse_view(m_call_ଗଦା)) {
+                ଅଚଳ AstFuncRef* ଅଚଳ funcp = callstack->m_funcp;
+                ଗଦା << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
+                ପାଇଁ (V3TaskConnects::iterator conIt = tconnects->begin();
                      conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
+                    ଅଚଳ AstVar* ଅଚଳ portp = conIt->first;
+                    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ pinp = conIt->second->exprp();
+                    ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = pinp->dtypep();
+                    ଯଦି (AstConst* ଅଚଳ valp = fetchConstNull(pinp)) {
+                        ଗଦା << "\n           " << portp->prettyName() << " = "
+                              << pretty_ସଂଖ୍ୟା(&valp->ଅଙ୍କ(), dtypep);
+                    } ଅନ୍ୟଥା ଯଦି (Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = fetch_ମୂଲ୍ୟ_Null(pinp)) {
+                        ଗଦା << "\n           " << portp->prettyName() << " = "
                               << toStringRecurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                ଯଦି (++n > CALL_ଗଦା_MAX) {
+                    ଗଦା << "\n           ... stack truncated";
+                    ଭାଙ୍ଗ;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += ଗଦା.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() ଅଚଳ { ଫେରନ୍ତୁ m_whyNotNodep == nullptr; }
+    string whyNotMessage() ଅଚଳ { ଫେରନ୍ତୁ m_whyNotOptimizable; }
+    Ast_ଗଣ୍ଠି* whyNotNodep() ଅଚଳ { ଫେରନ୍ତୁ m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool isAssignDly() ଅଚଳ { ଫେରନ୍ତୁ m_anyAssignDly; }
+    bool isImpure() ଅଚଳ { ଫେରନ୍ତୁ m_isImpure; }
+    bool isCoverage() ଅଚଳ { ଫେରନ୍ତୁ m_isCoverage; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ { ଫେରନ୍ତୁ m_instr_ଗଣନା; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା data_ଗଣନା() ଅଚଳ { ଫେରନ୍ତୁ m_data_ଗଣନା; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+ବ୍ୟକ୍ତିଗତ:
+    AstConst* allocConst(Ast_ଗଣ୍ଠି* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        ଫେରନ୍ତୁ m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+ସର୍ବସାଧାରଣ:
+    ଶୂନ୍ୟ new_ମୂଲ୍ୟ(Ast_ଗଣ୍ଠି* nodep, ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
+        ଯଦି (ଅଚଳ AstConst* ଅଚଳ constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->ଅଙ୍କ().opAssign(constp->ଅଙ୍କ());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } ଅନ୍ୟଥା ଯଦି (fetch_ମୂଲ୍ୟ_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_ମୂଲ୍ୟ(nodep, newTrackedClone(const_cast<Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    ଶୂନ୍ୟ new_Out_ମୂଲ୍ୟ(Ast_ଗଣ୍ଠି* nodep, ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
+        ଯଦି (ଅଚଳ AstConst* ଅଚଳ constp = VN_CAST(valuep, Const)) {
+            newOutConst(nodep)->ଅଙ୍କ().opAssign(constp->ଅଙ୍କ());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } ଅନ୍ୟଥା ଯଦି (fetch_Out_ମୂଲ୍ୟ_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_Out_ମୂଲ୍ୟ(nodep, newTrackedClone(const_cast<Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+ବ୍ୟକ୍ତିଗତ:
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newTrackedClone(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* nodep) {
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ newp = nodep->clone_ବୃକ୍ଷ(false);
+        m_reclaimValuesp.ଠେଲ_back(newp);
+        ଫେରନ୍ତୁ newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_ଗଣ୍ଠି* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        ଯଦି (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* ଅଚଳ constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            ଫେରନ୍ତୁ constp;
         }
-        return fetchConst(nodep);
+        ଫେରନ୍ତୁ fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* newOutConst(Ast_ଗଣ୍ଠି* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        ଯଦି (!VN_IS(m_varAux(nodep).outValuep, Const)) {
+            AstConst* ଅଚଳ constp = allocConst(nodep);
             m_varAux(nodep).outValuep = constp;
-            return constp;
+            ଫେରନ୍ତୁ constp;
         }
-        return fetchOutConst(nodep);
+        ଫେରନ୍ତୁ fetchOutConst(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fetch_ମୂଲ୍ୟ_Null(Ast_ଗଣ୍ଠି* nodep) { ଫେରନ୍ତୁ m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+ବ୍ୟକ୍ତିଗତ:
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fetch_Out_ମୂଲ୍ୟ_Null(Ast_ଗଣ୍ଠି* nodep) { ଫେରନ୍ତୁ m_varAux(nodep).outValuep; }
+    AstConst* fetchConstNull(Ast_ଗଣ୍ଠି* nodep) { ଫେରନ୍ତୁ VN_CAST(fetch_ମୂଲ୍ୟ_Null(nodep), Const); }
+    AstConst* fetchOutConstNull(Ast_ଗଣ୍ଠି* nodep) {
+        ଫେରନ୍ତୁ VN_CAST(fetch_Out_ମୂଲ୍ୟ_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fetch_ମୂଲ୍ୟ(Ast_ଗଣ୍ଠି* nodep) {
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = fetch_ମୂଲ୍ୟ_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        ଫେରନ୍ତୁ valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_ଗଣ୍ଠି* nodep) {
+        AstConst* ଅଚଳ constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        ଫେରନ୍ତୁ constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetchOutConst(Ast_ଗଣ୍ଠି* nodep) {
+        AstConst* ଅଚଳ constp = fetchOutConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        ଫେରନ୍ତୁ constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+ସର୍ବସାଧାରଣ:
+    V3_ସଂଖ୍ୟା* fetch_ସଂଖ୍ୟା_Null(Ast_ଗଣ୍ଠି* nodep) {
+        AstConst* ଅଚଳ constp = fetchConstNull(nodep);
+        ଯଦି (constp) ଫେରନ୍ତୁ &constp->ଅଙ୍କ();
+        ଫେରନ୍ତୁ nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_ସଂଖ୍ୟା* fetch_Out_ସଂଖ୍ୟା_Null(Ast_ଗଣ୍ଠି* nodep) {
+        AstConst* ଅଚଳ constp = fetchOutConstNull(nodep);
+        ଯଦି (constp) ଫେରନ୍ତୁ &constp->ଅଙ୍କ();
+        ଫେରନ୍ତୁ nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+ବ୍ୟକ୍ତିଗତ:
+    ଶୂନ୍ୟ set_ମୂଲ୍ୟ(Ast_ଗଣ୍ଠି* nodep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    ଶୂନ୍ୟ set_Out_ମୂଲ୍ୟ(Ast_ଗଣ୍ଠି* nodep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
         m_varAux(nodep).outValuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    ଶୂନ୍ୟ check_ଗଣ୍ଠି_Info(Ast_ଗଣ୍ଠି* nodep, bool ignorePredict = false) {
+        ଯଦି (m_checkOnly) {
+            m_instr_ଗଣନା += nodep->instr_ଗଣନା();
+            m_data_ଗଣନା += nodep->width();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        ଯଦି (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        ଯଦି (!nodep->isPure()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    ଶୂନ୍ୟ known_Bad_ଗଣ୍ଠି_Type(Ast_ଗଣ୍ଠି* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    ଶୂନ୍ୟ bad_ଗଣ୍ଠି_Type(Ast_ଗଣ୍ଠି* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
 #ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+            ସ୍ଥିର std::set<VNType> s_typePrinted;
+            ଅଚଳ auto pair = s_typePrinted.emplace(nodep->type());
+            ଯଦି (pair.second)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
 #endif
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_ଗଣ୍ଠି* varOrScope(AstVarRef* nodep) ଅଚଳ {
+        Ast_ଗଣ୍ଠି* vscp;
+        ଯଦି (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } ଅନ୍ୟଥା {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        ଫେରନ୍ତୁ vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() ଅଚଳ { ଫେରନ୍ତୁ m_jumptargetp; }
+    ଶୂନ୍ୟ assign_Out_ମୂଲ୍ୟ(ଅଚଳ Ast_ଗଣ୍ଠି_Assign* nodep, Ast_ଗଣ୍ଠି* vscp, ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
+        ଯଦି (VN_IS(nodep, AssignDly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_Out_ମୂଲ୍ୟ(vscp, valuep);
+        } ଅନ୍ୟଥା {
+            new_ମୂଲ୍ୟ(vscp, valuep);
+            set_Out_ମୂଲ୍ୟ(vscp, fetch_ମୂଲ୍ୟ(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string toStringRecurse(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        ଯଦି (ଅଚଳ AstConst* ଅଚଳ avaluep = VN_CAST(valuep, Const)) {
+            ଫେରନ୍ତୁ "'h"s + avaluep->ଅଙ୍କ().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
+        ଯଦି (ଅଚଳ AstConsArray* ଅଚଳ avaluep = VN_CAST(valuep, ConsArray)) {
             string result = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            ଅଚଳ AstUnpackArrayDType* ଅଚଳ dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା n = 0; n < dtypep->elementsConst(); ++n) {
                 result += comma + toStringRecurse(avaluep->valuep(n));
                 comma = ", ";
             }
             result += "}";
-            return result;
+            ଫେରନ୍ତୁ result;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
+        ଯଦି (ଅଚଳ AstConsStruct* ଅଚଳ avaluep = VN_CAST(valuep, ConsStruct)) {
             string result = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
+            ପାଇଁ (ଅଚଳ AstConsStructItem* itemp = avaluep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
                 result
                     += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
                 comma = ", ";
             }
             result += "}";
-            return result;
+            ଫେରନ୍ତୁ result;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        ଫେରନ୍ତୁ "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newInitValuep(Ast_ଗଣ୍ଠି* nodep, Ast_ଗଣ୍ଠି_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        ଯଦି (AstUnpackArrayDType* ଅଚଳ arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ elementp = newInitValuep(nodep, arrayp->subDTypep());
+            ଫେରନ୍ତୁ elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* ଅଚଳ structp = VN_CAST(dtypep, StructDType);
+        ଯଦି (structp && !structp->packed()) {
+            AstConsStruct* ଅଚଳ newp = new AstConsStruct{nodep->fileline(), structp};
+            ପାଇଁ (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                ଯଦି (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_ବୃକ୍ଷ(), newp);
+                    ଫେରନ୍ତୁ nullptr;
                 }
                 newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            ଫେରନ୍ତୁ newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        ଯଦି (ଅଚଳ AstBasicDType* ଅଚଳ basicp = dtypep->basicp()) {
+            AstConst* ଅଚଳ constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{}, basicp->widthMin(), 0};
+            ଯଦି (basicp->isZeroInit()) {
+                constp->ଅଙ୍କ() = V3_ସଂଖ୍ୟା{nodep, basicp};
+            } ଅନ୍ୟଥା {
+                constp->ଅଙ୍କ().setAllBitsX();
             }
-            return constp;
+            ଫେରନ୍ତୁ constp;
         }
-        return nullptr;
+        ଫେରନ୍ତୁ nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    ଶୂନ୍ୟ initVar(AstVar* nodep) {
+        ଯଦି (Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_ମୂଲ୍ୟ(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_ବୃକ୍ଷ(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstAlways* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    ଶୂନ୍ୟ visit(Ast_Sen_ବୃକ୍ଷ* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ଶୂନ୍ୟ visit(AstVarRef* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_ଗଣ୍ଠି* ଅଚଳ vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        ଯଦି (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), ଗଣ୍ଠି_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        ଯଦି (nodep->access().isWriteOrRW()) {
+            ଯଦି (m_inDlyAssign) {
+                ଯଦି (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    ଯଦି (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } ଅନ୍ୟଥା {  // nondly asn
+                ଯଦି (!(m_varAux(vscp).usage & VU_LV)) {
+                    ଯଦି (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    ଯଦି (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        ଯଦି (nodep->access().isReadOrRW()) {
+            ଯଦି (!(m_varAux(vscp).usage & VU_RV)) {
+                ଯଦି (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                ଅଚଳ bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep
+                    = varIsConst ? fetch_ମୂଲ୍ୟ_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                ଯଦି (varIsConst && valuep) {
+                    ଯଦି (!m_checkOnly && optimizable()) new_ମୂଲ୍ୟ(vscp, valuep);
+                } ଅନ୍ୟଥା {
+                    ଯଦି (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep = fetch_ମୂଲ୍ୟ_Null(vscp);
+            ଯଦି (!valuep) {
+                ଯଦି (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } ଅନ୍ୟଥା {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            set_ମୂଲ୍ୟ(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    ଶୂନ୍ୟ visit(AstVarXRef* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (m_scoped) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_FTask* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        ଯଦି (nodep->dpiImport()) {
+            ଯଦି (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        ଯଦି (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstInitialAutomaticStmt* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstInitialStaticStmt* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ଶୂନ୍ୟ visit(AstInitialStatic* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        checkNodeInfo(nodep);
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_If* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } ଅନ୍ୟଥା {
             iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            ଯଦି (optimizable()) {
+                ଯଦି (fetchConst(nodep->condp())->ଅଙ୍କ().isNeqZero()) {
                     iterateAndNextConstNull(nodep->thensp());
-                } else {
+                } ଅନ୍ୟଥା {
                     iterateAndNextConstNull(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    ଶୂନ୍ୟ visit(AstConst* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        new_ମୂଲ୍ୟ(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstConsArray* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        AstConsArray* ଅଚଳ valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+            nodep->defaultp() ? fetch_ମୂଲ୍ୟ(nodep->defaultp())->clone_ବୃକ୍ଷ(false) : nullptr};
+        ପାଇଁ (ଅଚଳ AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            valuep->valuep(itemp->index(), fetch_ମୂଲ୍ୟ(itemp->valuep())->clone_ବୃକ୍ଷ(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.ଠେଲ_back(valuep);
+        set_ମୂଲ୍ୟ(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ଶୂନ୍ୟ visit(AstConsStruct* nodep) override {
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        check_ଗଣ୍ଠି_Info(nodep);
+        ପାଇଁ (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        AstConsStruct* ଅଚଳ valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        ପାଇଁ (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             valuep->addItemsp(
                 new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+                                      fetch_ମୂଲ୍ୟ(itemp->valuep())->clone_ବୃକ୍ଷ(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.ଠେଲ_back(valuep);
+        set_ମୂଲ୍ୟ(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstCvtUnpackToUnpack* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ cvtp = new AstCvtUnpackToUnpack{
+            nodep->fileline(), fetch_ମୂଲ୍ୟ(nodep->fromp())->clone_ବୃକ୍ଷ(false), nodep->dtypep()};
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.ଠେଲ_back(valuep);
+        set_ମୂଲ୍ୟ(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstConsArrayItem* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstEnumItemRef* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        Ast_ଗଣ୍ଠି* ଅଚଳ valuep = nodep->itemp()->valuep();
+        ଯଦି (valuep) {
             iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+            ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+            new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(valuep));
+        } ଅନ୍ୟଥା {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Uniop* nodep) override {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        nodep->ସଂଖ୍ୟା_Operate(newConst(nodep)->ଅଙ୍କ(), fetchConst(nodep->lhsp())->ଅଙ୍କ());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    ଶୂନ୍ୟ aggregateEqRecurse(V3_ସଂଖ୍ୟା& resultr, Ast_ଗଣ୍ଠି* nodep, bool caseEq, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp,
+                            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp) {
+        ଯଦି (ଅଚଳ AstConst* ଅଚଳ lconstp = VN_CAST(lhsp, Const)) {
+            ଅଚଳ V3_ସଂଖ୍ୟା& lnum = lconstp->ଅଙ୍କ();
+            ଅଚଳ V3_ସଂଖ୍ୟା& rnum = VN_AS(rhsp, Const)->ଅଙ୍କ();
+            V3_ସଂଖ୍ୟା eq{nodep, 1};
+            ଯଦି (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } ଅନ୍ୟଥା ଯଦି (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } ଅନ୍ୟଥା ଯଦି (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } ଅନ୍ୟଥା {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
+            ଅଚଳ V3_ସଂଖ୍ୟା prev = resultr;
             resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ AstConsArray* ଅଚଳ lconsp = VN_CAST(lhsp, ConsArray)) {
+            ଅଚଳ AstUnpackArrayDType* ଅଚଳ dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+        } ଅନ୍ୟଥା {
+            ଅଚଳ AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            ପାଇଁ (ଅଚଳ AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
                  litemp = VN_AS(litemp->nextp(), ConsStructItem),
                                           ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    ଶୂନ୍ୟ handleAggregateCompare(Ast_ଗଣ୍ଠି_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        ଅଚଳ bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        ଅଚଳ bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
+        V3_ସଂଖ୍ୟା& resultr = newConst(nodep)->ଅଙ୍କ();
         resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_ମୂଲ୍ୟ(nodep->lhsp()),
+                           fetch_ମୂଲ୍ୟ(nodep->rhsp()));
+        ଯଦି (neq) {
+            ଅଚଳ V3_ସଂଖ୍ୟା eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Biop* nodep) override {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        ଯଦି (!VN_IS(fetch_ମୂଲ୍ୟ(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            ଫେରନ୍ତୁ;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* ଅଚଳ valuep = newConst(nodep);
+        nodep->ସଂଖ୍ୟା_Operate(newConst(nodep)->ଅଙ୍କ(), fetchConst(nodep->lhsp())->ଅଙ୍କ(),
+                             fetchConst(nodep->rhsp())->ଅଙ୍କ());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        ଯଦି (!m_params && VN_IS(nodep, Sel) && valuep->ଅଙ୍କ().isAnyX()) {
+            ଅଚଳ V3_ସଂଖ୍ୟା ଅଙ୍କ{valuep, valuep->width(), valuep->ଅଙ୍କ()};
+            valuep->ଅଙ୍କ().opBitsOne(ଅଙ୍କ);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Triop* nodep) override {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        nodep->ସଂଖ୍ୟା_Operate(newConst(nodep)->ଅଙ୍କ(), fetchConst(nodep->lhsp())->ଅଙ୍କ(),
+                             fetchConst(nodep->rhsp())->ଅଙ୍କ(), fetchConst(nodep->thsp())->ଅଙ୍କ());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Quadop* nodep) override {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        nodep->ସଂଖ୍ୟା_Operate(newConst(nodep)->ଅଙ୍କ(), fetchConst(nodep->lhsp())->ଅଙ୍କ(),
+                             fetchConst(nodep->rhsp())->ଅଙ୍କ(), fetchConst(nodep->thsp())->ଅଙ୍କ(),
+                             fetchConst(nodep->fhsp())->ଅଙ୍କ());
     }
-    void visit(AstLogAnd* nodep) override {
+    ଶୂନ୍ୟ visit(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } ଅନ୍ୟଥା {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+            ଯଦି (fetchConst(nodep->lhsp())->ଅଙ୍କ().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->rhsp()));
+            } ଅନ୍ୟଥା {
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    ଶୂନ୍ୟ visit(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } ଅନ୍ୟଥା {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+            ଯଦି (fetchConst(nodep->lhsp())->ଅଙ୍କ().isNeqZero()) {
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->lhsp()));  // a one
+            } ଅନ୍ୟଥା {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    ଶୂନ୍ୟ visit(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } ଅନ୍ୟଥା {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+            ଯଦି (fetchConst(nodep->lhsp())->ଅଙ୍କ().isEqZero()) {
+                ଅଚଳ AstConst cnst{nodep->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{}, 1, 1};  // a one
+                new_ମୂଲ୍ୟ(nodep, &cnst);  // a one
+            } ଅନ୍ୟଥା {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    ଶୂନ୍ୟ visit(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } ଅନ୍ୟଥା {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+            ଯଦି (fetchConst(nodep->condp())->ଅଙ୍କ().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->thenp()));
+            } ଅନ୍ୟଥା {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+                new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    ଶୂନ୍ୟ handleAssignElement(Ast_ଗଣ୍ଠି_Assign* nodep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ମୂଲ୍ୟ_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
+        std::vector<Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*> selps;
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp = lhsp;
+        ଯେତେବେଳେ (true) {
+            ଯଦି (AstArraySel* ଅଚଳ selp = VN_CAST(fromp, ArraySel)) {
+                check_ଗଣ୍ଠି_Info(selp);
                 iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+                selps.ଠେଲ_back(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } ଅନ୍ୟଥା ଯଦି (AstStructSel* ଅଚଳ selp = VN_CAST(fromp, StructSel)) {
+                check_ଗଣ୍ଠି_Info(selp);
+                selps.ଠେଲ_back(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } ଅନ୍ୟଥା {
+                ଭାଙ୍ଗ;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* ଅଚଳ varrefp = VN_CAST(fromp, VarRef);
+        ଯଦି (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            ଫେରନ୍ତୁ;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        Ast_ଗଣ୍ଠି* ଅଚଳ vscp = varOrScope(varrefp);
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rootp = fetch_Out_ମୂଲ୍ୟ_Null(vscp);
+        ଯଦି (!rootp) rootp = fetch_ମୂଲ୍ୟ_Null(vscp);
+        ଯଦି (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            ଫେରନ୍ତୁ;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* itemp = rootp;
+        ପାଇଁ (Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ selp : vlstd::reverse_view(selps)) {
+            ଯଦି (ଅଚଳ AstArraySel* ଅଚଳ aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* ଅଚଳ consp = VN_AS(itemp, ConsArray);
+                ଅଚଳ uint32_t index = fetchConst(aselp->bitp())->toUInt();
+                ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                ଯଦି (index >= static_cast<uint32_t>(elements)) {
+                    ଫେରନ୍ତୁ;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
                 itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
+                ଯଦି (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_ବୃକ୍ଷ(false);
                     consp->valuep(index, itemp);
                 }
-            } else {
+            } ଅନ୍ୟଥା {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = newTrackedClone(fetch_ମୂଲ୍ୟ(ମୂଲ୍ୟ_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.ଠେଲ_back(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        assign_Out_ମୂଲ୍ୟ(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    ଶୂନ୍ୟ handleAssignSel(Ast_ଗଣ୍ଠି_Assign* nodep, AstSel* selp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ମୂଲ୍ୟ_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
+        V3_ସଂଖ୍ୟା lsb{nodep};
         handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_ଗଣ୍ଠି* ଅଚଳ vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        ଯଦି (AstConst* ଅଚଳ vscpnump = fetchOutConstNull(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } ଅନ୍ୟଥା ଯଦି (AstConst* ଅଚଳ vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
+        } ଅନ୍ୟଥା {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{},
                                      varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+            ଯଦି (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->ଅଙ୍କ().setAllBits0();
+            } ଅନ୍ୟଥା {
+                outconstp->ଅଙ୍କ().setAllBitsX();
             }
             m_reclaimValuesp.emplace_back(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->ଅଙ୍କ().opSelInto(fetchConst(ମୂଲ୍ୟ_Fromp)->ଅଙ୍କ(), lsb, selp->widthConst());
+        assign_Out_ମୂଲ୍ୟ(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    ଶୂନ୍ୟ handleAssignSelRecurse(Ast_ଗଣ୍ଠି_Assign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
+                                V3_ସଂଖ୍ୟା& lsbRef, ପୂର୍ଣ୍ଣସଂଖ୍ୟା depth) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
+        check_ଗଣ୍ଠି_Info(selp);
         iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
+        ଯଦି (AstVarRef* ଅଚଳ varrefp = VN_CAST(selp->fromp(), VarRef)) {
             outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+            lsbRef = fetchConst(selp->lsbp())->ଅଙ୍କ();
+            ଫେରନ୍ତୁ;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
+        ଯଦି (AstSel* ଅଚଳ subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_ସଂଖ୍ୟା sublsb{nodep};
             handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+            ଯଦି (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->ଅଙ୍କ());
             }
-        } else {
+        } ଅନ୍ୟଥା {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    ଶୂନ୍ୟ handleAssignRecurse(Ast_ଗଣ୍ଠି_Assign* nodep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ମୂଲ୍ୟ_Fromp) {
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+        ଯଦି (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            ଯଦି (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                ଫେରନ୍ତୁ;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handleAssignElement(nodep, lhsp, ମୂଲ୍ୟ_Fromp);
+        } ଅନ୍ୟଥା ଯଦି (AstConcat* ଅଚଳ selp = VN_CAST(lhsp, Concat)) {
+            check_ଗଣ୍ଠି_Info(selp);
+            ଯଦି (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                ଫେରନ୍ତୁ;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            ଯଦି (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* ଅଚଳ outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{},
                                        selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->ଅଙ୍କ().opSel(fetchConst(ମୂଲ୍ୟ_Fromp)->ଅଙ୍କ(),
                                            selp->lhsp()->width() + selp->rhsp()->width() + 1,
                                            selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_ମୂଲ୍ୟ(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_ବୃକ୍ଷ(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* ଅଚଳ outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_ମୂଲ୍ୟ{},
                                        selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->ଅଙ୍କ().opSel(fetchConst(ମୂଲ୍ୟ_Fromp)->ଅଙ୍କ(),
                                            selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_ମୂଲ୍ୟ(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_ବୃକ୍ଷ(), outconstp);
                 }
             }
             handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
             handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
+        } ଅନ୍ୟଥା ଯଦି (AstReplicate* ଅଚଳ selp = VN_CAST(lhsp, Replicate)) {
+            check_ଗଣ୍ଠି_Info(selp);
             iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            AstConst* ଅଚଳ countp = VN_CAST(selp->countp(), Const);
+            ଯଦି (!countp || !countp->ଅଙ୍କ().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                ଫେରନ୍ତୁ;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handleAssignRecurse(nodep, selp->srcp(), ମୂଲ୍ୟ_Fromp);
+        } ଅନ୍ୟଥା ଯଦି (AstSel* ଅଚଳ selp = VN_CAST(lhsp, Sel)) {
+            ଯଦି (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                ଫେରନ୍ତୁ;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
+            handleAssignSel(nodep, selp, ମୂଲ୍ୟ_Fromp);
+        } ଅନ୍ୟଥା ଯଦି (VN_IS(lhsp, VarRef)) {
+            ଯଦି (m_checkOnly) {
                 iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            } ଅନ୍ୟଥା {
+                Ast_ଗଣ୍ଠି* ଅଚଳ vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                assign_Out_ମୂଲ୍ୟ(nodep, vscp, fetch_ମୂଲ୍ୟ(ମୂଲ୍ୟ_Fromp));
             }
-        } else {
+        } ଅନ୍ୟଥା {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି_Assign* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
 
         VL_RESTORER(m_inDlyAssign);
 
-        if (VN_IS(nodep, AssignForce)) {
+        ଯଦି (VN_IS(nodep, AssignForce)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } ଅନ୍ୟଥା ଯଦି (VN_IS(nodep, AssignDly)) {
+            ଯଦି (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignDly = true;
             m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } ଅନ୍ୟଥା {
+            ଯଦି (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignComb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        ଯଦି (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            ଫେରନ୍ତୁ;
         }
 
         iterateAndNextConstNull(nodep->rhsp());  // Value to assign
@@ -1083,86 +1083,86 @@ private:
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstArraySel* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
+        ଯଦି (ଅଚଳ AstConsArray* ଅଚଳ consp = VN_CAST(fetch_ମୂଲ୍ୟ_Null(nodep->fromp()), ConsArray)) {
+            ଅଚଳ AstConst* ଅଚଳ indexp = fetchConst(nodep->bitp());
+            ଅଚଳ uint32_t offset = indexp->ଅଙ୍କ().toUInt();
+            Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ itemp = consp->valuep(offset);
+            ଯଦି (!itemp) {
                 clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+            } ଅନ୍ୟଥା {
+                set_ମୂଲ୍ୟ(nodep, itemp);
             }
-        } else {
+        } ଅନ୍ୟଥା {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ଶୂନ୍ୟ visit(AstStructSel* nodep) override {
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        checkNodeInfo(nodep);
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        AstConsStruct* ଅଚଳ consp = VN_AS(fetch_ମୂଲ୍ୟ(nodep->fromp()), ConsStruct);
+        set_ମୂଲ୍ୟ(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstSliceSel* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        ଯଦି (ଅଚଳ AstConsArray* ଅଚଳ consp = VN_CAST(fetch_ମୂଲ୍ୟ_Null(nodep->fromp()), ConsArray)) {
+            ଅଚଳ VNumRange& sliceRange = nodep->declRange();
+            ଅଚଳ uint32_t sliceElements = sliceRange.elements();
+            ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା sliceLo = sliceRange.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* ଅଚଳ newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            ପାଇଁ (uint32_t idx = 0; idx < sliceElements; ++idx) {
+                ଅଚଳ uint32_t baseIdx = sliceLo + idx;
+                newConsp->valuep(idx, consp->valuep(baseIdx)->clone_ବୃକ୍ଷ(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            set_ମୂଲ୍ୟ(nodep, newConsp);
+            m_reclaimValuesp.ଠେଲ_back(newConsp);
+        } ଅନ୍ୟଥା {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstBegin* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    ଶୂନ୍ୟ visit(AstCase* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
+        } ଅନ୍ୟଥା ଯଦି (optimizable()) {
             iterateAndNextConstNull(nodep->exprp());
             bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            ପାଇଁ (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
+                ଯଦି (!itemp->isDefault()) {
+                    ପାଇଁ (Ast_ଗଣ୍ଠି* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        ଯଦି (hit) ଭାଙ୍ଗ;
                         iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
+                        ଯଦି (optimizable()) {
+                            V3_ସଂଖ୍ୟା match{nodep, 1};
+                            match.opEq(fetchConst(nodep->exprp())->ଅଙ୍କ(), fetchConst(ep)->ଅଙ୍କ());
+                            ଯଦି (match.isNeqZero()) {
                                 iterateAndNextConstNull(itemp->stmtsp());
                                 hit = true;
                             }
@@ -1171,10 +1171,10 @@ private:
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            ପାଇଁ (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
+                ଯଦି (hit) ଭାଙ୍ଗ;
+                ଯଦି (itemp->isDefault()) {
                     iterateAndNextConstNull(itemp->stmtsp());
                     hit = true;
                 }
@@ -1182,143 +1182,143 @@ private:
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    ଶୂନ୍ୟ visit(AstCaseItem* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    ଶୂନ୍ୟ visit(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_Stmt_ପଦସମଷ୍ଟି* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(Ast_ପଦସମଷ୍ଟି_Stmt* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
         iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        new_ମୂଲ୍ୟ(nodep, fetch_ମୂଲ୍ୟ(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    ଶୂନ୍ୟ visit(AstJumpBlock* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        ଯଦି (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    ଶୂନ୍ୟ visit(AstJumpGo* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    ଶୂନ୍ୟ visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            ଫେରନ୍ତୁ;
         }
-        if (!optimizable()) return;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        size_t iter_ଗଣନା = 0;
+        ଅଚଳ size_t iterLimit = v3Global.opt.unrollLimit();
+        ଯେତେବେଳେ (true) {
+            ଯଦି (iter_ଗଣନା > iterLimit) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
                                             + std::to_string(iterLimit));
-                break;
+                ଭାଙ୍ଗ;
             }
-            ++iterCount;
+            ++iter_ଗଣନା;
 
             UINFO(5, "    LOOP-ITER " << nodep);
             iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            ଯଦି (jumpingOver()) ଭାଙ୍ଗ;
         }
 
-        if (m_jumptargetp == nodep) {
+        ଯଦି (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstLoopTest* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        ଯଦି (fetchConst(nodep->condp())->ଅଙ୍କ().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    ଶୂନ୍ୟ visit(AstStop* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_ଗଣ୍ଠି_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ଶୂନ୍ୟ visit(AstFuncRef* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_ଗଣ୍ଠି_Info(nodep);
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_ଗଣ୍ଠି_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        ଯଦି (m_params) V3Width::widthParamsEdit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        ଯଦି (funcp->recursive()) {
+            ଯଦି (m_recurse_ଗଣନା >= v3Global.opt.funcRecursionDepth()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
                                             + std::to_string(v3Global.opt.funcRecursionDepth())
                                             + " times");
-                return;
+                ଫେରନ୍ତୁ;
             }
-            ++m_recurseCount;
+            ++m_recurse_ଗଣନା;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_ଗଣ୍ଠି*, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*> old_ମୂଲ୍ୟଗୁଡ଼ିକ;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        ଯଦି (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_ମୂଲ୍ୟଗୁଡ଼ିକ](AstVar* varp) {
+                ଯଦି (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    ଯଦି (Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = fetch_ମୂଲ୍ୟ_Null(varp)) {
+                        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ nvaluep = newTrackedClone(valuep);
+                        old_ମୂଲ୍ୟଗୁଡ଼ିକ.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_ମୂଲ୍ୟଗୁଡ଼ିକ](Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp) {
+                ଯଦି (VN_IS(exprp, Const)) ଫେରନ୍ତୁ;  // Speed up as won't change
+                ଯଦି (Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ valuep = fetch_ମୂଲ୍ୟ_Null(exprp)) {
+                    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ nvaluep = newTrackedClone(valuep);
+                    old_ମୂଲ୍ୟଗୁଡ଼ିକ.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,219 +1340,219 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::vector<std::pair<AstVar*, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>> port_ମୂଲ୍ୟଗୁଡ଼ିକ;
+        ପାଇଁ (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
+            AstVar* ଅଚଳ portp = it->first;
+            Ast_ଗଣ୍ଠି* ଅଚଳ pinp = it->second->exprp();
+            ଯଦି (pinp) {  // Else too few arguments in function call - ignore it
+                ଯଦି (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                port_ମୂଲ୍ୟଗୁଡ଼ିକ.emplace_back(std::make_pair(portp, newTrackedClone(fetch_ମୂଲ୍ୟ(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        ଯଦି (!m_checkOnly && optimizable())
+            ପାଇଁ (ଅଚଳ auto& it : port_ମୂଲ୍ୟଗୁଡ଼ିକ) {
+                ଯଦି (!m_checkOnly && optimizable()) new_ମୂଲ୍ୟ(it.first, it.second);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_ଗଦା_ଗଣ୍ଠି ଗଦା_ଗଣ୍ଠି{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_ଗଦା.ଠେଲ_back(&ଗଦା_ଗଣ୍ଠି);
+        ଯଦି (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                ଯଦି (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_ଗଦା.କାଢ଼_back();
+        ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* returnp = nullptr;
+        ଯଦି (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_ମୂଲ୍ୟ(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        ପାଇଁ (ଅଚଳ auto& it : old_ମୂଲ୍ୟଗୁଡ଼ିକ) {
+            ଯଦି (it.second) new_ମୂଲ୍ୟ(it.first, it.second);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        ଯଦି (returnp) new_ମୂଲ୍ୟ(nodep, returnp);
+        ଯଦି (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_ଗଣନା > 0, nodep, "recurse underflow");
+            --m_recurse_ଗଣନା;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    ଶୂନ୍ୟ visit(AstVar* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!m_params) {
+            bad_ଗଣ୍ଠି_Type(nodep);
+            ଫେରନ୍ତୁ;
+        }
+    }
+
+    ଶୂନ୍ୟ visit(AstScopeName* /*nodep*/) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstSFormatArg* nodep) override {
+        check_ଗଣ୍ଠି_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
         iterateAndNextConstNull(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstSFormatF* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
 
-        AstNode* nextArgp = nodep->exprsp();
+        Ast_ଗଣ୍ଠି* nextArgp = nodep->exprsp();
         string result;
-        const string format = nodep->text();
+        ଅଚଳ string format = nodep->text();
         auto pos = format.cbegin();
         bool inPct = false;
         string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
+        ପାଇଁ (; pos != format.cend(); ++pos) {
+            ଯଦି (!inPct && pos[0] == '%') {
                 inPct = true;
                 width = "";
-            } else if (!inPct) {  // Normal text
+            } ଅନ୍ୟଥା ଯଦି (!inPct) {  // Normal text
                 result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
+            } ଅନ୍ୟଥା {  // Format character
+                ଯଦି (std::isdigit(pos[0])) {
                     width += pos[0];
-                    continue;
+                    ଜାରି;
                 }
 
                 inPct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
+                ଯଦି (V3_ସଂଖ୍ୟା::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_ଗଣ୍ଠି* ଅଚଳ argp = nextArgp;
                     nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                    AstSFormatArg* ଅଚଳ fargp = VN_CAST(argp, SFormatArg);
+                    Ast_ଗଣ୍ଠି* ଅଚଳ subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* ଅଚଳ constp = fetchConstNull(subargp);
+                    ଅଚଳ VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    ଯଦି (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        ଭାଙ୍ଗ;
                     }
-                    const string pformat = "%"s + width + pos[0];
+                    ଅଚଳ string pformat = "%"s + width + pos[0];
                     result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                                  ? constp->ଅଙ୍କ().displayedEnum(fargp, pformat)
+                                  : constp->ଅଙ୍କ().displayed(nodep, pformat, formatAttr);
+                } ଅନ୍ୟଥା {
+                    ବାଛ (std::tolower(pos[0])) {
+                    ସ୍ଥିତି '%': result += "%"; ଭାଙ୍ଗ;
+                    ସ୍ଥିତି 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
                         result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        ଭାଙ୍ଗ;
+                    ପୂର୍ବନିର୍ଦ୍ଧାରିତ: clearOptimizable(nodep, "Unknown $display-like format code."); ଭାଙ୍ଗ;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* ଅଚଳ resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_ମୂଲ୍ୟ(nodep, resultConstp);
+        m_reclaimValuesp.ଠେଲ_back(resultConstp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ଶୂନ୍ୟ visit(AstDisplay* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_ଗଣ୍ଠି_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        ଯଦି (m_params) {
+            ଅଚଳ AstConst* ଅଚଳ textp = fetchConst(nodep->fmtp());
+            ବାଛ (nodep->displayType()) {
+            ସ୍ଥିତି VDisplayType::DT_DISPLAY:  // FALLTHRU
+            ସ୍ଥିତି VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); ଭାଙ୍ଗ;
+            ସ୍ଥିତି VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); ଭାଙ୍ଗ;
+            ସ୍ଥିତି VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); ଭାଙ୍ଗ;
+            ସ୍ଥିତି VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); ଭାଙ୍ଗ;
+            ସ୍ଥିତି VDisplayType::DT_WRITE:  // FALLTHRU
+            ପୂର୍ବନିର୍ଦ୍ଧାରିତ: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ଶୂନ୍ୟ visit(AstToStringN* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;  // Accelerate
+        check_ଗଣ୍ଠି_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        ଯଦି (m_checkOnly || !optimizable()) ଫେରନ୍ତୁ;
+        ଅଚଳ std::string result = toStringRecurse(fetch_ମୂଲ୍ୟ(nodep->lhsp()));
+        ଯଦି (!optimizable()) ଫେରନ୍ତୁ;
+        AstConst* ଅଚଳ resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_ମୂଲ୍ୟ(nodep, resultConstp);
+        m_reclaimValuesp.ଠେଲ_back(resultConstp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    ଶୂନ୍ୟ visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    ଶୂନ୍ୟ visit(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        known_Bad_ଗଣ୍ଠି_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    ଶୂନ୍ୟ visit(AstGetInitialRandomSeed* nodep) override { known_Bad_ଗଣ୍ଠି_Type(nodep); }
+    ଶୂନ୍ୟ visit(AstMemberSel* nodep) override { known_Bad_ଗଣ୍ଠି_Type(nodep); }
+    ଶୂନ୍ୟ visit(AstSampled* nodep) override { known_Bad_ଗଣ୍ଠି_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି* nodep) override {
+        ଯଦି (jumpingOver()) ଫେରନ୍ତୁ;
+        bad_ଗଣ୍ଠି_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    ଶୂନ୍ୟ setMode(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    ଶୂନ୍ୟ mainGuts(Ast_ଗଣ୍ଠି* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
         setMode(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    ଶୂନ୍ୟ clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
         m_anyAssignComb = false;
@@ -1560,35 +1560,35 @@ public:
         m_inDlyAssign = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_ଗଣନା = 0;
+        m_data_ଗଣନା = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_ଗଣ୍ଠି::user1_Clear_ବୃକ୍ଷ();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
+    ଶୂନ୍ୟ mainTableCheck(Ast_ଗଣ୍ଠି* nodep) {
         setMode(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
+    ଶୂନ୍ୟ mainTableEmulate(Ast_ଗଣ୍ଠି* nodep) {
         setMode(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
+    ଶୂନ୍ୟ mainParamEmulate(Ast_ଗଣ୍ଠି* nodep) {
         setMode(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::set<Ast_ଗଣ୍ଠି*> unusedRootps;
+        ପାଇଁ (Ast_ଗଣ୍ଠି* ଅଚଳ nodep : m_reclaimValuesp) {
+            ଯଦି (!nodep->backp()) unusedRootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        ପାଇଁ (Ast_ଗଣ୍ଠି* ଅଚଳ nodep : unusedRootps) VL_DO_DANGLING(nodep->delete_ବୃକ୍ଷ(), nodep);
     }
 };
 

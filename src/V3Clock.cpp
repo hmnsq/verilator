@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#ଅନ୍ତର୍ଭାଵ "V3Clock.h"
 
-#include "V3Const.h"
+#ଅନ୍ତର୍ଭାଵ "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+ଶ୍ରେଣୀ ConvertWriteRefsToRead final : ସର୍ବସାଧାରଣ VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* m_result = nullptr;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    explicit ConvertWriteRefsToRead(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* nodep) {
+        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), ଗଣ୍ଠି_ପଦସମଷ୍ଟି);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    ଶୂନ୍ୟ visit(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        ଯଦି (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                ନୂତନ AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(ଠେଲ_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ମୁଖ୍ୟ(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* nodep) { ଫେରନ୍ତୁ ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+ଶ୍ରେଣୀ ClockVisitor final : ସର୍ବସାଧାରଣ VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    ଶୂନ୍ୟ visit(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* ଅଚଳ incp = nodep->incp()->unlinkFrBack();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ origp = nodep->origp()->unlinkFrBack();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ changeWrp = nodep->changep()->unlinkFrBack();
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ changeRdp = ConvertWriteRefsToRead::ମୁଖ୍ୟ(changeWrp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
+        Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* comparedp = nullptr;
+        incp->toggleExprp(origp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
+        incp->toggleCovExprp(changeRdp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା));
+        File_ଧାଡ଼ି* ଅଚଳ flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        ଯଦି (ଅଚଳ AstBasicDType* ଅଚଳ bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            ଯଦି (!bdtypep->isOpaque()) {
+                Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ zp = ନୂତନ AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = ନୂତନ AstNeq{flp, zp, ନୂତନ AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        ଯଦି (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* ଅଚଳ newp = ନୂତନ AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->addThensp(ନୂତନ AstAssign{flp, changeWrp, origp->clone_ବୃକ୍ଷ(ମିଥ୍ୟା)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ବୃକ୍ଷ(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    ଶୂନ୍ୟ visit(Ast_Sen_ବୃକ୍ଷ* nodep) override {
+        VL_DO_DANGLING(ଠେଲ_Deletep(nodep->unlinkFrBack()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ଶୂନ୍ୟ visit(Ast_ଗଣ୍ଠି* nodep) override { iterateChildren(nodep); }
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
     explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    ~ClockVisitor() override = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+ଶୂନ୍ୟ V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ବୃକ୍ଷ("clock", 0, dump_ବୃକ୍ଷ_Either_Level() >= 3);
 }

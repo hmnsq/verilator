@@ -19,49 +19,49 @@
 #ifndef VERILATOR_V3SENTREE_H_
 #define VERILATOR_V3SENTREE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hasher.h"
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3Hasher.h"
 
-#include <unordered_set>
+#ଅନ୍ତର୍ଭାଵ <unordered_set>
 
 //######################################################################
 // Collect SenTrees under the entire scope
 // And provide functions to find/add a new one
 
-class SenTreeFinder final {
+class Sen_ବୃକ୍ଷ_Finder final {
     // STATE - across all visitors
-    AstTopScope* const m_topScopep;  // Top scope to add global SenTrees to
-    std::unordered_set<VNRef<AstSenTree>> m_trees;  // Set of global SenTrees
-    AstSenTree* m_combop = nullptr;  // The unique combinational domain SenTree
-    AstSenTree* m_initialp = nullptr;  // The unique initial domain SenTree
+    Ast_ଶୀର୍ଷ_Scope* ଅଚଳ m_ଶୀର୍ଷ_Scopep;  // Top scope to add global SenTrees to
+    std::unordered_set<VNRef<Ast_Sen_ବୃକ୍ଷ>> m_trees;  // Set of global SenTrees
+    Ast_Sen_ବୃକ୍ଷ* m_combop = nullptr;  // The unique combinational domain SenTree
+    Ast_Sen_ବୃକ୍ଷ* m_initialp = nullptr;  // The unique initial domain SenTree
 
-    VL_UNCOPYABLE(SenTreeFinder);
+    VL_UNCOPYABLE(Sen_ବୃକ୍ଷ_Finder);
 
     template <typename T_Domain>  //
-    AstSenTree* makeUnique() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_Domain{}}};
-        AstSenTree* const restultp = getSenTree(senTreep);
-        VL_DO_DANGLING(senTreep->deleteTree(), senTreep);  // getSenTree clones, so can delete
-        return restultp;
+    Ast_Sen_ବୃକ୍ଷ* makeUnique() {
+        File_ଧାଡ଼ି* ଅଚଳ fl = m_ଶୀର୍ଷ_Scopep->fileline();
+        Ast_Sen_ବୃକ୍ଷ* ଅଚଳ senTreep = new Ast_Sen_ବୃକ୍ଷ{fl, new AstSenItem{fl, T_Domain{}}};
+        Ast_Sen_ବୃକ୍ଷ* ଅଚଳ restultp = get_Sen_ବୃକ୍ଷ(senTreep);
+        VL_DO_DANGLING(senTreep->delete_ବୃକ୍ଷ(), senTreep);  // getSenTree clones, so can delete
+        ଫେରନ୍ତୁ restultp;
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
-    SenTreeFinder()
-        : SenTreeFinder{v3Global.rootp()} {}
+    Sen_ବୃକ୍ଷ_Finder()
+        : Sen_ବୃକ୍ଷ_Finder{v3Global.rootp()} {}
 
-    explicit SenTreeFinder(AstNetlist* netlistp)
-        : m_topScopep{netlistp->topScopep()} {
+    explicit Sen_ବୃକ୍ଷ_Finder(AstNetlist* netlistp)
+        : m_ଶୀର୍ଷ_Scopep{netlistp->ଶୀର୍ଷ_Scopep()} {
         // Gather existing global SenTrees
-        for (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
-             senTreep = VN_AS(senTreep->nextp(), SenTree)) {
+        ପାଇଁ (Ast_Sen_ବୃକ୍ଷ* senTreep = m_ଶୀର୍ଷ_Scopep->senTreesp(); senTreep;
+             senTreep = VN_AS(senTreep->nextp(), Sen_ବୃକ୍ଷ)) {
             m_trees.emplace(*senTreep);
-            if (senTreep->hasCombo()) m_combop = senTreep;
-            if (senTreep->hasInitial()) m_initialp = senTreep;
+            ଯଦି (senTreep->hasCombo()) m_combop = senTreep;
+            ଯଦି (senTreep->hasInitial()) m_initialp = senTreep;
         }
     }
 
@@ -69,30 +69,30 @@ public:
 
     // Return a global AstSenTree equivalent to the given senTreep.
     // If no such global AstSenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getSenTree(AstSenTree* senTreep) {
+    Ast_Sen_ବୃକ୍ଷ* get_Sen_ବୃକ୍ଷ(Ast_Sen_ବୃକ୍ଷ* senTreep) {
         auto it = m_trees.find(*senTreep);
         // If match found, return it.
-        if (it != m_trees.end()) return &(*it).get();
+        ଯଦି (it != m_trees.end()) ଫେରନ୍ତୁ &(*it).get();
 
         // Not found, create a new one
-        AstSenTree* const newSenTreep = senTreep->cloneTree(false);
-        m_topScopep->addSenTreesp(newSenTreep);
+        Ast_Sen_ବୃକ୍ଷ* ଅଚଳ newSenTreep = senTreep->clone_ବୃକ୍ଷ(false);
+        m_ଶୀର୍ଷ_Scopep->addSenTreesp(newSenTreep);
         m_trees.emplace(*newSenTreep);
-        return newSenTreep;
+        ଫେରନ୍ତୁ newSenTreep;
     }
 
     // Return the global combinational AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getComb() {
-        if (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
-        return m_combop;
+    Ast_Sen_ବୃକ୍ଷ* getComb() {
+        ଯଦି (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
+        ଫେରନ୍ତୁ m_combop;
     }
 
     // Return the global initial AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getInitial() {
-        if (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
-        return m_initialp;
+    Ast_Sen_ବୃକ୍ଷ* getInitial() {
+        ଯଦି (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
+        ଫେରନ୍ତୁ m_initialp;
     }
 };
 

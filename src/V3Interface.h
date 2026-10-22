@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3INTERFACE_H_
 #define VERILATOR_V3INTERFACE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Interface final {
-public:
-    static void interfaceAll(AstNetlist* nodep) VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ interfaceAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

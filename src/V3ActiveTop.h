@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3ACTIVETOP_H_
 #define VERILATOR_V3ACTIVETOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3ActiveTop final {
-public:
-    static void activeTopAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_Active_ଶୀର୍ଷ final {
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ active_ଶୀର୍ଷ_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

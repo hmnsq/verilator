@@ -35,191 +35,191 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeExpr VL_NOT_FINAL : public AstNode {
+class Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି {
     // An expression tree node
-protected:
-    AstNodeExpr(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି(VNType t, File_ଧାଡ଼ି* fl)
+        : Ast_ଗଣ୍ଠି{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeExpr;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     // Every expression must have a data type after V3Width
-    bool hasDType() const override final VL_MT_SAFE { return true; }
-    virtual string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
+    bool hasDType() ଅଚଳ override final VL_MT_SAFE { ଫେରନ୍ତୁ true; }
+    ଆଭାସୀ string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
     // For documentation on emitC format see EmitCFunc::emitOpName
-    virtual string emitC() = 0;
-    virtual string emitSMT() const { return ""; };
-    virtual string emitSimpleOperator() { return ""; }  // "" means not ok to use
-    virtual bool emitCheckMaxWords() { return false; }  // Check VL_MULS_MAX_WORDS
-    virtual bool cleanOut() const = 0;  // True if output has extra upper bits zero
+    ଆଭାସୀ string emitC() = 0;
+    ଆଭାସୀ string emitSMT() ଅଚଳ { ଫେରନ୍ତୁ ""; };
+    ଆଭାସୀ string emitSimpleOperator() { ଫେରନ୍ତୁ ""; }  // "" means not ok to use
+    ଆଭାସୀ bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() { ଫେରନ୍ତୁ false; }  // Check VL_MULS_MAX_WORDS
+    ଆଭାସୀ bool cleanOut() ଅଚଳ = 0;  // True if output has extra upper bits zero
     // True for SVA multi-cycle sequence nodes (SExpr, SConsRep, etc.)
-    virtual bool isMultiCycleSva() const { return false; }
-    const AstNodeExpr* getVAccessTargetRecurse() const;
-    AstNodeExpr* getVAccessTargetRecurse() {
-        return const_cast<AstNodeExpr*>(  // casting constness away is safe since this function is
+    ଆଭାସୀ bool isMultiCycleSva() ଅଚଳ { ଫେରନ୍ତୁ false; }
+    ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* getVAccessTargetRecurse() ଅଚଳ;
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* getVAccessTargetRecurse() {
+        ଫେରନ୍ତୁ const_cast<Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(  // casting constness away is safe since this function is
                                           // non-const itself therefore, caller guarantees that
                                           // this object is non-const
-            static_cast<const AstNodeExpr*>(this)->getVAccessTargetRecurse());
+            static_cast<ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି*>(this)->getVAccessTargetRecurse());
     }
-    VAccess getVAccessRecurse() const;
+    VAccess getVAccessRecurse() ଅଚଳ;
     // TODO: this actually means it's a write or RW, not that it's an LValue
-    bool isLValue() const { return getVAccessRecurse().isWriteOrRW(); }
+    bool isLValue() ଅଚଳ { ଫେରନ୍ତୁ getVAccessRecurse().isWriteOrRW(); }
     // A constant value known at compile time: a Const, or a NodeCons of only constants
-    bool isConstantTree() const;
+    bool is_Constant_ବୃକ୍ଷ() ଅଚଳ;
     // Return base var (or const) nodep dereferences
-    AstNode* baseFromp(bool overMembers);
+    Ast_ଗଣ୍ଠି* baseFromp(bool overMembers);
 
     // Wrap This expression into an AstStmtExpr to denote it occurs in statement position
-    inline AstStmtExpr* makeStmt();
+    ଧାଡ଼ିଭିତରେ Ast_Stmt_ପଦସମଷ୍ଟି* makeStmt();
     // Returns an error message if widthMin() is not correct otherwise returns nullptr like
     // broken()
-    virtual const char* widthMismatch() const VL_MT_STABLE { return nullptr; }
+    ଆଭାସୀ ଅଚଳ ଅକ୍ଷର* widthMismatch() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ nullptr; }
 
     // S-expression inspired dump of node and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
-    bool isFourstateOrNoDtype() const {
-        if (!dtypep()) return true;
-        return dtypep()->skipRefp()->isFourstate();
+    std::string patternString(uint32_t depth = 0) ଅଚଳ;
+    bool isFourstateOrNoDtype() ଅଚଳ {
+        ଯଦି (!dtypep()) ଫେରନ୍ତୁ true;
+        ଫେରନ୍ତୁ dtypep()->skipRefp()->isFourstate();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p) {
-        return expr1p->isFourstateOrNoDtype();
+    ସ୍ଥିର bool isFourstateOrNoDtype(ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr1p) {
+        ଫେରନ୍ତୁ expr1p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p) {
-        return expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
+    ସ୍ଥିର bool isFourstateOrNoDtype(ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr1p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr2p) {
+        ଫେରନ୍ତୁ expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
+    ସ୍ଥିର bool isFourstateOrNoDtype(ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr1p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr2p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr3p) {
+        ଫେରନ୍ତୁ isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p,
-                                     const AstNodeExpr* const expr4p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
+    ସ୍ଥିର bool isFourstateOrNoDtype(ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr1p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr2p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr3p,
+                                     ଅଚଳ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଅଚଳ expr4p) {
+        ଫେରନ୍ତୁ isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
     }
 };
-class AstNodeBiop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Biop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Binary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeExpr{t, fl} {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Biop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiop;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Biop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    ଆଭାସୀ ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) = 0;
+    ଆଭାସୀ bool cleanLhs() ଅଚଳ = 0;  // True if LHS must have extra upper bits zero
+    ଆଭାସୀ bool cleanRhs() ଅଚଳ = 0;  // True if RHS must have extra upper bits zero
+    ଆଭାସୀ bool sizeMattersLhs() ଅଚଳ = 0;  // True if output result depends on lhs size
+    ଆଭାସୀ bool sizeMattersRhs() ଅଚଳ = 0;  // True if output result depends on rhs size
+    ଆଭାସୀ bool doubleFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    ଆଭାସୀ bool signedFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }
+    ଆଭାସୀ bool stringFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }  // N flavor of nodes with both flavors?
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     bool isPure() override;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 
-private:
-    bool getPurityRecurse() const { return lhsp()->isPure() && rhsp()->isPure(); }
+ବ୍ୟକ୍ତିଗତ:
+    bool getPurityRecurse() ଅଚଳ { ଫେରନ୍ତୁ lhsp()->isPure() && rhsp()->isPure(); }
 };
-class AstNodeBiCom VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ଗଣ୍ଠି_Bi_Com VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Binary expr with commutative properties
-protected:
-    AstNodeBiCom(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiop{t, fl, lhs, rhs} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Bi_Com(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhs, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhs)
+        : Ast_ଗଣ୍ଠି_Biop{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiCom;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Bi_Com;
 };
-class AstNodeBiComAsv VL_NOT_FINAL : public AstNodeBiCom {
+class Ast_ଗଣ୍ଠି_Bi_Com_Asv VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // Binary expr with commutative & associative properties
-protected:
-    AstNodeBiComAsv(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiCom{t, fl, lhs, rhs} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Bi_Com_Asv(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhs, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhs)
+        : Ast_ଗଣ୍ଠି_Bi_Com{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiComAsv;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Bi_Com_Asv;
 };
-class AstNodeDistBiop VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeDistBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
+class Ast_ଗଣ୍ଠି_Dist_Biop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣ୍ଠି_Dist_Biop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
+        : Ast_ଗଣ୍ଠି_Biop{t, fl, lhsp, rhsp} {
         dtypeSetInteger2State();
     }
-    ASTGEN_MEMBERS_AstNodeDistBiop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Dist_Biop;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_TRIG; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
 };
-class AstNodeSel VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ଗଣ୍ଠି_Sel VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // @astgen alias op1 := fromp // Expression we are indexing into
     // @astgen alias op2 := bitp // The index // TODO: rename to idxp
-protected:
-    AstNodeSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : AstNodeBiop{t, fl, fromp, bitp} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Sel(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
+        : Ast_ଗଣ୍ଠି_Biop{t, fl, fromp, bitp} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeSel;
-    int bitConst() const;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Sel;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା bitConst() ଅଚଳ;
 };
-class AstNodeStream VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ଗଣ୍ଠି_Stream VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
-protected:
-    AstNodeStream(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        if (lhsp->dtypep()) {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Stream(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
+        : Ast_ଗଣ୍ଠି_Biop{t, fl, lhsp, rhsp} {
+        ଯଦି (lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(lhsp->width(), lhsp->widthMin(), VSigning::UNSIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeStream;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Stream;
 };
-class AstNodeSystemBiopD VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeSystemBiopD(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
+class Ast_ଗଣ୍ଠି_System_Biop_D VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣ୍ଠି_System_Biop_D(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
+        : Ast_ଗଣ୍ଠି_Biop{t, fl, lhsp, rhsp} {
         dtypeSetDouble();
     }
-    ASTGEN_MEMBERS_AstNodeSystemBiopD;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_System_Biop_D;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_TRIG; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_CCall VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A call of a C++ function, perhaps a AstCFunc or perhaps globally named
     // @astgen op2 := argsp : List[AstNodeExpr]  // Note: op1 used by some sub-types only
     //
@@ -228,56 +228,56 @@ class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
     string m_argTypes;
     bool m_superReference = false;  // Called with super reference
 
-protected:
-    AstNodeCCall(VNType t, FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
-        : AstNodeExpr{t, fl}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_CCall(VNType t, File_ଧାଡ଼ି* fl, AstCFunc* funcp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* argsp = nullptr)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl}
         , m_funcp{funcp} {
         addArgsp(argsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeCCall;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return INSTR_COUNT_CALL; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCCall* const asamep = VN_DBG_AS(samep, NodeCCall);
-        return (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_CCall;
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_CALL; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ Ast_ଗଣ୍ଠି_CCall* ଅଚଳ asamep = VN_DBG_AS(samep, ଗଣ୍ଠି_CCall);
+        ଫେରନ୍ତୁ (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
     bool isPure() override;
-    bool isOutputter() override { return !isPure(); }
-    AstCFunc* funcp() const { return m_funcp; }
-    void funcp(AstCFunc* funcp) { m_funcp = funcp; }
-    string argTypes() const { return m_argTypes; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    bool isUnlikely() const override { return m_funcp && m_funcp->isUnlikely(); }
+    bool isOutputter() override { ଫେରନ୍ତୁ !isPure(); }
+    AstCFunc* funcp() ଅଚଳ { ଫେରନ୍ତୁ m_funcp; }
+    ଶୂନ୍ୟ funcp(AstCFunc* funcp) { m_funcp = funcp; }
+    string argTypes() ଅଚଳ { ଫେରନ୍ତୁ m_argTypes; }
+    ଶୂନ୍ୟ argTypes(ଅଚଳ string& str) { m_argTypes = str; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ m_funcp && m_funcp->isUnlikely(); }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+    bool cleanOut() ଅଚଳ final override { ଫେରନ୍ତୁ true; }
+    bool superReference() ଅଚଳ { ଫେରନ୍ତୁ m_superReference; }
+    ଶୂନ୍ୟ superReference(bool flag) { m_superReference = flag; }
 };
-class AstNodeCons VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Cons VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Construct a value of an aggregate type
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be 'this->isConstantTree() == true'
+    friend class Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି;  // For m_knownConstantTree
+    mutable bool m_known_Constant_ବୃକ୍ଷ = false;  // Known to be 'this->isConstantTree() == true'
 
-protected:
-    AstNodeCons(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Cons(VNType t, File_ଧାଡ଼ି* fl)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeCons;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Cons;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     std::string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     std::string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    int instrCount() const final override { return widthInstrs(); }
+    bool cleanOut() ଅଚଳ final override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ final override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_FTask_Ref VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A reference to a task (or function)
     // op1 used by some sub-types only
     // @astgen op2 := argsp : List[AstArg]
@@ -286,8 +286,8 @@ class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
     //
     // @astgen ptr := m_taskp : Optional[AstNodeFTask]  // [AfterLink] Pointer to task referenced
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the task
-    ASTGEN_MEMBERS_AstNodeFTaskRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_FTask_Ref;  // Gen pointers before other members for performance
+ବ୍ୟକ୍ତିଗତ:
     string m_name;  // Name of variable
     string m_dotted;  // Dotted part of scope the name()ed task/func is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
@@ -296,39 +296,39 @@ private:
     bool m_superReference = false;  // Called with super reference
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTaskRef(VNType t, FileLine* fl, const string& name, AstArg* argsp)
-        : AstNodeExpr{t, fl}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_FTask_Ref(VNType t, File_ଧାଡ଼ି* fl, ଅଚଳ string& name, AstArg* argsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl}
         , m_name{name} {
         addArgsp(argsp);
     }
 
-public:
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool isGateOptimizable() const override;
-    string dotted() const { return m_dotted; }  // * = Scope name or ""
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    AstNodeFTask* taskp() const { return m_taskp; }  // [After Link] Pointer to variable
-    void taskp(AstNodeFTask* taskp) { m_taskp = taskp; }
-    void name(const string& name) override { m_name = name; }
-    void dotted(const string& name) { m_dotted = name; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool pli() const { return m_pli; }
-    void pli(bool flag) { m_pli = flag; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+ସର୍ବସାଧାରଣ:
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
+    bool isGateOptimizable() ଅଚଳ override;
+    string dotted() ଅଚଳ { ଫେରନ୍ତୁ m_dotted; }  // * = Scope name or ""
+    string inlinedDots() ଅଚଳ { ଫେରନ୍ତୁ m_inlinedDots; }
+    ଶୂନ୍ୟ inlinedDots(ଅଚଳ string& flag) { m_inlinedDots = flag; }
+    Ast_ଗଣ୍ଠି_FTask* taskp() ଅଚଳ { ଫେରନ୍ତୁ m_taskp; }  // [After Link] Pointer to variable
+    ଶୂନ୍ୟ taskp(Ast_ଗଣ୍ଠି_FTask* taskp) { m_taskp = taskp; }
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    ଶୂନ୍ୟ dotted(ଅଚଳ string& name) { m_dotted = name; }
+    Ast_ଗଣ୍ଠି_Module* classOrPackagep() ଅଚଳ { ଫେରନ୍ତୁ m_classOrPackagep; }
+    ଶୂନ୍ୟ classOrPackagep(Ast_ଗଣ୍ଠି_Module* nodep) { m_classOrPackagep = nodep; }
+    bool containsGenBlock() ଅଚଳ { ଫେରନ୍ତୁ m_containsGenBlock; }
+    ଶୂନ୍ୟ containsGenBlock(ଅଚଳ bool flag) { m_containsGenBlock = flag; }
+    bool pli() ଅଚଳ { ଫେରନ୍ତୁ m_pli; }
+    ଶୂନ୍ୟ pli(bool flag) { m_pli = flag; }
+    bool superReference() ଅଚଳ { ଫେରନ୍ତୁ m_superReference; }
+    ଶୂନ୍ୟ superReference(bool flag) { m_superReference = flag; }
     bool isPure() override;
-    bool isUnlikely() const override { return m_taskp && m_taskp->isUnlikely(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeFTaskRef* const asamep = VN_DBG_AS(samep, NodeFTaskRef);
-        return taskp() == asamep->taskp()  //
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ m_taskp && m_taskp->isUnlikely(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ Ast_ଗଣ୍ଠି_FTask_Ref* ଅଚଳ asamep = VN_DBG_AS(samep, ଗଣ୍ଠି_FTask_Ref);
+        ଫେରନ୍ତୁ taskp() == asamep->taskp()  //
                && classOrPackagep() == asamep->classOrPackagep()  //
                && name() == asamep->name()  //
                && dotted() == asamep->dotted()  //
@@ -339,12 +339,12 @@ public:
     }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ final override { V3ERROR_NA_RETURN(true); }
 
-private:
-    bool getPurityRecurse() const;
+ବ୍ୟକ୍ତିଗତ:
+    bool getPurityRecurse() ଅଚଳ;
 };
-class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Pre_Sel VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Something that becomes an AstSel
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -352,31 +352,31 @@ class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := attrp : Optional[AstAttrOf]
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodePreSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Pre_Sel(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {
         this->fromp(fromp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodePreSel;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Pre_Sel;
     // METHODS
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ final override { V3ERROR_NA_RETURN(true); }
     bool isPure() override;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 
-private:
-    bool getPurityRecurse() const {
-        return fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
+ବ୍ୟକ୍ତିଗତ:
+    bool getPurityRecurse() ଅଚଳ {
+        ଫେରନ୍ତୁ fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
     }
 };
-class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Quadop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // 4-ary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -384,218 +384,218 @@ class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := fhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeQuadop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp,
-                  AstNodeExpr* fhsp)
-        : AstNodeExpr{t, fl} {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Quadop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp,
+                  Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fhsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
         this->fhsp(fhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeQuadop;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Quadop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths, const V3Number& fhs)
+    ଆଭାସୀ ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                               ଅଚଳ V3_ସଂଖ୍ୟା& ths, ଅଚଳ V3_ସଂଖ୍ୟା& fhs)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool cleanFhs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    virtual bool sizeMattersFhs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    ଆଭାସୀ bool cleanLhs() ଅଚଳ = 0;  // True if LHS must have extra upper bits zero
+    ଆଭାସୀ bool cleanRhs() ଅଚଳ = 0;  // True if RHS must have extra upper bits zero
+    ଆଭାସୀ bool cleanThs() ଅଚଳ = 0;  // True if THS must have extra upper bits zero
+    ଆଭାସୀ bool cleanFhs() ଅଚଳ = 0;  // True if THS must have extra upper bits zero
+    ଆଭାସୀ bool sizeMattersLhs() ଅଚଳ = 0;  // True if output result depends on lhs size
+    ଆଭାସୀ bool sizeMattersRhs() ଅଚଳ = 0;  // True if output result depends on rhs size
+    ଆଭାସୀ bool sizeMattersThs() ଅଚଳ = 0;  // True if output result depends on ths size
+    ଆଭାସୀ bool sizeMattersFhs() ଅଚଳ = 0;  // True if output result depends on ths size
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     bool isPure() override;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
+ବ୍ୟକ୍ତିଗତ:
+    bool getPurityRecurse() ଅଚଳ {
+        ଫେରନ୍ତୁ lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
     }
 };
-class AstNodeTermop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Termop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Terminal operator -- an operator with no "inputs"
-protected:
-    AstNodeTermop(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Termop(VNType t, File_ଧାଡ଼ି* fl)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeTermop;
-    bool isSystemFunc() const override { return true; }
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Termop;
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNodeTriop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Triop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Ternary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := thsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Triop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeTriop;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Triop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths)
+    ଆଭାସୀ ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                               ଅଚଳ V3_ସଂଖ୍ୟା& ths)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    ଆଭାସୀ bool cleanLhs() ଅଚଳ = 0;  // True if LHS must have extra upper bits zero
+    ଆଭାସୀ bool cleanRhs() ଅଚଳ = 0;  // True if RHS must have extra upper bits zero
+    ଆଭାସୀ bool cleanThs() ଅଚଳ = 0;  // True if THS must have extra upper bits zero
+    ଆଭାସୀ bool sizeMattersLhs() ଅଚଳ = 0;  // True if output result depends on lhs size
+    ଆଭାସୀ bool sizeMattersRhs() ଅଚଳ = 0;  // True if output result depends on rhs size
+    ଆଭାସୀ bool sizeMattersThs() ଅଚଳ = 0;  // True if output result depends on ths size
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     bool isPure() override;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
+ବ୍ୟକ୍ତିଗତ:
+    bool getPurityRecurse() ଅଚଳ {
+        ଫେରନ୍ତୁ lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
     }
 };
-class AstNodeDistTriop VL_NOT_FINAL : public AstNodeTriop {
-public:
-    AstNodeDistTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                     AstNodeExpr* thsp)
-        : AstNodeTriop{t, fl, lhsp, rhsp, thsp} {
+class Ast_ଗଣ୍ଠି_Dist_Triop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Triop {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣ୍ଠି_Dist_Triop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp,
+                     Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
+        : Ast_ଗଣ୍ଠି_Triop{t, fl, lhsp, rhsp, thsp} {
         dtypeSetInteger2State();
     }
-    ASTGEN_MEMBERS_AstNodeDistTriop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Dist_Triop;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_TRIG; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& ths) override {
         V3ERROR_NA;
     }
 };
-class AstNodeUniop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Uniop VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Unary expression
     // @astgen op1 := lhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeUniop(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeExpr{t, fl} {
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Uniop(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl} {
         dtypeFrom(lhsp);
         this->lhsp(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeUniop;
+ସର୍ବସାଧାରଣ:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Uniop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     // Set out to evaluation of a AstConst'ed lhs
-    virtual void numberOperate(V3Number& out, const V3Number& lhs) = 0;
-    virtual bool cleanLhs() const = 0;
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    ଆଭାସୀ ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) = 0;
+    ଆଭାସୀ bool cleanLhs() ଅଚଳ = 0;
+    ଆଭାସୀ bool sizeMattersLhs() ଅଚଳ = 0;  // True if output result depends on lhs size
+    ଆଭାସୀ bool doubleFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    ଆଭାସୀ bool signedFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }
+    ଆଭାସୀ bool stringFlavor() ଅଚଳ { ଫେରନ୍ତୁ false; }  // N flavor of nodes with both flavors?
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     bool isPure() override;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 };
-class AstNodeSystemUniopD VL_NOT_FINAL : public AstNodeUniop {
-public:
-    AstNodeSystemUniopD(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeUniop{t, fl, lhsp} {
+class Ast_ଗଣ୍ଠି_System_Uniop_D VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣ୍ଠି_System_Uniop_D(VNType t, File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
+        : Ast_ଗଣ୍ଠି_Uniop{t, fl, lhsp} {
         dtypeSetDouble();
     }
-    ASTGEN_MEMBERS_AstNodeSystemUniopD;
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_System_Uniop_D;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_TRIG; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNodeVarRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ଗଣ୍ଠି_Var_Ref VL_NOT_FINAL : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // An AstVarRef or AstVarXRef
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     // @astgen ptr := m_varScopep : Optional[AstVarScope]  // Varscope for hierarchy
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the variable
-    ASTGEN_MEMBERS_AstNodeVarRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_ଗଣ୍ଠି_Var_Ref;  // Gen pointers before other members for performance
+ବ୍ୟକ୍ତିଗତ:
     VAccess m_access;  // Left hand side assignment
     VSelfPointerText m_selfPointer
         = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
                                                         // pointer (e.g.: 'this')
-protected:
-    AstNodeVarRef(VNType t, FileLine* fl, AstVar* varp, const VAccess& access)
-        : AstNodeExpr{t, fl}
+ସୁରକ୍ଷିତ:
+    Ast_ଗଣ୍ଠି_Var_Ref(VNType t, File_ଧାଡ଼ି* fl, AstVar* varp, ଅଚଳ VAccess& access)
+        : Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି{t, fl}
         , m_access{access} {
         // May have varp==nullptr
         this->varp(varp);
     }
 
-public:
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return widthInstrs(); }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) {
+ସର୍ବସାଧାରଣ:
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    VAccess access() ଅଚଳ { ଫେରନ୍ତୁ m_access; }
+    ଶୂନ୍ୟ access(ଅଚଳ VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
+    AstVar* varp() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_varp; }  // [After Link] Pointer to variable
+    ଶୂନ୍ୟ varp(AstVar* varp) {
         m_varp = varp;
-        dtypeFrom(reinterpret_cast<AstNode*>(varp));
+        dtypeFrom(reinterpret_cast<Ast_ଗଣ୍ଠି*>(varp));
     }
-    AstVarScope* varScopep() const { return m_varScopep; }
-    void varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    AstVarScope* varScopep() ଅଚଳ { ଫେରନ୍ତୁ m_varScopep; }
+    ଶୂନ୍ୟ varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
+    ଅଚଳ VSelfPointerText& selfPointer() ଅଚଳ { ଫେରନ୍ତୁ m_selfPointer; }
+    ଶୂନ୍ୟ selfPointer(ଅଚଳ VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
+    string selfPointerProtect(bool useSelfForThis) ଅଚଳ {
+        ଫେରନ୍ତୁ selfPointer().protect(useSelfForThis, protect());
     }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    Ast_ଗଣ୍ଠି_Module* classOrPackagep() ଅଚଳ { ଫେରନ୍ତୁ m_classOrPackagep; }
+    ଶୂନ୍ୟ classOrPackagep(Ast_ଗଣ୍ଠି_Module* nodep) { m_classOrPackagep = nodep; }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstArg final : public AstNode {
+class AstArg final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି {
     // An argument to a function/task, which is either an expression, or is a placeholder for an
     // omitted argument.
     // @astgen op1 := exprp : Optional[AstNodeExpr] // nullptr if omitted
     std::string m_name;  // Argument name, or "" for number based interconnect
-public:
-    AstArg(FileLine* fl, const std::string& name, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstArg(File_ଧାଡ଼ି* fl, ଅଚଳ std::string& name, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_Arg(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstArg;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool emptyConnectNoNext() const { return !exprp() && name() == "" && !nextp(); }
+    std::string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
+    ଶୂନ୍ୟ name(ଅଚଳ std::string& name) override { m_name = name; }
+    bool emptyConnectNoNext() ଅଚଳ { ଫେରନ୍ତୁ !exprp() && name() == "" && !nextp(); }
 };
-class AstWith final : public AstNode {
+class AstWith final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି {
     // Similar to AstArg, but this is essentially a lambda passed to a call.
     // Not an AstNodeExpr as there is no concept of function values in Verilator
     // The dtypep() contains the with lambda's return dtype, not a function type.
@@ -607,45 +607,45 @@ class AstWith final : public AstNode {
     // @astgen op2 := valueArgRefp : AstLambdaArgRef
     // @astgen op3 := exprp : List[AstNode]  // Pins, expression and constraints
     // TODO: Separate expression and constraints
-private:
+ବ୍ୟକ୍ତିଗତ:
     // 'with (identifier_list) {...}' restricted form (IEEE 1800-2023 18.7).
     bool m_restricted = false;
     // dist-ast-dump-suppress  // V3LinkDot temporary use only
     bool m_validated = false;  // identifier_list typo / unused checks already run
     std::set<std::string> m_restrictedNames;
 
-public:
-    AstWith(FileLine* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* valueArgRefp,
-            AstNode* exprp)
+ସର୍ବସାଧାରଣ:
+    AstWith(File_ଧାଡ଼ି* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* ମୂଲ୍ୟ_Arg_Refp,
+            Ast_ଗଣ୍ଠି* exprp)
         : ASTGEN_SUPER_With(fl) {
         this->indexArgRefp(indexArgRefp);
-        this->valueArgRefp(valueArgRefp);
+        this->ମୂଲ୍ୟ_Arg_Refp(ମୂଲ୍ୟ_Arg_Refp);
         addExprp(exprp);
     }
     ASTGEN_MEMBERS_AstWith;
-    bool hasDType() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    const char* broken() const override {
+    bool hasDType() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
         BROKEN_RTN(!indexArgRefp());  // varp needed to know lambda's arg dtype
-        BROKEN_RTN(!valueArgRefp());  // varp needed to know lambda's arg dtype
-        return nullptr;
+        BROKEN_RTN(!ମୂଲ୍ୟ_Arg_Refp());  // varp needed to know lambda's arg dtype
+        ଫେରନ୍ତୁ nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void restricted(bool flag) { m_restricted = flag; }
-    bool restricted() const { return m_restricted; }
-    bool validated() const { return m_validated; }
-    void validated(bool flag) { m_validated = flag; }
-    void addRestrictedName(const std::string& name) { m_restrictedNames.insert(name); }
-    const std::set<std::string>& restrictedNames() const { return m_restrictedNames; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ restricted(bool flag) { m_restricted = flag; }
+    bool restricted() ଅଚଳ { ଫେରନ୍ତୁ m_restricted; }
+    bool validated() ଅଚଳ { ଫେରନ୍ତୁ m_validated; }
+    ଶୂନ୍ୟ validated(bool flag) { m_validated = flag; }
+    ଶୂନ୍ୟ addRestrictedName(ଅଚଳ std::string& name) { m_restrictedNames.ଭର୍ତ୍ତି(name); }
+    ଅଚଳ std::set<std::string>& restrictedNames() ଅଚଳ { ଫେରନ୍ତୁ m_restrictedNames; }
     // True if 'name' binds into the randomize() target class.
-    bool nameResolvesToTarget(const std::string& name) const {
-        return !m_restricted || m_restrictedNames.count(name);
+    bool nameResolvesToTarget(ଅଚଳ std::string& name) ଅଚଳ {
+        ଫେରନ୍ତୁ !m_restricted || m_restrictedNames.ଗଣନା_2(name);
     }
 };
 
 // === AstNodeExpr ===
-class AstAbortOn final : public AstNodeExpr {
+class AstAbortOn final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // IEEE 1800-2023 16.12.14: accept_on/reject_on/sync_accept_on/sync_reject_on
     // (cond) prop. The four operators share an identical AST shape and lowering
     // scaffolding -- VAbortKind selects between Accept/Reject verdict and
@@ -654,168 +654,168 @@ class AstAbortOn final : public AstNodeExpr {
     // @astgen op2 := propp : AstNodeExpr
     VAbortKind m_kind{VAbortKind::ACCEPT_ON};
 
-public:
-    AstAbortOn(FileLine* fl, VAbortKind kind, AstNodeExpr* condp, AstNodeExpr* propp)
+ସର୍ବସାଧାରଣ:
+    AstAbortOn(File_ଧାଡ଼ି* fl, VAbortKind kind, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* condp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* propp)
         : ASTGEN_SUPER_AbortOn(fl)
         , m_kind{kind} {
         this->condp(condp);
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstAbortOn;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAbortKind kind() const { return m_kind; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    VAbortKind kind() ଅଚଳ { ଫେରନ୍ତୁ m_kind; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstAddrOfCFunc final : public AstNodeExpr {
+class AstAddrOfCFunc final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Get address of CFunc
     // @astgen ptr := m_funcp : AstCFunc  // Pointer to function itself
 
-public:
-    AstAddrOfCFunc(FileLine* fl, AstCFunc* funcp)
+ସର୍ବସାଧାରଣ:
+    AstAddrOfCFunc(File_ଧାଡ଼ି* fl, AstCFunc* funcp)
         : ASTGEN_SUPER_AddrOfCFunc(fl)
         , m_funcp{funcp} {
         dtypep(findCHandleDType());
     }
 
     ASTGEN_MEMBERS_AstAddrOfCFunc;
-    void dump(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstCFunc* funcp() const { return m_funcp; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    AstCFunc* funcp() ଅଚଳ { ଫେରନ୍ତୁ m_funcp; }
 };
-class AstAttrOf final : public AstNodeExpr {
+class AstAttrOf final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Return a value of a attribute, for example a LSB or array LSB of a signal
     // @astgen op1 := fromp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := dimp : Optional[AstNodeExpr]
     VAttrType m_attrType;  // What sort of extraction
     string m_name;  // Name for some attributes
-public:
-    AstAttrOf(FileLine* fl, VAttrType attrtype, AstNode* fromp = nullptr,
-              AstNodeExpr* dimp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstAttrOf(File_ଧାଡ଼ି* fl, VAttrType attrtype, Ast_ଗଣ୍ଠି* fromp = nullptr,
+              Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* dimp = nullptr)
         : ASTGEN_SUPER_AttrOf(fl) {
         this->fromp(fromp);
         this->dimp(dimp);
         m_attrType = attrtype;
     }
     ASTGEN_MEMBERS_AstAttrOf;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    VAttrType attrType() const { return m_attrType; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    VAttrType attrType() ଅଚଳ { ଫେରନ୍ତୁ m_attrType; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCExpr final : public AstNodeExpr {
+class AstCExpr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // C expression emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Pure optimizable
+    ଅଚଳ bool m_pure;  // Pure optimizable
 
-    void init(const string& text, int setwidth) {
-        if (!text.empty()) add(text);
-        if (setwidth) {
+    ଶୂନ୍ୟ init(ଅଚଳ string& text, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth) {
+        ଯଦି (!text.empty()) add(text);
+        ଯଦି (setwidth) {
             dtypeSetBitSized(setwidth, VSigning::UNSIGNED);
-        } else {
+        } ଅନ୍ୟଥା {
             dtypeSetVoid();  // Caller to override if necessary
         }
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     class Pure {};
-    explicit AstCExpr(FileLine* fl, const string& text = "", int setwidth = 0)
+    explicit AstCExpr(File_ଧାଡ଼ି* fl, ଅଚଳ string& text = "", ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
         , m_pure{false} {
         init(text, setwidth);
     }
-    AstCExpr(FileLine* fl, Pure, const string& text = "", int setwidth = 0)
+    AstCExpr(File_ଧାଡ଼ି* fl, Pure, ଅଚଳ string& text = "", ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
         , m_pure{true} {
         init(text, setwidth);
     }
     ASTGEN_MEMBERS_AstCExpr;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return true; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ m_pure; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ m_pure; }
+    bool isPure() override { ଫେରନ୍ତୁ m_pure; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ଶୂନ୍ୟ add(ଅଚଳ std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    ଶୂନ୍ୟ add(Ast_ଗଣ୍ଠି* nodep) { addNodesp(nodep); }
 };
-class AstCExprUser final : public AstNodeExpr {
+class AstCExprUser final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // User '$c' or '$cpure' expression - Like AstCStmt, with text tracking and optimizations
     // disabled.
     //
     // Use AstCExpr instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Whether the function is pure
-public:
+    ଅଚଳ bool m_pure;  // Whether the function is pure
+ସର୍ବସାଧାରଣ:
     class Pure {};
-    explicit AstCExprUser(FileLine* fl)
+    explicit AstCExprUser(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_CExprUser(fl)
         , m_pure{false} {}
-    AstCExprUser(FileLine* fl, Pure)
+    AstCExprUser(File_ଧାଡ଼ି* fl, Pure)
         : ASTGEN_SUPER_CExprUser(fl)
         , m_pure{true} {}
     ASTGEN_MEMBERS_AstCExprUser;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return false; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ m_pure; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ m_pure; }
+    bool isPure() override { ଫେରନ୍ତୁ m_pure; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ଶୂନ୍ୟ add(ଅଚଳ std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    ଶୂନ୍ୟ add(Ast_ଗଣ୍ଠି* nodep) { addNodesp(nodep); }
 };
-class AstCFuncHard final : public AstNodeExpr {
+class AstCFuncHard final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A call to a C++ function in the runtime library (include/verilated*)
     // PARENTS: stmt/expr
     // @astgen op1 := pinsp : List[AstNodeExpr] // Arguments
     VIsCached m_purity;  // Pure optimizable
     VCFunction m_function;  // Which function to call
-public:
-    AstCFuncHard(FileLine* fl, VCFunction function, AstNodeExpr* pinsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstCFuncHard(File_ଧାଡ଼ି* fl, VCFunction function, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* pinsp = nullptr)
         : ASTGEN_SUPER_CFuncHard(fl)
         , m_function{function} {
         addPinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCFuncHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return function().ascii(); }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ function().ascii(); }
     bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+        ଯଦି (!m_purity.isCached()) m_purity.set(getPurity());
+        ଫେରନ୍ତୁ m_purity.get();
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    VCFunction function() const VL_MT_STABLE { return m_function; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    VCFunction function() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_function; }
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     bool getPurity();
 };
-class AstCMethodHard final : public AstNodeExpr {
+class AstCMethodHard final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A reference to a "C" hardcoded member task (or function)
     // PARENTS: stmt/expr
     // @astgen op1 := fromp : AstNodeExpr // Subject of method call
@@ -824,69 +824,69 @@ class AstCMethodHard final : public AstNodeExpr {
     VCMethod m_method;  // Which method to call
     VIsCached m_purity;  // Pure optimizable
     bool m_usePtr = false;  // Use '->' not '.'
-public:
-    AstCMethodHard(FileLine* fl, AstNodeExpr* fromp, VCMethod method, AstNodeExpr* pinsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstCMethodHard(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, VCMethod method, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* pinsp = nullptr)
         : ASTGEN_SUPER_CMethodHard(fl)
         , m_method{method} {
         this->fromp(fromp);
         addPinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCMethodHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return method().ascii(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCMethodHard* const asamep = VN_DBG_AS(samep, CMethodHard);
-        return (m_method == asamep->m_method);
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ method().ascii(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstCMethodHard* ଅଚଳ asamep = VN_DBG_AS(samep, CMethodHard);
+        ଫେରନ୍ତୁ (m_method == asamep->m_method);
     }
     bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+        ଯଦି (!m_purity.isCached()) m_purity.set(getPurity());
+        ଫେରନ୍ତୁ m_purity.get();
     }
-    int instrCount() const override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return m_method.isClean(); }
-    bool usePtr() const { return m_usePtr; }
-    void usePtr(bool flag) { m_usePtr = flag; }
-    VCMethod method() const VL_MT_STABLE { return m_method; }
-    void method(VCMethod value) { m_method = value; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ m_method.isClean(); }
+    bool usePtr() ଅଚଳ { ଫେରନ୍ତୁ m_usePtr; }
+    ଶୂନ୍ୟ usePtr(bool flag) { m_usePtr = flag; }
+    VCMethod method() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_method; }
+    ଶୂନ୍ୟ method(VCMethod ମୂଲ୍ୟ) { m_method = ମୂଲ୍ୟ; }
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     bool getPurity();
 };
-class AstCReset final : public AstNodeExpr {
+class AstCReset final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Reset variable at startup
-    const bool m_constructing;  // Previously cleared by constructor
-public:
-    AstCReset(FileLine* fl, AstVar* varp, bool constructing)
+    ଅଚଳ bool m_constructing;  // Previously cleared by constructor
+ସର୍ବସାଧାରଣ:
+    AstCReset(File_ଧାଡ଼ି* fl, AstVar* varp, bool constructing)
         : ASTGEN_SUPER_CReset(fl)
         , m_constructing{constructing} {
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstCReset;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isPure() override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    bool isPure() override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), NodeAssign));  // V3Emit* assumption
-        return nullptr;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
+        BROKEN_RTN(!VN_IS(backp(), ଗଣ୍ଠି_Assign));  // V3Emit* assumption
+        ଫେରନ୍ତୁ nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        return constructing() == VN_DBG_AS(samep, CReset)->constructing();
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ constructing() == VN_DBG_AS(samep, CReset)->constructing();
     }
-    bool constructing() const { return m_constructing; }
+    bool constructing() ଅଚଳ { ଫେରନ୍ତୁ m_constructing; }
 };
-class AstCast final : public AstNodeExpr {
+class AstCast final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast to appropriate data type
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := childDTypep : Optional[AstNodeDType]
-public:
-    AstCast(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, AstNodeDType* dtp)
+ସର୍ବସାଧାରଣ:
+    AstCast(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, VFlagChildDType, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         childDTypep(dtp);
@@ -894,73 +894,73 @@ public:
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCast(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCast(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCast;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
+    Ast_ଗଣ୍ଠି_DType* getChildDTypep() ଅଚଳ override { ଫେରନ୍ତୁ childDTypep(); }
+    Ast_ଗଣ୍ଠି_DType* subDTypep() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ dtypep() ? dtypep() : childDTypep(); }
 };
-class AstCastParse final : public AstNodeExpr {
+class AstCastParse final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast to appropriate type, where we haven't determined yet what the data type is
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := dtp : AstNode
-public:
-    AstCastParse(FileLine* fl, AstNodeExpr* lhsp, AstNode* dtp)
+ସର୍ବସାଧାରଣ:
+    AstCastParse(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି* dtp)
         : ASTGEN_SUPER_CastParse(fl) {
         this->lhsp(lhsp);
         this->dtp(dtp);
     }
     ASTGEN_MEMBERS_AstCastParse;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCastSize final : public AstNodeExpr {
+class AstCastSize final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast to specific size; signed/twostate inherited from lower element per IEEE
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstConst
-public:
-    AstCastSize(FileLine* fl, AstNodeExpr* lhsp, AstConst* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstCastSize(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, AstConst* rhsp)
         : ASTGEN_SUPER_CastSize(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstCastSize;
-    string emitVerilog() override { return "((%r)'(%l))"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "((%r)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellArrayRef final : public AstNodeExpr {
+class AstCellArrayRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // As-of-yet unlinkable reference into an array of cells
     // @astgen op1 := selp : List[AstNodeExpr] // Select expression
     string m_name;  // Array name
-public:
-    AstCellArrayRef(FileLine* fl, const string& name, AstNodeExpr* selp)
+ସର୍ବସାଧାରଣ:
+    AstCellArrayRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* selp)
         : ASTGEN_SUPER_CellArrayRef(fl)
         , m_name{name} {
         addSelp(selp);
     }
     ASTGEN_MEMBERS_AstCellArrayRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellRef final : public AstNodeExpr {
+class AstCellRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // As-of-yet unlinkable reference into a cell
     // @astgen op1 := cellp : AstNode
     // @astgen op2 := exprp : AstNode<AstNodeExpr|AstNodeDType>
     string m_name;  // Cell name
-public:
-    AstCellRef(FileLine* fl, const string& name, AstNode* cellp, AstNode* exprp)
+ସର୍ବସାଧାରଣ:
+    AstCellRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି* cellp, Ast_ଗଣ୍ଠି* exprp)
         : ASTGEN_SUPER_CellRef(fl)
         , m_name{name} {
         this->cellp(cellp);
@@ -968,19 +968,19 @@ public:
     }
     ASTGEN_MEMBERS_AstCellRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstClassOrPackageRef final : public AstNodeExpr {
+class AstClassOrPackageRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := paramsp : List[AstPin]
     string m_name;
     // Node not NodeModule to appease some early parser usage
     // @astgen ptr := m_classOrPackageNodep : Optional[AstNode]  // Class/package referenced
-public:
-    AstClassOrPackageRef(FileLine* fl, const string& name, AstNode* classOrPackageNodep,
+ସର୍ବସାଧାରଣ:
+    AstClassOrPackageRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି* classOrPackageNodep,
                          AstPin* paramsp)
         : ASTGEN_SUPER_ClassOrPackageRef(fl)
         , m_name{name}
@@ -989,243 +989,243 @@ public:
     }
     ASTGEN_MEMBERS_AstClassOrPackageRef;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        return (m_classOrPackageNodep
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ (m_classOrPackageNodep
                 == VN_DBG_AS(samep, ClassOrPackageRef)->m_classOrPackageNodep);
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
     // There's no classOrPackagep(); use classOrPackageNodep() to get Node,
     // or iterating to package with classOrPackageSkipp()
-    AstNodeModule* classOrPackageSkipp(const bool doRefs = true) const;
-    AstNode* classOrPackageNodep() const { return m_classOrPackageNodep; }
-    void classOrPackageNodep(AstNode* nodep) { m_classOrPackageNodep = nodep; }
-    void classOrPackagep(AstNodeModule* nodep) {
-        m_classOrPackageNodep = reinterpret_cast<AstNode*>(nodep);
+    Ast_ଗଣ୍ଠି_Module* classOrPackageSkipp(ଅଚଳ bool doRefs = true) ଅଚଳ;
+    Ast_ଗଣ୍ଠି* classOrPackageNodep() ଅଚଳ { ଫେରନ୍ତୁ m_classOrPackageNodep; }
+    ଶୂନ୍ୟ classOrPackageNodep(Ast_ଗଣ୍ଠି* nodep) { m_classOrPackageNodep = nodep; }
+    ଶୂନ୍ୟ classOrPackagep(Ast_ଗଣ୍ଠି_Module* nodep) {
+        m_classOrPackageNodep = reinterpret_cast<Ast_ଗଣ୍ଠି*>(nodep);
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstConst final : public AstNodeExpr {
+class AstConst final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A constant
-    V3Number m_num;  // Constant value
-    void initWithNumber() {
-        if (m_num.isDouble()) {
+    V3_ସଂଖ୍ୟା m_ଅଙ୍କ;  // Constant value
+    ଶୂନ୍ୟ init_With_ସଂଖ୍ୟା() {
+        ଯଦି (m_ଅଙ୍କ.isDouble()) {
             dtypeSetDouble();
-        } else if (m_num.isString()) {
+        } ଅନ୍ୟଥା ଯଦି (m_ଅଙ୍କ.isString()) {
             dtypeSetString();
-        } else {
-            dtypeSetBitOrLogicUnsized(m_num.width(), (m_num.sized() ? 0 : m_num.widthToFit()),
-                                      VSigning::fromBool(m_num.isSigned()), m_num.isAnyXZ());
+        } ଅନ୍ୟଥା {
+            dtypeSetBitOrLogicUnsized(m_ଅଙ୍କ.width(), (m_ଅଙ୍କ.sized() ? 0 : m_ଅଙ୍କ.widthToFit()),
+                                      VSigning::fromBool(m_ଅଙ୍କ.isSigned()), m_ଅଙ୍କ.isAnyXZ());
         }
-        m_num.nodep(this);
+        m_ଅଙ୍କ.nodep(this);
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     ~AstConst() override;
-    AstConst(FileLine* fl, const V3Number& num)
+    AstConst(File_ଧାଡ଼ି* fl, ଅଚଳ V3_ସଂଖ୍ୟା& ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{num} {
-        initWithNumber();
+        , m_ଅଙ୍କ{ଅଙ୍କ} {
+        init_With_ସଂଖ୍ୟା();
     }
-    class WidthedValue {};  // for creator type-overload selection
-    AstConst(FileLine* fl, WidthedValue, int width, uint32_t value)
+    class Widthed_ମୂଲ୍ୟ {};  // for creator type-overload selection
+    AstConst(File_ଧାଡ଼ି* fl, Widthed_ମୂଲ୍ୟ, ପୂର୍ଣ୍ଣସଂଖ୍ୟା width, uint32_t ମୂଲ୍ୟ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, width, value) {  // Need () constructor
-        initWithNumber();
+        , m_ଅଙ୍କ(this, width, ମୂଲ୍ୟ) {  // Need () constructor
+        init_With_ସଂଖ୍ୟା();
     }
     class DTyped {};  // for creator type-overload selection
     // Zero/empty constant with a type matching nodetypep
-    AstConst(FileLine* fl, DTyped, const AstNodeDType* nodedtypep)
+    AstConst(File_ଧାଡ଼ି* fl, DTyped, ଅଚଳ Ast_ଗଣ୍ଠି_DType* nodedtypep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, nodedtypep} {
-        initWithNumber();
+        , m_ଅଙ୍କ{this, nodedtypep} {
+        init_With_ସଂଖ୍ୟା();
     }
     class StringToParse {};  // for creator type-overload selection
-    AstConst(FileLine* fl, StringToParse, const char* sourcep)
+    AstConst(File_ଧାଡ଼ି* fl, StringToParse, ଅଚଳ ଅକ୍ଷର* sourcep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, sourcep} {
-        initWithNumber();
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::Verilog_ସଂଖ୍ୟା_Literal{}, sourcep} {
+        init_With_ସଂଖ୍ୟା();
     }
     class VerilogStringLiteral {};  // for creator type-overload selection
-    AstConst(FileLine* fl, VerilogStringLiteral, const string& str)
+    AstConst(File_ଧାଡ଼ି* fl, VerilogStringLiteral, ଅଚଳ string& str)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogStringLiteral{}, str} {
-        initWithNumber();
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::VerilogStringLiteral{}, str} {
+        init_With_ସଂଖ୍ୟା();
     }
-    AstConst(FileLine* fl, uint32_t num)
+    AstConst(File_ଧାଡ଼ି* fl, uint32_t ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        dtypeSetBitUnsized(m_num.width(), 0, VSigning::UNSIGNED);
+        , m_ଅଙ୍କ(this, 32, ଅଙ୍କ) {  // Need () constructor
+        dtypeSetBitUnsized(m_ଅଙ୍କ.width(), 0, VSigning::UNSIGNED);
     }
     class Unsized32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized32, uint32_t num)  // Unsized 32-bit integer of specified value
+    AstConst(File_ଧାଡ଼ି* fl, Unsized32, uint32_t ଅଙ୍କ)  // Unsized 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, false);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::UNSIGNED);
+        , m_ଅଙ୍କ(this, 32, ଅଙ୍କ) {  // Need () constructor
+        m_ଅଙ୍କ.width(32, false);
+        dtypeSetBitUnsized(32, m_ଅଙ୍କ.widthToFit(), VSigning::UNSIGNED);
     }
     class Signed32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Signed32, int32_t num)  // Signed 32-bit integer of specified value
+    AstConst(File_ଧାଡ଼ି* fl, Signed32, int32_t ଅଙ୍କ)  // Signed 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, true);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::SIGNED);
+        , m_ଅଙ୍କ(this, 32, ଅଙ୍କ) {  // Need () constructor
+        m_ଅଙ୍କ.width(32, true);
+        dtypeSetBitUnsized(32, m_ଅଙ୍କ.widthToFit(), VSigning::SIGNED);
     }
     class Unsized64 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized64, uint64_t num)
+    AstConst(File_ଧାଡ଼ି* fl, Unsized64, uint64_t ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64, 0) {  // Need () constructor
-        m_num.setQuad(num);
+        , m_ଅଙ୍କ(this, 64, 0) {  // Need () constructor
+        m_ଅଙ୍କ.setQuad(ଅଙ୍କ);
         dtypeSetBitSized(64, VSigning::UNSIGNED);
     }
     class SizedEData {};  // for creator type-overload selection
-    AstConst(FileLine* fl, SizedEData, uint64_t num)
+    AstConst(File_ଧାଡ଼ି* fl, SizedEData, uint64_t ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, VL_EDATASIZE, 0) {  // Need () constructor
-        m_num.setQuad(num);
+        , m_ଅଙ୍କ(this, VL_EDATASIZE, 0) {  // Need () constructor
+        m_ଅଙ୍କ.setQuad(ଅଙ୍କ);
         dtypeSetBitSized(VL_EDATASIZE, VSigning::UNSIGNED);
     }
     class RealDouble {};  // for creator type-overload selection
-    AstConst(FileLine* fl, RealDouble, double num)
+    AstConst(File_ଧାଡ଼ି* fl, RealDouble, ଦ୍ୱିଗୁଣ ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64) {  // Need () constructor
-        m_num.setDouble(num);
+        , m_ଅଙ୍କ(this, 64) {  // Need () constructor
+        m_ଅଙ୍କ.setDouble(ଅଙ୍କ);
         dtypeSetDouble();
     }
     class String {};  // for creator type-overload selection
-    AstConst(FileLine* fl, String, const string& num)
+    AstConst(File_ଧାଡ଼ି* fl, String, ଅଚଳ string& ଅଙ୍କ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::String{}, num} {
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::String{}, ଅଙ୍କ} {
         dtypeSetString();
     }
     class BitFalse {};
-    AstConst(FileLine* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
+    AstConst(File_ଧାଡ଼ି* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
+        , m_ଅଙ୍କ(this, 1, 0) {  // Need () constructor
         dtypeSetBit();
     }
     // False but created due to reporting earlier error; suppress some later errors
     class BitFalseErroring {};
-    AstConst(FileLine* fl, BitFalseErroring)
+    AstConst(File_ଧାଡ଼ି* fl, BitFalseErroring)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
+        , m_ଅଙ୍କ(this, 1, 0) {  // Need () constructor
         dtypeSetBit();
-        FileLine* const newfl = new FileLine{fileline()};
+        File_ଧାଡ଼ି* ଅଚଳ newfl = new File_ଧାଡ଼ି{fileline()};
         newfl->erroringOn(true);
         fileline(newfl);
     }
     // Shorthand const 1 (or with argument 0/1), dtype should be a bit of size 1
     class BitTrue {};
-    AstConst(FileLine* fl, BitTrue, bool on = true)
+    AstConst(File_ଧାଡ଼ି* fl, BitTrue, bool on = true)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, on) {  // Need () constructor
+        , m_ଅଙ୍କ(this, 1, on) {  // Need () constructor
         dtypeSetBit();
     }
     class All0 {};
-    AstConst(FileLine* fl, All0)
+    AstConst(File_ଧାଡ଼ି* fl, All0)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'0"} {
-        initWithNumber();
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::Verilog_ସଂଖ୍ୟା_Literal{}, "'0"} {
+        init_With_ସଂଖ୍ୟା();
         fl->warnOff(V3ErrorCode::NEWERSTD, true);
     }
     class All1 {};
-    AstConst(FileLine* fl, All1)
+    AstConst(File_ଧାଡ଼ି* fl, All1)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'1"} {
-        initWithNumber();
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::Verilog_ସଂଖ୍ୟା_Literal{}, "'1"} {
+        init_With_ସଂଖ୍ୟା();
         fl->warnOff(V3ErrorCode::NEWERSTD, true);
     }
     class Null {};
-    AstConst(FileLine* fl, Null)
+    AstConst(File_ଧାଡ଼ି* fl, Null)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::Null{}} {
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::Null{}} {
         dtypep(findNullDType());
-        initWithNumber();
+        init_With_ସଂଖ୍ୟା();
     }
     class OneStep {};
-    AstConst(FileLine* fl, OneStep)
+    AstConst(File_ଧାଡ଼ି* fl, OneStep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::OneStep{}} {
+        , m_ଅଙ୍କ{this, V3_ସଂଖ୍ୟା::OneStep{}} {
         dtypeSetBitSized(64, VSigning::UNSIGNED);
-        initWithNumber();
+        init_With_ସଂଖ୍ୟା();
     }
     ASTGEN_MEMBERS_AstConst;
-    string name() const override VL_MT_STABLE { return num().ascii(); }  // * = Value
-    const V3Number& num() const VL_MT_SAFE { return m_num; }  // * = Value
-    V3Number& num() { return m_num; }  // * = Value
-    string origParamName() const;
-    void origParamName(const string& name);
-    uint32_t toUInt() const { return num().toUInt(); }
-    int32_t toSInt() const VL_MT_SAFE { return num().toSInt(); }
-    uint64_t toUQuad() const { return num().toUQuad(); }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ ଅଙ୍କ().ascii(); }  // * = Value
+    ଅଚଳ V3_ସଂଖ୍ୟା& ଅଙ୍କ() ଅଚଳ VL_MT_SAFE { ଫେରନ୍ତୁ m_ଅଙ୍କ; }  // * = Value
+    V3_ସଂଖ୍ୟା& ଅଙ୍କ() { ଫେରନ୍ତୁ m_ଅଙ୍କ; }  // * = Value
+    string origParamName() ଅଚଳ;
+    ଶୂନ୍ୟ origParamName(ଅଚଳ string& name);
+    uint32_t toUInt() ଅଚଳ { ଫେରନ୍ତୁ ଅଙ୍କ().toUInt(); }
+    int32_t toSInt() ଅଚଳ VL_MT_SAFE { ଫେରନ୍ତୁ ଅଙ୍କ().toSInt(); }
+    uint64_t toUQuad() ଅଚଳ { ଫେରନ୍ତୁ ଅଙ୍କ().toUQuad(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstConst* const sp = VN_DBG_AS(samep, Const);
-        return num().isCaseEq(sp->num());
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstConst* ଅଚଳ sp = VN_DBG_AS(samep, Const);
+        ଫେରନ୍ତୁ ଅଙ୍କ().isCaseEq(sp->ଅଙ୍କ());
     }
-    void cloneRelink() override;
-    const char* broken() const override {
-        BROKEN_RTN(m_num.nodep() && m_num.nodep() != this);
-        return nullptr;
+    ଶୂନ୍ୟ cloneRelink() override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
+        BROKEN_RTN(m_ଅଙ୍କ.nodep() && m_ଅଙ୍କ.nodep() != this);
+        ଫେରନ୍ତୁ nullptr;
     }
-    int instrCount() const override { return widthInstrs(); }
-    bool isEqAllOnes() const { return num().isEqAllOnes(width()); }
-    bool isEqAllOnesV() const { return num().isEqAllOnes(widthMinV()); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool isEqAllOnes() ଅଚଳ { ଫେରନ୍ତୁ ଅଙ୍କ().isEqAllOnes(width()); }
+    bool isEqAllOnesV() ଅଚଳ { ଫେରନ୍ତୁ ଅଙ୍କ().isEqAllOnes(widthMinV()); }
     // Whether a parameter declared without a data type takes the same type from this value
     // as from 'samep': both real, both string, or both integral with the same width and
     // signedness. Unlike AstNodeDType::similarDType, ignores whether two-state or four-state.
-    bool sameValueType(const AstConst* samep) const;
+    bool same_ମୂଲ୍ୟ_Type(ଅଚଳ AstConst* samep) ଅଚଳ;
     // Parse string and create appropriate type of AstConst.
     // May return nullptr on parse failure.
-    static AstConst* parseParamLiteral(FileLine* fl, const string& literal);
+    ସ୍ଥିର AstConst* parseParamLiteral(File_ଧାଡ଼ି* fl, ଅଚଳ string& literal);
 };
-class AstConstraintRef final : public AstNodeExpr {
+class AstConstraintRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A reference to a constraint identifier
     // @astgen op1 := fromp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_constrp : AstConstraint  // The constraint pointed to
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of constraint
 
-public:
-    AstConstraintRef(FileLine* fl, AstNodeExpr* fromp, AstConstraint* constrp)
+ସର୍ବସାଧାରଣ:
+    AstConstraintRef(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, AstConstraint* constrp)
         : ASTGEN_SUPER_ConstraintRef(fl) {
         this->fromp(fromp);
         this->constrp(constrp);
         dtypep(findConstraintRefDType());
     }
     ASTGEN_MEMBERS_AstConstraintRef;
-    string name() const override VL_MT_STABLE;
-    AstConstraint* constrp() const VL_MT_STABLE { return m_constrp; }
-    void constrp(AstConstraint* nodep) { m_constrp = nodep; }
-    AstNodeModule* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
+    string name() ଅଚଳ override VL_MT_STABLE;
+    AstConstraint* constrp() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_constrp; }
+    ଶୂନ୍ୟ constrp(AstConstraint* nodep) { m_constrp = nodep; }
+    Ast_ଗଣ୍ଠି_Module* classOrPackagep() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_classOrPackagep; }
     // TODO: this setter is unused
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    ଶୂନ୍ୟ classOrPackagep(Ast_ଗଣ୍ଠି_Module* nodep) { m_classOrPackagep = nodep; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ final override { V3ERROR_NA_RETURN(true); }
 };
-class AstCvtArrayToArray final : public AstNodeExpr {
+class AstCvtArrayToArray final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Copy/Cast from dynamic/unpacked types to dynamic/unpacked types
     // @astgen op1 := fromp : AstNodeExpr
-private:
-    const bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
-    const int m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
-    const int m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
-    const int m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
+ବ୍ୟକ୍ତିଗତ:
+    ଅଚଳ bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
+    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
+    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
+    ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
 
-public:
+ସର୍ବସାଧାରଣ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp, bool reverse,
-                       int blockSize, int dstElementBits, int srcElementBits)
+    AstCvtArrayToArray(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp, bool reverse,
+                       ପୂର୍ଣ୍ଣସଂଖ୍ୟା blockSize, ପୂର୍ଣ୍ଣସଂଖ୍ୟା dstElementBits, ପୂର୍ଣ୍ଣସଂଖ୍ୟା srcElementBits)
         : ASTGEN_SUPER_CvtArrayToArray(fl)
         , m_reverse{reverse}
         , m_blockSize{blockSize}
@@ -1235,23 +1235,23 @@ public:
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCvtArrayToArray;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool reverse() const { return m_reverse; }
-    int blockSize() const { return m_blockSize; }
-    int dstElementBits() const { return m_dstElementBits; }
-    int srcElementBits() const { return m_srcElementBits; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool reverse() ଅଚଳ { ଫେରନ୍ତୁ m_reverse; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା blockSize() ଅଚଳ { ଫେରନ୍ତୁ m_blockSize; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା dstElementBits() ଅଚଳ { ଫେରନ୍ତୁ m_dstElementBits; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା srcElementBits() ଅଚଳ { ଫେରନ୍ତୁ m_srcElementBits; }
 };
-class AstCvtArrayToPacked final : public AstNodeExpr {
+class AstCvtArrayToPacked final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast from dynamic queue data type to packed array
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ସର୍ବସାଧାରଣ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToPacked(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtArrayToPacked(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_CvtArrayToPacked(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1259,15 +1259,15 @@ public:
     ASTGEN_MEMBERS_AstCvtArrayToPacked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCvtPackedToArray final : public AstNodeExpr {
+class AstCvtPackedToArray final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast from packed array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ସର୍ବସାଧାରଣ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtPackedToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtPackedToArray(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_CvtPackedToArray(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1275,25 +1275,25 @@ public:
     ASTGEN_MEMBERS_AstCvtPackedToArray;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCvtUnpackToQueue final : public AstNodeExpr {
+class AstCvtUnpackToQueue final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Cast from unpacked array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ସର୍ବସାଧାରଣ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtUnpackToQueue(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCvtUnpackToQueue(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_CvtUnpackToQueue(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCvtUnpackToQueue;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
-    bool cleanOut() const override { return true; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCvtUnpackToUnpack final : public AstNodeExpr {
+class AstCvtUnpackToUnpack final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Convert an unpacked array to one with the same shape but different ascending/descending
     // direction in at least one dimension (IEEE 1800-2023 7.6).
     // Any combination of dimensions is reversed by the one conversion, which dimensions follow
@@ -1302,8 +1302,8 @@ class AstCvtUnpackToUnpack final : public AstNodeExpr {
     // outer one. A conversion of an inner dimension is not inserted lower down instead, which
     // would need the arrays split into elements.
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCvtUnpackToUnpack(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+ସର୍ବସାଧାରଣ:
+    AstCvtUnpackToUnpack(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_CvtUnpackToUnpack(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
@@ -1311,53 +1311,53 @@ public:
     ASTGEN_MEMBERS_AstCvtUnpackToUnpack;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstDist final : public AstNodeExpr {
+class AstDist final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstDistItem]
-public:
-    AstDist(FileLine* fl, AstNodeExpr* exprp, AstDistItem* itemsp)
+ସର୍ବସାଧାରଣ:
+    AstDist(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, AstDistItem* itemsp)
         : ASTGEN_SUPER_Dist(fl) {
         this->exprp(exprp);
         addItemsp(itemsp);
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstDist;
-    string emitVerilog() override { return "%l dist { %r }"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l dist { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // NA
 };
-class AstDistItem final : public AstNodeExpr {
+class AstDistItem final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Constraint distribution item
     // @astgen op1 := rangep : AstNodeExpr
     // @astgen op2 := weightp : AstNodeExpr
     bool m_isWhole = false;  // True for weight ':/', false for ':='
-public:
-    AstDistItem(FileLine* fl, AstNodeExpr* rangep, AstNodeExpr* weightp)
+ସର୍ବସାଧାରଣ:
+    AstDistItem(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rangep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* weightp)
         : ASTGEN_SUPER_DistItem(fl) {
         this->rangep(rangep);
         this->weightp(weightp);
     }
     ASTGEN_MEMBERS_AstDistItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
-    void isWhole(bool flag) { m_isWhole = flag; }
-    bool isWhole() const { return m_isWhole; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // NA
+    ଶୂନ୍ୟ isWhole(bool flag) { m_isWhole = flag; }
+    bool isWhole() ଅଚଳ { ଫେରନ୍ତୁ m_isWhole; }
 };
-class AstDot final : public AstNodeExpr {
+class AstDot final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A dot separating paths in an AstVarXRef, AstFuncRef or AstTaskRef
     // These are eliminated in the link stage
     // @astgen op1 := lhsp : AstNode<AstNodeExpr|AstNodeDType>
     // @astgen op2 := rhsp : AstNode<AstNodeExpr|AstNodeDType>
     //
     // We don't have a list of elements as it's probably legal to do '(foo.bar).(baz.bap)'
-    const bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
-public:
-    AstDot(FileLine* fl, bool colon, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+    ଅଚଳ bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
+ସର୍ବସାଧାରଣ:
+    AstDot(File_ଧାଡ଼ି* fl, bool colon, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Dot(fl)
         , m_colon{colon} {
         this->lhsp(lhsp);
@@ -1365,36 +1365,36 @@ public:
     }
     ASTGEN_MEMBERS_AstDot;
     // For parser, make only if non-null package
-    static AstNodeExpr* newIfPkg(FileLine* fl, AstNodeExpr* packageOrClassp, AstNodeExpr* rhsp) {
-        if (!packageOrClassp) return rhsp;
-        return new AstDot{fl, true, packageOrClassp, rhsp};
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newIfPkg(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* packageOrClassp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp) {
+        ଯଦି (!packageOrClassp) ଫେରନ୍ତୁ rhsp;
+        ଫେରନ୍ତୁ new AstDot{fl, true, packageOrClassp, rhsp};
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool colon() const { return m_colon; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    bool colon() ଅଚଳ { ଫେରନ୍ତୁ m_colon; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstEmptyQueue final : public AstNodeExpr {
-public:
-    explicit AstEmptyQueue(FileLine* fl)
+class AstEmptyQueue final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
+ସର୍ବସାଧାରଣ:
+    explicit AstEmptyQueue(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_EmptyQueue(fl) {}
     ASTGEN_MEMBERS_AstEmptyQueue;
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitVerilog() override { return "{}"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "{}"; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstEnumItemRef final : public AstNodeExpr {
+class AstEnumItemRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen ptr := m_itemp : Optional[AstEnumItem]  // [AfterLink] Pointer to item
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of enum (for param relink)
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
     bool m_containsGenBlock = false;  // Contains gen block reference
-public:
-    AstEnumItemRef(FileLine* fl, AstEnumItem* itemp, AstNodeModule* classOrPackagep)
+ସର୍ବସାଧାରଣ:
+    AstEnumItemRef(File_ଧାଡ଼ି* fl, AstEnumItem* itemp, Ast_ଗଣ୍ଠି_Module* classOrPackagep)
         : ASTGEN_SUPER_EnumItemRef(fl)
         , m_name{itemp->name()}
         , m_itemp{itemp}
@@ -1402,64 +1402,64 @@ public:
         dtypeFrom(m_itemp);
     }
     ASTGEN_MEMBERS_AstEnumItemRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return itemp() ? itemp()->name() : m_name; }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumItemRef* const sp = VN_DBG_AS(samep, EnumItemRef);
-        return itemp() == sp->itemp() && dotted() == sp->dotted()
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ itemp() ? itemp()->name() : m_name; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstEnumItemRef* ଅଚଳ sp = VN_DBG_AS(samep, EnumItemRef);
+        ଫେରନ୍ତୁ itemp() == sp->itemp() && dotted() == sp->dotted()
                && containsGenBlock() == sp->containsGenBlock();
     }
-    AstEnumItem* itemp() const VL_MT_STABLE { return m_itemp; }
-    void itemp(AstEnumItem* nodep) { m_itemp = nodep; }
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
+    AstEnumItem* itemp() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_itemp; }
+    ଶୂନ୍ୟ itemp(AstEnumItem* nodep) { m_itemp = nodep; }
+    string dotted() ଅଚଳ { ଫେରନ୍ତୁ m_dotted; }
+    ଶୂନ୍ୟ dotted(ଅଚଳ string& dotted) { m_dotted = dotted; }
+    bool containsGenBlock() ଅଚଳ { ଫେରନ୍ତୁ m_containsGenBlock; }
+    ଶୂନ୍ୟ containsGenBlock(ଅଚଳ bool flag) { m_containsGenBlock = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    Ast_ଗଣ୍ଠି_Module* classOrPackagep() ଅଚଳ { ଫେରନ୍ତୁ m_classOrPackagep; }
+    ଶୂନ୍ୟ classOrPackagep(Ast_ଗଣ୍ଠି_Module* nodep) { m_classOrPackagep = nodep; }
 };
-class AstExprStmt final : public AstNodeExpr {
+class Ast_ପଦସମଷ୍ଟି_Stmt final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Perform a statement, often assignment inside an expression node,
     // the parent gets passed the 'resultp()'.
     // resultp is evaluated AFTER the statement(s).
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := resultp : AstNodeExpr
-private:
+ବ୍ୟକ୍ତିଗତ:
     bool m_hasResult = true;  // Returns result via resultp()
 
-public:
-    AstExprStmt(FileLine* fl, AstNode* stmtsp, AstNodeExpr* resultp)
-        : ASTGEN_SUPER_ExprStmt(fl) {
+ସର୍ବସାଧାରଣ:
+    Ast_ପଦସମଷ୍ଟି_Stmt(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି* stmtsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* resultp)
+        : ASTGEN_SUPER_ପଦସମଷ୍ଟି_Stmt(fl) {
         addStmtsp(stmtsp);
         this->resultp(resultp);
         dtypeFrom(resultp);
     }
-    ASTGEN_MEMBERS_AstExprStmt;
+    ASTGEN_MEMBERS_Ast_ପଦସମଷ୍ଟି_Stmt;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
     bool isPure() override {
-        if (AstNode::afterCommentp(stmtsp())) return false;
-        return resultp()->isPure();
+        ଯଦି (Ast_ଗଣ୍ଠି::afterCommentp(stmtsp())) ଫେରନ୍ତୁ false;
+        ଫେରନ୍ତୁ resultp()->isPure();
     }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool hasResult() const { return m_hasResult; }
-    void hasResult(bool flag) { m_hasResult = flag; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool hasResult() ଅଚଳ { ଫେରନ୍ତୁ m_hasResult; }
+    ଶୂନ୍ୟ hasResult(bool flag) { m_hasResult = flag; }
 };
-class AstFError final : public AstNodeExpr {
+class AstFError final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := filep : AstNodeExpr
     // @astgen op2 := strp : AstNodeExpr
-public:
-    AstFError(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* strp)
+ସର୍ବସାଧାରଣ:
+    AstFError(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* strp)
         : ASTGEN_SUPER_FError(fl) {
         this->filep(filep);
         this->strp(strp);
@@ -1468,20 +1468,20 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFError;
-    string emitVerilog() override { return "%f$ferror(%l, %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$ferror(%l, %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 64; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFOpen final : public AstNodeExpr {
+class AstFOpen final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op2 := filenamep : AstNodeExpr
     // @astgen op3 := modep : AstNodeExpr
-public:
-    AstFOpen(FileLine* fl, AstNodeExpr* filenamep, AstNodeExpr* modep)
+ସର୍ବସାଧାରଣ:
+    AstFOpen(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filenamep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* modep)
         : ASTGEN_SUPER_FOpen(fl) {
         this->filenamep(filenamep);
         this->modep(modep);
@@ -1492,20 +1492,20 @@ public:
     ASTGEN_MEMBERS_AstFOpen;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$fopen"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFOpenMcd final : public AstNodeExpr {
+class AstFOpenMcd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op2 := filenamep : AstNodeExpr
-public:
-    AstFOpenMcd(FileLine* fl, AstNodeExpr* filenamep)
+ସର୍ବସାଧାରଣ:
+    AstFOpenMcd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filenamep)
         : ASTGEN_SUPER_FOpenMcd(fl) {
         this->filenamep(filenamep);
         dtypeSetLogic2StateUnsized(
@@ -1515,23 +1515,23 @@ public:
     ASTGEN_MEMBERS_AstFOpenMcd;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$fopen"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFRead final : public AstNodeExpr {
+class AstFRead final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := memp : AstNodeExpr // VarRef for result
     // @astgen op2 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op3 := startp : Optional[AstNodeExpr] // Offset
     // @astgen op4 := countp : Optional[AstNodeExpr] // Size
-public:
-    AstFRead(FileLine* fl, AstNodeExpr* memp, AstNodeExpr* filep, AstNodeExpr* startp,
-             AstNodeExpr* countp)
+ସର୍ବସାଧାରଣ:
+    AstFRead(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* memp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* startp,
+             Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp)
         : ASTGEN_SUPER_FRead(fl) {
         this->memp(memp);
         this->filep(filep);
@@ -1540,21 +1540,21 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRead;
-    string verilogKwd() const override { return "$fread"; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$fread"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }  // SPECIAL: makes output
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFRewind final : public AstNodeExpr {
+class AstFRewind final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := filep : Optional[AstNodeExpr]
-public:
-    AstFRewind(FileLine* fl, AstNodeExpr* filep)
+ସର୍ବସାଧାରଣ:
+    AstFRewind(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep)
         : ASTGEN_SUPER_FRewind(fl) {
         this->filep(filep);
         dtypeSetLogic2StateUnsized(
@@ -1562,24 +1562,24 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRewind;
-    string verilogKwd() const override { return "$frewind"; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$frewind"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFScanF final : public AstNodeExpr {
+class AstFScanF final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
     string m_text;
 
-public:
-    AstFScanF(FileLine* fl, const string& text, AstNodeExpr* filep, AstNodeExpr* exprsp)
+ସର୍ବସାଧାରଣ:
+    AstFScanF(File_ଧାଡ଼ି* fl, ଅଚଳ string& text, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp)
         : ASTGEN_SUPER_FScanF(fl)
         , m_text{text} {
         addExprsp(exprsp);
@@ -1587,28 +1587,28 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$fscanf"; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_text; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$fscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, FScanF)->text();
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }  // SPECIAL: makes output
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ text() == VN_DBG_AS(samep, FScanF)->text();
     }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    bool isSystemFunc() const override { return true; }
+    string text() ଅଚଳ { ଫେରନ୍ତୁ m_text; }  // * = Text to display
+    ଶୂନ୍ୟ text(ଅଚଳ string& text) { m_text = text; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFSeek final : public AstNodeExpr {
+class AstFSeek final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op2 := offset : Optional[AstNodeExpr]
     // @astgen op3 := operation : Optional[AstNodeExpr]
-public:
-    AstFSeek(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* offset, AstNodeExpr* operation)
+ସର୍ବସାଧାରଣ:
+    AstFSeek(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* offset, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* operation)
         : ASTGEN_SUPER_FSeek(fl) {
         this->filep(filep);
         this->offset(offset);
@@ -1618,21 +1618,21 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFSeek;
-    string verilogKwd() const override { return "$fseek"; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$fseek"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }  // SPECIAL: makes output
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFTell final : public AstNodeExpr {
+class AstFTell final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFTell(FileLine* fl, AstNodeExpr* filep)
+ସର୍ବସାଧାରଣ:
+    AstFTell(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* filep)
         : ASTGEN_SUPER_FTell(fl) {
         this->filep(filep);
         dtypeSetLogic2StateUnsized(
@@ -1640,107 +1640,107 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFTell;
-    string verilogKwd() const override { return "$ftell"; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$ftell"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFalling final : public AstNodeExpr {
+class AstFalling final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $falling_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstFalling(FileLine* fl, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstFalling(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_Falling(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstFalling;
-    string emitVerilog() override { return "$falling_gclk(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$falling_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFell final : public AstNodeExpr {
+class AstFell final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $fell
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFell(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ସର୍ବସାଧାରଣ:
+    AstFell(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_Sen_ବୃକ୍ଷ* sentreep)
         : ASTGEN_SUPER_Fell(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFell;
-    string emitVerilog() override { return "$fell(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$fell(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFuture final : public AstNodeExpr {
+class AstFuture final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $future_gclk
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFuture(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ସର୍ବସାଧାରଣ:
+    AstFuture(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_Sen_ବୃକ୍ଷ* sentreep)
         : ASTGEN_SUPER_Future(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFuture;
-    string emitVerilog() override { return "$future_gclk(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$future_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGatePin final : public AstNodeExpr {
+class AstGatePin final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Possibly expand a gate primitive input pin value to match the range of the gate primitive
     // @astgen op1 := exprp : AstNodeExpr // Pin expression
     // @astgen op2 := rangep : AstRange // Range of pin
-public:
-    AstGatePin(FileLine* fl, AstNodeExpr* exprp, AstRange* rangep)
+ସର୍ବସାଧାରଣ:
+    AstGatePin(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, AstRange* rangep)
         : ASTGEN_SUPER_GatePin(fl) {
         this->exprp(exprp);
         this->rangep(rangep);
     }
     ASTGEN_MEMBERS_AstGatePin;
-    string emitVerilog() override { return "%l"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGetInitialRandomSeed final : public AstNodeExpr {
+class AstGetInitialRandomSeed final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $get_initial_random_seed()
-public:
-    explicit AstGetInitialRandomSeed(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstGetInitialRandomSeed(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_GetInitialRandomSeed(fl) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstGetInitialRandomSeed;
-    string emitVerilog() override { return "$get_initial_random_seed()"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$get_initial_random_seed()"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isPure() override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstImplication final : public AstNodeExpr {
+class AstImplication final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Implication |-> |=> (IEEE 1800-2023 16.12.7) and followed-by #-# #=#
     // (IEEE 1800-2023 16.12.9). Antecedent-miss is vacuous-pass for implication
     // and non-vacuous-fail for followed-by, hence the separate flag.
@@ -1748,12 +1748,12 @@ class AstImplication final : public AstNodeExpr {
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := sentreep : Optional[AstSenTree]
 
-private:
-    const bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
-    const bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
+ବ୍ୟକ୍ତିଗତ:
+    ଅଚଳ bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
+    ଅଚଳ bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
 
-public:
-    AstImplication(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool isOverlapped,
+ସର୍ବସାଧାରଣ:
+    AstImplication(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, bool isOverlapped,
                    bool isFollowedBy = false)
         : ASTGEN_SUPER_Implication(fl)
         , m_isOverlapped{isOverlapped}
@@ -1762,74 +1762,74 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstImplication;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return m_isFollowedBy || !m_isOverlapped; }
-    bool isOverlapped() const { return m_isOverlapped; }
-    bool isFollowedBy() const { return m_isFollowedBy; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ m_isFollowedBy || !m_isOverlapped; }
+    bool isOverlapped() ଅଚଳ { ଫେରନ୍ତୁ m_isOverlapped; }
+    bool isFollowedBy() ଅଚଳ { ଫେରନ୍ତୁ m_isFollowedBy; }
 };
-class AstInside final : public AstNodeExpr {
+class AstInside final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstNodeExpr]
-public:
-    AstInside(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* itemsp)
+ସର୍ବସାଧାରଣ:
+    AstInside(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* itemsp)
         : ASTGEN_SUPER_Inside(fl) {
         this->exprp(exprp);
         addItemsp(itemsp);
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstInside;
-    string emitVerilog() override { return "%l inside { %r }"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l inside { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // NA
 };
-class AstInsideRange final : public AstNodeExpr {
+class AstInsideRange final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
-public:
-    AstInsideRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstInsideRange(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_InsideRange(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstInsideRange;
-    string emitVerilog() override { return "[%l:%r]"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "[%l:%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // NA
     // Create AstAnd(AstGte(...), AstLte(...))
-    AstNodeExpr* newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newAndFromInside(Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp);
 };
-class AstLambdaArgRef final : public AstNodeExpr {
+class AstLambdaArgRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Lambda argument usage
     // These are not AstVarRefs because we need to be able to delete/clone lambdas during
     // optimizations and AstVar's are painful to remove.
     string m_name;  // Name of variable
     bool m_index;  // Index, not value
 
-public:
-    AstLambdaArgRef(FileLine* fl, const string& name, bool index)
+ସର୍ବସାଧାରଣ:
+    AstLambdaArgRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, bool index)
         : ASTGEN_SUPER_LambdaArgRef(fl)
         , m_name{name}
         , m_index{index} {}
     ASTGEN_MEMBERS_AstLambdaArgRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    string emitVerilog() override { return name(); }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ name(); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool index() const { return m_index; }
-    bool isExprCoverageEligible() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    bool index() ଅଚଳ { ଫେରନ୍ତୁ m_index; }
+    bool is_ପଦସମଷ୍ଟି_Coverage_Eligible() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstMatchMasked final : public AstNodeExpr {
+class AstMatchMasked final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // This is a non-source construct, created internally to represent
     // some case statements. It is a '(mask & _) == bits' matching loop
     // where {mask, bits} pairs are packed into a single wide 'matchp',
@@ -1837,106 +1837,106 @@ class AstMatchMasked final : public AstNodeExpr {
     // See VL_DECODER_* runtime functions.
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := matchp : AstVarRef
-public:
-    inline AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp);
+ସର୍ବସାଧାରଣ:
+    ଧାଡ଼ିଭିତରେ AstMatchMasked(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, AstVarRef* matchp);
     ASTGEN_MEMBERS_AstMatchMasked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    static uint32_t fold(const V3Number& lhs, AstVar* matchVarp);
+    string emitC() override { ଫେରନ୍ତୁ "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ସ୍ଥିର uint32_t fold(ଅଚଳ V3_ସଂଖ୍ୟା& lhs, AstVar* matchVarp);
 };
-class AstMatches final : public AstNodeExpr {
+class AstMatches final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // "matches" operator: "expr matches pattern"
     // @astgen op1 := lhsp : AstNodeExpr  // Expression to match
     // @astgen op2 := patternp : AstNode  // Pattern to match against
-public:
-    AstMatches(FileLine* fl, AstNodeExpr* lhsp, AstNode* patternp)
+ସର୍ବସାଧାରଣ:
+    AstMatches(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି* patternp)
         : ASTGEN_SUPER_Matches(fl) {
         this->lhsp(lhsp);
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstMatches;
-    string emitVerilog() override { return "%l matches %r"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l matches %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstMemberSel final : public AstNodeExpr {
+class AstMemberSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := fromp : AstNodeExpr
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Post link, variable in class that is selecting
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     string m_name;
     VAccess m_access;  // Read or write, as in AstNodeVarRef
-public:
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name)
+ସର୍ବସାଧାରଣ:
+    AstMemberSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, VFlagChildDType, ଅଚଳ string& name)
         : ASTGEN_SUPER_MemberSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp);
+    AstMemberSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, AstVar* varp);
     ASTGEN_MEMBERS_AstMemberSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    VAccess access() ଅଚଳ { ଫେରନ୍ତୁ m_access; }
+    ଶୂନ୍ୟ access(ଅଚଳ VAccess& flag) { m_access = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override;
-    int instrCount() const override { return widthInstrs(); }
-    AstVar* varp() const { return m_varp; }
-    void varp(AstVar* nodep) { m_varp = nodep; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    AstVar* varp() ଅଚଳ { ଫେରନ୍ତୁ m_varp; }
+    ଶୂନ୍ୟ varp(AstVar* nodep) { m_varp = nodep; }
 };
-class AstNewCopy final : public AstNodeExpr {
+class AstNewCopy final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // New as shallow copy
     // @astgen op1 := rhsp : AstNodeExpr
-public:
-    AstNewCopy(FileLine* fl, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNewCopy(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NewCopy(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewCopy;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstNewDynamic final : public AstNodeExpr {
+class AstNewDynamic final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // New for dynamic array
     // @astgen op1 := sizep : AstNodeExpr
     // @astgen op2 := rhsp : Optional[AstNodeExpr]
-public:
-    AstNewDynamic(FileLine* fl, AstNodeExpr* sizep, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNewDynamic(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* sizep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NewDynamic(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->sizep(sizep);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewDynamic;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstPExpr final : public AstNodeExpr {
+class AstPExpr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Property expression
     // @astgen op1 := bodyp : AstBegin
     // @astgen op2 := finalp : Optional[AstNodeStmt]
-public:
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeDType* dtypep)
+ସର୍ବସାଧାରଣ:
+    explicit AstPExpr(File_ଧାଡ଼ି* fl, AstBegin* bodyp, Ast_ଗଣ୍ଠି_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(nullptr);
         this->dtypep(dtypep);
     }
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeStmt* finalp, AstNodeDType* dtypep)
+    explicit AstPExpr(File_ଧାଡ଼ି* fl, AstBegin* bodyp, Ast_ଗଣ୍ଠି_Stmt* finalp, Ast_ଗଣ୍ଠି_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(finalp);
@@ -1945,21 +1945,21 @@ public:
     ASTGEN_MEMBERS_AstPExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstParseHolder final : public AstNodeExpr {
+class AstParseHolder final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A reference to something soon to replace, used in a select at parse time
     // that needs conversion to pull the upper lvalue later
-public:
-    explicit AstParseHolder(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstParseHolder(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_ParseHolder(fl) {}
     ASTGEN_MEMBERS_AstParseHolder;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstParseRef final : public AstNodeExpr {
+class AstParseRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A reference to a variable, function or task
     // We don't know which at parse time due to bison constraints
     // The link stages will replace this with AstVarRef, or AstTaskRef, etc.
@@ -1968,27 +1968,27 @@ class AstParseRef final : public AstNodeExpr {
 
     string m_name;  // Name of the variable/function/task
 
-public:
-    AstParseRef(FileLine* fl, const string& name, AstNodeExpr* lhsp = nullptr,
-                AstNodeFTaskRef* ftaskrefp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstParseRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp = nullptr,
+                Ast_ଗଣ୍ଠି_FTask_Ref* ftaskrefp = nullptr)
         : ASTGEN_SUPER_ParseRef(fl)
         , m_name{name} {
         this->lhsp(lhsp);
         this->ftaskrefp(ftaskrefp);
     }
     ASTGEN_MEMBERS_AstParseRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstParseRef* const asamep = VN_DBG_AS(samep, ParseRef);
-        return m_name == asamep->m_name;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstParseRef* ଅଚଳ asamep = VN_DBG_AS(samep, ParseRef);
+        ଫେରନ୍ତୁ m_name == asamep->m_name;
     }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPast final : public AstNodeExpr {
+class AstPast final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $past
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := ticksp : Optional[AstNodeExpr]
@@ -1999,9 +1999,9 @@ class AstPast final : public AstNodeExpr {
     // functions such as $rose/$fell must remain false so they receive default initialization.
     bool m_propertyTiming : 1;
 
-public:
-    AstPast(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ticksp = nullptr,
-            AstSenTree* sentreep = nullptr, bool propertyTiming = false)
+ସର୍ବସାଧାରଣ:
+    AstPast(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ticksp = nullptr,
+            Ast_Sen_ବୃକ୍ଷ* sentreep = nullptr, bool propertyTiming = false)
         : ASTGEN_SUPER_Past(fl)
         , m_propertyTiming{propertyTiming} {
         this->exprp(exprp);
@@ -2009,20 +2009,20 @@ public:
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstPast;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        return m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
     }
-    bool propertyTiming() const { return m_propertyTiming; }
-    bool isSystemFunc() const override { return true; }
+    bool propertyTiming() ଅଚଳ { ଫେରନ୍ତୁ m_propertyTiming; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPatMember final : public AstNodeExpr {
+class AstPatMember final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog '{a} or '{a{b}}
     // Parents: AstPattern
     // Children: expression, AstPattern, replication count, decoded nodep if TEXT
@@ -2034,35 +2034,35 @@ class AstPatMember final : public AstNodeExpr {
     bool m_isDefault = false;  // Has default
     bool m_isConcat = false;  // From concatenate
 
-public:
-    AstPatMember(FileLine* fl, AstNodeExpr* lhssp, AstNode* keyp, AstNodeExpr* repp)
+ସର୍ବସାଧାରଣ:
+    AstPatMember(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhssp, Ast_ଗଣ୍ଠି* keyp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* repp)
         : ASTGEN_SUPER_PatMember(fl) {
         addLhssp(lhssp);
         this->keyp(keyp);
         this->repp(repp);
     }
     ASTGEN_MEMBERS_AstPatMember;
-    string emitVerilog() override { return lhssp() ? "%f{%r{%k%l}}" : "%l"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ lhssp() ? "%f{%r{%k%l}}" : "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs() * 2; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool isConcat() const { return m_isConcat; }
-    void isConcat(bool flag) { m_isConcat = flag; }
-    bool isDefault() const { return m_isDefault; }
-    void isDefault(bool flag) { m_isDefault = flag; }
-    AstNodeExpr* keyExprp() const { return varrefp() ? varrefp() : VN_CAST(keyp(), NodeExpr); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    bool isConcat() ଅଚଳ { ଫେରନ୍ତୁ m_isConcat; }
+    ଶୂନ୍ୟ isConcat(bool flag) { m_isConcat = flag; }
+    bool isDefault() ଅଚଳ { ଫେରନ୍ତୁ m_isDefault; }
+    ଶୂନ୍ୟ isDefault(bool flag) { m_isDefault = flag; }
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ଚାବି_Exprp() ଅଚଳ { ଫେରନ୍ତୁ varrefp() ? varrefp() : VN_CAST(keyp(), ଗଣ୍ଠି_ପଦସମଷ୍ଟି); }
 };
-class AstPattern final : public AstNodeExpr {
+class AstPattern final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog '{a,b,c,d...}
     // Parents: AstNodeAssign, AstPattern, ...
     // Children: expression, AstPattern, AstPatReplicate
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstNode] // AstPatReplicate, AstPatMember, etc
-public:
-    AstPattern(FileLine* fl, AstNode* itemsp)
+ସର୍ବସାଧାରଣ:
+    AstPattern(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି* itemsp)
         : ASTGEN_SUPER_Pattern(fl) {
         addItemsp(itemsp);
     }
@@ -2070,46 +2070,46 @@ public:
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    Ast_ଗଣ୍ଠି_DType* getChildDTypep() ଅଚଳ override { ଫେରନ୍ତୁ childDTypep(); }
+    Ast_ଗଣ୍ଠି_DType* subDTypep() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ dtypep() ? dtypep() : childDTypep(); }
 };
-class AstPatternStar final : public AstNodeExpr {
+class AstPatternStar final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Pattern wildcard: ".*"
-public:
-    explicit AstPatternStar(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstPatternStar(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_PatternStar(fl) {}
     ASTGEN_MEMBERS_AstPatternStar;
-    string emitVerilog() override { return ".*"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ ".*"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPatternVar final : public AstNodeExpr {
+class AstPatternVar final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Pattern variable binding: ".variable"
     string m_name;  // Variable name
-public:
-    AstPatternVar(FileLine* fl, const string& name)
+ସର୍ବସାଧାରଣ:
+    AstPatternVar(File_ଧାଡ଼ି* fl, ଅଚଳ string& name)
         : ASTGEN_SUPER_PatternVar(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstPatternVar;
-    string emitVerilog() override { return ".%k"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ ".%k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, PatternVar)->m_name;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_name == VN_DBG_AS(samep, PatternVar)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
 };
-class AstPropAlways final : public AstNodeExpr {
+class AstPropAlways final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // always[m:n] / s_always[m:n] (IEEE 1800-2023 16.12.11)
     // @astgen op1 := propp : AstNodeExpr
     // @astgen op2 := loBoundp : AstNodeExpr
     // @astgen op3 := hiBoundp : AstNodeExpr
-    const bool m_isStrong = false;  // s_always
-public:
-    AstPropAlways(FileLine* fl, AstNodeExpr* propp, AstNodeExpr* loBoundp, AstNodeExpr* hiBoundp,
+    ଅଚଳ bool m_isStrong = false;  // s_always
+ସର୍ବସାଧାରଣ:
+    AstPropAlways(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* propp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* loBoundp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* hiBoundp,
                   bool isStrong)
         : ASTGEN_SUPER_PropAlways(fl)
         , m_isStrong{isStrong} {
@@ -2118,126 +2118,126 @@ public:
         this->hiBoundp(hiBoundp);
     }
     ASTGEN_MEMBERS_AstPropAlways;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool isStrong() const { return m_isStrong; }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { V3ERROR_NA_RETURN(0); }
+    bool isStrong() ଅଚଳ { ଫେରନ୍ତୁ m_isStrong; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRand final : public AstNodeExpr {
+class AstRand final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // $random/$random(seed) or $urandom/$urandom(seed)
     // Return a random number, based upon width()
     // @astgen op1 := seedp : Optional[AstNodeExpr]
-    const bool m_urandom;  // $urandom vs $random
-public:
+    ଅଚଳ bool m_urandom;  // $urandom vs $random
+ସର୍ବସାଧାରଣ:
     class Reset {};
-    AstRand(FileLine* fl, AstNodeExpr* seedp, bool urandom)
+    AstRand(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* seedp, bool urandom)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{urandom} {
         this->seedp(seedp);
     }
     class SRandomU32 {};
-    AstRand(FileLine* fl, SRandomU32)
+    AstRand(File_ଧାଡ଼ି* fl, SRandomU32)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{true} {
         dtypeSetUInt32();
     }
     ASTGEN_MEMBERS_AstRand;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override {
-        return seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
+        ଫେରନ୍ତୁ seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
                        : (m_urandom ? "%f$urandom()" : "%f$random()");
     }
     string emitC() override {
-        if (seedp()) {
-            if (urandom()) return "VL_URANDOM_SEEDED_%nq%lq(%li)";
-            return "VL_RANDOM_SEEDED_%nq%lq(%li)";
+        ଯଦି (seedp()) {
+            ଯଦି (urandom()) ଫେରନ୍ତୁ "VL_URANDOM_SEEDED_%nq%lq(%li)";
+            ଫେରନ୍ତୁ "VL_RANDOM_SEEDED_%nq%lq(%li)";
         }
-        if (isWide()) return "VL_RANDOM_%nq(%nw, %P)";
-        return "VL_RANDOM_%nq()";
+        ଯଦି (isWide()) ଫେରନ୍ତୁ "VL_RANDOM_%nq(%nw, %P)";
+        ଫେରନ୍ତୁ "VL_RANDOM_%nq()";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !seedp(); }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool combinable(const AstRand* samep) const {
-        return !seedp() && !samep->seedp() && urandom() == samep->urandom();
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ !seedp(); }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool combinable(ଅଚଳ AstRand* samep) ଅଚଳ {
+        ଫେରନ୍ତୁ !seedp() && !samep->seedp() && urandom() == samep->urandom();
     }
-    bool urandom() const { return m_urandom; }
+    bool urandom() ଅଚଳ { ଫେରନ୍ତୁ m_urandom; }
 };
-class AstRandRNG final : public AstNodeExpr {
+class AstRandRNG final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Random used in a class using VlRNG
     // Return a random number, based upon width()
-public:
-    AstRandRNG(FileLine* fl, AstNodeDType* dtp)
+ସର୍ବସାଧାରଣ:
+    AstRandRNG(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_DType* dtp)
         : ASTGEN_SUPER_RandRNG(fl) {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstRandRNG;
-    string emitVerilog() override { return "%f$rngrandom()"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$rngrandom()"; }
     string emitC() override {
-        return isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
+        ଫେରନ୍ତୁ isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
                         : "VL_RANDOM_RNG_%nq(__Vm_rng)";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRising final : public AstNodeExpr {
+class AstRising final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $rising_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstRising(FileLine* fl, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstRising(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_Rising(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstRising;
-    string emitVerilog() override { return "$rising_gclk(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$rising_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRose final : public AstNodeExpr {
+class AstRose final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $rose
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstRose(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ସର୍ବସାଧାରଣ:
+    AstRose(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_Sen_ବୃକ୍ଷ* sentreep)
         : ASTGEN_SUPER_Rose(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstRose;
-    string emitVerilog() override { return "$rose(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$rose(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSClocked final : public AstNodeExpr {
+class AstSClocked final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Sequence expression with an explicit leading clocking event
     // IEEE 1800-2023 16.7: sequence_expr ::= clocking_event sequence_expr
     // The clocking event is hoisted to the enclosing assertion clock by V3AssertNfa.
     // @astgen op1 := sensesp : AstSenItem
     // @astgen op2 := exprp : AstNodeExpr
-public:
-    AstSClocked(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstSClocked(File_ଧାଡ଼ି* fl, AstSenItem* sensesp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_SClocked(fl) {
         this->sensesp(sensesp);
         this->exprp(exprp);
@@ -2245,9 +2245,9 @@ public:
     ASTGEN_MEMBERS_AstSClocked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
 };
-class AstSConsRep final : public AstNodeExpr {
+class AstSConsRep final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Consecutive repetition [*N], [*N:M], [*N:$], [+], [*] (IEEE 1800-2023 16.9.2)
     // op1 := exprp -- the repeated expression
     // op2 := countp -- min repetition count (N); always a non-negative constant after V3Width
@@ -2266,16 +2266,16 @@ class AstSConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-    const bool m_unbounded = false;  // True when the upper bound is $
-public:
+    ଅଚଳ bool m_unbounded = false;  // True when the upper bound is $
+ସର୍ବସାଧାରଣ:
     // Exact [*N]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSConsRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp)
         : ASTGEN_SUPER_SConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [*N:M] or unbounded [*N:$]/[+]/[*]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp,
+    AstSConsRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* maxCountp,
                 bool unbounded)
         : ASTGEN_SUPER_SConsRep(fl)
         , m_unbounded{unbounded} {
@@ -2284,45 +2284,45 @@ public:
         this->maxCountp(maxCountp);
     }
     ASTGEN_MEMBERS_AstSConsRep;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { V3ERROR_NA_RETURN(0); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {  // LCOV_EXCL_LINE
+        ଫେରନ୍ତୁ m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
     }
-    bool unbounded() const { return m_unbounded; }
-    bool isMultiCycleSva() const override { return true; }
+    bool unbounded() ଅଚଳ { ଫେରନ୍ତୁ m_unbounded; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSEventually final : public AstNodeExpr {
+class AstSEventually final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // s_eventually
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    explicit AstSEventually(FileLine* fl, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    explicit AstSEventually(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_SEventually(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSEventually;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
 };
-class AstSExpr final : public AstNodeExpr {
+class AstSExpr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Sequence expression
     // @astgen op1 := preExprp: Optional[AstNodeExpr]
     // @astgen op2 := delayp : AstNodeStmt<AstDelay|AstBegin>
     // @astgen op3 := exprp : AstNodeExpr
-public:
-    explicit AstSExpr(FileLine* fl, AstNodeExpr* preExprp, AstNodeStmt* delayp, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    explicit AstSExpr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* preExprp, Ast_ଗଣ୍ଠି_Stmt* delayp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(preExprp);
         this->delayp(delayp);
         this->exprp(exprp);
     }
-    explicit AstSExpr(FileLine* fl, AstNodeStmt* delayp, AstNodeExpr* exprp)
+    explicit AstSExpr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_Stmt* delayp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(nullptr);
         this->delayp(delayp);
@@ -2331,11 +2331,11 @@ public:
     ASTGEN_MEMBERS_AstSExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSFormatArg final : public AstNodeExpr {
+class AstSFormatArg final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Information for formatting each argument to AstSFormat,
     // used to pass to (potentially) runtime decoding of format arguments
     // PARENT: SFormatF (or next list of expressions)
@@ -2343,34 +2343,34 @@ class AstSFormatArg final : public AstNodeExpr {
     // @astgen op2 := namep : Optional[AstNodeExpr] // Runtime enum name lookup
     VFormatAttr m_formatAttr;  // How to format expression
 
-public:
-    AstSFormatArg(FileLine* fl, VFormatAttr formatAttr, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstSFormatArg(File_ଧାଡ଼ି* fl, VFormatAttr formatAttr, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_SFormatArg(fl)
         , m_formatAttr{formatAttr} {
         dtypeFrom(exprp);
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSFormatArg;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
     }
-    string verilogKwd() const override { return "$sformatarg"; }
-    string emitVerilog() override { return "%l"; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$sformatarg"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
         BROKEN_RTN(!VN_IS(backp(), SFormatF) && firstAbovep());  // In list under SFormatF
         BROKEN_RTN(formatAttr().isEnum() != static_cast<bool>(namep()));
-        return nullptr;
+        ଫେରନ୍ତୁ nullptr;
     }
-    VFormatAttr formatAttr() const { return m_formatAttr; }
-    void formatAttr(const VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
-    static VFormatAttr formatAttrDefauled(const AstSFormatArg* nodep, const AstNodeDType* dtypep);
+    VFormatAttr formatAttr() ଅଚଳ { ଫେରନ୍ତୁ m_formatAttr; }
+    ଶୂନ୍ୟ formatAttr(ଅଚଳ VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
+    ସ୍ଥିର VFormatAttr formatAttrDefauled(ଅଚଳ AstSFormatArg* nodep, ଅଚଳ Ast_ଗଣ୍ଠି_DType* dtypep);
 };
-class AstSFormatF final : public AstNodeExpr {
+class AstSFormatF final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Convert format to string, generally under an AstDisplay or AstSFormat
     // Also used as "real" function for /*verilator sformat*/ functions
     // exprsp() once past parsing may be AstSFormatArgs
@@ -2378,16 +2378,16 @@ class AstSFormatF final : public AstNodeExpr {
     // @astgen op2 := scopeNamep : Optional[AstScopeName]
     string m_text;
     bool m_hidden;  // Under display, etc
-    bool m_exprFormat
+    bool m_ପଦସମଷ୍ଟି_Format
         = false;  // Runtime Node* format, false = text() format code, false = possibly r
     bool m_optionalFormat
         = false;  // With exprFormat, first argument is either format or format-implied
-    const char m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
+    ଅଚଳ ଅକ୍ଷର m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    class ExprFormat {};
-    AstSFormatF(FileLine* fl, const string& text, bool hidden, AstNodeExpr* exprsp,
-                char missingArgChar = 'd')
+ସର୍ବସାଧାରଣ:
+    class ପଦସମଷ୍ଟି_Format {};
+    AstSFormatF(File_ଧାଡ଼ି* fl, ଅଚଳ string& text, bool hidden, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp,
+                ଅକ୍ଷର missingArgChar = 'd')
         : ASTGEN_SUPER_SFormatF(fl)
         , m_text{text}
         , m_hidden{hidden}
@@ -2395,62 +2395,62 @@ public:
         dtypeSetString();
         addExprsp(exprsp);
     }
-    AstSFormatF(FileLine* fl, ExprFormat, AstNodeExpr* exprsp, char missingArgChar = 'd',
+    AstSFormatF(File_ଧାଡ଼ି* fl, ପଦସମଷ୍ଟି_Format, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp, ଅକ୍ଷର missingArgChar = 'd',
                 bool hidden = true)
         : ASTGEN_SUPER_SFormatF(fl)
         , m_text{""}
         , m_hidden{hidden}
-        , m_exprFormat{true}
+        , m_ପଦସମଷ୍ଟି_Format{true}
         , m_missingArgChar{missingArgChar} {
         dtypeSetString();
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSFormatF;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(const string& name) override { m_text = name; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, SFormatF)->text();
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_text; }
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_text = name; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ text() == VN_DBG_AS(samep, SFormatF)->text();
     }
-    string verilogKwd() const override { return "$sformatf"; }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    const char* broken() const override {
-        BROKEN_RTN(text() != "" && exprFormat());  // Expr format means no literal format
-        return nullptr;
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$sformatf"; }
+    string text() ଅଚଳ { ଫେରନ୍ତୁ m_text; }  // * = Text to display
+    ଶୂନ୍ୟ text(ଅଚଳ string& text) { m_text = text; }
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
+        BROKEN_RTN(text() != "" && ପଦସମଷ୍ଟି_Format_2());  // Expr format means no literal format
+        ଫେରନ୍ତୁ nullptr;
     }
-    bool formatScopeTracking() const {  // Track scopeNamep();  Ok if false positive
-        if (exprFormat() || name().find("%m") != string::npos || name().find("%M") != string::npos)
-            return true;
-        for (const AstNode* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
-            if (const AstConst* const fmtp = VN_CAST(exprp, Const)) {
-                if (fmtp->num().isFromString()) {
-                    const string str = fmtp->num().toString();
-                    if (str.find("%m") != string::npos || str.find("%M") != string::npos)
-                        return true;
+    bool formatScopeTracking() ଅଚଳ {  // Track scopeNamep();  Ok if false positive
+        ଯଦି (ପଦସମଷ୍ଟି_Format_2() || name().find("%m") != string::npos || name().find("%M") != string::npos)
+            ଫେରନ୍ତୁ true;
+        ପାଇଁ (ଅଚଳ Ast_ଗଣ୍ଠି* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
+            ଯଦି (ଅଚଳ AstConst* ଅଚଳ fmtp = VN_CAST(exprp, Const)) {
+                ଯଦି (fmtp->ଅଙ୍କ().isFromString()) {
+                    ଅଚଳ string str = fmtp->ଅଙ୍କ().toString();
+                    ଯଦି (str.find("%m") != string::npos || str.find("%M") != string::npos)
+                        ଫେରନ୍ତୁ true;
                 }
             }
         }
-        return false;
+        ଫେରନ୍ତୁ false;
     }
-    bool hidden() const { return m_hidden; }
-    void hidden(bool flag) { m_hidden = flag; }
-    bool exprFormat() const { return m_exprFormat; }
-    void exprFormat(bool flag) { m_exprFormat = flag; }
-    bool optionalFormat() const { return m_optionalFormat; }
-    void optionalFormat(bool flag) { m_optionalFormat = flag; }
-    char missingArgChar() const { return m_missingArgChar; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool hidden() ଅଚଳ { ଫେରନ୍ତୁ m_hidden; }
+    ଶୂନ୍ୟ hidden(bool flag) { m_hidden = flag; }
+    bool ପଦସମଷ୍ଟି_Format_2() ଅଚଳ { ଫେରନ୍ତୁ m_ପଦସମଷ୍ଟି_Format; }
+    ଶୂନ୍ୟ ପଦସମଷ୍ଟି_Format_2(bool flag) { m_ପଦସମଷ୍ଟି_Format = flag; }
+    bool optionalFormat() ଅଚଳ { ଫେରନ୍ତୁ m_optionalFormat; }
+    ଶୂନ୍ୟ optionalFormat(bool flag) { m_optionalFormat = flag; }
+    ଅକ୍ଷର missingArgChar() ଅଚଳ { ଫେରନ୍ତୁ m_missingArgChar; }
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSGotoRep final : public AstNodeExpr {
+class AstSGotoRep final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Goto repetition: expr [-> count] or [-> count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2459,15 +2459,15 @@ class AstSGotoRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+ସର୍ବସାଧାରଣ:
     // Exact [->N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSGotoRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [->M:N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSGotoRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* maxCountp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2476,10 +2476,10 @@ public:
     ASTGEN_MEMBERS_AstSGotoRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSNonConsRep final : public AstNodeExpr {
+class AstSNonConsRep final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Nonconsecutive repetition: expr [= count] or [= count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2488,15 +2488,15 @@ class AstSNonConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+ସର୍ବସାଧାରଣ:
     // Exact [=N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSNonConsRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [=M:N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSNonConsRep(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* countp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* maxCountp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2505,17 +2505,17 @@ public:
     ASTGEN_MEMBERS_AstSNonConsRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSScanF final : public AstNodeExpr {
+class AstSScanF final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := fromp : AstNodeExpr
     string m_text;
     VTimescale m_timeunit;  // Parent module time unit
 
-public:
-    AstSScanF(FileLine* fl, const string& text, AstNodeExpr* fromp, AstNodeExpr* exprsp)
+ସର୍ବସାଧାରଣ:
+    AstSScanF(File_ଧାଡ଼ି* fl, ଅଚଳ string& text, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp)
         : ASTGEN_SUPER_SScanF(fl)
         , m_text{text} {
         addExprsp(exprsp);
@@ -2523,71 +2523,71 @@ public:
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$sscanf"; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_text; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$sscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSScanF* const asamep = VN_DBG_AS(samep, SScanF);
-        return text() == asamep->text() && timeunit() == asamep->timeunit();
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }  // SPECIAL: makes output
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstSScanF* ଅଚଳ asamep = VN_DBG_AS(samep, SScanF);
+        ଫେରନ୍ତୁ text() == asamep->text() && timeunit() == asamep->timeunit();
     }
-    string text() const { return m_text; }  // * = Text to display
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    bool isSystemFunc() const override { return true; }
+    string text() ଅଚଳ { ଫେରନ୍ତୁ m_text; }  // * = Text to display
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSampled final : public AstNodeExpr {
+class AstSampled final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $sampled
     // @astgen op1 := exprp : AstNode<AstNodeExpr|AstPropSpec>
     bool m_internal : 1;  // Internally created, not from a source $sampled
-public:
-    AstSampled(FileLine* fl, AstNode* exprp, AstNodeDType* dtypep, bool internal = false)
+ସର୍ବସାଧାରଣ:
+    AstSampled(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି* exprp, Ast_ଗଣ୍ଠି_DType* dtypep, bool internal = false)
         : ASTGEN_SUPER_Sampled(fl)
         , m_internal{internal} {
         this->exprp(exprp);
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstSampled;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "$sampled(%l)"; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string emitVerilog() override { ଫେରନ୍ତୁ "$sampled(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
     }
-    bool internal() const { return m_internal; }
-    bool isSystemFunc() const override { return true; }
+    bool internal() ଅଚଳ { ଫେରନ୍ତୁ m_internal; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstScopeName final : public AstNodeExpr {
+class AstScopeName final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // For display %m and DPI context imports
     // Parents:  AstSFormatF, AstNodeFTaskRef, AstNodeFTask, AstScope
     std::string m_scopeAttr;
     std::string m_scopeEntr;  // Scope path for the DPI import/export context name
     bool m_dpiExport = false;  // Is for dpiExport
     bool m_selfRelative = false;  // scopeAttr is the pretty path below the running instance
-    const bool m_forFormat;  // Is for a format %m
-    static std::string scopeNameFormatter(const std::string& text);
-    static std::string scopePrettyNameFormatter(const std::string& text);
+    ଅଚଳ bool m_forFormat;  // Is for a format %m
+    ସ୍ଥିର std::string scopeNameFormatter(ଅଚଳ std::string& text);
+    ସ୍ଥିର std::string scopePrettyNameFormatter(ଅଚଳ std::string& text);
 
-public:
+ସର୍ବସାଧାରଣ:
     class ForFormat {};
-    AstScopeName(FileLine* fl, bool forFormat)
+    AstScopeName(File_ଧାଡ଼ି* fl, bool forFormat)
         : ASTGEN_SUPER_ScopeName(fl)
         , m_forFormat{forFormat} {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstScopeName;
-    bool sameNode(const AstNode* samep) const override {
-        const AstScopeName* const sp = VN_DBG_AS(samep, ScopeName);
-        return m_scopeAttr == sp->m_scopeAttr  //
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstScopeName* ଅଚଳ sp = VN_DBG_AS(samep, ScopeName);
+        ଫେରନ୍ତୁ m_scopeAttr == sp->m_scopeAttr  //
                && m_scopeEntr == sp->m_scopeEntr  //
                && m_dpiExport == sp->m_dpiExport  //
                && m_selfRelative == sp->m_selfRelative  //
@@ -2595,195 +2595,195 @@ public:
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
     // ACCESSORS
-    const std::string& scopeAttr() const { return m_scopeAttr; }
-    void scopeAttr(const std::string& val) { m_scopeAttr = val; }
-    const std::string& scopeEntr() const { return m_scopeEntr; }
-    void scopeEntr(const std::string& val) { m_scopeEntr = val; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool selfRelative() const { return m_selfRelative; }
-    void selfRelative(bool flag) { m_selfRelative = flag; }
-    bool forFormat() const { return m_forFormat; }
+    ଅଚଳ std::string& scopeAttr() ଅଚଳ { ଫେରନ୍ତୁ m_scopeAttr; }
+    ଶୂନ୍ୟ scopeAttr(ଅଚଳ std::string& val) { m_scopeAttr = val; }
+    ଅଚଳ std::string& scopeEntr() ଅଚଳ { ଫେରନ୍ତୁ m_scopeEntr; }
+    ଶୂନ୍ୟ scopeEntr(ଅଚଳ std::string& val) { m_scopeEntr = val; }
+    bool dpiExport() ଅଚଳ { ଫେରନ୍ତୁ m_dpiExport; }
+    ଶୂନ୍ୟ dpiExport(bool flag) { m_dpiExport = flag; }
+    bool selfRelative() ଅଚଳ { ଫେରନ୍ତୁ m_selfRelative; }
+    ଶୂନ୍ୟ selfRelative(bool flag) { m_selfRelative = flag; }
+    bool forFormat() ଅଚଳ { ଫେରନ୍ତୁ m_forFormat; }
     // Name for __Vscopep variable including children
-    string scopeSymName() const { return scopeNameFormatter(m_scopeAttr); }
+    string scopeSymName() ଅଚଳ { ଫେରନ୍ତୁ scopeNameFormatter(m_scopeAttr); }
     // Name for DPI import scope
-    string scopeDpiName() const { return scopeNameFormatter(m_scopeEntr); }
+    string scopeDpiName() ଅଚଳ { ଫେରନ୍ତୁ scopeNameFormatter(m_scopeEntr); }
     // Name for __Vscopep variable including children
-    string scopePrettySymName() const { return scopePrettyNameFormatter(m_scopeAttr); }
+    string scopePrettySymName() ଅଚଳ { ଫେରନ୍ତୁ scopePrettyNameFormatter(m_scopeAttr); }
     // Name for __Vscopep variable including children
-    string scopePrettyDpiName() const { return scopePrettyNameFormatter(m_scopeEntr); }
+    string scopePrettyDpiName() ଅଚଳ { ଫେରନ୍ତୁ scopePrettyNameFormatter(m_scopeEntr); }
 };
-class AstStable final : public AstNodeExpr {
+class AstStable final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $stable
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstStable(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ସର୍ବସାଧାରଣ:
+    AstStable(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_Sen_ବୃକ୍ଷ* sentreep)
         : ASTGEN_SUPER_Stable(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstStable;
-    string emitVerilog() override { return "$stable(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$stable(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstStackTraceF final : public AstNodeExpr {
+class Ast_ଗଦା_Trace_F final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // $stacktrace used as function
-public:
-    explicit AstStackTraceF(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceF(fl) {
+ସର୍ବସାଧାରଣ:
+    explicit Ast_ଗଦା_Trace_F(File_ଧାଡ଼ି* fl)
+        : ASTGEN_SUPER_ଗଦା_Trace_F(fl) {
         dtypeSetString();
     }
-    ASTGEN_MEMBERS_AstStackTraceF;
-    string verilogKwd() const override { return "$stacktrace"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_STACKTRACE_N()"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_ଗଦା_Trace_F;
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$stacktrace"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ verilogKwd(); }
+    string emitC() override { ଫେରନ୍ତୁ "VL_STACKTRACE_N()"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSteady final : public AstNodeExpr {
+class AstSteady final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $steady_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstSteady(FileLine* fl, AstNodeExpr* exprp)
+ସର୍ବସାଧାରଣ:
+    AstSteady(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
         : ASTGEN_SUPER_Steady(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSteady;
-    string emitVerilog() override { return "$steady_gclk(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$steady_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstStructSel final : public AstNodeExpr {
+class AstStructSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Unpacked struct/union member access
     // Parents: math|stmt
     // Children: varref, math
     // @astgen op1 := fromp : AstNodeExpr
     string m_name;  // Name of the member
-public:
-    AstStructSel(FileLine* fl, AstNodeExpr* fromp, const string& name)
+ସର୍ବସାଧାରଣ:
+    AstStructSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, ଅଚଳ string& name)
         : ASTGEN_SUPER_StructSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstStructSel;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override {
+    bool cleanOut() ଅଚଳ override {
         // Not a union
-        return VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
+        ଫେରନ୍ତୁ VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstStructSel* const sp = VN_DBG_AS(samep, StructSel);
-        return m_name == sp->m_name;
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstStructSel* ଅଚଳ sp = VN_DBG_AS(samep, StructSel);
+        ଫେରନ୍ତୁ m_name == sp->m_name;
     }
-    int instrCount() const override { return widthInstrs(); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstSysIgnore final : public AstNodeExpr {
+class AstSysIgnore final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // @astgen op1 := exprsp : List[AstNodeExpr] // Expressions to output (???)
-public:
-    AstSysIgnore(FileLine* fl, AstNodeExpr* exprsp)
+ସର୍ବସାଧାରଣ:
+    AstSysIgnore(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp)
         : ASTGEN_SUPER_SysIgnore(fl) {
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSysIgnore;
-    string verilogKwd() const override { return "$ignored"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$ignored"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Though deleted before opt
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Though deleted before opt
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // Though deleted before opt
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }  // Though deleted before opt
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstSystemF final : public AstNodeExpr {
+class AstSystemF final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // $system used as function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemF(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstSystemF(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_SystemF(fl) {
         this->lhsp(lhsp);
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSystemF;
-    string verilogKwd() const override { return "$system"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_SYSTEM_%nq(%lw, %P)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$system"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ verilogKwd(); }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SYSTEM_%nq(%lw, %P)"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isOutputter() override { ଫେରନ୍ତୁ true; }
+    bool isUnlikely() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstTaggedExpr final : public AstNodeExpr {
+class Ast_Tagged_ପଦସମଷ୍ଟି final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Tagged union expression: "tagged MemberName [expr]"
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Optional value expression
     string m_name;  // Member identifier name
-public:
-    AstTaggedExpr(FileLine* fl, const string& name, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_TaggedExpr(fl)
+ସର୍ବସାଧାରଣ:
+    Ast_Tagged_ପଦସମଷ୍ଟି(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp)
+        : ASTGEN_SUPER_Tagged_ପଦସମଷ୍ଟି(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstTaggedExpr;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_ପଦସମଷ୍ଟି;
+    string emitVerilog() override { ଫେରନ୍ତୁ "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedExpr)->m_name;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_name == VN_DBG_AS(samep, Tagged_ପଦସମଷ୍ଟି)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
 };
-class AstTaggedPattern final : public AstNodeExpr {
+class AstTaggedPattern final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Tagged pattern for matches: "tagged MemberName [pattern]"
     // @astgen op1 := patternp : Optional[AstNode]  // Optional nested pattern
     string m_name;  // Member identifier name
-public:
-    AstTaggedPattern(FileLine* fl, const string& name, AstNode* patternp)
+ସର୍ବସାଧାରଣ:
+    AstTaggedPattern(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, Ast_ଗଣ୍ଠି* patternp)
         : ASTGEN_SUPER_TaggedPattern(fl)
         , m_name{name} {
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstTaggedPattern;
-    string emitVerilog() override { return "tagged %k"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }
 };
-class AstTestPlusArgs final : public AstNodeExpr {
+class AstTestPlusArgs final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
-public:
-    AstTestPlusArgs(FileLine* fl, AstNodeExpr* searchp)
+ସର୍ବସାଧାରଣ:
+    AstTestPlusArgs(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* searchp)
         : ASTGEN_SUPER_TestPlusArgs(fl) {
         this->searchp(searchp);
         dtypeSetLogic2StateUnsized(
@@ -2791,109 +2791,109 @@ public:
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstTestPlusArgs;
-    string verilogKwd() const override { return "$test$plusargs"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$test$plusargs"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ verilogKwd(); }
+    string emitC() override { ଫେରନ୍ତୁ "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
     // but isPure() true
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstThisRef final : public AstNodeExpr {
+class AstThisRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Reference to 'this'.
     // @astgen op1 := childDTypep : Optional[AstClassRefDType] // dtype of the node
-public:
-    AstThisRef(FileLine* fl, VFlagChildDType, AstClassRefDType* dtypep)
+ସର୍ବସାଧାରଣ:
+    AstThisRef(File_ଧାଡ଼ି* fl, VFlagChildDType, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         childDTypep(dtypep);
     }
-    AstThisRef(FileLine* fl, AstClassRefDType* dtypep)
+    AstThisRef(File_ଧାଡ଼ି* fl, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstThisRef;
-    string emitC() override { return "this"; }
-    string emitVerilog() override { return "this"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    string emitC() override { ଫେରନ୍ତୁ "this"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "this"; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    Ast_ଗଣ୍ଠି_DType* getChildDTypep() ଅଚଳ override { ଫେରନ୍ତୁ childDTypep(); }
 };
-class AstTimePrecision final : public AstNodeExpr {
+class AstTimePrecision final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Verilog $timeprecision
-public:
-    explicit AstTimePrecision(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstTimePrecision(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_TimePrecision(fl) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstTimePrecision;
-    string emitVerilog() override { return "$timeprecision"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$timeprecision"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstTimeUnit final : public AstNodeExpr {
+class AstTimeUnit final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     VTimescale m_timeunit;  // Parent module time unit
     // Verilog $timeunit
-public:
-    explicit AstTimeUnit(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstTimeUnit(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_TimeUnit(fl) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstTimeUnit;
-    string emitVerilog() override { return "$timeunit"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$timeunit"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTriggered final : public AstNodeExpr {
+class AstTriggered final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // True if any of the triggers at 'm_indices' are set in 'trigRefp'.
     // Explicit form of the trigger check, so the triggers tested can be recovered directly.
     // @astgen op1 := trigRefp : AstVarRef  // Reference to the trigger vector
-    const std::vector<uint32_t> m_indices;  // Indices of the triggers tested
-public:
-    AstTriggered(FileLine* fl, AstVarScope* trigVscp, const std::vector<uint32_t>& indices);
+    ଅଚଳ std::vector<uint32_t> m_indices;  // Indices of the triggers tested
+ସର୍ବସାଧାରଣ:
+    AstTriggered(File_ଧାଡ଼ି* fl, AstVarScope* trigVscp, ଅଚଳ std::vector<uint32_t>& indices);
     ASTGEN_MEMBERS_AstTriggered;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
     }
-    const std::vector<uint32_t>& indices() const { return m_indices; }
+    ଅଚଳ std::vector<uint32_t>& indices() ଅଚଳ { ଫେରନ୍ତୁ m_indices; }
 };
-class AstUnbounded final : public AstNodeExpr {
+class AstUnbounded final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // A $ in the parser, used for unbounded and queues
     // Due to where is used, treated as int
-public:
-    explicit AstUnbounded(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstUnbounded(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_Unbounded(fl) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstUnbounded;
-    string emitVerilog() override { return "$"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstUnlinkedRef final : public AstNodeExpr {
+class AstUnlinkedRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // As-of-yet unlinkable Ref
     // @astgen op1 := refp : AstNode
     // @astgen op2 := cellrefp : AstNode
 
     string m_name;  // Var name // TODO: There is no way to access this, fix or remove
-public:
-    AstUnlinkedRef(FileLine* fl, AstNode* refp, const string& name, AstNode* cellrefp)
+ସର୍ବସାଧାରଣ:
+    AstUnlinkedRef(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି* refp, ଅଚଳ string& name, Ast_ଗଣ୍ଠି* cellrefp)
         : ASTGEN_SUPER_UnlinkedRef(fl)
         , m_name{name} {
         this->refp(refp);
@@ -2903,17 +2903,17 @@ public:
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstUntil final : public AstNodeExpr {
+class AstUntil final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // The until property expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
 
-    const bool m_strong;  // 's_' preffix
-    const bool m_overlapping;  // '_with` suffix
-public:
-    AstUntil(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool strong, bool overlapping)
+    ଅଚଳ bool m_strong;  // 's_' preffix
+    ଅଚଳ bool m_overlapping;  // '_with` suffix
+ସର୍ବସାଧାରଣ:
+    AstUntil(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, bool strong, bool overlapping)
         : ASTGEN_SUPER_Until(fl)
         , m_strong{strong}
         , m_overlapping{overlapping} {
@@ -2921,46 +2921,46 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstUntil;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    string verilogKwd() const override {
-        return (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
+    string verilogKwd() ଅଚଳ override {
+        ଫେରନ୍ତୁ (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
     }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isMultiCycleSva() const override { return true; }
-    bool isStrong() const { return m_strong; }
-    bool isOverlapping() const { return m_overlapping; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isStrong() ଅଚଳ { ଫେରନ୍ତୁ m_strong; }
+    bool isOverlapping() ଅଚଳ { ଫେରନ୍ତୁ m_overlapping; }
 };
-class AstValuePlusArgs final : public AstNodeExpr {
+class Ast_ମୂଲ୍ୟ_Plus_Args final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
     // @astgen op2 := outp : AstNodeExpr // VarRef for result
-public:
-    AstValuePlusArgs(FileLine* fl, AstNodeExpr* searchp, AstNodeExpr* outp)
-        : ASTGEN_SUPER_ValuePlusArgs(fl) {
+ସର୍ବସାଧାରଣ:
+    Ast_ମୂଲ୍ୟ_Plus_Args(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* searchp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* outp)
+        : ASTGEN_SUPER_ମୂଲ୍ୟ_Plus_Args(fl) {
         this->searchp(searchp);
         this->outp(outp);
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstValuePlusArgs;
-    string verilogKwd() const override { return "$value$plusargs"; }
-    string emitVerilog() override { return "%f$value$plusargs(%l, %k%r)"; }
+    ASTGEN_MEMBERS_Ast_ମୂଲ୍ୟ_Plus_Args;
+    string verilogKwd() ଅଚଳ override { ଫେରନ୍ତୁ "$value$plusargs"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$value$plusargs(%l, %k%r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !outp(); }
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ !outp(); }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstWithParse final : public AstNodeExpr {
+class AstWithParse final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି {
     // In early parse, FUNC(index) WITH equation-using-index
     // Replaced with AstWith
     // Parents: expr|stmt
@@ -2968,54 +2968,54 @@ class AstWithParse final : public AstNodeExpr {
     // @astgen op1 := funcrefp : AstNodeExpr
     // @astgen op3 := exprsp : List[AstNodeExpr]  // With's parenthesis part
     // @astgen op4 := constraintsp : List[AstNode]  // With's braces part
-private:
+ବ୍ୟକ୍ତିଗତ:
     // True for the 'with (identifier_list) {...}' form, including 'with () {...}'.
     bool m_restricted = false;
 
-public:
-    AstWithParse(FileLine* fl, AstNodeExpr* funcrefp, AstNodeExpr* exprsp,
-                 AstNode* constraintsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstWithParse(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* funcrefp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprsp,
+                 Ast_ଗଣ୍ଠି* constraintsp = nullptr)
         : ASTGEN_SUPER_WithParse(fl) {
         this->funcrefp(funcrefp);
         addExprsp(exprsp);
         addConstraintsp(constraintsp);
     }
     ASTGEN_MEMBERS_AstWithParse;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool restricted() const { return m_restricted; }
-    void restricted(bool flag) { m_restricted = flag; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool restricted() ଅଚଳ { ଫେରନ୍ତୁ m_restricted; }
+    ଶୂନ୍ୟ restricted(bool flag) { m_restricted = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
 
 // === AstNodeBiop ===
-class AstBufIf1 final : public AstNodeBiop {
+class AstBufIf1 final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // lhs is enable, rhs is data to drive
     // Note unlike the Verilog bufif1() UDP, this allows any width; each lhsp
     // bit enables respective rhsp bit
-public:
-    AstBufIf1(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstBufIf1(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_BufIf1(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstBufIf1;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opBufIf1(lhs, rhs);
     }
-    string emitVerilog() override { return "bufif(%r,%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "bufif(%r,%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstCastDynamic final : public AstNodeBiop {
+class AstCastDynamic final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Verilog $cast used as a function
     // Task usage of $cast is converted during parse to assert($cast(...))
     // lhsp() is value (we are converting FROM) to match AstCCast etc, this
@@ -3023,1088 +3023,1088 @@ class AstCastDynamic final : public AstNodeBiop {
     // value reading from.  Suggest use fromp()/top() instead of lhsp/rhsp().
     // @astgen alias op1 := fromp
     // @astgen alias op2 := top
-public:
-    AstCastDynamic(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstCastDynamic(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_CastDynamic(fl, lhsp, rhsp) {
         dtypeSetBitUnsized(32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
                            VSigning::SIGNED);  // Spec says int return
     }
     ASTGEN_MEMBERS_AstCastDynamic;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         V3ERROR_NA;
     }
-    string emitVerilog() override { return "%f$cast(%r, %l)"; }
-    string emitC() override { return "VL_DYNAMIC_CAST(%r, %l)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 20; }
-    bool isPure() override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$cast(%r, %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DYNAMIC_CAST(%r, %l)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 20; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
 };
-class AstCompareNN final : public AstNodeBiop {
+class AstCompareNN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Verilog str.compare() and str.icompare()
-    const bool m_ignoreCase;  // True for str.icompare()
-public:
-    AstCompareNN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool ignoreCase)
+    ଅଚଳ bool m_ignoreCase;  // True for str.icompare()
+ସର୍ବସାଧାରଣ:
+    AstCompareNN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, bool ignoreCase)
         : ASTGEN_SUPER_CompareNN(fl, lhsp, rhsp)
         , m_ignoreCase{ignoreCase} {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstCompareNN;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opCompareNN(lhs, rhs, m_ignoreCase);
     }
-    string name() const override VL_MT_STABLE { return m_ignoreCase ? "icompare" : "compare"; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_ignoreCase ? "icompare" : "compare"; }
     string emitVerilog() override {
-        return m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
+        ଫେରନ୍ତୁ m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
     }
     string emitC() override {
-        return m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
+        ଫେରନ୍ତୁ m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
     }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool ignoreCase() const { return m_ignoreCase; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool ignoreCase() ଅଚଳ { ଫେରନ୍ତୁ m_ignoreCase; }
 };
-class AstConcat final : public AstNodeBiop {
+class AstConcat final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // If you're looking for {#{}}, see AstReplicate
     // @astgen makeDfgVertex
-public:
-    AstConcat(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstConcat(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Concat(fl, lhsp, rhsp) {
-        if (lhsp->dtypep() && rhsp->dtypep()) {
+        ଯଦି (lhsp->dtypep() && rhsp->dtypep()) {
             dtypeSetBitOrLogicSized(lhsp->dtypep()->width() + rhsp->dtypep()->width(),
                                     VSigning::UNSIGNED, isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstConcat;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{%l, %k%r}"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opConcat(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(concat %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(concat %l %r)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
 };
-class AstConcatN final : public AstNodeBiop {
+class AstConcatN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // String concatenate
-public:
-    AstConcatN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstConcatN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_ConcatN(fl, lhsp, rhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstConcatN;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{%l, %k%r}"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opConcatN(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCATN_NNN(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CONCATN_NNN(%li, %ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstDiv final : public AstNodeBiop {
+class AstDiv final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstDiv(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Div(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvudiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f/ %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvudiv %l %r)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_DIV; }
 };
-class AstDivD final : public AstNodeBiop {
-public:
-    AstDivD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDivD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstDivD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DivD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstDivD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opDivD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f/ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "/"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "/"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_DIV; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstDivS final : public AstNodeBiop {
+class AstDivS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstDivS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsdiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f/ %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvsdiv %l %r)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_DIV; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstEqWild final : public AstNodeBiop {
+class AstEqWild final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Note wildcard operator rhs differs from lhs
     // @astgen makeDfgVertex
-public:
-    AstEqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstEqWild(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_EqWild(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstEqWild;
     // Return AstEqWild/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_Biop* newTyped(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp);
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opWildEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f==? %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f==? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ଯଦି (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_EQ_%lq(%lW, %P, %li, %ri)";
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "VL_EQ_%lq(%lW, %P, %li, %ri)";
         }
     }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (= %l %r))"; }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ଯଦି (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "==";
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "==";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstFGetS final : public AstNodeBiop {
+class AstFGetS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen alias op1 := strgp
     // @astgen alias op2 := filep
-public:
-    AstFGetS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstFGetS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_FGetS(fl, lhsp, rhsp) {
         dtypeSetInteger2State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetS;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgets(%l,%r)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$fgets(%l,%r)"; }
     string emitC() override {
-        return strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
+        ଫେରନ୍ତୁ strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
                                                        : "VL_FGETS_%nqX%rq(%lw, %P, &(%li), %ri)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 64; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: $display has 'visual' ordering
 };
-class AstFUngetC final : public AstNodeBiop {
-public:
-    AstFUngetC(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstFUngetC final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstFUngetC(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_FUngetC(fl, lhsp, rhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFUngetC;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$ungetc(%r, %l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$ungetc(%r, %l)"; }
     // Non-existent filehandle returns EOF
     string emitC() override {
-        return "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
+        ଫେରନ୍ତୁ "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    AstNode* charp() const { return rhsp(); }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 64; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_ଗଣ୍ଠି* filep() ଅଚଳ { ଫେରନ୍ତୁ lhsp(); }
+    Ast_ଗଣ୍ଠି* charp() ଅଚଳ { ଫେରନ୍ତୁ rhsp(); }
 };
-class AstGetcN final : public AstNodeBiop {
+class AstGetcN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Verilog string.getc()
-public:
-    AstGetcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGetcN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GetcN(fl, lhsp, rhsp) {
         dtypeSetBitSized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGetcN(lhs, rhs);
     }
-    string name() const override VL_MT_STABLE { return "getc"; }
-    string emitVerilog() override { return "%k(%l.getc(%r))"; }
-    string emitC() override { return "VL_GETC_N(%li,%ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ "getc"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l.getc(%r))"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_GETC_N(%li,%ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstGetcRefN final : public AstNodeBiop {
+class AstGetcRefN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Verilog string[#] on the left-hand-side of assignment
     // Spec says is of type byte (not string of single character)
-public:
-    AstGetcRefN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGetcRefN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GetcRefN(fl, lhsp, rhsp) {
         dtypeSetBitSized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcRefN;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k%l[%r]"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k%l[%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstGt final : public AstNodeBiop {
+class AstGt final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGt(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Gt(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvugt %l %r))"; }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_GT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvugt %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstGtD final : public AstNodeBiop {
-public:
-    AstGtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstGtD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GtD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGtN final : public AstNodeBiop {
-public:
-    AstGtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstGtN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GtN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGtS final : public AstNodeBiop {
+class AstGtS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGtS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GtS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsgt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvsgt %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGte final : public AstNodeBiop {
+class AstGte final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGte(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Gte(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvuge %l %r))"; }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>= %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvuge %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstGteD final : public AstNodeBiop {
-public:
-    AstGteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstGteD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GteD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGteN final : public AstNodeBiop {
-public:
-    AstGteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstGteN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GteN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstGteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ">="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstGteS final : public AstNodeBiop {
+class AstGteS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstGteS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_GteS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opGteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsge %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>= %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvsge %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLogAnd final : public AstNodeBiop {
+class AstLogAnd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLogAnd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LogAnd(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f&& %r)"; }
-    string emitC() override { return "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&&"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f&& %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvand %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "&&"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
 };
-class AstLogIf final : public AstNodeBiop {
+class AstLogIf final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogIf(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLogIf(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LogIf(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogIf;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogIf(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f-> %r)"; }
-    string emitC() override { return "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
-    string emitSimpleOperator() override { return "->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f-> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "->"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
 };
-class AstLogOr final : public AstNodeBiop {
+class AstLogOr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLogOr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LogOr(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f|| %r)"; }
-    string emitC() override { return "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "||"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f|| %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvor %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "||"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
 };
-class AstLt final : public AstNodeBiop {
+class AstLt final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLt(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Lt(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvult %l %r))"; }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f< %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvult %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstLtD final : public AstNodeBiop {
-public:
-    AstLtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstLtD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LtD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLtN final : public AstNodeBiop {
-public:
-    AstLtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstLtN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LtN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLtS final : public AstNodeBiop {
+class AstLtS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLtS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LtS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvslt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f< %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvslt %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLte final : public AstNodeBiop {
+class AstLte final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLte(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Lte(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvule %l %r))"; }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<= %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvule %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstLteD final : public AstNodeBiop {
-public:
-    AstLteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstLteD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LteD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLteN final : public AstNodeBiop {
-public:
-    AstLteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstLteN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LteN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstLteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLteS final : public AstNodeBiop {
+class AstLteS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLteS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LteS(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsle %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<= %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (bvsle %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstModDiv final : public AstNodeBiop {
+class AstModDiv final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstModDiv(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_ModDiv(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opModDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvurem %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f%% %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvurem %l %r)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_DIV; }
 };
-class AstModDivS final : public AstNodeBiop {
+class AstModDivS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstModDivS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_ModDivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opModDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsmod %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f%% %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvsmod %l %r)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_DIV; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNeqWild final : public AstNodeBiop {
+class AstNeqWild final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstNeqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNeqWild(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NeqWild(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstNeqWild;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opWildNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!=? %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!=? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ଯଦି (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_NEQ_%lq(%lW, %P, %li, %ri)";
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "VL_NEQ_%lq(%lW, %P, %li, %ri)";
         }
     }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ଯଦି (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "!=";
+        } ଅନ୍ୟଥା {
+            ଫେରନ୍ତୁ "!=";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstPow final : public AstNodeBiop {
+class AstPow final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPow(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstPow(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Pow(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPow;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opPow(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f** %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL * 10; }
 };
-class AstPowD final : public AstNodeBiop {
-public:
-    AstPowD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstPowD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstPowD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_PowD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstPowD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opPowD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "pow(%li,%ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV * 5; }
-    bool doubleFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f** %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "pow(%li,%ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL_DIV * 5; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPowSS final : public AstNodeBiop {
+class AstPowSS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstPowSS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_PowSS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opPowSS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f** %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL * 10; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPowSU final : public AstNodeBiop {
+class AstPowSU final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSU(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstPowSU(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_PowSU(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSU;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opPowSU(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f** %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL * 10; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPowUS final : public AstNodeBiop {
+class AstPowUS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowUS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstPowUS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_PowUS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowUS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opPowUS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f** %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL * 10; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstReplicate final : public AstNodeBiop {
+class AstReplicate final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Also used as a "Uniop" flavor of Concat, e.g. "{a}"
     // Verilog {rhs{lhs}} - Note rhsp() is the replicate value, not the lhsp()
     // @astgen alias op1 := srcp
     // @astgen alias op2 := countp
-public:
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstReplicate(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Replicate(fl, lhsp, rhsp) {
-        if (lhsp) {
-            if (const AstConst* const constp = VN_CAST(rhsp, Const)) {
-                if (constp->num().isFourState()
-                    || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+        ଯଦି (lhsp) {
+            ଯଦି (ଅଚଳ AstConst* ଅଚଳ constp = VN_CAST(rhsp, Const)) {
+                ଯଦି (constp->ଅଙ୍କ().isFourState()
+                    || (constp->dtypep()->isSigned() && constp->ଅଙ୍କ().isNegative())) {
                     dtypeSetBitOrLogicSized(lhsp->width(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());  // V3Width warns
-                } else {
+                } ଅନ୍ୟଥା {
                     dtypeSetBitOrLogicSized(lhsp->width() * constp->toSInt(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());
                 }
             }
         }
     }
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, uint32_t repCount)
-        : AstReplicate{fl, lhsp, new AstConst{fl, repCount}} {}
+    AstReplicate(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, uint32_t rep_ଗଣନା)
+        : AstReplicate{fl, lhsp, new AstConst{fl, rep_ଗଣନା}} {}
     ASTGEN_MEMBERS_AstReplicate;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opRepl(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override {
-        return "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{%r{%k%l}}"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override {
+        ଫେରନ୍ତୁ "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
 };
-class AstReplicateN final : public AstNodeBiop {
+class AstReplicateN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // String replicate
-public:
-    AstReplicateN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstReplicateN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_ReplicateN(fl, lhsp, rhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstReplicateN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opReplN(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATEN_NN%rq(%li, %ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
-    bool stringFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{%r{%k%l}}"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_REPLICATEN_NN%rq(%li, %ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSAnd final : public AstNodeBiop {
+class AstSAnd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Sequence 'and' (IEEE 1800-2023 16.9.5): both operand sequences must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogAnd.
-    const bool m_propertyControl;  // Parser-generated property if/case branch conjunction
-public:
-    AstSAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool propertyControl = false)
+    ଅଚଳ bool m_propertyControl;  // Parser-generated property if/case branch conjunction
+ସର୍ବସାଧାରଣ:
+    AstSAnd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, bool propertyControl = false)
         : ASTGEN_SUPER_SAnd(fl, lhsp, rhsp)
         , m_propertyControl{propertyControl} {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSAnd;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fand %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %fand %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {  // LCOV_EXCL_LINE
+        ଫେରନ୍ତୁ m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
     }
-    bool propertyControl() const { return m_propertyControl; }
+    bool propertyControl() ଅଚଳ { ଫେରନ୍ତୁ m_propertyControl; }
 };
-class AstSIntersect final : public AstNodeBiop {
+class AstSIntersect final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Sequence 'intersect' (IEEE 1800-2023 16.9.6): both operands match with equal length.
     // AND with a length restriction. For boolean operands, lowered to AstLogAnd.
-public:
-    AstSIntersect(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstSIntersect(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_SIntersect(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSIntersect;
     // LCOV_EXCL_START  // Lowered before these are ever called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fintersect %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %fintersect %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSOr final : public AstNodeBiop {
+class AstSOr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Sequence 'or' (IEEE 1800-2023 16.9.7): at least one operand sequence must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogOr.
-public:
-    AstSOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstSOr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_SOr(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %for %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %for %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSThroughout final : public AstNodeBiop {
+class AstSThroughout final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // expr throughout seq (IEEE 1800-2023 16.9.9)
-public:
-    AstSThroughout(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstSThroughout(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_SThroughout(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSThroughout;
     // LCOV_EXCL_START // Lowered in V3AssertProp before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fthroughout %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %fthroughout %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSWithin final : public AstNodeBiop {
+class AstSWithin final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // seq1 within seq2 (IEEE 1800-2023 16.9.10)
-public:
-    AstSWithin(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstSWithin(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_SWithin(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstSWithin;
     // LCOV_EXCL_START  // Lowered in V3AssertNfa before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fwithin %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %fwithin %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool isMultiCycleSva() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSel final : public AstNodeBiop {
+class AstSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // *Resolved* (tyep checked) multiple bit range extraction. Always const width
     // @astgen alias op1 := fromp
     // @astgen alias op2 := lsbp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-    int m_declElWidth;  // If a packed array, the number of bits per element
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_declElWidth;  // If a packed array, the number of bits per element
     // Selection width (!= this->width() from V3Clean onwards, != this->widthMin() in V3Width)
-    int m_widthConst;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_widthConst;
 
-public:
-    AstSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* lsbp, int bitwidth)
+ସର୍ବସାଧାରଣ:
+    AstSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lsbp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା bitwidth)
         : ASTGEN_SUPER_Sel(fl, fromp, lsbp)
         , m_declElWidth{1}
         , m_widthConst{bitwidth} {
         dtypeSetBitOrLogicSized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
-    AstSel(FileLine* fl, AstNodeExpr* fromp, int lsb, int bitwidth, int bitwidthMin = 0)
+    AstSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା lsb, ପୂର୍ଣ୍ଣସଂଖ୍ୟା bitwidth, ପୂର୍ଣ୍ଣସଂଖ୍ୟା bitwidthMin = 0)
         : ASTGEN_SUPER_Sel(fl, fromp, new AstConst(fl, lsb))  // Need () constructor
         , m_declElWidth{1}
         , m_widthConst{bitwidth} {
@@ -4112,950 +4112,950 @@ public:
                                   VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& bit) override {
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& from, ଅଚଳ V3_ସଂଖ୍ୟା& bit) override {
         out.opSel(from, bit.toUInt() + widthConst() - 1, bit.toUInt());
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override {
-        return widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
+        ଫେରନ୍ତୁ widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
                : isWide()        ? "VL_SEL_%nq%lq%rqI(%nw, %lw, %P, %li, %ri, %nw)"
                                  : "VL_SEL_%nq%lq%rqI(%lw, %P, %li, %ri, %nw)";
     }
-    string emitSMT() const override { return "((_ extract %t %r) %l)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* otherp) const override {
-        return widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "((_ extract %t %r) %l)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* otherp) ଅଚଳ override {
+        ଫେରନ୍ତୁ widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
     }
-    int instrCount() const override {
-        return widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override {
+        ଫେରନ୍ତୁ widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
     }
-    int widthConst() const { return m_widthConst; }
-    void widthConst(int value) { m_widthConst = value; }
-    int lsbConst() const { return VN_AS(lsbp(), Const)->toSInt(); }
-    int msbConst() const { return lsbConst() + widthConst() - 1; }
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
-    void declRange(const VNumRange& flag) { m_declRange = flag; }
-    int declElWidth() const { return m_declElWidth; }
-    void declElWidth(int flag) { m_declElWidth = flag; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା widthConst() ଅଚଳ { ଫେରନ୍ତୁ m_widthConst; }
+    ଶୂନ୍ୟ widthConst(ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ) { m_widthConst = ମୂଲ୍ୟ; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା lsbConst() ଅଚଳ { ଫେରନ୍ତୁ VN_AS(lsbp(), Const)->toSInt(); }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା msbConst() ଅଚଳ { ଫେରନ୍ତୁ lsbConst() + widthConst() - 1; }
+    VNumRange& declRange() VL_MT_STABLE { ଫେରନ୍ତୁ m_declRange; }
+    ଅଚଳ VNumRange& declRange() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_declRange; }
+    ଶୂନ୍ୟ declRange(ଅଚଳ VNumRange& flag) { m_declRange = flag; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା declElWidth() ଅଚଳ { ଫେରନ୍ତୁ m_declElWidth; }
+    ଶୂନ୍ୟ declElWidth(ପୂର୍ଣ୍ଣସଂଖ୍ୟା flag) { m_declElWidth = flag; }
 };
-class AstShiftL final : public AstNodeBiop {
+class AstShiftL final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftL(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftL(fl, lhsp, rhsp) {
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftL;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftL(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvshl %l %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<< %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvshl %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
+        ଫେରନ୍ତୁ (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstShiftLOvr final : public AstNodeBiop {
+class AstShiftLOvr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Like ShiftL but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftL
-public:
-    AstShiftLOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftLOvr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftLOvr(fl, lhsp, rhsp) {
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ଅନ୍ୟଥା {
+            ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftLOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftL(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<< %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstShiftR final : public AstNodeBiop {
+class AstShiftR final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftR(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftR(fl, lhsp, rhsp) {
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftR;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftR(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvlshr %l %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvlshr %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
+        ଫେରନ୍ତୁ (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstShiftROvr final : public AstNodeBiop {
+class AstShiftROvr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Like ShiftR but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftR
-public:
-    AstShiftROvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftROvr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftROvr(fl, lhsp, rhsp) {
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ଅନ୍ୟଥା {
+            ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftROvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftR(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstShiftRS final : public AstNodeBiop {
+class AstShiftRS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Shift right with sign extension, >>> operator
     // Output data type's width determines which bit is used for sign extension
     // @astgen makeDfgVertex
-public:
-    AstShiftRS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftRS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftRS(fl, lhsp, rhsp) {
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
+        } ଅନ୍ୟଥା ଯଦି (ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep()) {
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftRS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitSMT() const override { return "(bvashr %l %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>>> %r)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvashr %l %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstShiftRSOvr final : public AstNodeBiop {
+class AstShiftRSOvr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // Shift right with sign extension, >>> operator, checks for an over shift and returns zeros
     // Output data type's width determines which bit is used for sign extension
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftRSOvr
-public:
-    AstShiftRSOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
+ସର୍ବସାଧାରଣ:
+    AstShiftRSOvr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth = 0)
         : ASTGEN_SUPER_ShiftRSOvr(fl, lhsp, rhsp) {
         // Important that widthMin be correct, as opExtend requires it after V3Expand
-        if (setwidth) {
+        ଯଦି (setwidth) {
             dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ଅନ୍ୟଥା {
+            ଅଚଳ Ast_ଗଣ୍ଠି_DType* ଅଚଳ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
             dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstShiftRSOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f>>> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSub final : public AstNodeBiop {
+class AstSub final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // @astgen makeDfgVertex
-public:
-    AstSub(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstSub(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Sub(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstSub;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opSub(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
-    string emitC() override { return "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsub %l %r)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f- %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvsub %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "-"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstSubD final : public AstNodeBiop {
-public:
-    AstSubD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstSubD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
+ସର୍ବସାଧାରଣ:
+    AstSubD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_SubD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstSubD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opSubD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f- %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "-"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstURandomRange final : public AstNodeBiop {
+class AstURandomRange final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Biop {
     // $urandom_range
-public:
-    AstURandomRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstURandomRange(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_URandomRange(fl, lhsp, rhsp) {
         dtypeSetUInt32();  // Says IEEE
     }
     ASTGEN_MEMBERS_AstURandomRange;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$urandom_range(%l, %r)"; }
-    string emitC() override { return "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$urandom_range(%l, %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_PLI; }
 };
 
 // === AstNodeBiCom ===
-class AstEq final : public AstNodeBiCom {
+class AstEq final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstEq(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Eq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstEq;
     // Return AstEq/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_Biop* newTyped(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp);
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f== %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (= %l %r))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "=="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstEqCase final : public AstNodeBiCom {
+class AstEqCase final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstEqCase(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_EqCase(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opCaseEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f=== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f=== %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "=="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstEqD final : public AstNodeBiCom {
-public:
-    AstEqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
+ସର୍ବସାଧାରଣ:
+    AstEqD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_EqD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opEqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "=="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstEqN final : public AstNodeBiCom {
-public:
-    AstEqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
+ସର୍ବସାଧାରଣ:
+    AstEqN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_EqN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opEqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "=="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstEqT final : public AstNodeBiCom {
+class AstEqT final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // Equal (==) for data types
-public:
-    AstEqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstEqT(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_EqT(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstEqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "=="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
 };
-class AstLogEq final : public AstNodeBiCom {
+class AstLogEq final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstLogEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstLogEq(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_LogEq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogEq;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opLogEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<-> %r)"; }
-    string emitC() override { return "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxnor %l %r)"; }
-    string emitSimpleOperator() override { return "<->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f<-> %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvxnor %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "<->"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() + INSTR_ଗଣନା_BRANCH; }
 };
-class AstNeq final : public AstNodeBiCom {
+class AstNeq final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNeq(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Neq(fl, lhsp, rhsp) {
         dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstNeq;
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ସ୍ଥିର Ast_ଗଣ୍ଠି_Biop* newTyped(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp);
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    string emitSMT() const override { return "(__Vbv (not (= %l %r)))"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!= %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!="; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (not (= %l %r)))"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstNeqCase final : public AstNodeBiCom {
+class AstNeqCase final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNeqCase(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NeqCase(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opCaseNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!== %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!== %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstNeqD final : public AstNodeBiCom {
-public:
-    AstNeqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
+ସର୍ବସାଧାରଣ:
+    AstNeqD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NeqD(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opNeqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNeqN final : public AstNodeBiCom {
-public:
-    AstNeqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
+ସର୍ବସାଧାରଣ:
+    AstNeqN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NeqN(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opNeqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
+    bool stringFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNeqT final : public AstNodeBiCom {
+class AstNeqT final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com {
     // Not-equal (!=) for data types
-public:
-    AstNeqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstNeqT(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_NeqT(fl, lhsp, rhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstNeqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!="; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_STR; }
 };
 
 // === AstNodeBiComAsv ===
-class AstAdd final : public AstNodeBiComAsv {
+class AstAdd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAdd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstAdd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Add(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAdd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opAdd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
-    string emitC() override { return "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvadd %l %r)"; }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f+ %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvadd %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "+"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstAddD final : public AstNodeBiComAsv {
-public:
-    AstAddD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAddD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
+ସର୍ବସାଧାରଣ:
+    AstAddD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_AddD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstAddD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opAddD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f+ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "+"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstAnd final : public AstNodeBiComAsv {
+class AstAnd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstAnd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_And(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f& %r)"; }
-    string emitC() override { return "VL_AND_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f& %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_AND_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvand %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "&"; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ଅଚଳ ଅକ୍ଷର* widthMismatch() ଅଚଳ override VL_MT_STABLE;
 };
-class AstMul final : public AstNodeBiComAsv {
+class AstMul final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMul(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstMul(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Mul(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMul;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opMul(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f* %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "*"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL; }
 };
-class AstMulD final : public AstNodeBiComAsv {
-public:
-    AstMulD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstMulD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
+ସର୍ବସାଧାରଣ:
+    AstMulD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_MulD(fl, lhsp, rhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstMulD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opMulD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f* %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "*"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstMulS final : public AstNodeBiComAsv {
+class AstMulS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMulS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstMulS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_MulS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMulS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opMulS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f* %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * INSTR_ଗଣନା_INT_MUL; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstOr final : public AstNodeBiComAsv {
+class AstOr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstOr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Or(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f| %r)"; }
-    string emitC() override { return "VL_OR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "|"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f| %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_OR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvor %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "|"; }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ଅଚଳ ଅକ୍ଷର* widthMismatch() ଅଚଳ override VL_MT_STABLE;
 };
-class AstXor final : public AstNodeBiComAsv {
+class AstXor final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstXor(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstXor(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Xor(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstXor;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opXor(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f^ %r)"; }
-    string emitC() override { return "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxor %l %r)"; }
-    string emitSimpleOperator() override { return "^"; }
-    bool cleanOut() const override { return false; }  // Lclean && Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f^ %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvxor %l %r)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "^"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Lclean && Rclean
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ଅଚଳ ଅକ୍ଷର* widthMismatch() ଅଚଳ override VL_MT_STABLE;
 };
 
 // === AstNodeDistBiop ===
-class AstDistChiSquare final : public AstNodeDistBiop {
-public:
-    AstDistChiSquare(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistChiSquare final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Biop {
+ସର୍ବସାଧାରଣ:
+    AstDistChiSquare(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DistChiSquare(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistChiSquare;
-    string emitVerilog() override { return "%f$dist_chi_square(%l, %r)"; }
-    string emitC() override { return "VL_DIST_CHI_SQUARE(%li, %ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_chi_square(%l, %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_CHI_SQUARE(%li, %ri)"; }
 };
-class AstDistExponential final : public AstNodeDistBiop {
-public:
-    AstDistExponential(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistExponential final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Biop {
+ସର୍ବସାଧାରଣ:
+    AstDistExponential(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DistExponential(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistExponential;
-    string emitVerilog() override { return "%f$dist_exponential(%l, %r)"; }
-    string emitC() override { return "VL_DIST_EXPONENTIAL(%li, %ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_exponential(%l, %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_EXPONENTIAL(%li, %ri)"; }
 };
-class AstDistPoisson final : public AstNodeDistBiop {
-public:
-    AstDistPoisson(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistPoisson final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Biop {
+ସର୍ବସାଧାରଣ:
+    AstDistPoisson(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DistPoisson(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistPoisson;
-    string emitVerilog() override { return "%f$dist_poisson(%l, %r)"; }
-    string emitC() override { return "VL_DIST_POISSON(%li, %ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_poisson(%l, %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_POISSON(%li, %ri)"; }
 };
-class AstDistT final : public AstNodeDistBiop {
-public:
-    AstDistT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistT final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Biop {
+ସର୍ବସାଧାରଣ:
+    AstDistT(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_DistT(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistT;
-    string emitVerilog() override { return "%f$dist_t(%l, %r)"; }
-    string emitC() override { return "VL_DIST_T(%li, %ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_t(%l, %r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_T(%li, %ri)"; }
 };
 
 // === AstNodeSel ===
-class AstArraySel final : public AstNodeSel {
+class AstArraySel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Sel {
     // @astgen makeDfgVertex
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), NodeArrayDType)) {
+    ଶୂନ୍ୟ init(ଅଚଳ Ast_ଗଣ୍ଠି* fromp) {
+        ଯଦି (fromp && VN_IS(fromp->dtypep()->skipRefp(), ଗଣ୍ଠି_Array_DType)) {
             // Strip off array to find what array references
-            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), NodeArrayDType)->subDTypep());
+            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), ଗଣ୍ଠି_Array_DType)->subDTypep());
         }
     }
 
-public:
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ସର୍ବସାଧାରଣ:
+    AstArraySel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
         : ASTGEN_SUPER_ArraySel(fl, fromp, bitp) {
         init(fromp);
     }
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, int bit)
+    AstArraySel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା bit)
         : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, bit)) {  // Need () constructor
         init(fromp);
     }
     ASTGEN_MEMBERS_AstArraySel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(select %l %r)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstAssocSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
+class AstAssocSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Sel {
+    ଶୂନ୍ୟ init(ଅଚଳ Ast_ଗଣ୍ଠି* fromp) {
+        ଯଦି (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), AssocArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstAssocSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ସର୍ବସାଧାରଣ:
+    AstAssocSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
         : ASTGEN_SUPER_AssocSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstAssocSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override {
-        return !isLValue();  // AssocSel creates on miss
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l%f[%r])"; }
+    string emitC() override { ଫେରନ୍ତୁ "%li%k[%ri]"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(select %l %r)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override {
+        ଫେରନ୍ତୁ !isLValue();  // AssocSel creates on miss
     }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !isLValue(); }  // AssocSel creates on miss
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ !isLValue(); }  // AssocSel creates on miss
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstWildcardSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
+class AstWildcardSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Sel {
+    ଶୂନ୍ୟ init(ଅଚଳ Ast_ଗଣ୍ଠି* fromp) {
+        ଯଦି (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), WildcardArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstWildcardSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ସର୍ବସାଧାରଣ:
+    AstWildcardSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
         : ASTGEN_SUPER_WildcardSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstWildcardSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l%f[%r])"; }
+    string emitC() override { ଫେରନ୍ତୁ "%li%k[%ri]"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
 };
-class AstWordSel final : public AstNodeSel {
+class AstWordSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Sel {
     // Select a single word from a multi-word wide value
-public:
-    AstWordSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ସର୍ବସାଧାରଣ:
+    AstWordSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
         : ASTGEN_SUPER_WordSel(fl, fromp, bitp) {
         dtypeSetUInt32();  // Always used on VlWide arrays so returns EData size
     }
     ASTGEN_MEMBERS_AstWordSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&, ଅଚଳ V3_ସଂଖ୍ୟା&) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
 
 // === AstNodeStream ===
-class AstStreamL final : public AstNodeStream {
+class AstStreamL final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Stream {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstStreamL(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_StreamL(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstStreamL;
-    string emitVerilog() override { return "%f{ << %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{ << %r %k{%l} }"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opStreamL(lhs, rhs);
     }
-    string emitC() override { return "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
 };
-class AstStreamR final : public AstNodeStream {
+class AstStreamR final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Stream {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ସର୍ବସାଧାରଣ:
+    AstStreamR(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_StreamR(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstStreamR;
-    string emitVerilog() override { return "%f{ >> %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f{ >> %r %k{%l} }"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.opAssign(lhs);
     }
-    string emitC() override { return isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ଫେରନ୍ତୁ isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 2; }
 };
 
 // === AstNodeSystemBiopD ===
-class AstAtan2D final : public AstNodeSystemBiopD {
-public:
-    AstAtan2D(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAtan2D final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Biop_D {
+ସର୍ବସାଧାରଣ:
+    AstAtan2D(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_Atan2D(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAtan2D;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.setDouble(std::atan2(lhs.toDouble(), rhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atan2(%l,%r)"; }
-    string emitC() override { return "atan2(%li,%ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$atan2(%l,%r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "atan2(%li,%ri)"; }
 };
-class AstHypotD final : public AstNodeSystemBiopD {
-public:
-    AstHypotD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstHypotD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Biop_D {
+ସର୍ବସାଧାରଣ:
+    AstHypotD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp)
         : ASTGEN_SUPER_HypotD(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstHypotD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) override {
         out.setDouble(std::hypot(lhs.toDouble(), rhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$hypot(%l,%r)"; }
-    string emitC() override { return "hypot(%li,%ri)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$hypot(%l,%r)"; }
+    string emitC() override { ଫେରନ୍ତୁ "hypot(%li,%ri)"; }
 };
 
 // === AstNodeCCall ===
-class AstCCall final : public AstNodeCCall {
+class AstCCall final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_CCall {
     // C++ function call
     VSelfPointerText m_selfPointer
         = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
                                                         // pointer (e.g.: 'this')
-public:
-    AstCCall(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstCCall(File_ଧାଡ଼ି* fl, AstCFunc* funcp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* argsp = nullptr)
         : ASTGEN_SUPER_CCall(fl, funcp, argsp) {
         UASSERT_OBJ(funcp, this, "CCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCCall;
 
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    ଅଚଳ VSelfPointerText& selfPointer() ଅଚଳ { ଫେରନ୍ତୁ m_selfPointer; }
+    ଶୂନ୍ୟ selfPointer(ଅଚଳ VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
+    string selfPointerProtect(bool useSelfForThis) ଅଚଳ {
+        ଫେରନ୍ତୁ selfPointer().protect(useSelfForThis, protect());
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool maybePointedTo() ଅଚଳ override VL_MT_SAFE { ଫେରନ୍ତୁ true; }
 };
-class AstCMethodCall final : public AstNodeCCall {
+class AstCMethodCall final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_CCall {
     // C++ method call
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCMethodCall(FileLine* fl, AstNodeExpr* fromp, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstCMethodCall(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, AstCFunc* funcp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* argsp = nullptr)
         : ASTGEN_SUPER_CMethodCall(fl, funcp, argsp) {
         this->fromp(fromp);
         UASSERT_OBJ(funcp, this, "CMethodCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCMethodCall;
 };
-class AstCNew final : public AstNodeCCall {
+class AstCNew final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_CCall {
     // C++ new() call
-public:
-    AstCNew(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstCNew(File_ଧାଡ଼ି* fl, AstCFunc* funcp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* argsp = nullptr)
         : ASTGEN_SUPER_CNew(fl, funcp, argsp) {}
     ASTGEN_MEMBERS_AstCNew;
 };
 
 // === AstNodeCons ===
-class AstConsArray final : public AstNodeCons {
+class AstConsArray final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct an unpacked array value, '{value, ...}, '{index: value, default: value}
     // If default is specified, the items may be sparse, and not provide each element.
     // Indices are C++ array style, with lo() at index 0
@@ -5064,142 +5064,142 @@ class AstConsArray final : public AstNodeCons {
     // dist-ast-dump-suppress  // Dumped by the itemsp list
     std::map<uint64_t, AstConsArrayItem*> m_itemps;  // The item at each index given
 
-public:
-    AstConsArray(FileLine* fl, AstNodeDType* newDTypep, AstNodeExpr* defaultp = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstConsArray(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_DType* newDTypep, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* defaultp = nullptr)
         : ASTGEN_SUPER_ConsArray(fl) {
         dtypep(newDTypep);
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsArray;
-    const char* broken() const override;
-    void cloneRelink() override;
-    inline AstConsArrayItem* itemsp() const VL_MT_STABLE;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
+    ଶୂନ୍ୟ cloneRelink() override;
+    ଧାଡ଼ିଭିତରେ AstConsArrayItem* itemsp() ଅଚଳ VL_MT_STABLE;
     // The value at the index, or the default if not given
-    AstNodeExpr* valuep(uint64_t index) const;
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* valuep(uint64_t index) ଅଚଳ;
     // Add the value of the element at the index, which must not be given yet
-    void valuep(uint64_t index, AstNodeExpr* newp);
+    ଶୂନ୍ୟ valuep(uint64_t index, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* newp);
     // Add the elements of the array 'arrayp', starting at the index
-    void spliceValues(uint64_t index, AstNodeExpr* arrayp);
+    ଶୂନ୍ୟ splice_ମୂଲ୍ୟଗୁଡ଼ିକ(uint64_t index, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* arrayp);
 };
-class AstConsAssoc final : public AstNodeCons {
+class AstConsAssoc final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct an associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsAssocItem]
-public:
-    explicit AstConsAssoc(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+ସର୍ବସାଧାରଣ:
+    explicit AstConsAssoc(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* defaultp = nullptr)
         : ASTGEN_SUPER_ConsAssoc(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsAssoc;
-    const char* broken() const override {
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), AssocArrayDType));
-        return nullptr;
+        ଫେରନ୍ତୁ nullptr;
     }
 };
-class AstConsDynArray final : public AstNodeCons {
+class AstConsDynArray final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct a dynamic array value, '{value, ...}, {value, array, ...},
     // or with 'sizep', new[size]('{index: value, default: value})
     // @astgen op1 := sizep : Optional[AstNodeExpr]
     // @astgen op2 := defaultp : Optional[AstNodeExpr] // Only with sizep
     // @astgen op3 := itemsp : List[AstConsDynArrayItem]
-public:
-    explicit AstConsDynArray(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstConsDynArray(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_ConsDynArray(fl) {}
     ASTGEN_MEMBERS_AstConsDynArray;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
 };
-class AstConsQueue final : public AstNodeCons {
+class AstConsQueue final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct a queue value, '{value, ...}, {value, array, ...}
     // @astgen op1 := itemsp : List[AstConsQueueItem]
-public:
-    explicit AstConsQueue(FileLine* fl)
+ସର୍ବସାଧାରଣ:
+    explicit AstConsQueue(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_ConsQueue(fl) {}
     ASTGEN_MEMBERS_AstConsQueue;
-    const char* broken() const override {
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), QueueDType));
-        return nullptr;
+        ଫେରନ୍ତୁ nullptr;
     }
 };
-class AstConsStruct final : public AstNodeCons {
+class AstConsStruct final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct an unpacked struct value, '{member: value, ...}
     // @astgen op1 := itemsp : List[AstConsStructItem] // A value for each member, in order
-public:
-    AstConsStruct(FileLine* fl, AstStructDType* dtypep)
+ସର୍ବସାଧାରଣ:
+    AstConsStruct(File_ଧାଡ଼ି* fl, AstStructDType* dtypep)
         : ASTGEN_SUPER_ConsStruct(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstConsStruct;
-    const char* broken() const override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
     // The value of the member called 'name'
-    AstNodeExpr* memberValuep(const string& name) const;
+    Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* memberValuep(ଅଚଳ string& name) ଅଚଳ;
 };
-class AstConsWildcard final : public AstNodeCons {
+class AstConsWildcard final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Cons {
     // Construct a wildcard associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsWildcardItem]
-public:
-    explicit AstConsWildcard(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+ସର୍ବସାଧାରଣ:
+    explicit AstConsWildcard(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* defaultp = nullptr)
         : ASTGEN_SUPER_ConsWildcard(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsWildcard;
-    const char* broken() const override {
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), WildcardArrayDType));
-        return nullptr;
+        ଫେରନ୍ତୁ nullptr;
     }
 };
 
 // === AstNodeFTaskRef ===
-class AstFuncRef final : public AstNodeFTaskRef {
+class AstFuncRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_FTask_Ref {
     // A reference to a function
-public:
-    inline AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp = nullptr);
-    AstFuncRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    ଧାଡ଼ିଭିତରେ AstFuncRef(File_ଧାଡ଼ି* fl, AstFunc* taskp, AstArg* argsp = nullptr);
+    AstFuncRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_FuncRef(fl, name, argsp) {}
     ASTGEN_MEMBERS_AstFuncRef;
 };
-class AstMethodCall final : public AstNodeFTaskRef {
+class AstMethodCall final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_FTask_Ref {
     // A reference to a member task (or function)
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     // @astgen op1 := fromp : AstNodeExpr
     //
-public:
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name,
+ସର୍ବସାଧାରଣ:
+    AstMethodCall(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, VFlagChildDType, ଅଚଳ string& name,
                   AstArg* argsp = nullptr)
         : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, const string& name, AstArg* argsp = nullptr)
+    AstMethodCall(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, ଅଚଳ string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
         this->fromp(fromp);
     }
     ASTGEN_MEMBERS_AstMethodCall;
 };
-class AstNew final : public AstNodeFTaskRef {
+class AstNew final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_FTask_Ref {
     // New as constructor
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     bool m_isImplicit = false;  // Implicitly generated from extends args
     bool m_isScoped = false;  // Had :: scope when parsed
-public:
-    AstNew(FileLine* fl, AstArg* argsp = nullptr, bool isScoped = false)
+ସର୍ବସାଧାରଣ:
+    AstNew(File_ଧାଡ଼ି* fl, AstArg* argsp = nullptr, bool isScoped = false)
         : ASTGEN_SUPER_New(fl, "new", argsp)
         , m_isScoped{isScoped} {}
     ASTGEN_MEMBERS_AstNew;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return widthInstrs(); }
-    bool isImplicit() const { return m_isImplicit; }
-    void isImplicit(bool flag) { m_isImplicit = flag; }
-    bool isScoped() const { return m_isScoped; }
-    void isScoped(bool flag) { m_isScoped = flag; }
-    bool isPure() override { return false; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool isImplicit() ଅଚଳ { ଫେରନ୍ତୁ m_isImplicit; }
+    ଶୂନ୍ୟ isImplicit(bool flag) { m_isImplicit = flag; }
+    bool isScoped() ଅଚଳ { ଫେରନ୍ତୁ m_isScoped; }
+    ଶୂନ୍ୟ isScoped(bool flag) { m_isScoped = flag; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }
 };
-class AstTaskRef final : public AstNodeFTaskRef {
+class AstTaskRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_FTask_Ref {
     // A reference to a task
-public:
-    inline AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp = nullptr);
-    AstTaskRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+ସର୍ବସାଧାରଣ:
+    ଧାଡ଼ିଭିତରେ AstTaskRef(File_ଧାଡ଼ି* fl, AstTask* taskp, AstArg* argsp = nullptr);
+    AstTaskRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_TaskRef(fl, name, argsp) {
         dtypeSetVoid();
     }
@@ -5207,1305 +5207,1305 @@ public:
 };
 
 // === AstNodePreSel ===
-class AstSelBit final : public AstNodePreSel {
+class AstSelBit final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Pre_Sel {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // Gets replaced during link with AstArraySel or AstSel
     // @astgen alias op2 := bitp
-private:
+ବ୍ୟକ୍ତିଗତ:
     VAccess m_access;  // Left hand side assignment
-public:
-    AstSelBit(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ସର୍ବସାଧାରଣ:
+    AstSelBit(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp)
         : ASTGEN_SUPER_SelBit(fl, fromp, bitp, nullptr) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSelBit;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    VAccess access() ଅଚଳ { ଫେରନ୍ତୁ m_access; }
+    ଶୂନ୍ୟ access(ଅଚଳ VAccess& flag) { m_access = flag; }
 };
-class AstSelExtract final : public AstNodePreSel {
+class AstSelExtract final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Pre_Sel {
     // Range extraction, gets replaced with AstSel
     // @astgen alias op2 := leftp
     // @astgen alias op3 := rightp
-public:
-    AstSelExtract(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* msbp, AstNodeExpr* lsbp)
+ସର୍ବସାଧାରଣ:
+    AstSelExtract(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* msbp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lsbp)
         : ASTGEN_SUPER_SelExtract(fl, fromp, msbp, lsbp) {}
     ASTGEN_MEMBERS_AstSelExtract;
 };
-class AstSelMinus final : public AstNodePreSel {
+class AstSelMinus final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Pre_Sel {
     // -: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelMinus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+ସର୍ବସାଧାରଣ:
+    AstSelMinus(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* widthp)
         : ASTGEN_SUPER_SelMinus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelMinus;
 };
-class AstSelPlus final : public AstNodePreSel {
+class AstSelPlus final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Pre_Sel {
     // +: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelPlus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+ସର୍ବସାଧାରଣ:
+    AstSelPlus(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* bitp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* widthp)
         : ASTGEN_SUPER_SelPlus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelPlus;
 };
 
 // === AstNodeQuadop ===
-class AstCountBits final : public AstNodeQuadop {
+class Ast_ଗଣନା_Bits final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Quadop {
     // Number of bits set in vector
-public:
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl1p->cloneTreePure(false),
-                                 ctrl1p->cloneTreePure(false)) {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣନା_Bits(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl1p)
+        : ASTGEN_SUPER_ଗଣନା_Bits(fl, exprp, ctrl1p, ctrl1p->clone_ବୃକ୍ଷ_Pure(false),
+                                 ctrl1p->clone_ବୃକ୍ଷ_Pure(false)) {
         dtypeSetInt();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->cloneTreePure(false)) {
+    Ast_ଗଣନା_Bits(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl1p, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl2p)
+        : ASTGEN_SUPER_ଗଣନା_Bits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->clone_ବୃକ୍ଷ_Pure(false)) {
         dtypeSetInt();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p,
-                 AstNodeExpr* ctrl3p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
+    Ast_ଗଣନା_Bits(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* exprp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl1p, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl2p,
+                 Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ctrl3p)
+        : ASTGEN_SUPER_ଗଣନା_Bits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
         dtypeSetInt();
     }
-    ASTGEN_MEMBERS_AstCountBits;
-    void numberOperate(V3Number& out, const V3Number& expr, const V3Number& ctrl1,
-                       const V3Number& ctrl2, const V3Number& ctrl3) override {
-        out.opCountBits(expr, ctrl1, ctrl2, ctrl3);
+    ASTGEN_MEMBERS_Ast_ଗଣନା_Bits;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& ପଦସମଷ୍ଟି, ଅଚଳ V3_ସଂଖ୍ୟା& ctrl1,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& ctrl2, ଅଚଳ V3_ସଂଖ୍ୟା& ctrl3) override {
+        out.op_ଗଣନା_Bits(ପଦସମଷ୍ଟି, ctrl1, ctrl2, ctrl3);
     }
-    string emitVerilog() override { return "%f$countbits(%l, %r, %f, %o)"; }
-    string emitC() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool cleanFhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sizeMattersFhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$countbits(%l, %r, %f, %o)"; }
+    string emitC() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanFhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersFhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 16; }
 };
 
 // === AstNodeTermop ===
-class AstInferredDisable final : public AstNodeTermop {
-public:
-    explicit AstInferredDisable(FileLine* fl)
+class AstInferredDisable final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Termop {
+ସର୍ବସାଧାରଣ:
+    explicit AstInferredDisable(File_ଧାଡ଼ି* fl)
         : ASTGEN_SUPER_InferredDisable(fl) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstInferredDisable;
-    string emitVerilog() override { return "%f$inferred_disable"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$inferred_disable"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstTime final : public AstNodeTermop {
+class AstTime final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTime(FileLine* fl, const VTimescale& timeunit)
+ସର୍ବସାଧାରଣ:
+    AstTime(File_ଧାଡ଼ି* fl, ଅଚଳ VTimescale& timeunit)
         : ASTGEN_SUPER_Time(fl)
         , m_timeunit{timeunit} {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstTime;
-    string emitVerilog() override { return "%f$time"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$time"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_TIME; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTimeD final : public AstNodeTermop {
+class AstTimeD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeD(FileLine* fl, const VTimescale& timeunit)
+ସର୍ବସାଧାରଣ:
+    AstTimeD(File_ଧାଡ଼ି* fl, ଅଚଳ VTimescale& timeunit)
         : ASTGEN_SUPER_TimeD(fl)
         , m_timeunit{timeunit} {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstTimeD;
-    string emitVerilog() override { return "%f$realtime"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$realtime"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool isGateOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_TIME; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
 };
 
 // === AstNodeTriop ===
 
-class AstCond final : public AstNodeTriop {
+class AstCond final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Triop {
     // @astgen alias op1 := condp
     // @astgen alias op2 := thenp
     // @astgen alias op3 := elsep
     // @astgen makeDfgVertex
-public:
-    AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeExpr* elsep);
+ସର୍ବସାଧାରଣ:
+    AstCond(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* condp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thenp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* elsep);
     ASTGEN_MEMBERS_AstCond;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& ths) override {
         out.opAssign(lhs.isNeqZero() ? rhs : ths);
     }
-    string emitVerilog() override { return "%k(%l %f? %r %k: %t)"; }
-    string emitC() override { return "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
-    string emitSMT() const override { return "(ite (__Vbool %l) %r %t)"; }
-    bool cleanOut() const override { return false; }  // clean if e1 & e2 clean
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }  // Propagates up
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l %f? %r %k: %t)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(ite (__Vbool %l) %r %t)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // clean if e1 & e2 clean
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Propagates up
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_BRANCH; }
 };
-class AstPutcN final : public AstNodeTriop {
+class AstPutcN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Triop {
     // Verilog string.putc()
-public:
-    AstPutcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+ସର୍ବସାଧାରଣ:
+    AstPutcN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ths)
         : ASTGEN_SUPER_PutcN(fl, lhsp, rhsp, ths) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstPutcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& ths) override {
         out.opPutcN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "putc"; }
-    string emitVerilog() override { return "%k(%l.putc(%r,%t))"; }
-    string emitC() override { return "VL_PUTC_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ "putc"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l.putc(%r,%t))"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_PUTC_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstSliceSel final : public AstNodeTriop {
+class AstSliceSel final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Triop {
     // Multiple array element extraction
     // @astgen alias op1 := fromp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-public:
-    AstSliceSel(FileLine* fl, AstNodeExpr* fromp, const VNumRange& declRange)
+ସର୍ବସାଧାରଣ:
+    AstSliceSel(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* fromp, ଅଚଳ VNumRange& declRange)
         : ASTGEN_SUPER_SliceSel(fl, fromp,
                                 new AstConst(fl, declRange.lo()),  // Need () constructor
                                 new AstConst(fl, declRange.elements()))  // Need () constructor
         , m_declRange{declRange} {}
     ASTGEN_MEMBERS_AstSliceSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& lo,
-                       const V3Number& width) override {
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& from, ଅଚଳ V3_ସଂଖ୍ୟା& lo,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& width) override {
         V3ERROR_NA;
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Removed before EmitC
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    int instrCount() const override { return 10; }  // Removed before matters
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି*) ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 10; }  // Removed before matters
     // For widthConst()/loConst etc, see declRange().elements() and other VNumRange methods
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
+    VNumRange& declRange() VL_MT_STABLE { ଫେରନ୍ତୁ m_declRange; }
+    ଅଚଳ VNumRange& declRange() ଅଚଳ VL_MT_STABLE { ଫେରନ୍ତୁ m_declRange; }
 };
-class AstSubstrN final : public AstNodeTriop {
+class AstSubstrN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Triop {
     // Verilog string.substr()
-public:
-    AstSubstrN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+ସର୍ବସାଧାରଣ:
+    AstSubstrN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* ths)
         : ASTGEN_SUPER_SubstrN(fl, lhsp, rhsp, ths) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstSubstrN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs,
+                       ଅଚଳ V3_ସଂଖ୍ୟା& ths) override {
         out.opSubstrN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "substr"; }
-    string emitVerilog() override { return "%k(%l.substr(%r,%t))"; }
-    string emitC() override { return "VL_SUBSTR_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ "substr"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l.substr(%r,%t))"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_SUBSTR_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ ""; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanRhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanThs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersRhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersThs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
 
 // === AstNodeDistTriop ===
-class AstDistErlang final : public AstNodeDistTriop {
-public:
-    AstDistErlang(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistErlang final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Triop {
+ସର୍ବସାଧାରଣ:
+    AstDistErlang(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
         : ASTGEN_SUPER_DistErlang(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistErlang;
-    string emitVerilog() override { return "%f$dist_erlang(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_ERLANG(%li, %ri, %ti)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_erlang(%l, %r, %t)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_ERLANG(%li, %ri, %ti)"; }
 };
-class AstDistNormal final : public AstNodeDistTriop {
-public:
-    AstDistNormal(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistNormal final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Triop {
+ସର୍ବସାଧାରଣ:
+    AstDistNormal(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
         : ASTGEN_SUPER_DistNormal(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistNormal;
-    string emitVerilog() override { return "%f$dist_normal(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_NORMAL(%li, %ri, %ti)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_normal(%l, %r, %t)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_NORMAL(%li, %ri, %ti)"; }
 };
-class AstDistUniform final : public AstNodeDistTriop {
-public:
-    AstDistUniform(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistUniform final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Dist_Triop {
+ସର୍ବସାଧାରଣ:
+    AstDistUniform(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* rhsp, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* thsp)
         : ASTGEN_SUPER_DistUniform(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistUniform;
-    string emitVerilog() override { return "%f$dist_uniform(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$dist_uniform(%l, %r, %t)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
 };
 
 // === AstNodeUniop ===
-class AstAtoN final : public AstNodeUniop {
+class AstAtoN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // string.atoi(), atobin(), atohex(), atooct(), atoireal()
-public:
-    enum FmtType : int { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
+ସର୍ବସାଧାରଣ:
+    ଗଣନା FmtType : ପୂର୍ଣ୍ଣସଂଖ୍ୟା { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     // dist-ast-dump-suppress  // Part of name()
-    const FmtType m_fmtType;  // Operation type
-public:
-    AstAtoN(FileLine* fl, AstNodeExpr* lhsp, FmtType fmtType)
+    ଅଚଳ FmtType m_fmtType;  // Operation type
+ସର୍ବସାଧାରଣ:
+    AstAtoN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, FmtType fmtType)
         : ASTGEN_SUPER_AtoN(fl, lhsp)
         , m_fmtType{fmtType} {
         fmtType == ATOREAL ? dtypeSetDouble() : dtypeSetInteger();
     }
     ASTGEN_MEMBERS_AstAtoN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAtoN(lhs, m_fmtType); }
-    string name() const override VL_MT_STABLE {
-        switch (m_fmtType) {
-        case ATOI: return "atoi";
-        case ATOHEX: return "atohex";
-        case ATOOCT: return "atooct";
-        case ATOBIN: return "atobin";
-        case ATOREAL: return "atoreal";
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opAtoN(lhs, m_fmtType); }
+    string name() ଅଚଳ override VL_MT_STABLE {
+        ବାଛ (m_fmtType) {
+        ସ୍ଥିତି ATOI: ଫେରନ୍ତୁ "atoi";
+        ସ୍ଥିତି ATOHEX: ଫେରନ୍ତୁ "atohex";
+        ସ୍ଥିତି ATOOCT: ଫେରନ୍ତୁ "atooct";
+        ସ୍ଥିତି ATOBIN: ଫେରନ୍ତୁ "atobin";
+        ସ୍ଥିତି ATOREAL: ଫେରନ୍ତୁ "atoreal";
         }
         V3ERROR_NA_RETURN("");
     }
-    string emitVerilog() override { return "%l." + name() + "()"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l." + name() + "()"; }
     string emitC() override {
-        switch (m_fmtType) {
-        case ATOI: return "VL_ATOI_N(%li, 10)";
-        case ATOHEX: return "VL_ATOI_N(%li, 16)";
-        case ATOOCT: return "VL_ATOI_N(%li, 8)";
-        case ATOBIN: return "VL_ATOI_N(%li, 2)";
-        case ATOREAL: return "VL_ATOREAL_N(%li)";
+        ବାଛ (m_fmtType) {
+        ସ୍ଥିତି ATOI: ଫେରନ୍ତୁ "VL_ATOI_N(%li, 10)";
+        ସ୍ଥିତି ATOHEX: ଫେରନ୍ତୁ "VL_ATOI_N(%li, 16)";
+        ସ୍ଥିତି ATOOCT: ଫେରନ୍ତୁ "VL_ATOI_N(%li, 8)";
+        ସ୍ଥିତି ATOBIN: ଫେରନ୍ତୁ "VL_ATOI_N(%li, 2)";
+        ସ୍ଥିତି ATOREAL: ଫେରନ୍ତୁ "VL_ATOREAL_N(%li)";
         }
         V3ERROR_NA_RETURN("");
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    FmtType fmtType() const { return m_fmtType; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    FmtType fmtType() ଅଚଳ { ଫେରନ୍ତୁ m_fmtType; }
 };
-class AstBitsToRealD final : public AstNodeUniop {
-public:
-    AstBitsToRealD(FileLine* fl, AstNodeExpr* lhsp)
+class AstBitsToRealD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstBitsToRealD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_BitsToRealD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstBitsToRealD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opBitsToRealD(lhs); }
-    string emitVerilog() override { return "%f$bitstoreal(%l)"; }
-    string emitC() override { return "VL_CVT_D_Q(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opBitsToRealD(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$bitstoreal(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CVT_D_Q(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCCast final : public AstNodeUniop {
+class AstCCast final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Cast to C-based data type
-    int m_size;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା m_size;
 
-public:
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, int setwidth, int minwidth = -1)
+ସର୍ବସାଧାରଣ:
+    AstCCast(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା setwidth, ପୂର୍ଣ୍ଣସଂଖ୍ୟା minwidth = -1)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         m_size = setwidth;
-        if (setwidth) {
-            if (minwidth == -1) minwidth = setwidth;
+        ଯଦି (setwidth) {
+            ଯଦି (minwidth == -1) minwidth = setwidth;
             dtypeSetBitUnsized(setwidth, minwidth, VSigning::UNSIGNED);
         }
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, AstNode* typeFromp)
+    AstCCast(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି* typeFromp)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         dtypeFrom(typeFromp);
         m_size = width();
     }
     ASTGEN_MEMBERS_AstCCast;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%f$_CAST(%l)"; }
-    string emitC() override { return "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }  // Special cased in V3Cast
-    bool sameNode(const AstNode* samep) const override {
-        return size() == VN_DBG_AS(samep, CCast)->size();
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$_CAST(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Special cased in V3Cast
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଫେରନ୍ତୁ size() == VN_DBG_AS(samep, CCast)->size();
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
     //
-    int size() const { return m_size; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା size() ଅଚଳ { ଫେରନ୍ତୁ m_size; }
 };
-class AstCLog2 final : public AstNodeUniop {
-public:
-    AstCLog2(FileLine* fl, AstNodeExpr* lhsp)
+class AstCLog2 final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstCLog2(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CLog2(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstCLog2;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCLog2(lhs); }
-    string emitVerilog() override { return "%f$clog2(%l)"; }
-    string emitC() override { return "VL_CLOG2_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opCLog2(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$clog2(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CLOG2_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 16; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCastWrap final : public AstNodeUniop {
+class AstCastWrap final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // A cast which has been expanded and the LHSP does all the lifting
     // This remains until V3Width final commit pass to suppress ENUMVALUE warnings
-public:
-    AstCastWrap(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstCastWrap(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CastWrap(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCastWrap;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "(%l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
 };
-class AstCountOnes final : public AstNodeUniop {
+class Ast_ଗଣନା_Ones final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Number of bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstCountOnes(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_CountOnes(fl, lhsp) {
+ସର୍ବସାଧାରଣ:
+    Ast_ଗଣନା_Ones(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
+        : ASTGEN_SUPER_ଗଣନା_Ones(fl, lhsp) {
         dtypeSetInt();
     }
-    ASTGEN_MEMBERS_AstCountOnes;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCountOnes(lhs); }
-    string emitVerilog() override { return "%f$countones(%l)"; }
-    string emitC() override { return "VL_COUNTONES_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ଗଣନା_Ones;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.op_ଗଣନା_Ones(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$countones(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_COUNTONES_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 16; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstCvtPackString final : public AstNodeUniop {
+class AstCvtPackString final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Convert to Verilator Packed String (aka verilog "string")
-public:
-    AstCvtPackString(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstCvtPackString(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CvtPackString(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstCvtPackString;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCvtPackString(lhs); }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opCvtPackString(lhs); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* /*samep*/) ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstExtend final : public AstNodeUniop {
+class AstExtend final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Expand a value into a wider entity by 0 extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstExtend(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Extend(fl, lhsp) {}
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp, int width, int widthMin = 0)
+    AstExtend(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା width, ପୂର୍ଣ୍ଣସଂଖ୍ୟା widthMin = 0)
         : ASTGEN_SUPER_Extend(fl, lhsp) {
         dtypeSetBitOrLogicUnsized(width, widthMin ? widthMin : width, VSigning::UNSIGNED,
                                   lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtend;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opAssign(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ଅଚଳ override {
+        ଫେରନ୍ତୁ "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override {
+        ଫେରନ୍ତୁ false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
 };
-class AstExtendS final : public AstNodeUniop {
+class AstExtendS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Expand a value into a wider entity by sign extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstExtendS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {}
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp, int width)
+    AstExtendS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା width)
         // Important that widthMin be correct, as opExtend requires it after V3Expand
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {
         dtypeSetBitOrLogicSized(width, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtendS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.opExtendS(lhs, lhsp()->widthMinV());
     }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ଅଚଳ override {
+        ଫେରନ୍ତୁ "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override {
+        ଫେରନ୍ତୁ false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
-    bool signedFlavor() const override { return true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool signedFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstFEof final : public AstNodeUniop {
-public:
-    AstFEof(FileLine* fl, AstNodeExpr* lhsp)
+class AstFEof final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstFEof(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_FEof(fl, lhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFEof;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$feof(%l)"; }
-    string emitC() override { return "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    AstNode* filep() const { return lhsp(); }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$feof(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 16; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    Ast_ଗଣ୍ଠି* filep() ଅଚଳ { ଫେରନ୍ତୁ lhsp(); }
 };
-class AstFGetC final : public AstNodeUniop {
-public:
-    AstFGetC(FileLine* fl, AstNodeExpr* lhsp)
+class AstFGetC final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstFGetC(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_FGetC(fl, lhsp) {
         dtypeSetLogic2StateUnsized(
             32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetC;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgetc(%l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$fgetc(%l)"; }
     // Non-existent filehandle returns EOF
-    string emitC() override { return "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    bool isSystemFunc() const override { return true; }
+    string emitC() override { ଫେରନ୍ତୁ "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 64; }
+    bool isPredictOptimizable() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isPure() override { ଫେରନ୍ତୁ false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_ଗଣ୍ଠି* filep() ଅଚଳ { ଫେରନ୍ତୁ lhsp(); }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstISToRD final : public AstNodeUniop {
+class AstISToRD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // $itor where lhs is signed
-public:
-    AstISToRD(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstISToRD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ISToRD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstISToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opISToRD(lhs); }
-    string emitVerilog() override { return "%f$itor($signed(%l))"; }
-    string emitC() override { return "VL_ISTOR_D_%lq(%lw, %li)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opISToRD(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$itor($signed(%l))"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_ISTOR_D_%lq(%lw, %li)"; }
+    bool emit_Check_Max_ଶବ୍ଦଗୁଡ଼ିକ() override { ଫେରନ୍ତୁ true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstIToRD final : public AstNodeUniop {
+class AstIToRD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // $itor where lhs is unsigned
-public:
-    AstIToRD(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstIToRD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_IToRD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstIToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIToRD(lhs); }
-    string emitVerilog() override { return "%f$itor(%l)"; }
-    string emitC() override { return "VL_ITOR_D_%lq(%lw, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opIToRD(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$itor(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_ITOR_D_%lq(%lw, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstIsUnbounded final : public AstNodeUniop {
+class AstIsUnbounded final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // True if is unbounded ($)
-public:
-    AstIsUnbounded(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstIsUnbounded(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_IsUnbounded(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstIsUnbounded;
-    void numberOperate(V3Number& out, const V3Number&) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା&) override {
         // Any constant isn't unbounded
         out.setZero();
     }
-    string emitVerilog() override { return "%f$isunbounded(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$isunbounded(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstIsUnknown final : public AstNodeUniop {
+class AstIsUnknown final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // True if any unknown bits
-public:
-    AstIsUnknown(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstIsUnknown(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_IsUnknown(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstIsUnknown;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIsUnknown(lhs); }
-    string emitVerilog() override { return "%f$isunknown(%l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opIsUnknown(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$isunknown(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstLenN final : public AstNodeUniop {
+class AstLenN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Length of a string
-public:
-    AstLenN(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstLenN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_LenN(fl, lhsp) {
         dtypeSetInt();
     }
     ASTGEN_MEMBERS_AstLenN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLenN(lhs); }
-    string emitVerilog() override { return "%f(%l)"; }
-    string emitC() override { return "VL_LEN_IN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opLenN(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LEN_IN(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstLogNot final : public AstNodeUniop {
+class AstLogNot final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-private:
-    const bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
+ବ୍ୟକ୍ତିଗତ:
+    ଅଚଳ bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
                                 // false for boolean '!' (IEEE 1800-2023 11.4.7)
-public:
-    AstLogNot(FileLine* fl, AstNodeExpr* lhsp, bool fromProperty = false)
+ସର୍ବସାଧାରଣ:
+    AstLogNot(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, bool fromProperty = false)
         : ASTGEN_SUPER_LogNot(fl, lhsp)
         , m_fromProperty{fromProperty} {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstLogNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLogNot(lhs); }
-    string emitVerilog() override { return "%f(! %l)"; }
-    string emitC() override { return "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override { return "(__Vbv (not (__Vbool %l)))"; }
-    string emitSimpleOperator() override { return "!"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool fromProperty() const { return m_fromProperty; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opLogNot(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(! %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(__Vbv (not (__Vbool %l)))"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "!"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool fromProperty() ଅଚଳ { ଫେରନ୍ତୁ m_fromProperty; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
 };
-class AstMostSetBitP1 final : public AstNodeUniop {
+class AstMostSetBitP1 final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Most-significant set bit plus one (bit-width); 0 if value is zero
-public:
-    AstMostSetBitP1(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstMostSetBitP1(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_MostSetBitP1(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstMostSetBitP1;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opMostSetBitP1(lhs); }
-    string emitVerilog() override { return "%f$mostsetbitp1(%l)"; }
-    string emitC() override { return "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opMostSetBitP1(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$mostsetbitp1(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 16; }
 };
-class AstNToI final : public AstNodeUniop {
+class AstNToI final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // String to any-size integral
-public:
-    AstNToI(FileLine* fl, AstNodeExpr* lhsp, AstNodeDType* dtypep = nullptr)
+ସର୍ବସାଧାରଣ:
+    AstNToI(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp, Ast_ଗଣ୍ଠି_DType* dtypep = nullptr)
         : ASTGEN_SUPER_NToI(fl, lhsp) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstNToI;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNToI(lhs); }
-    string emitVerilog() override { return "'(%l)"; }
-    string emitC() override { return "VL_NTOI_%nq(%nw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opNToI(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "'(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_NTOI_%nq(%nw, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstNegate final : public AstNodeUniop {
+class AstNegate final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNegate(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstNegate(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Negate(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNegate;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegate(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
-    string emitC() override { return "VL_NEGATE_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvneg %l)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opNegate(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(- %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_NEGATE_%lq(%lW, %P, %li)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvneg %l)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "-"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNegateD final : public AstNodeUniop {
-public:
-    AstNegateD(FileLine* fl, AstNodeExpr* lhsp)
+class AstNegateD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstNegateD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_NegateD(fl, lhsp) {
         dtypeSetDouble();
     }
     ASTGEN_MEMBERS_AstNegateD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegateD(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opNegateD(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(- %l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "-"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool doubleFlavor() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstNot final : public AstNodeUniop {
+class AstNot final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNot(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstNot(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Not(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNot(lhs); }
-    string emitVerilog() override { return "%f(~ %l)"; }
-    string emitC() override { return "VL_NOT_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvnot %l)"; }
-    string emitSimpleOperator() override { return "~"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opNot(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(~ %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_NOT_%lq(%lW, %P, %li)"; }
+    string emitSMT() ଅଚଳ override { ଫେରନ୍ତୁ "(bvnot %l)"; }
+    string emitSimpleOperator() override { ଫେରନ୍ତୁ "~"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ଅଚଳ ଅକ୍ଷର* widthMismatch() ଅଚଳ override VL_MT_STABLE;
 };
-class AstNullCheck final : public AstNodeUniop {
+class AstNullCheck final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Return LHS after checking that LHS is non-null
-public:
-    AstNullCheck(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstNullCheck(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_NullCheck(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNullCheck;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    int instrCount() const override { return 1; }  // Rarely executes
-    string emitVerilog() override { return "%l"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 1; }  // Rarely executes
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override { ଫେରନ୍ତୁ fileline() == samep->fileline(); }
 };
-class AstOneHot final : public AstNodeUniop {
+class AstOneHot final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // True if only single bit set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstOneHot(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_OneHot(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstOneHot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot(lhs); }
-    string emitVerilog() override { return "%f$onehot(%l)"; }
-    string emitC() override { return "VL_ONEHOT_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 4; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opOneHot(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$onehot(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_ONEHOT_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 4; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstOneHot0 final : public AstNodeUniop {
+class AstOneHot0 final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // True if only single bit, or no bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot0(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstOneHot0(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_OneHot0(fl, lhsp) {
         dtypeSetBit();
     }
     ASTGEN_MEMBERS_AstOneHot0;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot0(lhs); }
-    string emitVerilog() override { return "%f$onehot0(%l)"; }
-    string emitC() override { return "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 3; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opOneHot0(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$onehot0(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs() * 3; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstPostDec final : public AstNodeUniop {
+class AstPostDec final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Post-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPostDec(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstPostDec(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_PostDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l--)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l--)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPostInc final : public AstNodeUniop {
+class AstPostInc final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Post-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPostInc(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstPostInc(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_PostInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l++)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(%l++)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreDec final : public AstNodeUniop {
+class AstPreDec final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Pre-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPreDec(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstPreDec(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_PreDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(--%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(--%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreInc final : public AstNodeUniop {
+class AstPreInc final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Pre-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPreInc(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstPreInc(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_PreInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(++%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%k(++%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool cleanOut() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ଅଚଳ override { V3ERROR_NA_RETURN(false); }
+    bool sizeMattersLhs() ଅଚଳ override { V3ERROR_NA_RETURN(true); }
 };
-class AstRToIRoundS final : public AstNodeUniop {
+class AstRToIRoundS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Convert real to integer, with arbitrary sized output (not just "integer" format)
-public:
-    AstRToIRoundS(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstRToIRoundS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RToIRoundS(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstRToIRoundS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIRoundS(lhs); }
-    string emitVerilog() override { return "%f$rtoi_rounded(%l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRToIRoundS(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$rtoi_rounded(%l)"; }
     string emitC() override {
-        return isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
+        ଫେରନ୍ତୁ isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRToIS final : public AstNodeUniop {
+class AstRToIS final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // $rtoi(lhs)
-public:
-    AstRToIS(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstRToIS(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RToIS(fl, lhsp) {
         dtypeSetInteger2State();
     }
     ASTGEN_MEMBERS_AstRToIS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIS(lhs); }
-    string emitVerilog() override { return "%f$rtoi(%l)"; }
-    string emitC() override { return "VL_RTOI_I_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRToIS(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$rtoi(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_RTOI_I_D(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRealToBits final : public AstNodeUniop {
-public:
-    AstRealToBits(FileLine* fl, AstNodeExpr* lhsp)
+class AstRealToBits final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstRealToBits(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RealToBits(fl, lhsp) {
         dtypeSetUInt64();
     }
     ASTGEN_MEMBERS_AstRealToBits;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRealToBits(lhs); }
-    string emitVerilog() override { return "%f$realtobits(%l)"; }
-    string emitC() override { return "VL_CVT_Q_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRealToBits(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$realtobits(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_CVT_Q_D(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ INSTR_ଗଣନା_DBL; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstRedAnd final : public AstNodeUniop {
+class AstRedAnd final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedAnd(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstRedAnd(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RedAnd(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedAnd(lhs); }
-    string emitVerilog() override { return "%f(& %l)"; }
-    string emitC() override { return "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRedAnd(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(& %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstRedOr final : public AstNodeUniop {
+class AstRedOr final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedOr(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstRedOr(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RedOr(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedOr;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedOr(lhs); }
-    string emitVerilog() override { return "%f(| %l)"; }
-    string emitC() override { return "VL_REDOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRedOr(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(| %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_REDOR_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstRedXor final : public AstNodeUniop {
+class AstRedXor final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedXor(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstRedXor(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_RedXor(fl, lhsp) {
         dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedXor;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedXor(lhs); }
-    string emitVerilog() override { return "%f(^ %l)"; }
-    string emitC() override { return "VL_REDXOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override {
-        const int w = lhsp()->width();
-        return (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opRedXor(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f(^ %l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_REDXOR_%lq(%lW, %P, %li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override {
+        ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା w = lhsp()->width();
+        ଫେରନ୍ତୁ (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
     }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 1 + V3Number::log2b(width()); }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 1 + V3_ସଂଖ୍ୟା::log2b(width()); }
 };
-class AstResizeLValue final : public AstNodeUniop {
+class AstResizeLValue final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Resize a LValue into a wider/narrower entity at function argument boundry
     // Width and signness is implied from nodep->width()
-public:
-    AstResizeLValue(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstResizeLValue(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ResizeLValue(fl, lhsp) {}
     ASTGEN_MEMBERS_AstResizeLValue;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
 };
-class AstSigned final : public AstNodeUniop {
+class AstSigned final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // $signed(lhs)
-public:
-    AstSigned(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstSigned(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Signed(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.opAssign(lhs);
         out.isSigned(false);
     }
-    string emitVerilog() override { return "%f$signed(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$signed(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }  // Eliminated before matters
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstTimeImport final : public AstNodeUniop {
+class AstTimeImport final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // Take a constant that represents a time and needs conversion based on time units
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeImport(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstTimeImport(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_TimeImport(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTimeImport;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    ଶୂନ୍ୟ dump(std::ostream& str = std::cout) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str = std::cout) ଅଚଳ override;
+    VTimescale timeunit() ଅଚଳ { ଫେରନ୍ତୁ m_timeunit; }
+    ଶୂନ୍ୟ timeunit(ଅଚଳ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstToLowerN final : public AstNodeUniop {
+class AstToLowerN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // string.tolower()
-public:
-    AstToLowerN(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstToLowerN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ToLowerN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToLowerN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToLowerN(lhs); }
-    string emitVerilog() override { return "%l.tolower()"; }
-    string emitC() override { return "VL_TOLOWER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opToLowerN(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l.tolower()"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_TOLOWER_NN(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstToStringN final : public AstNodeUniop {
-public:
-    AstToStringN(FileLine* fl, AstNodeExpr* lhsp)
+class AstToStringN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
+ସର୍ବସାଧାରଣ:
+    AstToStringN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ToStringN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToStringN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "$sformatf(\"%p\", %l)"; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "$sformatf(\"%p\", %l)"; }
     string emitC() override {
-        return isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
+        ଫେରନ୍ତୁ isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstToUpperN final : public AstNodeUniop {
+class AstToUpperN final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // string.toupper()
-public:
-    AstToUpperN(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstToUpperN(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ToUpperN(fl, lhsp) {
         dtypeSetString();
     }
     ASTGEN_MEMBERS_AstToUpperN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToUpperN(lhs); }
-    string emitVerilog() override { return "%l.toupper()"; }
-    string emitC() override { return "VL_TOUPPER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override { out.opToUpperN(lhs); }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%l.toupper()"; }
+    string emitC() override { ଫେରନ୍ତୁ "VL_TOUPPER_NN(%li)"; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }
 };
-class AstUnsigned final : public AstNodeUniop {
+class AstUnsigned final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Uniop {
     // $unsigned(lhs)
-public:
-    AstUnsigned(FileLine* fl, AstNodeExpr* lhsp)
+ସର୍ବସାଧାରଣ:
+    AstUnsigned(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Unsigned(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstUnsigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.opAssign(lhs);
         out.isSigned(false);
     }
-    string emitVerilog() override { return "%f$unsigned(%l)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$unsigned(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ false; }
+    bool cleanLhs() ଅଚଳ override { ଫେରନ୍ତୁ false; }  // Eliminated before matters
+    bool sizeMattersLhs() ଅଚଳ override { ଫେରନ୍ତୁ true; }  // Eliminated before matters
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ 0; }
+    bool isSystemFunc() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
 
 // === AstNodeSystemUniopD ===
-class AstAcosD final : public AstNodeSystemUniopD {
-public:
-    AstAcosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcosD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAcosD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AcosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::acos(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$acos(%l)"; }
-    string emitC() override { return "acos(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$acos(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "acos(%li)"; }
 };
-class AstAcoshD final : public AstNodeSystemUniopD {
-public:
-    AstAcoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcoshD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAcoshD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AcoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::acosh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$acosh(%l)"; }
-    string emitC() override { return "acosh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$acosh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "acosh(%li)"; }
 };
-class AstAsinD final : public AstNodeSystemUniopD {
-public:
-    AstAsinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAsinD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AsinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::asin(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$asin(%l)"; }
-    string emitC() override { return "asin(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$asin(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "asin(%li)"; }
 };
-class AstAsinhD final : public AstNodeSystemUniopD {
-public:
-    AstAsinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinhD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAsinhD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AsinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::asinh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$asinh(%l)"; }
-    string emitC() override { return "asinh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$asinh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "asinh(%li)"; }
 };
-class AstAtanD final : public AstNodeSystemUniopD {
-public:
-    AstAtanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAtanD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AtanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::atan(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atan(%l)"; }
-    string emitC() override { return "atan(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$atan(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "atan(%li)"; }
 };
-class AstAtanhD final : public AstNodeSystemUniopD {
-public:
-    AstAtanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanhD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstAtanhD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_AtanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::atanh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$atanh(%l)"; }
-    string emitC() override { return "atanh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$atanh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "atanh(%li)"; }
 };
-class AstCeilD final : public AstNodeSystemUniopD {
-public:
-    AstCeilD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCeilD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstCeilD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CeilD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCeilD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::ceil(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$ceil(%l)"; }
-    string emitC() override { return "ceil(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$ceil(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "ceil(%li)"; }
 };
-class AstCosD final : public AstNodeSystemUniopD {
-public:
-    AstCosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCosD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstCosD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::cos(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$cos(%l)"; }
-    string emitC() override { return "cos(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$cos(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "cos(%li)"; }
 };
-class AstCoshD final : public AstNodeSystemUniopD {
-public:
-    AstCoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCoshD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstCoshD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_CoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::cosh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$cosh(%l)"; }
-    string emitC() override { return "cosh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$cosh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "cosh(%li)"; }
 };
-class AstExpD final : public AstNodeSystemUniopD {
-public:
-    AstExpD(FileLine* fl, AstNodeExpr* lhsp)
+class AstExpD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstExpD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_ExpD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstExpD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::exp(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$exp(%l)"; }
-    string emitC() override { return "exp(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$exp(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "exp(%li)"; }
 };
-class AstFloorD final : public AstNodeSystemUniopD {
-public:
-    AstFloorD(FileLine* fl, AstNodeExpr* lhsp)
+class AstFloorD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstFloorD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_FloorD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstFloorD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::floor(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$floor(%l)"; }
-    string emitC() override { return "floor(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$floor(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "floor(%li)"; }
 };
-class AstLog10D final : public AstNodeSystemUniopD {
-public:
-    AstLog10D(FileLine* fl, AstNodeExpr* lhsp)
+class AstLog10D final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstLog10D(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_Log10D(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLog10D;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::log10(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$log10(%l)"; }
-    string emitC() override { return "log10(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$log10(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "log10(%li)"; }
 };
-class AstLogD final : public AstNodeSystemUniopD {
-public:
-    AstLogD(FileLine* fl, AstNodeExpr* lhsp)
+class AstLogD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstLogD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_LogD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLogD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::log(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$ln(%l)"; }
-    string emitC() override { return "log(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$ln(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "log(%li)"; }
 };
-class AstSinD final : public AstNodeSystemUniopD {
-public:
-    AstSinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstSinD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_SinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::sin(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sin(%l)"; }
-    string emitC() override { return "sin(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$sin(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "sin(%li)"; }
 };
-class AstSinhD final : public AstNodeSystemUniopD {
-public:
-    AstSinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinhD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstSinhD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_SinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::sinh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sinh(%l)"; }
-    string emitC() override { return "sinh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$sinh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "sinh(%li)"; }
 };
-class AstSqrtD final : public AstNodeSystemUniopD {
-public:
-    AstSqrtD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSqrtD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstSqrtD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_SqrtD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSqrtD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::sqrt(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$sqrt(%l)"; }
-    string emitC() override { return "sqrt(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$sqrt(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "sqrt(%li)"; }
 };
-class AstTanD final : public AstNodeSystemUniopD {
-public:
-    AstTanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstTanD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_TanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::tan(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$tan(%l)"; }
-    string emitC() override { return "tan(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$tan(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "tan(%li)"; }
 };
-class AstTanhD final : public AstNodeSystemUniopD {
-public:
-    AstTanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanhD final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_System_Uniop_D {
+ସର୍ବସାଧାରଣ:
+    AstTanhD(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_ପଦସମଷ୍ଟି* lhsp)
         : ASTGEN_SUPER_TanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ଶୂନ୍ୟ ସଂଖ୍ୟା_Operate(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs) override {
         out.setDouble(std::tanh(lhs.toDouble()));
     }
-    string emitVerilog() override { return "%f$tanh(%l)"; }
-    string emitC() override { return "tanh(%li)"; }
+    string emitVerilog() override { ଫେରନ୍ତୁ "%f$tanh(%l)"; }
+    string emitC() override { ଫେରନ୍ତୁ "tanh(%li)"; }
 };
 
 // === AstNodeVarRef ===
-class AstVarRef final : public AstNodeVarRef {
+class AstVarRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Var_Ref {
     // A reference to a variable (lvalue or rvalue)
     std::string m_name;  // Name of varref, though name() favors varp()->namep()
                          // if non-null pointer (e.g.: 'this')
-public:
+ସର୍ବସାଧାରଣ:
     // This form only allowed post-link because output/wire compression may
     // lead to deletion of AstVar's
-    inline AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access);
-    inline AstVarRef(FileLine* fl, AstNodeModule* classOrPackagep, AstVar* varp,
-                     const VAccess& access);
+    ଧାଡ଼ିଭିତରେ AstVarRef(File_ଧାଡ଼ି* fl, AstVar* varp, ଅଚଳ VAccess& access);
+    ଧାଡ଼ିଭିତରେ AstVarRef(File_ଧାଡ଼ି* fl, Ast_ଗଣ୍ଠି_Module* classOrPackagep, AstVar* varp,
+                     ଅଚଳ VAccess& access);
     // This form only allowed post-link (see above)
-    inline AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access);
+    ଧାଡ଼ିଭିତରେ AstVarRef(File_ଧାଡ଼ି* fl, AstVarScope* varscp, ଅଚଳ VAccess& access);
     ASTGEN_MEMBERS_AstVarRef;
-    std::string nameThis() const { return m_name; }
-    inline string name() const override;  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    bool sameNode(const AstNode* samep) const override;
-    inline bool sameNode(const AstVarRef* samep) const;
-    inline bool sameNoLvalue(const AstVarRef* samep) const;
-    int instrCount() const override;
+    std::string nameThis() ଅଚଳ { ଫେରନ୍ତୁ m_name; }
+    ଧାଡ଼ିଭିତରେ string name() ଅଚଳ override;  // * = Var name
+    ଶୂନ୍ୟ name(ଅଚଳ string& name) override { m_name = name; }
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    ଅଚଳ ଅକ୍ଷର* broken() ଅଚଳ override;
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override;
+    ଧାଡ଼ିଭିତରେ bool same_ଗଣ୍ଠି(ଅଚଳ AstVarRef* samep) ଅଚଳ;
+    ଧାଡ଼ିଭିତରେ bool sameNoLvalue(ଅଚଳ AstVarRef* samep) ଅଚଳ;
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
 };
-class AstVarXRef final : public AstNodeVarRef {
+class AstVarXRef final : ସର୍ବସାଧାରଣ Ast_ଗଣ୍ଠି_Var_Ref {
     // A VarRef to something in another module before AstScope.
     // Includes pin on a cell, as part of a ASSIGN statement to connect I/Os until AstScope
     string m_name;
@@ -6513,32 +6513,32 @@ class AstVarXRef final : public AstNodeVarRef {
     string m_inlinedDots;  // Dotted hierarchy flattened out
     bool m_containsGenBlock = false;  // Contains gen block reference
     bool m_readOnlyModport = false;  // Linked via an input-only modport, until V3LinkLValue
-public:
-    AstVarXRef(FileLine* fl, const string& name, const string& dotted, const VAccess& access)
+ସର୍ବସାଧାରଣ:
+    AstVarXRef(File_ଧାଡ଼ି* fl, ଅଚଳ string& name, ଅଚଳ string& dotted, ଅଚଳ VAccess& access)
         : ASTGEN_SUPER_VarXRef(fl, nullptr, access)
         , m_name{name}
         , m_dotted{dotted} {}
-    inline AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access);
+    ଧାଡ଼ିଭିତରେ AstVarXRef(File_ଧାଡ଼ି* fl, AstVar* varp, ଅଚଳ string& dotted, ଅଚଳ VAccess& access);
     ASTGEN_MEMBERS_AstVarXRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const std::string& name) override { m_name = name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool readOnlyModport() const { return m_readOnlyModport; }
-    void readOnlyModport(const bool flag) { m_readOnlyModport = flag; }
+    string name() ଅଚଳ override VL_MT_STABLE { ଫେରନ୍ତୁ m_name; }  // * = Var name
+    ଶୂନ୍ୟ name(ଅଚଳ std::string& name) override { m_name = name; }  // * = Var name
+    ଶୂନ୍ୟ dump(std::ostream& str) ଅଚଳ override;
+    ଶୂନ୍ୟ dumpJson(std::ostream& str) ଅଚଳ override;
+    string dotted() ଅଚଳ { ଫେରନ୍ତୁ m_dotted; }
+    ଶୂନ୍ୟ dotted(ଅଚଳ string& dotted) { m_dotted = dotted; }
+    string inlinedDots() ଅଚଳ { ଫେରନ୍ତୁ m_inlinedDots; }
+    ଶୂନ୍ୟ inlinedDots(ଅଚଳ string& flag) { m_inlinedDots = flag; }
+    bool containsGenBlock() ଅଚଳ { ଫେରନ୍ତୁ m_containsGenBlock; }
+    ଶୂନ୍ୟ containsGenBlock(ଅଚଳ bool flag) { m_containsGenBlock = flag; }
+    bool readOnlyModport() ଅଚଳ { ଫେରନ୍ତୁ m_readOnlyModport; }
+    ଶୂନ୍ୟ readOnlyModport(ଅଚଳ bool flag) { m_readOnlyModport = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
-        return (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
+    bool cleanOut() ଅଚଳ override { ଫେରନ୍ତୁ true; }
+    ପୂର୍ଣ୍ଣସଂଖ୍ୟା instr_ଗଣନା() ଅଚଳ override { ଫେରନ୍ତୁ widthInstrs(); }
+    bool same_ଗଣ୍ଠି(ଅଚଳ Ast_ଗଣ୍ଠି* samep) ଅଚଳ override {
+        ଅଚଳ AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
+        ଫେରନ୍ତୁ (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
                 && name() == asamep->name() && dotted() == asamep->dotted());
     }
 };

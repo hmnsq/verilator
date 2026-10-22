@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3COMMON_H_
 #define VERILATOR_V3COMMON_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-class AstNodeDType;
+class Ast_ଗଣ୍ଠି_DType;
 
 //============================================================================
 
 class V3Common final {
-public:
-    static void commonAll() VL_MT_DISABLED;
-    static string makeToStringCall(AstNodeDType* nodep, const std::string& lhs);
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ commonAll() VL_MT_DISABLED;
+    ସ୍ଥିର string makeToStringCall(Ast_ଗଣ୍ଠି_DType* nodep, ଅଚଳ std::string& lhs);
 };
 
 #endif  // Guard

@@ -36,172 +36,172 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ଅନ୍ତର୍ଭାଵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Ast.h"
-#include "V3Dfg.h"
-#include "V3DfgCache.h"
-#include "V3DfgDataType.h"
-#include "V3DfgPasses.h"
-#include "V3DfgPeepholePatterns.h"
+#ଅନ୍ତର୍ଭାଵ "V3Ast.h"
+#ଅନ୍ତର୍ଭାଵ "V3Dfg.h"
+#ଅନ୍ତର୍ଭାଵ "V3DfgCache.h"
+#ଅନ୍ତର୍ଭାଵ "V3DfgDataType.h"
+#ଅନ୍ତର୍ଭାଵ "V3DfgPasses.h"
+#ଅନ୍ତର୍ଭାଵ "V3DfgPeepholePatterns.h"
 
-#include <algorithm>
-#include <cctype>
-#include <vector>
+#ଅନ୍ତର୍ଭାଵ <algorithm>
+#ଅନ୍ତର୍ଭାଵ <cctype>
+#ଅନ୍ତର୍ଭାଵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // clang-format off
-namespace {
+ନାମାକାଶ {
 
 template <typename T_Reduction>
-struct ReductionToBitwiseImpl {};
-template <> struct ReductionToBitwiseImpl<DfgRedAnd> { using type = DfgAnd; };
-template <> struct ReductionToBitwiseImpl<DfgRedOr>  { using type = DfgOr;  };
-template <> struct ReductionToBitwiseImpl<DfgRedXor> { using type = DfgXor; };
+ସଂରଚନା ReductionToBitwiseImpl {};
+template <> ସଂରଚନା ReductionToBitwiseImpl<DfgRedAnd> { using type = DfgAnd; };
+template <> ସଂରଚନା ReductionToBitwiseImpl<DfgRedOr>  { using type = DfgOr;  };
+template <> ସଂରଚନା ReductionToBitwiseImpl<DfgRedXor> { using type = DfgXor; };
 template <typename T_Reduction>
 using ReductionToBitwise = typename ReductionToBitwiseImpl<T_Reduction>::type;
 
 template <typename T_Bitwise>
-struct BitwiseToReductionImpl {};
-template <> struct BitwiseToReductionImpl<DfgAnd> { using type = DfgRedAnd; };
-template <> struct BitwiseToReductionImpl<DfgOr>  { using type = DfgRedOr;  };
-template <> struct BitwiseToReductionImpl<DfgXor> { using type = DfgRedXor; };
+ସଂରଚନା BitwiseToReductionImpl {};
+template <> ସଂରଚନା BitwiseToReductionImpl<DfgAnd> { using type = DfgRedAnd; };
+template <> ସଂରଚନା BitwiseToReductionImpl<DfgOr>  { using type = DfgRedOr;  };
+template <> ସଂରଚନା BitwiseToReductionImpl<DfgXor> { using type = DfgRedXor; };
 template <typename T_Reduction>
 using BitwiseToReduction = typename BitwiseToReductionImpl<T_Reduction>::type;
 
 // Associative binary operators (a op (b op c) == (a op b) op c)
 template<typename Vertex>
-struct IsAssociative : public std::false_type {};
-template <> struct IsAssociative<DfgAnd> : public std::true_type {};
-template <> struct IsAssociative<DfgOr>  : public std::true_type {};
-template <> struct IsAssociative<DfgXor> : public std::true_type {};
-template <> struct IsAssociative<DfgAdd> : public std::true_type {};
-template <> struct IsAssociative<DfgConcat> : public std::true_type {};
-template <> struct IsAssociative<DfgMul> : public std::true_type {};
-template <> struct IsAssociative<DfgMulS> : public std::true_type {};
+ସଂରଚନା IsAssociative : ସର୍ବସାଧାରଣ std::false_type {};
+template <> ସଂରଚନା IsAssociative<DfgAnd> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgOr>  : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgXor> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgAdd> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgConcat> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgMul> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsAssociative<DfgMulS> : ସର୍ବସାଧାରଣ std::true_type {};
 
 // Commutative binary operators (a op b == b op a)
 template<typename Vertex>
-struct IsCommutative : public std::false_type {};
-template <> struct IsCommutative<DfgAnd> : public std::true_type {};
-template <> struct IsCommutative<DfgOr>  : public std::true_type {};
-template <> struct IsCommutative<DfgXor> : public std::true_type {};
-template <> struct IsCommutative<DfgAdd> : public std::true_type {};
-template <> struct IsCommutative<DfgEq> : public std::true_type {};
-template <> struct IsCommutative<DfgMul> : public std::true_type {};
-template <> struct IsCommutative<DfgMulS> : public std::true_type {};
-template <> struct IsCommutative<DfgNeq> : public std::true_type {};
+ସଂରଚନା IsCommutative : ସର୍ବସାଧାରଣ std::false_type {};
+template <> ସଂରଚନା IsCommutative<DfgAnd> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgOr>  : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgXor> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgAdd> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgEq> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgMul> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgMulS> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsCommutative<DfgNeq> : ସର୍ବସାଧାରଣ std::true_type {};
 
 // Idempotent binary operators (a op a == a)
 template<typename Vertex>
-struct IsIdempotent : public std::false_type {};
-template <> struct IsIdempotent<DfgAnd> : public std::true_type {};
-template <> struct IsIdempotent<DfgOr>  : public std::true_type {};
+ସଂରଚନା IsIdempotent : ସର୍ବସାଧାରଣ std::false_type {};
+template <> ସଂରଚନା IsIdempotent<DfgAnd> : ସର୍ବସାଧାରଣ std::true_type {};
+template <> ସଂରଚନା IsIdempotent<DfgOr>  : ସର୍ବସାଧାରଣ std::true_type {};
 
 // Binary result dtype
 template<typename Vertex>
-const DfgDataType& resultDType(const DfgVertex* lhsp, const DfgVertex* rhsp);
-template <> const DfgDataType& resultDType<DfgAdd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgAnd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgConcat>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(lhsp->width() + rhsp->width()); }
-template <> const DfgDataType& resultDType<DfgDiv>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgDivS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgEq>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogAnd>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogEq>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogIf>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogOr>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgModDiv>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgModDivS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMul>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMulS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgNeq>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgOr>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPow>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSU>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowUS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftL>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftR>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftRS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgSub>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgXor>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
+ଅଚଳ DfgDataType& resultDType(ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp);
+template <> ଅଚଳ DfgDataType& resultDType<DfgAdd>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgAnd>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgConcat>     (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(lhsp->width() + rhsp->width()); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgDiv>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgDivS>       (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgEq>         (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgGt>         (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgGtS>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgGte>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgGteS>       (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLogAnd>     (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLogEq>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLogIf>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLogOr>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLt>         (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLtS>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLte>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgLteS>       (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgModDiv>     (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgModDivS>    (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgMul>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgMulS>       (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgNeq>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ DfgDataType::packed(1); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgOr>         (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgPow>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgPowSS>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgPowSU>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgPowUS>      (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgShiftL>     (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgShiftR>     (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgShiftRS>    (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgSub>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
+template <> ଅଚଳ DfgDataType& resultDType<DfgXor>        (ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) { ଫେରନ୍ତୁ lhsp->dtype(); }
 
 // Unary constant folding
-template<typename Vertex> void foldOp(V3Number& out, const V3Number& src);
-template <> void foldOp<DfgCountOnes>  (V3Number& out, const V3Number& src) { out.opCountOnes(src); }
-template <> void foldOp<DfgExtend>     (V3Number& out, const V3Number& src) { out.opAssign(src); }
-template <> void foldOp<DfgExtendS>    (V3Number& out, const V3Number& src) { out.opExtendS(src, src.width()); }
-template <> void foldOp<DfgLogNot>     (V3Number& out, const V3Number& src) { out.opLogNot(src); }
-template <> void foldOp<DfgNegate>     (V3Number& out, const V3Number& src) { out.opNegate(src); }
-template <> void foldOp<DfgNot>        (V3Number& out, const V3Number& src) { out.opNot(src); }
-template <> void foldOp<DfgOneHot>     (V3Number& out, const V3Number& src) { out.opOneHot(src); }
-template <> void foldOp<DfgOneHot0>    (V3Number& out, const V3Number& src) { out.opOneHot0(src); }
-template <> void foldOp<DfgRedAnd>     (V3Number& out, const V3Number& src) { out.opRedAnd(src); }
-template <> void foldOp<DfgRedOr>      (V3Number& out, const V3Number& src) { out.opRedOr(src); }
-template <> void foldOp<DfgRedXor>     (V3Number& out, const V3Number& src) { out.opRedXor(src); }
+template<typename Vertex> ଶୂନ୍ୟ foldOp(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src);
+template <> ଶୂନ୍ୟ foldOp<Dfg_ଗଣନା_Ones>  (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.op_ଗଣନା_Ones(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgExtend>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opAssign(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgExtendS>    (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opExtendS(src, src.width()); }
+template <> ଶୂନ୍ୟ foldOp<DfgLogNot>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opLogNot(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgNegate>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opNegate(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgNot>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opNot(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgOneHot>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opOneHot(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgOneHot0>    (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opOneHot0(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgRedAnd>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opRedAnd(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgRedOr>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opRedOr(src); }
+template <> ଶୂନ୍ୟ foldOp<DfgRedXor>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& src) { out.opRedXor(src); }
 
 // Binary constant folding
-template<typename Vertex> void foldOp(V3Number& out, const V3Number& lhs, const V3Number& rhs);
-template <> void foldOp<DfgAdd>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opAdd(lhs, rhs); }
-template <> void foldOp<DfgAnd>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opAnd(lhs, rhs); }
-template <> void foldOp<DfgConcat>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opConcat(lhs, rhs); }
-template <> void foldOp<DfgDiv>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opDiv(lhs, rhs); }
-template <> void foldOp<DfgDivS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opDivS(lhs, rhs); }
-template <> void foldOp<DfgEq>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opEq(lhs, rhs); }
-template <> void foldOp<DfgGt>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGt(lhs, rhs); }
-template <> void foldOp<DfgGtS>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGtS(lhs, rhs); }
-template <> void foldOp<DfgGte>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGte(lhs, rhs); }
-template <> void foldOp<DfgGteS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opGteS(lhs, rhs); }
-template <> void foldOp<DfgLogAnd>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogAnd(lhs, rhs); }
-template <> void foldOp<DfgLogEq>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogEq(lhs, rhs); }
-template <> void foldOp<DfgLogIf>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogIf(lhs, rhs); }
-template <> void foldOp<DfgLogOr>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLogOr(lhs, rhs); }
-template <> void foldOp<DfgLt>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLt(lhs, rhs); }
-template <> void foldOp<DfgLtS>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLtS(lhs, rhs); }
-template <> void foldOp<DfgLte>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLte(lhs, rhs); }
-template <> void foldOp<DfgLteS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opLteS(lhs, rhs); }
-template <> void foldOp<DfgModDiv>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opModDiv(lhs, rhs); }
-template <> void foldOp<DfgModDivS>    (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opModDivS(lhs, rhs); }
-template <> void foldOp<DfgMul>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opMul(lhs, rhs); }
-template <> void foldOp<DfgMulS>       (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opMulS(lhs, rhs); }
-template <> void foldOp<DfgNeq>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opNeq(lhs, rhs); }
-template <> void foldOp<DfgOr>         (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opOr(lhs, rhs); }
-template <> void foldOp<DfgPow>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPow(lhs, rhs); }
-template <> void foldOp<DfgPowSS>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowSS(lhs, rhs); }
-template <> void foldOp<DfgPowSU>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowSU(lhs, rhs); }
-template <> void foldOp<DfgPowUS>      (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opPowUS(lhs, rhs); }
-template <> void foldOp<DfgShiftL>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftL(lhs, rhs); }
-template <> void foldOp<DfgShiftR>     (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftR(lhs, rhs); }
-template <> void foldOp<DfgShiftRS>    (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opShiftRS(lhs, rhs, lhs.width()); }
-template <> void foldOp<DfgSub>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opSub(lhs, rhs); }
-template <> void foldOp<DfgXor>        (V3Number& out, const V3Number& lhs, const V3Number& rhs) { out.opXor(lhs, rhs); }
+template<typename Vertex> ଶୂନ୍ୟ foldOp(V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs);
+template <> ଶୂନ୍ୟ foldOp<DfgAdd>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opAdd(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgAnd>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opAnd(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgConcat>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opConcat(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgDiv>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opDiv(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgDivS>       (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opDivS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgEq>         (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opEq(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgGt>         (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opGt(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgGtS>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opGtS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgGte>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opGte(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgGteS>       (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opGteS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLogAnd>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLogAnd(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLogEq>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLogEq(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLogIf>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLogIf(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLogOr>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLogOr(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLt>         (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLt(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLtS>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLtS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLte>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLte(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgLteS>       (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opLteS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgModDiv>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opModDiv(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgModDivS>    (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opModDivS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgMul>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opMul(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgMulS>       (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opMulS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgNeq>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opNeq(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgOr>         (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opOr(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgPow>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opPow(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgPowSS>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opPowSS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgPowSU>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opPowSU(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgPowUS>      (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opPowUS(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgShiftL>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opShiftL(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgShiftR>     (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opShiftR(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgShiftRS>    (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opShiftRS(lhs, rhs, lhs.width()); }
+template <> ଶୂନ୍ୟ foldOp<DfgSub>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opSub(lhs, rhs); }
+template <> ଶୂନ୍ୟ foldOp<DfgXor>        (V3_ସଂଖ୍ୟା& out, ଅଚଳ V3_ସଂଖ୍ୟା& lhs, ଅଚଳ V3_ସଂଖ୍ୟା& rhs) { out.opXor(lhs, rhs); }
 }
 // clang-format on
 
-class V3DfgPeephole final : public DfgVisitor {
+ଶ୍ରେଣୀ V3DfgPeephole final : ସର୍ବସାଧାରଣ DfgVisitor {
     // TYPES
-    struct VertexInfo final {
+    ସଂରଚନା VertexInfo final {
         size_t m_workListIndex = 0;  // Position of this vertx m_workList (0 means not in list)
         size_t m_iterListIndex = 0;  // Position of this vertx m_iterList (0 means not in list)
         size_t m_generation = 0;  // Generation number of this vertex - for uniqueness check
         size_t m_id = 0;  // Unique vertex ID (0 means unassigned) - for sorting
-        bool m_isCachedVertex = false;  // This vertex is the vertex cached for its operation
+        ତାର୍କିକ m_isCachedVertex = ମିଥ୍ୟା;  // This vertex is the vertex cached for its operation
     };
 
     // STATE
     DfgGraph& m_dfg;  // The DfgGraph being visited
     V3DfgPeepholeContext& m_ctx;  // The config structure
-    const DfgDataType& m_bitDType = DfgDataType::packed(1);  // Common, so grab it up front
+    ଅଚଳ DfgDataType& m_bitDType = DfgDataType::packed(1);  // Common, so grab it up front
     std::vector<DfgVertex*> m_workList;  // List of vertices processed in current interation
     std::vector<DfgVertex*> m_iterList;  // Vertices to start from on next iteration
     DfgUserMap<VertexInfo> m_vInfo = m_dfg.makeUserMap<VertexInfo>();  // Map to VertexInfo
@@ -211,97 +211,97 @@ class V3DfgPeephole final : public DfgVisitor {
     size_t m_lastId = 0;  // Last unique vertex ID assigned
     // Scope for transient temporariy variables cerated in this pass. They should all be
     // eliminated wihtin this pass, so anything should be ok, pick the top scope as easy to find.
-    AstScope* const m_tmpScopep = v3Global.rootp()->topScopep()->scopep();
+    AstScope* ଅଚଳ m_tmpScopep = v3Global.rootp()->ଶୀର୍ଷ_Scopep()->scopep();
 
     // STATIC STATE
-    static V3DebugBisect s_debugBisect;  // Debug aid
+    ସ୍ଥିର V3DebugBisect s_debugBisect;  // Debug aid
 
-#define APPLYING(id) if (checkApplying(VDfgPeepholePattern::id))
+#define APPLYING(id) ଯଦି (checkApplying(VDfgPeepholePattern::id))
 
     // METHODS
-    bool checkApplying(VDfgPeepholePattern id) {
-        if (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) return false;
+    ତାର୍କିକ checkApplying(VDfgPeepholePattern id) {
+        ଯଦି (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) ଫେରନ୍ତୁ ମିଥ୍ୟା;
         UINFO(9, "Applying DFG pattern " << id.ascii());
-        ++m_ctx.m_count[id];
-        return true;
+        ++m_ctx.m_ଗଣନା[id];
+        ଫେରନ୍ତୁ ସତ୍ୟ;
     }
 
     // Add vertex to the cache. If an equivalent (but different) vertex is
     // already cached, it is returned and the cache is not updated.
     DfgVertex* cacheVertex(DfgVertex* vtxp) {
-        DfgVertex* const equivp = m_cache.cache(vtxp);
+        DfgVertex* ଅଚଳ equivp = m_cache.cache(vtxp);
         UASSERT_OBJ(!m_vInfo[vtxp].m_isCachedVertex || !equivp, vtxp,
                     "Vertex marked 'm_isCachedVertex' has a cached equivalent");
         m_vInfo[vtxp].m_isCachedVertex = !equivp;
-        return equivp;
+        ଫେରନ୍ତୁ equivp;
     }
 
     // Remove vertex from the cache (no-op if it is not the cached vertex)
-    void invalidateVertex(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ invalidateVertex(DfgVertex* vtxp) {
         m_cache.invalidate(vtxp);
-        m_vInfo[vtxp].m_isCachedVertex = false;
+        m_vInfo[vtxp].m_isCachedVertex = ମିଥ୍ୟା;
     }
 
     // Find the vertex of the given type with the given operands in the
     // cache, or create a new one and add it to the cache.
     template <typename Vertex, typename... Operands>
-    Vertex* getOrCreateVertex(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
-        Vertex* const vtxp = m_cache.getOrCreate<Vertex, Operands...>(flp, dtype, operands...);
-        m_vInfo[vtxp].m_isCachedVertex = true;
-        return vtxp;
+    Vertex* getOrCreateVertex(File_ଧାଡ଼ି* flp, ଅଚଳ DfgDataType& dtype, Operands... operands) {
+        Vertex* ଅଚଳ vtxp = m_cache.getOrCreate<Vertex, Operands...>(flp, dtype, operands...);
+        m_vInfo[vtxp].m_isCachedVertex = ସତ୍ୟ;
+        ଫେରନ୍ତୁ vtxp;
     }
 
     // Find the vertex of the given type with the given operands in the
     // cache, or nullptr if there is no such vertex.
     template <typename Vertex, typename... Operands>
-    Vertex* getVertex(const DfgDataType& dtype, Operands... operands) {
-        Vertex* const vtxp = m_cache.get<Vertex>(dtype, operands...);
+    Vertex* getVertex(ଅଚଳ DfgDataType& dtype, Operands... operands) {
+        Vertex* ଅଚଳ vtxp = m_cache.get<Vertex>(dtype, operands...);
         UASSERT_OBJ(!vtxp || m_vInfo[vtxp].m_isCachedVertex, vtxp,
                     "Cached vertex not marked 'm_isCachedVertex'");
-        return vtxp;
+        ଫେରନ୍ତୁ vtxp;
     }
 
-    void incrementGeneration() {
+    ଶୂନ୍ୟ incrementGeneration() {
         ++m_currentGeneration;
         // TODO: could sweep on overflow
     }
 
-    void addToWorkList(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ addToWorkList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on work list, ignore
-        if (vInfo.m_workListIndex) return;
+        ଯଦି (vInfo.m_workListIndex) ଫେରନ୍ତୁ;
         // Add to work list
         vInfo.m_workListIndex = m_workList.size();
-        m_workList.push_back(vtxp);
+        m_workList.ଠେଲ_back(vtxp);
     }
 
-    void removeFromWorkList(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ removeFromWorkList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // m_workList[0] is always nullptr, fine to assign same here
         m_workList[vInfo.m_workListIndex] = nullptr;
         vInfo.m_workListIndex = 0;
     }
 
-    void addToIterList(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ addToIterList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on iter list, ignore
-        if (vInfo.m_iterListIndex) return;
+        ଯଦି (vInfo.m_iterListIndex) ଫେରନ୍ତୁ;
         // Add to iter list
         vInfo.m_iterListIndex = m_iterList.size();
-        m_iterList.push_back(vtxp);
+        m_iterList.ଠେଲ_back(vtxp);
     }
 
-    void removeFromIterList(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ removeFromIterList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // m_iterList[0] is always nullptr, fine to assign same here
         m_iterList[vInfo.m_iterListIndex] = nullptr;
         vInfo.m_iterListIndex = 0;
     }
 
-    void deleteVertex(DfgVertex* vtxp) {
+    ଶୂନ୍ୟ deleteVertex(DfgVertex* vtxp) {
         UASSERT_OBJ(!m_vInfo[vtxp].m_workListIndex, vtxp, "Deleted Vertex is in work list");
         UASSERT_OBJ(!vtxp->hasSinks(), vtxp, "Should not delete used vertex");
-        const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>();
+        ଅଚଳ DfgVertexVar* ଅଚଳ varp = vtxp->cast<DfgVertexVar>();
         UASSERT_OBJ(!varp || !varp->hasPrev(), vtxp, "Deleting variable consumed via DfgPrev");
 
         // Invalidate cache entry
@@ -316,38 +316,38 @@ class V3DfgPeephole final : public DfgVisitor {
         srcps.reserve(vtxp->nInputs());
         vtxp->foreachSource([&](DfgVertex& src) {
             // If it's a variable, add to work list to see if it became redundant
-            if (src.is<DfgVertexVar>()) {
+            ଯଦି (src.is<DfgVertexVar>()) {
                 addToWorkList(&src);
-                return false;
+                ଫେରନ୍ତୁ ମିଥ୍ୟା;
             }
             // Gather unique sources
             VertexInfo& vInfo = m_vInfo[src];
-            if (vInfo.m_generation != m_currentGeneration) srcps.push_back(&src);
+            ଯଦି (vInfo.m_generation != m_currentGeneration) srcps.ଠେଲ_back(&src);
             vInfo.m_generation = m_currentGeneration;
-            return false;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
 
         // This pass only removes variables that are either not driven in this graph,
         // or are not observable outside the graph. If there is also no external write
         // to the variable and no references in other graph then delete the Ast var too.
-        if (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
-            m_ctx.m_deleteps.push_back(varp->vscp());
+        ଯଦି (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
+            m_ctx.m_deleteps.ଠେଲ_back(varp->vscp());
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
-        } else {
+        } ଅନ୍ୟଥା {
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
         }
 
         // Partition sources into used/unused after removing the vertex
-        const auto mid
+        ଅଚଳ auto mid
             = std::stable_partition(srcps.begin(), srcps.end(), [](DfgVertex* srcp) {  //
-                  return srcp->hasSinks();
+                  ଫେରନ୍ତୁ srcp->hasSinks();
               });
 
         // Add used sources to the iter list - their sinks have changed
-        for (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
+        ପାଇଁ (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
 
         // Recursively delete unused sources
-        for (auto it = mid; it != srcps.end(); ++it) {
+        ପାଇଁ (auto it = mid; it != srcps.end(); ++it) {
             // Remove from work list
             removeFromWorkList(*it);
             // Delete vertex
@@ -356,38 +356,38 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     // Replace 'm_vtxp' with the given vertex
-    void replace(DfgVertex* resp) {
+    ଶୂନ୍ୟ replace(DfgVertex* resp) {
         // Should not be in the work list
         UASSERT_OBJ(!m_vInfo[m_vtxp].m_workListIndex, m_vtxp, "Replaced Vertex is in work list");
 
         // Debug bisect check
-        const auto debugCallback = [&]() -> void {
+        ଅଚଳ auto debugCallback = [&]() -> ଶୂନ୍ୟ {
             UINFO(0, "Problematic DfgPeephole replacement: " << m_vtxp << " -> " << resp);
             m_dfg.sourceCone({m_vtxp, resp});
-            const auto cone = m_dfg.sourceCone({m_vtxp, resp});
-            m_dfg.dumpDotFilePrefixed("peephole-broken", [&](const DfgVertex& v) {  //
-                return cone->count(&v);
+            ଅଚଳ auto cone = m_dfg.sourceCone({m_vtxp, resp});
+            m_dfg.dumpDotFilePrefixed("peephole-broken", [&](ଅଚଳ DfgVertex& v) {  //
+                ଫେରନ୍ତୁ cone->ଗଣନା_2(&v);
             });
         };
-        if (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) return;
+        ଯଦି (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) ଫେରନ୍ତୁ;
 
         // Add sources of the original vertex to the iter list - their sinks are changing
         m_vtxp->foreachSource([&](DfgVertex& src) {
             addToIterList(&src);
-            return false;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
 
         // Remove sinks of the original vertex from the cache - their inputs are changing
         m_vtxp->foreachSink([&](DfgVertex& dst) {
             invalidateVertex(&dst);
-            return false;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
         // Replace vertex with the replacement
         m_vtxp->replaceWith(resp);
         // Re-cache all sinks of the replacement
         resp->foreachSink([&](DfgVertex& dst) {
             cacheVertex(&dst);
-            return false;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
 
         // Original vertex is now unused, so delete it
@@ -399,95 +399,95 @@ class V3DfgPeephole final : public DfgVisitor {
         addToWorkList(resp);
         resp->foreachSink([&](DfgVertex& dst) {
             addToWorkList(&dst);
-            return false;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
     }
 
     // Create a 32-bit DfgConst vertex
-    DfgConst* makeI32(FileLine* flp, uint32_t val) { return new DfgConst{m_dfg, flp, 32, val}; }
+    DfgConst* makeI32(File_ଧାଡ଼ି* flp, uint32_t val) { ଫେରନ୍ତୁ ନୂତନ DfgConst{m_dfg, flp, 32, val}; }
 
     // Create a DfgConst vertex with the given width and value zero
-    DfgConst* makeZero(FileLine* flp, uint32_t width) {
-        return new DfgConst{m_dfg, flp, width, 0};
+    DfgConst* makeZero(File_ଧାଡ଼ି* flp, uint32_t width) {
+        ଫେରନ୍ତୁ ନୂତନ DfgConst{m_dfg, flp, width, 0};
     }
-    DfgConst* makeZero(FileLine* flp, const DfgDataType& dtype) {
-        return makeZero(flp, dtype.size());
+    DfgConst* makeZero(File_ଧାଡ଼ି* flp, ଅଚଳ DfgDataType& dtype) {
+        ଫେରନ୍ତୁ makeZero(flp, dtype.size());
     }
 
     // Create a DfgConst vertex with the given width and value all ones
-    DfgConst* makeOnes(FileLine* flp, uint32_t width) {
-        DfgConst* const resp = makeZero(flp, width);
-        resp->num().setAllBits1();
-        return resp;
+    DfgConst* makeOnes(File_ଧାଡ଼ି* flp, uint32_t width) {
+        DfgConst* ଅଚଳ resp = makeZero(flp, width);
+        resp->ଅଙ୍କ().setAllBits1();
+        ଫେରନ୍ତୁ resp;
     }
 
     // Create a new vertex of the given type
     template <typename Vertex, typename... Operands>
-    Vertex* make(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
+    Vertex* make(File_ଧାଡ଼ି* flp, ଅଚଳ DfgDataType& dtype, Operands... operands) {
         // Find or create an equivalent vertex
-        Vertex* const vtxp = getOrCreateVertex<Vertex, Operands...>(flp, dtype, operands...);
+        Vertex* ଅଚଳ vtxp = getOrCreateVertex<Vertex, Operands...>(flp, dtype, operands...);
         // Sanity check
         UASSERT_OBJ(vtxp->dtype() == dtype, vtxp, "Vertex dtype mismatch");
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
+        ଯଦି (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
         // Assign vertex ID
         VertexInfo& vInfo = m_vInfo[vtxp];
-        if (!vInfo.m_id) vInfo.m_id = ++m_lastId;
+        ଯଦି (!vInfo.m_id) vInfo.m_id = ++m_lastId;
         // Add to work list
         addToWorkList(vtxp);
         // Return new node
-        return vtxp;
+        ଫେରନ୍ତୁ vtxp;
     }
 
     // Same as above, but 'flp' and 'dtypep' are taken from the given example vertex
     template <typename Vertex, typename... Operands>
-    Vertex* make(const DfgVertex* examplep, Operands... operands) {
-        return make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
+    Vertex* make(ଅଚଳ DfgVertex* examplep, Operands... operands) {
+        ଫେରନ୍ତୁ make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
     }
 
     // Replicate 'bitp' to 'vtxp->width()' bits
     DfgVertex* replicate(DfgVertex* vtxp, DfgVertex* bitp) {
         UASSERT_OBJ(bitp->dtype() == m_bitDType, vtxp, "Expected 1-bit vertex");
-        if (vtxp->dtype() == m_bitDType) return bitp;
-        return make<DfgRep>(vtxp, bitp);
+        ଯଦି (vtxp->dtype() == m_bitDType) ଫେରନ୍ତୁ bitp;
+        ଫେରନ୍ତୁ make<DfgRep>(vtxp, bitp);
     }
 
     // Check two vertex are the same, or the same constant value
-    static bool isSame(const DfgVertex* ap, const DfgVertex* bp) {
-        if (ap == bp) return true;
-        if (ap->dtype() != bp->dtype()) return false;
-        const DfgConst* const aConstp = ap->cast<DfgConst>();
-        if (!aConstp) return false;
-        const DfgConst* const bConstp = bp->cast<DfgConst>();
-        if (!bConstp) return false;
-        return aConstp->num().isCaseEq(bConstp->num());
+    ସ୍ଥିର ତାର୍କିକ isSame(ଅଚଳ DfgVertex* ap, ଅଚଳ DfgVertex* bp) {
+        ଯଦି (ap == bp) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (ap->dtype() != bp->dtype()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଅଚଳ DfgConst* ଅଚଳ aConstp = ap->cast<DfgConst>();
+        ଯଦି (!aConstp) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଅଚଳ DfgConst* ଅଚଳ bConstp = bp->cast<DfgConst>();
+        ଯଦି (!bConstp) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଫେରନ୍ତୁ aConstp->ଅଙ୍କ().isCaseEq(bConstp->ଅଙ୍କ());
     }
 
-    static bool isZero(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isZero();
-        return false;
+    ସ୍ଥିର ତାର୍କିକ isZero(ଅଚଳ DfgVertex* vtxp) {
+        ଯଦି (ଅଚଳ DfgConst* ଅଚଳ constp = vtxp->cast<DfgConst>()) ଫେରନ୍ତୁ constp->isZero();
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
-    static bool isOnes(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isOnes();
-        return false;
+    ସ୍ଥିର ତାର୍କିକ isOnes(ଅଚଳ DfgVertex* vtxp) {
+        ଯଦି (ଅଚଳ DfgConst* ଅଚଳ constp = vtxp->cast<DfgConst>()) ଫେରନ୍ତୁ constp->isOnes();
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
-    static bool isEqOne(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->num().isEqOne();
-        return false;
+    ସ୍ଥିର ତାର୍କିକ isEqOne(ଅଚଳ DfgVertex* vtxp) {
+        ଯଦି (ଅଚଳ DfgConst* ଅଚଳ constp = vtxp->cast<DfgConst>()) ଫେରନ୍ତୁ constp->ଅଙ୍କ().isEqOne();
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
-    static bool areAdjacent(uint32_t& lsb, const DfgSel* lSelp, const DfgSel* rSelp) {
-        if (!isSame(lSelp->srcp(), rSelp->srcp())) return false;
-        if (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
+    ସ୍ଥିର ତାର୍କିକ areAdjacent(uint32_t& lsb, ଅଚଳ DfgSel* lSelp, ଅଚଳ DfgSel* rSelp) {
+        ଯଦି (!isSame(lSelp->srcp(), rSelp->srcp())) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଯଦି (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
             lsb = lSelp->lsb();
-            return true;
+            ଫେରନ୍ତୁ ସତ୍ୟ;
         }
-        if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        ଯଦି (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
             lsb = rSelp->lsb();
-            return true;
+            ଫେରନ୍ତୁ ସତ୍ୟ;
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Note: If any of the following transformers return true, then the vertex was replaced and the
@@ -496,127 +496,127 @@ class V3DfgPeephole final : public DfgVisitor {
 
     // Constant fold unary vertex, return true if folded
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool foldUnary(Vertex* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::value, "Must invoke on unary");
-        static_assert(std::is_final<Vertex>::value, "Must invoke on final class");
-        if (DfgConst* const srcp = vtxp->srcp()->template cast<DfgConst>()) {
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ foldUnary(Vertex* ଅଚଳ vtxp) {
+        static_assert(std::is_base_of<DfgVertexUnary, Vertex>::ମୂଲ୍ୟ, "Must invoke on unary");
+        static_assert(std::is_final<Vertex>::ମୂଲ୍ୟ, "Must invoke on final class");
+        ଯଦି (DfgConst* ଅଚଳ srcp = vtxp->srcp()->template cast<DfgConst>()) {
             APPLYING(FOLD_UNARY) {
-                DfgConst* const resultp = makeZero(vtxp->fileline(), vtxp->width());
-                foldOp<Vertex>(resultp->num(), srcp->num());
+                DfgConst* ଅଚଳ resultp = makeZero(vtxp->fileline(), vtxp->width());
+                foldOp<Vertex>(resultp->ଅଙ୍କ(), srcp->ଅଙ୍କ());
                 replace(resultp);
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Generic transformations that apply to binary vertices. Returns true if vtxp was replaced.
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool binary(Vertex* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Vertex>::value, "Must invoke on binary");
-        static_assert(std::is_final<Vertex>::value, "Must invoke on final class");
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ ଦ୍ୱିମିକ(Vertex* ଅଚଳ vtxp) {
+        static_assert(std::is_base_of<Dfg_Vertex_ଦ୍ୱିମିକ, Vertex>::ମୂଲ୍ୟ, "Must invoke on binary");
+        static_assert(std::is_final<Vertex>::ମୂଲ୍ୟ, "Must invoke on final class");
 
-        FileLine* const flp = vtxp->fileline();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
         // LHS/RHS of the vertex
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
         // LHS/RHS as constant
-        DfgConst* const lConstp = lhsp->cast<DfgConst>();
-        DfgConst* const rConstp = rhsp->cast<DfgConst>();
+        DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>();
+        DfgConst* ଅଚଳ rConstp = rhsp->cast<DfgConst>();
         // LHS/RHS as same vertex type
-        Vertex* const lSamep = lhsp->cast<Vertex>();
-        Vertex* const rSamep = rhsp->cast<Vertex>();
+        Vertex* ଅଚଳ lSamep = lhsp->cast<Vertex>();
+        Vertex* ଅଚଳ rSamep = rhsp->cast<Vertex>();
 
         // Constant folding
-        if (lConstp && rConstp) {
-            APPLYING(FOLD_BINARY) {
-                DfgConst* const resultp = makeZero(flp, resultDType<Vertex>(lhsp, rhsp));
-                foldOp<Vertex>(resultp->num(), lConstp->num(), rConstp->num());
+        ଯଦି (lConstp && rConstp) {
+            APPLYING(FOLD_ଦ୍ୱିମିକ) {
+                DfgConst* ଅଚଳ resultp = makeZero(flp, resultDType<Vertex>(lhsp, rhsp));
+                foldOp<Vertex>(resultp->ଅଙ୍କ(), lConstp->ଅଙ୍କ(), rConstp->ଅଙ୍କ());
                 replace(resultp);
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
 
         // Idempotent
-        if VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::value) {
-            if (isSame(lhsp, rhsp)) {
-                APPLYING(REMOVE_IDEMPOTENT_BINARY) {
+        ଯଦି VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::ମୂଲ୍ୟ) {
+            ଯଦି (isSame(lhsp, rhsp)) {
+                APPLYING(REMOVE_IDEMPOTENT_ଦ୍ୱିମିକ) {
                     replace(lhsp);
-                    return true;
+                    ଫେରନ୍ତୁ ସତ୍ୟ;
                 }
             }
         }
 
         // Associative
-        if VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::value) {
+        ଯଦି VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::ମୂଲ୍ୟ) {
             // Also commutative and idempotent
-            if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value && IsIdempotent<Vertex>::value) {
-                if (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
-                    APPLYING(REMOVE_ACI_BINARY_LHS) {
+            ଯଦି VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::ମୂଲ୍ୟ && IsIdempotent<Vertex>::ମୂଲ୍ୟ) {
+                ଯଦି (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
+                    APPLYING(REMOVE_ACI_ଦ୍ୱିମିକ_LHS) {
                         replace(lSamep);
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
-                if (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
-                    APPLYING(REMOVE_ACI_BINARY_RHS) {
+                ଯଦି (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
+                    APPLYING(REMOVE_ACI_ଦ୍ୱିମିକ_RHS) {
                         replace(rSamep);
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
 
-            if (lConstp && rSamep) {
-                if (DfgConst* const rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
+            ଯଦି (lConstp && rSamep) {
+                ଯଦି (DfgConst* ଅଚଳ rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !rSamep->hasMultipleSinks()
-                    APPLYING(FOLD_ASSOC_BINARY_LHS_OF_RHS) {
-                        DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lConstp, rlConstp));
-                        foldOp<Vertex>(cp->num(), lConstp->num(), rlConstp->num());
+                    APPLYING(FOLD_ASSOC_ଦ୍ୱିମିକ_LHS_OF_RHS) {
+                        DfgConst* ଅଚଳ cp = makeZero(flp, resultDType<Vertex>(lConstp, rlConstp));
+                        foldOp<Vertex>(cp->ଅଙ୍କ(), lConstp->ଅଙ୍କ(), rlConstp->ଅଙ୍କ());
                         replace(make<Vertex>(vtxp, cp, rSamep->rhsp()));
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
 
-            if (lSamep && rConstp) {
-                if (DfgConst* const lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
+            ଯଦି (lSamep && rConstp) {
+                ଯଦି (DfgConst* ଅଚଳ lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !lSameps->hasMultipleSinks()
-                    APPLYING(FOLD_ASSOC_BINARY_RHS_OF_LHS) {
-                        DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lrConstp, rConstp));
-                        foldOp<Vertex>(cp->num(), lrConstp->num(), rConstp->num());
+                    APPLYING(FOLD_ASSOC_ଦ୍ୱିମିକ_RHS_OF_LHS) {
+                        DfgConst* ଅଚଳ cp = makeZero(flp, resultDType<Vertex>(lrConstp, rConstp));
+                        foldOp<Vertex>(cp->ଅଙ୍କ(), lrConstp->ଅଙ୍କ(), rConstp->ଅଙ୍କ());
                         replace(make<Vertex>(vtxp, lSamep->lhsp(), cp));
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
 
             // Make associative trees right leaning to reduce variations
-            if (lSamep && !lSamep->hasMultipleSinks()) {
-                DfgVertex* const ap = lSamep->lhsp();
-                DfgVertex* const bp = lSamep->rhsp();
-                DfgVertex* const cp = rhsp;
+            ଯଦି (lSamep && !lSamep->hasMultipleSinks()) {
+                DfgVertex* ଅଚଳ ap = lSamep->lhsp();
+                DfgVertex* ଅଚଳ bp = lSamep->rhsp();
+                DfgVertex* ଅଚଳ cp = rhsp;
                 // Only do this if the rhs is not the same as the operands of the LHS, otherwise
                 // SWAP_SIDE_IN_COMMUTATIVE_BINARY can get in a loop with this pattern.
-                if (ap != cp && bp != cp) {
-                    APPLYING(RIGHT_LEANING_ASSOC) {
+                ଯଦି (ap != cp && bp != cp) {
+                    APPLYING(ଡାହାଣ_LEANING_ASSOC) {
                         // Rotate the expression tree rooted at 'vtxp' to the right,
                         // producing a right-leaning tree
-                        const DfgDataType& childDType = resultDType<Vertex>(bp, cp);
-                        Vertex* const bcp = make<Vertex>(vtxp->fileline(), childDType, bp, cp);
+                        ଅଚଳ DfgDataType& childDType = resultDType<Vertex>(bp, cp);
+                        Vertex* ଅଚଳ bcp = make<Vertex>(vtxp->fileline(), childDType, bp, cp);
                         replace(make<Vertex>(lSamep->fileline(), vtxp->dtype(), ap, bcp));
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
 
-            if (rSamep && !rSamep->hasMultipleSinks()) {
-                DfgVertex* const rlVtxp = rSamep->lhsp();
-                DfgVertex* const rrVtxp = rSamep->rhsp();
+            ଯଦି (rSamep && !rSamep->hasMultipleSinks()) {
+                DfgVertex* ଅଚଳ rlVtxp = rSamep->lhsp();
+                DfgVertex* ଅଚଳ rrVtxp = rSamep->rhsp();
 
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
+                ଯଦି VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::ମୂଲ୍ୟ) {
+                    ଯଦି (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
                         APPLYING(ROTATE_ASSOC_COMM_MULTIUSE) {
                             replace(make<Vertex>(vtxp, rlVtxp, make<Vertex>(vtxp, lhsp, rrVtxp)));
-                            return true;
+                            ଫେରନ୍ତୁ ସତ୍ୟ;
                         }
                     }
                 }
@@ -628,26 +628,26 @@ class V3DfgPeephole final : public DfgVisitor {
                 // otherwise there is no improvement.
 
                 // '(a OP (b OP c))' -> '(a OP b) OP c'
-                if (Vertex* const existingp
+                ଯଦି (Vertex* ଅଚଳ existingp
                     = getVertex<Vertex>(resultDType<Vertex>(lhsp, rlVtxp), lhsp, rlVtxp)) {
                     UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                    if (existingp != rhsp) {
-                        APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_LHS_OF_RHS) {
+                    ଯଦି (existingp != rhsp) {
+                        APPLYING(REUSE_ASSOC_ଦ୍ୱିମିକ_LHS_WITH_LHS_OF_RHS) {
                             replace(make<Vertex>(vtxp, existingp, rrVtxp));
-                            return true;
+                            ଫେରନ୍ତୁ ସତ୍ୟ;
                         }
                     }
                 }
 
                 // '(a OP (b OP c))' -> '(a OP c) OP b' iff also commutative
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (Vertex* const existingp
+                ଯଦି VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::ମୂଲ୍ୟ) {
+                    ଯଦି (Vertex* ଅଚଳ existingp
                         = getVertex<Vertex>(resultDType<Vertex>(lhsp, rrVtxp), lhsp, rrVtxp)) {
                         UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                        if (existingp != rhsp) {
-                            APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_RHS_OF_RHS) {
+                        ଯଦି (existingp != rhsp) {
+                            APPLYING(REUSE_ASSOC_ଦ୍ୱିମିକ_LHS_WITH_RHS_OF_RHS) {
                                 replace(make<Vertex>(vtxp, existingp, rlVtxp));
-                                return true;
+                                ଫେରନ୍ତୁ ସତ୍ୟ;
                             }
                         }
                     }
@@ -656,215 +656,215 @@ class V3DfgPeephole final : public DfgVisitor {
         }
 
         // Commutative
-        if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
+        ଯଦି VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::ମୂଲ୍ୟ) {
             // If constant LHS, push through cond if used once. (Enables branch combining)
-            if (lConstp) {
-                if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
-                    if (!rCondp->hasMultipleSinks()) {
-                        APPLYING(PUSH_COMMUTATIVE_BINARY_THROUGH_COND) {
-                            DfgVertex* const tp = make<Vertex>(vtxp, lConstp, rCondp->thenp());
-                            DfgVertex* const ep = make<Vertex>(vtxp, lConstp, rCondp->elsep());
+            ଯଦି (lConstp) {
+                ଯଦି (DfgCond* ଅଚଳ rCondp = rhsp->cast<DfgCond>()) {
+                    ଯଦି (!rCondp->hasMultipleSinks()) {
+                        APPLYING(ଠେଲ_COMMUTATIVE_ଦ୍ୱିମିକ_THROUGH_COND) {
+                            DfgVertex* ଅଚଳ tp = make<Vertex>(vtxp, lConstp, rCondp->thenp());
+                            DfgVertex* ଅଚଳ ep = make<Vertex>(vtxp, lConstp, rCondp->elsep());
                             replace(make<DfgCond>(vtxp, rCondp->condp(), tp, ep));
-                            return true;
+                            ଫେରନ୍ତୁ ସତ୍ୟ;
                         }
                     }
                 }
-                return false;
+                ଫେରନ୍ତୁ ମିଥ୍ୟା;
             }
         }
 
         // Swap sides to simplify other patterns - This needs to be the last pattern
-        const bool swapSides = [&]() {
+        ଅଚଳ ତାର୍କିକ swapSides = [&]() {
             // Don't swap if not commutative, duh
-            if VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::value) return false;
+            ଯଦି VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::ମୂଲ୍ୟ) ଫେରନ୍ତୁ ମିଥ୍ୟା;
             // Const go on left
-            if (lConstp) return false;
-            if (rConstp) return true;
+            ଯଦି (lConstp) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+            ଯଦି (rConstp) ଫେରନ୍ତୁ ସତ୍ୟ;
             // Not go on left
-            if (lhsp->is<DfgNot>()) return false;
-            if (rhsp->is<DfgNot>()) return true;
+            ଯଦି (lhsp->is<DfgNot>()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+            ଯଦି (rhsp->is<DfgNot>()) ଫେରନ୍ତୁ ସତ୍ୟ;
             // Same go on right
-            if (rSamep) return false;
-            if (lSamep) return true;
+            ଯଦି (rSamep) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+            ଯଦି (lSamep) ଫେରନ୍ତୁ ସତ୍ୟ;
             // Otherwise put sides in order based on unique ID, this makes
             // 'a op b' and 'b op a' end up the same for better combining.
-            const VertexInfo& lInfo = m_vInfo[lhsp];
-            const VertexInfo& rInfo = m_vInfo[rhsp];
-            return lInfo.m_id > rInfo.m_id;
+            ଅଚଳ VertexInfo& lInfo = m_vInfo[lhsp];
+            ଅଚଳ VertexInfo& rInfo = m_vInfo[rhsp];
+            ଫେରନ୍ତୁ lInfo.m_id > rInfo.m_id;
         }();
-        if (swapSides) {
-            APPLYING(SWAP_SIDES_IN_BINARY) {
+        ଯଦି (swapSides) {
+            APPLYING(SWAP_SIDES_IN_ଦ୍ୱିମିକ) {
                 replace(make<Vertex>(vtxp, rhsp, lhsp));
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Transformations that apply to all distributive and associative binary
     // vertices 'Other' is the type that is distributive over 'Vertex',
     // that is: a Other (b Vertex c) == (a Other b) Vertex (a Other c)
     template <typename Other, typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool distributiveAndAssociativeBinary(Vertex* vtxp) {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        if (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ distributive_And_Associative_ଦ୍ୱିମିକ(Vertex* vtxp) {
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        ଯଦି (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
             // Convert '(a Other b) Vertex (a Other c)' and associative
             // variations to 'a Other (b Vertex c)'
-            if (Other* const lp = lhsp->cast<Other>()) {
-                if (Other* const rp = rhsp->cast<Other>()) {
-                    DfgVertex* const llp = lp->lhsp();
-                    DfgVertex* const lrp = lp->rhsp();
-                    DfgVertex* const rlp = rp->lhsp();
-                    DfgVertex* const rrp = rp->rhsp();
+            ଯଦି (Other* ଅଚଳ lp = lhsp->cast<Other>()) {
+                ଯଦି (Other* ଅଚଳ rp = rhsp->cast<Other>()) {
+                    DfgVertex* ଅଚଳ llp = lp->lhsp();
+                    DfgVertex* ଅଚଳ lrp = lp->rhsp();
+                    DfgVertex* ଅଚଳ rlp = rp->lhsp();
+                    DfgVertex* ଅଚଳ rrp = rp->rhsp();
                     DfgVertex* ap = nullptr;
                     DfgVertex* bp = nullptr;
                     DfgVertex* cp = nullptr;
-                    if (llp == rlp) {
+                    ଯଦି (llp == rlp) {
                         ap = llp;
                         bp = lrp;
                         cp = rrp;
-                    } else if (llp == rrp) {
+                    } ଅନ୍ୟଥା ଯଦି (llp == rrp) {
                         ap = llp;
                         bp = lrp;
                         cp = rlp;
-                    } else if (lrp == rlp) {
+                    } ଅନ୍ୟଥା ଯଦି (lrp == rlp) {
                         ap = lrp;
                         bp = llp;
                         cp = rrp;
-                    } else if (lrp == rrp) {
+                    } ଅନ୍ୟଥା ଯଦି (lrp == rrp) {
                         ap = lrp;
                         bp = llp;
                         cp = rlp;
                     }
-                    if (ap) {
-                        APPLYING(REPLACE_DISTRIBUTIVE_BINARY) {
+                    ଯଦି (ap) {
+                        APPLYING(REPLACE_DISTRIBUTIVE_ଦ୍ୱିମିକ) {
                             replace(make<Other>(vtxp, ap, make<Vertex>(lhsp, bp, cp)));
-                            return true;
+                            ଫେରନ୍ତୁ ସତ୍ୟ;
                         }
                     }
                 }
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Bitwise operation with one side Const, and the other side a Concat
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool
-    tryPushBitwiseOpThroughConcat(Vertex* const vtxp, DfgConst* constp, DfgConcat* concatp) {
-        FileLine* const flp = vtxp->fileline();
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ
+    try_ଠେଲ_Bitwise_Op_Through_Concat(Vertex* ଅଚଳ vtxp, DfgConst* constp, DfgConcat* concatp) {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
         // If at least one of the sides of the Concat constant, then push Vertex past Concat
-        DfgConst* const catLConstp = concatp->lhsp()->cast<DfgConst>();
-        DfgConst* const catRConstp = concatp->rhsp()->cast<DfgConst>();
-        if (catLConstp || catRConstp) {
-            APPLYING(PUSH_BITWISE_OP_THROUGH_CONCAT) {
-                const uint32_t width = concatp->width();
-                const DfgDataType& lDtype = concatp->lhsp()->dtype();
-                const DfgDataType& rDtype = concatp->rhsp()->dtype();
-                const uint32_t lWidth = lDtype.size();
-                const uint32_t rWidth = rDtype.size();
+        DfgConst* ଅଚଳ catLConstp = concatp->lhsp()->cast<DfgConst>();
+        DfgConst* ଅଚଳ catRConstp = concatp->rhsp()->cast<DfgConst>();
+        ଯଦି (catLConstp || catRConstp) {
+            APPLYING(ଠେଲ_BITWISE_OP_THROUGH_CONCAT) {
+                ଅଚଳ uint32_t width = concatp->width();
+                ଅଚଳ DfgDataType& lDtype = concatp->lhsp()->dtype();
+                ଅଚଳ DfgDataType& rDtype = concatp->rhsp()->dtype();
+                ଅଚଳ uint32_t lWidth = lDtype.size();
+                ଅଚଳ uint32_t rWidth = rDtype.size();
 
                 // The new Lhs vertex
-                DfgVertex* const newLhsp = [&]() -> DfgVertex* {
-                    DfgConst* const newLhsConstp = makeZero(constp->fileline(), lWidth);
-                    if (catLConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(lWidth), 0u};
-                        num.opSel(constp->num(), width - 1, rWidth);
-                        foldOp<Vertex>(newLhsConstp->num(), num, catLConstp->num());
-                        return newLhsConstp;
+                DfgVertex* ଅଚଳ newLhsp = [&]() -> DfgVertex* {
+                    DfgConst* ଅଚଳ newLhsConstp = makeZero(constp->fileline(), lWidth);
+                    ଯଦି (catLConstp) {
+                        V3_ସଂଖ୍ୟା ଅଙ୍କ{constp->fileline(), static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(lWidth), 0u};
+                        ଅଙ୍କ.opSel(constp->ଅଙ୍କ(), width - 1, rWidth);
+                        foldOp<Vertex>(newLhsConstp->ଅଙ୍କ(), ଅଙ୍କ, catLConstp->ଅଙ୍କ());
+                        ଫେରନ୍ତୁ newLhsConstp;
                     }
-                    newLhsConstp->num().opSel(constp->num(), width - 1, rWidth);
-                    return make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
+                    newLhsConstp->ଅଙ୍କ().opSel(constp->ଅଙ୍କ(), width - 1, rWidth);
+                    ଫେରନ୍ତୁ make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
                 }();
 
                 // The new Rhs vertex
-                DfgVertex* const newRhsp = [&]() -> DfgVertex* {
-                    DfgConst* const newRhsConstp = makeZero(constp->fileline(), rWidth);
-                    if (catRConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(rWidth), 0u};
-                        num.opSel(constp->num(), rWidth - 1, 0);
-                        foldOp<Vertex>(newRhsConstp->num(), num, catRConstp->num());
-                        return newRhsConstp;
+                DfgVertex* ଅଚଳ newRhsp = [&]() -> DfgVertex* {
+                    DfgConst* ଅଚଳ newRhsConstp = makeZero(constp->fileline(), rWidth);
+                    ଯଦି (catRConstp) {
+                        V3_ସଂଖ୍ୟା ଅଙ୍କ{constp->fileline(), static_cast<ପୂର୍ଣ୍ଣସଂଖ୍ୟା>(rWidth), 0u};
+                        ଅଙ୍କ.opSel(constp->ଅଙ୍କ(), rWidth - 1, 0);
+                        foldOp<Vertex>(newRhsConstp->ଅଙ୍କ(), ଅଙ୍କ, catRConstp->ଅଙ୍କ());
+                        ଫେରନ୍ତୁ newRhsConstp;
                     }
-                    newRhsConstp->num().opSel(constp->num(), rWidth - 1, 0);
-                    return make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
+                    newRhsConstp->ଅଙ୍କ().opSel(constp->ଅଙ୍କ(), rWidth - 1, 0);
+                    ଫେରନ୍ତୁ make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
                 }();
 
                 // Replace this vertex
                 replace(make<DfgConcat>(concatp, newLhsp, newRhsp));
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     template <typename Vertex>
-    VL_ATTR_WARN_UNUSED_RESULT bool
-    tryPushCompareOpThroughConcat(Vertex* const vtxp, DfgConst* constp, DfgConcat* concatp) {
-        FileLine* const flp = vtxp->fileline();
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ
+    try_ଠେଲ_Compare_Op_Through_Concat(Vertex* ଅଚଳ vtxp, DfgConst* constp, DfgConcat* concatp) {
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
         // If at least one of the sides of the Concat is constant, or the concat is unused once,
         // then push the Vertex past the Concat
-        if (!concatp->hasMultipleSinks()  //
+        ଯଦି (!concatp->hasMultipleSinks()  //
             || concatp->lhsp()->is<DfgConst>()  //
             || concatp->rhsp()->is<DfgConst>()) {
-            APPLYING(PUSH_COMPARE_OP_THROUGH_CONCAT) {
-                const uint32_t width = concatp->width();
-                const uint32_t lWidth = concatp->lhsp()->width();
-                const uint32_t rWidth = concatp->rhsp()->width();
+            APPLYING(ଠେଲ_COMPARE_OP_THROUGH_CONCAT) {
+                ଅଚଳ uint32_t width = concatp->width();
+                ଅଚଳ uint32_t lWidth = concatp->lhsp()->width();
+                ଅଚଳ uint32_t rWidth = concatp->rhsp()->width();
 
                 // The new Lhs vertex
-                DfgConst* const newLhsConstp = makeZero(constp->fileline(), lWidth);
-                newLhsConstp->num().opSel(constp->num(), width - 1, rWidth);
-                Vertex* const newLhsp
+                DfgConst* ଅଚଳ newLhsConstp = makeZero(constp->fileline(), lWidth);
+                newLhsConstp->ଅଙ୍କ().opSel(constp->ଅଙ୍କ(), width - 1, rWidth);
+                Vertex* ଅଚଳ newLhsp
                     = make<Vertex>(flp, m_bitDType, newLhsConstp, concatp->lhsp());
 
                 // The new Rhs vertex
-                DfgConst* const newRhsConstp = makeZero(constp->fileline(), rWidth);
-                newRhsConstp->num().opSel(constp->num(), rWidth - 1, 0);
-                Vertex* const newRhsp
+                DfgConst* ଅଚଳ newRhsConstp = makeZero(constp->fileline(), rWidth);
+                newRhsConstp->ଅଙ୍କ().opSel(constp->ଅଙ୍କ(), rWidth - 1, 0);
+                Vertex* ଅଚଳ newRhsp
                     = make<Vertex>(flp, m_bitDType, newRhsConstp, concatp->rhsp());
 
                 // The replacement Vertex
-                if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::value) {
+                ଯଦି VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::ମୂଲ୍ୟ) {
                     replace(make<DfgAnd>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::value) {
+                } ଅନ୍ୟଥା ଯଦି VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::ମୂଲ୍ୟ) {
                     replace(make<DfgOr>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else {
+                } ଅନ୍ୟଥା {
                     vtxp->v3fatalSrc("Unhandled vertex type: " << vtxp->typeName());
                 }
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryPushBitwiseOpThroughReductions(Bitwise* const vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ try_ଠେଲ_Bitwise_Op_Through_Reductions(Bitwise* ଅଚଳ vtxp) {
         using Reduction = BitwiseToReduction<Bitwise>;
 
-        if (Reduction* const lRedp = vtxp->lhsp()->template cast<Reduction>()) {
-            if (Reduction* const rRedp = vtxp->rhsp()->template cast<Reduction>()) {
-                DfgVertex* const lSrcp = lRedp->srcp();
-                DfgVertex* const rSrcp = rRedp->srcp();
-                if (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
+        ଯଦି (Reduction* ଅଚଳ lRedp = vtxp->lhsp()->template cast<Reduction>()) {
+            ଯଦି (Reduction* ଅଚଳ rRedp = vtxp->rhsp()->template cast<Reduction>()) {
+                DfgVertex* ଅଚଳ lSrcp = lRedp->srcp();
+                DfgVertex* ଅଚଳ rSrcp = rRedp->srcp();
+                ଯଦି (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
                     && !lSrcp->is<DfgConcat>() && !rSrcp->is<DfgConcat>()
                     && !lSrcp->hasMultipleSinks() && !rSrcp->hasMultipleSinks()) {
-                    APPLYING(PUSH_BITWISE_THROUGH_REDUCTION) {
-                        FileLine* const flp = vtxp->fileline();
-                        Bitwise* const bwp = make<Bitwise>(flp, lSrcp->dtype(), lSrcp, rSrcp);
+                    APPLYING(ଠେଲ_BITWISE_THROUGH_REDUCTION) {
+                        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+                        Bitwise* ଅଚଳ bwp = make<Bitwise>(flp, lSrcp->dtype(), lSrcp, rSrcp);
                         replace(make<Reduction>(flp, m_bitDType, bwp));
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Checks if 'vtxp' is a single use 'n[i] OP w[j]', with 'OP' a bitwise operation, that can
@@ -873,57 +873,57 @@ class V3DfgPeephole final : public DfgVisitor {
     // and 'b' 64 bits, 'a[3] & b[20]' is '(a & b[24:17])[3]', but 'a[3] & b[1]' and
     // 'a[3] & b[62]' cannot be rewritten, as they would need bits below 'b[0]' or above
     // 'b[63]'.
-    static std::pair<DfgSel*, DfgSel*> pushableUnalignedSels(DfgVertex* vtxp) {
-        if (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
-            return {nullptr, nullptr};
+    ସ୍ଥିର std::pair<DfgSel*, DfgSel*> pushableUnalignedSels(DfgVertex* vtxp) {
+        ଯଦି (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
+            ଫେରନ୍ତୁ {nullptr, nullptr};
         }
-        if (vtxp->hasMultipleSinks()) return {nullptr, nullptr};
-        DfgVertexBinary* const bwp = vtxp->as<DfgVertexBinary>();
-        DfgSel* const lSelp = bwp->lhsp()->cast<DfgSel>();
-        DfgSel* const rSelp = bwp->rhsp()->cast<DfgSel>();
-        if (!lSelp || !rSelp) return {nullptr, nullptr};
-        DfgSel* const nSelp = lSelp->fromp()->width() <= rSelp->fromp()->width() ? lSelp : rSelp;
-        DfgSel* const wSelp = nSelp == lSelp ? rSelp : lSelp;
-        const uint32_t nWidth = nSelp->fromp()->width();
-        if (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) return {nullptr, nullptr};
-        if (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
-            return {nullptr, nullptr};
+        ଯଦି (vtxp->hasMultipleSinks()) ଫେରନ୍ତୁ {nullptr, nullptr};
+        Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ bwp = vtxp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        DfgSel* ଅଚଳ lSelp = bwp->lhsp()->cast<DfgSel>();
+        DfgSel* ଅଚଳ rSelp = bwp->rhsp()->cast<DfgSel>();
+        ଯଦି (!lSelp || !rSelp) ଫେରନ୍ତୁ {nullptr, nullptr};
+        DfgSel* ଅଚଳ nSelp = lSelp->fromp()->width() <= rSelp->fromp()->width() ? lSelp : rSelp;
+        DfgSel* ଅଚଳ wSelp = nSelp == lSelp ? rSelp : lSelp;
+        ଅଚଳ uint32_t nWidth = nSelp->fromp()->width();
+        ଯଦି (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) ଫେରନ୍ତୁ {nullptr, nullptr};
+        ଯଦି (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
+            ଫେରନ୍ତୁ {nullptr, nullptr};
         }
-        return {nSelp, wSelp};
+        ଫେରନ୍ତୁ {nSelp, wSelp};
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryPushBitwiseOpThrougSel(Bitwise* const vtxp) {
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ try_ଠେଲ_Bitwise_Op_Throug_Sel(Bitwise* ଅଚଳ vtxp) {
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+        ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->cast<DfgSel>()) {
+            ଯଦି (DfgSel* ଅଚଳ selp = rhsp->cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const bitwisep = rhsp->cast<Bitwise>()) {
-                if (DfgSel* const rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+            } ଅନ୍ୟଥା ଯଦି (Bitwise* ଅଚଳ bitwisep = rhsp->cast<Bitwise>()) {
+                ଯଦି (DfgSel* ଅଚଳ rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
                     rSelp = rlSelp;
                     extrap = bitwisep->rhsp();
-                } else if (DfgSel* const rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                } ଅନ୍ୟଥା ଯଦି (DfgSel* ଅଚଳ rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                     rSelp = rrSelp;
                     extrap = bitwisep->lhsp();
                 }
             }
-            if (rSelp) {
-                DfgVertex* const lFromp = lSelp->fromp();
-                DfgVertex* const rFromp = rSelp->fromp();
-                if (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
+            ଯଦି (rSelp) {
+                DfgVertex* ଅଚଳ lFromp = lSelp->fromp();
+                DfgVertex* ଅଚଳ rFromp = rSelp->fromp();
+                ଯଦି (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
                     && lSelp->lsb() == rSelp->lsb()) {
-                    APPLYING(PUSH_BITWISE_THROUGH_SEL) {
-                        Bitwise* const bwp
+                    APPLYING(ଠେଲ_BITWISE_THROUGH_SEL) {
+                        Bitwise* ଅଚଳ bwp
                             = make<Bitwise>(vtxp->fileline(), lSelp->fromp()->dtype(),
                                             lSelp->fromp(), rSelp->fromp());
                         DfgVertex* resp = make<DfgSel>(vtxp, bwp, lSelp->lsb());
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        ଯଦି (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
@@ -938,224 +938,224 @@ class V3DfgPeephole final : public DfgVisitor {
         {
             // The adjacent terms are the LHS, and the RHS, or in a right-leaning chain the LHS
             // of the RHS
-            Bitwise* const rChainp = rhsp->cast<Bitwise>();
-            if (rChainp && rChainp->hasMultipleSinks()) return false;
-            DfgVertex* const rTermp = rChainp ? rChainp->lhsp() : rhsp;
+            Bitwise* ଅଚଳ rChainp = rhsp->cast<Bitwise>();
+            ଯଦି (rChainp && rChainp->hasMultipleSinks()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+            DfgVertex* ଅଚଳ rTermp = rChainp ? rChainp->lhsp() : rhsp;
 
-            const auto lSels = pushableUnalignedSels(lhsp);
-            const auto rSels = pushableUnalignedSels(rTermp);
-            if (!lSels.first && !rSels.first) return false;
+            ଅଚଳ auto lSels = pushableUnalignedSels(lhsp);
+            ଅଚଳ auto rSels = pushableUnalignedSels(rTermp);
+            ଯଦି (!lSels.first && !rSels.first) ଫେରନ୍ତୁ ମିଥ୍ୟା;
 
-            const DfgVertex* const opp = lSels.first ? lhsp : rTermp;
+            ଅଚଳ DfgVertex* ଅଚଳ opp = lSels.first ? lhsp : rTermp;
             // Must be a different operation, otherwise it is part of the chain
-            if (opp->is<Bitwise>()) return false;
-            const auto& sels = lSels.first ? lSels : rSels;
-            DfgVertex* const nFromp = sels.first->fromp();
-            DfgVertex* const wFromp = sels.second->fromp();
-            const uint32_t offset = sels.second->lsb() - sels.first->lsb();
+            ଯଦି (opp->is<Bitwise>()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+            ଅଚଳ auto& sels = lSels.first ? lSels : rSels;
+            DfgVertex* ଅଚଳ nFromp = sels.first->fromp();
+            DfgVertex* ଅଚଳ wFromp = sels.second->fromp();
+            ଅଚଳ uint32_t offset = sels.second->lsb() - sels.first->lsb();
 
             // Both terms must end up as selects from the same pushed operation
-            const auto matches = [&](const DfgVertex* termp, const auto& tSels) {
+            ଅଚଳ auto matches = [&](ଅଚଳ DfgVertex* termp, ଅଚଳ auto& tSels) {
                 // Original form: 'n[i] OP w[j]'
-                if (tSels.first) {
-                    return termp->type() == opp->type()  //
+                ଯଦି (tSels.first) {
+                    ଫେରନ୍ତୁ termp->type() == opp->type()  //
                            && tSels.first->fromp() == nFromp  //
                            && tSels.second->fromp() == wFromp  //
                            && tSels.second->lsb() - tSels.first->lsb() == offset;
                 }
                 // Already pushed forms: 'nFromp OP Sel(wFromp, offset)',
                 // a select from it, or a reduction of such a select
-                if (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
+                ଯଦି (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
                     termp = termp->inputp(0);
                 }
-                if (const DfgSel* const selp = termp->cast<DfgSel>()) {  //
+                ଯଦି (ଅଚଳ DfgSel* ଅଚଳ selp = termp->cast<DfgSel>()) {  //
                     termp = selp->fromp();
                 }
-                if (termp->type() != opp->type()) return false;
+                ଯଦି (termp->type() != opp->type()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
                 // Operands might have been swapped since
-                const DfgVertexBinary* const bwp = termp->as<DfgVertexBinary>();
-                const bool nIsLhs = bwp->lhsp() == nFromp;
-                if (!nIsLhs && bwp->rhsp() != nFromp) return false;
-                const DfgSel* const slicep = (nIsLhs ? bwp->rhsp() : bwp->lhsp())->cast<DfgSel>();
-                return slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
+                ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ bwp = termp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+                ଅଚଳ ତାର୍କିକ nIsLhs = bwp->lhsp() == nFromp;
+                ଯଦି (!nIsLhs && bwp->rhsp() != nFromp) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+                ଅଚଳ DfgSel* ଅଚଳ slicep = (nIsLhs ? bwp->rhsp() : bwp->lhsp())->cast<DfgSel>();
+                ଫେରନ୍ତୁ slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
             };
-            if (!matches(lhsp, lSels) || !matches(rTermp, rSels)) return false;
+            ଯଦି (!matches(lhsp, lSels) || !matches(rTermp, rSels)) ଫେରନ୍ତୁ ମିଥ୍ୟା;
 
-            APPLYING(PUSH_BITWISE_THROUGH_UNALIGNED_SEL) {
-                FileLine* const flp = vtxp->fileline();
-                const DfgDataType& dtype = nFromp->dtype();
-                DfgSel* const slicep = make<DfgSel>(flp, dtype, wFromp, offset);
+            APPLYING(ଠେଲ_BITWISE_THROUGH_UNALIGNED_SEL) {
+                File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+                ଅଚଳ DfgDataType& dtype = nFromp->dtype();
+                DfgSel* ଅଚଳ slicep = make<DfgSel>(flp, dtype, wFromp, offset);
                 DfgVertex* bwp = nullptr;
-                if (opp->is<DfgAnd>()) {
+                ଯଦି (opp->is<DfgAnd>()) {
                     bwp = make<DfgAnd>(flp, dtype, nFromp, slicep);
-                } else if (opp->is<DfgOr>()) {
+                } ଅନ୍ୟଥା ଯଦି (opp->is<DfgOr>()) {
                     bwp = make<DfgOr>(flp, dtype, nFromp, slicep);
-                } else {
+                } ଅନ୍ୟଥା {
                     bwp = make<DfgXor>(flp, dtype, nFromp, slicep);
                 }
-                const auto push = [&](DfgVertex* termp, const DfgSel* nSelp) -> DfgVertex* {
-                    return nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
+                ଅଚଳ auto ଠେଲ = [&](DfgVertex* termp, ଅଚଳ DfgSel* nSelp) -> DfgVertex* {
+                    ଫେରନ୍ତୁ nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
                 };
-                DfgVertex* const newLhsp = push(lhsp, lSels.first);
-                DfgVertex* const newRTermp = push(rTermp, rSels.first);
-                if (rChainp) {
-                    DfgVertex* const newRChainp
+                DfgVertex* ଅଚଳ newLhsp = ଠେଲ(lhsp, lSels.first);
+                DfgVertex* ଅଚଳ newRTermp = ଠେଲ(rTermp, rSels.first);
+                ଯଦି (rChainp) {
+                    DfgVertex* ଅଚଳ newRChainp
                         = make<Bitwise>(rChainp, newRTermp, rChainp->rhsp());
                     replace(make<Bitwise>(vtxp, newLhsp, newRChainp));
-                } else {
+                } ଅନ୍ୟଥା {
                     replace(make<Bitwise>(vtxp, newLhsp, newRTermp));
                 }
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' is folded into a single vertex by another pattern
-    static bool isConcatFoldable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
+    ସ୍ଥିର ତାର୍କିକ isConcatFoldable(ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) {
         // Concatenation of the same vertex is a replicate
-        if (isSame(lhsp, rhsp)) return true;
-        if (const DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) return true;
+        ଯଦି (isSame(lhsp, rhsp)) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (ଅଚଳ DfgRep* ଅଚଳ lRepp = lhsp->cast<DfgRep>()) {
+            ଯଦି (isSame(lRepp->srcp(), rhsp)) ଫେରନ୍ତୁ ସତ୍ୟ;
         }
-        if (const DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) return true;
+        ଯଦି (ଅଚଳ DfgRep* ଅଚଳ rRepp = rhsp->cast<DfgRep>()) {
+            ଯଦି (isSame(lhsp, rRepp->srcp())) ଫେରନ୍ତୁ ସତ୍ୟ;
         }
         // Concatenation of adjoining selects is a select
-        if (const DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (const DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                return isSame(lSelp->fromp(), rSelp->fromp())
+        ଯଦି (ଅଚଳ DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
+            ଯଦି (ଅଚଳ DfgSel* ଅଚଳ rSelp = rhsp->cast<DfgSel>()) {
+                ଫେରନ୍ତୁ isSame(lSelp->fromp(), rSelp->fromp())
                        && lSelp->lsb() == rSelp->lsb() + rSelp->width();
             }
         }
         // Concatenation of Nots is pushed through the Nots (PUSH_CONCAT_THROUGH_NOTS)
-        if (const DfgNot* const lNotp = lhsp->cast<DfgNot>()) {
-            if (const DfgNot* const rNotp = rhsp->cast<DfgNot>()) {
-                return !lNotp->hasMultipleSinks()  //
+        ଯଦି (ଅଚଳ DfgNot* ଅଚଳ lNotp = lhsp->cast<DfgNot>()) {
+            ଯଦି (ଅଚଳ DfgNot* ଅଚଳ rNotp = rhsp->cast<DfgNot>()) {
+                ଫେରନ୍ତୁ !lNotp->hasMultipleSinks()  //
                        && !rNotp->hasMultipleSinks()  //
                        && isConcatFoldable(lNotp->srcp(), rNotp->srcp());
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Returns true if 'lhsp' and 'rhsp' are the same bitwise operation
-    static bool isSameBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (lhsp->type() != rhsp->type()) return false;
-        return lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
+    ସ୍ଥିର ତାର୍କିକ isSameBitwise(ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) {
+        ଯଦି (lhsp->type() != rhsp->type()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଫେରନ୍ତୁ lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' folds into a single vertex, either directly, or
     // after pushing it through the same bitwise operation on both sides
-    static bool isConcatSimplifiable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (isConcatFoldable(lhsp, rhsp)) return true;
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        if (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
-            return true;
-        if (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
-            return true;
-        return false;
+    ସ୍ଥିର ତାର୍କିକ isConcatSimplifiable(ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp) {
+        ଯଦି (isConcatFoldable(lhsp, rhsp)) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (!isSameBitwise(lhsp, rhsp)) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଯଦି (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ lp = lhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ rp = rhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        ଯଦି (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
+            ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
+            ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Returns true if replacing 'Concat(a OP b, c OP d)' (the Concat of 'lhsp' and 'rhsp') with
     // 'Concat(a, c) OP Concat(b, d)' removes vertices, that is if at least one of the resulting
     // Concats simplifies. The other might be pushed further by a later application. Sets 'swap'
     // if instead 'Concat(a, d) OP Concat(b, c)' should be used.
-    static bool isConcatPushableThroughBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp,
-                                               bool& swap) {
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        swap = false;
-        if (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) return true;
-        swap = true;
-        if (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) return true;
-        return false;
+    ସ୍ଥିର ତାର୍କିକ isConcatPushableThroughBitwise(ଅଚଳ DfgVertex* lhsp, ଅଚଳ DfgVertex* rhsp,
+                                               ତାର୍କିକ& swap) {
+        ଯଦି (!isSameBitwise(lhsp, rhsp)) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଯଦି (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ lp = lhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ rp = rhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        swap = ମିଥ୍ୟା;
+        ଯଦି (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) ଫେରନ୍ତୁ ସତ୍ୟ;
+        swap = ସତ୍ୟ;
+        ଯଦି (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଯଦି (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) ଫେରନ୍ତୁ ସତ୍ୟ;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Create 'Concat(a, c) OP Concat(b, d)' from 'lhsp' = 'a OP b' and 'rhsp' = 'c OP d', or
     // 'Concat(a, d) OP Concat(b, c)' if 'swap' is set
-    DfgVertex* makeConcatPushedThroughBitwise(FileLine* flp, const DfgVertex* lhsp,
-                                              const DfgVertex* rhsp, bool swap) {
-        const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
-        const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        const DfgDataType& dtype = DfgDataType::packed(lp->width() + rp->width());
-        DfgVertex* const cp = swap ? rp->rhsp() : rp->lhsp();
-        DfgVertex* const dp = swap ? rp->lhsp() : rp->rhsp();
-        DfgConcat* const newLhsp = make<DfgConcat>(flp, dtype, lp->lhsp(), cp);
-        DfgConcat* const newRhsp = make<DfgConcat>(flp, dtype, lp->rhsp(), dp);
-        if (lp->is<DfgAnd>()) return make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
-        if (lp->is<DfgOr>()) return make<DfgOr>(flp, dtype, newLhsp, newRhsp);
+    DfgVertex* makeConcatPushedThroughBitwise(File_ଧାଡ଼ି* flp, ଅଚଳ DfgVertex* lhsp,
+                                              ଅଚଳ DfgVertex* rhsp, ତାର୍କିକ swap) {
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ lp = lhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        ଅଚଳ Dfg_Vertex_ଦ୍ୱିମିକ* ଅଚଳ rp = rhsp->as<Dfg_Vertex_ଦ୍ୱିମିକ>();
+        ଅଚଳ DfgDataType& dtype = DfgDataType::packed(lp->width() + rp->width());
+        DfgVertex* ଅଚଳ cp = swap ? rp->rhsp() : rp->lhsp();
+        DfgVertex* ଅଚଳ dp = swap ? rp->lhsp() : rp->rhsp();
+        DfgConcat* ଅଚଳ newLhsp = make<DfgConcat>(flp, dtype, lp->lhsp(), cp);
+        DfgConcat* ଅଚଳ newRhsp = make<DfgConcat>(flp, dtype, lp->rhsp(), dp);
+        ଯଦି (lp->is<DfgAnd>()) ଫେରନ୍ତୁ make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
+        ଯଦି (lp->is<DfgOr>()) ଫେରନ୍ତୁ make<DfgOr>(flp, dtype, newLhsp, newRhsp);
         UASSERT_OBJ(lp->is<DfgXor>(), lp, "Should be a bitwise operation");
-        return make<DfgXor>(flp, dtype, newLhsp, newRhsp);
+        ଫେରନ୍ତୁ make<DfgXor>(flp, dtype, newLhsp, newRhsp);
     }
 
     template <typename Bitwise>
-    VL_ATTR_WARN_UNUSED_RESULT bool tryReplaceBitwiseWithReduction(Bitwise* vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ tryReplaceBitwiseWithReduction(Bitwise* vtxp) {
         UASSERT_OBJ(vtxp->width() == 1, vtxp, "Width must be 1");
         using Reduction = BitwiseToReduction<Bitwise>;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->template cast<DfgSel>()) {
+        ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->template cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->template cast<DfgSel>()) {
+            ଯଦି (DfgSel* ଅଚଳ selp = rhsp->template cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            } ଅନ୍ୟଥା ଯଦି (Bitwise* ଅଚଳ rBitwisep = rhsp->template cast<Bitwise>()) {
                 rSelp = rBitwisep->lhsp()->template cast<DfgSel>();
                 extrap = rBitwisep->rhsp();
-            } else if (Reduction* const rRedp = rhsp->template cast<Reduction>()) {
+            } ଅନ୍ୟଥା ଯଦି (Reduction* ଅଚଳ rRedp = rhsp->template cast<Reduction>()) {
                 rSelp = rRedp->srcp()->template cast<DfgSel>();
             }
-            if (rSelp) {
+            ଯଦି (rSelp) {
                 uint32_t lsb = 0;
-                if (areAdjacent(lsb, lSelp, rSelp)) {
+                ଯଦି (areAdjacent(lsb, lSelp, rSelp)) {
                     APPLYING(REPLACE_BITWISE_OF_SELS_WITH_REDUCTION) {
-                        const DfgDataType& dtype
+                        ଅଚଳ DfgDataType& dtype
                             = DfgDataType::packed(lSelp->width() + rSelp->width());
-                        DfgSel* const newSelp
+                        DfgSel* ଅଚଳ newSelp
                             = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                         DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        ଯଦି (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
             }
         }
 
-        if (Reduction* const lRedp = lhsp->template cast<Reduction>()) {
+        ଯଦି (Reduction* ଅଚଳ lRedp = lhsp->template cast<Reduction>()) {
             Reduction* rRedp = rhsp->template cast<Reduction>();
             DfgVertex* extrap = nullptr;
-            if (!rRedp) {
-                if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            ଯଦି (!rRedp) {
+                ଯଦି (Bitwise* ଅଚଳ rBitwisep = rhsp->template cast<Bitwise>()) {
                     rRedp = rBitwisep->lhsp()->template cast<Reduction>();
                     extrap = rBitwisep->rhsp();
                 }
             }
-            if (rRedp) {
-                if (DfgSel* const lSelp = lRedp->srcp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = rRedp->srcp()->template cast<DfgSel>()) {
+            ଯଦି (rRedp) {
+                ଯଦି (DfgSel* ଅଚଳ lSelp = lRedp->srcp()->template cast<DfgSel>()) {
+                    ଯଦି (DfgSel* ଅଚଳ rSelp = rRedp->srcp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
+                        ଯଦି (areAdjacent(lsb, lSelp, rSelp)) {
                             APPLYING(REPLACE_BITWISE_OF_REDUCTION_OF_SELS_WITH_REDUCTION) {
-                                const DfgDataType& dtype
+                                ଅଚଳ DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
-                                DfgSel* const newSelp
+                                DfgSel* ଅଚଳ newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                                if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                                ଯଦି (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                                 replace(resp);
-                                return true;
+                                ଫେରନ୍ତୁ ସତ୍ୟ;
                             }
                         }
                     }
@@ -1163,89 +1163,89 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     template <typename Reduction>
-    VL_ATTR_WARN_UNUSED_RESULT bool optimizeReduction(Reduction* const vtxp) {
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ optimizeReduction(Reduction* ଅଚଳ vtxp) {
         using Bitwise = ReductionToBitwise<Reduction>;
 
-        if (foldUnary(vtxp)) return true;
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ ସତ୍ୟ;
 
-        DfgVertex* const srcp = vtxp->srcp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ srcp = vtxp->srcp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
         // Reduction of 1-bit value
-        if (srcp->dtype() == m_bitDType) {
+        ଯଦି (srcp->dtype() == m_bitDType) {
             APPLYING(REMOVE_WIDTH_ONE_REDUCTION) {
                 replace(srcp);
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             }
         }
 
-        if (DfgCond* const condp = srcp->cast<DfgCond>()) {
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
-                APPLYING(PUSH_REDUCTION_THROUGH_COND_WITH_CONST_BRANCH) {
+        ଯଦି (DfgCond* ଅଚଳ condp = srcp->cast<DfgCond>()) {
+            ଯଦି (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+                APPLYING(ଠେଲ_REDUCTION_THROUGH_COND_WITH_CONST_BRANCH) {
                     // The new 'then' vertex
-                    Reduction* const newThenp = make<Reduction>(flp, m_bitDType, condp->thenp());
+                    Reduction* ଅଚଳ newThenp = make<Reduction>(flp, m_bitDType, condp->thenp());
 
                     // The new 'else' vertex
-                    Reduction* const newElsep = make<Reduction>(flp, m_bitDType, condp->elsep());
+                    Reduction* ଅଚଳ newElsep = make<Reduction>(flp, m_bitDType, condp->elsep());
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), m_bitDType,
+                    DfgCond* ଅଚଳ newCondp = make<DfgCond>(condp->fileline(), m_bitDType,
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return true;
+                    ଫେରନ୍ତୁ ସତ୍ୟ;
                 }
             }
         }
 
-        if (DfgConcat* const concatp = srcp->cast<DfgConcat>()) {
-            if (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
+        ଯଦି (DfgConcat* ଅଚଳ concatp = srcp->cast<DfgConcat>()) {
+            ଯଦି (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
                 || concatp->lhsp()->dtype() == m_bitDType
                 || concatp->rhsp()->dtype() == m_bitDType) {
-                APPLYING(PUSH_REDUCTION_THROUGH_CONCAT) {
+                APPLYING(ଠେଲ_REDUCTION_THROUGH_CONCAT) {
                     // Reduce the parts of the concatenation
-                    Reduction* const lRedp
+                    Reduction* ଅଚଳ lRedp
                         = make<Reduction>(concatp->fileline(), m_bitDType, concatp->lhsp());
-                    Reduction* const rRedp
+                    Reduction* ଅଚଳ rRedp
                         = make<Reduction>(concatp->fileline(), m_bitDType, concatp->rhsp());
 
                     // Bitwise reduce the results
                     replace(make<Bitwise>(flp, m_bitDType, lRedp, rRedp));
-                    return true;
+                    ଫେରନ୍ତୁ ସତ୍ୟ;
                 }
             }
         }
 
-        if (Bitwise* const bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
-            if (!bitwisep->hasMultipleSinks()) {
-                if (bitwisep->lhsp()->template is<DfgConcat>()
+        ଯଦି (Bitwise* ଅଚଳ bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
+            ଯଦି (!bitwisep->hasMultipleSinks()) {
+                ଯଦି (bitwisep->lhsp()->template is<DfgConcat>()
                     || bitwisep->rhsp()->template is<DfgConcat>()) {
-                    APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_CONCAT) {
-                        Reduction* const newLhsp
+                    APPLYING(ଠେଲ_REDUCTION_THROUGH_BITWISE_OF_CONCAT) {
+                        Reduction* ଅଚଳ newLhsp
                             = make<Reduction>(flp, m_bitDType, bitwisep->lhsp());
-                        Reduction* const newRhsp
+                        Reduction* ଅଚଳ newRhsp
                             = make<Reduction>(flp, m_bitDType, bitwisep->rhsp());
                         replace(make<Bitwise>(flp, m_bitDType, newLhsp, newRhsp));
-                        return true;
+                        ଫେରନ୍ତୁ ସତ୍ୟ;
                     }
                 }
 
-                if (DfgSel* const lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                ଯଦି (DfgSel* ଅଚଳ lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+                    ଯଦି (DfgSel* ଅଚଳ rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
-                            APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_SELS) {
-                                const DfgDataType& dtype
+                        ଯଦି (areAdjacent(lsb, lSelp, rSelp)) {
+                            APPLYING(ଠେଲ_REDUCTION_THROUGH_BITWISE_OF_SELS) {
+                                ଅଚଳ DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
-                                DfgSel* const newSelp
+                                DfgSel* ଅଚଳ newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 replace(make<Reduction>(vtxp, newSelp));
-                                return true;
+                                ଫେରନ୍ତୁ ସତ୍ୟ;
                             }
                         }
                     }
@@ -1253,535 +1253,535 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     template <typename Shift>
-    VL_ATTR_WARN_UNUSED_RESULT bool optimizeShiftRHS(Shift* const vtxp) {
-        static_assert(std::is_base_of<DfgVertexBinary, Shift>::value, "Must invoke on binary");
-        static_assert(std::is_final<Shift>::value, "Must invoke on final class");
-        if (const DfgConcat* const concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
-            if (isZero(concatp->lhsp())) {  // Drop redundant zero extension
+    VL_ATTR_WARN_UNUSED_RESULT ତାର୍କିକ optimizeShiftRHS(Shift* ଅଚଳ vtxp) {
+        static_assert(std::is_base_of<Dfg_Vertex_ଦ୍ୱିମିକ, Shift>::ମୂଲ୍ୟ, "Must invoke on binary");
+        static_assert(std::is_final<Shift>::ମୂଲ୍ୟ, "Must invoke on final class");
+        ଯଦି (ଅଚଳ DfgConcat* ଅଚଳ concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
+            ଯଦି (isZero(concatp->lhsp())) {  // Drop redundant zero extension
                 APPLYING(REMOVE_REDUNDANT_ZEXT_ON_RHS_OF_SHIFT) {
                     replace(make<Shift>(vtxp, vtxp->lhsp(), concatp->rhsp()));
-                    return true;
+                    ଫେରନ୍ତୁ ସତ୍ୟ;
                 }
             }
         }
-        return false;
+        ଫେରନ୍ତୁ ମିଥ୍ୟା;
     }
 
     // Given an operand of an Add, return the term that could be used for conveting to CountOnes
     // Result is a tulpe of (Vertex, Lsb, Width)
-    std::tuple<DfgVertex*, uint32_t, uint32_t> addToCountOnesTerm(DfgVertex* vtxp) {
-        if (DfgConcat* const oCatp = vtxp->cast<DfgConcat>()) {
-            if (isZero(oCatp->lhsp())) {
-                if (DfgCountOnes* const countOnesp = oCatp->rhsp()->cast<DfgCountOnes>()) {
+    std::tuple<DfgVertex*, uint32_t, uint32_t> add_To_ଗଣନା_Ones_Term(DfgVertex* vtxp) {
+        ଯଦି (DfgConcat* ଅଚଳ oCatp = vtxp->cast<DfgConcat>()) {
+            ଯଦି (isZero(oCatp->lhsp())) {
+                ଯଦି (Dfg_ଗଣନା_Ones* ଅଚଳ ଗଣନା_Onesp = oCatp->rhsp()->cast<Dfg_ଗଣନା_Ones>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    ଯଦି (DfgSel* ଅଚଳ selp = ଗଣନା_Onesp->srcp()->cast<DfgSel>()) {
+                        ଫେରନ୍ତୁ {selp->fromp(), selp->lsb(), selp->width()};
                     }
-                } else if (DfgSel* const selp = oCatp->rhsp()->cast<DfgSel>()) {
+                } ଅନ୍ୟଥା ଯଦି (DfgSel* ଅଚଳ selp = oCatp->rhsp()->cast<DfgSel>()) {
                     // Zero extended single bit select
-                    if (selp->dtype() == m_bitDType) {  //
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    ଯଦି (selp->dtype() == m_bitDType) {  //
+                        ଫେରନ୍ତୁ {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
-            return {nullptr, 0, 0};
+            ଫେରନ୍ତୁ {nullptr, 0, 0};
         }
-        if (DfgCountOnes* const countOnesp = vtxp->cast<DfgCountOnes>()) {
+        ଯଦି (Dfg_ଗଣନା_Ones* ଅଚଳ ଗଣନା_Onesp = vtxp->cast<Dfg_ଗଣନା_Ones>()) {
             // Simple count ones
-            if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                return {selp->fromp(), selp->lsb(), selp->width()};
+            ଯଦି (DfgSel* ଅଚଳ selp = ଗଣନା_Onesp->srcp()->cast<DfgSel>()) {
+                ଫେରନ୍ତୁ {selp->fromp(), selp->lsb(), selp->width()};
             }
-            return {nullptr, 0, 0};
+            ଫେରନ୍ତୁ {nullptr, 0, 0};
         }
-        if (DfgSel* const oSelp = vtxp->cast<DfgSel>()) {
-            if (oSelp->lsb() == 0) {
+        ଯଦି (DfgSel* ଅଚଳ oSelp = vtxp->cast<DfgSel>()) {
+            ଯଦି (oSelp->lsb() == 0) {
                 // Truncated count ones
-                if (DfgCountOnes* const countOnesp = oSelp->fromp()->cast<DfgCountOnes>()) {
+                ଯଦି (Dfg_ଗଣନା_Ones* ଅଚଳ ଗଣନା_Onesp = oSelp->fromp()->cast<Dfg_ଗଣନା_Ones>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    ଯଦି (DfgSel* ଅଚଳ selp = ଗଣନା_Onesp->srcp()->cast<DfgSel>()) {
+                        ଫେରନ୍ତୁ {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
             // Single bit select
-            if (oSelp->dtype() == m_bitDType) {  //
-                return {oSelp->fromp(), oSelp->lsb(), 1};
+            ଯଦି (oSelp->dtype() == m_bitDType) {  //
+                ଫେରନ୍ତୁ {oSelp->fromp(), oSelp->lsb(), 1};
             }
-            return {nullptr, 0, 0};
+            ଫେରନ୍ତୁ {nullptr, 0, 0};
         }
         // Altered form of extended MSB
-        if (DfgShiftR* const shiftrp = vtxp->cast<DfgShiftR>()) {
-            if (DfgConst* const rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
-                if (rConstp->toU32() == shiftrp->width() - 1) {
-                    return {shiftrp->lhsp(), shiftrp->width() - 1, 1};
+        ଯଦି (DfgShiftR* ଅଚଳ shiftrp = vtxp->cast<DfgShiftR>()) {
+            ଯଦି (DfgConst* ଅଚଳ rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
+                ଯଦି (rConstp->toU32() == shiftrp->width() - 1) {
+                    ଫେରନ୍ତୁ {shiftrp->lhsp(), shiftrp->width() - 1, 1};
                 }
             }
-            return {nullptr, 0, 0};
+            ଫେରନ୍ତୁ {nullptr, 0, 0};
         }
         // Not applicable
-        return {nullptr, 0, 0};
+        ଫେରନ୍ତୁ {nullptr, 0, 0};
     }
 
     // The following patterns all unwind a Sel throgh it's source and replace it with
     // another single Sel. Doing this one at a time can take a long time with nested
     // concatenations/selects/etc, so instead unwind as much as possible in one go.
     std::pair<DfgVertex*, uint32_t> unwindSel(DfgVertex* fromp, uint32_t lsb,
-                                              const uint32_t width) {
-        while (true) {
-            const uint32_t msb = lsb + width - 1;
+                                              ଅଚଳ uint32_t width) {
+        ଯେତେବେଳେ (ସତ୍ୟ) {
+            ଅଚଳ uint32_t msb = lsb + width - 1;
 
             // Sel from Concat
-            if (DfgConcat* const concatp = fromp->cast<DfgConcat>()) {
-                DfgVertex* const lhsp = concatp->lhsp();
-                DfgVertex* const rhsp = concatp->rhsp();
+            ଯଦି (DfgConcat* ଅଚଳ concatp = fromp->cast<DfgConcat>()) {
+                DfgVertex* ଅଚଳ lhsp = concatp->lhsp();
+                DfgVertex* ଅଚଳ rhsp = concatp->rhsp();
 
-                if (msb < rhsp->width()) {
+                ଯଦି (msb < rhsp->width()) {
                     // If the select is entirely from rhs, then replace with sel from rhs
                     APPLYING(REMOVE_SEL_FROM_RHS_OF_CONCAT) {
                         fromp = rhsp;
-                        continue;
+                        ଜାରି;
                     }
-                } else if (lsb >= rhsp->width()) {
+                } ଅନ୍ୟଥା ଯଦି (lsb >= rhsp->width()) {
                     // If the select is entirely from the lhs, then replace with sel from lhs
                     APPLYING(REMOVE_SEL_FROM_LHS_OF_CONCAT) {
                         fromp = lhsp;
                         lsb -= rhsp->width();
-                        continue;
+                        ଜାରି;
                     }
                 }
             }
 
-            if (DfgRep* const repp = fromp->cast<DfgRep>()) {
+            ଯଦି (DfgRep* ଅଚଳ repp = fromp->cast<DfgRep>()) {
                 // If the Sel is wholly into the source of the Replicate, push the Sel through
                 // the Replicate and apply it directly to the source of the Replicate.
-                const uint32_t srcWidth = repp->srcp()->width();
-                if (width <= srcWidth) {
-                    const uint32_t newLsb = lsb % srcWidth;
-                    const uint32_t newMsb = newLsb + width - 1;
-                    if (newMsb < srcWidth) {
-                        APPLYING(PUSH_SEL_THROUGH_REP) {
+                ଅଚଳ uint32_t srcWidth = repp->srcp()->width();
+                ଯଦି (width <= srcWidth) {
+                    ଅଚଳ uint32_t newLsb = lsb % srcWidth;
+                    ଅଚଳ uint32_t newMsb = newLsb + width - 1;
+                    ଯଦି (newMsb < srcWidth) {
+                        APPLYING(ଠେଲ_SEL_THROUGH_REP) {
                             fromp = repp->srcp();
                             lsb = newLsb;
-                            continue;
+                            ଜାରି;
                         }
                     }
                 }
             }
 
             // Sel from Sel
-            if (DfgSel* const selp = fromp->cast<DfgSel>()) {
+            ଯଦି (DfgSel* ଅଚଳ selp = fromp->cast<DfgSel>()) {
                 APPLYING(REPLACE_SEL_FROM_SEL) {
                     // Select from the source of the source Sel with adjusted LSB
                     fromp = selp->fromp();
                     lsb += selp->lsb();
-                    continue;
+                    ଜାରି;
                 }
             }
 
             // Sel from a partial variable (including narrowed vertex)
-            if (DfgVarPacked* const varp = fromp->cast<DfgVarPacked>()) {
+            ଯଦି (DfgVarPacked* ଅଚଳ varp = fromp->cast<DfgVarPacked>()) {
                 // Find the driver of this range
-                const auto pair = varp->driverOfRange(lsb, width);
-                DfgVertex* const driverp = pair.first;
-                const uint32_t driverLsb = pair.second;
+                ଅଚଳ auto pair = varp->driverOfRange(lsb, width);
+                DfgVertex* ଅଚଳ driverp = pair.first;
+                ଅଚଳ uint32_t driverLsb = pair.second;
                 UASSERT_OBJ(
                     !driverp || driverp != varp->srcp(), varp,
                     "'varp' should be partially driven, otherwise should have been inlined");
-                if (driverp) {
-                    if (driverp == varp->defaultp()) {
-                        APPLYING(PUSH_SEL_THROUGH_DEFAULT) {
+                ଯଦି (driverp) {
+                    ଯଦି (driverp == varp->defaultp()) {
+                        APPLYING(ଠେଲ_SEL_THROUGH_DEFAULT) {
                             fromp = driverp;
                             lsb = driverLsb;
-                            continue;
+                            ଜାରି;
                         }
-                    } else {
-                        APPLYING(PUSH_SEL_THROUGH_SPLICE) {
+                    } ଅନ୍ୟଥା {
+                        APPLYING(ଠେଲ_SEL_THROUGH_SPLICE) {
                             fromp = driverp;
                             lsb = driverLsb;
-                            continue;
+                            ଜାରି;
                         }
                     }
                 }
             }
 
             // No patterns matched, stop
-            break;
+            ଭାଙ୍ଗ;
         }
-        return {fromp, lsb};
+        ଫେରନ୍ତୁ {fromp, lsb};
     }
 
     // Given a pair of vertices, returns a vertex representing the common LSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonLSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        ଯଦି (ap == bp) ଫେରନ୍ତୁ {ap, ap->width()};
 
         // If both constants, check LSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
-                const V3Number& aNum = aConstp->num();
-                const V3Number& bNum = bConstp->num();
+        ଯଦି (DfgConst* ଅଚଳ aConstp = ap->cast<DfgConst>()) {
+            ଯଦି (DfgConst* ଅଚଳ bConstp = bp->cast<DfgConst>()) {
+                ଅଚଳ V3_ସଂଖ୍ୟା& a_ଅଙ୍କ = aConstp->ଅଙ୍କ();
+                ଅଚଳ V3_ସଂଖ୍ୟା& b_ଅଙ୍କ = bConstp->ଅଙ୍କ();
                 // Max match is the shorter constant
-                const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
+                ଅଚଳ uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(matchWidth) != bNum.bitIs0(matchWidth)) break;
+                ପାଇଁ (; matchWidth < maxMatch; ++matchWidth) {
+                    ଯଦି (a_ଅଙ୍କ.bitIs0(matchWidth) != b_ଅଙ୍କ.bitIs0(matchWidth)) ଭାଙ୍ଗ;
                 }
                 // Will always return the shorter constant in case it can be used directly
-                DfgConst* const shorterp = aConstp->width() < bConstp->width() ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                DfgConst* ଅଚଳ shorterp = aConstp->width() < bConstp->width() ? aConstp : bConstp;
+                ଫେରନ୍ତୁ {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the RHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonLSBs(catp->rhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonLSBs(ap, catp->rhsp());
+        ଯଦି (DfgConcat* ଅଚଳ catp = ap->cast<DfgConcat>()) ଫେରନ୍ତୁ commonLSBs(catp->rhsp(), bp);
+        ଯଦି (DfgConcat* ଅଚଳ catp = bp->cast<DfgConcat>()) ଫେରନ୍ତୁ commonLSBs(ap, catp->rhsp());
 
         // If selecting the LSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
-                DfgVertex* const fromp = selp->fromp();
-                const std::pair<DfgVertex*, uint32_t> common = commonLSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+        ଯଦି (DfgSel* ଅଚଳ selp = ap->cast<DfgSel>()) {
+            ଯଦି (selp->lsb() == 0) {
+                DfgVertex* ଅଚଳ fromp = selp->fromp();
+                ଅଚଳ std::pair<DfgVertex*, uint32_t> common = commonLSBs(fromp, bp);
+                ଫେରନ୍ତୁ {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
-                DfgVertex* const fromp = selp->fromp();
-                const std::pair<DfgVertex*, uint32_t> common = commonLSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+        ଯଦି (DfgSel* ଅଚଳ selp = bp->cast<DfgSel>()) {
+            ଯଦି (selp->lsb() == 0) {
+                DfgVertex* ଅଚଳ fromp = selp->fromp();
+                ଅଚଳ std::pair<DfgVertex*, uint32_t> common = commonLSBs(ap, fromp);
+                ଫେରନ୍ତୁ {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common LSBs
-        return {nullptr, 0};
+        ଫେରନ୍ତୁ {nullptr, 0};
     }
 
     // Given a pair of vertices, returns a vertex representing the common MSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonMSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        ଯଦି (ap == bp) ଫେରନ୍ତୁ {ap, ap->width()};
 
         // If both constants, check MSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
-                const uint32_t aMsb = aConstp->width() - 1;
-                const uint32_t bMsb = bConstp->width() - 1;
-                const V3Number& aNum = aConstp->num();
-                const V3Number& bNum = bConstp->num();
+        ଯଦି (DfgConst* ଅଚଳ aConstp = ap->cast<DfgConst>()) {
+            ଯଦି (DfgConst* ଅଚଳ bConstp = bp->cast<DfgConst>()) {
+                ଅଚଳ uint32_t aMsb = aConstp->width() - 1;
+                ଅଚଳ uint32_t bMsb = bConstp->width() - 1;
+                ଅଚଳ V3_ସଂଖ୍ୟା& a_ଅଙ୍କ = aConstp->ଅଙ୍କ();
+                ଅଚଳ V3_ସଂଖ୍ୟା& b_ଅଙ୍କ = bConstp->ଅଙ୍କ();
                 // Max match is the shorter constant
-                const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
+                ଅଚଳ uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(aMsb - matchWidth) != bNum.bitIs0(bMsb - matchWidth)) break;
+                ପାଇଁ (; matchWidth < maxMatch; ++matchWidth) {
+                    ଯଦି (a_ଅଙ୍କ.bitIs0(aMsb - matchWidth) != b_ଅଙ୍କ.bitIs0(bMsb - matchWidth)) ଭାଙ୍ଗ;
                 }
                 // Will always return the shorter constant in case it can be used directly
-                DfgConst* const shorterp = aMsb < bMsb ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                DfgConst* ଅଚଳ shorterp = aMsb < bMsb ? aConstp : bConstp;
+                ଫେରନ୍ତୁ {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the LHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonMSBs(catp->lhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonMSBs(ap, catp->lhsp());
+        ଯଦି (DfgConcat* ଅଚଳ catp = ap->cast<DfgConcat>()) ଫେରନ୍ତୁ commonMSBs(catp->lhsp(), bp);
+        ଯଦି (DfgConcat* ଅଚଳ catp = bp->cast<DfgConcat>()) ଫେରନ୍ତୁ commonMSBs(ap, catp->lhsp());
 
         // If selecting the MSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
-            DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
-                const std::pair<DfgVertex*, uint32_t> common = commonMSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+        ଯଦି (DfgSel* ଅଚଳ selp = ap->cast<DfgSel>()) {
+            DfgVertex* ଅଚଳ fromp = selp->fromp();
+            ଯଦି (selp->msb() == fromp->width() - 1) {
+                ଅଚଳ std::pair<DfgVertex*, uint32_t> common = commonMSBs(fromp, bp);
+                ଫେରନ୍ତୁ {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
-            DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
-                const std::pair<DfgVertex*, uint32_t> common = commonMSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+        ଯଦି (DfgSel* ଅଚଳ selp = bp->cast<DfgSel>()) {
+            DfgVertex* ଅଚଳ fromp = selp->fromp();
+            ଯଦି (selp->msb() == fromp->width() - 1) {
+                ଅଚଳ std::pair<DfgVertex*, uint32_t> common = commonMSBs(ap, fromp);
+                ଫେରନ୍ତୁ {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common MSBs
-        return {nullptr, 0};
+        ଫେରନ୍ତୁ {nullptr, 0};
     }
 
     // VISIT methods
 
-    void visit(DfgVertex*) override {}
+    ଶୂନ୍ୟ visit(DfgVertex*) override {}
 
     //=========================================================================
     //  DfgVertexUnary
     //=========================================================================
 
-    void visit(DfgCountOnes* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(Dfg_ଗଣନା_Ones* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgExtend* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgExtend* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
 
         // Convert all Extend into Concat with zeros. This simplifies other patterns as they
         // only need to handle Concat, which is more generic, and don't need special cases for
         // Extend.
         APPLYING(REPLACE_EXTEND) {
-            DfgVertex* const zerop
+            DfgVertex* ଅଚଳ zerop
                 = makeZero(vtxp->fileline(), vtxp->width() - vtxp->srcp()->width());
             replace(make<DfgConcat>(vtxp, zerop, vtxp->srcp()));
-            return;
+            ଫେରନ୍ତୁ;
         }
     }
 
-    void visit(DfgExtendS* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgExtendS* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgLogNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLogNot* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgNegate* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgNegate* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgNot* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
 
         // Not of Cond
-        if (DfgCond* const condp = vtxp->srcp()->cast<DfgCond>()) {
+        ଯଦି (DfgCond* ଅଚଳ condp = vtxp->srcp()->cast<DfgCond>()) {
             // If at least one of the branches are a constant, push the Not past the Cond
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
-                APPLYING(PUSH_NOT_THROUGH_COND) {
+            ଯଦି (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+                APPLYING(ଠେଲ_NOT_THROUGH_COND) {
                     // The new 'then' vertex
-                    DfgNot* const newThenp = make<DfgNot>(vtxp, condp->thenp());
+                    DfgNot* ଅଚଳ newThenp = make<DfgNot>(vtxp, condp->thenp());
 
                     // The new 'else' vertex
-                    DfgNot* const newElsep = make<DfgNot>(vtxp, condp->elsep());
+                    DfgNot* ଅଚଳ newElsep = make<DfgNot>(vtxp, condp->elsep());
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
+                    DfgCond* ଅଚଳ newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
         // Not of Not
-        if (DfgNot* const notp = vtxp->srcp()->cast<DfgNot>()) {
+        ଯଦି (DfgNot* ଅଚଳ notp = vtxp->srcp()->cast<DfgNot>()) {
             APPLYING(REMOVE_NOT_NOT) {
                 replace(notp->srcp());
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (!vtxp->srcp()->hasMultipleSinks()) {
+        ଯଦି (!vtxp->srcp()->hasMultipleSinks()) {
             // Not of Eq
-            if (DfgEq* const eqp = vtxp->srcp()->cast<DfgEq>()) {
+            ଯଦି (DfgEq* ଅଚଳ eqp = vtxp->srcp()->cast<DfgEq>()) {
                 APPLYING(REPLACE_NOT_EQ) {
                     replace(
                         make<DfgNeq>(eqp->fileline(), vtxp->dtype(), eqp->lhsp(), eqp->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
             // Not of Neq
-            if (DfgNeq* const neqp = vtxp->srcp()->cast<DfgNeq>()) {
+            ଯଦି (DfgNeq* ଅଚଳ neqp = vtxp->srcp()->cast<DfgNeq>()) {
                 APPLYING(REPLACE_NOT_NEQ) {
                     replace(
                         make<DfgEq>(neqp->fileline(), vtxp->dtype(), neqp->lhsp(), neqp->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
             // Not of unsigned comparisons
-            if (DfgLt* const p = vtxp->srcp()->cast<DfgLt>()) {
+            ଯଦି (DfgLt* ଅଚଳ p = vtxp->srcp()->cast<DfgLt>()) {
                 APPLYING(REPLACE_NOT_LT) {
                     replace(make<DfgGte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgGte* const p = vtxp->srcp()->cast<DfgGte>()) {
+            ଯଦି (DfgGte* ଅଚଳ p = vtxp->srcp()->cast<DfgGte>()) {
                 APPLYING(REPLACE_NOT_GTE) {
                     replace(make<DfgLt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgGt* const p = vtxp->srcp()->cast<DfgGt>()) {
+            ଯଦି (DfgGt* ଅଚଳ p = vtxp->srcp()->cast<DfgGt>()) {
                 APPLYING(REPLACE_NOT_GT) {
                     replace(make<DfgLte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgLte* const p = vtxp->srcp()->cast<DfgLte>()) {
+            ଯଦି (DfgLte* ଅଚଳ p = vtxp->srcp()->cast<DfgLte>()) {
                 APPLYING(REPLACE_NOT_LTE) {
                     replace(make<DfgGt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
             // Not of signed comparisons
-            if (DfgLtS* const p = vtxp->srcp()->cast<DfgLtS>()) {
+            ଯଦି (DfgLtS* ଅଚଳ p = vtxp->srcp()->cast<DfgLtS>()) {
                 APPLYING(REPLACE_NOT_LTS) {
                     replace(make<DfgGteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgGteS* const p = vtxp->srcp()->cast<DfgGteS>()) {
+            ଯଦି (DfgGteS* ଅଚଳ p = vtxp->srcp()->cast<DfgGteS>()) {
                 APPLYING(REPLACE_NOT_GTES) {
                     replace(make<DfgLtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgGtS* const p = vtxp->srcp()->cast<DfgGtS>()) {
+            ଯଦି (DfgGtS* ଅଚଳ p = vtxp->srcp()->cast<DfgGtS>()) {
                 APPLYING(REPLACE_NOT_GTS) {
                     replace(make<DfgLteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgLteS* const p = vtxp->srcp()->cast<DfgLteS>()) {
+            ଯଦି (DfgLteS* ଅଚଳ p = vtxp->srcp()->cast<DfgLteS>()) {
                 APPLYING(REPLACE_NOT_LTES) {
                     replace(make<DfgGtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgOneHot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgOneHot* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgOneHot0* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgOneHot0* ଅଚଳ vtxp) override {
+        ଯଦି (foldUnary(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgRedOr* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgRedOr* ଅଚଳ vtxp) override {
+        ଯଦି (optimizeReduction(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgRedAnd* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgRedAnd* ଅଚଳ vtxp) override {
+        ଯଦି (optimizeReduction(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgRedXor* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgRedXor* ଅଚଳ vtxp) override {
+        ଯଦି (optimizeReduction(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgSel* const vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
+    ଶୂନ୍ୟ visit(DfgSel* ଅଚଳ vtxp) override {
+        DfgVertex* ଅଚଳ fromp = vtxp->fromp();
 
-        FileLine* const flp = vtxp->fileline();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        const uint32_t lsb = vtxp->lsb();
-        const uint32_t width = vtxp->width();
-        const uint32_t msb = lsb + width - 1;
+        ଅଚଳ uint32_t lsb = vtxp->lsb();
+        ଅଚଳ uint32_t width = vtxp->width();
+        ଅଚଳ uint32_t msb = lsb + width - 1;
 
-        if (DfgConst* const constp = fromp->cast<DfgConst>()) {
+        ଯଦି (DfgConst* ଅଚଳ constp = fromp->cast<DfgConst>()) {
             APPLYING(FOLD_SEL) {
-                DfgConst* const resp = makeZero(flp, width);
-                resp->num().opSel(constp->num(), msb, lsb);
+                DfgConst* ଅଚଳ resp = makeZero(flp, width);
+                resp->ଅଙ୍କ().opSel(constp->ଅଙ୍କ(), msb, lsb);
                 replace(resp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
         // Full width select, replace with the source.
-        if (fromp->width() == width) {
+        ଯଦି (fromp->width() == width) {
             UASSERT_OBJ(lsb == 0, fromp, "Out of range select should have been fixed up earlier");
             APPLYING(REMOVE_FULL_WIDTH_SEL) {
                 replace(fromp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
         // Unwind through bit packing in one go
         {
-            const auto res = unwindSel(fromp, lsb, width);
-            if (res.first != fromp || res.second != lsb) {
+            ଅଚଳ auto res = unwindSel(fromp, lsb, width);
+            ଯଦି (res.first != fromp || res.second != lsb) {
                 replace(make<DfgSel>(vtxp, res.first, res.second));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
         // Sel from Not
-        if (DfgNot* const notp = fromp->cast<DfgNot>()) {
+        ଯଦି (DfgNot* ଅଚଳ notp = fromp->cast<DfgNot>()) {
             // Replace "Sel from Not" with "Not of Sel"
-            if (!notp->hasMultipleSinks()) {
-                APPLYING(PUSH_SEL_THROUGH_NOT) {
+            ଯଦି (!notp->hasMultipleSinks()) {
+                APPLYING(ଠେଲ_SEL_THROUGH_NOT) {
                     // Make Sel select from source of Not
-                    DfgSel* const newSelp = make<DfgSel>(vtxp, notp->srcp(), vtxp->lsb());
+                    DfgSel* ଅଚଳ newSelp = make<DfgSel>(vtxp, notp->srcp(), vtxp->lsb());
                     // Add Not after Sel
                     replace(make<DfgNot>(notp->fileline(), vtxp->dtype(), newSelp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
         // Sel from Cond
-        if (DfgCond* const condp = fromp->cast<DfgCond>()) {
-            if (!condp->hasMultipleSinks()) {
-                APPLYING(PUSH_SEL_THROUGH_COND) {
+        ଯଦି (DfgCond* ଅଚଳ condp = fromp->cast<DfgCond>()) {
+            ଯଦି (!condp->hasMultipleSinks()) {
+                APPLYING(ଠେଲ_SEL_THROUGH_COND) {
                     // The new 'then' vertex
-                    DfgSel* const newThenp = make<DfgSel>(vtxp, condp->thenp(), lsb);
+                    DfgSel* ଅଚଳ newThenp = make<DfgSel>(vtxp, condp->thenp(), lsb);
 
                     // The new 'else' vertex
-                    DfgSel* const newElsep = make<DfgSel>(vtxp, condp->elsep(), lsb);
+                    DfgSel* ଅଚଳ newElsep = make<DfgSel>(vtxp, condp->elsep(), lsb);
 
                     // The replacement Cond vertex
-                    DfgCond* const newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
+                    DfgCond* ଅଚଳ newCondp = make<DfgCond>(condp->fileline(), vtxp->dtype(),
                                                             condp->condp(), newThenp, newElsep);
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
         // Sel from ShiftL
-        if (DfgShiftL* const shiftLp = fromp->cast<DfgShiftL>()) {
+        ଯଦି (DfgShiftL* ଅଚଳ shiftLp = fromp->cast<DfgShiftL>()) {
             // If selecting bottom bits of left shift, push the Sel before the shift
-            if (lsb == 0) {
+            ଯଦି (lsb == 0) {
                 UASSERT_OBJ(shiftLp->lhsp()->width() >= width, vtxp, "input of shift narrow");
-                APPLYING(PUSH_SEL_THROUGH_SHIFTL) {
-                    DfgSel* const newSelp = make<DfgSel>(vtxp, shiftLp->lhsp(), vtxp->lsb());
+                APPLYING(ଠେଲ_SEL_THROUGH_SHIFTL) {
+                    DfgSel* ଅଚଳ newSelp = make<DfgSel>(vtxp, shiftLp->lhsp(), vtxp->lsb());
                     replace(make<DfgShiftL>(vtxp, newSelp, shiftLp->rhsp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgMux* const vtxp) override {
-        DfgVertex* const fromp = vtxp->fromp();
-        DfgVertex* const lsbp = vtxp->lsbp();
-        FileLine* const flp = vtxp->fileline();
+    ଶୂନ୍ୟ visit(DfgMux* ଅଚଳ vtxp) override {
+        DfgVertex* ଅଚଳ fromp = vtxp->fromp();
+        DfgVertex* ଅଚଳ lsbp = vtxp->lsbp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (DfgConst* const lsbConstp = lsbp->cast<DfgConst>()) {
+        ଯଦି (DfgConst* ଅଚଳ lsbConstp = lsbp->cast<DfgConst>()) {
             APPLYING(REPLACE_MUX_WITH_SEL) {
-                replace(make<DfgSel>(vtxp, fromp, lsbConstp->num().toUInt()));
-                return;
+                replace(make<DfgSel>(vtxp, fromp, lsbConstp->ଅଙ୍କ().toUInt()));
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isZero(fromp)) {
+        ଯଦି (isZero(fromp)) {
             APPLYING(FOLD_MUX_FROM_ZERO) {
                 replace(makeZero(flp, vtxp->width()));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isOnes(fromp)) {
+        ଯଦି (isOnes(fromp)) {
             APPLYING(FOLD_MUX_FROM_ONES) {
                 replace(makeOnes(flp, vtxp->width()));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
@@ -1790,252 +1790,252 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexBinary - bitwise
     //=========================================================================
 
-    void visit(DfgAnd* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgAnd* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        ଯଦି (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            ଯଦି (DfgNot* ଅଚଳ lhsNotp = lhsp->cast<DfgNot>()) {
+                ଯଦି (DfgNot* ଅଚଳ rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NOT) {
-                        DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
+                        DfgOr* ଅଚଳ orp = make<DfgOr>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                ଯଦି (DfgNeq* ଅଚଳ rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NEQ) {
-                        DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
-                        DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), newRhsp);
+                        DfgEq* ଅଚଳ newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
+                        DfgOr* ଅଚଳ orp = make<DfgOr>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (lConstp->isZero()) {
                 APPLYING(REPLACE_AND_WITH_ZERO) {
                     replace(lConstp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            ଯଦି (lConstp->isOnes()) {
                 APPLYING(REMOVE_AND_WITH_ONES) {
                     replace(rhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            ଯଦି (DfgConcat* ଅଚଳ rhsConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Concat(vtxp, lConstp, rhsConcatp)) ଫେରନ୍ତୁ;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgOr, DfgAnd>(vtxp)) return;
+        ଯଦି (distributive_And_Associative_ଦ୍ୱିମିକ<DfgOr, DfgAnd>(vtxp)) ଫେରନ୍ତୁ;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Reductions(vtxp)) ଫେରନ୍ତୁ;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Throug_Sel(vtxp)) ଫେରନ୍ତୁ;
 
         {
-            DfgNot* const lNotp = lhsp->cast<DfgNot>();
-            DfgNot* const rNotp = rhsp->cast<DfgNot>();
+            DfgNot* ଅଚଳ lNotp = lhsp->cast<DfgNot>();
+            DfgNot* ଅଚଳ rNotp = rhsp->cast<DfgNot>();
             // ~A & A is all zeroes
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            ଯଦି ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_CONTRADICTORY_AND) {
                     replace(makeZero(flp, vtxp->width()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgAnd* const rSamep = rhsp->cast<DfgAnd>()) {
-                DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
-                DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
+            ଯଦି (DfgAnd* ଅଚଳ rSamep = rhsp->cast<DfgAnd>()) {
+                DfgNot* ଅଚଳ rlNotp = rSamep->lhsp()->cast<DfgNot>();
+                DfgNot* ଅଚଳ rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A & (A & _) or ~A & (_ & A) is all zeroes
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                ଯଦି ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_CONTRADICTORY_AND_3) {
                         replace(makeZero(flp, vtxp->width()));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        ଯଦି (vtxp->dtype() == m_bitDType) {
+            ଯଦି (tryReplaceBitwiseWithReduction(vtxp)) ଫେରନ୍ତୁ;
         }
 
         {
             DfgRep* repp = lhsp->cast<DfgRep>();
             DfgCond* condp = rhsp->cast<DfgCond>();
-            if (!repp && !condp) {
+            ଯଦି (!repp && !condp) {
                 repp = rhsp->cast<DfgRep>();
                 condp = lhsp->cast<DfgCond>();
             }
-            if (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
+            ଯଦି (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
                 && isZero(condp->elsep())) {
                 APPLYING(REPLACE_AND_REP_COND_ELSE_ZERO) {
-                    DfgAnd* const newCondp
+                    DfgAnd* ଅଚଳ newCondp
                         = make<DfgAnd>(condp->condp(), repp->srcp(), condp->condp());
                     replace(make<DfgCond>(condp, newCondp, condp->thenp(), condp->elsep()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgOr* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgOr* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        ଯଦି (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            ଯଦି (DfgNot* ଅଚଳ lhsNotp = lhsp->cast<DfgNot>()) {
+                ଯଦି (DfgNot* ଅଚଳ rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NOT) {
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
+                        DfgAnd* ଅଚଳ andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                ଯଦି (DfgNeq* ଅଚଳ rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NEQ) {
-                        DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), newRhsp);
+                        DfgEq* ଅଚଳ newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
+                        DfgAnd* ଅଚଳ andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgConcat* const lhsConcatp = lhsp->cast<DfgConcat>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
-                    if (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
+        ଯଦି (DfgConcat* ଅଚଳ lhsConcatp = lhsp->cast<DfgConcat>()) {
+            ଯଦି (DfgConcat* ଅଚଳ rhsConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
+                    ଯଦି (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_ZERO_LHS_AND_CONCAT_RHS_ZERO) {
                             replace(make<DfgConcat>(vtxp, rhsConcatp->lhsp(), lhsConcatp->rhsp()));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
-                    if (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
+                    ଯଦି (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_LHS_ZERO_AND_CONCAT_ZERO_RHS) {
                             replace(make<DfgConcat>(vtxp, lhsConcatp->lhsp(), rhsConcatp->rhsp()));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (lConstp->isZero()) {
                 APPLYING(REMOVE_OR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            ଯଦି (lConstp->isOnes()) {
                 APPLYING(REPLACE_OR_WITH_ONES) {
                     replace(lhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            ଯଦି (DfgConcat* ଅଚଳ rhsConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Concat(vtxp, lConstp, rhsConcatp)) ଫେରନ୍ତୁ;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgAnd, DfgOr>(vtxp)) return;
+        ଯଦି (distributive_And_Associative_ଦ୍ୱିମିକ<DfgAnd, DfgOr>(vtxp)) ଫେରନ୍ତୁ;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Reductions(vtxp)) ଫେରନ୍ତୁ;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Throug_Sel(vtxp)) ଫେରନ୍ତୁ;
 
         {
-            DfgNot* const lNotp = lhsp->cast<DfgNot>();
-            DfgNot* const rNotp = rhsp->cast<DfgNot>();
+            DfgNot* ଅଚଳ lNotp = lhsp->cast<DfgNot>();
+            DfgNot* ଅଚଳ rNotp = rhsp->cast<DfgNot>();
             // ~A | A is all ones
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            ଯଦି ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_TAUTOLOGICAL_OR) {
                     replace(makeOnes(flp, vtxp->width()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgOr* const rSamep = rhsp->cast<DfgOr>()) {
-                DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
-                DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
+            ଯଦି (DfgOr* ଅଚଳ rSamep = rhsp->cast<DfgOr>()) {
+                DfgNot* ଅଚଳ rlNotp = rSamep->lhsp()->cast<DfgNot>();
+                DfgNot* ଅଚଳ rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A | (A | _) or ~A | (_ | A) is all ones
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                ଯଦି ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_TAUTOLOGICAL_OR_3) {
                         replace(makeOnes(flp, vtxp->width()));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        ଯଦି (vtxp->dtype() == m_bitDType) {
+            ଯଦି (tryReplaceBitwiseWithReduction(vtxp)) ଫେରନ୍ତୁ;
         }
     }
 
-    void visit(DfgXor* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgXor* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_XOR_WITH_SELF) {
                 replace(makeZero(vtxp->fileline(), vtxp->width()));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (lConstp->isZero()) {
                 APPLYING(REMOVE_XOR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (lConstp->isOnes()) {
+            ଯଦି (lConstp->isOnes()) {
                 APPLYING(REPLACE_XOR_WITH_ONES) {
                     replace(make<DfgNot>(vtxp, rhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rConcatp)) return;
+            ଯଦି (DfgConcat* ଅଚଳ rConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Concat(vtxp, lConstp, rConcatp)) ଫେରନ୍ତୁ;
             }
         }
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Through_Reductions(vtxp)) ଫେରନ୍ତୁ;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        ଯଦି (try_ଠେଲ_Bitwise_Op_Throug_Sel(vtxp)) ଫେରନ୍ତୁ;
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        ଯଦି (vtxp->dtype() == m_bitDType) {
+            ଯଦି (tryReplaceBitwiseWithReduction(vtxp)) ଫେରନ୍ତୁ;
         }
     }
 
@@ -2043,62 +2043,62 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexBinary - other
     //=========================================================================
 
-    void visit(DfgAdd* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgAdd* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
+        ଯଦି (isZero(lhsp)) {
             APPLYING(REMOVE_ADD_ZERO) {
                 replace(rhsp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        const std::tuple<DfgVertex*, uint32_t, uint32_t> lTerm = addToCountOnesTerm(lhsp);
-        if (DfgVertex* const lVtxp = std::get<0>(lTerm)) {
-            std::tuple<DfgVertex*, uint32_t, uint32_t> rTerm = addToCountOnesTerm(rhsp);
+        ଅଚଳ std::tuple<DfgVertex*, uint32_t, uint32_t> lTerm = add_To_ଗଣନା_Ones_Term(lhsp);
+        ଯଦି (DfgVertex* ଅଚଳ lVtxp = std::get<0>(lTerm)) {
+            std::tuple<DfgVertex*, uint32_t, uint32_t> rTerm = add_To_ଗଣନା_Ones_Term(rhsp);
             DfgVertex* extrap = nullptr;
-            if (!std::get<0>(rTerm)) {
-                if (DfgAdd* const rAddp = rhsp->cast<DfgAdd>()) {
-                    rTerm = addToCountOnesTerm(rAddp->lhsp());
+            ଯଦି (!std::get<0>(rTerm)) {
+                ଯଦି (DfgAdd* ଅଚଳ rAddp = rhsp->cast<DfgAdd>()) {
+                    rTerm = add_To_ଗଣନା_Ones_Term(rAddp->lhsp());
                     extrap = rAddp->rhsp();
                 }
             }
 
-            if (DfgVertex* const rVtxp = std::get<0>(rTerm)) {
-                if (isSame(lVtxp, rVtxp)) {
-                    const uint32_t lLsb = std::get<1>(lTerm);
-                    const uint32_t rLsb = std::get<1>(rTerm);
-                    const uint32_t lWidth = std::get<2>(lTerm);
-                    const uint32_t rWidth = std::get<2>(rTerm);
-                    bool adjoined = true;
+            ଯଦି (DfgVertex* ଅଚଳ rVtxp = std::get<0>(rTerm)) {
+                ଯଦି (isSame(lVtxp, rVtxp)) {
+                    ଅଚଳ uint32_t lLsb = std::get<1>(lTerm);
+                    ଅଚଳ uint32_t rLsb = std::get<1>(rTerm);
+                    ଅଚଳ uint32_t lWidth = std::get<2>(lTerm);
+                    ଅଚଳ uint32_t rWidth = std::get<2>(rTerm);
+                    ତାର୍କିକ adjoined = ସତ୍ୟ;
                     uint32_t lsb = 0;
-                    if (lLsb + lWidth == rLsb) {
+                    ଯଦି (lLsb + lWidth == rLsb) {
                         lsb = lLsb;
-                    } else if (lLsb == rLsb + rWidth) {
+                    } ଅନ୍ୟଥା ଯଦି (lLsb == rLsb + rWidth) {
                         lsb = rLsb;
-                    } else {
-                        adjoined = false;
+                    } ଅନ୍ୟଥା {
+                        adjoined = ମିଥ୍ୟା;
                     }
-                    if (adjoined) {
-                        APPLYING(REPLACE_ADD_WITH_COUNT_ONES) {
-                            DfgSel* const selp
+                    ଯଦି (adjoined) {
+                        APPLYING(REPLACE_ADD_WITH_ଗଣନା_ONES) {
+                            DfgSel* ଅଚଳ selp
                                 = make<DfgSel>(vtxp->fileline(),
                                                DfgDataType::packed(lWidth + rWidth), lVtxp, lsb);
                             DfgVertex* resp
-                                = make<DfgCountOnes>(flp, DfgDataType::packed(32), selp);
-                            if (vtxp->width() > 32U) {
+                                = make<Dfg_ଗଣନା_Ones>(flp, DfgDataType::packed(32), selp);
+                            ଯଦି (vtxp->width() > 32U) {
                                 resp = make<DfgConcat>(vtxp, makeZero(flp, vtxp->width() - 32U),
                                                        resp);
-                            } else if (vtxp->width() < 32U) {
+                            } ଅନ୍ୟଥା ଯଦି (vtxp->width() < 32U) {
                                 resp = make<DfgSel>(vtxp, resp, 0U);
                             }
-                            if (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
+                            ଯଦି (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
                             replace(resp);
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
@@ -2106,152 +2106,152 @@ class V3DfgPeephole final : public DfgVisitor {
         }
     }
 
-    void visit(DfgArraySel* const vtxp) override {
-        DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>();
-        if (!idxp) return;
-        DfgVarArray* const varp = vtxp->fromp()->cast<DfgVarArray>();
-        if (!varp) return;
-        AstVar* const astVarp = varp->vscp()->varp();
-        if (astVarp->isForced()) return;
-        if (astVarp->isSigUserRWPublic()) return;
-        DfgVertex* const srcp = varp->srcp();
-        if (!srcp) {
-            if (vtxp->isPacked()) {
-                if (AstConsArray* const iap = VN_CAST(astVarp->valuep(), ConsArray)) {
-                    if (AstConst* const valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
+    ଶୂନ୍ୟ visit(DfgArraySel* ଅଚଳ vtxp) override {
+        DfgConst* ଅଚଳ idxp = vtxp->bitp()->cast<DfgConst>();
+        ଯଦି (!idxp) ଫେରନ୍ତୁ;
+        DfgVarArray* ଅଚଳ varp = vtxp->fromp()->cast<DfgVarArray>();
+        ଯଦି (!varp) ଫେରନ୍ତୁ;
+        AstVar* ଅଚଳ astVarp = varp->vscp()->varp();
+        ଯଦି (astVarp->isForced()) ଫେରନ୍ତୁ;
+        ଯଦି (astVarp->isSigUserRWPublic()) ଫେରନ୍ତୁ;
+        DfgVertex* ଅଚଳ srcp = varp->srcp();
+        ଯଦି (!srcp) {
+            ଯଦି (vtxp->isPacked()) {
+                ଯଦି (AstConsArray* ଅଚଳ iap = VN_CAST(astVarp->valuep(), ConsArray)) {
+                    ଯଦି (AstConst* ଅଚଳ valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
                         APPLYING(FOLD_ARRAYSEL_TABLE) {
-                            replace(new DfgConst{m_dfg, valp->fileline(), valp->num()});
-                            return;
+                            replace(ନୂତନ DfgConst{m_dfg, valp->fileline(), valp->ଅଙ୍କ()});
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
             }
-            return;
+            ଫେରନ୍ତୁ;
         }
 
-        if (DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
-            DfgVertex* const driverp = splicep->driverAt(idxp->toSizeT());
-            if (!driverp) return;
-            DfgUnitArray* const uap = driverp->cast<DfgUnitArray>();
-            if (!uap) return;
-            if (uap->srcp()->is<DfgVertexSplice>()) return;
+        ଯଦି (DfgSpliceArray* ଅଚଳ splicep = srcp->cast<DfgSpliceArray>()) {
+            DfgVertex* ଅଚଳ driverp = splicep->driverAt(idxp->toSizeT());
+            ଯଦି (!driverp) ଫେରନ୍ତୁ;
+            DfgUnitArray* ଅଚଳ uap = driverp->cast<DfgUnitArray>();
+            ଯଦି (!uap) ଫେରନ୍ତୁ;
+            ଯଦି (uap->srcp()->is<DfgVertexSplice>()) ଫେରନ୍ତୁ;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            ଯଦି (DfgVertexVar* ଅଚଳ dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                ଯଦି (dvarp->srcp()) ଫେରନ୍ତୁ;
             }
             APPLYING(INLINE_ARRAYSEL_SPLICE) {
                 replace(uap->srcp());
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgUnitArray* const uap = srcp->cast<DfgUnitArray>()) {
+        ଯଦି (DfgUnitArray* ଅଚଳ uap = srcp->cast<DfgUnitArray>()) {
             UASSERT_OBJ(idxp->toSizeT() == 0, vtxp, "Array index out of range");
-            if (uap->srcp()->is<DfgSplicePacked>()) return;
+            ଯଦି (uap->srcp()->is<DfgSplicePacked>()) ଫେରନ୍ତୁ;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            ଯଦି (DfgVertexVar* ଅଚଳ dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                ଯଦି (dvarp->srcp()) ଫେରନ୍ତୁ;
             }
             APPLYING(INLINE_ARRAYSEL_UNIT) {
                 replace(uap->srcp());
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgConcat* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgConcat* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        FileLine* const flp = vtxp->fileline();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
-            DfgConst* const lConstp = lhsp->as<DfgConst>();
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
-                    APPLYING(REPLACE_CONCAT_ZERO_AND_SEL_TOP_WITH_SHIFTR) {
+        ଯଦି (isZero(lhsp)) {
+            DfgConst* ଅଚଳ lConstp = lhsp->as<DfgConst>();
+            ଯଦି (DfgSel* ଅଚଳ rSelp = rhsp->cast<DfgSel>()) {
+                ଯଦି (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
+                    APPLYING(REPLACE_CONCAT_ZERO_AND_SEL_ଶୀର୍ଷ_WITH_SHIFTR) {
                         replace(
                             make<DfgShiftR>(vtxp, rSelp->fromp(), makeI32(flp, lConstp->width())));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (isZero(rhsp)) {
-            DfgConst* const rConstp = rhsp->as<DfgConst>();
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
+        ଯଦି (isZero(rhsp)) {
+            DfgConst* ଅଚଳ rConstp = rhsp->as<DfgConst>();
+            ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
+                ଯଦି (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
                     APPLYING(REPLACE_CONCAT_SEL_BOTTOM_AND_ZERO_WITH_SHIFTL) {
                         replace(
                             make<DfgShiftL>(vtxp, lSelp->fromp(), makeI32(flp, rConstp->width())));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgNot* const lNot = lhsp->cast<DfgNot>()) {
-            if (DfgNot* const rNot = rhsp->cast<DfgNot>()) {
-                if (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
-                    APPLYING(PUSH_CONCAT_THROUGH_NOTS) {
-                        DfgConcat* const newCatp
+        ଯଦି (DfgNot* ଅଚଳ lNot = lhsp->cast<DfgNot>()) {
+            ଯଦି (DfgNot* ଅଚଳ rNot = rhsp->cast<DfgNot>()) {
+                ଯଦି (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
+                    APPLYING(ଠେଲ_CONCAT_THROUGH_NOTS) {
+                        DfgConcat* ଅଚଳ newCatp
                             = make<DfgConcat>(vtxp, lNot->srcp(), rNot->srcp());
                         replace(make<DfgNot>(vtxp, newCatp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
         {
-            bool swap = false;
-            if (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
-                APPLYING(PUSH_CONCAT_THROUGH_BITWISE) {
+            ତାର୍କିକ swap = ମିଥ୍ୟା;
+            ଯଦି (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
+                APPLYING(ଠେଲ_CONCAT_THROUGH_BITWISE) {
                     replace(makeConcatPushedThroughBitwise(flp, lhsp, rhsp, swap));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                DfgVertex* const rlp = rConcatp->lhsp();
-                if (!rConcatp->hasMultipleSinks()
+            ଯଦି (DfgConcat* ଅଚଳ rConcatp = rhsp->cast<DfgConcat>()) {
+                DfgVertex* ଅଚଳ rlp = rConcatp->lhsp();
+                ଯଦି (!rConcatp->hasMultipleSinks()
                     && isConcatPushableThroughBitwise(lhsp, rlp, swap)) {
-                    APPLYING(PUSH_NESTED_CONCAT_THROUGH_BITWISE_ON_LHS) {
-                        DfgVertex* const newp
+                    APPLYING(ଠେଲ_NESTED_CONCAT_THROUGH_BITWISE_ON_LHS) {
+                        DfgVertex* ଅଚଳ newp
                             = makeConcatPushedThroughBitwise(flp, lhsp, rlp, swap);
                         replace(make<DfgConcat>(vtxp, newp, rConcatp->rhsp()));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (isSame(lSelp->fromp(), rSelp->fromp())) {
-                    if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
+            ଯଦି (DfgSel* ଅଚଳ rSelp = rhsp->cast<DfgSel>()) {
+                ଯଦି (isSame(lSelp->fromp(), rSelp->fromp())) {
+                    ଯଦି (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                         APPLYING(REMOVE_CONCAT_OF_ADJOINING_SELS) {
                             replace(make<DfgSel>(vtxp, rSelp->fromp(), rSelp->lsb()));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
             }
 
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgSel* const rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
-                    if (isSame(lSelp->fromp(), rlSelp->fromp())) {
-                        if (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
+            ଯଦି (DfgConcat* ଅଚଳ rConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (DfgSel* ଅଚଳ rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
+                    ଯଦି (isSame(lSelp->fromp(), rlSelp->fromp())) {
+                        ଯଦି (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_LHS) {
-                                const uint32_t width = lSelp->width() + rlSelp->width();
-                                const DfgDataType& dtype = DfgDataType::packed(width);
-                                DfgSel* const selp
+                                ଅଚଳ uint32_t width = lSelp->width() + rlSelp->width();
+                                ଅଚଳ DfgDataType& dtype = DfgDataType::packed(width);
+                                DfgSel* ଅଚଳ selp
                                     = make<DfgSel>(flp, dtype, rlSelp->fromp(), rlSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, selp, rConcatp->rhsp()));
-                                return;
+                                ଫେରନ୍ତୁ;
                             }
                         }
                     }
@@ -2259,18 +2259,18 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (DfgSel* const lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
-                    if (isSame(lrSelp->fromp(), rSelp->fromp())) {
-                        if (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        ଯଦି (DfgSel* ଅଚଳ rSelp = rhsp->cast<DfgSel>()) {
+            ଯଦି (DfgConcat* ଅଚଳ lConcatp = lhsp->cast<DfgConcat>()) {
+                ଯଦି (DfgSel* ଅଚଳ lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
+                    ଯଦି (isSame(lrSelp->fromp(), rSelp->fromp())) {
+                        ଯଦି (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_RHS) {
-                                const uint32_t width = lrSelp->width() + rSelp->width();
-                                const DfgDataType& dtype = DfgDataType::packed(width);
-                                DfgSel* const selp
+                                ଅଚଳ uint32_t width = lrSelp->width() + rSelp->width();
+                                ଅଚଳ DfgDataType& dtype = DfgDataType::packed(width);
+                                DfgSel* ଅଚଳ selp
                                     = make<DfgSel>(flp, dtype, rSelp->fromp(), rSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, lConcatp->lhsp(), selp));
-                                return;
+                                ଫେରନ୍ତୁ;
                             }
                         }
                     }
@@ -2278,68 +2278,68 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
-                DfgVertex* const rtVtxp = rCondp->thenp();
-                DfgVertex* const reVtxp = rCondp->elsep();
-                DfgConst* const rtConstp = rtVtxp->cast<DfgConst>();
-                DfgConst* const reConstp = reVtxp->cast<DfgConst>();
-                if (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
-                    APPLYING(PUSH_CONCAT_THROUGH_COND_LHS) {
-                        DfgVertex* const thenp = [&]() -> DfgVertex* {
-                            FileLine* const rtFlp = rtVtxp->fileline();
-                            if (rtConstp) {
-                                DfgConst* const constp = makeZero(rtFlp, vtxp->width());
-                                constp->num().opConcat(lConstp->num(), rtConstp->num());
-                                return constp;
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (DfgCond* ଅଚଳ rCondp = rhsp->cast<DfgCond>()) {
+                DfgVertex* ଅଚଳ rtVtxp = rCondp->thenp();
+                DfgVertex* ଅଚଳ reVtxp = rCondp->elsep();
+                DfgConst* ଅଚଳ rtConstp = rtVtxp->cast<DfgConst>();
+                DfgConst* ଅଚଳ reConstp = reVtxp->cast<DfgConst>();
+                ଯଦି (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
+                    APPLYING(ଠେଲ_CONCAT_THROUGH_COND_LHS) {
+                        DfgVertex* ଅଚଳ thenp = [&]() -> DfgVertex* {
+                            File_ଧାଡ଼ି* ଅଚଳ rtFlp = rtVtxp->fileline();
+                            ଯଦି (rtConstp) {
+                                DfgConst* ଅଚଳ constp = makeZero(rtFlp, vtxp->width());
+                                constp->ଅଙ୍କ().opConcat(lConstp->ଅଙ୍କ(), rtConstp->ଅଙ୍କ());
+                                ଫେରନ୍ତୁ constp;
                             }
-                            return make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
+                            ଫେରନ୍ତୁ make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
                         }();
-                        DfgVertex* const elsep = [&]() -> DfgVertex* {
-                            FileLine* const reFlp = reVtxp->fileline();
-                            if (reConstp) {
-                                DfgConst* const constp = makeZero(reFlp, vtxp->width());
-                                constp->num().opConcat(lConstp->num(), reConstp->num());
-                                return constp;
+                        DfgVertex* ଅଚଳ elsep = [&]() -> DfgVertex* {
+                            File_ଧାଡ଼ି* ଅଚଳ reFlp = reVtxp->fileline();
+                            ଯଦି (reConstp) {
+                                DfgConst* ଅଚଳ constp = makeZero(reFlp, vtxp->width());
+                                constp->ଅଙ୍କ().opConcat(lConstp->ଅଙ୍କ(), reConstp->ଅଙ୍କ());
+                                ଫେରନ୍ତୁ constp;
                             }
-                            return make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
+                            ଫେରନ୍ତୁ make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
                         }();
                         replace(make<DfgCond>(vtxp, rCondp->condp(), thenp, elsep));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                DfgVertex* const ltVtxp = lCondp->thenp();
-                DfgVertex* const leVtxp = lCondp->elsep();
-                DfgConst* const ltConstp = ltVtxp->cast<DfgConst>();
-                DfgConst* const leConstp = leVtxp->cast<DfgConst>();
-                if (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
-                    APPLYING(PUSH_CONCAT_THROUGH_COND_RHS) {
-                        DfgVertex* const thenp = [&]() -> DfgVertex* {
-                            FileLine* const ltFlp = ltVtxp->fileline();
-                            if (ltConstp) {
-                                DfgConst* const constp = makeZero(ltFlp, vtxp->width());
-                                constp->num().opConcat(ltConstp->num(), rConstp->num());
-                                return constp;
+        ଯଦି (DfgConst* ଅଚଳ rConstp = rhsp->cast<DfgConst>()) {
+            ଯଦି (DfgCond* ଅଚଳ lCondp = lhsp->cast<DfgCond>()) {
+                DfgVertex* ଅଚଳ ltVtxp = lCondp->thenp();
+                DfgVertex* ଅଚଳ leVtxp = lCondp->elsep();
+                DfgConst* ଅଚଳ ltConstp = ltVtxp->cast<DfgConst>();
+                DfgConst* ଅଚଳ leConstp = leVtxp->cast<DfgConst>();
+                ଯଦି (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
+                    APPLYING(ଠେଲ_CONCAT_THROUGH_COND_RHS) {
+                        DfgVertex* ଅଚଳ thenp = [&]() -> DfgVertex* {
+                            File_ଧାଡ଼ି* ଅଚଳ ltFlp = ltVtxp->fileline();
+                            ଯଦି (ltConstp) {
+                                DfgConst* ଅଚଳ constp = makeZero(ltFlp, vtxp->width());
+                                constp->ଅଙ୍କ().opConcat(ltConstp->ଅଙ୍କ(), rConstp->ଅଙ୍କ());
+                                ଫେରନ୍ତୁ constp;
                             }
-                            return make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
+                            ଫେରନ୍ତୁ make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
                         }();
-                        DfgVertex* const elsep = [&]() -> DfgVertex* {
-                            FileLine* const leFlp = leVtxp->fileline();
-                            if (leConstp) {
-                                DfgConst* const constp = makeZero(leFlp, vtxp->width());
-                                constp->num().opConcat(leConstp->num(), rConstp->num());
-                                return constp;
+                        DfgVertex* ଅଚଳ elsep = [&]() -> DfgVertex* {
+                            File_ଧାଡ଼ି* ଅଚଳ leFlp = leVtxp->fileline();
+                            ଯଦି (leConstp) {
+                                DfgConst* ଅଚଳ constp = makeZero(leFlp, vtxp->width());
+                                constp->ଅଙ୍କ().opConcat(leConstp->ଅଙ୍କ(), rConstp->ଅଙ୍କ());
+                                ଫେରନ୍ତୁ constp;
                             }
-                            return make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
+                            ଫେରନ୍ତୁ make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
                         }();
 
                         replace(make<DfgCond>(vtxp, lCondp->condp(), thenp, elsep));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
@@ -2347,105 +2347,105 @@ class V3DfgPeephole final : public DfgVisitor {
 
         // Attempt to narrow a concatenation that produces unused bits on the edges
         {
-            const uint32_t vMsb = vtxp->width() - 1;  // MSB of the concatenation
-            const uint32_t lLsb = vtxp->rhsp()->width();  // LSB of the LHS
-            const uint32_t rMsb = lLsb - 1;  // MSB of the RHS
+            ଅଚଳ uint32_t vMsb = vtxp->width() - 1;  // MSB of the concatenation
+            ଅଚଳ uint32_t lLsb = vtxp->rhsp()->width();  // LSB of the LHS
+            ଅଚଳ uint32_t rMsb = lLsb - 1;  // MSB of the RHS
             // Check each sink, and record the range of bits used by them
             uint32_t lsb = vMsb;  // LSB used by a sink
             uint32_t msb = 0;  // MSB used by a sink
-            bool hasCrossSink = false;  // True if some sinks use bits from both sides
+            ତାର୍କିକ hasCrossSink = ମିଥ୍ୟା;  // True if some sinks use bits from both sides
             vtxp->foreachSink([&](DfgVertex& sink) {
                 // Record bits used by DfgSel sinks
-                if (const DfgSel* const selp = sink.cast<DfgSel>()) {
-                    const uint32_t selLsb = selp->lsb();
-                    const uint32_t selMsb = selLsb + selp->width() - 1;
+                ଯଦି (ଅଚଳ DfgSel* ଅଚଳ selp = sink.cast<DfgSel>()) {
+                    ଅଚଳ uint32_t selLsb = selp->lsb();
+                    ଅଚଳ uint32_t selMsb = selLsb + selp->width() - 1;
                     lsb = std::min(lsb, selLsb);
                     msb = std::max(msb, selMsb);
                     hasCrossSink |= selMsb >= lLsb && rMsb >= selLsb;
-                    return false;
+                    ଫେରନ୍ତୁ ମିଥ୍ୟା;
                 }
                 // Ignore non-observable variable sinks. These will be eliminated.
-                if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-                    if (!varp->hasSinks() && !varp->isObserved()) return false;
+                ଯଦି (ଅଚଳ DfgVarPacked* ଅଚଳ varp = sink.cast<DfgVarPacked>()) {
+                    ଯଦି (!varp->hasSinks() && !varp->isObserved()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
                 }
                 // Otherwise the whole value is used
                 lsb = 0;
                 msb = vMsb;
-                return true;
+                ଫେରନ୍ତୁ ସତ୍ୟ;
             });
-            if (hasCrossSink && (vMsb > msb || lsb > 0)) {
+            ଯଦି (hasCrossSink && (vMsb > msb || lsb > 0)) {
                 APPLYING(NARROW_CONCAT) {
                     // Narrowed RHS
                     DfgVertex* nRhsp = rhsp;
-                    if (lsb != 0)
+                    ଯଦି (lsb != 0)
                         nRhsp = make<DfgSel>(flp, DfgDataType::packed(rMsb - lsb + 1), rhsp, lsb);
                     // Narrowed LHS
                     DfgVertex* nLhsp = lhsp;
-                    if (msb != vMsb)
+                    ଯଦି (msb != vMsb)
                         nLhsp = make<DfgSel>(flp, DfgDataType::packed(msb - lLsb + 1), lhsp, 0U);
                     // Narrowed concatenation
-                    DfgVertex* const catp
+                    DfgVertex* ଅଚଳ catp
                         = make<DfgConcat>(flp, DfgDataType::packed(msb - lsb + 1), nLhsp, nRhsp);
 
                     // Need to insert via a partial splice to avoid infinite matching,
                     // this splice will be eliminated on later visits to its sinks.
-                    DfgSplicePacked* const sp = new DfgSplicePacked{m_dfg, flp, vtxp->dtype()};
+                    DfgSplicePacked* ଅଚଳ sp = ନୂତନ DfgSplicePacked{m_dfg, flp, vtxp->dtype()};
                     m_vInfo[sp].m_id = ++m_lastId;
                     sp->addDriver(catp, lsb, flp);
-                    DfgVertexVar* const varp
+                    DfgVertexVar* ଅଚଳ varp
                         = m_dfg.makeNewVar(flp, "PeepholeNarrow", vtxp->dtype(), m_tmpScopep);
                     varp->tmpForp(varp->vscp());
                     m_vInfo[varp].m_id = ++m_lastId;
-                    varp->vscp()->varp()->isInternal(true);
+                    varp->vscp()->varp()->isInternal(ସତ୍ୟ);
                     varp->srcp(sp);
                     replace(varp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
         // Convert various forms to REPLICATE
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_CONCAT_SAME) {
                 replace(make<DfgRep>(vtxp, lhsp));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) {
+        ଯଦି (DfgRep* ଅଚଳ lRepp = lhsp->cast<DfgRep>()) {
+            ଯଦି (isSame(lRepp->srcp(), rhsp)) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_LHS) {
                     replace(make<DfgRep>(vtxp, rhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
-        if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) {
+        ଯଦି (DfgRep* ଅଚଳ rRepp = rhsp->cast<DfgRep>()) {
+            ଯଦି (isSame(lhsp, rRepp->srcp())) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_RHS) {
                     replace(make<DfgRep>(vtxp, lhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-                if (isSame(lRepp->srcp(), rRepp->srcp())) {
+        ଯଦି (DfgRep* ଅଚଳ lRepp = lhsp->cast<DfgRep>()) {
+            ଯଦି (DfgRep* ଅଚଳ rRepp = rhsp->cast<DfgRep>()) {
+                ଯଦି (isSame(lRepp->srcp(), rRepp->srcp())) {
                     APPLYING(REPLACE_CONCAT_SAME_REPS) {
                         replace(make<DfgRep>(vtxp, lRepp->srcp()));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgRep* const rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
-                    if (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
+            ଯଦି (DfgConcat* ଅଚଳ rConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (DfgRep* ଅଚଳ rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
+                    ଯଦି (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
                         APPLYING(REPLACE_NESTED_CONCAT_SAME_REPS_ON_LHS) {
-                            const uint32_t width = lRepp->width() + rlRepp->width();
-                            const DfgDataType& dtype = DfgDataType::packed(width);
-                            DfgRep* const repp = make<DfgRep>(flp, dtype, lRepp->srcp());
+                            ଅଚଳ uint32_t width = lRepp->width() + rlRepp->width();
+                            ଅଚଳ DfgDataType& dtype = DfgDataType::packed(width);
+                            DfgRep* ଅଚଳ repp = make<DfgRep>(flp, dtype, lRepp->srcp());
                             replace(make<DfgConcat>(vtxp, repp, rConcatp->rhsp()));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
@@ -2453,593 +2453,593 @@ class V3DfgPeephole final : public DfgVisitor {
         }
     }
 
-    void visit(DfgDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgDiv* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        ଯଦି (DfgConst* ଅଚଳ rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            ଯଦି (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIV_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgDivS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        ଯଦି (DfgConst* ଅଚଳ rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            ଯଦି (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIVS_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgGt* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgGt* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GT) {
                 replace(makeZero(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgGtS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgGtS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTS) {
                 replace(makeZero(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgGte* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgGte* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgGteS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgGteS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLogAnd* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    ଶୂନ୍ୟ visit(DfgLogAnd* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp) || vtxp->rhsp()->unsafe()) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        ଯଦି (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGAND_WITH_AND) {
                 replace(make<DfgAnd>(vtxp, lhsp, rhsp));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLogEq* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLogEq* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgLogIf* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    ଶୂନ୍ୟ visit(DfgLogIf* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp) || vtxp->rhsp()->unsafe()) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgLogOr* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+    ଶୂନ୍ୟ visit(DfgLogOr* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp) || vtxp->rhsp()->unsafe()) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        ଯଦି (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGOR_WITH_OR) {
                 replace(make<DfgOr>(vtxp, lhsp, rhsp));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLt* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLt* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LT) {
                 replace(makeZero(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLtS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLtS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTS) {
                 replace(makeZero(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLte* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLte* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgLteS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgLteS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
 
-    void visit(DfgModDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgModDiv* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgModDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgModDivS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgMul* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgMul* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (isZero(lConstp)) {
                 APPLYING(REMOVE_MUL_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isEqOne(lConstp)) {
+            ଯଦି (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MUL_ONE) {
                     replace(rhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgMulS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgMulS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        ଯଦି (DfgConst* ଅଚଳ lConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (isZero(lConstp)) {
                 APPLYING(REMOVE_MULS_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isEqOne(lConstp)) {
+            ଯଦି (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MULS_ONE) {
                     replace(rhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgEq* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgEq* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_EQ) {
                 replace(makeOnes(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        ଯଦି (DfgConst* ଅଚଳ lhsConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (DfgConcat* ଅଚଳ rhsConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (try_ଠେଲ_Compare_Op_Through_Concat(vtxp, lhsConstp, rhsConcatp)) ଫେରନ୍ତୁ;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            ଯଦି (rhsp->dtype() == m_bitDType) {
+                ଯଦି (isZero(lhsConstp)) {
                     APPLYING(REPLACE_EQ_BIT_0) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                ଯଦି (isOnes(lhsConstp)) {
                     APPLYING(REMOVE_EQ_BIT_1) {
                         replace(rhsp);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgNeq* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgNeq* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_NEQ) {
                 replace(makeZero(flp, 1));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        ଯଦି (DfgConst* ଅଚଳ lhsConstp = lhsp->cast<DfgConst>()) {
+            ଯଦି (DfgConcat* ଅଚଳ rhsConcatp = rhsp->cast<DfgConcat>()) {
+                ଯଦି (try_ଠେଲ_Compare_Op_Through_Concat(vtxp, lhsConstp, rhsConcatp)) ଫେରନ୍ତୁ;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            ଯଦି (rhsp->dtype() == m_bitDType) {
+                ଯଦି (isZero(lhsConstp)) {
                     APPLYING(REMOVE_NEQ_BIT_0) {
                         replace(rhsp);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                ଯଦି (isOnes(lhsConstp)) {
                     APPLYING(REPLACE_NEQ_BIT_1) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgPow* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgPow* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgPowSS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgPowSS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgPowSU* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgPowSU* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgPowUS* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgPowUS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgRep* const vtxp) override {
-        DfgVertex* const srcp = vtxp->srcp();
-        FileLine* const flp = vtxp->fileline();
+    ଶୂନ୍ୟ visit(DfgRep* ଅଚଳ vtxp) override {
+        DfgVertex* ଅଚଳ srcp = vtxp->srcp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (DfgConst* const sConstp = srcp->cast<DfgConst>()) {
+        ଯଦି (DfgConst* ଅଚଳ sConstp = srcp->cast<DfgConst>()) {
             APPLYING(FOLD_REP) {
-                DfgConst* const resultp = makeZero(flp, vtxp->width());
-                resultp->num().opRepl(sConstp->num(), vtxp->count());
+                DfgConst* ଅଚଳ resultp = makeZero(flp, vtxp->width());
+                resultp->ଅଙ୍କ().opRepl(sConstp->ଅଙ୍କ(), vtxp->ଗଣନା_2());
                 replace(resultp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (vtxp->dtype() == srcp->dtype()) {
+        ଯଦି (vtxp->dtype() == srcp->dtype()) {
             APPLYING(REMOVE_REP_ONCE) {
                 replace(vtxp->srcp());
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgRep* const sRepp = srcp->cast<DfgRep>()) {
-            if (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
+        ଯଦି (DfgRep* ଅଚଳ sRepp = srcp->cast<DfgRep>()) {
+            ଯଦି (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
                 APPLYING(REPLACE_REP_REP) {
                     replace(make<DfgRep>(vtxp, sRepp->srcp()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgShiftL* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgShiftL* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
+        ଯଦି (optimizeShiftRHS(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (DfgShiftL* const lShiftLp = lhsp->cast<DfgShiftL>()) {
-            if (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
+        ଯଦି (DfgShiftL* ଅଚଳ lShiftLp = lhsp->cast<DfgShiftL>()) {
+            ଯଦି (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTL_SHIFTL) {
                     // Fold '(a << b) << c' to 'a << (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
-                    FileLine* const flp = vtxp->fileline();
-                    const DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
-                    DfgVertex* const bp = make<DfgExtend>(flp, sumDType, lShiftLp->rhsp());
-                    DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
-                    DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
+                    File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+                    ଅଚଳ DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
+                    DfgVertex* ଅଚଳ bp = make<DfgExtend>(flp, sumDType, lShiftLp->rhsp());
+                    DfgVertex* ଅଚଳ cp = make<DfgExtend>(flp, sumDType, rhsp);
+                    DfgAdd* ଅଚଳ addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftL>(vtxp, lShiftLp->lhsp(), addp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
+        ଯଦି (DfgConst* ଅଚଳ rConstp = rhsp->cast<DfgConst>()) {
+            ଅଚଳ uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            ଯଦି (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTL_ZERO) {
                     replace(lhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            ଯଦି (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTL_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            ଯଦି (DfgConcat* ଅଚଳ lConcatp = lhsp->cast<DfgConcat>()) {
+                ଯଦି (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_CAT) {
-                        DfgVertex* const lRhsp = lConcatp->rhsp();
-                        DfgVertex* const lLhsp = lConcatp->lhsp();
+                        DfgVertex* ଅଚଳ lRhsp = lConcatp->rhsp();
+                        DfgVertex* ଅଚଳ lLhsp = lConcatp->lhsp();
                         // Compute widths of 3 possible result parts
-                        const uint32_t rW = shiftAmount;
-                        const uint32_t mW = std::min(lRhsp->width(), vtxp->width() - shiftAmount);
-                        const uint32_t lW = vtxp->width() - mW - rW;
+                        ଅଚଳ uint32_t rW = shiftAmount;
+                        ଅଚଳ uint32_t mW = std::min(lRhsp->width(), vtxp->width() - shiftAmount);
+                        ଅଚଳ uint32_t lW = vtxp->width() - mW - rW;
                         // Construct the result
-                        FileLine* const flp = lConcatp->fileline();
-                        DfgVertex* const rp = makeZero(flp, shiftAmount);
-                        DfgVertex* const mp
+                        File_ଧାଡ଼ି* ଅଚଳ flp = lConcatp->fileline();
+                        DfgVertex* ଅଚଳ rp = makeZero(flp, shiftAmount);
+                        DfgVertex* ଅଚଳ mp
                             = make<DfgSel>(flp, DfgDataType::packed(mW), lRhsp, 0U);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(mW + rW), mp, rp);
-                        if (!lW) {
+                        ଯଦି (!lW) {
                             replace(np);
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
-                        DfgVertex* const lp
+                        DfgVertex* ଅଚଳ lp
                             = make<DfgSel>(flp, DfgDataType::packed(lW), lLhsp, 0U);
                         np = make<DfgConcat>(vtxp, lp, np);
                         replace(np);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
+                ଯଦି (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_SEL) {
-                        const uint32_t nSelWidth = lSelp->width() - shiftAmount;
-                        DfgVertex* const nSelp
+                        ଅଚଳ uint32_t nSelWidth = lSelp->width() - shiftAmount;
+                        DfgVertex* ଅଚଳ nSelp
                             = make<DfgSel>(lSelp->fileline(), DfgDataType::packed(nSelWidth),
                                            lSelp->fromp(), lSelp->lsb());
                         replace(
                             make<DfgConcat>(vtxp, nSelp, makeZero(vtxp->fileline(), shiftAmount)));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
-                    APPLYING(PUSH_SHIFTL_THROUGH_COND) {
-                        DfgShiftL* const tp = make<DfgShiftL>(vtxp, lCondp->thenp(), rConstp);
-                        DfgShiftL* const ep = make<DfgShiftL>(vtxp, lCondp->elsep(), rConstp);
+            ଯଦି (DfgCond* ଅଚଳ lCondp = lhsp->cast<DfgCond>()) {
+                ଯଦି (!lCondp->hasMultipleSinks()) {
+                    APPLYING(ଠେଲ_SHIFTL_THROUGH_COND) {
+                        DfgShiftL* ଅଚଳ tp = make<DfgShiftL>(vtxp, lCondp->thenp(), rConstp);
+                        DfgShiftL* ଅଚଳ ep = make<DfgShiftL>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgShiftR* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgShiftR* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
+        ଯଦି (optimizeShiftRHS(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
 
-        if (DfgShiftR* const lShiftRp = lhsp->cast<DfgShiftR>()) {
-            if (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
+        ଯଦି (DfgShiftR* ଅଚଳ lShiftRp = lhsp->cast<DfgShiftR>()) {
+            ଯଦି (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTR_SHIFTR) {
                     // Fold '(a >> b) >> c' to 'a >> (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
-                    FileLine* const flp = vtxp->fileline();
-                    const DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
-                    DfgVertex* const bp = make<DfgExtend>(flp, sumDType, lShiftRp->rhsp());
-                    DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
-                    DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
+                    File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
+                    ଅଚଳ DfgDataType& sumDType = DfgDataType::packed(rhsp->width() + 1);
+                    DfgVertex* ଅଚଳ bp = make<DfgExtend>(flp, sumDType, lShiftRp->rhsp());
+                    DfgVertex* ଅଚଳ cp = make<DfgExtend>(flp, sumDType, rhsp);
+                    DfgAdd* ଅଚଳ addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftR>(vtxp, lShiftRp->lhsp(), addp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            const uint32_t shiftAmount = rConstp->toU32();
+        ଯଦି (DfgConst* ଅଚଳ rConstp = rhsp->cast<DfgConst>()) {
+            ଅଚଳ uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            ଯଦି (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTR_ZERO) {
                     replace(lhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            ଯଦି (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTR_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            ଯଦି (DfgConcat* ଅଚଳ lConcatp = lhsp->cast<DfgConcat>()) {
+                ଯଦି (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_CAT) {
-                        DfgVertex* const lRhsp = lConcatp->rhsp();
-                        DfgVertex* const lLhsp = lConcatp->lhsp();
+                        DfgVertex* ଅଚଳ lRhsp = lConcatp->rhsp();
+                        DfgVertex* ଅଚଳ lLhsp = lConcatp->lhsp();
                         // Compute widths of 3 possible result parts
-                        const uint32_t lW = shiftAmount;
-                        const uint32_t mW = std::min(lLhsp->width(), vtxp->width() - shiftAmount);
-                        const uint32_t rW = vtxp->width() - mW - lW;
+                        ଅଚଳ uint32_t lW = shiftAmount;
+                        ଅଚଳ uint32_t mW = std::min(lLhsp->width(), vtxp->width() - shiftAmount);
+                        ଅଚଳ uint32_t rW = vtxp->width() - mW - lW;
                         // Construct the result
-                        FileLine* const flp = lConcatp->fileline();
-                        DfgVertex* const lp = makeZero(flp, shiftAmount);
-                        DfgVertex* const mp = make<DfgSel>(flp, DfgDataType::packed(mW), lLhsp,
+                        File_ଧାଡ଼ି* ଅଚଳ flp = lConcatp->fileline();
+                        DfgVertex* ଅଚଳ lp = makeZero(flp, shiftAmount);
+                        DfgVertex* ଅଚଳ mp = make<DfgSel>(flp, DfgDataType::packed(mW), lLhsp,
                                                            lLhsp->width() - mW);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(lW + mW), lp, mp);
-                        if (!rW) {
+                        ଯଦି (!rW) {
                             replace(np);
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
-                        DfgVertex* const rp = make<DfgSel>(flp, DfgDataType::packed(rW), lRhsp,
+                        DfgVertex* ଅଚଳ rp = make<DfgSel>(flp, DfgDataType::packed(rW), lRhsp,
                                                            lRhsp->width() - rW);
                         np = make<DfgConcat>(vtxp, np, rp);
                         replace(np);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            ଯଦି (DfgSel* ଅଚଳ lSelp = lhsp->cast<DfgSel>()) {
+                ଯଦି (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_SEL) {
-                        const uint32_t nSelWidth = lSelp->width() - shiftAmount;
-                        DfgVertex* const nSelp
+                        ଅଚଳ uint32_t nSelWidth = lSelp->width() - shiftAmount;
+                        DfgVertex* ଅଚଳ nSelp
                             = make<DfgSel>(lSelp->fileline(), DfgDataType::packed(nSelWidth),
                                            lSelp->fromp(), lSelp->lsb() + shiftAmount);
                         replace(
                             make<DfgConcat>(vtxp, makeZero(vtxp->fileline(), shiftAmount), nSelp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
-                    APPLYING(PUSH_SHIFTR_THROUGH_COND) {
-                        DfgShiftR* const tp = make<DfgShiftR>(vtxp, lCondp->thenp(), rConstp);
-                        DfgShiftR* const ep = make<DfgShiftR>(vtxp, lCondp->elsep(), rConstp);
+            ଯଦି (DfgCond* ଅଚଳ lCondp = lhsp->cast<DfgCond>()) {
+                ଯଦି (!lCondp->hasMultipleSinks()) {
+                    APPLYING(ଠେଲ_SHIFTR_THROUGH_COND) {
+                        DfgShiftR* ଅଚଳ tp = make<DfgShiftR>(vtxp, lCondp->thenp(), rConstp);
+                        DfgShiftR* ଅଚଳ ep = make<DfgShiftR>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
     }
 
-    void visit(DfgShiftRS* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgShiftRS* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
+        ଯଦି (optimizeShiftRHS(vtxp)) ଫେରନ୍ତୁ;
     }
 
-    void visit(DfgSub* const vtxp) override {
-        if (binary(vtxp)) return;
+    ଶୂନ୍ୟ visit(DfgSub* ଅଚଳ vtxp) override {
+        ଯଦି (ଦ୍ୱିମିକ(vtxp)) ଫେରନ୍ତୁ;
 
-        DfgVertex* const lhsp = vtxp->lhsp();
-        DfgVertex* const rhsp = vtxp->rhsp();
-        FileLine* const flp = vtxp->fileline();
+        DfgVertex* ଅଚଳ lhsp = vtxp->lhsp();
+        DfgVertex* ଅଚଳ rhsp = vtxp->rhsp();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        ଯଦି (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_SUB) {
                 replace(makeZero(flp, vtxp->dtype()));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (rConstp->isZero()) {
+        ଯଦି (DfgConst* ଅଚଳ rConstp = rhsp->cast<DfgConst>()) {
+            ଯଦି (rConstp->isZero()) {
                 APPLYING(REMOVE_SUB_ZERO) {
                     replace(lhsp);
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (vtxp->dtype() == m_bitDType && rConstp->hasValue(1)) {
+            ଯଦି (vtxp->dtype() == m_bitDType && rConstp->has_ମୂଲ୍ୟ(1)) {
                 APPLYING(REPLACE_SUB_WITH_NOT) {
                     replace(make<DfgNot>(vtxp->fileline(), m_bitDType, lhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgMatchMasked* const vtxp) override {
-        if (DfgConst* const constp = vtxp->lhsp()->cast<DfgConst>()) {
+    ଶୂନ୍ୟ visit(DfgMatchMasked* ଅଚଳ vtxp) override {
+        ଯଦି (DfgConst* ଅଚଳ constp = vtxp->lhsp()->cast<DfgConst>()) {
             APPLYING(FOLD_MATCHMASKED) {
-                AstVar* const matchVarp = vtxp->matchp()->as<DfgVarPacked>()->vscp()->varp();
-                replace(makeI32(vtxp->fileline(), AstMatchMasked::fold(constp->num(), matchVarp)));
-                return;
+                AstVar* ଅଚଳ matchVarp = vtxp->matchp()->as<DfgVarPacked>()->vscp()->varp();
+                replace(makeI32(vtxp->fileline(), AstMatchMasked::fold(constp->ଅଙ୍କ(), matchVarp)));
+                ଫେରନ୍ତୁ;
             }
         }
     }
@@ -3048,123 +3048,123 @@ class V3DfgPeephole final : public DfgVisitor {
     //  DfgVertexTernary
     //=========================================================================
 
-    void visit(DfgCond* const vtxp) override {
-        DfgVertex* const condp = vtxp->condp();
-        DfgVertex* const thenp = vtxp->thenp();
-        DfgVertex* const elsep = vtxp->elsep();
-        FileLine* const flp = vtxp->fileline();
+    ଶୂନ୍ୟ visit(DfgCond* ଅଚଳ vtxp) override {
+        DfgVertex* ଅଚଳ condp = vtxp->condp();
+        DfgVertex* ଅଚଳ thenp = vtxp->thenp();
+        DfgVertex* ଅଚଳ elsep = vtxp->elsep();
+        File_ଧାଡ଼ି* ଅଚଳ flp = vtxp->fileline();
 
-        if (condp->dtype() != m_bitDType) return;
+        ଯଦି (condp->dtype() != m_bitDType) ଫେରନ୍ତୁ;
 
-        if (isOnes(condp)) {
+        ଯଦି (isOnes(condp)) {
             APPLYING(REMOVE_COND_WITH_TRUE_CONDITION) {
                 replace(thenp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isZero(condp)) {
+        ଯଦି (isZero(condp)) {
             APPLYING(REMOVE_COND_WITH_FALSE_CONDITION) {
                 replace(elsep);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isSame(thenp, elsep)) {
+        ଯଦି (isSame(thenp, elsep)) {
             APPLYING(REMOVE_COND_WITH_BRANCHES_SAME) {
                 replace(elsep);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgNot* const condNotp = condp->cast<DfgNot>()) {
-            if (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
+        ଯଦି (DfgNot* ଅଚଳ condNotp = condp->cast<DfgNot>()) {
+            ଯଦି (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NOT_CONDITION) {
                     replace(make<DfgCond>(vtxp, condNotp->srcp(), elsep, thenp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (DfgNeq* const condNeqp = condp->cast<DfgNeq>()) {
-            if (!condp->hasMultipleSinks()) {
+        ଯଦି (DfgNeq* ଅଚଳ condNeqp = condp->cast<DfgNeq>()) {
+            ଯଦି (!condp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NEQ_CONDITION) {
-                    DfgEq* const newCondp = make<DfgEq>(condp, condNeqp->lhsp(), condNeqp->rhsp());
+                    DfgEq* ଅଚଳ newCondp = make<DfgEq>(condp, condNeqp->lhsp(), condNeqp->rhsp());
                     replace(make<DfgCond>(vtxp, newCondp, elsep, thenp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (DfgNot* const thenNotp = thenp->cast<DfgNot>()) {
-            if (DfgNot* const elseNotp = elsep->cast<DfgNot>()) {
-                if (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
+        ଯଦି (DfgNot* ଅଚଳ thenNotp = thenp->cast<DfgNot>()) {
+            ଯଦି (DfgNot* ଅଚଳ elseNotp = elsep->cast<DfgNot>()) {
+                ଯଦି (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
                     && !thenNotp->hasMultipleSinks() && !elseNotp->hasMultipleSinks()) {
                     APPLYING(PULL_NOTS_THROUGH_COND) {
-                        DfgCond* const newCondp = make<DfgCond>(
+                        DfgCond* ଅଚଳ newCondp = make<DfgCond>(
                             vtxp, vtxp->condp(), thenNotp->srcp(), elseNotp->srcp());
                         replace(make<DfgNot>(thenp->fileline(), vtxp->dtype(), newCondp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (DfgOr* const condOrp = condp->cast<DfgOr>()) {
-            if (DfgCond* const thenCondp = thenp->cast<DfgCond>()) {
-                if (!thenCondp->hasMultipleSinks()) {
-                    if (condOrp->lhsp() == thenCondp->condp()) {
+        ଯଦି (DfgOr* ଅଚଳ condOrp = condp->cast<DfgOr>()) {
+            ଯଦି (DfgCond* ଅଚଳ thenCondp = thenp->cast<DfgCond>()) {
+                ଯଦି (!thenCondp->hasMultipleSinks()) {
+                    ଯଦି (condOrp->lhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_LHS) {
-                            DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->rhsp(),
+                            DfgCond* ଅଚଳ ep = make<DfgCond>(thenCondp, condOrp->rhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->lhsp(), thenCondp->thenp(), ep));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
-                    if (condOrp->rhsp() == thenCondp->condp()) {
+                    ଯଦି (condOrp->rhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_RHS) {
-                            DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->lhsp(),
+                            DfgCond* ଅଚଳ ep = make<DfgCond>(thenCondp, condOrp->lhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->rhsp(), thenCondp->thenp(), ep));
-                            return;
+                            ଫେରନ୍ତୁ;
                         }
                     }
                 }
             }
         }
 
-        if (vtxp->width() > 1) {
+        ଯଦି (vtxp->width() > 1) {
             // 'cond ? a + 1 : a' -> 'a + cond'
-            if (DfgAdd* const thenAddp = thenp->cast<DfgAdd>()) {
-                if (DfgConst* const constp = thenAddp->lhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenAddp->rhsp() == elsep) {
+            ଯଦି (DfgAdd* ଅଚଳ thenAddp = thenp->cast<DfgAdd>()) {
+                ଯଦି (DfgConst* ଅଚଳ constp = thenAddp->lhsp()->cast<DfgConst>()) {
+                    ଯଦି (constp->has_ମୂଲ୍ୟ(1)) {
+                        ଯଦି (thenAddp->rhsp() == elsep) {
                             APPLYING(REPLACE_COND_INC) {
-                                DfgConcat* const extp = make<DfgConcat>(
+                                DfgConcat* ଅଚଳ extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
-                                FileLine* const thenFlp = thenAddp->fileline();
+                                File_ଧାଡ଼ି* ଅଚଳ thenFlp = thenAddp->fileline();
                                 replace(
                                     make<DfgAdd>(thenFlp, vtxp->dtype(), thenAddp->rhsp(), extp));
-                                return;
+                                ଫେରନ୍ତୁ;
                             }
                         }
                     }
                 }
             }
             // 'cond ? a - 1 : a' -> 'a - cond'
-            if (DfgSub* const thenSubp = thenp->cast<DfgSub>()) {
-                if (DfgConst* const constp = thenSubp->rhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenSubp->lhsp() == elsep) {
+            ଯଦି (DfgSub* ଅଚଳ thenSubp = thenp->cast<DfgSub>()) {
+                ଯଦି (DfgConst* ଅଚଳ constp = thenSubp->rhsp()->cast<DfgConst>()) {
+                    ଯଦି (constp->has_ମୂଲ୍ୟ(1)) {
+                        ଯଦି (thenSubp->lhsp() == elsep) {
                             APPLYING(REPLACE_COND_DEC) {
-                                DfgConcat* const extp = make<DfgConcat>(
+                                DfgConcat* ଅଚଳ extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
-                                FileLine* const thenFlp = thenSubp->fileline();
+                                File_ଧାଡ଼ି* ଅଚଳ thenFlp = thenSubp->fileline();
                                 replace(
                                     make<DfgSub>(thenFlp, vtxp->dtype(), thenSubp->lhsp(), extp));
-                                return;
+                                ଫେରନ୍ତୁ;
                             }
                         }
                     }
@@ -3172,220 +3172,220 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
+        ଯଦି (vtxp->dtype() == m_bitDType) {
+            ଯଦି (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_COND) {
                     replace(make<DfgOr>(vtxp, condp, elsep));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
+            ଯଦି (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_COND) {
                     replace(make<DfgAnd>(vtxp, condp, thenp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (vtxp->width() <= VL_QUADSIZE) {
-            if (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
+        ଯଦି (vtxp->width() <= VL_QUADSIZE) {
+            ଯଦି (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ZERO) {
-                    DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
+                    DfgVertex* ଅଚଳ maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgAnd>(vtxp, maskp, elsep));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
+            ଯଦି (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ONES) {
-                    DfgVertex* const maskp = replicate(vtxp, condp);
+                    DfgVertex* ଅଚଳ maskp = replicate(vtxp, condp);
                     replace(make<DfgOr>(vtxp, maskp, elsep));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
+            ଯଦି (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ZERO) {
-                    DfgVertex* const maskp = replicate(vtxp, condp);
+                    DfgVertex* ଅଚଳ maskp = replicate(vtxp, condp);
                     replace(make<DfgAnd>(vtxp, maskp, thenp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
-            if (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
+            ଯଦି (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ONES) {
-                    DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
+                    DfgVertex* ଅଚଳ maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgOr>(vtxp, maskp, thenp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            if (DfgOr* const tOrp = thenp->cast<DfgOr>()) {
-                if (isSame(tOrp->lhsp(), elsep)
+            ଯଦି (DfgOr* ଅଚଳ tOrp = thenp->cast<DfgOr>()) {
+                ଯଦି (isSame(tOrp->lhsp(), elsep)
                     && !tOrp->rhsp()->unsafe()) {  // a ? b | c : b becomes b | (a & c)
                     APPLYING(REPLACE_COND_THEN_OR_LHS) {
-                        DfgVertex* const maskp = replicate(vtxp, condp);
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->rhsp());
+                        DfgVertex* ଅଚଳ maskp = replicate(vtxp, condp);
+                        DfgAnd* ଅଚଳ andp = make<DfgAnd>(vtxp, maskp, tOrp->rhsp());
                         replace(make<DfgOr>(vtxp, tOrp->lhsp(), andp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
-                if (isSame(tOrp->rhsp(), elsep)
+                ଯଦି (isSame(tOrp->rhsp(), elsep)
                     && !tOrp->lhsp()->unsafe()) {  // a ? b | c : c becomes c | (a & b)
                     APPLYING(REPLACE_COND_THEN_OR_RHS) {
-                        DfgVertex* const maskp = replicate(vtxp, condp);
-                        DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->lhsp());
+                        DfgVertex* ଅଚଳ maskp = replicate(vtxp, condp);
+                        DfgAnd* ଅଚଳ andp = make<DfgAnd>(vtxp, maskp, tOrp->lhsp());
                         replace(make<DfgOr>(vtxp, tOrp->rhsp(), andp));
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                 }
             }
         }
 
-        if (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
-            const std::pair<DfgVertex*, uint32_t> cLSBs = commonLSBs(thenp, elsep);
-            if (cLSBs.first) {
+        ଯଦି (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
+            ଅଚଳ std::pair<DfgVertex*, uint32_t> cLSBs = commonLSBs(thenp, elsep);
+            ଯଦି (cLSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_LSBS) {
                     // Create new RHS
-                    const uint32_t rWidth = cLSBs.second;
+                    ଅଚଳ uint32_t rWidth = cLSBs.second;
                     DfgVertex* rhsp = cLSBs.first;
-                    if (rWidth != rhsp->width()) {
-                        const DfgDataType& rDtype = DfgDataType::packed(rWidth);
+                    ଯଦି (rWidth != rhsp->width()) {
+                        ଅଚଳ DfgDataType& rDtype = DfgDataType::packed(rWidth);
                         rhsp = make<DfgSel>(flp, rDtype, rhsp, 0U);
                     }
                     // If it's all the same, just replace
-                    if (rhsp->dtype() == vtxp->dtype()) {
+                    ଯଦି (rhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(rhsp);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                     // Create new LHS
-                    const uint32_t lWidth = vtxp->width() - rWidth;
-                    const DfgDataType& lDtype = DfgDataType::packed(lWidth);
-                    DfgVertex* const lThenp = make<DfgSel>(flp, lDtype, thenp, rWidth);
-                    DfgVertex* const lElsep = make<DfgSel>(flp, lDtype, elsep, rWidth);
-                    DfgVertex* const lhsp = make<DfgCond>(flp, lDtype, condp, lThenp, lElsep);
+                    ଅଚଳ uint32_t lWidth = vtxp->width() - rWidth;
+                    ଅଚଳ DfgDataType& lDtype = DfgDataType::packed(lWidth);
+                    DfgVertex* ଅଚଳ lThenp = make<DfgSel>(flp, lDtype, thenp, rWidth);
+                    DfgVertex* ଅଚଳ lElsep = make<DfgSel>(flp, lDtype, elsep, rWidth);
+                    DfgVertex* ଅଚଳ lhsp = make<DfgCond>(flp, lDtype, condp, lThenp, lElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
 
-            const std::pair<DfgVertex*, uint32_t> cMSBs = commonMSBs(thenp, elsep);
-            if (cMSBs.first) {
+            ଅଚଳ std::pair<DfgVertex*, uint32_t> cMSBs = commonMSBs(thenp, elsep);
+            ଯଦି (cMSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_MSBS) {
                     // Create new LHS
-                    const uint32_t lWidth = cMSBs.second;
+                    ଅଚଳ uint32_t lWidth = cMSBs.second;
                     DfgVertex* lhsp = cMSBs.first;
-                    if (lWidth != lhsp->width()) {
-                        const DfgDataType& lDtype = DfgDataType::packed(lWidth);
+                    ଯଦି (lWidth != lhsp->width()) {
+                        ଅଚଳ DfgDataType& lDtype = DfgDataType::packed(lWidth);
                         lhsp = make<DfgSel>(flp, lDtype, lhsp, lhsp->width() - lWidth);
                     }
                     // If it's all the same, just replace
-                    if (lhsp->dtype() == vtxp->dtype()) {
+                    ଯଦି (lhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(lhsp);
-                        return;
+                        ଫେରନ୍ତୁ;
                     }
                     // Create new RHS
-                    const uint32_t rWidth = vtxp->width() - lWidth;
-                    const DfgDataType& rDtype = DfgDataType::packed(rWidth);
-                    DfgVertex* const rThenp = make<DfgSel>(flp, rDtype, thenp, 0U);
-                    DfgVertex* const rElsep = make<DfgSel>(flp, rDtype, elsep, 0U);
-                    DfgVertex* const rhsp = make<DfgCond>(flp, rDtype, condp, rThenp, rElsep);
+                    ଅଚଳ uint32_t rWidth = vtxp->width() - lWidth;
+                    ଅଚଳ DfgDataType& rDtype = DfgDataType::packed(rWidth);
+                    DfgVertex* ଅଚଳ rThenp = make<DfgSel>(flp, rDtype, thenp, 0U);
+                    DfgVertex* ଅଚଳ rElsep = make<DfgSel>(flp, rDtype, elsep, 0U);
+                    DfgVertex* ଅଚଳ rhsp = make<DfgCond>(flp, rDtype, condp, rThenp, rElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (isEqOne(thenp) && isZero(elsep)) {
+        ଯଦି (isEqOne(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONE_ZERO) {
                 DfgVertex* resp = condp;
-                if (const uint32_t extend = vtxp->width() - 1) {
-                    DfgConst* const zerop = makeZero(flp, extend);
+                ଯଦି (ଅଚଳ uint32_t extend = vtxp->width() - 1) {
+                    DfgConst* ଅଚଳ zerop = makeZero(flp, extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isZero(thenp) && isEqOne(elsep)) {
+        ଯଦି (isZero(thenp) && isEqOne(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONE) {
                 DfgVertex* resp = make<DfgNot>(condp, condp);
-                if (const uint32_t extend = vtxp->width() - 1) {
-                    DfgConst* const zerop = makeZero(vtxp->fileline(), extend);
+                ଯଦି (ଅଚଳ uint32_t extend = vtxp->width() - 1) {
+                    DfgConst* ଅଚଳ zerop = makeZero(vtxp->fileline(), extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isOnes(thenp) && isZero(elsep)) {
+        ଯଦି (isOnes(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONES_ZERO) {
                 replace(replicate(vtxp, condp));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (isZero(thenp) && isOnes(elsep)) {
+        ଯଦି (isZero(thenp) && isOnes(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONES) {
                 replace(replicate(vtxp, make<DfgNot>(condp, condp)));
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
-        if (DfgCond* const tCondp = thenp->cast<DfgCond>()) {
-            if (isSame(condp, tCondp->condp())) {
+        ଯଦି (DfgCond* ଅଚଳ tCondp = thenp->cast<DfgCond>()) {
+            ଯଦି (isSame(condp, tCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_THEN) {
                     replace(make<DfgCond>(vtxp, condp, tCondp->thenp(), elsep));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
 
-        if (DfgCond* const eCondp = elsep->cast<DfgCond>()) {
-            if (isSame(condp, eCondp->condp())) {
+        ଯଦି (DfgCond* ଅଚଳ eCondp = elsep->cast<DfgCond>()) {
+            ଯଦି (isSame(condp, eCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_ELSE) {
                     replace(make<DfgCond>(vtxp, condp, thenp, eCondp->elsep()));
-                    return;
+                    ଫେରନ୍ତୁ;
                 }
             }
         }
     }
 
-    void visit(DfgVertexVar* const vtxp) override {
-        if (vtxp->hasSinks()) return;
-        if (vtxp->isObserved()) return;
-        if (vtxp->defaultp()) return;
+    ଶୂନ୍ୟ visit(DfgVertexVar* ଅଚଳ vtxp) override {
+        ଯଦି (vtxp->hasSinks()) ଫେରନ୍ତୁ;
+        ଯଦି (vtxp->isObserved()) ଫେରନ୍ତୁ;
+        ଯଦି (vtxp->defaultp()) ଫେରନ୍ତୁ;
 
         // If undriven, or driven from another var, it is completely redundant.
-        if (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
+        ଯଦି (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
 
         // Otherwise remove if there is only one sink that is not a removable variable
-        bool foundOne = false;
-        const bool keep = vtxp->srcp()->foreachSink([&](DfgVertex& sink) -> bool {
+        ତାର୍କିକ foundOne = ମିଥ୍ୟା;
+        ଅଚଳ ତାର୍କିକ keep = vtxp->srcp()->foreachSink([&](DfgVertex& sink) -> ତାର୍କିକ {
             // Ignore non-observable variable sinks. These can be eliminated.
-            if (const DfgVertexVar* const varp = sink.cast<DfgVertexVar>()) {
-                if (!varp->hasSinks() && !varp->isObserved()) return false;
+            ଯଦି (ଅଚଳ DfgVertexVar* ଅଚଳ varp = sink.cast<DfgVertexVar>()) {
+                ଯଦି (!varp->hasSinks() && !varp->isObserved()) ଫେରନ୍ତୁ ମିଥ୍ୟା;
             }
             // Keep if found more than one sink
-            if (foundOne) return true;
+            ଯଦି (foundOne) ଫେରନ୍ତୁ ସତ୍ୟ;
             // Mark first sink found
-            foundOne = true;
-            return false;
+            foundOne = ସତ୍ୟ;
+            ଫେରନ୍ତୁ ମିଥ୍ୟା;
         });
-        if (!keep) {
+        ଯଦି (!keep) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                ଫେରନ୍ତୁ;
             }
         }
     }
@@ -3398,7 +3398,7 @@ class V3DfgPeephole final : public DfgVisitor {
         m_dfg.forEachVertex([&](DfgVertex& vtx) { m_vInfo[vtx].m_id = ++m_lastId; });
 
         // Add all operation vertices to the cache
-        for (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
+        ପାଇଁ (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
 
         // Initialize the work list and iter list. They can't get bigger than
         // m_dfg.size(), but new vertices are created in the loop, so over alloacte
@@ -3406,48 +3406,48 @@ class V3DfgPeephole final : public DfgVisitor {
         m_iterList.reserve(m_dfg.size() * 2);
 
         // Need a nullptr at index 0 so VertexInfo::m_*ListIndex == 0 can check membership
-        m_workList.push_back(nullptr);
-        m_iterList.push_back(nullptr);
+        m_workList.ଠେଲ_back(nullptr);
+        m_iterList.ଠେଲ_back(nullptr);
 
         // Add all variable vertices to the work list. Do this first so they are processed
         // last. This order has a better chance of preserving original variables in case
         // they are needed to hold intermediate results.
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
+        ପାଇଁ (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
 
         // Add all operation vertices to the work list
-        for (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
+        ପାଇଁ (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
 
         // Process iteratively
-        while (true) {
+        ଯେତେବେଳେ (ସତ୍ୟ) {
             // Process the work list - keep the placeholder at index 0
-            while (m_workList.size() > 1) {
+            ଯେତେବେଳେ (m_workList.size() > 1) {
                 VL_RESTORER(m_vtxp);
 
                 // Pop up head of work list
                 m_vtxp = m_workList.back();
-                m_workList.pop_back();
-                if (!m_vtxp) continue;  // If removed from worklist (deleted), move on
+                m_workList.କାଢ଼_back();
+                ଯଦି (!m_vtxp) ଜାରି;  // If removed from worklist (deleted), move on
                 m_vInfo[m_vtxp].m_workListIndex = 0;  // No longer on work list
 
                 // Variables are special, just visit them, the visit might delete them
-                if (DfgVertexVar* const varp = m_vtxp->cast<DfgVertexVar>()) {
+                ଯଦି (DfgVertexVar* ଅଚଳ varp = m_vtxp->cast<DfgVertexVar>()) {
                     visit(varp);
-                    continue;
+                    ଜାରି;
                 }
 
                 // Ast references are not considered
-                if (m_vtxp->is<DfgVertexAst>()) continue;
+                ଯଦି (m_vtxp->is<DfgVertexAst>()) ଜାରି;
 
                 // Unsued vertices should have been removed immediately
                 UASSERT_OBJ(m_vtxp->hasSinks(), m_vtxp, "Operation vertex should have sinks");
 
                 // Check if an equivalent vertex exists, if so replace this vertex with it.
                 // Can skip the lookup if the vertex is known to be the cached one
-                if (!m_vInfo[m_vtxp].m_isCachedVertex) {
-                    if (DfgVertex* const sampep = cacheVertex(m_vtxp)) {
+                ଯଦି (!m_vInfo[m_vtxp].m_isCachedVertex) {
+                    ଯଦି (DfgVertex* ଅଚଳ sampep = cacheVertex(m_vtxp)) {
                         APPLYING(REPLACE_WITH_EQUIVALENT) {
                             replace(sampep);
-                            continue;
+                            ଜାରି;
                         }
                     }
                 }
@@ -3457,7 +3457,7 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // If nothing was added to the iter list, we can stop
-            if (m_iterList.size() == 1) break;
+            ଯଦି (m_iterList.size() == 1) ଭାଙ୍ଗ;
 
             // Expand the iter list to visit the whole neighborhood of vertices
             // within a fixed number of hops from the enqueued vertices. This
@@ -3465,17 +3465,17 @@ class V3DfgPeephole final : public DfgVisitor {
             {
                 size_t begin = 0;
                 size_t end = m_iterList.size();
-                for (size_t hops = 1; hops <= 4; ++hops) {
-                    for (size_t i = begin; i < end; ++i) {
-                        DfgVertex* const vtxp = m_iterList[i];
-                        if (!vtxp) continue;
+                ପାଇଁ (size_t hops = 1; hops <= 4; ++hops) {
+                    ପାଇଁ (size_t i = begin; i < end; ++i) {
+                        DfgVertex* ଅଚଳ vtxp = m_iterList[i];
+                        ଯଦି (!vtxp) ଜାରି;
                         vtxp->foreachSink([&](DfgVertex& dst) {
                             addToIterList(&dst);
-                            return false;
+                            ଫେରନ୍ତୁ ମିଥ୍ୟା;
                         });
                         vtxp->foreachSource([&](DfgVertex& src) {
                             addToIterList(&src);
-                            return false;
+                            ଫେରନ୍ତୁ ମିଥ୍ୟା;
                         });
                     }
                     begin = end;
@@ -3484,8 +3484,8 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // Move vertices in the iter list to the work list for the next iteration
-            for (DfgVertex* const vtxp : m_iterList) {
-                if (!vtxp) continue;
+            ପାଇଁ (DfgVertex* ଅଚଳ vtxp : m_iterList) {
+                ଯଦି (!vtxp) ଜାରି;
                 removeFromIterList(vtxp);
                 addToWorkList(vtxp);
             }
@@ -3496,13 +3496,13 @@ class V3DfgPeephole final : public DfgVisitor {
 
 #undef APPLYING
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgPeepholeContext& ctx) { V3DfgPeephole{dfg, ctx}; }
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ apply(DfgGraph& dfg, V3DfgPeepholeContext& ctx) { V3DfgPeephole{dfg, ctx}; }
 };
 
 V3DebugBisect V3DfgPeephole::s_debugBisect{"DfgPeephole"};
 
-void V3DfgPasses::peephole(DfgGraph& dfg, V3DfgPeepholeContext& ctx) {
-    if (!v3Global.opt.fDfgPeephole()) return;
+ଶୂନ୍ୟ V3DfgPasses::peephole(DfgGraph& dfg, V3DfgPeepholeContext& ctx) {
+    ଯଦି (!v3Global.opt.fDfgPeephole()) ଫେରନ୍ତୁ;
     V3DfgPeephole::apply(dfg, ctx);
 }

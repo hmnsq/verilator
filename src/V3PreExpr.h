@@ -17,66 +17,66 @@
 #ifndef VERILATOR_V3PREEXPR_H_
 #define VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ଅନ୍ତର୍ଭାଵ "V3FileLine.h"
+#ଅନ୍ତର୍ଭାଵ "V3Global.h"
 
-#include <deque>
+#ଅନ୍ତର୍ଭାଵ <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_ପଦସମଷ୍ଟି_Token final {
+ସର୍ବସାଧାରଣ:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    ଗଣନା token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+ବ୍ୟକ୍ତିଗତ:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_ଧାଡ଼ି* ଅଚଳ m_fileline;  // Token fileline
+    token_t ଅଚଳ m_token;  // Token value
+ସର୍ବସାଧାରଣ:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_ପଦସମଷ୍ଟି_Token(File_ଧାଡ଼ି* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_ପଦସମଷ୍ଟି_Token(File_ଧାଡ଼ି* fileline, bool ମୂଲ୍ୟ)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{ମୂଲ୍ୟ ? ONE : ZERO} {}
+    ~V3_Pre_ପଦସମଷ୍ଟି_Token() = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
+    ଅଚଳ ଅକ୍ଷର* ascii() ଅଚଳ {
+        ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        ଫେରନ୍ତୁ names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_ଧାଡ଼ି* fileline() ଅଚଳ { ଫେରନ୍ତୁ m_fileline; }
+    token_t token() ଅଚଳ { ଫେରନ୍ତୁ m_token; }
+    bool is_ମୂଲ୍ୟ() ଅଚଳ { ଫେରନ୍ତୁ m_token == ZERO || m_token == ONE; }
+    bool ମୂଲ୍ୟ() ଅଚଳ {
+        UASSERT(is_ମୂଲ୍ୟ(), "preproc expr fetch of non-value");
+        ଫେରନ୍ତୁ m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_ପଦସମଷ୍ଟି final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_ପଦସମଷ୍ଟି_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_ପଦସମଷ୍ଟି_Token> m_ମୂଲ୍ୟଗୁଡ଼ିକ;  // Value stack
+    std::deque<V3_Pre_ପଦସମଷ୍ଟି_Token> m_ops;  // Operator stack
+    File_ଧାଡ଼ି* m_firstFileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    ଗଣନା action_t : uint8_t {
+        VV,  //ମୂଲ୍ୟ
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* actionAscii(action_t en) {
+        ସ୍ଥିର constexpr ଅଚଳ ଅକ୍ଷର* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        ଫେରନ୍ତୁ names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parseTable[V3_Pre_ପଦସମଷ୍ଟି_Token::MAX][V3_Pre_ପଦସମଷ୍ଟି_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    ସ୍ଥିର ଶୂନ୍ୟ selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    ସ୍ଥିର ଶୂନ୍ୟ selfTestOne(ଅଚଳ string& ପଦସମଷ୍ଟି, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << ପଦସମଷ୍ଟି);
+        File_ଧାଡ଼ି* ଅଚଳ flp = nullptr;
+        V3_Pre_ପଦସମଷ୍ଟି parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର* cp = ପଦସମଷ୍ଟି.c_str(); *cp; ++cp) {
+            ଯଦି (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                ବାଛ (*cp) {
+                ସ୍ଥିତି '0': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::ZERO}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '1': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::ONE}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '!': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::LNOT}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '|': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::LOR}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '&': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::LAND}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '-': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::IMP}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '<': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::EQV}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି '(': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::BRA}); ଭାଙ୍ଗ;
+                ସ୍ଥିତି ')': parser.ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::KET}); ଭାଙ୍ଗ;
+                ପୂର୍ବନିର୍ଦ୍ଧାରିତ: ଭାଙ୍ଗ;
                 }
-            } else if (*cp == ' ') {
+            } ଅନ୍ୟଥା ଯଦି (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        ଅଚଳ bool got = parser.result();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    ଶୂନ୍ୟ ଠେଲ_Op(ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.ଠେଲ_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    ଶୂନ୍ୟ ଠେଲ_ମୂଲ୍ୟ(ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_ମୂଲ୍ୟଗୁଡ଼ିକ.ଠେଲ_back(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
+    V3_Pre_ପଦସମଷ୍ଟି_Token କାଢ଼_ମୂଲ୍ୟ() {
+        ଯଦି (m_ମୂଲ୍ୟଗୁଡ଼ିକ.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            ଫେରନ୍ତୁ V3_Pre_ପଦସମଷ୍ଟି_Token{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token tok = m_ମୂଲ୍ୟଗୁଡ଼ିକ.back();
+        m_ମୂଲ୍ୟଗୁଡ଼ିକ.କାଢ଼_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        ଫେରନ୍ତୁ tok;
     }
-    void reduce() {
+    ଶୂନ୍ୟ reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.କାଢ଼_back();
+        ବାଛ (tok.token()) {
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::KET: {
+            ଯେତେବେଳେ (m_ops.back().token() != V3_Pre_ପଦସମଷ୍ଟି_Token::END
+                   && m_ops.back().token() != V3_Pre_ପଦସମଷ୍ଟି_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            ଯଦି (m_ops.back().token() == V3_Pre_ପଦସମଷ୍ଟି_Token::BRA) {
+                m_ops.କାଢ଼_back();
+            } ଅନ୍ୟଥା {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                ଫେରନ୍ତୁ;
             }
-            break;
+            ଭାଙ୍ଗ;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::LNOT: {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token lhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଠେଲ_ମୂଲ୍ୟ(V3_Pre_ପଦସମଷ୍ଟି_Token{tok.fileline(), !lhs.ମୂଲ୍ୟ()});
+            ଭାଙ୍ଗ;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::LAND: {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token rhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token lhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଠେଲ_ମୂଲ୍ୟ(V3_Pre_ପଦସମଷ୍ଟି_Token{tok.fileline(), lhs.ମୂଲ୍ୟ() && rhs.ମୂଲ୍ୟ()});
+            ଭାଙ୍ଗ;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::LOR: {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token rhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token lhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଠେଲ_ମୂଲ୍ୟ(V3_Pre_ପଦସମଷ୍ଟି_Token{tok.fileline(), lhs.ମୂଲ୍ୟ() || rhs.ମୂଲ୍ୟ()});
+            ଭାଙ୍ଗ;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::IMP: {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token rhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token lhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଠେଲ_ମୂଲ୍ୟ(V3_Pre_ପଦସମଷ୍ଟି_Token{tok.fileline(), !lhs.ମୂଲ୍ୟ() || rhs.ମୂଲ୍ୟ()});
+            ଭାଙ୍ଗ;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        ସ୍ଥିତି V3_Pre_ପଦସମଷ୍ଟି_Token::EQV: {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token rhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token lhs = କାଢ଼_ମୂଲ୍ୟ();
+            ଠେଲ_ମୂଲ୍ୟ(V3_Pre_ପଦସମଷ୍ଟି_Token{tok.fileline(), lhs.ମୂଲ୍ୟ() == rhs.ମୂଲ୍ୟ()});
+            ଭାଙ୍ଗ;
         }
-        default: {
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            ଭାଙ୍ଗ;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    ଶୂନ୍ୟ parse() {
+        ଯେତେବେଳେ (!m_inputs.empty()) {
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token tok = m_inputs.front();
+            m_inputs.କାଢ଼_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            ଯଦି (tok.is_ମୂଲ୍ୟ()) {
+                ଠେଲ_ମୂଲ୍ୟ(tok);
+                ଜାରି;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token ଶୀର୍ଷ_Tok = m_ops.back();
+            auto action = parseTable[ଶୀର୍ଷ_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << ଶୀର୍ଷ_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            ବାଛ (action) {
+            ସ୍ଥିତି RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                ଭାଙ୍ଗ;
+            ସ୍ଥିତି SS:  // Shift
+                m_ops.ଠେଲ_back(tok);
+                ଭାଙ୍ଗ;
+            ସ୍ଥିତି AA:  // Accept
+                ଭାଙ୍ଗ;
+            ପୂର୍ବନିର୍ଦ୍ଧାରିତ: tok.fileline()->v3error("Syntax error in `ifdef () expression"); ଫେରନ୍ତୁ;
             }
         }
     }
 
-public:
+ସର୍ବସାଧାରଣ:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_ପଦସମଷ୍ଟି() = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
+    ~V3_Pre_ପଦସମଷ୍ଟି() = ପୂର୍ବନିର୍ଦ୍ଧାରିତ;
+    ଶୂନ୍ୟ reset(File_ଧାଡ଼ି* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_ମୂଲ୍ୟଗୁଡ଼ିକ.clear();
         m_ops.clear();
         m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        ଠେଲ_Op(V3_Pre_ପଦସମଷ୍ଟି_Token{flp, V3_Pre_ପଦସମଷ୍ଟି_Token::END});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    ଶୂନ୍ୟ ଠେଲ_ନିବେଶ(ଅଚଳ V3_Pre_ପଦସମଷ୍ଟି_Token& token) {
+        ଯଦି (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.ଠେଲ_back(token);
     }
     bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+        ଠେଲ_ନିବେଶ(V3_Pre_ପଦସମଷ୍ଟି_Token{m_firstFileline, V3_Pre_ପଦସମଷ୍ଟି_Token::END});
         parse();
-        return popValue().value();
+        ଫେରନ୍ତୁ କାଢ଼_ମୂଲ୍ୟ().ମୂଲ୍ୟ();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    ସ୍ଥିର ଶୂନ୍ୟ selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
 #endif  // Guard

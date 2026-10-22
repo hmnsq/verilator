@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3VARIABLEORDER_H_
 #define VERILATOR_V3VARIABLEORDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3VariableOrder final {
-public:
-    static void orderAll(AstNetlist*);
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ orderAll(AstNetlist*);
 };
 
 #endif  // Guard

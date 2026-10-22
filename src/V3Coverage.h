@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3COVERAGE_H_
 #define VERILATOR_V3COVERAGE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Coverage final {
-public:
+ସର୍ବସାଧାରଣ:
     // CONSTRUCTORS
-    static void coverage(AstNetlist* rootp) VL_MT_DISABLED;
+    ସ୍ଥିର ଶୂନ୍ୟ coverage(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

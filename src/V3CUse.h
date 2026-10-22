@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3CUSE_H_
 #define VERILATOR_V3CUSE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ଅନ୍ତର୍ଭାଵ "config_build.h"
+#ଅନ୍ତର୍ଭାଵ "verilatedos.h"
 
 //============================================================================
 
 class V3CUse final {
-public:
-    static void cUseAll() VL_MT_DISABLED;
+ସର୍ବସାଧାରଣ:
+    ସ୍ଥିର ଶୂନ୍ୟ cUseAll() VL_MT_DISABLED;
 };
 
 #endif  // Guard
