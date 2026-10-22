@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#ضمن "VlcOptions.h"
+#ضمن "VlcPoint.h"
+#ضمن "VlcSource.h"
+#ضمن "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_قمة final {
+عام:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+خاص:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    فراغ annotateCalc();
+    فراغ annotateCalcNeeded();
+    فراغ annotateOutputFiles(ثابت string& dirname);
 
-public:
+عام:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_قمة() = افتراضي;
+    ~Vlc_قمة() = افتراضي;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { أرجع m_tests; }
+    VlcPoints& points() { أرجع m_points; }
+    VlcSources& sources() { أرجع m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    فراغ annotate(ثابت string& dirname);
+    فراغ اطبع_Hierarchy_Report();
+    فراغ اطبع_Type_Summary();
+    فراغ readCoverage(ثابت string& filename, bool nonfatal = false);
+    فراغ writeCoverage(ثابت string& filename);
+    فراغ writeInfo(ثابت string& filename);
 
-    void rank();
+    فراغ rank();
 };
 
 //######################################################################
