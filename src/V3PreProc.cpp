@@ -63,10 +63,10 @@ public:
         , m_value{value}
         , m_params{params}
         , m_cmdline{cmdline} {}
-    FileLine* fileline() const { return m_fileline; }
-    string value() const { return m_value; }
-    string params() const { return m_params; }
-    bool cmdline() const { return m_cmdline; }
+    FileLine* fileline() const { 戻る m_fileline; }
+    string value() const { 戻る m_value; }
+    string params() const { 戻る m_params; }
+    bool cmdline() const { 戻る m_cmdline; }
 };
 
 //*************************************************************************
@@ -76,17 +76,17 @@ class VDefineRef final {
     const string m_name;  // Define last name being defined
     const string m_params;  // Define parameter list for next expansion
     string m_nextarg;  // String being built for next argument
-    int m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
+    整数 m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
 
     std::vector<string> m_args;  // List of define arguments
 public:
-    string name() const { return m_name; }
-    string params() const { return m_params; }
-    string nextarg() const { return m_nextarg; }
+    string name() const { 戻る m_name; }
+    string params() const { 戻る m_params; }
+    string nextarg() const { 戻る m_nextarg; }
     void nextarg(const string& value) { m_nextarg = value; }
-    int parenLevel() const { return m_parenLevel; }
-    void parenLevel(int value) { m_parenLevel = value; }
-    std::vector<string>& args() { return m_args; }
+    整数 parenLevel() const { 戻る m_parenLevel; }
+    void parenLevel(整数 value) { m_parenLevel = value; }
+    std::vector<string>& args() { 戻る m_args; }
     VDefineRef(const string& name, const string& params)
         : m_name{name}
         , m_params{params} {}
@@ -101,8 +101,8 @@ class VPreIfEntry final {
     const bool m_on;  // Current parse for this ifdef level is "on"
     const bool m_everOn;  // Some if term in elsif tree has been on
 public:
-    bool on() const { return m_on; }
-    bool everOn() const { return m_everOn; }
+    bool on() const { 戻る m_on; }
+    bool everOn() const { 戻る m_everOn; }
     VPreIfEntry(bool on, bool everOn)
         : m_on{on}
         , m_everOn{everOn || on} {}  // Note everOn includes new state
@@ -124,8 +124,8 @@ public:
     // STATE
     const V3PreProc* m_preprocp = nullptr;  ///< Object we're holding data for
     V3PreLex* m_lexp = nullptr;  ///< Current lexer state (nullptr = closed)
-    int m_lastLineno = 0;  // Last line number (stall detection)
-    int m_tokensOnLine = 0;  // Number of tokens on line (stall detection)
+    整数 m_lastLineno = 0;  // Last line number (stall detection)
+    整数 m_tokensOnLine = 0;  // Number of tokens on line (stall detection)
 
     enum ProcState : uint8_t {
         ps_TOP,
@@ -154,11 +154,11 @@ public:
                "ps_DEFVALUE",      "ps_ERRORNAME",      "ps_EXPR_IFDEF",
                "ps_EXPR_IFNDEF",   "ps_EXPR_ELSIF",     "ps_INCNAME",
                "ps_JOIN",          "ps_STRIFY"};
-        return states[s];
+        戻る states[s];
     }
 
     std::stack<ProcState> m_states;  ///< Current state of parser
-    int m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
+    整数 m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
     bool m_incError = false;  ///< Include error found
     string m_lastSym;  ///< Last symbol name found.
     string m_formals;  ///< Last formals found
@@ -166,12 +166,12 @@ public:
     // For getRawToken/ `line insertion
     string m_lineCmt;  ///< Line comment(s) to be returned
     bool m_lineCmtNl = false;  ///< Newline needed before inserting lineCmt
-    int m_lineAdd = 0;  ///< Empty lines to return to maintain line count
+    整数 m_lineAdd = 0;  ///< Empty lines to return to maintain line count
     bool m_rawAtBol = true;  ///< Last rawToken left us at beginning of line
 
     // For getFinalToken
     bool m_finAhead = false;  ///< Have read a token ahead
-    int m_finToken = 0;  ///< Last token read
+    整数 m_finToken = 0;  ///< Last token read
     string m_finBuf;  ///< Last yytext read
     bool m_finAtBol = true;  ///< Last getFinalToken left us at beginning of line
     FileLine* m_finFilelinep = nullptr;  ///< Location of last returned token (internal only)
@@ -190,7 +190,7 @@ public:
 
     // for `ifdef () expressions
     V3PreExpr m_exprParser;  ///< Parser for () expression
-    int m_exprParenLevel = 0;  ///< Number of ( deep in `ifdef () expression
+    整数 m_exprParenLevel = 0;  ///< Number of ( deep in `ifdef () expression
 
     // For getline()
     string m_lineChars;  ///< Characters left for next line
@@ -201,8 +201,8 @@ public:
         fileline()->v3errorEnd(str);
     }
 
-    static const char* tokenName(int tok);
-    void debugToken(int tok, const char* cmtp);
+    static const char* tokenName(整数 tok);
+    void debugToken(整数 tok, const char* cmtp);
     void parseTop();
     void parseUndef();
 
@@ -225,25 +225,25 @@ private:
 
     void parsingOn() {
         m_off--;
-        if (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
+        もし (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
         // addLineComment no longer needed; getFinalToken will correct.
     }
     void parsingOff() { m_off++; }
 
-    int getRawToken();
-    int getStateToken();
-    int getFinalToken(string& buf);
+    整数 getRawToken();
+    整数 getStateToken();
+    整数 getFinalToken(string& buf);
 
-    ProcState state() const { return m_states.top(); }
+    ProcState state() const { 戻る m_states.top(); }
     bool stateIsDefname() const {
-        return state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
+        戻る state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
                || state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                || state() == ps_DEFNAME_ELSIF;
     }
     void statePush(ProcState state) { m_states.push(state); }
     void statePop() {
         m_states.pop();
-        if (VL_UNCOVERABLE(m_states.empty())) {
+        もし (VL_UNCOVERABLE(m_states.empty())) {
             fileline()->v3fatalSrc("Pop of parser state with nothing on stack");
             m_states.push(ps_TOP);  // LCOV_EXCL_LINE
         }
@@ -256,12 +256,12 @@ private:
 public:
     // METHODS, called from upper level shell
     void openFile(FileLine* fl, VInFilter* filterp, const string& filename) override;
-    bool isEof() const override { return m_lexp->curStreamp()->m_eof; }
+    bool isEof() const override { 戻る m_lexp->curStreamp()->m_eof; }
     void forceEof() { m_lexp->curStreamp()->m_eof = true; }
     string getline() override;
     void insertUnreadback(const string& text) override { m_lineCmt += text; }
     void insertUnreadbackAtBol(const string& text);
-    void addLineComment(int enterExit);
+    void addLineComment(整数 enterExit);
     void dumpDefines(std::ostream& os) override;
     void candidateDefines(VSpellCheck* spellerp) override;
 
@@ -289,7 +289,7 @@ public:
         m_lexp->m_pedantic = pedantic();
     }
     ~V3PreProcImp() override {
-        if (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
+        もし (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
     }
 };
 
@@ -299,7 +299,7 @@ public:
 V3PreProc* V3PreProc::createPreProc(FileLine* fl) {
     V3PreProcImp* const preprocp = new V3PreProcImp;
     preprocp->configure(fl);
-    return preprocp;
+    戻る preprocp;
 }
 
 void V3PreProc::selfTest() VL_MT_DISABLED { V3PreExpr::selfTest(); }
@@ -308,70 +308,70 @@ void V3PreProc::selfTest() VL_MT_DISABLED { V3PreExpr::selfTest(); }
 // Defines
 
 void V3PreProcImp::undef(const string& name) {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+    もし (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
         insertUnreadback("`undef " + name + "\n");
     m_defines.erase(name);
 }
 void V3PreProcImp::undefineall() {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+    もし (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
         insertUnreadback("`undefineall\n");
-    for (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
+    ために (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
         nextit = it;
         ++nextit;
-        if (!it->second.cmdline()) m_defines.erase(it);
+        もし (!it->second.cmdline()) m_defines.erase(it);
     }
 }
 bool V3PreProcImp::defExists(const string& name) {
     const auto iter = m_defines.find(name);
-    return (iter != m_defines.end());
+    戻る (iter != m_defines.end());
 }
 bool V3PreProcImp::defCmdline(const string& name) {
     const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) { return false; }
-    return iter->second.cmdline();
+    もし (iter == m_defines.end()) { 戻る false; }
+    戻る iter->second.cmdline();
 }
 string V3PreProcImp::defValue(const string& name) {
     const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+    もし (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        戻る "";
     }
-    return iter->second.value();
+    戻る iter->second.value();
 }
 string V3PreProcImp::defParams(const string& name) {
     const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+    もし (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        戻る "";
     }
-    return iter->second.params();
+    戻る iter->second.params();
 }
 FileLine* V3PreProcImp::defFileline(const string& name) {
     const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) return nullptr;
-    return iter->second.fileline();
+    もし (iter == m_defines.end()) 戻る nullptr;
+    戻る iter->second.fileline();
 }
 void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
                           const string& params, bool cmdline) {
     UINFO(4, "DEFINE '" << name << "' as '" << value << "' params '" << params << "'");
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
+    もし (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
         // Any newlines in the string must have backslash escape so can re-parse properly
         // If there was a comment with backslash, it got stripped because IEEE says
         // the backslash is not part of the value
         string out;
         out.reserve(value.size());
-        for (string::size_type pos = 0; pos < value.size(); ++pos) {
-            if (value[pos] == '\n' && (pos == 0 || value[pos - 1] != '\\')) out += '\\';
+        ために (string::size_type pos = 0; pos < value.size(); ++pos) {
+            もし (value[pos] == '\n' && (pos == 0 || value[pos - 1] != '\\')) out += '\\';
             out += value[pos];
         }
         insertUnreadback("`define " + name + params + (out.empty() ? "" : " ") + out + "\n");
     }
-    if (!V3LanguageWords::isKeyword("`"s + name).empty()) {
+    もし (!V3LanguageWords::isKeyword("`"s + name).empty()) {
         fl->v3error("Attempting to define built-in directive: '`" << name
                                                                   << "' (IEEE 1800-2023 22.5.1)");
-    } else {
-        if (defExists(name)) {
-            if (defCmdline(name) && !cmdline) {
+    } 否则 {
+        もし (defExists(name)) {
+            もし (defCmdline(name) && !cmdline) {
                 fl->v3warn(DEFOVERRIDE,
                            "Overriding define: '"
                                << name << "' with value: '" << value
@@ -383,9 +383,9 @@ void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
                                << defValue(name) << (defParams(name).empty() ? "" : " ")
                                << defParams(name) << "'\n"
                                << defFileline(name)->warnContextSecondary());
-                return;
-            } else {
-                if (!(defValue(name) == value
+                戻る;
+            } 否则 {
+                もし (!(defValue(name) == value
                       && defParams(name) == params)) {  // Duplicate defs are OK
                     fl->v3warn(REDEFMACRO,
                                "Redefining existing define: '"
@@ -409,21 +409,21 @@ void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
 string V3PreProcImp::removeDefines(const string& text) {
     string val;
     string rtnsym = text;
-    for (int loopprevent = 0; loopprevent < 100; loopprevent++) {
+    ために (整数 loopprevent = 0; loopprevent < 100; loopprevent++) {
         string xsym = rtnsym;
-        if (xsym[0] == '`') xsym.erase(0, 1);
-        if (defExists(xsym)) {
+        もし (xsym[0] == '`') xsym.erase(0, 1);
+        もし (defExists(xsym)) {
             val = defValue(xsym);
-            if (val != rtnsym) {
+            もし (val != rtnsym) {
                 rtnsym = val;  // Prevent infinite loop if have `define X X
-            } else {
+            } 否则 {
                 break;
             }
-        } else {
+        } 否则 {
             break;
         }
     }
-    return rtnsym;  // NA
+    戻る rtnsym;  // NA
 }
 
 //**********************************************************************
@@ -438,89 +438,89 @@ string V3PreProcImp::commentCleanup(const string& text) {
     // Cleanup comment for easier parsing (call before commentTokenMatch)
     string cmd = text;
     string::size_type pos;
-    while ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
-    while (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
-    return cmd;
+    ながら ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
+    ながら ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
+    ながら ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
+    ながら ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
+    ながら ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
+    ながら ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
+    ながら (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
+    戻る cmd;
 }
 
 bool V3PreProcImp::commentTokenMatch(string& cmdr, const char* strg) {
-    int len = std::strlen(strg);
-    if (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
-        if (std::isspace(cmdr[len])) len++;
+    整数 len = std::strlen(strg);
+    もし (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
+        もし (std::isspace(cmdr[len])) len++;
         cmdr = cmdr.substr(len);
-        return true;
-    } else {
-        return false;
+        戻る true;
+    } 否则 {
+        戻る false;
     }
 }
 
 void V3PreProcImp::comment(const string& text) {
     // Comment detected.  Only keep relevant data.
     bool printed = false;
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
+    もし (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
         insertUnreadback(text);
         printed = true;
     }
 
     const char* cp = text.c_str();
-    if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
+    もし (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
         cp += 2;
-    } else {
-        return;
+    } 否则 {
+        戻る;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    ながら (std::isspace(*cp)) ++cp;
 
     bool synth = false;
     bool vlcomment = false;
-    if ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
+    もし ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
         cp += std::strlen("verilator");
-        if (*cp == '_') {
+        もし (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*verilator {...}*/ not /*verilator_{...}*/");
-            return;
+            戻る;
         }
         vlcomment = true;
-    } else if (VString::startsWith(cp, "synopsys")) {
+    } 否则 もし (VString::startsWith(cp, "synopsys")) {
         cp += std::strlen("synopsys");
-        if (*cp == '_') {
+        もし (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*synopsys {...}*/ not /*synopsys_{...}*/");
-            return;
+            戻る;
         }
         synth = true;
-    } else if (VString::startsWith(cp, "cadence")) {
+    } 否则 もし (VString::startsWith(cp, "cadence")) {
         cp += std::strlen("cadence");
         synth = true;
-    } else if (VString::startsWith(cp, "pragma")) {
+    } 否则 もし (VString::startsWith(cp, "pragma")) {
         cp += std::strlen("pragma");
         synth = true;
-    } else if (VString::startsWith(cp, "ambit synthesis")) {
+    } 否则 もし (VString::startsWith(cp, "ambit synthesis")) {
         cp += std::strlen("ambit synthesis");
         synth = true;
-    } else {
-        return;
+    } 否则 {
+        戻る;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    ながら (std::isspace(*cp)) ++cp;
     string cmd = commentCleanup(string{cp});
     // cmd now is comment without extra spaces and "verilator" prefix
 
-    if (synth) {
-        if (v3Global.opt.assertOn()) {
+    もし (synth) {
+        もし (v3Global.opt.assertOn()) {
             // one_hot, one_cold, (full_case, parallel_case)
-            if (commentTokenMatch(cmd /*ref*/, "full_case")) {
-                if (!printed) insertUnreadback("/*verilator full_case*/");
+            もし (commentTokenMatch(cmd /*ref*/, "full_case")) {
+                もし (!printed) insertUnreadback("/*verilator full_case*/");
             }
-            if (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
-                if (!printed) insertUnreadback("/*verilator parallel_case*/");
+            もし (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
+                もし (!printed) insertUnreadback("/*verilator parallel_case*/");
             }
             // if (commentTokenMatch(cmd/*ref*/, "one_hot")) {
             //  insertUnreadback ("/*verilator one_hot*/ "+cmd+";");
@@ -530,36 +530,36 @@ void V3PreProcImp::comment(const string& text) {
             //}
             // else ignore the comment we don't recognize
         }  // else no assertions
-    } else if (vlcomment
+    } 否则 もし (vlcomment
                // Drop 'public' if disabled on the command line
                && !(v3Global.opt.publicOff() && VString::startsWith(cmd, "public"))
                // Drop 'fargs', they are handled separately during option parsing
                && !VString::startsWith(cmd, "fargs")) {
-        if (VString::startsWith(cmd, "public_flat_rw")) {
+        もし (VString::startsWith(cmd, "public_flat_rw")) {
             // "/*verilator public_flat_rw @(foo) */" -> "/*verilator public_flat_rw*/ @(foo)"
             string::size_type endOfCmd = std::strlen("public_flat_rw");
-            while (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
+            ながら (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
             string baseCmd = cmd.substr(0, endOfCmd);
             string arg = cmd.substr(endOfCmd);
-            while (std::isspace(arg[0])) arg = arg.substr(1);
-            if (arg.size() && baseCmd == "public_flat_rw_on")
+            ながら (std::isspace(arg[0])) arg = arg.substr(1);
+            もし (arg.size() && baseCmd == "public_flat_rw_on")
                 baseCmd += "_sns";  // different cmd for applying sensitivity
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
-        } else if (VString::startsWith(cmd, "dpi_c_decl")) {
+            もし (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
+        } 否则 もし (VString::startsWith(cmd, "dpi_c_decl")) {
             // "/*verilator dpi_c_decl foo(bar) */" -> "/*verilator dpi_c_decl*/ \"foo(bar)\""
             string baseCmd = cmd.substr(0, std::strlen("dpi_c_decl"));
             string::size_type startOfArg = baseCmd.size();
-            while (std::isspace(cmd[startOfArg])) startOfArg++;
+            ながら (std::isspace(cmd[startOfArg])) startOfArg++;
             string arg = cmd.substr(startOfArg);
-            if (arg.empty()) {
+            もし (arg.empty()) {
                 fileline()->v3warn(
                     BADVLTPRAGMA,
                     "No function declaration provided in /*verilator dpi_c_decl*/ meta-comment");
-                return;
+                戻る;
             }
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
-        } else {
-            if (!printed) insertUnreadback("/*verilator " + cmd + "*/");
+            もし (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
+        } 否则 {
+            もし (!printed) insertUnreadback("/*verilator " + cmd + "*/");
         }
     }
 }
@@ -569,42 +569,42 @@ void V3PreProcImp::comment(const string& text) {
 
 FileLine* V3PreProc::fileline() {
     const V3PreProcImp* idatap = static_cast<V3PreProcImp*>(this);
-    return idatap->m_lexp->m_tokFilelinep;
+    戻る idatap->m_lexp->m_tokFilelinep;
 }
 
 //**********************************************************************
 // Parser Utilities
 
-const char* V3PreProcImp::tokenName(int tok) {
+const char* V3PreProcImp::tokenName(整数 tok) {
     switch (tok) {
-    case VP_BACKQUOTE: return ("BACKQUOTE");
-    case VP_COMMENT: return ("COMMENT");
-    case VP_DEFARG: return ("DEFARG");
-    case VP_DEFFORM: return ("DEFFORM");
-    case VP_DEFINE: return ("DEFINE");
-    case VP_DEFREF: return ("DEFREF");
-    case VP_DEFREF_JOIN: return ("DEFREF_JOIN");
-    case VP_DEFVALUE: return ("DEFVALUE");
-    case VP_ELSE: return ("ELSE");
-    case VP_ELSIF: return ("ELSIF");
-    case VP_ENDIF: return ("ENDIF");
-    case VP_EOF: return ("EOF");
-    case VP_EOF_ERROR: return ("EOF_ERROR");
-    case VP_ERROR: return ("ERROR");
-    case VP_IFDEF: return ("IFDEF");
-    case VP_IFNDEF: return ("IFNDEF");
-    case VP_JOIN: return ("JOIN");
-    case VP_INCLUDE: return ("INCLUDE");
-    case VP_LINE: return ("LINE");
-    case VP_STRIFY: return ("STRIFY");
-    case VP_STRING: return ("STRING");
-    case VP_SYMBOL: return ("SYMBOL");
-    case VP_SYMBOL_JOIN: return ("SYMBOL_JOIN");
-    case VP_TEXT: return ("TEXT");
-    case VP_UNDEF: return ("UNDEF");
-    case VP_UNDEFINEALL: return ("UNDEFINEALL");
-    case VP_WHITE: return ("WHITE");
-    default: return ("?");
+    case VP_BACKQUOTE: 戻る ("BACKQUOTE");
+    case VP_COMMENT: 戻る ("COMMENT");
+    case VP_DEFARG: 戻る ("DEFARG");
+    case VP_DEFFORM: 戻る ("DEFFORM");
+    case VP_DEFINE: 戻る ("DEFINE");
+    case VP_DEFREF: 戻る ("DEFREF");
+    case VP_DEFREF_JOIN: 戻る ("DEFREF_JOIN");
+    case VP_DEFVALUE: 戻る ("DEFVALUE");
+    case VP_ELSE: 戻る ("ELSE");
+    case VP_ELSIF: 戻る ("ELSIF");
+    case VP_ENDIF: 戻る ("ENDIF");
+    case VP_EOF: 戻る ("EOF");
+    case VP_EOF_ERROR: 戻る ("EOF_ERROR");
+    case VP_ERROR: 戻る ("ERROR");
+    case VP_IFDEF: 戻る ("IFDEF");
+    case VP_IFNDEF: 戻る ("IFNDEF");
+    case VP_JOIN: 戻る ("JOIN");
+    case VP_INCLUDE: 戻る ("INCLUDE");
+    case VP_LINE: 戻る ("LINE");
+    case VP_STRIFY: 戻る ("STRIFY");
+    case VP_STRING: 戻る ("STRING");
+    case VP_SYMBOL: 戻る ("SYMBOL");
+    case VP_SYMBOL_JOIN: 戻る ("SYMBOL_JOIN");
+    case VP_TEXT: 戻る ("TEXT");
+    case VP_UNDEF: 戻る ("UNDEF");
+    case VP_UNDEFINEALL: 戻る ("UNDEFINEALL");
+    case VP_WHITE: 戻る ("WHITE");
+    default: 戻る ("?");
     }
 }
 
@@ -614,7 +614,7 @@ void V3PreProcImp::unputString(const string& strg) {
     // However this can lead to "flex scanner push-back overflow"
     // so instead we scan from a temporary buffer, then on EOF return.
     // This is also faster than the old scheme, amazingly.
-    if (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
+    もし (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
         v3fatalSrc("bufferStack missing current buffer; will return incorrectly");
         // Hard to debug lost text as won't know till much later
     }
@@ -622,7 +622,7 @@ void V3PreProcImp::unputString(const string& strg) {
 }
 
 void V3PreProcImp::unputDefrefString(const string& strg) {
-    const int multiline = std::count(strg.begin(), strg.end(), '\n');
+    const 整数 multiline = std::count(strg.begin(), strg.end(), '\n');
     unputString(strg);
     // A define that inserts multiple newlines are really attributed to one source line,
     // so temporarily don't increment lineno.
@@ -634,19 +634,19 @@ string V3PreProcImp::trimWhitespace(const string& strg, bool trailing) {
     // Remove leading whitespace
     string out = strg;
     string::size_type leadspace = 0;
-    while (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
-    if (leadspace) out.erase(0, leadspace);
+    ながら (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
+    もし (leadspace) out.erase(0, leadspace);
     // Remove trailing whitespace
-    if (trailing) {
+    もし (trailing) {
         string::size_type trailspace = 0;
-        while (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
+        ながら (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
             ++trailspace;
         // Don't remove \{space_or_newline}
-        if (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
+        もし (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
             --trailspace;
-        if (trailspace) out.erase(out.length() - trailspace, trailspace);
+        もし (trailspace) out.erase(out.length() - trailspace, trailspace);
     }
-    return out;
+    戻る out;
 }
 
 string V3PreProcImp::defineSubst(VDefineRef* refp) {
@@ -659,7 +659,7 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
     // parameterized define is used many, many times, we could cache the
     // parsed result.
     UINFO(4, "defineSubstIn  `" << refp->name() << " " << refp->params());
-    for (unsigned i = 0; i < refp->args().size(); i++) {
+    ために (unsigned i = 0; i < refp->args().size(); i++) {
         UINFO(4, "defineArg[" << i << "] = '" << refp->args()[i] << "'");
     }
     // Grab value
@@ -670,40 +670,40 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
     {  // Parse argument list into map
         unsigned numArgs = 0;
         string argName;
-        int paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
+        整数 paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
         string token;
         bool quote = false;
         bool haveDefault = false;
         // Note there's a leading ( and trailing ), so parens==1 is the base parsing level
         const string params = refp->params();  // Must keep str in scope to get pointer
         const char* cp = params.c_str();
-        if (*cp == '(') cp++;
-        for (; *cp; cp++) {
+        もし (*cp == '(') cp++;
+        ために (; *cp; cp++) {
             // UINFO(4, "   Parse  Paren=" << paren << "  Arg=" << numArgs << "  token='" << token
             //                             << "' Parse=" << cp);
-            if (!quote && paren == 1) {
-                if (*cp == ')' || *cp == ',') {
+            もし (!quote && paren == 1) {
+                もし (*cp == ')' || *cp == ',') {
                     string valueDef;
-                    if (haveDefault) {
+                    もし (haveDefault) {
                         valueDef = token;
-                    } else {
+                    } 否则 {
                         argName = token;
                     }
                     argName = trimWhitespace(argName, true);
                     UINFO(4, "    Got Arg=" << numArgs << "  argName='" << argName
                                             << "'  default='" << valueDef << "'");
                     // Parse it
-                    if (argName != "") {
-                        if (refp->args().size() > numArgs) {
+                    もし (argName != "") {
+                        もし (refp->args().size() > numArgs) {
                             // A call `def( a ) must be equivalent to `def(a ), so trimWhitespace
                             // At one point we didn't trim trailing
                             // whitespace, but this confuses `"
                             const string arg = trimWhitespace(refp->args()[numArgs], true);
-                            if (arg != "") valueDef = arg;
-                        } else if (!haveDefault) {
+                            もし (arg != "") valueDef = arg;
+                        } 否则 もし (!haveDefault) {
                             fileline()->v3error("Define missing argument '" + argName
                                                 + "' for: " + refp->name());
-                            return " `" + refp->name() + " ";
+                            戻る " `" + refp->name() + " ";
                         }
                         numArgs++;
                     }
@@ -713,35 +713,35 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
                     token = "";
                     haveDefault = false;
                     continue;
-                } else if (*cp == '=') {
+                } 否则 もし (*cp == '=') {
                     haveDefault = true;
                     argName = token;
                     token = "";
                     continue;
                 }
             }
-            if (cp[0] == '\\' && cp[1]) {
+            もし (cp[0] == '\\' && cp[1]) {
                 token += cp[0];  // \{any} Put out literal next character
                 token += cp[1];
                 cp++;
                 continue;
             }
-            if (!quote) {
-                if (*cp == '(' || *cp == '{' || *cp == '[') {
+            もし (!quote) {
+                もし (*cp == '(' || *cp == '{' || *cp == '[') {
                     paren++;
-                } else if (*cp == ')' || *cp == '}' || *cp == ']') {
+                } 否则 もし (*cp == ')' || *cp == '}' || *cp == ']') {
                     paren--;
                 }
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) token += *cp;
+            もし (*cp == '"') quote = !quote;
+            もし (*cp) token += *cp;
         }
-        if (refp->args().size() > numArgs
+        もし (refp->args().size() > numArgs
             // `define X() is ok to call with nothing
             && !(refp->args().size() == 1 && numArgs == 0
                  && trimWhitespace(refp->args()[0], false) == "")) {
             fileline()->v3error("Define passed too many arguments: " + refp->name());
-            return " `" + refp->name() + " ";
+            戻る " `" + refp->name() + " ";
         }
     }
 
@@ -752,69 +752,69 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
         bool triquote = false;
         bool backslashesc = false;  // In \.....{space} block
         // Note we go through the loop once more at the nullptr end-of-string
-        for (const char* cp = value.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
+        ために (const char* cp = value.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
             // UINFO(4, "CH " << *cp << "  an " << argName);
-            if (!quote && !triquote && *cp == '\\') {
+            もし (!quote && !triquote && *cp == '\\') {
                 backslashesc = true;
-            } else if (std::isspace(*cp)) {
+            } 否则 もし (std::isspace(*cp)) {
                 backslashesc = false;
             }
-            if (!quote && !triquote) {
-                if (std::isalpha(*cp)  //
+            もし (!quote && !triquote) {
+                もし (std::isalpha(*cp)  //
                     || *cp == '_'  //
                     || *cp == '$'  // Won't replace system functions, since no $ in argValueByName
                     || (argName != "" && std::isdigit(*cp))) {
                     argName += *cp;
                     continue;
                 }
-                if (argName != "") {
+                もし (argName != "") {
                     // Found a possible variable substitution
                     const auto iter = argValueByName.find(argName);
-                    if (iter != argValueByName.end()) {
+                    もし (iter != argValueByName.end()) {
                         // Substitute
                         const string subst = iter->second;
-                        if (subst == "") {
+                        もし (subst == "") {
                             // Normally `` is removed later, but with no token after, we're
                             // otherwise stuck, so remove proceeding ``
-                            if (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
+                            もし (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
                                 out.resize(out.size() - 2);
                             }
-                        } else {
+                        } 否则 {
                             out += subst;
                         }
-                    } else {
+                    } 否则 {
                         out += argName;
                     }
                     argName = "";
                 }
                 // Check for `` only after we've detected end-of-argname
-                if (cp[0] == '`' && cp[1] == '`') {
-                    if (backslashesc) {
+                もし (cp[0] == '`' && cp[1] == '`') {
+                    もし (backslashesc) {
                         // Don't put out the ``, we're forming an escape
                         // which will not expand further later
-                    } else {
+                    } 否则 {
                         out += "``";  // `` must get removed later, as `FOO```BAR must pre-expand
                                       // FOO and BAR
                         // See also removal in empty substitutes above
                     }
                     cp++;
                     continue;
-                } else if (cp[0] == '`' && cp[1] == '"') {
+                } 否则 もし (cp[0] == '`' && cp[1] == '"') {
                     out += "`\"";  // `" means to put out a " without enabling quote mode (sort of)
                     // however we must expand any macro calls inside it first.
                     // So keep it `", so we don't enter quote mode.
                     cp++;
                     continue;
-                } else if (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
+                } 否则 もし (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
                     out += "`\\`\"";  // `\`" means to put out a backslash quote
                     // Leave it literal until we parse the VP_STRIFY string
                     cp += 3;
                     continue;
-                } else if (cp[0] == '`' && cp[1] == '\\') {
+                } 否则 もし (cp[0] == '`' && cp[1] == '\\') {
                     out += '\\';  // `\ means to put out a backslash
                     cp++;
                     continue;
-                } else if (cp[0] == '\\' && cp[1] == '\n') {
+                } 否则 もし (cp[0] == '\\' && cp[1] == '\n') {
                     // We kept the \\n when we lexed because we don't want whitespace
                     // trimming to mis-drop the final \\n
                     // At replacement time we need the standard newline.
@@ -823,30 +823,30 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
                     continue;
                 }
             }
-            if (cp[0] == '\\' && cp[1] == '\"') {
+            もし (cp[0] == '\\' && cp[1] == '\"') {
                 out += cp[0];  // \{any} Put out literal next character
                 out += cp[1];
                 cp++;
                 continue;
-            } else if (cp[0] == '\\') {
+            } 否则 もし (cp[0] == '\\') {
                 // Normally \{any} would put out literal next character
                 // Instead we allow "`define A(nm) \nm" to expand, per proposed mantis1537
                 out += cp[0];
                 continue;
             }
-            if (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
+            もし (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
                 triquote = !triquote;
                 out += "\"\"\"";
                 cp += 2;
                 continue;
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) out += *cp;
+            もし (*cp == '"') quote = !quote;
+            もし (*cp) out += *cp;
         }
     }
 
     UINFO(4, "defineSubstOut '" << V3PreLex::cleanDbgStrg(out) << "'");
-    return out;
+    戻る out;
 }
 
 //**********************************************************************
@@ -854,27 +854,27 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
 
 void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filename) {
     // Open a new file, possibly overriding the current one which is active.
-    if (m_incError) return;
+    もし (m_incError) 戻る;
     m_lexp->setYYDebug(debug() >= 5);
     V3File::addSrcDepend(filename);
 
     // Read a list<string> with the whole file.
     StrList wholefile;
     const bool ok = filterp->readWholefile(filename, wholefile /*ref*/);
-    if (!ok) {
+    もし (!ok) {
         fileline()->v3error("File not found: " + filename);
-        return;
+        戻る;
     }
 
-    if (!m_preprocp->isEof()) {  // IE not the first file.
+    もし (!m_preprocp->isEof()) {  // IE not the first file.
         // We allow the same include file twice, because occasionally it pops
         // up, with guards preventing a real recursion.
-        if (m_lexp->m_streampStack.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
+        もし (m_lexp->m_streampStack.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
             fileline()->v3error("Recursive inclusion of file: " + filename);
             // Include might be a tree of includes that is O(n^2) or worse.
             // Once hit this error then, ignore all further includes so can unwind.
             m_incError = true;
-            return;
+            戻る;
         }
         // There's already a file active.  Push it to work on the new one.
         addLineComment(0);
@@ -884,20 +884,20 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     FileLine* const flsp = new FileLine{filename};
     flsp->lineno(1);
     flsp->newContent();
-    for (const string& i : wholefile) flsp->contentp()->pushText(i);
+    ために (const string& i : wholefile) flsp->contentp()->pushText(i);
 
     // Save contents for V3Control --contents
-    if (filename != V3Options::getStdPackagePath()) {
+    もし (filename != V3Options::getStdPackagePath()) {
         bool containsVlt = false;
-        for (const string& i : wholefile) {
+        ために (const string& i : wholefile) {
             // TODO this is overly sensitive, might be in a comment
-            if (i.find("`verilator_config") != string::npos) {
+            もし (i.find("`verilator_config") != string::npos) {
                 containsVlt = true;
                 break;
             }
         }
-        if (!containsVlt) {
-            for (const string& i : wholefile) V3Control::contentsPushText(i);
+        もし (!containsVlt) {
+            ために (const string& i : wholefile) V3Control::contentsPushText(i);
         }
     }
 
@@ -908,29 +908,29 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     // Filter all DOS CR's en masse.  This avoids bugs with lexing CRs in the wrong places.
     // This will also strip them from strings, but strings aren't supposed
     // to be multi-line without a "\"
-    int eof_newline = 0;  // Number of characters following last newline
-    int eof_lineno = 1;
-    for (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
+    整数 eof_newline = 0;  // Number of characters following last newline
+    整数 eof_lineno = 1;
+    ために (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
         // We don't end-loop at \0 as we allow and strip mid-string '\0's (for now).
         bool strip = false;
         const char* const sp = it->data();
         const char* const ep = sp + it->length();
         // Only process if needed, as saves extra string allocations
-        for (const char* cp = sp; cp < ep; cp++) {
-            if (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
+        ために (const char* cp = sp; cp < ep; cp++) {
+            もし (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
                 strip = true;
-            } else if (VL_UNLIKELY(*cp == '\n')) {
+            } 否则 もし (VL_UNLIKELY(*cp == '\n')) {
                 eof_newline = 0;
                 ++eof_lineno;
-            } else {
+            } 否则 {
                 ++eof_newline;
             }
         }
-        if (strip) {
+        もし (strip) {
             string out;
             out.reserve(it->length());
-            for (const char* cp = sp; cp < ep; cp++) {
-                if (!(*cp == '\r' || *cp == '\0')) out += *cp;
+            ために (const char* cp = sp; cp < ep; cp++) {
+                もし (!(*cp == '\r' || *cp == '\0')) out += *cp;
             }
             *it = out;
         }
@@ -942,7 +942,7 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     }
 
     // Warning check
-    if (eof_newline) {
+    もし (eof_newline) {
         FileLine* const fl = new FileLine{flsp};
         fl->contentLineno(eof_lineno);
         fl->column(eof_newline + 1, eof_newline + 1);
@@ -955,109 +955,109 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
 void V3PreProcImp::insertUnreadbackAtBol(const string& text) {
     // Insert insuring we're at the beginning of line, for `line
     // We don't always add a leading newline, as it may result in extra unreadback(newlines).
-    if (m_lineCmt == "") {
+    もし (m_lineCmt == "") {
         m_lineCmtNl = true;
-    } else if (m_lineCmt[m_lineCmt.length() - 1] != '\n') {
+    } 否则 もし (m_lineCmt[m_lineCmt.length() - 1] != '\n') {
         insertUnreadback("\n");
     }
     insertUnreadback(text);
 }
 
-void V3PreProcImp::addLineComment(int enterExit) {
-    if (lineDirectives()) {
+void V3PreProcImp::addLineComment(整数 enterExit) {
+    もし (lineDirectives()) {
         insertUnreadbackAtBol(m_lexp->curFilelinep()->lineDirectiveStrg(enterExit));
     }
 }
 
 void V3PreProcImp::dumpDefines(std::ostream& os) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+    ために (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
         os << "`define " << it->first;
         // No need to print "()" below as already part of params()
-        if (!it->second.params().empty()) os << it->second.params();
-        if (!it->second.value().empty()) os << " " << it->second.value();
+        もし (!it->second.params().empty()) os << it->second.params();
+        もし (!it->second.value().empty()) os << " " << it->second.value();
         os << '\n';
     }
 }
 
 void V3PreProcImp::candidateDefines(VSpellCheck* spellerp) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+    ために (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
         spellerp->pushCandidate("`"s + it->first);
     }
 }
 
-int V3PreProcImp::getRawToken() {
+整数 V3PreProcImp::getRawToken() {
     // Get a token from the file, whatever it may be.
-    while (true) {
+    ながら (true) {
     next_tok:
-        if (m_lineAdd) {
+        もし (m_lineAdd) {
             m_lineAdd--;
             m_rawAtBol = true;
             yyourtext("\n", 1);
-            if (debug() >= 5) debugToken(VP_WHITE, "LNA");
-            return VP_WHITE;
+            もし (debug() >= 5) debugToken(VP_WHITE, "LNA");
+            戻る VP_WHITE;
         }
-        if (m_lineCmt != "") {
+        もし (m_lineCmt != "") {
             // We have some `line directive or other processed data to return to the user.
             static string s_rtncmt;  // Keep the c string till next call
             s_rtncmt = m_lineCmt;
-            if (m_lineCmtNl) {
-                if (!m_rawAtBol) s_rtncmt.insert(0, "\n");
+            もし (m_lineCmtNl) {
+                もし (!m_rawAtBol) s_rtncmt.insert(0, "\n");
                 m_lineCmtNl = false;
             }
             yyourtext(s_rtncmt.c_str(), s_rtncmt.length());
             m_lineCmt = "";
-            if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-            if (state() == ps_DEFVALUE) {
+            もし (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+            もし (state() == ps_DEFVALUE) {
                 V3PreLex::s_currentLexp->appendDefValue(yyourtext(), yyourleng());
                 goto next_tok;
-            } else {
-                if (debug() >= 5) debugToken(VP_TEXT, "LCM");
-                return VP_TEXT;
+            } 否则 {
+                もし (debug() >= 5) debugToken(VP_TEXT, "LCM");
+                戻る VP_TEXT;
             }
         }
-        if (isEof()) return VP_EOF;
+        もし (isEof()) 戻る VP_EOF;
 
         // Snarf next token from the file
         m_lexp->curFilelinep()->startToken();
-        int tok = m_lexp->lex();
-        if (debug() >= 5) debugToken(tok, "RAW");
+        整数 tok = m_lexp->lex();
+        もし (debug() >= 5) debugToken(tok, "RAW");
 
-        if (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
+        もし (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
             m_lastLineno = m_lexp->m_tokFilelinep->lineno();
             m_tokensOnLine = 0;
-        } else if (++m_tokensOnLine > v3Global.opt.preprocTokenLimit()) {
+        } 否则 もし (++m_tokensOnLine > v3Global.opt.preprocTokenLimit()) {
             fileline()->v3error("Too many preprocessor tokens on a line (>"
                                 + cvtToStr(v3Global.opt.preprocTokenLimit())
                                 + "); perhaps recursive `define");
             tok = VP_EOF_ERROR;
         }
 
-        if (tok == VP_EOF || tok == VP_EOF_ERROR) {
+        もし (tok == VP_EOF || tok == VP_EOF_ERROR) {
             // An error might be in an unexpected point, so stop parsing
-            if (tok == VP_EOF_ERROR) forceEof();
+            もし (tok == VP_EOF_ERROR) forceEof();
             // A EOF on an include, stream will find the EOF, after adding needed `lines
             goto next_tok;
         }
 
-        if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-        return tok;
+        もし (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+        戻る tok;
     }
 }
 
-void V3PreProcImp::debugToken(int tok, const char* cmtp) {
-    const static int s_debugFileline
+void V3PreProcImp::debugToken(整数 tok, const char* cmtp) {
+    const static 整数 s_debugFileline
         = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
-    if (debug() >= 5) {
+    もし (debug() >= 5) {
         string buf{yyourtext(), yyourleng()};
         string::size_type pos;
-        while ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
-        while ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
+        ながら ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
+        ながら ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
         const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
         UINFO(0, flcol << ": " << cmtp << " " << (m_off ? "of" : "on") << " "
-                       << procStateName(state()) << "(" << static_cast<int>(m_states.size())
+                       << procStateName(state()) << "(" << static_cast<整数>(m_states.size())
                        << ") dr" << m_defRefs.size() << ":  <" << m_lexp->currentStartState()
                        << ">" << tokenName(tok) << ": " << buf);
-        if (s_debugFileline >= 9) {
+        もし (s_debugFileline >= 9) {
             std::cout << m_lexp->m_tokFilelinep->warnContextSecondary() << endl;
         }
     }
@@ -1066,27 +1066,27 @@ void V3PreProcImp::debugToken(int tok, const char* cmtp) {
 // Sorry, we're not using bison/yacc. It doesn't handle returning white space
 // in the middle of parsing other tokens.
 
-int V3PreProcImp::getStateToken() {
+整数 V3PreProcImp::getStateToken() {
     // Return the next state-determined token
-    while (true) {
+    ながら (true) {
     next_tok:
-        if (isEof()) return VP_EOF;
-        int tok = getRawToken();
+        もし (isEof()) 戻る VP_EOF;
+        整数 tok = getRawToken();
 
         // Most states emit white space and comments between tokens. (Unless collecting a string)
-        if (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) return tok;
-        if (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
-        if (tok == VP_COMMENT) {
-            if (!m_off) {
-                if (m_lexp->m_keepComments == KEEPCMT_SUB) {
+        もし (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) 戻る tok;
+        もし (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
+        もし (tok == VP_COMMENT) {
+            もし (!m_off) {
+                もし (m_lexp->m_keepComments == KEEPCMT_SUB) {
                     string rtn;
                     rtn.assign(yyourtext(), yyourleng());
                     comment(rtn);
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
-                    if (m_lineCmt.empty()) insertUnreadback(" ");
-                } else if (m_lexp->m_keepComments) {
-                    return tok;
-                } else {
+                    もし (m_lineCmt.empty()) insertUnreadback(" ");
+                } 否则 もし (m_lexp->m_keepComments) {
+                    戻る tok;
+                } 否则 {
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
                     insertUnreadback(" ");
                 }
@@ -1094,17 +1094,17 @@ int V3PreProcImp::getStateToken() {
             // We're off or processed the comment specially.  If there are newlines
             // in it, we also return the newlines as TEXT so that the linenumber
             // count is maintained for downstream tools
-            for (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
-                if (yyourtext()[len] == '\n') m_lineAdd++;
+            ために (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
+                もし (yyourtext()[len] == '\n') m_lineAdd++;
             }
             goto next_tok;
         }
-        if (tok == VP_LINE) {
+        もし (tok == VP_LINE) {
             addLineComment(m_lexp->m_enterExit);
             goto next_tok;
         }
 
-        if (tok == VP_DEFREF_JOIN) {
+        もし (tok == VP_DEFREF_JOIN) {
             // Here's something fun and unspecified as yet:
             // The existence of non-existence of a base define changes `` expansion
             //  `define QA_b zzz
@@ -1117,24 +1117,24 @@ int V3PreProcImp::getStateToken() {
             // This may be a side effect of how `UNDEFINED remains as `UNDEFINED,
             // but it screws up our method here.  So hardcode it.
             const std::string name(yyourtext() + 1, yyourleng() - 1);
-            if (defExists(name)) {  // JOIN(DEFREF)
+            もし (defExists(name)) {  // JOIN(DEFREF)
                 // Put back the `` and process the defref
                 UINFO(5, "```: define " << name << " exists, expand first");
                 // After define, unputString("``").  Not now as would lose yyourtext()
                 m_defPutJoin = true;
                 UINFO(5, "TOKEN now DEFREF");
                 tok = VP_DEFREF;
-            } else {  // DEFREF(JOIN)
+            } 否则 {  // DEFREF(JOIN)
                 UINFO(5, "```: define " << name << " doesn't exist, join first");
                 // FALLTHRU, handle as with VP_SYMBOL_JOIN
             }
         }
-        if (state() == ps_STRIFY) {
+        もし (state() == ps_STRIFY) {
             // Ignore joins and symbol joins in stringify as they don't affect the final string
-            if (tok == VP_JOIN) goto next_tok;
-            if (tok == VP_SYMBOL_JOIN) tok = VP_SYMBOL;
+            もし (tok == VP_JOIN) goto next_tok;
+            もし (tok == VP_SYMBOL_JOIN) tok = VP_SYMBOL;
         }
-        if (tok == VP_SYMBOL_JOIN  // not else if, can fallthru from above if()
+        もし (tok == VP_SYMBOL_JOIN  // not else if, can fallthru from above if()
             || tok == VP_DEFREF_JOIN || tok == VP_JOIN) {
             // a`` -> string doesn't include the ``, so can just grab next and continue
             const std::string out(yyourtext(), yyourleng());
@@ -1155,51 +1155,51 @@ int V3PreProcImp::getStateToken() {
         case ps_DEFNAME_IFDEF:  // FALLTHRU
         case ps_DEFNAME_IFNDEF:  // FALLTHRU
         case ps_DEFNAME_ELSIF: {
-            if (tok == VP_SYMBOL) {
+            もし (tok == VP_SYMBOL) {
                 m_lastSym.assign(yyourtext(), yyourleng());
-                if (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
+                もし (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
                     bool enable = defExists(m_lastSym);
                     UINFO(4, "Ifdef " << m_lastSym << (enable ? " ON" : " OFF"));
-                    if (state() == ps_DEFNAME_IFNDEF) enable = !enable;
+                    もし (state() == ps_DEFNAME_IFNDEF) enable = !enable;
                     m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                    if (!enable) parsingOff();
+                    もし (!enable) parsingOff();
                     statePop();
                     goto next_tok;
-                } else if (state() == ps_DEFNAME_ELSIF) {
-                    if (m_ifdefStack.empty()) {
+                } 否则 もし (state() == ps_DEFNAME_ELSIF) {
+                    もし (m_ifdefStack.empty()) {
                         fileline()->v3error("`elsif with no matching `if");
-                    } else {
+                    } 否则 {
                         // Handle `else portion
                         const VPreIfEntry lastIf = m_ifdefStack.top();
                         m_ifdefStack.pop();
-                        if (!lastIf.on()) parsingOn();
+                        もし (!lastIf.on()) parsingOn();
                         // Handle `if portion
                         const bool enable = !lastIf.everOn() && defExists(m_lastSym);
                         UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
                         m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                        if (!enable) parsingOff();
+                        もし (!enable) parsingOff();
                     }
                     statePop();
                     goto next_tok;
-                } else if (state() == ps_DEFNAME_UNDEF) {
-                    if (!m_off) {
+                } 否则 もし (state() == ps_DEFNAME_UNDEF) {
+                    もし (!m_off) {
                         UINFO(4, "Undef " << m_lastSym);
                         undef(m_lastSym);
                     }
                     statePop();
                     goto next_tok;
-                } else if (state() == ps_DEFNAME_DEFINE) {
+                } 否则 もし (state() == ps_DEFNAME_DEFINE) {
                     // m_lastSym already set.
                     stateChange(ps_DEFFORM);
                     m_lexp->pushStateDefForm();
                     goto next_tok;
-                } else {  // LCOV_EXCL_LINE
+                } 否则 {  // LCOV_EXCL_LINE
                     v3fatalSrc("Bad case");
                 }
                 goto next_tok;
-            } else if (tok == VP_TEXT) {
+            } 否则 もし (tok == VP_TEXT) {
                 // IE, something like comment between define and symbol
-                if (yyourleng() == 1 && yyourtext()[0] == '('
+                もし (yyourleng() == 1 && yyourtext()[0] == '('
                     && (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                         || state() == ps_DEFNAME_ELSIF)) {
                     UINFO(4, "ifdef() start (");
@@ -1214,15 +1214,15 @@ int V3PreProcImp::getStateToken() {
                     }
                     goto next_tok;
                 }
-                if (!m_off) {
-                    return tok;
-                } else {
+                もし (!m_off) {
+                    戻る tok;
+                } 否则 {
                     goto next_tok;
                 }
-            } else if (tok == VP_DEFREF) {
+            } 否则 もし (tok == VP_DEFREF) {
                 // IE, `ifdef `MACRO(x): Substitute and come back here when state pops.
                 break;
-            } else {
+            } 否则 {
                 fileline()->v3error("Expecting define name. Found: "s + tokenName(tok));
                 goto next_tok;
             }
@@ -1232,12 +1232,12 @@ int V3PreProcImp::getStateToken() {
         case ps_EXPR_ELSIF: {
             // `ifdef ( *here*
             FileLine* const flp = m_lexp->m_tokFilelinep;
-            if (tok == VP_SYMBOL) {
+            もし (tok == VP_SYMBOL) {
                 m_lastSym.assign(yyourtext(), yyourleng());
                 const bool exists = defExists(m_lastSym);
-                if (exists) {
+                もし (exists) {
                     const std::string value = defValue(m_lastSym);
-                    if (VString::removeWhitespace(value) == "0") {
+                    もし (VString::removeWhitespace(value) == "0") {
                         flp->v3warn(
                             PREPROCZERO,
                             "Preprocessor expression evaluates define with 0: '"
@@ -1250,63 +1250,63 @@ int V3PreProcImp::getStateToken() {
                 }
                 m_exprParser.pushInput(V3PreExprToken{flp, exists});
                 goto next_tok;
-            } else if (tok == VP_WHITE) {
+            } 否则 もし (tok == VP_WHITE) {
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA});
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
                 UASSERT(m_exprParenLevel, "Underflow of ); should have exited ps_EXPR earlier?");
-                if (--m_exprParenLevel > 0) {
+                もし (--m_exprParenLevel > 0) {
                     m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET});
                     goto next_tok;
-                } else {
+                } 否则 {
                     // Done with parsing expression
                     bool enable = m_exprParser.result();
                     UINFO(4, "ifdef() result=" << enable);
-                    if (state() == ps_EXPR_IFDEF || state() == ps_EXPR_IFNDEF) {
-                        if (state() == ps_EXPR_IFNDEF) enable = !enable;
+                    もし (state() == ps_EXPR_IFDEF || state() == ps_EXPR_IFNDEF) {
+                        もし (state() == ps_EXPR_IFNDEF) enable = !enable;
                         m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                        if (!enable) parsingOff();
+                        もし (!enable) parsingOff();
                         statePop();
                         goto next_tok;
-                    } else if (state() == ps_EXPR_ELSIF) {
-                        if (m_ifdefStack.empty()) {
+                    } 否则 もし (state() == ps_EXPR_ELSIF) {
+                        もし (m_ifdefStack.empty()) {
                             fileline()->v3error("`elsif with no matching `if");
-                        } else {
+                        } 否则 {
                             // Handle `else portion
                             const VPreIfEntry lastIf = m_ifdefStack.top();
                             m_ifdefStack.pop();
-                            if (!lastIf.on()) parsingOn();
+                            もし (!lastIf.on()) parsingOn();
                             // Handle `if portion
                             enable = !lastIf.everOn() && enable;
                             UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
                             m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                            if (!enable) parsingOff();
+                            もし (!enable) parsingOff();
                         }
                         statePop();
                     }
                     goto next_tok;
                 }
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT});
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND});
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR});
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP});
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
                 m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV});
                 goto next_tok;
-            } else {
-                if (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
-                    return tok;
-                } else {
+            } 否则 {
+                もし (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
+                    戻る tok;
+                } 否则 {
                     fileline()->v3error("Syntax error in `ifdef () expression; unexpected: '"s
                                         + tokenName(tok) + "'");
                 }
@@ -1314,19 +1314,19 @@ int V3PreProcImp::getStateToken() {
             }
         }
         case ps_DEFFORM: {
-            if (tok == VP_DEFFORM) {
+            もし (tok == VP_DEFFORM) {
                 m_formals = m_lexp->m_defValue;
-                if (debug() >= 5) {
+                もし (debug() >= 5) {
                     cout << "DefFormals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }
                 stateChange(ps_DEFVALUE);
                 m_lexp->pushStateDefValue();
                 goto next_tok;
-            } else if (tok == VP_TEXT) {
+            } 否则 もし (tok == VP_TEXT) {
                 // IE, something like comment in formals
-                if (!m_off) return tok;
+                もし (!m_off) 戻る tok;
                 goto next_tok;
-            } else {
+            } 否则 {
                 fileline()->v3error("Expecting define formal arguments. Found: "s + tokenName(tok)
                                     + "\n");
                 goto next_tok;
@@ -1335,8 +1335,8 @@ int V3PreProcImp::getStateToken() {
         case ps_DEFVALUE: {
             static string s_newlines;
             s_newlines = "\n";  // Always start with trailing return
-            if (tok == VP_DEFVALUE) {
-                if (debug() >= 5) {  // LCOV_EXCL_START
+            もし (tok == VP_DEFVALUE) {
+                もし (debug() >= 5) {  // LCOV_EXCL_START
                     cout << "DefValue='" << V3PreLex::cleanDbgStrg(m_lexp->m_defValue)
                          << "'  formals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }  // LCOV_EXCL_STOP
@@ -1349,13 +1349,13 @@ int V3PreProcImp::getStateToken() {
                 // 2. Substituting in " .... " with embedded returns requires \ escape.
                 //    This is very difficult in the presence of `", so we
                 //    keep the \ before the newline.
-                for (size_t i = 0; i < formals.length(); i++) {
-                    if (formals[i] == '\n') s_newlines += "\n";
+                ために (size_t i = 0; i < formals.length(); i++) {
+                    もし (formals[i] == '\n') s_newlines += "\n";
                 }
-                for (size_t i = 0; i < value.length(); i++) {
-                    if (value[i] == '\n') s_newlines += "\n";
+                ために (size_t i = 0; i < value.length(); i++) {
+                    もし (value[i] == '\n') s_newlines += "\n";
                 }
-                if (!m_off) {
+                もし (!m_off) {
                     // Remove leading and trailing whitespace
                     value = trimWhitespace(value, true);
                     // Define it
@@ -1363,20 +1363,20 @@ int V3PreProcImp::getStateToken() {
                                        << V3PreLex::cleanDbgStrg(value) << "'");
                     define(fileline(), m_lastSym, value, formals, false);
                 }
-            } else {
+            } 否则 {
                 v3fatalSrc("Bad define text, unexpected "s + tokenName(tok) + "\n");
             }
             statePop();
             // DEFVALUE is terminated by a return, but lex can't return both tokens.
             // Thus, we emit a return here.
             yyourtext(s_newlines.c_str(), s_newlines.length());
-            return VP_WHITE;
+            戻る VP_WHITE;
         }
         case ps_DEFPAREN: {
-            if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+            もし (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
                 stateChange(ps_DEFARG);
                 goto next_tok;
-            } else {
+            } 否则 {
                 UASSERT(!m_defRefs.empty(), "Shouldn't be in DEFPAREN w/o active defref");
                 const VDefineRef* const refp = &(m_defRefs.top());
                 fileline()->v3error("Expecting ( to begin argument list for define reference `"s
@@ -1391,25 +1391,25 @@ int V3PreProcImp::getStateToken() {
             refp->nextarg(refp->nextarg() + m_lexp->m_defValue);
             m_lexp->m_defValue = "";
             UINFO(4, "defarg++ " << refp->nextarg());
-            if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
+            もし (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
                 refp->args().push_back(refp->nextarg());
                 stateChange(ps_DEFARG);
                 m_lexp->pushStateDefArg(1);
                 refp->nextarg("");
                 goto next_tok;
-            } else if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
+            } 否则 もし (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
                 // Substitute in and prepare for next action
                 // Similar code in non-parenthesized define (Search for END_OF_DEFARG)
                 refp->args().push_back(refp->nextarg());
                 string out;
-                if (!m_off) {
+                もし (!m_off) {
                     out = defineSubst(refp);
                     // NOP: out = m_preprocp->defSubstitute(out);
                 }
                 VL_DO_DANGLING(m_defRefs.pop(), refp);
                 statePop();
-                if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
-                    if (state()
+                もし (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    もし (state()
                         == ps_JOIN) {  // Handle {left}```FOO(ARG) where `FOO(ARG) might be empty
                         UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
                         const string lhs = m_joinStack.top();
@@ -1418,16 +1418,16 @@ int V3PreProcImp::getStateToken() {
                         UINFO(5, "``-end-defarg Out:" << out);
                         statePop();
                     }
-                    if (!m_off) {
+                    もし (!m_off) {
                         unputDefrefString(out);
                     }
                     // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                    else if (stateIsDefname()) {
+                    否则 もし (stateIsDefname()) {
                         unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                     }
                     // Stringification may still be inside another macro's argument list.
                     m_lexp->m_parenLevel = m_defRefs.empty() ? 0 : m_defRefs.top().parenLevel();
-                } else {  // Finished a defref inside a upper defref,
+                } 否则 {  // Finished a defref inside a upper defref,
                           // and not under stringification or join.
                     // Can't subst now, or
                     // `define a(ign) x,y
@@ -1439,21 +1439,21 @@ int V3PreProcImp::getStateToken() {
                     // Will go to ps_DEFARG, as we're under another define
                 }
                 goto next_tok;
-            } else if (tok == VP_DEFREF) {
+            } 否则 もし (tok == VP_DEFREF) {
                 // Expand it, then state will come back here
                 // Value of building argument is data before the lower defref
                 // we'll append it when we push the argument.
                 break;
-            } else if (tok == VP_SYMBOL || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
+            } 否则 もし (tok == VP_SYMBOL || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
                 string rtn;
                 rtn.assign(yyourtext(), yyourleng());
                 refp->nextarg(refp->nextarg() + rtn);
                 goto next_tok;
-            } else if (tok == VP_STRIFY) {
+            } 否则 もし (tok == VP_STRIFY) {
                 // We must expand stringification, when done will return to this state
                 statePush(ps_STRIFY);
                 goto next_tok;
-            } else {
+            } 否则 {
                 fileline()->v3error(
                     "Expecting ) or , to end argument list for define reference. Found: "s
                     + tokenName(tok));
@@ -1462,7 +1462,7 @@ int V3PreProcImp::getStateToken() {
             }
         }
         case ps_INCNAME: {
-            if (tok == VP_STRING) {
+            もし (tok == VP_STRING) {
                 statePop();
                 m_lastSym.assign(yyourtext(), yyourleng());
                 UINFO(4, "Include " << m_lastSym);
@@ -1471,15 +1471,15 @@ int V3PreProcImp::getStateToken() {
                 m_lastSym.erase(m_lastSym.length() - 1, 1);
                 include(m_lastSym);
                 goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
+            } 否则 もし (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
                 // include <filename>
                 stateChange(ps_INCNAME);  // Still
                 m_lexp->pushStateIncFilename();
                 goto next_tok;
-            } else if (tok == VP_DEFREF || tok == VP_STRIFY) {
+            } 否则 もし (tok == VP_DEFREF || tok == VP_STRIFY) {
                 // Expand it, then state will come back here
                 break;
-            } else {
+            } 否则 {
                 statePop();
                 fileline()->v3error("Expecting include filename. Found: "s + tokenName(tok));
                 goto next_tok;
@@ -1488,21 +1488,21 @@ int V3PreProcImp::getStateToken() {
             VL_UNREACHABLE;
         }
         case ps_ERRORNAME: {
-            if (tok == VP_STRING) {
-                if (!m_off) {
+            もし (tok == VP_STRING) {
+                もし (!m_off) {
                     m_lastSym.assign(yyourtext(), yyourleng());
                     fileline()->v3error(m_lastSym);
                 }
                 statePop();
                 goto next_tok;
-            } else {
+            } 否则 {
                 fileline()->v3error("Expecting `error string. Found: "s + tokenName(tok));
                 statePop();
                 goto next_tok;
             }
         }
         case ps_JOIN: {
-            if (tok == VP_SYMBOL || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
+            もし (tok == VP_SYMBOL || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
                 UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
                 const string lhs = m_joinStack.top();
                 m_joinStack.pop();
@@ -1514,7 +1514,7 @@ int V3PreProcImp::getStateToken() {
                 unputString(out);
                 statePop();
                 goto next_tok;
-            } else if (tok == VP_EOF || tok == VP_COMMENT) {
+            } 否则 もし (tok == VP_EOF || tok == VP_COMMENT) {
                 // Other compilers just ignore this, so no warning
                 // "Expecting symbol to terminate ``; whitespace etc cannot
                 // follow ``. Found: "+tokenName(tok)+"\n"
@@ -1523,13 +1523,13 @@ int V3PreProcImp::getStateToken() {
                 unputString(lhs);
                 statePop();
                 goto next_tok;
-            } else {
+            } 否则 {
                 // `define, etc, fall through and expand.  Pop back here.
                 break;
             }
         }
         case ps_STRIFY: {
-            if (tok == VP_STRIFY) {
+            もし (tok == VP_STRIFY) {
                 // Quote what's in the middle of the stringification
                 // Note a `" MACRO_WITH(`") `" doesn't need to be handled (we don't need a stack)
                 // That behavior isn't specified, and other simulators vary widely
@@ -1542,17 +1542,17 @@ int V3PreProcImp::getStateToken() {
                 unputString("\""s + out + "\"");
                 statePop();
                 goto next_tok;
-            } else if (tok == VP_EOF) {
+            } 否则 もし (tok == VP_EOF) {
                 fileline()->v3error("`\" not terminated at EOF");
                 break;
-            } else if (tok == VP_BACKQUOTE) {
+            } 否则 もし (tok == VP_BACKQUOTE) {
                 m_strify += "\\\"";
                 goto next_tok;
-            } else if (tok == VP_DEFREF) {
+            } 否则 もし (tok == VP_DEFREF) {
                 // Spec says to expand macros inside `"
                 // Substitute it into the stream, then return here
                 break;
-            } else {
+            } 否则 {
                 // Append token to eventual string
                 m_strify.append(yyourtext(), yyourleng());
                 goto next_tok;
@@ -1563,7 +1563,7 @@ int V3PreProcImp::getStateToken() {
         // Default is to do top level expansion of some tokens
         switch (tok) {
         case VP_INCLUDE:
-            if (!m_off) {
+            もし (!m_off) {
                 statePush(ps_INCNAME);
             }  // Else incname looks like normal text, that will be ignored
             goto next_tok;
@@ -1576,26 +1576,26 @@ int V3PreProcImp::getStateToken() {
         case VP_IFNDEF: statePush(ps_DEFNAME_IFNDEF); goto next_tok;
         case VP_ELSIF: statePush(ps_DEFNAME_ELSIF); goto next_tok;
         case VP_ELSE:
-            if (m_ifdefStack.empty()) {
+            もし (m_ifdefStack.empty()) {
                 fileline()->v3error("`else with no matching `if");
-            } else {
+            } 否则 {
                 const VPreIfEntry lastIf = m_ifdefStack.top();
                 m_ifdefStack.pop();
                 const bool enable = !lastIf.everOn();
                 UINFO(4, "Else " << (enable ? " ON" : " OFF"));
                 m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                if (!lastIf.on()) parsingOn();
-                if (!enable) parsingOff();
+                もし (!lastIf.on()) parsingOn();
+                もし (!enable) parsingOff();
             }
             goto next_tok;
         case VP_ENDIF:
             UINFO(4, "Endif ");
-            if (m_ifdefStack.empty()) {
+            もし (m_ifdefStack.empty()) {
                 fileline()->v3error("`endif with no matching `if");
-            } else {
+            } 否则 {
                 const VPreIfEntry lastIf = m_ifdefStack.top();
                 m_ifdefStack.pop();
-                if (!lastIf.on()) parsingOn();
+                もし (!lastIf.on()) parsingOn();
                 // parsingOn() really only enables parsing if
                 // all ifdef's above this want it on
             }
@@ -1606,39 +1606,39 @@ int V3PreProcImp::getStateToken() {
             // `ifdef NEVER `DEFUN(`endif)
             const string name(yyourtext() + 1, yyourleng() - 1);
             UINFO(4, "DefRef " << name);
-            if (m_defPutJoin) {
+            もし (m_defPutJoin) {
                 m_defPutJoin = false;
                 unputString("``");
             }
-            if (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
+            もし (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
                 fileline()->v3error("Recursive `define substitution: `" + name);
                 goto next_tok;
             }
             // Substitute
-            if (!defExists(name)) {  // Not found, return original string as-is
+            もし (!defExists(name)) {  // Not found, return original string as-is
                 m_defDepth = 0;
                 UINFO(4, "Defref `" << name << " => not_defined");
-                if (m_off) {
+                もし (m_off) {
                     goto next_tok;
-                } else {
+                } 否则 {
                     // We want final text of `name, but that would cause
                     // recursion, so use a special character to get it through
                     unputDefrefString("`\032"s + name);
                     goto next_tok;
                 }
-            } else {
+            } 否则 {
                 const string params = defParams(name);
-                if (params == "0" || params == "") {  // Found, as simple substitution
+                もし (params == "0" || params == "") {  // Found, as simple substitution
                     string out;
-                    if (!m_off) {
+                    もし (!m_off) {
                         VDefineRef tempref{name, ""};
                         out = defineSubst(&tempref);
                     }
                     // Similar code in parenthesized define (Search for END_OF_DEFARG)
                     // NOP: out = m_preprocp->defSubstitute(out);
-                    if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    もし (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
                         // Just output the substitution
-                        if (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
+                        もし (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
                             UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
                             const string lhs = m_joinStack.top();
                             m_joinStack.pop();
@@ -1646,14 +1646,14 @@ int V3PreProcImp::getStateToken() {
                             UINFO(5, "``-end-defref Out:" << out);
                             statePop();
                         }
-                        if (!m_off) {
+                        もし (!m_off) {
                             unputDefrefString(out);
                         }
                         // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                        else if (stateIsDefname()) {
+                        否则 もし (stateIsDefname()) {
                             unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                         }
-                    } else {
+                    } 否则 {
                         // Inside another define, and not under stringification or join.
                         // Can't subst now, or
                         // `define a x,y
@@ -1663,11 +1663,11 @@ int V3PreProcImp::getStateToken() {
                         m_lexp->m_defValue = "";
                     }
                     goto next_tok;
-                } else {  // Found, with parameters
+                } 否则 {  // Found, with parameters
                     UINFO(4, "Defref `" << name << " => parameterized");
                     // The CURRENT macro needs the paren saved, it's not a
                     // property of the child macro
-                    if (!m_defRefs.empty()) m_defRefs.top().parenLevel(m_lexp->m_parenLevel);
+                    もし (!m_defRefs.empty()) m_defRefs.top().parenLevel(m_lexp->m_parenLevel);
                     m_defRefs.emplace(VDefineRef{name, params});
                     statePush(ps_DEFPAREN);
                     m_lexp->pushStateDefArg(0);
@@ -1682,10 +1682,10 @@ int V3PreProcImp::getStateToken() {
             goto next_tok;
         }
         case VP_EOF:
-            if (!m_ifdefStack.empty()) fileline()->v3error("`ifdef not terminated at EOF");
-            return tok;
+            もし (!m_ifdefStack.empty()) fileline()->v3error("`ifdef not terminated at EOF");
+            戻る tok;
         case VP_UNDEFINEALL:
-            if (!m_off) {
+            もし (!m_off) {
                 UINFO(4, "Undefineall ");
                 undefineall();
             }
@@ -1700,9 +1700,9 @@ int V3PreProcImp::getStateToken() {
         case VP_STRING:
         case VP_TEXT: {
             m_defDepth = 0;
-            if (!m_off) {
-                return tok;
-            } else {
+            もし (!m_off) {
+                戻る tok;
+            } 否则 {
                 goto next_tok;
             }
         }
@@ -1714,103 +1714,103 @@ int V3PreProcImp::getStateToken() {
             v3fatalSrc("Internal error: Unexpected token "s + tokenName(tok) + "\n");
             break;  // LCOV_EXCL_LINE
         }
-        return tok;
+        戻る tok;
     }
 }
 
-int V3PreProcImp::getFinalToken(string& buf) {
+整数 V3PreProcImp::getFinalToken(string& buf) {
     // Return the next user-visible token in the input stream.
     // Includes and such are handled here, and are never seen by the caller.
-    if (!m_finAhead) {
+    もし (!m_finAhead) {
         m_finAhead = true;
         m_finToken = getStateToken();
         m_finBuf.assign(yyourtext(), yyourleng());
     }
-    const int tok = m_finToken;
+    const 整数 tok = m_finToken;
     buf = m_finBuf;
-    if (false && debug() >= 5) {
+    もし (false && debug() >= 5) {
         const string bufcln = V3PreLex::cleanDbgStrg(buf);
         const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
         UINFO(0, flcol << ": FIN:      " << tokenName(tok) << ": " << bufcln);
     }
     // Track `line
     const char* bufp = buf.c_str();
-    while (*bufp == '\n') bufp++;
-    if ((tok == VP_TEXT || tok == VP_LINE) && VString::startsWith(bufp, "`line ")) {
-        int enter;
+    ながら (*bufp == '\n') bufp++;
+    もし ((tok == VP_TEXT || tok == VP_LINE) && VString::startsWith(bufp, "`line ")) {
+        整数 enter;
         m_finFilelinep->lineDirective(bufp, enter /*ref*/);
-    } else {
-        if (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->lineDirectives()) {
-            if (const int outBehind
+    } 否则 {
+        もし (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->lineDirectives()) {
+            もし (const 整数 outBehind
                 = (m_lexp->m_tokFilelinep->lastLineno() - m_finFilelinep->lastLineno())) {
-                if (debug() >= 5) {
+                もし (debug() >= 5) {
                     const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
                     UINFO(0, flcol << ": FIN: readjust, fin at " << m_finFilelinep->lastLineno()
                                    << "  request at " << m_lexp->m_tokFilelinep->lastLineno());
                 }
                 m_finFilelinep->filename(m_lexp->m_tokFilelinep->filename());
                 m_finFilelinep->lineno(m_lexp->m_tokFilelinep->lastLineno());
-                if (outBehind > 0
-                    && (outBehind <= static_cast<int>(V3PreProc::NEWLINES_VS_TICKLINE))) {
+                もし (outBehind > 0
+                    && (outBehind <= static_cast<整数>(V3PreProc::NEWLINES_VS_TICKLINE))) {
                     // Output stream is behind, send newlines to get back in sync
                     // (Most likely because we're completing a disabled `endif)
-                    if (m_preprocp->keepWhitespace()) {
+                    もし (m_preprocp->keepWhitespace()) {
                         buf = std::string(outBehind, '\n');  // () for char repeat
-                        return VP_TEXT;
+                        戻る VP_TEXT;
                     }
-                } else {
+                } 否则 {
                     // Need to backup, use `line
                     buf = m_finFilelinep->lineDirectiveStrg(0);
-                    return VP_LINE;
+                    戻る VP_LINE;
                 }
             }
         }
         // Track newlines in prep for next token
-        for (const char& c : buf) {
-            if (c == '\n') {
+        ために (const char& c : buf) {
+            もし (c == '\n') {
                 m_finAtBol = true;
                 m_finFilelinep->linenoInc();
-            } else {
+            } 否则 {
                 m_finAtBol = false;
             }
         }
     }
     m_finAhead = false;  // Consumed the token
-    return tok;
+    戻る tok;
 }
 
 string V3PreProcImp::getline() {
     // Get a single line from the parse stream.  Buffer unreturned text until the newline.
-    if (isEof()) return "";
+    もし (isEof()) 戻る "";
     const char* rtnp;
     bool gotEof = false;
-    while (nullptr == (rtnp = std::strchr(m_lineChars.c_str(), '\n')) && !gotEof) {
+    ながら (nullptr == (rtnp = std::strchr(m_lineChars.c_str(), '\n')) && !gotEof) {
         m_tokenBuf.clear();
-        const int tok = getFinalToken(m_tokenBuf /*ref*/);
-        if (debug() >= 5) {
+        const 整数 tok = getFinalToken(m_tokenBuf /*ref*/);
+        もし (debug() >= 5) {
             const string bufcln = V3PreLex::cleanDbgStrg(m_tokenBuf);
             const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
             UINFO(0, flcol << ": GETFETC:  " << tokenName(tok) << ": " << bufcln);
         }
-        if (tok == VP_EOF) {
+        もし (tok == VP_EOF) {
             // Add a final newline, if the user forgot the final \n.
-            if (m_lineChars != "" && m_lineChars[m_lineChars.length() - 1] != '\n') {
+            もし (m_lineChars != "" && m_lineChars[m_lineChars.length() - 1] != '\n') {
                 m_lineChars.append("\n");
             }
             gotEof = true;
-        } else {
+        } 否则 {
             m_lineChars.append(m_tokenBuf);
         }
     }
 
     // Make new string with data up to the newline.
-    const int len = rtnp - m_lineChars.c_str() + 1;
+    const 整数 len = rtnp - m_lineChars.c_str() + 1;
     string theLine(m_lineChars, 0, len);
     m_lineChars = m_lineChars.erase(0, len);  // Remove returned characters
-    if (debug() >= 4) {
+    もし (debug() >= 4) {
         const string lncln = V3PreLex::cleanDbgStrg(theLine);
         const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
         UINFO(0, flcol << ": GETLINE:  " << lncln);
     }
-    return theLine;
+    戻る theLine;
 }

@@ -48,7 +48,7 @@ class LinkResolveVisitor final : public VNVisitor {
     AstNodeModule* m_modp = nullptr;  // Current module
     AstClass* m_classp = nullptr;  // Class we're inside
     AstNodeFTask* m_ftaskp = nullptr;  // Function or task we're inside
-    int m_senitemCvtNum = 0;  // Temporary signal counter
+    整数 m_senitemCvtNum = 0;  // Temporary signal counter
     std::deque<AstGenFor*> m_underGenFors;  // Stack of GenFor underneath
     bool m_underGenerate = false;  // Under GenFor/GenIf
 
@@ -60,7 +60,7 @@ class LinkResolveVisitor final : public VNVisitor {
     void visit(AstNodeModule* nodep) override {
         // Module: Create sim table for entire module and iterate
         UINFO(8, "MODULE " << nodep);
-        if (nodep->dead()) return;
+        もし (nodep->dead()) 戻る;
         VL_RESTORER(m_modp);
         VL_RESTORER(m_senitemCvtNum);
         m_modp = nodep;
@@ -70,9 +70,9 @@ class LinkResolveVisitor final : public VNVisitor {
     void visit(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         m_classp = nodep;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isParam()) varp->varType(VVarType::MEMBER);
+        ために (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            もし (AstVar* const varp = VN_CAST(stmtp, Var)) {
+                もし (!varp->isParam()) varp->varType(VVarType::MEMBER);
             }
         }
         iterateChildren(nodep);
@@ -82,35 +82,35 @@ class LinkResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
         // Initial assignments under function/tasks can just be simple
         // assignments without the initial
-        if (m_ftaskp) {
+        もし (m_ftaskp) {
             nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
         }
     }
     void visit(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_ftaskp) nodep->funcLocal(true);
-        if (nodep->isSigModPublic()) {
+        もし (m_ftaskp) nodep->funcLocal(true);
+        もし (nodep->isSigModPublic()) {
             nodep->sigModPublic(false);  // We're done with this attribute
             m_modp->modPublic(true);  // Avoid flattening if signals are exposed
         }
     }
 
     void visit(AstNodeVarRef* nodep) override {
-        if (nodep->varp()) {  // Else due to dead code, might not have var pointer
+        もし (nodep->varp()) {  // Else due to dead code, might not have var pointer
             // VarRef: Resolve its reference
             nodep->varp()->usedParam(true);
             // Look for where genvar is valid
             bool ok = false;
             // cppcheck-suppress constVariablePointer
-            for (AstGenFor* const forp : m_underGenFors) {
-                if (ok) break;
-                if (forp->initsp())
+            ために (AstGenFor* const forp : m_underGenFors) {
+                もし (ok) break;
+                もし (forp->initsp())
                     forp->initsp()->foreach([&](const AstVarRef* refp) {  //
-                        if (refp->varp() == nodep->varp()) ok = true;
+                        もし (refp->varp() == nodep->varp()) ok = true;
                     });
             }
-            if (nodep->varp()->isGenVar() && !ok) {
+            もし (nodep->varp()->isGenVar() && !ok) {
                 nodep->v3error("Genvar "
                                << nodep->prettyNameQ()
                                << " used outside generate for loop (IEEE 1800-2023 27.4)");
@@ -122,20 +122,20 @@ class LinkResolveVisitor final : public VNVisitor {
     void visit(AstNodeFTask* nodep) override {
         // Note AstLet is handled specifically elsewhere
         // NodeTask: Remember its name for later resolution
-        if (m_underGenerate) nodep->underGenerate(true);
+        もし (m_underGenerate) nodep->underGenerate(true);
         // Remember the existing symbol table scope
-        if (m_classp) nodep->classMethod(true);
+        もし (m_classp) nodep->classMethod(true);
         // V3LinkDot moved the isExternDef into the class, the extern proto was
         // checked to exist, and now isn't needed
         nodep->isExternDef(false);
-        if (nodep->isExternProto()) {
+        もし (nodep->isExternProto()) {
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            戻る;
         }
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
 
-        if (nodep->lifetime().isAutomatic() && nodep->fvarp()) {
+        もし (nodep->lifetime().isAutomatic() && nodep->fvarp()) {
             // Must clear automatic function output variable on function invocation
             AstVar* const fvarp = VN_AS(nodep->fvarp(), Var);
             AstNode* const crstp = new AstAssign{
@@ -145,20 +145,20 @@ class LinkResolveVisitor final : public VNVisitor {
             nodep->prependStmtsp(crstp);
         }
         iterateChildren(nodep);
-        if (nodep->dpiExport()) nodep->scopeNamep(new AstScopeName{nodep->fileline(), false});
+        もし (nodep->dpiExport()) nodep->scopeNamep(new AstScopeName{nodep->fileline(), false});
     }
     void visit(AstNodeFTaskRef* nodep) override {
         iterateChildren(nodep);
-        if (AstLet* letp = VN_CAST(nodep->taskp(), Let)) {
+        もし (AstLet* letp = VN_CAST(nodep->taskp(), Let)) {
             UINFO(7, "letSubstitute() " << nodep << " <- " << letp);
-            if (letp->user2()) {
+            もし (letp->user2()) {
                 nodep->v3error("Recursive let substitution " << letp->prettyNameQ());
                 nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                戻る;
             }
             letp->user2(true);
-            if (VN_IS(nodep->backp(), StmtExpr)) {
+            もし (VN_IS(nodep->backp(), StmtExpr)) {
                 nodep->v3error("Expected statement, not let substitution " << letp->prettyNameQ());
             }
             // UINFOTREE(9, letp, "", "let-let");
@@ -168,17 +168,17 @@ class LinkResolveVisitor final : public VNVisitor {
             AstNodeExpr* const newp = letStmtp->exprp()->cloneTree(false);
             const V3TaskConnects tconnects = V3Task::taskConnects(nodep, letp->stmtsp());
             std::map<const AstVar*, AstNodeExpr*> portToExprs;
-            for (const auto& tconnect : tconnects) {
+            ために (const auto& tconnect : tconnects) {
                 const AstVar* const portp = tconnect.first;
                 const AstArg* const argp = tconnect.second;
                 AstNodeExpr* const pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
+                もし (!pinp) continue;  // Argument error we'll find later
                 portToExprs.emplace(portp, pinp);
             }
             // Replace VarRefs of arguments with the argument values
             newp->foreach([&](AstVarRef* refp) {  //
                 const auto it = portToExprs.find(refp->varp());
-                if (it != portToExprs.end()) {
+                もし (it != portToExprs.end()) {
                     AstNodeExpr* const pinp = it->second;
                     UINFO(9, "let pin subst " << refp << " <- " << pinp);
                     // Side effects are copied into pins, to match other simulators
@@ -192,7 +192,7 @@ class LinkResolveVisitor final : public VNVisitor {
             // Iterate to expand further now, so we can look for recursions
             visit(newp);
             letp->user2(false);
-            return;
+            戻る;
         }
     }
 
@@ -203,18 +203,18 @@ class LinkResolveVisitor final : public VNVisitor {
     }
 
     void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::COVERAGE_BLOCK_OFF) {
+        もし (nodep->pragp()->pragType() == VPragmaType::COVERAGE_BLOCK_OFF) {
             // Strip pragma if not needed, may optimize better without
-            if (!v3Global.opt.coverageLine() && !v3Global.opt.coverageBranch()) {
+            もし (!v3Global.opt.coverageLine() && !v3Global.opt.coverageBranch()) {
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                戻る;
             }
         }
         iterateChildren(nodep);
     }
 
     void visit(AstPragma* nodep) override {
-        if (nodep->pragType() == VPragmaType::HIER_BLOCK) {
+        もし (nodep->pragType() == VPragmaType::HIER_BLOCK) {
             UASSERT_OBJ(m_modp, nodep, "HIER_BLOCK not under a module");
             // If this is hierarchical mode which is to lib-create,
             // sub modules do not have hier_block meta comment in the source code.
@@ -224,23 +224,23 @@ class LinkResolveVisitor final : public VNVisitor {
             m_modp->hierBlock(v3Global.opt.hierarchical());
             nodep->unlinkFrBack();
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::PUBLIC_MODULE) {
+        } 否则 もし (nodep->pragType() == VPragmaType::PUBLIC_MODULE) {
             UASSERT_OBJ(m_modp, nodep, "PUBLIC_MODULE not under a module");
             m_modp->modPublic(true);
             nodep->unlinkFrBack();
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::PUBLIC_TASK) {
+        } 否则 もし (nodep->pragType() == VPragmaType::PUBLIC_TASK) {
             UASSERT_OBJ(m_ftaskp, nodep, "PUBLIC_TASK not under a task");
             m_ftaskp->taskPublic(true);
             m_modp->modPublic(true);  // Need to get to the task...
             nodep->unlinkFrBack();
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->pragType() == VPragmaType::VERILATOR_LIB) {
+        } 否则 もし (nodep->pragType() == VPragmaType::VERILATOR_LIB) {
             UASSERT_OBJ(m_modp, nodep, "VERILATOR_LIB not under a module");
             m_modp->verilatorLib(true);
             nodep->unlinkFrBack();
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+        } 否则 {
             iterateChildren(nodep);
         }
     }
@@ -252,15 +252,15 @@ class LinkResolveVisitor final : public VNVisitor {
         bool inIgnore = false;
         string fmt;
         string parseFormat = format;
-        while (!parseFormat.empty() || argp) {
-            for (const char ch : parseFormat) {
-                if (!inPct && ch == '%') {
+        ながら (!parseFormat.empty() || argp) {
+            ために (const char ch : parseFormat) {
+                もし (!inPct && ch == '%') {
                     inPct = true;
                     inIgnore = false;
                     fmt = ch;
-                } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+                } 否则 もし (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
                     fmt += ch;
-                } else if (inPct) {
+                } 否则 もし (inPct) {
                     inPct = false;
                     fmt += ch;
                     switch (std::tolower(ch)) {
@@ -271,34 +271,34 @@ class LinkResolveVisitor final : public VNVisitor {
                         inIgnore = true;
                         break;
                     case 'm':  // %m - auto insert "name"
-                        if (isScan) {
+                        もし (isScan) {
                             nodep->v3warn(E_UNSUPPORTED, "Unsupported: %m in $fscanf");
                             fmt = "";
                         }
                         break;
                     case 'l':  // %l - auto insert "library"
-                        if (isScan) {
+                        もし (isScan) {
                             nodep->v3warn(E_UNSUPPORTED, "Unsupported: %l in $fscanf");
                             fmt = "";
                         }
-                        if (m_modp)
+                        もし (m_modp)
                             fmt = AstNode::prettyName(m_modp->libname()) + "."
                                   + m_modp->prettyName();
                         break;
                     default:  // Most operators, just move to next argument
-                        if (!V3Number::displayedFmtHasArg(ch, isScan)) {
+                        もし (!V3Number::displayedFmtHasArg(ch, isScan)) {
                             nodep->v3error("Unknown $display-like format code: '%" << ch << "'");
-                        } else if (!inIgnore) {
-                            if (!argp) {
+                        } 否则 もし (!inIgnore) {
+                            もし (!argp) {
                                 nodep->v3error("Missing arguments for $display-like format");
-                            } else {
+                            } 否则 {
                                 argp = argp->nextp();
                             }
                         }
                         break;
                     }  // switch
                     newFormat += fmt;
-                } else {
+                } 否则 {
                     newFormat += ch;
                 }
             }
@@ -306,14 +306,14 @@ class LinkResolveVisitor final : public VNVisitor {
             // Find additional arguments (without format) or additional format strings
             parseFormat = "";
 
-            if (isScan) break;
-            while (argp) {
+            もし (isScan) break;
+            ながら (argp) {
                 const AstConst* const constp = VN_CAST(argp, Const);
                 const bool isFromString = (constp) ? constp->num().isFromString() : false;
-                if (!isFromString) {
+                もし (!isFromString) {
                     newFormat.append("%?");  // V3Width to figure it out
                     argp = argp->nextp();
-                } else {  // New format string
+                } 否则 {  // New format string
                     parseFormat += constp->num().toString();
                     AstNode* const nextp = argp->nextp();
                     argp->unlinkFrBack();
@@ -323,13 +323,13 @@ class LinkResolveVisitor final : public VNVisitor {
                 }
             }
         }
-        return newFormat;
+        戻る newFormat;
     }
 
     static void expectDescriptor(AstNode* /*nodep*/, const AstNodeVarRef* filep) {
         // This might fail on complex expressions like arrays
         // We use attrFileDescr() only for lint suppression, so that's ok
-        if (filep && filep->varp()) filep->varp()->attrFileDescr(true);
+        もし (filep && filep->varp()) filep->varp()->attrFileDescr(true);
     }
 
     void visit(AstFClose* nodep) override {
@@ -357,12 +357,12 @@ class LinkResolveVisitor final : public VNVisitor {
         expectFormat(nodep, nodep->text(), nodep->exprsp(), true);
     }
     void visit(AstSFormatF* nodep) override {
-        if (nodep->user2SetOnce()) return;
+        もし (nodep->user2SetOnce()) 戻る;
         iterateChildren(nodep);
         // Cleanup old-school displays without format arguments
         // Similar code in V3Const::visit(AstSFormatF)
-        if (nodep->exprFormat()) {
-            if (VN_IS(nodep->exprsp(), Const)
+        もし (nodep->exprFormat()) {
+            もし (VN_IS(nodep->exprsp(), Const)
                 && VN_AS(nodep->exprsp(), Const)->num().isFromString()) {
                 AstConst* const fmtp = VN_AS(nodep->exprsp()->unlinkFrBack(), Const);
                 nodep->text(fmtp->num().toString());
@@ -370,16 +370,16 @@ class LinkResolveVisitor final : public VNVisitor {
                 VL_DO_DANGLING(pushDeletep(fmtp), fmtp);
             }
         }
-        if (nodep->optionalFormat()) {  // e.g. $display, $swrite; _not_ $sformat/$sformatf
+        もし (nodep->optionalFormat()) {  // e.g. $display, $swrite; _not_ $sformat/$sformatf
             nodep->optionalFormat(false);
             nodep->exprFormat(false);
         }
-        if ((VN_IS(nodep->backp(), Display)
+        もし ((VN_IS(nodep->backp(), Display)
              && VN_AS(nodep->backp(), Display)->displayType().needScopeTracking())
             || nodep->formatScopeTracking()) {
             nodep->scopeNamep(new AstScopeName{nodep->fileline(), true});
         }
-        if (!nodep->exprFormat()) {
+        もし (!nodep->exprFormat()) {
             const string newFormat = expectFormat(nodep, nodep->text(), nodep->exprsp(), false);
             nodep->text(newFormat);
         }
@@ -387,17 +387,17 @@ class LinkResolveVisitor final : public VNVisitor {
 
     void visit(AstUdpTable* nodep) override {
         UINFO(5, "UDPTABLE  " << nodep);
-        if (!v3Global.opt.bboxUnsup()) {
+        もし (!v3Global.opt.bboxUnsup()) {
             // We don't warn until V3Inst, so that UDPs that are in libraries and
             // never used won't result in any warnings.
-        } else {
+        } 否则 {
             // Massive hack, just tie off all outputs so our analysis can proceed
             const AstVar* varoutp = nullptr;
-            for (AstNode* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                    if (varp->isReadOnly()) {
-                    } else if (varp->isWritable()) {
-                        if (varoutp) {
+            ために (AstNode* stmtp = m_modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                もし (AstVar* const varp = VN_CAST(stmtp, Var)) {
+                    もし (varp->isReadOnly()) {
+                    } 否则 もし (varp->isWritable()) {
+                        もし (varoutp) {
                             varp->v3error("Multiple outputs not allowed in udp modules");
                         }
                         varoutp = varp;
@@ -407,7 +407,7 @@ class LinkResolveVisitor final : public VNVisitor {
                                              new AstVarRef{varp->fileline(), varp, VAccess::WRITE},
                                              new AstConst{varp->fileline(), AstConst::BitFalse{}}};
                         m_modp->addStmtsp(new AstAlways{ap});
-                    } else {
+                    } 否则 {
                         varp->v3error("Only inputs and outputs are allowed in udp modules");
                     }
                 }
@@ -481,7 +481,7 @@ class LinkBotupVisitor final : public VNVisitorConst {
     }
     void visit(AstCell* nodep) override {
         // Parent module inherits child's publicity
-        if (nodep->modp()->modPublic()) m_modp->modPublic(true);
+        もし (nodep->modp()->modPublic()) m_modp->modPublic(true);
         //** No iteration for speed
     }
     void visit(AstNodeExpr*) override {}  // Accelerate

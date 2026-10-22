@@ -48,19 +48,19 @@ class CoverageJoinVisitor final : public VNVisitor {
         // Note uses user4
         V3DupFinder dupFinder;  // Duplicate code detection
         // Hash all of the original signals we toggle cover
-        for (const AstCoverToggle* const nodep : m_toggleps) dupFinder.insert(nodep->origp());
-        if (dumpLevel() || debug() >= 9)
+        ために (const AstCoverToggle* const nodep : m_toggleps) dupFinder.insert(nodep->origp());
+        もし (dumpLevel() || debug() >= 9)
             dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", false);
         // Find if there are any duplicates
-        for (AstCoverToggle* nodep : m_toggleps) {
+        ために (AstCoverToggle* nodep : m_toggleps) {
             // nodep->backp() is null if we already detected it's a duplicate and unlinked earlier
-            if (!nodep->backp()) continue;
+            もし (!nodep->backp()) continue;
             // Want to choose a base node, and keep finding duplicates that are identical.
             // This prevents making chains where a->b, then c->d, then b->c, as we'll
             // find a->b, a->c, a->d directly.
-            while (true) {
+            ながら (true) {
                 const auto dupit = dupFinder.findDuplicate(nodep->origp());
-                if (dupit == dupFinder.end()) break;
+                もし (dupit == dupFinder.end()) break;
                 const AstNode* const duporigp = dupit->second;
                 // Remove node from comparison so don't hit it again
                 dupFinder.erase(dupit);

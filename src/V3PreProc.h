@@ -40,7 +40,7 @@ protected:
 
 public:
     // CONSTANTS
-    enum MiscConsts : int {
+    enum MiscConsts : 整数 {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
         INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
@@ -60,12 +60,12 @@ public:
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
+    static 整数 keepComments() { 戻る 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    static bool keepWhitespace() { 戻る false; }
     static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+        戻る !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    static bool pedantic() { 戻る false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.

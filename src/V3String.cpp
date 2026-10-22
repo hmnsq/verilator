@@ -17,7 +17,7 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#もし defined(_WIN32) || defined(__MINGW32__)
 #include <io.h>  // open, read, write, close
 #endif
 
@@ -43,72 +43,72 @@ std::map<string, string> VName::s_dehashMap;
 // Double procedures, inlined, unrolls loop much better
 template <bool Even = true>
 static bool wildMatchImpl(const char* s, const char* p) VL_PURE {
-    for (; *p; s++, p++) {
-        if (*p != '*') {
-            if (((*s) != (*p)) && *p != '?') return false;
-        } else {
+    ために (; *p; s++, p++) {
+        もし (*p != '*') {
+            もし (((*s) != (*p)) && *p != '?') 戻る false;
+        } 否则 {
             // Trailing star matches everything.
-            if (!*++p) return true;
-            while (!wildMatchImpl<!Even>(s, p)) {
-                if (*++s == '\0') return false;
+            もし (!*++p) 戻る true;
+            ながら (!wildMatchImpl<!Even>(s, p)) {
+                もし (*++s == '\0') 戻る false;
             }
-            return true;
+            戻る true;
         }
     }
-    return (*s == '\0');
+    戻る (*s == '\0');
 }
 
 bool VString::wildmatch(const char* s, const char* p) VL_PURE {
-    if (*s == '\0') {
-        while (*p == '*') ++p;
-        return *p == '\0';
+    もし (*s == '\0') {
+        ながら (*p == '*') ++p;
+        戻る *p == '\0';
     }
-    return wildMatchImpl(s, p);
+    戻る wildMatchImpl(s, p);
 }
 
 bool VString::wildmatch(const string& s, const string& p) VL_PURE {
-    return wildmatch(s.c_str(), p.c_str());
+    戻る wildmatch(s.c_str(), p.c_str());
 }
 
 string VString::dot(const string& a, const string& dot, const string& b) {
-    if (b == "") return a;
-    if (a == "") return b;
-    return a + dot + b;
+    もし (b == "") 戻る a;
+    もし (a == "") 戻る b;
+    戻る a + dot + b;
 }
 
 string VString::downcase(const string& str) VL_PURE {
     string result = str;
-    for (char& cr : result) cr = std::tolower(cr);
-    return result;
+    ために (char& cr : result) cr = std::tolower(cr);
+    戻る result;
 }
 
 string VString::upcase(const string& str) VL_PURE {
     string result = str;
-    for (char& cr : result) cr = std::toupper(cr);
-    return result;
+    ために (char& cr : result) cr = std::toupper(cr);
+    戻る result;
 }
 
 string VString::quoteAny(const string& str, char tgt, char esc) VL_PURE {
     string result;
-    for (const char c : str) {
-        if (c == tgt) result += esc;
+    ために (const char c : str) {
+        もし (c == tgt) result += esc;
         result += c;
     }
-    return result;
+    戻る result;
 }
 
 string VString::dequotePercent(const string& str) {
     string result;
     char last = '\0';
-    for (const char c : str) {
-        if (last == '%' && c == '%') {
+    ために (const char c : str) {
+        もし (last == '%' && c == '%') {
             last = '\0';
-        } else {
+        } 否则 {
             result += c;
             last = c;
         }
     }
-    return result;
+    戻る result;
 }
 
 string VString::quoteStringLiteralForShell(const string& str) {
@@ -118,32 +118,32 @@ string VString::quoteStringLiteralForShell(const string& str) {
     result.push_back(dquote);  // Start quoted string
     result.push_back(escape);
     result.push_back(dquote);  // "
-    for (const char c : str) {
-        if (c == dquote || c == escape) result.push_back(escape);
+    ために (const char c : str) {
+        もし (c == dquote || c == escape) result.push_back(escape);
         result.push_back(c);
     }
     result.push_back(escape);
     result.push_back(dquote);  // "
     result.push_back(dquote);  // Terminate quoted string
-    return result;
+    戻る result;
 }
 
 string VString::escapeStringForPath(const string& str) {
-    if (str.find(R"(\\)") != string::npos)
-        return str;  // if it has been escaped already, don't do it again
-    if (str.find('/') != string::npos) return str;  // can be replaced by `__MINGW32__` or `_WIN32`
+    もし (str.find(R"(\\)") != string::npos)
+        戻る str;  // if it has been escaped already, don't do it again
+    もし (str.find('/') != string::npos) 戻る str;  // can be replaced by `__MINGW32__` or `_WIN32`
     string result;
     constexpr char space = ' ';  // escape space like this `Program Files`
     constexpr char escape = '\\';
-    for (const char c : str) {
-        if (c == space || c == escape) result.push_back(escape);
+    ために (const char c : str) {
+        もし (c == space || c == escape) result.push_back(escape);
         result.push_back(c);
     }
-    return result;
+    戻る result;
 }
 
-static int vl_decodexdigit(char c) {
-    return std::isdigit(c) ? c - '0' : std::tolower(c) - 'a' + 10;
+static 整数 vl_decodexdigit(char c) {
+    戻る std::isdigit(c) ? c - '0' : std::tolower(c) - 'a' + 10;
 }
 
 string VString::unquoteSVString(const string& text, string& errOut) {
@@ -151,19 +151,19 @@ string VString::unquoteSVString(const string& text, string& errOut) {
     string newtext;
     newtext.reserve(text.size());
     unsigned char octal_val = 0;
-    int octal_digits = 0;
-    for (string::const_iterator cp = text.begin(); cp != text.end(); ++cp) {
-        if (quoted) {
-            if (std::isdigit(*cp)) {
+    整数 octal_digits = 0;
+    ために (string::const_iterator cp = text.begin(); cp != text.end(); ++cp) {
+        もし (quoted) {
+            もし (std::isdigit(*cp)) {
                 octal_val = octal_val * 8 + (*cp - '0');
-                if (++octal_digits == 3) {
+                もし (++octal_digits == 3) {
                     newtext += octal_val;
                     octal_digits = 0;
                     octal_val = 0;
                     quoted = false;
                 }
-            } else {
-                if (octal_digits) {
+            } 否则 {
+                もし (octal_digits) {
                     // Spec allows 1-3 digits
                     newtext += octal_val;
                     octal_digits = 0;
@@ -173,76 +173,76 @@ string VString::unquoteSVString(const string& text, string& errOut) {
                     continue;
                 }
                 quoted = false;
-                if (*cp == 'n') {
+                もし (*cp == 'n') {
                     newtext += '\n';
-                } else if (*cp == 'a') {
+                } 否则 もし (*cp == 'a') {
                     newtext += '\a';  // SystemVerilog 3.1
-                } else if (*cp == 'f') {
+                } 否则 もし (*cp == 'f') {
                     newtext += '\f';  // SystemVerilog 3.1
-                } else if (*cp == 'r') {
+                } 否则 もし (*cp == 'r') {
                     newtext += '\r';
-                } else if (*cp == 't') {
+                } 否则 もし (*cp == 't') {
                     newtext += '\t';
-                } else if (*cp == 'v') {
+                } 否则 もし (*cp == 'v') {
                     newtext += '\v';  // SystemVerilog 3.1
-                } else if (*cp == 'x' && std::isxdigit(cp[1])
+                } 否则 もし (*cp == 'x' && std::isxdigit(cp[1])
                            && std::isxdigit(cp[2])) {  // SystemVerilog 3.1
                     newtext
                         += static_cast<char>(16 * vl_decodexdigit(cp[1]) + vl_decodexdigit(cp[2]));
                     cp += 2;
-                } else if (std::isalnum(*cp)) {
+                } 否则 もし (std::isalnum(*cp)) {
                     errOut = "Unknown escape sequence: \\";
                     errOut += *cp;
                     break;
-                } else {
+                } 否则 {
                     newtext += *cp;
                 }
             }
-        } else if (*cp == '\\') {
-            if (octal_digits) {
+        } 否则 もし (*cp == '\\') {
+            もし (octal_digits) {
                 newtext += octal_val;
                 // below: octal_digits = 0;
                 octal_val = 0;
             }
             quoted = true;
             octal_digits = 0;
-        } else {
+        } 否则 {
             newtext += *cp;
         }
     }
-    return newtext;
+    戻る newtext;
 }
 
 size_t VString::quotedEnd(const string& str, size_t pos) VL_PURE {
-    for (size_t i = pos + 1; i < str.size(); ++i) {
-        if (str[i] == '\\') {
+    ために (size_t i = pos + 1; i < str.size(); ++i) {
+        もし (str[i] == '\\') {
             ++i;  // Past the escaped character, as of '\"'
-        } else if (str[i] == '"') {
-            return i + 1;
+        } 否则 もし (str[i] == '"') {
+            戻る i + 1;
         }
     }
-    return string::npos;
+    戻る string::npos;
 }
 
 string VString::spaceUnprintable(const string& str) VL_PURE {
     string result;
-    for (const char c : str) {
-        if (std::isprint(c)) {
+    ために (const char c : str) {
+        もし (std::isprint(c)) {
             result += c;
-        } else {
+        } 否则 {
             result += ' ';
         }
     }
-    return result;
+    戻る result;
 }
 
 string VString::removeWhitespace(const string& str) {
     string result;
     result.reserve(str.size());
-    for (const char c : str) {
-        if (!std::isspace(c)) result += c;
+    ために (const char c : str) {
+        もし (!std::isspace(c)) result += c;
     }
-    return result;
+    戻る result;
 }
 
 string VString::trimWhitespace(const string& str) {
@@ -250,66 +250,66 @@ string VString::trimWhitespace(const string& str) {
     result.reserve(str.size());
     string add;
     bool newline = false;
-    for (const char c : str) {
-        if (newline && std::isspace(c)) continue;
-        if (c == '\n') {
+    ために (const char c : str) {
+        もし (newline && std::isspace(c)) continue;
+        もし (c == '\n') {
             add = "\n";
             newline = true;
             continue;
         }
-        if (std::isspace(c)) {
+        もし (std::isspace(c)) {
             add += c;
             continue;
         }
-        if (!add.empty()) {
+        もし (!add.empty()) {
             result += add;
             newline = false;
             add.clear();
         }
         result += c;
     }
-    return result;
+    戻る result;
 }
 
 bool VString::isIdentifier(const string& str) {
-    for (const char c : str) {
-        if (!isIdentifierChar(c)) return false;
+    ために (const char c : str) {
+        もし (!isIdentifierChar(c)) 戻る false;
     }
-    return true;
+    戻る true;
 }
 
 bool VString::isWhitespace(const string& str) {
-    for (const char c : str) {
-        if (!std::isspace(c)) return false;
+    ために (const char c : str) {
+        もし (!std::isspace(c)) 戻る false;
     }
-    return true;
+    戻る true;
 }
 
 string::size_type VString::leadingWhitespaceCount(const string& str) {
     string::size_type result = 0;
-    for (const char c : str) {
+    ために (const char c : str) {
         ++result;
-        if (!std::isspace(c)) break;
+        もし (!std::isspace(c)) break;
     }
-    return result;
+    戻る result;
 }
 
 double VString::parseDouble(const string& str, bool* successp) {
     char* const strgp = new char[str.size() + 1];
     char* dp = strgp;
-    if (successp) *successp = true;
-    for (const char* sp = str.c_str(); *sp; ++sp) {
-        if (*sp != '_') *dp++ = *sp;
+    もし (successp) *successp = true;
+    ために (const char* sp = str.c_str(); *sp; ++sp) {
+        もし (*sp != '_') *dp++ = *sp;
     }
     *dp++ = '\0';
     char* endp = strgp;
     const double d = strtod(strgp, &endp);
     const size_t parsed_len = endp - strgp;
-    if (parsed_len != std::strlen(strgp)) {
-        if (successp) *successp = false;
+    もし (parsed_len != std::strlen(strgp)) {
+        もし (successp) *successp = false;
     }
     VL_DO_DANGLING(delete[] strgp, strgp);
-    return d;
+    戻る d;
 }
 
 string VString::replaceSubstr(const string& str, const string& from, const string& to) {
@@ -317,48 +317,48 @@ string VString::replaceSubstr(const string& str, const string& from, const strin
     const size_t fromLen = from.size();
     const size_t toLen = to.size();
     UASSERT_STATIC(fromLen > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += toLen) {
+    ために (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += toLen) {
         result.replace(pos, fromLen, to);
     }
-    return result;
+    戻る result;
 }
 
 string VString::replaceWord(const string& str, const string& from, const string& to) {
     string result = str;
     const size_t len = from.size();
     UASSERT_STATIC(len > 0, "Cannot replace empty string");
-    for (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += len) {
+    ために (size_t pos = 0; (pos = result.find(from, pos)) != string::npos; pos += len) {
         // Only replace whole words
-        if (((pos > 0) && VString::isIdentifierChar(result[pos - 1])) ||  //
+        もし (((pos > 0) && VString::isIdentifierChar(result[pos - 1])) ||  //
             ((pos + len < result.size()) && VString::isIdentifierChar(result[pos + len]))) {
             continue;
         }
         result.replace(pos, len, to);
     }
-    return result;
+    戻る result;
 }
 
 std::deque<string> VString::split(const string& str, char delimiter) {
     std::deque<std::string> results;
     std::istringstream is{str};
     std::string token;
-    while (std::getline(is, token, delimiter)) results.push_back(token);
-    return results;
+    ながら (std::getline(is, token, delimiter)) results.push_back(token);
+    戻る results;
 }
 
 bool VString::endsWith(const string& str, const string& suffix) {
-    if (str.length() < suffix.length()) return false;
-    return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+    もし (str.length() < suffix.length()) 戻る false;
+    戻る str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 string VString::aOrAn(const char* word) {
     switch (word[0]) {
-    case '\0': return "";
+    case '\0': 戻る "";
     case 'a':
     case 'e':
     case 'i':
     case 'o':
-    case 'u': return "an";
-    default: return "a";
+    case 'u': 戻る "an";
+    default: 戻る "a";
     }
 }
 
@@ -368,14 +368,14 @@ uint64_t VString::hashMurmur(const string& str) VL_PURE {
     const size_t len = str.size();
     constexpr uint64_t seed = 0;
     constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
-    constexpr int r = 47;
+    constexpr 整数 r = 47;
 
     uint64_t h = seed ^ (len * m);
 
     const uint64_t* data = reinterpret_cast<const uint64_t*>(key);
     const uint64_t* end = data + (len / 8);
 
-    while (data != end) {
+    ながら (data != end) {
         uint64_t k = *data++;
 
         k *= m;
@@ -403,7 +403,7 @@ uint64_t VString::hashMurmur(const string& str) VL_PURE {
     h *= m;
     h ^= h >> r;
 
-    return h;
+    戻る h;
 }
 
 string VString::base64Enc(const string& str) VL_PURE {
@@ -414,28 +414,28 @@ string VString::base64Enc(const string& str) VL_PURE {
     string result;
     result.reserve(len * 4 / 3 + 2);
     size_t pos = 0;
-    if (len >= 3) {
-        for (; pos < len - 2; pos += 3) {
+    もし (len >= 3) {
+        ために (; pos < len - 2; pos += 3) {
             result += digits[((str[pos] >> 2) & 0x3f)];
             result
-                += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
+                += digits[((str[pos] & 0x3) << 4) | (static_cast<整数>(str[pos + 1] & 0xf0) >> 4)];
             result += digits[((str[pos + 1] & 0xf) << 2)
-                             | (static_cast<int>(str[pos + 2] & 0xc0) >> 6)];
+                             | (static_cast<整数>(str[pos + 2] & 0xc0) >> 6)];
             result += digits[((str[pos + 2] & 0x3f))];
         }
     }
-    if (len >= 2 && pos < len - 1) {  // Pad 2
+    もし (len >= 2 && pos < len - 1) {  // Pad 2
         result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(str[pos + 1] & 0xf0) >> 4)];
-        result += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<int>(0) >> 6)];
+        result += digits[((str[pos] & 0x3) << 4) | (static_cast<整数>(str[pos + 1] & 0xf0) >> 4)];
+        result += digits[((str[pos + 1] & 0xf) << 2) | (static_cast<整数>(0) >> 6)];
         result += '=';
-    } else if (pos < len) {  // Pad 1
+    } 否则 もし (pos < len) {  // Pad 1
         result += digits[((str[pos] >> 2) & 0x3f)];
-        result += digits[((str[pos] & 0x3) << 4) | (static_cast<int>(0) >> 4)];
+        result += digits[((str[pos] & 0x3) << 4) | (static_cast<整数>(0) >> 4)];
         result += '=';
         result += '=';
     }
-    return result;
+    戻る result;
 }
 
 void VString::selfTest() {
@@ -479,7 +479,7 @@ static constexpr uint64_t sha512K[]
 
 VL_ATTR_ALWINLINE
 static uint64_t shaRotr64(uint64_t lhs, uint64_t rhs) VL_PURE {
-    return lhs >> rhs | lhs << (64 - rhs);
+    戻る lhs >> rhs | lhs << (64 - rhs);
 }
 
 VL_ATTR_ALWINLINE
@@ -488,14 +488,14 @@ static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
     const uint64_t* p = chunk;
 
     // Initialize working variables to current hash value
-    for (unsigned i = 0; i < 8; i++) ah[i] = h[i];
+    ために (unsigned i = 0; i < 8; i++) ah[i] = h[i];
     // Compression function main loop
     uint64_t w[16] = {};
-    for (unsigned i = 0; i < 5; ++i) {
-        for (unsigned j = 0; j < 16; ++j) {
-            if (i == 0) {
+    ために (unsigned i = 0; i < 5; ++i) {
+        ために (unsigned j = 0; j < 16; ++j) {
+            もし (i == 0) {
                 w[j] = *p++;
-            } else {
+            } 否则 {
                 // Extend the first 16 words into the remaining
                 // 64 words w[16..79] of the message schedule array:
                 const uint64_t s0 = shaRotr64(w[(j + 1) & 0xf], 1) ^ shaRotr64(w[(j + 1) & 0xf], 8)
@@ -521,7 +521,7 @@ static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
             ah[0] = temp1 + temp2;
         }
     }
-    for (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
+    ために (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
 }
 
 void VHashSha512::insert(const void* datap, size_t length) {
@@ -529,12 +529,12 @@ void VHashSha512::insert(const void* datap, size_t length) {
     m_totLength += length;
 
     string tempData;
-    int chunkLen;
+    整数 chunkLen;
     const uint8_t* chunkp;
-    if (m_remainder == "") {
+    もし (m_remainder == "") {
         chunkLen = length;
         chunkp = static_cast<const uint8_t*>(datap);
-    } else {
+    } 否则 {
         // If there are large inserts it would be more efficient to avoid this copy
         // by copying bytes in the loop below from either m_remainder or the data
         // as appropriate.
@@ -545,14 +545,14 @@ void VHashSha512::insert(const void* datap, size_t length) {
 
     // See wikipedia SHA-2 algorithm summary
     uint64_t w[80];  // Round buffer, [0..15] are input data, rest used by rounds
-    int posBegin = 0;  // Position in buffer for start of this block
-    int posEnd = 0;  // Position in buffer for end of this block
+    整数 posBegin = 0;  // Position in buffer for start of this block
+    整数 posEnd = 0;  // Position in buffer for end of this block
 
     // Process complete 128-byte blocks
-    while (posBegin <= chunkLen - 128) {
+    ながら (posBegin <= chunkLen - 128) {
         posEnd = posBegin + 128;
         // 128 byte round input data, being careful to swap on big, keep on little
-        for (int roundByte = 0; posBegin < posEnd; posBegin += 8) {
+        ために (整数 roundByte = 0; posBegin < posEnd; posBegin += 8) {
             w[roundByte++] = (static_cast<uint64_t>(chunkp[posBegin + 7])
                               | (static_cast<uint64_t>(chunkp[posBegin + 6]) << 8)
                               | (static_cast<uint64_t>(chunkp[posBegin + 5]) << 16)
@@ -571,36 +571,36 @@ void VHashSha512::insert(const void* datap, size_t length) {
 void VHashSha512::insertFile(const string& filename) {
     static constexpr size_t BUFFER_SIZE = 64 * 1024;
 
-    const int fd = ::open(filename.c_str(), O_RDONLY);
-    if (fd < 0) return;
+    const 整数 fd = ::open(filename.c_str(), O_RDONLY);
+    もし (fd < 0) 戻る;
 
     std::array<char, BUFFER_SIZE + 1> buf;
-    while (const ssize_t got = ::read(fd, &buf, BUFFER_SIZE)) {
-        if (got <= 0) break;
+    ながら (const ssize_t got = ::read(fd, &buf, BUFFER_SIZE)) {
+        もし (got <= 0) break;
         insert(&buf, got);
     }
     ::close(fd);
 }
 
 void VHashSha512::finalize() {
-    if (!m_final) {
+    もし (!m_final) {
         // Make sure no 128 byte blocks left
         insert("");
         m_final = true;
 
         // Process final possibly non-complete 128-byte block
         uint64_t w[16];  // Round buffer, [0..15] are input data
-        for (int i = 0; i < 16; ++i) w[i] = 0;
+        ために (整数 i = 0; i < 16; ++i) w[i] = 0;
         size_t blockPos = 0;
-        for (; blockPos < m_remainder.length(); ++blockPos) {
+        ために (; blockPos < m_remainder.length(); ++blockPos) {
             w[blockPos >> 3]
                 |= ((static_cast<uint64_t>(static_cast<uint8_t>(m_remainder[blockPos])))
                     << ((7 - (blockPos & 7)) << 3));
         }
         w[blockPos >> 3] |= static_cast<uint64_t>(0x80) << ((7 - (blockPos & 7)) << 3);
-        if (m_remainder.length() >= 112) {
+        もし (m_remainder.length() >= 112) {
             sha512Block(m_inthash, w);
-            for (int i = 0; i < 16; ++i) w[i] = 0;
+            ために (整数 i = 0; i < 16; ++i) w[i] = 0;
         }
         // Only supporting 2^61 bytes max
         w[14] = 0;
@@ -615,20 +615,20 @@ string VHashSha512::digestBinary() {
     finalize();
     string result;
     result.reserve(64);
-    for (size_t i = 0; i < 64; ++i) {
+    ために (size_t i = 0; i < 64; ++i) {
         result += static_cast<char>((m_inthash[i >> 3] >> (((7 - i) & 0x7) << 3)) & 0xff);
     }
-    return result;
+    戻る result;
 }
 
 uint64_t VHashSha512::digestUInt64() {
     const string& binhash = digestBinary();
     uint64_t result = 0;
-    for (size_t byte = 0; byte < sizeof(uint64_t); ++byte) {
+    ために (size_t byte = 0; byte < sizeof(uint64_t); ++byte) {
         const unsigned char c = binhash[byte];
         result = (result << 8) | c;
     }
-    return result;
+    戻る result;
 }
 
 string VHashSha512::digestHex() {
@@ -636,16 +636,16 @@ string VHashSha512::digestHex() {
     const string& binhash = digestBinary();
     string result;
     result.reserve(128);
-    for (size_t byte = 0; byte < 64; ++byte) {
+    ために (size_t byte = 0; byte < 64; ++byte) {
         result += digits[(binhash[byte] >> 4) & 0xf];
         result += digits[(binhash[byte] >> 0) & 0xf];
     }
-    return result;
+    戻る result;
 }
 
 string VHashSha512::digestBase64() {
     // Return base64 from hash.  Complete representation of the binary/reversable.
-    return VString::base64Enc(digestBinary());
+    戻る VString::base64Enc(digestBinary());
 }
 
 string VHashSha512::digestSymbol24() {
@@ -658,36 +658,36 @@ string VHashSha512::digestSymbol24() {
     const string& binhash = digestBinary();
     string result;
     result.reserve(84);
-    int pos = 0;
-    for (; pos < (512 / 8) - 2; pos += 3) {
+    整数 pos = 0;
+    ために (; pos < (512 / 8) - 2; pos += 3) {
         result += digits[((binhash[pos] >> 2) & 0x3f)];
         result += digits[((binhash[pos] & 0x3) << 4)
-                         | (static_cast<int>(binhash[pos + 1] & 0xf0) >> 4)];
+                         | (static_cast<整数>(binhash[pos + 1] & 0xf0) >> 4)];
         result += digits[((binhash[pos + 1] & 0xf) << 2)
-                         | (static_cast<int>(binhash[pos + 2] & 0xc0) >> 6)];
+                         | (static_cast<整数>(binhash[pos + 2] & 0xc0) >> 6)];
         result += digits[((binhash[pos + 2] & 0x3f))];
         // Keep symbols short-ish, with 24 chars/144 bits we won't have hash collisions
-        if (result.size() >= DIGEST_SYMBOL24_LENGTH) break;
+        もし (result.size() >= DIGEST_SYMBOL24_LENGTH) break;
     }
     // Any leftover bits don't matter for our purpose
-    return result;
+    戻る result;
 }
 
 void VHashSha512::selfTestOne(const string& data, const string& data2, const string& exp,
                               const string& exp64, const string& exp24) {
     VHashSha512 digest{data};
-    if (data2 != "") digest.insert(data2);
-    if (VL_UNCOVERABLE(digest.digestHex() != exp)) {
+    もし (data2 != "") digest.insert(data2);
+    もし (VL_UNCOVERABLE(digest.digestHex() != exp)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestHex() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp << endl;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
+    もし (VL_UNCOVERABLE(digest.digestBase64() != exp64)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestBase64() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
     }
-    if (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
+    もし (VL_UNCOVERABLE(digest.digestSymbol24() != exp24)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestSymbol24() << '\n'  // LCOV_EXCL_LINE
                   << "        ... exp=" << exp64 << endl;  // LCOV_EXCL_LINE
@@ -749,7 +749,7 @@ string VName::dehash(const string& in) {
 
     // Need to split 'in' into components separated by __DOT__, 'last_dot_pos'
     // keeps track of the position after the most recently found instance of __DOT__
-    for (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
+    ために (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
         const string::size_type next_dot_pos = in.find("__DOT__", last_dot_pos);
         // Two iterators defining the range between the last and next dots.
         const auto search_begin = std::begin(in) + last_dot_pos;
@@ -759,7 +759,7 @@ string VName::dehash(const string& in) {
         // Search for __Vhsh between the two dots.
         const auto begin_vhsh
             = std::search(search_begin, search_end, std::begin(VHSH), std::end(VHSH) - 1);
-        if (begin_vhsh != search_end) {
+        もし (begin_vhsh != search_end) {
             // V3Decompose and V3BitBlast append suffixes to names already hashed, so the
             // hash does not always reach the end of the component.
             const auto end_vhsh
@@ -768,7 +768,7 @@ string VName::dehash(const string& in) {
             const auto& it = s_dehashMap.find(vhsh);
             UASSERT(it != s_dehashMap.end(), "String not in reverse hash map '" << vhsh << "'");
             // Is this not the first component, but the first to require dehashing?
-            if (last_dot_pos > 0 && dehashed.empty()) {
+            もし (last_dot_pos > 0 && dehashed.empty()) {
                 // Seed 'dehashed' with the previously processed components.
                 dehashed = in.substr(0, last_dot_pos);
             }
@@ -780,43 +780,43 @@ string VName::dehash(const string& in) {
             dehashed += std::string{end_vhsh, search_end};
         }
         // This component doesn't need dehashing but a previous one might have.
-        else if (!dehashed.empty()) {
+        否则 もし (!dehashed.empty()) {
             dehashed += std::string{search_begin, search_end};
         }
 
-        if (next_dot_pos != string::npos) {
+        もし (next_dot_pos != string::npos) {
             // Is there a __DOT__ to add to the dehashed version of 'in'?
-            if (!dehashed.empty()) dehashed += "__DOT__";
+            もし (!dehashed.empty()) dehashed += "__DOT__";
             last_dot_pos = next_dot_pos + DOT_LEN;
-        } else {
+        } 否则 {
             last_dot_pos = string::npos;
         }
     }
-    return dehashed.empty() ? in : dehashed;
+    戻る dehashed.empty() ? in : dehashed;
 }
 
 string VName::hashedName() {
-    if (m_name == "") return "";
-    if (m_hashed != "") return m_hashed;  // Memoized
-    if (s_maxLength == 0 || m_name.length() < s_maxLength) {
+    もし (m_name == "") 戻る "";
+    もし (m_hashed != "") 戻る m_hashed;  // Memoized
+    もし (s_maxLength == 0 || m_name.length() < s_maxLength) {
         m_hashed = m_name;
-        return m_hashed;
+        戻る m_hashed;
     }
     VHashSha512 hash{m_name};
     const string suffix = "__Vhsh" + hash.digestSymbol24();
-    if (s_minLength < s_maxLength) {
+    もし (s_minLength < s_maxLength) {
         // Keep a prefix from the original name
         // Backup over digits so adding __Vhash doesn't look like a encoded hex digit
         // ("__0__Vhsh")
         size_t prefLength = s_minLength;
-        while (prefLength >= 1 && m_name[prefLength - 1] != '_') --prefLength;
+        ながら (prefLength >= 1 && m_name[prefLength - 1] != '_') --prefLength;
         s_dehashMap[suffix] = m_name.substr(prefLength);
         m_hashed = m_name.substr(0, prefLength) + suffix;
-    } else {
+    } 否则 {
         s_dehashMap[suffix] = m_name;
         m_hashed = suffix;
     }
-    return m_hashed;
+    戻る m_hashed;
 }
 
 //######################################################################
@@ -826,49 +826,49 @@ VSpellCheck::EditDistance VSpellCheck::editDistance(const string& s, const strin
     // Wagner-Fischer algorithm for the Damerau-Levenshtein distance
     const size_t sLen = s.length();
     const size_t tLen = t.length();
-    if (sLen == 0) return tLen;
-    if (tLen == 0) return sLen;
-    if (sLen >= LENGTH_LIMIT) return sLen;
-    if (tLen >= LENGTH_LIMIT) return tLen;
+    もし (sLen == 0) 戻る tLen;
+    もし (tLen == 0) 戻る sLen;
+    もし (sLen >= LENGTH_LIMIT) 戻る sLen;
+    もし (tLen >= LENGTH_LIMIT) 戻る tLen;
 
     static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_two_ago;
     static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_one_ago;
     static std::array<EditDistance, LENGTH_LIMIT + 1> s_v_next;
 
-    for (size_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
+    ために (size_t i = 0; i < sLen + 1; i++) s_v_one_ago[i] = i;
 
-    for (size_t i = 0; i < tLen; i++) {
+    ために (size_t i = 0; i < tLen; i++) {
         s_v_next[0] = i + 1;
-        for (size_t j = 0; j < sLen; j++) {
+        ために (size_t j = 0; j < sLen; j++) {
             const EditDistance cost = (s[j] == t[i] ? 0 : 1);
             const EditDistance deletion = s_v_next[j] + 1;
             const EditDistance insertion = s_v_one_ago[j + 1] + 1;
             const EditDistance substitution = s_v_one_ago[j] + cost;
             EditDistance cheapest = std::min(deletion, insertion);
             cheapest = std::min(cheapest, substitution);
-            if (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
+            もし (i > 0 && j > 0 && s[j] == t[i - 1] && s[j - 1] == t[i]) {
                 const EditDistance transposition = s_v_two_ago[j - 1] + 1;
                 cheapest = std::min(cheapest, transposition);
             }
             s_v_next[j + 1] = cheapest;
         }
-        for (size_t j = 0; j < sLen + 1; j++) {
+        ために (size_t j = 0; j < sLen + 1; j++) {
             s_v_two_ago[j] = s_v_one_ago[j];
             s_v_one_ago[j] = s_v_next[j];
         }
     }
 
     const EditDistance result = s_v_next[sLen];
-    return result;
+    戻る result;
 }
 
 VSpellCheck::EditDistance VSpellCheck::cutoffDistance(size_t goal_len, size_t candidate_len) {
     // Return max acceptable edit distance
     const size_t max_length = std::max(goal_len, candidate_len);
     const size_t min_length = std::min(goal_len, candidate_len);
-    if (max_length <= 1) return 0;
-    if (max_length - min_length <= 1) return std::max(max_length / 3, static_cast<size_t>(1));
-    return (max_length + 2) / 3;
+    もし (max_length <= 1) 戻る 0;
+    もし (max_length - min_length <= 1) 戻る std::max(max_length / 3, static_cast<size_t>(1));
+    戻る (max_length + 2) / 3;
 }
 
 VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
@@ -876,29 +876,29 @@ VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
     Candidate best;
     const size_t gLen = goal.length();
     distancer = LENGTH_LIMIT * 10;
-    for (const Candidate& candidate : m_candidates) {
+    ために (const Candidate& candidate : m_candidates) {
         const size_t cLen = candidate.str.length();
 
         // Min distance must be inserting/deleting to make lengths match
         const EditDistance min_distance = (cLen > gLen ? (cLen - gLen) : (gLen - cLen));
-        if (min_distance >= distancer) continue;  // Short-circuit if already better
+        もし (min_distance >= distancer) continue;  // Short-circuit if already better
 
         const EditDistance cutoff = cutoffDistance(gLen, cLen);
-        if (min_distance > cutoff) continue;  // Short-circuit if already too bad
+        もし (min_distance > cutoff) continue;  // Short-circuit if already too bad
 
         const EditDistance dist = editDistance(goal, candidate.str);
         UINFO(9, "EditDistance dist=" << dist << " cutoff=" << cutoff << " goal=" << goal
                                       << " candidate=" << candidate.str << ":'" << candidate.msg
                                       << "'");
-        if (dist < distancer && dist <= cutoff) {
+        もし (dist < distancer && dist <= cutoff) {
             distancer = dist;
             best = candidate;
         }
     }
 
     // If goal matches candidate avoid suggesting replacing with self
-    if (distancer == 0) return Candidate{.str = best.str, .msg = ""};
-    return best;
+    もし (distancer == 0) 戻る Candidate{.str = best.str, .msg = ""};
+    戻る best;
 }
 
 void VSpellCheck::selfTestDistanceOne(const string& a, const string& b, EditDistance expected) {
@@ -912,10 +912,10 @@ void VSpellCheck::selfTestSuggestOne(bool matches, const string& c, const string
     VSpellCheck speller;
     speller.pushCandidate(c);
     const string got = speller.bestCandidateInfo(goal, gdist /*ref*/).str;
-    if (matches) {
+    もし (matches) {
         UASSERT_SELFTEST(got, c);
         UASSERT_SELFTEST(gdist, dist);
-    } else {
+    } 否则 {
         UASSERT_SELFTEST(got, "");
     }
 }
@@ -951,7 +951,7 @@ void VSpellCheck::selfTest() {
     }
     {
         VSpellCheck speller;
-        for (unsigned i = 0; i < NUM_CANDIDATE_LIMIT; ++i) speller.pushCandidate("fred");
+        ために (unsigned i = 0; i < NUM_CANDIDATE_LIMIT; ++i) speller.pushCandidate("fred");
         UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
         speller.pushCandidate("wilma");
         UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);

@@ -33,18 +33,18 @@ public:
         : m_cache{dfg.makeUserMap<V3Hash>()} {
         // Pre-hash variables, these are all unique, so just set their hash to a unique value
         uint32_t fixedHash = 0;
-        for (const DfgVertexVar& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        ために (const DfgVertexVar& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash Ast references, these are all unique like variables
-        for (const DfgVertexAst& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        ために (const DfgVertexAst& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash CReset and Prev vertices, these are all unique
-        for (const DfgVertex& vtx : dfg.opVertices()) {
-            if (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
+        ために (const DfgVertex& vtx : dfg.opVertices()) {
+            もし (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
         }
         // Similarly pre-hash constants for speed. While we don't combine constants, we do want
         // expressions using the same constants to be combined, so we do need to hash equal
         // constants to equal values.
         ++fixedHash;
-        for (const DfgConst& vtx : dfg.constVertices()) {
+        ために (const DfgConst& vtx : dfg.constVertices()) {
             const V3Hash hash = vtx.num().toHash() + fixedHash;
             // Technically possible for a hash to be zero, 'vertexSelfHash' assumes it isn't
             m_cache[vtx] = VL_LIKELY(hash.value()) ? hash : V3Hash{1};
@@ -52,7 +52,7 @@ public:
     }
 
     // METHODS
-    size_t operator()(DfgVertex* vtxp) const { return vertexHash(*vtxp).value(); }
+    size_t operator()(DfgVertex* vtxp) const { 戻る vertexHash(*vtxp).value(); }
 
 private:
     // Returns hash of vertex dependent on information internal to the vertex
@@ -73,22 +73,22 @@ private:
             vtx.v3fatalSrc("Hash should have been pre-computed");
 
         // Vertices with internal information
-        case VDfgType::Sel: return V3Hash{vtx.as<DfgSel>()->lsb()};
+        case VDfgType::Sel: 戻る V3Hash{vtx.as<DfgSel>()->lsb()};
 
         case VDfgType::SpliceArray:
         case VDfgType::SplicePacked: {
             V3Hash hash;
             vtx.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {
                 hash += lo;
-                return false;
+                戻る false;
             });
-            return hash;
+            戻る hash;
         }
 
         // Vertices with no internal information
         case VDfgType::MatchMasked:
         case VDfgType::Mux:
-        case VDfgType::UnitArray: return V3Hash{};
+        case VDfgType::UnitArray: 戻る V3Hash{};
 
         // Generated classes - none of them have internal information
         case VDfgType::Add:
@@ -143,7 +143,7 @@ private:
         case VDfgType::StreamL:
         case VDfgType::StreamR:
         case VDfgType::Sub:
-        case VDfgType::Xor: return V3Hash{};
+        case VDfgType::Xor: 戻る V3Hash{};
         }
         VL_UNREACHABLE;
     }
@@ -152,17 +152,17 @@ private:
     V3Hash vertexHash(DfgVertex& vtx) const {
         V3Hash& result = m_cache[vtx];
         // Technically possible for a hash to be zero, but rare, so assume 0 means uninitialized
-        if (!result.value()) {
+        もし (!result.value()) {
             V3Hash hash{vertexSelfHash(vtx)};
             hash += vtx.type();
             hash += vtx.size();
             vtx.foreachSource([&](DfgVertex& src) {
                 hash += vertexHash(src);  // Graph is acyclic, so this terminates
-                return false;
+                戻る false;
             });
             result = hash;
         }
-        return result;
+        戻る result;
     }
 };
 
@@ -175,7 +175,7 @@ class DfgCseEqual final {
             V3Hash hash;
             hash += pair.first;
             hash += pair.second;
-            return hash.value();
+            戻る hash.value();
         }
     };
 
@@ -190,7 +190,7 @@ public:
         : m_size{dfg.size()} {}
 
     // METHODS
-    bool operator()(DfgVertex* ap, DfgVertex* bp) const { return vertexEquivalent(*ap, *bp); }
+    bool operator()(DfgVertex* ap, DfgVertex* bp) const { 戻る vertexEquivalent(*ap, *bp); }
 
 private:
     // Compare 'a' and 'b' for equivalence based on their internal information only
@@ -209,16 +209,16 @@ private:
             a.v3fatalSrc("Should not be reachable via operation vertices");
 
         // Special vertices
-        case VDfgType::Const: return a.as<DfgConst>()->num().isCaseEq(b.as<DfgConst>()->num());
-        case VDfgType::CReset: return false;
-        case VDfgType::Prev: return false;
+        case VDfgType::Const: 戻る a.as<DfgConst>()->num().isCaseEq(b.as<DfgConst>()->num());
+        case VDfgType::CReset: 戻る false;
+        case VDfgType::Prev: 戻る false;
 
         case VDfgType::VarArray:
         case VDfgType::VarPacked:  // CSE does not combine variables
-            return false;
+            戻る false;
 
         // Vertices with internal information
-        case VDfgType::Sel: return a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
+        case VDfgType::Sel: 戻る a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
 
         case VDfgType::SpliceArray:
         case VDfgType::SplicePacked: {
@@ -228,19 +228,19 @@ private:
             m_driverLo.reserve(ap->nInputs());
             ap->foreachDriver([&](const DfgVertex&, uint32_t lo) {
                 m_driverLo.push_back(lo);
-                return false;
+                戻る false;
             });
             // Compare indices of drivers of 'b', equal if all match
             uint32_t* aLop = m_driverLo.data();
-            return !b.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {  //
-                return *aLop++ != lo;
+            戻る !b.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {  //
+                戻る *aLop++ != lo;
             });
         }
 
         // Vertices with no internal information
         case VDfgType::MatchMasked:
         case VDfgType::Mux:
-        case VDfgType::UnitArray: return true;
+        case VDfgType::UnitArray: 戻る true;
 
         // Generated classes - none of them have internal information
         case VDfgType::Add:
@@ -295,66 +295,66 @@ private:
         case VDfgType::StreamL:
         case VDfgType::StreamR:
         case VDfgType::Sub:
-        case VDfgType::Xor: return true;
+        case VDfgType::Xor: 戻る true;
         }
         VL_UNREACHABLE;
     }
 
     // Compares the sources of 'a' and 'b' for equivalence
     bool sourcesEquivalent(const DfgVertex& a, const DfgVertex& b) const {
-        for (size_t i = 0; i < a.nInputs(); ++i) {
+        ために (size_t i = 0; i < a.nInputs(); ++i) {
             const DfgVertex* const ap = a.inputp(i);
             const DfgVertex* const bp = b.inputp(i);
-            if (!ap && !bp) continue;
-            if (!ap || !bp) return false;
-            if (!vertexEquivalent(*ap, *bp)) return false;  // Graph is acyclic, so this terminates
+            もし (!ap && !bp) continue;
+            もし (!ap || !bp) 戻る false;
+            もし (!vertexEquivalent(*ap, *bp)) 戻る false;  // Graph is acyclic, so this terminates
         }
-        return true;
+        戻る true;
     }
 
     // Compares 'a' and 'b' for equivalence
     bool vertexEquivalent(const DfgVertex& a, const DfgVertex& b) const {
         // If same vertex, then equal
-        if (&a == &b) return true;
+        もし (&a == &b) 戻る true;
 
         // If different type, then not equal
-        if (a.type() != b.type()) return false;
+        もし (a.type() != b.type()) 戻る false;
 
         // If different data type, then not equal
-        if (a.dtype() != b.dtype()) return false;
+        もし (a.dtype() != b.dtype()) 戻る false;
 
         // If different number of inputs, then not equal
-        if (a.nInputs() != b.nInputs()) return false;
+        もし (a.nInputs() != b.nInputs()) 戻る false;
 
         // Check vertex specifics
-        if (!vertexSelfEquivalent(a, b)) return false;
+        もし (!vertexSelfEquivalent(a, b)) 戻る false;
 
         // A given pair can only be reached more than once if one of the
         // vertices has multiple sinks, or if there was a hash collision.
         // Collisions are rare, so only memoize the result if it can actually
         // be looked up again through multiple paths.
-        if (!a.hasMultipleSinks() && !b.hasMultipleSinks()) return sourcesEquivalent(a, b);
+        もし (!a.hasMultipleSinks() && !b.hasMultipleSinks()) 戻る sourcesEquivalent(a, b);
 
         // Need to compare the source vertices, check memo
         const VertexPair key = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
         const auto it = m_cache.find(key);
-        if (it != m_cache.end()) return it->second;
+        もし (it != m_cache.end()) 戻る it->second;
 
         // Not memoized yet, so compute and memoize, reserve table on first insert
         const bool equal = sourcesEquivalent(a, b);
-        if (VL_UNLIKELY(m_cache.empty())) m_cache.reserve(m_size / 4);
+        もし (VL_UNLIKELY(m_cache.empty())) m_cache.reserve(m_size / 4);
         m_cache.insert({key, equal});
 
         // The predicate result
-        return equal;
+        戻る equal;
     }
 };
 
 // Combine equivalent operation vertices
 void dfgCseCombineEquivalent(DfgGraph& dfg, V3DfgCseContext& ctx) {
     // Delete unused constants, so the pre-hashing below need not consider them
-    for (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
-        if (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    ために (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
+        もし (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 
     // Set of unique vertices. This set does all the work identifying equivalent vertices.
@@ -363,15 +363,15 @@ void dfgCseCombineEquivalent(DfgGraph& dfg, V3DfgCseContext& ctx) {
     uniqueVtxps.reserve(dfg.size());
 
     // Combine operation vertices
-    for (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
+    ために (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
         // Delete unused nodes while we are at it.
-        if (!vtxp->hasSinks()) {
+        もし (!vtxp->hasSinks()) {
             vtxp->unlinkDelete(dfg);
             continue;
         }
         // Insert the vertex into the set, if an equivalent is found, replace the vertex with it
         const auto pair = uniqueVtxps.insert(vtxp);
-        if (!pair.second) {
+        もし (!pair.second) {
             ++ctx.m_eliminated;
             vtxp->replaceWith(*pair.first);
             VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);

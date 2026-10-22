@@ -39,12 +39,12 @@ public:
     // Calls 'f' on the last invocation that returns 'false', which can be used for reporting.
     template <typename Callable>
     bool stop(Callable&& f) {
-        if (VL_LIKELY(!m_limit)) return false;
+        もし (VL_LIKELY(!m_limit)) 戻る false;
         ++m_count;
-        if (VL_UNLIKELY(m_count == m_limit)) f();
-        return m_count > m_limit;
+        もし (VL_UNLIKELY(m_count == m_limit)) f();
+        戻る m_count > m_limit;
     }
 
     // Returns true if the limit has been reached
-    bool isStopped() const { return m_count > m_limit; }
+    bool isStopped() const { 戻る m_count > m_limit; }
 };

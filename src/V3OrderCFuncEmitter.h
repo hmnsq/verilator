@@ -47,10 +47,10 @@ class V3OrderCFuncEmitter final {
     // Maximum size of code per function
     const size_t m_splitSize = []() -> size_t {
         // Don't want to split with procCFuncs
-        if (v3Global.opt.profCFuncs()) return std::numeric_limits<size_t>::max();
+        もし (v3Global.opt.profCFuncs()) 戻る std::numeric_limits<size_t>::max();
         // Otherwise split at the specified size (- 1, so we can do >= comparison)
-        if (const size_t limit = v3Global.opt.outputSplitCFuncs()) return limit - 1;
-        return std::numeric_limits<size_t>::max();
+        もし (const size_t limit = v3Global.opt.outputSplitCFuncs()) 戻る limit - 1;
+        戻る std::numeric_limits<size_t>::max();
     }();
     // Current function being populated
     AstCFunc* m_funcp = nullptr;
@@ -66,8 +66,8 @@ class V3OrderCFuncEmitter final {
         name += lVtxp->hybridp() ? "_hybrid" : lVtxp->comb() ? "_comb" : "_sequent";
         name += "__" + scopep->nameDotless();
         name += "__" + std::to_string(m_funcNums[{modp, name}]++);
-        if (v3Global.opt.profCFuncs()) name += "__PROF__" + flp->profileFuncname();
-        return name;
+        もし (v3Global.opt.profCFuncs()) name += "__PROF__" + flp->profileFuncname();
+        戻る name;
     }
 
 public:
@@ -94,11 +94,11 @@ public:
         // The domain of the previously emitted logic
         const OrderDomain* prevDomainp = nullptr;
         // Call each function under an AstIf that checks for the trigger condition
-        for (const auto& pair : m_result) {
+        ために (const auto& pair : m_result) {
             AstCFunc* const cfuncp = pair.first;
             const OrderDomain* const domainp = pair.second;
             // Create a new AstIf if the trigger is different
-            if (domainp != prevDomainp) {
+            もし (domainp != prevDomainp) {
                 prevDomainp = domainp;
                 FileLine* const flp = m_trigVscp->fileline();
                 const std::set<uint32_t>& triggers = domainp->triggers();
@@ -116,7 +116,7 @@ public:
         m_result.clear();
         forceNewFunction();
         // Return the list of statements
-        return stmtsp;
+        戻る stmtsp;
     }
 
     // Emit one logic vertex
@@ -137,41 +137,41 @@ public:
         const bool slow = m_slow && !(suspendable && VN_IS(procp, Always));
 
         // Put suspendable processes into individual functions on their own
-        if (suspendable) forceNewFunction();
+        もし (suspendable) forceNewFunction();
         // When profCFuncs, create a new function for each logic vertex
-        if (v3Global.opt.profCFuncs()) forceNewFunction();
+        もし (v3Global.opt.profCFuncs()) forceNewFunction();
         // If the new domain is different, force a new function as it needs to
         // be called under different trigger conditions
-        if (!m_result.empty() && m_result.back().second != domainp) forceNewFunction();
+        もし (!m_result.empty() && m_result.back().second != domainp) forceNewFunction();
 
         // Process procedures per statement, so we can split CFuncs within procedures.
         // Everything else is handled as a unit.
         AstNode* const headp = [&]() -> AstNode* {
-            if (!procp) return logicp->unlinkFrBack();  // Not a procedure, handle as a unit
+            もし (!procp) 戻る logicp->unlinkFrBack();  // Not a procedure, handle as a unit
             AstNode* const stmtsp = procp->stmtsp();
             UASSERT_OBJ(stmtsp, procp, "Empty process should have been deleted earlier");
             stmtsp->unlinkFrBackWithNext();
             // 'procp' is no longer needed but the OrderGraph still references
             // it (for debug dump). It will get deleted when deleting the
             // AstActives in V3Order.
-            return stmtsp;
+            戻る stmtsp;
         }();
         // Process each statement in the list starting at headp
-        for (AstNode *currp = headp, *nextp; currp; currp = nextp) {
+        ために (AstNode *currp = headp, *nextp; currp; currp = nextp) {
             nextp = currp->nextp();
             // Unlink the current statement from the next statement (if any)
-            if (nextp) nextp->unlinkFrBackWithNext();
+            もし (nextp) nextp->unlinkFrBackWithNext();
             // Split the function if too large, but don't split suspendable processes
-            if (!suspendable && m_size >= m_splitSize) forceNewFunction();
+            もし (!suspendable && m_size >= m_splitSize) forceNewFunction();
             // Create a new function if we don't have a current one
-            if (!m_funcp) {
+            もし (!m_funcp) {
                 UASSERT_OBJ(!m_size, currp, "Should have used forceNewFunction");
                 FileLine* const flp = currp->fileline();
                 AstScope* const scopep = lVtxp->scopep();
                 AstNodeModule* const modp = scopep->modp();
                 const std::string name = cfuncName(flp, scopep, modp, lVtxp);
                 m_funcp = new AstCFunc{flp, name, scopep, suspendable ? "VlCoroutine" : ""};
-                if (needProcess) m_funcp->setNeedProcess();
+                もし (needProcess) m_funcp->setNeedProcess();
                 m_funcp->isStatic(false);
                 m_funcp->isLoose(true);
                 m_funcp->slow(slow);
@@ -182,10 +182,10 @@ public:
             // Add the code to the current function
             m_funcp->addStmtsp(currp);
             // If splitting, add in the size of the code we just added
-            if (m_split) m_size += currp->nodeCount();
+            もし (m_split) m_size += currp->nodeCount();
         }
         // Put suspendable processes into individual functions on their own
-        if (suspendable) forceNewFunction();
+        もし (suspendable) forceNewFunction();
     }
 };
 

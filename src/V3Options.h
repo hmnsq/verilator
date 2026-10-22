@@ -45,25 +45,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(整数 _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { 戻る m_e; }
     const char* ascii() const {
         static const char* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        戻る names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { 戻る m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { 戻る m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { 戻る m_e == OPT_TRUE; }
+    bool isSetFalse() const { 戻る m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    戻る lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { 戻る lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { 戻る lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { 戻る m_filename; }
+    string libname() const { 戻る m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        戻る m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        もし (m_filename < rhs.m_filename) 戻る true;
+        もし (m_filename > rhs.m_filename) 戻る false;
+        戻る m_libname < rhs.m_libname;
     }
 };
 
@@ -115,22 +115,22 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(整数 _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
     VTimescale(double value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        ために (整数 i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            もし (multiplier() == value) break;
         }
-        if (multiplier() != value) {
+        もし (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { 戻る m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
     static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
@@ -138,27 +138,27 @@ public:
         static const char* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        戻る names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
+    整数 powerOfTen() const { 戻る 2 - static_cast<整数>(m_e); }
     double multiplier() const {
         static const double values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        戻る values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    戻る lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { 戻る lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { 戻る lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    戻る lhs.m_e > rhs.m_e;
 }
 inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+    戻る os << rhs.ascii();
 }
 
 // ######################################################################
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(整数 _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { 戻る m_e; }
     constexpr const char* ascii() const {
         constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+        戻る names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    戻る lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    戻る lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    戻る lhs == rhs.m_e;
 }
 inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+    戻る os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { 戻る m_origName; }
+    const string& mangledName() const { 戻る m_mangledName; }
+    const ParamStrMap params() const { 戻る m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    整数 m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    整数         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    整数         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    整数         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    整数         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    整数         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    整数         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    整数         m_expandLimit = 256;  // main switch: --expand-limit
+    整数         m_gateStmts = 100;    // main switch: --gate-stmts
+    整数         m_hierChild = 0;      // main switch: --hierarchical-child
+    整数         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    整数         m_ifDepth = 0;      // main switch: --if-depth
+    整数         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    整数         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    整数         m_inlineMult = 2000;   // main switch: --inline-mult
+    整数         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    整数         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    整数         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    整数         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    整数         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    整数         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    整数         m_outputSplit = 20000;  // main switch: --output-split
+    整数         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    整数         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    整数         m_pinsBv = 65;       // main switch: --pins-bv
+    整数         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    整数         m_publicDepth = 0;   // main switch: --public-depth
+    整数         m_reloopLimit = 40; // main switch: --reloop-limit
+    整数         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    整数         m_threads = 1;      // main switch: --threads
+    整数         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    整数         m_traceDepth = 0;   // main switch: --trace-depth
+    整数         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    整数         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    整数         m_unrollCount = 64;  // main switch: --unroll-count
+    整数         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    整数         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    整数         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    整数         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    整数         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    整数         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    整数         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    整数  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -501,7 +501,7 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(整数 level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
@@ -510,7 +510,7 @@ private:
     static bool suffixed(const string& sw, const char* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static 整数 stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(整数 level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { 戻る m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { 戻る m_preprocOnly; }
+    bool makePhony() const { 戻る m_makePhony; }
+    bool preprocNoLine() const { 戻る m_preprocNoLine; }
+    bool preprocResolve() const { 戻る m_preprocResolve; }
+    整数 preprocTokenLimit() const { 戻る m_preprocTokenLimit; }
+    bool underlineZero() const { 戻る m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { 戻る m_systemC; }
+    bool savable() const VL_MT_SAFE { 戻る m_savable; }
+    VOptionBool schedZeroDelay() const { 戻る m_schedZeroDelay; }
+    bool stats() const { 戻る m_stats; }
+    bool statsVars() const { 戻る m_statsVars; }
+    bool stdPackage() const { 戻る m_stdPackage; }
+    bool stdWaiver() const { 戻る m_stdWaiver; }
+    bool assertOn() const { 戻る m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { 戻る m_assertCase; }
+    bool autoflush() const { 戻る m_autoflush; }
+    bool bboxSys() const { 戻る m_bboxSys; }
+    bool bboxUnsup() const { 戻る m_bboxUnsup; }
+    bool build() const { 戻る m_build; }
+    string buildDepBin() const { 戻る m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { 戻る m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        戻る m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        戻る m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { 戻る m_coverageBranch; }
+    bool coverageExpr() const { 戻る m_coverageExpr; }
+    bool coverageFsm() const { 戻る m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { 戻る m_coverageFsmExpand; }
+    整数 coverageFsmMaxArcs() const { 戻る m_coverageFsmMaxArcs; }
+    bool coverageLine() const { 戻る m_coverageLine; }
+    bool coverageMergeInstances() const { 戻る m_coverageMergeInstances; }
+    bool coveragePerInstance() const { 戻る m_coveragePerInstance; }
+    bool coverageToggle() const { 戻る m_coverageToggle; }
+    bool coverageUnderscore() const { 戻る m_coverageUnderscore; }
+    bool coverageUser() const { 戻る m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { 戻る m_debugCheck; }
+    bool debugCollision() const { 戻る m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { 戻る m_debugEmitV; }
+    bool debugExitElab() const { 戻る m_debugExitElab; }
+    bool debugExitParse() const { 戻る m_debugExitParse; }
+    bool debugLeak() const { 戻る m_debugLeak; }
+    bool debugNondeterminism() const { 戻る m_debugNondeterminism; }
+    bool debugPartition() const { 戻る m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { 戻る m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { 戻る m_debugProtect; }
+    整数 debugRuntimeTimeout() const { 戻る m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { 戻る m_debugSelfTest; }
+    bool debugStackCheck() const { 戻る m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { 戻る m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { 戻る m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { 戻る m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { 戻る m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { 戻る m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        戻る m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { 戻る m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        戻る m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        戻る m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { 戻る m_emitAccessors; }
+    bool exe() const { 戻る m_exe; }
+    bool flatten() const { 戻る m_flatten; }
+    bool fourstate() const { 戻る m_fourstate; }
+    bool gmake() const { 戻る m_gmake; }
+    bool makeJson() const { 戻る m_makeJson; }
+    bool threadsDpiPure() const { 戻る m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { 戻る m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { 戻る m_threadsCoarsen; }
+    VOptionBool timing() const { 戻る m_timing; }
+    bool trace() const { 戻る m_trace; }
+    bool traceCoverage() const { 戻る m_traceCoverage; }
+    bool traceEnabledFst() const { 戻る m_traceEnabledFst; }
+    bool traceEnabledSaif() const { 戻る m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { 戻る m_traceEnabledVcd; }
+    bool traceParams() const { 戻る m_traceParams; }
+    bool traceStructs() const { 戻る m_traceStructs; }
+    bool traceUnderscore() const { 戻る m_traceUnderscore; }
+    bool メインページ() const { 戻る m_main; }
+    bool outFormatOk() const { 戻る m_outFormatOk; }
+    bool jsonOnly() const { 戻る m_jsonOnly; }
+    bool keepTempFiles() const { 戻る (V3Error::debugDefault() != 0); }
+    bool pedantic() const { 戻る m_pedantic; }
+    bool pinsInoutEnables() const { 戻る m_pinsInoutEnables; }
+    bool pinsScUint() const { 戻る m_pinsScUint; }
+    bool pinsScUintBool() const { 戻る m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { 戻る m_pinsScBigUint; }
+    bool pinsUint8() const { 戻る m_pinsUint8; }
+    bool preprocComments() const { 戻る m_preprocComments; }
+    bool preprocDefines() const { 戻る m_preprocDefines; }
+    bool profC() const { 戻る m_profC; }
+    bool profCFuncs() const { 戻る m_profCFuncs; }
+    bool profExec() const { 戻る m_profExec; }
+    bool profPgo() const { 戻る m_profPgo; }
+    bool usesProfiler() const { 戻る profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { 戻る m_protectIds; }
+    bool allPublic() const { 戻る m_public; }
+    bool publicParams() const { 戻る m_publicParams; }
+    bool publicOff() const { 戻る m_publicIgnore; }
+    bool publicFlatRW() const { 戻る m_publicFlatRW; }
+    整数 publicDepth() const { 戻る m_publicDepth; }
+    bool anyPublicFlat() const { 戻る m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { 戻る m_lintOnly; }
+    bool ignc() const { 戻る m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { 戻る m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { 戻る m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { 戻る m_quietStats; }
+    bool reportUnoptflat() const { 戻る m_reportUnoptflat; }
+    bool verilate() const { 戻る m_verilate; }
+    bool vpi() const { 戻る m_vpi.isTrue(); }
+    bool waiverMultiline() const { 戻る m_waiverMultiline; }
+    bool xInitialEdge() const { 戻る m_xInitialEdge; }
+    bool serializeOnly() const { 戻る m_jsonOnly; }
+    bool topIfacesSupported() const { 戻る lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    整数 buildJobs() const VL_MT_SAFE { 戻る m_buildJobs; }
+    整数 convergeLimit() const { 戻る m_convergeLimit; }
+    整数 coverageExprMax() const { 戻る m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { 戻る m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { 戻る m_coverageMaxRealBins; }
+    整数 coverageMaxWidth() const { 戻る m_coverageMaxWidth; }
+    整数 debugAllocRandom() const { 戻る m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    整数 expandLimit() const { 戻る m_expandLimit; }
+    整数 gateStmts() const { 戻る m_gateStmts; }
+    整数 ifDepth() const { 戻る m_ifDepth; }
+    整数 inlineCFuncs() const { 戻る m_inlineCFuncs; }
+    整数 inlineCFuncsProduct() const { 戻る m_inlineCFuncsProduct; }
+    整数 inlineMult() const { 戻る m_inlineMult; }
+    整数 instrCountDpi() const { 戻る m_instrCountDpi; }
+    整数 localizeMaxSize() const { 戻る m_localizeMaxSize; }
+    bool jsonEditNums() const { 戻る m_jsonEditNums; }
+    bool jsonIds() const { 戻る m_jsonIds; }
+    VOptionBool makeDepend() const { 戻る m_makeDepend; }
+    整数 maxNumWidth() const { 戻る m_maxNumWidth; }
+    整数 funcRecursionDepth() const { 戻る m_funcRecursion; }
+    整数 moduleRecursionDepth() const { 戻る m_moduleRecursion; }
+    整数 outputSplit() const { 戻る m_outputSplit; }
+    整数 outputSplitCFuncs() const { 戻る m_outputSplitCFuncs; }
+    整数 outputSplitCTrace() const { 戻る m_outputSplitCTrace; }
+    整数 outputGroups() const { 戻る m_outputGroups; }
+    int64_t outputGroupsSize() const { 戻る m_outputGroupsSize; }
+    整数 pinsBv() const VL_MT_SAFE { 戻る m_pinsBv; }
+    整数 reloopLimit() const { 戻る m_reloopLimit; }
+    整数 replicationLimit() const { 戻る m_replicationLimit; }
+    VOptionBool skipIdentical() const { 戻る m_skipIdentical; }
+    bool stopFail() const { 戻る m_stopFail; }
+    整数 threads() const VL_MT_SAFE { 戻る m_threads; }
+    整数 threadsMaxMTasks() const { 戻る m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { 戻る (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { 戻る m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { 戻る m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { 戻る m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { 戻る m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    整数 traceDepth() const { 戻る m_traceDepth; }
+    整数 traceMaxArray() const { 戻る m_traceMaxArray; }
+    整数 traceMaxWidth() const { 戻る m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        戻る trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    整数 unrollCount() const { 戻る m_unrollCount; }
+    整数 unrollLimit() const { 戻る m_unrollLimit; }
+    整数 unrollStmts() const { 戻る m_unrollStmts; }
+    整数 constraintArrayLimit() const { 戻る m_constraintArrayLimit; }
+    整数 verilateJobs() const { 戻る m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    整数 compLimitBlocks() const { 戻る m_compLimitBlocks; }
+    整数 compLimitMembers() const VL_MT_SAFE { 戻る m_compLimitMembers; }
+    整数 compLimitParens() const { 戻る m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        戻る m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { 戻る m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { 戻る m_hierParamsFile; }
+    string jsonOnlyOutput() const { 戻る m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { 戻る m_jsonOnlyMetaOutput; }
+    string l2Name() const { 戻る m_l2Name; }
+    string libCreate() const { 戻る m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        もし (shared) {
             libName += ".so";
-        } else {
+        } 否则 {
             libName += ".a";
         }
-        return libName;
+        戻る libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { 戻る m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { 戻る m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { 戻る m_modPrefix; }
+    string pipeFilter() const { 戻る m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { 戻る m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { 戻る !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { 戻る m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { 戻る m_noTraceTop; }
+    string unusedRegexp() const { 戻る m_unusedRegexp; }
+    string waiverOutput() const { 戻る m_waiverOutput; }
+    string work() const { 戻る m_work; }
+    bool isWaiverOutput() const { 戻る !m_waiverOutput.empty(); }
+    string xAssign() const { 戻る m_xAssign; }
+    string xInitial() const { 戻る m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { 戻る m_cppFiles; }
+    const VStringList& cFlags() const { 戻る m_cFlags; }
+    const VStringSet& compilerIncludes() const { 戻る m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { 戻る m_ldLibFiles; }
+    const VStringList& ldLibs() const { 戻る m_ldLibs; }
+    const VStringList& makeFlags() const { 戻る m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { 戻る m_libraryFiles; }
+    const VStringSet& libmapFiles() const { 戻る m_libmapFiles; }
+    const VFileLibList& vFiles() const { 戻る m_vFiles; }
+    const VFileLibSet& vltFiles() const { 戻る m_vltFiles; }
+    const VStringList& forceIncs() const { 戻る m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { 戻る m_fAcycSimp; }
+    bool fAssemble() const { 戻る m_fAssemble; }
+    bool fBitScanLoops() const { 戻る m_fBitScanLoops; }
+    bool fBitblast() const { 戻る m_fBitblast; }
+    bool fCaseDecoder() const { 戻る m_fCaseDecoder; }
+    bool fCaseTable() const { 戻る m_fCaseTable; }
+    bool fCaseTree() const { 戻る m_fCaseTree; }
+    bool fCombine() const { 戻る m_fCombine; }
+    bool fConst() const { 戻る m_fConst; }
+    bool fConstBeforeDfg() const { 戻る m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { 戻る m_fConstBitOpTree; }
+    bool fConstEager() const { 戻る m_fConstEager; }
+    bool fDedupe() const { 戻る m_fDedupe; }
+    bool fDfg() const { 戻る m_fDfg; }
+    bool fDfgPeephole() const { 戻る m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { 戻る m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { 戻る m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        戻る !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { 戻る m_fDeadAssigns; }
+    bool fDeadCells() const { 戻る m_fDeadCells; }
+    bool fDeadMethods() const { 戻る m_fDeadMethods; }
+    bool fDecompose() const { 戻る m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { 戻る m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { 戻る m_fDecomposeUnpacked; }
+    bool fExpand() const { 戻る m_fExpand; }
+    bool fFuncBalanceCat() const { 戻る m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { 戻る m_fFuncSplitCat; }
+    bool fFunc() const { 戻る fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { 戻る m_fGate; }
+    VOptionBool fIcoChangeDetect() const { 戻る m_fIcoChangeDetect; }
+    bool fInline() const { 戻る m_fInline; }
+    bool fInlineCFuncs() const { 戻る m_fInlineCFuncs; }
+    bool fInlineFuncs() const { 戻る m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { 戻る m_fInlineFuncsEager; }
+    bool fLife() const { 戻る m_fLife; }
+    bool fLifePost() const { 戻る m_fLifePost; }
+    bool fLocalize() const { 戻る m_fLocalize; }
+    bool fMergeCond() const { 戻る m_fMergeCond; }
+    bool fMergeCondMotion() const { 戻る m_fMergeCondMotion; }
+    bool fReloop() const { 戻る m_fReloop; }
+    bool fReorder() const { 戻る m_fReorder; }
+    bool fSlice() const { 戻る m_fSlice; }
+    整数 fSliceElementLimit() const { 戻る m_fSliceElementLimit; }
+    bool fSplit() const { 戻る m_fSplit; }
+    bool fSubst() const { 戻る m_fSubst; }
+    bool fSubstConst() const { 戻る m_fSubstConst; }
+    bool fTable() const { 戻る m_fTable; }
+    bool fTaskifyAll() const { 戻る m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { 戻る m_hierarchical; }
+    整数 hierChild() const VL_MT_SAFE { 戻る m_hierChild; }
+    整数 hierThreads() const VL_MT_SAFE { 戻る m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { 戻る !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { 戻る m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        戻る hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(整数 argc, char** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, 整数 argc, char** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, 整数 argc, char** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

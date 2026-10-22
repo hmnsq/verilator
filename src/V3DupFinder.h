@@ -55,7 +55,7 @@ public:
     explicit V3DupFinder(const V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        もし (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -73,7 +73,7 @@ public:
     using Super::size_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator insert(AstNode* nodep) { 戻る emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
     size_type erase(AstNode* nodep) VL_MT_DISABLED;
