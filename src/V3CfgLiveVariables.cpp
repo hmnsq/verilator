@@ -53,27 +53,27 @@ class CfgLiveVariables final : VNVisitorConst {
 
     static bool isPacked(const AstVarScope* vscp) {
         AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+        nếu (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+            trả_về typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        nếu (VN_IS(dtypep, PackArrayDType)) trả_về true;
+        nếu (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
+            trả_về typep->packed();
         }
-        return false;
+        trả_về false;
     }
 
     void updateGen(AstNode* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            nếu (refp->access().isWriteOnly()) trả_về false;
             // Grab referenced variable
             AstVarScope* const vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            nếu (m_currp->m_kill.count(vscp)) trả_về false;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            trả_về false;
         });
     }
 
@@ -81,26 +81,26 @@ class CfgLiveVariables final : VNVisitorConst {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            nếu (refp->access().isReadOnly()) trả_về false;
             // Grab referenced variable
             AstVarScope* const vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            nếu (vscp->varp()->ignoreSchedWrite()) trả_về true;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            nếu (!isPacked(vscp)) trả_về false;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            nếu (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) trả_về false;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            trả_về false;
         });
     }
 
     void single(AstNode* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        nếu (m_abort) trả_về;
         updateGen(nodep);
-        if (m_abort) return;
+        nếu (m_abort) trả_về;
         updateKill(nodep);
     }
 
@@ -110,13 +110,13 @@ class CfgLiveVariables final : VNVisitorConst {
 
         // liveIn = gen union (liveOut - kill)
         std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
+        cho (AstVarScope* const varp : state.m_liveOut) {
+            nếu (state.m_kill.count(varp)) continue;
             liveIn.insert(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
+        nếu (liveIn == state.m_liveIn) trả_về false;
         std::swap(liveIn, state.m_liveIn);
-        return true;
+        trả_về true;
     }
 
     // VISIT
@@ -142,27 +142,27 @@ class CfgLiveVariables final : VNVisitorConst {
     explicit CfgLiveVariables(const CfgGraph& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
+        cho (const V3GraphVertex& vtx : cfg.vertices()) {
             const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+            nếu (m_abort) trả_về;
             VL_RESTORER(m_currp);
             m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            cho (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        nếu (m_abort) trả_về;
 
         // Perform the flow analysis
         std::deque<const CfgBlock*> workList;
         const auto enqueue = [&](const CfgBlock& bb) {
             BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
+            nếu (state.m_isOnWorkList) trả_về;
             state.m_isOnWorkList = true;
             workList.emplace_back(&bb);
         };
 
         enqueue(cfg.exit());
 
-        while (!workList.empty()) {
+        trong_khi (!workList.empty()) {
             const CfgBlock* const currp = workList.front();
             workList.pop_front();
             BlockState& state = m_blockState[*currp];
@@ -177,7 +177,7 @@ class CfgLiveVariables final : VNVisitorConst {
             // Apply transfer function of block
             const bool changed = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            nếu (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
             // Mark as done with first visit
             state.m_wasProcessed = true;
         }
@@ -187,7 +187,7 @@ public:
     static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
         CfgLiveVariables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        nếu (analysis.m_abort) trả_về nullptr;
         // Gather variables live in to the entry block
         const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
         std::vector<AstVarScope*>* const resultp
@@ -195,12 +195,12 @@ public:
         // Sort for stability
         std::stable_sort(resultp->begin(), resultp->end(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             trả_về ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        trả_về std::unique_ptr<std::vector<AstVarScope*>>{resultp};
     }
 };
 
 std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+    trả_về CfgLiveVariables::apply(cfg);
 }

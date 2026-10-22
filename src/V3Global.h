@@ -86,7 +86,7 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { trả_về m_saved; }
 };
 
 // Implementation of VL_RESTORER_COPY
@@ -107,7 +107,7 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { trả_về m_saved; }
 };
 
 // Implementation of VL_RESTORER_CLEAR.
@@ -129,7 +129,7 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { trả_về m_saved; }
 };
 
 //######################################################################
@@ -143,19 +143,19 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VWidthMinUsage(en _e) VL_PURE : m_e{_e} {}
     constexpr VWidthMinUsage(const VWidthMinUsage& _e) VL_PURE = default;
-    explicit VWidthMinUsage(int _e)
+    explicit VWidthMinUsage(số_nguyên _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { trả_về m_e; }
     constexpr VWidthMinUsage& operator=(const VWidthMinUsage& _e) VL_PURE = default;
 };
 constexpr bool operator==(const VWidthMinUsage& lhs, const VWidthMinUsage& rhs) {
-    return lhs.m_e == rhs.m_e;
+    trả_về lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
-    return lhs.m_e == rhs;
+    trả_về lhs.m_e == rhs;
 }
 constexpr bool operator==(VWidthMinUsage::en lhs, const VWidthMinUsage& rhs) {
-    return lhs == rhs.m_e;
+    trả_về lhs == rhs.m_e;
 }
 
 //######################################################################
@@ -223,86 +223,86 @@ public:
     void boot();
     void shutdown();  // Release allocated resources
 
-    void vlExit(int status);
+    void vlExit(số_nguyên status);
 
     // ACCESSORS (general)
-    AstNetlist* rootp() const VL_MT_SAFE { return m_rootp; }
+    AstNetlist* rootp() const VL_MT_SAFE { trả_về m_rootp; }
     // Use V3ConstPool:: static methods instead
-    V3ConstPool* constPoolp() const VL_PURE { return m_constPoolp; }
-    V3LibMap* libMapp() const VL_PURE { return m_libMapp; }
-    V3ThreadPool* threadPoolp() const VL_PURE { return m_threadPoolp; }
+    V3ConstPool* constPoolp() const VL_PURE { trả_về m_constPoolp; }
+    V3LibMap* libMapp() const VL_PURE { trả_về m_libMapp; }
+    V3ThreadPool* threadPoolp() const VL_PURE { trả_về m_threadPoolp; }
     void threadPoolp(V3ThreadPool* threadPoolp) {
         UASSERT(!m_threadPoolp, "attempted to create multiple threadPool singletons");
         m_threadPoolp = threadPoolp;
     }
-    VWidthMinUsage widthMinUsage() const VL_PURE { return m_widthMinUsage; }
-    bool assertDTypesResolved() const { return m_assertDTypesResolved; }
-    bool assertScoped() const { return m_assertScoped; }
-    bool staticsLifted() const { return m_staticsLifted; }
+    VWidthMinUsage widthMinUsage() const VL_PURE { trả_về m_widthMinUsage; }
+    bool assertDTypesResolved() const { trả_về m_assertDTypesResolved; }
+    bool assertScoped() const { trả_về m_assertScoped; }
+    bool staticsLifted() const { trả_về m_staticsLifted; }
 
     // METHODS
     void readFiles() VL_MT_DISABLED;
     void removeStd() VL_MT_DISABLED;
     void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    static void dumpCheckGlobalTree(const string& stagename, số_nguyên newNumber = 0, bool doDump = true,
                                     bool doCheck = true);
     void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
     void assertScoped(bool flag) { m_assertScoped = flag; }
     void staticsLifted(bool flag) { m_staticsLifted = flag; }
     void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
-    bool constRemoveXs() const { return m_constRemoveXs; }
+    bool constRemoveXs() const { trả_về m_constRemoveXs; }
     void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
-    bool needTraceDumper() const { return m_needTraceDumper; }
+    string debugFilename(const string& nameComment, số_nguyên newNumber = 0);
+    static string digitsFilename(số_nguyên number);
+    bool needTraceDumper() const { trả_về m_needTraceDumper; }
     void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
-    bool dpi() const VL_MT_SAFE { return m_dpi; }
+    bool dpi() const VL_MT_SAFE { trả_về m_dpi; }
     void dpi(bool flag) { m_dpi = flag; }
-    bool assignsEvents() const { return m_assignsEvents; }
+    bool assignsEvents() const { trả_về m_assignsEvents; }
     void setAssignsEvents() { m_assignsEvents = true; }
-    bool hasEvents() const { return m_hasEvents; }
+    bool hasEvents() const { trả_về m_hasEvents; }
     void setHasEvents() { m_hasEvents = true; }
-    bool hasClasses() const { return m_hasClasses; }
+    bool hasClasses() const { trả_về m_hasClasses; }
     void setHasClasses() { m_hasClasses = true; }
-    bool hasSampled() const { return m_hasSampled; }
+    bool hasSampled() const { trả_về m_hasSampled; }
     void setHasSampled() { m_hasSampled = true; }
-    bool hasTable() const { return m_hasTable; }
+    bool hasTable() const { trả_về m_hasTable; }
     void setHasTable() { m_hasTable = true; }
-    bool hasVirtIfaces() const { return m_hasVirtIfaces; }
+    bool hasVirtIfaces() const { trả_về m_hasVirtIfaces; }
     void setHasVirtIfaces() { m_hasVirtIfaces = true; }
-    bool usesProbDist() const { return m_usesProbDist; }
+    bool usesProbDist() const { trả_về m_usesProbDist; }
     void setUsesProbDist() { m_usesProbDist = true; }
-    bool usesStdPackage() const { return m_usesStdPackage; }
+    bool usesStdPackage() const { trả_về m_usesStdPackage; }
     void setUsesStdPackage() { m_usesStdPackage = true; }
-    bool usesTiming() const { return m_usesTiming; }
+    bool usesTiming() const { trả_về m_usesTiming; }
     void setUsesTiming() { m_usesTiming = true; }
-    bool usesZeroDelay() const { return m_usesZeroDelay; }
+    bool usesZeroDelay() const { trả_về m_usesZeroDelay; }
     void setUsesZeroDelay() { m_usesZeroDelay = true; }
-    bool hasForceableSignals() const { return m_hasForceableSignals; }
+    bool hasForceableSignals() const { trả_về m_hasForceableSignals; }
     void setHasForceableSignals() { m_hasForceableSignals = true; }
-    bool hasAssignDeassign() const { return m_hasAssignDeassign; }
+    bool hasAssignDeassign() const { trả_về m_hasAssignDeassign; }
     void setHasAssignDeassign() { m_hasAssignDeassign = true; }
-    bool usesForce() const { return m_usesForce; }
+    bool usesForce() const { trả_về m_usesForce; }
     void setUsesForce() { m_usesForce = true; }
-    V3HierGraph* hierGraphp() const { return m_hierGraphp; }
+    V3HierGraph* hierGraphp() const { trả_về m_hierGraphp; }
     void hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
-    bool useParallelBuild() const { return m_useParallelBuild; }
+    bool useParallelBuild() const { trả_về m_useParallelBuild; }
     void useParallelBuild(bool flag) { m_useParallelBuild = flag; }
-    bool useRandSequence() const { return m_useRandSequence; }
+    bool useRandSequence() const { trả_về m_useRandSequence; }
     void useRandSequence(bool flag) { m_useRandSequence = flag; }
-    bool useCovergroup() const { return m_useCovergroup; }
+    bool useCovergroup() const { trả_về m_useCovergroup; }
     void useCovergroup(bool flag) { m_useCovergroup = flag; }
-    bool useRandomizeMethods() const { return m_useRandomizeMethods; }
+    bool useRandomizeMethods() const { trả_về m_useRandomizeMethods; }
     void useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
-    bool hasPrintedObjects() const { return m_hasPrintedObjects; }
+    bool hasPrintedObjects() const { trả_về m_hasPrintedObjects; }
     void hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
     void saveJsonPtrFieldName(const std::string& fieldName);
     void ptrNamesDumpJson(std::ostream& os);
     void idPtrMapDumpJson(std::ostream& os);
     const std::string& ptrToId(const void* p);
-    std::thread::id mainThreadId() const { return m_mainThreadId; }
+    std::thread::id mainThreadId() const { trả_về m_mainThreadId; }
     static std::vector<std::string> verilatedCppFiles();
-    uint64_t currentHierBlockCost() const { return m_currentHierBlockCost; }
+    uint64_t currentHierBlockCost() const { trả_về m_currentHierBlockCost; }
     void currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
 };
 

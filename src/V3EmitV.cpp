@@ -58,30 +58,30 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
 
     void iterateAndCommaConstNull(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
+        cho (; nodep; nodep = nodep->nextp()) {
             iterateConst(nodep);
-            if (nodep->nextp()) puts(", ");
+            nếu (nodep->nextp()) puts(", ");
         }
     }
     void emitPacked() {
-        for (AstNodeArrayDType* packedp : m_packedps) {
+        cho (AstNodeArrayDType* packedp : m_packedps) {
             puts(" ");
             iterateConstNull(packedp->rangep());
         }
         m_packedps.clear();
     }
     void emitNodesWithText(AstNode* nodesp, bool tracking, const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                if (tracking) {
+        cho (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            nếu (const AstText* const textp = VN_CAST(nodep, Text)) {
+                nếu (tracking) {
                     puts(textp->text());
-                } else {
+                } không_thì {
                     putsNoTracking(textp->text());
                 }
-            } else {
+            } không_thì {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            nếu (nodep->nextp()) puts(separator);
         }
     }
 
@@ -117,9 +117,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putqs(nodep, "endcase\n");
     }
     void visit(AstGenCaseItem* nodep) override {
-        if (nodep->condsp()) {
+        nếu (nodep->condsp()) {
             iterateAndNextConstNull(nodep->condsp());
-        } else {
+        } không_thì {
             putbs("default");
         }
         iterateAndNextConstNull(nodep->itemsp());
@@ -145,25 +145,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateAndNextConstNull(nodep->condp());
         puts(") begin\n");
         iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        nếu (nodep->elsesp()) {
             putqs(nodep, "end else begin\n");
             iterateAndNextConstNull(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
     void visit(AstBegin* nodep) override {
-        if (nodep->name() == "") {
+        nếu (nodep->name() == "") {
             putbs("begin\n");
-        } else {
+        } không_thì {
             putbs("begin : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts("end\n");
     }
     void visit(AstFork* nodep) override {
-        if (nodep->name() == "") {
+        nếu (nodep->name() == "") {
             putbs("fork\n");
-        } else {
+        } không_thì {
             putbs("fork : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
@@ -185,25 +185,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstAlways* nodep) override {
-        if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-            if (!ap->nextp()) {
+        nếu (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
+            nếu (!ap->nextp()) {
                 putfs(nodep, "assign ");
-                if (AstNode* const tcp = ap->timingControlp()) {
+                nếu (AstNode* const tcp = ap->timingControlp()) {
                     iterateAndNextConstNull(tcp);
                     putbs(" ");
                 }
                 iterateAndNextConstNull(ap->lhsp());
                 putbs(" = ");
                 iterateAndNextConstNull(ap->rhsp());
-                if (!m_suppressSemi) puts(";\n");
-                return;
+                nếu (!m_suppressSemi) puts(";\n");
+                trả_về;
             }
         }
         putfs(nodep, "always ");
-        if (m_sentreep) {
+        nếu (m_sentreep) {
             iterateAndNextConstNull(m_sentreep);
         }  // In active
-        else {
+        không_thì {
             iterateAndNextConstNull(nodep->sentreep());
         }
         putbs(" begin\n");
@@ -221,74 +221,74 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putqs(nodep, "end\n");
     }
     void visit(AstNodeAssign* nodep) override {
-        if (VN_IS(nodep, AssignForce)) puts("force ");
+        nếu (VN_IS(nodep, AssignForce)) puts("force ");
         iterateAndNextConstNull(nodep->lhsp());
         putfs(nodep, " " + nodep->verilogKwd() + " ");
         iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstAlias* nodep) override {
         putbs("alias ");
         iterateConst(nodep->itemsp());
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+        cho (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
             putfs(nodep, " = ");
             iterateConst(itemp);
         }
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstAssignW* nodep) override {
         putfs(nodep, "continuous assign ");
         iterateAndNextConstNull(nodep->lhsp());
         putbs(" = ");
         iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstRelease* nodep) override {
         puts("release ");
         iterateAndNextConstNull(nodep->lhsp());
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstBreak*) override {
         putbs("break");
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstSenTree* nodep) override {
         // AstSenItem is called for dumping in isolation by V3Order
         putfs(nodep, "@(");
-        for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+        cho (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
             iterateConst(expp);
-            if (expp->nextp()) putqs(expp->nextp(), " or ");
+            nếu (expp->nextp()) putqs(expp->nextp(), " or ");
         }
         puts(")");
     }
     void visit(AstSenItem* nodep) override {
         putfs(nodep, "");
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
-        if (nodep->sensp()) puts(" ");
+        nếu (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
+        nếu (nodep->sensp()) puts(" ");
         iterateChildrenConst(nodep);
     }
     void visit(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
     void visit(AstCase* nodep) override {
         putfs(nodep, "");
-        if (nodep->priorityPragma()) puts("priority ");
-        if (nodep->uniquePragma()) puts("unique ");
-        if (nodep->unique0Pragma()) puts("unique0 ");
+        nếu (nodep->priorityPragma()) puts("priority ");
+        nếu (nodep->uniquePragma()) puts("unique ");
+        nếu (nodep->unique0Pragma()) puts("unique0 ");
         puts(nodep->verilogKwd());
         puts(" (");
         iterateAndNextConstNull(nodep->exprp());
         puts(")\n");
-        if (nodep->fullPragma() || nodep->parallelPragma()) {
+        nếu (nodep->fullPragma() || nodep->parallelPragma()) {
             puts(" // synopsys");
-            if (nodep->fullPragma()) puts(" full_case");
-            if (nodep->parallelPragma()) puts(" parallel_case");
+            nếu (nodep->fullPragma()) puts(" full_case");
+            nếu (nodep->parallelPragma()) puts(" parallel_case");
         }
         iterateAndNextConstNull(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
     void visit(AstCaseItem* nodep) override {
-        if (nodep->condsp()) {
+        nếu (nodep->condsp()) {
             iterateAndNextConstNull(nodep->condsp());
-        } else {
+        } không_thì {
             putbs("default");
         }
         putfs(nodep, ": begin ");
@@ -301,7 +301,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstContinue*) override {
         putbs("continue");
-        if (!m_suppressSemi) puts(";\n");
+        nếu (!m_suppressSemi) puts(";\n");
     }
     void visit(AstNodeCoverDecl*) override {}  // N/A
     void visit(AstCoverInc*) override {}  // N/A
@@ -312,7 +312,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         // The outer covergroup/endcovergroup wrapper is already emitted by the
         // AstNodeModule visitor (verilogKwd()="covergroup" on AstClass::isCovergroup).
         // Here we only emit the clocking event, if any.
-        if (nodep->eventp()) {
+        nếu (nodep->eventp()) {
             putfs(nodep, "");
             iterateConst(nodep->eventp());
         }
@@ -320,7 +320,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverpoint* nodep) override {
         putfs(nodep, nodep->name() + ": coverpoint ");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->binsp() || nodep->optionsp()) {
+        nếu (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
             iterateAndNextConstNull(nodep->optionsp());
             iterateAndNextConstNull(nodep->binsp());
@@ -346,32 +346,32 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putfs(nodep, std::string{nodep->isWildcard() ? "wildcard " : ""}
                          + nodep->binsType().verilogKwd() + " ");
         puts(nodep->name());
-        if (nodep->isArray()) {
+        nếu (nodep->isArray()) {
             puts("[");
-            if (nodep->arraySizep()) iterateConst(nodep->arraySizep());
+            nếu (nodep->arraySizep()) iterateConst(nodep->arraySizep());
             puts("]");
         }
-        if (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
+        nếu (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
             puts(" = default");
-        } else if (nodep->transp()) {
+        } không_thì nếu (nodep->transp()) {
             puts(" = ");
-            for (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
-                if (setp != nodep->transp()) puts(", ");
+            cho (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
+                nếu (setp != nodep->transp()) puts(", ");
                 iterateConst(setp);
             }
-        } else if (VN_IS(nodep->rangesp(), CoverWith)) {
+        } không_thì nếu (VN_IS(nodep->rangesp(), CoverWith)) {
             puts(" = ");
             iterateConst(nodep->rangesp());
-        } else if (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
+        } không_thì nếu (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
                                         // transp/rangesp/default
             puts(" = {");
-            for (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
-                if (rangep != nodep->rangesp()) puts(", ");
+            cho (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
+                nếu (rangep != nodep->rangesp()) puts(", ");
                 iterateConst(rangep);
             }
             puts("}");
         }
-        if (nodep->iffp()) {
+        nếu (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
@@ -380,9 +380,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverWith* nodep) override {
         const bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
-        if (rangeList) putfs(nodep, "{");
+        nếu (rangeList) putfs(nodep, "{");
         iterateAndCommaConstNull(nodep->subp());
-        if (rangeList) puts("}");
+        nếu (rangeList) puts("}");
         puts(" with (");
         iterateConst(nodep->filterp());
         puts(")");
@@ -390,9 +390,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverBinsof* nodep) override {
         putfs(nodep, nodep->isNegated() ? "!binsof(" : "binsof(");
         iterateConst(nodep->pointp());
-        if (!nodep->name().empty()) puts("." + nodep->name());
+        nếu (!nodep->name().empty()) puts("." + nodep->name());
         puts(")");
-        if (nodep->rangesp()) {
+        nếu (nodep->rangesp()) {
             puts(" intersect {");
             iterateAndCommaConstNull(nodep->rangesp());
             puts("}");
@@ -401,7 +401,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverCrossBin* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + nodep->name() + " = ");
         iterateConstNull(nodep->selectp());
-        if (nodep->iffp()) {
+        nếu (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
@@ -418,12 +418,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverCrossWith* nodep) override {
         // A selection with a count is filtered further only in parentheses
-        if (nodep->countp()) putfs(nodep, "(");
+        nếu (nodep->countp()) putfs(nodep, "(");
         iterateConstNull(nodep->selectp());
         putfs(nodep, " with (");
         iterateConst(nodep->filterp());
         puts(")");
-        if (nodep->countp()) {
+        nếu (nodep->countp()) {
             puts(" matches ");
             iterateConst(nodep->countp());
             puts(")");
@@ -435,28 +435,28 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverCross* nodep) override {
         putfs(nodep, nodep->name() + ": cross ");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(", ");
+        cho (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            nếu (itemp != nodep->itemsp()) puts(", ");
             iterateConst(itemp);
         }
-        if (nodep->iffp()) {
+        nếu (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
-        if (nodep->binsp() || nodep->optionsp()) {
+        nếu (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
             iterateAndNextConstNull(nodep->optionsp());
             iterateAndNextConstNull(nodep->binsp());
             puts("}\n");
-        } else {
+        } không_thì {
             puts(";\n");
         }
     }
     void visit(AstCoverTransSet* nodep) override {
         puts("(");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(" => ");
+        cho (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            nếu (itemp != nodep->itemsp()) puts(" => ");
             iterateConst(itemp);
         }
         puts(")");
@@ -465,9 +465,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
 
     void visit(AstCvtPackString* nodep) override {
         putfs(nodep, "");
-        if (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
+        nếu (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
             putsQuoted(lhsConstp->num().toString());
-        } else {
+        } không_thì {
             puts("string'(");
             iterateAndNextConstNull(nodep->lhsp());
             puts(")");
@@ -491,12 +491,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
                           AstNode* exprsp) {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (fileOrStrgp) {
+        nếu (fileOrStrgp) {
             iterateConstNull(fileOrStrgp);
             putbs(", ");
         }
         putsQuoted(text);
-        for (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
+        cho (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
             puts(", ");
             iterateConstNull(expp);
         }
@@ -540,13 +540,13 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstFClose* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        nếu (nodep->filep()) iterateAndNextConstNull(nodep->filep());
         puts(");\n");
     }
     void visit(AstFFlush* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        nếu (nodep->filep()) iterateAndNextConstNull(nodep->filep());
         puts(");\n");
     }
     void visit(AstJumpBlock* nodep) override {
@@ -570,14 +570,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstNodeReadWriteMem* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
+        nếu (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
         putbs(", ");
-        if (nodep->memp()) iterateAndNextConstNull(nodep->memp());
-        if (nodep->lsbp()) {
+        nếu (nodep->memp()) iterateAndNextConstNull(nodep->memp());
+        nếu (nodep->lsbp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->lsbp());
         }
-        if (nodep->msbp()) {
+        nếu (nodep->msbp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->msbp());
         }
@@ -598,24 +598,24 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstLoop* nodep) override {
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        nếu (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putfs(nodep, "while (");
             iterateConst(testp->condp());
             puts(") begin\n");
             iterateAndNextConstNull(testp->nextp());
             puts("end\n");
-            return;
+            trả_về;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        nếu (AstNode* lastp = nodep->stmtsp()) {
+            trong_khi (AstNode* const nextp = lastp->nextp()) lastp = nextp;
+            nếu (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
                 putfs(nodep, "do begin\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                cho (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
                 puts("end while (");
                 iterateConst(testp->condp());
                 puts(")\n");
-                return;
+                trả_về;
             }
         }
         // Generic case
@@ -631,16 +631,16 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstNodeIf* nodep) override {
         putfs(nodep, "");
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (ifp->priorityPragma()) puts("priority ");
-            if (ifp->uniquePragma()) puts("unique ");
-            if (ifp->unique0Pragma()) puts("unique0 ");
+        nếu (const AstIf* const ifp = VN_CAST(nodep, If)) {
+            nếu (ifp->priorityPragma()) puts("priority ");
+            nếu (ifp->uniquePragma()) puts("unique ");
+            nếu (ifp->unique0Pragma()) puts("unique0 ");
         }
         puts("if (");
         iterateAndNextConstNull(nodep->condp());
         puts(") begin\n");
         iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        nếu (nodep->elsesp()) {
             putqs(nodep, "end\n");
             putqs(nodep, "else begin\n");
             iterateAndNextConstNull(nodep->elsesp());
@@ -650,10 +650,10 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstPast* nodep) override {
         putfs(nodep, "$past(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->ticksp() || nodep->sentreep()) {
+        nếu (nodep->ticksp() || nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->ticksp());
-            if (nodep->sentreep()) {
+            nếu (nodep->sentreep()) {
                 puts(", ");
                 iterateAndNextConstNull(nodep->sentreep());
             }
@@ -661,7 +661,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(")");
     }
     void visit(AstSampled* nodep) override {
-        if (!m_suppressSampled) {
+        nếu (!m_suppressSampled) {
             putfs(nodep, "$sampled(");
             iterateAndNextConstNull(nodep->exprp());
             puts(")");
@@ -675,7 +675,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstRose* nodep) override {
         putfs(nodep, "$rose(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        nếu (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -684,7 +684,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstFell* nodep) override {
         putfs(nodep, "$fell(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        nếu (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -703,7 +703,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstStable* nodep) override {
         putfs(nodep, "$stable(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        nếu (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -801,14 +801,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         //      %k      Potential line break
         bool inPct = false;
         putbs("");
-        for (const char c : format) {
-            if (!inPct && c == '%') {
+        cho (const char c : format) {
+            nếu (!inPct && c == '%') {
                 inPct = true;
-            } else if (!inPct) {  // Normal text
+            } không_thì nếu (!inPct) {  // Normal text
                 string s;
                 s += c;
                 puts(s);
-            } else {  // Format character
+            } không_thì {  // Format character
                 inPct = false;
                 switch (c) {
                 case '%': puts("%"); break;
@@ -873,7 +873,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstAttrOf* nodep) override {
         putfs(nodep, "$_ATTROF(");
         iterateAndNextConstNull(nodep->fromp());
-        if (nodep->dimp()) {
+        nếu (nodep->dimp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->dimp());
         }
@@ -881,9 +881,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstConsArray* nodep) override {
         putfs(nodep, "'{");
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        cho (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (itemp != nodep->itemsp()) putbs(", ");
+            nếu (itemp != nodep->itemsp()) putbs(", ");
             puts(cvtToStr(itemp->index()));
             puts(":");
             iterateConst(itemp->valuep());
@@ -908,12 +908,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstRange* nodep) override {
         puts("[");
-        if (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
+        nếu (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
             // Looks nicer if we print [1:0] rather than [32'sh1:32sh0]
             puts(cvtToStr(nodep->leftConst()));
             puts(":");
             puts(cvtToStr(nodep->rightConst()));
-        } else {
+        } không_thì {
             iterateAndNextConstNull(nodep->leftp());
             puts(":");
             iterateAndNextConstNull(nodep->rightp());
@@ -925,25 +925,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstSel* nodep) override {
         iterateAndNextConstNull(nodep->fromp());
-        int offset = 0;
+        số_nguyên offset = 0;
         AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-        if (VN_IS(dtypep, BasicDType)) {
+        nếu (VN_IS(dtypep, BasicDType)) {
             AstBasicDType* const basicDtypep = VN_AS(dtypep, BasicDType);
             offset = basicDtypep->lo();
         }
         puts("[");
-        if (VN_IS(nodep->lsbp(), Const)) {
-            if (nodep->widthConst() == 1) {
+        nếu (VN_IS(nodep->lsbp(), Const)) {
+            nếu (nodep->widthConst() == 1) {
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
-            } else {
+            } không_thì {
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
                               - 1));
                 puts(":");
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
             }
-        } else {
+        } không_thì {
             iterateAndNextConstNull(nodep->lsbp());
-            if (offset != 0) {
+            nếu (offset != 0) {
                 puts(" + ");
                 puts(cvtToStr(offset));
             }
@@ -966,42 +966,42 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstNodeCoverOrAssert* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " ");
-        if (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
+        nếu (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
             puts("#0 ");
-        } else if (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
+        } không_thì nếu (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
             puts("final ");
-        } else if (nodep->userType() == VAssertType::CONCURRENT) {
+        } không_thì nếu (nodep->userType() == VAssertType::CONCURRENT) {
             puts("property ");
         }
         iterateConstNull(nodep->sentreep());
         puts("(");
-        if (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
+        nếu (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
             iterateAndNextConstNull(sampledp->exprp());
-        } else {
+        } không_thì {
             iterateAndNextConstNull(nodep->propp());
         }
-        if (!VN_IS(nodep, Restrict)) {
+        nếu (!VN_IS(nodep, Restrict)) {
             puts(") begin\n");
             iterateAndNextConstNull(nodep->passsp());
             puts("end\n");
-        } else {
+        } không_thì {
             puts(");\n");
         }
 
-        if (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        nếu (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
             puts("else begin\n");
             iterateAndNextConstNull(assertp->failsp());
             puts("end\n");
-        } else if (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } không_thì nếu (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
             puts("else begin\n");
             iterateAndNextConstNull(assertp->failsp());
             puts("end\n");
         }
     }
     void visit(AstAssocArrayDType* nodep) override {
-        if (!m_arrayPost) {
+        nếu (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } không_thì {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
             puts("[");
@@ -1012,17 +1012,17 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstBasicDType* nodep) override {
-        if (m_arrayPost) return;
+        nếu (m_arrayPost) trả_về;
         putfs(nodep, nodep->prettyName());
-        if (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
+        nếu (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
         // Do not emit ranges for integer atoms.
-        if (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) return;
+        nếu (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) trả_về;
         emitPacked();
-        if (nodep->rangep()) {
+        nếu (nodep->rangep()) {
             puts(" ");
             iterateAndNextConstNull(nodep->rangep());
             puts(" ");
-        } else if (nodep->isRanged()) {
+        } không_thì nếu (nodep->isRanged()) {
             puts(" [");
             puts(cvtToStr(nodep->left()));
             puts(":");
@@ -1031,20 +1031,20 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstConstDType* nodep) override {
-        if (m_arrayPost) return;
+        nếu (m_arrayPost) trả_về;
         putfs(nodep, "const ");
         iterateConst(nodep->subDTypep());
     }
     void visit(AstDynArrayDType* nodep) override {
-        if (!m_arrayPost) {
+        nếu (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } không_thì {
             puts("[]");
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
     void visit(AstEnumDType* nodep) override {
-        if (m_arrayPost) return;
+        nếu (m_arrayPost) trả_về;
         putfs(nodep, "enum ");
         iterateConst(nodep->subDTypep());
         puts("{\n");
@@ -1052,7 +1052,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("}");
     }
     void visit(AstEnumItemRef* nodep) override {
-        if (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
+        nếu (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
             putfs(nodep, classOrPackagep->prettyName());
             puts("::");
         }
@@ -1063,18 +1063,18 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateConstNull(nodep->rangep());
         puts(" = ");
         iterateConstNull(nodep->valuep());
-        if (nodep->nextp()) puts(",");
+        nếu (nodep->nextp()) puts(",");
         puts("\n");
     }
     void visit(AstNodeArrayDType* nodep) override {
-        if (!m_arrayPost) {
-            if (VN_IS(nodep, PackArrayDType)) {
+        nếu (!m_arrayPost) {
+            nếu (VN_IS(nodep, PackArrayDType)) {
                 // Unpacked ranges handled in BasicDType, as they print "backwards"
                 m_packedps.push_back(nodep);
             }
             iterateConst(nodep->subDTypep());
-        } else {
-            if (VN_IS(nodep, UnpackArrayDType)) {
+        } không_thì {
+            nếu (VN_IS(nodep, UnpackArrayDType)) {
                 VL_RESTORER(m_arrayPost);
                 m_arrayPost = false;
                 iterateAndNextConstNull(nodep->rangep());
@@ -1084,22 +1084,22 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstIfaceRefDType* nodep) override {
-        if (m_arrayPost) {
+        nếu (m_arrayPost) {
             puts(" (");
-            if (nodep->cellp()) {
+            nếu (nodep->cellp()) {
                 iterateConst(nodep->cellp());
-            } else {
+            } không_thì {
                 puts("????");
             }
             puts(")");
-            return;
+            trả_về;
         }
         puts(nodep->ifaceName());
     }
     void visit(AstRefDType* nodep) override {
-        if (nodep->subDTypep()) {
+        nếu (nodep->subDTypep()) {
             iterateConst(nodep->skipRefp());
-        } else {
+        } không_thì {
             puts("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
         }
     }
@@ -1113,9 +1113,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(" ");
         puts(nodep->prettyName());
         puts(" (\n");
-        if (nodep->varsp()) {
+        nếu (nodep->varsp()) {
             iterateConst(nodep->varsp());
-        } else {
+        } không_thì {
             puts("????");
         }
         puts(");\n");
@@ -1123,23 +1123,23 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstModportVarRef* nodep) override {
         puts(nodep->direction().verilogKwd());
         puts(" ");
-        if (nodep->varp()) {
+        nếu (nodep->varp()) {
             VL_RESTORER(m_suppressVarSemi);
             m_suppressVarSemi = true;
             iterateConst(nodep->varp());
-        } else {
+        } không_thì {
             puts(nodep->prettyName());
         }
-        if (nodep->nextp()) puts(", ");
+        nếu (nodep->nextp()) puts(", ");
     }
     void visit(AstNodeUOrStructDType* nodep) override {
-        if (m_arrayPost) return;
+        nếu (m_arrayPost) trả_về;
         puts(nodep->verilogKwd() + " ");
-        if (nodep->packed()) puts("packed ");
+        nếu (nodep->packed()) puts("packed ");
         {
             puts("{\n");
             VL_RESTORER_CLEAR(m_packedps);
-            for (AstMemberDType* itemp = nodep->membersp(); itemp;
+            cho (AstMemberDType* itemp = nodep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 iterateConst(itemp);
             }
@@ -1148,20 +1148,20 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         emitPacked();
     }
     void visit(AstMemberDType* nodep) override {
-        if (m_arrayPost) return;
+        nếu (m_arrayPost) trả_về;
         iterateConst(nodep->subDTypep());
         puts(" ");
         puts(nodep->name());
         puts(";\n");
     }
     void visit(AstQueueDType* nodep) override {
-        if (!m_arrayPost) {
+        nếu (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } không_thì {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
             puts("[$");
-            if (nodep->boundp()) {
+            nếu (nodep->boundp()) {
                 puts(":");
                 iterateConst(nodep->boundp());
             }
@@ -1171,14 +1171,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->dotted() != "") {
+        nếu (nodep->dotted() != "") {
             putfs(nodep, nodep->dotted());
             puts(".");
             puts(nodep->prettyName());
-        } else {
+        } không_thì {
             putfs(nodep, nodep->prettyName());
         }
-        if (!VN_IS(nodep->taskp(), Property)) {
+        nếu (!VN_IS(nodep->taskp(), Property)) {
             puts("(");
             iterateAndNextConstNull(nodep->argsp());
             puts(")");
@@ -1203,27 +1203,27 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(";\n");
     }
     void visit(AstPropSpec* nodep) override {
-        if (!VN_IS(nodep->propp(), FuncRef)) {
+        nếu (!VN_IS(nodep->propp(), FuncRef)) {
             // Same dumping as in AstSenTree
             putfs(nodep, "@(");
-            for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+            cho (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
                 iterateConst(expp);
-                if (expp->nextp()) putqs(expp->nextp(), " or ");
+                nếu (expp->nextp()) putqs(expp->nextp(), " or ");
             }
             puts(")");
         }
-        if (nodep->disablep()) {
+        nếu (nodep->disablep()) {
             puts(" disable iff ");
             iterateConst(nodep->disablep());
         }
 
         puts(" ");
-        if (nodep->propStrength() != VPropStrength::DEFAULT) {
+        nếu (nodep->propStrength() != VPropStrength::DEFAULT) {
             puts(nodep->propStrength().ascii());
             puts("(");
         }
         iterateConstNull(nodep->propp());
-        if (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
+        nếu (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
         puts("\n");
     }
     void visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
@@ -1243,7 +1243,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstPropAlways* nodep) override {
         puts(nodep->isStrong() ? "s_always" : "always");
-        if (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
+        nếu (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
             puts(" [");
             iterateConst(nodep->loBoundp());
             puts(":");
@@ -1264,18 +1264,18 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     // Terminals
     void visit(AstVarRef* nodep) override {
-        if (nodep->varScopep()) {
+        nếu (nodep->varScopep()) {
             putfs(nodep, nodep->varScopep()->prettyName());
-        } else {
-            if (nodep->varp()) {
-                if (nodep->selfPointer().isEmpty()) {
+        } không_thì {
+            nếu (nodep->varp()) {
+                nếu (nodep->selfPointer().isEmpty()) {
                     putfs(nodep, nodep->varp()->prettyName());
-                } else {
+                } không_thì {
                     putfs(nodep, nodep->selfPointer().asString());
                     putfs(nodep, "->");
                     puts(nodep->varp()->prettyName());
                 }
-            } else {
+            } không_thì {
                 putfs(nodep, nodep->name());
             }
         }
@@ -1283,9 +1283,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstVarXRef* nodep) override {
         putfs(nodep, nodep->prettyName(nodep->dotted()));
         puts(".");
-        if (nodep->varp()) {
+        nếu (nodep->varp()) {
             puts(nodep->varp()->prettyName());
-        } else {
+        } không_thì {
             puts(nodep->prettyName());
         }
     }
@@ -1296,7 +1296,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstTopScope* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstVar* nodep) override {
-        if (nodep->isIO()) {
+        nếu (nodep->isIO()) {
             putfs(nodep, nodep->verilogKwd());
             puts(" ");
         }
@@ -1316,25 +1316,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstDelay* nodep) override {
         puts("");  // this is for proper alignment
-        if (nodep->isCycleDelay()) {
+        nếu (nodep->isCycleDelay()) {
             puts("##");
-        } else {
+        } không_thì {
             puts("#");
         }
         VL_RESTORER(m_prefixed);
         m_prefixed = false;
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
+        nếu (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
             puts("(");
             iterateConst(nodep->lhsp());
             puts(", ");
             iterateConst(fallDelayp);
             puts(")");
-        } else {
+        } không_thì {
             iterateConst(nodep->lhsp());
         }
-        if (!m_suppressSemi) {
+        nếu (!m_suppressSemi) {
             puts(";\n");
-        } else {
+        } không_thì {
             puts(" ");
         }
         iterateAndNextConstNull(nodep->stmtsp());
@@ -1343,10 +1343,10 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("wait(");
         iterateConst(nodep->condp());
         puts(")");
-        if (nodep->stmtsp()) {
+        nếu (nodep->stmtsp()) {
             puts(" ");
             iterateAndNextConstNull(nodep->stmtsp());
-        } else {
+        } không_thì {
             puts(";\n");
         }
     }
@@ -1370,7 +1370,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
         // Not v3fatalSrc so we keep processing
-        if (!m_suppressUnknown) {
+        nếu (!m_suppressUnknown) {
             nodep->v3error(
                 "Internal: Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
@@ -1446,15 +1446,15 @@ void V3EmitV::debugVerilogForTree(const AstNode* nodep, std::ostream& os) {
 std::string V3EmitV::debugVerilogForTree(const AstNode* nodep) {
     std::stringstream ss;
     debugVerilogForTree(nodep, ss);
-    return ss.str();
+    trả_về ss.str();
 }
 
 void V3EmitV::emitvFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
+    cho (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
          filep = VN_AS(filep->nextp(), NodeFile)) {
         AstVFile* const vfilep = VN_CAST(filep, VFile);
-        if (vfilep && vfilep->tblockp()) {
+        nếu (vfilep && vfilep->tblockp()) {
             V3OutVFile of{vfilep->name()};
             of.puts("// DESCRIPTION: Verilator generated Verilog\n");
             EmitVFileVisitor{vfilep->tblockp(), of, false};

@@ -67,7 +67,7 @@ class V3DfgPushDownSels final {
 
     // METHODS - Pearce-Kelly algorithm
     void debugCheck() {
-        if (VL_LIKELY(!v3Global.opt.debugCheck())) return;
+        nếu (VL_LIKELY(!v3Global.opt.debugCheck())) trả_về;
         m_dfg.forEachVertex([&](const DfgVertex& src) {
             const State& srcState = m_stateMap[src];
             UASSERT_OBJ(!srcState.visited, &src, "Visit marker not reset");
@@ -75,7 +75,7 @@ class V3DfgPushDownSels final {
             src.foreachSink([&](const DfgVertex& dst) {
                 const State& dstState = m_stateMap[dst];
                 UASSERT_OBJ(srcState.ord < dstState.ord, &src, "Invalid ordering");
-                return false;
+                trả_về false;
             });
         });
     }
@@ -84,31 +84,31 @@ class V3DfgPushDownSels final {
     void initializeOrdering() {
         // Start from all vertices with no inputs
         m_stack.reserve(m_dfg.size());
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (vtx.srcp() || vtx.defaultp()) continue;
+        cho (DfgVertexVar& vtx : m_dfg.varVertices()) {
+            nếu (vtx.srcp() || vtx.defaultp()) continue;
             m_stack.push_back(&vtx);
         }
-        for (DfgConst& vtx : m_dfg.constVertices()) m_stack.push_back(&vtx);
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (!vtx.nInputs()) m_stack.push_back(&vtx);
+        cho (DfgConst& vtx : m_dfg.constVertices()) m_stack.push_back(&vtx);
+        cho (DfgVertex& vtx : m_dfg.opVertices()) {
+            nếu (!vtx.nInputs()) m_stack.push_back(&vtx);
         }
 
         // Reverse post order number to assign to next vertex
         uint32_t rpoNext = m_dfg.size();
 
         // DFS loop
-        while (!m_stack.empty()) {
+        trong_khi (!m_stack.empty()) {
             DfgVertex& vtx = *m_stack.back();
             State& vtxState = m_stateMap[vtx];
             // If the ordering already assigned, just pop. It was visited
             // through another path through a different child.
-            if (vtxState.ord) {
+            nếu (vtxState.ord) {
                 UASSERT_OBJ(vtxState.visited, &vtx, "Not visited, but ordering assigned");
                 m_stack.pop_back();
                 continue;
             }
             // When exiting a vertex, assign the reverse post order number as ordering
-            if (vtxState.visited) {
+            nếu (vtxState.visited) {
                 vtxState.ord = rpoNext--;
                 m_stack.pop_back();
                 continue;
@@ -117,9 +117,9 @@ class V3DfgPushDownSels final {
             vtxState.visited = true;
             vtx.foreachSink([&](DfgVertex& dst) {
                 const State& dstState = m_stateMap[dst];
-                if (dstState.visited) return false;
+                nếu (dstState.visited) trả_về false;
                 m_stack.push_back(&dst);
-                return false;
+                trả_về false;
             });
         }
 
@@ -143,13 +143,13 @@ class V3DfgPushDownSels final {
         const State& dstState = m_stateMap[dst];
         // If 'dst' is after 'src' in the topological ordering,
         // then ok to add edge and no need to update the ordering.
-        if (dstState.ord > srcState.ord) return true;
+        nếu (dstState.ord > srcState.ord) trả_về true;
         // Pearce-Kelly dicovery step
-        if (pkFwdDfs(src, dst)) return false;
+        nếu (pkFwdDfs(src, dst)) trả_về false;
         pkBwdDfs(src, dst);
         // Pearce-Kelly update step
         pkReorder();
-        return true;
+        trả_về true;
     }
 
     // Pearce-Kelly forward DFS discovery step. Record visited vertices.
@@ -158,13 +158,13 @@ class V3DfgPushDownSels final {
         const uint32_t srcOrd = m_stateMap[src].ord;
         // DFS forward from dst
         m_stack.push_back(&dst);
-        while (!m_stack.empty()) {
+        trong_khi (!m_stack.empty()) {
             DfgVertex& vtx = *m_stack.back();
             m_stack.pop_back();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different sink
-            if (vtxState.visited) continue;
+            nếu (vtxState.visited) continue;
 
             // Save vertex, mark visited
             m_fwdVtxps.push_back(&vtx);
@@ -173,23 +173,23 @@ class V3DfgPushDownSels final {
             // Enqueue unvisited sinks in affeced area
             const bool cyclic = vtx.foreachSink([&](DfgVertex& sink) {
                 const State& sinkState = m_stateMap[sink];
-                if (sinkState.ord == srcOrd) return true;  // Stop completely if cyclic
-                if (sinkState.visited) return false;  // Stop search if already visited
-                if (sinkState.ord > srcOrd) return false;  // Stop search if outside critical area
+                nếu (sinkState.ord == srcOrd) trả_về true;  // Stop completely if cyclic
+                nếu (sinkState.visited) trả_về false;  // Stop search if already visited
+                nếu (sinkState.ord > srcOrd) trả_về false;  // Stop search if outside critical area
                 m_stack.push_back(&sink);
-                return false;
+                trả_về false;
             });
 
             // If would be cyclic, reset state and return true
-            if (cyclic) {
-                for (DfgVertex* const vtxp : m_fwdVtxps) m_stateMap[vtxp].visited = false;
+            nếu (cyclic) {
+                cho (DfgVertex* const vtxp : m_fwdVtxps) m_stateMap[vtxp].visited = false;
                 m_fwdVtxps.clear();
                 m_stack.clear();
-                return true;
+                trả_về true;
             }
         }
         // Won't be cyclic, return false
-        return false;
+        trả_về false;
     }
 
     // Pearce-Kelly backward DFS discovery step. Record visited vertices.
@@ -197,13 +197,13 @@ class V3DfgPushDownSels final {
         const uint32_t dstOrd = m_stateMap[dst].ord;
         // DFS backward from src
         m_stack.push_back(&src);
-        while (!m_stack.empty()) {
+        trong_khi (!m_stack.empty()) {
             DfgVertex& vtx = *m_stack.back();
             m_stack.pop_back();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different source
-            if (vtxState.visited) continue;
+            nếu (vtxState.visited) continue;
 
             // Save vertex, mark visited
             m_bwdVtxps.push_back(&vtx);
@@ -212,11 +212,11 @@ class V3DfgPushDownSels final {
             // Enqueue unvisited sources in affeced area
             vtx.foreachSource([&](DfgVertex& source) {
                 const State& sourceState = m_stateMap[source];
-                if (sourceState.visited) return false;  // Stop search if already visited
-                if (sourceState.ord < dstOrd)
-                    return false;  // Stop search if outside critical area
+                nếu (sourceState.visited) trả_về false;  // Stop search if already visited
+                nếu (sourceState.ord < dstOrd)
+                    trả_về false;  // Stop search if outside critical area
                 m_stack.push_back(&source);
-                return false;
+                trả_về false;
             });
         }
     }
@@ -225,7 +225,7 @@ class V3DfgPushDownSels final {
     void pkReorder() {
         // Sort vertices found during forward and backward search
         const auto cmp = [this](const DfgVertex* const ap, const DfgVertex* const bp) {
-            return m_stateMap[ap].ord < m_stateMap[bp].ord;
+            trả_về m_stateMap[ap].ord < m_stateMap[bp].ord;
         };
         std::sort(m_bwdVtxps.begin(), m_bwdVtxps.end(), cmp);
         std::sort(m_fwdVtxps.begin(), m_fwdVtxps.end(), cmp);
@@ -234,7 +234,7 @@ class V3DfgPushDownSels final {
         // Append forward vertices to the backward list for processing
         m_bwdVtxps.insert(m_bwdVtxps.end(), m_fwdVtxps.begin(), m_fwdVtxps.end());
         // Save the current ordering numbers, reset visitation marks
-        for (DfgVertex* const vtxp : m_bwdVtxps) {
+        cho (DfgVertex* const vtxp : m_bwdVtxps) {
             State& state = m_stateMap[vtxp];
             state.visited = false;
             m_ords.push_back(state.ord);
@@ -242,7 +242,7 @@ class V3DfgPushDownSels final {
         // The current ordering numbers are sorted in the two sub lists, merge them
         std::inplace_merge(m_ords.begin(), m_ords.begin() + bwdSize, m_ords.end());
         // Assign new ordering
-        for (size_t i = 0; i < m_ords.size(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
+        cho (size_t i = 0; i < m_ords.size(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
         // Reset sate
         m_fwdVtxps.clear();
         m_bwdVtxps.clear();
@@ -255,10 +255,10 @@ class V3DfgPushDownSels final {
 
     static bool ignoredSink(const DfgVertex& sink) {
         // Ignore non-observable variable sinks. These will be eliminated.
-        if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-            if (!varp->hasSinks() && !varp->isObserved()) return true;
+        nếu (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
+            nếu (!varp->hasSinks() && !varp->isObserved()) trả_về true;
         }
-        return false;
+        trả_về false;
     }
 
     // Find all concatenations that feed another concatenation and may be
@@ -266,28 +266,28 @@ class V3DfgPushDownSels final {
     // observable sinks. (If there were other observable sinks, a temporary
     // would be required anyway.)
     void findCandidatess() {
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
+        cho (DfgVertex& vtx : m_dfg.opVertices()) {
             // Consider only concatenations ...
             DfgConcat* const catp = vtx.cast<DfgConcat>();
-            if (!catp) continue;
+            nếu (!catp) continue;
 
             // Count the various types of sinks
             uint32_t nSels = 0;
             uint32_t nCats = 0;
             uint32_t nOther = 0;
             vtx.foreachSink([&](const DfgVertex& sink) {
-                if (sink.is<DfgSel>()) {
+                nếu (sink.is<DfgSel>()) {
                     ++nSels;
-                } else if (sink.is<DfgConcat>()) {
+                } không_thì nếu (sink.is<DfgConcat>()) {
                     ++nCats;
-                } else if (!ignoredSink(sink)) {
+                } không_thì nếu (!ignoredSink(sink)) {
                     ++nOther;
                 }
-                return false;
+                trả_về false;
             });
 
             // Consider if optimizable
-            if (nSels > 0 && nCats == 1 && nOther == 0) {
+            nếu (nSels > 0 && nCats == 1 && nOther == 0) {
                 m_catps.push_back(catp);
                 m_stateMap[catp].onWorklist = true;
             }
@@ -299,7 +299,7 @@ class V3DfgPushDownSels final {
         std::vector<DfgSel*> selps;
         selps.reserve(m_dfg.size());
         // Consider each concatenation
-        while (!m_catps.empty()) {
+        trong_khi (!m_catps.empty()) {
             DfgConcat* const catp = m_catps.back();
             m_catps.pop_back();
             m_stateMap[catp].onWorklist = false;
@@ -309,35 +309,35 @@ class V3DfgPushDownSels final {
             DfgVertex* sinkp = nullptr;  // The only non-DfgSel sink (ignoring some DfgVars)
             const bool multipleNonSelSinks = catp->foreachSink([&](DfgVertex& sink) {
                 // Collect selects
-                if (DfgSel* const selp = sink.cast<DfgSel>()) {
+                nếu (DfgSel* const selp = sink.cast<DfgSel>()) {
                     selps.emplace_back(selp);
-                    return false;
+                    trả_về false;
                 }
                 // Skip ignored sinks
-                if (ignoredSink(sink)) return false;
+                nếu (ignoredSink(sink)) trả_về false;
                 // If already found a non-DfgSel sink, return true
-                if (sinkp) return true;
+                nếu (sinkp) trả_về true;
                 // Save the non-DfgSel sink
                 sinkp = &sink;
-                return false;
+                trả_về false;
             });
 
             // It it has multiple non-DfgSel sinks, it will need a temporary, so don't bother
-            if (multipleNonSelSinks) continue;
+            nếu (multipleNonSelSinks) continue;
             // We only add DfgConcats to the work list that drive a select.
             UASSERT_OBJ(!selps.empty(), catp, "Should have selects");
             // If no other sink, then nothing to do
-            if (!sinkp) continue;
+            nếu (!sinkp) continue;
             // If the only other sink is not a concatenation, then nothing to do
             DfgConcat* const sinkCatp = sinkp->cast<DfgConcat>();
-            if (!sinkCatp) continue;
+            nếu (!sinkCatp) continue;
 
             // Ok, we can try to push the selects down to the sink DfgConcat
             const uint32_t offset = sinkCatp->rhsp() == catp ? 0 : sinkCatp->rhsp()->width();
             const uint32_t pushedDownBefore = m_ctx.m_pushedDown;
-            for (DfgSel* const selp : selps) {
+            cho (DfgSel* const selp : selps) {
                 // Don't do it if it would create a cycle
-                if (!addEdge(*sinkCatp, *selp)) {
+                nếu (!addEdge(*sinkCatp, *selp)) {
                     ++m_ctx.m_wouldBeCyclic;
                     continue;
                 }
@@ -349,7 +349,7 @@ class V3DfgPushDownSels final {
             // If we pushed down any selects, then we need to consider the sink concatenation
             // again
             State& sinkCatState = m_stateMap[sinkCatp];
-            if (pushedDownBefore != m_ctx.m_pushedDown && !sinkCatState.onWorklist) {
+            nếu (pushedDownBefore != m_ctx.m_pushedDown && !sinkCatState.onWorklist) {
                 m_catps.push_back(sinkCatp);
                 sinkCatState.onWorklist = true;
             }
@@ -365,7 +365,7 @@ class V3DfgPushDownSels final {
         m_catps.reserve(m_dfg.size());
         findCandidatess();
         // Early exit if nothing to do
-        if (m_catps.empty()) return;
+        nếu (m_catps.empty()) trả_về;
 
         // Pre-allocate storage
         m_stack.reserve(m_dfg.size());
@@ -379,7 +379,7 @@ class V3DfgPushDownSels final {
         // Sort candidates in topological order so we process them the least amount
         std::sort(m_catps.begin(), m_catps.end(),
                   [this](const DfgConcat* const ap, const DfgConcat* const bp) {
-                      return m_stateMap[ap].ord < m_stateMap[bp].ord;
+                      trả_về m_stateMap[ap].ord < m_stateMap[bp].ord;
                   });
 
         // Push selects down to the lowest concatenation
@@ -393,6 +393,6 @@ public:
 };
 
 void V3DfgPasses::pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-    if (!v3Global.opt.fDfgPushDownSels()) return;
+    nếu (!v3Global.opt.fDfgPushDownSels()) trả_về;
     V3DfgPushDownSels::apply(dfg, ctx);
 }

@@ -50,7 +50,7 @@ class NameVisitor final : public VNVisitorConst {
 
     void renameKeywordCheck(AstNode* nodep) {
         const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-        if (rsvd != "") {
+        nếu (rsvd != "") {
             nodep->v3warn(SYMRSVDWORD, "Symbol matches " + rsvd + ": " << nodep->prettyNameQ());
             const string newname = "__SYM__"s + nodep->name();
             nodep->name(newname);
@@ -60,18 +60,18 @@ class NameVisitor final : public VNVisitorConst {
 
     // METHODS
     void rename(AstNode* nodep, bool addPvt) {
-        if (!nodep->user1()) {  // Not already done
-            if (addPvt) {
+        nếu (!nodep->user1()) {  // Not already done
+            nếu (addPvt) {
                 const string newname = "__PVT__"s + nodep->name();
                 nodep->name(newname);
                 nodep->editCountInc();
-            } else if (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
-            } else if (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
+            } không_thì nếu (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
+            } không_thì nếu (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
                        && VN_AS(nodep, Var)->isSigPublic()) {
                 const string newname = "__Vm_sig_" + nodep->name();
                 nodep->name(newname);
                 nodep->editCountInc();
-            } else {
+            } không_thì {
                 renameKeywordCheck(nodep);
             }
             nodep->user1(1);
@@ -85,7 +85,7 @@ class NameVisitor final : public VNVisitorConst {
         iterateChildrenConst(nodep);
         rename(nodep, false);
         // Avoid clashing with the classes of the library model itself
-        if (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
+        nếu (nodep->verilatorLib()) nodep->name(nodep->name() + "__Vlibstub");
     }
     // Add __PVT__ to names of local signals
     void visit(AstVar* nodep) override {
@@ -100,55 +100,55 @@ class NameVisitor final : public VNVisitorConst {
         iterateChildrenConst(nodep);
     }
     void visit(AstCFunc* nodep) override {
-        if (!nodep->user1()) {
+        nếu (!nodep->user1()) {
             iterateChildrenConst(nodep);
             rename(nodep, false);
         }
     }
     void visit(AstVarRef* nodep) override { iterateConst(nodep->varp()); }
     void visit(AstCell* nodep) override {
-        if (!nodep->user1()) {
+        nếu (!nodep->user1()) {
             rename(nodep, (!nodep->modp()->modPublic() && !VN_IS(nodep->modp(), ClassPackage)));
             iterateChildrenConst(nodep);
         }
     }
     void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->packed()) {
+        nếu (nodep->packed()) {
             m_nameStack.emplace_back("", false);
             m_nameStack.back().get("get");
             m_nameStack.back().get("set");
         }
         iterateChildrenConst(nodep);
-        if (nodep->packed()) m_nameStack.pop_back();
+        nếu (nodep->packed()) m_nameStack.pop_back();
     }
     void visit(AstMemberDType* nodep) override {
-        if (!nodep->user1()) {
-            if (!m_nameStack.empty()) {  // Packed member field
+        nếu (!nodep->user1()) {
+            nếu (!m_nameStack.empty()) {  // Packed member field
                 renameKeywordCheck(nodep);
                 nodep->name(m_nameStack.back().get(nodep->name()));
                 nodep->user1(1);
-            } else {
+            } không_thì {
                 rename(nodep, true);
             }
             iterateChildrenConst(nodep);
         }
     }
     void visit(AstMemberSel* nodep) override {
-        if (!nodep->user1()) {
+        nếu (!nodep->user1()) {
             rename(nodep, true);
             iterateChildrenConst(nodep);
         }
     }
     void visit(AstStructSel* nodep) override {
-        if (!nodep->user1()) {
+        nếu (!nodep->user1()) {
             rename(nodep, true);
             iterateChildrenConst(nodep);
         }
     }
     void visit(AstScope* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
-            if (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
+        nếu (!nodep->user1SetOnce()) {
+            nếu (nodep->aboveScopep()) iterateConst(nodep->aboveScopep());
+            nếu (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
             // Always recompute name (as many levels above scope may have changed)
             // Same formula as V3Scope
             nodep->name(nodep->isTop()         ? "TOP"

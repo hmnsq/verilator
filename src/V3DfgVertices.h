@@ -80,10 +80,10 @@ public:
     ASTGEN_MEMBERS_DfgVertexVar;
 
     // The driver of the variable. Might be nullptr if driven exernally (input to DfgGraph).
-    DfgVertex* srcp() const { return inputp(0); }
+    DfgVertex* srcp() const { trả_về inputp(0); }
     void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
     // The default value of the variable. This defines the parts not driven by 'srcp', maybe null
-    DfgVertex* defaultp() const { return inputp(1); }
+    DfgVertex* defaultp() const { trả_về inputp(1); }
     void defaultp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
     // Return the vertex and the offset into the vertex driving the given range [lo, lo + size - 1]
@@ -91,64 +91,64 @@ public:
     // range is driven by multiple vertices in parts.
     std::pair<DfgVertex*, uint32_t> driverOfRange(uint32_t lo, uint32_t size);
 
-    std::string srcName(size_t idx) const override final { return idx ? "defaultp" : "srcp"; }
+    std::string srcName(size_t idx) const override final { trả_về idx ? "defaultp" : "srcp"; }
 
     // The Ast variable this vertex representess
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() const { trả_về m_vscp; }
 
     // If this is a temporary, the Ast variable it stands for,  or same as
     // 'nodep()' if it's a temporary with no associated original Ast variable.
-    AstVarScope* tmpForp() const { return m_tmpForp; }
+    AstVarScope* tmpForp() const { trả_về m_tmpForp; }
     void tmpForp(AstVarScope* nodep) { m_tmpForp = nodep; }
 
     // Location of driver of variable (only used if 'srcp' is not a splice)
-    FileLine* driverFileLine() const { return m_driverFileLine; }
+    FileLine* driverFileLine() const { trả_về m_driverFileLine; }
     void driverFileLine(FileLine* flp) { m_driverFileLine = flp; }
 
     // Variable referenced from other DFG in the same module/netlist
-    bool hasDfgRefs() const { return m_vscp->user1() >> 7; }  // I.e.: (nodep()->user1() >> 6) > 1
+    bool hasDfgRefs() const { trả_về m_vscp->user1() >> 7; }  // I.e.: (nodep()->user1() >> 6) > 1
 
     // Variable referenced from Ast code in the same module/netlist
-    static bool hasModWrRefs(const AstVarScope* nodep) { return nodep->user1() & 0x08; }
+    static bool hasModWrRefs(const AstVarScope* nodep) { trả_về nodep->user1() & 0x08; }
     static void setHasModWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x08); }
-    bool hasModWrRefs() const { return hasModWrRefs(m_vscp); }
+    bool hasModWrRefs() const { trả_về hasModWrRefs(m_vscp); }
     void setHasModWrRefs() const { setHasModWrRefs(m_vscp); }
 
     // Variable referenced outside the containing module/netlist.
-    static bool hasExtRdRefs(const AstVarScope* nodep) { return nodep->user1() & 0x01; }
-    static bool hasExtWrRefs(const AstVarScope* nodep) { return nodep->user1() & 0x02; }
+    static bool hasExtRdRefs(const AstVarScope* nodep) { trả_về nodep->user1() & 0x01; }
+    static bool hasExtWrRefs(const AstVarScope* nodep) { trả_về nodep->user1() & 0x02; }
     static void setHasExtRdRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x01); }
     static void setHasExtWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x02); }
-    bool hasExtRdRefs() const { return hasExtRdRefs(m_vscp); }
-    bool hasExtWrRefs() const { return hasExtWrRefs(m_vscp); }
-    bool hasExtRefs() const { return hasExtRdRefs() || hasExtWrRefs(); }
+    bool hasExtRdRefs() const { trả_về hasExtRdRefs(m_vscp); }
+    bool hasExtWrRefs() const { trả_về hasExtWrRefs(m_vscp); }
+    bool hasExtRefs() const { trả_về hasExtRdRefs() || hasExtWrRefs(); }
 
     // Variable referenced via READWRITE references
-    static bool hasRWRefs(const AstVarScope* nodep) { return nodep->user1() & 0x10; }
+    static bool hasRWRefs(const AstVarScope* nodep) { trả_về nodep->user1() & 0x10; }
     static void setHasRWRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x10); }
 
     // There exists a DfgPrev vertex for this variable
-    static bool hasPrev(const AstVarScope* nodep) { return nodep->user1() & 0x20; }
-    bool hasPrev() const { return hasPrev(m_vscp); }
+    static bool hasPrev(const AstVarScope* nodep) { trả_về nodep->user1() & 0x20; }
+    bool hasPrev() const { trả_về hasPrev(m_vscp); }
 
     // True iff this variable is consumed without an explicit sink: its value is read outside
     // this DfgGraph, or a DfgPrev reads it within this graph.
     bool isObserved() const {
         // A DfgPrev reads this variable
-        if (hasPrev()) return true;
+        nếu (hasPrev()) trả_về true;
         // A DfgVarVertex is written in exactly one DfgGraph, and might be read in an arbitrary
         // number of other DfgGraphs. If it's driven in this DfgGraph, it's read in others.
-        if (hasDfgRefs()) return srcp() || defaultp();
-        return hasExtRdRefs();
+        nếu (hasDfgRefs()) trả_về srcp() || defaultp();
+        trả_về hasExtRdRefs();
     }
 
     // The value of this vertex might differ from what is defined by its drivers
     // 'srcp' and 'defaultp'. That is, it might be assigned, possibly partially,
     // or abruptly outside the graph, hence it is not equivalent to its 'srcp'.
     static bool isVolatile(const AstVarScope* nodep) {
-        return hasModWrRefs(nodep) || hasExtWrRefs(nodep);
+        trả_về hasModWrRefs(nodep) || hasExtWrRefs(nodep);
     }
-    bool isVolatile() const { return isVolatile(m_vscp); }
+    bool isVolatile() const { trả_về isVolatile(m_vscp); }
 };
 
 class DfgVarArray final : public DfgVertexVar {
@@ -201,9 +201,9 @@ public:
     ASTGEN_MEMBERS_DfgPrev;
 
     // The Ast variable this vertex representess
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() const { trả_về m_vscp; }
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) const override final { trả_về ""; }
 };
 
 //------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ public:
         , m_exprp{exprp} {}
     ASTGEN_MEMBERS_DfgVertexAst;
 
-    AstNodeExpr* exprp() const { return m_exprp; }
+    AstNodeExpr* exprp() const { trả_về m_exprp; }
     void exprp(AstNodeExpr* exprp) { m_exprp = exprp; }
 };
 
@@ -245,11 +245,11 @@ public:
         , m_inLoop{inLoop} {}
     ASTGEN_MEMBERS_DfgAstRd;
 
-    DfgVertex* srcp() const { return inputp(0); }
+    DfgVertex* srcp() const { trả_về inputp(0); }
     void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    std::string srcName(size_t) const override final { return ""; }
-    bool inSenItem() const { return m_inSenItem; }
-    bool inLoop() const { return m_inLoop; }
+    std::string srcName(size_t) const override final { trả_về ""; }
+    bool inSenItem() const { trả_về m_inSenItem; }
+    bool inLoop() const { trả_về m_inLoop; }
 };
 
 //------------------------------------------------------------------------------
@@ -277,22 +277,22 @@ public:
         , m_num{num} {}
     DfgConst(DfgGraph& dfg, FileLine* flp, size_t width, uint32_t value)
         : DfgVertexNullary{dfg, dfgType(), flp, DfgDataType::packed(width)}
-        , m_num{flp, static_cast<int>(width), value} {}
+        , m_num{flp, static_cast<số_nguyên>(width), value} {}
 
     ASTGEN_MEMBERS_DfgConst;
 
-    V3Number& num() { return m_num; }
-    const V3Number& num() const { return m_num; }
+    V3Number& num() { trả_về m_num; }
+    const V3Number& num() const { trả_về m_num; }
 
-    size_t toSizeT() const { return static_cast<size_t>(num().toUQuad()); }
-    uint32_t toU32() const { return num().toUInt(); }
+    size_t toSizeT() const { trả_về static_cast<size_t>(num().toUQuad()); }
+    uint32_t toU32() const { trả_về num().toUInt(); }
 
-    bool isZero() const { return num().isEqZero(); }
-    bool isOnes() const { return num().isEqAllOnes(width()); }
+    bool isZero() const { trả_về num().isEqZero(); }
+    bool isOnes() const { trả_về num().isEqAllOnes(width()); }
 
     // Does this DfgConst have the given value? Note this is not easy to answer if wider than 32.
     bool hasValue(uint32_t value) const {
-        return !num().isFourState() && num().edataWord(0) == value && num().mostSetBitP1() <= 32;
+        trả_về !num().isFourState() && num().edataWord(0) == value && num().mostSetBitP1() <= 32;
     }
 };
 
@@ -316,9 +316,9 @@ protected:
 
 public:
     ASTGEN_MEMBERS_DfgVertexUnary;
-    DfgVertex* srcp() const { return inputp(0); }
+    DfgVertex* srcp() const { trả_về inputp(0); }
     void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) const override final { trả_về ""; }
 };
 
 class DfgRep final : public DfgVertexUnary {
@@ -329,7 +329,7 @@ public:
     DfgRep(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
         : DfgVertexUnary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgRep;
-    uint32_t count() const { return width() / srcp()->width(); }
+    uint32_t count() const { trả_về width() / srcp()->width(); }
 };
 
 class DfgSel final : public DfgVertexUnary {
@@ -343,11 +343,11 @@ public:
         : DfgVertexUnary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgSel;
 
-    DfgVertex* fromp() const { return srcp(); }
+    DfgVertex* fromp() const { trả_về srcp(); }
     void fromp(DfgVertex* vtxp) { srcp(vtxp); }
-    uint32_t lsb() const { return m_lsb; }
+    uint32_t lsb() const { trả_về m_lsb; }
     void lsb(uint32_t value) { m_lsb = value; }
-    uint32_t msb() const { return m_lsb + width() - 1; }
+    uint32_t msb() const { trả_về m_lsb + width() - 1; }
 };
 
 class DfgUnitArray final : public DfgVertexUnary {
@@ -374,9 +374,9 @@ protected:
 
 public:
     ASTGEN_MEMBERS_DfgVertexBinary;
-    DfgVertex* lhsp() const { return inputp(0); }
+    DfgVertex* lhsp() const { trả_về inputp(0); }
     void lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* rhsp() const { return inputp(1); }
+    DfgVertex* rhsp() const { trả_về inputp(1); }
     void rhsp(DfgVertex* vtxp) { inputp(1, vtxp); }
 };
 
@@ -387,12 +387,12 @@ public:
         : DfgVertexBinary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgMatchMasked;
 
-    DfgVertex* lhsp() const { return inputp(0); }
+    DfgVertex* lhsp() const { trả_về inputp(0); }
     void lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* matchp() const { return inputp(1); }
+    DfgVertex* matchp() const { trả_về inputp(1); }
     void matchp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
-    std::string srcName(size_t idx) const override { return idx ? "matchp" : "lhsp"; }
+    std::string srcName(size_t idx) const override { trả_về idx ? "matchp" : "lhsp"; }
 };
 
 class DfgMux final : public DfgVertexBinary {
@@ -404,12 +404,12 @@ public:
         : DfgVertexBinary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgMux;
 
-    DfgVertex* fromp() const { return inputp(0); }
+    DfgVertex* fromp() const { trả_về inputp(0); }
     void fromp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* lsbp() const { return inputp(1); }
+    DfgVertex* lsbp() const { trả_về inputp(1); }
     void lsbp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
-    std::string srcName(size_t idx) const override { return idx ? "lsbp" : "fromp"; }
+    std::string srcName(size_t idx) const override { trả_về idx ? "lsbp" : "fromp"; }
 };
 
 //------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ protected:
     DfgEdge* newInput() {
         m_edgeps.emplace_back(new DfgEdge{this});
         m_nInputs = m_edgeps.size();
-        return m_edgeps.back().get();
+        trả_về m_edgeps.back().get();
     }
 
     // Unlink all inputs and reset to no inputs - use very carefully
@@ -490,80 +490,80 @@ public:
     std::string srcName(size_t idx) const override final {
         const uint32_t lo = m_driverData[idx].m_lo;
         const uint32_t hi = lo + inputp(idx)->size() - 1;
-        return '[' + std::to_string(hi) + ':' + std::to_string(lo) + ']';
+        trả_về '[' + std::to_string(hi) + ':' + std::to_string(lo) + ']';
     }
 
-    FileLine* driverFileLine(size_t idx) const { return m_driverData.at(idx).m_flp; }
+    FileLine* driverFileLine(size_t idx) const { trả_về m_driverData.at(idx).m_flp; }
 
     DfgVertex* driverAt(size_t idx) const {
         const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (m_driverData[i].m_lo == idx) return inputp(i);
+        cho (size_t i = 0; i < n; ++i) {
+            nếu (m_driverData[i].m_lo == idx) trả_về inputp(i);
         }
-        return nullptr;
+        trả_về nullptr;
     }
 
     // If drives the whole result explicitly (not through defaultp), this is
     // the actual driver this DfgVertexSplice can be replaced with.
     DfgVertex* wholep() {
-        if (nInputs() != 1) return nullptr;
-        if (m_driverData[0].m_lo != 0) return nullptr;
+        nếu (nInputs() != 1) trả_về nullptr;
+        nếu (m_driverData[0].m_lo != 0) trả_về nullptr;
         DfgVertex* const vtxp = inputp(0);
-        if (vtxp->size() != size()) return nullptr;
-        if (const DfgUnitArray* const uap = vtxp->cast<DfgUnitArray>()) {
-            if (DfgVertexSplice* const splicep = uap->srcp()->cast<DfgVertexSplice>()) {
-                if (!splicep->wholep()) return nullptr;
+        nếu (vtxp->size() != size()) trả_về nullptr;
+        nếu (const DfgUnitArray* const uap = vtxp->cast<DfgUnitArray>()) {
+            nếu (DfgVertexSplice* const splicep = uap->srcp()->cast<DfgVertexSplice>()) {
+                nếu (!splicep->wholep()) trả_về nullptr;
             }
         }
-        return vtxp;
+        trả_về vtxp;
     }
 
     template <typename T_Callable,
               std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, DfgVertex&, uint32_t,
                                                      FileLine*>::value,  //
-                               int>
+                               số_nguyên>
               = 0>
     bool foreachDriver(T_Callable&& f) {
         const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) return true;
+        cho (size_t i = 0; i < n; ++i) {
+            nếu (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) trả_về true;
         }
-        return false;
+        trả_về false;
     }
     template <typename T_Callable,
               std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&, uint32_t,
                                                      FileLine*>::value,
-                               int>
+                               số_nguyên>
               = 0>
     bool foreachDriver(T_Callable&& f) const {
         const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) return true;
+        cho (size_t i = 0; i < n; ++i) {
+            nếu (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) trả_về true;
         }
-        return false;
+        trả_về false;
     }
     template <
         typename T_Callable,
         std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, DfgVertex&, uint32_t>::value,  //
-                         int>
+                         số_nguyên>
         = 0>
     bool foreachDriver(T_Callable&& f) {
         const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo)) return true;
+        cho (size_t i = 0; i < n; ++i) {
+            nếu (f(*inputp(i), m_driverData[i].m_lo)) trả_về true;
         }
-        return false;
+        trả_về false;
     }
     template <typename T_Callable,
               std::enable_if_t<
-                  vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&, uint32_t>::value, int>
+                  vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&, uint32_t>::value, số_nguyên>
               = 0>
     bool foreachDriver(T_Callable&& f) const {
         const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo)) return true;
+        cho (size_t i = 0; i < n; ++i) {
+            nếu (f(*inputp(i), m_driverData[i].m_lo)) trả_về true;
         }
-        return false;
+        trả_về false;
     }
 };
 
@@ -612,35 +612,35 @@ public:
 
     ASTGEN_MEMBERS_DfgLogic;
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) const override final { trả_về ""; }
 
     // Can only be driven by DfgVertexVar
     void addInput(DfgVertexVar* varp) { newInput()->relinkSrcp(varp); }
 
     // Accessors
-    AstAlways* nodep() const { return m_nodep; }
-    AstScope* scopep() const { return m_scopep; }
-    CfgGraph& cfg() { return *m_cfgp; }
-    const CfgGraph& cfg() const { return *m_cfgp; }
-    std::vector<DfgVertex*>& synth() { return m_synth; }
-    const std::vector<DfgVertex*>& synth() const { return m_synth; }
-    bool drivesUnusedVars() const { return m_drivesUnusedVars; }
+    AstAlways* nodep() const { trả_về m_nodep; }
+    AstScope* scopep() const { trả_về m_scopep; }
+    CfgGraph& cfg() { trả_về *m_cfgp; }
+    const CfgGraph& cfg() const { trả_về *m_cfgp; }
+    std::vector<DfgVertex*>& synth() { trả_về m_synth; }
+    const std::vector<DfgVertex*>& synth() const { trả_về m_synth; }
+    bool drivesUnusedVars() const { trả_về m_drivesUnusedVars; }
     void setDrivesUnusedVars() { m_drivesUnusedVars = true; }
-    bool selectedForSynthesis() const { return m_selectedForSynthesis; }
+    bool selectedForSynthesis() const { trả_về m_selectedForSynthesis; }
     void setSelectedForSynthesis() { m_selectedForSynthesis = true; }
-    bool nonSynthesizable() const { return m_nonSynthesizable; }
+    bool nonSynthesizable() const { trả_về m_nonSynthesizable; }
     void setNonSynthesizable() { m_nonSynthesizable = true; }
-    bool reverted() const { return m_reverted; }
+    bool reverted() const { trả_về m_reverted; }
     void setReverted() { m_reverted = true; }
     // Logic has no side-effect, just computes its output variables based on its input variables
     bool isPure() const {
-        if (!m_cachedPure) {
+        nếu (!m_cachedPure) {
             // This is a sledgehamer, but AstNodeStmts don't compute their 'purity' properly,
             // not that 'purity' makes sense for statements... We don't call this often and cached.
-            const bool pure = m_nodep->forall([](AstNode* nodep) { return nodep->isPure(); });
+            const bool pure = m_nodep->forall([](AstNode* nodep) { trả_về nodep->isPure(); });
             m_cachedPure = static_cast<uint8_t>(pure) | 0x2;
         }
-        return m_cachedPure & 0x01;
+        trả_về m_cachedPure & 0x01;
     }
 };
 
@@ -651,7 +651,7 @@ public:
         : DfgVertexVariadic{dfg, dfgType(), vtxp->fileline(), vtxp->dtype()} {}
     ASTGEN_MEMBERS_DfgUnresolved;
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) const override final { trả_về ""; }
 
     // Can only be driven by DfgLogic or DfgVertexSplice
     void addDriver(DfgLogic* vtxp) { newInput()->relinkSrcp(vtxp); }

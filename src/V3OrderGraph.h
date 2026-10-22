@@ -100,8 +100,8 @@ public:
     explicit OrderDomain(const std::set<uint32_t>& triggers)
         : m_triggers{triggers} {}
 
-    const std::set<uint32_t>& triggers() const { return m_triggers; }
-    bool operator<(const OrderDomain& other) const { return m_triggers < other.m_triggers; }
+    const std::set<uint32_t>& triggers() const { trả_về m_triggers; }
+    bool operator<(const OrderDomain& other) const { trả_về m_triggers < other.m_triggers; }
 };
 
 class OrderGraph final : public V3Graph {
@@ -116,28 +116,28 @@ public:
         , m_trigVscp{trigVscp} {}
 
     // METHODS
-    AstVarScope* trigVscp() const { return m_trigVscp; }
+    AstVarScope* trigVscp() const { trả_về m_trigVscp; }
 
     // The AstSenItem the given trigger index stands for, nullptr if none
     const AstSenItem* trigSenItemp(uint32_t index) const {
-        return m_trigKit.trigIdx2SenItem().at(index);
+        trả_về m_trigKit.trigIdx2SenItem().at(index);
     }
 
     // Get the interned instance of the given domain
     const OrderDomain* domainp(const std::set<uint32_t>& triggers) {
-        return &*m_domains.emplace(triggers).first;
+        trả_về &*m_domains.emplace(triggers).first;
     }
 
     // Methods to add edges representing constraints, utilizing the type system to help us ensure
     // the graph remains bipartite.
     inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
+                            số_nguyên weight) VL_MT_DISABLED;
     inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
+                            số_nguyên weight) VL_MT_DISABLED;
     inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                            int weight) VL_MT_DISABLED;
+                            số_nguyên weight) VL_MT_DISABLED;
     inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                            int weight) VL_MT_DISABLED;
+                            số_nguyên weight) VL_MT_DISABLED;
 };
 
 //======================================================================
@@ -166,9 +166,9 @@ public:
     virtual bool domainMatters() = 0;
 
     // ACCESSORS
-    const OrderDomain* domainp() const VL_MT_STABLE { return m_domainp; }
+    const OrderDomain* domainp() const VL_MT_STABLE { trả_về m_domainp; }
     void domainp(const OrderDomain* domainp) VL_MT_DISABLED {
-#if VL_DEBUG
+#nếu VL_DEBUG
         UASSERT(!m_domainp, "Domain should only be set once");
 #endif
         m_domainp = domainp;
@@ -209,23 +209,23 @@ public:
     ~OrderLogicVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { trả_về true; }
 
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }
-    const OrderDomain* hybridp() const { return m_hybridp; }
-    bool comb() const { return m_comb; }
-    const std::vector<VarAccess>& varAccesses() const { return m_varAccesses; }
+    AstNode* nodep() const VL_MT_STABLE { trả_về m_nodep; }
+    AstScope* scopep() const VL_MT_STABLE { trả_về m_scopep; }
+    const OrderDomain* hybridp() const { trả_về m_hybridp; }
+    bool comb() const { trả_về m_comb; }
+    const std::vector<VarAccess>& varAccesses() const { trả_về m_varAccesses; }
     void addVarAccess(AstVarScope* vscp, VAccess access) {
         m_varAccesses.push_back({vscp, access});
     }
 
     // LCOV_EXCL_START // Debug code
     string name() const override VL_MT_STABLE {
-        return (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
+        trả_về (cvtToHex(m_nodep) + "\\n " + cvtToStr(nodep()->typeName()));
     }
-    string dotShape() const override { return VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
+    string dotShape() const override { trả_về VN_IS(m_nodep, Active) ? "doubleoctagon" : "rect"; }
     // LCOV_EXCL_STOP
 };
 
@@ -241,13 +241,13 @@ public:
     ~OrderVarVertex() override = default;
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() const { trả_về m_vscp; }
 
     // LCOV_EXCL_START // Debug code
-    string dotShape() const override final { return "ellipse"; }
+    string dotShape() const override final { trả_về "ellipse"; }
     virtual string nameSuffix() const VL_MT_SAFE = 0;
     string name() const override final VL_MT_STABLE {
-        return cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
+        trả_về cvtToHex(m_vscp) + " " + nameSuffix() + "\\n " + m_vscp->name();
     }
     // LCOV_EXCL_STOP
 };
@@ -261,11 +261,11 @@ public:
     ~OrderVarStdVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return true; }
+    bool domainMatters() override { trả_về true; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return ""; }
-    string dotColor() const override { return "grey"; }
+    string nameSuffix() const override VL_MT_SAFE { trả_về ""; }
+    string dotColor() const override { trả_về "grey"; }
     // LCOV_EXCL_STOP
 };
 
@@ -278,11 +278,11 @@ public:
     ~OrderVarPreVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { trả_về false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PRE"; }
-    string dotColor() const override { return "green"; }
+    string nameSuffix() const override VL_MT_SAFE { trả_về "PRE"; }
+    string dotColor() const override { trả_về "green"; }
     // LCOV_EXCL_STOP
 };
 
@@ -295,11 +295,11 @@ public:
     ~OrderVarPostVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { trả_về false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "POST"; }
-    string dotColor() const override { return "red"; }
+    string nameSuffix() const override VL_MT_SAFE { trả_về "POST"; }
+    string dotColor() const override { trả_về "red"; }
     // LCOV_EXCL_STOP
 };
 
@@ -312,11 +312,11 @@ public:
     ~OrderVarPordVertex() override = default;
 
     // METHODS
-    bool domainMatters() override { return false; }
+    bool domainMatters() override { trả_về false; }
 
     // LCOV_EXCL_START // Debug code
-    string nameSuffix() const override VL_MT_SAFE { return "PORD"; }
-    string dotColor() const override { return "blue"; }
+    string nameSuffix() const override VL_MT_SAFE { trả_về "PORD"; }
+    string dotColor() const override { trả_về "blue"; }
     // LCOV_EXCL_STOP
 };
 
@@ -327,12 +327,12 @@ class OrderEdge final : public V3GraphEdge {
     VL_RTTI_IMPL(OrderEdge, V3GraphEdge)
     friend class OrderGraph;  // Only the OrderGraph can create these
     // CONSTRUCTOR
-    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, int weight,
+    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, số_nguyên weight,
               bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
     ~OrderEdge() override = default;
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override { return cutable() ? "green" : "red"; }
+    string dotColor() const override { trả_về cutable() ? "green" : "red"; }
     // LCOV_EXCL_STOP
 };
 
@@ -340,19 +340,19 @@ class OrderEdge final : public V3GraphEdge {
 // Inline methods
 
 void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             số_nguyên weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
 }
 void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             số_nguyên weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
 }
 void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             số_nguyên weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
 }
 void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
-                             int weight) VL_MT_DISABLED {
+                             số_nguyên weight) VL_MT_DISABLED {
     new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
 }
 

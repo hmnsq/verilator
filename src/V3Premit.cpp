@@ -34,7 +34,7 @@
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int STATIC_CONST_MIN_WIDTH = 256;  // Minimum size to extract to static constant
+constexpr số_nguyên STATIC_CONST_MIN_WIDTH = 256;  // Minimum size to extract to static constant
 
 //######################################################################
 // Premit state, as a visitor of each AstNode
@@ -59,16 +59,16 @@ class PremitVisitor final : public VNVisitor {
     // METHODS
     bool needsTemp(AstNodeExpr* nodep) {
         // Consider adding a temp for this expression.
-        if (!m_stmtp) return false;  // Not under a statement
-        if (nodep->user1SetOnce()) return false;  // Already processed
-        if (!nodep->isWide()) return false;  // Not wide
-        if (m_assignLhs) return false;  // This is an lvalue!
+        nếu (!m_stmtp) trả_về false;  // Not under a statement
+        nếu (nodep->user1SetOnce()) trả_về false;  // Already processed
+        nếu (!nodep->isWide()) trả_về false;  // Not wide
+        nếu (m_assignLhs) trả_về false;  // This is an lvalue!
         UASSERT_OBJ(!VN_IS(nodep->firstAbovep(), ArraySel), nodep, "Should have been ignored");
-        return true;
+        trả_về true;
     }
 
     void checkNode(AstNodeExpr* nodep) {
-        if (needsTemp(nodep)) createTemp(nodep);
+        nếu (needsTemp(nodep)) createTemp(nodep);
     }
 
     // True if the value should be in the constant pool, rather than built where it is used
@@ -78,38 +78,38 @@ class PremitVisitor final : public VNVisitor {
         bool hasDynamic = false;
         // Must be a tree of constants (see AstNodeExpr::isConstantTree), which can be emitted
         const bool emittable = nodep->forall([&](const AstNodeExpr* exprp) {
-            if (VN_IS(exprp, NodeCons)) {
+            nếu (VN_IS(exprp, NodeCons)) {
                 hasDynamic |= exprp->dtypep()->skipRefp()->isDynamicallySized();
-                return true;
+                trả_về true;
             }
             const AstConst* const constp = VN_CAST(exprp, Const);
-            if (!constp) return false;
+            nếu (!constp) trả_về false;
             width += static_cast<uint64_t>(constp->widthWords()) * VL_EDATASIZE;
             hasData = true;
-            return !constp->num().isFourState();
+            trả_về !constp->num().isFourState();
         });
-        if (!emittable) return false;
+        nếu (!emittable) trả_về false;
         // Dynamically sized values allocate when built with data, so use the pool for them
-        if (hasDynamic) return hasData;
-        return width >= static_cast<uint64_t>(STATIC_CONST_MIN_WIDTH);
+        nếu (hasDynamic) trả_về hasData;
+        trả_về width >= static_cast<uint64_t>(STATIC_CONST_MIN_WIDTH);
     }
 
     AstVarRef* isRhsOfAssignToVar(AstNodeExpr* nodep) {
         // If enclosing statement is an assign
         AstNodeAssign* const assignp = VN_CAST(m_stmtp, NodeAssign);
-        if (!assignp) return nullptr;
+        nếu (!assignp) trả_về nullptr;
         // of which 'nodep' is the RHS of
-        if (assignp->rhsp() != nodep) return nullptr;
+        nếu (assignp->rhsp() != nodep) trả_về nullptr;
         // and the LHS is a sipmple variable reference
         AstVarRef* const lRefp = VN_CAST(assignp->lhsp(), VarRef);
-        if (!lRefp) return nullptr;
+        nếu (!lRefp) trả_về nullptr;
         AstVar* const varp = lRefp->varp();
         // And the RHS does not use the same variable
-        if (nodep->exists([varp](const AstVarRef* refp) { return refp->varp() == varp; })) {
-            return nullptr;
+        nếu (nodep->exists([varp](const AstVarRef* refp) { trả_về refp->varp() == varp; })) {
+            trả_về nullptr;
         }
         // Then return the LHS reference
-        return lRefp;
+        trả_về lRefp;
     }
 
     // Create a new temporary that can hold the value of the given expression
@@ -121,7 +121,7 @@ class PremitVisitor final : public VNVisitor {
         varp->noReset(true);
         m_cfuncp->addVarsp(varp);
         ++m_temporaryVarsCreated;
-        return varp;
+        trả_về varp;
     }
 
     AstVar* createTemp(AstNodeExpr* nodep) {
@@ -134,7 +134,7 @@ class PremitVisitor final : public VNVisitor {
         FileLine* const flp = nodep->fileline();
         AstVar* varp = nullptr;
 
-        if (useConstPool(nodep)) {
+        nếu (useConstPool(nodep)) {
             // Extract into constant pool.
             AstVarRef* const refp = V3ConstPool::find(nodep);
             varp = refp->varp();
@@ -142,7 +142,7 @@ class PremitVisitor final : public VNVisitor {
             ++m_extractedToConstPool;
             // Replace node with reference to the constant pool entry
             relinker.relink(refp);
-        } else {
+        } không_thì {
             // Keep as local temporary.
             varp = newTmpFor(nodep);
             // Assignment to put before the referencing statement
@@ -155,7 +155,7 @@ class PremitVisitor final : public VNVisitor {
         }
 
         // Return the temporary variable
-        return varp;
+        trả_về varp;
     }
 
     void replaceWithOvrShift(AstNodeBiop* nodep) {
@@ -163,11 +163,11 @@ class PremitVisitor final : public VNVisitor {
         AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
         AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
         AstNodeExpr* newp = nullptr;
-        if (VN_IS(nodep, ShiftL)) {
+        nếu (VN_IS(nodep, ShiftL)) {
             newp = new AstShiftLOvr{flp, lhsp, rhsp};
-        } else if (VN_IS(nodep, ShiftR)) {
+        } không_thì nếu (VN_IS(nodep, ShiftR)) {
             newp = new AstShiftROvr{flp, lhsp, rhsp};
-        } else {
+        } không_thì {
             newp = new AstShiftRSOvr{flp, lhsp, rhsp};
         }
         nodep->replaceWithKeepDType(newp);
@@ -182,42 +182,42 @@ class PremitVisitor final : public VNVisitor {
         // (in practice will shift by the wrapped shift amount). These are requierd to go to
         // zero/msbs, so replacing them here.
         FileLine* const flp = nodep->fileline();
-        if (const AstConst* const shiftp = VN_CAST(nodep->rhsp(), Const)) {
+        nếu (const AstConst* const shiftp = VN_CAST(nodep->rhsp(), Const)) {
             // Shift amount known to be constant. If oversized shift, replace with zero/msbs.
             // Otherwise we can leave the original shifts which have better constant folding
             // than the *Ovr versions.
             const bool isOversized
                 = shiftp->num().mostSetBitP1() > 32
                   || (shiftp->num().toUInt() >= static_cast<uint32_t>(nodep->width()));
-            if (isOversized) {
+            nếu (isOversized) {
                 // If signed shift, replace with replicated MSB
-                if (VN_IS(nodep, ShiftRS)) {
+                nếu (VN_IS(nodep, ShiftRS)) {
                     AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
                     AstNodeExpr* const msbp = new AstSel{flp, lhsp, lhsp->widthMin() - 1, 1};
                     nodep->replaceWithKeepDType(new AstExtendS{flp, msbp, nodep->width()});
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    trả_về;
                 }
                 // Unsigned. If pure, replace with zero
-                if (nodep->lhsp()->isPure()) {
+                nếu (nodep->lhsp()->isPure()) {
                     nodep->replaceWithKeepDType(
                         new AstConst{flp, AstConst::DTyped{}, nodep->dtypep()});
                     VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    trả_về;
                 }
                 // Impure. Keep shift
-                if (!nodep->isWide()) {
+                nếu (!nodep->isWide()) {
                     replaceWithOvrShift(nodep);
-                    return;
+                    trả_về;
                 }
             }
-        } else {
+        } không_thì {
             // Shift amount not known at compile time. Convert to *Ovr version. Don't need to do
             // if it would use a wide operation which works correctly at runtime, of if the max
             // value of the shift amount is less than the with of the shifted value.
-            if (!nodep->isWide() && (nodep->width() < (1LL << nodep->rhsp()->widthMin()))) {
+            nếu (!nodep->isWide() && (nodep->width() < (1LL << nodep->rhsp()->widthMin()))) {
                 replaceWithOvrShift(nodep);
-                return;
+                trả_về;
             }
         }
         iterateChildren(nodep);
@@ -227,10 +227,10 @@ class PremitVisitor final : public VNVisitor {
     static bool rhsReadsLhs(const AstNodeAssign* nodep) {
         const VNUser3InUse user3InUse;
         nodep->lhsp()->foreach([](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) refp->varp()->user3(true);
+            nếu (refp->access().isWriteOrRW()) refp->varp()->user3(true);
         });
-        return nodep->rhsp()->exists([](const AstVarRef* refp) {
-            return refp->access().isReadOnly() && refp->varp()->user3();
+        trả_về nodep->rhsp()->exists([](const AstVarRef* refp) {
+            trả_về refp->access().isReadOnly() && refp->varp()->user3();
         });
     }
 
@@ -246,8 +246,8 @@ class PremitVisitor final : public VNVisitor {
 
     // VISITORS - Statements
 #define START_STATEMENT_OR_RETURN(stmtp) \
-    if (!m_cfuncp) return; \
-    if ((stmtp)->user1SetOnce()) return; \
+    nếu (!m_cfuncp) trả_về; \
+    nếu ((stmtp)->user1SetOnce()) trả_về; \
     VL_RESTORER(m_assignLhs); \
     VL_RESTORER(m_stmtp); \
     m_assignLhs = false; \
@@ -256,7 +256,7 @@ class PremitVisitor final : public VNVisitor {
     void visit(AstNodeAssign* nodep) override {
         START_STATEMENT_OR_RETURN(nodep);
 
-        if (AstCvtArrayToPacked* const packedp = VN_CAST(nodep->lhsp(), CvtArrayToPacked)) {
+        nếu (AstCvtArrayToPacked* const packedp = VN_CAST(nodep->lhsp(), CvtArrayToPacked)) {
             // AstCvtArrayToPacked is converted to VL_PACK, which returns rvalue,
             // so it shouldn't be on the LHS. It is now replaced with unpacking of RHS.
             AstNodeExpr* const exprLhsp = packedp->fromp()->unlinkFrBack();
@@ -267,26 +267,26 @@ class PremitVisitor final : public VNVisitor {
             nodep->dtypeFrom(exprLhsp);
         }
         // Direct assignment to a simple variable
-        if (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
+        nếu (VN_IS(nodep->lhsp(), VarRef) && !AstVar::scVarRecurse(nodep->lhsp())) {
             AstNode* const rhsp = nodep->rhsp();
             // Rhs is already a var ref, so nothing to do
-            if (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) return;
-            if (VN_IS(rhsp, Cond)) {
+            nếu (VN_IS(rhsp, VarRef) && !AstVar::scVarRecurse(rhsp)) trả_về;
+            nếu (VN_IS(rhsp, Cond)) {
                 // Do replace Cond on RHS, even if a simple assignment
-            } else if (!VN_IS(rhsp, Const)) {
+            } không_thì nếu (!VN_IS(rhsp, Const)) {
                 // Don't replace the rhs, it's already a simple assignment
                 rhsp->user1(true);
-            } else if (rhsp->widthWords() * VL_EDATASIZE < STATIC_CONST_MIN_WIDTH) {
+            } không_thì nếu (rhsp->widthWords() * VL_EDATASIZE < STATIC_CONST_MIN_WIDTH) {
                 // It's a small constant, so nothing to do, otherwise will be put to const pool
-                return;
+                trả_về;
             }
         }
 
         // If the RHS reads the LHS, we need a temporary unless the update is atomic
         const bool isAtomic = VN_IS(nodep->lhsp(), VarRef) && !nodep->lhsp()->isWide();
-        if (!isAtomic && rhsReadsLhs(nodep)) {
+        nếu (!isAtomic && rhsReadsLhs(nodep)) {
             createTemp(nodep->rhsp());
-        } else {
+        } không_thì {
             iterateAndNextNull(nodep->rhsp());
         }
 
@@ -294,9 +294,9 @@ class PremitVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->lhsp());
 
         // It's possible we end up with an 'a' = 'a' after expanding an AstCond
-        if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-            if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-                if (lhsp->varp() == rhsp->varp()) {
+        nếu (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+            nếu (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+                nếu (lhsp->varp() == rhsp->varp()) {
                     VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
                 }
             }
@@ -305,13 +305,13 @@ class PremitVisitor final : public VNVisitor {
     void visit(AstDisplay* nodep) override {
         START_STATEMENT_OR_RETURN(nodep);
         iterateChildren(nodep);
-        if (v3Global.opt.autoflush()) {
+        nếu (v3Global.opt.autoflush()) {
             const AstNode* searchp = nodep->nextp();
-            while (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
-            if (searchp && VN_IS(searchp, Display)
+            trong_khi (searchp && VN_IS(searchp, Comment)) searchp = searchp->nextp();
+            nếu (searchp && VN_IS(searchp, Display)
                 && nodep->filep()->sameGateTree(VN_AS(searchp, Display)->filep())) {
                 // There's another display next; we can just wait to flush
-            } else {
+            } không_thì {
                 UINFO(4, "Autoflush " << nodep);
                 nodep->addNextHere(
                     new AstFFlush{nodep->fileline(),
@@ -326,9 +326,9 @@ class PremitVisitor final : public VNVisitor {
         iterateChildren(nodep);
         // Memory dumps take an address, so force-aware reads need stable storage.
         // Keep temporaries created here or while visiting a wide memory expression.
-        if (const AstVarRef* const refp = VN_CAST(nodep->memp(), VarRef)) {
+        nếu (const AstVarRef* const refp = VN_CAST(nodep->memp(), VarRef)) {
             refp->varp()->noSubst(true);
-        } else {
+        } không_thì {
             createTemp(nodep->memp())->noSubst(true);
         }
     }
@@ -378,7 +378,7 @@ class PremitVisitor final : public VNVisitor {
     void visit(AstCvtPackedToArray* nodep) override {
         iterateChildren(nodep);
         checkNode(nodep);
-        if (!VN_IS(nodep->backp(), NodeAssign)) createTemp(nodep);
+        nếu (!VN_IS(nodep->backp(), NodeAssign)) createTemp(nodep);
     }
     void visit(AstCvtUnpackToQueue* nodep) override {
         iterateChildren(nodep);
@@ -414,13 +414,13 @@ class PremitVisitor final : public VNVisitor {
     }
     void visit(AstNodeCons* nodep) override {
         // Only lift whole values, as editing the parts of a constant would make it non-constant
-        if (!m_inCons && nodep->isConstantTree()) {
-            if (m_stmtp && useConstPool(nodep)) {
+        nếu (!m_inCons && nodep->isConstantTree()) {
+            nếu (m_stmtp && useConstPool(nodep)) {
                 nodep->replaceWith(V3ConstPool::find(nodep));
                 VL_DO_DANGLING(pushDeletep(nodep), nodep);
                 ++m_extractedToConstPool;
             }
-            return;
+            trả_về;
         }
         VL_RESTORER(m_inCons);
         m_inCons = true;
@@ -428,12 +428,12 @@ class PremitVisitor final : public VNVisitor {
     }
     // Const associative array keys are emitted as initializers, so need no temporary
     void visit(AstConsAssocItem* nodep) override {
-        if (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
+        nếu (!VN_IS(nodep->keyp(), Const)) iterate(nodep->keyp());
         iterate(nodep->valuep());
     }
     void visit(AstMatchMasked* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        nếu (!nodep->user1SetOnce()) {
             // Don't want this replicated by V3Expand
             AstVar* const varp = createTemp(nodep);
             varp->noSubst(true);  // Do not re-inline in V3Subst
@@ -442,7 +442,7 @@ class PremitVisitor final : public VNVisitor {
     void visit(AstCond* nodep) override {
         // Convert AstCond to AstIf in order to avoid evaluating
         // sub-expressions in both branches unconditionally.
-        if (needsTemp(nodep)) {
+        nếu (needsTemp(nodep)) {
             // Check if LHS variable could be used directly
             AstVarRef* const lRefp = isRhsOfAssignToVar(nodep);
             // If not, create a new temporary variable
@@ -453,12 +453,12 @@ class PremitVisitor final : public VNVisitor {
             FileLine* const flp = nodep->fileline();
             // Create 'then' assignment
             AstVarRef* const thenRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) thenRefp->selfPointer(lRefp->selfPointer());
+            nếu (lRefp) thenRefp->selfPointer(lRefp->selfPointer());
             AstNodeExpr* const thenExprp = nodep->thenp()->unlinkFrBack();
             AstAssign* const thenAsspp = new AstAssign{flp, thenRefp, thenExprp};
             // Create 'else' assignment
             AstVarRef* const elseRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            if (lRefp) elseRefp->selfPointer(lRefp->selfPointer());
+            nếu (lRefp) elseRefp->selfPointer(lRefp->selfPointer());
             AstNodeExpr* const elseExprp = nodep->elsep()->unlinkFrBack();
             AstAssign* const elseAsspp = new AstAssign{flp, elseRefp, elseExprp};
             // Creae 'if' and insert it before the statement
@@ -472,7 +472,7 @@ class PremitVisitor final : public VNVisitor {
             VIsCached::clearCacheTree();
             // Iterate the resulting assignments
             iterate(ifp);
-            return;
+            trả_về;
         }
         iterateChildren(nodep);
     }
@@ -481,11 +481,11 @@ class PremitVisitor final : public VNVisitor {
         // Any strings sent to a display must be var of string data type,
         // to avoid passing a pointer to a temporary.
         AstNodeExpr* exprsp = nodep->exprsp();
-        if (nodep->exprFormat()) {
+        nếu (nodep->exprFormat()) {
             exprsp = VN_AS(exprsp->nextp(), NodeExpr);
-            for (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
+            cho (AstNode* argp = exprsp; argp; argp = argp->nextp()) {
                 const AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                if (fargp && fargp->formatAttr().isEnum()) {
+                nếu (fargp && fargp->formatAttr().isEnum()) {
                     // Evaluate the format before materializing enum arguments.
                     AstVar* const varp = createTemp(nodep->exprsp());
                     varp->noSubst(true);
@@ -493,23 +493,23 @@ class PremitVisitor final : public VNVisitor {
                 }
             }
         }
-        for (AstNodeExpr *argp = exprsp, *nextp; argp; argp = nextp) {
+        cho (AstNodeExpr *argp = exprsp, *nextp; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), NodeExpr);
 
             AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
             AstNodeExpr* const subargp = fargp ? fargp->exprp() : argp;
-            if (fargp && fargp->formatAttr().isEnum()) {
+            nếu (fargp && fargp->formatAttr().isEnum()) {
                 // The name lookup must see the same value as the numeric argument.
                 AstVar* const valueVarp = createTemp(subargp);
                 valueVarp->noSubst(true);
-                if (!VN_IS(fargp->namep(), VarRef)) {
+                nếu (!VN_IS(fargp->namep(), VarRef)) {
                     AstVar* const nameVarp = createTemp(fargp->namep());
                     nameVarp->noSubst(true);
                 }
                 continue;
             }
             // Must avoid taking address of rvalue, so even Const needs a temp
-            if (subargp->isString() && !VN_IS(subargp, VarRef)) {
+            nếu (subargp->isString() && !VN_IS(subargp, VarRef)) {
                 AstVar* const varp = createTemp(subargp);
                 // Do not remove VarRefs to this in V3Const
                 varp->noSubst(true);

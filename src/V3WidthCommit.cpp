@@ -37,7 +37,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 struct PairHash final {
     template <typename T, typename U>
     std::size_t operator()(const std::pair<T, U>& x) const {
-        return std::hash<T>()(x.first) + std::hash<U>()(x.second);
+        trả_về std::hash<T>()(x.first) + std::hash<U>()(x.second);
     }
 };
 
@@ -76,7 +76,7 @@ private:
     void editDType(AstNode* nodep) {
         // Called by every visitor. Edit dtypes for this node, also check for some warnings
         nodep->dtypep(editOneDType(nodep->dtypep()));
-        if (m_ftaskp && m_ftaskp->verilogFunction() && m_taskRefWarn && nodep->isTimingControl())
+        nếu (m_ftaskp && m_ftaskp->verilogFunction() && m_taskRefWarn && nodep->isTimingControl())
             nodep->v3warn(
                 FUNCTIMECTL,
                 "Functions cannot contain time-controlling statements (IEEE 1800-2023 13.4)\n"
@@ -89,64 +89,64 @@ private:
         // See if the dtype/refDType can be converted to a standard one
         // This reduces the number of dtypes in the system, and since
         // dtypep() figures into sameTree() results in better optimizations
-        if (!nodep) return nullptr;
+        nếu (!nodep) trả_về nullptr;
         // Recurse to handle the data type, as may change the size etc of this type
-        if (!nodep->user1()) iterate(nodep);
+        nếu (!nodep->user1()) iterate(nodep);
         // Look for duplicate
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
+        nếu (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
             AstBasicDType* const newp = nodep->findInsertSameDType(bdtypep);
-            if (newp != bdtypep && debug() >= 9) {
+            nếu (newp != bdtypep && debug() >= 9) {
                 UINFO_PREFIX("dtype replacement ");
                 nodep->dumpSmall(std::cout);
                 std::cout << "  ---->  ";
                 newp->dumpSmall(std::cout);
                 std::cout << '\n';
             }
-            return newp;
+            trả_về newp;
         }
-        return nodep;
+        trả_về nodep;
     }
     void classEncapCheck(AstNode* nodep, AstNode* defp, AstClass* defClassp) {
         // Check local/protected status and complain
         bool local = false;
         bool prot = false;
-        if (!defp) {
+        nếu (!defp) {
             // rand_mode() / constraint_mode() handled in V3Randomize
             UASSERT_OBJ(nodep->name() == "rand_mode" || nodep->name() == "constraint_mode", nodep,
                         "Only rand_mode() and constraint_mode() can have no def");
-            return;
+            trả_về;
         }
-        if (const auto anodep = VN_CAST(defp, Var)) {
+        nếu (const auto anodep = VN_CAST(defp, Var)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else if (const auto anodep = VN_CAST(defp, NodeFTask)) {
+        } không_thì nếu (const auto anodep = VN_CAST(defp, NodeFTask)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else if (const auto anodep = VN_CAST(defp, Typedef)) {
+        } không_thì nếu (const auto anodep = VN_CAST(defp, Typedef)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else {
+        } không_thì {
             nodep->v3fatalSrc("ref to unhandled definition type " << defp->prettyTypeName());
         }
-        if (local || prot) {
+        nếu (local || prot) {
             // In case of covergroup, the reference is to the enclosing class, not the covergroup
             // itself
             const AstClass* refClassp = VN_CAST(m_modp, Class);
-            if (refClassp && refClassp->isCovergroup())
+            nếu (refClassp && refClassp->isCovergroup())
                 refClassp = refClassp->covergroupEnclosingClassp();
             const char* how = nullptr;
             // Inner nested classes can access `local` or `protected` members of their outer class
             const auto nestedAccess = [refClassp](const AstClass*, const AstNode* memberp) {
-                return memberp == refClassp;
+                trả_về memberp == refClassp;
             };
-            if (local && defClassp
+            nếu (local && defClassp
                 && ((refClassp != defClassp) && !(defClassp->existsMember(nestedAccess)))) {
                 how = "'local'";
-            } else if (prot && defClassp && !AstClass::isClassExtendedFrom(refClassp, defClassp)
+            } không_thì nếu (prot && defClassp && !AstClass::isClassExtendedFrom(refClassp, defClassp)
                        && !(defClassp->existsMember(nestedAccess))) {
                 how = "'protected'";
             }
-            if (how) {
+            nếu (how) {
                 UINFO(9, "refclass " << refClassp);
                 UINFO(9, "defclass " << defClassp);
                 nodep->v3warn(ENCAPSULATED, nodep->prettyNameQ()
@@ -162,18 +162,18 @@ private:
     void varLifetimeCheck(AstNode* nodep, AstVar* varp) {
         // Skip if we are under a member select (lhs of a dot)
         // We don't care about lifetime of anything else than rhs of a dot
-        if (!m_underSel && m_contNbap) {
+        nếu (!m_underSel && m_contNbap) {
             std::string varType;
             const AstNodeDType* const varDtp = varp->dtypep()->skipRefp();
-            if (varp->lifetime().isAutomatic() && !VN_IS(varDtp, IfaceRefDType)
+            nếu (varp->lifetime().isAutomatic() && !VN_IS(varDtp, IfaceRefDType)
                 && !(varp->isFuncLocal() && varp->isIO()))
                 varType = "Automatic lifetime";
-            else if (varp->isClassMember() && !varp->lifetime().isStatic()
+            không_thì nếu (varp->isClassMember() && !varp->lifetime().isStatic()
                      && !VN_IS(varDtp, IfaceRefDType))
                 varType = "Class non-static";
-            else if (varDtp->isDynamicallySized() && m_dynsizedelem)
+            không_thì nếu (varDtp->isDynamicallySized() && m_dynsizedelem)
                 varType = "Dynamically-sized";
-            if (!varType.empty()) {
+            nếu (!varType.empty()) {
                 UINFO(1, "    Related var dtype: " << varDtp);
                 nodep->v3error(varType
                                << " variable not allowed in " << m_contNbap
@@ -184,22 +184,22 @@ private:
     // Like varLifetimeCheck, for a member or element, which can be a dynamically-sized array too,
     // named by the given node
     void selLifetimeCheck(AstNodeExpr* nodep, const AstNode* namep) {
-        if (m_underSel || !m_contNbap || !m_dynsizedelem) return;
-        if (!nodep->isLValue() && !m_contReads) return;
-        if (!nodep->dtypep()->skipRefp()->isDynamicallySized()) return;
+        nếu (m_underSel || !m_contNbap || !m_dynsizedelem) trả_về;
+        nếu (!nodep->isLValue() && !m_contReads) trả_về;
+        nếu (!nodep->dtypep()->skipRefp()->isDynamicallySized()) trả_về;
         nodep->v3error("Dynamically-sized variable not allowed in "
                        << m_contNbap
                        << " assignment (IEEE 1800-2023 6.21): " << namep->prettyNameQ());
     }
 
     void deadCheckTasks() {
-        for (AstNodeFTask* taskp : m_tasksp) {
-            if (!taskp->user2()) {
+        cho (AstNodeFTask* taskp : m_tasksp) {
+            nếu (!taskp->user2()) {
                 taskp->foreach([](AstNew* newp) { newp->user2Inc(-1); });
             }
         }
-        for (AstNew* newp : m_virtualNewsp) {
-            if (newp->user2() > 0)
+        cho (AstNew* newp : m_virtualNewsp) {
+            nếu (newp->user2() > 0)
                 newp->v3error("Illegal to call 'new' using an abstract virtual class "
                               + AstNode::prettyNameQ(newp->classOrPackagep()->origName())
                               + " (IEEE 1800-2023 8.21)");
@@ -212,26 +212,26 @@ private:
         // IEEE doesn't require virtual marking at derived classes' functions.
         // Propagate virtual marking from base class function upwards.
         auto pair = s_classFuncsChecked.emplace(std::make_pair(classp, nodep), isVirtualr);
-        if (!pair.second) {
-            if (pair.first->second) isVirtualr = true;
-            return;
+        nếu (!pair.second) {
+            nếu (pair.first->second) isVirtualr = true;
+            trả_về;
         }
         //
-        if (nodep->isVirtual()) isVirtualr = true;
+        nếu (nodep->isVirtual()) isVirtualr = true;
         // Propagate value from extends/implements
-        for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+        cho (AstClassExtends* extendsp = classp->extendsp(); extendsp;
              extendsp = VN_AS(extendsp->nextp(), ClassExtends)) {
             const AstClass* const eclassp = extendsp->classp();
-            if (AstNodeFTask* const fbasep
+            nếu (AstNodeFTask* const fbasep
                 = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), NodeFTask)) {
-                if (fbasep != nodep) {
+                nếu (fbasep != nodep) {
                     virtualRecurse(fbasep, eclassp, isVirtualr);
                     continue;
                 }
             }
             virtualRecurse(nodep, eclassp, isVirtualr);
         }
-        if (isVirtualr) {
+        nếu (isVirtualr) {
             nodep->isVirtual(true);
             // Update memoize map in case had a false when first created
             s_classFuncsChecked[std::make_pair(classp, nodep)] = isVirtualr;
@@ -244,11 +244,11 @@ private:
         m_modp = nodep;
         iterateChildren(nodep);
         editDType(nodep);
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+        nếu (AstClass* const classp = VN_CAST(nodep, Class)) {
+            cho (AstClassExtends* extendsp = classp->extendsp(); extendsp;
                  extendsp = extendsp->classp()->extendsp()) {
                 const AstClass* const ebasep = extendsp->classp();
-                if (ebasep->baseOverride().isFinal()) {
+                nếu (ebasep->baseOverride().isFinal()) {
                     extendsp->v3error("Class " << nodep->prettyNameQ()
                                                << " is being extended from class marked ':final'"
                                                   " (IEEE 1800-2023 8.20)\n"
@@ -262,17 +262,17 @@ private:
     }
     void visit(AstAlways* nodep) override {
         // As have not optimized SenTrees yet, an 'always .*' will be on first and only SenItem
-        if (nodep->sentreep() && nodep->sentreep()->sensesp()
+        nếu (nodep->sentreep() && nodep->sentreep()->sensesp()
             && nodep->sentreep()->sensesp()->isComboStar()) {
             const bool noReads = nodep->forall(
-                [&](const AstNodeVarRef* refp) { return !refp->access().isReadOrRW(); });
-            if (noReads) {
+                [&](const AstNodeVarRef* refp) { trả_về !refp->access().isReadOrRW(); });
+            nếu (noReads) {
                 nodep->v3warn(ALWNEVER, "'always @*' will never execute as expression list is "
                                         "empty (no variables read)\n"
                                             << nodep->warnMore()
                                             << "... Suggest use 'always_comb'");
                 VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                trả_về;
             }
         }
         VL_RESTORER(m_underAlwaysEdged);
@@ -285,17 +285,17 @@ private:
     void visit(AstFork* nodep) override {
         VL_RESTORER(m_taskRefWarn);
         // fork..join_any is allowed to call tasks, and UVM does this
-        if (!nodep->isTimingControl()) m_taskRefWarn = false;
+        nếu (!nodep->isTimingControl()) m_taskRefWarn = false;
         iterateChildren(nodep);
         editDType(nodep);
     }
     void visit(AstSenTree* nodep) override {
-        if (nodep->sensesp() && nodep->sensesp()->isComboStar()) {
+        nếu (nodep->sensesp() && nodep->sensesp()->isComboStar()) {
             UASSERT_OBJ(!nodep->sensesp()->nextp(), nodep, "Shouldn't be senitems after .*");
             // Make look like standalone always
             // (Rest of code assumed this before .* existed)
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            trả_về;
         }
         iterateChildren(nodep);
         editDType(nodep);
@@ -305,23 +305,23 @@ private:
         case VAttrType::FUNC_ARG_PROTO:  // FALLTHRU
         case VAttrType::FUNC_RETURN_PROTO:
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            trả_về;
         default:;
         }
         iterateChildren(nodep);
         editDType(nodep);
     }
     void visit(AstClassExtends* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+        nếu (nodep->user1SetOnce()) trả_về;  // Process once
         // Extend arguments were converted to super.new arguments in V3LinkDot
-        if (nodep->argsp()) pushDeletep(nodep->argsp()->unlinkFrBackWithNext());
+        nếu (nodep->argsp()) pushDeletep(nodep->argsp()->unlinkFrBackWithNext());
         iterateChildren(nodep);
     }
     void visit(AstConst* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+        nếu (nodep->user1SetOnce()) trả_về;  // Process once
         UASSERT_OBJ(nodep->dtypep(), nodep, "No dtype");
         iterate(nodep->dtypep());  // Do datatype first
-        if (AstConst* const newp = V3WidthCommit::newIfConstCommitSize(nodep)) {
+        nếu (AstConst* const newp = V3WidthCommit::newIfConstCommitSize(nodep)) {
             nodep->replaceWith(newp);
             AstNode* const oldp = nodep;
             nodep = newp;
@@ -343,7 +343,7 @@ private:
         editDType(nodep);
         {
             const AstClass* const classp = VN_CAST(m_modp, Class);
-            if (nodep->isKwdPure()
+            nếu (nodep->isKwdPure()
                 && (!classp || (!classp->isInterfaceClass() && !classp->isVirtual()))) {
                 nodep->v3error("Illegal to have 'pure constraint' in non-abstract class"
                                " (IEEE 1800-2023 18.5.2)");
@@ -355,11 +355,11 @@ private:
         visitIterateNodeDType(nodep);
     }
     void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+        nếu (nodep->user1SetOnce()) trả_về;  // Process once
         visitIterateNodeDType(nodep);
     }
     void visit(AstParamTypeDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+        nếu (nodep->user1SetOnce()) trả_về;  // Process once
         visitIterateNodeDType(nodep);
         // Move to type table as all dtype pointers must resolve there
         nodep->unlinkFrBack();  // Make non-child
@@ -367,7 +367,7 @@ private:
     }
     void visit(AstRefDType* nodep) override {
         visitIterateNodeDType(nodep);
-        if (!nodep->typedefp()) return;  // Already checked and cleared
+        nếu (!nodep->typedefp()) trả_về;  // Already checked and cleared
         classEncapCheck(nodep, nodep->typedefp(), VN_CAST(nodep->classOrPackagep(), Class));
         nodep->typedefp(nullptr);  // No longer needed
     }
@@ -375,46 +375,46 @@ private:
         // Rather than use dtypeChg which may make new nodes, we edit in place,
         // as we don't need to preserve any widthMin's, and every dtype with the same width
         // gets an identical edit.
-        if (nodep->user1SetOnce()) return;  // Process once
+        nếu (nodep->user1SetOnce()) trả_về;  // Process once
         nodep->widthMinFromWidth();
         // Too late to any unspecified sign to be anything but unsigned
-        if (nodep->numeric().isNosign()) nodep->numeric(VSigning::UNSIGNED);
+        nếu (nodep->numeric().isNosign()) nodep->numeric(VSigning::UNSIGNED);
         iterateChildren(nodep);
         nodep->virtRefDTypep(editOneDType(nodep->virtRefDTypep()));
         nodep->virtRefDType2p(editOneDType(nodep->virtRefDType2p()));
     }
     void visit(AstNodeFTask* nodep) override {
-        if (!nodep->taskPublic() && !nodep->dpiExport() && !nodep->dpiImport())
+        nếu (!nodep->taskPublic() && !nodep->dpiExport() && !nodep->dpiImport())
             m_tasksp.push_back(nodep);
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
         editDType(nodep);
         bool isVirtual = false;
-        if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+        nếu (const AstClass* const classp = VN_CAST(m_modp, Class)) {
             virtualRecurse(nodep, classp, isVirtual /*ref*/);
         }
-        if (nodep->isStatic() && nodep->isVirtual())  // After propagated isVirtual
+        nếu (nodep->isStatic() && nodep->isVirtual())  // After propagated isVirtual
             nodep->v3error("Static methods cannot be virtual");
         {
             const AstClass* const classp = VN_CAST(m_modp, Class);
-            if (nodep->classMethod() && nodep->pureVirtual() && classp
+            nếu (nodep->classMethod() && nodep->pureVirtual() && classp
                 && !classp->isInterfaceClass() && !classp->isVirtual()) {
                 nodep->v3error(
                     "Illegal to have 'pure virtual' in non-virtual class (IEEE 1800-2023 8.21)");
             }
         }
         bool extended = false;
-        if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+        nếu (const AstClass* const classp = VN_CAST(m_modp, Class)) {
             // Walk down inheritance
-            for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+            cho (AstClassExtends* extendsp = classp->extendsp(); extendsp;
                  extendsp = extendsp->classp()->extendsp()) {
                 const AstClass* const eclassp = extendsp->classp();
-                if (AstNodeFTask* const fbasep
+                nếu (AstNodeFTask* const fbasep
                     = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), NodeFTask)) {
-                    if (fbasep != nodep) {
+                    nếu (fbasep != nodep) {
                         extended = true;
-                        if (nodep->baseOverride().isInitial()) {
+                        nếu (nodep->baseOverride().isInitial()) {
                             nodep->v3error("Member "
                                            << nodep->prettyNameQ()
                                            << " is marked ':initial' but is being extended"
@@ -424,7 +424,7 @@ private:
                                            << "... Location of declaration being extended\n"
                                            << fbasep->warnContextSecondary());
                         }
-                        if (fbasep->baseOverride().isFinal()) {
+                        nếu (fbasep->baseOverride().isFinal()) {
                             nodep->v3error(
                                 "Member "
                                 << nodep->prettyNameQ()
@@ -439,7 +439,7 @@ private:
                 }
             }
         }
-        if (!extended && nodep->baseOverride().isExtends()) {
+        nếu (!extended && nodep->baseOverride().isExtends()) {
             nodep->v3error("Member " << nodep->prettyNameQ()
                                      << " marked ':extends' but no base class function is"
                                         " being extend (IEEE 1800-2023 8.20)");
@@ -449,25 +449,25 @@ private:
         iterateChildren(nodep);
         editDType(nodep);
         classEncapCheck(nodep, nodep->varp(), VN_CAST(nodep->classOrPackagep(), Class));
-        if (nodep->access().isWriteOrRW() || m_contReads) varLifetimeCheck(nodep, nodep->varp());
-        if (VN_IS(nodep, VarRef))
+        nếu (nodep->access().isWriteOrRW() || m_contReads) varLifetimeCheck(nodep, nodep->varp());
+        nếu (VN_IS(nodep, VarRef))
             nodep->name("");  // Clear to save memory; nodep->name() will work via nodep->varp()
     }
     void visit(AstAssign* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         // Lint
-        if (m_underAlwaysEdged) {
+        nếu (m_underAlwaysEdged) {
             const bool ignore = nodep->lhsp()->forall([&](const AstVarRef* refp) {
                 // Ignore reads (e.g.: index expressions)
-                if (refp->access().isReadOnly()) return true;
+                nếu (refp->access().isReadOnly()) trả_về true;
                 const AstVar* const varp = refp->varp();
                 // Ignore ...
-                return varp->isUsedLoopIdx()  // ... loop indices
+                trả_về varp->isUsedLoopIdx()  // ... loop indices
                        || varp->isTemp()  // ... temporaries
                        || varp->fileline()->warnIsOff(V3ErrorCode::BLKSEQ);  // ... user said so
             });
-            if (!ignore) {
+            nếu (!ignore) {
                 nodep->v3warn(BLKSEQ,
                               "Blocking assignment '=' in sequential logic process\n"
                                   << nodep->warnMore()  //
@@ -515,7 +515,7 @@ private:
         iterateChildren(nodep);
         editDType(nodep);
         classEncapCheck(nodep, nodep->taskp(), VN_CAST(nodep->classOrPackagep(), Class));
-        if (nodep->taskp() && nodep->taskp()->verilogTask() && m_ftaskp
+        nếu (nodep->taskp() && nodep->taskp()->verilogTask() && m_ftaskp
             && m_ftaskp->verilogFunction() && m_taskRefWarn) {
             nodep->v3warn(FUNCTIMECTL,
                           "Functions cannot invoke tasks (IEEE 1800-2023 13.4)\n"
@@ -527,11 +527,11 @@ private:
                               << nodep->taskp()->prettyName() << "' a function void\n"
                               << nodep->taskp()->warnContextSecondary());
         }
-        if (nodep->taskp()) nodep->taskp()->user2(1);
-        if (AstNew* const newp = VN_CAST(nodep, New)) {
-            if (!VN_IS(newp->backp(), Assign)) return;
-            if (AstClass* const classp = VN_CAST(newp->classOrPackagep(), Class)) {
-                if (classp->isVirtual() || classp->isInterfaceClass()) {
+        nếu (nodep->taskp()) nodep->taskp()->user2(1);
+        nếu (AstNew* const newp = VN_CAST(nodep, New)) {
+            nếu (!VN_IS(newp->backp(), Assign)) trả_về;
+            nếu (AstClass* const classp = VN_CAST(newp->classOrPackagep(), Class)) {
+                nếu (classp->isVirtual() || classp->isInterfaceClass()) {
                     m_virtualNewsp.push_back(newp);
                     newp->user2Inc();
                 }
@@ -545,7 +545,7 @@ private:
             iterateChildren(nodep);
         }
         editDType(nodep);
-        if (AstClassRefDType* const classrefp = VN_CAST(nodep->fromp()->dtypep(), ClassRefDType)) {
+        nếu (AstClassRefDType* const classrefp = VN_CAST(nodep->fromp()->dtypep(), ClassRefDType)) {
             classEncapCheck(nodep, nodep->varp(), classrefp->classp());
         }  // else might be struct, etc
         varLifetimeCheck(nodep, nodep->varp());
@@ -553,7 +553,7 @@ private:
     void visit(AstVar* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
-        if (nodep->isFuncLocal() && nodep->direction() == VDirection::INPUT && nodep->valuep()) {
+        nếu (nodep->isFuncLocal() && nodep->direction() == VDirection::INPUT && nodep->valuep()) {
             // It's the default value of optional argument.
             // Such values are added to function calls in V3Width so can be removed now
             pushDeletep(nodep->valuep()->unlinkFrBack());
@@ -565,7 +565,7 @@ private:
     }
     void visit(AstCMethodHard* nodep) override {
         VL_RESTORER(m_dynsizedelem);
-        if (nodep->method() == VCMethod::ARRAY_AT || nodep->method() == VCMethod::ARRAY_AT_WRITE
+        nếu (nodep->method() == VCMethod::ARRAY_AT || nodep->method() == VCMethod::ARRAY_AT_WRITE
             || nodep->method() == VCMethod::DYN_AT_WRITE_APPEND)
             m_dynsizedelem = true;
         iterateChildren(nodep);
@@ -619,9 +619,9 @@ public:
             // with the scopes declaring them indexed, as a class may be named with others
             const VDTypeNameScopes scopes{nodep};
             nodep->foreach([](AstNodeModule* modp) {
-                if (AstClass* const classp = VN_CAST(modp, Class)) {
+                nếu (AstClass* const classp = VN_CAST(modp, Class)) {
                     classp->dtypeNameFreeze();
-                } else if (AstIface* const ifacep = VN_CAST(modp, Iface)) {
+                } không_thì nếu (AstIface* const ifacep = VN_CAST(modp, Iface)) {
                     ifacep->dtypeNameFreeze();
                 }
             });

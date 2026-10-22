@@ -60,23 +60,23 @@ class EmitCImp final : public EmitCFunc {
 
     void emitParamDefns(const AstNodeModule* modp) {
         bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isParam()) {
-                    if (first) {
+        cho (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            nếu (const AstVar* const varp = VN_CAST(nodep, Var)) {
+                nếu (varp->isParam()) {
+                    nếu (first) {
                         puts("\n");
                         const string modName = EmitCUtil::prefixNameProtect(modp);
                         putsDecoration(modp, "// Parameter definitions for " + modName + "\n");
                         first = false;
                     }
-                    if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+                    nếu (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
                     putns(varp, "const ");
                     emitVarDefn(varp);
                     puts(";\n");
                 }
             }
         }
-        if (!first) puts("\n");
+        nếu (!first) puts("\n");
     }
     // Add statements explicitly constructing, or destroying, a member AstVar
     static void addVarCtorDtorStmts(TextStmts& stmts, const AstVar* varp, bool destroy) {
@@ -84,40 +84,40 @@ class EmitCImp final : public EmitCFunc {
 
         // SystemC port arrays are C arrays, so construct them element by element. They are
         // default constructed (unnamed), as the elements of an array member would be.
-        if (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+        nếu (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
             std::vector<std::string> elems{name};
-            for (const AstUnpackArrayDType* adtypep
+            cho (const AstUnpackArrayDType* adtypep
                  = VN_CAST(varp->dtypeSkipRefp(), UnpackArrayDType);
                  adtypep; adtypep = VN_CAST(adtypep->subDTypep()->skipRefp(), UnpackArrayDType)) {
                 std::vector<std::string> subElems;
-                for (const std::string& elem : elems) {
-                    for (int i = 0; i < adtypep->elementsConst(); ++i) {
+                cho (const std::string& elem : elems) {
+                    cho (số_nguyên i = 0; i < adtypep->elementsConst(); ++i) {
                         subElems.push_back(elem + "[" + std::to_string(i) + "]");
                     }
                 }
                 elems = std::move(subElems);
             }
-            if (destroy) std::reverse(elems.begin(), elems.end());
-            for (const std::string& e : elems) {
+            nếu (destroy) std::reverse(elems.begin(), elems.end());
+            cho (const std::string& e : elems) {
                 stmts.add((destroy ? "VL_INPLACE_DESTRUCT(" : "VL_INPLACE_CONSTRUCT(") + e + ");");
             }
-            return;
+            trả_về;
         }
 
         // Other variables are constructed whole, even if aggregates
-        if (destroy) {
+        nếu (destroy) {
             stmts.add("VL_INPLACE_DESTRUCT(" + name + ");");
-            return;
+            trả_về;
         }
         const AstBasicDType* const basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
         std::string args;
-        if (varp->isSc()) {
+        nếu (varp->isSc()) {
             // SystemC ports need their name
             args = ", \"" + V3OutFormatter::quoteNameControls(varp->nameProtect()) + "\"";
-        } else if (basicp && basicp->keyword().isMTaskState()) {
+        } không_thì nếu (basicp && basicp->keyword().isMTaskState()) {
             // MTask state needs the number of upstream dependencies to wait for
             args = ", " + VN_AS(varp->valuep(), Const)->num().emitC();
-        } else if (basicp && basicp->isDelayScheduler()) {
+        } không_thì nếu (basicp && basicp->isDelayScheduler()) {
             // Delay scheduler needs the context pointer
             args = ", *vlSelf->vlSymsp->_vm_contextp__";
         }
@@ -127,18 +127,18 @@ class EmitCImp final : public EmitCFunc {
     // them into sub-functions if needed. As this emits files, no output file can be open.
     void createCtorDtorStmts(const AstNodeModule* modp) {
         // Construct member variables
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        cho (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
+            nếu (varp && isExplicitlyConstructed(varp)) {
                 addVarCtorDtorStmts(m_ctorStmts, varp, false);
             }
         }
 
         // Destroy in reverse order
         const AstNode* const lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
-        for (const AstNode* nodep = lastp; nodep; nodep = nodep->prevp()) {
+        cho (const AstNode* nodep = lastp; nodep; nodep = nodep->prevp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
+            nếu (varp && isExplicitlyConstructed(varp)) {
                 addVarCtorDtorStmts(m_dtorStmts, varp, true);
             }
         }
@@ -153,25 +153,25 @@ class EmitCImp final : public EmitCFunc {
         const std::string modName = EmitCUtil::prefixNameProtect(modp);
 
         // ctor
-        if (modp->ctorVarReset()) {
+        nếu (modp->ctorVarReset()) {
             m_lazyDecls.emit("\nvoid " + modName + "__", protect("_ctor_var_reset"),
                              "(" + modName + "* vlSelf);\n");
         }
 
-        if (!m_ctorSplitDecl.empty()) puts("\n" + m_ctorSplitDecl + "\n");
+        nếu (!m_ctorSplitDecl.empty()) puts("\n" + m_ctorSplitDecl + "\n");
         puts("\nvoid " + modName + "__ctor(" + modName + "* vlSelf, " + EmitCUtil::symClassName()
              + "* symsp, const char* namep) {\n");
         puts("vlSelf->vlSymsp = symsp;\n");
-        if (modp->isTop()) {
+        nếu (modp->isTop()) {
             puts("vlSelf->vlNamep = strdup(namep);\n");
-        } else {
+        } không_thì {
             puts("vlSelf->vlNamep = strdup(Verilated::catName(symsp->name(), namep));\n");
         }
         putsDecoration(modp, "// Construct members\n");
-        for (const TextStmts::Stmt& stmt : m_ctorStmts) puts(stmt.m_text + "\n");
+        cho (const TextStmts::Stmt& stmt : m_ctorStmts) puts(stmt.m_text + "\n");
 
         putsDecoration(modp, "// Reset structure values\n");
-        if (modp->ctorVarReset()) {
+        nếu (modp->ctorVarReset()) {
             puts(modName + "__" + protect("_ctor_var_reset") + "(vlSelf);\n");
         }
         puts("}\n");
@@ -184,10 +184,10 @@ class EmitCImp final : public EmitCFunc {
         puts("}\n");
 
         // dtor
-        if (!m_dtorSplitDecl.empty()) puts("\n" + m_dtorSplitDecl + "\n");
+        nếu (!m_dtorSplitDecl.empty()) puts("\n" + m_dtorSplitDecl + "\n");
         puts("\nvoid " + modName + "__dtor(" + modName + "* vlSelf) {\n");
         putsDecoration(modp, "// Destroy members\n");
-        for (const TextStmts::Stmt& stmt : m_dtorStmts) puts(stmt.m_text + "\n");
+        cho (const TextStmts::Stmt& stmt : m_dtorStmts) puts(stmt.m_text + "\n");
         puts("VL_DO_DANGLING(std::free(const_cast<char*>(vlSelf->vlNamep)), "
              "vlSelf->vlNamep);\n");
         puts("}\n");
@@ -202,13 +202,13 @@ class EmitCImp final : public EmitCFunc {
     void emitConfigureImp(const AstNodeModule* modp) {
         const string modName = EmitCUtil::prefixNameProtect(modp);
 
-        if (v3Global.opt.coverage()) {
+        nếu (v3Global.opt.coverage()) {
             puts("\n");
             m_lazyDecls.emit("void " + modName + "__", protect("_configure_coverage"),
                              "(" + modName + "* vlSelf, bool first);");
         }
 
-        if (v3Global.opt.coverage()) {
+        nếu (v3Global.opt.coverage()) {
             puts("\nvoid " + modName + "::" + protect("__Vconfigure") + "(bool first) {\n");
             puts("(void)first;  // Prevent unused variable warning\n");
             puts(modName + "__" + protect("_configure_coverage") + "(this, first);\n");
@@ -219,7 +219,7 @@ class EmitCImp final : public EmitCFunc {
         // Rather than putting out VL_COVER_INSERT calls directly, we do it via this
         // function. This gets around gcc slowness constructing all of the template
         // arguments.
-        if (v3Global.opt.coverage()) {
+        nếu (v3Global.opt.coverage()) {
             puts("\n// Coverage\n");
             puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverInsert(");
             puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
@@ -229,10 +229,10 @@ class EmitCImp final : public EmitCFunc {
                  "linescovp,\n");
             puts("const char* fsmVarp, const char* fsmFromp, const char* fsmTop, const char* "
                  "fsmTagp) {\n");
-            if (v3Global.opt.threads() > 1) {
+            nếu (v3Global.opt.threads() > 1) {
                 puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
                 puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
+            } không_thì {
                 puts("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
@@ -259,7 +259,7 @@ class EmitCImp final : public EmitCFunc {
             puts("  (fsmTagp[0] ? \"fsm_tag\" : \"\"), fsmTagp);\n");
             puts("}\n");
         }
-        if (v3Global.opt.coverageToggle()) {
+        nếu (v3Global.opt.coverageToggle()) {
             puts("\n// Toggle Coverage\n");
             puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverToggleInsert(");
             puts("int begin, int end, bool ranged, ");
@@ -267,16 +267,16 @@ class EmitCImp final : public EmitCFunc {
             puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
             puts("const char* hierp, const char* pagep, const char* commentp) {\n");
-            if (v3Global.opt.threads() > 1) {
+            nếu (v3Global.opt.threads() > 1) {
                 puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
             }
             puts("int step = (end >= begin) ? 1 : -1;\n");
             // range is inclusive
             puts("for (int i = begin; i != end + step; i += step) {\n");
             puts("for (int j = 0; j < 2; j++) {\n");
-            if (v3Global.opt.threads() > 1) {
+            nếu (v3Global.opt.threads() > 1) {
                 puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
+            } không_thì {
                 puts("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
@@ -308,9 +308,9 @@ class EmitCImp final : public EmitCFunc {
         }
     }
     void emitSavableImp(const AstNodeModule* modp) {
-        if (v3Global.opt.savable()) {
+        nếu (v3Global.opt.savable()) {
             puts("\n// Savable\n");
-            for (int de = 0; de < 2; ++de) {
+            cho (số_nguyên de = 0; de < 2; ++de) {
                 const string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
                 const string funcname = de ? "__Vdeserialize" : "__Vserialize";
                 const string op = de ? ">>" : "<<";
@@ -321,17 +321,17 @@ class EmitCImp final : public EmitCFunc {
                 // OK if this hash includes some things we won't dump, since
                 // just looking for loading the wrong model
                 VHashSha512 hash;
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
+                cho (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    nếu (const AstVar* const varp = VN_CAST(nodep, Var)) {
                         hash.insert(varp->name());
                         hash.insert(varp->dtypep()->width());
                     }
                 }
                 ofp()->printf("uint64_t __Vcheckval = 0x%" PRIx64 "ULL;\n",
                               static_cast<uint64_t>(hash.digestUInt64()));
-                if (de) {
+                nếu (de) {
                     puts("os.readAssert(__Vcheckval);\n");
-                } else {
+                } không_thì {
                     puts("os << __Vcheckval;\n");
                 }
 
@@ -342,19 +342,19 @@ class EmitCImp final : public EmitCFunc {
                 puts("os " + op + " vlSymsp->_vm_contextp__;\n");
 
                 // Save all members
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        if (varp->isIO() && modp->isTop() && optSystemC()) {
+                cho (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    nếu (const AstVar* const varp = VN_CAST(nodep, Var)) {
+                        nếu (varp->isIO() && modp->isTop() && optSystemC()) {
                             // System C top I/O doesn't need loading, as the
                             // lower level subinst code does it.
-                        } else if (varp->isParam()) {
-                        } else if (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
-                        } else {
-                            int vects = 0;
+                        } không_thì nếu (varp->isParam()) {
+                        } không_thì nếu (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
+                        } không_thì {
+                            số_nguyên vects = 0;
                             AstNodeDType* elementp = varp->dtypeSkipRefp();
-                            for (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
+                            cho (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
                                  arrayp; arrayp = VN_CAST(elementp, UnpackArrayDType)) {
-                                const int vecnum = vects++;
+                                const số_nguyên vecnum = vects++;
                                 UASSERT_OBJ(arrayp->hi() >= arrayp->lo(), varp,
                                             "Should have swapped msb & lsb earlier.");
                                 const string ivar = "__Vi"s + cvtToStr(vecnum);
@@ -365,21 +365,21 @@ class EmitCImp final : public EmitCFunc {
                             }
                             const AstBasicDType* const basicp = elementp->basicp();
                             // Do not save MTask state, only matters within an evaluation
-                            if (basicp && basicp->keyword().isMTaskState()) continue;
+                            nếu (basicp && basicp->keyword().isMTaskState()) continue;
                             // Want to detect types that are represented as arrays
                             // (i.e. packed types of more than 64 bits).
-                            if (elementp->isWide()
+                            nếu (elementp->isWide()
                                 && !(basicp && basicp->keyword() == VBasicDTypeKwd::STRING)) {
-                                const int vecnum = vects++;
+                                const số_nguyên vecnum = vects++;
                                 const string ivar = "__Vi"s + cvtToStr(vecnum);
                                 puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
                                 puts("; " + ivar + " < " + cvtToStr(elementp->widthWords()));
                                 puts("; ++" + ivar + ") {\n");
                             }
                             putns(varp, "os" + op + varName(varp));
-                            for (int v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
+                            cho (số_nguyên v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
                             puts(";\n");
-                            for (int v = 0; v < vects; ++v) puts("}\n");
+                            cho (số_nguyên v = 0; v < vects; ++v) puts("}\n");
                         }
                     }
                 }
@@ -392,27 +392,27 @@ class EmitCImp final : public EmitCFunc {
     // Used to avoid creating empty output files.
     bool hasCommonImp(const AstNodeModule* modp) const {
         // Nothing to emit if no module!
-        if (!modp) return false;
+        nếu (!modp) trả_về false;
         // We always need the slow file
-        if (m_slow) return true;
+        nếu (m_slow) trả_về true;
         // The fast file is only required when we have `systemc_implementation nodes
-        for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
+        cho (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
              scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-            if (scSectionp->sectionType() == VSystemCSectionType::IMP) return true;
+            nếu (scSectionp->sectionType() == VSystemCSectionType::IMP) trả_về true;
         }
-        return false;
+        trả_về false;
     }
     // Actually emit common implementation contents for given AstNodeModule
     void doCommonImp(const AstNodeModule* modp) {
-        if (m_slow) {
-            if (!VN_IS(modp, Class)) {
+        nếu (m_slow) {
+            nếu (!VN_IS(modp, Class)) {
                 emitParamDefns(modp);
                 emitCtorDtorImp(modp);
                 emitConfigureImp(modp);
                 emitCoverageImp();
             }
             emitSavableImp(modp);
-        } else {
+        } không_thì {
             // From `systemc_implementation
             emitSystemCSection(modp, VSystemCSectionType::IMP);
         }
@@ -421,15 +421,15 @@ class EmitCImp final : public EmitCFunc {
         const AstClass* const classp
             = VN_IS(modp, ClassPackage) ? VN_AS(modp, ClassPackage)->classp() : nullptr;
 
-        if (hasCommonImp(modp) || hasCommonImp(classp)) {
+        nếu (hasCommonImp(modp) || hasCommonImp(classp)) {
             // Create ctor/dtor statements. If these need splitting, they will be emitted
             // during construction so do this before opening the output file.
-            if (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
+            nếu (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
 
             openNextOutputFile(m_fileBaseName);
 
             doCommonImp(modp);
-            if (classp) {
+            nếu (classp) {
                 VL_RESTORER(m_modp);
                 m_modp = classp;
                 doCommonImp(classp);
@@ -443,32 +443,32 @@ class EmitCImp final : public EmitCFunc {
         std::vector<AstCFunc*> funcps;
 
         const auto gather = [this, &funcps](const AstNodeModule* modp) {
-            for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            cho (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
                 AstCFunc* const funcp = VN_CAST(nodep, CFunc);
-                if (!funcp) continue;
+                nếu (!funcp) continue;
                 // TRACE_* and DPI handled elsewhere
-                if (funcp->isTrace()) continue;
-                if (funcp->dpiImportPrototype()) continue;
-                if (funcp->dpiExportDispatcher()) continue;
-                if (funcp->slow() != m_slow) continue;
+                nếu (funcp->isTrace()) continue;
+                nếu (funcp->dpiImportPrototype()) continue;
+                nếu (funcp->dpiExportDispatcher()) continue;
+                nếu (funcp->slow() != m_slow) continue;
                 funcps.push_back(funcp);
             }
         };
 
         gather(modp);
         VL_RESTORER(m_classOrPackage);
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        nếu (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
             m_classOrPackage = packagep;
             gather(packagep->classp());
         }
 
         // Do not create empty files
-        if (funcps.empty()) return;
+        nếu (funcps.empty()) trả_về;
 
         // Open output file
         openNextOutputFile(m_uniqueNames.get(m_fileBaseName));
         // Emit all functions
-        for (AstCFunc* const funcp : funcps) {
+        cho (AstCFunc* const funcp : funcps) {
             VL_RESTORER(m_modp);
             m_modp = EmitCParentModule::get(funcp);
             iterateConst(funcp);
@@ -479,7 +479,7 @@ class EmitCImp final : public EmitCFunc {
 
     // VISITORS
     void visit(AstCFunc* nodep) override {
-        if (splitNeeded()) {
+        nếu (splitNeeded()) {
             // Splitting file, so using parallel build.
             v3Global.useParallelBuild(true);
             // Close old file
@@ -514,7 +514,7 @@ class EmitCImp final : public EmitCFunc {
 public:
     static std::vector<AstCFile*> main(const AstNodeModule* modp, bool slow) VL_MT_STABLE {
         EmitCImp emitCImp{modp, slow};
-        return emitCImp.getAndClearCfileps();
+        trả_về emitCImp.getAndClearCfileps();
     }
 };
 
@@ -528,9 +528,9 @@ class EmitCTraceTypes final : public EmitCFunc {
     // None allowed to support threaded emitting
 
     // STATE
-    int m_enumNum = 0;  // Enumeration number (whole netlist)
-    std::unordered_map<AstNode*, int> m_enumNumMap;  // EnumDType to enumeration number
-    int m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
+    số_nguyên m_enumNum = 0;  // Enumeration number (whole netlist)
+    std::unordered_map<AstNode*, số_nguyên> m_enumNumMap;  // EnumDType to enumeration number
+    số_nguyên m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
     V3UniqueNames m_uniqueNames;  // Generates unique file names
     const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_TraceDecls");
     // This one uses CSplitTrace for file splitting, which is incorrect but historically accurates
@@ -542,7 +542,7 @@ class EmitCTraceTypes final : public EmitCFunc {
         openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, true,
                                 "Tracing declarations");
         puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
+        cho (const std::string& base : v3Global.opt.traceSourceLangs()) {
             puts("#include \"" + base + ".h\"\n");
         }
         puts("\n");
@@ -553,10 +553,10 @@ class EmitCTraceTypes final : public EmitCFunc {
 
 public:
     // METHODS
-    int getEnumMapNum(AstEnumDType* nodep) {
-        int& enumNumr = m_enumNumMap[nodep];
-        if (!enumNumr) {
-            if (splitNeeded(m_splitLimit)) {
+    số_nguyên getEnumMapNum(AstEnumDType* nodep) {
+        số_nguyên& enumNumr = m_enumNumMap[nodep];
+        nếu (!enumNumr) {
+            nếu (splitNeeded(m_splitLimit)) {
                 // Splitting file, so using parallel build.
                 v3Global.useParallelBuild(true);
                 puts("}\n");
@@ -565,23 +565,23 @@ public:
             }
 
             enumNumr = ++m_enumNum;
-            int nvals = 0;
+            số_nguyên nvals = 0;
             puts("{\n");
             putns(nodep, "const char* " + protect("__VenumItemNames") + "[]\n");
             puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            cho (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                if (++nvals > 1) puts(", ");
+                nếu (++nvals > 1) puts(", ");
                 putbs("\"" + itemp->prettyName() + "\"");
             }
             puts("};\n");
             nvals = 0;
             puts("const char* " + protect("__VenumItemValues") + "[]\n");
             puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            cho (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
                 AstConst* const constp = VN_AS(itemp->valuep(), Const);
-                if (++nvals > 1) puts(", ");
+                nếu (++nvals > 1) puts(", ");
                 putbs("\"" + constp->num().displayed(nodep, "%0b") + "\"");
             }
             puts("};\n");
@@ -591,7 +591,7 @@ public:
             puts("}\n");
             splitSizeInc(AstNode::INSTR_COUNT_CALL);
         }
-        return enumNumr;
+        trả_về enumNumr;
     }
 
     // Close output file
@@ -603,14 +603,14 @@ public:
         const std::string args = v3Global.opt.traceClassBase() + "* tracep";
 
         // Forward declarations for subs in other files
-        for (int i = 0; i < m_traceTypeSubs - 1; ++i) {
+        cho (số_nguyên i = 0; i < m_traceTypeSubs - 1; ++i) {
             puts("void " + modName + "__" + protect("traceDeclTypesSub" + std::to_string(i)) + "("
                  + args + ");\n");
         }
 
         // Create top level trace_decl_types function and call each sub-function
         puts("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + args + ") {\n");
-        for (int i = 0; i < m_traceTypeSubs; ++i) {
+        cho (số_nguyên i = 0; i < m_traceTypeSubs; ++i) {
             puts(modName + "__" + protect("traceDeclTypesSub" + std::to_string(i))
                  + "(tracep);\n");
         }
@@ -641,7 +641,7 @@ class EmitCTrace final : public EmitCFunc {
         openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), m_slow, true,
                                 "Tracing implementation internals");
         puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
+        cho (const std::string& base : v3Global.opt.traceSourceLangs()) {
             puts("#include \"" + base + ".h\"\n");
         }
         puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
@@ -652,65 +652,65 @@ class EmitCTrace final : public EmitCFunc {
 
     bool emitTraceIsScBv(const AstTraceInc* nodep) {
         const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
+        nếu (!varrefp) trả_về false;
         const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBv();
+        trả_về varp->isSc() && varp->isScBv();
     }
 
     bool emitTraceIsScBigUint(const AstTraceInc* nodep) {
         const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
+        nếu (!varrefp) trả_về false;
         const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBigUint();
+        trả_về varp->isSc() && varp->isScBigUint();
     }
 
     bool emitTraceIsScUint(const AstTraceInc* nodep) {
         const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
+        nếu (!varrefp) trả_về false;
         const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && (varp->isScUint() || varp->isScUintBool());
+        trả_về varp->isSc() && (varp->isScUint() || varp->isScUintBool());
     }
 
-    void emitTraceInitOne(const AstTraceDecl* nodep, int enumNum) {
+    void emitTraceInitOne(const AstTraceDecl* nodep, số_nguyên enumNum) {
         std::string direction;
         direction = nodep->declDirection().traceSigDirection();
 
         AstCCall* const callp = nodep->dtypeCallp();
-        if (callp) {
+        nếu (callp) {
             callp->argTypes(callp->argTypes() + ", " + cvtToStr(nodep->fidx()) + ", c+"
                             + cvtToStr(nodep->code()) + ", " + direction);
-            return;
+            trả_về;
         }
 
-        if (nodep->dtypep()->basicp()->isDouble()) {
+        nếu (nodep->dtypep()->basicp()->isDouble()) {
             puts("VL_TRACE_DECL_DOUBLE");
-        } else if (nodep->isWide()) {
+        } không_thì nếu (nodep->isWide()) {
             puts("VL_TRACE_DECL_WIDE");
-        } else if (nodep->isQuad()) {
+        } không_thì nếu (nodep->isQuad()) {
             puts("VL_TRACE_DECL_QUAD");
-        } else if (nodep->bitRange().ranged()) {
+        } không_thì nếu (nodep->bitRange().ranged()) {
             puts("VL_TRACE_DECL_BUS");
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
+        } không_thì nếu (nodep->dtypep()->basicp()->isEvent()) {
             puts("VL_TRACE_DECL_EVENT");
-        } else {
+        } không_thì {
             puts("VL_TRACE_DECL_BIT");
         }
 
-        if (nodep->arrayRange().ranged()) {
+        nếu (nodep->arrayRange().ranged()) {
             puts("_ARRAY(tracep");
-        } else {
+        } không_thì {
             puts("(tracep");
         }
 
         // Code
         puts(",c+" + cvtToStr(nodep->code()));
-        if (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->widthWords()));
+        nếu (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->widthWords()));
 
         // Function index
         puts(",");
-        if (nodep->inDtypeFunc()) {
+        nếu (nodep->inDtypeFunc()) {
             puts("fidx");
-        } else {
+        } không_thì {
             puts(cvtToStr(nodep->fidx()));
         }
 
@@ -722,9 +722,9 @@ class EmitCTrace final : public EmitCFunc {
         puts("," + cvtToStr(enumNum));
 
         // Direction
-        if (nodep->inDtypeFunc()) {
+        nếu (nodep->inDtypeFunc()) {
             puts(", direction");
-        } else {
+        } không_thì {
             puts(", " + direction);
         }
 
@@ -739,16 +739,16 @@ class EmitCTrace final : public EmitCFunc {
         puts(nodep->dtypep()->basicp()->keyword().traceSigType());
 
         // Array range
-        if (nodep->arrayRange().ranged()) {
-            if (nodep->arrayRange().ascending()) {
+        nếu (nodep->arrayRange().ranged()) {
+            nếu (nodep->arrayRange().ascending()) {
                 puts(", (i + " + std::to_string(nodep->arrayRange().lo()) + ")");
-            } else {
+            } không_thì {
                 puts(", (" + std::to_string(nodep->arrayRange().hi()) + " - i)");
             }
         }
 
         // Bit range
-        if (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
+        nếu (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
             puts(", " + cvtToStr(nodep->bitRange().left()) + ","
                  + cvtToStr(nodep->bitRange().right()));
         }
@@ -757,40 +757,40 @@ class EmitCTrace final : public EmitCFunc {
         puts(");");
     }
 
-    int emitTraceDeclDType(AstNodeDType* nodep) {
+    số_nguyên emitTraceDeclDType(AstNodeDType* nodep) {
         // Return enum number or -1 for none
-        if (v3Global.opt.traceEnabledFst()) {
+        nếu (v3Global.opt.traceEnabledFst()) {
             // Skip over refs-to-refs, but stop before final ref so can get data type name
             // Alternatively back in V3Width we could push enum names from upper typedefs
-            if (AstEnumDType* const enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
-                return m_emitTypesp->getEnumMapNum(enump);
+            nếu (AstEnumDType* const enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
+                trả_về m_emitTypesp->getEnumMapNum(enump);
             }
         }
-        return -1;
+        trả_về -1;
     }
 
-    void emitTraceChangeOne(AstTraceInc* nodep, int arrayindex) {
+    void emitTraceChangeOne(AstTraceInc* nodep, số_nguyên arrayindex) {
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
         const std::string func = nodep->traceType() == VTraceType::CHANGE ? "chg" : "full";
         bool emitWidth = true;
         string stype;
-        if (nodep->dtypep()->basicp()->isDouble()) {
+        nếu (nodep->dtypep()->basicp()->isDouble()) {
             stype = "Double";
             emitWidth = false;
-        } else if (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
+        } không_thì nếu (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
             stype = "WData";
-        } else if (nodep->isQuad()) {
+        } không_thì nếu (nodep->isQuad()) {
             stype = "QData";
-        } else if (nodep->declp()->widthMin() > 16) {
+        } không_thì nếu (nodep->declp()->widthMin() > 16) {
             stype = "IData";
-        } else if (nodep->declp()->widthMin() > 8) {
+        } không_thì nếu (nodep->declp()->widthMin() > 8) {
             stype = "SData";
-        } else if (nodep->declp()->widthMin() > 1) {
+        } không_thì nếu (nodep->declp()->widthMin() > 1) {
             stype = "CData";
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
+        } không_thì nếu (nodep->dtypep()->basicp()->isEvent()) {
             stype = "Event";
             emitWidth = false;
-        } else {
+        } không_thì {
             stype = "Bit";
             emitWidth = false;
         }
@@ -803,36 +803,36 @@ class EmitCTrace final : public EmitCFunc {
         puts(cvtToStr(code - nodep->baseCode()));
         puts(",");
         const VNumRange& arrayRange = nodep->declp()->arrayRange();
-        if (arrayRange.ranged() && !arrayRange.ascending()) {
+        nếu (arrayRange.ranged() && !arrayRange.ascending()) {
             arrayindex = arrayRange.elements() - 1 - arrayindex;
         }
         emitTraceValue(nodep, arrayindex);
-        if (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
+        nếu (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
         puts(");\n");
     }
 
-    void emitTraceValue(const AstTraceInc* nodep, int arrayindex) {
-        if (AstVarRef* const varrefp = VN_CAST(nodep->valuep(), VarRef)) {
+    void emitTraceValue(const AstTraceInc* nodep, số_nguyên arrayindex) {
+        nếu (AstVarRef* const varrefp = VN_CAST(nodep->valuep(), VarRef)) {
             const AstVar* const varp = varrefp->varp();
-            if (varp->isEvent()) puts("&");
+            nếu (varp->isEvent()) puts("&");
             puts("(");
-            if (emitTraceIsScBigUint(nodep)) {
+            nếu (emitTraceIsScBigUint(nodep)) {
                 puts("(uint32_t*)");
-            } else if (emitTraceIsScBv(nodep)) {
+            } không_thì nếu (emitTraceIsScBv(nodep)) {
                 puts("VL_SC_BV_DATAP(");
             }
             iterateConst(varrefp);  // Put var name out
             emitTraceIndex(nodep, arrayindex);
-            if (varp->isSc()) puts(".read()");
-            if (emitTraceIsScUint(nodep)) {
+            nếu (varp->isSc()) puts(".read()");
+            nếu (emitTraceIsScUint(nodep)) {
                 puts(nodep->isQuad() ? ".to_uint64()" : ".to_uint()");
-            } else if (emitTraceIsScBigUint(nodep)) {
+            } không_thì nếu (emitTraceIsScBigUint(nodep)) {
                 puts(".get_raw()");
-            } else if (emitTraceIsScBv(nodep)) {
+            } không_thì nếu (emitTraceIsScBv(nodep)) {
                 puts(")");
             }
             puts(")");
-        } else {
+        } không_thì {
             puts("(");
             iterateConst(nodep->valuep());
             emitTraceIndex(nodep, arrayindex);
@@ -840,14 +840,14 @@ class EmitCTrace final : public EmitCFunc {
         }
     }
 
-    void emitTraceIndex(const AstTraceInc* const nodep, int arrayindex) {
+    void emitTraceIndex(const AstTraceInc* const nodep, số_nguyên arrayindex) {
         // Tracing only supports 1D arrays
-        if (nodep->declp()->arrayRange().ranged()) {
-            if (arrayindex == -2) {
+        nếu (nodep->declp()->arrayRange().ranged()) {
+            nếu (arrayindex == -2) {
                 puts("[i]");
-            } else if (arrayindex == -1) {
+            } không_thì nếu (arrayindex == -1) {
                 puts("[0]");
-            } else {
+            } không_thì {
                 puts("[" + cvtToStr(arrayindex) + "]");
             }
         }
@@ -856,10 +856,10 @@ class EmitCTrace final : public EmitCFunc {
     // VISITORS
     using EmitCFunc::visit;  // Suppress hidden overloaded virtual function warning
     void visit(AstCFunc* nodep) override {
-        if (!nodep->isTrace()) return;
-        if (nodep->slow() != m_slow) return;
+        nếu (!nodep->isTrace()) trả_về;
+        nếu (nodep->slow() != m_slow) trả_về;
 
-        if (splitNeeded()) {
+        nếu (splitNeeded()) {
             // Splitting file, so using parallel build.
             v3Global.useParallelBuild(true);
             // Close old file
@@ -872,9 +872,9 @@ class EmitCTrace final : public EmitCFunc {
     }
     void visit(AstTracePushPrefix* nodep) override {
         putns(nodep, "VL_TRACE_PUSH_PREFIX(tracep, ");
-        if (nodep->quotedPrefix()) {
+        nếu (nodep->quotedPrefix()) {
             putsQuoted(VIdProtect::protectWordsIf(nodep->prefix(), nodep->protect()));
-        } else {
+        } không_thì {
             puts(nodep->prefix());
         }
         puts(", VerilatedTracePrefixType::");
@@ -887,24 +887,24 @@ class EmitCTrace final : public EmitCFunc {
         putns(nodep, "VL_TRACE_POP_PREFIX(tracep);\n");
     }
     void visit(AstTraceDecl* nodep) override {
-        const int enumNum = emitTraceDeclDType(nodep->dtypep());
+        const số_nguyên enumNum = emitTraceDeclDType(nodep->dtypep());
         putns(nodep, "");
-        if (nodep->arrayRange().ranged()) {
+        nếu (nodep->arrayRange().ranged()) {
             puts("for (int i = 0; i < " + cvtToStr(nodep->arrayRange().elements()) + "; ++i) {\n");
             emitTraceInitOne(nodep, enumNum);
             puts("\n}\n");
-        } else {
+        } không_thì {
             emitTraceInitOne(nodep, enumNum);
             puts("\n");
         }
     }
     void visit(AstTraceInc* nodep) override {
-        if (nodep->declp()->arrayRange().ranged()) {
+        nếu (nodep->declp()->arrayRange().ranged()) {
             // It traces faster if we unroll the loop
-            for (int i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
+            cho (số_nguyên i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
                 emitTraceChangeOne(nodep, i);
             }
-        } else {
+        } không_thì {
             emitTraceChangeOne(nodep, -1);
         }
     }
@@ -915,12 +915,12 @@ class EmitCTrace final : public EmitCFunc {
         // Open output file
         openNextOutputFile();
         // Emit functions
-        for (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (AstCFunc* const funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
+        cho (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            nếu (AstCFunc* const funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
         }
         // Close output file
         closeOutputFile();
-        if (m_slow) m_emitTypesp->finalize();
+        nếu (m_slow) m_emitTypesp->finalize();
     }
     ~EmitCTrace() override = default;
 
@@ -928,12 +928,12 @@ public:
     static std::vector<AstCFile*> main(bool slow) VL_MT_STABLE {
         EmitCTrace emitCTrace{slow};
         std::vector<AstCFile*> cfileps = emitCTrace.getAndClearCfileps();
-        if (slow) {
-            for (AstCFile* const cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
+        nếu (slow) {
+            cho (AstCFile* const cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
                 cfileps.emplace_back(cfilep);
             }
         }
-        return cfileps;
+        trả_về cfileps;
     }
 };
 
@@ -950,7 +950,7 @@ class EmitCFile final : public EmitCFunc {
 
 public:
     static void main(AstCFile* cfilep) VL_MT_STABLE {
-        if (!cfilep->tblockp()) return;
+        nếu (!cfilep->tblockp()) trả_về;
         EmitCFile{cfilep};
     }
 };
@@ -967,10 +967,10 @@ void V3EmitC::emitcImp() {
         V3ThreadScope threadScope;
 
         // Process each module in turn
-        for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, Class)) continue;  // Imped with ClassPackage
+        cho (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+            nếu (VN_IS(nodep, Class)) continue;  // Imped with ClassPackage
             const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
-            if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
+            nếu (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
             threadScope.enqueue([modp, &slow] { slow = EmitCImp::main(modp, /* slow: */ true); });
@@ -980,7 +980,7 @@ void V3EmitC::emitcImp() {
         }
 
         // Emit trace routines (currently they can only exist in the top module)
-        if (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
+        nếu (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
             threadScope.enqueue([&slow] { slow = EmitCTrace::main(/* slow: */ true); });
@@ -990,15 +990,15 @@ void V3EmitC::emitcImp() {
         }
     }
     // Add files to netlist
-    for (const std::vector<AstCFile*>& cfileps : cfiles) {
-        for (AstCFile* const cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
+    cho (const std::vector<AstCFile*>& cfileps : cfiles) {
+        cho (AstCFile* const cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
     }
 }
 
 void V3EmitC::emitcFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
+    cho (AstNodeFile *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
         nextp = VN_AS(filep->nextp(), NodeFile);
-        if (AstCFile* const cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
+        nếu (AstCFile* const cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
     }
 }

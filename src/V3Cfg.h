@@ -111,15 +111,15 @@ public:
     inline size_t id() const;
 
     // Is this the entry block of the CFG?
-    bool isEnter() const { return inEmpty(); }
+    bool isEnter() const { trả_về inEmpty(); }
     // Is this the exit block of the CFG?
-    bool isExit() const { return outEmpty(); }
+    bool isExit() const { trả_về outEmpty(); }
     // Is this a branching block (multiple successors)?
-    bool isBranch() const { return outEdges().hasMultipleElements(); }
+    bool isBranch() const { trả_về outEdges().hasMultipleElements(); }
     // Is this a control flow convergence block (multiple predecessors)?
-    bool isJoin() const { return inEdges().hasMultipleElements(); }
+    bool isJoin() const { trả_về inEdges().hasMultipleElements(); }
     // Is this a join of exactly 2 paths?
-    bool isTwoWayJoin() const { return inEdges().hasTwoElements(); }
+    bool isTwoWayJoin() const { trả_về inEdges().hasTwoElements(); }
 
     // The edge going to the taken (or uncinditional) successor, or nullptr if exit block
     inline CfgEdge* takenEdgep();
@@ -148,26 +148,26 @@ public:
     inline const CfgBlock* lastPredecessorp() const;
 
     // Statements in this CfgBlock
-    const std::vector<AstNodeStmt*>& stmtps() const { return m_stmtps; }
+    const std::vector<AstNodeStmt*>& stmtps() const { trả_về m_stmtps; }
 
     // Ordering is done on reverese post-order numbering. For loop-free graph
     // this ensures that a block that compares less than another is not a
     // successor of the other block (it is an ancestor, or sibling).
-    bool operator<(const CfgBlock& that) const { return id() < that.id(); }
-    bool operator>(const CfgBlock& that) const { return id() > that.id(); }
-    bool operator==(const CfgBlock& that) const { return this == &that; }
+    bool operator<(const CfgBlock& that) const { trả_về id() < that.id(); }
+    bool operator>(const CfgBlock& that) const { trả_về id() > that.id(); }
+    bool operator==(const CfgBlock& that) const { trả_về this == &that; }
 
     // Iterators
     void forEachSuccessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
+        cho (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
     }
     void forEachPredecessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
+        cho (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
     }
 
     // Source location for debugging
     FileLine* fileline() const override {
-        return !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
+        trả_về !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
     }
 
     // For Graphviz dumps only
@@ -202,10 +202,10 @@ public:
     inline size_t id() const;
 
     // Source/destination CfgBlock
-    const CfgBlock* srcp() const { return static_cast<const CfgBlock*>(fromp()); }
-    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(top()); }
-    CfgBlock* srcp() { return static_cast<CfgBlock*>(fromp()); }
-    CfgBlock* dstp() { return static_cast<CfgBlock*>(top()); }
+    const CfgBlock* srcp() const { trả_về static_cast<const CfgBlock*>(fromp()); }
+    const CfgBlock* dstp() const { trả_về static_cast<const CfgBlock*>(top()); }
+    CfgBlock* srcp() { trả_về static_cast<CfgBlock*>(fromp()); }
+    CfgBlock* dstp() { trả_về static_cast<CfgBlock*>(top()); }
 
     // For Graphviz dumps only
     std::string dotLabel() const override;
@@ -239,7 +239,7 @@ class CfgGraph final : public V3Graph {
     CfgBlock* addBlock() {
         ++m_nEdits;
         ++m_nBlocks;
-        return new CfgBlock{this};
+        trả_về new CfgBlock{this};
     }
 
     // Add a new taken (or unconditional) CfgEdge to this CFG
@@ -271,12 +271,12 @@ class CfgGraph final : public V3Graph {
 
     size_t idOf(const CfgBlock* bbp) const {
         UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return bbp->m_rpoNumber;
+        trả_về bbp->m_rpoNumber;
     }
 
     size_t idOf(const CfgEdge* edgep) const {
         UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return edgep->m_id;
+        trả_về edgep->m_id;
     }
 
     // Implementation for insertTwoWayJoins
@@ -296,13 +296,13 @@ public:
     // PUBLIC METHODS
 
     // Accessors
-    const CfgBlock& enter() const { return *m_enterp; }
-    const CfgBlock& exit() const { return *m_exitp; }
+    const CfgBlock& enter() const { trả_về *m_enterp; }
+    const CfgBlock& exit() const { trả_về *m_exitp; }
 
     // Number of basic blocks in this graph
-    size_t nBlocks() const { return m_nBlocks; }
+    size_t nBlocks() const { trả_về m_nBlocks; }
     // Number of control flow edges in this graph
-    size_t nEdges() const { return m_nEdges; }
+    size_t nEdges() const { trả_về m_nEdges; }
 
     // Create a CfgBlock map for this graph
     template <typename T_Value>
@@ -364,22 +364,22 @@ public:
     T_Value& operator[](const T_Key& key) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        trả_về m_map.at(key.id());
     }
     const T_Value& operator[](const T_Key& key) const {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        trả_về m_map.at(key.id());
     }
     T_Value& operator[](const T_Key* keyp) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        trả_về m_map.at(keyp->id());
     }
     const T_Value& operator[](const T_Key* keyp) const {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        trả_về m_map.at(keyp->id());
     }
 };
 
@@ -426,59 +426,59 @@ CfgBlock::CfgBlock(CfgGraph* cfgp)
     : V3GraphVertex{cfgp}
     , m_cfgp{cfgp} {}
 
-size_t CfgBlock::id() { return m_cfgp->idOf(this); }
-size_t CfgBlock::id() const { return m_cfgp->idOf(this); }
+size_t CfgBlock::id() { trả_về m_cfgp->idOf(this); }
+size_t CfgBlock::id() const { trả_về m_cfgp->idOf(this); }
 
 // Successor edges
 CfgEdge* CfgBlock::takenEdgep() {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<CfgEdge*>(outEdges().frontp());
+    trả_về isExit() ? nullptr : static_cast<CfgEdge*>(outEdges().frontp());
 }
 const CfgEdge* CfgBlock::takenEdgep() const {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<const CfgEdge*>(outEdges().frontp());
+    trả_về isExit() ? nullptr : static_cast<const CfgEdge*>(outEdges().frontp());
 }
 CfgEdge* CfgBlock::untknEdgep() {  // It's always the second (last) edge
-    return isBranch() ? static_cast<CfgEdge*>(outEdges().backp()) : nullptr;
+    trả_về isBranch() ? static_cast<CfgEdge*>(outEdges().backp()) : nullptr;
 }
 const CfgEdge* CfgBlock::untknEdgep() const {  // It's always the second (last) edge
-    return isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
+    trả_về isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
 }
 CfgBlock* CfgBlock::takenp() {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+    trả_về isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
 }
 const CfgBlock* CfgBlock::takenp() const {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+    trả_về isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
 }
 CfgBlock* CfgBlock::untknp() {
-    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
+    trả_về isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
 }
 const CfgBlock* CfgBlock::untknp() const {
-    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
+    trả_về isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
 }
 
 // Predecessor edges
 CfgEdge* CfgBlock::firstPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().frontp());
+    trả_về static_cast<CfgEdge*>(inEdges().frontp());
 }
 const CfgEdge* CfgBlock::firstPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().frontp());
+    trả_về static_cast<const CfgEdge*>(inEdges().frontp());
 }
 CfgEdge* CfgBlock::lastPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().backp());
+    trả_về static_cast<CfgEdge*>(inEdges().backp());
 }
 const CfgEdge* CfgBlock::lastPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().backp());
+    trả_về static_cast<const CfgEdge*>(inEdges().backp());
 }
 CfgBlock* CfgBlock::firstPredecessorp() {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+    trả_về isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
 }
 const CfgBlock* CfgBlock::firstPredecessorp() const {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+    trả_về isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
 }
 CfgBlock* CfgBlock::lastPredecessorp() {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+    trả_về isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
 }
 const CfgBlock* CfgBlock::lastPredecessorp() const {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+    trả_về isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
 }
 
 // --- CfgEdge ---
@@ -487,18 +487,18 @@ CfgEdge::CfgEdge(CfgGraph* cfgp, CfgBlock* srcp, CfgBlock* dstp)
     : V3GraphEdge{cfgp, srcp, dstp, 1, false}
     , m_cfgp{cfgp} {}
 
-size_t CfgEdge::id() { return m_cfgp->idOf(this); }
-size_t CfgEdge::id() const { return m_cfgp->idOf(this); }
+size_t CfgEdge::id() { trả_về m_cfgp->idOf(this); }
+size_t CfgEdge::id() const { trả_về m_cfgp->idOf(this); }
 
 // --- CfgGraph ---
 
 template <typename T_Value>
 CfgBlockMap<T_Value> CfgGraph::makeBlockMap() const {
-    return CfgBlockMap<T_Value>{this};
+    trả_về CfgBlockMap<T_Value>{this};
 }
 template <typename T_Value>
 CfgEdgeMap<T_Value> CfgGraph::makeEdgeMap() const {
-    return CfgEdgeMap<T_Value>{this};
+    trả_về CfgEdgeMap<T_Value>{this};
 }
 
 //######################################################################
@@ -530,26 +530,26 @@ public:
     // not strictly dominate any other block that dominates both blocks. It
     // will return 'ap' or 'bp' if one dominates the other (or are the same)
     const CfgBlock* closestCommonDominator(const CfgBlock* ap, const CfgBlock* bp) const {
-        while (ap != bp) {
-            if (*ap < *bp) {
+        trong_khi (ap != bp) {
+            nếu (*ap < *bp) {
                 bp = m_bb2Idom[bp];
-            } else {
+            } không_thì {
                 ap = m_bb2Idom[ap];
             }
         }
-        return ap;
+        trả_về ap;
     }
 
     // Returns true if 'ap' dominates 'bp'
     bool dominates(const CfgBlock* const ap, const CfgBlock* bp) {
         // Walk up the dominator tree from 'bp' until reaching 'ap' or the root
-        while (true) {
+        trong_khi (true) {
             // True if 'ap' is above (or same as) 'bp'
-            if (ap == bp) return true;
+            nếu (ap == bp) trả_về true;
             // Step up the dominator tree
             bp = m_bb2Idom[bp];
             // False if reached the root
-            if (!bp) return false;
+            nếu (!bp) trả_về false;
         }
     }
 };

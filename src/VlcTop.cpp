@@ -52,17 +52,17 @@ class Tally final {
 
 public:
     // ACCESSORS
-    uint64_t hit() const { return m_hit; }
-    uint64_t total() const { return m_total; }
-    bool scored() const { return m_scored; }
-    double score() const { return m_score; }
+    uint64_t hit() const { trả_về m_hit; }
+    uint64_t total() const { trả_về m_total; }
+    bool scored() const { trả_về m_scored; }
+    double score() const { trả_về m_score; }
     void score(double value) {
         m_scored = true;
         m_score = value;
     }
     // METHODS
     void addPoint(bool covered) {
-        if (covered) ++m_hit;
+        nếu (covered) ++m_hit;
         ++m_total;
     }
     void addPoints(const Tally& other) {
@@ -82,27 +82,27 @@ static constexpr size_t s_reportRowIndent = 4;
 
 string displayType(const VlcPoint& point) {
     const string type = point.type();
-    return type.empty() ? "point" : type;
+    trả_về type.empty() ? "point" : type;
 }
 
 bool isCollapsedHier(const string& hier) {
-    return hier.find('*') != string::npos || hier.find('?') != string::npos;
+    trả_về hier.find('*') != string::npos || hier.find('?') != string::npos;
 }
 
 bool isOrderedType(const string& type) {
-    for (const char* const typep : s_orderedTypes) {
-        if (type == typep) return true;
+    cho (const char* const typep : s_orderedTypes) {
+        nếu (type == typep) trả_về true;
     }
-    return false;
+    trả_về false;
 }
 
 string reportHier(const VlcPoint& point) {
     // FSM records currently have useful instance scope in Fv.
-    if (point.isFsmState() || point.isFsmArc()) {
+    nếu (point.isFsmState() || point.isFsmArc()) {
         const string fsmVar = point.fsmVarName();
-        return fsmVar.substr(0, fsmVar.rfind('.'));
+        trả_về fsmVar.substr(0, fsmVar.rfind('.'));
     }
-    return point.hier();
+    trả_về point.hier();
 }
 
 // The components of a hierarchy, split at its dots.  A covergroup's is the name of its type, as
@@ -115,46 +115,46 @@ string reportHier(const VlcPoint& point) {
 std::vector<string> splitHier(const string& hier) {
     std::vector<string> parts;
     string::size_type start = 0;
-    int depth = 0;  // Of the parentheses of the values of parameters
+    số_nguyên depth = 0;  // Of the parentheses of the values of parameters
     string::size_type pos = 0;
-    while (pos < hier.size()) {
+    trong_khi (pos < hier.size()) {
         const char c = hier[pos];
-        if (c == '\\') {
+        nếu (c == '\\') {
             pos = hier.find(' ', pos);  // npos if not ended
             continue;
-        } else if (!depth && hier.compare(pos, 2, "#(") == 0) {
+        } không_thì nếu (!depth && hier.compare(pos, 2, "#(") == 0) {
             depth = 1;
             ++pos;
-        } else if (!depth && c == '.') {
+        } không_thì nếu (!depth && c == '.') {
             parts.push_back(hier.substr(start, pos - start));
             start = pos + 1;
-        } else if (depth && c == '"') {
+        } không_thì nếu (depth && c == '"') {
             pos = VString::quotedEnd(hier, pos);  // npos if not terminated
             continue;
-        } else if (depth && c == '(') {
+        } không_thì nếu (depth && c == '(') {
             ++depth;
-        } else if (depth && c == ')') {
+        } không_thì nếu (depth && c == ')') {
             --depth;
         }
         ++pos;
     }
-    if (depth || pos != hier.size()) {  // Unbalanced
+    nếu (depth || pos != hier.size()) {  // Unbalanced
         parts.clear();
         start = 0;
-        for (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
+        cho (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
              start = dot + 1) {
             parts.push_back(hier.substr(start, dot - start));
         }
     }
     parts.push_back(hier.substr(start));
-    return parts;
+    trả_về parts;
 }
 
 string duName(const VlcPoint& point) {
     // Pages are emitted as v_<type>/<design-unit> for RTL coverage.  Use the
     // suffix as the design-unit summary key.
     const string page = point.page();
-    return page.substr(page.find('/') + 1);
+    trả_về page.substr(page.find('/') + 1);
 }
 
 void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
@@ -164,21 +164,21 @@ void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
 // Keep the percentage calculation in one place so flat summaries and hierarchy
 // reports cannot drift in zero-total handling.
 double pct(uint64_t hit, uint64_t total) {
-    return total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
+    trả_về total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
 }
 
 // Return a percentage as a string, handling 100%: coverage not complete shows below it.
 string pctValueString(double value, bool complete) {
-    if (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
+    nếu (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
     std::stringstream os;
     os << std::fixed << std::setprecision(1)  // 1 matters, see above
        << value << "%";
-    return os.str();
+    trả_về os.str();
 }
 
 // Return percentage as a string, handling 100%, and protecting from div zero.
 string pctString(uint64_t hit, uint64_t total) {
-    return pctValueString(pct(hit, total), hit >= total);
+    trả_về pctValueString(pct(hit, total), hit >= total);
 }
 
 // Covergroup coverage (IEEE 1800-2023 19.11).  An item, a coverpoint or cross, covers the
@@ -198,8 +198,8 @@ class CgBin final {
 
 public:
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool covered() const { return m_count >= m_atLeast; }
+    const string& name() const { trả_về m_name; }
+    bool covered() const { trả_về m_count >= m_atLeast; }
     // METHODS
     void addRecord(const string& name, uint64_t count, uint64_t atLeast) {
         m_name = name;
@@ -216,11 +216,11 @@ class CgItem final {
 
 public:
     // ACCESSORS
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgBin>& bins() const { return m_bins; }
+    uint64_t weight() const { trả_về m_weight; }
+    const std::map<string, CgBin>& bins() const { trả_về m_bins; }
     // METHODS
     void addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
-    CgBin& findNewBin(const string& identity) { return m_bins[identity]; }
+    CgBin& findNewBin(const string& identity) { trả_về m_bins[identity]; }
 };
 
 // A covergroup
@@ -232,30 +232,30 @@ class CgGroup final {
 
 public:
     // ACCESSORS
-    const string& hier() const { return m_hier; }
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgItem>& items() const { return m_items; }
+    const string& hier() const { trả_về m_hier; }
+    uint64_t weight() const { trả_về m_weight; }
+    const std::map<string, CgItem>& items() const { trả_về m_items; }
     // METHODS
     void addRecord(const string& hier, uint64_t weight) {
         m_hier = hier;
         m_weight = std::max(m_weight, weight);
     }
-    CgItem& findNewItem(const string& hier) { return m_items[hier]; }
+    CgItem& findNewItem(const string& hier) { trả_về m_items[hier]; }
 };
 using CgGroups = std::map<string, CgGroup>;  // By page
 
 // A number of a record, or 1 if the record leaves it out
 uint64_t keyNumber(const string& value) {
-    return value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
+    trả_về value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
 }
 
 // If a field of a record's name, '\001<key>\002<value>', has a key of the coverage computation
 bool isScoreField(const string& field) {
-    for (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
+    cho (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
         const string prefix = string{"\001"} + keyp + "\002";
-        if (field.compare(0, prefix.size(), prefix) == 0) return true;
+        nếu (field.compare(0, prefix.size(), prefix) == 0) trả_về true;
     }
-    return false;
+    trả_về false;
 }
 
 // The name of a bin's record without the keys of the coverage computation, which the records of
@@ -264,47 +264,47 @@ bool isScoreField(const string& field) {
 string binIdentity(const string& recordName) {
     string identity;
     string::size_type start = 0;
-    while (start < recordName.size()) {
+    trong_khi (start < recordName.size()) {
         string::size_type end = recordName.find('\001', start + 1);
-        if (end == string::npos) end = recordName.size();
+        nếu (end == string::npos) end = recordName.size();
         const string field = recordName.substr(start, end - start);
-        if (!isScoreField(field)) identity += field;
+        nếu (!isScoreField(field)) identity += field;
         start = end;
     }
-    return identity;
+    trả_về identity;
 }
 
-bool isCovergroup(const VlcPoint& point) { return point.type() == s_covergroupType; }
+bool isCovergroup(const VlcPoint& point) { trả_về point.type() == s_covergroupType; }
 
 CgGroups covergroups(VlcPoints& points) {
     CgGroups groups;
-    for (const VlcPoints::ByName::value_type& i : points) {
+    cho (const VlcPoints::ByName::value_type& i : points) {
         const VlcPoint& pt = points.pointNumber(i.second);
-        if (!isCovergroup(pt)) continue;
+        nếu (!isCovergroup(pt)) continue;
         // Named '<covergroup>.<item>.<bin>', where only the bin, of its own key, may have dots
         const string hier = pt.hier();
         string bin = pt.bin();
-        if (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
+        nếu (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
         const string itemHier
             = hier.substr(0, hier.size() - std::min(hier.size(), bin.size() + 1));
         CgGroup& group = groups[pt.page()];
         group.addRecord(itemHier.substr(0, itemHier.rfind('.')), keyNumber(pt.groupWeight()));
         CgItem& item = group.findNewItem(itemHier);
         item.addRecord(keyNumber(pt.weight()));
-        if (!pt.binType().empty()) continue;  // Not coverable
+        nếu (!pt.binType().empty()) continue;  // Not coverable
         item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.count(), keyNumber(pt.thresh()));
     }
-    return groups;
+    trả_về groups;
 }
 
 Tally itemTally(const CgItem& item) {
     Tally tally;
-    for (const std::pair<const string, CgBin>& bin : item.bins()) {
+    cho (const std::pair<const string, CgBin>& bin : item.bins()) {
         tally.addPoint(bin.second.covered());
     }
     // Without bins, 0.0, or 100.0 if of zero weight (IEEE 1800-2023 19.11.1)
     tally.score(tally.total() ? pct(tally.hit(), tally.total()) : item.weight() ? 0.0 : 100.0);
-    return tally;
+    trả_về tally;
 }
 
 // The tally of a covergroup; contributesp, if its items have weight and bins, so that it counts
@@ -313,17 +313,17 @@ Tally groupTally(const CgGroup& group, bool* contributesp = nullptr) {
     Tally tally;
     double weighted = 0.0;
     double weights = 0.0;
-    for (const std::pair<const string, CgItem>& it : group.items()) {
+    cho (const std::pair<const string, CgItem>& it : group.items()) {
         const Tally item = itemTally(it.second);
         tally.addPoints(item);
-        if (!item.total()) continue;  // Excluded from both sums
+        nếu (!item.total()) continue;  // Excluded from both sums
         weighted += static_cast<double>(it.second.weight()) * item.score();
         weights += static_cast<double>(it.second.weight());
     }
-    if (contributesp) *contributesp = weights != 0.0;
+    nếu (contributesp) *contributesp = weights != 0.0;
     // Without items of weight and bins, 0.0, or 100.0 if of zero weight
     tally.score(weights != 0.0 ? weighted / weights : group.weight() ? 0.0 : 100.0);
-    return tally;
+    trả_về tally;
 }
 
 Tally groupsTally(const std::vector<const CgGroup*>& groups) {
@@ -331,18 +331,18 @@ Tally groupsTally(const std::vector<const CgGroup*>& groups) {
     double weighted = 0.0;
     double weights = 0.0;
     bool anyWeight = false;
-    for (const CgGroup* const groupp : groups) {
+    cho (const CgGroup* const groupp : groups) {
         bool contributes = false;
         const Tally group = groupTally(*groupp, &contributes);
         tally.addPoints(group);
-        if (groupp->weight()) anyWeight = true;
-        if (!contributes) continue;
+        nếu (groupp->weight()) anyWeight = true;
+        nếu (!contributes) continue;
         weighted += static_cast<double>(groupp->weight()) * group.score();
         weights += static_cast<double>(groupp->weight());
     }
     // Without covergroups of weight that contribute, 0.0, or 100.0 if all have zero weight
     tally.score(weights != 0.0 ? weighted / weights : anyWeight ? 0.0 : 100.0);
-    return tally;
+    trả_về tally;
 }
 
 // The tallies of covergroups, of their coverpoints and crosses, and of the coverable bins of
@@ -350,32 +350,32 @@ Tally groupsTally(const std::vector<const CgGroup*>& groups) {
 std::map<string, Tally> covergroupTallies(const CgGroups& groups) {
     std::map<string, Tally> tallies;
     std::map<string, std::vector<const CgGroup*>> nodeGroups;
-    for (const CgGroups::value_type& it : groups) {
+    cho (const CgGroups::value_type& it : groups) {
         const CgGroup& group = it.second;
         string path;
-        for (const string& part : splitHier(group.hier())) {
+        cho (const string& part : splitHier(group.hier())) {
             path = path.empty() ? part : path + "." + part;
             nodeGroups[path].push_back(&group);
         }
-        for (const std::pair<const string, CgItem>& item : group.items()) {
+        cho (const std::pair<const string, CgItem>& item : group.items()) {
             tallies[item.first] = itemTally(item.second);
-            for (const std::pair<const string, CgBin>& bin : item.second.bins()) {
+            cho (const std::pair<const string, CgBin>& bin : item.second.bins()) {
                 // Of the bins of the name
                 tallies[item.first + "." + bin.second.name()].addPoint(bin.second.covered());
             }
         }
     }
-    for (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
+    cho (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
         tallies[it.first]
             = it.second.size() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
     }
-    return tallies;
+    trả_về tallies;
 }
 
 // Shared row formatter.  The callers choose which rows to print; this only keeps
 // the text layout identical between the flat and hierarchy reports.
 void printIndent(size_t indent) {
-    for (size_t i = 0; i < indent; ++i) std::cout << ' ';
+    cho (size_t i = 0; i < indent; ++i) std::cout << ' ';
 }
 
 void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t typeWidth,
@@ -392,23 +392,23 @@ void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t
 
 size_t countWidth(const TypeTally& tally) {
     size_t width = cvtToStr(0).size();
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    cho (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         width = std::max(width, cvtToStr(it->second.hit()).size());
         width = std::max(width, cvtToStr(it->second.total()).size());
     }
-    return width;
+    trả_về width;
 }
 
 size_t typeWidth(const TypeTally& tally) {
     size_t typeWidth = 0;
-    for (const char* const typep : s_orderedTypes) {
+    cho (const char* const typep : s_orderedTypes) {
         const string type = typep;
         typeWidth = std::max(typeWidth, type.size());
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    cho (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         typeWidth = std::max(typeWidth, it->first.size());
     }
-    return typeWidth;
+    trả_về typeWidth;
 }
 
 void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOrdered) {
@@ -417,17 +417,17 @@ void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOr
     // the historical flat summary output.
     const size_t typWidth = typeWidth(tally);
     const size_t cntWidth = countWidth(tally);
-    for (const char* const typep : s_orderedTypes) {
+    cho (const char* const typep : s_orderedTypes) {
         const string type = typep;
         const TypeTally::const_iterator it = tally.find(type);
-        if (it != tally.end()) {
+        nếu (it != tally.end()) {
             printTallyRow(type, it->second, indent, typWidth, cntWidth);
-        } else if (includeMissingOrdered) {
+        } không_thì nếu (includeMissingOrdered) {
             printTallyRow(type, Tally{}, indent, typWidth, cntWidth);
         }
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        if (!isOrderedType(it->first)) {
+    cho (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        nếu (!isOrderedType(it->first)) {
             printTallyRow(it->first, it->second, indent, typWidth, cntWidth);
         }
     }
@@ -435,17 +435,17 @@ void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOr
 
 // Print covergroups, coverpoints, crosses, and bins one per line, so that searching for a name
 // shows its coverage
-void printCovergroupTallies(const std::map<string, Tally>& tallies, int levels) {
+void printCovergroupTallies(const std::map<string, Tally>& tallies, số_nguyên levels) {
     std::map<string, Tally> shown;
     size_t nameWidth = 0;
-    for (const std::pair<const string, Tally>& it : tallies) {
-        if (levels >= 0 && static_cast<int>(splitHier(it.first).size()) > levels + 1) continue;
+    cho (const std::pair<const string, Tally>& it : tallies) {
+        nếu (levels >= 0 && static_cast<số_nguyên>(splitHier(it.first).size()) > levels + 1) continue;
         shown.insert(it);
         nameWidth = std::max(nameWidth, it.first.size());
     }
     const size_t cntWidth = countWidth(shown);
     std::cout << "Covergroup Coverage Summary:\n";
-    for (const std::pair<const string, Tally>& it : shown) {
+    cho (const std::pair<const string, Tally>& it : shown) {
         printTallyRow(it.first, it.second, s_summaryIndent, nameWidth, cntWidth);
     }
 }
@@ -456,41 +456,41 @@ void VlcTop::readCoverage(const string& filename, bool nonfatal) {
     UINFO(2, "readCoverage " << filename);
 
     std::ifstream is{filename.c_str()};
-    if (!is) {
-        if (!nonfatal) v3fatal("Can't read coverage file: " << filename);
-        return;
+    nếu (!is) {
+        nếu (!nonfatal) v3fatal("Can't read coverage file: " << filename);
+        trả_về;
     }
 
     // Testrun and computrons argument unsupported as yet
     VlcTest* const testp = tests().newTest(filename, 0, 0);
 
     uint64_t lineno = 0;
-    while (!is.eof()) {
+    trong_khi (!is.eof()) {
         const string line = V3Os::getline(is);
         ++lineno;
         // UINFO(9, " got " << line);
-        if (line[0] == 'C') {
+        nếu (line[0] == 'C') {
             // The count follows the last "' ": a point may hold one too, as does a covergroup
             // type named with the value of a string parameter
             const string::size_type secspace = line.rfind("' ");
-            if (secspace == string::npos || secspace < 3) {
+            nếu (secspace == string::npos || secspace < 3) {
                 v3error("Malformed coverage point, without a count: " << filename << ":"
                                                                       << lineno);
                 continue;
             }
             const string point = line.substr(3, secspace - 3);
-            if (!opt.isTypeMatch(point.c_str())) continue;
+            nếu (!opt.isTypeMatch(point.c_str())) continue;
 
             const uint64_t hits = std::atoll(line.c_str() + secspace + 1);
             // UINFO(9, "   point '" << point << "'" << " " << hits);
 
             const uint64_t pointnum = points().findAddPoint(point, hits);
-            if (opt.rank()) {  // Only if ranking - uses a lot of memory
+            nếu (opt.rank()) {  // Only if ranking - uses a lot of memory
                 // A test covers a point with a threshold (option.at_least) when its own hits
                 // reach it
                 const uint64_t needed = std::max(
                     VlcBuckets::sufficient(), keyNumber(points().pointNumber(pointnum).thresh()));
-                if (hits >= needed) {
+                nếu (hits >= needed) {
                     points().pointNumber(pointnum).testsCoveringInc();
                     testp->buckets().addData(pointnum, hits);
                 }
@@ -503,13 +503,13 @@ void VlcTop::writeCoverage(const string& filename) {
     UINFO(2, "writeCoverage " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    nếu (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        trả_về;
     }
 
     os << "# SystemC::Coverage-3\n";
-    for (const auto& i : m_points) {
+    cho (const auto& i : m_points) {
         const VlcPoint& point = m_points.pointNumber(i.second);
         os << "C '" << point.name() << "' " << point.count() << '\n';
     }
@@ -519,9 +519,9 @@ void VlcTop::writeInfo(const string& filename) {
     UINFO(2, "writeInfo " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    nếu (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        trả_về;
     }
 
     annotateCalc();
@@ -546,33 +546,33 @@ void VlcTop::writeInfo(const string& filename) {
     //   end_of_record
 
     os << "TN:verilator_coverage\n";
-    for (auto& si : m_sources) {
+    cho (auto& si : m_sources) {
         VlcSource& source = si.second;
         os << "SF:" << source.name() << '\n';
         VlcSource::LinenoMap& lines = source.lines();
-        int branchesFound = 0;
-        int branchesHit = 0;
-        for (auto& li : lines) {
+        số_nguyên branchesFound = 0;
+        số_nguyên branchesHit = 0;
+        cho (auto& li : lines) {
             VlcSourceCount& sc = li.second;
             uint64_t daCount = 0;
             std::vector<const VlcPoint*> infoPoints;
-            for (const auto& point : sc.points()) {
+            cho (const auto& point : sc.points()) {
                 daCount = std::max(daCount, point->count());
                 infoPoints.push_back(point);
             }
             os << "DA:" << sc.lineno() << "," << daCount << "\n";
-            if (infoPoints.size() <= 1) continue;
-            branchesFound += static_cast<int>(infoPoints.size());
-            int point_num = 0;
-            for (const VlcPoint* point : infoPoints) {
+            nếu (infoPoints.size() <= 1) continue;
+            branchesFound += static_cast<số_nguyên>(infoPoints.size());
+            số_nguyên point_num = 0;
+            cho (const VlcPoint* point : infoPoints) {
                 os << "BRDA:" << sc.lineno() << ",";
-                if (point->isFsmArc()) {
+                nếu (point->isFsmArc()) {
                     os << "2,";
                     os << point->fsmFromState() << "->" << point->fsmToState();
-                } else if (point->comment().empty()) {
+                } không_thì nếu (point->comment().empty()) {
                     os << "0,";
                     os << point_num;
-                } else {
+                } không_thì {
                     os << (point->isFsmState() ? '1' : '0') << ',';
                     std::string comment(point->comment());
                     std::replace(comment.begin(), comment.end(), ',', '_');
@@ -595,10 +595,10 @@ void VlcTop::writeInfo(const string& filename) {
 
 struct CmpComputrons final {
     bool operator()(const VlcTest* lhsp, const VlcTest* rhsp) const {
-        if (lhsp->computrons() != rhsp->computrons()) {
-            return lhsp->computrons() < rhsp->computrons();
+        nếu (lhsp->computrons() != rhsp->computrons()) {
+            trả_về lhsp->computrons() < rhsp->computrons();
         }
-        return lhsp->bucketsCovered() > rhsp->bucketsCovered();
+        trả_về lhsp->bucketsCovered() > rhsp->bucketsCovered();
     }
 };
 
@@ -608,45 +608,45 @@ void VlcTop::rank() {
 
     // Sort by computrons, so fast tests get selected first
     std::vector<VlcTest*> bytime;
-    for (const auto& testp : m_tests) {
-        if (testp->bucketsCovered()) {  // else no points, so can't help us
+    cho (const auto& testp : m_tests) {
+        nếu (testp->bucketsCovered()) {  // else no points, so can't help us
             bytime.push_back(testp);
         }
     }
     sort(bytime.begin(), bytime.end(), CmpComputrons());  // Sort the vector
 
     VlcBuckets remaining;
-    for (const auto& i : m_points) {
+    cho (const auto& i : m_points) {
         const VlcPoint* const pointp = &points().pointNumber(i.second);
         // If any tests hit this point, then we'll need to cover it.
-        if (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
+        nếu (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
     }
 
     // Additional Greedy algorithm
     // O(n^2) Ouch.  Probably the thing to do is randomize the order of data
     // then hierarchically solve a small subset of tests, and take resulting
     // solution and move up to larger subset of tests.  (Aka quick sort.)
-    while (true) {
-        if (debug() >= 9) {
+    trong_khi (true) {
+        nếu (debug() >= 9) {
             UINFO_PREFIX("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
             remaining.dump();  // LCOV_EXCL_LINE
         }
         VlcTest* bestTestp = nullptr;
         uint64_t bestRemain = 0;
-        for (const auto& testp : bytime) {
-            if (!testp->rank()) {
+        cho (const auto& testp : bytime) {
+            nếu (!testp->rank()) {
                 const uint64_t remain = testp->buckets().dataPopCount(remaining);
-                if (remain > bestRemain) {
+                nếu (remain > bestRemain) {
                     bestTestp = testp;
                     bestRemain = remain;
                 }
             }
         }
-        if (VlcTest* const testp = bestTestp) {
+        nếu (VlcTest* const testp = bestTestp) {
             testp->rank(nextrank++);
             testp->rankPoints(bestRemain);
             remaining.orData(bestTestp->buckets());
-        } else {
+        } không_thì {
             break;  // No test covering more stuff found
         }
     }
@@ -654,11 +654,11 @@ void VlcTop::rank() {
 
 void VlcTop::annotateCalc() {
     // Calculate per-line information into filedata structure
-    for (const auto& i : m_points) {
+    cho (const auto& i : m_points) {
         const VlcPoint& point = m_points.pointNumber(i.second);
         const string filename = point.filename();
-        const int lineno = point.lineno();
-        if (!filename.empty() && lineno != 0) {
+        const số_nguyên lineno = point.lineno();
+        nếu (!filename.empty() && lineno != 0) {
             VlcSource& source = sources().findNewSource(filename);
             UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << point.column() << " "
                                        << point.count() << " " << point.linescov());
@@ -666,25 +666,25 @@ void VlcTop::annotateCalc() {
             source.insertPoint(lineno, &point);
             // Additional lines covered by this statement
             bool range = false;
-            int start = 0;
-            int end = 0;
+            số_nguyên start = 0;
+            số_nguyên end = 0;
             const string linescov = point.linescov();
-            for (const char* covp = linescov.c_str(); true; ++covp) {
-                if (!*covp || *covp == ',') {  // Ending
-                    for (int lni = start; start && lni <= end; ++lni) {
+            cho (const char* covp = linescov.c_str(); true; ++covp) {
+                nếu (!*covp || *covp == ',') {  // Ending
+                    cho (số_nguyên lni = start; start && lni <= end; ++lni) {
                         source.insertPoint(lni, &point);
                     }
-                    if (!*covp) break;
+                    nếu (!*covp) break;
                     start = 0;  // Prep for next
                     end = 0;
                     range = false;
-                } else if (*covp == '-') {
+                } không_thì nếu (*covp == '-') {
                     range = true;
-                } else if (std::isdigit(*covp)) {
+                } không_thì nếu (std::isdigit(*covp)) {
                     const char* const digitsp = covp;
-                    while (std::isdigit(*covp)) ++covp;
+                    trong_khi (std::isdigit(*covp)) ++covp;
                     --covp;  // Will inc in for loop
-                    if (!range) start = std::atoi(digitsp);
+                    nếu (!range) start = std::atoi(digitsp);
                     end = std::atoi(digitsp);
                 }
             }
@@ -695,20 +695,20 @@ void VlcTop::annotateCalc() {
 void VlcTop::annotateCalcNeeded() {
     // Compute which files are needed.  A file isn't needed if it has appropriate
     // coverage in all categories
-    int totCases = 0;
-    int totOk = 0;
-    for (auto& si : m_sources) {
+    số_nguyên totCases = 0;
+    số_nguyên totOk = 0;
+    cho (auto& si : m_sources) {
         VlcSource& source = si.second;
         // UINFO(1, "Source " << source.name());
-        if (opt.annotateAll()) source.needed(true);
+        nếu (opt.annotateAll()) source.needed(true);
         const VlcSource::LinenoMap& lines = source.lines();
-        for (auto& li : lines) {
+        cho (auto& li : lines) {
             const VlcSourceCount& sc = li.second;
             // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" << sc.column());
             ++totCases;
-            if (opt.countOk(sc.minCount())) {
+            nếu (opt.countOk(sc.minCount())) {
                 ++totOk;
-            } else {
+            } không_thì {
                 source.needed(true);
             }
         }
@@ -716,79 +716,79 @@ void VlcTop::annotateCalcNeeded() {
     std::cout << "Annotation Summary:\n";
     std::cout << "  lines with all attached points covered : ";
     std::cout << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
-    if (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
+    nếu (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
 }
 
 void VlcTop::annotateOutputFiles(const string& dirname) {
     // Create if uncreated, ignore errors
     V3Os::createDir(dirname);
-    for (auto& si : m_sources) {
+    cho (auto& si : m_sources) {
         VlcSource& source = si.second;
-        if (!source.needed()) continue;
+        nếu (!source.needed()) continue;
         const string filename = source.name();
         const string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
 
         UINFO(1, "annotateOutputFile " << filename << " -> " << outfilename);
 
         std::ifstream is{filename.c_str()};
-        if (!is) {
+        nếu (!is) {
             v3error("Can't read annotation file: " << filename);
-            return;
+            trả_về;
         }
 
         std::ofstream os{outfilename.c_str()};
-        if (!os) {
+        nếu (!os) {
             v3error("Can't write file: " << outfilename);
-            return;
+            trả_về;
         }
 
         os << "//      // verilator_coverage annotation\n";
 
-        int lineno = 0;
-        while (!is.eof()) {
+        số_nguyên lineno = 0;
+        trong_khi (!is.eof()) {
             lineno++;
             const std::string line = V3Os::getline(is);
 
             VlcSource::LinenoMap& lines = source.lines();
             const auto lit = lines.find(lineno);
-            if (lit == lines.end()) {
+            nếu (lit == lines.end()) {
                 os << "        " << line << '\n';
-            } else {
+            } không_thì {
                 VlcSourceCount& sc = lit->second;
                 // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" <<
                 // sc.column());
                 const bool minOk = opt.countOk(sc.minCount());
                 const bool maxOk = opt.countOk(sc.maxCount());
-                if (minOk) {
+                nếu (minOk) {
                     os << " ";
-                } else if (maxOk) {
+                } không_thì nếu (maxOk) {
                     os << "~";
-                } else {
+                } không_thì {
                     os << "%";
                 }
                 os << std::setfill('0') << std::setw(6) << sc.maxCount() << " " << line << '\n';
 
-                if (opt.annotatePoints()) {
-                    for (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
+                nếu (opt.annotatePoints()) {
+                    cho (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
                 }
                 bool printedFsmHeader = false;
-                for (const auto& pit : sc.points()) {
-                    if (!pit->isFsmState() && !pit->isFsmArc()) continue;
-                    if (!printedFsmHeader) {
+                cho (const auto& pit : sc.points()) {
+                    nếu (!pit->isFsmState() && !pit->isFsmArc()) continue;
+                    nếu (!printedFsmHeader) {
                         os << "        // [FSM coverage]\n";
                         printedFsmHeader = true;
                     }
                     os << (opt.countOk(pit->count()) ? " " : "%");
                     os << std::setfill('0') << std::setw(6) << pit->count() << "        ";
-                    if (pit->isFsmState()) {
+                    nếu (pit->isFsmState()) {
                         os << "// [fsm_state " << pit->comment() << "]";
-                        if (pit->count() == 0) os << " *** UNCOVERED ***";
+                        nếu (pit->count() == 0) os << " *** UNCOVERED ***";
                         os << "\n";
-                    } else if (pit->isFsmDefaultArc()) {
+                    } không_thì nếu (pit->isFsmDefaultArc()) {
                         os << "// [SYNTHETIC DEFAULT ARC: " << pit->comment() << "]\n";
-                    } else {
+                    } không_thì {
                         os << "// [fsm_arc " << pit->comment() << "]";
-                        if (pit->fsmIsReset() && !opt.includeResetArcs()) {
+                        nếu (pit->fsmIsReset() && !opt.includeResetArcs()) {
                             os << " [reset arc, excluded from %]";
                         }
                         os << "\n";
@@ -808,18 +808,18 @@ void VlcTop::annotate(const string& dirname) {
 
 void VlcTop::printTypeSummary() {
     TypeTally tally;
-    for (VlcPoints::ByName::value_type& i : m_points) {
+    cho (VlcPoints::ByName::value_type& i : m_points) {
         const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Tallied below, by covergroup
+        nếu (isCovergroup(pt)) continue;  // Tallied below, by covergroup
         tallyPoint(tally, displayType(pt), pt.count());
     }
     const CgGroups groups = covergroups(m_points);
-    if (!groups.empty()) {
+    nếu (!groups.empty()) {
         std::vector<const CgGroup*> groupps;
-        for (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
+        cho (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
         tally[s_covergroupType] = groupsTally(groupps);
     }
-    if (tally.empty()) return;
+    nếu (tally.empty()) trả_về;
     std::cout << "Coverage Summary:\n";
     // Keep the legacy summary behavior of showing standard coverage types even
     // when the input has no points of that type.
@@ -831,17 +831,17 @@ void VlcTop::printHierarchyReport() {
     std::map<string, TypeTally> duTallies;
     bool hasHier = false;
     bool hasCollapsedHier = false;
-    for (VlcPoints::ByName::value_type& i : m_points) {
+    cho (VlcPoints::ByName::value_type& i : m_points) {
         const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Reported below, by covergroup
+        nếu (isCovergroup(pt)) continue;  // Reported below, by covergroup
         const string hier = reportHier(pt);
-        if (hier.empty()) continue;
+        nếu (hier.empty()) continue;
         hasHier = true;
-        if (isCollapsedHier(hier)) hasCollapsedHier = true;
+        nếu (isCollapsedHier(hier)) hasCollapsedHier = true;
         const string type = displayType(pt);
         const std::vector<string> parts = splitHier(hier);
         string path;
-        for (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        cho (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
             path = path.empty() ? *it : path + "." + *it;
             tallyPoint(hierTallies[path], type, pt.count());
         }
@@ -849,27 +849,27 @@ void VlcTop::printHierarchyReport() {
     }
     const std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
 
-    if (!hasHier && !cgTallies.empty()) {
+    nếu (!hasHier && !cgTallies.empty()) {
         printCovergroupTallies(cgTallies, opt.reportLevels());
-        return;
+        trả_về;
     }
-    if (!hasHier) {
+    nếu (!hasHier) {
         std::cout << "%Warning: --report hierarchy input has no hierarchy fields; "
                   << "printing flat summary instead.\n";
         printTypeSummary();
-        return;
+        trả_về;
     }
 
-    const int levels = opt.reportLevels();
-    if (hasCollapsedHier) {
+    const số_nguyên levels = opt.reportLevels();
+    nếu (hasCollapsedHier) {
         std::cout << "Note: hierarchy report contains collapsed hierarchy paths; "
                   << "it is not precise per-instance coverage.\n";
     }
     std::cout << "Hierarchy Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
+    cho (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
          it != hierTallies.end(); ++it) {
         const std::vector<string> parts = splitHier(it->first);
-        if (levels >= 0 && static_cast<int>(parts.size()) > levels + 1) continue;
+        nếu (levels >= 0 && static_cast<số_nguyên>(parts.size()) > levels + 1) continue;
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Hierarchy nodes can be numerous, so only print coverage types present
@@ -877,7 +877,7 @@ void VlcTop::printHierarchyReport() {
         printTypeTally(it->second, s_reportRowIndent, false);
     }
     std::cout << "Design Unit Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
+    cho (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
          ++it) {
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
@@ -885,5 +885,5 @@ void VlcTop::printHierarchyReport() {
         // types only, but in the same stable order as the flat summary.
         printTypeTally(it->second, s_reportRowIndent, false);
     }
-    if (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
+    nếu (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
 }

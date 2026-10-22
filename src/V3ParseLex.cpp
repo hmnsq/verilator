@@ -44,7 +44,7 @@ public:
     void unputString(const char* textp, size_t length) {
         // Add characters to input stream in back-to-front order
         const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        cho (cp += length - 1; length--; cp--) unput(*cp);
     }
 };
 
@@ -55,7 +55,7 @@ void V3ParseImp::lexUnputString(const char* textp, size_t length) {
 void V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
     parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    const số_nguyên token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -64,11 +64,11 @@ void V3ParseImp::yylexReadTok() {
 // Read class functions
 
 void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
+    nếu (m_lexerp) delete m_lexerp;  // Restart from clean slate.
     m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+    nếu (debugFlex() >= 9) m_lexerp->set_debug(~0);
 }
 
 void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+    nếu (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
 }

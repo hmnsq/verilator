@@ -55,7 +55,7 @@ public:
         // Clear the resolved cache, as 'other' might add new patterns that need to be applied as
         // well.
         m_mapResolved.clear();
-        for (const auto& itr : other.m_mapPatterns) m_mapPatterns[itr.first].update(itr.second);
+        cho (const auto& itr : other.m_mapPatterns) m_mapPatterns[itr.first].update(itr.second);
     }
 
     // Access and create a pattern entry
@@ -64,7 +64,7 @@ public:
         // We might be adding a new entry under this, so clear the cache.
         m_mapResolved.clear();
         // Patterns use '/' as separator; normalize Windows backslashes
-        return m_mapPatterns[V3Os::filenameSlashPath(name)];
+        trả_về m_mapPatterns[V3Os::filenameSlashPath(name)];
     }
     // Access an entity and resolve patterns that match it
     T* resolve(const string& name) VL_MT_SAFE_EXCLUDES(m_mutex) {
@@ -73,21 +73,21 @@ public:
         const auto pair = m_mapResolved.emplace(name, nullptr);
         std::unique_ptr<T>& entryr = pair.first->second;
         // Resolve entry when first requested, cache the result
-        if (pair.second) {
+        nếu (pair.second) {
             // Inserted: update the entity with all matches in the patterns.
             // Normalize separators so Windows backslash filenames match the
             // slash-separated patterns (normalized when loaded).
             const string slashName = V3Os::filenameSlashPath(name);
-            for (const auto& patEnt : m_mapPatterns) {
-                if (VString::wildmatch(slashName, patEnt.first)) {
-                    if (!entryr) entryr.reset(new T{});
+            cho (const auto& patEnt : m_mapPatterns) {
+                nếu (VString::wildmatch(slashName, patEnt.first)) {
+                    nếu (!entryr) entryr.reset(new T{});
                     entryr->update(patEnt.second);
                 }
             }
             // Perform final actions that needed all updates completed
-            if (entryr) entryr->updateFinalize();
+            nếu (entryr) entryr->updateFinalize();
         }
-        return entryr.get();
+        trả_về entryr.get();
     }
 };
 
@@ -105,7 +105,7 @@ public:
     void updateFinalize() {}
     // Apply all attributes to the variable
     void apply(AstVar* varp) const {
-        for (const VAttrType attr : m_attrs) {
+        cho (const VAttrType attr : m_attrs) {
             varp->addAttrsp(new AstAttrOf{varp->fileline(), attr});
         }
     }
@@ -124,7 +124,7 @@ class WildcardContents final {
     // METHODS
     static WildcardContents& s() {  // Singleton
         static WildcardContents s_s;
-        return s_s;
+        trả_về s_s;
     }
     void clearCacheImp() { m_mapPatterns.clear(); }
     void pushTextImp(const string& text) {
@@ -135,14 +135,14 @@ class WildcardContents final {
 
         // Insert line-by-line
         string::size_type line_start = 0;
-        while (true) {
+        trong_khi (true) {
             const string::size_type line_end = leftover.find('\n', line_start);
-            if (line_end != string::npos) {
+            nếu (line_end != string::npos) {
                 const string oneline(leftover, line_start, line_end - line_start + 1);
-                if (oneline.size() > 1) m_lines.push_back(oneline);  // Keeps newline
+                nếu (oneline.size() > 1) m_lines.push_back(oneline);  // Keeps newline
                 UINFO(9, "Push[+" << (m_lines.size() - 1) << "]: " << oneline);
                 line_start = line_end + 1;
-            } else {
+            } không_thì {
                 break;
             }
         }
@@ -152,19 +152,19 @@ class WildcardContents final {
     }
 
     bool resolveUncachedImp(const string& contentsRegexp) {
-        for (const string& i : m_lines) {
-            if (VString::wildmatch(i, contentsRegexp)) return true;
+        cho (const string& i : m_lines) {
+            nếu (VString::wildmatch(i, contentsRegexp)) trả_về true;
         }
-        return false;
+        trả_về false;
     }
     bool resolveCachedImp(const string& contentsRegexp) {
         // Lookup if it was resolved before, typically is
-        if (contentsRegexp.empty()) return true;
+        nếu (contentsRegexp.empty()) trả_về true;
         const auto pair = m_mapPatterns.emplace(contentsRegexp, false);
         bool& entryr = pair.first->second;
         // Resolve entry when first requested, cache the result
-        if (pair.second) entryr = resolveUncachedImp(contentsRegexp);
-        return entryr;
+        nếu (pair.second) entryr = resolveUncachedImp(contentsRegexp);
+        trả_về entryr;
     }
 
 public:
@@ -174,7 +174,7 @@ public:
     ~WildcardContents() = default;
     // Return true iff contentsRegexp in parsed contents
     static bool resolve(const string& contentsRegexp) {
-        return s().resolveCachedImp(contentsRegexp);
+        trả_về s().resolveCachedImp(contentsRegexp);
     }
     // Add arbitrary text (need not be line-by-line)
     static void pushText(const string& text) { s().pushTextImp(text); }
@@ -194,25 +194,25 @@ public:
     V3ControlFTask() = default;
     void update(const V3ControlFTask& f) {
         // Don't overwrite true with false
-        if (f.m_noinline) m_noinline = true;
-        if (f.m_public) m_public = true;
+        nếu (f.m_noinline) m_noinline = true;
+        nếu (f.m_public) m_public = true;
         m_params.update(f.m_params);
         m_ports.update(f.m_ports);
         m_vars.update(f.m_vars);
     }
     void updateFinalize() {}
 
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlVarResolver& params() { trả_về m_params; }
+    V3ControlVarResolver& ports() { trả_về m_ports; }
+    V3ControlVarResolver& vars() { trả_về m_vars; }
 
     void setNoInline(bool set) { m_noinline = set; }
     void setPublic(bool set) { m_public = set; }
 
     void apply(AstNodeFTask* ftaskp) const {
-        if (m_noinline)
+        nếu (m_noinline)
             ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
-        if (m_public)
+        nếu (m_public)
             ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::PUBLIC_TASK});
     }
 };
@@ -242,25 +242,25 @@ public:
         m_params.update(m.m_params);
         m_ports.update(m.m_ports);
         m_vars.update(m.m_vars);
-        if (m.m_hasFsmRegisterWrapper) {
+        nếu (m.m_hasFsmRegisterWrapper) {
             m_fsmRegisterWrapper = m.m_fsmRegisterWrapper;
             m_hasFsmRegisterWrapper = true;
         }
-        for (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.insert(i);
-        if (!m_inline) {
+        cho (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.insert(i);
+        nếu (!m_inline) {
             m_inline = m.m_inline;
             m_inlineValue = m.m_inlineValue;
         }
-        for (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
+        cho (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
             m_modPragmas.insert(*it);
         }
     }
     void updateFinalize() {}
 
-    V3ControlFTaskResolver& ftasks() { return m_tasks; }
-    V3ControlVarResolver& params() { return m_params; }
-    V3ControlVarResolver& ports() { return m_ports; }
-    V3ControlVarResolver& vars() { return m_vars; }
+    V3ControlFTaskResolver& ftasks() { trả_về m_tasks; }
+    V3ControlVarResolver& params() { trả_về m_params; }
+    V3ControlVarResolver& ports() { trả_về m_ports; }
+    V3ControlVarResolver& vars() { trả_về m_vars; }
 
     void addCoverageBlockOff(const string& name) { m_coverageOffBlocks.insert(name); }
     void setInline(bool set) {
@@ -268,7 +268,7 @@ public:
         m_inlineValue = set;
     }
     void setFsmRegisterWrapper(FileLine* fl, const V3Control::FsmRegisterWrapper& desc) {
-        if (m_hasFsmRegisterWrapper) {
+        nếu (m_hasFsmRegisterWrapper) {
             fl->v3warn(BADVLTPRAGMA, "Duplicate fsm_register_wrapper descriptor for module "
                                          << AstNode::prettyNameQ(desc.moduleName)
                                          << "; replacing previous descriptor");
@@ -277,21 +277,21 @@ public:
         m_hasFsmRegisterWrapper = true;
     }
     const V3Control::FsmRegisterWrapper* fsmRegisterWrapperp() const {
-        return m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
+        trả_về m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
     }
     void addModulePragma(VPragmaType pragma) { m_modPragmas.insert(pragma); }
 
     void apply(AstNodeModule* modp) {
-        if (m_inline) {
+        nếu (m_inline) {
             const VPragmaType type
                 = m_inlineValue ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
             AstNode* const nodep = new AstPragma{modp->fileline(), type};
             modp->addStmtsp(nodep);
         }
-        for (const auto& itr : m_modPragmas) {
+        cho (const auto& itr : m_modPragmas) {
             // Catch hier param modules to mark their attributes before they are
             // flagged dead in LinkDot.
-            if (itr == VPragmaType::HIER_PARAMS) modp->hierParams(true);
+            nếu (itr == VPragmaType::HIER_PARAMS) modp->hierParams(true);
             AstNode* const nodep = new AstPragma{modp->fileline(), itr};
             modp->addStmtsp(nodep);
         }
@@ -299,9 +299,9 @@ public:
 
     void applyBlock(AstGenBlock* nodep) {
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+        nếu (!nodep->unnamed()) {
+            cho (const string& i : m_coverageOffBlocks) {
+                nếu (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
                     nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
                 }
             }
@@ -311,9 +311,9 @@ public:
     void applyBlock(AstNodeBlock* nodep) {
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
         FileLine* const flp = nodep->fileline();
-        if (!nodep->unnamed()) {
-            for (const string& i : m_coverageOffBlocks) {
-                if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
+        nếu (!nodep->unnamed()) {
+            cho (const string& i : m_coverageOffBlocks) {
+                nếu (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
                     nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
                 }
             }
@@ -331,23 +331,23 @@ using V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
 // lint/coverage/tracing on/off
 class V3ControlIgnoresLine final {
 public:
-    const int m_lineMin;  // Minimum line number to make change at
-    const int m_lineMax;  // Maximum line number to make change at (inclusive)
+    const số_nguyên m_lineMin;  // Minimum line number to make change at
+    const số_nguyên m_lineMax;  // Maximum line number to make change at (inclusive)
     const V3ErrorCode m_code;  // Error code
     const bool m_on;  // True to enable message
-    V3ControlIgnoresLine(V3ErrorCode code, int linemin, int linemax, bool on)
+    V3ControlIgnoresLine(V3ErrorCode code, số_nguyên linemin, số_nguyên linemax, bool on)
         : m_lineMin{linemin}
         , m_lineMax{linemax}
         , m_code{code}
         , m_on{on} {}
     ~V3ControlIgnoresLine() = default;
-    bool everyLine() const { return m_lineMin == 0 && m_lineMax == 0; }
-    bool inRange(int lineno) const {
-        return (lineno >= m_lineMin && lineno <= m_lineMax) || everyLine();
+    bool everyLine() const { trả_về m_lineMin == 0 && m_lineMax == 0; }
+    bool inRange(số_nguyên lineno) const {
+        trả_về (lineno >= m_lineMin && lineno <= m_lineMax) || everyLine();
     }
 };
 std::ostream& operator<<(std::ostream& os, const V3ControlIgnoresLine& rhs) {
-    return os << rhs.m_lineMin << "-" << rhs.m_lineMax << ", " << rhs.m_code << ", " << rhs.m_on;
+    trả_về os << rhs.m_lineMin << "-" << rhs.m_lineMax << ", " << rhs.m_code << ", " << rhs.m_on;
 }
 
 // Ignore line settings, index is parse order
@@ -359,12 +359,12 @@ using IgnIndices = std::vector<uint32_t>;  // List of {s_ignLines indces}
 class VIntervalTree final {
     struct Entry final {
         // Classic centered interval tree, referencing an index to controlIgnLines
-        int m_center;  // Line number of central point
+        số_nguyên m_center;  // Line number of central point
         std::unique_ptr<Entry> m_leftp;  // Entry with all its rules/entries < this center
         std::unique_ptr<Entry> m_rightp;  // Entry with all its rules/entries > this center
         IgnIndices m_byMin;  // Rules overlapping center sorted by min line number
         IgnIndices m_byMax;  // Rules overlapping center sorted by max line number
-        explicit Entry(int center)
+        explicit Entry(số_nguyên center)
             : m_center{center} {}
     };
 
@@ -373,13 +373,13 @@ class VIntervalTree final {
 
 private:
     std::unique_ptr<Entry> buildTree(const IgnIndices& points) {
-        if (points.empty()) return nullptr;
+        nếu (points.empty()) trả_về nullptr;
 
-        int minval = std::numeric_limits<int>::max();
-        int maxval = std::numeric_limits<int>::min();
-        for (const auto& it : points) {
+        số_nguyên minval = std::numeric_limits<số_nguyên>::max();
+        số_nguyên maxval = std::numeric_limits<số_nguyên>::min();
+        cho (const auto& it : points) {
             const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) {
+            nếu (cign.everyLine()) {
                 m_everyLines.emplace_back(it);
                 continue;
             }
@@ -387,71 +387,71 @@ private:
             maxval = std::max(maxval, cign.m_lineMax);
         }
 
-        const int center = minval + (maxval - minval) / 2;
+        const số_nguyên center = minval + (maxval - minval) / 2;
         auto entp = std::unique_ptr<Entry>(new Entry{center});
 
         IgnIndices leftPoints;
         IgnIndices rightPoints;
-        for (const auto& it : points) {
+        cho (const auto& it : points) {
             const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) continue;
+            nếu (cign.everyLine()) continue;
             // UINFO(9, "Inserting for center " << center << " point " << it);
-            if (cign.m_lineMax < center)
+            nếu (cign.m_lineMax < center)
                 leftPoints.emplace_back(it);
-            else if (cign.m_lineMin > center)
+            không_thì nếu (cign.m_lineMin > center)
                 rightPoints.emplace_back(it);
-            else {
+            không_thì {
                 entp->m_byMin.push_back(it);
                 entp->m_byMax.push_back(it);
             }
         }
 
         std::sort(entp->m_byMin.begin(), entp->m_byMin.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMin < controlIgnLines[b].m_lineMin;
+            trả_về controlIgnLines[a].m_lineMin < controlIgnLines[b].m_lineMin;
         });
         std::sort(entp->m_byMax.begin(), entp->m_byMax.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMax > controlIgnLines[b].m_lineMax;
+            trả_về controlIgnLines[a].m_lineMax > controlIgnLines[b].m_lineMax;
         });
 
         entp->m_leftp = buildTree(leftPoints);
         entp->m_rightp = buildTree(rightPoints);
-        return entp;
+        trả_về entp;
     }
 
-    void findTree(int lineno, Entry* entp, IgnIndices& resultsr, int& nextChanger) const {
+    void findTree(số_nguyên lineno, Entry* entp, IgnIndices& resultsr, số_nguyên& nextChanger) const {
         // UINFO(9, "Find " << lineno << " center " << entp->m_center);
-        if (lineno < entp->m_center) {
+        nếu (lineno < entp->m_center) {
             nextChanger = std::min(nextChanger, entp->m_center);
-            for (const auto& it : entp->m_byMin) {
+            cho (const auto& it : entp->m_byMin) {
                 const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMin <= lineno) {
+                nếu (cign.m_lineMin <= lineno) {
                     resultsr.emplace_back(it);
-                } else {
+                } không_thì {
                     nextChanger = std::min(nextChanger, cign.m_lineMin);
                     break;
                 }
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-        } else if (lineno > entp->m_center) {
-            for (const auto& it : entp->m_byMax) {
+            nếu (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+        } không_thì nếu (lineno > entp->m_center) {
+            cho (const auto& it : entp->m_byMax) {
                 const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMax >= lineno) {
+                nếu (cign.m_lineMax >= lineno) {
                     nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
                     resultsr.emplace_back(it);
-                } else {
+                } không_thì {
                     break;
                 }
             }
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
-        } else {
-            for (const auto& it : entp->m_byMin) {
+            nếu (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+        } không_thì {
+            cho (const auto& it : entp->m_byMin) {
                 const V3ControlIgnoresLine& cign = controlIgnLines[it];
                 resultsr.emplace_back(it);
-                if (cign.m_lineMax >= lineno)
+                nếu (cign.m_lineMax >= lineno)
                     nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+            nếu (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+            nếu (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
         }
     }
 
@@ -465,11 +465,11 @@ public:
         clear();
         m_rootp = buildTree(points);
     }
-    void find(int lineno, IgnIndices& resultsr, int& nextChanger) const {
+    void find(số_nguyên lineno, IgnIndices& resultsr, số_nguyên& nextChanger) const {
         resultsr = m_everyLines;
-        nextChanger = std::numeric_limits<int>::max();
+        nextChanger = std::numeric_limits<số_nguyên>::max();
 
-        if (m_rootp) findTree(lineno, m_rootp.get(), resultsr, nextChanger);
+        nếu (m_rootp) findTree(lineno, m_rootp.get(), resultsr, nextChanger);
         // Sort indices, so can process in parse order
         std::sort(resultsr.begin(), resultsr.end());
     }
@@ -483,9 +483,9 @@ public:
         // i4:        .     .      20------------40     .
         // i5:(below) 0---------------------------------------0
         IgnIndices data;
-        std::vector<std::pair<int, int>> points
+        std::vector<std::pair<số_nguyên, số_nguyên>> points
             = {{10, 10}, {20, 20}, {40, 40}, {10, 30}, {20, 40}};
-        for (const auto& it : points) {
+        cho (const auto& it : points) {
             controlIgnLines.emplace_back(
                 V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
             data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
@@ -494,7 +494,7 @@ public:
         tree.build(data);
 
         IgnIndices results;
-        int nextChange = 0;
+        số_nguyên nextChange = 0;
         tree.find(0, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
         UASSERT_SELFTEST(nextChange, 10);
@@ -530,10 +530,10 @@ public:
         UASSERT_SELFTEST(nextChange, 41);
         tree.find(41, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
-        UASSERT_SELFTEST(nextChange, std::numeric_limits<int>::max());
+        UASSERT_SELFTEST(nextChange, std::numeric_limits<số_nguyên>::max());
         //
         points = {{0, 0}};
-        for (const auto& it : points) {
+        cho (const auto& it : points) {
             controlIgnLines.emplace_back(
                 V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
             data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
@@ -565,7 +565,7 @@ public:
 
 // File entity
 class V3ControlFile final {
-    using LineAttrMap = std::map<int, V3ControlLineAttribute>;  // Map line->bitset of attributes
+    using LineAttrMap = std::map<số_nguyên, V3ControlLineAttribute>;  // Map line->bitset of attributes
     using Waivers = std::vector<WaiverSetting>;  // List of {code,wildcard string}
 
     LineAttrMap m_lineAttrs;  // Attributes to line mapping
@@ -574,23 +574,23 @@ class V3ControlFile final {
     VIntervalTree m_intervalTree;  // Tree of indices to IgnLines
 
     struct {
-        int filenameno = -1;  // Last filename
-        int lineno = -1;  // Last linenumber
-        int nextChange = -1;  // Line number of next change
+        số_nguyên filenameno = -1;  // Last filename
+        số_nguyên lineno = -1;  // Last linenumber
+        số_nguyên nextChange = -1;  // Line number of next change
     } m_lastIgnore;  // Last ignore line run
 
     // Match a given line and attribute to the map, line 0 is any
-    bool lineMatch(int lineno, VPragmaType type) {
-        if (m_lineAttrs.find(0) != m_lineAttrs.end() && m_lineAttrs[0][type]) return true;
-        if (m_lineAttrs.find(lineno) == m_lineAttrs.end()) return false;
-        return m_lineAttrs[lineno][type];
+    bool lineMatch(số_nguyên lineno, VPragmaType type) {
+        nếu (m_lineAttrs.find(0) != m_lineAttrs.end() && m_lineAttrs[0][type]) trả_về true;
+        nếu (m_lineAttrs.find(lineno) == m_lineAttrs.end()) trả_về false;
+        trả_về m_lineAttrs[lineno][type];
     }
 
 public:
     V3ControlFile() = default;
     void update(const V3ControlFile& file) {
         // Copy in all attributes and waivers
-        for (const auto& itr : file.m_lineAttrs) m_lineAttrs[itr.first] |= itr.second;
+        cho (const auto& itr : file.m_lineAttrs) m_lineAttrs[itr.first] |= itr.second;
         m_waivers.reserve(m_waivers.size() + file.m_waivers.size());
         m_waivers.insert(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
         // Copy in all ignore references
@@ -600,8 +600,8 @@ public:
         // updateFinalize() will soon build tree
     }
     void updateFinalize() { m_intervalTree.build(m_ignIndices); }
-    void addLineAttribute(int lineno, VPragmaType attr) { m_lineAttrs[lineno].set(attr); }
-    void addIgnore(V3ErrorCode code, int min, int max, bool on) {
+    void addLineAttribute(số_nguyên lineno, VPragmaType attr) { m_lineAttrs[lineno].set(attr); }
+    void addIgnore(V3ErrorCode code, số_nguyên min, số_nguyên max, bool on) {
         controlIgnLines.emplace_back(V3ControlIgnoresLine{code, min, max, on});
         m_ignIndices.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
         m_lastIgnore.nextChange = -1;
@@ -610,14 +610,14 @@ public:
         // Since Verilator 5.031 the error message compared has context, so
         // allow old rules to still match using a final '*'
         string newMatch = match;
-        if (newMatch.empty() || newMatch.back() != '*') newMatch += '*';
+        nếu (newMatch.empty() || newMatch.back() != '*') newMatch += '*';
         m_waivers.emplace_back(code, contents, newMatch);
     }
 
     void applyBlock(AstGenBlock* nodep) {
         // Apply to block at this line
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (lineMatch(nodep->fileline()->lineno(), pragma)) {
+        nếu (lineMatch(nodep->fileline()->lineno(), pragma)) {
             nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
         }
     }
@@ -625,32 +625,32 @@ public:
         // Apply to block at this line
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
         FileLine* const flp = nodep->fileline();
-        if (lineMatch(flp->lineno(), pragma)) {
+        nếu (lineMatch(flp->lineno(), pragma)) {
             nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
         }
     }
     void applyCase(AstCase* nodep) {
         // Apply to this case at this line
-        const int lineno = nodep->fileline()->lineno();
-        if (lineMatch(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
-        if (lineMatch(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
+        const số_nguyên lineno = nodep->fileline()->lineno();
+        nếu (lineMatch(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
+        nếu (lineMatch(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
     }
     void applyIgnores(FileLine* filelinep) {
         // HOT routine, called each parsed token line of this filename
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
+        nếu (filelinep->filenameno() == m_lastIgnore.filenameno
             && filelinep->lineno() == m_lastIgnore.lineno)
-            return;  // Short circuit, no change, no debug
+            trả_về;  // Short circuit, no change, no debug
         // For speed, compute line number of next potential change, and skip if before then
-        if (filelinep->filenameno() == m_lastIgnore.filenameno
+        nếu (filelinep->filenameno() == m_lastIgnore.filenameno
             && filelinep->lineno() < m_lastIgnore.nextChange) {
             m_lastIgnore.lineno = filelinep->lineno();
             UINFO(9, "   ApplyIgnores for " << filelinep->ascii() << " (no change predicted)");
-            return;
+            trả_về;
         }
         UINFO(9, "   ApplyIgnores for " << filelinep->ascii());
         m_lastIgnore.filenameno = filelinep->filenameno();
         m_lastIgnore.lineno = filelinep->lineno();
-        m_lastIgnore.nextChange = std::numeric_limits<int>::max();
+        m_lastIgnore.nextChange = std::numeric_limits<số_nguyên>::max();
 
         // Find all on/offs.  Unlike lint pragmas we calculate the entire
         // bitset of errors to enable, instead of individual enable/disable changes.
@@ -658,7 +658,7 @@ public:
         m_intervalTree.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
         // Process all on/offs for lines up to and including the current line
         VErrorBitSet bitset{VErrorBitSet::AllOnes{}};
-        for (const auto& it : results) {
+        cho (const auto& it : results) {
             const V3ControlIgnoresLine& cign = controlIgnLines[it];
             UASSERT(cign.inRange(filelinep->lineno()),
                     "Interval tree returned lines outside range");
@@ -674,15 +674,15 @@ public:
                                        << " Messages: " << bitset.ascii());
     }
     bool waive(V3ErrorCode code, const string& message) {
-        if (code.hardError()) return false;
-        for (const auto& itr : m_waivers) {
-            if ((code.isUnder(itr.m_code) || (itr.m_code == V3ErrorCode::I_LINT))
+        nếu (code.hardError()) trả_về false;
+        cho (const auto& itr : m_waivers) {
+            nếu ((code.isUnder(itr.m_code) || (itr.m_code == V3ErrorCode::I_LINT))
                 && VString::wildmatch(message, itr.m_match)
                 && WildcardContents::resolve(itr.m_contents)) {
-                return true;
+                trả_về true;
             }
         }
-        return false;
+        trả_về false;
     }
 };
 
@@ -695,19 +695,19 @@ class V3ControlScopeTraceEntry final {
 public:
     const string m_scope;  // Scope or regexp to match
     const bool m_on;  // True to enable message
-    int m_levels = 0;  // # levels, 0 = all, 1 = only this, ...
+    số_nguyên m_levels = 0;  // # levels, 0 = all, 1 = only this, ...
     // CONSTRUCTORS
-    V3ControlScopeTraceEntry(const string& scope, bool on, int levels)
+    V3ControlScopeTraceEntry(const string& scope, bool on, số_nguyên levels)
         : m_scope{scope}
         , m_on{on}
         , m_levels{levels} {}
     ~V3ControlScopeTraceEntry() = default;
     bool operator<(const V3ControlScopeTraceEntry& other) const {
-        if (m_on < other.m_on) return true;
-        if (m_on > other.m_on) return false;
-        if (m_levels < other.m_levels) return true;
-        if (m_levels > other.m_levels) return false;
-        return m_scope < other.m_scope;
+        nếu (m_on < other.m_on) trả_về true;
+        nếu (m_on > other.m_on) trả_về false;
+        nếu (m_levels < other.m_levels) trả_về true;
+        nếu (m_levels > other.m_levels) trả_về false;
+        trả_về m_scope < other.m_scope;
     }
 };
 
@@ -720,9 +720,9 @@ public:
         : m_entryp{entryp}
         , m_scopepart{scopepart} {}
     bool operator<(const V3ControlScopeTraceEntryMatch& other) const {
-        if (m_entryp < other.m_entryp) return true;
-        if (m_entryp > other.m_entryp) return false;
-        return m_scopepart < other.m_scopepart;
+        nếu (m_entryp < other.m_entryp) trả_về true;
+        nếu (m_entryp > other.m_entryp) trả_về false;
+        trả_về m_scopepart < other.m_scopepart;
     }
 };
 
@@ -731,7 +731,7 @@ class V3ControlScopeTraceResolver final {
     std::map<V3ControlScopeTraceEntryMatch, bool> m_matchCache;  // Matching entries for speed
 
 public:
-    void addScopeTraceOn(bool on, const string& scope, int levels) {
+    void addScopeTraceOn(bool on, const string& scope, số_nguyên levels) {
         UINFO(9, "addScopeTraceOn " << on << " '" << scope << "' " << " levels=" << levels);
         m_entries.emplace_back(V3ControlScopeTraceEntry{scope, on, levels});
         m_matchCache.clear();
@@ -741,43 +741,43 @@ public:
         // Return if a entry matches the scopepart, with memoization
         const V3ControlScopeTraceEntryMatch key{entp, scopepart};
         const auto pair = m_matchCache.emplace(key, false);
-        if (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
-        return pair.first->second;
+        nếu (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
+        trả_về pair.first->second;
     }
 
     bool getScopeTraceOn(const string& scope) {
         // Apply in the order the user provided them, so they can choose on/off preferences
-        int maxLevel = 1;
-        for (const auto& ch : scope) {
-            if (ch == '.') ++maxLevel;
+        số_nguyên maxLevel = 1;
+        cho (const auto& ch : scope) {
+            nếu (ch == '.') ++maxLevel;
         }
         UINFO(9, "getScopeTraceOn " << scope << " maxLevel=" << maxLevel);
 
         bool enabled = true;
-        for (const auto& ent : m_entries) {
+        cho (const auto& ent : m_entries) {
             // We apply shortest match first for each rule component
             // (Otherwise the levels would be useless as "--scope top* --levels 1" would
             // always match at every scopepart, and we wouldn't know how to count levels)
-            int partLevel = 1;
-            for (string::size_type partEnd = 0; true;) {
+            số_nguyên partLevel = 1;
+            cho (string::size_type partEnd = 0; true;) {
                 partEnd = scope.find('.', partEnd + 1);
-                if (partEnd == string::npos) partEnd = scope.length();
+                nếu (partEnd == string::npos) partEnd = scope.length();
                 const std::string scopepart = scope.substr(0, partEnd);
-                if (getEntryMatch(&ent, scopepart)) {
+                nếu (getEntryMatch(&ent, scopepart)) {
                     const bool levelMatch
                         = !ent.m_levels || (ent.m_levels >= maxLevel - partLevel);
-                    if (levelMatch) enabled = ent.m_on;
+                    nếu (levelMatch) enabled = ent.m_on;
                     UINFO(9, "getScopeTraceOn-part " << scope << " enabled=" << enabled
                                                      << " @ lev=" << partLevel
                                                      << (levelMatch ? "[match]" : "[miss]")
                                                      << " from scopepart=" << scopepart);
                     break;
                 }
-                if (partEnd == scope.length()) break;
+                nếu (partEnd == scope.length()) break;
                 ++partLevel;
             }
         }
-        return enabled;
+        trả_về enabled;
     }
 };
 
@@ -785,15 +785,15 @@ public:
 // Resolve modules and files in the design
 
 class V3ControlResolverHierWorkerEntry final {
-    const int m_workers;  // Number of workers requested for the hierarchical block
+    const số_nguyên m_workers;  // Number of workers requested for the hierarchical block
     FileLine* const m_flp;  // Location the worker count was specified at
 
 public:
-    explicit V3ControlResolverHierWorkerEntry(int workers, FileLine* flp)
+    explicit V3ControlResolverHierWorkerEntry(số_nguyên workers, FileLine* flp)
         : m_workers{workers}
         , m_flp{flp} {}
-    int workers() const { return m_workers; }
-    FileLine* flp() const { return m_flp; }
+    số_nguyên workers() const { trả_về m_workers; }
+    FileLine* flp() const { trả_về m_flp; }
 };
 
 class V3ControlResolver final {
@@ -813,11 +813,11 @@ class V3ControlResolver final {
 public:
     static V3ControlResolver& s() {
         static V3ControlResolver s_singleton;
-        return s_singleton;
+        trả_về s_singleton;
     }
-    V3ControlModuleResolver& modules() { return m_modules; }
-    V3ControlFileResolver& files() { return m_files; }
-    V3ControlScopeTraceResolver& scopeTraces() { return m_scopeTraces; }
+    V3ControlModuleResolver& modules() { trả_về m_modules; }
+    V3ControlFileResolver& files() { trả_về m_files; }
+    V3ControlScopeTraceResolver& scopeTraces() { trả_về m_scopeTraces; }
 
     void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
         // Empty key for hierarchical DPI wrapper costs.
@@ -825,72 +825,72 @@ public:
     }
     void addProfileData(FileLine* fl, const string& model, const string& key, uint64_t cost,
                         ProfileDataMode mode = MTASK) {
-        if (!m_profileFileLine) m_profileFileLine = fl;
-        if (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
-        if (mode == MTASK) {
+        nếu (!m_profileFileLine) m_profileFileLine = fl;
+        nếu (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
+        nếu (mode == MTASK) {
             m_profileData[model][key] += cost;
-        } else if (mode == HIER_DPI) {
+        } không_thì nếu (mode == HIER_DPI) {
             m_profileData[model][key] = std::max(m_profileData[model][key], cost);
         }
         m_mode |= mode;
     }
-    bool containsMTaskProfileData() const { return m_mode & MTASK; }
+    bool containsMTaskProfileData() const { trả_về m_mode & MTASK; }
     uint64_t getProfileData(const string& hierDpi) const {
         // Empty key for hierarchical DPI wrapper costs.
-        return getProfileData(hierDpi, "");
+        trả_về getProfileData(hierDpi, "");
     }
-    void addHierWorkers(FileLine* flp, const string& model, int workers) {
+    void addHierWorkers(FileLine* flp, const string& model, số_nguyên workers) {
         m_hierWorkers.emplace(std::piecewise_construct, std::forward_as_tuple(model),
                               std::forward_as_tuple(workers, flp));
     }
-    int getHierWorkers(const string& model) const {
+    số_nguyên getHierWorkers(const string& model) const {
         const auto mit = m_hierWorkers.find(model);
         // Assign a single worker if no specified.
-        return mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
+        trả_về mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
     }
     FileLine* getHierWorkersFileLine(const string& model) const {
         const auto mit = m_hierWorkers.find(model);
-        return mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
+        trả_về mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
     }
     uint64_t getProfileData(const string& model, const string& key) const {
         const auto mit = m_profileData.find(model);
-        if (mit == m_profileData.cend()) return 0;
+        nếu (mit == m_profileData.cend()) trả_về 0;
         const auto it = mit->second.find(key);
-        if (it == mit->second.cend()) return 0;
-        return it->second;
+        nếu (it == mit->second.cend()) trả_về 0;
+        trả_về it->second;
     }
-    FileLine* getProfileDataFileLine() const { return m_profileFileLine; }  // Maybe null
+    FileLine* getProfileDataFileLine() const { trả_về m_profileFileLine; }  // Maybe null
     static uint64_t getCurrentHierBlockCost() {
-        if (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
+        nếu (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
             UINFO(9, "Fetching cost from profile info: " << cost);
-            return cost;
+            trả_về cost;
         }
 
         // Without profiling data, sum the regions evaluated on each time step
         AstNetlist* const netlistp = v3Global.rootp();
         uint64_t cost = 0;
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
+        cho (số_nguyên i = 0; i < VEval::_ENUM_END; ++i) {
             const VEval eval{i};
-            if (eval.slow()) continue;
+            nếu (eval.slow()) continue;
             cost += V3InstrCount::count(netlistp->evalFuncp(eval), false);
         }
         UINFO(9, "Evaluating cost: " << cost);
-        return cost;
+        trả_về cost;
     }
 };
 
 //######################################################################
 // V3Control
 
-void V3Control::addCaseFull(const string& filename, int lineno) {
+void V3Control::addCaseFull(const string& filename, số_nguyên lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
     file.addLineAttribute(lineno, VPragmaType::FULL_CASE);
 }
-void V3Control::addCaseParallel(const string& filename, int lineno) {
+void V3Control::addCaseParallel(const string& filename, số_nguyên lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
     file.addLineAttribute(lineno, VPragmaType::PARALLEL_CASE);
 }
-void V3Control::addCoverageBlockOff(const string& filename, int lineno) {
+void V3Control::addCoverageBlockOff(const string& filename, số_nguyên lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
     file.addLineAttribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
 }
@@ -898,7 +898,7 @@ void V3Control::addCoverageBlockOff(const string& module, const string& blocknam
     V3ControlResolver::s().modules().at(module).addCoverageBlockOff(blockname);
 }
 
-void V3Control::addHierWorkers(FileLine* fl, const string& model, int workers) {
+void V3Control::addHierWorkers(FileLine* fl, const string& model, số_nguyên workers) {
     V3ControlResolver::s().addHierWorkers(fl, model, workers);
 }
 
@@ -906,24 +906,24 @@ void V3Control::addFsmRegisterWrapper(FileLine* fl, const string& module, const 
                                       const string& q, const string& clock, const string& reset,
                                       const string& resetValue) {
     string missing;
-    if (module.empty()) missing += "-module";
-    if (d.empty()) missing = VString::dot(missing, ", ", "-d");
-    if (q.empty()) missing = VString::dot(missing, ", ", "-q");
-    if (clock.empty()) missing = VString::dot(missing, ", ", "-clock");
-    if (!missing.empty()) {
+    nếu (module.empty()) missing += "-module";
+    nếu (d.empty()) missing = VString::dot(missing, ", ", "-d");
+    nếu (q.empty()) missing = VString::dot(missing, ", ", "-q");
+    nếu (clock.empty()) missing = VString::dot(missing, ", ", "-clock");
+    nếu (!missing.empty()) {
         fl->v3error("fsm_register_wrapper missing " << missing);
-        return;
+        trả_về;
     }
 
     const FsmRegisterWrapper desc{module, d, q, clock, reset, resetValue};
     V3ControlResolver::s().modules().at(module).setFsmRegisterWrapper(fl, desc);
 }
 
-void V3Control::addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max) {
+void V3Control::addIgnore(V3ErrorCode code, bool on, const string& filename, số_nguyên min, số_nguyên max) {
     UINFO(9, "addIgnore " << code << " " << min << "-" << max << " fn=" << filename);
-    if (filename == "*") {  // For "lint_off/lint_on [--rule x]"
+    nếu (filename == "*") {  // For "lint_off/lint_on [--rule x]"
         FileLine::globalWarnOff(code, !on);
-    } else {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
+    } không_thì {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
         V3ControlResolver::s().files().at(filename).addIgnore(code, min, max, on);
     }
 }
@@ -934,12 +934,12 @@ void V3Control::addIgnoreMatch(V3ErrorCode code, const string& filename, const s
 }
 
 void V3Control::addInline(FileLine* fl, const string& module, const string& ftask, bool on) {
-    if (ftask.empty()) {
+    nếu (ftask.empty()) {
         V3ControlResolver::s().modules().at(module).setInline(on);
-    } else {
-        if (!on) {
+    } không_thì {
+        nếu (!on) {
             fl->v3warn(E_UNSUPPORTED, "Unsupported: no_inline for tasks");
-        } else {
+        } không_thì {
             V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setNoInline(on);
         }
     }
@@ -957,70 +957,70 @@ void V3Control::addProfileData(FileLine* fl, const string& model, const string& 
     V3ControlResolver::s().addProfileData(fl, model, key, cost);
 }
 
-void V3Control::addScopeTraceOn(bool on, const string& scope, int levels) {
+void V3Control::addScopeTraceOn(bool on, const string& scope, số_nguyên levels) {
     V3ControlResolver::s().scopeTraces().addScopeTraceOn(on, scope, levels);
 }
 
 void V3Control::addVarAttr(FileLine* fl, const string& module, const string& ftask,
                            VarSpecKind kind, const string& pattern, VAttrType attr,
                            AstSenTree* sensep) {
-    if (sensep) {
+    nếu (sensep) {
         FileLine* const flp = sensep->fileline();
         // Historical, not actually needed, only parsed for compatibility, delete it
         VL_DO_DANGLING(sensep->deleteTree(), sensep);
         // Used to be only accepted on public_flat_rw
-        if (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
+        nếu (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
             flp->v3error("sensitivity not expected for attribute");
-            return;
+            trả_về;
         }
     }
 
-    if (kind != VarSpecKind::VAR) {
+    nếu (kind != VarSpecKind::VAR) {
         switch (attr) {
         case VAttrType::VAR_PUBLIC_FLAT:
         case VAttrType::VAR_PUBLIC_FLAT_RD:
         case VAttrType::VAR_PUBLIC_FLAT_RW: break;
         default:
             fl->v3error("'"s + attr.ascii() + "' attribute does not accept -param/-port");
-            return;
+            trả_về;
         }
     }
 
     // Semantics: Most of the attributes operate on signals
-    if (pattern.empty()) {
-        if (attr == VAttrType::VAR_PUBLIC) {
-            if (ftask.empty()) {
+    nếu (pattern.empty()) {
+        nếu (attr == VAttrType::VAR_PUBLIC) {
+            nếu (ftask.empty()) {
                 // public module, this is the only exception from var here
                 V3ControlResolver::s().modules().at(module).addModulePragma(
                     VPragmaType::PUBLIC_MODULE);
-            } else {
+            } không_thì {
                 V3ControlResolver::s().modules().at(module).ftasks().at(ftask).setPublic(true);
             }
-        } else {
+        } không_thì {
             fl->v3error("missing -var");
         }
-    } else {
-        if (attr == VAttrType::VAR_FORCEABLE) {
-            if (module.empty()) {
+    } không_thì {
+        nếu (attr == VAttrType::VAR_FORCEABLE) {
+            nếu (module.empty()) {
                 fl->v3error("forceable missing -module");
-            } else if (!ftask.empty()) {
+            } không_thì nếu (!ftask.empty()) {
                 fl->v3error("Signals inside functions/tasks cannot be marked forceable");
-            } else {
+            } không_thì {
                 V3ControlResolver::s().modules().at(module).vars().at(pattern).add(attr);
             }
-        } else {
+        } không_thì {
             V3ControlModule& mod = V3ControlResolver::s().modules().at(module);
             V3ControlVar& controlVar = [&]() -> V3ControlVar& {
-                if (ftask.empty()) {
-                    if (kind == VarSpecKind::PARAM) return mod.params().at(pattern);
-                    if (kind == VarSpecKind::PORT) return mod.ports().at(pattern);
+                nếu (ftask.empty()) {
+                    nếu (kind == VarSpecKind::PARAM) trả_về mod.params().at(pattern);
+                    nếu (kind == VarSpecKind::PORT) trả_về mod.ports().at(pattern);
                     UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                    return mod.vars().at(pattern);
+                    trả_về mod.vars().at(pattern);
                 }
-                if (kind == VarSpecKind::PARAM) return mod.ftasks().at(ftask).params().at(pattern);
-                if (kind == VarSpecKind::PORT) return mod.ftasks().at(ftask).ports().at(pattern);
+                nếu (kind == VarSpecKind::PARAM) trả_về mod.ftasks().at(ftask).params().at(pattern);
+                nếu (kind == VarSpecKind::PORT) trả_về mod.ftasks().at(ftask).ports().at(pattern);
                 UASSERT_OBJ(kind == VarSpecKind::VAR, fl, "Unexpected VarSpecKind");
-                return mod.ftasks().at(ftask).vars().at(pattern);
+                trả_về mod.ftasks().at(ftask).vars().at(pattern);
             }();
             controlVar.add(attr);
         }
@@ -1030,55 +1030,55 @@ void V3Control::addVarAttr(FileLine* fl, const string& module, const string& fta
 void V3Control::applyCase(AstCase* nodep) {
     const string& filename = nodep->fileline()->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyCase(nodep);
+    nếu (filep) filep->applyCase(nodep);
 }
 
 void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep) {
     const string& filename = nodep->fileline()->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
+    nếu (filep) filep->applyBlock(nodep);
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
+    nếu (modp) modp->applyBlock(nodep);
 }
 void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep) {
     const string& filename = nodep->fileline()->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyBlock(nodep);
+    nếu (filep) filep->applyBlock(nodep);
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->applyBlock(nodep);
+    nếu (modp) modp->applyBlock(nodep);
 }
 
 void V3Control::applyIgnores(FileLine* filelinep) {
     const string& filename = filelinep->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
-    if (filep) filep->applyIgnores(filelinep);
+    nếu (filep) filep->applyIgnores(filelinep);
 }
 
 void V3Control::applyModule(AstNodeModule* modulep) {
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (modp) modp->apply(modulep);
+    nếu (modp) modp->apply(modulep);
 }
 
 void V3Control::applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp) {
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
-    if (!modp) return;
+    nếu (!modp) trả_về;
     const V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-    if (ftp) ftp->apply(ftaskp);
+    nếu (ftp) ftp->apply(ftaskp);
 }
 
 template <typename T_Resolver>
 static void resolveThenApply(T_Resolver& resolver, AstVar* varp) {
     const std::string name = varp->prettyDehashOrigOrName();
-    if (const V3ControlVar* const vp = resolver.vars().resolve(name)) vp->apply(varp);
-    if (varp->isParam()) {
-        if (const V3ControlVar* const vp = resolver.params().resolve(name)) vp->apply(varp);
+    nếu (const V3ControlVar* const vp = resolver.vars().resolve(name)) vp->apply(varp);
+    nếu (varp->isParam()) {
+        nếu (const V3ControlVar* const vp = resolver.params().resolve(name)) vp->apply(varp);
     }
-    if (varp->isIO()) {
-        if (const V3ControlVar* const vp = resolver.ports().resolve(name)) vp->apply(varp);
+    nếu (varp->isIO()) {
+        nếu (const V3ControlVar* const vp = resolver.ports().resolve(name)) vp->apply(varp);
     }
 }
 
@@ -1086,52 +1086,52 @@ void V3Control::applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* f
                              AstVar* varp) {
     V3ControlModule* const modp
         = V3ControlResolver::s().modules().resolve(modulep->prettyDehashOrigOrName());
-    if (!modp) return;
-    if (ftaskp) {
+    nếu (!modp) trả_về;
+    nếu (ftaskp) {
         V3ControlFTask* const ftp = modp->ftasks().resolve(ftaskp->prettyDehashOrigOrName());
-        if (!ftp) return;
+        nếu (!ftp) trả_về;
         resolveThenApply(*ftp, varp);
-    } else {
+    } không_thì {
         resolveThenApply(*modp, varp);
     }
 }
 
-int V3Control::getHierWorkers(const string& model) {
-    return V3ControlResolver::s().getHierWorkers(model);
+số_nguyên V3Control::getHierWorkers(const string& model) {
+    trả_về V3ControlResolver::s().getHierWorkers(model);
 }
 FileLine* V3Control::getHierWorkersFileLine(const string& model) {
-    return V3ControlResolver::s().getHierWorkersFileLine(model);
+    trả_về V3ControlResolver::s().getHierWorkersFileLine(model);
 }
 const V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(const string& module) {
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(module);
-    return modp ? modp->fsmRegisterWrapperp() : nullptr;
+    trả_về modp ? modp->fsmRegisterWrapperp() : nullptr;
 }
 uint64_t V3Control::getProfileData(const string& hierDpi) {
-    return V3ControlResolver::s().getProfileData(hierDpi);
+    trả_về V3ControlResolver::s().getProfileData(hierDpi);
 }
 uint64_t V3Control::getProfileData(const string& model, const string& key) {
-    return V3ControlResolver::s().getProfileData(model, key);
+    trả_về V3ControlResolver::s().getProfileData(model, key);
 }
 FileLine* V3Control::getProfileDataFileLine() {
-    return V3ControlResolver::s().getProfileDataFileLine();
+    trả_về V3ControlResolver::s().getProfileDataFileLine();
 }
 bool V3Control::getScopeTraceOn(const string& scope) {
-    return V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
+    trả_về V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
 }
 
 void V3Control::contentsPushText(const string& text) { WildcardContents::pushText(text); }
 
 bool V3Control::containsMTaskProfileData() {
-    return V3ControlResolver::s().containsMTaskProfileData();
+    trả_về V3ControlResolver::s().containsMTaskProfileData();
 }
 uint64_t V3Control::getCurrentHierBlockCost() {
-    return V3ControlResolver::s().getCurrentHierBlockCost();
+    trả_về V3ControlResolver::s().getCurrentHierBlockCost();
 }
 
 bool V3Control::waive(const FileLine* filelinep, V3ErrorCode code, const string& message) {
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filelinep->filename());
-    if (!filep) return false;
-    return filep->waive(code, message);
+    nếu (!filep) trả_về false;
+    trả_về filep->waive(code, message);
 }
 
 void V3Control::selfTest() { VIntervalTree::selfTest(); }

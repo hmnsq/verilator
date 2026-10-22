@@ -46,7 +46,7 @@ class SenTreeFinder final {
         AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_Domain{}}};
         AstSenTree* const restultp = getSenTree(senTreep);
         VL_DO_DANGLING(senTreep->deleteTree(), senTreep);  // getSenTree clones, so can delete
-        return restultp;
+        trả_về restultp;
     }
 
 public:
@@ -57,11 +57,11 @@ public:
     explicit SenTreeFinder(AstNetlist* netlistp)
         : m_topScopep{netlistp->topScopep()} {
         // Gather existing global SenTrees
-        for (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
+        cho (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
              senTreep = VN_AS(senTreep->nextp(), SenTree)) {
             m_trees.emplace(*senTreep);
-            if (senTreep->hasCombo()) m_combop = senTreep;
-            if (senTreep->hasInitial()) m_initialp = senTreep;
+            nếu (senTreep->hasCombo()) m_combop = senTreep;
+            nếu (senTreep->hasInitial()) m_initialp = senTreep;
         }
     }
 
@@ -72,27 +72,27 @@ public:
     AstSenTree* getSenTree(AstSenTree* senTreep) {
         auto it = m_trees.find(*senTreep);
         // If match found, return it.
-        if (it != m_trees.end()) return &(*it).get();
+        nếu (it != m_trees.end()) trả_về &(*it).get();
 
         // Not found, create a new one
         AstSenTree* const newSenTreep = senTreep->cloneTree(false);
         m_topScopep->addSenTreesp(newSenTreep);
         m_trees.emplace(*newSenTreep);
-        return newSenTreep;
+        trả_về newSenTreep;
     }
 
     // Return the global combinational AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
     AstSenTree* getComb() {
-        if (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
-        return m_combop;
+        nếu (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
+        trả_về m_combop;
     }
 
     // Return the global initial AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
     AstSenTree* getInitial() {
-        if (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
-        return m_initialp;
+        nếu (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
+        trả_về m_initialp;
     }
 };
 

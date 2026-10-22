@@ -38,21 +38,21 @@ class VlcSourceCount final {
     using PointsSet = std::set<const VlcPoint*>;
 
     // MEMBERS
-    const int m_lineno;  ///< Line number
+    const số_nguyên m_lineno;  ///< Line number
     uint64_t m_maxCount = 0;  ///< Max count
     uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
     PointsSet m_points;  // Points on this line
 
 public:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit VlcSourceCount(số_nguyên lineno)
         : m_lineno{lineno} {}
     ~VlcSourceCount() = default;
 
     // ACCESSORS
-    int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    số_nguyên lineno() const { trả_về m_lineno; }
+    uint64_t maxCount() const { trả_về m_maxCount; }
+    uint64_t minCount() const { trả_về m_minCount; }
 
     // METHODS
     void insertPoint(const VlcPoint* pointp) {
@@ -60,7 +60,7 @@ public:
         m_minCount = std::min(m_minCount, pointp->count());
         m_points.emplace(pointp);
     }
-    const PointsSet& points() { return m_points; }
+    const PointsSet& points() { trả_về m_points; }
 };
 
 //********************************************************************
@@ -69,7 +69,7 @@ public:
 class VlcSource final {
 public:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<số_nguyên, VlcSourceCount>;  // Map of {column}
 
 private:
     // MEMBERS
@@ -84,13 +84,13 @@ public:
     ~VlcSource() = default;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool needed() const { return m_needed; }
+    const string& name() const { trả_về m_name; }
+    bool needed() const { trả_về m_needed; }
     void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    LinenoMap& lines() { trả_về m_lines; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
+    void insertPoint(số_nguyên lineno, const VlcPoint* pointp) {
         VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
         sc.insertPoint(pointp);
     }
@@ -111,8 +111,8 @@ private:
 public:
     // ITERATORS
     using iterator = NameMap::iterator;
-    NameMap::iterator begin() { return m_sources.begin(); }
-    NameMap::iterator end() { return m_sources.end(); }
+    NameMap::iterator begin() { trả_về m_sources.begin(); }
+    NameMap::iterator end() { trả_về m_sources.end(); }
 
     // CONSTRUCTORS
     VlcSources() = default;
@@ -121,9 +121,9 @@ public:
     // METHODS
     VlcSource& findNewSource(const string& name) {
         NameMap::iterator iter = m_sources.find(name);
-        if (iter != m_sources.end()) return iter->second;
+        nếu (iter != m_sources.end()) trả_về iter->second;
         iter = m_sources.emplace(name, VlcSource{name}).first;
-        return iter->second;
+        trả_về iter->second;
     }
 };
 
