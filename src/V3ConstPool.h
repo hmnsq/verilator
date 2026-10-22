@@ -23,11 +23,11 @@
 
 #ifndef VERILATOR_V3CONSTPOOL_H_
 #define VERILATOR_V3CONSTPOOL_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3HashTable.h"
+#ضمن "V3Ast.h"
+#ضمن "V3HashTable.h"
 
 //============================================================================
 
@@ -36,24 +36,24 @@ class V3ConstPool final {
 
     // TYPES
     // Scoping stage of the design, which determines how entries are referenced
-    enum class Stage : uint8_t {
+    تعداد class Stage : uint8_t {
         UNSCOPED,  // Before V3Scope: reference via the package
         SCOPED,  // Between V3Scope and V3Descope: reference via the VarScope
         DESCOPED  // After V3Descope: plain reference
     };
     // Hash and equality of entries in 'm_entries', by value
-    struct EntryHash final {
-        size_t operator()(const AstVar* varp) const {
-            return (*this)(VN_AS(varp->valuep(), NodeExpr));
+    بنية EntryHash final {
+        size_t operator()(ثابت AstVar* varp) ثابت {
+            أرجع (*this)(VN_AS(varp->valuep(), عقدة_تعبير));
         }
-        size_t operator()(const AstNodeExpr* initp) const { return hashValue(initp).value(); }
+        size_t operator()(ثابت Ast_عقدة_تعبير* initp) ثابت { أرجع hash_قيمة(initp).قيمة(); }
     };
-    struct EntryEqual final {
-        bool operator()(const AstVar* ap, const AstVar* bp) const {  // LCOV_EXCL_START
-            return (*this)(ap, VN_AS(bp->valuep(), NodeExpr));  // Only on collision while rebuild
+    بنية EntryEqual final {
+        bool operator()(ثابت AstVar* ap, ثابت AstVar* bp) ثابت {  // LCOV_EXCL_START
+            أرجع (*this)(ap, VN_AS(bp->valuep(), عقدة_تعبير));  // Only on collision while rebuild
         }  // LCOV_EXCL_STOP
-        bool operator()(const AstVar* varp, const AstNodeExpr* initp) const {
-            return equalValue(VN_AS(varp->valuep(), NodeExpr), initp);
+        bool operator()(ثابت AstVar* varp, ثابت Ast_عقدة_تعبير* initp) ثابت {
+            أرجع equal_قيمة(VN_AS(varp->valuep(), عقدة_تعبير), initp);
         }
     };
 
@@ -62,48 +62,48 @@ class V3ConstPool final {
     bool m_cacheValid = false;  // Cache below is up to date
     AstScope* m_scopep = nullptr;  // Scope of the constant pool, between V3Scope and V3Descope
     V3HashSet<AstVar*, EntryHash, EntryEqual> m_entries;  // All entries
-    V3HashMap<const AstVar*, AstVarScope*> m_varScopes;  // VarScope of each entry iff m_scopep
-    std::array<uint32_t, VNType::NUM_TYPES()> m_nextNumber{};  // Sequence number for naming
+    V3HashMap<ثابت AstVar*, AstVarScope*> m_varScopes;  // VarScope of each entry iff m_scopep
+    std::array<uint32_t, VNType::رقم_TYPES()> m_next_رقم{};  // Sequence number for naming
 
     // METHODS
-    static V3ConstPool& instance() { return *v3Global.constPoolp(); }
+    ساكن V3ConstPool& instance() { أرجع *v3Global.constPoolp(); }
     // Hash of a value, consistent with 'equalValue'
-    static V3Hash hashValue(const AstNode* nodep);
+    ساكن V3Hash hash_قيمة(ثابت Ast_عقدة* nodep);
     // True if the two values are the same, so can use the same entry
-    static bool equalValue(const AstNode* ap, const AstNode* bp);
+    ساكن bool equal_قيمة(ثابت Ast_عقدة* ap, ثابت Ast_عقدة* bp);
     // Rebuild the lookup cache from the constant pool package
-    void rebuildCache();
+    فراغ rebuildCache();
 
     // CONSTRUCTORS - only V3Global creates and deletes the instance
-    V3ConstPool() = default;
-    ~V3ConstPool() = default;
+    V3ConstPool() = افتراضي;
+    ~V3ConstPool() = افتراضي;
     VL_UNCOPYABLE(V3ConstPool);
     VL_UNMOVABLE(V3ConstPool);
 
-public:
+عام:
     // STATIC METHODS
     // Find a constant pool variable with the given constant value, or create one if one does
     // not already exist, and return a read reference to it. The reference has the same dtype
     // as initp. The referenced variable *might* have a different, but compatible dtype.
-    static AstVarRef* find(AstNodeExpr* initp);
+    ساكن AstVarRef* find(Ast_عقدة_تعبير* initp);
     // Invalidate the lookup cache. This must be called after deleting any Vars from the pool.
-    static void invalidateCache() { instance().m_cacheValid = false; }
+    ساكن فراغ invalidateCache() { instance().m_cacheValid = false; }
     // Notify that the design has been scoped, called by V3Scope
-    static void setScoped() {
+    ساكن فراغ setScoped() {
         V3ConstPool& self = instance();
         UASSERT(self.m_stage == Stage::UNSCOPED, "Constant pool scoped twice");
         self.m_stage = Stage::SCOPED;
         invalidateCache();
     }
     // Notify that the design has been descoped, called by V3Descope
-    static void setDescoped() {
+    ساكن فراغ setDescoped() {
         V3ConstPool& self = instance();
         UASSERT(self.m_stage == Stage::SCOPED, "Constant pool descoped when not scoped");
         self.m_stage = Stage::DESCOPED;
         invalidateCache();
     }
     // Check the lookup cache refers only to existing nodes, for V3Broken
-    static const char* broken();
+    ساكن ثابت حرف* broken();
 };
 
 #endif  // Guard
