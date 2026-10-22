@@ -24,66 +24,66 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clean.h"
+#ضمن "V3Clean.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clean state, as a visitor of each AstNode
 
-class CleanVisitor final : public VNVisitor {
+صنف CleanVisitor final : عام VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstNode::user1()        -> CleanState.  For this node, 0==UNKNOWN
     //  AstNode::user2()        -> bool.  True indicates widthMin has been propagated
     //  AstNodeDType::user3()   -> AstNodeDType*.  Alternative node with C size
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    ثابت VNUser1InUse m_inuser1;
+    ثابت VNUser2InUse m_inuser2;
+    ثابت VNUser3InUse m_inuser3;
 
     // TYPES
-    enum CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
+    تعداد CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;
+    ثابت Ast_نود_Module* m_modp = nullptr;
 
     // METHODS
 
     // Width resetting
-    int cppWidth(const AstNode* nodep) {
-        if (nodep->width() <= VL_IDATASIZE) {
-            return VL_IDATASIZE;
-        } else if (nodep->width() <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else {
-            return nodep->widthWords() * VL_EDATASIZE;
+    صحيح cppWidth(ثابت Ast_نود* nodep) {
+        إذا (nodep->width() <= VL_IDATASIZE) {
+            أرجع VL_IDATASIZE;
+        } وإلا إذا (nodep->width() <= VL_QUADSIZE) {
+            أرجع VL_QUADSIZE;
+        } وإلا {
+            أرجع nodep->width_ڤرکاتاءن() * VL_EDATASIZE;
         }
     }
-    void setCppWidth(AstNode* nodep) {
+    فراغ setCppWidth(Ast_نود* nodep) {
         nodep->user2(true);  // Don't resize it again
-        AstNodeDType* const old_dtypep = nodep->dtypep();
-        const int width = cppWidth(nodep);  // widthMin is unchanged
-        if (old_dtypep->width() != width) {
+        Ast_نود_DType* ثابت old_dtypep = nodep->dtypep();
+        ثابت صحيح width = cppWidth(nodep);  // widthMin is unchanged
+        إذا (old_dtypep->width() != width) {
             // Since any given dtype's cppWidth() is the same, we can just
             // remember one conversion for each, and reuse it
-            if (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
+            إذا (Ast_نود_DType* ثابت new_dtypep = VN_CAST(old_dtypep->user3p(), نود_DType)) {
                 nodep->dtypep(new_dtypep);
-            } else {
+            } وإلا {
                 nodep->dtypeChgWidth(width, nodep->widthMin());
-                AstNodeDType* const new_dtypep2 = nodep->dtypep();
+                Ast_نود_DType* ثابت new_dtypep2 = nodep->dtypep();
                 UASSERT_OBJ(new_dtypep2 != old_dtypep, nodep,
                             "Dtype didn't change when width changed");
                 old_dtypep->user3p(new_dtypep2);  // Remember for next time
             }
         }
     }
-    void computeCppWidth(AstNode* nodep) {
-        if (!nodep->user2() && nodep->hasDType()) {
-            if (VN_IS(nodep, Var)  //
-                || VN_IS(nodep, NodeDType)  // Don't want to change variable widths!
-                || VN_IS(nodep, NodeSel)  // Array selects should reflect variable widths
+    فراغ computeCppWidth(Ast_نود* nodep) {
+        إذا (!nodep->user2() && nodep->hasDType()) {
+            إذا (VN_IS(nodep, Var)  //
+                || VN_IS(nodep, نود_DType)  // Don't want to change variable widths!
+                || VN_IS(nodep, نود_Sel)  // Array selects should reflect variable widths
                 || VN_IS(nodep, SFormatArg)  // Retain the logical argument type, not storage width
                 || VN_IS(nodep->dtypep()->skipRefp(), AssocArrayDType)  // Or arrays
                 || VN_IS(nodep->dtypep()->skipRefp(), WildcardArrayDType)
@@ -95,267 +95,267 @@ class CleanVisitor final : public VNVisitor {
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverCrossDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverpointDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) {
-            } else {
-                const AstNodeUOrStructDType* const dtypep
-                    = VN_CAST(nodep->dtypep()->skipRefp(), NodeUOrStructDType);
-                if (!dtypep || dtypep->packed()) setCppWidth(nodep);
+            } وإلا {
+                ثابت Ast_نود_UOr_Struct_DType* ثابت dtypep
+                    = VN_CAST(nodep->dtypep()->skipRefp(), نود_UOr_Struct_DType);
+                إذا (!dtypep || dtypep->packed()) setCppWidth(nodep);
             }
         }
     }
 
     // Store the clean state in the userp on each node
-    void setCleanState(AstNode* nodep, CleanState clean) { nodep->user1(clean); }
-    CleanState getCleanState(const AstNode* nodep) {
-        return static_cast<CleanState>(nodep->user1());
+    فراغ setCleanState(Ast_نود* nodep, CleanState clean) { nodep->user1(clean); }
+    CleanState getCleanState(ثابت Ast_نود* nodep) {
+        أرجع static_cast<CleanState>(nodep->user1());
     }
-    bool isClean(AstNode* nodep) {
-        const CleanState clstate = getCleanState(nodep);
-        if (clstate == CS_CLEAN) return true;
-        if (clstate == CS_DIRTY) return false;
+    منطقي isClean(Ast_نود* nodep) {
+        ثابت CleanState clstate = getCleanState(nodep);
+        إذا (clstate == CS_CLEAN) أرجع true;
+        إذا (clstate == CS_DIRTY) أرجع خطأ;
         nodep->v3fatalSrc("Unknown clean state on node: " + nodep->prettyTypeName());
-        return false;
+        أرجع خطأ;
     }
-    void setClean(AstNode* nodep, bool isClean) {
+    فراغ setClean(Ast_نود* nodep, منطقي isClean) {
         computeCppWidth(nodep);  // Just to be sure it's in widthMin
-        const bool wholeUint
+        ثابت منطقي wholeUint
             = (nodep->widthMin() == VL_IDATASIZE || nodep->widthMin() == VL_QUADSIZE
                || (nodep->widthMin() % VL_EDATASIZE) == 0);
         setCleanState(nodep, ((isClean || wholeUint) ? CS_CLEAN : CS_DIRTY));
     }
 
     // Operate on nodes
-    void insertClean(AstNodeExpr* nodep) {  // We'll insert ABOVE passed node
+    فراغ سيسيڤ_Clean(Ast_نود_اوڠکاڤن* nodep) {  // We'll insert ABOVE passed node
         UINFO(4, "  NeedClean " << nodep);
         VNRelinker relinkHandle;
         nodep->unlinkFrBack(&relinkHandle);
         //
         computeCppWidth(nodep);
-        V3Number mask{nodep, cppWidth(nodep)};
+        V3_نومبور mask{nodep, cppWidth(nodep)};
         mask.setMask(nodep->widthMin());
-        AstNode* const cleanp
-            = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), mask}, nodep};
+        Ast_نود* ثابت cleanp
+            = جديد AstAnd{nodep->fileline(), جديد AstConst{nodep->fileline(), mask}, nodep};
         cleanp->dtypeFrom(nodep);  // Otherwise the AND normally picks LHS
         relinkHandle.relink(cleanp);
     }
-    void ensureClean(AstNodeExpr* nodep) {
+    فراغ ensureClean(Ast_نود_اوڠکاڤن* nodep) {
         computeCppWidth(nodep);
-        if (!isClean(nodep)) insertClean(nodep);
+        إذا (!isClean(nodep)) سيسيڤ_Clean(nodep);
     }
-    void ensureCleanAndNext(AstNode* nodep) {
+    فراغ ensureCleanAndNext(Ast_نود* nodep) {
         // Editing list, careful looping!
-        for (AstNode* argp = nodep; argp;) {
-            AstNode* const nextp = argp->nextp();
-            if (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
+        لكل (Ast_نود* argp = nodep; argp;) {
+            Ast_نود* ثابت nextp = argp->nextp();
+            إذا (Ast_نود_اوڠکاڤن* ثابت exprp = VN_CAST(argp, نود_اوڠکاڤن)) ensureClean(exprp);
             argp = nextp;
         }
     }
 
     // Base type handling methods
-    void operandBiop(AstNodeBiop* nodep) {
+    فراغ operandBiop(Ast_نود_Biop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        إذا (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        إذا (nodep->cleanRhs()) ensureClean(nodep->rhsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandTriop(AstNodeTriop* nodep) {
+    فراغ operandTriop(Ast_نود_Triop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
+        إذا (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        إذا (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        إذا (nodep->cleanThs()) ensureClean(nodep->thsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandQuadop(AstNodeQuadop* nodep) {
+    فراغ operandQuadop(Ast_نود_Quadop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
-        if (nodep->cleanFhs()) ensureClean(nodep->fhsp());
+        إذا (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        إذا (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        إذا (nodep->cleanThs()) ensureClean(nodep->thsp());
+        إذا (nodep->cleanFhs()) ensureClean(nodep->fhsp());
         // no setClean.. must do it in each user routine.
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    فراغ visit(Ast_نود_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeUniop* nodep) override {
+    فراغ visit(Ast_نود_Uniop* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        إذا (nodep->cleanLhs()) ensureClean(nodep->lhsp());
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstNodeBiop* nodep) override {
+    فراغ visit(Ast_نود_Biop* nodep) override {
         operandBiop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstAnd* nodep) override {
+    فراغ visit(AstAnd* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
     }
-    void visit(AstXor* nodep) override {
+    فراغ visit(AstXor* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstOr* nodep) override {
+    فراغ visit(AstOr* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstNodeQuadop* nodep) override {
+    فراغ visit(Ast_نود_Quadop* nodep) override {
         operandQuadop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstExprStmt* nodep) override {
+    فراغ visit(Ast_اوڠکاڤن_Stmt* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
         setClean(nodep, isClean(nodep->resultp()));
     }
-    void visit(AstNodeExpr* nodep) override {
+    فراغ visit(Ast_نود_اوڠکاڤن* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstNodeAssign* nodep) override {
+    فراغ visit(Ast_نود_Assign* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        إذا (nodep->cleanRhs()) ensureClean(nodep->rhsp());
     }
-    void visit(AstScopeName* nodep) override {  //
+    فراغ visit(AstScopeName* nodep) override {  //
         setClean(nodep, true);
     }
-    void visit(AstCNew* nodep) override {
+    فراغ visit(AstCNew* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);
     }
     // Constructor values are stored, so must be clean
-    void visit(AstConsAssoc* nodep) override {
+    فراغ visit(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        إذا (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstConsDynArray* nodep) override {
+    فراغ visit(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        إذا (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstConsWildcard* nodep) override {
+    فراغ visit(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        إذا (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstNodeConsItem* nodep) override {
+    فراغ visit(Ast_نود_Cons_Item* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    فراغ visit(AstMatchMasked* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
         setClean(nodep, true);
     }
-    void visit(AstSel* nodep) override {
+    فراغ visit(AstSel* nodep) override {
         operandBiop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstCExprUser* nodep) override {
+    فراغ visit(AstCExprUser* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        setClean(nodep, false);
+        setClean(nodep, خطأ);
         // We always clean, as we don't trust those pesky users.
-        if (!VN_IS(nodep->backp(), And)) insertClean(nodep);
+        إذا (!VN_IS(nodep->backp(), And)) سيسيڤ_Clean(nodep);
         ensureCleanAndNext(nodep->nodesp());
     }
-    void visit(AstTraceDecl* nodep) override {}  // Nothing to do here
-    void visit(AstTraceInc* nodep) override {
+    فراغ visit(AstTraceDecl* nodep) override {}  // Nothing to do here
+    فراغ visit(AstTraceInc* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->valuep());
     }
-    void visit(AstTypedef* nodep) override {
+    فراغ visit(AstTypedef* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
-    void visit(AstParamTypeDType* nodep) override {
+    فراغ visit(AstParamTypeDType* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
 
     // Control flow operators
-    void visit(AstCond* nodep) override {
+    فراغ visit(AstCond* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
         setClean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
     }
-    void visit(AstLoop* nodep) override { iterateChildren(nodep); }
-    void visit(AstLoopTest* nodep) override {
+    فراغ visit(AstLoop* nodep) override { iterateChildren(nodep); }
+    فراغ visit(AstLoopTest* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstNodeIf* nodep) override {
+    فراغ visit(Ast_نود_If* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstSFormatArg* nodep) override {
+    فراغ visit(AstSFormatArg* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->exprp());
         setClean(nodep, true);
     }
-    void visit(AstSFormatF* nodep) override {
+    فراغ visit(AstSFormatF* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->exprsp());
         setClean(nodep, true);  // generates a string, so not relevant
     }
-    void visit(AstCStmt* nodep) override {
+    فراغ visit(AstCStmt* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->nodesp());
     }
-    void visit(AstCStmtUser* nodep) override {
+    فراغ visit(AstCStmtUser* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->nodesp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    فراغ visit(Ast_نود_CCall* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->argsp());
         setClean(nodep, true);
     }
-    void visit(AstCMethodHard* nodep) override {
+    فراغ visit(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
         ensureCleanAndNext(nodep->pinsp());
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstWith* nodep) override {
+    فراغ visit(AstWith* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);
     }
-    void visit(AstCReturn* nodep) override {
+    فراغ visit(AstCReturn* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
         setClean(nodep, true);
     }
-    void visit(AstIntfRef* nodep) override {
+    فراغ visit(AstIntfRef* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);  // generates a string, so not relevant
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstNode* nodep) override {
+    فراغ visit(Ast_نود* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
     }
 
-public:
+عام:
     // CONSTRUCTORS
     explicit CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CleanVisitor() override = default;
+    ~CleanVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Clean class functions
 
-void V3Clean::cleanAll(AstNetlist* nodep) {
+فراغ V3Clean::cleanAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CleanVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clean", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ڤوکوق("clean", 0, dump_ڤوکوق_Either_Level() >= 3);
 }

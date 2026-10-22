@@ -20,35 +20,35 @@
 
 #ifndef VERILATOR_V3HASHER_H_
 #define VERILATOR_V3HASHER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hash.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Error.h"
+#ضمن "V3Hash.h"
 
 //============================================================================
 
 class V3Hasher final {
     // NODE STATE
     //  AstNode::user4()    -> V3Hash.  Hash value of this node (hash of 0 is illegal)
-    const VNUser4InUse m_inuser4;
+    ثابت VNUser4InUse m_inuser4;
 
-public:
+عام:
     // CONSTRUCTORS
-    V3Hasher() = default;
-    ~V3Hasher() = default;
+    V3Hasher() = افتراضي;
+    ~V3Hasher() = افتراضي;
 
     // METHODS
 
     // Compute hash of node. This method caches the hash in the node's user4().
-    V3Hash operator()(AstNode* nodep) const;
+    V3Hash operator()(Ast_نود* nodep) ثابت;
 
     // Re-compute hash of this node, discarding cached value, but used cached hash of children.
-    V3Hash rehash(AstNode* nodep) const;
+    V3Hash rehash(Ast_نود* nodep) ثابت;
 
     // Compute hash of node, without caching in user4.
-    static V3Hash uncachedHash(const AstNode* nodep);
+    ساكن V3Hash uncachedHash(ثابت Ast_نود* nodep);
 };
 
 #endif  // Guard
