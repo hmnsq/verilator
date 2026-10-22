@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3CLASS_GRAPH_H_
 #define VERILATOR_V3CLASS_GRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
 
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
+#ಅನ್ತರ್ಭಾವ <memory>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
 
 //============================================================================
 
@@ -33,25 +33,25 @@ class V3ClassGraphVertex;
 
 // Graph of classes - build by V3ClassGraph::build() and used to get CFuncs that may be
 // called by a AstNodeCCall (due to virtualization)
-class V3ClassGraph final : public V3Graph {
+class V3ClassGraph final : ಸಾರ್ವಜನಿಕ V3Graph {
     friend class ClassGraphBuilderVisitor;
-    std::unordered_map<const AstCFunc*, V3ClassGraphVertex*>
+    std::unordered_map<ಧ್ರುವ AstCFunc*, V3ClassGraphVertex*>
         m_memberFuncToClassVertex;  // Map from member function to its class
-    const std::unordered_set<AstCFunc*>
+    ಧ್ರುವ std::unordered_set<AstCFunc*>
         m_emptySet;  // Always empty set - used to return a reference to an empty set
 
-    V3ClassGraph() = default;
+    V3ClassGraph() = ಸ್ವಭಾವ;
 
-public:
-    static std::unique_ptr<V3ClassGraph> build(AstNetlist*);
-    ~V3ClassGraph() override = default;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ std::unique_ptr<V3ClassGraph> build(AstNetlist*);
+    ~V3ClassGraph() override = ಸ್ವಭಾವ;
 
     // Returns possible CFuncs that may be called due to a NodeCCall passed as a callp argument
     // Warning: returned set may be empty if NodeCCall is a New call or a super call - in such
     // cases only `callp->funcp()` may be called. Also, if callp is to a non-member function the
     // set will be empty - post V3Task static functions are not member functions anymore.
-    const std::unordered_set<AstCFunc*>&
-    getCallPossibleCFuncs(const AstNodeCCall* const callp) const&;
+    ಧ್ರುವ std::unordered_set<AstCFunc*>&
+    getCallPossibleCFuncs(ಧ್ರುವ Ast_ಗಂಟು_CCall* ಧ್ರುವ callp) ಧ್ರುವ&;
 };
 
 #endif  // Guard

@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_ಕೀಲಿ>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_ಕೀಲಿ> m_ಕೀಲಿಗಳು;  // Elements by insertion order
+    std::unordered_set<T_ಕೀಲಿ> m_ಕೀಲಿ_Set;  // Elements by key
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ಸೇರಿಸು(ಧ್ರುವ T_ಕೀಲಿ& ಕೀಲಿ) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ಧ್ರುವ auto itFoundPair = m_ಕೀಲಿ_Set.ಸೇರಿಸು(ಕೀಲಿ);
+        ಯದಿ (itFoundPair.second) m_ಕೀಲಿಗಳು.ತಳ್ಳು_back(ಕೀಲಿ);
+        ಪ್ರತ್ಯಾಗಮ itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ಶೂನ್ಯ ಸೇರಿಸು(T begin, ಧ್ರುವ T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::ಮೌಲ್ಯ_type, T_ಕೀಲಿ>::ಮೌಲ್ಯ,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        ಯಾವತ್ (begin != end) {
+            ಯದಿ (m_ಕೀಲಿ_Set.ಸೇರಿಸು(*begin).second) m_ಕೀಲಿಗಳು.ತಳ್ಳು_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    ಶೂನ್ಯ clear() {
+        m_ಕೀಲಿಗಳು.clear();
+        m_ಕೀಲಿ_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಕೀಲಿಗಳು.empty(); }
+    size_t size() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಕೀಲಿಗಳು.size(); }
+    bool exists(ಧ್ರುವ T_ಕೀಲಿ& ಕೀಲಿ) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಕೀಲಿ_Set.find(ಕೀಲಿ) != m_ಕೀಲಿ_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_ಕೀಲಿ>::const_iterator;
+    const_iterator begin() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಕೀಲಿಗಳು.begin(); }
+    const_iterator end() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಕೀಲಿಗಳು.end(); }
 };
 
 //============================================================================

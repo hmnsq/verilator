@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3EMITCBASE_H_
 #define VERILATOR_V3EMITCBASE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
 
-#include <cmath>
-#include <cstdarg>
+#ಅನ್ತರ್ಭಾವ <cmath>
+#ಅನ್ತರ್ಭಾವ <cstdarg>
 
 //######################################################################
 // Set user4p in all CFunc, Var, and coverage declarations to point to the
@@ -35,14 +35,14 @@ class EmitCParentModule final {
     //   AstCFunc::user4p()          AstNodeModule* Parent module pointer
     //   AstVar::user4p()            AstNodeModule* Parent module pointer
     //   AstNodeCoverDecl::user4p()  AstNodeModule* Parent module pointer
-    const VNUser4InUse user4InUse;
+    ಧ್ರುವ VNUser4InUse user4InUse;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     EmitCParentModule();
     VL_UNCOPYABLE(EmitCParentModule);
 
-    static const AstNodeModule* get(const AstNode* nodep) VL_MT_STABLE {
-        return VN_AS(nodep->user4p(), NodeModule);
+    ಸ್ಥಿರ ಧ್ರುವ Ast_ಗಂಟು_Module* get(ಧ್ರುವ Ast_ಗಂಟು* nodep) VL_MT_STABLE {
+        ಪ್ರತ್ಯಾಗಮ VN_AS(nodep->user4p(), ಗಂಟು_Module);
     }
 };
 
@@ -50,90 +50,90 @@ public:
 // EmitC-related utility functions
 
 class EmitCUtil final {
-public:
-    static string voidSelfAssign(const AstNodeModule* modp) {
-        const string className = prefixNameProtect(modp);
-        return className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ string voidSelfAssign(ಧ್ರುವ Ast_ಗಂಟು_Module* modp) {
+        ಧ್ರುವ string className = prefixNameProtect(modp);
+        ಪ್ರತ್ಯಾಗಮ className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
                + "*>(voidSelf);\n";
     }
-    static string pchClassName() VL_MT_STABLE { return v3Global.opt.prefix() + "__pch"; }
-    static string symClassName() VL_MT_STABLE {
-        return v3Global.opt.prefix() + "_" + VIdProtect::protect("_Syms");
+    ಸ್ಥಿರ string pchClassName() VL_MT_STABLE { ಪ್ರತ್ಯಾಗಮ v3Global.opt.prefix() + "__pch"; }
+    ಸ್ಥಿರ string symClassName() VL_MT_STABLE {
+        ಪ್ರತ್ಯಾಗಮ v3Global.opt.prefix() + "_" + VIdProtect::protect("_Syms");
     }
-    static string symClassVar() { return symClassName() + "* __restrict vlSymsp"; }
-    static string symClassAssign() {
-        return symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
+    ಸ್ಥಿರ string symClassVar() { ಪ್ರತ್ಯಾಗಮ symClassName() + "* __restrict vlSymsp"; }
+    ಸ್ಥಿರ string symClassAssign() {
+        ಪ್ರತ್ಯಾಗಮ symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
     }
-    static string topClassName() VL_MT_SAFE {  // Return name of top wrapper module
-        return v3Global.opt.prefix();
+    ಸ್ಥಿರ string ತುದಿ_Class_Name() VL_MT_SAFE {  // Return name of top wrapper module
+        ಪ್ರತ್ಯಾಗಮ v3Global.opt.prefix();
     }
     // Return name of the VlExecGraph describing an AstExecGraph
-    static string execGraphName(const AstExecGraph* nodep) {
-        return topClassName() + "__ExecGraph__" + nodep->nameProtect();
+    ಸ್ಥಿರ string execGraphName(ಧ್ರುವ AstExecGraph* nodep) {
+        ಪ್ರತ್ಯಾಗಮ ತುದಿ_Class_Name() + "__ExecGraph__" + nodep->nameProtect();
     }
     // Name of a constant pool variable
-    static std::string constPoolName(const AstVar* varp) {
+    ಸ್ಥಿರ std::string constPoolName(ಧ್ರುವ AstVar* varp) {
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Not a constant pool variable");
-        return topClassName() + "__ConstPool__" + varp->nameProtect();
+        ಪ್ರತ್ಯಾಗಮ ತುದಿ_Class_Name() + "__ConstPool__" + varp->nameProtect();
     }
     // Return C++ class name for a module/class object
-    static string prefixNameProtect(const AstNode* nodep) VL_MT_STABLE;
+    ಸ್ಥಿರ string prefixNameProtect(ಧ್ರುವ Ast_ಗಂಟು* nodep) VL_MT_STABLE;
 };
 
 //######################################################################
 // Base Visitor class -- holds output file pointer
 
-class EmitCBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
-public:
+class EmitCBaseVisitorConst VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ VNVisitorConst {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
     // Rendered text statements, each with its cost, for splitting them into sub-functions
     class TextStmts final {
-    public:
-        struct Stmt final {
+    ಸಾರ್ವಜನಿಕ:
+        ಸಂರಚನಾ Stmt final {
             std::string m_text;  // Statement text
             size_t m_cost;  // Cost of statement, for splitting
         };
 
-    private:
+    ಗುಪ್ತ:
         std::vector<Stmt> m_stmts;  // Statements
 
-    public:
+    ಸಾರ್ವಜನಿಕ:
         // Add a statement
-        void add(const std::string& stmt) {
-            const size_t cost = stmt.empty() || VString::startsWith(stmt, "//")
+        ಶೂನ್ಯ add(ಧ್ರುವ std::string& stmt) {
+            ಧ್ರುವ size_t cost = stmt.empty() || VString::startsWith(stmt, "//")
                                     ? 0  // Blanks and comments are free
-                                    : AstNode::INSTR_COUNT_CTOR_DTOR;
-            m_stmts.push_back({stmt, cost});
+                                    : Ast_ಗಂಟು::INSTR_ಎಣಿಕೆ_CTOR_DTOR;
+            m_stmts.ತಳ್ಳು_back({stmt, cost});
         }
-        size_t size() const { return m_stmts.size(); }
-        const Stmt& operator[](size_t i) const { return m_stmts[i]; }
-        std::vector<Stmt>::const_iterator begin() const { return m_stmts.begin(); }
-        std::vector<Stmt>::const_iterator end() const { return m_stmts.end(); }
+        size_t size() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stmts.size(); }
+        ಧ್ರುವ Stmt& operator[](size_t i) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stmts[i]; }
+        std::vector<Stmt>::const_iterator begin() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stmts.begin(); }
+        std::vector<Stmt>::const_iterator end() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stmts.end(); }
     };
 
-private:
+ಗುಪ್ತ:
     // STATE
     V3OutCFile* m_ofp = nullptr;  // File handle to emit to
     AstCFile* m_cfilep = nullptr;  // Current AstCFile being emitted
     std::vector<AstCFile*> m_newCfileps;  // AstCFiles created
     size_t m_splitSize = 0;  // Complexity of this file
-    const size_t m_splitLimit = v3Global.opt.outputSplit()
+    ಧ್ರುವ size_t m_splitLimit = v3Global.opt.outputSplit()
                                     ? static_cast<size_t>(v3Global.opt.outputSplit())
                                     : std::numeric_limits<size_t>::max();
 
     // METHODS
 
     // Create new AstCFile and open it for writing
-    void openNewOutputFile(const std::string& baseName, bool slow, bool support, bool source,
-                           const char* const descriptionp) {
+    ಶೂನ್ಯ openNewOutputFile(ಧ್ರುವ std::string& baseName, bool slow, bool support, bool source,
+                           ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ descriptionp) {
         std::string fileName = v3Global.opt.makeDir() + "/" + baseName;
-        if (source) {
-            if (slow) fileName += "__Slow";
+        ಯದಿ (source) {
+            ಯದಿ (slow) fileName += "__Slow";
             fileName += ".cpp";
-        } else {
+        } ಅನ್ಯಥಾ {
             fileName += ".h";
         }
-        AstCFile* const cfilep = new AstCFile{v3Global.rootp()->fileline(), fileName};
+        AstCFile* ಧ್ರುವ cfilep = new AstCFile{v3Global.rootp()->fileline(), fileName};
         cfilep->slow(slow);
         cfilep->source(source);
         cfilep->support(support);
@@ -144,34 +144,34 @@ private:
     // Reduce 'stmts' to a single statement, via a balanced tree of loose sub-functions
     // 'void <prefix>__<n>(<params>)' of at most 'maxCost' each (see emitSplitCtorDtor).
     // Returns the declaration of the root sub-function, or empty if nothing was split.
-    std::string emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
-                                   const std::string& params, const std::string& args,
-                                   size_t maxCost, bool support, const char* descriptionp,
-                                   const std::function<void()>& emitHeader);
+    std::string emitSplitTextStmts(TextStmts& stmts, ಧ್ರುವ std::string& prefix,
+                                   ಧ್ರುವ std::string& params, ಧ್ರುವ std::string& args,
+                                   size_t maxCost, bool support, ಧ್ರುವ ವರ್ಣ* descriptionp,
+                                   ಧ್ರುವ std::function<ಶೂನ್ಯ()>& emitHeader);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Create new source AstCFile and open it for writing
-    void openNewOutputSourceFile(const std::string& baseName, bool slow, bool support,
-                                 const char* descriptionp) {
+    ಶೂನ್ಯ openNewOutputSourceFile(ಧ್ರುವ std::string& baseName, bool slow, bool support,
+                                 ಧ್ರುವ ವರ್ಣ* descriptionp) {
         V3Stats::addStatSum(V3Stats::STAT_CPP_FILES, 1);
         openNewOutputFile(baseName, slow, support, true, descriptionp);
     }
 
     // Create new header AstCFile and open it for writing
-    void openNewOutputHeaderFile(const std::string& baseName, const char* descriptionp) {
+    ಶೂನ್ಯ openNewOutputHeaderFile(ಧ್ರುವ std::string& baseName, ಧ್ರುವ ವರ್ಣ* descriptionp) {
         openNewOutputFile(baseName, false, false, false, descriptionp);
     }
 
     // Open exisitng AstCFile for writing
-    void openOutputFile(AstCFile* cfilep, const char* descriptionp) {
+    ಶೂನ್ಯ openOutputFile(AstCFile* cfilep, ಧ್ರುವ ವರ್ಣ* descriptionp) {
         UASSERT(!m_ofp, "Output file is already open");
         m_cfilep = cfilep;
         m_splitSize = 0;
-        if (v3Global.opt.lintOnly()) {
+        ಯದಿ (v3Global.opt.lintOnly()) {
             // Unfortunately we have some lint checks in EmitCImp, so we can't
             // just skip processing. TODO: Move them to an earlier stage.
             m_ofp = new V3OutCFile{VL_DEV_NULL};
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         m_ofp = new V3OutCFile{cfilep->name()};
         putsHeader();
@@ -182,7 +182,7 @@ public:
     }
 
     // Close current output file. Sets ofp() and outFileNodep() to nullptr.
-    void closeOutputFile() {
+    ಶೂನ್ಯ closeOutputFile() {
         UASSERT(m_ofp, "No currently open output file");
         VL_DO_CLEAR(delete m_ofp, m_ofp = nullptr);
         m_cfilep->complexityScore(m_splitSize);
@@ -191,15 +191,15 @@ public:
 
     std::vector<AstCFile*> getAndClearCfileps() {
         UASSERT(!m_ofp, "Output file is open");
-        return std::move(m_newCfileps);
+        ಪ್ರತ್ಯಾಗಮ std::move(m_newCfileps);
     }
 
-    void splitSizeInc(size_t count) { m_splitSize += count; }
-    void splitSizeInc(const AstNode* nodep) {
-        splitSizeInc(static_cast<size_t>(nodep->nodeCount()));
+    ಶೂನ್ಯ splitSizeInc(size_t ಎಣಿಕೆ) { m_splitSize += ಎಣಿಕೆ; }
+    ಶೂನ್ಯ splitSizeInc(ಧ್ರುವ Ast_ಗಂಟು* nodep) {
+        splitSizeInc(static_cast<size_t>(nodep->ಗಂಟು_ಎಣಿಕೆ()));
     }
-    bool splitNeeded(size_t splitLimit) const { return m_splitSize >= splitLimit; }
-    bool splitNeeded() const { return splitNeeded(m_splitLimit); }
+    bool splitNeeded(size_t splitLimit) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_splitSize >= splitLimit; }
+    bool splitNeeded() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ splitNeeded(m_splitLimit); }
 
     // If the given constructor/destructor statements, plus 'baseCost', exceed the
     // --output-split-cfuncs limit, split them into loose sub-functions
@@ -209,82 +209,82 @@ public:
     // the declarations of the root ctor/dtor sub-functions, or empty strings if not split.
     std::pair<std::string, std::string>
     emitSplitCtorDtor(TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost,
-                      const std::string& prefix, const std::string& params,
-                      const std::string& args, bool support, const char* descriptionp,
-                      const std::function<void()>& emitHeader);
+                      ಧ್ರುವ std::string& prefix, ಧ್ರುವ std::string& params,
+                      ಧ್ರುವ std::string& args, bool support, ಧ್ರುವ ವರ್ಣ* descriptionp,
+                      ಧ್ರುವ std::function<ಶೂನ್ಯ()>& emitHeader);
 
     // Returns pointer to current output file object.
-    V3OutCFile* ofp() const VL_MT_SAFE { return m_ofp; }
+    V3OutCFile* ofp() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_ofp; }
 
-    void puts(const string& str) { ofp()->puts(str); }
-    void putns(const AstNode* nodep, const string& str) { ofp()->putns(nodep, str); }
-    void putsHeader() { ofp()->putsHeader(); }
-    void putbs(const string& str) { ofp()->putbs(str); }
-    void putnbs(const AstNode* nodep, const string& str) { ofp()->putnbs(nodep, str); }
-    void putsDecoration(const AstNode* nodep, const string& str) {
-        if (v3Global.opt.decoration()) putns(nodep, str);
+    ಶೂನ್ಯ puts(ಧ್ರುವ string& str) { ofp()->puts(str); }
+    ಶೂನ್ಯ putns(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ string& str) { ofp()->putns(nodep, str); }
+    ಶೂನ್ಯ putsHeader() { ofp()->putsHeader(); }
+    ಶೂನ್ಯ putbs(ಧ್ರುವ string& str) { ofp()->putbs(str); }
+    ಶೂನ್ಯ putnbs(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ string& str) { ofp()->putnbs(nodep, str); }
+    ಶೂನ್ಯ putsDecoration(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ string& str) {
+        ಯದಿ (v3Global.opt.decoration()) putns(nodep, str);
     }
-    void putsQuoted(const string& str) { ofp()->putsQuoted(str); }
-    void ensureNewLine() { ofp()->ensureNewLine(); }
-    bool optSystemC() { return v3Global.opt.systemC(); }
-    static string protect(const string& name) VL_MT_SAFE { return VIdProtect::protect(name); }
-    static string funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp = nullptr);
-    static bool isExplicitlyConstructed(const AstVar* varp) VL_MT_STABLE {
+    ಶೂನ್ಯ putsQuoted(ಧ್ರುವ string& str) { ofp()->putsQuoted(str); }
+    ಶೂನ್ಯ ensure_New_ಸಾಲು() { ofp()->ensure_New_ಸಾಲು(); }
+    bool optSystemC() { ಪ್ರತ್ಯಾಗಮ v3Global.opt.systemC(); }
+    ಸ್ಥಿರ string protect(ಧ್ರುವ string& name) VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ VIdProtect::protect(name); }
+    ಸ್ಥಿರ string funcNameProtect(ಧ್ರುವ AstCFunc* nodep, ಧ್ರುವ Ast_ಗಂಟು_Module* modp = nullptr);
+    ಸ್ಥಿರ bool isExplicitlyConstructed(ಧ್ರುವ AstVar* varp) VL_MT_STABLE {
         // Only model member variables may be handled explicitly
-        const AstNodeModule* const modp = EmitCParentModule::get(varp);
-        if (!modp || !varp->isModelState()) return false;
+        ಧ್ರುವ Ast_ಗಂಟು_Module* ಧ್ರುವ modp = EmitCParentModule::get(varp);
+        ಯದಿ (!modp || !varp->isModelState()) ಪ್ರತ್ಯಾಗಮ false;
         // Classes use real constructors
-        if (VN_IS(modp, Class)) return false;
+        ಯದಿ (VN_IS(modp, Class)) ಪ್ರತ್ಯಾಗಮ false;
         // Constant pool has special handling
-        if (modp->isConstPool()) return false;
+        ಯದಿ (modp->isConstPool()) ಪ್ರತ್ಯಾಗಮ false;
         // Otherwise explicitly handled if not trivially constructible,
         // meaning a runtime C++ constructor/destructor invocation is needed
-        return !varp->isTriviallyConstructible();
+        ಪ್ರತ್ಯಾಗಮ !varp->isTriviallyConstructible();
     }
     // Name to access a module member as
-    static std::string varName(const AstVar* varp) VL_MT_STABLE {
-        const std::string name = varp->nameProtect();
+    ಸ್ಥಿರ std::string varName(ಧ್ರುವ AstVar* varp) VL_MT_STABLE {
+        ಧ್ರುವ std::string name = varp->nameProtect();
         // Primary IOs live 'union { struct { HERE } __VprimaryPorts; }'
-        if (varp->isPrimaryIO()) return "__VprimaryPorts." + name;
+        ಯದಿ (varp->isPrimaryIO()) ಪ್ರತ್ಯಾಗಮ "__VprimaryPorts." + name;
         // Explicitly constructed variables live 'union { struct { HERE } __Vnontrivs; }'
-        if (isExplicitlyConstructed(varp)) return "__Vnontrivs." + name;
+        ಯದಿ (isExplicitlyConstructed(varp)) ಪ್ರತ್ಯಾಗಮ "__Vnontrivs." + name;
         // Otherwise they should be available in the local scope where emitted
-        return name;
+        ಪ್ರತ್ಯಾಗಮ name;
     }
     // Argument list; if 'cpp', C++ rather than a C header
-    string cFuncArgs(const AstCFunc* nodep, bool cpp = true);
-    void emitCDefaultConstructor(const AstNodeModule* modp);
-    void emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp, bool withScope);
-    void emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp, bool cLinkage = false);
-    void emitVarDecl(const AstVar* nodep, bool asRef = false);
-    void emitVarAccessors(const AstVar* nodep);
+    string cFuncArgs(ಧ್ರುವ AstCFunc* nodep, bool cpp = true);
+    ಶೂನ್ಯ emitCDefaultConstructor(ಧ್ರುವ Ast_ಗಂಟು_Module* modp);
+    ಶೂನ್ಯ emitCFuncHeader(ಧ್ರುವ AstCFunc* funcp, ಧ್ರುವ Ast_ಗಂಟು_Module* modp, bool withScope);
+    ಶೂನ್ಯ emitCFuncDecl(ಧ್ರುವ AstCFunc* funcp, ಧ್ರುವ Ast_ಗಂಟು_Module* modp, bool cLinkage = false);
+    ಶೂನ್ಯ emitVarDecl(ಧ್ರುವ AstVar* nodep, bool asRef = false);
+    ಶೂನ್ಯ emitVarAccessors(ಧ್ರುವ AstVar* nodep);
     template <typename T_Callable>
-    static void forModCUse(const AstNodeModule* modp, VUseType useType, T_Callable action) {
-        for (const AstNode* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (const AstCUse* const usep = VN_CAST(itemp, CUse)) {
-                if (usep->useType().containsAny(useType)) {
-                    if (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
+    ಸ್ಥಿರ ಶೂನ್ಯ forModCUse(ಧ್ರುವ Ast_ಗಂಟು_Module* modp, VUseType useType, T_Callable action) {
+        ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (ಧ್ರುವ AstCUse* ಧ್ರುವ usep = VN_CAST(itemp, CUse)) {
+                ಯದಿ (usep->useType().containsAny(useType)) {
+                    ಯದಿ (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
                         action("#include \"" + EmitCUtil::prefixNameProtect(usep) + ".h\"\n");
-                        continue;  // Forward declaration is not necessary
+                        ಅನುವರ್ತ;  // Forward declaration is not necessary
                     }
-                    if (usep->useType().containsAny(VUseType::INT_FWD_CLASS)) {
+                    ಯದಿ (usep->useType().containsAny(VUseType::INT_FWD_CLASS)) {
                         action("class " + EmitCUtil::prefixNameProtect(usep) + ";\n");
                     }
                 }
             }
         }
     }
-    void emitModCUse(const AstNodeModule* modp, VUseType useType);
-    void emitSystemCSection(const AstNodeModule* modp, VSystemCSectionType type);
-    static std::pair<string, FileLine*> scSection(const AstNodeModule* modp,
+    ಶೂನ್ಯ emitModCUse(ಧ್ರುವ Ast_ಗಂಟು_Module* modp, VUseType useType);
+    ಶೂನ್ಯ emitSystemCSection(ಧ್ರುವ Ast_ಗಂಟು_Module* modp, VSystemCSectionType type);
+    ಸ್ಥಿರ std::pair<string, File_ಸಾಲು*> scSection(ಧ್ರುವ Ast_ಗಂಟು_Module* modp,
                                                   VSystemCSectionType type);
 
     // CONSTRUCTORS
-    EmitCBaseVisitorConst() = default;
+    EmitCBaseVisitorConst() = ಸ್ವಭಾವ;
     ~EmitCBaseVisitorConst() override {
         UASSERT(!m_ofp, "Did not close output file");
         // Add files cerated to the netlist (unless retrieved before destruction)
-        for (AstCFile* const cfilep : m_newCfileps) v3Global.rootp()->addFilesp(cfilep);
+        ಪ್ರತಿ (AstCFile* ಧ್ರುವ cfilep : m_newCfileps) v3Global.rootp()->addFilesp(cfilep);
     }
 };
 

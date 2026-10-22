@@ -14,136 +14,136 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ಅನ್ತರ್ಭಾವ "V3PchAstMT.h"
 
-#include "V3ConstPool.h"
+#ಅನ್ತರ್ಭಾವ "V3ConstPool.h"
 
-#include "V3Hasher.h"
+#ಅನ್ತರ್ಭಾವ "V3Hasher.h"
 
 //######################################################################
 // V3ConstPool
 
-V3Hash V3ConstPool::hashValue(const AstNode* nodep) {
+V3Hash V3ConstPool::hash_ಮೌಲ್ಯ(ಧ್ರುವ Ast_ಗಂಟು* nodep) {
     // Hash what 'equalValue' compares
     V3Hash hash{nodep->type().hash()};
-    hash += nodep->dtypep()->cType("", false, false);
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->num().toHash();
-    if (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
-        const uint64_t size
+    hash += nodep->dtypep()->cType("", ಅಸತ್ಯ, ಅಸತ್ಯ);
+    ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const)) ಪ್ರತ್ಯಾಗಮ hash + constp->ಅಂಕೆ().toHash();
+    ಯದಿ (ಧ್ರುವ AstConsArray* ಧ್ರುವ consp = VN_CAST(nodep, ConsArray)) {
+        ಧ್ರುವ uint64_t size
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
-        return hash;
+        ಪ್ರತಿ (uint64_t n = 0; n < size; ++n) hash += hash_ಮೌಲ್ಯ(consp->valuep(n));
+        ಪ್ರತ್ಯಾಗಮ hash;
     }
-    return hash + V3Hasher::uncachedHash(nodep);
+    ಪ್ರತ್ಯಾಗಮ hash + V3Hasher::uncachedHash(nodep);
 }
 
-bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
-    if (ap->type() != bp->type()) return false;
-    if (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
-        return false;
+ತಾರ್ಕಿಕ V3ConstPool::equal_ಮೌಲ್ಯ(ಧ್ರುವ Ast_ಗಂಟು* ap, ಧ್ರುವ Ast_ಗಂಟು* bp) {
+    ಯದಿ (ap->type() != bp->type()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+    ಯದಿ (ap->dtypep()->cType("", ಅಸತ್ಯ, ಅಸತ್ಯ) != bp->dtypep()->cType("", ಅಸತ್ಯ, ಅಸತ್ಯ)) {
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
     // Compare constants by value, which also checks the width
-    if (const AstConst* const constp = VN_CAST(ap, Const)) {
-        return constp->num().isCaseEq(VN_AS(bp, Const)->num());
+    ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(ap, Const)) {
+        ಪ್ರತ್ಯಾಗಮ constp->ಅಂಕೆ().isCaseEq(VN_AS(bp, Const)->ಅಂಕೆ());
     }
     // Compare unpacked arrays by element values, as equal arrays might differ in their range,
     // and in which elements are given or defaulted
-    if (const AstConsArray* const aConsp = VN_CAST(ap, ConsArray)) {
-        const AstConsArray* const bConsp = VN_AS(bp, ConsArray);
-        const uint64_t size
+    ಯದಿ (ಧ್ರುವ AstConsArray* ಧ್ರುವ aConsp = VN_CAST(ap, ConsArray)) {
+        ಧ್ರುವ AstConsArray* ಧ್ರುವ bConsp = VN_AS(bp, ConsArray);
+        ಧ್ರುವ uint64_t size
             = VN_AS(aConsp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) {
-            if (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) return false;
+        ಪ್ರತಿ (uint64_t n = 0; n < size; ++n) {
+            ಯದಿ (!equal_ಮೌಲ್ಯ(aConsp->valuep(n), bConsp->valuep(n))) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
-    return ap->sameTree(bp);
+    ಪ್ರತ್ಯಾಗಮ ap->same_ವೃಕ್ಷ(bp);
 }
 
-void V3ConstPool::rebuildCache() {
-    m_cacheValid = true;
+ಶೂನ್ಯ V3ConstPool::rebuildCache() {
+    m_cacheValid = ಸತ್ಯ;
     m_scopep = nullptr;
     m_entries.clear();
     m_varScopes.clear();
-    AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-    for (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
-            if (m_stage == Stage::SCOPED) m_scopep = scopep;
-            continue;
+    AstPackage* ಧ್ರುವ pkgp = v3Global.rootp()->constPoolPkgp();
+    ಪ್ರತಿ (Ast_ಗಂಟು* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        ಯದಿ (AstScope* ಧ್ರುವ scopep = VN_CAST(nodep, Scope)) {
+            ಯದಿ (m_stage == Stage::SCOPED) m_scopep = scopep;
+            ಅನುವರ್ತ;
         }
         // Otherwise must be a variable
-        AstVar* const varp = VN_AS(nodep, Var);
+        AstVar* ಧ್ರುವ varp = VN_AS(nodep, Var);
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Unmarked variable in constant pool");
-        m_entries.insert(varp);
+        m_entries.ಸೇರಿಸು(varp);
     }
-    if (m_scopep) {
-        for (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
-            m_varScopes.insert({vscp->varp(), vscp});
+    ಯದಿ (m_scopep) {
+        ಪ್ರತಿ (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
+            m_varScopes.ಸೇರಿಸು({vscp->varp(), vscp});
         }
     }
 }
 
-AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
-    UASSERT_OBJ(initp->isConstantTree(), initp, "Const pool value is not constant");
+AstVarRef* V3ConstPool::find(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* initp) {
+    UASSERT_OBJ(initp->is_Constant_ವೃಕ್ಷ(), initp, "Const pool value is not constant");
     V3ConstPool& self = instance();
-    if (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
+    ಯದಿ (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
 
-    FileLine* const flp = initp->fileline();
-    AstNodeDType* const dtypep = initp->dtypep();
+    File_ಸಾಲು* ಧ್ರುವ flp = initp->fileline();
+    Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = initp->dtypep();
 
     // Look up/create the variable with this value
-    const auto pair = self.m_entries.insertLazy(initp, [&]() {
-        uint32_t& numberr = self.m_nextNumber[initp->type()];
-        const std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
+    ಧ್ರುವ auto pair = self.m_entries.ಸೇರಿಸು_Lazy(initp, [&]() {
+        uint32_t& numberr = self.m_next_ಸಂಖ್ಯೆ[initp->type()];
+        ಧ್ರುವ std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{flp, VVarType::MODULETEMP, name, dtypep};
         varp->setConstPoolEntry();
         varp->lifetime(VLifetime::STATIC_EXPLICIT);
-        varp->isConst(true);
-        varp->valuep(initp->cloneTree(false));
+        varp->isConst(ಸತ್ಯ);
+        varp->valuep(initp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
         v3Global.rootp()->constPoolPkgp()->addStmtsp(varp);
-        return varp;
+        ಪ್ರತ್ಯಾಗಮ varp;
     });
-    AstVar* const varp = *pair.first;
+    AstVar* ಧ್ರುವ varp = *pair.first;
 
     // Create a read reference to the entry, of the right form for the current stage
     AstVarRef* refp = nullptr;
-    switch (self.m_stage) {
-    case Stage::UNSCOPED: {
+    ವಿಕಲ್ಪ (self.m_stage) {
+    ಪಕ್ಷ Stage::UNSCOPED: {
         // Before V3Scope, reference via the package, as any other package variable
-        AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-        refp = new AstVarRef{flp, pkgp, varp, VAccess::READ};
-        break;
+        AstPackage* ಧ್ರುವ pkgp = v3Global.rootp()->constPoolPkgp();
+        refp = ನೂತನ AstVarRef{flp, pkgp, varp, VAccess::READ};
+        ಭಙ್ಗ;
     }
-    case Stage::SCOPED: {
+    ಪಕ್ಷ Stage::SCOPED: {
         // While scoped, reference the VarScope, creating it for a new entry, or if removed
-        const auto vscpPair = self.m_varScopes.insertLazy(varp, [&]() {
-            AstVarScope* const vscp = new AstVarScope{varp->fileline(), self.m_scopep, varp};
+        ಧ್ರುವ auto vscpPair = self.m_varScopes.ಸೇರಿಸು_Lazy(varp, [&]() {
+            AstVarScope* ಧ್ರುವ vscp = ನೂತನ AstVarScope{varp->fileline(), self.m_scopep, varp};
             self.m_scopep->addVarsp(vscp);
-            return std::pair<const AstVar*, AstVarScope*>{varp, vscp};
+            ಪ್ರತ್ಯಾಗಮ std::pair<ಧ್ರುವ AstVar*, AstVarScope*>{varp, vscp};
         });
-        refp = new AstVarRef{flp, vscpPair.first->second, VAccess::READ};
-        break;
+        refp = ನೂತನ AstVarRef{flp, vscpPair.first->second, VAccess::READ};
+        ಭಙ್ಗ;
     }
-    case Stage::DESCOPED: {
+    ಪಕ್ಷ Stage::DESCOPED: {
         // After V3Descope, no VarScope is needed
-        refp = new AstVarRef{flp, varp, VAccess::READ};
-        break;
+        refp = ನೂತನ AstVarRef{flp, varp, VAccess::READ};
+        ಭಙ್ಗ;
     }
     }
 
     // The entry might have been created with a different, but compatible dtype
     refp->dtypep(dtypep);
-    return refp;
+    ಪ್ರತ್ಯಾಗಮ refp;
 }
 
-const char* V3ConstPool::broken() {
-    const V3ConstPool& self = instance();
-    if (!self.m_cacheValid) return nullptr;
+ಧ್ರುವ ವರ್ಣ* V3ConstPool::broken() {
+    ಧ್ರುವ V3ConstPool& self = instance();
+    ಯದಿ (!self.m_cacheValid) ಪ್ರತ್ಯಾಗಮ nullptr;
     BROKEN_RTN(self.m_scopep && !self.m_scopep->brokeExists());
-    for (const AstVar* const varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
-    for (const auto& pair : self.m_varScopes) {
+    ಪ್ರತಿ (ಧ್ರುವ AstVar* ಧ್ರುವ varp : self.m_entries) BROKEN_RTN(!varp->brokeExists());
+    ಪ್ರತಿ (ಧ್ರುವ auto& pair : self.m_varScopes) {
         BROKEN_RTN(!pair.first->brokeExists());
         BROKEN_RTN(!pair.second->brokeExists());
     }
-    return nullptr;
+    ಪ್ರತ್ಯಾಗಮ nullptr;
 }

@@ -63,114 +63,114 @@
 // iterateSubtreeReturnEdits.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Width.h"
+#ಅನ್ತರ್ಭಾವ "V3Width.h"
 
-#include "V3Assert.h"
-#include "V3Ast.h"
-#include "V3Begin.h"
-#include "V3Const.h"
-#include "V3ConstPool.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3LinkLValue.h"
-#include "V3MemberMap.h"
-#include "V3Number.h"
-#include "V3Randomize.h"
-#include "V3String.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
-#include "V3WidthCommit.h"
+#ಅನ್ತರ್ಭಾವ "V3Assert.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Begin.h"
+#ಅನ್ತರ್ಭಾವ "V3Const.h"
+#ಅನ್ತರ್ಭಾವ "V3ConstPool.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3LinkLValue.h"
+#ಅನ್ತರ್ಭಾವ "V3MemberMap.h"
+#ಅನ್ತರ್ಭಾವ "V3Number.h"
+#ಅನ್ತರ್ಭಾವ "V3Randomize.h"
+#ಅನ್ತರ್ಭಾವ "V3String.h"
+#ಅನ್ತರ್ಭಾವ "V3Task.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3WidthCommit.h"
 
 // More code; this file was getting too large; see actions there
 #define VERILATOR_V3WIDTH_CPP_
-#include "V3WidthRemove.h"
+#ಅನ್ತರ್ಭಾವ "V3WidthRemove.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ContainingClassFinder final {
+ವರ್ಗ ContainingClassFinder final {
     // The cache stores the class containing each node, excluding the node itself when it is a
     // class. This lets recursion through preceding siblings reuse the same ownership result.
     // Outside of V3Width, where the whole netlist is iterated, instead of this technique,
     // parents should be remembered during the top-down visit recursion into classes.
-    std::unordered_map<const AstNode*, AstClass*> m_cache;
+    std::unordered_map<ಧ್ರುವ Ast_ಗಂಟು*, AstClass*> m_cache;
 
-    AstClass* findCached(AstNode* nodep) {
-        if (!nodep) return nullptr;
-        const auto it = m_cache.find(nodep);
-        if (it != m_cache.end()) return it->second;
+    AstClass* findCached(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಧ್ರುವ auto it = m_cache.find(nodep);
+        ಯದಿ (it != m_cache.end()) ಪ್ರತ್ಯಾಗಮ it->second;
 
         AstClass* classp = nullptr;
-        if (nodep->backp() && nodep->backp()->nextp() == nodep) {
+        ಯದಿ (nodep->backp() && nodep->backp()->nextp() == nodep) {
             classp = findCached(nodep->backp());
-        } else if (AstClass* const parentp = VN_CAST(nodep->backp(), Class)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstClass* ಧ್ರುವ parentp = VN_CAST(nodep->backp(), Class)) {
             classp = parentp;
-        } else if (AstClassPackage* const packagep = VN_CAST(nodep->backp(), ClassPackage)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstClassPackage* ಧ್ರುವ packagep = VN_CAST(nodep->backp(), ClassPackage)) {
             classp = packagep->classp();
-        } else {
+        } ಅನ್ಯಥಾ {
             classp = findCached(nodep->backp());
         }
         m_cache.emplace(nodep, classp);
-        return classp;
+        ಪ್ರತ್ಯಾಗಮ classp;
     }
 
-public:
-    AstClass* find(AstNode* nodep) {
-        if (AstClass* const classp = VN_CAST(nodep, Class)) return classp;
-        if (AstClassPackage* const packagep = VN_CAST(nodep, ClassPackage)) {
-            return packagep->classp();
+ಸಾರ್ವಜನಿಕ:
+    AstClass* find(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (AstClass* ಧ್ರುವ classp = VN_CAST(nodep, Class)) ಪ್ರತ್ಯಾಗಮ classp;
+        ಯದಿ (AstClassPackage* ಧ್ರುವ packagep = VN_CAST(nodep, ClassPackage)) {
+            ಪ್ರತ್ಯಾಗಮ packagep->classp();
         }
-        return findCached(nodep);
+        ಪ್ರತ್ಯಾಗಮ findCached(nodep);
     }
 };
 
 //######################################################################
 
-enum Stage : uint8_t {
+ಗಣನಾ Stage : uint8_t {
     PRELIM = 1,
     FINAL = 2,
     BOTH = 3
 };  // Numbers are a bitmask <0>=prelim, <1>=final
-std::ostream& operator<<(std::ostream& str, const Stage& rhs) {
-    return str << ("-PFB"[static_cast<int>(rhs)]);
+std::ostream& operator<<(std::ostream& str, ಧ್ರುವ Stage& rhs) {
+    ಪ್ರತ್ಯಾಗಮ str << ("-PFB"[static_cast<ಪೂರ್ಣಾಙ್ಕ>(rhs)]);
 }
 
-enum Determ : uint8_t {
+ಗಣನಾ Determ : uint8_t {
     SELF,  // Self-determined
     CONTEXT_DET,  // Context-determined
     ASSIGN  // Assignment-like where sign comes from RHS only
 };
-std::ostream& operator<<(std::ostream& str, const Determ& rhs) {
-    static constexpr const char* const s_det[] = {"SELF", "CNTX", "ASSN"};
-    return str << s_det[rhs];
+std::ostream& operator<<(std::ostream& str, ಧ್ರುವ Determ& rhs) {
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ s_det[] = {"SELF", "CNTX", "ASSN"};
+    ಪ್ರತ್ಯಾಗಮ str << s_det[rhs];
 }
 
-enum StreamUse : uint8_t {
+ಗಣನಾ StreamUse : uint8_t {
     STREAM_USE_NONE,  // Stream concatenation is not allowed in this context
     STREAM_USE_ASSIGN,  // Assignment-like context permits stream concatenation
     STREAM_USE_CAST,  // Explicit cast context permits stream concatenation
 };
 
-#define v3widthWarn(lhs, rhs, msg) \
+#define v3widthWarn(lhs, rhs, ಸಂದೇಶ) \
     v3warnCode(((lhs) < (rhs)   ? V3ErrorCode::WIDTHTRUNC \
                 : (lhs) > (rhs) ? V3ErrorCode::WIDTHEXPAND \
                                 : V3ErrorCode::WIDTH), \
-               msg)
+               ಸಂದೇಶ)
 
 //######################################################################
 // Width state, as a visitor of each AstNode
 
-class WidthVP final {
+ವರ್ಗ WidthVP final {
     // Parameters to pass down hierarchy with visit functions.
-    AstNodeDType* const m_dtypep;  // Parent's data type to resolve to
-    const Stage m_stage;  // If true, report errors
-    const StreamUse m_streamUse;  // Current expression may be a stream concat
+    Ast_ಗಂಟು_DType* ಧ್ರುವ m_dtypep;  // Parent's data type to resolve to
+    ಧ್ರುವ Stage m_stage;  // If true, report errors
+    ಧ್ರುವ StreamUse m_streamUse;  // Current expression may be a stream concat
 
-public:
-    WidthVP(AstNodeDType* dtypep, Stage stage, StreamUse streamUse = STREAM_USE_NONE)
+ಸಾರ್ವಜನಿಕ:
+    WidthVP(Ast_ಗಂಟು_DType* dtypep, Stage stage, StreamUse streamUse = STREAM_USE_NONE)
         : m_dtypep{dtypep}
         , m_stage{stage}
         , m_streamUse{streamUse} {
@@ -181,160 +181,160 @@ public:
         : m_dtypep{nullptr}
         , m_stage{stage}
         , m_streamUse{streamUse} {
-        if (determ != SELF && stage != PRELIM)
+        ಯದಿ (determ != SELF && stage != PRELIM)
             v3fatalSrc("Context-determined width request only allowed as prelim step");
     }
-    WidthVP* p() { return this; }
-    bool selfDtm() const { return m_dtypep == nullptr; }
-    StreamUse streamUse() const { return m_streamUse; }
-    AstNodeDType* dtypep() const {
+    WidthVP* p() { ಪ್ರತ್ಯಾಗಮ ಏತತ್; }
+    ತಾರ್ಕಿಕ selfDtm() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_dtypep == nullptr; }
+    StreamUse streamUse() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_streamUse; }
+    Ast_ಗಂಟು_DType* dtypep() ಧ್ರುವ {
         // Detect where overrideDType is probably the intended call
         UASSERT(m_dtypep, "Width dtype request on self-determined or preliminary VUP");
-        return m_dtypep;
+        ಪ್ರತ್ಯಾಗಮ m_dtypep;
     }
-    AstNodeDType* dtypeNullp() const { return m_dtypep; }
-    AstNodeDType* dtypeNullSkipRefp() const {
-        AstNodeDType* dtp = dtypeNullp();
-        if (dtp) dtp = dtp->skipRefp();
-        return dtp;
+    Ast_ಗಂಟು_DType* dtypeNullp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_dtypep; }
+    Ast_ಗಂಟು_DType* dtypeNullSkipRefp() ಧ್ರುವ {
+        Ast_ಗಂಟು_DType* dtp = dtypeNullp();
+        ಯದಿ (dtp) dtp = dtp->skipRefp();
+        ಪ್ರತ್ಯಾಗಮ dtp;
     }
-    AstNodeDType* dtypeOverridep(AstNodeDType* const defaultp) const {
+    Ast_ಗಂಟು_DType* dtypeOverridep(Ast_ಗಂಟು_DType* ಧ್ರುವ defaultp) ಧ್ರುವ {
         UASSERT(m_stage != PRELIM, "Parent dtype should be a final-stage action");
-        if (!m_dtypep) return defaultp;
-        if (m_dtypep->skipRefp()->isIntegralOrPacked()
+        ಯದಿ (!m_dtypep) ಪ್ರತ್ಯಾಗಮ defaultp;
+        ಯದಿ (m_dtypep->skipRefp()->isIntegralOrPacked()
             && defaultp->skipRefp()->isIntegralOrPacked()
             && m_dtypep->isFourstate() != defaultp->isFourstate()) {
             UASSERT_OBJ(m_dtypep->skipRefp()->basicp() && defaultp->skipRefp()->basicp(), m_dtypep,
                         "Unexpected type override from: " << defaultp << " to: " << m_dtypep);
-            return defaultp->findBitOrLogicDType(m_dtypep->width(), m_dtypep->widthMin(),
+            ಪ್ರತ್ಯಾಗಮ defaultp->findBitOrLogicDType(m_dtypep->width(), m_dtypep->widthMin(),
                                                  m_dtypep->numeric(), defaultp->isFourstate());
         }
-        return m_dtypep;
+        ಪ್ರತ್ಯಾಗಮ m_dtypep;
     }
-    int width() const {
+    ಪೂರ್ಣಾಙ್ಕ width() ಧ್ರುವ {
         UASSERT(m_dtypep, "Width request on self-determined or preliminary VUP");
-        return m_dtypep->width();
+        ಪ್ರತ್ಯಾಗಮ m_dtypep->width();
     }
-    int widthMin() const {
+    ಪೂರ್ಣಾಙ್ಕ widthMin() ಧ್ರುವ {
         UASSERT(m_dtypep, "Width request on self-determined or preliminary VUP");
-        return m_dtypep->widthMin();
+        ಪ್ರತ್ಯಾಗಮ m_dtypep->widthMin();
     }
-    bool prelim() const { return m_stage & PRELIM; }
-    bool final() const { return m_stage & FINAL; }
-    void dump(std::ostream& str) const {
-        if (!m_dtypep) {
+    ತಾರ್ಕಿಕ prelim() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stage & PRELIM; }
+    ತಾರ್ಕಿಕ final() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_stage & FINAL; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಧ್ರುವ {
+        ಯದಿ (!m_dtypep) {
             str << "  VUP(s=" << m_stage << ",self)";
-        } else {
+        } ಅನ್ಯಥಾ {
             str << "  VUP(s=" << m_stage << ",dt=" << cvtToHex(dtypep());
             dtypep()->dumpSmall(str);
             str << ")";
         }
     }
 };
-std::ostream& operator<<(std::ostream& str, const WidthVP* vup) {
-    if (vup) vup->dump(str);
-    return str;
+std::ostream& operator<<(std::ostream& str, ಧ್ರುವ WidthVP* vup) {
+    ಯದಿ (vup) vup->dump(str);
+    ಪ್ರತ್ಯಾಗಮ str;
 }
 
 //######################################################################
 
-class WidthClearVisitor final {
+ವರ್ಗ WidthClearVisitor final {
     // Rather than a VNVisitor, can just quickly touch every node
-    void clearWidthRecurse(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
-            nodep->didWidth(false);
-            if (AstNode* const refp = nodep->op1p()) clearWidthRecurse(refp);
-            if (AstNode* const refp = nodep->op2p()) clearWidthRecurse(refp);
-            if (AstNode* const refp = nodep->op3p()) clearWidthRecurse(refp);
-            if (AstNode* const refp = nodep->op4p()) clearWidthRecurse(refp);
+    ಶೂನ್ಯ clearWidthRecurse(Ast_ಗಂಟು* nodep) {
+        ಪ್ರತಿ (; nodep; nodep = nodep->nextp()) {
+            nodep->didWidth(ಅಸತ್ಯ);
+            ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op1p()) clearWidthRecurse(refp);
+            ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op2p()) clearWidthRecurse(refp);
+            ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op3p()) clearWidthRecurse(refp);
+            ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op4p()) clearWidthRecurse(refp);
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     explicit WidthClearVisitor(AstNetlist* nodep) { clearWidthRecurse(nodep); }
-    virtual ~WidthClearVisitor() = default;
+    ಆಭಾಸ ~WidthClearVisitor() = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 
-#define accept in_WidthVisitor_use_AstNode_iterate_instead_of_AstNode_accept
+#define accept in_Width_Visitor_use_Ast_ಗಂಟು_iterate_instead_of_Ast_ಗಂಟು_accept
 
 //######################################################################
 
-class WidthVisitor final : public VNVisitor {
+ವರ್ಗ WidthVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // TYPES
-    using PatVecMap = std::map<int, AstPatMember*>;
-    using DTypeMap = std::map<const std::string, AstPatMember*>;
+    using PatVecMap = std::map<ಪೂರ್ಣಾಙ್ಕ, AstPatMember*>;
+    using DTypeMap = std::map<ಧ್ರುವ std::string, AstPatMember*>;
 
     // STATE
     V3UniqueNames m_enumTempNames;  // Captured enum expressions
     V3UniqueNames m_insideTempNames;  // For generating unique temporary variable names for
                                       // `inside` expressions
     VMemberMap m_memberMap;  // Member names cached for fast lookup
-    std::unordered_map<const AstModport*, std::unordered_set<string>>
+    std::unordered_map<ಧ್ರುವ AstModport*, std::unordered_set<string>>
         m_modportNames;  // Names listed by each modport
     V3TaskConnectState m_taskConnectState;  // State to cache V3Task::taskConnects
     WidthVP* m_vup = nullptr;  // Current node state
-    bool m_underFork = false;  // Visiting under a fork
-    bool m_underSExpr = false;  // Visiting under a sequence expression
-    bool m_underPackedArray = false;  // Visiting under a AstPackArrayDType
-    bool m_underMemberSel = false;  // Viting under a MemberSel
-    AstNode* m_seqUnsupp = nullptr;  // Property has unsupported node
-    bool m_hasSExpr = false;  // Property has a sequence expression
-    const AstCell* m_cellp = nullptr;  // Current cell for arrayed instantiations
+    ತಾರ್ಕಿಕ m_underFork = ಅಸತ್ಯ;  // Visiting under a fork
+    ತಾರ್ಕಿಕ m_underSExpr = ಅಸತ್ಯ;  // Visiting under a sequence expression
+    ತಾರ್ಕಿಕ m_underPackedArray = ಅಸತ್ಯ;  // Visiting under a AstPackArrayDType
+    ತಾರ್ಕಿಕ m_underMemberSel = ಅಸತ್ಯ;  // Viting under a MemberSel
+    Ast_ಗಂಟು* m_seqUnsupp = nullptr;  // Property has unsupported node
+    ತಾರ್ಕಿಕ m_hasSExpr = ಅಸತ್ಯ;  // Property has a sequence expression
+    ಧ್ರುವ AstCell* m_cellp = nullptr;  // Current cell for arrayed instantiations
     std::vector<AstVar*> m_splitIfaceArrayVarps;  // Interface arrays split by V3Param
-    const AstEnumItem* m_enumItemp = nullptr;  // Current enum item
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeModule* m_modep = nullptr;  // Current module
-    const AstConstraint* m_constraintp = nullptr;  // Current constraint
-    AstNodeProcedure* m_procedurep = nullptr;  // Current final/always
-    const AstWith* m_withp = nullptr;  // Current 'with' statement
-    const AstFunc* m_funcp = nullptr;  // Current function
-    const AstAttrOf* m_attrp = nullptr;  // Current attribute
-    const AstNodeExpr* m_randomizeFromp = nullptr;  // Current randomize method call fromp
-    const bool m_paramsOnly;  // Computing parameter value; limit operation
-    const bool m_doGenerate;  // Do errors later inside generate statement
-    bool m_streamConcat = false;  // True if visiting arguments of stream concatenation
-    bool m_inParamOverride = false;  // True if visiting the value of a parameter override pin
+    ಧ್ರುವ AstEnumItem* m_enumItemp = nullptr;  // Current enum item
+    Ast_ಗಂಟು_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_ಗಂಟು_Module* m_modep = nullptr;  // Current module
+    ಧ್ರುವ AstConstraint* m_constraintp = nullptr;  // Current constraint
+    Ast_ಗಂಟು_Procedure* m_procedurep = nullptr;  // Current final/always
+    ಧ್ರುವ AstWith* m_withp = nullptr;  // Current 'with' statement
+    ಧ್ರುವ AstFunc* m_funcp = nullptr;  // Current function
+    ಧ್ರುವ AstAttrOf* m_attrp = nullptr;  // Current attribute
+    ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_randomizeFromp = nullptr;  // Current randomize method call fromp
+    ಧ್ರುವ ತಾರ್ಕಿಕ m_paramsOnly;  // Computing parameter value; limit operation
+    ಧ್ರುವ ತಾರ್ಕಿಕ m_doGenerate;  // Do errors later inside generate statement
+    ತಾರ್ಕಿಕ m_streamConcat = ಅಸತ್ಯ;  // True if visiting arguments of stream concatenation
+    ತಾರ್ಕಿಕ m_inParamOverride = ಅಸತ್ಯ;  // True if visiting the value of a parameter override pin
     // Created dimension and enum tables, mapped to a reference reading the table (always cloned)
-    std::map<std::pair<const AstNodeDType*, VAttrType>, AstVarRef*> m_tableMap;
+    std::map<std::pair<ಧ್ರುವ Ast_ಗಂಟು_DType*, VAttrType>, AstVarRef*> m_tableMap;
     // Queues with given index type
-    std::map<const AstNodeDType*, AstQueueDType*> m_queueDTypeIndexed;
+    std::map<ಧ್ರುವ Ast_ಗಂಟು_DType*, AstQueueDType*> m_queueDTypeIndexed;
     ContainingClassFinder m_containingClassFinder;
     std::unordered_set<AstVar*> m_aliasedVars;  // Variables referenced in alias
-    std::unordered_set<const AstVar*> m_curModVars;  // Variables declared in current module
+    std::unordered_set<ಧ್ರುವ AstVar*> m_curModVars;  // Variables declared in current module
 
-    static constexpr int ENUM_LOOKUP_BITS = 16;  // Maximum # bits to make enum lookup table
+    ಸ್ಥಿರ constexpr ಪೂರ್ಣಾಙ್ಕ ENUM_LOOKUP_BITS = 16;  // Maximum # bits to make enum lookup table
 
     // ENUMS
-    enum ExtendRule : uint8_t {
+    ಗಣನಾ ExtendRule : uint8_t {
         EXTEND_EXP,  // Extend if expect sign and node signed, e.g. node=y in ADD(x,y), "x + y"
         EXTEND_ZERO,  // Extend with zeros. e.g. node=y in EQ(x,y), "x == y"
         EXTEND_LHS,  // Extend with sign if node signed. e.g. node=y in ASSIGN(y,x), "x = y"
         EXTEND_OFF  // No extension
     };
-    enum class ComparisonType : uint8_t {
+    ಗಣನಾ ವರ್ಗ ComparisonType : uint8_t {
         NORMAL_EQ,  // Conventional comparison equal/unequal operator: ==, !=
         NORMAL_GL,  // Conventional comparison grater/less than: <, >, <=, >=
         CASE,  // Four-state aware comparison: ===, !==
         WILD,  // Wildcard equality operators: ?== ?=!
     };
 
-    static StreamUse streamUseForDeterm(Determ determ) {
-        return determ == ASSIGN ? STREAM_USE_ASSIGN : STREAM_USE_NONE;
+    ಸ್ಥಿರ StreamUse streamUseForDeterm(Determ determ) {
+        ಪ್ರತ್ಯಾಗಮ determ == ASSIGN ? STREAM_USE_ASSIGN : STREAM_USE_NONE;
     }
 
-    StreamUse currentStreamUse() const { return m_vup ? m_vup->streamUse() : STREAM_USE_NONE; }
+    StreamUse currentStreamUse() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_vup ? m_vup->streamUse() : STREAM_USE_NONE; }
 
-    static void packIfUnpacked(AstNodeExpr* const nodep) {
-        if (AstUnpackArrayDType* const unpackDTypep = VN_CAST(nodep->dtypep(), UnpackArrayDType)) {
-            const int elementsNum = unpackDTypep->arrayUnpackedElements();
-            const int unpackMinBits = elementsNum * unpackDTypep->subDTypep()->widthMin();
-            const int unpackBits = elementsNum * unpackDTypep->subDTypep()->width();
+    ಸ್ಥಿರ ಶೂನ್ಯ packIfUnpacked(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ nodep) {
+        ಯದಿ (AstUnpackArrayDType* ಧ್ರುವ unpackDTypep = VN_CAST(nodep->dtypep(), UnpackArrayDType)) {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ elements_ಅಂಕೆ = unpackDTypep->arrayUnpackedElements();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ unpackMinBits = elements_ಅಂಕೆ * unpackDTypep->subDTypep()->widthMin();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ unpackBits = elements_ಅಂಕೆ * unpackDTypep->subDTypep()->width();
             VNRelinker relinker;
             nodep->unlinkFrBack(&relinker);
-            relinker.relink(new AstCvtArrayToPacked{
+            relinker.relink(ನೂತನ AstCvtArrayToPacked{
                 nodep->fileline(), nodep,
                 nodep->findBitOrLogicDType(unpackBits, unpackMinBits, VSigning::UNSIGNED,
                                            nodep->dtypep()->isFourstate())});
@@ -342,10 +342,10 @@ class WidthVisitor final : public VNVisitor {
     }
     // When fromp() is a DType (e.g. unlinked RefDType), resolve through
     // the ref chain; when it's an expression, dtypep() is already resolved.
-    static AstNodeDType* fromDTypep(AstNode* fromp) {
-        if (AstNodeDType* const dtypep = VN_CAST(fromp, NodeDType))
-            return dtypep->skipRefOrNullp();
-        return fromp ? fromp->dtypep() : nullptr;
+    ಸ್ಥಿರ Ast_ಗಂಟು_DType* fromDTypep(Ast_ಗಂಟು* fromp) {
+        ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = VN_CAST(fromp, ಗಂಟು_DType))
+            ಪ್ರತ್ಯಾಗಮ dtypep->skipRefOrNullp();
+        ಪ್ರತ್ಯಾಗಮ fromp ? fromp->dtypep() : nullptr;
     }
     // VISITORS
     //   Naming:  width_O{outputtype}_L{lhstype}_R{rhstype}_W{widthing}_S{signing}
@@ -358,152 +358,152 @@ class WidthVisitor final : public VNVisitor {
     //                  _Ox=anything
 
     // Widths: 1 bit out, lhs 1 bit; Real: converts via compare with 0
-    void visit(AstLogNot* nodep) override { visit_log_not(nodep); }
+    ಶೂನ್ಯ visit(AstLogNot* nodep) override { visit_log_not(nodep); }
     // Widths: 1 bit out, lhs 1 bit, rhs 1 bit; Real: converts via compare with 0
-    void visit(AstLogAnd* nodep) override { visit_log_and_or(nodep); }
-    void visit(AstLogOr* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstLogAnd* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstLogOr* nodep) override { visit_log_and_or(nodep); }
     // Sequence and/or/intersect (IEEE 1800-2023 16.9.2), same width rules as LogAnd/LogOr
-    void visit(AstSAnd* nodep) override { visit_log_and_or(nodep); }
-    void visit(AstSIntersect* nodep) override { visit_log_and_or(nodep); }
-    void visit(AstSOr* nodep) override { visit_log_and_or(nodep); }
-    void visit(AstSWithin* nodep) override { visit_log_and_or(nodep); }
-    void visit(AstLogEq* nodep) override {
+    ಶೂನ್ಯ visit(AstSAnd* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstSIntersect* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstSOr* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstSWithin* nodep) override { visit_log_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstLogEq* nodep) override {
         // Conversion from real not in IEEE, but a fallout
         visit_log_and_or(nodep);
     }
-    void visit(AstLogIf* nodep) override {
+    ಶೂನ್ಯ visit(AstLogIf* nodep) override {
         // Conversion from real not in IEEE, but a fallout
         visit_log_and_or(nodep);
     }
 
     // Widths: 1 bit out, Any width lhs
-    void visit(AstRedAnd* nodep) override { visit_red_and_or(nodep); }
-    void visit(AstRedOr* nodep) override { visit_red_and_or(nodep); }
-    void visit(AstRedXor* nodep) override { visit_red_and_or(nodep); }
-    void visit(AstOneHot* nodep) override { visit_red_and_or(nodep); }
-    void visit(AstOneHot0* nodep) override { visit_red_and_or(nodep); }
-    void visit(AstIsUnknown* nodep) override {
+    ಶೂನ್ಯ visit(AstRedAnd* nodep) override { visit_red_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstRedOr* nodep) override { visit_red_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstRedXor* nodep) override { visit_red_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstOneHot* nodep) override { visit_red_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstOneHot0* nodep) override { visit_red_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstIsUnknown* nodep) override {
         visit_red_unknown(nodep);  // Allow real
     }
 
     // These have different node types, as they operate differently
     // Must add to case statement below,
     // Widths: 1 bit out, lhs width == rhs width.  real if lhs|rhs real
-    void visit(AstEq* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_EQ); }
-    void visit(AstNeq* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_EQ); }
-    void visit(AstGt* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstGte* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstLt* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstLte* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstGtS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstGteS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstLtS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstLteS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
-    void visit(AstEqCase* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::CASE); }
-    void visit(AstNeqCase* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::CASE); }
+    ಶೂನ್ಯ visit(AstEq* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_EQ); }
+    ಶೂನ್ಯ visit(AstNeq* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_EQ); }
+    ಶೂನ್ಯ visit(AstGt* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstGte* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstLt* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstLte* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstGtS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstGteS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstLtS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstLteS* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::NORMAL_GL); }
+    ಶೂನ್ಯ visit(AstEqCase* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::CASE); }
+    ಶೂನ್ಯ visit(AstNeqCase* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::CASE); }
     // ...    These comparisons don't allow reals
-    void visit(AstEqWild* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::WILD); }
-    void visit(AstNeqWild* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::WILD); }
+    ಶೂನ್ಯ visit(AstEqWild* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::WILD); }
+    ಶೂನ್ಯ visit(AstNeqWild* nodep) override { visit_cmp_eq_gt(nodep, ComparisonType::WILD); }
     // ...    Real compares
-    void visit(AstEqD* nodep) override { visit_cmp_real(nodep); }
-    void visit(AstNeqD* nodep) override { visit_cmp_real(nodep); }
-    void visit(AstLtD* nodep) override { visit_cmp_real(nodep); }
-    void visit(AstLteD* nodep) override { visit_cmp_real(nodep); }
-    void visit(AstGtD* nodep) override { visit_cmp_real(nodep); }
-    void visit(AstGteD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstEqD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstNeqD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstLtD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstLteD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstGtD* nodep) override { visit_cmp_real(nodep); }
+    ಶೂನ್ಯ visit(AstGteD* nodep) override { visit_cmp_real(nodep); }
     // ...    String compares
-    void visit(AstEqN* nodep) override { visit_cmp_string(nodep); }
-    void visit(AstNeqN* nodep) override { visit_cmp_string(nodep); }
-    void visit(AstLtN* nodep) override { visit_cmp_string(nodep); }
-    void visit(AstLteN* nodep) override { visit_cmp_string(nodep); }
-    void visit(AstGtN* nodep) override { visit_cmp_string(nodep); }
-    void visit(AstGteN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstEqN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstNeqN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstLtN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstLteN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstGtN* nodep) override { visit_cmp_string(nodep); }
+    ಶೂನ್ಯ visit(AstGteN* nodep) override { visit_cmp_string(nodep); }
     // ...    Data type compares
-    void visit(AstEqT* nodep) override { visit_cmp_type(nodep); }
-    void visit(AstNeqT* nodep) override { visit_cmp_type(nodep); }
+    ಶೂನ್ಯ visit(AstEqT* nodep) override { visit_cmp_type(nodep); }
+    ಶೂನ್ಯ visit(AstNeqT* nodep) override { visit_cmp_type(nodep); }
 
     // Widths: out width = lhs width = rhs width
     // Signed: Output signed iff LHS & RHS signed.
     // Real: Not allowed
-    void visit(AstAnd* nodep) override { visit_boolexpr_and_or(nodep); }
-    void visit(AstOr* nodep) override { visit_boolexpr_and_or(nodep); }
-    void visit(AstXor* nodep) override { visit_boolexpr_and_or(nodep); }
-    void visit(AstBufIf1* nodep) override {
+    ಶೂನ್ಯ visit(AstAnd* nodep) override { visit_boolexpr_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstOr* nodep) override { visit_boolexpr_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstXor* nodep) override { visit_boolexpr_and_or(nodep); }
+    ಶೂನ್ಯ visit(AstBufIf1* nodep) override {
         visit_boolexpr_and_or(nodep);
     }  // Signed behavior changing in 3.814
     // Width: Max(Lhs,Rhs) sort of.
     // Real: If either side real
     // Signed: If both sides real
-    void visit(AstAdd* nodep) override { visit_add_sub_replace(nodep, true, false); }
-    void visit(AstSub* nodep) override { visit_add_sub_replace(nodep, true, false); }
-    void visit(AstDiv* nodep) override { visit_add_sub_replace(nodep, true, true); }
-    void visit(AstMul* nodep) override { visit_add_sub_replace(nodep, true, false); }
+    ಶೂನ್ಯ visit(AstAdd* nodep) override { visit_add_sub_replace(nodep, ಸತ್ಯ, ಅಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstSub* nodep) override { visit_add_sub_replace(nodep, ಸತ್ಯ, ಅಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstDiv* nodep) override { visit_add_sub_replace(nodep, ಸತ್ಯ, ಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstMul* nodep) override { visit_add_sub_replace(nodep, ಸತ್ಯ, ಅಸತ್ಯ); }
     // These can't promote to real
-    void visit(AstModDiv* nodep) override { visit_add_sub_replace(nodep, false, true); }
-    void visit(AstModDivS* nodep) override { visit_add_sub_replace(nodep, false, true); }
-    void visit(AstMulS* nodep) override { visit_add_sub_replace(nodep, false, false); }
-    void visit(AstDivS* nodep) override { visit_add_sub_replace(nodep, false, true); }
+    ಶೂನ್ಯ visit(AstModDiv* nodep) override { visit_add_sub_replace(nodep, ಅಸತ್ಯ, ಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstModDivS* nodep) override { visit_add_sub_replace(nodep, ಅಸತ್ಯ, ಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstMulS* nodep) override { visit_add_sub_replace(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstDivS* nodep) override { visit_add_sub_replace(nodep, ಅಸತ್ಯ, ಸತ್ಯ); }
     // Widths: out width = lhs width, but upper matters
     // Signed: Output signed iff LHS signed; unary operator
     // Unary promote to real
-    void visit(AstNegate* nodep) override { visit_negate_not(nodep, true); }
+    ಶೂನ್ಯ visit(AstNegate* nodep) override { visit_negate_not(nodep, ಸತ್ಯ); }
     // Unary never real
-    void visit(AstNot* nodep) override { visit_negate_not(nodep, false); }
+    ಶೂನ್ಯ visit(AstNot* nodep) override { visit_negate_not(nodep, ಅಸತ್ಯ); }
 
     // Real: inputs and output real
-    void visit(AstAddD* nodep) override { visit_real_add_sub(nodep); }
-    void visit(AstSubD* nodep) override { visit_real_add_sub(nodep); }
-    void visit(AstDivD* nodep) override { visit_real_add_sub(nodep); }
-    void visit(AstMulD* nodep) override { visit_real_add_sub(nodep); }
-    void visit(AstPowD* nodep) override { visit_real_add_sub(nodep); }
-    void visit(AstNodeSystemBiopD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(AstAddD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(AstSubD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(AstDivD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(AstMulD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(AstPowD* nodep) override { visit_real_add_sub(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_System_Biop_D* nodep) override { visit_real_add_sub(nodep); }
     // Real: Output real
-    void visit(AstNegateD* nodep) override { visit_real_neg_ceil(nodep); }
-    void visit(AstNodeSystemUniopD* nodep) override { visit_real_neg_ceil(nodep); }
+    ಶೂನ್ಯ visit(AstNegateD* nodep) override { visit_real_neg_ceil(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_System_Uniop_D* nodep) override { visit_real_neg_ceil(nodep); }
 
     // Widths: out signed/unsigned width = lhs width, input un|signed
-    void visit(AstSigned* nodep) override { visit_signed_unsigned(nodep, VSigning::SIGNED); }
-    void visit(AstUnsigned* nodep) override { visit_signed_unsigned(nodep, VSigning::UNSIGNED); }
+    ಶೂನ್ಯ visit(AstSigned* nodep) override { visit_signed_unsigned(nodep, VSigning::SIGNED); }
+    ಶೂನ್ಯ visit(AstUnsigned* nodep) override { visit_signed_unsigned(nodep, VSigning::UNSIGNED); }
 
     // Widths: Output width from lhs, rhs<33 bits
     // Signed: If lhs signed
-    void visit(AstShiftL* nodep) override { visit_shift(nodep); }
-    void visit(AstShiftR* nodep) override { visit_shift(nodep); }
+    ಶೂನ್ಯ visit(AstShiftL* nodep) override { visit_shift(nodep); }
+    ಶೂನ್ಯ visit(AstShiftR* nodep) override { visit_shift(nodep); }
     // ShiftRS converts to ShiftR, but not vice-versa
-    void visit(AstShiftRS* nodep) override { visit_shift(nodep); }
+    ಶೂನ್ಯ visit(AstShiftRS* nodep) override { visit_shift(nodep); }
 
     //========
     // Widths: Output real, input integer signed
-    void visit(AstBitsToRealD* nodep) override { visit_Or_Lu64(nodep); }
+    ಶೂನ್ಯ visit(AstBitsToRealD* nodep) override { visit_Or_Lu64(nodep); }
 
     // Widths: Output integer signed, input real
-    void visit(AstRToIS* nodep) override { visit_Os32_Lr(nodep); }
-    void visit(AstRToIRoundS* nodep) override {
+    ಶೂನ್ಯ visit(AstRToIS* nodep) override { visit_Os32_Lr(nodep); }
+    ಶೂನ್ಯ visit(AstRToIRoundS* nodep) override {
         // Only created here, size comes from upper expression
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
         }
         UASSERT_OBJ(nodep->dtypep()->widthSized(), nodep, "RToIRoundS should be presized");
     }
 
     // Widths: Output integer unsigned, input real
-    void visit(AstRealToBits* nodep) override { visit_Ou64_Lr(nodep); }
+    ಶೂನ್ಯ visit(AstRealToBits* nodep) override { visit_Ou64_Lr(nodep); }
 
     // Output integer, input string
-    void visit(AstLenN* nodep) override {
+    ಶೂನ್ಯ visit(AstLenN* nodep) override {
         // Widths: 32 bit out
         UASSERT_OBJ(nodep->lhsp(), nodep, "For unary ops only!");
-        if (m_vup->prelim()) {
+        ಯದಿ (m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetInt();
         }
     }
-    void visit(AstPutcN* nodep) override {
+    ಶೂನ್ಯ visit(AstPutcN* nodep) override {
         // CALLER: str.putc()
         UASSERT_OBJ(nodep->rhsp() && nodep->thsp(), nodep, "For ternary ops only!");
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
@@ -512,30 +512,30 @@ class WidthVisitor final : public VNVisitor {
                                       // AstAssign
         }
     }
-    void visit(AstGetcN* nodep) override {
+    ಶೂನ್ಯ visit(AstGetcN* nodep) override {
         // CALLER: str.getc()
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBitSized(8, VSigning::UNSIGNED);
         }
     }
-    void visit(AstGetcRefN* nodep) override {
+    ಶೂನ್ಯ visit(AstGetcRefN* nodep) override {
         // CALLER: str.getc()
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBitSized(8, VSigning::UNSIGNED);
         }
     }
-    void visit(AstSubstrN* nodep) override {
+    ಶೂನ್ಯ visit(AstSubstrN* nodep) override {
         // CALLER: str.substr()
         UASSERT_OBJ(nodep->rhsp() && nodep->thsp(), nodep, "For ternary ops only!");
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
@@ -543,98 +543,98 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetString();
         }
     }
-    void visit(AstCompareNN* nodep) override {
+    ಶೂನ್ಯ visit(AstCompareNN* nodep) override {
         // CALLER: str.compare(), str.icompare()
         // Widths: 32 bit out
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckString(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetInt();
         }
     }
-    void visit(AstAtoN* nodep) override {
+    ಶೂನ್ಯ visit(AstAtoN* nodep) override {
         // CALLER: str.atobin(), atoi(), atohex(), atooct(), atoreal()
         // Width: 64bit floating point for atoreal(), 32bit out for the others
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
-            if (nodep->fmtType() == AstAtoN::ATOREAL) {
+            ಯದಿ (nodep->fmtType() == AstAtoN::ATOREAL) {
                 nodep->dtypeSetDouble();
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeSetInteger();
             }
         }
     }
-    void visit(AstNToI* nodep) override {
+    ಶೂನ್ಯ visit(AstNToI* nodep) override {
         // Created here, should be already sized
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             UASSERT_OBJ(nodep->dtypep(), nodep, "NToI should be sized when created");
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
         }
     }
 
     // Widths: Constant, terminal
-    void visit(AstTime* nodep) override { nodep->dtypeSetTime2State(); }
-    void visit(AstTimeD* nodep) override { nodep->dtypeSetDouble(); }
-    void visit(AstTimePrecision* nodep) override { nodep->dtypeSetInteger2State(); }
-    void visit(AstGetInitialRandomSeed* nodep) override { nodep->dtypeSetInt(); }
-    void visit(AstTimeUnit* nodep) override {
+    ಶೂನ್ಯ visit(AstTime* nodep) override { nodep->dtypeSetTime2State(); }
+    ಶೂನ್ಯ visit(AstTimeD* nodep) override { nodep->dtypeSetDouble(); }
+    ಶೂನ್ಯ visit(AstTimePrecision* nodep) override { nodep->dtypeSetInteger2State(); }
+    ಶೂನ್ಯ visit(AstGetInitialRandomSeed* nodep) override { nodep->dtypeSetInt(); }
+    ಶೂನ್ಯ visit(AstTimeUnit* nodep) override {
         nodep->replaceWith(
-            new AstConst{nodep->fileline(), AstConst::Signed32{}, nodep->timeunit().powerOfTen()});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ನೂತನ AstConst{nodep->fileline(), AstConst::Signed32{}, nodep->timeunit().powerOfTen()});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstScopeName* nodep) override {
+    ಶೂನ್ಯ visit(AstScopeName* nodep) override {
         nodep->dtypeSetUInt64();  // A pointer, but not that it matters
     }
 
     // Whether nodep, an override's value, is an untyped pattern, or a conditional of such
-    static bool isOverridePattern(const AstNode* nodep) {
-        if (const AstPattern* const patternp = VN_CAST(nodep, Pattern)) {
-            return !patternp->childDTypep();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isOverridePattern(ಧ್ರುವ Ast_ಗಂಟು* nodep) {
+        ಯದಿ (ಧ್ರುವ AstPattern* ಧ್ರುವ patternp = VN_CAST(nodep, Pattern)) {
+            ಪ್ರತ್ಯಾಗಮ !patternp->childDTypep();
         }
-        const AstCond* const condp = VN_CAST(nodep, Cond);
-        return condp && isOverridePattern(condp->thenp()) && isOverridePattern(condp->elsep());
+        ಧ್ರುವ AstCond* ಧ್ರುವ condp = VN_CAST(nodep, Cond);
+        ಪ್ರತ್ಯಾಗಮ condp && isOverridePattern(condp->thenp()) && isOverridePattern(condp->elsep());
     }
-    void visit(AstCond* nodep) override {
+    ಶೂನ್ಯ visit(AstCond* nodep) override {
         // op = cond ? expr1 : expr2
         // See IEEE-2012 11.4.11 and Table 11-21.
         //   LHS is self-determined
         //   Width: max(RHS, THS)
         //   Signed: Output signed iff RHS & THS signed  (presumed, not in IEEE)
         //   Real: Output real if either expression is real, non-real argument gets converted
-        assertAtExpr(nodep);
-        if (m_inParamOverride) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_inParamOverride) {
             // Choosing between override patterns, so type and fold only the condition, then
             // keep the pattern it picks, which the specialized module types as a lone one
-            const int errors = V3Error::errorCount();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ errors = V3Error::error_ಎಣಿಕೆ();
             {
                 VL_RESTORER(m_inParamOverride);
-                m_inParamOverride = false;
+                m_inParamOverride = ಅಸತ್ಯ;
                 iterateCheckBool(nodep, "Conditional Test", nodep->condp(), BOTH);
                 V3Const::constifyParamsEdit(nodep->condp());  // Reports a non-constant
             }
-            const AstConst* const constp = VN_CAST(nodep->condp(), Const);
-            const bool known = constp && !constp->num().isFourState();
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->condp(), Const);
+            ಧ್ರುವ ತಾರ್ಕಿಕ known = constp && !constp->ಅಂಕೆ().isFourState();
             // Folding reports a non-constant, but leaves x or z, even inside a conditional
-            if (!known && V3Error::errorCount() == errors) {
+            ಯದಿ (!known && V3Error::error_ಎಣಿಕೆ() == errors) {
                 nodep->condp()->v3warn(E_UNSUPPORTED,
                                        "Unsupported: Parameter override '?:' with assignment"
                                        " patterns and a condition without a known value.");
             }
             // After an error, keep the first pattern, so that no conditional is left untyped
-            AstNodeExpr* const keepp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ keepp
                 = (known && constp->isZero() ? nodep->elsep() : nodep->thenp())->unlinkFrBack();
             nodep->replaceWith(keepp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             userIterate(keepp, WidthVP{SELF, BOTH}.p());
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (m_vup->prelim()) {  // First stage evaluation
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // Just once, do the conditional, expect one bit out.
             iterateCheckBool(nodep, "Conditional Test", nodep->condp(), BOTH);
             // Determine sub expression widths only relying on what's in the subops
@@ -646,47 +646,47 @@ class WidthVisitor final : public VNVisitor {
             //  the size of this subexpression only.
             // Second call (final()) m_vup->width() is probably the expression size, so
             //  the expression includes the size of the output too.
-            AstNodeDType* const thenDTypep = nodep->thenp()->dtypep();
-            AstNodeDType* const elseDTypep = nodep->elsep()->dtypep();
-            AstNodeDType* const thenDTypeSkippedp = thenDTypep->skipRefp();
-            AstNodeDType* const elseDTypeSkippedp = elseDTypep->skipRefp();
-            if (nodep->thenp()->isNull() && nodep->elsep()->isNull()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ thenDTypep = nodep->thenp()->dtypep();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ elseDTypep = nodep->elsep()->dtypep();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ thenDTypeSkippedp = thenDTypep->skipRefp();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ elseDTypeSkippedp = elseDTypep->skipRefp();
+            ಯದಿ (nodep->thenp()->isNull() && nodep->elsep()->isNull()) {
                 nodep->dtypep(m_vup->dtypeNullp() ? m_vup->dtypeNullp() : nodep->findNullDType());
-            } else if (nodep->thenp()->isClassHandleValue()
-                       || nodep->elsep()->isClassHandleValue()) {
-                AstNodeDType* commonClassTypep = nullptr;
-                if (nodep->thenp()->isClassHandleValue() && nodep->elsep()->isClassHandleValue()) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->thenp()->is_Class_Handle_ಮೌಲ್ಯ()
+                       || nodep->elsep()->is_Class_Handle_ಮೌಲ್ಯ()) {
+                Ast_ಗಂಟು_DType* commonClassTypep = nullptr;
+                ಯದಿ (nodep->thenp()->is_Class_Handle_ಮೌಲ್ಯ() && nodep->elsep()->is_Class_Handle_ಮೌಲ್ಯ()) {
                     // Get the most-deriving class type that both arguments can be casted to.
                     commonClassTypep
-                        = AstNode::getCommonClassTypep(nodep->thenp(), nodep->elsep());
+                        = Ast_ಗಂಟು::getCommonClassTypep(nodep->thenp(), nodep->elsep());
                 }
-                if (commonClassTypep) {
+                ಯದಿ (commonClassTypep) {
                     nodep->dtypep(commonClassTypep);
-                } else {
+                } ಅನ್ಯಥಾ {
                     nodep->v3error("Incompatible types of operands of condition operator: "
                                    << thenDTypep->prettyTypeName() << " and "
                                    << elseDTypep->prettyTypeName());
                     nodep->dtypeFrom(thenDTypep);
                 }
-            } else if (!((thenDTypeSkippedp->isIntegralOrPacked()
+            } ಅನ್ಯಥಾ ಯದಿ (!((thenDTypeSkippedp->isIntegralOrPacked()
                           || VN_IS(thenDTypeSkippedp, BasicDType))
                          && (elseDTypeSkippedp->isIntegralOrPacked()
                              || VN_IS(elseDTypeSkippedp, BasicDType)))) {
-                if (AstNode::computeCastable(elseDTypep, thenDTypep, nullptr).isAssignable()) {
+                ಯದಿ (Ast_ಗಂಟು::computeCastable(elseDTypep, thenDTypep, nullptr).isAssignable()) {
                     nodep->dtypep(elseDTypep);
-                } else {
+                } ಅನ್ಯಥಾ {
                     // Set any type even if not castable
                     nodep->dtypep(thenDTypep);
-                    if (!AstNode::computeCastable(thenDTypep, elseDTypep, nullptr)
+                    ಯದಿ (!Ast_ಗಂಟು::computeCastable(thenDTypep, elseDTypep, nullptr)
                              .isAssignable()) {
                         nodep->v3error("Neither " << thenDTypep->prettyDTypeNameQ() << " or "
                                                   << elseDTypep->prettyDTypeNameQ()
                                                   << " is castable to the other one");
                     }
                 }
-            } else if (thenDTypep->isDouble() || elseDTypep->isDouble()) {
+            } ಅನ್ಯಥಾ ಯದಿ (thenDTypep->isDouble() || elseDTypep->isDouble()) {
                 nodep->dtypeSetDouble();
-            } else if (thenDTypep->isString() || elseDTypep->isString()) {
+            } ಅನ್ಯಥಾ ಯದಿ (thenDTypep->isString() || elseDTypep->isString()) {
                 // There is a specific case:
                 // strings and how they should be handled when condp() is 'x
                 // ('x ? "Option1" : "Option2") === "Option0"
@@ -695,24 +695,24 @@ class WidthVisitor final : public VNVisitor {
                 // Issue is that the type of this is still string but the value contains 'x - types
                 // and domains are not the same thing in SystemVerilog but in Verilator they are
                 nodep->dtypeSetString();
-            } else {
-                const bool isAnyResultFourstate
+            } ಅನ್ಯಥಾ {
+                ಧ್ರುವ ತಾರ್ಕಿಕ isAnyResultFourstate
                     = thenDTypeSkippedp->isFourstate() || elseDTypeSkippedp->isFourstate();
-                bool handled = false;
-                const bool isCondpFourstate = nodep->condp()->isFourstateOrNoDtype();
-                AstNodeDType* const thenEnumDTypep = thenDTypep->skipRefToEnump();
-                if (VN_IS(thenDTypeSkippedp, NodeUOrStructDType)
-                    && thenDTypeSkippedp->sameTree(elseDTypeSkippedp)) {
+                ತಾರ್ಕಿಕ handled = ಅಸತ್ಯ;
+                ಧ್ರುವ ತಾರ್ಕಿಕ isCondpFourstate = nodep->condp()->isFourstateOrNoDtype();
+                Ast_ಗಂಟು_DType* ಧ್ರುವ thenEnumDTypep = thenDTypep->skipRefToEnump();
+                ಯದಿ (VN_IS(thenDTypeSkippedp, ಗಂಟು_UOr_Struct_DType)
+                    && thenDTypeSkippedp->same_ವೃಕ್ಷ(elseDTypeSkippedp)) {
                     nodep->dtypep(thenDTypep);
-                    handled = true;
-                } else if (VN_IS(thenEnumDTypep, EnumDType)
-                           && thenEnumDTypep->sameTree(elseDTypep->skipRefToEnump())) {
+                    handled = ಸತ್ಯ;
+                } ಅನ್ಯಥಾ ಯದಿ (VN_IS(thenEnumDTypep, EnumDType)
+                           && thenEnumDTypep->same_ವೃಕ್ಷ(elseDTypep->skipRefToEnump())) {
                     // if enum is two-state we have to check condp() - because if it is
                     // four-state the result must be four-state as well
-                    if (isAnyResultFourstate || !isCondpFourstate) {
+                    ಯದಿ (isAnyResultFourstate || !isCondpFourstate) {
                         nodep->dtypep(thenEnumDTypep);
-                        handled = true;
-                    } else {
+                        handled = ಸತ್ಯ;
+                    } ಅನ್ಯಥಾ {
                         // This is similar case to what happens with strings
                         // So, to avoid cases where:
                         // enum int {A, B} type_t;
@@ -722,37 +722,37 @@ class WidthVisitor final : public VNVisitor {
                         // situations Verilator would need to either treat everything as four-state
                         // or separate idea of type and values domain - since four-state values are
                         // casted to two-state only with explicit casts or with assignments
-                        nodep->fileline(new FileLine{nodep->fileline()});
-                        nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, true);
+                        nodep->fileline(ನೂತನ File_ಸಾಲು{nodep->fileline()});
+                        nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, ಸತ್ಯ);
                     }
                 }
-                if (!handled) {
-                    const int width = std::max(thenDTypep->width(), elseDTypep->width());
-                    const int widthMin = std::max(thenDTypep->widthMin(), elseDTypep->widthMin());
-                    const VSigning numeric
+                ಯದಿ (!handled) {
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(thenDTypep->width(), elseDTypep->width());
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ widthMin = std::max(thenDTypep->widthMin(), elseDTypep->widthMin());
+                    ಧ್ರುವ VSigning numeric
                         = VSigning::fromBool(thenDTypep->isSigned() && elseDTypep->isSigned());
-                    const bool isFourstate = isAnyResultFourstate || isCondpFourstate;
+                    ಧ್ರುವ ತಾರ್ಕಿಕ isFourstate = isAnyResultFourstate || isCondpFourstate;
                     // Try to preserve a dtype
-                    if ((width == elseDTypeSkippedp->width()
+                    ಯದಿ ((width == elseDTypeSkippedp->width()
                          && widthMin == elseDTypeSkippedp->widthMin())
                         && elseDTypeSkippedp->numeric() == numeric
                         && isFourstate == elseDTypeSkippedp->isFourstate()) {
                         nodep->dtypep(elseDTypep);
-                    } else if ((width == thenDTypeSkippedp->width()
+                    } ಅನ್ಯಥಾ ಯದಿ ((width == thenDTypeSkippedp->width()
                                 && widthMin == thenDTypeSkippedp->widthMin())
                                && thenDTypeSkippedp->numeric() == numeric
                                && isFourstate == thenDTypeSkippedp->isFourstate()) {
                         nodep->dtypep(thenDTypep);
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         // None of the children dtypes match generate one
                         nodep->dtypeSetBitOrLogicUnsized(width, widthMin, numeric, isFourstate);
                     }
                 }
             }
         }
-        if (m_vup->final()) {
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
-            AstNodeDType* const subDTypep = expDTypep;
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             nodep->dtypep(expDTypep);
             // Error report and change sizes for suboperands of this node.
             iterateCheck(nodep, "Conditional True", nodep->thenp(), CONTEXT_DET, FINAL, subDTypep,
@@ -761,17 +761,17 @@ class WidthVisitor final : public VNVisitor {
                          EXTEND_EXP);
         }
     }
-    void visit(AstConcat* nodep) override {
+    ಶೂನ್ಯ visit(AstConcat* nodep) override {
         // Real: Not allowed (assumed)
         // Signed: unsigned output, input either (assumed)
         // IEEE-2012 Table 11-21, and 11.8.1:
         //   LHS, RHS is self-determined
         //   signed: Unsigned  (11.8.1)
         //   width: LHS + RHS
-        AstNodeDType* const vdtypep = m_vup->dtypeNullSkipRefp();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypeNullSkipRefp();
         userIterate(vdtypep, WidthVP{SELF, BOTH}.p());
         // Conversions
-        if (AstNodeExpr* const newp = newConsDynArrayOrQueue(nodep->fileline(), vdtypep)) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = newConsDynArrayOrQueue(nodep->fileline(), vdtypep)) {
             // IEEE 1800-2023 10.10 requires looking at argument data type
             // to determine if value or push
             userIterateAndNext(nodep->lhsp(), WidthVP{vdtypep, PRELIM}.p());
@@ -780,163 +780,163 @@ class WidthVisitor final : public VNVisitor {
             addConsItem(newp, nodep->lhsp()->unlinkFrBack());
             addConsItem(newp, nodep->rhsp()->unlinkFrBack());
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (VN_IS(vdtypep, UnpackArrayDType)) {
-            AstPattern* const newp = new AstPattern{nodep->fileline(), nullptr};
+        ಯದಿ (VN_IS(vdtypep, UnpackArrayDType)) {
+            AstPattern* ಧ್ರುವ newp = ನೂತನ AstPattern{nodep->fileline(), nullptr};
             patConcatConvertRecurse(newp, nodep);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             userIterate(newp, m_vup);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Concat handling
-        if (m_vup->prelim()) {
-            if (VN_IS(vdtypep, AssocArrayDType)  //
+        ಯದಿ (m_vup->prelim()) {
+            ಯದಿ (VN_IS(vdtypep, AssocArrayDType)  //
                 || VN_IS(vdtypep, DynArrayDType)  //
                 || VN_IS(vdtypep, QueueDType)) {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: Concatenation to form "
                                                  << vdtypep->prettyDTypeNameQ() << " data type");
             }
 
-            if (vdtypep && vdtypep->isString()) {
+            ಯದಿ (vdtypep && vdtypep->isString()) {
                 iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
                 iterateCheckString(nodep, "RHS", nodep->rhsp(), BOTH);
                 nodep->dtypeSetString();
-            } else {
+            } ಅನ್ಯಥಾ {
                 iterateCheckIntegralSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
                 iterateCheckIntegralSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
 
-                if (m_streamConcat) {
+                ಯದಿ (m_streamConcat) {
                     packIfUnpacked(nodep->lhsp());
                     packIfUnpacked(nodep->rhsp());
                 }
                 nodep->dtypeSetBitOrLogicUnsized(
                     nodep->lhsp()->width() + nodep->rhsp()->width(),
                     nodep->lhsp()->widthMin() + nodep->rhsp()->widthMin(), VSigning::UNSIGNED,
-                    AstNodeExpr::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
             }
             // Cleanup zero width Verilog2001 {x,{0{foo}}} now,
             // otherwise having width(0) will cause later assertions to fire
-            if (const AstReplicate* const repp = VN_CAST(nodep->lhsp(), Replicate)) {
-                if (repp->width() == 0) {  // Keep rhs
+            ಯದಿ (ಧ್ರುವ AstReplicate* ಧ್ರುವ repp = VN_CAST(nodep->lhsp(), Replicate)) {
+                ಯದಿ (repp->width() == 0) {  // Keep rhs
                     nodep->replaceWith(nodep->rhsp()->unlinkFrBack());
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
-            if (const AstReplicate* const repp = VN_CAST(nodep->rhsp(), Replicate)) {
-                if (repp->width() == 0) {  // Keep lhs
+            ಯದಿ (ಧ್ರುವ AstReplicate* ಧ್ರುವ repp = VN_CAST(nodep->rhsp(), Replicate)) {
+                ಯದಿ (repp->width() == 0) {  // Keep lhs
                     nodep->replaceWith(nodep->lhsp()->unlinkFrBack());
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
         }
-        if (m_vup->final()) {
-            if (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
-                AstNodeExpr* lhsp = nodep->lhsp()->unlinkFrBack();
-                AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-                if (!lhsp->isString()) lhsp = new AstCvtPackString{lhsp->fileline(), lhsp};
-                if (!rhsp->isString()) rhsp = new AstCvtPackString{rhsp->fileline(), rhsp};
-                AstNode* const newp = new AstConcatN{nodep->fileline(), lhsp, rhsp};
+        ಯದಿ (m_vup->final()) {
+            ಯದಿ (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nodep->lhsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp = nodep->rhsp()->unlinkFrBack();
+                ಯದಿ (!lhsp->isString()) lhsp = ನೂತನ AstCvtPackString{lhsp->fileline(), lhsp};
+                ಯದಿ (!rhsp->isString()) rhsp = ನೂತನ AstCvtPackString{rhsp->fileline(), rhsp};
+                Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstConcatN{nodep->fileline(), lhsp, rhsp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (!nodep->dtypep()->widthSized()) {
+            ಯದಿ (!nodep->dtypep()->widthSized()) {
                 // See also error in V3Number
-                nodeForUnsizedWarning(nodep)->v3warn(
+                ಗಂಟು_For_Unsized_Warning(nodep)->v3warn(
                     WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
             }
         }
     }
-    void visit(AstConcatN* nodep) override {
-        if (nodep->didWidth()) return;
+    ಶೂನ್ಯ visit(AstConcatN* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         // String concatenate.
         // Already did AstConcat simplifications
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckString(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetString();
         }
-        if (m_vup->final()) {
-            nodep->didWidth(true);
-            if (!nodep->dtypep()->widthSized()) {
+        ಯದಿ (m_vup->final()) {
+            nodep->didWidth(ಸತ್ಯ);
+            ಯದಿ (!nodep->dtypep()->widthSized()) {
                 // See also error in V3Number
-                nodeForUnsizedWarning(nodep)->v3warn(
+                ಗಂಟು_For_Unsized_Warning(nodep)->v3warn(
                     WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
             }
         }
     }
-    void visit(AstDefaultDisable* nodep) override {
+    ಶೂನ್ಯ visit(AstDefaultDisable* nodep) override {
         assertAtStatement(nodep);
         // it's like an if() condition.
         iterateCheckBool(nodep, "default disable iff condition", nodep->condp(), BOTH);
     }
-    void visit(AstDelay* nodep) override {
-        if (nodep->isCycleDelay() && m_underSExpr) {
+    ಶೂನ್ಯ visit(AstDelay* nodep) override {
+        ಯದಿ (nodep->isCycleDelay() && m_underSExpr) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
-            if (nodep->rhsp() && !nodep->isUnbounded()) {
+            ಯದಿ (nodep->rhsp() && !nodep->isUnbounded()) {
                 userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
             }
             // A delay with a formal argument of a sequence or property is checked when that is
             // instanced, with the actual argument (IEEE 1800-2023 16.8)
-            if (V3AssertCommon::refsSvaFormal(nodep->lhsp())
+            ಯದಿ (V3AssertCommon::refsSvaFormal(nodep->lhsp())
                 || (nodep->rhsp() && V3AssertCommon::refsSvaFormal(nodep->rhsp()))) {
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // Fold parameterized SVA cycle-delay bounds
             V3AssertCommon::checkSvaCycleDelay(nodep, nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fallDelayp = nodep->fallDelay()) {
             iterateCheckDelay(nodep, "delay", nodep->lhsp(), BOTH);
             iterateCheckDelay(nodep, "delay", fallDelayp, BOTH);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (VN_IS(m_procedurep, Final)) {
+        ಯದಿ (VN_IS(m_procedurep, Final)) {
             nodep->v3error("Delays are not legal in final blocks (IEEE 1800-2023 9.2.3)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (!m_underFork && VN_IS(m_ftaskp, Func)) {
+        ಯದಿ (!m_underFork && VN_IS(m_ftaskp, Func)) {
             nodep->v3error("Delays are not legal in functions. Suggest use a task "
                            "(IEEE 1800-2023 13.4.4)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->fileline()->timingOn()) {
-            if (v3Global.opt.timing().isSetTrue()) {
+        ಯದಿ (nodep->fileline()->timingOn()) {
+            ಯದಿ (v3Global.opt.timing().isSetTrue()) {
                 iterateCheckDelay(nodep, "delay", nodep->lhsp(), BOTH);
                 iterateAndNextNull(nodep->stmtsp());
-                return;
-            } else if (v3Global.opt.timing().isSetFalse()) {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                 nodep->v3warn(STMTDLY, "Ignoring delay on this statement due to --no-timing");
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3warn(
                     E_NEEDTIMINGOPT,
                     "Use --timing or --no-timing to specify how delays should be handled");
             }
         }
-        if (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ಯದಿ (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstFireEvent* nodep) override {
+    ಶೂನ್ಯ visit(AstFireEvent* nodep) override {
         assertAtStatement(nodep);
         iterateCheckSelf(nodep, "LHS", nodep->operandp(), SELF, BOTH);
     }
-    void visit(AstFork* nodep) override {
-        if (!m_underFork && VN_IS(m_ftaskp, Func) && !nodep->joinType().joinNone()) {
+    ಶೂನ್ಯ visit(AstFork* nodep) override {
+        ಯದಿ (!m_underFork && VN_IS(m_ftaskp, Func) && !nodep->joinType().joinNone()) {
             nodep->v3error("Only fork .. join_none is legal in functions. "
                            "(IEEE 1800-2023 13.4.4)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (!nodep->fileline()->timingOn()
+        ಯದಿ (!nodep->fileline()->timingOn()
             // With no statements, begin is identical
             || !nodep->forksp()
             || (!v3Global.opt.timing().isSetTrue()  // If no --timing
@@ -944,124 +944,124 @@ class WidthVisitor final : public VNVisitor {
                     // With one statement and no timing, a begin block does as good as a
                     // fork/join or join_any
                     || (!nodep->forksp()->nextp() && !nodep->joinType().joinNone())))) {
-            AstBegin* const newp = new AstBegin{nodep->fileline(), nodep->name(), nullptr, false};
+            AstBegin* ಧ್ರುವ newp = ನೂತನ AstBegin{nodep->fileline(), nodep->name(), nullptr, ಅಸತ್ಯ};
             nodep->replaceWith(newp);
-            if (nodep->declsp()) newp->addDeclsp(nodep->declsp()->unlinkFrBackWithNext());
-            if (nodep->stmtsp()) newp->addStmtsp(nodep->stmtsp()->unlinkFrBackWithNext());
-            if (nodep->forksp()) newp->addStmtsp(nodep->forksp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (v3Global.opt.timing().isSetTrue()) {
+            ಯದಿ (nodep->declsp()) newp->addDeclsp(nodep->declsp()->unlinkFrBackWithNext());
+            ಯದಿ (nodep->stmtsp()) newp->addStmtsp(nodep->stmtsp()->unlinkFrBackWithNext());
+            ಯದಿ (nodep->forksp()) newp->addStmtsp(nodep->forksp()->unlinkFrBackWithNext());
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetTrue()) {
             VL_RESTORER(m_underFork);
-            m_underFork = true;
+            m_underFork = ಸತ್ಯ;
             iterateChildren(nodep);
-        } else if (v3Global.opt.timing().isSetFalse()) {
+        } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetFalse()) {
             nodep->v3warn(E_NOTIMING, "Fork statements require --timing");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+        } ಅನ್ಯಥಾ {
             nodep->v3warn(E_NEEDTIMINGOPT,
                           "Use --timing or --no-timing to specify how forks should be handled");
         }
     }
-    void visitWaitOrDisableFork(AstNode* nodep) {
-        if (nodep->fileline()->timingOn()) {
-            if (v3Global.opt.timing().isSetFalse()) {
+    ಶೂನ್ಯ visitWaitOrDisableFork(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (nodep->fileline()->timingOn()) {
+            ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                 nodep->v3warn(E_NOTIMING, "Support for '" << nodep->verilogKwd()
                                                           << "' statement requires --timing");
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                return;
-            } else if (!v3Global.opt.timing().isSetTrue()) {
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (!v3Global.opt.timing().isSetTrue()) {
                 nodep->v3warn(E_NEEDTIMINGOPT, "Use --timing or --no-timing to specify how "
                                                    << "disable fork should be handled");
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstDisableFork* nodep) override { visitWaitOrDisableFork(nodep); }
-    void visit(AstWaitFork* nodep) override { visitWaitOrDisableFork(nodep); }
-    void visit(AstToLowerN* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstDisableFork* nodep) override { visitWaitOrDisableFork(nodep); }
+    ಶೂನ್ಯ visit(AstWaitFork* nodep) override { visitWaitOrDisableFork(nodep); }
+    ಶೂನ್ಯ visit(AstToLowerN* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetString();
         }
     }
-    void visit(AstToUpperN* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstToUpperN* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetString();
         }
     }
-    void visit(AstReplicate* nodep) override {
+    ಶೂನ್ಯ visit(AstReplicate* nodep) override {
         // IEEE-2012 Table 11-21:
         //   LHS, RHS is self-determined
         //   width: value(LHS) * width(RHS)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "RHS", nodep->countp(), SELF, BOTH);
             V3Const::constifyParamsNoWarnEdit(nodep->countp());  // rhsp may change
 
             int32_t times = 1;  // IEEE replicate value is integral
 
-            const AstConst* const constp = VN_CAST(nodep->countp(), Const);
-            if (constp) {
-                if (constp->num().isFourState()
-                    || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->countp(), Const);
+            ಯದಿ (constp) {
+                ಯದಿ (constp->ಅಂಕೆ().isFourState()
+                    || (constp->dtypep()->isSigned() && constp->ಅಂಕೆ().isNegative())) {
                     nodep->v3error("Replication value of < 0 or X/Z not legal"
                                    " (IEEE 1800-2023 11.4.12.1): "
                                    << constp->prettyNameQ());
-                } else {
+                } ಅನ್ಯಥಾ {
                     times = constp->toSInt();
                 }
             }
 
-            AstNodeDType* const vdtypep = m_vup->dtypeNullSkipRefp();
-            if (VN_IS(vdtypep, QueueDType) || VN_IS(vdtypep, DynArrayDType)
+            Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypeNullSkipRefp();
+            ಯದಿ (VN_IS(vdtypep, QueueDType) || VN_IS(vdtypep, DynArrayDType)
                 || VN_IS(vdtypep, UnpackArrayDType)) {
-                if (times != 1) {
+                ಯದಿ (times != 1) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported: Non-1 replication to form "
                                                      << vdtypep->prettyDTypeNameQ()
                                                      << " data type");
                 }
-                if (VN_IS(nodep->srcp(), Concat)) {
+                ಯದಿ (VN_IS(nodep->srcp(), Concat)) {
                     // Convert to concat directly, and visit(AstConst) will convert.
                     // Don't iterate lhsp as SELF, the potential Concat below needs
                     // the adtypep passed down to recognize the QueueDType
                     userIterateAndNext(nodep->srcp(), WidthVP{vdtypep, BOTH}.p());
                     nodep->replaceWith(nodep->srcp()->unlinkFrBack());
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
-                } else {  // int a[] = {lhs} -> same as '{lhs}
-                    AstPattern* const newp = new AstPattern{
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
+                } ಅನ್ಯಥಾ {  // int a[] = {lhs} -> same as '{lhs}
+                    AstPattern* ಧ್ರುವ newp = ನೂತನ AstPattern{
                         nodep->fileline(),
-                        new AstPatMember{nodep->srcp()->fileline(), nodep->srcp()->unlinkFrBack(),
+                        ನೂತನ AstPatMember{nodep->srcp()->fileline(), nodep->srcp()->unlinkFrBack(),
                                          nullptr, nullptr}};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                     userIterate(newp, m_vup);
-                    return;
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
-            if (VN_IS(vdtypep, AssocArrayDType)) {
+            ಯದಿ (VN_IS(vdtypep, AssocArrayDType)) {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: Replication to form "
                                                  << vdtypep->prettyDTypeNameQ() << " data type");
             }
-            if (vdtypep && vdtypep->isString()) {
+            ಯದಿ (vdtypep && vdtypep->isString()) {
                 iterateCheckString(nodep, "LHS", nodep->srcp(), BOTH);
-            } else {
+            } ಅನ್ಯಥಾ {
                 iterateCheckIntegralSelf(nodep, "LHS", nodep->srcp(), SELF, BOTH);
             }
 
-            if ((vdtypep && vdtypep->isString()) || nodep->srcp()->isString()) {
-                AstNode* const newp
-                    = new AstReplicateN{nodep->fileline(), nodep->srcp()->unlinkFrBack(),
+            ಯದಿ ((vdtypep && vdtypep->isString()) || nodep->srcp()->isString()) {
+                Ast_ಗಂಟು* ಧ್ರುವ newp
+                    = ನೂತನ AstReplicateN{nodep->fileline(), nodep->srcp()->unlinkFrBack(),
                                         nodep->countp()->unlinkFrBack()};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else {
-                if (!constp) nodep->v3error("Replication value isn't a constant.");
-                if (times == 0
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ {
+                ಯದಿ (!constp) nodep->v3error("Replication value isn't a constant.");
+                ಯದಿ (times == 0
                     && !VN_IS(nodep->backp(), Concat)) {  // Concat Visitor will clean it up.
                     nodep->v3warn(ZEROREPL,
                                   "Replication value of 0 is only legal under a concatenation"
@@ -1073,176 +1073,176 @@ class WidthVisitor final : public VNVisitor {
                     VSigning::UNSIGNED, nodep->srcp()->isFourstateOrNoDtype());
             }
         }
-        if (m_vup->final()) {
-            if (!nodep->dtypep()->widthSized()) {
+        ಯದಿ (m_vup->final()) {
+            ಯದಿ (!nodep->dtypep()->widthSized()) {
                 // See also error in V3Number
-                nodeForUnsizedWarning(nodep)->v3warn(
+                ಗಂಟು_For_Unsized_Warning(nodep)->v3warn(
                     WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
             }
         }
     }
-    void visit(AstReplicateN* nodep) override {
+    ಶೂನ್ಯ visit(AstReplicateN* nodep) override {
         // Replicate with string
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckSizedSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
             V3Const::constifyParamsNoWarnEdit(nodep->rhsp());  // rhsp may change
             nodep->dtypeSetString();
         }
-        if (m_vup->final()) {
-            if (!nodep->dtypep()->widthSized()) {
+        ಯದಿ (m_vup->final()) {
+            ಯದಿ (!nodep->dtypep()->widthSized()) {
                 // See also error in V3Number
-                nodeForUnsizedWarning(nodep)->v3warn(
+                ಗಂಟು_For_Unsized_Warning(nodep)->v3warn(
                     WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
             }
         }
     }
-    void visit(AstNodeDistBiop* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Dist_Biop* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             iterateCheckSigned32(nodep, "seed", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
         }
     }
-    void visit(AstNodeDistTriop* nodep) override {
-        if (m_vup->prelim()) {  // First stage evaluation
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Dist_Triop* nodep) override {
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             iterateCheckSigned32(nodep, "seed", nodep->lhsp(), BOTH);
             iterateCheckSigned32(nodep, "RHS", nodep->rhsp(), BOTH);
             iterateCheckSigned32(nodep, "THS", nodep->thsp(), BOTH);
         }
     }
-    bool streamImplicitUseAllowed(const AstNodeStream* nodep) const {
-        if (m_streamConcat) return true;
-        if (m_vup && m_vup->streamUse() != STREAM_USE_NONE) return true;
+    ತಾರ್ಕಿಕ streamImplicitUseAllowed(ಧ್ರುವ Ast_ಗಂಟು_Stream* nodep) ಧ್ರುವ {
+        ಯದಿ (m_streamConcat) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಯದಿ (m_vup && m_vup->streamUse() != STREAM_USE_NONE) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
 
-        const AstNode* const backp = nodep->backp();
-        if (!backp) return true;  // Error elsewhere
+        ಧ್ರುವ Ast_ಗಂಟು* ಧ್ರುವ backp = nodep->backp();
+        ಯದಿ (!backp) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;  // Error elsewhere
 
-        return VN_IS(backp, NodeAssign);
+        ಪ್ರತ್ಯಾಗಮ VN_IS(backp, ಗಂಟು_Assign);
     }
-    void visit(AstNodeStream* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Stream* nodep) override {
         VL_RESTORER(m_streamConcat);
         // UINFOTREE(1, nodep, "stream-in vup" << m_vup, "stream-in ");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            m_streamConcat = true;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            m_streamConcat = ಸತ್ಯ;
             iterateCheckSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
-            m_streamConcat = false;
+            m_streamConcat = ಅಸತ್ಯ;
             iterateCheckSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
             V3Const::constifyParamsEdit(nodep->rhsp());  // rhsp may change
-            if (const AstConst* const constp = VN_CAST(nodep->rhsp(), Const)) {
-                if (constp->toUInt() == 0) nodep->v3error("Slice size cannot be zero.");
-            } else {
+            ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->rhsp(), Const)) {
+                ಯದಿ (constp->toUInt() == 0) nodep->v3error("Slice size cannot be zero.");
+            } ಅನ್ಯಥಾ {
                 nodep->v3error("Slice size isn't a constant or basic data type.");
             }
-            const AstNodeDType* const lhsDtypep = nodep->lhsp()->dtypep()->skipRefToEnump();
-            if (VN_IS(lhsDtypep, DynArrayDType) || VN_IS(lhsDtypep, QueueDType)
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDtypep = nodep->lhsp()->dtypep()->skipRefToEnump();
+            ಯದಿ (VN_IS(lhsDtypep, DynArrayDType) || VN_IS(lhsDtypep, QueueDType)
                 || (VN_IS(lhsDtypep, UnpackArrayDType) && lhsDtypep->isStreamableFixedAggregate())
-                || (VN_IS(lhsDtypep, NodeUOrStructDType)
-                    && !VN_AS(lhsDtypep, NodeUOrStructDType)->packed()
+                || (VN_IS(lhsDtypep, ಗಂಟು_UOr_Struct_DType)
+                    && !VN_AS(lhsDtypep, ಗಂಟು_UOr_Struct_DType)->packed()
                     && lhsDtypep->isStreamableFixedAggregate())) {
                 nodep->dtypeSetStream();
-            } else if (lhsDtypep->isCompound()) {
+            } ಅನ್ಯಥಾ ಯದಿ (lhsDtypep->isCompound()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Stream operation on a variable of a type "
                                   << lhsDtypep->prettyDTypeNameQ());
                 nodep->dtypeSetStream();
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeSetBitOrLogicUnsized(
                     nodep->lhsp()->width(), nodep->lhsp()->widthMin(), VSigning::UNSIGNED,
-                    AstNodeExpr::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
             }
         }
-        if (m_vup->final()) {
-            if (!streamImplicitUseAllowed(nodep)) {
+        ಯದಿ (m_vup->final()) {
+            ಯದಿ (!streamImplicitUseAllowed(nodep)) {
                 nodep->v3error(
                     "Streaming concatenation cannot be used in an implicitly cast context "
                     "(IEEE 1800-2023 11.4.14)\n"
                     << nodep->warnMore() << "... Suggest use a cast");
             }
-            if (!nodep->dtypep()->widthSized()) {
+            ಯದಿ (!nodep->dtypep()->widthSized()) {
                 // See also error in V3Number
-                nodeForUnsizedWarning(nodep)->v3warn(
+                ಗಂಟು_For_Unsized_Warning(nodep)->v3warn(
                     WIDTHCONCAT, "Unsized numbers/parameters not allowed in streams.");
             }
         }
     }
-    void visit(AstRange* nodep) override {
+    ಶೂನ್ಯ visit(AstRange* nodep) override {
         // Real: Not allowed
         // Signed: unsigned output, input either
         // Convert all range values to constants
         UINFO(6, "RANGE " << nodep);
         V3Const::constifyParamsEdit(nodep->leftp());  // May relink pointed to node
         V3Const::constifyParamsEdit(nodep->rightp());  // May relink pointed to node
-        checkConstantOrReplace(nodep->leftp(), true,
+        checkConstantOrReplace(nodep->leftp(), ಸತ್ಯ,
                                "left side of bit range isn't a two-state constant"
                                " (IEEE 1800-2023 6.9.1)");
-        checkConstantOrReplace(nodep->rightp(), true,
+        checkConstantOrReplace(nodep->rightp(), ಸತ್ಯ,
                                "right side of bit range isn't a two-state constant"
                                " (IEEE 1800-2023 6.9.1)");
-        if (m_vup->prelim()) {
+        ಯದಿ (m_vup->prelim()) {
             // Don't need to iterate because V3Const already constified
-            const int width = nodep->elementsConst();
-            if (nodep->fromBracket() && nodep->leftConst() > nodep->rightConst()) {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = nodep->elementsConst();
+            ಯದಿ (nodep->fromBracket() && nodep->ಎಡ_Const() > nodep->ಬಲ_Const()) {
                 // From a C-Style '[size]' declaration, due to range handling a '[-1]'
                 // will get transformed to look like a '[0:1]', instead report as error
                 // now we know the datatype is used
                 nodep->v3error("Size of range is '["
                                << (-width + 2)
                                << "]', must be positive integer (IEEE 1800-2023 7.4.2)");
-            } else if (width > (1 << 28)) {
+            } ಅನ್ಯಥಾ ಯದಿ (width > (1 << 28)) {
                 nodep->v3error("Width of bit range is huge; vector of over 1 billion bits: 0x"
                                << std::hex << width << std::dec);
             }
             // Note width() not set on range; use elementsConst()
-            const bool inDeadModule = m_modep && m_modep->dead();
+            ಧ್ರುವ ತಾರ್ಕಿಕ inDeadModule = m_modep && m_modep->dead();
             // Suppress ASCRANGE in parameterized template modules whose parameter-dependent
             // ranges haven't been resolved yet, or when the type has no owning module
             // (e.g. moved to TypeTable during DepGraph resolution).
-            const bool inParameterizedTemplate
+            ಧ್ರುವ ತಾರ್ಕಿಕ inParameterizedTemplate
                 = m_modep && (m_modep->dead() || m_modep->parameterizedTemplate());
-            const bool inTypeTable = !m_modep;
-            const AstNode* basep = nodep->backp();
-            while (VN_IS(basep, Range)) basep = basep->backp();
-            if (nodep->ascending() && !VN_IS(basep, UnpackArrayDType)
+            ಧ್ರುವ ತಾರ್ಕಿಕ inTypeTable = !m_modep;
+            ಧ್ರುವ Ast_ಗಂಟು* basep = nodep->backp();
+            ಯಾವತ್ (VN_IS(basep, Range)) basep = basep->backp();
+            ಯದಿ (nodep->ascending() && !VN_IS(basep, UnpackArrayDType)
                 && !VN_IS(basep, Cell)  // For cells we warn when connecting pins
                 && !m_paramsOnly  // Skip during parameter evaluation
                 && !inDeadModule && !inParameterizedTemplate && !inTypeTable) {
                 nodep->v3warn(ASCRANGE, "Ascending bit range vector: left < right of bit range: ["
-                                            << nodep->leftConst() << ":" << nodep->rightConst()
+                                            << nodep->ಎಡ_Const() << ":" << nodep->ಬಲ_Const()
                                             << "]");
             }
         }
     }
 
-    void visit(AstSel* nodep) override {
+    ಶೂನ್ಯ visit(AstSel* nodep) override {
         // Signed: always unsigned; Real: Not allowed
         // LSB is self-determined (IEEE 2012 11.5.1)
         // We also use SELs to shorten a signed constant etc, in this case they are signed.
-        if (nodep->didWidth()) return;
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             UINFOTREE(9, nodep, "", "selWidth");
             userIterateAndNext(nodep->fromp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             userIterateAndNext(nodep->lsbp(), WidthVP{SELF, PRELIM}.p());
-            checkCvtUS(nodep->fromp(), false);
+            checkCvtUS(nodep->fromp(), ಅಸತ್ಯ);
             iterateCheckSizedSelf(nodep, "Select LHS", nodep->fromp(), SELF, BOTH);
-            int width = nodep->widthConst();
-            if (width <= 0) {
+            ಪೂರ್ಣಾಙ್ಕ width = nodep->widthConst();
+            ಯದಿ (width <= 0) {
                 nodep->v3error("Width of bit extract must be positive (IEEE 1800-2023 11.5.1)");
                 nodep->dtypeSetBit();
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             UASSERT_OBJ(nodep->dtypep(), nodep, "dtype wasn't set");  // by V3WidthSel
 
-            const bool isWriteSelect = nodep->fromp()->isLValue();
+            ಧ್ರುವ ತಾರ್ಕಿಕ isWriteSelect = nodep->fromp()->isLValue();
             // Suppress SELRANGE in parameterized template modules where
             // parameter-dependent widths haven't been resolved yet.
-            const bool inParameterizedTemplate
+            ಧ್ರುವ ತಾರ್ಕಿಕ inParameterizedTemplate
                 = m_modep && (m_modep->dead() || m_modep->parameterizedTemplate());
 
-            if (VN_IS(nodep->lsbp(), Const) && nodep->msbConst() < nodep->lsbConst()) {
+            ಯದಿ (VN_IS(nodep->lsbp(), Const) && nodep->msbConst() < nodep->lsbConst()) {
                 // Likely impossible given above width check
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: left < right of bit extract: "  // LCOV_EXCL_LINE
@@ -1251,22 +1251,22 @@ class WidthVisitor final : public VNVisitor {
                 nodep->dtypeSetBitOrLogicSized(width, VSigning::UNSIGNED,
                                                nodep->fromp()->isFourstateOrNoDtype());
                 nodep->widthConst(width);
-                pushDeletep(nodep->lsbp());
-                nodep->lsbp()->replaceWith(new AstConst{nodep->lsbp()->fileline(), 0});
+                ತಳ್ಳು_Deletep(nodep->lsbp());
+                nodep->lsbp()->replaceWith(ನೂತನ AstConst{nodep->lsbp()->fileline(), 0});
             }
             // We're extracting, so just make sure the expression is at least wide enough.
-            if (nodep->fromp()->width() < width && !inParameterizedTemplate) {
+            ಯದಿ (nodep->fromp()->width() < width && !inParameterizedTemplate) {
                 // If it is not a lvalue, extend it
-                if (!isWriteSelect) {
+                ಯದಿ (!isWriteSelect) {
                     nodep->v3warn(SELRANGE, "Extracting " << width << " bits from only "
                                                           << nodep->fromp()->width()
                                                           << " bit number");
-                    AstNodeDType* const subDTypep = nodep->findBitOrLogicDType(
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = nodep->findBitOrLogicDType(
                         width, width, nodep->fromp()->dtypep()->numeric(),
                         nodep->fromp()->dtypep()->isFourstate());
                     widthCheckSized(nodep, "errorless...", nodep->fromp(), subDTypep, EXTEND_EXP,
-                                    false /*noerror*/);
-                } else {
+                                    ಅಸತ್ಯ /*noerror*/);
+                } ಅನ್ಯಥಾ {
                     // Partial assignment
                     nodep->v3warn(SELRANGE, "Assigning " << width << " bits to only "
                                                          << nodep->fromp()->width()
@@ -1277,24 +1277,24 @@ class WidthVisitor final : public VNVisitor {
             // What is the MSB?  We want the true MSB, not one starting at
             // 0, because a 4 bit index is required to look at a one-bit
             // variable[15:15] and 5 bits for [15:-2]
-            int frommsb = nodep->fromp()->width() - 1;
-            int fromlsb = 0;
-            const int elw = nodep->declElWidth();  // Must adjust to tell user bit ranges
-            if (nodep->declRange().ranged()) {
+            ಪೂರ್ಣಾಙ್ಕ frommsb = nodep->fromp()->width() - 1;
+            ಪೂರ್ಣಾಙ್ಕ fromlsb = 0;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ elw = nodep->declElWidth();  // Must adjust to tell user bit ranges
+            ಯದಿ (nodep->declRange().ranged()) {
                 frommsb = nodep->declRange().hiMaxSelect() * elw
                           + (elw - 1);  // Corrected for negative lsb
                 fromlsb = nodep->declRange().lo() * elw;
-            } else {
+            } ಅನ್ಯಥಾ {
                 // nodep->v3fatalSrc("Should have been declRanged in V3WidthSel");
             }
-            const int selwidth = V3Number::log2b(frommsb + 1 - 1) + 1;  // Width to address a bit
-            AstNodeDType* const selwidthDTypep = nodep->findBitOrLogicDType(
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ selwidth = V3_ಸಂಖ್ಯೆ::log2b(frommsb + 1 - 1) + 1;  // Width to address a bit
+            Ast_ಗಂಟು_DType* ಧ್ರುವ selwidthDTypep = nodep->findBitOrLogicDType(
                 selwidth, selwidth, nodep->lsbp()->dtypep()->numeric(),
                 nodep->lsbp()->dtypep()->isFourstate());
             userIterateAndNext(nodep->fromp(), WidthVP{SELF, FINAL}.p());
             userIterateAndNext(nodep->lsbp(), WidthVP{SELF, FINAL}.p());
-            if (widthBad(nodep->lsbp(), selwidthDTypep) && nodep->lsbp()->width() != 32) {
-                if (!nodep->fileline()->warnIsOff(V3ErrorCode::WIDTH)) {
+            ಯದಿ (widthBad(nodep->lsbp(), selwidthDTypep) && nodep->lsbp()->width() != 32) {
+                ಯದಿ (!nodep->fileline()->warnIsOff(V3ErrorCode::WIDTH)) {
                     nodep->v3widthWarn(
                         (selwidth / elw), (nodep->lsbp()->width() / elw),
                         "Bit extraction of var["
@@ -1308,7 +1308,7 @@ class WidthVisitor final : public VNVisitor {
                     UINFO(1, "    Related node: " << nodep);
                 }
             }
-            if (VN_IS(nodep->lsbp(), Const) && nodep->msbConst() > frommsb) {
+            ಯದಿ (VN_IS(nodep->lsbp(), Const) && nodep->msbConst() > frommsb) {
                 // See also warning in V3Const
                 // We need to check here, because the widthCheckSized may silently
                 // add another SEL which will lose the out-of-range check
@@ -1317,15 +1317,15 @@ class WidthVisitor final : public VNVisitor {
                 // evaluating type sizes for a generate block condition. We
                 // should only trigger the error if the out-of-range access is
                 // actually generated.
-                if (m_doGenerate) {
+                ಯದಿ (m_doGenerate) {
                     UINFO(5, "Selection index out of range inside generate");
-                } else if (!inParameterizedTemplate) {
-                    if (nodep->declRange().ranged()) {
+                } ಅನ್ಯಥಾ ಯದಿ (!inParameterizedTemplate) {
+                    ಯದಿ (nodep->declRange().ranged()) {
                         nodep->v3warn(SELRANGE, "Selection index out of range: "
                                                     << nodep->msbConst() << ":"
                                                     << nodep->lsbConst() << " outside " << frommsb
                                                     << ":" << fromlsb);
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         nodep->v3warn(SELRANGE,
                                       "Selection "
                                           << nodep->msbConst() << ":" << nodep->lsbConst()
@@ -1335,14 +1335,14 @@ class WidthVisitor final : public VNVisitor {
                 }
                 // Extend unless it's a lvalue,
                 // because extending lvalue would lose write access.
-                if (!isWriteSelect) {
+                ಯದಿ (!isWriteSelect) {
                     // Extend it
-                    const int extendTo = nodep->msbConst() + 1;
-                    AstNodeDType* const subDTypep = nodep->findBitOrLogicDType(
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ extendTo = nodep->msbConst() + 1;
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = nodep->findBitOrLogicDType(
                         extendTo, extendTo, nodep->fromp()->dtypep()->numeric(),
                         nodep->fromp()->dtypep()->isFourstate());
                     widthCheckSized(nodep, "errorless...", nodep->fromp(), subDTypep, EXTEND_EXP,
-                                    false /*noerror*/);
+                                    ಅಸತ್ಯ /*noerror*/);
                 }
             }
             // iterate FINAL is two blocks above
@@ -1350,35 +1350,35 @@ class WidthVisitor final : public VNVisitor {
             // If we have a width problem with GENERATE etc, this will reduce
             // it down and mask it, so we have no chance of finding a real
             // error in the future. So don't do this for them.
-            if (!m_doGenerate) {
+            ಯದಿ (!m_doGenerate) {
                 // lsbp() must be self-determined, however for performance
                 // we want the select to be truncated to fit within the
                 // maximum select range, e.g. turn Xs outside of the select
                 // into something fast which pulls from within the array.
                 widthCheckSized(nodep, "Extract Range", nodep->lsbp(), selwidthDTypep, EXTEND_EXP,
-                                false /*NOWARN*/);
+                                ಅಸತ್ಯ /*NOWARN*/);
             }
             // UINFOTREE(9, nodep, "", "seldone");
         }
     }
 
-    void visit(AstArraySel* nodep) override {
+    ಶೂನ್ಯ visit(AstArraySel* nodep) override {
         // Signed/Real: Output signed iff LHS signed/real; binary operator
         // Note by contrast, bit extract selects are unsigned
         // LSB is self-determined (IEEE 2012 11.5.1)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "Bit select", nodep->bitp(), SELF, BOTH);
             userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH}.p());
             // Element of a whole array of interfaces
-            if (VN_IS(nodep->fromp(), ConsArray) && isIfaceArrayDType(nodep->fromp()->dtypep())) {
+            ಯದಿ (VN_IS(nodep->fromp(), ConsArray) && isIfaceArrayDType(nodep->fromp()->dtypep())) {
                 V3Const::constifyParamsEdit(nodep->bitp());  // May relink pointed to node
-                if (const AstConst* const constp = VN_CAST(nodep->bitp(), Const)) {
-                    const int bit = constp->toSInt();
-                    AstNodeExpr* newp = newIfaceArrayElement(nodep->fromp(), bit);
-                    if (!newp) {
+                ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->bitp(), Const)) {
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ bit = constp->toSInt();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = newIfaceArrayElement(nodep->fromp(), bit);
+                    ಯದಿ (!newp) {
                         // No such instance, so an error, unlike other out of range selects
-                        const AstUnpackArrayDType* const arrp
+                        ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrp
                             = VN_AS(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType);
                         nodep->v3error("Selection index out of range of interface array: "
                                        << bit + arrp->lo() << " outside " << arrp->hi() << ":"
@@ -1386,32 +1386,32 @@ class WidthVisitor final : public VNVisitor {
                         newp = newIfaceArrayElement(nodep->fromp(), 0);
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
             //
-            int frommsb;
-            int fromlsb;
-            const AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefp();
-            if (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+            ಪೂರ್ಣಾಙ್ಕ frommsb;
+            ಪೂರ್ಣಾಙ್ಕ fromlsb;
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefp();
+            ಯದಿ (ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
                 frommsb = adtypep->hi();
                 fromlsb = adtypep->lo();
-                if (fromlsb > frommsb) std::swap(frommsb, fromlsb);
+                ಯದಿ (fromlsb > frommsb) std::swap(frommsb, fromlsb);
                 // However, if the lsb<0 we may go negative, so need more bits!
-                if (fromlsb < 0) frommsb += -fromlsb;
+                ಯದಿ (fromlsb < 0) frommsb += -fromlsb;
                 nodep->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Note PackArrayDType doesn't use an ArraySel but a normal Sel.
                 UINFO(1, "    Related dtype: " << fromDtp);
                 nodep->v3fatalSrc("Array reference exceeds dimension of array");
                 frommsb = fromlsb = 0;
             }
-            const int selwidth = V3Number::log2b(frommsb + 1 - 1) + 1;  // Width to address a bit
-            AstNodeDType* const selwidthDTypep = nodep->findBitOrLogicDType(
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ selwidth = V3_ಸಂಖ್ಯೆ::log2b(frommsb + 1 - 1) + 1;  // Width to address a bit
+            Ast_ಗಂಟು_DType* ಧ್ರುವ selwidthDTypep = nodep->findBitOrLogicDType(
                 selwidth, selwidth, nodep->bitp()->dtypep()->numeric(),
                 nodep->bitp()->isFourstateOrNoDtype());
-            if (widthBad(nodep->bitp(), selwidthDTypep) && nodep->bitp()->width() != 32) {
+            ಯದಿ (widthBad(nodep->bitp(), selwidthDTypep) && nodep->bitp()->width() != 32) {
                 nodep->v3widthWarn(selwidth, nodep->bitp()->width(),
                                    "Bit extraction of array["
                                        << frommsb << ":" << fromlsb << "] requires " << selwidth
@@ -1420,19 +1420,19 @@ class WidthVisitor final : public VNVisitor {
                                                ? " or " + cvtToStr(nodep->bitp()->widthMin())
                                                : "")
                                        << " bits.");
-                if (!nodep->fileline()->warnIsOff(V3ErrorCode::WIDTH)) {
+                ಯದಿ (!nodep->fileline()->warnIsOff(V3ErrorCode::WIDTH)) {
                     UINFO(1, "    Related node: " << nodep);
                     UINFO(1, "    Related dtype: " << nodep->dtypep());
                 }
             }
-            if (!m_doGenerate) {
+            ಯದಿ (!m_doGenerate) {
                 // Must check bounds before adding a select that truncates the bound
                 // Note we've already subtracted off LSB
-                if (VN_IS(nodep->bitp(), Const)
+                ಯದಿ (VN_IS(nodep->bitp(), Const)
                     && (VN_AS(nodep->bitp(), Const)->toSInt() > (frommsb - fromlsb)
                         || VN_AS(nodep->bitp(), Const)->toSInt() < 0)) {
                     // Suppress in dead/parameterized template modules
-                    if (!(m_modep && (m_modep->dead() || m_modep->parameterizedTemplate()))) {
+                    ಯದಿ (!(m_modep && (m_modep->dead() || m_modep->parameterizedTemplate()))) {
                         nodep->v3warn(SELRANGE,
                                       "Selection index out of range: "
                                           << (VN_AS(nodep->bitp(), Const)->toSInt() + fromlsb)
@@ -1440,66 +1440,66 @@ class WidthVisitor final : public VNVisitor {
                     }
                 }
                 widthCheckSized(nodep, "Extract Range", nodep->bitp(), selwidthDTypep, EXTEND_EXP,
-                                false /*NOWARN*/);
+                                ಅಸತ್ಯ /*NOWARN*/);
             }
         }
     }
 
-    void visit(AstAssocSel* nodep) override {
+    ಶೂನ್ಯ visit(AstAssocSel* nodep) override {
         // Signed/Real: Output type based on array-declared type; binary operator
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            const AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefp();
-            const AstAssocArrayDType* const adtypep = VN_CAST(fromDtp, AssocArrayDType);
-            if (!adtypep) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefp();
+            ಧ್ರುವ AstAssocArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, AssocArrayDType);
+            ಯದಿ (!adtypep) {
                 UINFO(1, "    Related dtype: " << fromDtp);
                 nodep->v3fatalSrc("Associative array reference is not to associative array");
             }
-            iterateCheckTyped(nodep, "Associative select", nodep->bitp(), adtypep->keyDTypep(),
+            iterateCheckTyped(nodep, "Associative select", nodep->bitp(), adtypep->ಕೀಲಿ_DTypep(),
                               BOTH);
             nodep->dtypeFrom(adtypep->subDTypep());
         }
     }
 
-    void visit(AstAlias* nodep) override {
-        if (!nodep->didWidthAndSet()) {
+    ಶೂನ್ಯ visit(AstAlias* nodep) override {
+        ಯದಿ (!nodep->didWidthAndSet()) {
             userIterateAndNext(nodep->itemsp(), WidthVP{SELF, BOTH}.p());
         }
 
-        const auto checkIfExprOk = [this](const AstNodeExpr* const exprp) {
-            if (VN_IS(exprp, VarXRef)) {
+        ಧ್ರುವ auto check_If_ಅಭಿವ್ಯಕ್ತಿ_Ok = [ಏತತ್](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp) {
+            ಯದಿ (VN_IS(exprp, VarXRef)) {
                 exprp->v3error("Hierarchical reference used for net alias (IEEE 1800-2023 10.11)");
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
 
-            const AstVarRef* const varRefp = VN_CAST(exprp, VarRef);
-            if (!varRefp) {
+            ಧ್ರುವ AstVarRef* ಧ್ರುವ varRefp = VN_CAST(exprp, VarRef);
+            ಯದಿ (!varRefp) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Operand of alias statement is not a variable reference");
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            AstVar* const varp = varRefp->varp();
-            if (!varp->isNet()) {
+            AstVar* ಧ್ರುವ varp = varRefp->varp();
+            ಯದಿ (!varp->isNet()) {
                 exprp->v3error("Only nets are allowed in alias (IEEE 1800-2023 10.11): "
                                << varp->prettyNameQ());
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            if (m_aliasedVars.find(varp) != m_aliasedVars.end()) {
+            ಯದಿ (m_aliasedVars.find(varp) != m_aliasedVars.end()) {
                 varRefp->v3error("Alias is specified more than once (IEEE 1800-2023 10.11): "
                                  << varp->prettyNameQ());
-                return false;
-            } else {
-                m_aliasedVars.insert(varp);
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            } ಅನ್ಯಥಾ {
+                m_aliasedVars.ಸೇರಿಸು(varp);
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         };
 
-        checkIfExprOk(nodep->itemsp());
-        AstNodeDType* const firstItemDtypep = nodep->itemsp()->dtypep();
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
-            checkIfExprOk(VN_AS(itemp, NodeExpr));
-            if (!firstItemDtypep->similarDType(itemp->dtypep())) {
+        check_If_ಅಭಿವ್ಯಕ್ತಿ_Ok(nodep->itemsp());
+        Ast_ಗಂಟು_DType* ಧ್ರುವ firstItemDtypep = nodep->itemsp()->dtypep();
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+            check_If_ಅಭಿವ್ಯಕ್ತಿ_Ok(VN_AS(itemp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
+            ಯದಿ (!firstItemDtypep->similarDType(itemp->dtypep())) {
                 itemp->v3error("Incompatible data types of nets used for net alias. First operand "
                                "has the type "
                                << firstItemDtypep->prettyDTypeNameQ() << ", other has "
@@ -1508,18 +1508,18 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstWildcardSel* nodep) override {
+    ಶೂನ್ಯ visit(AstWildcardSel* nodep) override {
         // Signed/Real: Output type based on array-declared type; binary operator
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            const AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefp();
-            const AstWildcardArrayDType* const adtypep = VN_CAST(fromDtp, WildcardArrayDType);
-            if (!adtypep) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefp();
+            ಧ್ರುವ AstWildcardArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, WildcardArrayDType);
+            ಯದಿ (!adtypep) {
                 UINFO(1, "    Related dtype: " << fromDtp);
                 nodep->v3fatalSrc("Wildcard array reference is not to wildcard array");
             }
-            const AstBasicDType* const basicp = nodep->bitp()->dtypep()->skipRefp()->basicp();
-            if (!basicp
+            ಧ್ರುವ AstBasicDType* ಧ್ರುವ basicp = nodep->bitp()->dtypep()->skipRefp()->basicp();
+            ಯದಿ (!basicp
                 || (basicp->keyword() != VBasicDTypeKwd::STRING
                     && !basicp->keyword().isIntNumeric())) {
                 nodep->v3error("Wildcard index must be integral (IEEE 1800-2023 7.8.1)");
@@ -1530,47 +1530,47 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstSliceSel* nodep) override {
+    ಶೂನ್ಯ visit(AstSliceSel* nodep) override {
         // Always creates as output an unpacked array
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH}.p());
             //
             // Array indices are always constant
-            const AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefp();
-            const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType);
-            if (!adtypep) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefp();
+            ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, UnpackArrayDType);
+            ಯದಿ (!adtypep) {
                 UINFO(1, "    Related dtype: " << fromDtp);
                 nodep->v3fatalSrc("Packed array reference exceeds dimension of array");
             }
             // Build new array Dtype based on the original's base type, but with new bounds
-            AstNodeDType* const newDtp
-                = new AstUnpackArrayDType{nodep->fileline(), adtypep->subDTypep(),
-                                          new AstRange{nodep->fileline(), nodep->declRange()}};
+            Ast_ಗಂಟು_DType* ಧ್ರುವ newDtp
+                = ನೂತನ AstUnpackArrayDType{nodep->fileline(), adtypep->subDTypep(),
+                                          ನೂತನ AstRange{nodep->fileline(), nodep->declRange()}};
             v3Global.rootp()->typeTablep()->addTypesp(newDtp);
             nodep->dtypeFrom(newDtp);
 
-            if (!m_doGenerate) {
+            ಯದಿ (!m_doGenerate) {
                 // Must check bounds before adding a select that truncates the bound
                 // Note we've already subtracted off LSB
-                const int subtracted = adtypep->declRange().lo();
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ subtracted = adtypep->declRange().lo();
                 // Add subtracted value to get the original range
-                const VNumRange declRange{nodep->declRange().hi() + subtracted,
+                ಧ್ರುವ VNumRange declRange{nodep->declRange().hi() + subtracted,
                                           nodep->declRange().lo() + subtracted,
                                           nodep->declRange().ascending()};
-                if ((declRange.hi() > adtypep->declRange().hi())
+                ಯದಿ ((declRange.hi() > adtypep->declRange().hi())
                     || declRange.lo() < adtypep->declRange().lo()) {
                     // Other simulators warn too
                     nodep->v3error("Slice selection index '" << declRange << "'"
                                                              << " outside data type's '"
                                                              << adtypep->declRange() << "'");
                     // Replaced by a placeholder value, so no element is out of range later
-                    nodep->replaceWith(new AstConsArray{
+                    nodep->replaceWith(ನೂತನ AstConsArray{
                         nodep->fileline(), newDtp,
-                        new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}}});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
-                } else if ((declRange.ascending() != adtypep->declRange().ascending())
+                        ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}}});
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
+                } ಅನ್ಯಥಾ ಯದಿ ((declRange.ascending() != adtypep->declRange().ascending())
                            && declRange.hi() != declRange.lo()) {
                     nodep->v3error("Slice selection '"
                                    << declRange << "'"
@@ -1579,168 +1579,168 @@ class WidthVisitor final : public VNVisitor {
                 }
             }
             // A slice of a whole array of interfaces is the array of the selected elements
-            if (VN_IS(nodep->fromp(), ConsArray) && isIfaceArrayDType(nodep->fromp()->dtypep())) {
-                AstConsArray* const fromp = VN_AS(nodep->fromp(), ConsArray);
-                AstConsArray* const newp = new AstConsArray{nodep->fileline(), newDtp};
-                const VNumRange range = nodep->declRange();
-                for (int n = 0; n < range.elements(); ++n) {
-                    newp->valuep(n, fromp->valuep(range.lo() + n)->cloneTree(false));
+            ಯದಿ (VN_IS(nodep->fromp(), ConsArray) && isIfaceArrayDType(nodep->fromp()->dtypep())) {
+                AstConsArray* ಧ್ರುವ fromp = VN_AS(nodep->fromp(), ConsArray);
+                AstConsArray* ಧ್ರುವ newp = ನೂತನ AstConsArray{nodep->fileline(), newDtp};
+                ಧ್ರುವ VNumRange range = nodep->declRange();
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ n = 0; n < range.elements(); ++n) {
+                    newp->valuep(n, fromp->valuep(range.lo() + n)->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             }
         }
     }
 
-    void visit(AstSelBit* nodep) override {
+    ಶೂನ್ಯ visit(AstSelBit* nodep) override {
         // Just a quick check as after V3Param these nodes instead are AstSel's
         userIterateAndNext(nodep->fromp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->bitp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->thsp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->attrp(), WidthVP{SELF, BOTH}.p());
-        AstNode* const selp = V3Width::widthSelNoIterEdit(nodep);
-        if (selp != nodep) {
+        Ast_ಗಂಟು* ಧ್ರುವ selp = V3Width::widthSelNoIterEdit(nodep);
+        ಯದಿ (selp != nodep) {
             VL_DANGLING(nodep);
             userIterate(selp, m_vup);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->v3fatalSrc("AstSelBit should disappear after widthSel");
     }
-    void visit(AstSelExtract* nodep) override {
+    ಶೂನ್ಯ visit(AstSelExtract* nodep) override {
         // Just a quick check as after V3Param these nodes instead are AstSel's
         userIterateAndNext(nodep->fromp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->leftp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->rightp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->attrp(), WidthVP{SELF, BOTH}.p());
-        AstNode* const selp = V3Width::widthSelNoIterEdit(nodep);
-        if (selp != nodep) {
+        Ast_ಗಂಟು* ಧ್ರುವ selp = V3Width::widthSelNoIterEdit(nodep);
+        ಯದಿ (selp != nodep) {
             nodep = nullptr;
             userIterate(selp, m_vup);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->v3fatalSrc("AstSelExtract should disappear after widthSel");
     }
-    void visit(AstSelPlus* nodep) override {
+    ಶೂನ್ಯ visit(AstSelPlus* nodep) override {
         userIterateAndNext(nodep->fromp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->bitp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->widthp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->attrp(), WidthVP{SELF, BOTH}.p());
-        AstNode* const selp = V3Width::widthSelNoIterEdit(nodep);
-        if (selp != nodep) {
+        Ast_ಗಂಟು* ಧ್ರುವ selp = V3Width::widthSelNoIterEdit(nodep);
+        ಯದಿ (selp != nodep) {
             nodep = nullptr;
             userIterate(selp, m_vup);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->v3fatalSrc("AstSelPlus should disappear after widthSel");
     }
-    void visit(AstSelMinus* nodep) override {
+    ಶೂನ್ಯ visit(AstSelMinus* nodep) override {
         userIterateAndNext(nodep->fromp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->bitp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->widthp(), WidthVP{CONTEXT_DET, PRELIM}.p());  // FINAL in AstSel
         userIterateAndNext(nodep->attrp(), WidthVP{SELF, BOTH}.p());
-        AstNode* const selp = V3Width::widthSelNoIterEdit(nodep);
-        if (selp != nodep) {
+        Ast_ಗಂಟು* ಧ್ರುವ selp = V3Width::widthSelNoIterEdit(nodep);
+        ಯದಿ (selp != nodep) {
             nodep = nullptr;
             userIterate(selp, m_vup);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->v3fatalSrc("AstSelMinus should disappear after widthSel");
     }
 
-    void visit(AstExtend* nodep) override {
+    ಶೂನ್ಯ visit(AstExtend* nodep) override {
         // Typically created by this process, so we know width from here down is correct.
         // Exception is extend added by V3WidthSel - those need iteration
-        if (nodep->didWidthAndSet()) return;
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstExtendS* nodep) override {
+    ಶೂನ್ಯ visit(AstExtendS* nodep) override {
         // Typically created by this process, so we know width from here down is correct.
         // Exception is extend added by V3WidthSel - those need iteration
-        if (nodep->didWidthAndSet()) return;
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstConst* nodep) override {
+    ಶೂನ್ಯ visit(AstConst* nodep) override {
         // The node got setup with the signed/real state of the node.
         // However a later operation may have changed the node->signed w/o changing
         // the number's sign.  So we don't: nodep->dtypeChgSigned(nodep->num().isSigned());
-        if (nodep->didWidthAndSet()) return;
-        if (m_vup && m_vup->prelim()) {
-            if (VN_IS(nodep->dtypep()->skipRefToEnump(), EnumDType)
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (m_vup && m_vup->prelim()) {
+            ಯದಿ (VN_IS(nodep->dtypep()->skipRefToEnump(), EnumDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), StructDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), PackArrayDType)) {
                 // Assume this constant was properly casted earlier
                 // (Otherwise it couldn't have an enum data type)
-            } else if (nodep->num().isNull()) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->ಅಂಕೆ().isNull()) {
                 nodep->dtypep(nodep->findNullDType());
-            } else if (nodep->num().isString()) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->ಅಂಕೆ().isString()) {
                 nodep->dtypeSetString();
-            } else if (nodep->num().isDouble()) {
-                nodep->dtypeChgWidth(nodep->num().width(), nodep->num().sized()
-                                                               ? nodep->num().width()
-                                                               : nodep->num().widthToFit());
-            } else {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->ಅಂಕೆ().isDouble()) {
+                nodep->dtypeChgWidth(nodep->ಅಂಕೆ().width(), nodep->ಅಂಕೆ().sized()
+                                                               ? nodep->ಅಂಕೆ().width()
+                                                               : nodep->ಅಂಕೆ().widthToFit());
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeSetBitOrLogicUnsized(
-                    nodep->num().width(),
-                    nodep->num().sized() ? nodep->num().width() : nodep->num().widthToFit(),
-                    nodep->dtypep()->numeric(), nodep->num().isAnyXZ());
+                    nodep->ಅಂಕೆ().width(),
+                    nodep->ಅಂಕೆ().sized() ? nodep->ಅಂಕೆ().width() : nodep->ಅಂಕೆ().widthToFit(),
+                    nodep->dtypep()->numeric(), nodep->ಅಂಕೆ().isAnyXZ());
             }
         }
         // We don't size the constant until we commit the widths, as need parameters
         // to remain unsized, and numbers to remain unsized to avoid backp() warnings
     }
-    void visit(AstEmptyQueue* nodep) override {
+    ಶೂನ್ಯ visit(AstEmptyQueue* nodep) override {
         nodep->dtypeSetEmptyQueue();
-        if (!VN_IS(nodep->backp(), Assign) && !VN_IS(nodep->backp(), Var)
+        ಯದಿ (!VN_IS(nodep->backp(), Assign) && !VN_IS(nodep->backp(), Var)
             && !VN_IS(nodep->backp(), Arg)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported/Illegal: empty queue ('{}') in this context");
         }
     }
-    void visit(AstFell* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFell* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             userIterate(nodep->sentreep(), nullptr);
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstFalling* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFalling* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstFuture* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFuture* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             userIterate(nodep->sentreep(), nullptr);
             nodep->dtypeFrom(nodep->exprp());
         }
     }
-    void visit(AstPast* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstPast* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             nodep->dtypeFrom(nodep->exprp());
-            if (nodep->ticksp()) {
+            ಯದಿ (nodep->ticksp()) {
                 iterateCheckSizedSelf(nodep, "Ticks", nodep->ticksp(), SELF, BOTH,
-                                      /* deferUntyped */ true);
+                                      /* deferUntyped */ ಸತ್ಯ);
                 V3Const::constifyParamsEdit(nodep->ticksp());  // ticksp may change
-                const AstConst* const constp = VN_CAST(nodep->ticksp(), Const);
-                if (!constp) {
+                ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->ticksp(), Const);
+                ಯದಿ (!constp) {
                     nodep->v3error("$past tick value must be constant (IEEE 1800-2023 16.9.3)");
-                    nodep->ticksp()->unlinkFrBack()->deleteTree();
-                } else if (constp->toSInt() < 1) {
+                    nodep->ticksp()->unlinkFrBack()->delete_ವೃಕ್ಷ();
+                } ಅನ್ಯಥಾ ಯದಿ (constp->toSInt() < 1) {
                     constp->v3error("$past tick value must be >= 1 (IEEE 1800-2023 16.9.3)");
-                    nodep->ticksp()->unlinkFrBack()->deleteTree();
-                } else if (V3AssertCommon::checkSvaValueLimit(nodep, constp, "$past tick value")) {
-                    if (constp->toSInt() > 10) {
+                    nodep->ticksp()->unlinkFrBack()->delete_ವೃಕ್ಷ();
+                } ಅನ್ಯಥಾ ಯದಿ (V3AssertCommon::check_Sva_ಮೌಲ್ಯ_Limit(nodep, constp, "$past tick value")) {
+                    ಯದಿ (constp->toSInt() > 10) {
                         constp->v3warn(TICKCOUNT, "$past tick value of "
                                                       << constp->toSInt()
                                                       << " may have a large performance cost");
@@ -1750,34 +1750,34 @@ class WidthVisitor final : public VNVisitor {
             userIterate(nodep->sentreep(), nullptr);
         }
     }
-    void visit(AstSConsRep* nodep) override {
+    ಶೂನ್ಯ visit(AstSConsRep* nodep) override {
         // IEEE 1800-2023 16.9.2 -- consecutive repetition [*N], [*N:M], [*N:$], [+], [*]
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->exprp(), WidthVP{SELF, BOTH}.p());
             userIterateAndNext(nodep->countp(), WidthVP{SELF, BOTH}.p());
             V3Const::constifyParamsEdit(nodep->countp());
-            const AstConst* const minConstp = VN_CAST(nodep->countp(), Const);
-            if (!minConstp) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ minConstp = VN_CAST(nodep->countp(), Const);
+            ಯದಿ (!minConstp) {
                 nodep->v3error("Consecutive repetition count must be constant expression"
                                " (IEEE 1800-2023 16.9.2)");
-            } else if (minConstp->toSInt() < 0) {
+            } ಅನ್ಯಥಾ ಯದಿ (minConstp->toSInt() < 0) {
                 nodep->v3error("Consecutive repetition count must be non-negative"
                                " (IEEE 1800-2023 16.9.2)");
-            } else if (!nodep->unbounded() && !nodep->maxCountp() && minConstp->toSInt() < 1) {
+            } ಅನ್ಯಥಾ ಯದಿ (!nodep->unbounded() && !nodep->maxCountp() && minConstp->toSInt() < 1) {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: [*0] consecutive repetition");
             }
-            if (nodep->maxCountp()) {
+            ಯದಿ (nodep->maxCountp()) {
                 userIterateAndNext(nodep->maxCountp(), WidthVP{SELF, BOTH}.p());
                 V3Const::constifyParamsEdit(nodep->maxCountp());
-                const AstConst* const maxConstp = VN_CAST(nodep->maxCountp(), Const);
-                if (!maxConstp) {
+                ಧ್ರುವ AstConst* ಧ್ರುವ maxConstp = VN_CAST(nodep->maxCountp(), Const);
+                ಯದಿ (!maxConstp) {
                     nodep->v3error("Consecutive repetition max count must be constant"
                                    " expression (IEEE 1800-2023 16.9.2)");
-                } else if (minConstp && maxConstp->toSInt() < minConstp->toSInt()) {
+                } ಅನ್ಯಥಾ ಯದಿ (minConstp && maxConstp->toSInt() < minConstp->toSInt()) {
                     nodep->v3error("Consecutive repetition max count must be >= min count"
                                    " (IEEE 1800-2023 16.9.2)");
-                } else if (maxConstp->toSInt() < 1) {
+                } ಅನ್ಯಥಾ ಯದಿ (maxConstp->toSInt() < 1) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported: [*N:0] consecutive repetition"
                                                  " with zero max count");
                 }
@@ -1785,72 +1785,72 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstPropAlways* nodep) override {
+    ಶೂನ್ಯ visit(AstPropAlways* nodep) override {
         // IEEE 1800-2023 16.12.11
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->propp(), WidthVP{SELF, BOTH}.p());
-            AstNodeExpr* propp = nodep->propp();
-            if (!VN_IS(nodep->loBoundp(), Unbounded)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* propp = nodep->propp();
+            ಯದಿ (!VN_IS(nodep->loBoundp(), Unbounded)) {
                 userIterateAndNext(nodep->loBoundp(), WidthVP{SELF, BOTH}.p());
                 V3Const::constifyParamsEdit(nodep->loBoundp());
             }
-            if (!VN_IS(nodep->hiBoundp(), Unbounded)) {
+            ಯದಿ (!VN_IS(nodep->hiBoundp(), Unbounded)) {
                 userIterateAndNext(nodep->hiBoundp(), WidthVP{SELF, BOTH}.p());
                 V3Const::constifyParamsEdit(nodep->hiBoundp());
             }
-            const bool loUnbounded = VN_IS(nodep->loBoundp(), Unbounded);
-            const bool hiUnbounded = VN_IS(nodep->hiBoundp(), Unbounded);
+            ಧ್ರುವ ತಾರ್ಕಿಕ loUnbounded = VN_IS(nodep->loBoundp(), Unbounded);
+            ಧ್ರುವ ತಾರ್ಕಿಕ hiUnbounded = VN_IS(nodep->hiBoundp(), Unbounded);
             // Strong always must be bounded (IEEE 1800-2023 16.12.11: "the range
             // for a strong always shall be bounded"). Weak always [m:$] is legal:
             // an unbounded upper bound imposes no end-of-trace obligation.
-            if (nodep->isStrong() && (loUnbounded || hiUnbounded)) {
-                AstNode* const boundp = loUnbounded ? nodep->loBoundp() : nodep->hiBoundp();
+            ಯದಿ (nodep->isStrong() && (loUnbounded || hiUnbounded)) {
+                Ast_ಗಂಟು* ಧ್ರುವ boundp = loUnbounded ? nodep->loBoundp() : nodep->hiBoundp();
                 boundp->v3error("s_always range must be bounded (IEEE 1800-2023 16.12.11)");
                 nodep->dtypeSetBit();
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (loUnbounded) {
+            ಯದಿ (loUnbounded) {
                 // Only the high bound may be $ (cycle_delay_const_range_expression).
                 nodep->loBoundp()->v3error("always range low bound must be a constant expression"
                                            " (IEEE 1800-2023 16.12.11)");
                 nodep->dtypeSetBit();
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            const AstConst* const loConstp = VN_CAST(nodep->loBoundp(), Const);
-            const AstConst* const hiConstp = VN_CAST(nodep->hiBoundp(), Const);
-            if (!loConstp) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ loConstp = VN_CAST(nodep->loBoundp(), Const);
+            ಧ್ರುವ AstConst* ಧ್ರುವ hiConstp = VN_CAST(nodep->hiBoundp(), Const);
+            ಯದಿ (!loConstp) {
                 nodep->loBoundp()->v3error("always range low bound must be a constant expression"
                                            " (IEEE 1800-2023 16.12.11)");
             }
-            if (!hiUnbounded && !hiConstp) {
+            ಯದಿ (!hiUnbounded && !hiConstp) {
                 nodep->hiBoundp()->v3error("always range high bound must be a constant expression"
                                            " (IEEE 1800-2023 16.12.11)");
             }
-            if (loConstp && loConstp->toSInt() < 0) {
+            ಯದಿ (loConstp && loConstp->toSInt() < 0) {
                 nodep->loBoundp()->v3error("always range low bound must be non-negative"
                                            " (IEEE 1800-2023 16.12.11)");
-            } else if (loConstp) {
-                V3AssertCommon::checkSvaValueLimit(nodep->loBoundp(), loConstp,
+            } ಅನ್ಯಥಾ ಯದಿ (loConstp) {
+                V3AssertCommon::check_Sva_ಮೌಲ್ಯ_Limit(nodep->loBoundp(), loConstp,
                                                    "always range bound");
             }
-            if (!hiUnbounded && hiConstp) {
-                V3AssertCommon::checkSvaValueLimit(nodep->hiBoundp(), hiConstp,
+            ಯದಿ (!hiUnbounded && hiConstp) {
+                V3AssertCommon::check_Sva_ಮೌಲ್ಯ_Limit(nodep->hiBoundp(), hiConstp,
                                                    "always range bound");
             }
-            if (!hiUnbounded && loConstp && hiConstp && hiConstp->toSInt() < loConstp->toSInt()) {
+            ಯದಿ (!hiUnbounded && loConstp && hiConstp && hiConstp->toSInt() < loConstp->toSInt()) {
                 nodep->hiBoundp()->v3error("always range high bound must be >= low bound"
                                            " (IEEE 1800-2023 16.12.11)");
             }
-            bool hasPropertyOp = propp->isMultiCycleSva();
-            if (!hasPropertyOp) {
-                propp->foreach([&](const AstNode* np) {
-                    if (VN_IS(np, Implication) || VN_IS(np, Until) || VN_IS(np, PropSpec)) {
-                        hasPropertyOp = true;
+            ತಾರ್ಕಿಕ hasPropertyOp = propp->isMultiCycleSva();
+            ಯದಿ (!hasPropertyOp) {
+                propp->foreach([&](ಧ್ರುವ Ast_ಗಂಟು* np) {
+                    ಯದಿ (VN_IS(np, Implication) || VN_IS(np, Until) || VN_IS(np, PropSpec)) {
+                        hasPropertyOp = ಸತ್ಯ;
                     }
                 });
             }
-            if (hasPropertyOp) {
+            ಯದಿ (hasPropertyOp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: property/sequence operator inside bounded"
                               " always (IEEE 1800-2023 16.12.11)");
@@ -1859,195 +1859,195 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstRising* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstRising* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstRose* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstRose* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             userIterate(nodep->sentreep(), nullptr);
             nodep->dtypeSetBit();
         }
     }
 
-    void visit(AstSampled* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSampled* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             nodep->dtypeFrom(nodep->exprp());
         }
     }
 
-    void visit(AstSetuphold* nodep) override {
-        FileLine* const flp = nodep->fileline();
+    ಶೂನ್ಯ visit(AstSetuphold* nodep) override {
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
         AstAssignW* newp = nullptr;
-        if (nodep->delrefp()) {
+        ಯದಿ (nodep->delrefp()) {
             newp = convertSetupholdToAssign(flp, nodep->refevp(), nodep->delrefp());
         }
-        if (nodep->deldatap()) {
-            if (!newp) {
+        ಯದಿ (nodep->deldatap()) {
+            ಯದಿ (!newp) {
                 newp = convertSetupholdToAssign(flp, nodep->dataevp(), nodep->deldatap());
-            } else {
+            } ಅನ್ಯಥಾ {
                 newp->addNextHere(
                     convertSetupholdToAssign(flp, nodep->dataevp(), nodep->deldatap()));
             }
         }
-        if (!newp) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+        ಯದಿ (!newp) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        nodep->replaceWith(new AstAlways{newp});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(ನೂತನ AstAlways{newp});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    AstAssignW* convertSetupholdToAssign(FileLine* const flp, AstNodeExpr* const evp,
-                                         AstNodeExpr* const delp) {
-        AstNodeExpr* const lhsp = delp->cloneTreePure(false);
-        AstNodeExpr* const rhsp = evp->cloneTreePure(false);
-        UASSERT_OBJ(VN_IS(lhsp, NodeVarRef) || VN_IS(lhsp, NodePreSel), lhsp,
+    AstAssignW* convertSetupholdToAssign(File_ಸಾಲು* ಧ್ರುವ flp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ evp,
+                                         Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ delp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = delp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = evp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+        UASSERT_OBJ(VN_IS(lhsp, ಗಂಟು_Var_Ref) || VN_IS(lhsp, ಗಂಟು_Pre_Sel), lhsp,
                     "Incorrect reference in a timing check");
-        if (AstNodeVarRef* varRefp = VN_CAST(lhsp, NodeVarRef)) {
-            if (varRefp->varp()->direction() == VDirection::INPUT) {
-                VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
-                VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-                return nullptr;
+        ಯದಿ (Ast_ಗಂಟು_Var_Ref* varRefp = VN_CAST(lhsp, ಗಂಟು_Var_Ref)) {
+            ಯದಿ (varRefp->varp()->direction() == VDirection::ಒಳಹರಿವು) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
+                ಪ್ರತ್ಯಾಗಮ nullptr;
             }
             varRefp->access(VAccess::WRITE);
         }
-        if (AstNodePreSel* selp = VN_CAST(lhsp, NodePreSel)) {
-            if (AstNodeVarRef* varRefp = VN_CAST(selp->fromp(), NodeVarRef)) {
-                if (varRefp->varp()->direction() == VDirection::INPUT) {
-                    VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
-                    VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-                    return nullptr;
+        ಯದಿ (Ast_ಗಂಟು_Pre_Sel* selp = VN_CAST(lhsp, ಗಂಟು_Pre_Sel)) {
+            ಯದಿ (Ast_ಗಂಟು_Var_Ref* varRefp = VN_CAST(selp->fromp(), ಗಂಟು_Var_Ref)) {
+                ಯದಿ (varRefp->varp()->direction() == VDirection::ಒಳಹರಿವು) {
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
+                    ಪ್ರತ್ಯಾಗಮ nullptr;
                 }
                 varRefp->access(VAccess::WRITE);
             }
         }
-        return new AstAssignW{flp, lhsp, rhsp};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAssignW{flp, lhsp, rhsp};
     }
 
-    void visit(AstStable* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstStable* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             userIterate(nodep->sentreep(), nullptr);
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstSteady* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSteady* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->exprp(), SELF, BOTH,
-                                  /* deferUntyped */ true);
+                                  /* deferUntyped */ ಸತ್ಯ);
             nodep->dtypeSetBit();
         }
     }
 
-    void visit(AstStmtExpr* nodep) override {
+    ಶೂನ್ಯ visit(Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         assertAtStatement(nodep);
         userIterateAndNext(nodep->exprp(), WidthVP{SELF, BOTH}.p());
     }
 
-    void visit(AstImplication* nodep) override {
+    ಶೂನ್ಯ visit(AstImplication* nodep) override {
         m_seqUnsupp = nodep;
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckBool(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBit();
         }
     }
 
-    void visit(AstUntil* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstUntil* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckBool(nodep, "RHS", nodep->rhsp(), BOTH);
             // Coerce unsized constant operands (e.g. literal 0/1) to actual
             // 1-bit width; iterateCheckBool keeps widthMin-fitting unsized
             // constants at their nominal 32-bit width, which trips the
             // downstream NFA lowering's Log* chains in V3AssertNfa.
-            if (nodep->lhsp()->width() != 1) fixWidthReduce(nodep->lhsp());
-            if (nodep->rhsp()->width() != 1) fixWidthReduce(nodep->rhsp());
+            ಯದಿ (nodep->lhsp()->width() != 1) fixWidthReduce(nodep->lhsp());
+            ಯದಿ (nodep->rhsp()->width() != 1) fixWidthReduce(nodep->rhsp());
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstAbortOn* nodep) override { visitAbortProp(nodep); }
+    ಶೂನ್ಯ visit(AstAbortOn* nodep) override { visitAbortProp(nodep); }
 
-    void visit(AstRand* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            if (nodep->urandom()) {
+    ಶೂನ್ಯ visit(AstRand* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            ಯದಿ (nodep->urandom()) {
                 nodep->dtypeSetUInt32();  // Says the spec
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeSetInt();  // Says the spec
             }
-            if (nodep->seedp()) iterateCheckSigned32(nodep, "seed", nodep->seedp(), BOTH);
+            ಯದಿ (nodep->seedp()) iterateCheckSigned32(nodep, "seed", nodep->seedp(), BOTH);
         }
     }
-    void visit(AstSEventually* nodep) override {
-        if (v3Global.opt.timing().isSetFalse() || !v3Global.opt.timing().isSetTrue()) {
+    ಶೂನ್ಯ visit(AstSEventually* nodep) override {
+        ಯದಿ (v3Global.opt.timing().isSetFalse() || !v3Global.opt.timing().isSetTrue()) {
             nodep->v3warn(E_NOTIMING, "s_eventually requires --timing");
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 1, 0});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, 1, 0});
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (m_vup->prelim()) {
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "exprp", nodep->exprp(), BOTH);
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstSGotoRep* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSGotoRep* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "exprp", nodep->exprp(), BOTH);
             userIterateAndNext(nodep->countp(), WidthVP{SELF, BOTH}.p());
-            if (nodep->maxCountp()) {
+            ಯದಿ (nodep->maxCountp()) {
                 widthCheckGotoRepRange(nodep, "Goto");
-            } else {
-                widthCheckRepCount(nodep);
+            } ಅನ್ಯಥಾ {
+                width_Check_Rep_ಎಣಿಕೆ(nodep);
             }
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstSNonConsRep* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSNonConsRep* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "exprp", nodep->exprp(), BOTH);
             userIterateAndNext(nodep->countp(), WidthVP{SELF, BOTH}.p());
-            if (nodep->maxCountp()) {
+            ಯದಿ (nodep->maxCountp()) {
                 widthCheckGotoRepRange(nodep, "Nonconsecutive");
-            } else {
-                widthCheckRepCount(nodep);
+            } ಅನ್ಯಥಾ {
+                width_Check_Rep_ಎಣಿಕೆ(nodep);
             }
             nodep->dtypeSetBit();
         }
     }
     template <typename T_Rep>
-    void widthCheckRepCount(T_Rep* nodep) {
+    ಶೂನ್ಯ width_Check_Rep_ಎಣಿಕೆ(T_Rep* nodep) {
         V3Const::constifyParamsNoWarnEdit(nodep->countp());
-        const AstConst* const constp = VN_CAST(nodep->countp(), Const);
-        if (!constp) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->countp(), Const);
+        ಯದಿ (!constp) {
             nodep->v3error("Repetition count is not an elaboration-time constant"
                            " (IEEE 1800-2023 16.9.2)");
-        } else if (constp->dtypep()->isSigned() && constp->num().isNegative()) {
+        } ಅನ್ಯಥಾ ಯದಿ (constp->dtypep()->isSigned() && constp->ಅಂಕೆ().isNegative()) {
             nodep->v3error("Repetition count must be non-negative"
                            " (IEEE 1800-2023 16.9.2)");
-        } else if (constp->num().mostSetBitP1() > 31) {
+        } ಅನ್ಯಥಾ ಯದಿ (constp->ಅಂಕೆ().mostSetBitP1() > 31) {
             nodep->v3warn(
                 E_UNSUPPORTED,
                 "Unsupported: SVA repetition count exceeds implementation limit of 2147483647");
-        } else if (constp->isZero()) {
+        } ಅನ್ಯಥಾ ಯದಿ (constp->isZero()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: zero repetition count"
                                          " (IEEE 1800-2023 16.9.2)");
         }
@@ -2057,55 +2057,55 @@ class WidthVisitor final : public VNVisitor {
     // call can replace the node in-tree (Lesson: AstSConsRep visitor pattern).
     // Templated to cover AstSGotoRep and AstSNonConsRep uniformly.
     template <typename T_Rep>
-    void widthCheckGotoRepRange(T_Rep* nodep, const char* kind) {
+    ಶೂನ್ಯ widthCheckGotoRepRange(T_Rep* nodep, ಧ್ರುವ ವರ್ಣ* kind) {
         userIterateAndNext(nodep->maxCountp(), WidthVP{SELF, BOTH}.p());
         V3Const::constifyParamsEdit(nodep->countp());
         V3Const::constifyParamsEdit(nodep->maxCountp());
-        const AstConst* const minConstp = VN_CAST(nodep->countp(), Const);
-        const AstConst* const maxConstp = VN_CAST(nodep->maxCountp(), Const);
-        if (!minConstp || !maxConstp) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ minConstp = VN_CAST(nodep->countp(), Const);
+        ಧ್ರುವ AstConst* ಧ್ರುವ maxConstp = VN_CAST(nodep->maxCountp(), Const);
+        ಯದಿ (!minConstp || !maxConstp) {
             nodep->v3error(std::string{kind}
                            + " repetition range bounds must be constant expressions"
                              " (IEEE 1800-2023 16.9.2)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (minConstp->toSInt() < 0) {
+        ಯದಿ (minConstp->toSInt() < 0) {
             nodep->v3error(std::string{kind}
                            + " repetition range min count must be non-negative"
                              " (IEEE 1800-2023 16.9.2)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (maxConstp->toSInt() < minConstp->toSInt()) {
+        ಯದಿ (maxConstp->toSInt() < minConstp->toSInt()) {
             nodep->v3error(std::string{kind}
                            + " repetition range max count must be >= min count"
                              " (IEEE 1800-2023 16.9.2)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (minConstp->isZero()) {
+        ಯದಿ (minConstp->isZero()) {
             nodep->v3warn(E_UNSUPPORTED, std::string{"Unsupported: zero min count in "} + kind
                                              + " repetition range (IEEE 1800-2023 16.9.2)");
         }
     }
-    void visit(AstSThroughout* nodep) override {
-        m_hasSExpr = true;
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSThroughout* nodep) override {
+        m_hasSExpr = ಸತ್ಯ;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // lhsp is a boolean expression, not a sequence -- clear m_underSExpr temporarily
             VL_RESTORER(m_underSExpr);
-            m_underSExpr = false;
+            m_underSExpr = ಅಸತ್ಯ;
             iterateCheckBool(nodep, "lhsp", nodep->lhsp(), BOTH);
-            m_underSExpr = true;
+            m_underSExpr = ಸತ್ಯ;
             iterate(nodep->rhsp());
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstSExpr* nodep) override {
+    ಶೂನ್ಯ visit(AstSExpr* nodep) override {
         VL_RESTORER(m_underSExpr);
-        m_underSExpr = true;
-        m_hasSExpr = true;
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            if (nodep->preExprp()) {
+        m_underSExpr = ಸತ್ಯ;
+        m_hasSExpr = ಸತ್ಯ;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            ಯದಿ (nodep->preExprp()) {
                 iterateCheckBool(nodep, "preExprp", nodep->preExprp(), BOTH);
             }
             iterate(nodep->delayp());
@@ -2113,15 +2113,15 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstSClocked* nodep) override {
+    ಶೂನ್ಯ visit(AstSClocked* nodep) override {
         VL_RESTORER(m_underSExpr);
-        m_underSExpr = true;
-        m_hasSExpr = true;
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        m_underSExpr = ಸತ್ಯ;
+        m_hasSExpr = ಸತ್ಯ;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // Width each clock expression directly; the senitem chain is hoisted to
             // the assertion clock by V3AssertNfa, where it is fully processed.
-            for (AstSenItem* senp = nodep->sensesp(); senp;
+            ಪ್ರತಿ (AstSenItem* senp = nodep->sensesp(); senp;
                  senp = VN_CAST(senp->nextp(), SenItem)) {
                 userIterateAndNext(senp->sensp(), WidthVP{SELF, BOTH}.p());
             }
@@ -2129,155 +2129,155 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstURandomRange* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstURandomRange* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             nodep->dtypeSetUInt32();  // Says the spec
-            AstNodeDType* const expDTypep = nodep->findUInt32DType();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = nodep->findUInt32DType();
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             iterateCheck(nodep, "LHS", nodep->lhsp(), SELF, FINAL, expDTypep, EXTEND_EXP);
             iterateCheck(nodep, "RHS", nodep->rhsp(), SELF, FINAL, expDTypep, EXTEND_EXP);
         }
     }
-    void visit(AstUnbounded* nodep) override {
+    ಶೂನ್ಯ visit(AstUnbounded* nodep) override {
         nodep->dtypeSetInt();  // Used in int context
-        if (VN_IS(nodep->backp(), IsUnbounded)) return;  // Ok, leave
-        if (VN_IS(nodep->backp(), BracketArrayDType)) return;  // Ok, leave
-        if (VN_IS(nodep->backp(), InsideRange)) return;  // Ok, leave
-        if (const auto* const varp = VN_CAST(nodep->backp(), Var)) {
-            if (varp->isParam()) return;  // Ok, leave
+        ಯದಿ (VN_IS(nodep->backp(), IsUnbounded)) ಪ್ರತ್ಯಾಗಮ;  // Ok, leave
+        ಯದಿ (VN_IS(nodep->backp(), BracketArrayDType)) ಪ್ರತ್ಯಾಗಮ;  // Ok, leave
+        ಯದಿ (VN_IS(nodep->backp(), InsideRange)) ಪ್ರತ್ಯಾಗಮ;  // Ok, leave
+        ಯದಿ (ಧ್ರುವ auto* ಧ್ರುವ varp = VN_CAST(nodep->backp(), Var)) {
+            ಯದಿ (varp->isParam()) ಪ್ರತ್ಯಾಗಮ;  // Ok, leave
         }
-        AstNode* backp = nodep->backp();
-        if (VN_IS(backp, Sub)) backp = backp->backp();
-        if (const auto* const selp = VN_CAST(backp, SelExtract)) {
-            if (VN_IS(selp->fromp()->dtypep()->skipRefp(), QueueDType)) return;
+        Ast_ಗಂಟು* backp = nodep->backp();
+        ಯದಿ (VN_IS(backp, Sub)) backp = backp->backp();
+        ಯದಿ (ಧ್ರುವ auto* ಧ್ರುವ selp = VN_CAST(backp, SelExtract)) {
+            ಯದಿ (VN_IS(selp->fromp()->dtypep()->skipRefp(), QueueDType)) ಪ್ರತ್ಯಾಗಮ;
         }
-        if (const auto* const selp = VN_CAST(backp, SelBit)) {
-            if (VN_IS(selp->fromp()->dtypep()->skipRefp(), QueueDType)) return;
+        ಯದಿ (ಧ್ರುವ auto* ಧ್ರುವ selp = VN_CAST(backp, SelBit)) {
+            ಯದಿ (VN_IS(selp->fromp()->dtypep()->skipRefp(), QueueDType)) ಪ್ರತ್ಯಾಗಮ;
         }
         // queue_slice[#:$] and queue_bitsel[$] etc handled in V3WidthSel
         nodep->v3warn(E_UNSUPPORTED,
                       "Unsupported: Unbounded ('$') outside of queue or string operations");
     }
-    void visit(AstInferredDisable* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) nodep->dtypeSetBit();
+    ಶೂನ್ಯ visit(AstInferredDisable* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) nodep->dtypeSetBit();
     }
-    void visit(AstIsUnbounded* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstIsUnbounded* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
             nodep->dtypeSetBit();
         }
     }
-    void visit(AstCExpr* nodep) override {
+    ಶೂನ್ಯ visit(AstCExpr* nodep) override {
         // Inserted by V3Width only so we know has been resolved
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstCExprUser* nodep) override {
+    ಶೂನ್ಯ visit(AstCExprUser* nodep) override {
         // Give it the size the user wants.
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             nodep->dtypeSetBitUnsized(32, 1, VSigning::UNSIGNED);  // We don't care
             // All arguments seek their natural sizes
             userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
         }
-        if (m_vup->final()) {
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
             nodep->dtypep(expDTypep);  // Assume user knows the rules; go with the flow
-            if (nodep->width() > 64) {
+            ಯದಿ (nodep->width() > 64) {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: $c can't generate wider than 64 bits");
             }
         }
     }
-    void visit(AstCLog2* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) iterateCheckSizedSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
+    ಶೂನ್ಯ visit(AstCLog2* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) iterateCheckSizedSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
     }
     // Width a 'weight' coverage option as the signed 'int' member it sets (IEEE 1800-2023
     // 19.10); a weight is a non-negative integral value, constant for type_option (19.7)
     template <typename T_Option>
-    void widthCoverWeight(T_Option* nodep) {
+    ಶೂನ್ಯ widthCoverWeight(T_Option* nodep) {
         iterateCheckSigned32(nodep, "weight", nodep->valuep(), BOTH);
         V3Const::constifyEdit(nodep->valuep());
-        AstNodeExpr* const valuep = nodep->valuep();
-        const std::string optName
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = nodep->valuep();
+        ಧ್ರುವ std::string optName
             = std::string{nodep->typeOption() ? "type_option" : "option"} + ".weight";
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            if (!constp->num().isNegative()) return;
+        ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(valuep, Const)) {
+            ಯದಿ (!constp->ಅಂಕೆ().isNegative()) ಪ್ರತ್ಯಾಗಮ;
             valuep->v3error("Coverage option '" << optName << "' is set to negative value '"
                                                 << constp->toSInt()
                                                 << "'; weights must be non-negative"
                                                    " (IEEE 1800-2023 19.7)");
-        } else if (nodep->typeOption()) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->typeOption()) {
             valuep->v3error("Coverage option '" << optName
                                                 << "' requires a constant expression"
                                                    " (IEEE 1800-2023 19.7.1)");
-        } else {
-            return;
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Continue with the default weight
-        valuep->replaceWith(new AstConst{valuep->fileline(), AstConst::Signed32{}, 1});
-        VL_DO_DANGLING(pushDeletep(valuep), valuep);
+        valuep->replaceWith(ನೂತನ AstConst{valuep->fileline(), AstConst::Signed32{}, 1});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
     }
     // Width an integral coverage option V3Covergroup reads, folding a constant expression
     template <typename T_Option>
-    void widthCoverInt(T_Option* nodep) {
+    ಶೂನ್ಯ widthCoverInt(T_Option* nodep) {
         userIterateAndNext(nodep->valuep(), WidthVP{SELF, BOTH}.p());
         V3Const::constifyEdit(nodep->valuep());
     }
-    void visit(AstCgOptionAssign* nodep) override {
+    ಶೂನ್ಯ visit(AstCgOptionAssign* nodep) override {
         // Recursive function widthing can reach a covergroup constructor without first visiting
         // its class, so find the owning covergroup structurally instead of using visit context.
-        AstClass* const cgClassp = m_containingClassFinder.find(nodep);
+        AstClass* ಧ್ರುವ cgClassp = m_containingClassFinder.find(nodep);
         UASSERT_OBJ(cgClassp && cgClassp->isCovergroup(), nodep,
                     "Covergroup option is not under a covergroup class");
 
         // V3Covergroup stores the weight into the covergroup's option or type_option
-        if (nodep->optType() == VCoverOptionType::WEIGHT) {
+        ಯದಿ (nodep->optType() == VCoverOptionType::WEIGHT) {
             widthCoverWeight(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // V3Covergroup takes a constant option.at_least as the default for coverpoints/crosses
-        if (nodep->optType() == VCoverOptionType::AT_LEAST) {
+        ಯದಿ (nodep->optType() == VCoverOptionType::AT_LEAST) {
             widthCoverInt(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Extract covergroup option values and store in AstClass before deleting.
-        if (nodep->optType() == VCoverOptionType::AUTO_BIN_MAX) {
+        ಯದಿ (nodep->optType() == VCoverOptionType::AUTO_BIN_MAX) {
             // By V3Width time, V3Param has already folded any parameter references.
             // If the value is still not a constant, it is a runtime expression - emit error.
-            if (AstConst* constp = VN_CAST(nodep->valuep(), Const)) {
+            ಯದಿ (AstConst* constp = VN_CAST(nodep->valuep(), Const)) {
                 cgClassp->cgAutoBinMax(constp->toSInt());
                 UINFO(6, "  Covergroup " << cgClassp->name()
                                          << " option.auto_bin_max = " << constp->toSInt() << endl);
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->valuep()->v3warn(COVERIGN, "Ignoring unsupported: non-constant "
                                                   "'option.auto_bin_max'; using default value");
             }
-        } else if (nodep->optType() == VCoverOptionType::MERGE_INSTANCES) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->optType() == VCoverOptionType::MERGE_INSTANCES) {
             // V3Covergroup stores it into type_option; as a type option it is constant
             // (IEEE 1800-2023 19.7.1)
             iterateCheckBool(nodep, "merge_instances", nodep->valuep(), BOTH);
             V3Const::constifyEdit(nodep->valuep());
-            AstNodeExpr* const valuep = nodep->valuep();
-            if (!VN_IS(valuep, Const)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = nodep->valuep();
+            ಯದಿ (!VN_IS(valuep, Const)) {
                 valuep->v3error("Coverage option 'type_option.merge_instances' requires a"
                                 " constant expression (IEEE 1800-2023 19.7.1)");
-                valuep->replaceWith(new AstConst{valuep->fileline(), AstConst::BitFalse{}});
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
+                valuep->replaceWith(ನೂತನ AstConst{valuep->fileline(), AstConst::BitFalse{}});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
             }
-            return;
-        } else if (nodep->optType() == VCoverOptionType::GET_INST_COVERAGE) {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->optType() == VCoverOptionType::GET_INST_COVERAGE) {
             // V3Covergroup stores it into option, as the constructor evaluates it
             iterateCheckBool(nodep, "get_inst_coverage", nodep->valuep(), BOTH);
-            return;
-        } else if (nodep->optType() == VCoverOptionType::DISTRIBUTE_FIRST) {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->optType() == VCoverOptionType::DISTRIBUTE_FIRST) {
             // A bins 'with' filter applies before the values are distributed to the bins
             // (IEEE 1800-2023 19.5.1.1)
-            const AstConst* const constp = VN_CAST(nodep->valuep(), Const);
-            if (!constp || !constp->num().isEqZero()) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->valuep(), Const);
+            ಯದಿ (!constp || !constp->ಅಂಕೆ().isEqZero()) {
                 nodep->v3warn(COVERIGN, "Ignoring unsupported: 'type_option.distribute_first';"
                                         " 'with' filters apply before values are distributed"
                                         " to bins");
@@ -2286,75 +2286,75 @@ class WidthVisitor final : public VNVisitor {
         // Add more options here as needed (goal, per_instance, comment)
 
         // Delete the assignment node (we've extracted the value)
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstCoverOption* nodep) override {
-        if (nodep->optType() == VCoverOptionType::WEIGHT) {
+    ಶೂನ್ಯ visit(AstCoverOption* nodep) override {
+        ಯದಿ (nodep->optType() == VCoverOptionType::WEIGHT) {
             widthCoverWeight(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->optType() == VCoverOptionType::AT_LEAST
+        ಯದಿ (nodep->optType() == VCoverOptionType::AT_LEAST
             || nodep->optType() == VCoverOptionType::AUTO_BIN_MAX) {
             widthCoverInt(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         userIterateAndNext(nodep->valuep(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstCoverCross* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCross* nodep) override {
         userIterateAndNext(nodep->itemsp(), nullptr);
-        if (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
+        ಯದಿ (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
         userIterateAndNext(nodep->optionsp(), nullptr);
         userIterateAndNext(nodep->binsp(), nullptr);
     }
-    void visit(AstCoverCrossBin* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCrossBin* nodep) override {
         userIterateAndNext(nodep->selectp(), nullptr);
-        if (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
+        ಯದಿ (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
     }
-    void visit(AstCoverpoint* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverpoint* nodep) override {
         // The coverpoint expression is self-determined (IEEE 1800-2023 19.5).  Width it
         // with a context so a bit/part-select (AstSel) is sized here; otherwise it would
         // reach assertAtExpr() with m_vup==null and fail as an internal error.
         userIterateAndNext(nodep->exprp(), WidthVP{SELF, BOTH}.p());
         // Bin values compare against the coverpoint expression
         userIterateAndNext(nodep->binsp(), WidthVP{nodep->exprp()->dtypep(), BOTH}.p());
-        if (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
+        ಯದಿ (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
         userIterateAndNext(nodep->optionsp(), nullptr);
     }
-    void widthCovergroupRanges(AstNode* rangesp, int fillWidth) {
+    ಶೂನ್ಯ widthCovergroupRanges(Ast_ಗಂಟು* rangesp, ಪೂರ್ಣಾಙ್ಕ fillWidth) {
         // Bin range/value entries are self-determined expressions (IEEE 1800-2023
         // 19.5).  Width each plain single-value entry self-determined so a referenced
         // parameter acquires a dtype, then constify so the reference folds to the AstConst
         // value that V3Covergroup requires.  AstInsideRange entries fold their own bounds in
         // visit(AstInsideRange).
         // '0/'1 entries then fill to fillWidth, the coverpoint width (IEEE 1800-2023 19.5.7).
-        const auto fill = [&](AstNode* nodep) {
-            if (!fillWidth) return;
-            AstNodeExpr* exprp = VN_AS(nodep, NodeExpr);
+        ಧ್ರುವ auto fill = [&](Ast_ಗಂಟು* nodep) {
+            ಯದಿ (!fillWidth) ಪ್ರತ್ಯಾಗಮ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = VN_AS(nodep, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
             fixAutoExtend(exprp /*ref*/, fillWidth);
         };
-        for (AstNode *nextp, *itemp = rangesp; itemp; itemp = nextp) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *nextp, *itemp = rangesp; itemp; itemp = nextp) {
             nextp = itemp->nextp();
-            if (AstInsideRange* const rangep = VN_CAST(itemp, InsideRange)) {
+            ಯದಿ (AstInsideRange* ಧ್ರುವ rangep = VN_CAST(itemp, InsideRange)) {
                 userIterate(rangep, nullptr);
                 fill(rangep->lhsp());
                 fill(rangep->rhsp());
-            } else if (VN_IS(itemp, CoverWith)) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(itemp, CoverWith)) {
                 userIterate(itemp, m_vup);
-            } else {
+            } ಅನ್ಯಥಾ {
                 itemp = userIterateSubtreeReturnEdits(itemp, WidthVP{SELF, BOTH}.p());
                 fill(V3Const::constifyEdit(itemp));
             }
         }
     }
-    void visit(AstCoverBinsof* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverBinsof* nodep) override {
         userIterateAndNext(nodep->pointp(), nullptr);
         widthCovergroupRanges(nodep->rangesp(), 0);
     }
-    void visit(AstCoverBin* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverBin* nodep) override {
         // No m_vup for a bin directly in a covergroup body (unsupported, already warned)
         widthCovergroupRanges(nodep->rangesp(), m_vup ? m_vup->dtypep()->width() : 0);
-        if (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
-        if (nodep->arraySizep()) {
+        ಯದಿ (nodep->iffp()) iterateCheckBool(nodep, "iff condition", nodep->iffp(), BOTH);
+        ಯದಿ (nodep->arraySizep()) {
             // The size of 'bins b[N]' or 'bins auto[N]' is a self-determined expression, which
             // V3Covergroup checks once folded
             userIterateAndNext(nodep->arraySizep(), WidthVP{SELF, BOTH}.p());
@@ -2362,27 +2362,27 @@ class WidthVisitor final : public VNVisitor {
         }
         userIterateAndNext(nodep->transp(), m_vup);
     }
-    void visit(AstCoverWith* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverWith* nodep) override {
         // The candidate value 'item' has the coverpoint's type (IEEE 1800-2023 19.5.1.1)
         userIterateAndNext(nodep->itemp(), nullptr);
-        if (!nodep->itemp()->dtypeSkipRefp()->isIntegralOrPacked()) {
+        ಯದಿ (!nodep->itemp()->dtypeSkipRefp()->isIntegralOrPacked()) {
             nodep->v3error("Bin 'with' filters are not allowed on a coverpoint of a "
                            "non-integral expression (IEEE 1800-2023 19.5.1.1)");
         }
-        if (!VN_IS(nodep->subp(), CoverpointRef)) {
+        ಯದಿ (!VN_IS(nodep->subp(), CoverpointRef)) {
             widthCovergroupRanges(nodep->subp(), m_vup->dtypep()->width());
         }
         widthCoverFilter(nodep->filterp(), "Bin");
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCrossWith* nodep) override {
         userIterateAndNext(nodep->selectp(), nullptr);
         // Each cross item has the type of its coverpoint (IEEE 1800-2023 19.6.1.3)
         userIterateAndNext(nodep->varsp(), nullptr);
         widthCoverFilter(nodep->filterp(), "Cross bin");
-        if (AstNodeExpr* const countp = nodep->countp()) {
-            if (VN_IS(countp, Unbounded)) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ countp = nodep->countp()) {
+            ಯದಿ (VN_IS(countp, Unbounded)) {
                 countp->dtypeSetInt();  // 'matches $'
-            } else {
+            } ಅನ್ಯಥಾ {
                 // The count of 'matches' is self-determined, which V3Covergroup checks once folded
                 userIterateAndNext(countp, WidthVP{SELF, BOTH}.p());
                 V3Const::constifyEdit(nodep->countp());  // countp may change
@@ -2391,382 +2391,382 @@ class WidthVisitor final : public VNVisitor {
     }
     // A 'with' filter is true for a nonzero value (IEEE 1800-2023 12.4), of a type assignment
     // compatible with an integral type (19.5.1.1); 'whatp' names its bins
-    void widthCoverFilter(AstNodeExpr* filterp, const char* whatp) {
-        filterp = VN_AS(userIterateSubtreeReturnEdits(filterp, WidthVP{SELF, BOTH}.p()), NodeExpr);
-        FileLine* const fl = filterp->fileline();
-        const AstNodeDType* const resultp = filterp->dtypep()->skipRefp();
-        if (resultp->isDouble()) {
+    ಶೂನ್ಯ widthCoverFilter(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filterp, ಧ್ರುವ ವರ್ಣ* whatp) {
+        filterp = VN_AS(userIterateSubtreeReturnEdits(filterp, WidthVP{SELF, BOTH}.p()), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+        File_ಸಾಲು* ಧ್ರುವ fl = filterp->fileline();
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ resultp = filterp->dtypep()->skipRefp();
+        ಯದಿ (resultp->isDouble()) {
             VNRelinker relinker;
             filterp->unlinkFrBack(&relinker);
             relinker.relink(
-                new AstNeqD{fl, filterp, new AstConst{fl, AstConst::RealDouble{}, 0.0}});
-        } else if (!resultp->isIntegralOrPacked()) {
+                ನೂತನ AstNeqD{fl, filterp, ನೂತನ AstConst{fl, AstConst::RealDouble{}, 0.0}});
+        } ಅನ್ಯಥಾ ಯದಿ (!resultp->isIntegralOrPacked()) {
             filterp->v3error(whatp << " 'with' filter must be assignment compatible with an "
                                       "integral type, not "
                                    << resultp->prettyDTypeNameQ() << " (IEEE 1800-2023 19.5.1.1)");
-            filterp->replaceWith(new AstConst{fl, AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(filterp), filterp);
-        } else {
+            filterp->replaceWith(ನೂತನ AstConst{fl, AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(filterp), filterp);
+        } ಅನ್ಯಥಾ {
             fixWidthReduce(filterp);
         }
     }
-    void visit(AstCoverTransSet* nodep) override { userIterateAndNext(nodep->itemsp(), m_vup); }
-    void visit(AstCoverTransItem* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverTransSet* nodep) override { userIterateAndNext(nodep->itemsp(), m_vup); }
+    ಶೂನ್ಯ visit(AstCoverTransItem* nodep) override {
         widthCovergroupRanges(nodep->valuesp(), m_vup ? m_vup->dtypep()->width() : 0);
     }
-    void visit(AstPow* nodep) override {
+    ಶೂನ್ಯ visit(AstPow* nodep) override {
         // Pow is special, output sign only depends on LHS sign, but
         // function result depends on both signs
         // RHS is self-determined (IEEE)
         // Real if either side is real (as with AstAdd)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-            if (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
+            ಯದಿ (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
                 spliceCvtD(nodep->lhsp());
                 spliceCvtD(nodep->rhsp());
                 VL_DO_DANGLING(replaceWithDVersion(nodep), nodep);
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            checkCvtUS(nodep->lhsp(), false);
+            checkCvtUS(nodep->lhsp(), ಅಸತ್ಯ);
             iterateCheckSizedSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
             nodep->dtypeFrom(nodep->lhsp());
-            if (!nodep->isFourstateOrNoDtype()
+            ಯದಿ (!nodep->isFourstateOrNoDtype()
                 && (nodep->rhsp()->isFourstateOrNoDtype()
                     || (nodep->rhsp()->isSigned() && !nodep->lhsp()->isNeqZero()
                         && !(VN_IS(nodep->rhsp(), Const)
-                             && !VN_AS(nodep->rhsp(), Const)->num().isNegative())))) {
+                             && !VN_AS(nodep->rhsp(), Const)->ಅಂಕೆ().isNegative())))) {
                 // Change dtype to four-state if it may be 0 ** negative
                 nodep->dtypeSetLogicUnsized(nodep->width(), nodep->widthMin(),
                                             nodep->dtypep()->numeric());
             }
         }
 
-        if (m_vup->final()) {
-            AstNodeDType* expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
-            AstNodeDType* const lhsDTypep = nodep->lhsp()->dtypep()->skipRefp();
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDTypep = nodep->lhsp()->dtypep()->skipRefp();
             expDTypep
                 = expDTypep->findBitOrLogicDType(expDTypep->width(), expDTypep->widthMin(),
                                                  lhsDTypep->numeric(), expDTypep->isFourstate());
             nodep->dtypep(expDTypep);
             iterateCheck(nodep, "LHS", nodep->lhsp(), CONTEXT_DET, FINAL, expDTypep, EXTEND_EXP);
-            AstNode* newp = nullptr;  // No change
-            if (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned()) {
-                newp = new AstPowSS{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            Ast_ಗಂಟು* newp = nullptr;  // No change
+            ಯದಿ (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned()) {
+                newp = ನೂತನ AstPowSS{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                     nodep->rhsp()->unlinkFrBack()};
-            } else if (nodep->lhsp()->isSigned() && !nodep->rhsp()->isSigned()) {
-                newp = new AstPowSU{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->lhsp()->isSigned() && !nodep->rhsp()->isSigned()) {
+                newp = ನೂತನ AstPowSU{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                     nodep->rhsp()->unlinkFrBack()};
-            } else if (!nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned()) {
-                newp = new AstPowUS{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            } ಅನ್ಯಥಾ ಯದಿ (!nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned()) {
+                newp = ನೂತನ AstPowUS{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                     nodep->rhsp()->unlinkFrBack()};
             }
-            if (newp) {
+            ಯದಿ (newp) {
                 newp->dtypeFrom(nodep);
                 UINFO(9, "powOld " << nodep);
                 UINFO(9, "powNew " << newp);
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             }
         }
     }
-    void visit(AstPowSU* nodep) override {
+    ಶೂನ್ಯ visit(AstPowSU* nodep) override {
         // POWSU/SS/US only created here, dtype already determined, so
         // nothing to do in this function
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstPowSS* nodep) override {
+    ಶೂನ್ಯ visit(AstPowSS* nodep) override {
         // POWSU/SS/US only created here, dtype already determined, so
         // nothing to do in this function
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstPowUS* nodep) override {
+    ಶೂನ್ಯ visit(AstPowUS* nodep) override {
         // POWSU/SS/US only created here, dtype already determined, so
         // nothing to do in this function
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstCountBits* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(Ast_ಎಣಿಕೆ_Bits* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
             iterateCheckSizedSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
             iterateCheckSizedSelf(nodep, "THS", nodep->thsp(), SELF, BOTH);
             iterateCheckSizedSelf(nodep, "FHS", nodep->fhsp(), SELF, BOTH);
             // For widthMin, if a 32 bit number, we need a 6 bit number as we need to return '32'.
-            const int widthMin = V3Number::log2b(nodep->lhsp()->width()) + 1;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ widthMin = V3_ಸಂಖ್ಯೆ::log2b(nodep->lhsp()->width()) + 1;
             nodep->dtypeSetBitUnsized(32, widthMin, VSigning::SIGNED);
         }
     }
-    void visit(AstCountOnes* nodep) override {
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(Ast_ಎಣಿಕೆ_Ones* nodep) override {
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
             // For widthMin, if a 32 bit number, we need a 6 bit number as we need to return '32'.
-            const int widthMin = V3Number::log2b(nodep->lhsp()->width()) + 1;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ widthMin = V3_ಸಂಖ್ಯೆ::log2b(nodep->lhsp()->width()) + 1;
             nodep->dtypeSetBitUnsized(32, widthMin, VSigning::SIGNED);
         }
     }
-    void visit(AstCvtPackString* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCvtPackString* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // Opaque returns, so arbitrary
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH, currentStreamUse()}.p());
         // Type set in constructor
         // A class handle is not a legal implicit conversion to string
-        if (AstNodeDType* const dt = nodep->lhsp()->dtypep()) {
-            if (VN_IS(dt->skipRefToEnump(), ClassRefDType)) {
+        ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ dt = nodep->lhsp()->dtypep()) {
+            ಯದಿ (VN_IS(dt->skipRefToEnump(), ClassRefDType)) {
                 nodep->lhsp()->v3error(
                     "Cannot convert 'class' handle to a string:" << dt->prettyDTypeNameQ());
             }
         }
     }
-    void visit(AstCvtPackedToArray* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCvtPackedToArray* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // Opaque returns, so arbitrary
         userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH, currentStreamUse()}.p());
         // Type set in constructor
     }
-    void visit(AstCvtArrayToArray* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCvtArrayToArray* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // Opaque returns, so arbitrary
         userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH, currentStreamUse()}.p());
         // Type set in constructor
     }
-    void visit(AstCvtArrayToPacked* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCvtArrayToPacked* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // Opaque returns, so arbitrary
         userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH, currentStreamUse()}.p());
         // Type set in constructor
     }
-    void visit(AstCvtUnpackToQueue* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCvtUnpackToQueue* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // Opaque returns, so arbitrary
         userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH}.p());
         // Type set in constructor
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
+    ಶೂನ್ಯ visit(AstCvtUnpackToUnpack* nodep) override {
         // Type set when created, the value converted is of its own type
-        if (m_vup->final()) {
+        ಯದಿ (m_vup->final()) {
             userIterateAndNext(nodep->fromp(), WidthVP{nodep->fromp()->dtypep(), FINAL}.p());
         }
     }
-    void visit(AstTimeImport* nodep) override {
+    ಶೂನ್ಯ visit(AstTimeImport* nodep) override {
         // LHS is a real number in seconds
         // Need to round to time units and precision
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
-        const AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->lhsp(), Const);
         UASSERT_OBJ(constp && constp->isDouble(), nodep, "Times should be doubles");
         UASSERT_OBJ(!nodep->timeunit().isNone(), nodep, "$time import no units");
-        const double timePrescale = constp->num().toDouble();
+        ಧ್ರುವ ದ್ವಿಗುಣ timePrescale = constp->ಅಂಕೆ().toDouble();
         UASSERT_OBJ(!v3Global.rootp()->timeprecision().isNone(), nodep, "Never set precision?");
-        const double time = timePrescale / nodep->timeunit().multiplier();
+        ಧ್ರುವ ದ್ವಿಗುಣ time = timePrescale / nodep->timeunit().multiplier();
         // IEEE claims you should round to time precision here, but no simulator seems to do this
-        AstConst* const newp = new AstConst{nodep->fileline(), AstConst::RealDouble{}, time};
+        AstConst* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), AstConst::RealDouble{}, time};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstEventControl* nodep) override {
-        if (!m_underFork && VN_IS(m_ftaskp, Func)) {
+    ಶೂನ್ಯ visit(AstEventControl* nodep) override {
+        ಯದಿ (!m_underFork && VN_IS(m_ftaskp, Func)) {
             nodep->v3error("Event controls are not legal in functions. Suggest use a task "
                            "(IEEE 1800-2023 13.4.4)");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->fileline()->timingOn()) {
-            if (v3Global.opt.timing().isSetTrue()) {
+        ಯದಿ (nodep->fileline()->timingOn()) {
+            ಯದಿ (v3Global.opt.timing().isSetTrue()) {
                 iterateChildren(nodep);
-                return;
-            } else if (v3Global.opt.timing().isSetFalse()) {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                 nodep->v3warn(E_NOTIMING,
                               "Event control statement in this location requires --timing\n"
                                   << nodep->warnMore()
                                   << "... With --no-timing, suggest have one event control "
                                   << "statement per procedure, at the top of the procedure");
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3warn(E_NEEDTIMINGOPT, "Use --timing or --no-timing to specify how "
                                                "event controls should be handled");
             }
         }
-        if (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBack());
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        ಯದಿ (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBack());
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
     }
     // Name of the class a class extends, for $typename, as other simulators give it. Only the
     // class it directly extends, as $typename of that class names the classes that one extends.
-    static string typenameExtends(const AstClass* classp) {
+    ಸ್ಥಿರ string typenameExtends(ಧ್ರುವ AstClass* classp) {
         // An interface class may extend several, so those are not named
-        if (!classp || classp->isInterfaceClass()) return "";
-        for (const AstClassExtends* extendsp = classp->extendsp(); extendsp;
+        ಯದಿ (!classp || classp->isInterfaceClass()) ಪ್ರತ್ಯಾಗಮ "";
+        ಪ್ರತಿ (ಧ್ರುವ AstClassExtends* extendsp = classp->extendsp(); extendsp;
              extendsp = VN_AS(extendsp->nextp(), ClassExtends)) {
-            if (extendsp->isImplements()) continue;
-            const AstClass* const basep = extendsp->classOrNullp();
-            return basep ? " extends class " + basep->dtypeName(true) : "";
+            ಯದಿ (extendsp->isImplements()) ಅನುವರ್ತ;
+            ಧ್ರುವ AstClass* ಧ್ರುವ basep = extendsp->classOrNullp();
+            ಪ್ರತ್ಯಾಗಮ basep ? " extends class " + basep->dtypeName(ಸತ್ಯ) : "";
         }
-        return "";
+        ಪ್ರತ್ಯಾಗಮ "";
     }
-    void visit(AstAttrOf* nodep) override {
+    ಶೂನ್ಯ visit(AstAttrOf* nodep) override {
         VL_RESTORER(m_attrp);
         m_attrp = nodep;
         userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH}.p());
-        if (nodep->dimp()) userIterateAndNext(nodep->dimp(), WidthVP{SELF, BOTH}.p());
+        ಯದಿ (nodep->dimp()) userIterateAndNext(nodep->dimp(), WidthVP{SELF, BOTH}.p());
         // Don't iterate children, don't want to lose VarRef.
-        switch (nodep->attrType()) {
-        case VAttrType::DIM_DIMENSIONS:
-        case VAttrType::DIM_UNPK_DIMENSIONS: {
-            AstNodeDType* const dtypep = fromDTypep(nodep->fromp());
+        ವಿಕಲ್ಪ (nodep->attrType()) {
+        ಪಕ್ಷ VAttrType::DIM_DIMENSIONS:
+        ಪಕ್ಷ VAttrType::DIM_UNPK_DIMENSIONS: {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = fromDTypep(nodep->fromp());
             UASSERT_OBJ(dtypep, nodep, "Unsized expression");
-            const std::pair<uint32_t, uint32_t> dim = dtypep->dimensions(true);
-            const int val
+            ಧ್ರುವ std::pair<uint32_t, uint32_t> dim = dtypep->dimensions(ಸತ್ಯ);
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ val
                 = (nodep->attrType() == VAttrType::DIM_UNPK_DIMENSIONS ? dim.second
                                                                        : (dim.first + dim.second));
-            nodep->replaceWith(new AstConst(nodep->fileline(), AstConst::Signed32{}, val));
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            break;
+            nodep->replaceWith(ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{}, val));
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಭಙ್ಗ;
         }
-        case VAttrType::DIM_BITS_OR_NUMBER: {
+        ಪಕ್ಷ VAttrType::DIM_BITS_OR_ಸಂಖ್ಯೆ: {
             // If dtype, compute DIM_BITS, else take expression as a number to use
-            if (VN_IS(nodep->fromp(), NodeExpr)) {
+            ಯದಿ (VN_IS(nodep->fromp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
                 nodep->replaceWith(nodep->fromp()->unlinkFrBack());
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
-                AstNode* newp = new AstAttrOf{nodep->fileline(), VAttrType::DIM_BITS,
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            } ಅನ್ಯಥಾ {
+                Ast_ಗಂಟು* newp = ನೂತನ AstAttrOf{nodep->fileline(), VAttrType::DIM_BITS,
                                               nodep->fromp()->unlinkFrBack()};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                 userIterateAndNext(newp, WidthVP{SELF, BOTH}.p());  // Convert AttrOf
             }
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        case VAttrType::DIM_BITS:
-        case VAttrType::DIM_HIGH:
-        case VAttrType::DIM_INCREMENT:
-        case VAttrType::DIM_LEFT:
-        case VAttrType::DIM_LOW:
-        case VAttrType::DIM_RIGHT:
-        case VAttrType::DIM_SIZE: {
-            AstNodeDType* const dtypep = fromDTypep(nodep->fromp());
+        ಪಕ್ಷ VAttrType::DIM_BITS:
+        ಪಕ್ಷ VAttrType::DIM_ಮೇಲಿನ:
+        ಪಕ್ಷ VAttrType::DIM_INCREMENT:
+        ಪಕ್ಷ VAttrType::DIM_ಎಡ:
+        ಪಕ್ಷ VAttrType::DIM_ಕೆಳಗಿನ:
+        ಪಕ್ಷ VAttrType::DIM_ಬಲ:
+        ಪಕ್ಷ VAttrType::DIM_SIZE: {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = fromDTypep(nodep->fromp());
             UASSERT_OBJ(dtypep, nodep, "Unsized expression");
             // Only worth asking while parameters are still being worked out.
-            if (m_paramsOnly) {
+            ಯದಿ (m_paramsOnly) {
                 // A module that is still being copied does not have its final sizes.
-                const AstNodeModule* const ownModp = v3Global.rootp()->containingModule(dtypep);
-                if (ownModp && ownModp->parameterizedTemplate() && !ownModp->dead()) {
+                ಧ್ರುವ Ast_ಗಂಟು_Module* ಧ್ರುವ ownModp = v3Global.rootp()->containingModule(dtypep);
+                ಯದಿ (ownModp && ownModp->parameterizedTemplate() && !ownModp->dead()) {
                     UINFO(9, "size deferred, type still on template " << ownModp->name());
                     // These queries always give an int, so set that now and let the
                     // value be worked out once the copy exists.
                     nodep->dtypeSetInt();
-                    return;
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
 
-            if (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)) {
-                switch (nodep->attrType()) {
-                case VAttrType::DIM_SIZE: {
-                    AstNodeExpr* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), NodeExpr);
-                    AstNode* const newp
-                        = new AstCMethodHard{nodep->fileline(), fromp, VCMethod::DYN_SIZE};
+            ಯದಿ (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)) {
+                ವಿಕಲ್ಪ (nodep->attrType()) {
+                ಪಕ್ಷ VAttrType::DIM_SIZE: {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = VN_AS(nodep->fromp()->unlinkFrBack(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                    Ast_ಗಂಟು* ಧ್ರುವ newp
+                        = ನೂತನ AstCMethodHard{nodep->fileline(), fromp, VCMethod::DYN_SIZE};
                     newp->dtypeSetInt();
-                    newp->didWidth(true);
-                    newp->protect(false);
+                    newp->didWidth(ಸತ್ಯ);
+                    newp->protect(ಅಸತ್ಯ);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    break;
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                    ಭಙ್ಗ;
                 }
-                case VAttrType::DIM_LEFT:
-                case VAttrType::DIM_LOW: {
-                    AstNode* const newp = new AstConst(nodep->fileline(), AstConst::Signed32{}, 0);
+                ಪಕ್ಷ VAttrType::DIM_ಎಡ:
+                ಪಕ್ಷ VAttrType::DIM_ಕೆಳಗಿನ: {
+                    Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{}, 0);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    break;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಭಙ್ಗ;
                 }
-                case VAttrType::DIM_RIGHT:
-                case VAttrType::DIM_HIGH: {
-                    AstNodeExpr* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), NodeExpr);
-                    AstNodeExpr* const sizep
-                        = new AstCMethodHard{nodep->fileline(), fromp, VCMethod::DYN_SIZE};
+                ಪಕ್ಷ VAttrType::DIM_ಬಲ:
+                ಪಕ್ಷ VAttrType::DIM_ಮೇಲಿನ: {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = VN_AS(nodep->fromp()->unlinkFrBack(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ sizep
+                        = ನೂತನ AstCMethodHard{nodep->fileline(), fromp, VCMethod::DYN_SIZE};
                     sizep->dtypeSetInt();
-                    sizep->didWidth(true);
-                    sizep->protect(false);
-                    AstNode* const newp
-                        = new AstSub{nodep->fileline(), sizep,
-                                     new AstConst(nodep->fileline(), AstConst::Signed32{}, 1)};
+                    sizep->didWidth(ಸತ್ಯ);
+                    sizep->protect(ಅಸತ್ಯ);
+                    Ast_ಗಂಟು* ಧ್ರುವ newp
+                        = ನೂತನ AstSub{nodep->fileline(), sizep,
+                                     ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{}, 1)};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    break;
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                    ಭಙ್ಗ;
                 }
-                case VAttrType::DIM_INCREMENT: {
-                    AstNodeExpr* const newp
-                        = new AstConst(nodep->fileline(), AstConst::Signed32{}, -1);
+                ಪಕ್ಷ VAttrType::DIM_INCREMENT: {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp
+                        = ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{}, -1);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    break;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಭಙ್ಗ;
                 }
-                case VAttrType::DIM_BITS: {
-                    if (VN_IS(dtypep, DynArrayDType)) {
+                ಪಕ್ಷ VAttrType::DIM_BITS: {
+                    ಯದಿ (VN_IS(dtypep, DynArrayDType)) {
                         nodep->v3warn(E_UNSUPPORTED, "Unsupported: $bits for dynamic array");
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         nodep->v3warn(E_UNSUPPORTED, "Unsupported: $bits for queue");
                     }
-                    break;
+                    ಭಙ್ಗ;
                 }
-                default: nodep->v3fatalSrc("Unhandled attribute type");
+                ಸ್ವಭಾವ: nodep->v3fatalSrc("Unhandled attribute type");
                 }
-            } else {
-                const std::pair<uint32_t, uint32_t> dimpair = dtypep->skipRefp()->dimensions(true);
-                const uint32_t msbdim = dimpair.first + dimpair.second;
-                if (!nodep->dimp() || msbdim < 1) {
-                    if (VN_IS(dtypep, BasicDType) && dtypep->basicp()->isString()) {
+            } ಅನ್ಯಥಾ {
+                ಧ್ರುವ std::pair<uint32_t, uint32_t> dimpair = dtypep->skipRefp()->dimensions(ಸತ್ಯ);
+                ಧ್ರುವ uint32_t msbdim = dimpair.first + dimpair.second;
+                ಯದಿ (!nodep->dimp() || msbdim < 1) {
+                    ಯದಿ (VN_IS(dtypep, BasicDType) && dtypep->basicp()->isString()) {
                         // IEEE undocumented but $bits(string) must give length(string) * 8
-                        AstNodeExpr* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), NodeExpr);
-                        AstNode* const newp = new AstShiftL{
-                            nodep->fileline(), new AstLenN{nodep->fileline(), fromp},
-                            new AstConst{nodep->fileline(), 3},  // * 8
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = VN_AS(nodep->fromp()->unlinkFrBack(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                        Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstShiftL{
+                            nodep->fileline(), ನೂತನ AstLenN{nodep->fileline(), fromp},
+                            ನೂತನ AstConst{nodep->fileline(), 3},  // * 8
                             32};
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    } else {
-                        AstNodeDType* const baseDTypep = dtypep->skipRefp();
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    } ಅನ್ಯಥಾ {
+                        Ast_ಗಂಟು_DType* ಧ್ರುವ baseDTypep = dtypep->skipRefp();
                         UASSERT_OBJ(baseDTypep, nodep, "Unsized expression");
-                        const int dim = 1;
-                        AstConst* const newp = dimensionValue(nodep->fileline(), baseDTypep,
+                        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ dim = 1;
+                        AstConst* ಧ್ರುವ newp = dimension_ಮೌಲ್ಯ(nodep->fileline(), baseDTypep,
                                                               nodep->attrType(), dim);
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                     }
-                } else if (VN_IS(nodep->dimp(), Const)) {
-                    const int dim = VN_AS(nodep->dimp(), Const)->toSInt();
-                    AstConst* const newp
-                        = dimensionValue(nodep->fileline(), dtypep, nodep->attrType(), dim);
+                } ಅನ್ಯಥಾ ಯದಿ (VN_IS(nodep->dimp(), Const)) {
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ dim = VN_AS(nodep->dimp(), Const)->toSInt();
+                    AstConst* ಧ್ರುವ newp
+                        = dimension_ಮೌಲ್ಯ(nodep->fileline(), dtypep, nodep->attrType(), dim);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {  // Need a runtime lookup table.  Yuk.
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                } ಅನ್ಯಥಾ {  // Need a runtime lookup table.  Yuk.
                     UASSERT_OBJ(nodep->fromp() && dtypep, nodep, "Unsized expression");
-                    AstVarRef* const tabRefp = dimensionVarRefp(dtypep, nodep->attrType(), msbdim);
-                    AstNodeExpr* const dimp = nodep->dimp()->unlinkFrBack();
-                    AstNodeExpr* const newp = new AstArraySel{nodep->fileline(), tabRefp, dimp};
+                    AstVarRef* ಧ್ರುವ tabRefp = dimensionVarRefp(dtypep, nodep->attrType(), msbdim);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ dimp = nodep->dimp()->unlinkFrBack();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstArraySel{nodep->fileline(), tabRefp, dimp};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                 }
             }
-            break;
+            ಭಙ್ಗ;
         }
-        case VAttrType::FUNC_ARG_PROTO:
+        ಪಕ್ಷ VAttrType::FUNC_ARG_PROTO:
             // Created by V3LinkDot only to check that the prototype was correct when we got here
             // Checked at bottom of visit(AstNodeFTask)
             // V3WidthCommit::visit(AstAttrOf) will delete nodep
-            break;
-        case VAttrType::FUNC_RETURN_PROTO: {
+            ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::FUNC_RETURN_PROTO: {
             // Created by V3LinkDot only to check that the prototype was correct when we got here
             UASSERT_OBJ(m_ftaskp, nodep, "FUNC attr not under function");
-            AstNodeDType* const protoDtp = nodep->fromp()->dtypep();
-            AstNodeDType* const declDtp = [&]() {
-                if (m_ftaskp->fvarp()) return m_ftaskp->fvarp()->dtypep();
-                AstNodeDType* const voidp = new AstVoidDType{m_ftaskp->fileline()};
-                pushDeletep(voidp);  // Note voidp used past here
-                return voidp;
+            Ast_ಗಂಟು_DType* ಧ್ರುವ protoDtp = nodep->fromp()->dtypep();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ declDtp = [&]() {
+                ಯದಿ (m_ftaskp->fvarp()) ಪ್ರತ್ಯಾಗಮ m_ftaskp->fvarp()->dtypep();
+                Ast_ಗಂಟು_DType* ಧ್ರುವ voidp = ನೂತನ AstVoidDType{m_ftaskp->fileline()};
+                ತಳ್ಳು_Deletep(voidp);  // Note voidp used past here
+                ಪ್ರತ್ಯಾಗಮ voidp;
             }();
-            if (!similarDTypeRecurse(protoDtp, declDtp)) {
+            ಯದಿ (!similarDTypeRecurse(protoDtp, declDtp)) {
                 protoDtp->v3warn(
                     PROTOTYPEMIS,
                     "In prototype for "
@@ -2782,202 +2782,202 @@ class WidthVisitor final : public VNVisitor {
                         << declDtp->warnContextSecondary());
             }
             // V3WidthCommit::visit(AstAttrOf) will delete nodep
-            break;
+            ಭಙ್ಗ;
         }
-        case VAttrType::TYPENAME: {
+        ಪಕ್ಷ VAttrType::TYPENAME: {
             UASSERT_OBJ(nodep->fromp(), nodep, "Unprovided expression");
-            AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-            string result = dtypep->prettyDTypeName(true);
-            if (const AstClassRefDType* const classRefp
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = nodep->fromp()->dtypep();
+            string result = dtypep->prettyDTypeName(ಸತ್ಯ);
+            ಯದಿ (ಧ್ರುವ AstClassRefDType* ಧ್ರುವ classRefp
                 = VN_CAST(dtypep->skipRefOrNullp(), ClassRefDType)) {
                 result += typenameExtends(classRefp->classp());
             }
             UINFO(9, "typename '" << result << "' from " << dtypep);
-            AstNode* const newp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), AstConst::String{}, result};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            break;
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಭಙ್ಗ;
         }
-        case VAttrType::TYPEID:
-            if (AstNodeDType* dtypep = VN_CAST(nodep->fromp(), NodeDType)) {
+        ಪಕ್ಷ VAttrType::TYPEID:
+            ಯದಿ (Ast_ಗಂಟು_DType* dtypep = VN_CAST(nodep->fromp(), ಗಂಟು_DType)) {
                 nodep->dtypep(dtypep);
-            } else {
-                nodep->dtypep(VN_AS(nodep->fromp(), NodeExpr)->dtypep());
+            } ಅನ್ಯಥಾ {
+                nodep->dtypep(VN_AS(nodep->fromp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->dtypep());
             }
-            break;
-        case VAttrType::VAR_BASE:
+            ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::VAR_BASE:
             // Soon to be handled in V3LinkWidth SEL generation, under attrp() and newSubLsbOf
-            break;
-        default: {
+            ಭಙ್ಗ;
+        ಸ್ವಭಾವ: {
             // Everything else resolved earlier
             nodep->dtypeSetBitUnsized(32, 1, VSigning::UNSIGNED);  // Approximation, unsized 32
             UINFO(1, "Missing ATTR type case node: " << nodep);
             nodep->v3fatalSrc("Missing ATTR type case");
-            break;
+            ಭಙ್ಗ;
         }
         }
     }
-    void visit(AstPull* nodep) override {
+    ಶೂನ್ಯ visit(AstPull* nodep) override {
         // May have select underneath, let seek natural size
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstText* nodep) override {
+    ಶೂನ್ಯ visit(AstText* nodep) override {
         // Only used in CStmts which don't care....
     }
 
-    void visit(AstCellArrayRef* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCellArrayRef* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         userIterateAndNext(nodep->selp(), WidthVP{SELF, PRELIM}.p());
         userIterateAndNext(nodep->selp(), WidthVP{SELF, FINAL}.p());
         nodep->dtypeSetVoid();  // placeholder; this node shouldnt survive beyond linking
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
     }
 
-    void visit(AstCellRef* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstCellRef* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
 
-        if (AstNodeExpr* const cellExprp = VN_CAST(nodep->cellp(), NodeExpr)) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ cellExprp = VN_CAST(nodep->cellp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             userIterateAndNext(cellExprp, WidthVP{SELF, PRELIM}.p());
             userIterateAndNext(cellExprp, WidthVP{SELF, FINAL}.p());
         }
 
-        if (AstNodeExpr* const exprp = VN_CAST(nodep->exprp(), NodeExpr)) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = VN_CAST(nodep->exprp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             userIterateAndNext(exprp, WidthVP{SELF, PRELIM}.p());
             nodep->dtypeFrom(exprp);
             userIterateAndNext(exprp, WidthVP{SELF, FINAL}.p());
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3fatalSrc("CellRef exprp is not a NodeExpr: "  // LCOV_EXCL_LINE
                               << nodep->exprp()->prettyTypeName());
         }
 
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
     }
 
     // DTYPES
-    void visit(AstNodeArrayDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Array_DType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
 
-        if (nodep->subDTypep() == nodep->basicp()) {  // Innermost dimension
-            AstBasicDType* const basicp = nodep->basicp();
+        ಯದಿ (nodep->subDTypep() == nodep->basicp()) {  // Innermost dimension
+            AstBasicDType* ಧ್ರುವ basicp = nodep->basicp();
             // If basic dtype is LOGIC_IMPLICIT, it is actually 1 bit LOGIC
-            if (basicp->implicit()) {
+            ಯದಿ (basicp->implicit()) {
                 UASSERT_OBJ(basicp->width() <= 1, basicp,
                             "must be 1 bit but actually " << basicp->width() << " bits");
-                AstBasicDType* const newp = new AstBasicDType{
+                AstBasicDType* ಧ್ರುವ newp = ನೂತನ AstBasicDType{
                     basicp->fileline(), VBasicDTypeKwd::LOGIC, basicp->numeric()};
                 newp->widthForce(1, 1);
                 basicp->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(basicp), basicp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(basicp), basicp);
             }
         }
         VL_RESTORER(m_underPackedArray);
-        if (VN_IS(nodep, PackArrayDType)) m_underPackedArray = true;
+        ಯದಿ (VN_IS(nodep, PackArrayDType)) m_underPackedArray = ಸತ್ಯ;
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
 
         // Cleanup array size
         userIterateAndNext(nodep->rangep(), WidthVP{SELF, BOTH}.p());
         nodep->dtypep(nodep);  // The array itself, not subDtype
-        if (AstUnpackArrayDType* const adtypep = VN_CAST(nodep, UnpackArrayDType)) {
+        ಯದಿ (AstUnpackArrayDType* ಧ್ರುವ adtypep = VN_CAST(nodep, UnpackArrayDType)) {
             // Historically array elements have width of the ref type not the full array
             nodep->widthFromSub(nodep->subDTypep());
-            if (nodep->subDTypep()->skipRefp()->isCompound()) adtypep->isCompound(true);
-        } else {
-            const AstNodeDType* const elemDTypep = nodep->subDTypep()->skipRefp();
-            if (!elemDTypep->isIntegralOrPacked()) {
+            ಯದಿ (nodep->subDTypep()->skipRefp()->isCompound()) adtypep->isCompound(ಸತ್ಯ);
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ elemDTypep = nodep->subDTypep()->skipRefp();
+            ಯದಿ (!elemDTypep->isIntegralOrPacked()) {
                 nodep->v3error("Unpacked data type " << elemDTypep->prettyDTypeNameQ()
                                                      << " in packed array (IEEE 1800-2023 7.4.1)");
             }
-            const int width = nodep->subDTypep()->width() * nodep->rangep()->elementsConst();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = nodep->subDTypep()->width() * nodep->rangep()->elementsConst();
             nodep->widthForce(width, width);
-            if (!VL_RESTORER_PREV(m_underPackedArray)) {  // Outermost dimension
+            ಯದಿ (!VL_RESTORER_PREV(m_underPackedArray)) {  // Outermost dimension
                 // IEEE 1800-2023 7.4.1 "Packed arrays" says
                 //   If a packed array is declared as signed,
                 //   then the array viewed as a single vector shall be signed.
-                const AstNodeDType* baseDTypep = nodep->subDTypep();
-                while (!VN_IS(baseDTypep, RefDType) && baseDTypep->subDTypep()) {
+                ಧ್ರುವ Ast_ಗಂಟು_DType* baseDTypep = nodep->subDTypep();
+                ಯಾವತ್ (!VN_IS(baseDTypep, RefDType) && baseDTypep->subDTypep()) {
                     baseDTypep = baseDTypep->subDTypep();
                 }
-                const AstBasicDType* const basicp = nodep->basicp();
-                if (!VN_IS(baseDTypep, RefDType) && basicp && basicp->isSigned()) {
-                    nodep->numeric(VSigning::fromBool(true));
+                ಧ್ರುವ AstBasicDType* ಧ್ರುವ basicp = nodep->basicp();
+                ಯದಿ (!VN_IS(baseDTypep, RefDType) && basicp && basicp->isSigned()) {
+                    nodep->numeric(VSigning::fromBool(ಸತ್ಯ));
                 }
             }
         }
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstAssocArrayDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstAssocArrayDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
-        nodep->keyDTypep(iterateEditMoveDTypep(nodep, nodep->keyDTypep()));
+        nodep->ಕೀಲಿ_DTypep(iterateEditMoveDTypep(nodep, nodep->ಕೀಲಿ_DTypep()));
         nodep->dtypep(nodep);  // The array itself, not subDtype
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstBracketArrayDType* nodep) override {
+    ಶೂನ್ಯ visit(AstBracketArrayDType* nodep) override {
         // Type inserted only because parser didn't know elementsp() type
         // Resolve elementsp's type
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
         // We must edit when dtype still under normal nodes and before type table
         // See notes in iterateEditMoveDTypep
-        AstNodeDType* const childp = nodep->childDTypep();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ childp = nodep->childDTypep();
         childp->unlinkFrBack();
-        AstNode* const elementsp = nodep->elementsp()->unlinkFrBack();
-        AstNode* newp;
-        if (VN_IS(elementsp, Unbounded)) {
-            newp = new AstQueueDType{nodep->fileline(), VFlagChildDType{}, childp, nullptr};
-            VL_DO_DANGLING(elementsp->deleteTree(), elementsp);
-        } else if (AstNodeDType* const keyp = VN_CAST(elementsp, NodeDType)) {
-            newp = new AstAssocArrayDType{nodep->fileline(), VFlagChildDType{}, childp, keyp};
-        } else {
+        Ast_ಗಂಟು* ಧ್ರುವ elementsp = nodep->elementsp()->unlinkFrBack();
+        Ast_ಗಂಟು* newp;
+        ಯದಿ (VN_IS(elementsp, Unbounded)) {
+            newp = ನೂತನ AstQueueDType{nodep->fileline(), VFlagChildDType{}, childp, nullptr};
+            VL_DO_DANGLING(elementsp->delete_ವೃಕ್ಷ(), elementsp);
+        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ keyp = VN_CAST(elementsp, ಗಂಟು_DType)) {
+            newp = ನೂತನ AstAssocArrayDType{nodep->fileline(), VFlagChildDType{}, childp, keyp};
+        } ಅನ್ಯಥಾ {
             // The subtract in the range may confuse users; as the array
             // size is self determined there's no reason to warn about widths
-            FileLine* const elementsNewFl = elementsp->fileline();
-            elementsNewFl->warnOff(V3ErrorCode::WIDTHEXPAND, true);
+            File_ಸಾಲು* ಧ್ರುವ elementsNewFl = elementsp->fileline();
+            elementsNewFl->warnOff(V3ErrorCode::WIDTHEXPAND, ಸತ್ಯ);
             // Must be expression that is constant, but we'll determine that later
-            newp = new AstUnpackArrayDType{
+            newp = ನೂತನ AstUnpackArrayDType{
                 nodep->fileline(), VFlagChildDType{}, childp,
-                new AstRange{nodep->fileline(), new AstConst(elementsp->fileline(), 0),
-                             new AstSub{elementsNewFl, VN_AS(elementsp, NodeExpr),
-                                        new AstConst(elementsNewFl, 1)},
-                             true}};
+                ನೂತನ AstRange{nodep->fileline(), ನೂತನ AstConst(elementsp->fileline(), 0),
+                             ನೂತನ AstSub{elementsNewFl, VN_AS(elementsp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ),
+                                        ನೂತನ AstConst(elementsNewFl, 1)},
+                             ಸತ್ಯ}};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         // Normally parent's iteration would cover this, but we might have entered by a specific
         // visit
         VL_DO_DANGLING(userIterate(newp, nullptr), newp);
     }
-    void visit(AstConstraintRefDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstConstraintRefDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         nodep->dtypep(nodep);
     }
-    void visit(AstDynArrayDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstDynArrayDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         nodep->dtypep(nodep);  // The array itself, not subDtype
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstQueueDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstQueueDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         nodep->dtypep(nodep);  // The array itself, not subDtype
         userIterateAndNext(nodep->boundp(), WidthVP{SELF, BOTH}.p());
-        if (VN_IS(nodep->boundp(), Unbounded)) {
-            nodep->boundp()->unlinkFrBack()->deleteTree();  // nullptr will represent unbounded
+        ಯದಿ (VN_IS(nodep->boundp(), Unbounded)) {
+            nodep->boundp()->unlinkFrBack()->delete_ವೃಕ್ಷ();  // nullptr will represent unbounded
         }
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstVoidDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstVoidDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         nodep->dtypep(nodep);
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstUnsizedArrayDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
-        if (nodep->childDTypep() && !(m_ftaskp && m_ftaskp->dpiImport())) {
+    ಶೂನ್ಯ visit(AstUnsizedArrayDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
+        ಯದಿ (nodep->childDTypep() && !(m_ftaskp && m_ftaskp->dpiImport())) {
             nodep->v3error("Unsized packed dimension '[]' is only legal in a DPI import"
                            " (IEEE 1800-2023 A.2.2.1)");
         }
@@ -2987,27 +2987,27 @@ class WidthVisitor final : public VNVisitor {
         nodep->dtypep(nodep);  // The array itself, not subDtype
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstWildcardArrayDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstWildcardArrayDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         // Cleanup array size
         nodep->dtypep(nodep);  // The array itself, not subDtype
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstBasicDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
-        if (nodep->generic()) return;  // Already perfect
-        if (nodep->rangep()) {
+    ಶೂನ್ಯ visit(AstBasicDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
+        ಯದಿ (nodep->generic()) ಪ್ರತ್ಯಾಗಮ;  // Already perfect
+        ಯದಿ (nodep->rangep()) {
             userIterateAndNext(nodep->rangep(), WidthVP{SELF, BOTH}.p());
             // Because this DType has a unique child range, we know it's not
             // pointed at by other nodes unless they are referencing this type.
             // Furthermore the width() calculation would return identical
             // values.  Therefore we can directly replace the width
             nodep->widthForce(nodep->rangep()->elementsConst(), nodep->rangep()->elementsConst());
-        } else if (nodep->isRanged()) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->isRanged()) {
             nodep->widthForce(nodep->nrange().elements(), nodep->nrange().elements());
-        } else if (nodep->implicit()) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->implicit()) {
             // Parameters may notice implicitness and change to different dtype
             nodep->widthForce(1, 1);
         }
@@ -3018,8 +3018,8 @@ class WidthVisitor final : public VNVisitor {
         // dtype Instead for now doing this in V3WidthCommit
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstConstDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstConstDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         userIterateChildren(nodep, nullptr);
@@ -3027,26 +3027,26 @@ class WidthVisitor final : public VNVisitor {
         nodep->widthFromSub(nodep->subDTypep());
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstRefDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
-        nodep->doingWidth(true);
-        if (nodep->typeofp()) {  // type(typeofp_expression)
-            if (AstNodeDType* typeofDtp = VN_CAST(nodep->typeofp(), NodeDType)) {
+    ಶೂನ್ಯ visit(AstRefDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
+        nodep->doingWidth(ಸತ್ಯ);
+        ಯದಿ (nodep->typeofp()) {  // type(typeofp_expression)
+            ಯದಿ (Ast_ಗಂಟು_DType* typeofDtp = VN_CAST(nodep->typeofp(), ಗಂಟು_DType)) {
                 // It's directly a type, e.g. "type(int)"
                 typeofDtp = iterateEditMoveDTypep(nodep, typeofDtp);  // Changes typeofp
                 nodep->refDTypep(typeofDtp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Type comes from expression's type, e.g. "type(variable)"
                 userIterateAndNext(nodep->typeofp(), WidthVP{SELF, BOTH}.p());
-                AstNode* const typeofp = nodep->typeofp();
+                Ast_ಗಂಟು* ಧ್ರುವ typeofp = nodep->typeofp();
                 nodep->refDTypep(typeofp->dtypep());
-                VL_DO_DANGLING(typeofp->unlinkFrBack()->deleteTree(), typeofp);
+                VL_DO_DANGLING(typeofp->unlinkFrBack()->delete_ವೃಕ್ಷ(), typeofp);
             }
             // We had to use AstRefDType for this construct as pointers to this type
             // in type table are still correct (which they wouldn't be if we replaced the node)
         }
         userIterateChildren(nodep, nullptr);
-        if (nodep->subDTypep()) {
+        ಯದಿ (nodep->subDTypep()) {
             // Normally iterateEditMoveDTypep iterate would work, but the refs are under
             // the TypeDef which will upset iterateEditMoveDTypep as it can't find it under
             // this node's childDTypep
@@ -3057,14 +3057,14 @@ class WidthVisitor final : public VNVisitor {
         }
         // Effectively nodep->dtypeFrom(nodep->dtypeSkipRefp());
         // But might be recursive, so instead manually recurse into the referenced type
-        if (!nodep->subDTypep()) {
+        ಯದಿ (!nodep->subDTypep()) {
             // Defer unlinked RefDTypes in parameterized template modules (or types
             // with no owning module, e.g. moved to TypeTable) until specialization
             // resolves them.
-            const bool inTemplateModule = !m_modep || m_modep->parameterizedTemplate();
-            if (inTemplateModule) {
-                nodep->doingWidth(false);
-                return;
+            ಧ್ರುವ ತಾರ್ಕಿಕ inTemplateModule = !m_modep || m_modep->parameterizedTemplate();
+            ಯದಿ (inTemplateModule) {
+                nodep->doingWidth(ಅಸತ್ಯ);
+                ಪ್ರತ್ಯಾಗಮ;
             }
         }
         UASSERT_OBJ(nodep->subDTypep(), nodep, "Unlinked");
@@ -3072,27 +3072,27 @@ class WidthVisitor final : public VNVisitor {
         nodep->widthFromSub(nodep->subDTypep());
         UINFO(4, "dtWidthed " << nodep);
         // No nodep->typedefp(nullptr) for now; V3WidthCommit needs to check accesses
-        nodep->doingWidth(false);
+        nodep->doingWidth(ಅಸತ್ಯ);
     }
     // Width the parameters of the scopes declaring typedef 'nodep', as the name of the type it
     // declares holds their values, though one may follow it, in a module without a parameter
     // port list
-    void widthDTypeNameParams(const AstTypedef* nodep) {
-        const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-        if (!scopesp) return;  // Computing parameters, as by V3Param, so naming as found
-        AstNode* scopep = nullptr;
-        for (const AstNode* innerp = nodep; scopesp->outerp(innerp, scopep) && scopep;
+    ಶೂನ್ಯ widthDTypeNameParams(ಧ್ರುವ AstTypedef* nodep) {
+        ಧ್ರುವ VDTypeNameScopes* ಧ್ರುವ scopesp = VDTypeNameScopes::currentp();
+        ಯದಿ (!scopesp) ಪ್ರತ್ಯಾಗಮ;  // Computing parameters, as by V3Param, so naming as found
+        Ast_ಗಂಟು* scopep = nullptr;
+        ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* innerp = nodep; scopesp->outerp(innerp, scopep) && scopep;
              innerp = scopep) {
-            if (const std::vector<AstNode*>* const paramsp = scopesp->paramsp(scopep)) {
-                for (AstNode* const paramp : *paramsp) {
-                    if (!paramp->didWidth()) userIterate(paramp, nullptr);
+            ಯದಿ (ಧ್ರುವ std::vector<Ast_ಗಂಟು*>* ಧ್ರುವ paramsp = scopesp->paramsp(scopep)) {
+                ಪ್ರತಿ (Ast_ಗಂಟು* ಧ್ರುವ paramp : *paramsp) {
+                    ಯದಿ (!paramp->didWidth()) userIterate(paramp, nullptr);
                 }
             }
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
-        if (auto* const refp = checkRefToTypedefRecurse(nodep, nodep)) {
+    ಶೂನ್ಯ visit(AstTypedef* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
+        ಯದಿ (auto* ಧ್ರುವ refp = checkRefToTypedefRecurse(nodep, nodep)) {
             nodep->v3error("Typedef has self-reference: " << nodep->prettyNameQ() << '\n'
                                                           << nodep->warnContextPrimary() << '\n'
                                                           << refp->warnOther()
@@ -3100,76 +3100,76 @@ class WidthVisitor final : public VNVisitor {
                                                           << refp->warnContextSecondary());
             // May cause internal error but avoids infinite loop on dump
             refp->typedefp(nullptr);
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // As it moves to the type table, a structure, union, or enumeration it declares keeps the
         // name it has from the typedef, with the scope of the typedef, so with the parameters of
         // the scope, widthed first, as one may follow the typedef
-        const bool declares = nodep->childDTypep() != nullptr;
+        ಧ್ರುವ ತಾರ್ಕಿಕ declares = nodep->childDTypep() != nullptr;
         nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
-        if (declares) {
-            AstNodeDType* const dtypep = nodep->dtypep();
-            if (AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        ಯದಿ (declares) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = nodep->dtypep();
+            ಯದಿ (Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ sdtypep = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
                 widthDTypeNameParams(nodep);
                 sdtypep->typedefName(nodep->dtypeName());
-            } else if (AstEnumDType* const edtypep = VN_CAST(dtypep, EnumDType)) {
+            } ಅನ್ಯಥಾ ಯದಿ (AstEnumDType* ಧ್ರುವ edtypep = VN_CAST(dtypep, EnumDType)) {
                 widthDTypeNameParams(nodep);
                 edtypep->typedefName(nodep->dtypeName());
             }
         }
         userIterateChildren(nodep, nullptr);
     }
-    void visit(AstParamTypeDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstParamTypeDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
 
         nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         userIterateChildren(nodep, nullptr);
         nodep->widthFromSub(nodep->subDTypep());
         // Clear childDTypep after dtypep is set to satisfy V3Broken invariant.
         // The child dtype has been moved to the type table by iterateEditMoveDTypep.
-        if (nodep->dtypep() && nodep->childDTypep()) { nodep->childDTypep(nullptr); }
+        ಯದಿ (nodep->dtypep() && nodep->childDTypep()) { nodep->childDTypep(nullptr); }
     }
-    void visit(AstRequireDType* nodep) override {
+    ಶೂನ್ಯ visit(AstRequireDType* nodep) override {
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
-        if (AstNodeDType* const dtp = VN_CAST(nodep->lhsp(), NodeDType)) {
+        ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ dtp = VN_CAST(nodep->lhsp(), ಗಂಟು_DType)) {
             nodep->replaceWith(dtp->unlinkFrBack());
-        } else {
-            if (nodep->lhsp())
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (nodep->lhsp())
                 nodep->lhsp()->v3error("Expected data type, not a "
                                        << nodep->lhsp()->prettyTypeName());
-            nodep->replaceWith(new AstVoidDType{nodep->fileline()});
+            nodep->replaceWith(ನೂತನ AstVoidDType{nodep->fileline()});
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstCastDynamic* nodep) override {
+    ಶೂನ್ಯ visit(AstCastDynamic* nodep) override {
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-        AstNodeDType* const toDtp = nodep->top()->dtypep()->skipRefToEnump();
-        AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
-        FileLine* const fl = nodep->fileline();
-        const auto castable = AstNode::computeCastable(toDtp, fromDtp, nodep->fromp());
-        AstNode* newp;
-        if (castable == VCastable::DYNAMIC_CLASS) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ toDtp = nodep->ತುದಿ()->dtypep()->skipRefToEnump();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        ಧ್ರುವ auto castable = Ast_ಗಂಟು::computeCastable(toDtp, fromDtp, nodep->fromp());
+        Ast_ಗಂಟು* newp;
+        ಯದಿ (castable == VCastable::DYNAMIC_CLASS) {
             // Keep in place, will compute at runtime
-            return;
-        } else if (castable == VCastable::ENUM_EXPLICIT || castable == VCastable::ENUM_IMPLICIT) {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (castable == VCastable::ENUM_EXPLICIT || castable == VCastable::ENUM_IMPLICIT) {
             // TODO is from is a constant we could simplify, though normal constant
             // elimination should do much the same
             // Form: "( ((v > size) ? false : enum_valid[v[N:0]])
             //          ? ExprStmt(ExprAssign(out, Cast(v, type)), 1) : 0)"
-            AstEnumDType* const enumDtp = VN_AS(toDtp, EnumDType);
+            AstEnumDType* ಧ್ರುವ enumDtp = VN_AS(toDtp, EnumDType);
             UASSERT_OBJ(enumDtp, nodep, "$cast determined as enum, but not enum type");
-            AstNodeExpr* const testp = enumTestValid(nodep->fromp(), enumDtp);
-            FileLine* const fl_novalue = new FileLine{fl};
-            fl_novalue->warnOff(V3ErrorCode::ENUMVALUE, true);
-            newp = new AstCond{
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ testp = enumTestValid(nodep->fromp(), enumDtp);
+            File_ಸಾಲು* ಧ್ರುವ fl_novalue = ನೂತನ File_ಸಾಲು{fl};
+            fl_novalue->warnOff(V3ErrorCode::ENUMVALUE, ಸತ್ಯ);
+            newp = ನೂತನ AstCond{
                 fl, testp,
-                new AstExprStmt{fl,
-                                new AstAssign{fl_novalue, nodep->top()->unlinkFrBack(),
+                ನೂತನ Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt{fl,
+                                ನೂತನ AstAssign{fl_novalue, nodep->ತುದಿ()->unlinkFrBack(),
                                               nodep->fromp()->unlinkFrBack()},
-                                new AstConst{fl, AstConst::Signed32{}, 1}},
-                new AstConst{fl, AstConst::Signed32{}, 0}};
-        } else if ((castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
+                                ನೂತನ AstConst{fl, AstConst::Signed32{}, 1}},
+                ನೂತನ AstConst{fl, AstConst::Signed32{}, 0}};
+        } ಅನ್ಯಥಾ ಯದಿ ((castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
                    // Unsupported: the static cast below has no lowering for unpacked arrays
                    && !VN_IS(toDtp, UnpackArrayDType)) {
             nodep->v3warn(CASTCONST, "$cast will always return one as "
@@ -3177,18 +3177,18 @@ class WidthVisitor final : public VNVisitor {
                                          << " is always castable from "
                                          << fromDtp->prettyDTypeNameQ() << '\n'
                                          << nodep->warnMore() << "... Suggest static cast");
-            newp = new AstExprStmt{
+            newp = ನೂತನ Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt{
                 fl,
-                new AstAssign{fl, nodep->top()->unlinkFrBack(),
-                              new AstCast{fl, nodep->fromp()->unlinkFrBack(), toDtp}},
-                new AstConst{fl, AstConst::Signed32{}, 1}};
-        } else if (castable == VCastable::INCOMPATIBLE) {
-            newp = new AstConst{fl, 0};
+                ನೂತನ AstAssign{fl, nodep->ತುದಿ()->unlinkFrBack(),
+                              ನೂತನ AstCast{fl, nodep->fromp()->unlinkFrBack(), toDtp}},
+                ನೂತನ AstConst{fl, AstConst::Signed32{}, 1}};
+        } ಅನ್ಯಥಾ ಯದಿ (castable == VCastable::INCOMPATIBLE) {
+            newp = ನೂತನ AstConst{fl, 0};
             nodep->v3warn(CASTCONST, "$cast will always return zero as "
                                          << toDtp->prettyDTypeNameQ() << " is not castable from "
                                          << fromDtp->prettyDTypeNameQ());
-        } else {
-            newp = new AstConst{fl, 0};
+        } ಅನ್ಯಥಾ {
+            newp = ನೂತನ AstConst{fl, 0};
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: $cast to "
                                              << toDtp->prettyDTypeNameQ() << " from "
                                              << fromDtp->prettyDTypeNameQ() << '\n'
@@ -3196,193 +3196,193 @@ class WidthVisitor final : public VNVisitor {
                                              << "... Suggest try static cast");
         }
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         userIterate(newp, m_vup);
     }
-    void visit(AstCastParse* nodep) override {
+    ಶೂನ್ಯ visit(AstCastParse* nodep) override {
         // nodep->dtp could be data type, or a primary_constant
         // Don't iterate lhsp, will deal with that once convert the type
         V3Const::constifyParamsEdit(nodep->dtp());  // itemp may change
-        if (AstConst* const constp = VN_CAST(nodep->dtp(), Const)) {
+        ಯದಿ (AstConst* ಧ್ರುವ constp = VN_CAST(nodep->dtp(), Const)) {
             constp->unlinkFrBack();
-            AstNode* const newp
-                = new AstCastSize{nodep->fileline(), nodep->lhsp()->unlinkFrBack(), constp};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstCastSize{nodep->fileline(), nodep->lhsp()->unlinkFrBack(), constp};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             userIterate(newp, m_vup);
-        } else if (AstNodeDType* const refp = VN_CAST(nodep->dtp(), NodeDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ refp = VN_CAST(nodep->dtp(), ಗಂಟು_DType)) {
             refp->unlinkFrBack();
-            AstNode* const newp = new AstCast{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstCast{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                               VFlagChildDType{}, refp};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             userIterate(newp, m_vup);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Cast to " << nodep->dtp()->prettyTypeName());
             nodep->replaceWith(nodep->lhsp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
-    void visit(AstCast* nodep) override {
-        if (nodep->didWidth()) return;
+    ಶೂನ್ಯ visit(AstCast* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         UINFO(9, "CAST " << nodep);
         nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
-        if (m_vup->prelim()) {
+        ಯದಿ (m_vup->prelim()) {
             UINFOTREE(9, nodep, "", "CastPre");
             // UINFOTREE(1, nodep->backp(), "", "CastPreUpUp");
-            if (AstSigned* const fromp = VN_CAST(nodep->fromp(), Signed)) {
-                if (VN_IS(fromp->lhsp(), NodeStream)) {
-                    AstNode* const lhsp = fromp->lhsp()->unlinkFrBack();
+            ಯದಿ (AstSigned* ಧ್ರುವ fromp = VN_CAST(nodep->fromp(), Signed)) {
+                ಯದಿ (VN_IS(fromp->lhsp(), ಗಂಟು_Stream)) {
+                    Ast_ಗಂಟು* ಧ್ರುವ lhsp = fromp->lhsp()->unlinkFrBack();
                     fromp->replaceWith(lhsp);
-                    VL_DO_DANGLING(fromp->deleteTree(), fromp);
+                    VL_DO_DANGLING(fromp->delete_ವೃಕ್ಷ(), fromp);
                 }
             }
             userIterateAndNext(nodep->fromp(), WidthVP{SELF, PRELIM, STREAM_USE_CAST}.p());
             UINFOTREE(9, nodep, "", "CastDit");
-            AstNodeDType* const toDtp = nodep->dtypep()->skipRefToEnump();
-            AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
-            const auto castable = AstNode::computeCastable(toDtp, fromDtp, nodep->fromp());
-            bool bad = false;
-            if (castable == VCastable::UNSUPPORTED) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ toDtp = nodep->dtypep()->skipRefToEnump();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
+            ಧ್ರುವ auto castable = Ast_ಗಂಟು::computeCastable(toDtp, fromDtp, nodep->fromp());
+            ತಾರ್ಕಿಕ bad = ಅಸತ್ಯ;
+            ಯದಿ (castable == VCastable::UNSUPPORTED) {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: static cast to "
                                                  << toDtp->prettyDTypeNameQ() << " from "
                                                  << fromDtp->prettyDTypeNameQ());
-                bad = true;
-            } else if (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE
+                bad = ಸತ್ಯ;
+            } ಅನ್ಯಥಾ ಯದಿ (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE
                        || castable == VCastable::ENUM_IMPLICIT
                        || castable == VCastable::ENUM_EXPLICIT) {
                 ;  // Continue
-            } else if (castable == VCastable::DYNAMIC_CLASS) {
+            } ಅನ್ಯಥಾ ಯದಿ (castable == VCastable::DYNAMIC_CLASS) {
                 nodep->v3error("Dynamic, not static cast, required to cast "
                                << toDtp->prettyDTypeNameQ() << " from "
                                << fromDtp->prettyDTypeNameQ() << '\n'
                                << nodep->warnMore() << "... Suggest dynamic $cast");
-                bad = true;
-            } else if (castable == VCastable::INCOMPATIBLE) {
+                bad = ಸತ್ಯ;
+            } ಅನ್ಯಥಾ ಯದಿ (castable == VCastable::INCOMPATIBLE) {
                 nodep->v3error("Incompatible types to static cast to "
                                << toDtp->prettyDTypeNameQ() << " from "
                                << fromDtp->prettyDTypeNameQ() << '\n');
-                bad = true;
-            } else {
+                bad = ಸತ್ಯ;
+            } ಅನ್ಯಥಾ {
                 nodep->v3fatalSrc("bad casting case");
             }
             // For now, replace it ASAP, so widthing can propagate easily
             // The cast may change signing, but we don't know the sign yet.  Make it so.
             // Note we don't sign fromp() that would make the algorithm O(n^2) if lots of casting.
-            AstNodeExpr* newp = nullptr;
-            if (bad) {
-            } else if (AstBasicDType* const basicp = toDtp->basicp()) {
-                if (!basicp->isString() && fromDtp->isString()) {
-                    newp = new AstNToI{nodep->fileline(), nodep->fromp()->unlinkFrBack(), toDtp};
-                } else if (!basicp->isDouble() && !fromDtp->isDouble()) {
-                    AstNodeDType* const origDTypep = nodep->dtypep();
-                    if (!VN_IS(fromDtp, StreamDType)) {
-                        const int width = toDtp->width();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+            ಯದಿ (bad) {
+            } ಅನ್ಯಥಾ ಯದಿ (AstBasicDType* ಧ್ರುವ basicp = toDtp->basicp()) {
+                ಯದಿ (!basicp->isString() && fromDtp->isString()) {
+                    newp = ನೂತನ AstNToI{nodep->fileline(), nodep->fromp()->unlinkFrBack(), toDtp};
+                } ಅನ್ಯಥಾ ಯದಿ (!basicp->isDouble() && !fromDtp->isDouble()) {
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ origDTypep = nodep->dtypep();
+                    ಯದಿ (!VN_IS(fromDtp, StreamDType)) {
+                        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = toDtp->width();
                         castSized(nodep, nodep->fromp(), width);
                     }
                     nodep->dtypeFrom(origDTypep);  // If was enum, need dtype to preserve as enum
                     // Note castSized might modify nodep->fromp()
-                } else {
+                } ಅನ್ಯಥಾ {
                     iterateCheck(nodep, "value", nodep->fromp(), SELF, FINAL, fromDtp, EXTEND_EXP,
-                                 false);
+                                 ಅಸತ್ಯ);
                 }
-                if (newp) {
-                } else if (basicp->isDouble() && !nodep->fromp()->isDouble()) {
-                    if (nodep->fromp()->isSigned()) {
-                        newp = new AstISToRD{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
-                    } else {
-                        newp = new AstIToRD{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+                ಯದಿ (newp) {
+                } ಅನ್ಯಥಾ ಯದಿ (basicp->isDouble() && !nodep->fromp()->isDouble()) {
+                    ಯದಿ (nodep->fromp()->isSigned()) {
+                        newp = ನೂತನ AstISToRD{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+                    } ಅನ್ಯಥಾ {
+                        newp = ನೂತನ AstIToRD{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
                     }
-                } else if (!basicp->isDouble() && nodep->fromp()->isDouble()) {
-                    newp = new AstRToIRoundS{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+                } ಅನ್ಯಥಾ ಯದಿ (!basicp->isDouble() && nodep->fromp()->isDouble()) {
+                    newp = ನೂತನ AstRToIRoundS{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
                     newp->dtypep(basicp);
-                } else if (basicp->isSigned() && !nodep->fromp()->isSigned()) {
-                    newp = new AstSigned{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
-                } else if (!basicp->isSigned() && nodep->fromp()->isSigned()) {
-                    newp = new AstUnsigned{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
-                } else {
+                } ಅನ್ಯಥಾ ಯದಿ (basicp->isSigned() && !nodep->fromp()->isSigned()) {
+                    newp = ನೂತನ AstSigned{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+                } ಅನ್ಯಥಾ ಯದಿ (!basicp->isSigned() && nodep->fromp()->isSigned()) {
+                    newp = ನೂತನ AstUnsigned{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+                } ಅನ್ಯಥಾ {
                     // Can just remove cast, but need extend placeholder
                     // so we can avoid warning message
                 }
-            } else if (VN_IS(toDtp, QueueDType)) {
-                if (VN_IS(fromDtp, BasicDType)) {
-                    newp = new AstCvtPackedToArray{nodep->fileline(),
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(toDtp, QueueDType)) {
+                ಯದಿ (VN_IS(fromDtp, BasicDType)) {
+                    newp = ನೂತನ AstCvtPackedToArray{nodep->fileline(),
                                                    nodep->fromp()->unlinkFrBack(), toDtp};
-                } else if (VN_IS(fromDtp, QueueDType) || VN_IS(fromDtp, StreamDType)) {
-                    int srcElementBits = 1;
-                    int dstElementBits = 1;
-                    if (AstNodeDType* const elemDtp = fromDtp->subDTypep()) {
+                } ಅನ್ಯಥಾ ಯದಿ (VN_IS(fromDtp, QueueDType) || VN_IS(fromDtp, StreamDType)) {
+                    ಪೂರ್ಣಾಙ್ಕ srcElementBits = 1;
+                    ಪೂರ್ಣಾಙ್ಕ dstElementBits = 1;
+                    ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ elemDtp = fromDtp->subDTypep()) {
                         srcElementBits = elemDtp->width();
                     }
-                    const AstQueueDType* const dstQueueDtp = VN_AS(toDtp, QueueDType);
-                    if (AstNodeDType* const elemDtp = dstQueueDtp->subDTypep()) {
+                    ಧ್ರುವ AstQueueDType* ಧ್ರುವ dstQueueDtp = VN_AS(toDtp, QueueDType);
+                    ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ elemDtp = dstQueueDtp->subDTypep()) {
                         dstElementBits = elemDtp->width();
                     }
-                    newp = new AstCvtArrayToArray{nodep->fileline(),
+                    newp = ನೂತನ AstCvtArrayToArray{nodep->fileline(),
                                                   nodep->fromp()->unlinkFrBack(),
                                                   toDtp,
-                                                  false,
+                                                  ಅಸತ್ಯ,
                                                   1,
                                                   dstElementBits,
                                                   srcElementBits};
                 }
-            } else if (VN_IS(toDtp, ClassRefDType)) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(toDtp, ClassRefDType)) {
                 // Can just remove cast
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3fatalSrc("Unimplemented: Casting non-simple data type "
                                   << toDtp->prettyDTypeNameQ());
             }
-            if (!newp) newp = nodep->fromp()->unlinkFrBack();
+            ಯದಿ (!newp) newp = nodep->fromp()->unlinkFrBack();
             nodep->fromp(newp);
             UINFOTREE(9, nodep, "", "CastOut");
             // UINFOTREE(1, nodep->backp(), "", "CastOutUpUp");
         }
-        if (m_vup->final()) {
+        ಯದಿ (m_vup->final()) {
             UINFOTREE(9, nodep, "", "CastFPit");
             iterateCheck(nodep, "value", nodep->fromp(), SELF, FINAL, nodep->fromp()->dtypep(),
-                         EXTEND_EXP, false, STREAM_USE_CAST);
+                         EXTEND_EXP, ಅಸತ್ಯ, STREAM_USE_CAST);
             UINFOTREE(9, nodep, "", "CastFin");
-            AstNodeExpr* const underp = nodep->fromp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ underp = nodep->fromp()->unlinkFrBack();
             underp->dtypeFrom(nodep);
-            underp->didWidth(true);
-            AstNodeExpr* const newp = new AstCastWrap{nodep->fileline(), underp};
-            newp->didWidth(true);
+            underp->didWidth(ಸತ್ಯ);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstCastWrap{nodep->fileline(), underp};
+            newp->didWidth(ಸತ್ಯ);
             UINFOTREE(9, newp, "", "CastRep");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
-    void visit(AstCastSize* nodep) override {
+    ಶೂನ್ಯ visit(AstCastSize* nodep) override {
         // IEEE: Signedness of result is same as self-determined signedness
         // However, the result is same as BITSEL, so we do not sign extend the LHS
         // UINFOTREE(1, nodep, "", "CastSizePre");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
-            int width = nodep->rhsp()->toSInt();
-            if (width < 1) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
+            ಪೂರ್ಣಾಙ್ಕ width = nodep->rhsp()->toSInt();
+            ಯದಿ (width < 1) {
                 nodep->v3error("Size-changing cast to zero or negative size: " << width);
                 width = 1;
             }
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM, STREAM_USE_CAST}.p());
             castSized(nodep, nodep->lhsp(), width);  // lhsp may change
         }
-        if (m_vup->final()) {
+        ಯದಿ (m_vup->final()) {
             // CastSize not needed once sizes determined
-            AstNode* const underp = nodep->lhsp()->unlinkFrBack();
+            Ast_ಗಂಟು* ಧ್ರುವ underp = nodep->lhsp()->unlinkFrBack();
             nodep->replaceWithKeepDType(underp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
         // UINFOTREE(1, nodep, "", "CastSizeOut");
     }
-    void visit(AstCastWrap* nodep) override {
+    ಶೂನ್ಯ visit(AstCastWrap* nodep) override {
         // Inserted by V3Width only so we know has been resolved
         userIterateAndNext(nodep->lhsp(), WidthVP{nodep->dtypep(), BOTH, STREAM_USE_CAST}.p());
     }
-    void castSized(AstNode* nodep, AstNode* underp, int width) {
-        const AstBasicDType* underDtp = VN_CAST(underp->dtypep(), BasicDType);
-        if (!underDtp) underDtp = underp->dtypep()->basicp();
-        if (!underDtp) {
+    ಶೂನ್ಯ castSized(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* underp, ಪೂರ್ಣಾಙ್ಕ width) {
+        ಧ್ರುವ AstBasicDType* underDtp = VN_CAST(underp->dtypep(), BasicDType);
+        ಯದಿ (!underDtp) underDtp = underp->dtypep()->basicp();
+        ಯದಿ (!underDtp) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Size-changing cast on non-basic data type");
             underDtp = VN_AS(nodep->findBitDType(), BasicDType);
         }
@@ -3392,72 +3392,72 @@ class WidthVisitor final : public VNVisitor {
         // However the output width is exactly that requested.
         // So two steps, first do the calculation's width (max of the two widths)
         {
-            const int calcWidth = std::max(width, underDtp->width());
-            AstNodeDType* const calcDtp = nodep->findBitOrLogicDType(
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ calcWidth = std::max(width, underDtp->width());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ calcDtp = nodep->findBitOrLogicDType(
                 calcWidth, calcWidth, underDtp->numeric(), underDtp->isFourstate());
             nodep->dtypep(calcDtp);
             // We ignore warnings as that is sort of the point of a cast
             iterateCheck(nodep, "Cast expr", underp, CONTEXT_DET, FINAL, calcDtp, EXTEND_EXP,
-                         false, STREAM_USE_CAST);
+                         ಅಸತ್ಯ, STREAM_USE_CAST);
             VL_DANGLING(underp);
             underp = nodep->op1p();  // Above asserts that op1 was underp pre-relink
         }
         // UINFOTREE(1, nodep, "", "CastSizeClc");
         // Next step, make the proper output width
         {
-            AstNodeDType* const outDtp = nodep->findBitOrLogicDType(
+            Ast_ಗಂಟು_DType* ಧ್ರುವ outDtp = nodep->findBitOrLogicDType(
                 width, width, underDtp->numeric(), underDtp->isFourstate());
             nodep->dtypep(outDtp);
             // We ignore warnings as that is sort of the point of a cast
-            widthCheckSized(nodep, "Cast expr", VN_AS(underp, NodeExpr), outDtp, EXTEND_EXP,
-                            false);
+            widthCheckSized(nodep, "Cast expr", VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), outDtp, EXTEND_EXP,
+                            ಅಸತ್ಯ);
             VL_DANGLING(underp);
         }
     }
-    void visit(AstConstraintBefore* nodep) override {
+    ಶೂನ್ಯ visit(AstConstraintBefore* nodep) override {
         userIterateAndNext(nodep->lhssp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->rhssp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstConstraintExpr* nodep) override {
+    ಶೂನ್ಯ visit(Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         userIterateAndNext(nodep->exprp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstConstraintUnique* nodep) override {
+    ಶೂನ್ಯ visit(AstConstraintUnique* nodep) override {
         userIterateAndNext(nodep->rangesp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstDistItem* nodep) override {
+    ಶೂನ್ಯ visit(AstDistItem* nodep) override {
         userIterate(nodep->rangep(), m_vup);
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             userIterate(nodep->weightp(), WidthVP{SELF, BOTH}.p());
         }
         nodep->dtypep(nodep->rangep()->dtypep());
     }
-    void visit(AstVar* nodep) override {
+    ಶೂನ್ಯ visit(AstVar* nodep) override {
         // UINFOTREE(1, nodep, "", "InitPre");
         // Must have deterministic constant width
         // We can't skip this step when width()!=0, as creating a AstVar
         // with non-constant range gets size 1, not size 0.  So use didWidth().
-        if (nodep->didWidth()) return;
-        if (nodep->doingWidth()) {  // Early exit if have circular parameter definition
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (nodep->doingWidth()) {  // Early exit if have circular parameter definition
             UASSERT_OBJ(nodep->valuep(), nodep, "circular, but without value");
             nodep->v3error("Variable's initial value is circular: " << nodep->prettyNameQ());
-            pushDeletep(nodep->valuep()->unlinkFrBack());
-            nodep->valuep(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+            ತಳ್ಳು_Deletep(nodep->valuep()->unlinkFrBack());
+            nodep->valuep(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
             nodep->dtypeFrom(nodep->valuep());
-            nodep->didWidth(true);
-            return;
+            nodep->didWidth(ಸತ್ಯ);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        nodep->doingWidth(true);
+        nodep->doingWidth(ಸತ್ಯ);
         // Make sure dtype is sized
         nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         UASSERT_OBJ(nodep->dtypep(), nodep, "No dtype determined for var");
         // Removed at the end, see mainAcceptEdit
-        if (!m_paramsOnly && nodep->isIfaceArraySplit()) m_splitIfaceArrayVarps.push_back(nodep);
-        if (nodep->attrsp()) {
-            nodep->attrsp()->foreach([this, nodep](AstAttrOf* attrp) {
-                if (attrp->attrType() == VAttrType::VAR_PORT_DTYPE) {
+        ಯದಿ (!m_paramsOnly && nodep->isIfaceArraySplit()) m_splitIfaceArrayVarps.ತಳ್ಳು_back(nodep);
+        ಯದಿ (nodep->attrsp()) {
+            nodep->attrsp()->foreach([ಏತತ್, nodep](AstAttrOf* attrp) {
+                ಯದಿ (attrp->attrType() == VAttrType::VAR_PORT_DTYPE) {
                     V3Const::constifyParamsEdit(attrp->fromp());  // fromp may change
-                    if (!similarDTypeRecurse(nodep->dtypep(), VN_AS(attrp->fromp(), NodeDType))) {
+                    ಯದಿ (!similarDTypeRecurse(nodep->dtypep(), VN_AS(attrp->fromp(), ಗಂಟು_DType))) {
                         nodep->dtypep()->v3error("Non-ANSI I/O declaration of signal "
                                                  "conflicts with type declaration: "
                                                  << nodep->prettyNameQ() << '\n'
@@ -3466,49 +3466,49 @@ class WidthVisitor final : public VNVisitor {
                                                  << "... Location of other declaration\n"
                                                  << attrp->warnContextSecondary());
                     }
-                    VL_DO_DANGLING(pushDeletep(attrp->unlinkFrBack()), attrp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(attrp->unlinkFrBack()), attrp);
                 }
             });
         }
-        if (m_ftaskp && m_ftaskp->dpiImport()) {
-            AstNodeDType* dtp = nodep->dtypep();
-            AstNodeDType* np = nullptr;
-            while (VN_IS(dtp->skipRefp(), DynArrayDType)
+        ಯದಿ (m_ftaskp && m_ftaskp->dpiImport()) {
+            Ast_ಗಂಟು_DType* dtp = nodep->dtypep();
+            Ast_ಗಂಟು_DType* np = nullptr;
+            ಯಾವತ್ (VN_IS(dtp->skipRefp(), DynArrayDType)
                    || VN_IS(dtp->skipRefp(), UnpackArrayDType)) {
-                if (const AstDynArrayDType* const unsizedp
+                ಯದಿ (ಧ್ರುವ AstDynArrayDType* ಧ್ರುವ unsizedp
                     = VN_CAST(dtp->skipRefp(), DynArrayDType)) {
-                    if (!np) {
+                    ಯದಿ (!np) {
                         UINFO(9, "Dynamic becomes unsized array (var itself) " << nodep);
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         UINFO(9, "Dynamic becomes unsized array (subDType) " << dtp);
                     }
-                    AstUnsizedArrayDType* const newp
-                        = new AstUnsizedArrayDType{unsizedp->fileline(), unsizedp->subDTypep()};
+                    AstUnsizedArrayDType* ಧ್ರುವ newp
+                        = ನೂತನ AstUnsizedArrayDType{unsizedp->fileline(), unsizedp->subDTypep()};
                     newp->dtypep(newp);
-                    if (!np) {  // for Var itself
+                    ಯದಿ (!np) {  // for Var itself
                         nodep->dtypep(newp);
-                    } else {  // for subDType
+                    } ಅನ್ಯಥಾ {  // for subDType
                         np->virtRefDTypep(newp);
                     }
                     v3Global.rootp()->typeTablep()->addTypesp(newp);
                     np = newp;
-                } else {
+                } ಅನ್ಯಥಾ {
                     np = dtp->skipRefp();
                 }
                 dtp = np->virtRefDTypep();
             }
         }
-        if (AstWildcardArrayDType* const wildp
+        ಯದಿ (AstWildcardArrayDType* ಧ್ರುವ wildp
             = VN_CAST(nodep->dtypeSkipRefp(), WildcardArrayDType)) {
             nodep->dtypep(wildp);  // Skip RefDType like for other dynamic array types
         }
-        if (VN_IS(nodep->dtypep()->skipRefToConstp(), ConstDType)) nodep->isConst(true);
+        ಯದಿ (VN_IS(nodep->dtypep()->skipRefToConstp(), ConstDType)) nodep->isConst(ಸತ್ಯ);
         // Parameters if implicit untyped inherit from what they are assigned to
-        const AstBasicDType* const bdtypep = VN_CAST(nodep->dtypep(), BasicDType);
-        bool didchk = false;
-        const bool implicitParam = nodep->isParam() && bdtypep && bdtypep->implicit();
-        if (implicitParam) {
-            if (nodep->valuep()) {
+        ಧ್ರುವ AstBasicDType* ಧ್ರುವ bdtypep = VN_CAST(nodep->dtypep(), BasicDType);
+        ತಾರ್ಕಿಕ didchk = ಅಸತ್ಯ;
+        ಧ್ರುವ ತಾರ್ಕಿಕ implicitParam = nodep->isParam() && bdtypep && bdtypep->implicit();
+        ಯದಿ (implicitParam) {
+            ಯದಿ (nodep->valuep()) {
                 // Remove blanket deferral. We must attempt to visit the value to determine
                 // type/deps. If it remains unresolved, specific node visitors (like AttrOf) should
                 // handle deferral by setting a placeholder type to prevent "No dtype" errors
@@ -3519,36 +3519,36 @@ class WidthVisitor final : public VNVisitor {
                 // just below, we want the init numbers to retain their
                 // width/minwidth until parameters are replaced.
                 // This prevents width warnings at the location the parameter is substituted in
-                if (nodep->valuep()->isDouble()) {
+                ಯದಿ (nodep->valuep()->isDouble()) {
                     nodep->dtypeSetDouble();
                     VL_DANGLING(bdtypep);
-                } else if (nodep->valuep()->isString()) {
+                } ಅನ್ಯಥಾ ಯದಿ (nodep->valuep()->isString()) {
                     nodep->dtypeSetString();
                     VL_DANGLING(bdtypep);
-                } else {
-                    int width = 0;
-                    AstNodeDType* const valueDTypep = nodep->valuep()->dtypep();
-                    UASSERT_OBJ(valueDTypep, nodep->valuep(),
+                } ಅನ್ಯಥಾ {
+                    ಪೂರ್ಣಾಙ್ಕ width = 0;
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ ಮೌಲ್ಯ_DTypep = nodep->valuep()->dtypep();
+                    UASSERT_OBJ(ಮೌಲ್ಯ_DTypep, nodep->valuep(),
                                 "Null dtype on implicit param value");
-                    const AstBasicDType* const valueBdtypep = valueDTypep->basicp();
-                    bool issigned = false;
-                    if (bdtypep->isNosign()) {
-                        if (valueBdtypep && valueBdtypep->isSigned()) issigned = true;
-                    } else {
+                    ಧ್ರುವ AstBasicDType* ಧ್ರುವ ಮೌಲ್ಯ_Bdtypep = ಮೌಲ್ಯ_DTypep->basicp();
+                    ತಾರ್ಕಿಕ issigned = ಅಸತ್ಯ;
+                    ಯದಿ (bdtypep->isNosign()) {
+                        ಯದಿ (ಮೌಲ್ಯ_Bdtypep && ಮೌಲ್ಯ_Bdtypep->isSigned()) issigned = ಸತ್ಯ;
+                    } ಅನ್ಯಥಾ {
                         issigned = bdtypep->isSigned();
                     }
-                    if (valueBdtypep->isString()) {
+                    ಯದಿ (ಮೌಲ್ಯ_Bdtypep->isString()) {
                         // parameter X = "str", per IEEE is a number, not a string
-                        if (const auto* const constp = VN_CAST(nodep->valuep(), Const)) {
-                            if (constp->num().isString()) {
-                                width = constp->num().toString().length() * 8;
+                        ಯದಿ (ಧ್ರುವ auto* ಧ್ರುವ constp = VN_CAST(nodep->valuep(), Const)) {
+                            ಯದಿ (constp->ಅಂಕೆ().isString()) {
+                                width = constp->ಅಂಕೆ().toString().length() * 8;
                             }
                         }
-                        if (width < 8) width = 8;
-                    } else if (nodep->valuep()->dtypep()->widthSized()) {
+                        ಯದಿ (width < 8) width = 8;
+                    } ಅನ್ಯಥಾ ಯದಿ (nodep->valuep()->dtypep()->widthSized()) {
                         width = nodep->valuep()->width();
-                    } else {
-                        if (nodep->valuep()->width() > 32) {
+                    } ಅನ್ಯಥಾ {
+                        ಯದಿ (nodep->valuep()->width() > 32) {
                             nodep->valuep()->v3warn(
                                 WIDTH,
                                 "Assigning >32 bit to unranged parameter (defaults to 32 bits)");
@@ -3556,38 +3556,38 @@ class WidthVisitor final : public VNVisitor {
                         width = 32;
                     }
                     // Can't just inherit valuep()->dtypep() as mwidth might not equal width
-                    const bool isValueFourstate
+                    ಧ್ರುವ ತಾರ್ಕಿಕ is_ಮೌಲ್ಯ_Fourstate
                         = nodep->valuep()->dtypep()->skipRefp()->isFourstate();
-                    if (width == 1) {
+                    ಯದಿ (width == 1) {
                         // one bit parameter is same as "parameter [0] foo",
                         // not "parameter logic foo" as you can extract
                         // "foo[0]" from a parameter but not a wire
                         nodep->dtypep(nodep->findBitOrLogicRangeDType(
                             VNumRange{0, 0}, nodep->valuep()->widthMin(),
-                            VSigning::fromBool(issigned), isValueFourstate));
-                    } else {
+                            VSigning::fromBool(issigned), is_ಮೌಲ್ಯ_Fourstate));
+                    } ಅನ್ಯಥಾ {
                         nodep->dtypeSetBitOrLogicUnsized(width, nodep->valuep()->widthMin(),
                                                          VSigning::fromBool(issigned),
-                                                         isValueFourstate);
+                                                         is_ಮೌಲ್ಯ_Fourstate);
                     }
-                    didchk = true;
+                    didchk = ಸತ್ಯ;
                 }
                 iterateCheckAssign(nodep, "Initial value", nodep->valuep(), FINAL,
                                    nodep->dtypep());
                 UINFO(9, "implicitParamFromIV " << nodep->valuep());
                 // UINFO below will print variable nodep
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Or, if nothing assigned, they're integral
                 nodep->dtypeSetInteger();
                 VL_DANGLING(bdtypep);
             }
-        } else if (bdtypep && bdtypep->implicit()) {  // Implicits get converted to size 1
+        } ಅನ್ಯಥಾ ಯದಿ (bdtypep && bdtypep->implicit()) {  // Implicits get converted to size 1
             nodep->dtypeSetLogicSized(1, bdtypep->numeric());
             VL_DANGLING(bdtypep);
         }
-        if (nodep->isNet()) {
-            AstNodeDType* const badDtp = dtypeNot4StateIntegralRecurse(nodep->dtypep());
-            if (badDtp)
+        ಯದಿ (nodep->isNet()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ badDtp = dtypeNot4StateIntegralRecurse(nodep->dtypep());
+            ಯದಿ (badDtp)
                 nodep->v3error(
                     "Net " << nodep->prettyNameQ()
                            << " data type must be 4-state integral or array/union/struct of such"
@@ -3597,7 +3597,7 @@ class WidthVisitor final : public VNVisitor {
                            << badDtp->prettyDTypeNameQ() << '\n'
                            << badDtp->warnContextSecondary());
         }
-        if (nodep->valuep() && !didchk) {
+        ಯದಿ (nodep->valuep() && !didchk) {
             // UINFOTREE(1, nodep, "", "final");
             // AstPattern requires assignments to pass datatype on PRELIM
             userIterateAndNext(nodep->valuep(), WidthVP{nodep->dtypep(), PRELIM}.p());
@@ -3606,43 +3606,43 @@ class WidthVisitor final : public VNVisitor {
         userIterateAndNext(nodep->delayp(), WidthVP{nodep->dtypep(), PRELIM}.p());
         UINFO(4, "varWidthed " << nodep);
         // UINFOTREE(1, nodep, "", "InitOut");
-        nodep->didWidth(true);
-        nodep->doingWidth(false);
+        nodep->didWidth(ಸತ್ಯ);
+        nodep->doingWidth(ಅಸತ್ಯ);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->didWidth()) return;
-        if (!nodep->varp()) {
-            if (m_paramsOnly && VN_IS(nodep, VarXRef)) {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Var_Ref* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (!nodep->varp()) {
+            ಯದಿ (m_paramsOnly && VN_IS(nodep, VarXRef)) {
                 checkConstantOrReplace(
-                    nodep, false,
+                    nodep, ಅಸತ್ಯ,
                     "Parameter-resolved constants must not use dotted references: "
                         + nodep->prettyNameQ());
                 VL_DANGLING(nodep);
-                return;
-            } else {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ {
                 nodep->v3fatalSrc("Unlinked varref");
             }
         }
-        if (!nodep->varp()->didWidth()) {
+        ಯದಿ (!nodep->varp()->didWidth()) {
             // Var hasn't been widthed, so make it so.
             userIterate(nodep->varp(), nullptr);
         }
-        if (!m_paramsOnly && nodep->varp()->isIfaceArraySplit()) {
+        ಯದಿ (!m_paramsOnly && nodep->varp()->isIfaceArraySplit()) {
             replaceSplitIfaceArrayRef(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // UINFOTREE(9, nodep, "", "VRin");
         // UINFOTREE(9, nodep->varp(), "", "forvar");
         // Note genvar's are also entered as integers
         nodep->dtypeFrom(nodep->varp());
-        if (VN_IS(nodep->backp(), NodeAssign) && nodep->access().isWriteOrRW()) {  // On LHS
+        ಯದಿ (VN_IS(nodep->backp(), ಗಂಟು_Assign) && nodep->access().isWriteOrRW()) {  // On LHS
             UASSERT_OBJ(nodep->dtypep(), nodep, "LHS var should be dtype completed");
         }
         // UINFOTREE(9, nodep, "", "VRout");
-        if (nodep->access().isWriteOrRW()) nodep->varp()->icoMaybeWritten(true);
-        if (nodep->access().isWriteOrRW() && nodep->varp()->direction() == VDirection::CONSTREF) {
+        ಯದಿ (nodep->access().isWriteOrRW()) nodep->varp()->icoMaybeWritten(ಸತ್ಯ);
+        ಯದಿ (nodep->access().isWriteOrRW() && nodep->varp()->direction() == VDirection::CONSTREF) {
             nodep->v3error("Assigning to const ref variable: " << nodep->prettyNameQ());
-        } else if (nodep->access().isWriteOrRW() && nodep->varp()->isInput()
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->access().isWriteOrRW() && nodep->varp()->is_ಒಳಹರಿವು()
                    && !nodep->varp()->isFuncLocal() && nodep->varp()->isReadOnly()
                    && (!m_ftaskp || !m_ftaskp->isConstructor())
                    && !VN_IS(m_procedurep, InitialAutomatic) && !VN_IS(m_procedurep, InitialStatic)
@@ -3651,16 +3651,16 @@ class WidthVisitor final : public VNVisitor {
             // via hierarchical reference. Net ports allow multiple continuous
             // drivers (IEEE 1800-2023 23.3.3.3). Input ports default to net
             // when port kind is omitted (23.2.2.3, PORT type).
-            const bool hierRef = !m_curModVars.count(nodep->varp());
-            const bool netPort
+            ಧ್ರುವ ತಾರ್ಕಿಕ hierRef = !m_curModVars.ಎಣಿಕೆ(nodep->varp());
+            ಧ್ರುವ ತಾರ್ಕಿಕ netPort
                 = nodep->varp()->isNet() || nodep->varp()->varType() == VVarType::PORT;
-            const bool contAssign = VN_IS(nodep->abovep(), AssignW);
-            const bool pinConn = VN_IS(nodep->abovep(), Pin);
-            if (!(hierRef && netPort && (contAssign || pinConn))) {
+            ಧ್ರುವ ತಾರ್ಕಿಕ contAssign = VN_IS(nodep->abovep(), AssignW);
+            ಧ್ರುವ ತಾರ್ಕಿಕ pinConn = VN_IS(nodep->abovep(), Pin);
+            ಯದಿ (!(hierRef && netPort && (contAssign || pinConn))) {
                 nodep->v3warn(ASSIGNIN,
                               "Assigning to input/const variable: " << nodep->prettyNameQ());
             }
-        } else if (nodep->access().isWriteOrRW() && nodep->varp()->isConst() && !m_paramsOnly
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->access().isWriteOrRW() && nodep->varp()->isConst() && !m_paramsOnly
                    && (!m_ftaskp || !m_ftaskp->isConstructor())
                    && !VN_IS(m_procedurep, InitialAutomatic) && !VN_IS(m_procedurep, InitialStatic)
                    && !m_underMemberSel) {
@@ -3670,23 +3670,23 @@ class WidthVisitor final : public VNVisitor {
                                               << nodep->prettyNameQ()
                                               << " (IEEE 1800-2023 6.20.6)");
         }
-        if (nodep->varp()->isClassMember() && !nodep->varp()->isFuncLocal()
+        ಯದಿ (nodep->varp()->isClassMember() && !nodep->varp()->isFuncLocal()
             && !nodep->varp()->lifetime().isStatic() && m_ftaskp && m_ftaskp->isStatic()) {
             nodep->v3error("Cannot access non-static member variable "
                            << nodep->prettyNameQ() << " from a static method "
                            << m_ftaskp->prettyNameQ() << " without object (IEEE 1800-2023 8.10)");
         }
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
     }
 
-    void visit(AstEnumDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstEnumDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         UINFO(5, "  ENUMDTYPE " << nodep);
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         nodep->dtypep(nodep);
-        AstNodeDType* basicp = nodep->dtypep()->skipRefp()->basicp();
-        AstNodeDType* const badDtp = dtypeNotIntAtomOrVecRecurse(nodep->subDTypep());
-        if (badDtp) {
+        Ast_ಗಂಟು_DType* basicp = nodep->dtypep()->skipRefp()->basicp();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ badDtp = dtypeNotIntAtomOrVecRecurse(nodep->subDTypep());
+        ಯದಿ (badDtp) {
             nodep->v3error(
                 "Enum data type must be an integer atom or vector type (IEEE 1800-2023 6.19)\n"
                 << nodep->warnContextPrimary() << '\n'
@@ -3700,47 +3700,47 @@ class WidthVisitor final : public VNVisitor {
         // Assign widths
         userIterateAndNext(nodep->itemsp(), WidthVP{nodep->dtypep(), BOTH}.p());
         // Assign missing values
-        V3Number num(nodep, nodep->width(), 0);
-        const V3Number one{nodep, nodep->width(), 1};
-        bool wrapAround = false;
-        std::map<const V3Number, AstEnumItem*> inits;
-        for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ(nodep, nodep->width(), 0);
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ one{nodep, nodep->width(), 1};
+        ತಾರ್ಕಿಕ wrapAround = ಅಸತ್ಯ;
+        std::map<ಧ್ರುವ V3_ಸಂಖ್ಯೆ, AstEnumItem*> inits;
+        ಪ್ರತಿ (AstEnumItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            if (itemp->valuep()) {
-                if (debug() >= 9) {
+            ಯದಿ (itemp->valuep()) {
+                ಯದಿ (debug() >= 9) {
                     UINFO(0, "EnumInit " << itemp);
-                    itemp->valuep()->dumpTree("-  EnumInit: ");
+                    itemp->valuep()->dump_ವೃಕ್ಷ("-  EnumInit: ");
                 }
                 V3Const::constifyParamsEdit(itemp->valuep());  // itemp may change
-                if (!VN_IS(itemp->valuep(), Const)) {
+                ಯದಿ (!VN_IS(itemp->valuep(), Const)) {
                     itemp->valuep()->v3error("Enum value isn't a constant");
-                    itemp->valuep()->unlinkFrBack()->deleteTree();
-                    continue;
+                    itemp->valuep()->unlinkFrBack()->delete_ವೃಕ್ಷ();
+                    ಅನುವರ್ತ;
                 }
                 // TODO IEEE says assigning sized number that is not same size as enum is illegal
-                wrapAround = false;  // Explicit value resets wrap-around tracking
+                wrapAround = ಅಸತ್ಯ;  // Explicit value resets wrap-around tracking
             }
-            if (!itemp->valuep()) {
-                if (wrapAround) {
+            ಯದಿ (!itemp->valuep()) {
+                ಯದಿ (wrapAround) {
                     itemp->v3error("Enum value illegally wrapped around (IEEE 1800-2023 6.19)");
                 }
-                if (num.isFourState()) {
+                ಯದಿ (ಅಂಕೆ.isFourState()) {
                     itemp->v3error("Enum value that is unassigned cannot follow value with X/Zs "
                                    "(IEEE 1800-2023 6.19)");
                 }
-                itemp->valuep(new AstConst{itemp->fileline(), num});
+                itemp->valuep(ನೂತನ AstConst{itemp->fileline(), ಅಂಕೆ});
             }
 
-            const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-            if (constp->num().isFourState() && basicp->basicp() && !basicp->isFourstate()) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_AS(itemp->valuep(), Const);
+            ಯದಿ (constp->ಅಂಕೆ().isFourState() && basicp->basicp() && !basicp->isFourstate()) {
                 itemp->v3error("Enum value with X/Zs cannot be assigned to non-fourstate type "
                                "(IEEE 1800-2023 6.19)");
             }
-            num.opAssign(constp->num());
+            ಅಂಕೆ.opAssign(constp->ಅಂಕೆ());
             // Look for duplicates
-            const auto pair = inits.emplace(num, itemp);
-            if (!pair.second) {  // IEEE says illegal
-                const AstNode* const otherp = pair.first->second;
+            ಧ್ರುವ auto pair = inits.emplace(ಅಂಕೆ, itemp);
+            ಯದಿ (!pair.second) {  // IEEE says illegal
+                ಧ್ರುವ Ast_ಗಂಟು* ಧ್ರುವ otherp = pair.first->second;
                 itemp->v3error("Overlapping enumeration value: "
                                << itemp->prettyNameQ() << '\n'
                                << itemp->warnContextPrimary() << '\n'
@@ -3750,37 +3750,37 @@ class WidthVisitor final : public VNVisitor {
             // Detect wrap-around after increment for the next auto-valued item.
             // For signed types, overflow is positive-to-negative (e.g., INT_MAX+1).
             // For unsigned types, overflow wraps to zero (e.g., UINT_MAX+1).
-            const bool prevNeg = constp->num().isNegative();
-            num.opAdd(one, constp->num());
-            if (basicp->isSigned()) {
-                wrapAround = !prevNeg && num.isNegative();
-            } else {
-                wrapAround = num.isEqZero();
+            ಧ್ರುವ ತಾರ್ಕಿಕ prevNeg = constp->ಅಂಕೆ().isNegative();
+            ಅಂಕೆ.opAdd(one, constp->ಅಂಕೆ());
+            ಯದಿ (basicp->isSigned()) {
+                wrapAround = !prevNeg && ಅಂಕೆ.isNegative();
+            } ಅನ್ಯಥಾ {
+                wrapAround = ಅಂಕೆ.isEqZero();
             }
         }
     }
-    void visit(AstEnumItem* nodep) override {
+    ಶೂನ್ಯ visit(AstEnumItem* nodep) override {
         UINFO(5, "   ENUMITEM " << nodep);
         VL_RESTORER(m_enumItemp);
         m_enumItemp = nodep;
-        AstNodeDType* const vdtypep = m_vup->dtypep();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypep();
         UASSERT_OBJ(vdtypep, nodep, "ENUMITEM not under ENUM");
         nodep->dtypep(vdtypep);
-        if (nodep->valuep()) {  // else the value will be assigned sequentially
+        ಯದಿ (nodep->valuep()) {  // else the value will be assigned sequentially
             // Default type is int, but common to assign narrower values, so minwidth from value
             userIterateAndNext(nodep->valuep(), WidthVP{CONTEXT_DET, PRELIM}.p());
-            bool warnOn = true;
-            AstNodeExpr* valuep = nodep->valuep();
-            if (const AstAdd* const anodep = VN_CAST(valuep, Add)) {
+            ತಾರ್ಕಿಕ warnOn = ಸತ್ಯ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = nodep->valuep();
+            ಯದಿ (ಧ್ರುವ AstAdd* ಧ್ರುವ anodep = VN_CAST(valuep, Add)) {
                 // If constructed by V3LinkParse due to "enumitem[N_REPEATS] value"
-                if (anodep->fileline()->equalFirstLineCol(*(nodep->fileline())))
+                ಯದಿ (anodep->fileline()->equal_First_ಸಾಲು_Col(*(nodep->fileline())))
                     valuep = anodep->lhsp();
             }
-            if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-                if (static_cast<int>(constp->num().mostSetBitP1()) > nodep->width()) {
+            ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(valuep, Const)) {
+                ಯದಿ (static_cast<ಪೂರ್ಣಾಙ್ಕ>(constp->ಅಂಕೆ().mostSetBitP1()) > nodep->width()) {
                     constp->v3warn(ENUMITEMWIDTH,
                                    "Enum value exceeds width of enum type (IEEE 1800-2023 6.19)");
-                    warnOn = false;  // Prevent normal WIDTHTRUNC
+                    warnOn = ಅಸತ್ಯ;  // Prevent normal WIDTHTRUNC
                 }
             }
             // Minwidth does not come from value, as spec says set based on parent
@@ -3788,51 +3788,51 @@ class WidthVisitor final : public VNVisitor {
             iterateCheck(nodep, "Enum value", nodep->valuep(), CONTEXT_DET, FINAL, nodep->dtypep(),
                          EXTEND_EXP, warnOn);
             // Always create a cast, to avoid later ENUMVALUE warnings
-            nodep->valuep(new AstCast{nodep->valuep()->fileline(), nodep->valuep()->unlinkFrBack(),
+            nodep->valuep(ನೂತನ AstCast{nodep->valuep()->fileline(), nodep->valuep()->unlinkFrBack(),
                                       nodep->dtypep()});
         }
     }
-    void visit(AstEnumItemRef* nodep) override {
+    ಶೂನ್ಯ visit(AstEnumItemRef* nodep) override {
         UASSERT_OBJ(nodep->itemp(), nodep, "Unlinked");
-        if (!nodep->itemp()->didWidth()) {
+        ಯದಿ (!nodep->itemp()->didWidth()) {
             // We need to do the whole enum en masse
-            AstNode* enump = nodep->itemp();
+            Ast_ಗಂಟು* enump = nodep->itemp();
             UASSERT_OBJ(enump, nodep, "EnumItemRef not linked");
-            for (; enump; enump = enump->backp()) {
-                if (VN_IS(enump, EnumDType)) break;
+            ಪ್ರತಿ (; enump; enump = enump->backp()) {
+                ಯದಿ (VN_IS(enump, EnumDType)) ಭಙ್ಗ;
             }
             UASSERT_OBJ(enump, nodep, "EnumItemRef can't deref back to an Enum");
             VL_DO_DANGLING(userIterate(enump, m_vup), enump);  // Parent enump maybe relinked
         }
         nodep->dtypeFrom(nodep->itemp());
     }
-    void visit(AstNodeCons* nodep) override {}  // Widthed when created
-    void visit(AstNodeConsItem* nodep) override {}  // Widthed when created
-    void visit(AstDist* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Cons* nodep) override {}  // Widthed when created
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Cons_Item* nodep) override {}  // Widthed when created
+    ಶೂನ್ಯ visit(AstDist* nodep) override {
         //  x dist {a :/ p, b :/ q} --> (p > 0 && x == a) || (q > 0 && x == b)
         // (only outside constraints; inside constraints V3Randomize handles weighted selection)
         userIterateAndNext(nodep->exprp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-        for (AstNode *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = itemp->nextp();  // iterate may cause the node to get replaced
             VL_DO_DANGLING(userIterate(itemp, WidthVP{CONTEXT_DET, PRELIM}.p()), itemp);
         }
 
         AstBasicDType* dtype = VN_CAST(nodep->exprp()->dtypep(), BasicDType);
-        AstNodeDType* subDTypep = nullptr;
+        Ast_ಗಂಟು_DType* subDTypep = nullptr;
         nodep->dtypeSetBit();
 
-        if (dtype && dtype->isString()) {
+        ಯದಿ (dtype && dtype->isString()) {
             nodep->dtypeSetString();
             subDTypep = nodep->findStringDType();
-        } else if (dtype && dtype->isDouble()) {
+        } ಅನ್ಯಥಾ ಯದಿ (dtype && dtype->isDouble()) {
             nodep->dtypeSetDouble();
             subDTypep = nodep->findDoubleDType();
-        } else {
+        } ಅನ್ಯಥಾ {
             // Take width as maximum across all items
-            int width = nodep->exprp()->width();
-            int mwidth = nodep->exprp()->widthMin();
-            bool isFourstate = nodep->exprp()->dtypep()->isFourstate();
-            for (const AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಪೂರ್ಣಾಙ್ಕ width = nodep->exprp()->width();
+            ಪೂರ್ಣಾಙ್ಕ mwidth = nodep->exprp()->widthMin();
+            ತಾರ್ಕಿಕ isFourstate = nodep->exprp()->dtypep()->isFourstate();
+            ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
                 width = std::max(width, itemp->width());
                 mwidth = std::max(mwidth, itemp->widthMin());
                 isFourstate |= itemp->dtypep()->isFourstate();
@@ -3843,12 +3843,12 @@ class WidthVisitor final : public VNVisitor {
 
         iterateCheck(nodep, "Dist expression", nodep->exprp(), CONTEXT_DET, FINAL, subDTypep,
                      EXTEND_EXP);
-        for (AstNode *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = itemp->nextp();
             itemp = VN_AS(itemp, DistItem)->rangep();
-            if (VN_IS(itemp, InsideRange)) {
+            ಯದಿ (VN_IS(itemp, InsideRange)) {
                 userIterate(itemp, WidthVP{subDTypep, FINAL}.p());
-            } else {
+            } ಅನ್ಯಥಾ {
                 iterateCheck(nodep, "Dist Item", itemp, CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP);
             }
         }
@@ -3856,169 +3856,169 @@ class WidthVisitor final : public VNVisitor {
         // Inside a constraint, V3Randomize handles dist lowering with proper weights,
         // but only for simple scalar/range items. Container-type items (queues, arrays)
         // must be lowered here via insideItem() which knows how to expand them.
-        if (m_constraintp) {
-            bool canLower = true;
-            for (AstDistItem* ditemp = nodep->itemsp(); ditemp;
+        ಯದಿ (m_constraintp) {
+            ತಾರ್ಕಿಕ canLower = ಸತ್ಯ;
+            ಪ್ರತಿ (AstDistItem* ditemp = nodep->itemsp(); ditemp;
                  ditemp = VN_AS(ditemp->nextp(), DistItem)) {
-                if (VN_IS(ditemp->rangep(), InsideRange)) continue;
+                ಯದಿ (VN_IS(ditemp->rangep(), InsideRange)) ಅನುವರ್ತ;
                 // An integral item is a plain equality on either path, so it may be
                 // non-constant.  Testing for AstConst here instead would silently drop
                 // the weights of a dist whose items are state variables.  Compound
                 // items (containers, strings) still need insideItem(), and an impure
                 // item must not be cloned into the bucket chain.
-                const AstNodeDType* const itemDtp = ditemp->rangep()->dtypep()->skipRefp();
-                if (!itemDtp->isIntegralOrPacked() || !ditemp->rangep()->isPure()) {
-                    canLower = false;
-                    break;
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ itemDtp = ditemp->rangep()->dtypep()->skipRefp();
+                ಯದಿ (!itemDtp->isIntegralOrPacked() || !ditemp->rangep()->isPure()) {
+                    canLower = ಅಸತ್ಯ;
+                    ಭಙ್ಗ;
                 }
             }
-            if (canLower) return;
+            ಯದಿ (canLower) ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Outside constraint: lower to inside (ignores weights)
-        AstNodeExpr* newp = nullptr;
-        for (AstDistItem* itemp = nodep->itemsp(); itemp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+        ಪ್ರತಿ (AstDistItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), DistItem)) {
-            AstNodeExpr* inewp
-                = insideItem(nodep, nodep->exprp()->cloneTreePure(false), itemp->rangep());
-            if (!inewp) continue;
-            AstNodeExpr* const cmpp
-                = new AstGt{itemp->fileline(), itemp->weightp()->unlinkFrBack(),
-                            new AstConst{itemp->fileline(), 0}};
-            cmpp->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, true);
-            cmpp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, true);
-            inewp = new AstLogAnd{itemp->fileline(), cmpp, inewp};
-            newp = newp ? new AstLogOr{nodep->fileline(), newp, inewp} : inewp;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* inewp
+                = insideItem(nodep, nodep->exprp()->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), itemp->rangep());
+            ಯದಿ (!inewp) ಅನುವರ್ತ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ cmpp
+                = ನೂತನ AstGt{itemp->fileline(), itemp->weightp()->unlinkFrBack(),
+                            ನೂತನ AstConst{itemp->fileline(), 0}};
+            cmpp->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, ಸತ್ಯ);
+            cmpp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, ಸತ್ಯ);
+            inewp = ನೂತನ AstLogAnd{itemp->fileline(), cmpp, inewp};
+            newp = newp ? ನೂತನ AstLogOr{nodep->fileline(), newp, inewp} : inewp;
         }
-        if (!newp) newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        ಯದಿ (!newp) newp = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}};
 
         UINFOTREE(9, nodep, "", "dist-out");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstInside* nodep) override {
+    ಶೂನ್ಯ visit(AstInside* nodep) override {
         userIterateAndNext(nodep->exprp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-        for (AstNode *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = itemp->nextp();  // iterate may cause the node to get replaced
             VL_DO_DANGLING(userIterate(itemp, WidthVP{CONTEXT_DET, PRELIM}.p()), itemp);
         }
 
         AstBasicDType* dtype = VN_CAST(nodep->exprp()->dtypep(), BasicDType);
-        AstNodeDType* expDTypep = nullptr;
+        Ast_ಗಂಟು_DType* expDTypep = nullptr;
 
-        if (dtype && dtype->isString()) {
+        ಯದಿ (dtype && dtype->isString()) {
             nodep->dtypeSetString();
             expDTypep = nodep->findStringDType();
-        } else if (dtype && dtype->isDouble()) {
+        } ಅನ್ಯಥಾ ಯದಿ (dtype && dtype->isDouble()) {
             nodep->dtypeSetDouble();
             expDTypep = nodep->findDoubleDType();
-        } else {
+        } ಅನ್ಯಥಾ {
             // Take width as maximum across all items
-            int width = nodep->exprp()->width();
-            int mwidth = nodep->exprp()->widthMin();
-            bool isFourstate = nodep->exprp()->dtypep()->isFourstate();
-            for (const AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಪೂರ್ಣಾಙ್ಕ width = nodep->exprp()->width();
+            ಪೂರ್ಣಾಙ್ಕ mwidth = nodep->exprp()->widthMin();
+            ತಾರ್ಕಿಕ isFourstate = nodep->exprp()->dtypep()->isFourstate();
+            ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
                 width = std::max(width, itemp->width());
                 mwidth = std::max(mwidth, itemp->widthMin());
                 isFourstate |= itemp->dtypep()->isFourstate();
             }
             nodep->dtypeSetBit();
-            const VSigning numeric = nodep->exprp()->dtypep()->numeric();
+            ಧ್ರುವ VSigning numeric = nodep->exprp()->dtypep()->numeric();
             expDTypep = nodep->findBitOrLogicDType(width, mwidth, numeric, isFourstate);
         }
 
         iterateCheck(nodep, "Inside expression", nodep->exprp(), CONTEXT_DET, FINAL, expDTypep,
                      EXTEND_EXP);
-        for (AstNode *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = itemp->nextp();  // iterate may cause the node to get replaced
-            if (VN_IS(itemp, InsideRange)) {
+            ಯದಿ (VN_IS(itemp, InsideRange)) {
                 userIterate(itemp, WidthVP{expDTypep, FINAL}.p());
-            } else if (!itemp->dtypep()->skipRefp()->isNonPackedArray()) {
+            } ಅನ್ಯಥಾ ಯದಿ (!itemp->dtypep()->skipRefp()->isNonPackedArray()) {
                 iterateCheck(nodep, "Inside Item", itemp, CONTEXT_DET, FINAL, expDTypep,
                              EXTEND_EXP);
             }
         }
 
-        AstNodeExpr* exprp;
-        AstExprStmt* exprStmtp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp;
+        Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಅಭಿವ್ಯಕ್ತಿ_Stmtp = nullptr;
         // Skip constraints since those are declarative expressions and they are never actually
         // executed so, there is no need for purification since they cannot generate sideeffects.
-        if (!m_constraintp && !nodep->exprp()->isPure()) {
-            FileLine* const fl = nodep->exprp()->fileline();
+        ಯದಿ (!m_constraintp && !nodep->exprp()->isPure()) {
+            File_ಸಾಲು* ಧ್ರುವ fl = nodep->exprp()->fileline();
             // Ensure sized dtype for temp variable
-            AstNodeDType* const exprDtp = nodep->exprp()->dtypep();
-            const int w = exprDtp->width();
-            AstNodeDType* const tempDTypep
-                = exprDtp->widthSized() ? exprDtp
-                                        : nodep->findBitOrLogicDType(w, w, exprDtp->numeric(),
-                                                                     exprDtp->isFourstate());
-            AstVar* const varp
-                = new AstVar{fl, VVarType::XTEMP, m_insideTempNames.get(nodep), tempDTypep};
-            exprp = new AstVarRef{fl, varp, VAccess::READ};
-            exprStmtp = new AstExprStmt{fl,
-                                        new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
+            Ast_ಗಂಟು_DType* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Dtp = nodep->exprp()->dtypep();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ w = ಅಭಿವ್ಯಕ್ತಿ_Dtp->width();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ tempDTypep
+                = ಅಭಿವ್ಯಕ್ತಿ_Dtp->widthSized() ? ಅಭಿವ್ಯಕ್ತಿ_Dtp
+                                        : nodep->findBitOrLogicDType(w, w, ಅಭಿವ್ಯಕ್ತಿ_Dtp->numeric(),
+                                                                     ಅಭಿವ್ಯಕ್ತಿ_Dtp->isFourstate());
+            AstVar* ಧ್ರುವ varp
+                = ನೂತನ AstVar{fl, VVarType::XTEMP, m_insideTempNames.get(nodep), tempDTypep};
+            exprp = ನೂತನ AstVarRef{fl, varp, VAccess::READ};
+            ಅಭಿವ್ಯಕ್ತಿ_Stmtp = ನೂತನ Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt{fl,
+                                        ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE},
                                                       nodep->exprp()->unlinkFrBack()},
                                         exprp};
-            if (m_ftaskp) {
-                varp->funcLocal(true);
+            ಯದಿ (m_ftaskp) {
+                varp->funcLocal(ಸತ್ಯ);
                 varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 m_ftaskp->prependStmtsp(varp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 m_modep->prependStmtsp(varp);
             }
             iterate(varp);
-            iterate(exprStmtp);
-        } else {
+            iterate(ಅಭಿವ್ಯಕ್ತಿ_Stmtp);
+        } ಅನ್ಯಥಾ {
             exprp = nodep->exprp();
         }
         UINFOTREE(9, nodep, "", "inside-in");
         // Now rip out the inside and replace with simple math
-        AstNodeExpr* newp = nullptr;
-        for (AstNodeExpr *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
-            nextip = VN_AS(itemp->nextp(), NodeExpr);  // Will be unlinking
-            AstNodeExpr* inewp;
-            if (exprStmtp) {
-                inewp = insideItem(nodep, exprStmtp, itemp);
-                exprStmtp = nullptr;
-            } else {
-                inewp = insideItem(nodep, exprp->cloneTreePure(false), itemp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+        ಪ್ರತಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+            nextip = VN_AS(itemp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);  // Will be unlinking
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* inewp;
+            ಯದಿ (ಅಭಿವ್ಯಕ್ತಿ_Stmtp) {
+                inewp = insideItem(nodep, ಅಭಿವ್ಯಕ್ತಿ_Stmtp, itemp);
+                ಅಭಿವ್ಯಕ್ತಿ_Stmtp = nullptr;
+            } ಅನ್ಯಥಾ {
+                inewp = insideItem(nodep, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), itemp);
             }
-            if (!inewp) continue;
-            newp = newp ? new AstLogOr{nodep->fileline(), newp, inewp} : inewp;
+            ಯದಿ (!inewp) ಅನುವರ್ತ;
+            newp = newp ? ನೂತನ AstLogOr{nodep->fileline(), newp, inewp} : inewp;
         }
-        if (exprStmtp) VL_DO_DANGLING(exprStmtp->deleteTree(), exprStmtp);
-        if (!newp) newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        ಯದಿ (ಅಭಿವ್ಯಕ್ತಿ_Stmtp) VL_DO_DANGLING(ಅಭಿವ್ಯಕ್ತಿ_Stmtp->delete_ವೃಕ್ಷ(), ಅಭಿವ್ಯಕ್ತಿ_Stmtp);
+        ಯದಿ (!newp) newp = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}};
         UINFOTREE(9, newp, "", "inside-out");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    AstNodeExpr* insideItem(AstNode* nodep, AstNodeExpr* exprp, AstNodeExpr* itemp) {
-        const AstNodeDType* const itemDtp = itemp->dtypep()->skipRefp();
-        if (AstInsideRange* const irangep = VN_CAST(itemp, InsideRange)) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* insideItem(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* itemp) {
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ itemDtp = itemp->dtypep()->skipRefp();
+        ಯದಿ (AstInsideRange* ಧ್ರುವ irangep = VN_CAST(itemp, InsideRange)) {
             // Similar logic in V3Case
-            return irangep->newAndFromInside(exprp, irangep->lhsp()->unlinkFrBack(),
+            ಪ್ರತ್ಯಾಗಮ irangep->newAndFromInside(exprp, irangep->lhsp()->unlinkFrBack(),
                                              irangep->rhsp()->unlinkFrBack());
-        } else if (VN_IS(itemDtp, UnpackArrayDType) || VN_IS(itemDtp, DynArrayDType)
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(itemDtp, UnpackArrayDType) || VN_IS(itemDtp, DynArrayDType)
                    || VN_IS(itemDtp, QueueDType)) {
             // Unsupported in parameters
-            AstNodeExpr* const inewp = new AstCMethodHard{nodep->fileline(), itemp->unlinkFrBack(),
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ inewp = ನೂತನ AstCMethodHard{nodep->fileline(), itemp->unlinkFrBack(),
                                                           VCMethod::ARRAY_INSIDE, exprp};
             iterateCheckTyped(nodep, "inside value", exprp, itemDtp->subDTypep(), BOTH);
             inewp->dtypeSetBit();
-            inewp->didWidth(true);
-            return inewp;
-        } else if (VN_IS(itemDtp, AssocArrayDType)) {
+            inewp->didWidth(ಸತ್ಯ);
+            ಪ್ರತ್ಯಾಗಮ inewp;
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(itemDtp, AssocArrayDType)) {
             nodep->v3error("Inside operator not specified on associative arrays "
                            "(IEEE 1800-2023 11.4.13)");
-            VL_DO_DANGLING(exprp->deleteTree(), exprp);
-            return nullptr;
+            VL_DO_DANGLING(exprp->delete_ವೃಕ್ಷ(), exprp);
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        return AstEqWild::newTyped(itemp->fileline(), exprp, itemp->unlinkFrBack());
+        ಪ್ರತ್ಯಾಗಮ AstEqWild::newTyped(itemp->fileline(), exprp, itemp->unlinkFrBack());
     }
-    void visit(AstInsideRange* nodep) override {
+    ಶೂನ್ಯ visit(AstInsideRange* nodep) override {
         // Just do each side; AstInside will rip these nodes out later.
-        if (!m_vup) {
+        ಯದಿ (!m_vup) {
             // This range appears outside a normal expression context (e.g. in a covergroup
             // bin declaration).  Width the bounds self-determined first so each bound (and any
             // referenced parameter) has a dtype, then constify so constant arithmetic is folded
@@ -4028,19 +4028,19 @@ class WidthVisitor final : public VNVisitor {
             userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
             V3Const::constifyEdit(nodep->lhsp());  // lhsp may change
             V3Const::constifyEdit(nodep->rhsp());  // rhsp may change
-        } else {
-            if (m_vup->prelim()) {
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (m_vup->prelim()) {
                 userIterateAndNext(nodep->lhsp(), m_vup);
                 userIterateAndNext(nodep->rhsp(), m_vup);
             }
-            if (m_vup->final()) {
-                AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            ಯದಿ (m_vup->final()) {
+                Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
                 // Warning waivers match visit_cmp_eq_gt on the lowered Gte/Lte
-                const int expWidth = expDTypep->width();
-                const bool waiveLhs = expWidth == 32
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expWidth = expDTypep->width();
+                ಧ್ರುವ ತಾರ್ಕಿಕ waiveLhs = expWidth == 32
                                       && !(expDTypep->isSigned() && nodep->lhsp()->isSigned())
                                       && expDTypep->widthMin() >= nodep->lhsp()->width();
-                const bool waiveRhs = expWidth == 32
+                ಧ್ರುವ ತಾರ್ಕಿಕ waiveRhs = expWidth == 32
                                       && !(expDTypep->isSigned() && nodep->rhsp()->isSigned())
                                       && expWidth >= nodep->rhsp()->widthMin();
                 iterateCheck(nodep, "Range LHS", nodep->lhsp(), CONTEXT_DET, FINAL, expDTypep,
@@ -4052,47 +4052,47 @@ class WidthVisitor final : public VNVisitor {
         nodep->dtypeFrom(nodep->lhsp());
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstIfaceRefDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         UINFO(5, "   IFACEREF " << nodep);
         userIterateChildren(nodep, m_vup);
         nodep->dtypep(nodep);
-        if (nodep->isVirtual()) nodep->ifaceViaCellp()->setHasVirtualRef();
+        ಯದಿ (nodep->isVirtual()) nodep->ifaceViaCellp()->setHasVirtualRef();
         UINFO(4, "dtWidthed " << nodep);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->doingWidth()) {  // Early exit if have circular parameter definition
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_UOr_Struct_DType* nodep) override {
+        ಯದಿ (nodep->doingWidth()) {  // Early exit if have circular parameter definition
             nodep->v3error("Struct's type is circular: " << nodep->prettyName());
             nodep->dtypeSetBit();
-            nodep->doingWidth(false);
-            return;
+            nodep->doingWidth(ಅಸತ್ಯ);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
-        nodep->doingWidth(true);
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
+        nodep->doingWidth(ಸತ್ಯ);
         UINFO(5, "   NODEUORS " << nodep);
         // Check for tagged unions
-        if (const AstUnionDType* const unionp = VN_CAST(nodep, UnionDType)) {
-            if (unionp->isTagged()) { nodep->v3warn(E_UNSUPPORTED, "Unsupported: tagged union"); }
+        ಯದಿ (ಧ್ರುವ AstUnionDType* ಧ್ರುವ unionp = VN_CAST(nodep, UnionDType)) {
+            ಯದಿ (unionp->isTagged()) { nodep->v3warn(E_UNSUPPORTED, "Unsupported: tagged union"); }
         }
         // UINFOTREE(9, nodep, "", "class-in");
         userIterateChildren(nodep, nullptr);  // First size all members
         nodep->dtypep(nodep);
-        nodep->isFourstate(false);
+        nodep->isFourstate(ಅಸತ್ಯ);
         // Error checks
-        for (AstMemberDType* itemp = nodep->membersp(); itemp;
+        ಪ್ರತಿ (AstMemberDType* itemp = nodep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeDType* const dtp = itemp->subDTypep()->skipRefp();
-            if (nodep->packed() && !dtp->isIntegralOrPacked())
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtp = itemp->subDTypep()->skipRefp();
+            ಯದಿ (nodep->packed() && !dtp->isIntegralOrPacked())
                 itemp->v3error("Unpacked data type "
                                << dtp->prettyDTypeNameQ()
                                << " in packed struct/union (IEEE 1800-2023 7.2.1)");
-            if ((VN_IS(nodep, UnionDType) || nodep->packed()) && itemp->valuep()) {
+            ಯದಿ ((VN_IS(nodep, UnionDType) || nodep->packed()) && itemp->valuep()) {
                 itemp->v3error("Initial values not allowed in packed struct/union"
                                " (IEEE 1800-2023 7.2.2)");
-                pushDeletep(itemp->valuep()->unlinkFrBack());
+                ತಳ್ಳು_Deletep(itemp->valuep()->unlinkFrBack());
             }
         }
-        const bool isHardPackedUnion
+        ಧ್ರುವ ತಾರ್ಕಿಕ isHardPackedUnion
             = nodep->packed() && VN_IS(nodep, UnionDType) && !VN_CAST(nodep, UnionDType)->isSoft();
 
         // Suppress union size errors in parameterized template modules where member
@@ -4100,160 +4100,160 @@ class WidthVisitor final : public VNVisitor {
         // owning module (e.g. moved to TypeTable during DepGraph resolution).
         // TODO: Revisit this gate if DepGraph becomes the sole flow and widthing
         // can assume all types are already specialized.
-        const bool inTemplateModule = (m_modep && m_modep->parameterizedTemplate())
+        ಧ್ರುವ ತಾರ್ಕಿಕ inTemplateModule = (m_modep && m_modep->parameterizedTemplate())
                                       || (VN_IS(nodep, UnionDType) && !m_modep);
 
         // Determine bit assignments and width
-        if (VN_IS(nodep, UnionDType) || nodep->packed()) {
-            int lsb = 0;
-            int width = 0;
-            bool first = true;
+        ಯದಿ (VN_IS(nodep, UnionDType) || nodep->packed()) {
+            ಪೂರ್ಣಾಙ್ಕ lsb = 0;
+            ಪೂರ್ಣಾಙ್ಕ width = 0;
+            ತಾರ್ಕಿಕ first = ಸತ್ಯ;
             // Report errors on first member first
             AstMemberDType* itemp;
             // MSB is first, so loop backwards
-            for (itemp = nodep->membersp(); itemp && itemp->nextp();
+            ಪ್ರತಿ (itemp = nodep->membersp(); itemp && itemp->nextp();
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {}
-            for (; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
-                if (itemp->isFourstate()) nodep->isFourstate(true);
+            ಪ್ರತಿ (; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+                ಯದಿ (itemp->isFourstate()) nodep->isFourstate(ಸತ್ಯ);
                 itemp->lsb(lsb);
-                if (VN_IS(nodep, UnionDType)) {
-                    const int itemWidth = itemp->width();
+                ಯದಿ (VN_IS(nodep, UnionDType)) {
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ itemWidth = itemp->width();
                     // Skip union size check for template modules with unresolved parameters
-                    if (!first && isHardPackedUnion && itemWidth != width && !inTemplateModule) {
+                    ಯದಿ (!first && isHardPackedUnion && itemWidth != width && !inTemplateModule) {
                         itemp->v3error("Hard packed union members must have equal size "
                                        "(IEEE 1800-2023 7.3.1)");
                     }
                     width = std::max(width, itemWidth);
-                } else {
+                } ಅನ್ಯಥಾ {
                     lsb += itemp->width();
                     width += itemp->width();
                 }
-                first = false;
+                first = ಅಸತ್ಯ;
             }
             nodep->widthForce(width, width);  // Signing stays as-is, as parsed from declaration
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->widthForce(1, 1);
         }
-        nodep->doingWidth(false);
+        nodep->doingWidth(ಅಸತ್ಯ);
         // UINFOTREE(9, nodep, "", "class-out");
     }
-    void visit(AstThisRef* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstThisRef* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->childDTypep()));
-        if (m_ftaskp && m_ftaskp->isStatic()) {
+        ಯದಿ (m_ftaskp && m_ftaskp->isStatic()) {
             nodep->v3error("Cannot use 'this' in a static method "
                            << m_ftaskp->prettyNameQ() << " (IEEE 1800-2023 8.10-8.11)");
         }
     }
-    void visit(AstClassRefDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstClassRefDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         // TODO this maybe eventually required to properly resolve members,
         // though causes problems with t_class_forward.v, so for now avoided
         // userIterateChildren(nodep->classp(), nullptr);
     }
-    void visit(AstClassOrPackageRef* nodep) override {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visit(AstClassOrPackageRef* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         userIterateChildren(nodep, nullptr);
     }
-    void visit(AstDot* nodep) override {
+    ಶೂನ್ಯ visit(AstDot* nodep) override {
         // We can only reach this from constify called during V3Param (so before linkDotParam)
         // ... #(Cls#(...)::...) ...
         //                ^^~~~ this is our DOT
         nodep->v3warn(E_UNSUPPORTED, "dotted expressions in parameters\n"
                                          << nodep->warnMore() << "... Suggest use a typedef");
-        nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstClassExtends* nodep) override {
-        if (nodep->didWidthAndSet()) return;
-        if (VN_IS(nodep->childDTypep(), ClassRefDType)) {
+    ಶೂನ್ಯ visit(AstClassExtends* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (VN_IS(nodep->childDTypep(), ClassRefDType)) {
             nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->childDTypep()));
         }
     }
-    void visit(AstMemberDType* nodep) override {
-        if (nodep->didWidthAndSet()) return;  // This node is a dtype & not both PRELIMed+FINALed
+    ಶೂನ್ಯ visit(AstMemberDType* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;  // This node is a dtype & not both PRELIMed+FINALed
         // Iterate into subDTypep() to resolve that type and update pointer.
         nodep->refDTypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         nodep->widthFromSub(nodep->subDTypep());
         nodep->dtypeFrom(nodep->subDTypep());
-        if (nodep->valuep()) {
+        ಯದಿ (nodep->valuep()) {
             userIterateAndNext(nodep->valuep(), WidthVP{nodep->dtypep(), PRELIM}.p());
             iterateCheckAssign(nodep, "Initial value", nodep->valuep(), FINAL, nodep->dtypep());
         }
     }
-    void visit(AstStructSel* nodep) override {
+    ಶೂನ್ಯ visit(AstStructSel* nodep) override {
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstMemberSel* nodep) override {
+    ಶೂನ್ಯ visit(AstMemberSel* nodep) override {
         UINFO(5, "   MEMBERSEL " << nodep);
-        if (nodep->didWidth()) return;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_underMemberSel);
-        m_underMemberSel = true;
+        m_underMemberSel = ಸತ್ಯ;
         UINFOTREE(9, nodep, "", "mbs-in");
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
         UINFOTREE(9, nodep, "", "mbs-ic");
         // Find the fromp dtype - should be a class
         UASSERT_OBJ(nodep->fromp()->dtypep(), nodep->fromp(), "Unlinked data type");
-        AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
         UINFO(9, "     from dt " << fromDtp);
-        const AstMemberSel* const fromSel = VN_CAST(nodep->fromp(), MemberSel);
-        if (AstClocking* const clockingp = fromSel && fromSel->varp()
+        ಧ್ರುವ AstMemberSel* ಧ್ರುವ fromSel = VN_CAST(nodep->fromp(), MemberSel);
+        ಯದಿ (AstClocking* ಧ್ರುವ clockingp = fromSel && fromSel->varp()
                                                ? VN_CAST(fromSel->varp()->firstAbovep(), Clocking)
                                                : nullptr) {
             // In:  MEMBERSEL{MEMBERSEL{vifaceref, "cb", cb_event}, "clockvar", null}
             // Out: MEMBERSEL{vifaceref, "clockvar", clockvar}
             UINFO(9, "     from clocking " << clockingp);
-            if (AstVar* const varp = memberSelClocking(nodep, clockingp)) {
-                if (!varp->didWidth()) userIterate(varp, nullptr);
+            ಯದಿ (AstVar* ಧ್ರುವ varp = memberSelClocking(nodep, clockingp)) {
+                ಯದಿ (!varp->didWidth()) userIterate(varp, nullptr);
                 AstMemberSel* fromp = VN_AS(nodep->fromp(), MemberSel);
                 fromp->replaceWith(fromp->fromp()->unlinkFrBack());
-                VL_DO_DANGLING(fromp->deleteTree(), fromp);
+                VL_DO_DANGLING(fromp->delete_ವೃಕ್ಷ(), fromp);
                 nodep->dtypep(varp->dtypep());
                 nodep->varp(varp);
-                if (nodep->access().isWriteOrRW()) {
+                ಯದಿ (nodep->access().isWriteOrRW()) {
                     V3LinkLValue::linkLValueSet(nodep, nodep->access());
                 }
-                if (AstIfaceRefDType* const adtypep
+                ಯದಿ (AstIfaceRefDType* ಧ್ರುವ adtypep
                     = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType)) {
                     nodep->varp()->sensIfacep(adtypep->ifacep());
                 }
                 UINFO(9, "     done clocking msel " << nodep);
-                nodep->didWidth(true);  // Must not visit again: will confuse scopes
-                return;
+                nodep->didWidth(ಸತ್ಯ);  // Must not visit again: will confuse scopes
+                ಪ್ರತ್ಯಾಗಮ;
             }
-        } else if (AstNodeUOrStructDType* const adtypep = VN_CAST(fromDtp, NodeUOrStructDType)) {
-            if (memberSelStruct(nodep, adtypep)) return;
-        } else if (AstClassRefDType* const adtypep = VN_CAST(fromDtp, ClassRefDType)) {
-            if (memberSelClass(nodep, adtypep)) return;
-        } else if (AstIfaceRefDType* const adtypep = VN_CAST(fromDtp, IfaceRefDType)) {
-            if (AstNode* foundp = memberSelIface(nodep, adtypep)) {
-                if (AstClocking* const clockingp = VN_CAST(foundp, Clocking))
+        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, ಗಂಟು_UOr_Struct_DType)) {
+            ಯದಿ (memberSelStruct(nodep, adtypep)) ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (AstClassRefDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, ClassRefDType)) {
+            ಯದಿ (memberSelClass(nodep, adtypep)) ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (AstIfaceRefDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, IfaceRefDType)) {
+            ಯದಿ (Ast_ಗಂಟು* foundp = memberSelIface(nodep, adtypep)) {
+                ಯದಿ (AstClocking* ಧ್ರುವ clockingp = VN_CAST(foundp, Clocking))
                     foundp = clockingp->ensureEventp();
-                if (AstVar* const varp = VN_CAST(foundp, Var)) {
-                    if (!varp->didWidth()) userIterate(varp, nullptr);
-                    AstIface* const ifacep = adtypep->ifaceViaCellp();
+                ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(foundp, Var)) {
+                    ಯದಿ (!varp->didWidth()) userIterate(varp, nullptr);
+                    AstIface* ಧ್ರುವ ifacep = adtypep->ifaceViaCellp();
                     varp->sensIfacep(ifacep);
                     // Member of a non-virtual interface reference, e.g. an element selected
                     // from a whole array of interfaces: reference it through the interface,
                     // as V3LinkDot does for 'iface.member'
-                    const AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef);
-                    if (refp && !adtypep->isVirtual() && refp->varp()->isIfaceRef()) {
-                        AstVarXRef* const newp = new AstVarXRef{nodep->fileline(), varp,
+                    ಧ್ರುವ AstVarRef* ಧ್ರುವ refp = VN_CAST(nodep->fromp(), VarRef);
+                    ಯದಿ (refp && !adtypep->isVirtual() && refp->varp()->isIfaceRef()) {
+                        AstVarXRef* ಧ್ರುವ newp = ನೂತನ AstVarXRef{nodep->fileline(), varp,
                                                                 refp->name(), nodep->access()};
-                        newp->didWidth(true);
+                        newp->didWidth(ಸತ್ಯ);
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return;
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                        ಪ್ರತ್ಯಾಗಮ;
                     }
                     nodep->dtypep(foundp->dtypep());
                     nodep->varp(varp);
-                    nodep->didWidth(true);
-                    return;
+                    nodep->didWidth(ಸತ್ಯ);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
-                if (AstModport* const modportp = VN_CAST(foundp, Modport)) {
+                ಯದಿ (AstModport* ಧ್ರುವ modportp = VN_CAST(foundp, Modport)) {
                     // Modport selection (e.g. vif.passive_mp) is compile-time
                     // type narrowing: replace MemberSel with fromp re-typed.
-                    AstIfaceRefDType* const newDtypep = new AstIfaceRefDType{
+                    AstIfaceRefDType* ಧ್ರುವ newDtypep = ನೂತನ AstIfaceRefDType{
                         nodep->fileline(), nodep->fileline(), adtypep->cellName(),
                         adtypep->ifaceName(), modportp->name()};
                     newDtypep->ifacep(adtypep->ifacep());
@@ -4261,45 +4261,45 @@ class WidthVisitor final : public VNVisitor {
                     newDtypep->modportp(modportp);
                     newDtypep->isVirtual(adtypep->isVirtual());
                     v3Global.rootp()->typeTablep()->addTypesp(newDtypep);
-                    AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = nodep->fromp()->unlinkFrBack();
                     fromp->dtypep(newDtypep);
                     nodep->replaceWith(fromp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
-                if (AstCell* const cellp = VN_CAST(foundp, Cell)) {
+                ಯದಿ (AstCell* ಧ್ರುವ cellp = VN_CAST(foundp, Cell)) {
                     // Sub-interface cell selection (e.g. vif.tx): resolve to the
                     // companion __Viftop var created by V3LinkCells for its dtype.
-                    if (VN_IS(cellp->modp(), Iface)) {
-                        const string viftopName = cellp->name() + "__Viftop";
-                        AstNodeModule* const parentIfacep = adtypep->ifaceViaCellp();
+                    ಯದಿ (VN_IS(cellp->modp(), Iface)) {
+                        ಧ್ರುವ string viftopName = cellp->name() + "__Viftop";
+                        Ast_ಗಂಟು_Module* ಧ್ರುವ parentIfacep = adtypep->ifaceViaCellp();
                         AstVar* viftopVarp = nullptr;
-                        for (AstNode* itemp = parentIfacep->stmtsp(); itemp;
+                        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = parentIfacep->stmtsp(); itemp;
                              itemp = itemp->nextp()) {
-                            if (AstVar* const vp = VN_CAST(itemp, Var)) {
-                                if (vp->name() == viftopName) {
+                            ಯದಿ (AstVar* ಧ್ರುವ vp = VN_CAST(itemp, Var)) {
+                                ಯದಿ (vp->name() == viftopName) {
                                     viftopVarp = vp;
-                                    break;
+                                    ಭಙ್ಗ;
                                 }
                             }
                         }
                         UASSERT_OBJ(viftopVarp, nodep,
                                     "No __Viftop variable for sub-interface cell");
-                        if (!viftopVarp->didWidth()) userIterate(viftopVarp, nullptr);
-                        AstNodeDType* subDtypep = viftopVarp->dtypep();
-                        if (adtypep->isVirtual()) {
+                        ಯದಿ (!viftopVarp->didWidth()) userIterate(viftopVarp, nullptr);
+                        Ast_ಗಂಟು_DType* subDtypep = viftopVarp->dtypep();
+                        ಯದಿ (adtypep->isVirtual()) {
                             // A sub-interface selected through a virtual interface
                             // handle is itself a virtual reference (a runtime
                             // instance pointer), not a static instance. Mark the
                             // dtype virtual so a method call on it dispatches per
                             // instance instead of inlining to one fixed scope.
-                            if (AstIfaceRefDType* const subRefp
+                            ಯದಿ (AstIfaceRefDType* ಧ್ರುವ subRefp
                                 = VN_CAST(subDtypep->skipRefp(), IfaceRefDType)) {
-                                AstIfaceRefDType* const newDtypep = new AstIfaceRefDType{
+                                AstIfaceRefDType* ಧ್ರುವ newDtypep = ನೂತನ AstIfaceRefDType{
                                     nodep->fileline(), subRefp->cellName(), subRefp->ifaceName()};
                                 newDtypep->ifacep(subRefp->ifacep());
                                 newDtypep->cellp(subRefp->cellp());
-                                newDtypep->isVirtual(true);
+                                newDtypep->isVirtual(ಸತ್ಯ);
                                 v3Global.rootp()->typeTablep()->addTypesp(newDtypep);
                                 subDtypep = newDtypep;
                             }
@@ -4307,19 +4307,19 @@ class WidthVisitor final : public VNVisitor {
                         nodep->dtypep(subDtypep);
                         nodep->varp(viftopVarp);
                         viftopVarp->sensIfacep(VN_AS(cellp->modp(), Iface));
-                        nodep->didWidth(true);
-                        return;
+                        nodep->didWidth(ಸತ್ಯ);
+                        ಪ್ರತ್ಯಾಗಮ;
                     }
                 }
-                if (AstNodeFTask* const ftaskp = VN_CAST(foundp, NodeFTask)) {
-                    AstMethodCall* const newp = new AstMethodCall{
+                ಯದಿ (Ast_ಗಂಟು_FTask* ಧ್ರುವ ftaskp = VN_CAST(foundp, ಗಂಟು_FTask)) {
+                    AstMethodCall* ಧ್ರುವ newp = ನೂತನ AstMethodCall{
                         nodep->fileline(), nodep->fromp()->unlinkFrBack(), nodep->name()};
                     newp->taskp(ftaskp);
                     newp->dtypep(ftaskp->dtypep());
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                     userIterate(newp, m_vup);
-                    return;
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
                 UINFO(1, "found object " << foundp);
                 nodep->v3fatalSrc("MemberSel of non-variable\n"
@@ -4327,7 +4327,7 @@ class WidthVisitor final : public VNVisitor {
                                   << foundp->warnOther() << "... Location of found object\n"
                                   << foundp->warnContextSecondary());
             }
-        } else if (VN_IS(fromDtp, EnumDType)  //
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(fromDtp, EnumDType)  //
                    || VN_IS(fromDtp, AssocArrayDType)  //
                    || VN_IS(fromDtp, WildcardArrayDType)  //
                    || VN_IS(fromDtp, UnpackArrayDType)  //
@@ -4337,87 +4337,87 @@ class WidthVisitor final : public VNVisitor {
                    || VN_IS(fromDtp, BasicDType)) {
             // Method call on enum without following parenthesis, e.g. "ENUM.next"
             // Convert this into a method call, and let that visitor figure out what to do next
-            AstNode* const newp = new AstMethodCall{nodep->fileline(),
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstMethodCall{nodep->fileline(),
                                                     nodep->fromp()->unlinkFrBack(), nodep->name()};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             userIterate(newp, m_vup);
-            return;
-        } else {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Member selection of non-struct/union object '"
                            << nodep->fromp()->prettyTypeName() << "' which is a '"
                            << nodep->fromp()->dtypep()->prettyTypeName() << "'");
         }
         // Error handling
-        nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    bool memberSelClass(AstMemberSel* nodep, AstClassRefDType* adtypep) {
-        if (nodep->name() == "rand_mode" || nodep->name() == "randomize") {
-            AstMethodCall* const newp = new AstMethodCall{
+    ತಾರ್ಕಿಕ memberSelClass(AstMemberSel* nodep, AstClassRefDType* adtypep) {
+        ಯದಿ (nodep->name() == "rand_mode" || nodep->name() == "randomize") {
+            AstMethodCall* ಧ್ರುವ newp = ನೂತನ AstMethodCall{
                 nodep->fileline(), nodep->fromp()->unlinkFrBack(), nodep->name()};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             visit(newp);
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
         // Returns true if ok
         // No need to width-resolve the class, as it was done when we did the child
-        AstClass* const first_classp = adtypep->classp();
+        AstClass* ಧ್ರುವ first_classp = adtypep->classp();
         UASSERT_OBJ(first_classp, nodep, "Unlinked");
-        for (AstClass* classp = first_classp; classp;) {
-            if (AstNode* const foundp = m_memberMap.findMember(classp, nodep->name())) {
-                if (AstVar* const varp = VN_CAST(foundp, Var)) {
-                    if (!varp->didWidth()) userIterate(varp, nullptr);
-                    if (varp->lifetime().isStatic() || varp->isParam()) {
+        ಪ್ರತಿ (AstClass* classp = first_classp; classp;) {
+            ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ foundp = m_memberMap.findMember(classp, nodep->name())) {
+                ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(foundp, Var)) {
+                    ಯದಿ (!varp->didWidth()) userIterate(varp, nullptr);
+                    ಯದಿ (varp->lifetime().isStatic() || varp->isParam()) {
                         // Static members are moved outside the class, so they shouldn't be
                         // accessed by member select on a class object
-                        AstVarRef* const varRefp
-                            = new AstVarRef{nodep->fileline(), varp, nodep->access()};
+                        AstVarRef* ಧ್ರುವ varRefp
+                            = ನೂತನ AstVarRef{nodep->fileline(), varp, nodep->access()};
                         varRefp->classOrPackagep(classp);
                         nodep->replaceWith(varRefp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return true;
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                     }
-                    if (nodep->access().isWriteOrRW() && varp->isConst()) {
+                    ಯದಿ (nodep->access().isWriteOrRW() && varp->isConst()) {
                         nodep->v3warn(E_CONSTWRITTEN, "Writing to 'const' data-typed variable "
                                                           << nodep->prettyNameQ()
                                                           << " (IEEE 1800-2023 6.20.6)");
                     }
                     nodep->dtypep(foundp->dtypep());
                     nodep->varp(varp);
-                    nodep->didWidth(true);
-                    if (nodep->fromp()->sameTree(m_randomizeFromp) && varp->isRand())  // null-safe
+                    nodep->didWidth(ಸತ್ಯ);
+                    ಯದಿ (nodep->fromp()->same_ವೃಕ್ಷ(m_randomizeFromp) && varp->isRand())  // null-safe
                         V3LinkLValue::linkLValueSet(nodep);
-                    return true;
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 }
-                if (AstConstraint* constrp = VN_CAST(foundp, Constraint)) {
-                    nodep->replaceWith(new AstConstraintRef{
+                ಯದಿ (AstConstraint* constrp = VN_CAST(foundp, Constraint)) {
+                    nodep->replaceWith(ನೂತನ AstConstraintRef{
                         nodep->fileline(), nodep->fromp()->unlinkFrBack(), constrp});
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return true;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 }
-                if (AstEnumItemRef* const adfoundp = VN_CAST(foundp, EnumItemRef)) {
-                    nodep->replaceWith(adfoundp->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return true;
+                ಯದಿ (AstEnumItemRef* ಧ್ರುವ adfoundp = VN_CAST(foundp, EnumItemRef)) {
+                    nodep->replaceWith(adfoundp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 }
-                if (AstNodeFTask* ftaskp = VN_CAST(foundp, NodeFTask)) {
-                    AstMethodCall* newp = new AstMethodCall{
+                ಯದಿ (Ast_ಗಂಟು_FTask* ftaskp = VN_CAST(foundp, ಗಂಟು_FTask)) {
+                    AstMethodCall* newp = ನೂತನ AstMethodCall{
                         nodep->fileline(), nodep->fromp()->unlinkFrBack(), nodep->name()};
                     newp->taskp(ftaskp);
                     newp->dtypep(ftaskp->dtypep());
                     newp->classOrPackagep(classp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return true;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 }
-                if (VN_IS(foundp, Constraint)) {
+                ಯದಿ (VN_IS(foundp, Constraint)) {
                     // We don't support constraints yet, so just keep as unlinked for now
                     // Presumably we'll next see a constraint_mode AstMethodCall
                     nodep->dtypep(nodep->findConstraintRefDType());
                     UINFO(9, "Unsupported constraint select " << nodep);
-                    return true;
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 }
                 UINFO(1, "found object " << foundp);
                 nodep->v3fatalSrc("MemberSel of non-variable\n"
@@ -4429,134 +4429,134 @@ class WidthVisitor final : public VNVisitor {
         }
 
         VSpellCheck speller;
-        for (AstClass* classp = first_classp; classp;) {
-            for (AstNode* itemp = classp->membersp(); itemp; itemp = itemp->nextp()) {
-                if (VN_IS(itemp, Constraint) || VN_IS(itemp, EnumItemRef) || VN_IS(itemp, Var)) {
-                    speller.pushCandidate(itemp->prettyName());
+        ಪ್ರತಿ (AstClass* classp = first_classp; classp;) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = classp->membersp(); itemp; itemp = itemp->nextp()) {
+                ಯದಿ (VN_IS(itemp, Constraint) || VN_IS(itemp, EnumItemRef) || VN_IS(itemp, Var)) {
+                    speller.ತಳ್ಳು_Candidate(itemp->prettyName());
                 }
             }
             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr;
         }
-        const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+        ಧ್ರುವ string suggest = speller.best_Candidate_ಸಂದೇಶ(nodep->prettyName());
         nodep->v3error(
             "Member " << nodep->prettyNameQ() << " not found in " << first_classp->verilogKwd()
                       << " " << first_classp->prettyNameQ() << "\n"
                       << (suggest.empty() ? "" : nodep->fileline()->warnMore() + suggest));
-        return false;  // Caller handles error
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;  // Caller handles error
     }
-    bool modportAllowsItem(AstNode* nodep, const AstIfaceRefDType* adtypep, const AstNode* itemp) {
+    ತಾರ್ಕಿಕ modportAllowsItem(Ast_ಗಂಟು* nodep, ಧ್ರುವ AstIfaceRefDType* adtypep, ಧ್ರುವ Ast_ಗಂಟು* itemp) {
         // Variables, tasks/functions and clocking blocks of an interface are only visible
         // through a modport when the modport lists them
-        const AstModport* const modportp = adtypep->modportp();
-        if (!modportp) return true;
-        if (const AstVar* const varp = VN_CAST(itemp, Var)) {
-            if (varp->isParam()) return true;
-        } else if (!VN_IS(itemp, NodeFTask) && !VN_IS(itemp, Clocking)) {
-            return true;
+        ಧ್ರುವ AstModport* ಧ್ರುವ modportp = adtypep->modportp();
+        ಯದಿ (!modportp) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಯದಿ (ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(itemp, Var)) {
+            ಯದಿ (varp->isParam()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        } ಅನ್ಯಥಾ ಯದಿ (!VN_IS(itemp, ಗಂಟು_FTask) && !VN_IS(itemp, Clocking)) {
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
         auto pair = m_modportNames.emplace(modportp, std::unordered_set<string>{});
-        if (pair.second) {
-            for (const AstNode* mpItemp = modportp->varsp(); mpItemp; mpItemp = mpItemp->nextp()) {
-                pair.first->second.insert(mpItemp->name());
+        ಯದಿ (pair.second) {
+            ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* mpItemp = modportp->varsp(); mpItemp; mpItemp = mpItemp->nextp()) {
+                pair.first->second.ಸೇರಿಸು(mpItemp->name());
             }
         }
-        if (pair.first->second.count(itemp->name())) return true;
+        ಯದಿ (pair.first->second.ಎಣಿಕೆ(itemp->name())) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         nodep->v3error("Member " << itemp->prettyNameQ() << " found in interface "
                                  << adtypep->ifaceViaCellp()->prettyNameQ()
                                  << " but not in modport " << modportp->prettyNameQ()
                                  << " (IEEE 1800-2023 25.5)");
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
-    AstNode* memberSelIface(AstMemberSel* nodep, AstIfaceRefDType* adtypep) {
+    Ast_ಗಂಟು* memberSelIface(AstMemberSel* nodep, AstIfaceRefDType* adtypep) {
         // Returns node if ok
         // No need to width-resolve the interface, as it was done when we did the child
         // ifaceViaCellp() handles dtypes with cellp-only (no ifacep), as produced
         // by sub-interface selection, enabling chained access (e.g. vif.tx.Tx).
-        AstNodeModule* const ifacep = adtypep->ifaceViaCellp();
+        Ast_ಗಂಟು_Module* ಧ್ರುವ ifacep = adtypep->ifaceViaCellp();
         UASSERT_OBJ(ifacep, nodep, "Unlinked");
         VSpellCheck speller;
-        for (AstNode* itemp = ifacep->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp->name() == nodep->name()) {
-                if (!modportAllowsItem(nodep, adtypep, itemp)) {
-                    return nullptr;  // Caller handles error
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = ifacep->stmtsp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (itemp->name() == nodep->name()) {
+                ಯದಿ (!modportAllowsItem(nodep, adtypep, itemp)) {
+                    ಪ್ರತ್ಯಾಗಮ nullptr;  // Caller handles error
                 }
-                return itemp;
+                ಪ್ರತ್ಯಾಗಮ itemp;
             }
-            if (VN_IS(itemp, Var) || VN_IS(itemp, Modport) || VN_IS(itemp, Cell)) {
-                speller.pushCandidate(itemp->prettyName());
+            ಯದಿ (VN_IS(itemp, Var) || VN_IS(itemp, Modport) || VN_IS(itemp, Cell)) {
+                speller.ತಳ್ಳು_Candidate(itemp->prettyName());
             }
         }
-        const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+        ಧ್ರುವ string suggest = speller.best_Candidate_ಸಂದೇಶ(nodep->prettyName());
         nodep->v3error(
             "Member " << nodep->prettyNameQ() << " not found in interface "
                       << ifacep->prettyNameQ() << "\n"
                       << (suggest.empty() ? "" : nodep->fileline()->warnMore() + suggest));
-        return nullptr;  // Caller handles error
+        ಪ್ರತ್ಯಾಗಮ nullptr;  // Caller handles error
     }
     AstVar* memberSelClocking(AstMemberSel* nodep, AstClocking* clockingp) {
         // Returns node if ok
         VSpellCheck speller;
 
-        for (AstNode* itemp = clockingp->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (AstClockingItem* citemp = VN_CAST(itemp, ClockingItem)) {
-                if (citemp->varp()->name() == nodep->name()) return citemp->varp();
-                speller.pushCandidate(citemp->varp()->prettyName());
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = clockingp->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (AstClockingItem* citemp = VN_CAST(itemp, ClockingItem)) {
+                ಯದಿ (citemp->varp()->name() == nodep->name()) ಪ್ರತ್ಯಾಗಮ citemp->varp();
+                speller.ತಳ್ಳು_Candidate(citemp->varp()->prettyName());
             }
         }
-        const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+        ಧ್ರುವ string suggest = speller.best_Candidate_ಸಂದೇಶ(nodep->prettyName());
         nodep->v3error(
             "Member " << nodep->prettyNameQ() << " not found in clocking block "
                       << clockingp->prettyNameQ() << "\n"
                       << (suggest.empty() ? "" : nodep->fileline()->warnMore() + suggest));
-        return nullptr;  // Caller handles error
+        ಪ್ರತ್ಯಾಗಮ nullptr;  // Caller handles error
     }
-    bool memberSelStruct(AstMemberSel* nodep, AstNodeUOrStructDType* adtypep) {
+    ತಾರ್ಕಿಕ memberSelStruct(AstMemberSel* nodep, Ast_ಗಂಟು_UOr_Struct_DType* adtypep) {
         // Returns true if ok
-        if (AstMemberDType* const memberp
+        ಯದಿ (AstMemberDType* ಧ್ರುವ memberp
             = VN_CAST(m_memberMap.findMember(adtypep, nodep->name()), MemberDType)) {
-            if (m_attrp) {  // Looking for the base of the attribute
+            ಯದಿ (m_attrp) {  // Looking for the base of the attribute
                 nodep->dtypep(memberp);
                 UINFO(9, "   MEMBERSEL(attr) -> " << nodep);
                 UINFO(9, "           dt-> " << nodep->dtypep());
-            } else if (adtypep->packed()) {
-                AstSel* const newp = new AstSel{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            } ಅನ್ಯಥಾ ಯದಿ (adtypep->packed()) {
+                AstSel* ಧ್ರುವ newp = ನೂತನ AstSel{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                                 memberp->lsb(), memberp->width()};
                 // Must skip over the member to find the union; as the member may disappear later
                 newp->dtypep(memberp->subDTypep()->skipRefToEnump());
-                newp->didWidth(true);  // Don't replace dtype with basic type
+                newp->didWidth(ಸತ್ಯ);  // Don't replace dtype with basic type
                 UINFO(9, "   MEMBERSEL -> " << newp);
                 UINFO(9, "           dt-> " << newp->dtypep());
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                 // Should be able to treat it as a normal-ish nodesel - maybe.
                 // The lhsp() will be strange until this stage; create the number here?
-            } else {
-                AstStructSel* const newp = new AstStructSel{
+            } ಅನ್ಯಥಾ {
+                AstStructSel* ಧ್ರುವ newp = ನೂತನ AstStructSel{
                     nodep->fileline(), nodep->fromp()->unlinkFrBack(), nodep->name()};
                 // Must skip over the member to find the union; as the member may disappear later
                 newp->dtypep(memberp->subDTypep()->skipRefToEnump());
-                newp->didWidth(true);  // Don't replace dtype with basic type
+                newp->didWidth(ಸತ್ಯ);  // Don't replace dtype with basic type
                 UINFO(9, "   MEMBERSEL -> " << newp);
                 UINFO(9, "           dt-> " << newp->dtypep());
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                 // Should be able to treat it as a normal-ish nodesel - maybe.
                 // The lhsp() will be strange until this stage; create the number here?
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
         nodep->v3error("Member " << nodep->prettyNameQ() << " not found in structure");
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
-    void visit(AstCMethodHard* nodep) override {
+    ಶೂನ್ಯ visit(AstCMethodHard* nodep) override {
         // Never created before V3Width, so no need to redo it
         UASSERT_OBJ(nodep->dtypep(), nodep, "CMETHODCALLs should have already been sized");
     }
 
-    void visit(AstMethodCall* nodep) override {
+    ಶೂನ್ಯ visit(AstMethodCall* nodep) override {
         UINFO(5, "   METHODCALL " << nodep);
-        if (nodep->didWidth()) return;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         UINFOTREE(9, nodep, "", "mts-in");
         // Should check types the method requires, but at present we don't do much
         userIterate(nodep->fromp(), WidthVP{SELF, BOTH}.p());
@@ -4564,37 +4564,37 @@ class WidthVisitor final : public VNVisitor {
         // Any AstWith is checked later when know types, in methodWithClause
         // Find the fromp dtype - should be a class
         UASSERT_OBJ(nodep->fromp() && nodep->fromp()->dtypep(), nodep, "Unsized expression");
-        AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
-        AstBasicDType* const basicp = fromDtp ? fromDtp->basicp() : nullptr;
+        Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtp = nodep->fromp()->dtypep()->skipRefToEnump();
+        AstBasicDType* ಧ್ರುವ basicp = fromDtp ? fromDtp->basicp() : nullptr;
         UINFO(9, "     from dt " << fromDtp);
         userIterate(fromDtp, WidthVP{SELF, BOTH}.p());
-        if (nodep->name() == "rand_mode") {
+        ಯದಿ (nodep->name() == "rand_mode") {
             methodCallRandMode(nodep);
-        } else if (nodep->name() == "constraint_mode") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "constraint_mode") {
             methodCallConstraint(nodep, nullptr);
-        } else if (AstEnumDType* const adtypep = VN_CAST(fromDtp, EnumDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstEnumDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, EnumDType)) {
             methodCallEnum(nodep, adtypep);
-        } else if (AstAssocArrayDType* const adtypep = VN_CAST(fromDtp, AssocArrayDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstAssocArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, AssocArrayDType)) {
             methodCallAssoc(nodep, adtypep);
-        } else if (AstWildcardArrayDType* const adtypep = VN_CAST(fromDtp, WildcardArrayDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstWildcardArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, WildcardArrayDType)) {
             methodCallWildcard(nodep, adtypep);
-        } else if (AstDynArrayDType* const adtypep = VN_CAST(fromDtp, DynArrayDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstDynArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, DynArrayDType)) {
             methodCallDyn(nodep, adtypep);
-        } else if (AstQueueDType* const adtypep = VN_CAST(fromDtp, QueueDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstQueueDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, QueueDType)) {
             methodCallQueue(nodep, adtypep);
-        } else if (AstClassRefDType* const adtypep = VN_CAST(fromDtp, ClassRefDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstClassRefDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, ClassRefDType)) {
             methodCallClass(nodep, adtypep);
-        } else if (AstIfaceRefDType* const adtypep = VN_CAST(fromDtp, IfaceRefDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstIfaceRefDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, IfaceRefDType)) {
             methodCallIfaceRef(nodep, adtypep);
-        } else if (AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstUnpackArrayDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
             methodCallUnpack(nodep, adtypep);
-        } else if (AstConstraintRefDType* const adtypep = VN_CAST(fromDtp, ConstraintRefDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstConstraintRefDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, ConstraintRefDType)) {
             methodCallConstraint(nodep, adtypep);
-        } else if (basicp && basicp->isEvent()) {
+        } ಅನ್ಯಥಾ ಯದಿ (basicp && basicp->isEvent()) {
             methodCallEvent(nodep, basicp);
-        } else if (basicp && basicp->isString()) {
+        } ಅನ್ಯಥಾ ಯದಿ (basicp && basicp->isString()) {
             methodCallString(nodep, basicp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Member call on object '"
                                              << nodep->fromp()->prettyTypeName()
                                              << "' which is a '"
@@ -4602,88 +4602,88 @@ class WidthVisitor final : public VNVisitor {
             nodep->dtypeSetVoid();
         }
     }
-    AstWith* methodWithClause(AstNodeFTaskRef* nodep, bool required, bool arbReturn,
-                              AstNodeDType* returnDtp, AstNodeDType* indexDtp,
-                              AstNodeDType* valueDtp) {
+    AstWith* methodWithClause(Ast_ಗಂಟು_FTask_Ref* nodep, ತಾರ್ಕಿಕ required, ತಾರ್ಕಿಕ arbReturn,
+                              Ast_ಗಂಟು_DType* returnDtp, Ast_ಗಂಟು_DType* indexDtp,
+                              Ast_ಗಂಟು_DType* ಮೌಲ್ಯ_Dtp) {
         UASSERT_OBJ(arbReturn || returnDtp, nodep, "Null return type");
-        if (AstWith* const withp = nodep->withp()) {
+        ಯದಿ (AstWith* ಧ್ರುವ withp = nodep->withp()) {
             withp->indexArgRefp()->dtypep(indexDtp);
-            withp->valueArgRefp()->dtypep(valueDtp);
+            withp->ಮೌಲ್ಯ_Arg_Refp()->dtypep(ಮೌಲ್ಯ_Dtp);
             userIterate(withp, WidthVP{returnDtp, BOTH}.p());
             withp->unlinkFrBack();
-            return withp;
+            ಪ್ರತ್ಯಾಗಮ withp;
         }
-        if (required) {
+        ಯದಿ (required) {
             nodep->v3error("'with' statement is required for ." << nodep->prettyName()
                                                                 << " method");
         }
-        return nullptr;
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
-    void methodOkArguments(AstNodeFTaskRef* nodep, int minArg, int maxArg) {
-        int narg = 0;
-        if (AstWith* const withp = nodep->withp()) {
+    ಶೂನ್ಯ methodOkArguments(Ast_ಗಂಟು_FTask_Ref* nodep, ಪೂರ್ಣಾಙ್ಕ minArg, ಪೂರ್ಣಾಙ್ಕ maxArg) {
+        ಪೂರ್ಣಾಙ್ಕ narg = 0;
+        ಯದಿ (AstWith* ಧ್ರುವ withp = nodep->withp()) {
             withp->v3error("'with' not legal on this method");
-            VL_DO_DANGLING(pushDeletep(withp->unlinkFrBack()), withp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(withp->unlinkFrBack()), withp);
         }
-        for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) ++narg;
-        const bool ok = (narg >= minArg) && (narg <= maxArg);
-        if (!ok) {
+        ಪ್ರತಿ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) ++narg;
+        ಧ್ರುವ ತಾರ್ಕಿಕ ok = (narg >= minArg) && (narg <= maxArg);
+        ಯದಿ (!ok) {
             nodep->v3error("The " << narg << " arguments passed to ." << nodep->prettyName()
                                   << " method does not match its requiring " << cvtToStr(minArg)
                                   << (minArg == maxArg ? "" : " to " + cvtToStr(maxArg))
                                   << " arguments");
             // Adjust to required argument counts, very bogus, but avoids core dump
-            for (; narg < minArg; ++narg) {
+            ಪ್ರತಿ (; narg < minArg; ++narg) {
                 nodep->addArgsp(
-                    new AstArg{nodep->fileline(), "",
-                               new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}}});
+                    ನೂತನ AstArg{nodep->fileline(), "",
+                               ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}}});
             }
-            for (; narg > maxArg; --narg) {
+            ಪ್ರತಿ (; narg > maxArg; --narg) {
                 AstArg* argp = nodep->argsp();
-                while (argp->nextp()) argp = VN_AS(argp->nextp(), Arg);
+                ಯಾವತ್ (argp->nextp()) argp = VN_AS(argp->nextp(), Arg);
                 argp->unlinkFrBack();
-                VL_DO_DANGLING(argp->deleteTree(), argp);
+                VL_DO_DANGLING(argp->delete_ವೃಕ್ಷ(), argp);
             }
         }
     }
 
-    AstNodeExpr* methodArg(AstMethodCall* nodep, int arg) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* methodArg(AstMethodCall* nodep, ಪೂರ್ಣಾಙ್ಕ arg) {
         AstArg* argp = nodep->argsp();
-        for (int narg = 0; narg < arg; ++narg) argp = VN_AS(argp->nextp(), Arg);
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ narg = 0; narg < arg; ++narg) argp = VN_AS(argp->nextp(), Arg);
         UASSERT_OBJ(argp, nodep, "methodOkArguments() should have detected arg count error");
-        return argp->exprp();
+        ಪ್ರತ್ಯಾಗಮ argp->exprp();
     }
 
-    void methodCallEnum(AstMethodCall* nodep, AstEnumDType* adtypep) {
+    ಶೂನ್ಯ methodCallEnum(AstMethodCall* nodep, AstEnumDType* adtypep) {
         // Method call on enum without following parenthesis, e.g. "ENUM.next"
         // Convert this into a method call, and let that visitor figure out what to do next
-        if (nodep->name() == "num"  //
+        ಯದಿ (nodep->name() == "num"  //
             || nodep->name() == "first"  //
             || nodep->name() == "last") {
             // Constant value
             AstConst* newp = nullptr;
             methodOkArguments(nodep, 0, 0);
-            if (nodep->name() == "num") {
-                int items = 0;
-                for (AstNode* itemp = adtypep->itemsp(); itemp; itemp = itemp->nextp()) ++items;
-                newp = new AstConst(nodep->fileline(), AstConst::Signed32{}, items);
-            } else if (nodep->name() == "first") {
-                const AstEnumItem* itemp = adtypep->itemsp();
-                if (!itemp) {
-                    newp = new AstConst(nodep->fileline(), AstConst::Signed32{},
+            ಯದಿ (nodep->name() == "num") {
+                ಪೂರ್ಣಾಙ್ಕ ವಸ್ತುಗಳು = 0;
+                ಪ್ರತಿ (Ast_ಗಂಟು* itemp = adtypep->itemsp(); itemp; itemp = itemp->nextp()) ++ವಸ್ತುಗಳು;
+                newp = ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{}, ವಸ್ತುಗಳು);
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "first") {
+                ಧ್ರುವ AstEnumItem* itemp = adtypep->itemsp();
+                ಯದಿ (!itemp) {
+                    newp = ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{},
                                         0);  // Spec doesn't say what to do
-                } else {
-                    newp = VN_AS(itemp->valuep()->cloneTree(false), Const);  // A const
+                } ಅನ್ಯಥಾ {
+                    newp = VN_AS(itemp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), Const);  // A const
                     newp->dtypeFrom(adtypep);  // To prevent a later ENUMVALUE
                 }
-            } else if (nodep->name() == "last") {
-                const AstEnumItem* itemp = adtypep->itemsp();
-                while (itemp && itemp->nextp()) itemp = VN_AS(itemp->nextp(), EnumItem);
-                if (!itemp) {
-                    newp = new AstConst(nodep->fileline(), AstConst::Signed32{},
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "last") {
+                ಧ್ರುವ AstEnumItem* itemp = adtypep->itemsp();
+                ಯಾವತ್ (itemp && itemp->nextp()) itemp = VN_AS(itemp->nextp(), EnumItem);
+                ಯದಿ (!itemp) {
+                    newp = ನೂತನ AstConst(nodep->fileline(), AstConst::Signed32{},
                                         0);  // Spec doesn't say what to do
-                } else {
-                    newp = VN_AS(itemp->valuep()->cloneTree(false), Const);  // A const
+                } ಅನ್ಯಥಾ {
+                    newp = VN_AS(itemp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), Const);  // A const
                     newp->dtypeFrom(adtypep);  // To prevent a later ENUMVALUE
                 }
             }
@@ -4691,80 +4691,80 @@ class WidthVisitor final : public VNVisitor {
             newp->fileline(nodep->fileline());  // Use method's filename/line number to be clearer;
                                                 // may have warning disables
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->name() == "name" || nodep->name() == "next" || nodep->name() == "prev") {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "name" || nodep->name() == "next" || nodep->name() == "prev") {
             VAttrType attrType;
-            if (nodep->name() == "name") {
+            ಯದಿ (nodep->name() == "name") {
                 attrType = VAttrType::ENUM_NAME;
                 methodOkArguments(nodep, 0, 0);
-            } else if (nodep->name() == "next") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "next") {
                 attrType = VAttrType::ENUM_NEXT;
                 methodOkArguments(nodep, 0, 1);
-            } else if (nodep->name() == "prev") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "prev") {
                 attrType = VAttrType::ENUM_PREV;
                 methodOkArguments(nodep, 0, 1);
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3fatalSrc("Bad case");
             }
 
-            if (nodep->name() != "name" && nodep->argsp()) {
-                AstNodeExpr* stepp = methodArg(nodep, 0);
+            ಯದಿ (nodep->name() != "name" && nodep->argsp()) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* stepp = methodArg(nodep, 0);
                 VL_DO_DANGLING(V3Const::constifyParamsNoWarnEdit(stepp), stepp);
                 stepp = methodArg(nodep, 0);
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::WIDTHEXPAND, true);
+                nodep->fileline()->modifyWarnOff(V3ErrorCode::WIDTHEXPAND, ಸತ್ಯ);
                 iterateCheckUInt32(nodep, "argument", stepp, BOTH);
-                if (!VN_IS(stepp, Const)) {
+                ಯದಿ (!VN_IS(stepp, Const)) {
                     stepp->v3warn(E_UNSUPPORTED,
                                   "Unsupported: enum next/prev with non-constant argument");
-                    AstNodeExpr* const newp = new AstConst{stepp->fileline(), 1};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{stepp->fileline(), 1};
                     stepp->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(stepp), stepp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(stepp), stepp);
                     stepp = newp;
                 }
-                const uint32_t stepWidth = VN_AS(stepp, Const)->toUInt();
-                if (stepWidth == 0) {
+                ಧ್ರುವ uint32_t stepWidth = VN_AS(stepp, Const)->toUInt();
+                ಯದಿ (stepWidth == 0) {
                     // Step of 0 "legalizes" like $cast, use .next.prev
-                    AstMethodCall* const newp = new AstMethodCall{
+                    AstMethodCall* ಧ್ರುವ newp = ನೂತನ AstMethodCall{
                         nodep->fileline(),
-                        new AstMethodCall{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                        ನೂತನ AstMethodCall{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           "next"},
                         "prev"};
                     // No dtype assigned, we will recurse the new method and replace
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    return;
-                } else if (stepWidth != 1) {
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
+                } ಅನ್ಯಥಾ ಯದಿ (stepWidth != 1) {
                     // Unroll of enumVar.next(k) to enumVar.next(1).next(k - 1)
-                    pushDeletep(nodep->argsp()->unlinkFrBack());
-                    AstMethodCall* const clonep = nodep->cloneTree(false);
-                    VN_AS(stepp, Const)->num().setLong(1);
-                    AstConst* const constp = new AstConst(nodep->fileline(), stepWidth - 1);
-                    AstArg* const argp = new AstArg{nodep->fileline(), "", constp};
-                    AstMethodCall* const newp
-                        = new AstMethodCall{nodep->fileline(), clonep, nodep->name(), argp};
+                    ತಳ್ಳು_Deletep(nodep->argsp()->unlinkFrBack());
+                    AstMethodCall* ಧ್ರುವ clonep = nodep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+                    VN_AS(stepp, Const)->ಅಂಕೆ().setLong(1);
+                    AstConst* ಧ್ರುವ constp = ನೂತನ AstConst(nodep->fileline(), stepWidth - 1);
+                    AstArg* ಧ್ರುವ argp = ನೂತನ AstArg{nodep->fileline(), "", constp};
+                    AstMethodCall* ಧ್ರುವ newp
+                        = ನೂತನ AstMethodCall{nodep->fileline(), clonep, nodep->name(), argp};
                     // No dtype assigned, we will recurse the new method and replace
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    return;
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
-            AstNodeExpr* const newp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp
                 = enumSelect(nodep->fromp()->unlinkFrBack(), adtypep, attrType);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown built-in enum method " << nodep->prettyNameQ());
         }
     }
-    void methodCallWildcard(AstMethodCall* nodep, AstWildcardArrayDType* adtypep) {
+    ಶೂನ್ಯ methodCallWildcard(AstMethodCall* nodep, AstWildcardArrayDType* adtypep) {
         AstCMethodHard* newp = nullptr;
-        if (nodep->name() == "num"  // function int num()
+        ಯದಿ (nodep->name() == "num"  // function int num()
             || nodep->name() == "size") {
             methodOkArguments(nodep, 0, 0);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ASSOC_SIZE};  // So don't need num()
             newp->dtypeSetInt();
-        } else if (nodep->name() == "first"  // function int first(ref index)
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "first"  // function int first(ref index)
                    || nodep->name() == "last"  //
                    || nodep->name() == "next"  //
                    || nodep->name() == "prev"  //
@@ -4773,745 +4773,745 @@ class WidthVisitor final : public VNVisitor {
                    || nodep->name() == "find_last_index") {
             nodep->v3error("Array method " << nodep->prettyNameQ()
                                            << " not legal on wildcard associative arrays");
-        } else if (nodep->name() == "exists") {  // function int exists(input index)
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "exists") {  // function int exists(input index)
             // IEEE really should have made this a "bit" return
             methodOkArguments(nodep, 1, 1);
             iterateCheckSelf(nodep, "argument", methodArg(nodep, 0), SELF, BOTH);
-            AstNodeExpr* const index_exprp = methodCallWildcardIndexExpr(nodep, adtypep);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Wildcard_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep, adtypep);
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ASSOC_EXISTS, index_exprp->unlinkFrBack()};
             newp->dtypeSetBitUnsized(32, 1, VSigning::SIGNED);
-        } else if (nodep->name() == "delete") {  // function void delete([input integer index])
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "delete") {  // function void delete([input integer index])
             methodOkArguments(nodep, 0, 1);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            if (!nodep->argsp()) {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            ಯದಿ (!nodep->argsp()) {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           VCMethod::ASSOC_CLEAR};
                 newp->dtypeSetVoid();
-            } else {
+            } ಅನ್ಯಥಾ {
                 iterateCheckSelf(nodep, "argument", methodArg(nodep, 0), SELF, BOTH);
-                AstNodeExpr* const index_exprp = methodCallWildcardIndexExpr(nodep, adtypep);
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Wildcard_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep, adtypep);
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           VCMethod::ASSOC_ERASE, index_exprp->unlinkFrBack()};
                 newp->dtypeSetVoid();
             }
-        } else if (nodep->name() == "sort" || nodep->name() == "rsort"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "sort" || nodep->name() == "rsort"
                    || nodep->name() == "reverse" || nodep->name() == "shuffle") {
             nodep->v3error("Array method " << nodep->prettyNameQ()
                                            << " not legal on associative arrays");
-        } else if (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
                    || nodep->name() == "sum" || nodep->name() == "product") {
             // All value return
-            AstWith* const withp
-                = methodWithClause(nodep, false, false, adtypep->subDTypep(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    adtypep->findStringDType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod("r_" + nodep->name())};
             newp->withp(withp);
             newp->dtypeFrom(withp ? withp->dtypep() : adtypep->subDTypep());
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique") {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique") {
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "find" || nodep->name() == "find_first"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "find" || nodep->name() == "find_first"
                    || nodep->name() == "find_last") {
-            AstWith* const withp
-                = methodWithClause(nodep, true, false, nodep->findBitDType(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, nodep->findBitDType(),
                                    adtypep->findStringDType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "map") {
-            AstWith* const withp
-                = methodWithClause(nodep, true, false, adtypep->subDTypep(),
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "map") {
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    adtypep->findStringDType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ARRAY_MAP};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(withp ? withp->dtypep() : adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown wildcard associative array method " << nodep->prettyNameQ());
             nodep->dtypeFrom(adtypep->subDTypep());  // Best guess
         }
-        if (newp) {
-            newp->protect(false);
-            newp->didWidth(true);
+        ಯದಿ (newp) {
+            newp->protect(ಅಸತ್ಯ);
+            newp->didWidth(ಸತ್ಯ);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    void methodCallAssoc(AstMethodCall* nodep, AstAssocArrayDType* adtypep) {
+    ಶೂನ್ಯ methodCallAssoc(AstMethodCall* nodep, AstAssocArrayDType* adtypep) {
         AstCMethodHard* newp = nullptr;
-        if (nodep->withp() && adtypep->subDTypep()->isWide()) {
+        ಯದಿ (nodep->withp() && adtypep->subDTypep()->isWide()) {
             nodep->v3warn(
                 E_UNSUPPORTED,
                 "Unsupported: `with` clause on assoc arrays with wide value types in method '"
                     << nodep->prettyName() << "'");
         }
-        if (nodep->name() == "num"  // function int num()
+        ಯದಿ (nodep->name() == "num"  // function int num()
             || nodep->name() == "size") {
             methodOkArguments(nodep, 0, 0);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ASSOC_SIZE};  // So don't need num()
             newp->dtypeSetInt();
-        } else if (nodep->name() == "first"  // function int first(ref index)
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "first"  // function int first(ref index)
                    || nodep->name() == "last"  //
                    || nodep->name() == "next"  //
                    || nodep->name() == "prev") {
             methodOkArguments(nodep, 1, 1);
-            iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->keyDTypep(), BOTH);
-            AstNodeExpr* const index_exprp = methodCallAssocIndexExpr(nodep, adtypep);
+            iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->ಕೀಲಿ_DTypep(), BOTH);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Assoc_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep, adtypep);
             methodCallLValueRecurse(nodep, index_exprp, VAccess::READWRITE);
             newp
-                = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                      VCMethod::arrayMethod(nodep->name()),  // first/last/next/prev
                                      index_exprp->unlinkFrBack()};
             newp->dtypeSetInt();
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "exists") {  // function int exists(input index)
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "exists") {  // function int exists(input index)
             // IEEE really should have made this a "bit" return
             methodOkArguments(nodep, 1, 1);
-            iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->keyDTypep(), BOTH);
-            AstNodeExpr* const index_exprp = methodCallAssocIndexExpr(nodep, adtypep);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->ಕೀಲಿ_DTypep(), BOTH);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Assoc_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep, adtypep);
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ASSOC_EXISTS, index_exprp->unlinkFrBack()};
             newp->dtypeSetBitUnsized(32, 1, VSigning::SIGNED);
-        } else if (nodep->name() == "delete") {  // function void delete([input integer index])
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "delete") {  // function void delete([input integer index])
             methodOkArguments(nodep, 0, 1);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            if (!nodep->argsp()) {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            ಯದಿ (!nodep->argsp()) {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           VCMethod::ASSOC_CLEAR};
                 newp->dtypeSetVoid();
-            } else {
-                iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->keyDTypep(),
+            } ಅನ್ಯಥಾ {
+                iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->ಕೀಲಿ_DTypep(),
                                   BOTH);
-                AstNodeExpr* const index_exprp = methodCallAssocIndexExpr(nodep, adtypep);
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Assoc_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep, adtypep);
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           VCMethod::ASSOC_ERASE, index_exprp->unlinkFrBack()};
                 newp->dtypeSetVoid();
             }
-        } else if (nodep->name() == "sort" || nodep->name() == "rsort"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "sort" || nodep->name() == "rsort"
                    || nodep->name() == "reverse" || nodep->name() == "shuffle") {
             nodep->v3error("Array method " << nodep->prettyNameQ()
                                            << " not legal on associative arrays");
-        } else if (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
                    || nodep->name() == "sum" || nodep->name() == "product") {
             // All value return
-            AstWith* const withp = methodWithClause(nodep, false, false, adtypep->subDTypep(),
-                                                    adtypep->keyDTypep(), adtypep->subDTypep());
+            AstWith* ಧ್ರುವ withp = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
+                                                    adtypep->ಕೀಲಿ_DTypep(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod("r_" + nodep->name())};
             newp->withp(withp);
             newp->dtypeFrom(withp ? withp->dtypep() : adtypep->subDTypep());
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique"
                    || nodep->name() == "unique_index") {
-            AstWith* const withp = methodWithClause(
-                nodep, false, true, nullptr, nodep->findUInt32DType(), adtypep->subDTypep());
+            AstWith* ಧ್ರುವ withp = methodWithClause(
+                nodep, ಅಸತ್ಯ, ಸತ್ಯ, nullptr, nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
-            if (nodep->name() == "unique_index") {
-                newp->dtypep(queueDTypeIndexedBy(adtypep->keyDTypep()));
-            } else {
+            ಯದಿ (nodep->name() == "unique_index") {
+                newp->dtypep(queueDTypeIndexedBy(adtypep->ಕೀಲಿ_DTypep()));
+            } ಅನ್ಯಥಾ {
                 newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
             }
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "find" || nodep->name() == "find_first"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "find" || nodep->name() == "find_first"
                    || nodep->name() == "find_last") {
-            AstWith* const withp = methodWithClause(nodep, true, false, nodep->findBitDType(),
-                                                    adtypep->keyDTypep(), adtypep->subDTypep());
+            AstWith* ಧ್ರುವ withp = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, nodep->findBitDType(),
+                                                    adtypep->ಕೀಲಿ_DTypep(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "find_index" || nodep->name() == "find_first_index"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "find_index" || nodep->name() == "find_first_index"
                    || nodep->name() == "find_last_index") {
-            AstWith* const withp = methodWithClause(nodep, true, false, nodep->findBitDType(),
-                                                    adtypep->keyDTypep(), adtypep->subDTypep());
+            AstWith* ಧ್ರುವ withp = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, nodep->findBitDType(),
+                                                    adtypep->ಕೀಲಿ_DTypep(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
-            newp->dtypep(queueDTypeIndexedBy(adtypep->keyDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "map") {
-            AstWith* const withp = methodWithClause(nodep, true, false, adtypep->subDTypep(),
-                                                    adtypep->keyDTypep(), adtypep->subDTypep());
+            newp->dtypep(queueDTypeIndexedBy(adtypep->ಕೀಲಿ_DTypep()));
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "map") {
+            AstWith* ಧ್ರುವ withp = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
+                                                    adtypep->ಕೀಲಿ_DTypep(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ARRAY_MAP};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(withp ? withp->dtypep() : adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown built-in associative array method " << nodep->prettyNameQ());
             nodep->dtypeFrom(adtypep->subDTypep());  // Best guess
         }
-        if (newp) {
-            newp->protect(false);
-            newp->didWidth(true);
+        ಯದಿ (newp) {
+            newp->protect(ಅಸತ್ಯ);
+            newp->didWidth(ಸತ್ಯ);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    AstNodeExpr* methodCallAssocIndexExpr(AstMethodCall* nodep, AstAssocArrayDType* adtypep) {
-        AstNode* const index_exprp = nodep->argsp()->exprp();
-        iterateCheck(nodep, "index", index_exprp, CONTEXT_DET, FINAL, adtypep->keyDTypep(),
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* method_Call_Assoc_Index_ಅಭಿವ್ಯಕ್ತಿ(AstMethodCall* nodep, AstAssocArrayDType* adtypep) {
+        Ast_ಗಂಟು* ಧ್ರುವ index_exprp = nodep->argsp()->exprp();
+        iterateCheck(nodep, "index", index_exprp, CONTEXT_DET, FINAL, adtypep->ಕೀಲಿ_DTypep(),
                      EXTEND_EXP);
         VL_DANGLING(index_exprp);  // May have been edited
-        return nodep->argsp()->exprp();
+        ಪ್ರತ್ಯಾಗಮ nodep->argsp()->exprp();
     }
-    AstNodeExpr* methodCallWildcardIndexExpr(AstMethodCall* nodep,
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* method_Call_Wildcard_Index_ಅಭಿವ್ಯಕ್ತಿ(AstMethodCall* nodep,
                                              AstWildcardArrayDType* adtypep) {
-        AstNode* const index_exprp = nodep->argsp()->exprp();
+        Ast_ಗಂಟು* ಧ್ರುವ index_exprp = nodep->argsp()->exprp();
         iterateCheck(nodep, "index", index_exprp, CONTEXT_DET, FINAL, adtypep->findStringDType(),
                      EXTEND_EXP);
         VL_DANGLING(index_exprp);  // May have been edited
-        return nodep->argsp()->exprp();
+        ಪ್ರತ್ಯಾಗಮ nodep->argsp()->exprp();
     }
-    void methodCallLValueRecurse(AstMethodCall* nodep, AstNode* childp, const VAccess& access) {
-        if (AstCMethodHard* const ichildp = VN_CAST(childp, CMethodHard)) {
-            bool methAt = false;
-            bool methAtBack = false;
-            bool methAtWrite = false;
-            switch (ichildp->method()) {
-            case VCMethod::ARRAY_AT:  // FALLTHRU
-                methAt = true;
-                break;
-            case VCMethod::ARRAY_AT_BACK:  // FALLTHRU
-                methAtBack = true;
-                break;
-            case VCMethod::ARRAY_AT_WRITE:  // FALLTHRU
-            case VCMethod::DYN_AT_WRITE_APPEND:  // FALLTHRU
-            case VCMethod::DYN_AT_WRITE_APPEND_BACK:  //
-                methAtWrite = true;
-                break;
-            default: break;
+    ಶೂನ್ಯ methodCallLValueRecurse(AstMethodCall* nodep, Ast_ಗಂಟು* childp, ಧ್ರುವ VAccess& access) {
+        ಯದಿ (AstCMethodHard* ಧ್ರುವ ichildp = VN_CAST(childp, CMethodHard)) {
+            ತಾರ್ಕಿಕ methAt = ಅಸತ್ಯ;
+            ತಾರ್ಕಿಕ methAtBack = ಅಸತ್ಯ;
+            ತಾರ್ಕಿಕ methAtWrite = ಅಸತ್ಯ;
+            ವಿಕಲ್ಪ (ichildp->method()) {
+            ಪಕ್ಷ VCMethod::ARRAY_AT:  // FALLTHRU
+                methAt = ಸತ್ಯ;
+                ಭಙ್ಗ;
+            ಪಕ್ಷ VCMethod::ARRAY_AT_BACK:  // FALLTHRU
+                methAtBack = ಸತ್ಯ;
+                ಭಙ್ಗ;
+            ಪಕ್ಷ VCMethod::ARRAY_AT_WRITE:  // FALLTHRU
+            ಪಕ್ಷ VCMethod::DYN_AT_WRITE_APPEND:  // FALLTHRU
+            ಪಕ್ಷ VCMethod::DYN_AT_WRITE_APPEND_BACK:  //
+                methAtWrite = ಸತ್ಯ;
+                ಭಙ್ಗ;
+            ಸ್ವಭಾವ: ಭಙ್ಗ;
             }
-            if (methAt || methAtBack || methAtWrite) {
-                const AstNodeDType* const fromDtypep = ichildp->fromp()->dtypep()->skipRefp();
-                if (VN_IS(fromDtypep, QueueDType) || VN_IS(fromDtypep, DynArrayDType)) {
+            ಯದಿ (methAt || methAtBack || methAtWrite) {
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ fromDtypep = ichildp->fromp()->dtypep()->skipRefp();
+                ಯದಿ (VN_IS(fromDtypep, QueueDType) || VN_IS(fromDtypep, DynArrayDType)) {
                     // Change access methods to writable ones
-                    if (methAt) {
+                    ಯದಿ (methAt) {
                         ichildp->method(VCMethod::ARRAY_AT_WRITE);
-                    } else if (methAtBack) {
+                    } ಅನ್ಯಥಾ ಯದಿ (methAtBack) {
                         ichildp->method(VCMethod::DYN_AT_WRITE_APPEND_BACK);
                     }
                 }
                 methodCallLValueRecurse(nodep, ichildp->fromp(), access);
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
         }
-        if (AstNodeVarRef* const varrefp = VN_CAST(childp, NodeVarRef)) {
+        ಯದಿ (Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ varrefp = VN_CAST(childp, ಗಂಟು_Var_Ref)) {
             varrefp->access(access);
-        } else if (const AstMemberSel* const ichildp = VN_CAST(childp, MemberSel)) {
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstMemberSel* ಧ್ರುವ ichildp = VN_CAST(childp, MemberSel)) {
             methodCallLValueRecurse(nodep, ichildp->fromp(), access);
-        } else if (const AstStructSel* const ichildp = VN_CAST(childp, StructSel)) {
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstStructSel* ಧ್ರುವ ichildp = VN_CAST(childp, StructSel)) {
             methodCallLValueRecurse(nodep, ichildp->fromp(), access);
-        } else if (const AstNodeSel* const ichildp = VN_CAST(childp, NodeSel)) {
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_Sel* ಧ್ರುವ ichildp = VN_CAST(childp, ಗಂಟು_Sel)) {
             methodCallLValueRecurse(nodep, ichildp->fromp(), access);
-        } else if (VN_IS(childp, LambdaArgRef) || VN_IS(childp, FuncRef)) {
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(childp, LambdaArgRef) || VN_IS(childp, FuncRef)) {
             // NOP
-        } else {
+        } ಅನ್ಯಥಾ {
             UINFO(1, "    Related node: " << childp);
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Non-variable on LHS of built-in method '"
                                              << nodep->prettyName() << "'");
         }
     }
-    AstCMethodHard* methodCallArray(AstMethodCall* nodep, AstNodeDType* adtypep) {
+    AstCMethodHard* methodCallArray(AstMethodCall* nodep, Ast_ಗಂಟು_DType* adtypep) {
         AstCMethodHard* newp = nullptr;
 
-        if (nodep->name() == "reverse" || nodep->name() == "shuffle" || nodep->name() == "sort"
+        ಯದಿ (nodep->name() == "reverse" || nodep->name() == "shuffle" || nodep->name() == "sort"
             || nodep->name() == "rsort") {
             AstWith* withp = nullptr;
-            if (nodep->name() == "sort" || nodep->name() == "rsort") {
-                withp = methodWithClause(nodep, false, true, nullptr, nodep->findUInt32DType(),
+            ಯದಿ (nodep->name() == "sort" || nodep->name() == "rsort") {
+                withp = methodWithClause(nodep, ಅಸತ್ಯ, ಸತ್ಯ, nullptr, nodep->findUInt32DType(),
                                          adtypep->subDTypep());
             }
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
             newp->dtypeSetVoid();
-        } else if (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "min" || nodep->name() == "max" || nodep->name() == "unique"
                    || nodep->name() == "unique_index") {
-            AstWith* const withp = methodWithClause(
-                nodep, false, true, nullptr, nodep->findUInt32DType(), adtypep->subDTypep());
+            AstWith* ಧ್ರುವ withp = methodWithClause(
+                nodep, ಅಸತ್ಯ, ಸತ್ಯ, nullptr, nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
-            if (nodep->name() == "unique_index") {
+            ಯದಿ (nodep->name() == "unique_index") {
                 newp->dtypep(newp->findQueueIndexDType());
-            } else {
+            } ಅನ್ಯಥಾ {
                 newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
             }
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "find" || nodep->name() == "find_first"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "find" || nodep->name() == "find_first"
                    || nodep->name() == "find_last" || nodep->name() == "find_index") {
-            AstWith* const withp
-                = methodWithClause(nodep, true, false, nodep->findBitDType(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, nodep->findBitDType(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "find_index" || nodep->name() == "find_first_index"
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "find_index" || nodep->name() == "find_first_index"
                    || nodep->name() == "find_last_index") {
-            AstWith* const withp
-                = methodWithClause(nodep, true, false, nodep->findBitDType(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, nodep->findBitDType(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->withp(withp);
             newp->dtypep(newp->findQueueIndexDType());
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if (nodep->name() == "map") {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "map") {
             // map() - IEEE 1800-2023 7.12.5
             // Returns a queue with same element count, each element is the with expression result
-            AstWith* const withp
-                = methodWithClause(nodep, true, false, adtypep->subDTypep(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ARRAY_MAP};
             newp->withp(withp);
             newp->dtypep(queueDTypeIndexedBy(withp ? withp->dtypep() : adtypep->subDTypep()));
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
         }
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    void methodCallDyn(AstMethodCall* nodep, AstDynArrayDType* adtypep) {
+    ಶೂನ್ಯ methodCallDyn(AstMethodCall* nodep, AstDynArrayDType* adtypep) {
         AstCMethodHard* newp = nullptr;
-        if (nodep->name() == "at") {  // Created internally for []
+        ಯದಿ (nodep->name() == "at") {  // Created internally for []
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ARRAY_AT};
             newp->dtypeFrom(adtypep->subDTypep());
-        } else if (nodep->name() == "atWrite") {  // Created internally for []
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atWrite") {  // Created internally for []
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::ARRAY_AT_WRITE};
             newp->dtypeFrom(adtypep->subDTypep());
-        } else if (nodep->name() == "size") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "size") {
             methodOkArguments(nodep, 0, 0);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::DYN_SIZE};
             newp->dtypeSetInt();
-        } else if (nodep->name() == "delete") {  // function void delete()
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "delete") {  // function void delete()
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::DYN_CLEAR};
             newp->dtypeSetVoid();
-        } else if (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
                    || nodep->name() == "sum" || nodep->name() == "product") {
             // All value return
-            AstWith* const withp
-                = methodWithClause(nodep, false, false, adtypep->subDTypep(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod("r_" + nodep->name())};
             newp->withp(withp);
             newp->dtypeFrom(withp ? withp->dtypep() : adtypep->subDTypep());
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if ((newp = methodCallArray(nodep, adtypep))) {
-        } else {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ ((newp = methodCallArray(nodep, adtypep))) {
+        } ಅನ್ಯಥಾ {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported/unknown built-in dynamic array method "
                                              << nodep->prettyNameQ());
             nodep->dtypeFrom(adtypep->subDTypep());  // Best guess
         }
-        if (newp) {
-            newp->protect(false);
-            newp->didWidth(true);
+        ಯದಿ (newp) {
+            newp->protect(ಅಸತ್ಯ);
+            newp->didWidth(ಸತ್ಯ);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    void methodCallQueue(AstMethodCall* nodep, AstQueueDType* adtypep) {
+    ಶೂನ್ಯ methodCallQueue(AstMethodCall* nodep, AstQueueDType* adtypep) {
         AstCMethodHard* newp = nullptr;
-        if (nodep->name() == "at" || nodep->name() == "atBack") {  // Created internally for []
+        ಯದಿ (nodep->name() == "at" || nodep->name() == "atBack") {  // Created internally for []
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->dtypeFrom(adtypep->subDTypep());
-        } else if (nodep->name() == "atWriteAppend"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atWriteAppend"
                    || nodep->name() == "atWriteAppendBack") {  // Created internally for []
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->dtypeFrom(adtypep->subDTypep());
-        } else if (nodep->name() == "num"  // function int num()
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "num"  // function int num()
                    || nodep->name() == "size") {
             methodOkArguments(nodep, 0, 0);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::DYN_SIZE};
             newp->dtypeSetInt();
-        } else if (nodep->name() == "delete") {  // function void delete([input integer index])
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "delete") {  // function void delete([input integer index])
             methodOkArguments(nodep, 0, 1);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            if (!nodep->argsp()) {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            ಯದಿ (!nodep->argsp()) {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                           VCMethod::DYN_CLEAR};
                 newp->dtypeSetVoid();
-            } else {
+            } ಅನ್ಯಥಾ {
                 iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
-                AstNodeExpr* const index_exprp = methodCallQueueIndexExpr(nodep);
-                if (index_exprp->isZero()) {  // delete(0) is a pop_front
-                    newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
-                                              VCMethod::DYN_POP_FRONT};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Queue_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+                ಯದಿ (index_exprp->isZero()) {  // delete(0) is a pop_front
+                    newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                                              VCMethod::DYN_ತೆಗೆ_FRONT};
                     newp->dtypeFrom(adtypep->subDTypep());
                     newp->dtypeSetVoid();
-                } else {
-                    newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                } ಅನ್ಯಥಾ {
+                    newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                               VCMethod::DYN_ERASE, index_exprp->unlinkFrBack()};
                     newp->dtypeSetVoid();
                 }
             }
-        } else if (nodep->name() == "insert") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "insert") {
             methodOkArguments(nodep, 2, 2);
             iterateCheckSigned32(nodep, "index", methodArg(nodep, 0), BOTH);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            AstNodeExpr* const index_exprp = methodCallQueueIndexExpr(nodep);
-            AstArg* const argp = VN_AS(nodep->argsp()->nextp(), Arg);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ index_exprp = method_Call_Queue_Index_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+            AstArg* ಧ್ರುವ argp = VN_AS(nodep->argsp()->nextp(), Arg);
             iterateCheckTyped(nodep, "insert value", argp->exprp(), adtypep->subDTypep(), BOTH);
-            if (index_exprp->isZero()) {  // insert(0, ...) is a push_front
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
-                                          VCMethod::DYN_PUSH_FRONT, argp->exprp()->unlinkFrBack()};
+            ಯದಿ (index_exprp->isZero()) {  // insert(0, ...) is a push_front
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                                          VCMethod::DYN_ತಳ್ಳು_FRONT, argp->exprp()->unlinkFrBack()};
                 newp->dtypeSetVoid();
-            } else {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
-                                          VCMethod::DYN_INSERT, index_exprp->unlinkFrBack()};
+            } ಅನ್ಯಥಾ {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                                          VCMethod::DYN_ಸೇರಿಸು, index_exprp->unlinkFrBack()};
                 newp->addPinsp(argp->exprp()->unlinkFrBack());
                 newp->dtypeSetVoid();
             }
-        } else if (nodep->name() == "pop_front" || nodep->name() == "pop_back") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "pop_front" || nodep->name() == "pop_back") {
             methodOkArguments(nodep, 0, 0);
             // Returns element, so method both consumes (reads) and modifies the queue
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READWRITE);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name())};
             newp->dtypeFrom(adtypep->subDTypep());
-        } else if (nodep->name() == "push_back" || nodep->name() == "push_front") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "push_back" || nodep->name() == "push_front") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckTyped(nodep, "argument", methodArg(nodep, 0), adtypep->subDTypep(), BOTH);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::WRITE);
-            AstArg* const argp = nodep->argsp();
+            AstArg* ಧ್ರುವ argp = nodep->argsp();
             iterateCheckTyped(nodep, "push value", argp->exprp(), adtypep->subDTypep(), BOTH);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod(nodep->name()),
                                       argp->exprp()->unlinkFrBack()};
             newp->dtypeSetVoid();
-        } else if (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "and" || nodep->name() == "or" || nodep->name() == "xor"
                    || nodep->name() == "sum" || nodep->name() == "product") {
-            AstWith* const withp
-                = methodWithClause(nodep, false, false, adtypep->subDTypep(),
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-            newp = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+            newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                       VCMethod::arrayMethod("r_" + nodep->name())};
             newp->withp(withp);
             newp->dtypeFrom(withp ? withp->dtypep() : adtypep->subDTypep());
-            if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-        } else if ((newp = methodCallArray(nodep, adtypep))) {
-        } else {
+            ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+        } ಅನ್ಯಥಾ ಯದಿ ((newp = methodCallArray(nodep, adtypep))) {
+        } ಅನ್ಯಥಾ {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported/unknown built-in queue method " << nodep->prettyNameQ());
             nodep->dtypeFrom(adtypep->subDTypep());  // Best guess
         }
-        if (newp) {
-            newp->protect(false);
-            newp->didWidth(true);
+        ಯದಿ (newp) {
+            newp->protect(ಅಸತ್ಯ);
+            newp->didWidth(ಸತ್ಯ);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    AstNodeExpr* methodCallQueueIndexExpr(AstMethodCall* nodep) {
-        AstNode* const index_exprp = nodep->argsp()->exprp();
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* method_Call_Queue_Index_ಅಭಿವ್ಯಕ್ತಿ(AstMethodCall* nodep) {
+        Ast_ಗಂಟು* ಧ್ರುವ index_exprp = nodep->argsp()->exprp();
         iterateCheckSigned32(nodep, "index", index_exprp, BOTH);
         VL_DANGLING(index_exprp);  // May have been edited
-        return nodep->argsp()->exprp();
+        ಪ್ರತ್ಯಾಗಮ nodep->argsp()->exprp();
     }
-    void methodCallWarnTiming(AstNodeFTaskRef* const nodep, const std::string& className) {
-        if (v3Global.opt.timing().isSetFalse()) {
+    ಶೂನ್ಯ methodCallWarnTiming(Ast_ಗಂಟು_FTask_Ref* ಧ್ರುವ nodep, ಧ್ರುವ std::string& className) {
+        ಯದಿ (v3Global.opt.timing().isSetFalse()) {
             nodep->v3warn(E_NOTIMING,
                           className << "::" << nodep->prettyName() << "() requires --timing");
-        } else if (!v3Global.opt.timing().isSetTrue()) {
+        } ಅನ್ಯಥಾ ಯದಿ (!v3Global.opt.timing().isSetTrue()) {
             nodep->v3warn(E_NEEDTIMINGOPT, "Use --timing or --no-timing to specify how "
                                                << className << "::" << nodep->name()
                                                << "() should be handled");
         }
     }
-    void methodCallIfaceRef(AstMethodCall* nodep, AstIfaceRefDType* adtypep) {
+    ಶೂನ್ಯ methodCallIfaceRef(AstMethodCall* nodep, AstIfaceRefDType* adtypep) {
         // ifaceViaCellp() resolves the interface via cellp when ifacep is null,
         // as for a sub-interface selected through a virtual interface handle.
-        AstIface* const ifacep = adtypep->ifaceViaCellp();
+        AstIface* ಧ್ರುವ ifacep = adtypep->ifaceViaCellp();
         UINFO(5, __FUNCTION__ << ":" << nodep);
-        if (AstNodeFTask* const ftaskp
-            = VN_CAST(m_memberMap.findMember(ifacep, nodep->name()), NodeFTask)) {
+        ಯದಿ (Ast_ಗಂಟು_FTask* ಧ್ರುವ ftaskp
+            = VN_CAST(m_memberMap.findMember(ifacep, nodep->name()), ಗಂಟು_FTask)) {
             UINFO(5, __FUNCTION__ << "AstNodeFTask" << nodep);
-            if (!modportAllowsItem(nodep, adtypep, ftaskp)) {
+            ಯದಿ (!modportAllowsItem(nodep, adtypep, ftaskp)) {
                 nodep->dtypeSetVoid();
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (adtypep->isVirtual()) {
-                for (AstNode* itemp = ifacep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                    if (AstVar* const mvarp = VN_CAST(itemp, Var)) { mvarp->sensIfacep(ifacep); }
+            ಯದಿ (adtypep->isVirtual()) {
+                ಪ್ರತಿ (Ast_ಗಂಟು* itemp = ifacep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                    ಯದಿ (AstVar* ಧ್ರುವ mvarp = VN_CAST(itemp, Var)) { mvarp->sensIfacep(ifacep); }
                 }
             }
             userIterate(ftaskp, nullptr);
-            if (ftaskp->isStatic()) {
-                AstArg* const argsp = nodep->argsp();
-                if (argsp) argsp->unlinkFrBackWithNext();
-                AstNodeFTaskRef* newp = nullptr;
-                if (VN_IS(ftaskp, Task)) {
-                    newp = new AstTaskRef{nodep->fileline(), VN_AS(ftaskp, Task), argsp};
-                } else {
-                    newp = new AstFuncRef{nodep->fileline(), VN_AS(ftaskp, Func), argsp};
+            ಯದಿ (ftaskp->isStatic()) {
+                AstArg* ಧ್ರುವ argsp = nodep->argsp();
+                ಯದಿ (argsp) argsp->unlinkFrBackWithNext();
+                Ast_ಗಂಟು_FTask_Ref* newp = nullptr;
+                ಯದಿ (VN_IS(ftaskp, Task)) {
+                    newp = ನೂತನ AstTaskRef{nodep->fileline(), VN_AS(ftaskp, Task), argsp};
+                } ಅನ್ಯಥಾ {
+                    newp = ನೂತನ AstFuncRef{nodep->fileline(), VN_AS(ftaskp, Func), argsp};
                 }
                 newp->classOrPackagep(ifacep);
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            } else {
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            } ಅನ್ಯಥಾ {
                 nodep->taskp(ftaskp);
                 nodep->dtypeFrom(ftaskp);
                 nodep->classOrPackagep(ifacep);
-                if (VN_IS(ftaskp, Task)) nodep->dtypeSetVoid();
+                ಯದಿ (VN_IS(ftaskp, Task)) nodep->dtypeSetVoid();
                 processFTaskRefArgs(nodep);
             }
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->v3error("Member reference from interface to "
                        << nodep->prettyNameQ() << " is not referencing a valid task or function ");
     }
-    void handleRandomizeArgs(AstNodeFTaskRef* const nodep, AstClass* const classp) {
-        bool hasNonNullArgs = false;
+    ಶೂನ್ಯ handleRandomizeArgs(Ast_ಗಂಟು_FTask_Ref* ಧ್ರುವ nodep, AstClass* ಧ್ರುವ classp) {
+        ತಾರ್ಕಿಕ hasNonNullArgs = ಅಸತ್ಯ;
         AstConst* nullp = nullptr;
-        for (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
+        ಪ್ರತಿ (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
             AstVar* randVarp = nullptr;
-            AstNodeExpr* exprp = argp->exprp();
-            if (AstConst* const constp = VN_CAST(exprp, Const)) {
-                if (constp->num().isNull()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = argp->exprp();
+            ಯದಿ (AstConst* ಧ್ರುವ constp = VN_CAST(exprp, Const)) {
+                ಯದಿ (constp->ಅಂಕೆ().isNull()) {
                     nullp = constp;
-                    continue;
+                    ಅನುವರ್ತ;
                 }
             }
-            hasNonNullArgs = true;
+            hasNonNullArgs = ಸತ್ಯ;
             AstVar* fromVarp = nullptr;  // If it's a method call, the leftmost element
                                          // of the dot hierarchy
-            if (AstMethodCall* methodCallp = VN_CAST(nodep, MethodCall)) {
-                AstNodeExpr* fromp = methodCallp->fromp();
-                while (AstMemberSel* const memberSelp = VN_CAST(fromp, MemberSel)) {
+            ಯದಿ (AstMethodCall* methodCallp = VN_CAST(nodep, MethodCall)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp = methodCallp->fromp();
+                ಯಾವತ್ (AstMemberSel* ಧ್ರುವ memberSelp = VN_CAST(fromp, MemberSel)) {
                     fromp = memberSelp->fromp();
                 }
-                AstVarRef* const varrefp = VN_AS(fromp, VarRef);
+                AstVarRef* ಧ್ರುವ varrefp = VN_AS(fromp, VarRef);
                 fromVarp = varrefp->varp();
             }
-            if (!VN_IS(exprp, VarRef) && !VN_IS(exprp, MemberSel)) {
+            ಯದಿ (!VN_IS(exprp, VarRef) && !VN_IS(exprp, MemberSel)) {
                 argp->v3error("'randomize()' argument must be a variable contained in "
                               << (fromVarp ? fromVarp->prettyNameQ() : classp->prettyNameQ()));
-                VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
-                continue;
+                VL_DO_DANGLING(argp->unlinkFrBack()->delete_ವೃಕ್ಷ(), argp);
+                ಅನುವರ್ತ;
             }
-            while (exprp) {
-                if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
+            ಯಾವತ್ (exprp) {
+                ಯದಿ (AstMemberSel* ಧ್ರುವ memberSelp = VN_CAST(exprp, MemberSel)) {
                     randVarp = memberSelp->varp();
                     exprp = memberSelp->fromp();
-                } else {
-                    if (AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
+                } ಅನ್ಯಥಾ {
+                    ಯದಿ (AstVarRef* ಧ್ರುವ varrefp = VN_CAST(exprp, VarRef)) {
                         randVarp = varrefp->varp();
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         argp->v3warn(
                             E_UNSUPPORTED,
                             "Unsupported: Non-variable expression as 'randomize()' argument");
-                        VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                        VL_DO_DANGLING(argp->unlinkFrBack()->delete_ವೃಕ್ಷ(), argp);
                     }
                     exprp = nullptr;
                 }
                 // All variables in the dot hierarchy must be randomizable
-                if (randVarp && !randVarp->isRand()) randVarp->rand(VRandAttr::RAND_INLINE);
+                ಯದಿ (randVarp && !randVarp->isRand()) randVarp->rand(VRandAttr::RAND_INLINE);
             }
             // randVarp is now the leftmost element from the dot hierarchy in argp->exprp()
-            if (randVarp == fromVarp) {
+            ಯದಿ (randVarp == fromVarp) {
                 // The passed in variable is MemberSel'ected from the MethodCall target
-            } else if (classp->existsMember([&](const AstClass*, const AstVar* memberVarp) {
-                           return memberVarp == randVarp;
+            } ಅನ್ಯಥಾ ಯದಿ (classp->existsMember([&](ಧ್ರುವ AstClass*, ಧ್ರುವ AstVar* memberVarp) {
+                           ಪ್ರತ್ಯಾಗಮ memberVarp == randVarp;
                        })) {
                 // The passed in variable is contained in the method call target
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Passed in a constant or complex expression, or the above conditions are not
                 // met
                 argp->v3error("'randomize()' argument must be a variable contained in "
                               << (fromVarp ? fromVarp->prettyNameQ() : classp->prettyNameQ()));
-                VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                VL_DO_DANGLING(argp->unlinkFrBack()->delete_ವೃಕ್ಷ(), argp);
             }
         }
-        if (nullp && hasNonNullArgs) {
+        ಯದಿ (nullp && hasNonNullArgs) {
             nullp->v3error("Cannot pass more arguments to 'randomize(null)'");
         }
         // A solo 'null' arg is left in place; V3Randomize lowers it into a
         // check-only solve so constraints are validated against the current
         // values of every rand member (IEEE 1800-2023 18.11).
     }
-    void methodCallClass(AstMethodCall* nodep, AstClassRefDType* adtypep) {
+    ಶೂನ್ಯ methodCallClass(AstMethodCall* nodep, AstClassRefDType* adtypep) {
         // No need to width-resolve the class, as it was done when we did the child
-        AstClass* const first_classp = adtypep->classp();
+        AstClass* ಧ್ರುವ first_classp = adtypep->classp();
         AstWith* withp = nullptr;
-        if (nodep->name() == "randomize") {
+        ಯದಿ (nodep->name() == "randomize") {
             VL_RESTORER(m_randomizeFromp);
             m_randomizeFromp = nodep->fromp();
-            withp = methodWithClause(nodep, false, false, adtypep->findVoidDType(),
+            withp = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->findVoidDType(),
                                      adtypep->findBitDType(), adtypep);
-            for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-                if (argp->exprp()) userIterate(argp->exprp(), WidthVP{SELF, BOTH}.p());
+            ಪ್ರತಿ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                ಯದಿ (argp->exprp()) userIterate(argp->exprp(), WidthVP{SELF, BOTH}.p());
             }
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
             V3Randomize::newRandomizeFunc(m_memberMap, first_classp);
             handleRandomizeArgs(nodep, first_classp);
-        } else if (nodep->name() == "srandom") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "srandom") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
             V3Randomize::newSRandomFunc(m_memberMap, first_classp);
         }
         UASSERT_OBJ(first_classp, nodep, "Unlinked");
-        for (AstClass* classp = first_classp; classp;) {
-            if (nodep->fileline()->timingOn()) {
-                if (classp->name() == "semaphore" || classp->name() == "process"
+        ಪ್ರತಿ (AstClass* classp = first_classp; classp;) {
+            ಯದಿ (nodep->fileline()->timingOn()) {
+                ಯದಿ (classp->name() == "semaphore" || classp->name() == "process"
                     || VString::startsWith(classp->name(), "mailbox")) {
                     // Find the package the class is in
-                    AstPackage* const packagep = getItemPackage(classp);
+                    AstPackage* ಧ್ರುವ packagep = getItemPackage(classp);
                     // Check if it's std
-                    if (packagep && packagep->name() == "std") {
-                        if (classp->name() == "process") {
+                    ಯದಿ (packagep && packagep->name() == "std") {
+                        ಯದಿ (classp->name() == "process") {
                             methodCallWarnTiming(nodep, "process");
-                        } else if (classp->name() == "semaphore" && nodep->name() == "get") {
+                        } ಅನ್ಯಥಾ ಯದಿ (classp->name() == "semaphore" && nodep->name() == "get") {
                             methodCallWarnTiming(nodep, "semaphore");
-                        } else if (nodep->name() == "put" || nodep->name() == "get"
+                        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "put" || nodep->name() == "get"
                                    || nodep->name() == "peek") {
                             methodCallWarnTiming(nodep, "mailbox");
                         }
                     }
                 }
             }
-            if (AstNodeFTask* const ftaskp
-                = VN_CAST(m_memberMap.findMember(classp, nodep->name()), NodeFTask)) {
+            ಯದಿ (Ast_ಗಂಟು_FTask* ಧ್ರುವ ftaskp
+                = VN_CAST(m_memberMap.findMember(classp, nodep->name()), ಗಂಟು_FTask)) {
                 userIterate(ftaskp, nullptr);
-                if (ftaskp->isStatic()) {
-                    AstArg* const argsp = nodep->argsp();
-                    if (argsp) argsp->unlinkFrBackWithNext();
-                    AstNodeFTaskRef* newp = nullptr;
+                ಯದಿ (ftaskp->isStatic()) {
+                    AstArg* ಧ್ರುವ argsp = nodep->argsp();
+                    ಯದಿ (argsp) argsp->unlinkFrBackWithNext();
+                    Ast_ಗಂಟು_FTask_Ref* newp = nullptr;
                     // We use m_vup to determine task or function, so that later error checks
                     // for funcref->task and taskref->func will pick up properly
-                    if (!m_vup) {  // Called as task
-                        newp = new AstTaskRef{nodep->fileline(), nodep->name(), argsp};
-                    } else {
-                        newp = new AstFuncRef{nodep->fileline(), nodep->name(), argsp};
+                    ಯದಿ (!m_vup) {  // Called as task
+                        newp = ನೂತನ AstTaskRef{nodep->fileline(), nodep->name(), argsp};
+                    } ಅನ್ಯಥಾ {
+                        newp = ನೂತನ AstFuncRef{nodep->fileline(), nodep->name(), argsp};
                     }
                     newp->taskp(ftaskp);  // Not passed above as might be func vs task mismatch
                     newp->classOrPackagep(classp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                } else {
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                } ಅನ್ಯಥಾ {
                     nodep->taskp(ftaskp);
                     nodep->dtypeFrom(ftaskp);
                     nodep->classOrPackagep(classp);
-                    if (VN_IS(ftaskp, Task)) {
-                        if (m_vup && m_vup->prelim() && !VN_IS(nodep->backp(), StmtExpr)) {
+                    ಯದಿ (VN_IS(ftaskp, Task)) {
+                        ಯದಿ (m_vup && m_vup->prelim() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
                             nodep->v3error(
                                 "Cannot call a task/void-function as a member function: "
                                 << nodep->prettyNameQ());
                         }
                         nodep->dtypeSetVoid();
                     }
-                    if (withp) nodep->withp(withp);
+                    ಯದಿ (withp) nodep->withp(withp);
                     processFTaskRefArgs(nodep);
                 }
-                return;
-            } else if (nodep->name() == "get_randstate") {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "get_randstate") {
                 methodOkArguments(nodep, 0, 0);
-                first_classp->baseMostClassp()->needRNG(true);
-                v3Global.useRandomizeMethods(true);
-                AstCMethodHard* const newp
-                    = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                first_classp->baseMostClassp()->needRNG(ಸತ್ಯ);
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
+                AstCMethodHard* ಧ್ರುವ newp
+                    = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                          VCMethod::RNG_GET_RANDSTATE, nullptr};
-                newp->usePtr(true);
+                newp->usePtr(ಸತ್ಯ);
                 newp->dtypeSetString();
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else if (nodep->name() == "set_randstate") {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "set_randstate") {
                 methodOkArguments(nodep, 1, 1);
-                AstNodeExpr* const expr1p = nodep->argsp()->exprp();  // May edit
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ expr1p = nodep->argsp()->exprp();  // May edit
                 iterateCheckString(nodep, "LHS", expr1p, BOTH);
-                AstNodeExpr* const exprp = nodep->argsp()->exprp();
-                first_classp->baseMostClassp()->needRNG(true);
-                v3Global.useRandomizeMethods(true);
-                AstCMethodHard* const newp
-                    = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->argsp()->exprp();
+                first_classp->baseMostClassp()->needRNG(ಸತ್ಯ);
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
+                AstCMethodHard* ಧ್ರುವ newp
+                    = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                          VCMethod::RNG_SET_RANDSTATE, exprp->unlinkFrBack()};
-                newp->usePtr(true);
+                newp->usePtr(ಸತ್ಯ);
                 newp->dtypeSetVoid();
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else if (nodep->name() == "constraint_mode") {
-                v3Global.useRandomizeMethods(true);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "constraint_mode") {
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
                 nodep->dtypep(nodep->findBasicDType(VBasicDTypeKwd::INT));
             }
             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr;
         }
         {
             VSpellCheck speller;
-            for (AstClass* classp = first_classp; classp;) {
-                for (AstNode* itemp = classp->membersp(); itemp; itemp = itemp->nextp()) {
-                    if (VN_IS(itemp, NodeFTask)) speller.pushCandidate(itemp->prettyName());
+            ಪ್ರತಿ (AstClass* classp = first_classp; classp;) {
+                ಪ್ರತಿ (Ast_ಗಂಟು* itemp = classp->membersp(); itemp; itemp = itemp->nextp()) {
+                    ಯದಿ (VN_IS(itemp, ಗಂಟು_FTask)) speller.ತಳ್ಳು_Candidate(itemp->prettyName());
                 }
                 classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr;
             }
-            const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+            ಧ್ರುವ string suggest = speller.best_Candidate_ಸಂದೇಶ(nodep->prettyName());
             nodep->v3error("Class method "
                            << nodep->prettyNameQ() << " not found in "
                            << first_classp->verilogKwd() << " " << first_classp->prettyNameQ()
@@ -5520,36 +5520,36 @@ class WidthVisitor final : public VNVisitor {
         }
         nodep->dtypeSetInt();  // Guess on error
     }
-    void methodCallConstraint(AstMethodCall* nodep, AstConstraintRefDType*) {
-        if (nodep->name() == "constraint_mode") {
+    ಶೂನ್ಯ methodCallConstraint(AstMethodCall* nodep, AstConstraintRefDType*) {
+        ಯದಿ (nodep->name() == "constraint_mode") {
             // IEEE 1800-2023 18.9
             methodOkArguments(nodep, 0, 1);
-            if (nodep->argsp()) {
+            ಯದಿ (nodep->argsp()) {
                 iterateCheckBool(nodep, "argument", methodArg(nodep, 0), BOTH);
                 nodep->dtypep(nodep->findBasicDType(VBasicDTypeKwd::INT));
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeSetVoid();
             }
-            v3Global.useRandomizeMethods(true);
-        } else {
+            v3Global.useRandomizeMethods(ಸತ್ಯ);
+        } ಅನ್ಯಥಾ {
             nodep->v3error("No such constraint method " << nodep->prettyNameQ());
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
-    void methodCallRandMode(AstMethodCall* nodep) {
+    ಶೂನ್ಯ methodCallRandMode(AstMethodCall* nodep) {
         methodOkArguments(nodep, 0, 1);
         // IEEE 1800-2023 18.8
-        if (nodep->argsp()) {
+        ಯದಿ (nodep->argsp()) {
             iterateCheckBool(nodep, "argument", methodArg(nodep, 0), BOTH);
             nodep->dtypeSetVoid();
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->dtypep(nodep->findBasicDType(VBasicDTypeKwd::INT));
         }
-        v3Global.useRandomizeMethods(true);
+        v3Global.useRandomizeMethods(ಸತ್ಯ);
     }
-    void methodCallUnpack(AstMethodCall* nodep, AstUnpackArrayDType* adtypep) {
-        enum : uint8_t {
+    ಶೂನ್ಯ methodCallUnpack(AstMethodCall* nodep, AstUnpackArrayDType* adtypep) {
+        ಗಣನಾ : uint8_t {
             UNKNOWN = 0,
             ARRAY_OR,
             ARRAY_AND,
@@ -5559,256 +5559,256 @@ class WidthVisitor final : public VNVisitor {
         } methodId;
 
         methodId = UNKNOWN;
-        if (nodep->name() == "or") {
+        ಯದಿ (nodep->name() == "or") {
             methodId = ARRAY_OR;
-        } else if (nodep->name() == "and") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "and") {
             methodId = ARRAY_AND;
-        } else if (nodep->name() == "xor") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "xor") {
             methodId = ARRAY_XOR;
-        } else if (nodep->name() == "sum") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "sum") {
             methodId = ARRAY_SUM;
-        } else if (nodep->name() == "product") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "product") {
             methodId = ARRAY_PRODUCT;
         }
 
-        if (methodId) {
-            AstWith* const withp
-                = methodWithClause(nodep, false, false, adtypep->subDTypep(),
+        ಯದಿ (methodId) {
+            AstWith* ಧ್ರುವ withp
+                = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->subDTypep(),
                                    nodep->findUInt32DType(), adtypep->subDTypep());
             methodOkArguments(nodep, 0, 0);
-            if (withp) {
+            ಯದಿ (withp) {
                 methodCallLValueRecurse(nodep, nodep->fromp(), VAccess::READ);
-                AstCMethodHard* const newp
-                    = new AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
+                AstCMethodHard* ಧ್ರುವ newp
+                    = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->fromp()->unlinkFrBack(),
                                          VCMethod::arrayMethod("r_" + nodep->name())};
                 newp->withp(withp);
                 newp->dtypeFrom(withp ? withp->dtypep() : adtypep->subDTypep());
-                if (!nodep->firstAbovep()) newp->dtypeSetVoid();
-                newp->protect(false);
-                newp->didWidth(true);
+                ಯದಿ (!nodep->firstAbovep()) newp->dtypeSetVoid();
+                newp->protect(ಅಸತ್ಯ);
+                newp->didWidth(ಸತ್ಯ);
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                return;
-            } else {
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ {
                 // TODO use this code for small vectors, otherwise use runtime reduction.
                 // Historically we expand all vectors.
-                FileLine* const fl = nodep->fileline();
-                AstNodeExpr* newp = nullptr;
-                for (int i = 0; i < adtypep->elementsConst(); ++i) {
-                    AstNodeExpr* const arrayRef = nodep->fromp()->cloneTreePure(false);
-                    AstNodeExpr* const selector = new AstArraySel{fl, arrayRef, i};
-                    if (!newp) {
+                File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < adtypep->elementsConst(); ++i) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ arrayRef = nodep->fromp()->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ selector = ನೂತನ AstArraySel{fl, arrayRef, i};
+                    ಯದಿ (!newp) {
                         newp = selector;
-                    } else {
-                        switch (methodId) {
-                        case ARRAY_OR: newp = new AstOr{fl, newp, selector}; break;
-                        case ARRAY_AND: newp = new AstAnd{fl, newp, selector}; break;
-                        case ARRAY_XOR: newp = new AstXor{fl, newp, selector}; break;
-                        case ARRAY_SUM: newp = new AstAdd{fl, newp, selector}; break;
-                        case ARRAY_PRODUCT: newp = new AstMul{fl, newp, selector}; break;
-                        default: nodep->v3fatalSrc("bad case");
+                    } ಅನ್ಯಥಾ {
+                        ವಿಕಲ್ಪ (methodId) {
+                        ಪಕ್ಷ ARRAY_OR: newp = ನೂತನ AstOr{fl, newp, selector}; ಭಙ್ಗ;
+                        ಪಕ್ಷ ARRAY_AND: newp = ನೂತನ AstAnd{fl, newp, selector}; ಭಙ್ಗ;
+                        ಪಕ್ಷ ARRAY_XOR: newp = ನೂತನ AstXor{fl, newp, selector}; ಭಙ್ಗ;
+                        ಪಕ್ಷ ARRAY_SUM: newp = ನೂತನ AstAdd{fl, newp, selector}; ಭಙ್ಗ;
+                        ಪಕ್ಷ ARRAY_PRODUCT: newp = ನೂತನ AstMul{fl, newp, selector}; ಭಙ್ಗ;
+                        ಸ್ವಭಾವ: nodep->v3fatalSrc("bad case");
                         }
                     }
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
             }
-        } else if (AstCMethodHard* newp = methodCallArray(nodep, adtypep)) {
-            newp->protect(false);
-            newp->didWidth(true);
+        } ಅನ್ಯಥಾ ಯದಿ (AstCMethodHard* newp = methodCallArray(nodep, adtypep)) {
+            newp->protect(ಅಸತ್ಯ);
+            newp->didWidth(ಸತ್ಯ);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown built-in array method " << nodep->prettyNameQ());
             nodep->dtypeFrom(adtypep->subDTypep());  // Best guess
         }
     }
-    void methodCallEvent(AstMethodCall* nodep, AstBasicDType*) {
+    ಶೂನ್ಯ methodCallEvent(AstMethodCall* nodep, AstBasicDType*) {
         // Method call on event
-        if (nodep->name() == "triggered") {
+        ಯದಿ (nodep->name() == "triggered") {
             methodOkArguments(nodep, 0, 0);
-            AstCMethodHard* const callp = new AstCMethodHard{
+            AstCMethodHard* ಧ್ರುವ callp = ನೂತನ AstCMethodHard{
                 nodep->fileline(), nodep->fromp()->unlinkFrBack(), VCMethod::EVENT_IS_TRIGGERED};
             callp->dtypeSetBit();
             nodep->replaceWith(callp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown built-in event method " << nodep->prettyNameQ());
         }
     }
-    void methodCallString(AstMethodCall* nodep, AstBasicDType*) {
+    ಶೂನ್ಯ methodCallString(AstMethodCall* nodep, AstBasicDType*) {
         // Method call on string
-        if (nodep->name() == "len") {
+        ಯದಿ (nodep->name() == "len") {
             // Constant value
             methodOkArguments(nodep, 0, 0);
-            AstNode* const newp = new AstLenN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstLenN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (nodep->name() == "itoa") {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "itoa") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             VL_DO_DANGLING(replaceWithSFormat(nodep, "%0d"), nodep);
-        } else if (nodep->name() == "hextoa") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "hextoa") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             VL_DO_DANGLING(replaceWithSFormat(nodep, "%0x"), nodep);
-        } else if (nodep->name() == "octtoa") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "octtoa") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             VL_DO_DANGLING(replaceWithSFormat(nodep, "%0o"), nodep);
-        } else if (nodep->name() == "bintoa") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "bintoa") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
             VL_DO_DANGLING(replaceWithSFormat(nodep, "%0b"), nodep);
-        } else if (nodep->name() == "realtoa") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "realtoa") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckReal(nodep, "argument", methodArg(nodep, 0), BOTH);
             VL_DO_DANGLING(replaceWithSFormat(nodep, "%g"), nodep);
-        } else if (nodep->name() == "tolower") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "tolower") {
             methodOkArguments(nodep, 0, 0);
-            AstNode* const newp
-                = new AstToLowerN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstToLowerN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (nodep->name() == "toupper") {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "toupper") {
             methodOkArguments(nodep, 0, 0);
-            AstNode* const newp
-                = new AstToUpperN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstToUpperN{nodep->fileline(), nodep->fromp()->unlinkFrBack()};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (nodep->name() == "compare" || nodep->name() == "icompare") {
-            const bool ignoreCase = nodep->name()[0] == 'i';
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "compare" || nodep->name() == "icompare") {
+            ಧ್ರುವ ತಾರ್ಕಿಕ ignoreCase = nodep->name()[0] == 'i';
             methodOkArguments(nodep, 1, 1);
             iterateCheckString(nodep, "argument", methodArg(nodep, 0), BOTH);
-            AstArg* const argp = nodep->argsp();
-            AstNodeExpr* const lhs = nodep->fromp()->unlinkFrBack();
-            AstNodeExpr* const rhs = argp->exprp()->unlinkFrBack();
-            AstNode* const newp = new AstCompareNN{nodep->fileline(), lhs, rhs, ignoreCase};
+            AstArg* ಧ್ರುವ argp = nodep->argsp();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhs = nodep->fromp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhs = argp->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstCompareNN{nodep->fileline(), lhs, rhs, ignoreCase};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (nodep->name() == "putc") {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "putc") {
             methodOkArguments(nodep, 2, 2);
             iterateCheckSigned32(nodep, "argument 0", methodArg(nodep, 0), BOTH);
             iterateCheckSigned8(nodep, "argument 1", methodArg(nodep, 1), BOTH);
-            AstArg* const arg0p = nodep->argsp();
-            AstArg* const arg1p = VN_AS(arg0p->nextp(), Arg);
-            AstNodeVarRef* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), VarRef);
-            AstNodeExpr* const rhsp = arg0p->exprp()->unlinkFrBack();
-            AstNodeExpr* const thsp = arg1p->exprp()->unlinkFrBack();
-            AstVarRef* const varrefp
-                = new AstVarRef{nodep->fileline(), fromp->varp(), VAccess::READ};
-            AstNode* const newp = new AstAssign{
-                nodep->fileline(), fromp, new AstPutcN{nodep->fileline(), varrefp, rhsp, thsp}};
+            AstArg* ಧ್ರುವ arg0p = nodep->argsp();
+            AstArg* ಧ್ರುವ arg1p = VN_AS(arg0p->nextp(), Arg);
+            Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ fromp = VN_AS(nodep->fromp()->unlinkFrBack(), VarRef);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = arg0p->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ thsp = arg1p->exprp()->unlinkFrBack();
+            AstVarRef* ಧ್ರುವ varrefp
+                = ನೂತನ AstVarRef{nodep->fileline(), fromp->varp(), VAccess::READ};
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstAssign{
+                nodep->fileline(), fromp, ನೂತನ AstPutcN{nodep->fileline(), varrefp, rhsp, thsp}};
             fromp->access(VAccess::WRITE);
-            pushDeletep(nodep->backp());
+            ತಳ್ಳು_Deletep(nodep->backp());
             VL_DO_DANGLING(nodep->backp()->replaceWith(newp), nodep);
-        } else if (nodep->name() == "getc") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "getc") {
             methodOkArguments(nodep, 1, 1);
             iterateCheckSigned32(nodep, "argument", methodArg(nodep, 0), BOTH);
-            AstArg* const arg0p = nodep->argsp();
-            AstNodeExpr* const lhsp = nodep->fromp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = arg0p->exprp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstGetcN{nodep->fileline(), lhsp, rhsp};
+            AstArg* ಧ್ರುವ arg0p = nodep->argsp();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->fromp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = arg0p->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstGetcN{nodep->fileline(), lhsp, rhsp};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (nodep->name() == "substr") {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "substr") {
             methodOkArguments(nodep, 2, 2);
             iterateCheckSigned32(nodep, "argument 0", methodArg(nodep, 0), BOTH);
             iterateCheckSigned32(nodep, "argument 1", methodArg(nodep, 1), BOTH);
-            AstArg* const arg0p = nodep->argsp();
-            AstArg* const arg1p = VN_AS(arg0p->nextp(), Arg);
-            AstNodeExpr* const lhsp = nodep->fromp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = arg0p->exprp()->unlinkFrBack();
-            AstNodeExpr* const thsp = arg1p->exprp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstSubstrN{nodep->fileline(), lhsp, rhsp, thsp};
+            AstArg* ಧ್ರುವ arg0p = nodep->argsp();
+            AstArg* ಧ್ರುವ arg1p = VN_AS(arg0p->nextp(), Arg);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->fromp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = arg0p->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ thsp = arg1p->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstSubstrN{nodep->fileline(), lhsp, rhsp, thsp};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (nodep->name() == "atobin" || nodep->name() == "atohex"
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atobin" || nodep->name() == "atohex"
                    || nodep->name() == "atoi" || nodep->name() == "atooct"
                    || nodep->name() == "atoreal") {
             AstAtoN::FmtType fmt;
-            if (nodep->name() == "atobin") {
+            ಯದಿ (nodep->name() == "atobin") {
                 fmt = AstAtoN::ATOBIN;
-            } else if (nodep->name() == "atohex") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atohex") {
                 fmt = AstAtoN::ATOHEX;
-            } else if (nodep->name() == "atoi") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atoi") {
                 fmt = AstAtoN::ATOI;
-            } else if (nodep->name() == "atooct") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atooct") {
                 fmt = AstAtoN::ATOOCT;
-            } else if (nodep->name() == "atoreal") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "atoreal") {
                 fmt = AstAtoN::ATOREAL;
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3fatalSrc("Bad case");
                 fmt = AstAtoN::ATOI;
             }  // dummy assignment to suppress compiler warning
             methodOkArguments(nodep, 0, 0);
-            AstNode* const newp
-                = new AstAtoN{nodep->fileline(), nodep->fromp()->unlinkFrBack(), fmt};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstAtoN{nodep->fileline(), nodep->fromp()->unlinkFrBack(), fmt};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else {
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Unknown built-in string method " << nodep->prettyNameQ());
         }
     }
-    AstQueueDType* queueDTypeIndexedBy(AstNodeDType* indexDTypep) {
+    AstQueueDType* queueDTypeIndexedBy(Ast_ಗಂಟು_DType* indexDTypep) {
         // Return a Queue data type with the specified index, remembering so can use again if
         // needed
-        if (AstQueueDType* const queuep = m_queueDTypeIndexed[indexDTypep]) {
-            return queuep;
-        } else {
-            AstQueueDType* const newp
-                = new AstQueueDType{indexDTypep->fileline(), indexDTypep, nullptr};
+        ಯದಿ (AstQueueDType* ಧ್ರುವ queuep = m_queueDTypeIndexed[indexDTypep]) {
+            ಪ್ರತ್ಯಾಗಮ queuep;
+        } ಅನ್ಯಥಾ {
+            AstQueueDType* ಧ್ರುವ newp
+                = ನೂತನ AstQueueDType{indexDTypep->fileline(), indexDTypep, nullptr};
             v3Global.rootp()->typeTablep()->addTypesp(newp);
             m_queueDTypeIndexed[indexDTypep] = newp;
-            return newp;
+            ಪ್ರತ್ಯಾಗಮ newp;
         }
     }
 
-    void visit(AstNew* nodep) override {
-        if (nodep->didWidth()) return;
+    ಶೂನ್ಯ visit(AstNew* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         AstClass* classp = nullptr;
-        bool assign = false;
-        if (VN_IS(nodep->backp(), Assign)) {  // assignment case
-            assign = true;
-            AstNode* warnp = nullptr;
+        ತಾರ್ಕಿಕ assign = ಅಸತ್ಯ;
+        ಯದಿ (VN_IS(nodep->backp(), Assign)) {  // assignment case
+            assign = ಸತ್ಯ;
+            Ast_ಗಂಟು* warnp = nullptr;
             AstClassRefDType* refp = nullptr;
 
-            if (nodep->isScoped()) {  // = ClassOrPackage::new
+            ಯದಿ (nodep->isScoped()) {  // = ClassOrPackage::new
                 UASSERT_OBJ(nodep->classOrPackagep(), nodep, "Unlinked classOrPackage");
                 warnp = nodep->classOrPackagep();
-                if (AstClass* const clsp = VN_CAST(warnp, Class)) {
-                    AstClassRefDType* const adtypep
-                        = new AstClassRefDType{nodep->fileline(), clsp, nullptr};
+                ಯದಿ (AstClass* ಧ್ರುವ clsp = VN_CAST(warnp, Class)) {
+                    AstClassRefDType* ಧ್ರುವ adtypep
+                        = ನೂತನ AstClassRefDType{nodep->fileline(), clsp, nullptr};
                     v3Global.rootp()->typeTablep()->addTypesp(adtypep);
                     refp = adtypep;
                 }
-            } else {  // = new
+            } ಅನ್ಯಥಾ {  // = new
                 warnp = m_vup->dtypeNullp();
                 refp = m_vup ? VN_CAST(m_vup->dtypeNullSkipRefp(), ClassRefDType) : nullptr;
             }
-            if (!refp) {  // e.g. int a = new;
+            ಯದಿ (!refp) {  // e.g. int a = new;
                 nodep->v3error(
                     "new() assignment not legal to non-class "
-                    + (VN_IS(warnp, NodeDType)
-                           ? ("data type "s + VN_AS(warnp, NodeDType)->prettyDTypeNameQ())
+                    + (VN_IS(warnp, ಗಂಟು_DType)
+                           ? ("data type "s + VN_AS(warnp, ಗಂಟು_DType)->prettyDTypeNameQ())
                        : warnp ? warnp->prettyNameQ()
                                : ""));
                 nodep->dtypep(m_vup->dtypep());
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             nodep->dtypep(refp);
 
             classp = refp->classp();
             UASSERT_OBJ(classp, nodep, "Unlinked");
-            if (AstNodeFTask* const ftaskp
+            ಯದಿ (Ast_ಗಂಟು_FTask* ಧ್ರುವ ftaskp
                 = VN_CAST(m_memberMap.findMember(classp, "new"), Func)) {
                 nodep->taskp(ftaskp);
                 nodep->classOrPackagep(classp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Either made explicitly or V3LinkDot made implicitly
                 classp->v3fatalSrc("Can't find class's new");
             }
-        } else {  // super.new case
+        } ಅನ್ಯಥಾ {  // super.new case
             // in this case class and taskp() should be properly linked in V3LinkDot.cpp during
             // "super" reference resolution
             classp = VN_CAST(nodep->classOrPackagep(), Class);
@@ -5816,80 +5816,80 @@ class WidthVisitor final : public VNVisitor {
             UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked taskp()");
         }
         processFTaskRefArgs(nodep);
-        if (!assign) nodep->dtypeFrom(nodep->taskp());
+        ಯದಿ (!assign) nodep->dtypeFrom(nodep->taskp());
     }
-    void visit(AstNewCopy* nodep) override {
-        if (nodep->didWidthAndSet()) return;
-        AstClassRefDType* const refp = VN_CAST(m_vup->dtypeNullSkipRefp(), ClassRefDType);
-        if (!refp) {  // e.g. int a = new;
+    ಶೂನ್ಯ visit(AstNewCopy* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
+        AstClassRefDType* ಧ್ರುವ refp = VN_CAST(m_vup->dtypeNullSkipRefp(), ClassRefDType);
+        ಯದಿ (!refp) {  // e.g. int a = new;
             nodep->v3error("new() cannot copy from non-class data type "
                            + (m_vup->dtypeNullp() ? m_vup->dtypep()->prettyDTypeNameQ() : ""));
             nodep->dtypep(m_vup->dtypep());
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->dtypep(refp);
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-        if (!similarDTypeRecurse(nodep->dtypep(), nodep->rhsp()->dtypep())) {
+        ಯದಿ (!similarDTypeRecurse(nodep->dtypep(), nodep->rhsp()->dtypep())) {
             nodep->rhsp()->v3error("New-as-copier passed different data type '"
                                    << nodep->dtypep()->prettyTypeName() << "' than expected '"
                                    << nodep->rhsp()->dtypep()->prettyTypeName() << "'");
         }
     }
-    void visit(AstNewDynamic* nodep) override {
-        if (nodep->didWidthAndSet()) return;
-        AstDynArrayDType* const adtypep = VN_CAST(m_vup->dtypeNullSkipRefp(), DynArrayDType);
-        if (!adtypep) {  // e.g. int a = new;
+    ಶೂನ್ಯ visit(AstNewDynamic* nodep) override {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
+        AstDynArrayDType* ಧ್ರುವ adtypep = VN_CAST(m_vup->dtypeNullSkipRefp(), DynArrayDType);
+        ಯದಿ (!adtypep) {  // e.g. int a = new;
             nodep->v3error(
                 "dynamic new() not expected in this context (data type must be dynamic array)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // The AstNodeAssign visitor will be soon be replacing this node, make sure it gets it
-        if (!VN_IS(nodep->backp(), NodeAssign)) {
+        ಯದಿ (!VN_IS(nodep->backp(), ಗಂಟು_Assign)) {
             UINFO(1, "Got backp " << nodep->backp());
             nodep->v3error(
                 "dynamic new() not expected in this context (expected under an assign)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         nodep->dtypep(adtypep);
-        if (m_vup && m_vup->prelim()) {
+        ಯದಿ (m_vup && m_vup->prelim()) {
             iterateCheckSigned32(nodep, "new() size", nodep->sizep(), BOTH);
         }
-        if (nodep->rhsp()) {
+        ಯದಿ (nodep->rhsp()) {
             iterateCheckTyped(nodep, "Dynamic array new RHS", nodep->rhsp(), adtypep, BOTH);
             // A keyed or defaulted initializer became a constructor, which takes the size
-            AstConsDynArray* const consp = VN_CAST(nodep->rhsp(), ConsDynArray);
-            if (consp && (consp->defaultp() || (consp->itemsp() && consp->itemsp()->keyp()))) {
+            AstConsDynArray* ಧ್ರುವ consp = VN_CAST(nodep->rhsp(), ConsDynArray);
+            ಯದಿ (consp && (consp->defaultp() || (consp->itemsp() && consp->itemsp()->keyp()))) {
                 consp->sizep(nodep->sizep()->unlinkFrBack());
                 nodep->replaceWith(consp->unlinkFrBack());
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             }
         }
     }
 
-    void visit(AstTaggedExpr* nodep) override {
+    ಶೂನ್ಯ visit(Ast_Tagged_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         // Tagged union expressions are currently unsupported
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: tagged union");
         // Set a placeholder type to allow further processing
         nodep->dtypeSetBit();
         userIterateChildren(nodep, m_vup);
     }
-    void visit(AstTaggedPattern* nodep) override {
+    ಶೂನ್ಯ visit(AstTaggedPattern* nodep) override {
         // Tagged patterns are currently unsupported
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: tagged pattern");
         nodep->dtypeSetBit();
         userIterateChildren(nodep, m_vup);
     }
-    void visit(AstPatternVar* nodep) override {
+    ಶೂನ್ಯ visit(AstPatternVar* nodep) override {
         // Pattern variable bindings are currently unsupported
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: pattern variable");
         nodep->dtypeSetBit();
     }
-    void visit(AstPatternStar* nodep) override {
+    ಶೂನ್ಯ visit(AstPatternStar* nodep) override {
         // Pattern wildcards are currently unsupported
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: pattern wildcard");
         nodep->dtypeSetBit();
     }
-    void visit(AstMatches* nodep) override {
+    ಶೂನ್ಯ visit(AstMatches* nodep) override {
         // Matches operator is currently unsupported
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: matches operator");
         // Matches returns a boolean
@@ -5897,96 +5897,96 @@ class WidthVisitor final : public VNVisitor {
         userIterateChildren(nodep, m_vup);
     }
 
-    void visit(AstPattern* nodep) override {
-        if (m_inParamOverride && !nodep->childDTypep() && !m_vup->dtypeNullp()) {
+    ಶೂನ್ಯ visit(AstPattern* nodep) override {
+        ಯದಿ (m_inParamOverride && !nodep->childDTypep() && !m_vup->dtypeNullp()) {
             // The specialized module types an override pattern, so only type its members here
             VL_RESTORER(m_inParamOverride);
-            for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+            ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
                  patp = VN_AS(patp->nextp(), PatMember)) {
-                m_inParamOverride = false;
+                m_inParamOverride = ಅಸತ್ಯ;
                 userIterateAndNext(patp->repp(), WidthVP{SELF, BOTH}.p());
                 // Struct member names and type keys need no typing
-                if (!VN_IS(patp->keyp(), Text) && !VN_IS(patp->keyp(), NodeDType)) {
+                ಯದಿ (!VN_IS(patp->keyp(), Text) && !VN_IS(patp->keyp(), ಗಂಟು_DType)) {
                     userIterateAndNext(patp->keyp(), WidthVP{SELF, BOTH}.p());
                 }
-                for (AstNode *nextp, *valuep = patp->lhssp(); valuep; valuep = nextp) {
+                ಪ್ರತಿ (Ast_ಗಂಟು *nextp, *valuep = patp->lhssp(); valuep; valuep = nextp) {
                     nextp = valuep->nextp();
                     // A nested pattern stays untyped, any other value is typed now
                     m_inParamOverride = VN_IS(valuep, Pattern);
                     userIterate(valuep, WidthVP{SELF, BOTH}.p());
                 }
             }
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Any other pattern is typed here, so its members aren't override patterns
         VL_RESTORER(m_inParamOverride);
-        m_inParamOverride = false;
-        if (nodep->didWidthAndSet()) return;
+        m_inParamOverride = ಅಸತ್ಯ;
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         UINFO(9, "PATTERN " << nodep);
-        if (nodep->childDTypep()) {  // data_type '{ pattern }
+        ಯದಿ (nodep->childDTypep()) {  // data_type '{ pattern }
             nodep->dtypep(iterateEditMoveDTypep(nodep, nodep->subDTypep()));
         }
-        if (!nodep->dtypep() && m_vup->dtypeNullp()) {  // Get it from parent assignment/pin/etc
+        ಯದಿ (!nodep->dtypep() && m_vup->dtypeNullp()) {  // Get it from parent assignment/pin/etc
             nodep->dtypep(m_vup->dtypep());
         }
-        AstNodeDType* dtypep = nodep->dtypep();
-        if (!dtypep) {
+        Ast_ಗಂಟು_DType* dtypep = nodep->dtypep();
+        ಯದಿ (!dtypep) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported/Illegal: Assignment pattern"
                                          " member not underneath a supported construct: "
                                              << nodep->backp()->prettyTypeName());
 
-            if (nodep->backp() && (VN_IS(nodep->backp(), Eq) || VN_IS(nodep->backp(), Neq)))
-                return;
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            ಯದಿ (nodep->backp() && (VN_IS(nodep->backp(), Eq) || VN_IS(nodep->backp(), Neq)))
+                ಪ್ರತ್ಯಾಗಮ;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
         {
             dtypep = dtypep->skipRefp();
             nodep->dtypep(dtypep);
             UINFO(9, "  dtypep " << dtypep);
             nodep->dtypep(dtypep);
-            if (VN_IS(dtypep, UnionDType)) {
+            ಯದಿ (VN_IS(dtypep, UnionDType)) {
                 nodep->v3error("Assignment pattern cannot be used for union"
                                " (IEEE 1800-2023 10.9)");
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // Determine replication count, and replicate initial value as
             // widths need to be individually determined
-            for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+            ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
                  patp = VN_AS(patp->nextp(), PatMember)) {
-                const int times = visitPatMemberRep(patp);
-                for (int i = 1; i < times; i++) {
-                    AstPatMember* const newp = patp->cloneTree(false);
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ times = visitPatMemberRep(patp);
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 1; i < times; i++) {
+                    AstPatMember* ಧ್ರುವ newp = patp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
                     patp->addNextHere(newp);
                     // This loop will see the new elements as part of nextp()
                 }
             }
             // Convert any PatMember with multiple items to multiple PatMembers
-            for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+            ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
                  patp = VN_AS(patp->nextp(), PatMember)) {
-                if (patp->lhssp()->nextp()) {
+                ಯದಿ (patp->lhssp()->nextp()) {
                     // Can't just addNext, as would add to end of all members.
                     // So detach, add next and reattach
                     VNRelinker relinkHandle;
                     patp->unlinkFrBack(&relinkHandle);
-                    while (AstNodeExpr* const movep = VN_AS(patp->lhssp()->nextp(), NodeExpr)) {
+                    ಯಾವತ್ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ movep = VN_AS(patp->lhssp()->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
                         movep->unlinkFrBack();  // Not unlinkFrBackWithNext, just one
-                        AstNode* newkeyp = nullptr;
-                        if (patp->keyp()) newkeyp = patp->keyp()->cloneTree(true);
-                        AstPatMember* const newp
-                            = new AstPatMember{patp->fileline(), movep, newkeyp, nullptr};
+                        Ast_ಗಂಟು* newkeyp = nullptr;
+                        ಯದಿ (patp->keyp()) newkeyp = patp->keyp()->clone_ವೃಕ್ಷ(ಸತ್ಯ);
+                        AstPatMember* ಧ್ರುವ newp
+                            = ನೂತನ AstPatMember{patp->fileline(), movep, newkeyp, nullptr};
                         patp->addNext(newp);
                     }
                     relinkHandle.relink(patp);
                 }
             }
             AstPatMember* defaultp = nullptr;
-            for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;) {
-                AstPatMember* const nextp = VN_AS(patp->nextp(), PatMember);
-                if (patp->isDefault()) {
-                    if (defaultp) {
-                        VL_DO_DANGLING(pushDeletep(defaultp), defaultp);
+            ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;) {
+                AstPatMember* ಧ್ರುವ nextp = VN_AS(patp->nextp(), PatMember);
+                ಯದಿ (patp->isDefault()) {
+                    ಯದಿ (defaultp) {
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(defaultp), defaultp);
                         nodep->v3error("Multiple '{ default: } clauses");
                     }
                     defaultp = patp;
@@ -5994,330 +5994,330 @@ class WidthVisitor final : public VNVisitor {
                 }
                 patp = nextp;
             }
-            while (const AstConstDType* const vdtypep = VN_CAST(dtypep, ConstDType)) {
+            ಯಾವತ್ (ಧ್ರುವ AstConstDType* ಧ್ರುವ vdtypep = VN_CAST(dtypep, ConstDType)) {
                 dtypep = vdtypep->subDTypep()->skipRefp();
             }
 
             userIterate(dtypep, WidthVP{SELF, BOTH}.p());
 
-            if (auto* const vdtypep = VN_CAST(dtypep, StructDType)) {
+            ಯದಿ (auto* ಧ್ರುವ vdtypep = VN_CAST(dtypep, StructDType)) {
                 patternStruct(nodep, vdtypep, defaultp);
-            } else if (auto* const vdtypep = VN_CAST(dtypep, NodeArrayDType)) {
+            } ಅನ್ಯಥಾ ಯದಿ (auto* ಧ್ರುವ vdtypep = VN_CAST(dtypep, ಗಂಟು_Array_DType)) {
                 patternArray(nodep, vdtypep, defaultp);
-            } else if (VN_IS(dtypep, AssocArrayDType)) {
-                AstConsAssoc* const consp = new AstConsAssoc{nodep->fileline()};
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(dtypep, AssocArrayDType)) {
+                AstConsAssoc* ಧ್ರುವ consp = ನೂತನ AstConsAssoc{nodep->fileline()};
                 patternKeyed<AstConsAssocItem>(nodep, consp, dtypep, defaultp);
-            } else if (VN_IS(dtypep, WildcardArrayDType)) {
-                AstConsWildcard* const consp = new AstConsWildcard{nodep->fileline()};
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(dtypep, WildcardArrayDType)) {
+                AstConsWildcard* ಧ್ರುವ consp = ನೂತನ AstConsWildcard{nodep->fileline()};
                 patternKeyed<AstConsWildcardItem>(nodep, consp, dtypep, defaultp);
-            } else if (VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, QueueDType)) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, QueueDType)) {
                 patternDynArrayOrQueue(nodep, dtypep, defaultp);
-            } else if (VN_IS(dtypep, BasicDType) && VN_AS(dtypep, BasicDType)->isRanged()) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(dtypep, BasicDType) && VN_AS(dtypep, BasicDType)->isRanged()) {
                 patternBasic(nodep, dtypep, defaultp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Assignment pattern applies against non-struct/union data type: "
                         << dtypep->prettyDTypeNameQ());
-                nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
+                nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
             }
 
             // Done with the Pattern
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            if (defaultp) VL_DO_DANGLING(pushDeletep(defaultp), defaultp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಯದಿ (defaultp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(defaultp), defaultp);
         }
     }
-    void patternStruct(AstPattern* nodep, AstStructDType* vdtypep, AstPatMember* defaultp) {
+    ಶೂನ್ಯ patternStruct(AstPattern* nodep, AstStructDType* vdtypep, AstPatMember* defaultp) {
         // Due to "default" and tagged patterns, we need to determine
         // which member each AstPatMember corresponds to before we can
         // determine the dtypep for that PatMember's value, and then
         // width the initial value appropriately.
-        using PatMap = std::map<const AstMemberDType*, AstPatMember*>;
+        using PatMap = std::map<ಧ್ರುವ AstMemberDType*, AstPatMember*>;
         PatMap patmap;  // Store member: value
         DTypeMap dtypemap;  // Store data_type: default_value
         {
-            const AstMemberDType* memp = vdtypep->membersp();
+            ಧ್ರುವ AstMemberDType* memp = vdtypep->membersp();
             AstPatMember* patp = VN_CAST(nodep->itemsp(), PatMember);
-            while (patp) {
-                do {
-                    if (patp->keyp()) {
+            ಯಾವತ್ (patp) {
+                ಕುರು {
+                    ಯದಿ (patp->keyp()) {
                         // '{member:value} or '{data_type: default_value}
-                        if (const AstText* textp = VN_CAST(patp->keyp(), Text)) {
+                        ಯದಿ (ಧ್ರುವ AstText* textp = VN_CAST(patp->keyp(), Text)) {
                             // member: value
                             memp = VN_CAST(m_memberMap.findMember(vdtypep, textp->text()),
                                            MemberDType);
-                            if (!memp) {
+                            ಯದಿ (!memp) {
                                 patp->keyp()->v3error("Assignment pattern key '"
                                                       << textp->text() << "' not found as member");
-                                break;
-                            } else {
-                                const std::pair<PatMap::iterator, bool> ret
+                                ಭಙ್ಗ;
+                            } ಅನ್ಯಥಾ {
+                                ಧ್ರುವ std::pair<PatMap::iterator, ತಾರ್ಕಿಕ> ret
                                     = patmap.emplace(memp, patp);
-                                if (!ret.second) {
+                                ಯದಿ (!ret.second) {
                                     patp->v3error("Assignment pattern contains duplicate entry: "
                                                   << VN_AS(patp->keyp(), Text)->text());
                                 }
                                 memp = VN_AS(memp->nextp(), MemberDType);
                             }
-                        } else if (AstNodeDType* nodedtypep = VN_CAST(patp->keyp(), NodeDType)) {
+                        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_DType* nodedtypep = VN_CAST(patp->keyp(), ಗಂಟು_DType)) {
                             // data_type: default_value
                             userIterate(nodedtypep, WidthVP{SELF, BOTH}.p());
-                            const string dtype = nodedtypep->dtypep()->prettyDTypeName(true);
+                            ಧ್ರುವ string dtype = nodedtypep->dtypep()->prettyDTypeName(ಸತ್ಯ);
                             // Override stored default_value
                             dtypemap[dtype] = patp;
-                        } else {
+                        } ಅನ್ಯಥಾ {
                             // Undefined pattern
                             patp->keyp()->v3error(
                                 "Assignment pattern key not supported/understood: "
                                 << patp->keyp()->prettyTypeName());
                         }
-                    } else if (memp) {
+                    } ಅನ್ಯಥಾ ಯದಿ (memp) {
                         // constant expr
-                        const std::pair<PatMap::iterator, bool> ret = patmap.emplace(memp, patp);
-                        if (!ret.second) {
+                        ಧ್ರುವ std::pair<PatMap::iterator, ತಾರ್ಕಿಕ> ret = patmap.emplace(memp, patp);
+                        ಯದಿ (!ret.second) {
                             patp->v3error("Assignment pattern contains duplicate entry: "
                                           << VN_AS(patp->keyp(), Text)->text());
                         }
                         memp = VN_AS(memp->nextp(), MemberDType);
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         patp->v3error(
                             "Assignment pattern contains more entries than structure members");
                     }
-                } while (false);
+                } ಯಾವತ್ (ಅಸತ್ಯ);
 
                 // Next
-                if (patp) patp = VN_AS(patp->nextp(), PatMember);
+                ಯದಿ (patp) patp = VN_AS(patp->nextp(), PatMember);
             }
         }
-        AstNodeExpr* newp = nullptr;
-        if (vdtypep->packed()) {
-            for (AstMemberDType* memp = vdtypep->membersp(); memp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+        ಯದಿ (vdtypep->packed()) {
+            ಪ್ರತಿ (AstMemberDType* memp = vdtypep->membersp(); memp;
                  memp = VN_AS(memp->nextp(), MemberDType)) {
-                const auto it = patmap.find(memp);
-                if (it == patmap.end()) {  // default or default_type assignment
-                    if (AstStructDType* const memp_nested_vdtypep
+                ಧ್ರುವ auto it = patmap.find(memp);
+                ಯದಿ (it == patmap.end()) {  // default or default_type assignment
+                    ಯದಿ (AstStructDType* ಧ್ರುವ memp_nested_vdtypep
                         = VN_CAST(memp->virtRefDTypep(), StructDType)) {
                         newp = nestedvalueConcat_patternStruct(memp_nested_vdtypep, defaultp, newp,
                                                                nodep, dtypemap);
-                    } else {
-                        AstPatMember* const patp
+                    } ಅನ್ಯಥಾ {
+                        AstPatMember* ಧ್ರುವ patp
                             = defaultPatp_patternStruct(nodep, memp, defaultp, dtypemap);
-                        newp = valueConcat_patternStruct(patp, newp, memp, nodep);
-                        if (patp) VL_DO_DANGLING(pushDeletep(patp), patp);
+                        newp = ಮೌಲ್ಯ_Concat_pattern_Struct(patp, newp, memp, nodep);
+                        ಯದಿ (patp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(patp), patp);
                     }
-                } else {  // member assignment
-                    newp = valueConcat_patternStruct(it->second, newp, memp, nodep);
+                } ಅನ್ಯಥಾ {  // member assignment
+                    newp = ಮೌಲ್ಯ_Concat_pattern_Struct(it->second, newp, memp, nodep);
                 }
             }
-        } else {  // Unpacked
-            AstConsStruct* const consp = new AstConsStruct{nodep->fileline(), vdtypep};
-            for (AstMemberDType* memp = vdtypep->membersp(); memp;
+        } ಅನ್ಯಥಾ {  // Unpacked
+            AstConsStruct* ಧ್ರುವ consp = ನೂತನ AstConsStruct{nodep->fileline(), vdtypep};
+            ಪ್ರತಿ (AstMemberDType* memp = vdtypep->membersp(); memp;
                  memp = VN_AS(memp->nextp(), MemberDType)) {
-                const auto it = patmap.find(memp);
+                ಧ್ರುವ auto it = patmap.find(memp);
                 AstPatMember* patp = nullptr;
-                if (it == patmap.end()) {  // Default or default_type assignment
+                ಯದಿ (it == patmap.end()) {  // Default or default_type assignment
                     patp = defaultPatp_patternStruct(nodep, memp, defaultp, dtypemap);
-                    pushDeletep(patp);  // patp used below
+                    ತಳ್ಳು_Deletep(patp);  // patp used below
                     patp = defaultPatp_forDType(patp, memp->virtRefDTypep(), dtypemap);
-                    pushDeletep(patp);  // patp used below
-                } else {
+                    ತಳ್ಳು_Deletep(patp);  // patp used below
+                } ಅನ್ಯಥಾ {
                     patp = it->second;  // Member assignment
                 }
                 patp->dtypep(memp);
-                AstNodeExpr* const valuep = patternMemberValueIterate(patp);
-                consp->addItemsp(new AstConsStructItem{patp->fileline(), memp, valuep});
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
+                consp->addItemsp(ನೂತನ AstConsStructItem{patp->fileline(), memp, valuep});
             }
             newp = consp;
         }
-        if (newp) {
+        ಯದಿ (newp) {
             nodep->replaceWith(newp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Assignment pattern with no members");
         }
     }
 
-    AstNodeExpr* nestedvalueConcat_patternStruct(AstStructDType* memp_vdtypep,
-                                                 AstPatMember* defaultp, AstNodeExpr* newp,
-                                                 AstPattern* nodep, const DTypeMap& dtypemap) {
-        for (AstMemberDType* memp_nested = memp_vdtypep->membersp(); memp_nested;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nestedvalueConcat_patternStruct(AstStructDType* memp_vdtypep,
+                                                 AstPatMember* defaultp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp,
+                                                 AstPattern* nodep, ಧ್ರುವ DTypeMap& dtypemap) {
+        ಪ್ರತಿ (AstMemberDType* memp_nested = memp_vdtypep->membersp(); memp_nested;
              memp_nested = VN_AS(memp_nested->nextp(), MemberDType)) {
-            if (AstStructDType* const memp_multinested_vdtypep
+            ಯದಿ (AstStructDType* ಧ್ರುವ memp_multinested_vdtypep
                 = VN_CAST(memp_nested->virtRefDTypep(), StructDType)) {
                 newp = nestedvalueConcat_patternStruct(memp_multinested_vdtypep, defaultp, newp,
                                                        nodep, dtypemap);
-            } else {
-                AstPatMember* const patp
+            } ಅನ್ಯಥಾ {
+                AstPatMember* ಧ್ರುವ patp
                     = defaultPatp_patternStruct(nodep, memp_nested, defaultp, dtypemap);
-                newp = valueConcat_patternStruct(patp, newp, memp_nested, nodep);
-                if (patp) VL_DO_DANGLING(pushDeletep(patp), patp);
+                newp = ಮೌಲ್ಯ_Concat_pattern_Struct(patp, newp, memp_nested, nodep);
+                ಯದಿ (patp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(patp), patp);
             }
         }
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
 
     AstPatMember* defaultPatp_patternStruct(AstPattern* nodep, AstMemberDType* memp,
-                                            AstPatMember* defaultp, const DTypeMap& dtypemap) {
-        const string memp_DType = memp->virtRefDTypep()->prettyDTypeName(true);
-        const auto it = dtypemap.find(memp_DType);
-        if (it != dtypemap.end()) {
+                                            AstPatMember* defaultp, ಧ್ರುವ DTypeMap& dtypemap) {
+        ಧ್ರುವ string memp_DType = memp->virtRefDTypep()->prettyDTypeName(ಸತ್ಯ);
+        ಧ್ರುವ auto it = dtypemap.find(memp_DType);
+        ಯದಿ (it != dtypemap.end()) {
             // default_value for data_type
-            return it->second->cloneTree(false);
+            ಪ್ರತ್ಯಾಗಮ it->second->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
-        if (defaultp) {
+        ಯದಿ (defaultp) {
             // default_value for any unmatched member yet
-            return defaultp->cloneTree(false);
+            ಪ್ರತ್ಯಾಗಮ defaultp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
-        if (memp->valuep()) {
-            return new AstPatMember{nodep->fileline(),
-                                    VN_AS(memp->valuep()->cloneTree(false), NodeExpr),
-                                    new AstText{nodep->fileline(), memp->name()}, nullptr};
+        ಯದಿ (memp->valuep()) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstPatMember{nodep->fileline(),
+                                    VN_AS(memp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ),
+                                    ನೂತನ AstText{nodep->fileline(), memp->name()}, nullptr};
         }
         nodep->v3error("Assignment pattern missed initializing elements: "
                        << memp->virtRefDTypep()->prettyDTypeNameQ() << " " << memp->prettyNameQ());
-        return nullptr;
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
 
-    AstNodeExpr* valueConcat_patternStruct(AstPatMember* patp, AstNodeExpr* newp,
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಮೌಲ್ಯ_Concat_pattern_Struct(AstPatMember* patp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp,
                                            AstMemberDType* memp, AstPattern* nodep) {
-        if (patp) {
+        ಯದಿ (patp) {
             patp->dtypep(memp);
-            AstNodeExpr* const valuep = patternMemberValueIterate(patp);
-            if (!newp) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
+            ಯದಿ (!newp) {
                 newp = valuep;
-            } else {
-                AstConcat* const concatp = new AstConcat{patp->fileline(), newp, valuep};
+            } ಅನ್ಯಥಾ {
+                AstConcat* ಧ್ರುವ concatp = ನೂತನ AstConcat{patp->fileline(), newp, valuep};
                 // Have resolved widths, no reason to warn about widths on the concat itself
-                newp->fileline()->modifyWarnOff(V3ErrorCode::WIDTHCONCAT, true);
-                valuep->fileline()->modifyWarnOff(V3ErrorCode::WIDTHCONCAT, true);
+                newp->fileline()->modifyWarnOff(V3ErrorCode::WIDTHCONCAT, ಸತ್ಯ);
+                valuep->fileline()->modifyWarnOff(V3ErrorCode::WIDTHCONCAT, ಸತ್ಯ);
                 newp = concatp;
                 newp->dtypeChgSigned(nodep->dtypep()->numeric());
             }
         }
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
 
-    AstPatMember* defaultPatp_forDType(AstPatMember* defaultp, AstNodeDType* elemDTypep,
-                                       const DTypeMap& dtypemap = DTypeMap{}) {
-        AstNodeExpr* const valuep = defaultp->lhssp()->cloneTree(false);
-        AstNodeDType* const elemDTypeSkipRefp = elemDTypep->skipRefp();
-        const AstStructDType* const structp = VN_CAST(elemDTypeSkipRefp, StructDType);
-        const bool unpackedStruct = structp && !structp->packed();
+    AstPatMember* defaultPatp_forDType(AstPatMember* defaultp, Ast_ಗಂಟು_DType* elemDTypep,
+                                       ಧ್ರುವ DTypeMap& dtypemap = DTypeMap{}) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = defaultp->lhssp()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        Ast_ಗಂಟು_DType* ಧ್ರುವ elemDTypeSkipRefp = elemDTypep->skipRefp();
+        ಧ್ರುವ AstStructDType* ಧ್ರುವ structp = VN_CAST(elemDTypeSkipRefp, StructDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ unpackedStruct = structp && !structp->packed();
 
-        if (!VN_IS(elemDTypeSkipRefp, UnpackArrayDType) && !unpackedStruct) {
-            VL_DO_DANGLING(pushDeletep(valuep), valuep);
-            return defaultp->cloneTree(false);
+        ಯದಿ (!VN_IS(elemDTypeSkipRefp, UnpackArrayDType) && !unpackedStruct) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+            ಪ್ರತ್ಯಾಗಮ defaultp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
-        if (VN_IS(valuep, Pattern)) {
-            VL_DO_DANGLING(pushDeletep(valuep), valuep);
-            return defaultp->cloneTree(false);
+        ಯದಿ (VN_IS(valuep, Pattern)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+            ಪ್ರತ್ಯಾಗಮ defaultp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
-        if (!valuep->dtypep()) userIterate(valuep, WidthVP{SELF, BOTH}.p());
-        bool wholeElement = unpackedStruct;
-        if (AstNodeDType* const valueDTypep = valuep->dtypep()) {
+        ಯದಿ (!valuep->dtypep()) userIterate(valuep, WidthVP{SELF, BOTH}.p());
+        ತಾರ್ಕಿಕ wholeElement = unpackedStruct;
+        ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ ಮೌಲ್ಯ_DTypep = valuep->dtypep()) {
             // An array value only if of the matching type, else it applies to its elements
             // (IEEE 1800-2023 10.9.1)
-            wholeElement = unpackedStruct ? !valueDTypep->skipRefp()->isIntegralOrPacked()
-                                          : valueDTypep->similarDType(elemDTypeSkipRefp);
+            wholeElement = unpackedStruct ? !ಮೌಲ್ಯ_DTypep->skipRefp()->isIntegralOrPacked()
+                                          : ಮೌಲ್ಯ_DTypep->similarDType(elemDTypeSkipRefp);
         }
-        if (wholeElement) {
-            VL_DO_DANGLING(pushDeletep(valuep), valuep);
-            return defaultp->cloneTree(false);
+        ಯದಿ (wholeElement) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+            ಪ್ರತ್ಯಾಗಮ defaultp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
 
-        AstPatMember* const nestedDefaultp
-            = new AstPatMember{defaultp->fileline(), valuep, nullptr, nullptr};
-        nestedDefaultp->isDefault(true);
+        AstPatMember* ಧ್ರುವ nestedDefaultp
+            = ನೂತನ AstPatMember{defaultp->fileline(), valuep, nullptr, nullptr};
+        nestedDefaultp->isDefault(ಸತ್ಯ);
         // Propagate the outer 'data_type: value' entries into the nested aggregate
-        for (const auto& entry : dtypemap) nestedDefaultp->addNext(entry.second->cloneTree(false));
-        AstPattern* const recursivePatternp = new AstPattern{defaultp->fileline(), nestedDefaultp};
-        return new AstPatMember{defaultp->fileline(), recursivePatternp, nullptr, nullptr};
+        ಪ್ರತಿ (ಧ್ರುವ auto& entry : dtypemap) nestedDefaultp->addNext(entry.second->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
+        AstPattern* ಧ್ರುವ recursivePatternp = ನೂತನ AstPattern{defaultp->fileline(), nestedDefaultp};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstPatMember{defaultp->fileline(), recursivePatternp, nullptr, nullptr};
     }
 
     // Return the value of a pattern default for elements of the given type, or nullptr if no
     // default. For aggregate elements, it applies to their elements (IEEE 1800-2023 10.9.1).
-    AstNodeExpr* patternDefaultValuep(AstPatMember* defaultp, AstNodeDType* elemDTypep) {
-        if (!defaultp) return nullptr;
-        AstPatMember* const elemDefaultp = defaultPatp_forDType(defaultp, elemDTypep);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* patternDefaultValuep(AstPatMember* defaultp, Ast_ಗಂಟು_DType* elemDTypep) {
+        ಯದಿ (!defaultp) ಪ್ರತ್ಯಾಗಮ nullptr;
+        AstPatMember* ಧ್ರುವ elemDefaultp = defaultPatp_forDType(defaultp, elemDTypep);
         elemDefaultp->dtypep(elemDTypep);
-        AstNodeExpr* const valuep = patternMemberValueIterate(elemDefaultp);
-        VL_DO_DANGLING(pushDeletep(elemDefaultp), elemDefaultp);
-        return valuep;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(elemDefaultp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(elemDefaultp), elemDefaultp);
+        ಪ್ರತ್ಯಾಗಮ valuep;
     }
     // An unpacked array concatenation, with each item an element, or an array of the elements
     // spliced in (IEEE 1800-2023 10.10)
-    void patternConcatArray(AstPattern* nodep, AstUnpackArrayDType* arrayDtp) {
-        const VNumRange range = arrayDtp->declRange();
-        const int elements = range.elements();
-        AstConsArray* const newp = new AstConsArray{nodep->fileline(), arrayDtp};
-        int entn = 0;  // Number of elements given so far, from the left
-        bool error = false;  // Reported an error, so the value is not complete
-        for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+    ಶೂನ್ಯ patternConcatArray(AstPattern* nodep, AstUnpackArrayDType* arrayDtp) {
+        ಧ್ರುವ VNumRange range = arrayDtp->declRange();
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ elements = range.elements();
+        AstConsArray* ಧ್ರುವ newp = ನೂತನ AstConsArray{nodep->fileline(), arrayDtp};
+        ಪೂರ್ಣಾಙ್ಕ entn = 0;  // Number of elements given so far, from the left
+        ತಾರ್ಕಿಕ error = ಅಸತ್ಯ;  // Reported an error, so the value is not complete
+        ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
              patp = VN_AS(patp->nextp(), PatMember)) {
             patp->dtypep(arrayDtp->subDTypep());
-            AstNodeExpr* const valuep = patternMemberValueIterate(patp);
-            const uint64_t index = range.ascending() ? entn : elements - 1 - entn;
-            const AstUnpackArrayDType* const spliceDtp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
+            ಧ್ರುವ uint64_t index = range.ascending() ? entn : elements - 1 - entn;
+            ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ spliceDtp
                 = VN_CAST(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            if (spliceDtp && spliceDtp->subDTypep()->similarDType(arrayDtp->subDTypep())) {
+            ಯದಿ (spliceDtp && spliceDtp->subDTypep()->similarDType(arrayDtp->subDTypep())) {
                 entn += spliceDtp->elementsConst();
-                newp->spliceValues(index, valuep);
-                continue;
+                newp->splice_ಮೌಲ್ಯಗಳು(index, valuep);
+                ಅನುವರ್ತ;
             }
-            const VCastable castable = AstNode::computeCastable(
+            ಧ್ರುವ VCastable castable = Ast_ಗಂಟು::computeCastable(
                 arrayDtp->subDTypep()->skipRefp(), valuep->dtypep()->skipRefp(), valuep);
-            if (castable != VCastable::SAMEISH && castable != VCastable::COMPATIBLE) {
+            ಯದಿ (castable != VCastable::SAMEISH && castable != VCastable::COMPATIBLE) {
                 valuep->v3error("Unpacked array concatenation item is neither an element nor"
                                 " an array of elements of its target (IEEE 1800-2023 10.10)"
                                 << warnDTypes(valuep, arrayDtp->subDTypep(), valuep->dtypep(),
                                               "Element", "Item"));
-                error = true;
+                error = ಸತ್ಯ;
             }
             newp->valuep(index, valuep);
             ++entn;
         }
-        if (!error && entn != elements) {
+        ಯದಿ (!error && entn != elements) {
             nodep->v3error("Unpacked array concatenation has "
                            << entn << " elements, but its target has " << elements
                            << " (IEEE 1800-2023 10.10)");
-            error = true;
+            error = ಸತ್ಯ;
         }
-        if (error) {
-            VL_DO_DANGLING(pushDeletep(newp), newp);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-        } else {
+        ಯದಿ (error) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(newp), newp);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+        } ಅನ್ಯಥಾ {
             nodep->replaceWith(newp);
         }
     }
-    void patternArray(AstPattern* nodep, AstNodeArrayDType* arrayDtp, AstPatMember* defaultp) {
-        if (nodep->itemsp() && VN_AS(nodep->itemsp(), PatMember)->isConcat()) {
+    ಶೂನ್ಯ patternArray(AstPattern* nodep, Ast_ಗಂಟು_Array_DType* arrayDtp, AstPatMember* defaultp) {
+        ಯದಿ (nodep->itemsp() && VN_AS(nodep->itemsp(), PatMember)->isConcat()) {
             patternConcatArray(nodep, VN_AS(arrayDtp, UnpackArrayDType));
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        const VNumRange range = arrayDtp->declRange();
+        ಧ್ರುವ VNumRange range = arrayDtp->declRange();
         PatVecMap patmap = patVectorMap(nodep, range);
-        UINFO(9, "ent " << range.left() << " to " << range.right());
-        AstNode* newp = nullptr;
-        bool missed = false;  // Some element missed, so not a complete value
-        for (int entn = 0, ent = range.left(); entn < range.elements();
-             ++entn, ent += range.leftToRightInc()) {
-            AstNodeExpr* valuep = nullptr;
-            const auto it = patmap.find(ent);
-            if (it == patmap.end()) {
-                if (defaultp) {
+        UINFO(9, "ent " << range.ಎಡ() << " to " << range.ಬಲ());
+        Ast_ಗಂಟು* newp = nullptr;
+        ತಾರ್ಕಿಕ missed = ಅಸತ್ಯ;  // Some element missed, so not a complete value
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ entn = 0, ent = range.ಎಡ(); entn < range.elements();
+             ++entn, ent += range.ಎಡ_To_ಬಲ_Inc()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = nullptr;
+            ಧ್ರುವ auto it = patmap.find(ent);
+            ಯದಿ (it == patmap.end()) {
+                ಯದಿ (defaultp) {
                     valuep = patternDefaultValuep(defaultp, arrayDtp->subDTypep());
-                } else {
+                } ಅನ್ಯಥಾ {
                     nodep->v3error("Assignment pattern missed initializing elements: " << ent);
-                    missed = true;
+                    missed = ಸತ್ಯ;
                 }
-            } else {
-                AstPatMember* const patp = it->second;
+            } ಅನ್ಯಥಾ {
+                AstPatMember* ಧ್ರುವ patp = it->second;
                 patmap.erase(it);
                 patp->dtypep(arrayDtp->subDTypep());
-                valuep = patternMemberValueIterate(patp);
+                valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
                 // Only an unpacked array concatenation splices in arrays
-                const AstUnpackArrayDType* const memberDtp
+                ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ memberDtp
                     = VN_CAST(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-                if (memberDtp && memberDtp->subDTypep()->similarDType(arrayDtp->subDTypep())) {
+                ಯದಿ (memberDtp && memberDtp->subDTypep()->similarDType(arrayDtp->subDTypep())) {
                     valuep->v3error("Assignment pattern member is an array of the elements, not"
                                     " an element (IEEE 1800-2023 10.9.1)"
                                     << warnDTypes(valuep, arrayDtp->subDTypep(), memberDtp,
@@ -6326,35 +6326,35 @@ class WidthVisitor final : public VNVisitor {
                                     << valuep->warnMore()
                                     << "... Suggest use an unpacked array concatenation {...} to "
                                        "splice arrays");
-                    VL_DO_DANGLING(pushDeletep(valuep), valuep);
-                    valuep = new AstConst{patp->fileline(), AstConst::BitFalseErroring{}};
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+                    valuep = ನೂತನ AstConst{patp->fileline(), AstConst::BitFalseErroring{}};
                 }
             }
 
-            if (valuep) {
-                if (VN_IS(arrayDtp, UnpackArrayDType)) {
-                    if (!newp) newp = new AstConsArray{nodep->fileline(), arrayDtp};
+            ಯದಿ (valuep) {
+                ಯದಿ (VN_IS(arrayDtp, UnpackArrayDType)) {
+                    ಯದಿ (!newp) newp = ನೂತನ AstConsArray{nodep->fileline(), arrayDtp};
                     VN_AS(newp, ConsArray)->valuep(ent - range.lo(), valuep);
-                } else {  // Packed. Convert to concat for now.
-                    if (!newp) {
+                } ಅನ್ಯಥಾ {  // Packed. Convert to concat for now.
+                    ಯದಿ (!newp) {
                         newp = valuep;
-                    } else {
-                        AstConcat* const concatp
-                            = new AstConcat{valuep->fileline(), VN_AS(newp, NodeExpr), valuep};
+                    } ಅನ್ಯಥಾ {
+                        AstConcat* ಧ್ರುವ concatp
+                            = ನೂತನ AstConcat{valuep->fileline(), VN_AS(newp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), valuep};
                         newp = concatp;
                         newp->dtypeChgSigned(nodep->dtypep()->numeric());
                     }
                 }
             }
         }
-        if (!patmap.empty()) nodep->v3error("Assignment pattern with too many elements");
-        if (missed && VN_IS(newp, ConsArray)) {
-            VL_DO_DANGLING(pushDeletep(newp), newp);
-            newp = new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
+        ಯದಿ (!patmap.empty()) nodep->v3error("Assignment pattern with too many elements");
+        ಯದಿ (missed && VN_IS(newp, ConsArray)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(newp), newp);
+            newp = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
         }
-        if (newp) {
+        ಯದಿ (newp) {
             nodep->replaceWith(newp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Assignment pattern with no members");
         }
         // UINFOTREE(9, newp, "", "apat-out");
@@ -6362,102 +6362,102 @@ class WidthVisitor final : public VNVisitor {
     // Return the key of an array pattern member, which must be a constant expression,
     // or nullptr after reporting an error
     AstConst* patternConstKeyp(AstPatMember* patp) {
-        if (VN_IS(patp->keyp(), NodeDType)) {
+        ಯದಿ (VN_IS(patp->keyp(), ಗಂಟು_DType)) {
             patp->keyp()->v3warn(E_UNSUPPORTED,
                                  "Unsupported: Data-type key in array assignment pattern");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        if (patp->keyExprp()) V3Const::constifyParamsNoWarnEdit(patp->keyExprp());  // May change
-        AstConst* const constp = VN_CAST(patp->keyExprp(), Const);
-        if (!constp) {
+        ಯದಿ (patp->ಕೀಲಿ_Exprp()) V3Const::constifyParamsNoWarnEdit(patp->ಕೀಲಿ_Exprp());  // May change
+        AstConst* ಧ್ರುವ constp = VN_CAST(patp->ಕೀಲಿ_Exprp(), Const);
+        ಯದಿ (!constp) {
             patp->keyp()->v3error(
                 "Assignment pattern key is not a constant expression (IEEE 1800-2023 10.9)");
         }
-        return constp;
+        ಪ್ರತ್ಯಾಗಮ constp;
     }
     // Return the key of a pattern member of a non-aggregate key type, converted to the key type,
     // unlinked, or nullptr after reporting an error
-    AstConst* patternScalarKeyp(AstPatMember* patp, AstNodeDType* keyDTypep) {
-        if (!patp->keyp()) {
+    AstConst* patternScalarKeyp(AstPatMember* patp, Ast_ಗಂಟು_DType* ಕೀಲಿ_DTypep) {
+        ಯದಿ (!patp->keyp()) {
             patp->v3error("Missing pattern key (need an expression then a ':')");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
         // An integral key is evaluated in the context of the key type, as an index converted to
         // it (IEEE 1800-2023 7.8.4), but not truncated before checking it for X or Z
-        if (keyDTypep->skipRefp()->isIntegralOrPacked() && patp->keyExprp()) {
-            userIterate(patp->keyExprp(), WidthVP{keyDTypep, PRELIM}.p());
-            const int width = std::max(patp->keyExprp()->width(), keyDTypep->width());
-            AstNodeDType* const contextDTypep
-                = keyDTypep->findBitOrLogicDType(width, width, keyDTypep->numeric(), true);
-            iterateCheck(patp, "key", patp->keyExprp(), CONTEXT_DET, FINAL, contextDTypep,
-                         EXTEND_EXP, false);
+        ಯದಿ (ಕೀಲಿ_DTypep->skipRefp()->isIntegralOrPacked() && patp->ಕೀಲಿ_Exprp()) {
+            userIterate(patp->ಕೀಲಿ_Exprp(), WidthVP{ಕೀಲಿ_DTypep, PRELIM}.p());
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(patp->ಕೀಲಿ_Exprp()->width(), ಕೀಲಿ_DTypep->width());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ contextDTypep
+                = ಕೀಲಿ_DTypep->findBitOrLogicDType(width, width, ಕೀಲಿ_DTypep->numeric(), ಸತ್ಯ);
+            iterateCheck(patp, "key", patp->ಕೀಲಿ_Exprp(), CONTEXT_DET, FINAL, contextDTypep,
+                         EXTEND_EXP, ಅಸತ್ಯ);
         }
-        AstConst* const constp = patternConstKeyp(patp);
-        if (!constp) return nullptr;
-        if (constp->num().isFourState()) {
+        AstConst* ಧ್ರುವ constp = patternConstKeyp(patp);
+        ಯದಿ (!constp) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಯದಿ (constp->ಅಂಕೆ().isFourState()) {
             patp->keyp()->v3error("Assignment pattern key cannot contain X or Z");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
         // Convert to the key type. The conversion is inserted above 'constp', so take the key
         // from the member again rather than from what iterateCheck returns.
-        iterateCheck(patp, "key", constp, CONTEXT_DET, FINAL, keyDTypep, EXTEND_EXP, false);
-        AstNodeExpr* const convp = patp->keyExprp();
+        iterateCheck(patp, "key", constp, CONTEXT_DET, FINAL, ಕೀಲಿ_DTypep, EXTEND_EXP, ಅಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ convp = patp->ಕೀಲಿ_Exprp();
         // Fold the conversion, so the key is a Const again
-        AstNodeExpr* const keyp = V3Const::constifyEdit(convp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ keyp = V3Const::constifyEdit(convp);
         UASSERT_OBJ(VN_IS(keyp, Const), patp, "Key not constant after conversion");
-        return VN_AS(keyp->unlinkFrBack(), Const);
+        ಪ್ರತ್ಯಾಗಮ VN_AS(keyp->unlinkFrBack(), Const);
     }
     // Return the key of a keyed pattern member, for the kind of constructor, unlinked, or nullptr
     // after reporting an error. Only associative arrays can have aggregate keys.
-    AstNodeExpr* patternKeyp(AstConsAssoc*, AstPatMember* patp, AstNodeDType* arrayDtp) {
-        AstNodeDType* const keyDTypep = VN_AS(arrayDtp, AssocArrayDType)->keyDTypep();
-        if (!keyDTypep->skipRefp()->isAggregateType() || !patp->keyExprp()) {
-            return patternScalarKeyp(patp, keyDTypep);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* patternKeyp(AstConsAssoc*, AstPatMember* patp, Ast_ಗಂಟು_DType* arrayDtp) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ ಕೀಲಿ_DTypep = VN_AS(arrayDtp, AssocArrayDType)->ಕೀಲಿ_DTypep();
+        ಯದಿ (!ಕೀಲಿ_DTypep->skipRefp()->isAggregateType() || !patp->ಕೀಲಿ_Exprp()) {
+            ಪ್ರತ್ಯಾಗಮ patternScalarKeyp(patp, ಕೀಲಿ_DTypep);
         }
         // An aggregate key is folded, and constant if made of constant values only
-        iterateCheckTyped(patp, "key", patp->keyExprp(), keyDTypep, BOTH);
-        V3Const::constifyParamsNoWarnEdit(patp->keyExprp());
-        AstNodeExpr* const foldedp = patp->keyExprp();
-        if (!foldedp->isConstantTree()) {
+        iterateCheckTyped(patp, "key", patp->ಕೀಲಿ_Exprp(), ಕೀಲಿ_DTypep, BOTH);
+        V3Const::constifyParamsNoWarnEdit(patp->ಕೀಲಿ_Exprp());
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ foldedp = patp->ಕೀಲಿ_Exprp();
+        ಯದಿ (!foldedp->is_Constant_ವೃಕ್ಷ()) {
             foldedp->v3error(
                 "Assignment pattern key is not a constant expression (IEEE 1800-2023 10.9)");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        if (foldedp->exists([](const AstConst* constp) { return constp->num().isFourState(); })) {
+        ಯದಿ (foldedp->exists([](ಧ್ರುವ AstConst* constp) { ಪ್ರತ್ಯಾಗಮ constp->ಅಂಕೆ().isFourState(); })) {
             foldedp->v3error("Assignment pattern key cannot contain X or Z");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        return foldedp->unlinkFrBack();
+        ಪ್ರತ್ಯಾಗಮ foldedp->unlinkFrBack();
     }
-    AstConst* patternKeyp(AstConsWildcard*, AstPatMember* patp, AstNodeDType* arrayDtp) {
-        return patternScalarKeyp(patp, arrayDtp->findStringDType());
+    AstConst* patternKeyp(AstConsWildcard*, AstPatMember* patp, Ast_ಗಂಟು_DType* arrayDtp) {
+        ಪ್ರತ್ಯಾಗಮ patternScalarKeyp(patp, arrayDtp->findStringDType());
     }
-    AstConst* patternKeyp(AstConsDynArray*, AstPatMember* patp, AstNodeDType* arrayDtp) {
+    AstConst* patternKeyp(AstConsDynArray*, AstPatMember* patp, Ast_ಗಂಟು_DType* arrayDtp) {
         // Converted to longint, not int, so a key wider than 32 bits is out of bounds rather than
         // truncated to a valid index
-        return patternScalarKeyp(patp, arrayDtp->findBasicDType(VBasicDTypeKwd::LONGINT));
+        ಪ್ರತ್ಯಾಗಮ patternScalarKeyp(patp, arrayDtp->findBasicDType(VBasicDTypeKwd::LONGINT));
     }
     // Sort constructor items by key, so equal values have equal trees, and report duplicate
     // keys (IEEE 1800-2023 10.9.1). Keys are compared after conversion to the key type, e.g.
     // the wildcard keys "CCC" and 23'h434343 are equal.
     template <typename T_Item, typename T_Cons>
-    void sortConsItems(T_Cons* nodep) {
+    ಶೂನ್ಯ sort_Cons_ವಸ್ತುಗಳು(T_Cons* nodep) {
         std::vector<T_Item*> itemps;
-        while (T_Item* const itemp = nodep->itemsp()) {
+        ಯಾವತ್ (T_Item* ಧ್ರುವ itemp = nodep->itemsp()) {
             itemp->unlinkFrBack();
-            itemps.push_back(itemp);
+            itemps.ತಳ್ಳು_back(itemp);
         }
-        const auto keyOf = [](const T_Item* itemp) -> const V3Number& {
-            const AstNode* const keyp = itemp->keyp();
-            return VN_AS(keyp, Const)->num();
+        ಧ್ರುವ auto ಕೀಲಿ_Of = [](ಧ್ರುವ T_Item* itemp) -> ಧ್ರುವ V3_ಸಂಖ್ಯೆ& {
+            ಧ್ರುವ Ast_ಗಂಟು* ಧ್ರುವ keyp = itemp->keyp();
+            ಪ್ರತ್ಯಾಗಮ VN_AS(keyp, Const)->ಅಂಕೆ();
         };
-        std::stable_sort(itemps.begin(), itemps.end(), [&](const T_Item* ap, const T_Item* bp) {
+        std::stable_sort(itemps.begin(), itemps.end(), [&](ಧ್ರುವ T_Item* ap, ಧ್ರುವ T_Item* bp) {
             // Any total order will do, it need not match the runtime order of the keys
-            return keyOf(ap).isLtXZ(keyOf(bp));
+            ಪ್ರತ್ಯಾಗಮ ಕೀಲಿ_Of(ap).isLtXZ(ಕೀಲಿ_Of(bp));
         });
-        const T_Item* firstp = nullptr;  // First item with the current key
-        for (T_Item* const itemp : itemps) {
-            if (firstp && keyOf(firstp).isCaseEq(keyOf(itemp))) {
+        ಧ್ರುವ T_Item* firstp = nullptr;  // First item with the current key
+        ಪ್ರತಿ (T_Item* ಧ್ರುವ itemp : itemps) {
+            ಯದಿ (firstp && ಕೀಲಿ_Of(firstp).isCaseEq(ಕೀಲಿ_Of(itemp))) {
                 // Sort is stable, so 'firstp' is the first one in the source
                 itemp->keyp()->v3error("Assignment pattern key used multiple times"
                                        " (IEEE 1800-2023 10.9.1)\n"
@@ -6465,7 +6465,7 @@ class WidthVisitor final : public VNVisitor {
                                        << firstp->keyp()->warnOther()
                                        << "... Location of first use\n"
                                        << firstp->keyp()->warnContextSecondary());
-            } else {
+            } ಅನ್ಯಥಾ {
                 firstp = itemp;
             }
             nodep->addItemsp(itemp);
@@ -6474,176 +6474,176 @@ class WidthVisitor final : public VNVisitor {
     // Convert a keyed pattern into the constructor 'consp' of an associative, wildcard or
     // dynamic array
     template <typename T_Item, typename T_Cons>
-    void patternKeyed(AstPattern* nodep, T_Cons* consp, AstNodeDType* arrayDtp,
+    ಶೂನ್ಯ patternKeyed(AstPattern* nodep, T_Cons* consp, Ast_ಗಂಟು_DType* arrayDtp,
                       AstPatMember* defaultp) {
         consp->dtypeFrom(arrayDtp);
         consp->defaultp(patternDefaultValuep(defaultp, arrayDtp->subDTypep()));
-        for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+        ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
              patp = VN_AS(patp->nextp(), PatMember)) {
-            const auto keyp = patternKeyp(consp, patp, arrayDtp);
+            ಧ್ರುವ auto keyp = patternKeyp(consp, patp, arrayDtp);
             patp->dtypep(arrayDtp->subDTypep());
-            AstNodeExpr* const valuep = patternMemberValueIterate(patp);
-            if (keyp) {
-                consp->addItemsp(new T_Item{patp->fileline(), keyp, valuep});
-            } else {
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
+            ಯದಿ (keyp) {
+                consp->addItemsp(ನೂತನ T_Item{patp->fileline(), keyp, valuep});
+            } ಅನ್ಯಥಾ {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
             }
         }
         // Aggregate keys are not sorted or checked for duplicates
-        const AstAssocArrayDType* const assocDtp = VN_CAST(arrayDtp, AssocArrayDType);
-        if (!assocDtp || !assocDtp->keyDTypep()->skipRefp()->isAggregateType()) {
-            sortConsItems<T_Item>(consp);
+        ಧ್ರುವ AstAssocArrayDType* ಧ್ರುವ assocDtp = VN_CAST(arrayDtp, AssocArrayDType);
+        ಯದಿ (!assocDtp || !assocDtp->ಕೀಲಿ_DTypep()->skipRefp()->isAggregateType()) {
+            sort_Cons_ವಸ್ತುಗಳು<T_Item>(consp);
         }
         nodep->replaceWith(consp);
         // UINFOTREE(9, consp, "", "apat-out");
     }
-    AstNodeExpr* newConsDynArrayOrQueue(FileLine* fileline, const AstNodeDType* dtypep) {
-        if (VN_IS(dtypep, DynArrayDType)) return new AstConsDynArray{fileline};
-        if (VN_IS(dtypep, QueueDType)) return new AstConsQueue{fileline};
-        return nullptr;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newConsDynArrayOrQueue(File_ಸಾಲು* fileline, ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep) {
+        ಯದಿ (VN_IS(dtypep, DynArrayDType)) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConsDynArray{fileline};
+        ಯದಿ (VN_IS(dtypep, QueueDType)) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConsQueue{fileline};
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
     // Add 'valuep' to a dynamic array or queue constructor: as one element, or as an array whose
     // elements are spliced in. A constructor being spliced (e.g. a concatenation's left operand)
     // has its items moved over, or added one by one to convert them if its kind or element type
     // differs.
     template <typename T_Item, typename T_Cons>
-    void addConsItem(T_Cons* consp, AstNodeExpr* valuep) {
-        AstNodeDType* const arrayDtp = consp->dtypep()->skipRefp();
+    ಶೂನ್ಯ addConsItem(T_Cons* consp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ arrayDtp = consp->dtypep()->skipRefp();
         // An element if assignable to the element type, else an array (IEEE 1800-2023 10.10)
-        const bool isElement
-            = AstNode::computeCastable(arrayDtp->subDTypep(), valuep->dtypep(), nullptr)
+        ಧ್ರುವ ತಾರ್ಕಿಕ isElement
+            = Ast_ಗಂಟು::computeCastable(arrayDtp->subDTypep(), valuep->dtypep(), nullptr)
                   .isAssignable();
         // A bounded queue to splice is constructed first, to truncate it
-        const AstQueueDType* const subQueueDtp = VN_CAST(valuep->dtypep()->skipRefp(), QueueDType);
-        if (!isElement && !(subQueueDtp && subQueueDtp->boundp())) {
-            T_Cons* const subp = AstNode::cast<T_Cons>(valuep);
-            if (subp && subp->dtypep()->skipRefp()->subDTypep() == arrayDtp->subDTypep()) {
-                if (subp->itemsp()) consp->addItemsp(subp->itemsp()->unlinkFrBackWithNext());
-                VL_DO_DANGLING(pushDeletep(subp), subp);
-                return;
+        ಧ್ರುವ AstQueueDType* ಧ್ರುವ subQueueDtp = VN_CAST(valuep->dtypep()->skipRefp(), QueueDType);
+        ಯದಿ (!isElement && !(subQueueDtp && subQueueDtp->boundp())) {
+            T_Cons* ಧ್ರುವ subp = Ast_ಗಂಟು::cast<T_Cons>(valuep);
+            ಯದಿ (subp && subp->dtypep()->skipRefp()->subDTypep() == arrayDtp->subDTypep()) {
+                ಯದಿ (subp->itemsp()) consp->addItemsp(subp->itemsp()->unlinkFrBackWithNext());
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(subp), subp);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (AstConsQueue* const queuep = VN_CAST(valuep, ConsQueue)) {
-                addConsItems(consp, queuep);
-                return;
+            ಯದಿ (AstConsQueue* ಧ್ರುವ queuep = VN_CAST(valuep, ConsQueue)) {
+                add_Cons_ವಸ್ತುಗಳು(consp, queuep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (AstConsDynArray* const dynp = VN_CAST(valuep, ConsDynArray)) {
-                addConsItems(consp, dynp);
-                return;
+            ಯದಿ (AstConsDynArray* ಧ್ರುವ dynp = VN_CAST(valuep, ConsDynArray)) {
+                add_Cons_ವಸ್ತುಗಳು(consp, dynp);
+                ಪ್ರತ್ಯಾಗಮ;
             }
         }
-        T_Item* const itemp = new T_Item{valuep->fileline(), valuep};
+        T_Item* ಧ್ರುವ itemp = ನೂತನ T_Item{valuep->fileline(), valuep};
         consp->addItemsp(itemp);
         // Width the value now, as constructors are widthed when created
-        if (isElement) {
+        ಯದಿ (isElement) {
             iterateCheckTyped(itemp, "value", valuep, arrayDtp->subDTypep(), FINAL);
-        } else {
+        } ಅನ್ಯಥಾ {
             userIterateAndNext(valuep, WidthVP{arrayDtp, FINAL}.p());
         }
     }
-    void addConsItem(AstNodeExpr* consp, AstNodeExpr* valuep) {
-        if (AstConsDynArray* const dynp = VN_CAST(consp, ConsDynArray)) {
+    ಶೂನ್ಯ addConsItem(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* consp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep) {
+        ಯದಿ (AstConsDynArray* ಧ್ರುವ dynp = VN_CAST(consp, ConsDynArray)) {
             addConsItem<AstConsDynArrayItem>(dynp, valuep);
-        } else {
+        } ಅನ್ಯಥಾ {
             addConsItem<AstConsQueueItem>(VN_AS(consp, ConsQueue), valuep);
         }
     }
     template <typename T_Sub>
-    void addConsItems(AstNodeExpr* consp, T_Sub* subp) {
-        while (auto* const itemp = subp->itemsp()) {
-            AstNodeExpr* const valuep = itemp->valuep()->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(itemp->unlinkFrBack()), itemp);
+    ಶೂನ್ಯ add_Cons_ವಸ್ತುಗಳು(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* consp, T_Sub* subp) {
+        ಯಾವತ್ (auto* ಧ್ರುವ itemp = subp->itemsp()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = itemp->valuep()->unlinkFrBack();
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(itemp->unlinkFrBack()), itemp);
             addConsItem(consp, valuep);
         }
-        VL_DO_DANGLING(pushDeletep(subp), subp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(subp), subp);
     }
-    void patternDynArrayOrQueue(AstPattern* nodep, AstNodeDType* arrayp, AstPatMember* defaultp) {
-        AstNodeExpr* const newp = newConsDynArrayOrQueue(nodep->fileline(), arrayp);
+    ಶೂನ್ಯ patternDynArrayOrQueue(AstPattern* nodep, Ast_ಗಂಟು_DType* arrayp, AstPatMember* defaultp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = newConsDynArrayOrQueue(nodep->fileline(), arrayp);
         UASSERT_OBJ(newp, nodep, "Expected dynamic array or queue data type");
         newp->dtypeFrom(arrayp);
         // By the syntax, members are all keyed or all positional
-        const AstPatMember* const firstp = VN_AS(nodep->itemsp(), PatMember);
-        const bool keyed = defaultp || (firstp && firstp->keyp());
-        if (keyed && VN_IS(arrayp, DynArrayDType) && VN_IS(nodep->backp(), NewDynamic)) {
+        ಧ್ರುವ AstPatMember* ಧ್ರುವ firstp = VN_AS(nodep->itemsp(), PatMember);
+        ಧ್ರುವ ತಾರ್ಕಿಕ keyed = defaultp || (firstp && firstp->keyp());
+        ಯದಿ (keyed && VN_IS(arrayp, DynArrayDType) && VN_IS(nodep->backp(), NewDynamic)) {
             // The initializer of new[], visit(AstNewDynamic) then adds the size
             patternKeyed<AstConsDynArrayItem>(nodep, VN_AS(newp, ConsDynArray), arrayp, defaultp);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        const char* const kindp = VN_IS(arrayp, DynArrayDType) ? "dynamic array" : "queue";
-        if (defaultp) defaultp->v3error("Assignment pattern default cannot be used for " << kindp);
-        for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+        ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ kindp = VN_IS(arrayp, DynArrayDType) ? "dynamic array" : "queue";
+        ಯದಿ (defaultp) defaultp->v3error("Assignment pattern default cannot be used for " << kindp);
+        ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
              patp = VN_AS(patp->nextp(), PatMember)) {
-            if (patp->keyp()) {
+            ಯದಿ (patp->keyp()) {
                 patp->keyp()->v3error("Assignment pattern key cannot be used for " << kindp);
             }
             patp->dtypep(arrayp->subDTypep());
-            addConsItem(newp, patternMemberValueIterate(patp));
+            addConsItem(newp, pattern_Member_ಮೌಲ್ಯ_Iterate(patp));
         }
         nodep->replaceWith(newp);
         // UINFOTREE(9, newp, "", "apat-out");
     }
-    void patternBasic(AstPattern* nodep, AstNodeDType* vdtypep, AstPatMember* defaultp) {
-        const AstBasicDType* bdtypep = VN_AS(vdtypep, BasicDType);
-        const VNumRange range = bdtypep->declRange();
+    ಶೂನ್ಯ patternBasic(AstPattern* nodep, Ast_ಗಂಟು_DType* vdtypep, AstPatMember* defaultp) {
+        ಧ್ರುವ AstBasicDType* bdtypep = VN_AS(vdtypep, BasicDType);
+        ಧ್ರುವ VNumRange range = bdtypep->declRange();
         PatVecMap patmap = patVectorMap(nodep, range);
         UINFO(9, "ent " << range.hi() << " to " << range.lo());
-        AstNodeExpr* newp = nullptr;
-        for (const int ent : range.seqHiToLo()) {
-            AstNodeExpr* valuep = nullptr;
-            const auto it = patmap.find(ent);
-            if (it == patmap.end()) {
-                if (defaultp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = nullptr;
+        ಪ್ರತಿ (ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ent : range.seqHiToLo()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = nullptr;
+            ಧ್ರುವ auto it = patmap.find(ent);
+            ಯದಿ (it == patmap.end()) {
+                ಯದಿ (defaultp) {
                     valuep = patternDefaultValuep(defaultp, nodep->findBitDType());
-                } else {
+                } ಅನ್ಯಥಾ {
                     nodep->v3error("Assignment pattern missed initializing elements: " << ent);
                 }
-            } else {
-                AstPatMember* const patp = it->second;
+            } ಅನ್ಯಥಾ {
+                AstPatMember* ಧ್ರುವ patp = it->second;
                 patmap.erase(it);
                 patp->dtypep(nodep->findBitDType());
-                valuep = patternMemberValueIterate(patp);
+                valuep = pattern_Member_ಮೌಲ್ಯ_Iterate(patp);
             }
-            if (valuep) {  // Packed. Convert to concat for now.
-                if (!newp) {
+            ಯದಿ (valuep) {  // Packed. Convert to concat for now.
+                ಯದಿ (!newp) {
                     newp = valuep;
-                } else {
-                    AstConcat* const concatp = new AstConcat{valuep->fileline(), newp, valuep};
+                } ಅನ್ಯಥಾ {
+                    AstConcat* ಧ್ರುವ concatp = ನೂತನ AstConcat{valuep->fileline(), newp, valuep};
                     newp = concatp;
                     newp->dtypeChgSigned(nodep->dtypep()->numeric());
                 }
             }
         }
-        if (!patmap.empty()) nodep->v3error("Assignment pattern with too many elements");
-        if (newp) {
+        ಯದಿ (!patmap.empty()) nodep->v3error("Assignment pattern with too many elements");
+        ಯದಿ (newp) {
             nodep->replaceWith(newp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3error("Assignment pattern with no members");
         }
         // UINFOTREE(9, newp, "", "apat-out");
     }
-    AstNodeExpr* patternMemberValueIterate(AstPatMember* patp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pattern_Member_ಮೌಲ್ಯ_Iterate(AstPatMember* patp) {
         // Determine values - might be another ConsArray
         userIterate(patp, WidthVP{patp->dtypep(), BOTH}.p());
         // Convert to ConsArray or constify immediately
-        AstNodeExpr* valuep = patp->lhssp()->unlinkFrBack();
-        if (VN_IS(valuep, Const)) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = patp->lhssp()->unlinkFrBack();
+        ಯದಿ (VN_IS(valuep, Const)) {
             // Forming a AstConcat will cause problems with
             // unsized (uncommitted sized) constants
-            if (AstConst* const newp = V3WidthCommit::newIfConstCommitSize(VN_AS(valuep, Const))) {
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
+            ಯದಿ (AstConst* ಧ್ರುವ newp = V3WidthCommit::newIfConstCommitSize(VN_AS(valuep, Const))) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
                 valuep = newp;
             }
         }
-        return valuep;
+        ಪ್ರತ್ಯಾಗಮ valuep;
     }
 
-    static void checkEventAssignment(const AstNodeAssign* const asgnp) {
+    ಸ್ಥಿರ ಶೂನ್ಯ checkEventAssignment(ಧ್ರುವ Ast_ಗಂಟು_Assign* ಧ್ರುವ asgnp) {
         string unsupEvtAsgn;
-        if (!usesDynamicScheduler(asgnp->lhsp())) unsupEvtAsgn = "to";
-        if (VN_IS(asgnp->rhsp(), CReset)) return;
-        if (asgnp->rhsp()->dtypep()->isEvent() && !usesDynamicScheduler(asgnp->rhsp())) {
+        ಯದಿ (!usesDynamicScheduler(asgnp->lhsp())) unsupEvtAsgn = "to";
+        ಯದಿ (VN_IS(asgnp->rhsp(), CReset)) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (asgnp->rhsp()->dtypep()->isEvent() && !usesDynamicScheduler(asgnp->rhsp())) {
             unsupEvtAsgn += (unsupEvtAsgn.empty() ? "from" : " and from");
         }
-        if (!unsupEvtAsgn.empty()) {
+        ಯದಿ (!unsupEvtAsgn.empty()) {
             asgnp->v3warn(E_UNSUPPORTED, "Assignment "
                                              << unsupEvtAsgn
                                              << " event in statically scheduled context.\n"
@@ -6657,27 +6657,27 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    static bool usesDynamicScheduler(AstNode* nodep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ usesDynamicScheduler(Ast_ಗಂಟು* nodep) {
         UASSERT_OBJ(nodep->dtypep()->isEvent(), nodep, "Node does not have an event dtype");
-        while (true) {
-            AstVarRef* const vrefp = VN_CAST(nodep, VarRef);
-            if (vrefp) return usesDynamicScheduler(vrefp);
-            if (VN_IS(nodep, MemberSel)) {
-                return true;
-            } else if (AstNodeSel* selp = VN_CAST(nodep, NodeSel)) {
+        ಯಾವತ್ (ಸತ್ಯ) {
+            AstVarRef* ಧ್ರುವ vrefp = VN_CAST(nodep, VarRef);
+            ಯದಿ (vrefp) ಪ್ರತ್ಯಾಗಮ usesDynamicScheduler(vrefp);
+            ಯದಿ (VN_IS(nodep, MemberSel)) {
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+            } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_Sel* selp = VN_CAST(nodep, ಗಂಟು_Sel)) {
                 nodep = selp->fromp();
-            } else {
-                return false;
+            } ಅನ್ಯಥಾ {
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
         }
     }
 
-    static bool usesDynamicScheduler(AstVarRef* vrefp) {
-        return VN_IS(vrefp->classOrPackagep(), Class) || vrefp->varp()->isFuncLocal();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ usesDynamicScheduler(AstVarRef* vrefp) {
+        ಪ್ರತ್ಯಾಗಮ VN_IS(vrefp->classOrPackagep(), Class) || vrefp->varp()->isFuncLocal();
     }
 
-    void visit(AstPatMember* nodep) override {
-        AstNodeDType* const vdtypep = m_vup->dtypeNullp();
+    ಶೂನ್ಯ visit(AstPatMember* nodep) override {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypeNullp();
         UASSERT_OBJ(vdtypep, nodep, "Pattern member type not assigned by AstPattern visitor");
         nodep->dtypep(vdtypep);
         UINFO(9, "   PATMEMBER " << nodep);
@@ -6687,48 +6687,48 @@ class WidthVisitor final : public VNVisitor {
         userIterateChildren(nodep, WidthVP{nodep->dtypep(), PRELIM}.p());
         iterateCheck(nodep, "Pattern value", nodep->lhssp(), ASSIGN, FINAL, vdtypep, EXTEND_LHS);
     }
-    int visitPatMemberRep(AstPatMember* nodep) {
+    ಪೂರ್ಣಾಙ್ಕ visitPatMemberRep(AstPatMember* nodep) {
         uint32_t times = 1;
-        if (nodep->repp()) {  // else repp()==nullptr shorthand for rep count 1
+        ಯದಿ (nodep->repp()) {  // else repp()==nullptr shorthand for rep count 1
             iterateCheckSizedSelf(nodep, "LHS", nodep->repp(), SELF, BOTH);
             V3Const::constifyParamsEdit(nodep->repp());  // repp may change
-            const AstConst* const constp = VN_CAST(nodep->repp(), Const);
-            if (!constp) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->repp(), Const);
+            ಯದಿ (!constp) {
                 nodep->v3error("Replication value isn't a constant.");
                 times = 0;
-            } else {
+            } ಅನ್ಯಥಾ {
                 times = constp->toUInt();
             }
-            if (times == 0) {
+            ಯದಿ (times == 0) {
                 nodep->v3error("Pattern replication value of 0 is not legal.");
                 times = 1;
             }
             nodep->repp()
                 ->unlinkFrBackWithNext()
-                ->deleteTree();  // Done with replicate before cloning
+                ->delete_ವೃಕ್ಷ();  // Done with replicate before cloning
         }
-        return times;
+        ಪ್ರತ್ಯಾಗಮ times;
     }
 
-    void visit(AstPropSpec* nodep) override {
+    ಶೂನ್ಯ visit(AstPropSpec* nodep) override {
         VL_RESTORER(m_seqUnsupp);
         VL_RESTORER(m_hasSExpr);
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // Only bare strong until uses V3AssertPre's timing-based lowering. Embedded forms
             // are lowered without timing by V3AssertNfa.
-            AstNode* propp = nodep->propp();
-            while (AstLogNot* const notp = VN_CAST(propp, LogNot)) propp = notp->lhsp();
-            AstUntil* const untilp = VN_CAST(propp, Until);
-            if (untilp && VN_IS(nodep->backp(), NodeCoverOrAssert) && untilp->isStrong()
+            Ast_ಗಂಟು* propp = nodep->propp();
+            ಯಾವತ್ (AstLogNot* ಧ್ರುವ notp = VN_CAST(propp, LogNot)) propp = notp->lhsp();
+            AstUntil* ಧ್ರುವ untilp = VN_CAST(propp, Until);
+            ಯದಿ (untilp && VN_IS(nodep->backp(), ಗಂಟು_Cover_Or_Assert) && untilp->isStrong()
                 && (v3Global.opt.timing().isSetFalse() || !v3Global.opt.timing().isSetTrue())) {
                 untilp->v3warn(E_NOTIMING, untilp->verilogKwd() << " requires --timing");
-                untilp->replaceWith(new AstConst{untilp->fileline(), AstConst::BitFalse{}});
-                VL_DO_DANGLING(pushDeletep(untilp), untilp);
+                untilp->replaceWith(ನೂತನ AstConst{untilp->fileline(), AstConst::BitFalse{}});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(untilp), untilp);
             }
             iterateCheckBool(nodep, "Property", nodep->propp(), BOTH);
             userIterateAndNext(nodep->sensesp(), nullptr);
-            if (nodep->disablep()) {
+            ಯದಿ (nodep->disablep()) {
                 iterateCheckBool(nodep, "Disable", nodep->disablep(),
                                  BOTH);  // it's like an if() condition.
             }
@@ -6736,88 +6736,88 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    bool firstNewStatementOkRecurse(AstNode* nodep) {
-        if (AstVar* const varp = VN_CAST(nodep, Var)) {
-            if (!varp->valuep() || VN_CAST(varp->valuep(), Const) || varp->isIO()) return true;
+    ತಾರ್ಕಿಕ firstNewStatementOkRecurse(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(nodep, Var)) {
+            ಯದಿ (!varp->valuep() || VN_CAST(varp->valuep(), Const) || varp->isIO()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (AstAssign* const aitemp = VN_CAST(nodep, Assign)) {
-            if (VN_IS(aitemp->rhsp(), Const) || VN_IS(aitemp->rhsp(), CReset)) return true;
+        ಯದಿ (AstAssign* ಧ್ರುವ aitemp = VN_CAST(nodep, Assign)) {
+            ಯದಿ (VN_IS(aitemp->rhsp(), Const) || VN_IS(aitemp->rhsp(), CReset)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (AstInitialStaticStmt* const aitemp = VN_CAST(nodep, InitialStaticStmt)) {
-            for (AstNode* stmtp = aitemp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!firstNewStatementOkRecurse(stmtp)) return false;
+        ಯದಿ (AstInitialStaticStmt* ಧ್ರುವ aitemp = VN_CAST(nodep, InitialStaticStmt)) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = aitemp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ಯದಿ (!firstNewStatementOkRecurse(stmtp)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (AstInitialAutomaticStmt* const aitemp = VN_CAST(nodep, InitialAutomaticStmt)) {
-            for (AstNode* stmtp = aitemp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!firstNewStatementOkRecurse(stmtp)) return false;
+        ಯದಿ (AstInitialAutomaticStmt* ಧ್ರುವ aitemp = VN_CAST(nodep, InitialAutomaticStmt)) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = aitemp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ಯದಿ (!firstNewStatementOkRecurse(stmtp)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     //--------------------
     // Top levels
 
     template <typename CaseItem>
-    void handleCaseType(AstNode* casep, AstNodeExpr* exprp, CaseItem* itemsp) {
-        AstAttrOf* const exprap = VN_CAST(exprp, AttrOf);
-        if (!exprap) return;
-        if (exprap->attrType() != VAttrType::TYPEID) return;
+    ಶೂನ್ಯ handleCaseType(Ast_ಗಂಟು* casep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, CaseItem* itemsp) {
+        AstAttrOf* ಧ್ರುವ exprap = VN_CAST(exprp, AttrOf);
+        ಯದಿ (!exprap) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (exprap->attrType() != VAttrType::TYPEID) ಪ್ರತ್ಯಾಗಮ;
 
-        const AstNodeDType* const exprDtp = exprap->dtypep();
-        UINFO(9, "case type exprDtp " << exprDtp);
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Dtp = exprap->dtypep();
+        UINFO(9, "case type exprDtp " << ಅಭಿವ್ಯಕ್ತಿ_Dtp);
         // V3Param may have a pointer to this case statement, and we need
         // dotted references to remain properly named, so rather than
         // removing we convert it to a "normal" expression "case (1) ..."
-        FileLine* const newfl = casep->fileline();
-        newfl->warnOff(V3ErrorCode::CASEINCOMPLETE, true);  // Side effect of transform
-        newfl->warnOff(V3ErrorCode::CASEOVERLAP, true);  // Side effect of transform
+        File_ಸಾಲು* ಧ್ರುವ newfl = casep->fileline();
+        newfl->warnOff(V3ErrorCode::CASEINCOMPLETE, ಸತ್ಯ);  // Side effect of transform
+        newfl->warnOff(V3ErrorCode::CASEOVERLAP, ಸತ್ಯ);  // Side effect of transform
         casep->fileline(newfl);
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            if (itemp->isDefault()) continue;
-            bool hit = false;
-            for (AstNode* condp = itemp->condsp(); condp; condp = condp->nextp()) {
-                const AstAttrOf* const condAttrp = VN_CAST(condp, AttrOf);
-                if (!condAttrp) {
+        ಪ್ರತಿ (CaseItem* itemp = itemsp; itemp; itemp = Ast_ಗಂಟು::as<CaseItem>(itemp->nextp())) {
+            ಯದಿ (itemp->isDefault()) ಅನುವರ್ತ;
+            ತಾರ್ಕಿಕ hit = ಅಸತ್ಯ;
+            ಪ್ರತಿ (Ast_ಗಂಟು* condp = itemp->condsp(); condp; condp = condp->nextp()) {
+                ಧ್ರುವ AstAttrOf* ಧ್ರುವ condAttrp = VN_CAST(condp, AttrOf);
+                ಯದಿ (!condAttrp) {
                     condp->v3error("Case(type) statement requires items that have type() items");
-                } else {
-                    AstNodeDType* const condDtp = condAttrp->dtypep();
-                    if (AstNode::computeCastable(exprDtp, condDtp, casep) == VCastable::SAMEISH) {
-                        hit = true;
-                        break;
+                } ಅನ್ಯಥಾ {
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ condDtp = condAttrp->dtypep();
+                    ಯದಿ (Ast_ಗಂಟು::computeCastable(ಅಭಿವ್ಯಕ್ತಿ_Dtp, condDtp, casep) == VCastable::SAMEISH) {
+                        hit = ಸತ್ಯ;
+                        ಭಙ್ಗ;
                     }
                 }
             }
-            pushDeletep(itemp->condsp()->unlinkFrBackWithNext());
+            ತಳ್ಳು_Deletep(itemp->condsp()->unlinkFrBackWithNext());
             // Item condition becomes constant 1 if hits else 0
-            itemp->addCondsp(new AstConst{newfl, AstConst::BitTrue{}, hit});
+            itemp->addCondsp(ನೂತನ AstConst{newfl, AstConst::BitTrue{}, hit});
         }
-        exprap->replaceWith(new AstConst{newfl, AstConst::BitTrue{}});
-        VL_DO_DANGLING(pushDeletep(exprap), exprap);
+        exprap->replaceWith(ನೂತನ AstConst{newfl, AstConst::BitTrue{}});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(exprap), exprap);
     }
 
     template <typename CaseItem>
-    void handleCase(AstNode* casep, AstNodeExpr* exprp, CaseItem* itemsp) {
+    ಶೂನ್ಯ handleCase(Ast_ಗಂಟು* casep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, CaseItem* itemsp) {
         // IEEE-2012 12.5:
         //    Width: MAX(expr, all items)
         //    Signed: Only if expr, and all items signed
         // Take width as maximum across all items, if any is real whole thing is real
-        AstNodeDType* subDTypep = exprp->dtypep();
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            for (AstNode* condp = itemp->condsp(); condp; condp = condp->nextp()) {
-                if (condp->dtypep() == subDTypep) continue;
+        Ast_ಗಂಟು_DType* subDTypep = exprp->dtypep();
+        ಪ್ರತಿ (CaseItem* itemp = itemsp; itemp; itemp = Ast_ಗಂಟು::as<CaseItem>(itemp->nextp())) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* condp = itemp->condsp(); condp; condp = condp->nextp()) {
+                ಯದಿ (condp->dtypep() == subDTypep) ಅನುವರ್ತ;
 
-                if (condp->dtypep()->isDouble() || subDTypep->isDouble()) {
+                ಯದಿ (condp->dtypep()->isDouble() || subDTypep->isDouble()) {
                     subDTypep = casep->findDoubleDType();
-                } else if (condp->dtypep()->isString() || subDTypep->isString()) {
+                } ಅನ್ಯಥಾ ಯದಿ (condp->dtypep()->isString() || subDTypep->isString()) {
                     subDTypep = casep->findStringDType();
-                } else {
-                    const int width = std::max(subDTypep->width(), condp->width());
-                    const int mwidth = std::max(subDTypep->widthMin(), condp->widthMin());
-                    const bool issigned = subDTypep->isSigned() && condp->isSigned();
+                } ಅನ್ಯಥಾ {
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(subDTypep->width(), condp->width());
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ mwidth = std::max(subDTypep->widthMin(), condp->widthMin());
+                    ಧ್ರುವ ತಾರ್ಕಿಕ issigned = subDTypep->isSigned() && condp->isSigned();
                     subDTypep = casep->findBitOrLogicDType(
                         width, mwidth, VSigning::fromBool(issigned),
                         subDTypep->isFourstate() || condp->dtypep()->isFourstate());
@@ -6827,22 +6827,22 @@ class WidthVisitor final : public VNVisitor {
 
         // Apply width
         iterateCheck(casep, "Case expression", exprp, CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP);
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            for (AstNode *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
+        ಪ್ರತಿ (CaseItem* itemp = itemsp; itemp; itemp = Ast_ಗಂಟು::as<CaseItem>(itemp->nextp())) {
+            ಪ್ರತಿ (Ast_ಗಂಟು *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
                 nextcp = condp->nextp();  // Final may cause the node to get replaced
                 iterateCheck(casep, "Case Item", condp, CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP);
             }
         }
     }
 
-    void visit(AstGenCase* nodep) override {
+    ಶೂನ್ಯ visit(AstGenCase* nodep) override {
         assertAtStatement(nodep);
         // Type check expression and case item conditions, but not bodies
         userIterateAndNext(nodep->exprp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-        for (AstGenCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (AstGenCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             // Prelim may cause the node to get replaced, pick up next up front
             nextip = VN_AS(itemp->nextp(), GenCaseItem);
-            for (AstNode *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
+            ಪ್ರತಿ (Ast_ಗಂಟು *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
                 // Prelim may cause the node to get replaced, pick up next up front
                 nextcp = condp->nextp();
                 VL_DO_DANGLING(userIterate(condp, WidthVP{CONTEXT_DET, PRELIM}.p()), condp);
@@ -6853,25 +6853,25 @@ class WidthVisitor final : public VNVisitor {
         // Type check
         handleCase(nodep, nodep->exprp(), nodep->itemsp());
     }
-    void visit(AstGenFor* nodep) override {
+    ಶೂನ್ಯ visit(AstGenFor* nodep) override {
         assertAtStatement(nodep);
         userIterateAndNext(nodep->initsp(), nullptr);
         iterateCheckBool(nodep, "For Test Condition", nodep->condp(), BOTH);
         userIterateAndNext(nodep->incsp(), nullptr);
     }
-    void visit(AstGenIf* nodep) override {
+    ಶೂನ್ಯ visit(AstGenIf* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "If", nodep->condp(), BOTH);
     }
 
-    void visit(AstCase* nodep) override {
+    ಶೂನ್ಯ visit(AstCase* nodep) override {
         assertAtStatement(nodep);
         // Type check expression case item conditions and bodies
         userIterateAndNext(nodep->exprp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-        for (AstCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        ಪ್ರತಿ (AstCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = VN_AS(itemp->nextp(), CaseItem);  // Prelim may cause the node to get replaced
             userIterateAndNext(itemp->stmtsp(), nullptr);
-            for (AstNode *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
+            ಪ್ರತಿ (Ast_ಗಂಟು *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
                 nextcp = condp->nextp();  // Prelim may cause the node to get replaced
                 VL_DO_DANGLING(userIterate(condp, WidthVP{CONTEXT_DET, PRELIM}.p()), condp);
             }
@@ -6881,15 +6881,15 @@ class WidthVisitor final : public VNVisitor {
         // Type check
         handleCase(nodep, nodep->exprp(), nodep->itemsp());
     }
-    void visit(AstRandCase* nodep) override {
+    ಶೂನ್ಯ visit(AstRandCase* nodep) override {
         // IEEE says each item is a int (32-bits), and sizes are based on natural sizing,
         // but we'll sum to a 64-bit number then math is faster.
         assertAtStatement(nodep);
-        AstNodeDType* const itemDTypep = nodep->findUInt32DType();
-        for (AstCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ itemDTypep = nodep->findUInt32DType();
+        ಪ್ರತಿ (AstCaseItem *nextip, *itemp = nodep->itemsp(); itemp; itemp = nextip) {
             nextip = VN_AS(itemp->nextp(), CaseItem);  // Prelim may cause the node to get replaced
             userIterateAndNext(itemp->stmtsp(), nullptr);
-            for (AstNode *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
+            ಪ್ರತಿ (Ast_ಗಂಟು *nextcp, *condp = itemp->condsp(); condp; condp = nextcp) {
                 nextcp = condp->nextp();  // Prelim may cause the node to get replaced
                 iterateCheckTyped(itemp, "Randcase Item", condp, itemDTypep, BOTH);
                 VL_DANGLING(condp);  // Might have been replaced
@@ -6898,17 +6898,17 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstLoop* nodep) override {
+    ಶೂನ್ಯ visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         assertAtStatement(nodep);
         userIterateAndNext(nodep->stmtsp(), nullptr);
     }
-    void visit(AstLoopTest* nodep) override {
+    ಶೂನ್ಯ visit(AstLoopTest* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "Loop Condition", nodep->condp(), BOTH);
     }
-    void visit(AstRepeat* nodep) override { nodep->v3fatalSrc("'repeat' missed in LinkJump"); }
-    void visit(AstNodeIf* nodep) override {
+    ಶೂನ್ಯ visit(AstRepeat* nodep) override { nodep->v3fatalSrc("'repeat' missed in LinkJump"); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_If* nodep) override {
         assertAtStatement(nodep);
         // UINFOTREE(1, nodep, "", "IfPre");
         userIterateAndNext(nodep->thensp(), nullptr);
@@ -6916,69 +6916,69 @@ class WidthVisitor final : public VNVisitor {
         iterateCheckBool(nodep, "If", nodep->condp(), BOTH);  // it's like an if() condition.
         // UINFOTREE(1, nodep, "", "IfOut");
     }
-    void visit(AstExprStmt* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* nodep) override {
         userIterateAndNext(nodep->stmtsp(), nullptr);
         // expected result is same as parent's expected result
         userIterateAndNext(nodep->resultp(), m_vup);
         nodep->dtypeFrom(nodep->resultp());
     }
-    void visit(AstNodeForeach* nodep) override {
-        if (nodep->didWidth()) return;
-        nodep->didWidth(true);
-        const AstForeachHeader* const headerp = nodep->headerp();
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Foreach* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        nodep->didWidth(ಸತ್ಯ);
+        ಧ್ರುವ AstForeachHeader* ಧ್ರುವ headerp = nodep->headerp();
         // UINFOTREE(1, nodep, "", "foreach-old");
         userIterateAndNext(headerp->fromp(), WidthVP{SELF, BOTH}.p());
-        AstNodeExpr* const fromp = headerp->fromp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = headerp->fromp();
         UASSERT_OBJ(fromp->dtypep(), fromp, "Missing data type");
-        AstNodeDType* fromDtp = fromp->dtypep()->skipRefp();
+        Ast_ಗಂಟು_DType* fromDtp = fromp->dtypep()->skipRefp();
         // Major dimension first
-        for (AstNode *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
+        ಪ್ರತಿ (Ast_ಗಂಟು *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
             next_argsp = argsp->nextp();
-            const bool empty = VN_IS(argsp, Empty);
-            AstVar* const varp = VN_CAST(argsp, Var);
+            ಧ್ರುವ ತಾರ್ಕಿಕ empty = VN_IS(argsp, Empty);
+            AstVar* ಧ್ರುವ varp = VN_CAST(argsp, Var);
             UASSERT_OBJ(varp || empty, argsp, "Missing foreach loop variable");
-            if (varp) varp->usedLoopIdx(true);
-            if (!fromDtp) {
+            ಯದಿ (varp) varp->usedLoopIdx(ಸತ್ಯ);
+            ಯದಿ (!fromDtp) {
                 argsp->v3error("foreach loop variables exceed number of indices of array");
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             fromDtp = fromDtp->skipRefp();
             UINFO(9, "- foreachArg " << argsp);
             UINFO(9, "-   from on  " << fromp);
             UINFO(9, "-   from dtp " << fromDtp);
 
-            if (VN_IS(fromDtp, NodeArrayDType) || VN_IS(fromDtp, DynArrayDType)
+            ಯದಿ (VN_IS(fromDtp, ಗಂಟು_Array_DType) || VN_IS(fromDtp, DynArrayDType)
                 || VN_IS(fromDtp, QueueDType)) {
                 // Nothing special here
-            } else if (AstBasicDType* const adtypep = VN_CAST(fromDtp, BasicDType)) {
-                if (!adtypep->isString() && !adtypep->isRanged()) {
+            } ಅನ್ಯಥಾ ಯದಿ (AstBasicDType* ಧ್ರುವ adtypep = VN_CAST(fromDtp, BasicDType)) {
+                ಯದಿ (!adtypep->isString() && !adtypep->isRanged()) {
                     argsp->v3error("Illegal 'foreach' loop on " << fromDtp->prettyTypeName()
                                                                 << " data type");
-                    VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                    return;
+                    VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
-            } else if (const AstAssocArrayDType* const adtypep
+            } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstAssocArrayDType* ಧ್ರುವ adtypep
                        = VN_CAST(fromDtp, AssocArrayDType)) {
-                varp->dtypeFrom(adtypep->keyDTypep());
-            } else {
+                varp->dtypeFrom(adtypep->ಕೀಲಿ_DTypep());
+            } ಅನ್ಯಥಾ {
                 argsp->v3error("Illegal 'foreach' loop on " << fromDtp->prettyTypeName()
                                                             << " data type");
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             fromDtp = fromDtp->subDTypep();
         }
         // The parser validates we don't have "foreach (array[,,,])"
-        AstNode* const bodyp = nodep->bodyp();
+        Ast_ಗಂಟು* ಧ್ರುವ bodyp = nodep->bodyp();
         userIterateAndNext(bodyp, nullptr);
-        if (AstForeach* const loopp = VN_CAST(nodep, Foreach)) {
+        ಯದಿ (AstForeach* ಧ್ರುವ loopp = VN_CAST(nodep, Foreach)) {
             VL_DO_DANGLING2(V3Begin::convertToWhile(loopp), loopp, nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Assign* nodep) override {
         // IEEE-2012 10.7, 11.8.2, 11.8.3, 11.5:  (Careful of 11.8.1 which is
         //                  only one step; final dtype depends on assign LHS.)
         //    Determine RHS type width and signing
@@ -6993,13 +6993,13 @@ class WidthVisitor final : public VNVisitor {
             UASSERT_OBJ(nodep->lhsp()->dtypep(), nodep, "How can LHS be untyped?");
             UASSERT_OBJ(nodep->lhsp()->dtypep()->widthSized(), nodep, "How can LHS be unsized?");
             // An interface instance, or an array or slice of them, is not a variable
-            if (const AstIfaceRefDType* const irefp
+            ಯದಿ (ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ irefp
                 = VN_CAST(nodep->lhsp()->dtypep()->elemDTypep(), IfaceRefDType)) {
-                if (!irefp->isVirtual()) {
+                ಯದಿ (!irefp->isVirtual()) {
                     nodep->v3error(
                         "Illegal assignment to an interface instance (IEEE 1800-2023 10.4)");
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
             }
             nodep->dtypeFrom(nodep->lhsp());
@@ -7010,30 +7010,30 @@ class WidthVisitor final : public VNVisitor {
             //
             // UINFOTREE(1, nodep, "", "assign");
             streamAssignLower(nodep);
-            AstNodeDType* const lhsDTypep = nodep->lhsp()->dtypep();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDTypep = nodep->lhsp()->dtypep();
 
             // IEEE 1800-2023 7.6: For unpacked arrays to be assignment compatible,
             // the element types shall be equivalent (IEEE 1800-2023 6.22.2).
             // Note: Streaming operators and string literals have implicit conversion rules.
-            if (nodep->rhsp()->dtypep()) {  // May be null on earlier errors
-                const AstNodeDType* const lhsDtp = lhsDTypep->skipRefp();
-                const AstNodeDType* const rhsDtp = nodep->rhsp()->dtypep()->skipRefp();
+            ಯದಿ (nodep->rhsp()->dtypep()) {  // May be null on earlier errors
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDtp = lhsDTypep->skipRefp();
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsDtp = nodep->rhsp()->dtypep()->skipRefp();
                 // Only check if number of states match for unpacked array to unpacked array
                 // assignments
-                const bool lhsIsUnpackArray = lhsDtp->isNonPackedArray();
-                const bool rhsIsUnpackArray = rhsDtp->isNonPackedArray();
-                if (lhsIsUnpackArray && rhsIsUnpackArray) {
-                    if (lhsDtp->isFourstate() != rhsDtp->isFourstate()) {
+                ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsUnpackArray = lhsDtp->isNonPackedArray();
+                ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsUnpackArray = rhsDtp->isNonPackedArray();
+                ಯದಿ (lhsIsUnpackArray && rhsIsUnpackArray) {
+                    ಯದಿ (lhsDtp->isFourstate() != rhsDtp->isFourstate()) {
                         nodep->v3error("Assignment between 2-state and 4-state types requires "
                                        "equivalent element types (IEEE 1800-2023 6.22.2, 7.6)"
                                        << warnDTypes(nodep, lhsDtp, rhsDtp));
                     }
                 }
-                checkUnpackedArrayAssignmentCompatible<AstNodeVarRef, AstNodeVarRef>(
-                    nodep, VN_CAST(nodep->lhsp(), NodeVarRef), VN_CAST(nodep->rhsp(), NodeVarRef));
+                checkUnpackedArrayAssignmentCompatible<Ast_ಗಂಟು_Var_Ref, Ast_ಗಂಟು_Var_Ref>(
+                    nodep, VN_CAST(nodep->lhsp(), ಗಂಟು_Var_Ref), VN_CAST(nodep->rhsp(), ಗಂಟು_Var_Ref));
                 // Variable references were checked above, this catches e.g. method call results
-                if (lhsDtp->isIntegralOrPacked() && rhsDtp->isAggregateType()
-                    && !VN_IS(nodep->rhsp(), NodeVarRef)) {
+                ಯದಿ (lhsDtp->isIntegralOrPacked() && rhsDtp->isAggregateType()
+                    && !VN_IS(nodep->rhsp(), ಗಂಟು_Var_Ref)) {
                     nodep->v3error("Illegal assignment betwen unpacked aggregate and "
                                    "integral type (IEEE 1800-2023 7.6)"
                                    << warnDTypes(nodep, lhsDtp, rhsDtp));
@@ -7043,392 +7043,392 @@ class WidthVisitor final : public VNVisitor {
             iterateCheckAssign(nodep, "Assign RHS", nodep->rhsp(), FINAL, lhsDTypep);
             // UINFOTREE(1, nodep, "", "AssignOut");
         }
-        if (VN_IS(nodep, AssignForce)) checkForceReleaseLhs(nodep, nodep->lhsp());
-        if (AstNode* const controlp = nodep->timingControlp()) {
-            if (!m_underFork && VN_IS(m_ftaskp, Func)) {
+        ಯದಿ (VN_IS(nodep, AssignForce)) checkForceReleaseLhs(nodep, nodep->lhsp());
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ controlp = nodep->timingControlp()) {
+            ಯದಿ (!m_underFork && VN_IS(m_ftaskp, Func)) {
                 controlp->v3error("Timing controls are not legal in functions. Suggest use a task "
                                   "(IEEE 1800-2023 13.4.4)");
-                VL_DO_DANGLING(controlp->unlinkFrBackWithNext()->deleteTree(), controlp);
-            } else if (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) {
+                VL_DO_DANGLING(controlp->unlinkFrBackWithNext()->delete_ವೃಕ್ಷ(), controlp);
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) {
                 iterateNull(controlp);
-            } else {
-                if (nodep->fileline()->timingOn()) {
-                    if (v3Global.opt.timing().isSetFalse()) {
+            } ಅನ್ಯಥಾ {
+                ಯದಿ (nodep->fileline()->timingOn()) {
+                    ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                         controlp->v3warn(ASSIGNDLY, "Ignoring timing control on this "
                                                     "assignment/primitive due to --no-timing");
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         controlp->v3warn(E_NEEDTIMINGOPT,
                                          "Use --timing or --no-timing to specify how "
                                          "timing controls should be handled");
                     }
                 }
-                VL_DO_DANGLING(controlp->unlinkFrBackWithNext()->deleteTree(), controlp);
+                VL_DO_DANGLING(controlp->unlinkFrBackWithNext()->delete_ವೃಕ್ಷ(), controlp);
             }
         }
-        if (VN_IS(nodep->rhsp(), EmptyQueue)) {
+        ಯದಿ (VN_IS(nodep->rhsp(), EmptyQueue)) {
             UINFO(9, "= {} -> .delete(): " << nodep);
-            const AstNodeDType* const lhsDtp = nodep->lhsp()->dtypep()->skipRefp();
-            if (!VN_IS(lhsDtp, QueueDType) && !VN_IS(lhsDtp, DynArrayDType)) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDtp = nodep->lhsp()->dtypep()->skipRefp();
+            ಯದಿ (!VN_IS(lhsDtp, QueueDType) && !VN_IS(lhsDtp, DynArrayDType)) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported/Illegal: empty queue ('{}') in this assign context");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            AstMethodCall* const newp
-                = new AstMethodCall{nodep->fileline(), nodep->lhsp()->unlinkFrBack(), "delete"};
+            AstMethodCall* ಧ್ರುವ newp
+                = ನೂತನ AstMethodCall{nodep->fileline(), nodep->lhsp()->unlinkFrBack(), "delete"};
             newp->dtypeSetVoid();
             nodep->replaceWith(newp->makeStmt());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             // Need to now convert it
             visit(newp);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (const AstNewDynamic* const dynp = VN_CAST(nodep->rhsp(), NewDynamic)) {
+        ಯದಿ (ಧ್ರುವ AstNewDynamic* ಧ್ರುವ dynp = VN_CAST(nodep->rhsp(), NewDynamic)) {
             UINFO(9, "= new[] -> .resize(): " << nodep);
             AstCMethodHard* newp;
-            if (!dynp->rhsp()) {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            ಯದಿ (!dynp->rhsp()) {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                           VCMethod::DYN_RENEW, dynp->sizep()->unlinkFrBack()};
-            } else {
-                newp = new AstCMethodHard{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
+            } ಅನ್ಯಥಾ {
+                newp = ನೂತನ AstCMethodHard{nodep->fileline(), nodep->lhsp()->unlinkFrBack(),
                                           VCMethod::DYN_RENEW_COPY, dynp->sizep()->unlinkFrBack()};
                 newp->addPinsp(dynp->rhsp()->unlinkFrBack());
             }
-            newp->didWidth(true);
-            newp->protect(false);
+            newp->didWidth(ಸತ್ಯ);
+            newp->protect(ಅಸತ್ಯ);
             newp->dtypeSetVoid();
             nodep->replaceWith(newp->makeStmt());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Queue slice on LHS: q[a:b] = rhs  ->  q.sliceAssign(a, b, rhs)
         // The LHS was lowered from AstSelExtract to CMethodHard(DYN_SLICE)
         // by V3WidthSel; that returns a temporary copy so the assignment is
         // silently discarded.  Transform into a mutating sliceAssign call.
-        if (AstCMethodHard* const slicep = VN_CAST(nodep->lhsp(), CMethodHard)) {
+        ಯದಿ (AstCMethodHard* ಧ್ರುವ slicep = VN_CAST(nodep->lhsp(), CMethodHard)) {
             VCMethod assignMethod;
-            if (slicep->method() == VCMethod::DYN_SLICE) {
+            ಯದಿ (slicep->method() == VCMethod::DYN_SLICE) {
                 assignMethod = VCMethod::DYN_SLICE_ASSIGN;
-            } else if (slicep->method() == VCMethod::DYN_SLICE_BACK_BACK) {
+            } ಅನ್ಯಥಾ ಯದಿ (slicep->method() == VCMethod::DYN_SLICE_BACK_BACK) {
                 assignMethod = VCMethod::DYN_SLICE_ASSIGN_BACK_BACK;
-            } else if (slicep->method() == VCMethod::DYN_SLICE_FRONT_BACK) {
+            } ಅನ್ಯಥಾ ಯದಿ (slicep->method() == VCMethod::DYN_SLICE_FRONT_BACK) {
                 assignMethod = VCMethod::DYN_SLICE_ASSIGN_FRONT_BACK;
-            } else {
+            } ಅನ್ಯಥಾ {
                 assignMethod = VCMethod::_ENUM_MAX;  // not a slice
             }
-            if (assignMethod != VCMethod::_ENUM_MAX) {
+            ಯದಿ (assignMethod != VCMethod::_ENUM_MAX) {
                 UINFO(9, "LHS queue slice -> sliceAssign: " << nodep);
-                AstNodeExpr* const fromp = slicep->fromp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = slicep->fromp()->unlinkFrBack();
                 // Collect existing slice index pins (lsb, msb)
-                AstNodeExpr* const lsbp = slicep->pinsp()->unlinkFrBack();
-                AstNodeExpr* const msbp = slicep->pinsp()->unlinkFrBack();
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                AstCMethodHard* const newp
-                    = new AstCMethodHard{nodep->fileline(), fromp, assignMethod};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lsbp = slicep->pinsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ msbp = slicep->pinsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+                AstCMethodHard* ಧ್ರುವ newp
+                    = ನೂತನ AstCMethodHard{nodep->fileline(), fromp, assignMethod};
                 newp->addPinsp(lsbp);
                 newp->addPinsp(msbp);
                 newp->addPinsp(rhsp);
-                newp->didWidth(true);
-                newp->protect(false);
+                newp->didWidth(ಸತ್ಯ);
+                newp->protect(ಅಸತ್ಯ);
                 newp->dtypeSetVoid();
                 nodep->replaceWith(newp->makeStmt());
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
         }
 
-        if (nodep->hasDType() && nodep->dtypep()->isEvent()) {
+        ಯದಿ (nodep->hasDType() && nodep->dtypep()->isEvent()) {
             checkEventAssignment(nodep);
             v3Global.setAssignsEvents();
         }
     }
 
-    void visit(AstRSRule* nodep) override {
-        if (nodep->weightp()) iterateCheckUInt32(nodep, "weight", nodep->weightp(), BOTH);
+    ಶೂನ್ಯ visit(AstRSRule* nodep) override {
+        ಯದಿ (nodep->weightp()) iterateCheckUInt32(nodep, "weight", nodep->weightp(), BOTH);
         userIterateAndNext(nodep->prodlistsp(), nullptr);
         userIterateAndNext(nodep->weightStmtsp(), nullptr);
     }
 
-    void visit(AstRelease* nodep) override {
+    ಶೂನ್ಯ visit(AstRelease* nodep) override {
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
         UASSERT_OBJ(nodep->lhsp()->dtypep(), nodep, "How can LValue be untyped?");
         UASSERT_OBJ(nodep->lhsp()->dtypep()->widthSized(), nodep, "How can LValue be unsized?");
         checkForceReleaseLhs(nodep, nodep->lhsp());
     }
-    void visit(AstDeassign* nodep) override {
+    ಶೂನ್ಯ visit(AstDeassign* nodep) override {
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
         UASSERT_OBJ(nodep->lhsp()->dtypep(), nodep, "L-value is untyped");
         UASSERT_OBJ(nodep->lhsp()->dtypep()->widthSized(), nodep, "L-value width is unsized");
         checkForceReleaseLhs(nodep, nodep->lhsp());
     }
 
-    static bool isFormatNonNumericArg(const AstNodeDType* dtypep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isFormatNonNumericArg(ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        return dtypep->isString()  //
+        ಪ್ರತ್ಯಾಗಮ dtypep->isString()  //
                || VN_IS(dtypep, AssocArrayDType)  //
                || VN_IS(dtypep, WildcardArrayDType)  //
                || VN_IS(dtypep, ClassRefDType)  //
                || VN_IS(dtypep, DynArrayDType)  //
                || VN_IS(dtypep, UnpackArrayDType)  //
                || VN_IS(dtypep, QueueDType)  //
-               || (VN_IS(dtypep, NodeUOrStructDType)
-                   && !VN_AS(dtypep, NodeUOrStructDType)->packed());
+               || (VN_IS(dtypep, ಗಂಟು_UOr_Struct_DType)
+                   && !VN_AS(dtypep, ಗಂಟು_UOr_Struct_DType)->packed());
     }
 
-    void checkFormatNumericArg(AstNode* argp, char ch) {
+    ಶೂನ್ಯ checkFormatNumericArg(Ast_ಗಂಟು* argp, ವರ್ಣ ch) {
         // IEEE 1800-2023 21.2.1.1 suggests %d of a class is illegal.
         // Howver UVM tests require %0d print unique identifier of the class.
-        if (std::tolower(ch) == 'd') return;
+        ಯದಿ (std::tolower(ch) == 'd') ಪ್ರತ್ಯಾಗಮ;
         // In contrast, %x of a class reference, causes errors on several simulators.
-        if (isFormatNonNumericArg(argp->dtypep()))
+        ಯದಿ (isFormatNonNumericArg(argp->dtypep()))
             argp->v3error(
                 "$display-like format of '%"s + ch + "' illegal with non-numeric argument\n"
                 << argp->warnMore() << "... Suggest use '%s'");
     }
 
-    void visit(AstSFormatArg* nodep) override {}  // Done by AstSFormatF
-    void visit(AstSFormat* nodep) override {
+    ಶೂನ್ಯ visit(AstSFormatArg* nodep) override {}  // Done by AstSFormatF
+    ಶೂನ್ಯ visit(AstSFormat* nodep) override {
         assertAtStatement(nodep);
         userIterateAndNext(nodep->fmtp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstToStringN* nodep) override {
+    ಶೂನ್ಯ visit(AstToStringN* nodep) override {
         // Inserted by V3Width only so we know has been resolved
         nodep->dtypeSetString();
         userIterateAndNext(nodep->lhsp(), WidthVP{nodep->lhsp()->dtypep(), BOTH}.p());
     }
-    void visit(AstSFormatF* nodep) override {
+    ಶೂನ್ಯ visit(AstSFormatF* nodep) override {
         // Excludes NodeDisplay, see below
-        if (m_vup && !m_vup->prelim()) return;  // Can be called as statement or function
-        if (nodep->didWidthAndSet()) return;
+        ಯದಿ (m_vup && !m_vup->prelim()) ಪ್ರತ್ಯಾಗಮ;  // Can be called as statement or function
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
         //
         UINFO(9, "  Display in " << nodep->text());
 
         // Just let all arguments seek their natural sizes
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-        if (!nodep->exprFormat()) {  // Non-constant format, can't check format string types
+        ಯದಿ (!nodep->ಅಭಿವ್ಯಕ್ತಿ_Format_2()) {  // Non-constant format, can't check format string types
             visit_sformatf_format(nodep);
         }
 
-        AstNodeExpr* oldExprsp = nodep->exprsp();
-        if (nodep->exprFormat() && oldExprsp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* oldExprsp = nodep->exprsp();
+        ಯದಿ (nodep->ಅಭಿವ್ಯಕ್ತಿ_Format_2() && oldExprsp) {
             VL_DO_DANGLING(iterateCheckString(nodep, "format", nodep->exprsp(), BOTH), oldExprsp);
-            oldExprsp = VN_AS(nodep->exprsp()->nextp(), NodeExpr);
+            oldExprsp = VN_AS(nodep->exprsp()->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
         }
-        if (oldExprsp) oldExprsp->unlinkFrBackWithNext();
-        while (AstNodeExpr* argp = oldExprsp) {
-            oldExprsp = VN_AS(oldExprsp->nextp(), NodeExpr);
-            if (oldExprsp) oldExprsp->unlinkFrBackWithNext();
-            if (VN_IS(argp, SFormatArg)) {
+        ಯದಿ (oldExprsp) oldExprsp->unlinkFrBackWithNext();
+        ಯಾವತ್ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argp = oldExprsp) {
+            oldExprsp = VN_AS(oldExprsp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+            ಯದಿ (oldExprsp) oldExprsp->unlinkFrBackWithNext();
+            ಯದಿ (VN_IS(argp, SFormatArg)) {
                 nodep->addExprsp(argp);
-                continue;
+                ಅನುವರ್ತ;
             }
             // Need to record formatAttr's at elaboration time, as later optimizations
             // may change an argument's data type. Plus need them for runtime formats
             VFormatAttr formatAttr = VFormatAttr::UNSIGNED;
-            AstNodeDType* const dtypep = argp->dtypep()->skipRefp();
-            if (dtypep->isDouble()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = argp->dtypep()->skipRefp();
+            ಯದಿ (dtypep->isDouble()) {
                 formatAttr = VFormatAttr::DOUBLE;
-            } else if (dtypep->isString()) {
+            } ಅನ್ಯಥಾ ಯದಿ (dtypep->isString()) {
                 formatAttr = VFormatAttr::STRING;
-            } else if (isFormatNonNumericArg(dtypep)) {
-                if (AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType)) {
-                    if (classRefp->classp()) {
+            } ಅನ್ಯಥಾ ಯದಿ (isFormatNonNumericArg(dtypep)) {
+                ಯದಿ (AstClassRefDType* ಧ್ರುವ classRefp = VN_CAST(dtypep, ClassRefDType)) {
+                    ಯದಿ (classRefp->classp()) {
                         classRefp->classp()->markPrintedFrom();
-                        v3Global.hasPrintedObjects(true);
+                        v3Global.hasPrintedObjects(ಸತ್ಯ);
                     }
-                } else {
+                } ಅನ್ಯಥಾ {
                     // Class handles inside containers print type names, not their members.
-                    AstNodeDType* nodeDtypep = dtypep;
-                    while (nodeDtypep) {
-                        nodeDtypep = nodeDtypep->skipRefp();
-                        if (AstNodeUOrStructDType* const uOrStructDTypep
-                            = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                    Ast_ಗಂಟು_DType* ಗಂಟು_Dtypep = dtypep;
+                    ಯಾವತ್ (ಗಂಟು_Dtypep) {
+                        ಗಂಟು_Dtypep = ಗಂಟು_Dtypep->skipRefp();
+                        ಯದಿ (Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ uOrStructDTypep
+                            = VN_CAST(ಗಂಟು_Dtypep, ಗಂಟು_UOr_Struct_DType)) {
                             uOrStructDTypep->setEmitToString();
-                            v3Global.hasPrintedObjects(true);
+                            v3Global.hasPrintedObjects(ಸತ್ಯ);
                         }
-                        nodeDtypep = nodeDtypep->subDTypep();
+                        ಗಂಟು_Dtypep = ಗಂಟು_Dtypep->subDTypep();
                     }
                 }
-                AstNodeExpr* const newp = new AstToStringN{argp->fileline(), argp};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstToStringN{argp->fileline(), argp};
                 formatAttr = VFormatAttr::COMPLEX;
                 argp = newp;
-            } else if (nodep->exprFormat()) {
-                if (AstEnumDType* const enumDtp = formatEnumDType(argp)) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->ಅಭಿವ್ಯಕ್ತಿ_Format_2()) {
+                ಯದಿ (AstEnumDType* ಧ್ರುವ enumDtp = formatEnumDType(argp)) {
                     nodep->addExprsp(newFormatEnumArg(argp, enumDtp));
-                    continue;
+                    ಅನುವರ್ತ;
                 }
             }
-            if (formatAttr.isUnsigned() && dtypep->isSigned()) {
+            ಯದಿ (formatAttr.isUnsigned() && dtypep->isSigned()) {
                 formatAttr = VFormatAttr::SIGNED;
             }
-            if (formatAttr.isUnsigned()) {  // Save Ast space and imply the AstSFormatArg
+            ಯದಿ (formatAttr.isUnsigned()) {  // Save Ast space and imply the AstSFormatArg
                 nodep->addExprsp(argp);
-            } else {
-                nodep->addExprsp(new AstSFormatArg{argp->fileline(), formatAttr, argp});
+            } ಅನ್ಯಥಾ {
+                nodep->addExprsp(ನೂತನ AstSFormatArg{argp->fileline(), formatAttr, argp});
             }
         }
 
         UINFO(9, "  Display out " << nodep->text());
     }
-    void visit(AstCReset* nodep) override {
-        assertAtExpr(nodep);
+    ಶೂನ್ಯ visit(AstCReset* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
         nodep->dtypeFrom(m_vup->dtypep());
     }
-    void visit(AstCReturn* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
-    void visit(AstConstraintRef* nodep) override { userIterateChildren(nodep, nullptr); }
-    void visit(AstDisplay* nodep) override {
+    ಶೂನ್ಯ visit(AstCReturn* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
+    ಶೂನ್ಯ visit(AstConstraintRef* nodep) override { userIterateChildren(nodep, nullptr); }
+    ಶೂನ್ಯ visit(AstDisplay* nodep) override {
         assertAtStatement(nodep);
-        if (nodep->filep()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
+        ಯದಿ (nodep->filep()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
         // Just let all arguments seek their natural sizes
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstElabDisplay* nodep) override {
+    ಶೂನ್ಯ visit(AstElabDisplay* nodep) override {
         assertAtStatement(nodep);
         // Just let all arguments seek their natural sizes
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-        if (!m_paramsOnly) {
-            nodep->foreach([this](AstScopeName* nodep) {  //
+        ಯದಿ (!m_paramsOnly) {
+            nodep->foreach([ಏತತ್](AstScopeName* nodep) {  //
                 nodep->replaceWith(
-                    new AstConst{nodep->fileline(), AstConst::String{}, "<scope-unavailable>"});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    ನೂತನ AstConst{nodep->fileline(), AstConst::String{}, "<scope-unavailable>"});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             });
             V3Const::constifyParamsEdit(nodep->fmtp());  // fmtp may change
             string text = VString::dequotePercent(nodep->fmtp()->text());
-            if (text.empty()) text = "Elaboration system task message (IEEE 1800-2023 20.11)";
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_INFO: nodep->v3warn(USERINFO, text); break;
-            case VDisplayType::DT_ERROR: nodep->v3warn(USERERROR, text); break;
-            case VDisplayType::DT_WARNING: nodep->v3warn(USERWARN, text); break;
-            case VDisplayType::DT_FATAL: nodep->v3warn(USERFATAL, text); break;
-            default: UASSERT_OBJ(false, nodep, "Unexpected elaboration display type");
+            ಯದಿ (text.empty()) text = "Elaboration system task message (IEEE 1800-2023 20.11)";
+            ವಿಕಲ್ಪ (nodep->displayType()) {
+            ಪಕ್ಷ VDisplayType::DT_INFO: nodep->v3warn(USERINFO, text); ಭಙ್ಗ;
+            ಪಕ್ಷ VDisplayType::DT_ERROR: nodep->v3warn(USERERROR, text); ಭಙ್ಗ;
+            ಪಕ್ಷ VDisplayType::DT_WARNING: nodep->v3warn(USERWARN, text); ಭಙ್ಗ;
+            ಪಕ್ಷ VDisplayType::DT_FATAL: nodep->v3warn(USERFATAL, text); ಭಙ್ಗ;
+            ಸ್ವಭಾವ: UASSERT_OBJ(ಅಸತ್ಯ, nodep, "Unexpected elaboration display type");
             }
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    void visit(AstDumpCtl* nodep) override {
+    ಶೂನ್ಯ visit(AstDumpCtl* nodep) override {
         assertAtStatement(nodep);
-        if (nodep->exprp()) iterateCheckString(nodep, "LHS", nodep->exprp(), BOTH);
+        ಯದಿ (nodep->exprp()) iterateCheckString(nodep, "LHS", nodep->exprp(), BOTH);
     }
-    void visit(AstFOpen* nodep) override {
+    ಶೂನ್ಯ visit(AstFOpen* nodep) override {
         // Although a system function in IEEE, here a statement which sets the file pointer (MCD)
         iterateCheckString(nodep, "filename", nodep->filenamep(), BOTH);
         iterateCheckString(nodep, "mode", nodep->modep(), BOTH);
     }
-    void visit(AstFOpenMcd* nodep) override {
+    ಶೂನ್ಯ visit(AstFOpenMcd* nodep) override {
         iterateCheckString(nodep, "filename", nodep->filenamep(), BOTH);
     }
-    void visit(AstFClose* nodep) override {
+    ಶೂನ್ಯ visit(AstFClose* nodep) override {
         assertAtStatement(nodep);
         iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
     }
-    void visit(AstFError* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFError* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
             // Could be string or packed array
             userIterateAndNext(nodep->strp(), WidthVP{SELF, BOTH}.p());
         }
     }
-    void visit(AstFEof* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
+    ಶೂನ್ಯ visit(AstFEof* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
     }
-    void visit(AstFFlush* nodep) override {
+    ಶೂನ್ಯ visit(AstFFlush* nodep) override {
         assertAtStatement(nodep);
-        if (nodep->filep()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
+        ಯದಿ (nodep->filep()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
     }
-    void visit(AstFRewind* nodep) override { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
-    void visit(AstFTell* nodep) override { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
-    void visit(AstFSeek* nodep) override {
+    ಶೂನ್ಯ visit(AstFRewind* nodep) override { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
+    ಶೂನ್ಯ visit(AstFTell* nodep) override { iterateCheckFileDesc(nodep, nodep->filep(), BOTH); }
+    ಶೂನ್ಯ visit(AstFSeek* nodep) override {
         iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
         iterateCheckSigned32(nodep, "$fseek offset", nodep->offset(), BOTH);
         iterateCheckSigned32(nodep, "$fseek operation", nodep->operation(), BOTH);
     }
-    void visit(AstFGetC* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
+    ಶೂನ್ಯ visit(AstFGetC* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
     }
-    void visit(AstFGetS* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFGetS* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
             userIterateAndNext(nodep->strgp(), WidthVP{SELF, BOTH}.p());
         }
     }
-    void visit(AstFUngetC* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFUngetC* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
             iterateCheckSigned32(nodep, "$fungetc character", nodep->charp(), BOTH);
         }
     }
-    void visit(AstFRead* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFRead* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->memp(), WidthVP{SELF, BOTH}.p());
             iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
-            if (nodep->startp()) {
+            ಯದಿ (nodep->startp()) {
                 iterateCheckSigned32(nodep, "$fread start", nodep->startp(), BOTH);
             }
-            if (nodep->countp()) {
+            ಯದಿ (nodep->countp()) {
                 iterateCheckSigned32(nodep, "$fread count", nodep->countp(), BOTH);
             }
         }
     }
-    void visit(AstFScanF* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstFScanF* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckFileDesc(nodep, nodep->filep(), BOTH);
             userIterateAndNext(nodep->exprsp(), WidthVP{SELF, BOTH}.p());
         }
     }
-    void visit(AstSScanF* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstSScanF* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->fromp(), WidthVP{SELF, BOTH}.p());
             userIterateAndNext(nodep->exprsp(), WidthVP{SELF, BOTH}.p());
         }
     }
-    void visit(AstStackTraceF* nodep) override { nodep->dtypeSetString(); }
-    void visit(AstSysIgnore* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ರಾಶಿ_Trace_F* nodep) override { nodep->dtypeSetString(); }
+    ಶೂನ್ಯ visit(AstSysIgnore* nodep) override {
         userIterateAndNext(nodep->exprsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstSystemF* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
+    ಶೂನ್ಯ visit(AstSystemF* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstSystemT* nodep) override {
+    ಶೂನ್ಯ visit(AstSystemT* nodep) override {
         assertAtStatement(nodep);
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstNodeReadWriteMem* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Read_Write_Mem* nodep) override {
         assertAtStatement(nodep);
         iterateCheckString(nodep, "filename", nodep->filenamep(), BOTH);
         userIterateAndNext(nodep->memp(), WidthVP{SELF, BOTH}.p());
-        const AstNodeDType* subp = nullptr;
-        if (const AstAssocArrayDType* adtypep
+        ಧ್ರುವ Ast_ಗಂಟು_DType* subp = nullptr;
+        ಯದಿ (ಧ್ರುವ AstAssocArrayDType* adtypep
             = VN_CAST(nodep->memp()->dtypep()->skipRefp(), AssocArrayDType)) {
             subp = adtypep->subDTypep();
-            if (!adtypep->keyDTypep()->skipRefp()->basicp()
-                || !adtypep->keyDTypep()->skipRefp()->basicp()->keyword().isIntNumeric()) {
+            ಯದಿ (!adtypep->ಕೀಲಿ_DTypep()->skipRefp()->basicp()
+                || !adtypep->ಕೀಲಿ_DTypep()->skipRefp()->basicp()->keyword().isIntNumeric()) {
                 nodep->memp()->v3error(nodep->verilogKwd()
                                        << " address/key must be integral (IEEE 1800-2023 21.4.1)");
             }
-        } else if (const AstUnpackArrayDType* const adtypep
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ adtypep
                    = VN_CAST(nodep->memp()->dtypep()->skipRefp(), UnpackArrayDType)) {
             subp = adtypep->subDTypep();
-        } else if (const AstDynArrayDType* const adtypep
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstDynArrayDType* ಧ್ರುವ adtypep
                    = VN_CAST(nodep->memp()->dtypep()->skipRefp(), DynArrayDType)) {
             subp = adtypep->subDTypep();
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->memp()->v3warn(
                 E_UNSUPPORTED,
                 "Unsupported: " << nodep->verilogKwd()
                                 << " into other than unpacked, dynamic, or associative array");
         }
-        if (subp
+        ಯದಿ (subp
             && (!subp->skipRefp()->basicp()
                 || !subp->skipRefp()->basicp()->keyword().isIntNumeric())) {
             nodep->memp()->v3warn(E_UNSUPPORTED,
@@ -7438,52 +7438,52 @@ class WidthVisitor final : public VNVisitor {
         userIterateAndNext(nodep->lsbp(), WidthVP{SELF, BOTH}.p());
         userIterateAndNext(nodep->msbp(), WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstTestPlusArgs* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) iterateCheckString(nodep, "LHS", nodep->searchp(), BOTH);
+    ಶೂನ್ಯ visit(AstTestPlusArgs* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) iterateCheckString(nodep, "LHS", nodep->searchp(), BOTH);
     }
-    void visit(AstValuePlusArgs* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(Ast_ಮೌಲ್ಯ_Plus_Args* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckString(nodep, "LHS", nodep->searchp(), BOTH);
             userIterateAndNext(nodep->outp(), WidthVP{SELF, BOTH}.p());
         }
     }
-    void visit(AstTimeFormat* nodep) override {
+    ಶೂನ್ಯ visit(AstTimeFormat* nodep) override {
         assertAtStatement(nodep);
-        if (nodep->unitsp()) iterateCheckSigned32(nodep, "units", nodep->unitsp(), BOTH);
-        if (nodep->precisionp())
+        ಯದಿ (nodep->unitsp()) iterateCheckSigned32(nodep, "units", nodep->unitsp(), BOTH);
+        ಯದಿ (nodep->precisionp())
             iterateCheckSigned32(nodep, "precision", nodep->precisionp(), BOTH);
-        if (nodep->suffixp()) iterateCheckString(nodep, "suffix", nodep->suffixp(), BOTH);
-        if (nodep->widthp()) iterateCheckSigned32(nodep, "width", nodep->widthp(), BOTH);
+        ಯದಿ (nodep->suffixp()) iterateCheckString(nodep, "suffix", nodep->suffixp(), BOTH);
+        ಯದಿ (nodep->widthp()) iterateCheckSigned32(nodep, "width", nodep->widthp(), BOTH);
     }
-    void visit(AstCStmtUser* nodep) override {
+    ಶೂನ್ಯ visit(AstCStmtUser* nodep) override {
         // Just let all arguments seek their natural sizes
         assertAtStatement(nodep);
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstAssert* nodep) override {
+    ಶೂನ್ಯ visit(AstAssert* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "Property", nodep->propp(), BOTH);  // it's like an if() condition.
         userIterateAndNext(nodep->passsp(), nullptr);
         userIterateAndNext(nodep->failsp(), nullptr);
     }
-    void visit(AstAssertCtl* nodep) override {
+    ಶೂನ್ಯ visit(AstAssertCtl* nodep) override {
         assertAtStatement(nodep);
         userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
     }
-    void visit(AstAssertIntrinsic* nodep) override {
+    ಶೂನ್ಯ visit(AstAssertIntrinsic* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "Property", nodep->propp(), BOTH);  // it's like an if() condition.
         userIterateAndNext(nodep->passsp(), nullptr);
         userIterateAndNext(nodep->failsp(), nullptr);
     }
-    void visit(AstCover* nodep) override {
+    ಶೂನ್ಯ visit(AstCover* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "Property", nodep->propp(), BOTH);  // it's like an if() condition.
         userIterateAndNext(nodep->passsp(), nullptr);
     }
-    void visit(AstRestrict* nodep) override {
+    ಶೂನ್ಯ visit(AstRestrict* nodep) override {
         assertAtStatement(nodep);
         iterateCheckBool(nodep, "Property", nodep->propp(), BOTH);  // it's like an if() condition.
     }
@@ -7494,90 +7494,90 @@ class WidthVisitor final : public VNVisitor {
     // connection has had its PRELIM visit. Returns true if the pin needs nothing else (the
     // selected connection matches the port, or there was an error), false if the pin still
     // needs the usual checks.
-    bool pinInstArrayElement(AstPin* nodep, const AstRange* rangep, int idx) {
-        AstNodeDType* const modDTypep = nodep->modVarp()->dtypep()->skipRefp();
-        AstNodeDType* const conDTypep = nodep->exprp()->dtypep()->skipRefp();
+    ತಾರ್ಕಿಕ pinInstArrayElement(AstPin* nodep, ಧ್ರುವ AstRange* rangep, ಪೂರ್ಣಾಙ್ಕ idx) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ modDTypep = nodep->modVarp()->dtypep()->skipRefp();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ conDTypep = nodep->exprp()->dtypep()->skipRefp();
 
         // If types match, then nothing else to do
-        if (conDTypep == modDTypep || similarDTypeRecurse(conDTypep, modDTypep)) return true;
+        ಯದಿ (conDTypep == modDTypep || similarDTypeRecurse(conDTypep, modDTypep)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         // Types don't match, but all dimensions done, still need the usual checks
-        if (!rangep) return false;
+        ಯದಿ (!rangep) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
-        const AstRange* const subRangep = VN_AS(rangep->nextp(), Range);
+        ಧ್ರುವ AstRange* ಧ್ರುವ subRangep = VN_AS(rangep->nextp(), Range);
 
         // Number of dimensions from 'rangep' inwards, and of elements in those after 'rangep'
         uint32_t nDims = 1;
-        int subElems = 1;
-        for (const AstRange* rp = subRangep; rp; rp = VN_AS(rp->nextp(), Range)) {
+        ಪೂರ್ಣಾಙ್ಕ subElems = 1;
+        ಪ್ರತಿ (ಧ್ರುವ AstRange* rp = subRangep; rp; rp = VN_AS(rp->nextp(), Range)) {
             ++nDims;
             subElems *= rp->elementsConst();
         }
-        const int elements = rangep->elementsConst();
-        const int fromLeft = idx / subElems;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ elements = rangep->elementsConst();
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ from_ಎಡ = idx / subElems;
 
-        const AstUnpackArrayDType* const arrp = VN_CAST(conDTypep, UnpackArrayDType);
-        const uint32_t conDims = conDTypep->dimensions(false).second;
-        const uint32_t modDims = modDTypep->dimensions(false).second;
+        ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrp = VN_CAST(conDTypep, UnpackArrayDType);
+        ಧ್ರುವ uint32_t conDims = conDTypep->dimensions(ಅಸತ್ಯ).second;
+        ಧ್ರುವ uint32_t modDims = modDTypep->dimensions(ಅಸತ್ಯ).second;
 
         // Unpacked array with other than the port's number of unpacked dimensions: its slowest
         // varying unpacked dimensions must match the instance array dimensions exactly in size,
         // and the rest be those of the port. Connect its element at the same position, counted
         // from the left. The inner dimensions then select from that element the same way.
-        if (arrp && conDims != modDims) {
-            if (conDims != nDims + modDims || arrp->elementsConst() != elements) {
+        ಯದಿ (arrp && conDims != modDims) {
+            ಯದಿ (conDims != nDims + modDims || arrp->elementsConst() != elements) {
                 nodep->v3error(ucfirst(nodep->prettyOperatorName())
                                << " as part of a module instance array requires the connection's"
                                   " leading unpacked dimensions to match the instance array"
                                   " dimensions (IEEE 1800-2023 23.3.3.5)");
                 userIterateAndNext(nodep->exprp(),
                                    WidthVP{conDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             }
             // ArraySel index is counted from lo
-            const int bit = arrp->declRange().ascending() ? fromLeft : elements - 1 - fromLeft;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ bit = arrp->declRange().ascending() ? from_ಎಡ : elements - 1 - from_ಎಡ;
             // Connection is self-determined
             userIterateAndNext(nodep->exprp(), WidthVP{conDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-            AstNodeExpr* const fromp = VN_AS(nodep->exprp(), NodeExpr)->unlinkFrBack();
-            if (AstNodeExpr* const elemp = newIfaceArrayElement(fromp, bit)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = VN_AS(nodep->exprp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->unlinkFrBack();
+            ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ elemp = newIfaceArrayElement(fromp, bit)) {
                 nodep->exprp(elemp);
-                VL_DO_DANGLING(pushDeletep(fromp), fromp);
-            } else {
-                AstArraySel* const selp = new AstArraySel{fromp->fileline(), fromp, bit};
-                selp->didWidth(true);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(fromp), fromp);
+            } ಅನ್ಯಥಾ {
+                AstArraySel* ಧ್ರುವ selp = ನೂತನ AstArraySel{fromp->fileline(), fromp, bit};
+                selp->didWidth(ಸತ್ಯ);
                 nodep->exprp(selp);
             }
-            return pinInstArrayElement(nodep, subRangep, idx % subElems);
+            ಪ್ರತ್ಯಾಗಮ pinInstArrayElement(nodep, subRangep, idx % subElems);
         }
 
         // Otherwise if not packed (including an unpacked array with the port's number of unpacked
         // dimensions), connect it to every element, if it is compatible with the port
-        if (!conDTypep->isIntegralOrPacked() || !modDTypep->isIntegralOrPacked()) return false;
+        ಯದಿ (!conDTypep->isIntegralOrPacked() || !modDTypep->isIntegralOrPacked()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
         // Packed connection
-        const int modwidth = modDTypep->width();
-        const int conwidth = conDTypep->width();
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ modwidth = modDTypep->width();
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ conwidth = conDTypep->width();
 
         // Connection has the width of the port, connect it to every element
-        if (conwidth == modwidth) return false;
+        ಯದಿ (conwidth == modwidth) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 
         // Connection has the width of all the elements, connect a slice to each element,
         // leftmost element to the leftmost (most significant) slice
-        if (conwidth == modwidth * elements * subElems) {
-            if (rangep->ascending()) {
+        ಯದಿ (conwidth == modwidth * elements * subElems) {
+            ಯದಿ (rangep->ascending()) {
                 nodep->exprp()->v3warn(ASCRANGE, "Ascending instance range connecting to "
                                                  "vector: left < right of instance range: ["
-                                                     << rangep->leftConst() << ":"
-                                                     << rangep->rightConst() << "]");
+                                                     << rangep->ಎಡ_Const() << ":"
+                                                     << rangep->ಬಲ_Const() << "]");
             }
-            const int selwidth = modwidth * subElems;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ selwidth = modwidth * subElems;
             // Connection is self-determined
             userIterateAndNext(nodep->exprp(), WidthVP{conDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-            AstNodeExpr* const fromp = VN_AS(nodep->exprp(), NodeExpr)->unlinkFrBack();
-            AstSel* const selp = new AstSel{fromp->fileline(), fromp,
-                                            selwidth * (elements - 1 - fromLeft), selwidth};
-            selp->didWidth(true);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = VN_AS(nodep->exprp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->unlinkFrBack();
+            AstSel* ಧ್ರುವ selp = ನೂತನ AstSel{fromp->fileline(), fromp,
+                                            selwidth * (elements - 1 - from_ಎಡ), selwidth};
+            selp->didWidth(ಸತ್ಯ);
             nodep->exprp(selp);
-            return pinInstArrayElement(nodep, subRangep, idx % subElems);
+            ಪ್ರತ್ಯಾಗಮ pinInstArrayElement(nodep, subRangep, idx % subElems);
         }
 
         // Otherwise it is an error, as it must connect to one element or to all of them
@@ -7587,91 +7587,91 @@ class WidthVisitor final : public VNVisitor {
                        << nodep->exprp()->prettyTypeName() << " generates " << conwidth
                        << " bits. (IEEE 1800-2023 23.3.3)");
         userIterateAndNext(nodep->exprp(), WidthVP{conDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    void visit(AstPin* nodep) override {
+    ಶೂನ್ಯ visit(AstPin* nodep) override {
         // UINFOTREE(1, nodep, "", "PinPre");
         // TOP LEVEL NODE
-        if (nodep->modVarp() && nodep->modVarp()->isGParam()) {
+        ಯದಿ (nodep->modVarp() && nodep->modVarp()->isGParam()) {
             // An unpacked array concatenation is a pattern of its items (IEEE 1800-2023 10.10)
-            AstReplicate* const concatp = VN_CAST(nodep->exprp(), Replicate);
-            const AstConst* const countp = concatp ? VN_CAST(concatp->countp(), Const) : nullptr;
-            const AstNodeDType* const dtypep = nodep->modVarp()->subDTypep()->skipRefOrNullp();
-            if (countp && countp->toUInt() == 1
+            AstReplicate* ಧ್ರುವ concatp = VN_CAST(nodep->exprp(), Replicate);
+            ಧ್ರುವ AstConst* ಧ್ರುವ countp = concatp ? VN_CAST(concatp->countp(), Const) : nullptr;
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = nodep->modVarp()->subDTypep()->skipRefOrNullp();
+            ಯದಿ (countp && countp->toUInt() == 1
                 && (VN_IS(dtypep, UnpackArrayDType) || VN_IS(dtypep, BracketArrayDType))) {
-                AstPattern* const patternp = new AstPattern{concatp->fileline(), nullptr};
+                AstPattern* ಧ್ರುವ patternp = ನೂತನ AstPattern{concatp->fileline(), nullptr};
                 patConcatConvertRecurse(patternp, concatp->srcp());
                 concatp->replaceWith(patternp);
-                VL_DO_DANGLING(pushDeletep(concatp), concatp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(concatp), concatp);
             }
             // An override pattern is left for the specialized module to type
             VL_RESTORER(m_inParamOverride);
             m_inParamOverride = isOverridePattern(nodep->exprp());
             userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-        } else if (!m_paramsOnly) {
-            if (!nodep->modVarp()->didWidth()) {
+        } ಅನ್ಯಥಾ ಯದಿ (!m_paramsOnly) {
+            ಯದಿ (!nodep->modVarp()->didWidth()) {
                 // Var hasn't been widthed, so make it so.
                 userIterate(nodep->modVarp(), nullptr);
             }
-            if (!nodep->exprp()) {  // No-connect
-                if (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
-                return;
+            ಯದಿ (!nodep->exprp()) {  // No-connect
+                ಯದಿ (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // Very much like like an assignment, but which side is LH/RHS
             // depends on pin being a in/output/inout.
-            const VDirection pinDirection = nodep->modVarp()->direction();
-            if (VN_IS(nodep->exprp(), NodeStream) && pinDirection.isInoutOrRef()) {
+            ಧ್ರುವ VDirection pinDirection = nodep->modVarp()->direction();
+            ಯದಿ (VN_IS(nodep->exprp(), ಗಂಟು_Stream) && pinDirection.isInoutOrRef()) {
                 nodep->exprp()->v3error("Streaming concatenation cannot be connected to '"
                                         << pinDirection.prettyName()
                                         << "' port (IEEE 1800-2023 11.4.14)");
             }
             userIterateAndNext(nodep->exprp(), WidthVP{nodep->modVarp()->dtypep(), PRELIM}.p());
-            AstNodeDType* modDTypep = nodep->modVarp()->dtypep();
-            AstNodeDType* conDTypep = nodep->exprp()->dtypep();
+            Ast_ಗಂಟು_DType* modDTypep = nodep->modVarp()->dtypep();
+            Ast_ಗಂಟು_DType* conDTypep = nodep->exprp()->dtypep();
             UASSERT_OBJ(modDTypep, nodep, "Unlinked pin data type");
             UASSERT_OBJ(conDTypep, nodep, "Unlinked pin data type");
             modDTypep = modDTypep->skipRefp();
             conDTypep = conDTypep->skipRefp();
             // An interface port, or an array of them, needs interface instances, not virtual
             // interfaces
-            if (const AstIfaceRefDType* const modIrefp
+            ಯದಿ (ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ modIrefp
                 = VN_CAST(modDTypep->elemDTypep(), IfaceRefDType)) {
-                const AstIfaceRefDType* const conIrefp
+                ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ conIrefp
                     = VN_CAST(conDTypep->elemDTypep(), IfaceRefDType);
-                if (!modIrefp->isVirtual() && conIrefp && conIrefp->isVirtual()) {
+                ಯದಿ (!modIrefp->isVirtual() && conIrefp && conIrefp->isVirtual()) {
                     nodep->v3error("Illegal " << nodep->prettyOperatorName()
                                               << ", interface port connected to a virtual"
                                                  " interface (IEEE 1800-2023 23.3.3.4)");
                 }
             }
-            AstNodeDType* subDTypep = modDTypep;
-            const int modwidth = modDTypep->width();
-            int conwidth = conDTypep->width();
-            if (conDTypep == modDTypep  // If match, we're golden
+            Ast_ಗಂಟು_DType* subDTypep = modDTypep;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ modwidth = modDTypep->width();
+            ಪೂರ್ಣಾಙ್ಕ conwidth = conDTypep->width();
+            ಯದಿ (conDTypep == modDTypep  // If match, we're golden
                 || similarDTypeRecurse(conDTypep, modDTypep)) {
                 userIterateAndNext(nodep->exprp(),
                                    WidthVP{subDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-            } else {
-                if (m_cellp->arrayIdx() >= 0) {
+            } ಅನ್ಯಥಾ {
+                ಯದಿ (m_cellp->arrayIdx() >= 0) {
                     // Element of an instance array, select its part of the connection,
                     // then check it like any other pin, unless that is all done already
-                    if (pinInstArrayElement(nodep, m_cellp->rangep(), m_cellp->arrayIdx())) {
-                        if (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
-                        return;
+                    ಯದಿ (pinInstArrayElement(nodep, m_cellp->rangep(), m_cellp->arrayIdx())) {
+                        ಯದಿ (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
+                        ಪ್ರತ್ಯಾಗಮ;
                     }
                     conDTypep = nodep->exprp()->dtypep()->skipRefp();
                     conwidth = conDTypep->width();
                 }
-                if (nodep->modVarp()->direction() == VDirection::REF) {
+                ಯದಿ (nodep->modVarp()->direction() == VDirection::REF) {
                     nodep->v3error("Ref connection "
                                    << nodep->modVarp()->prettyNameQ()
                                    << " requires matching types;" << " ref requires "
                                    << modDTypep->prettyDTypeNameQ()
                                    << " data type but connection is "
                                    << conDTypep->prettyDTypeNameQ() << " data type.");
-                } else if (nodep->modVarp()->isTristate()) {
-                    if (modwidth != conwidth) {
+                } ಅನ್ಯಥಾ ಯದಿ (nodep->modVarp()->isTristate()) {
+                    ಯದಿ (modwidth != conwidth) {
                         // Ideally should call pinReconnectSimple which would tolerate this
                         // then have a conversion warning
                         nodep->v3warn(E_UNSUPPORTED,
@@ -7682,7 +7682,7 @@ class WidthVisitor final : public VNVisitor {
                                                       << " generates " << conwidth << " bits.");
                         // otherwise would need some mess to force both sides to proper size
                     }
-                } else if (nodep->modVarp()->direction().isWritable()
+                } ಅನ್ಯಥಾ ಯದಿ (nodep->modVarp()->direction().isWritable()
                            && ((conDTypep->isDouble() && !modDTypep->isDouble())
                                || (!conDTypep->isDouble() && modDTypep->isDouble()))) {
                     nodep->v3warn(E_UNSUPPORTED,
@@ -7691,7 +7691,7 @@ class WidthVisitor final : public VNVisitor {
                 }
 
                 // Check if an interface is connected to a non-interface and vice versa
-                if ((VN_IS(modDTypep, IfaceRefDType) && !VN_IS(conDTypep, IfaceRefDType))
+                ಯದಿ ((VN_IS(modDTypep, IfaceRefDType) && !VN_IS(conDTypep, IfaceRefDType))
                     || (VN_IS(conDTypep, IfaceRefDType) && !VN_IS(modDTypep, IfaceRefDType))) {
                     nodep->v3error("Illegal " << nodep->prettyOperatorName() << ","
                                               << " mismatch between port which is"
@@ -7702,9 +7702,9 @@ class WidthVisitor final : public VNVisitor {
                 }
 
                 // TODO Simple dtype checking, should be a more general check
-                const AstNodeArrayDType* const exprArrayp = VN_CAST(conDTypep, UnpackArrayDType);
-                const AstNodeArrayDType* const modArrayp = VN_CAST(modDTypep, UnpackArrayDType);
-                if (exprArrayp && modArrayp && VN_IS(conDTypep->elemDTypep(), IfaceRefDType)
+                ಧ್ರುವ Ast_ಗಂಟು_Array_DType* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Arrayp = VN_CAST(conDTypep, UnpackArrayDType);
+                ಧ್ರುವ Ast_ಗಂಟು_Array_DType* ಧ್ರುವ modArrayp = VN_CAST(modDTypep, UnpackArrayDType);
+                ಯದಿ (ಅಭಿವ್ಯಕ್ತಿ_Arrayp && modArrayp && VN_IS(conDTypep->elemDTypep(), IfaceRefDType)
                     && unpackedArraySize(conDTypep) != unpackedArraySize(modDTypep)) {
                     nodep->v3error("Illegal "
                                    << nodep->prettyOperatorName() << ","
@@ -7714,17 +7714,17 @@ class WidthVisitor final : public VNVisitor {
                                    << unpackedArraySize(conDTypep) << ".");
                     UINFO(1, "    Related lo: " << modDTypep);
                     UINFO(1, "    Related hi: " << conDTypep);
-                } else if ((exprArrayp && !modArrayp) || (!exprArrayp && modArrayp)) {
+                } ಅನ್ಯಥಾ ಯದಿ ((ಅಭಿವ್ಯಕ್ತಿ_Arrayp && !modArrayp) || (!ಅಭಿವ್ಯಕ್ತಿ_Arrayp && modArrayp)) {
                     nodep->v3error(
                         "Illegal "
                         << nodep->prettyOperatorName() << "," << " mismatch between port which is"
                         << (modArrayp ? "" : " not") << " an array," << " and expression which is"
-                        << (exprArrayp ? "" : " not") << " an array. (IEEE 1800-2023 7.6)");
+                        << (ಅಭಿವ್ಯಕ್ತಿ_Arrayp ? "" : " not") << " an array. (IEEE 1800-2023 7.6)");
                     UINFO(1, "    Related lo: " << modDTypep);
                     UINFO(1, "    Related hi: " << conDTypep);
-                } else {
-                    checkUnpackedArrayAssignmentCompatible<AstVar, AstNodeVarRef>(
-                        nodep, nodep->modVarp(), VN_CAST(nodep->exprp(), NodeVarRef));
+                } ಅನ್ಯಥಾ {
+                    checkUnpackedArrayAssignmentCompatible<AstVar, Ast_ಗಂಟು_Var_Ref>(
+                        nodep, nodep->modVarp(), VN_CAST(nodep->exprp(), ಗಂಟು_Var_Ref));
                     UINFO(1, "    Related lo: " << modDTypep);
                     UINFO(1, "    Related hi: " << conDTypep);
                 }
@@ -7732,15 +7732,15 @@ class WidthVisitor final : public VNVisitor {
                                    nodep->modVarp()->direction().pinAccess());
             }
             // Interface array port: connect its elements
-            if (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
+            ಯದಿ (nodep->modVarp()->isIfaceArraySplit()) expandIfaceArrayPin(nodep);
         }
         // UINFOTREE(1, nodep, "", "PinOut");
     }
-    void visit(AstCell* nodep) override {
+    ಶೂನ್ಯ visit(AstCell* nodep) override {
         VL_RESTORER(m_cellp);
         m_cellp = nodep;
-        if (!m_paramsOnly) {
-            if (VN_IS(nodep->modp(), NotFoundModule)) {
+        ಯದಿ (!m_paramsOnly) {
+            ಯದಿ (VN_IS(nodep->modp(), NotFoundModule)) {
                 // We've resolved parameters and hit a module that we couldn't resolve.  It's
                 // finally time to report it.
                 // Note only here in V3Width as this is first visitor after V3Dead.
@@ -7749,39 +7749,39 @@ class WidthVisitor final : public VNVisitor {
                                     << nodep->modName() << "'\n"
                                     << nodep->modNameFileline()->warnContextPrimary()
                                     << V3Error::warnAdditionalInfo()
-                                    << v3Global.opt.filePathLookedMsg(nodep->modNameFileline(),
+                                    << v3Global.opt.file_Path_Looked_ಸಂದೇಶ(nodep->modNameFileline(),
                                                                       nodep->modName()));
             }
-            if (nodep->rangep()) userIterateAndNext(nodep->rangep(), WidthVP{SELF, BOTH}.p());
+            ಯದಿ (nodep->rangep()) userIterateAndNext(nodep->rangep(), WidthVP{SELF, BOTH}.p());
             userIterateAndNext(nodep->pinsp(), nullptr);
             // If element of an instance array, pins are now connected, no longer need the ranges
-            if (nodep->arrayIdx() >= 0) {
+            ಯದಿ (nodep->arrayIdx() >= 0) {
                 nodep->arrayIdx(-1);
-                pushDeletep(nodep->rangep()->unlinkFrBackWithNext());
+                ತಳ್ಳು_Deletep(nodep->rangep()->unlinkFrBackWithNext());
             }
         }
         userIterateAndNext(nodep->paramsp(), nullptr);
     }
-    void visit(AstGatePin* nodep) override {
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+    ಶೂನ್ಯ visit(AstGatePin* nodep) override {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->rangep(), WidthVP{SELF, BOTH}.p());
             userIterateAndNext(nodep->exprp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             nodep->dtypeFrom(nodep->rangep());
             // Very much like like an pin
-            const AstNodeDType* const pinDTypep = nodep->exprp()->dtypep();
-            const int numInsts = nodep->rangep()->elementsConst();
-            const int modwidth = numInsts;
-            const int pinwidth = pinDTypep->width();
-            if (pinwidth == 1 && modwidth > 1) {  // Multiple connections
-                AstNodeDType* const subDTypep = nodep->findLogicDType(1, 1, pinDTypep->numeric());
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ pinDTypep = nodep->exprp()->dtypep();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ಅಂಕೆ_Insts = nodep->rangep()->elementsConst();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ modwidth = ಅಂಕೆ_Insts;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ pinwidth = pinDTypep->width();
+            ಯದಿ (pinwidth == 1 && modwidth > 1) {  // Multiple connections
+                Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = nodep->findLogicDType(1, 1, pinDTypep->numeric());
                 userIterateAndNext(nodep->exprp(), WidthVP{subDTypep, FINAL}.p());
-                AstNode* const newp
-                    = new AstReplicate{nodep->fileline(), nodep->exprp()->unlinkFrBack(),
-                                       static_cast<uint32_t>(numInsts)};
+                Ast_ಗಂಟು* ಧ್ರುವ newp
+                    = ನೂತನ AstReplicate{nodep->fileline(), nodep->exprp()->unlinkFrBack(),
+                                       static_cast<uint32_t>(ಅಂಕೆ_Insts)};
                 nodep->replaceWith(newp);
-            } else {
-                if (pinwidth != modwidth) {  // && is not generic interconnect (when supported)
+            } ಅನ್ಯಥಾ {
+                ಯದಿ (pinwidth != modwidth) {  // && is not generic interconnect (when supported)
                     nodep->exprp()->v3error("Gate primitive connection expects "
                                             << modwidth << " bits "
                                             << ((modwidth != 1) ? "or 1 bit "s : ""s)
@@ -7792,35 +7792,35 @@ class WidthVisitor final : public VNVisitor {
                 userIterateAndNext(nodep->exprp(), m_vup);
                 nodep->replaceWith(nodep->exprp()->unlinkFrBack());
             }
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_FTask* nodep) override {
         // Grab width from the output variable (if it's a function)
-        if (nodep->didWidth()) return;
-        if (nodep->doingWidth()) {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (nodep->doingWidth()) {
             UINFO(5, "Recursive function or task call: " << nodep);
-            nodep->recursive(true);
-            nodep->didWidth(true);
-            return;
+            nodep->recursive(ಸತ್ಯ);
+            nodep->didWidth(ಸತ್ಯ);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->classMethod() && nodep->name() == "rand_mode") {
+        ಯದಿ (nodep->classMethod() && nodep->name() == "rand_mode") {
             nodep->v3error("The 'rand_mode' method is built-in and cannot be overridden"
                            " (IEEE 1800-2023 18.8)");
-        } else if (nodep->classMethod() && nodep->name() == "constraint_mode") {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->classMethod() && nodep->name() == "constraint_mode") {
             nodep->v3error("The 'constraint_mode' method is built-in and cannot be overridden"
                            " (IEEE 1800-2023 18.9)");
         }
-        if (nodep->classMethod() && nodep->name() == "new") {
-            if (nodep->isVirtual())
+        ಯದಿ (nodep->classMethod() && nodep->name() == "new") {
+            ಯದಿ (nodep->isVirtual())
                 nodep->v3error("class 'new()' cannot be virual (IEEE 1800-2023 18.3)");
-            if (nodep->isStatic())
+            ಯದಿ (nodep->isStatic())
                 nodep->v3error("class 'new()' cannot be static (IEEE 1800-2023 18.3)");
-            AstNode* firstp = nullptr;
-            for (AstNode* itemp = nodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                if (AstStmtExpr* const sep = VN_CAST(itemp, StmtExpr)) {
-                    if (AstNew* const newp = VN_CAST(sep->exprp(), New)) {
-                        if (firstp) {
+            Ast_ಗಂಟು* firstp = nullptr;
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = nodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                ಯದಿ (Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ sep = VN_CAST(itemp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                    ಯದಿ (AstNew* ಧ್ರುವ newp = VN_CAST(sep->exprp(), New)) {
+                        ಯದಿ (firstp) {
                             UINFOTREE(1, firstp, "", "-earlier");
                             newp->v3warn(SUPERNFIRST,
                                          "'super.new' must be first statement in a 'function "
@@ -7829,46 +7829,46 @@ class WidthVisitor final : public VNVisitor {
                                              << firstp->warnOther()
                                              << "... Location of earlier statement\n"
                                              << firstp->warnContextSecondary());
-                            break;
+                            ಭಙ್ಗ;
                         }
                     }
-                    continue;
+                    ಅನುವರ್ತ;
                 }
-                if (firstNewStatementOkRecurse(itemp)) continue;
+                ಯದಿ (firstNewStatementOkRecurse(itemp)) ಅನುವರ್ತ;
                 firstp = itemp;
             }
         }
         // Function hasn't been widthed, so make it so.
         // Would use user1 etc, but V3Width called from too many places to spend a user
-        nodep->doingWidth(true);
+        nodep->doingWidth(ಸತ್ಯ);
         VL_RESTORER(m_funcp);
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         // First width the function variable, as if is a recursive function we need data type
-        if (nodep->fvarp()) userIterate(nodep->fvarp(), nullptr);
-        if (nodep->isConstructor()) {
+        ಯದಿ (nodep->fvarp()) userIterate(nodep->fvarp(), nullptr);
+        ಯದಿ (nodep->isConstructor()) {
             // Pretend it's void so less special casing needed when look at dtypes
             nodep->dtypeSetVoid();
-        } else if (nodep->fvarp()) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->fvarp()) {
             m_funcp = VN_AS(nodep, Func);
             UASSERT_OBJ(m_funcp, nodep, "FTask with function variable, but isn't a function");
             nodep->dtypeFrom(nodep->fvarp());  // Which will get it from fvarp()->dtypep()
-        } else if (VN_IS(nodep, Property)) {
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(nodep, Property)) {
             nodep->dtypeSetBit();
         }
         WidthVP* vup = nullptr;
-        if (VN_IS(nodep, Property)) vup = WidthVP{SELF, BOTH}.p();
+        ಯದಿ (VN_IS(nodep, Property)) vup = WidthVP{SELF, BOTH}.p();
         userIterateChildren(nodep, vup);
 
-        nodep->didWidth(true);
-        nodep->doingWidth(false);
-        if (nodep->dpiImport() && !nodep->dpiOpenParent() && markHasOpenArray(nodep)) {
+        nodep->didWidth(ಸತ್ಯ);
+        nodep->doingWidth(ಅಸತ್ಯ);
+        ಯದಿ (nodep->dpiImport() && !nodep->dpiOpenParent() && markHasOpenArray(nodep)) {
             nodep->dpiOpenParentInc();  // Mark so V3Task will wait for a child to build calling
                                         // func
         }
-        if (nodep->fvarp() && !nodep->dpiImport() && !nodep->pureVirtual()
-            && (!nodep->stmtsp() || !nodep->stmtsp()->existsAndNext([&](const AstVarRef* varrefp) {
-                   return varrefp->varp() == nodep->fvarp();
+        ಯದಿ (nodep->fvarp() && !nodep->dpiImport() && !nodep->pureVirtual()
+            && (!nodep->stmtsp() || !nodep->stmtsp()->existsAndNext([&](ಧ್ರುವ AstVarRef* varrefp) {
+                   ಪ್ರತ್ಯಾಗಮ varrefp->varp() == nodep->fvarp();
                }))) {
             nodep->v3warn(NORETURN,
                           "Non-void function " << nodep->prettyNameQ() << " has no return value");
@@ -7877,17 +7877,17 @@ class WidthVisitor final : public VNVisitor {
         std::vector<AstVar*> ports;
         std::vector<AstAttrOf*> protos;
         AstAttrOf* protop = nullptr;  // Base prototype
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn()) { ports.emplace_back(portp); }
-            } else if (AstAttrOf* const attrp = VN_CAST(stmtp, AttrOf)) {
-                if (attrp->attrType() == VAttrType::FUNC_ARG_PROTO) { protos.emplace_back(attrp); }
-                if (attrp->attrType() == VAttrType::FUNC_RETURN_PROTO) { protop = attrp; }
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಯದಿ (AstVar* ಧ್ರುವ portp = VN_CAST(stmtp, Var)) {
+                ಯದಿ (portp->isIO() && !portp->isFuncReturn()) { ports.emplace_back(portp); }
+            } ಅನ್ಯಥಾ ಯದಿ (AstAttrOf* ಧ್ರುವ attrp = VN_CAST(stmtp, AttrOf)) {
+                ಯದಿ (attrp->attrType() == VAttrType::FUNC_ARG_PROTO) { protos.emplace_back(attrp); }
+                ಯದಿ (attrp->attrType() == VAttrType::FUNC_RETURN_PROTO) { protop = attrp; }
             }
         }
-        if (protop) {
-            for (size_t i = 0; i < std::max(ports.size(), protos.size()); ++i) {
-                if (i >= ports.size() || i >= protos.size()) {
+        ಯದಿ (protop) {
+            ಪ್ರತಿ (size_t i = 0; i < std::max(ports.size(), protos.size()); ++i) {
+                ಯದಿ (i >= ports.size() || i >= protos.size()) {
                     protop->v3warn(
                         PROTOTYPEMIS,
                         "In prototype for "
@@ -7897,13 +7897,13 @@ class WidthVisitor final : public VNVisitor {
                             << protop->warnContextPrimary() << '\n'
                             << nodep->warnOther() << "... Location of out-of-block declaration\n"
                             << nodep->warnContextSecondary());
-                    break;
-                } else {
-                    AstVar* const portp = ports[i];
-                    AstAttrOf* const rprotop = protos[i];
-                    AstNodeDType* const declDtp = portp->dtypep();
-                    AstNodeDType* const protoDtp = rprotop->fromp()->dtypep();
-                    if (portp->name() != rprotop->name()) {
+                    ಭಙ್ಗ;
+                } ಅನ್ಯಥಾ {
+                    AstVar* ಧ್ರುವ portp = ports[i];
+                    AstAttrOf* ಧ್ರುವ rprotop = protos[i];
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ declDtp = portp->dtypep();
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ protoDtp = rprotop->fromp()->dtypep();
+                    ಯದಿ (portp->name() != rprotop->name()) {
                         protoDtp->v3warn(PROTOTYPEMIS,
                                          "In prototype for "
                                              << nodep->prettyNameQ() << ", argument " << (i + 1)
@@ -7914,7 +7914,7 @@ class WidthVisitor final : public VNVisitor {
                                              << declDtp->warnOther()
                                              << "... Location of out-of-block declaration\n"
                                              << declDtp->warnContextSecondary());
-                    } else if (!similarDTypeRecurse(protoDtp, declDtp)) {
+                    } ಅನ್ಯಥಾ ಯದಿ (!similarDTypeRecurse(protoDtp, declDtp)) {
                         protoDtp->v3warn(
                             PROTOTYPEMIS,
                             "In prototype for "
@@ -7935,88 +7935,88 @@ class WidthVisitor final : public VNVisitor {
             // V3WidthCommit::visit(AstAttrOf) will delete nodep
         }
     }
-    void visit(AstConstraint* nodep) override {
-        if (nodep->didWidth()) return;
+    ಶೂನ್ಯ visit(AstConstraint* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_constraintp);
         m_constraintp = nodep;
         userIterateChildren(nodep, nullptr);
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
     }
-    void visit(AstProperty* nodep) override {
-        if (nodep->didWidth()) return;
-        if (nodep->doingWidth()) {
+    ಶೂನ್ಯ visit(AstProperty* nodep) override {
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (nodep->doingWidth()) {
             UINFO(5, "Recursive property call: " << nodep);
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Recursive property call: " << nodep->prettyNameQ());
-            nodep->recursive(true);
-            nodep->didWidth(true);
-            return;
+            nodep->recursive(ಸತ್ಯ);
+            nodep->didWidth(ಸತ್ಯ);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        nodep->doingWidth(true);
+        nodep->doingWidth(ಸತ್ಯ);
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         // Property call will be replaced by property body in V3AssertPre. Property body has bit
         // dtype, so set it here too
         nodep->dtypeSetBit();
-        for (AstNode* propStmtp = nodep->stmtsp(); propStmtp; propStmtp = propStmtp->nextp()) {
-            if (VN_IS(propStmtp, Var)) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* propStmtp = nodep->stmtsp(); propStmtp; propStmtp = propStmtp->nextp()) {
+            ಯದಿ (VN_IS(propStmtp, Var)) {
                 userIterate(propStmtp, nullptr);
-            } else if (VN_IS(propStmtp, PropSpec)) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(propStmtp, PropSpec)) {
                 iterateCheckSelf(nodep, "PropSpec", propStmtp, SELF, BOTH);
-            } else if (VN_IS(propStmtp, InitialStaticStmt)
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(propStmtp, InitialStaticStmt)
                        || VN_IS(propStmtp, InitialAutomaticStmt)) {
                 // Property-local variable initialization -- iterate this node only
                 userIterate(propStmtp, nullptr);
-            } else {
+            } ಅನ್ಯಥಾ {
                 propStmtp->v3fatalSrc("Invalid statement under AstProperty");
             }
         }
-        nodep->didWidth(true);
-        nodep->doingWidth(false);
+        nodep->didWidth(ಸತ್ಯ);
+        nodep->doingWidth(ಅಸತ್ಯ);
     }
-    void visit(AstReturn* nodep) override { nodep->v3fatalSrc("'return' missed in LinkJump"); }
-    void visit(AstSequence* nodep) override {
+    ಶೂನ್ಯ visit(AstReturn* nodep) override { nodep->v3fatalSrc("'return' missed in LinkJump"); }
+    ಶೂನ್ಯ visit(AstSequence* nodep) override {
         // IEEE 1800-2023 16.7 (sequence declarations), 16.8 (sequence instances)
         // Width-check the sequence body so expressions are typed for later inlining.
         // Referenced sequences in assertion context will be inlined by V3AssertPre.
-        if (nodep->didWidth()) return;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         nodep->dtypeSetBit();
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (VN_IS(stmtp, Var)) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಯದಿ (VN_IS(stmtp, Var)) {
                 userIterate(stmtp, nullptr);
-            } else if (VN_IS(stmtp, NodeExpr)) {
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(stmtp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
                 iterateCheckSelf(nodep, "SeqBody", stmtp, SELF, BOTH);
-            } else {
+            } ಅನ್ಯಥಾ {
                 stmtp->v3fatalSrc("Invalid statement under AstSequence");
             }
         }
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
         // Keep all sequences for now; cleanup happens after V3AssertPre inlining.
     }
 
-    AstPackage* getItemPackage(AstNode* pkgItemp) {
-        while (pkgItemp->backp() && pkgItemp->backp()->nextp() == pkgItemp) {
+    AstPackage* getItemPackage(Ast_ಗಂಟು* pkgItemp) {
+        ಯಾವತ್ (pkgItemp->backp() && pkgItemp->backp()->nextp() == pkgItemp) {
             pkgItemp = pkgItemp->backp();
         }
-        return VN_CAST(pkgItemp->backp(), Package);
+        ಪ್ರತ್ಯಾಗಮ VN_CAST(pkgItemp->backp(), Package);
     }
-    void visit(AstFuncRef* nodep) override {
-        visit(static_cast<AstNodeFTaskRef*>(nodep));
-        if (nodep->taskp() && VN_IS(nodep->taskp(), Task)) {
+    ಶೂನ್ಯ visit(AstFuncRef* nodep) override {
+        visit(static_cast<Ast_ಗಂಟು_FTask_Ref*>(nodep));
+        ಯದಿ (nodep->taskp() && VN_IS(nodep->taskp(), Task)) {
             UASSERT_OBJ(m_vup, nodep, "Function reference where widthed expression expectation");
-            if (m_vup->prelim() && !VN_IS(nodep->backp(), StmtExpr))
+            ಯದಿ (m_vup->prelim() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ))
                 nodep->v3error(
                     "Cannot call a task/void-function as a function: " << nodep->prettyNameQ());
             nodep->dtypeSetVoid();
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->dtypeFrom(nodep->taskp());
         }
-        if (nodep->fileline()->timingOn()) {
-            AstNodeModule* const classp = nodep->classOrPackagep();
-            if (nodep->name() == "self" && classp->name() == "process") {
+        ಯದಿ (nodep->fileline()->timingOn()) {
+            Ast_ಗಂಟು_Module* ಧ್ರುವ classp = nodep->classOrPackagep();
+            ಯದಿ (nodep->name() == "self" && classp->name() == "process") {
                 // Find if package the class is in is std::
-                AstPackage* const packagep = getItemPackage(classp);
-                if (packagep && packagep->name() == "std") {
+                AstPackage* ಧ್ರುವ packagep = getItemPackage(classp);
+                ಯದಿ (packagep && packagep->name() == "std") {
                     methodCallWarnTiming(nodep, "process");
                 }
             }
@@ -8024,98 +8024,98 @@ class WidthVisitor final : public VNVisitor {
         // UINFOTREE(1, nodep, "", "FuncOut");
     }
     // Returns true if dtypep0 and dtypep1 have same dimensions
-    static bool areSameSize(AstUnpackArrayDType* dtypep0, AstUnpackArrayDType* dtypep1) {
-        const std::vector<AstUnpackArrayDType*> dims0 = dtypep0->unpackDimensions();
-        const std::vector<AstUnpackArrayDType*> dims1 = dtypep1->unpackDimensions();
-        if (dims0.size() != dims1.size()) return false;
-        for (size_t i = 0; i < dims0.size(); ++i) {
-            if (dims0[i]->elementsConst() != dims1[i]->elementsConst()) return false;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ areSameSize(AstUnpackArrayDType* dtypep0, AstUnpackArrayDType* dtypep1) {
+        ಧ್ರುವ std::vector<AstUnpackArrayDType*> dims0 = dtypep0->unpackDimensions();
+        ಧ್ರುವ std::vector<AstUnpackArrayDType*> dims1 = dtypep1->unpackDimensions();
+        ಯದಿ (dims0.size() != dims1.size()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತಿ (size_t i = 0; i < dims0.size(); ++i) {
+            ಯದಿ (dims0[i]->elementsConst() != dims1[i]->elementsConst()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
     // Makes sure that port and pin have same size and same datatype
-    void checkUnpackedArrayArgs(AstVar* portp, AstNode* pinp) {
-        if (AstUnpackArrayDType* const portDtypep
+    ಶೂನ್ಯ checkUnpackedArrayArgs(AstVar* portp, Ast_ಗಂಟು* pinp) {
+        ಯದಿ (AstUnpackArrayDType* ಧ್ರುವ portDtypep
             = VN_CAST(portp->dtypep()->skipRefp(), UnpackArrayDType)) {
-            if (AstUnpackArrayDType* const pinDtypep
+            ಯದಿ (AstUnpackArrayDType* ಧ್ರುವ pinDtypep
                 = VN_CAST(pinp->dtypep()->skipRefp(), UnpackArrayDType)) {
-                if (!areSameSize(portDtypep, pinDtypep)) {
+                ಯದಿ (!areSameSize(portDtypep, pinDtypep)) {
                     pinp->v3warn(E_UNSUPPORTED,
                                  "Shape of the argument does not match the shape of the parameter "
                                      << "(" << pinDtypep->prettyDTypeNameQ() << " v.s. "
                                      << portDtypep->prettyDTypeNameQ() << ")");
                 }
-                const AstBasicDType* const portBasicp = portDtypep->basicp();
-                const AstBasicDType* const pinBasicp = pinDtypep->basicp();
+                ಧ್ರುವ AstBasicDType* ಧ್ರುವ portBasicp = portDtypep->basicp();
+                ಧ್ರುವ AstBasicDType* ಧ್ರುವ pinBasicp = pinDtypep->basicp();
                 // Arrays of unpacked structures have no basic type
-                const bool sameElemDType
+                ಧ್ರುವ ತಾರ್ಕಿಕ sameElemDType
                     = portBasicp && pinBasicp
                           ? portBasicp->width() == pinBasicp->width()
                                 && portBasicp->keyword().isSameish(pinBasicp->keyword())
                           : pinDtypep->elemDTypep()->similarDType(portDtypep->elemDTypep());
-                if (!sameElemDType) {
+                ಯದಿ (!sameElemDType) {
                     pinp->v3warn(
                         E_UNSUPPORTED,
                         "Data type of the argument is incompatible with the parameter"
                             << warnDTypes(pinp, pinDtypep, portDtypep, "Argument", "Parameter"));
                 }
-            } else {
+            } ಅನ್ಯಥಾ {
                 pinp->v3warn(E_UNSUPPORTED, "Argument is not an unpacked array while parameter "
                                                 << portp->prettyNameQ() << " is");
             }
         }
     }
-    void processFTaskRefArgs(AstNodeFTaskRef* nodep) {
+    ಶೂನ್ಯ processFTaskRefArgs(Ast_ಗಂಟು_FTask_Ref* nodep) {
         // For arguments, is assignment-like context; see IEEE rules in AstNodeAssign
         // Function hasn't been widthed, so make it so.
         UINFO(5, "  FTASKREF " << nodep);
         UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked");
-        if (nodep->didWidth()) return;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         userIterate(nodep->taskp(), nullptr);
         //
         // And do the arguments to the task/function too
-        do {
+        ಕುರು {
         reloop:
             // taskConnects may create a new task, and change nodep->taskp()
-            const V3TaskConnects tconnects
+            ಧ್ರುವ V3TaskConnects tconnects
                 = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp(), &m_taskConnectState);
-            if (m_taskConnectState.didWrap()) m_memberMap.clear();  // As added a member
-            for (const auto& tconnect : tconnects) {
-                const AstVar* const portp = tconnect.first;
-                AstArg* const argp = tconnect.second;
-                AstNodeExpr* pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
+            ಯದಿ (m_taskConnectState.didWrap()) m_memberMap.clear();  // As added a member
+            ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+                ಧ್ರುವ AstVar* ಧ್ರುವ portp = tconnect.first;
+                AstArg* ಧ್ರುವ argp = tconnect.second;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pinp = argp->exprp();
+                ಯದಿ (!pinp) ಅನುವರ್ತ;  // Argument error we'll find later
                 // Prelim may cause the node to get replaced; we've lost our
                 // pointer, so need to iterate separately later
-                if (portp->attrSFormat()
+                ಯದಿ (portp->attrSFormat()
                     && (!VN_IS(pinp, SFormatF) || pinp->nextp())) {  // Not already done
                     UINFO(4, "   sformat via metacomment: " << nodep);
                     VNRelinker handle;
                     argp->unlinkFrBackWithNext(&handle);  // Format + additional args, if any
-                    AstNodeExpr* argsp = nullptr;
-                    while (AstArg* const nextargp = VN_AS(argp->nextp(), Arg)) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = nullptr;
+                    ಯಾವತ್ (AstArg* ಧ್ರುವ nextargp = VN_AS(argp->nextp(), Arg)) {
                         // Expression goes to SFormatF
                         argsp = argsp->addNext(nextargp->exprp()->unlinkFrBackWithNext());
-                        nextargp->unlinkFrBack()->deleteTree();  // Remove the call's Arg wrapper
+                        nextargp->unlinkFrBack()->delete_ವೃಕ್ಷ();  // Remove the call's Arg wrapper
                     }
                     string format;
-                    if (VN_IS(pinp, Const)) {
-                        format = VN_AS(pinp, Const)->num().toString();
-                    } else {
+                    ಯದಿ (VN_IS(pinp, Const)) {
+                        format = VN_AS(pinp, Const)->ಅಂಕೆ().toString();
+                    } ಅನ್ಯಥಾ {
                         pinp->v3error(
                             "Format to $display-like function must have constant format string");
                     }
-                    VL_DO_DANGLING(pushDeletep(argp), argp);
-                    AstSFormatF* const newp
-                        = new AstSFormatF{nodep->fileline(), format, false, argsp};
-                    if (!newp->scopeNamep() && newp->formatScopeTracking()) {
-                        newp->scopeNamep(new AstScopeName{newp->fileline(), true});
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(argp), argp);
+                    AstSFormatF* ಧ್ರುವ newp
+                        = ನೂತನ AstSFormatF{nodep->fileline(), format, ಅಸತ್ಯ, argsp};
+                    ಯದಿ (!newp->scopeNamep() && newp->formatScopeTracking()) {
+                        newp->scopeNamep(ನೂತನ AstScopeName{newp->fileline(), ಸತ್ಯ});
                     }
-                    handle.relink(new AstArg{newp->fileline(), "", newp});
+                    handle.relink(ನೂತನ AstArg{newp->fileline(), "", newp});
                     // Connection list is now incorrect (has extra args in it).
-                    goto reloop;  // so exit early; next loop will correct it
+                    ಗಚ್ಛ reloop;  // so exit early; next loop will correct it
                 }  //
-                else if (portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::STRING
+                ಅನ್ಯಥಾ ಯದಿ (portp->basicp() && portp->basicp()->keyword() == VBasicDTypeKwd::STRING
                          && !VN_IS(pinp, CvtPackString)
                          && !VN_IS(pinp, SFormatF)  // Already generates a string
                          && !VN_IS(portp->dtypep(), UnpackArrayDType)  // Unpacked array must match
@@ -8125,96 +8125,96 @@ class WidthVisitor final : public VNVisitor {
                     UINFO(4, "   Add CvtPackString: " << pinp);
                     VNRelinker handle;
                     pinp->unlinkFrBack(&handle);  // No next, that's the next pin
-                    AstNodeExpr* const newp = new AstCvtPackString{pinp->fileline(), pinp};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstCvtPackString{pinp->fileline(), pinp};
                     handle.relink(newp);
                     pinp = newp;
                 }
-                if (portp->isWritable()) {
+                ಯದಿ (portp->isWritable()) {
                     V3LinkLValue::linkLValueSet(pinp, portp->direction().pinAccess());
                 }
                 // AstPattern requires assignments to pass datatype on PRELIM
                 VL_DO_DANGLING(userIterate(pinp, WidthVP{portp->dtypep(), PRELIM}.p()), pinp);
             }
-        } while (false);
+        } ಯಾವತ್ (ಅಸತ್ಯ);
         // Stage 2
         {
-            const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-            for (const auto& tconnect : tconnects) {
-                AstVar* const portp = tconnect.first;
-                const AstArg* const argp = tconnect.second;
-                AstNodeExpr* const pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
+            ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
+            ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+                AstVar* ಧ್ರುವ portp = tconnect.first;
+                ಧ್ರುವ AstArg* ಧ್ರುವ argp = tconnect.second;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ pinp = argp->exprp();
+                ಯದಿ (!pinp) ಅನುವರ್ತ;  // Argument error we'll find later
                 // Change data types based on above accept completion
-                if (nodep->taskp()->dpiImport()) checkUnpackedArrayArgs(portp, pinp);
-                if (portp->isDouble()) VL_DO_DANGLING(spliceCvtD(pinp), pinp);
+                ಯದಿ (nodep->taskp()->dpiImport()) checkUnpackedArrayArgs(portp, pinp);
+                ಯದಿ (portp->isDouble()) VL_DO_DANGLING(spliceCvtD(pinp), pinp);
             }
         }
         // Stage 3
         {
-            const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-            for (const auto& tconnect : tconnects) {
-                const AstVar* const portp = tconnect.first;
-                const AstArg* const argp = tconnect.second;
-                AstNodeExpr* const pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
+            ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
+            ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+                ಧ್ರುವ AstVar* ಧ್ರುವ portp = tconnect.first;
+                ಧ್ರುವ AstArg* ಧ್ರುವ argp = tconnect.second;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ pinp = argp->exprp();
+                ಯದಿ (!pinp) ಅನುವರ್ತ;  // Argument error we'll find later
                 // Do PRELIM again, because above accept may have exited early
                 // due to node replacement
                 userIterate(pinp, WidthVP{portp->dtypep(), PRELIM}.p());
             }
         }
         // Cleanup any open arrays
-        if (markHasOpenArray(nodep->taskp())) makeOpenArrayShell(nodep);
+        ಯದಿ (markHasOpenArray(nodep->taskp())) makeOpenArrayShell(nodep);
         // Stage 4
         {
-            const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-            for (const auto& tconnect : tconnects) {
-                const AstVar* const portp = tconnect.first;
-                const AstArg* const argp = tconnect.second;
-                AstNodeExpr* pinp = argp->exprp();
-                if (!pinp) continue;  // Argument error we'll find later
-                AstNodeDType* const portDTypep = portp->dtypep()->skipRefToEnump();
-                if (VN_IS(pinp, EmptyQueue)) {
-                    AstNodeExpr* newp = newConsDynArrayOrQueue(pinp->fileline(), portDTypep);
-                    if (!newp) {
+            ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
+            ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+                ಧ್ರುವ AstVar* ಧ್ರುವ portp = tconnect.first;
+                ಧ್ರುವ AstArg* ಧ್ರುವ argp = tconnect.second;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pinp = argp->exprp();
+                ಯದಿ (!pinp) ಅನುವರ್ತ;  // Argument error we'll find later
+                Ast_ಗಂಟು_DType* ಧ್ರುವ portDTypep = portp->dtypep()->skipRefToEnump();
+                ಯದಿ (VN_IS(pinp, EmptyQueue)) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = newConsDynArrayOrQueue(pinp->fileline(), portDTypep);
+                    ಯದಿ (!newp) {
                         pinp->v3warn(E_UNSUPPORTED,
                                      "Unsupported/Illegal: empty queue ('{}') in this context");
-                        newp = new AstConst{pinp->fileline(), AstConst::Unsized32{}, 0};
+                        newp = ನೂತನ AstConst{pinp->fileline(), AstConst::Unsized32{}, 0};
                     }
                     newp->dtypeFrom(portDTypep);
                     pinp->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(pinp), pinp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(pinp), pinp);
                     pinp = newp;
                 }
-                const AstNodeDType* const pinDTypep = pinp->dtypep()->skipRefToEnump();
-                const AstIfaceRefDType* const portIfacep
-                    = VN_CAST(portDTypep->elemDTypep(true), IfaceRefDType);
-                const VCastable ifaceCastable
-                    = portIfacep ? AstNode::computeCastable(portDTypep, pinDTypep, pinp,
-                                                            /* checkIfaceArgCompat */ true)
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ pinDTypep = pinp->dtypep()->skipRefToEnump();
+                ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ portIfacep
+                    = VN_CAST(portDTypep->elemDTypep(ಸತ್ಯ), IfaceRefDType);
+                ಧ್ರುವ VCastable ifaceCastable
+                    = portIfacep ? Ast_ಗಂಟು::computeCastable(portDTypep, pinDTypep, pinp,
+                                                            /* checkIfaceArgCompat */ ಸತ್ಯ)
                                  : VCastable{VCastable::UNSUPPORTED};
-                const bool matchingRefDTypes = portIfacep
+                ಧ್ರುವ ತಾರ್ಕಿಕ matchingRefDTypes = portIfacep
                                                    ? ifaceCastable == VCastable::SAMEISH
                                                    : similarDTypeRecurse(portDTypep, pinDTypep);
-                const bool pinIsNull = VN_IS(pinp, Const) && VN_AS(pinp, Const)->num().isNull();
-                if ((portp->isRef() || portp->isConstRef()) && !matchingRefDTypes) {
-                    if (portIfacep) {
+                ಧ್ರುವ ತಾರ್ಕಿಕ pinIsNull = VN_IS(pinp, Const) && VN_AS(pinp, Const)->ಅಂಕೆ().isNull();
+                ಯದಿ ((portp->isRef() || portp->isConstRef()) && !matchingRefDTypes) {
+                    ಯದಿ (portIfacep) {
                         pinp->v3error("Ref virtual interface argument "
                                       << portp->prettyNameQ()
                                       << " requires the same interface type, parameters, and "
                                          "modport.");
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         pinp->v3error("Ref argument requires matching types;"
                                       << " port " << portp->prettyNameQ() << " requires "
                                       << portDTypep->prettyDTypeNameQ() << " but connection is "
                                       << pinDTypep->prettyDTypeNameQ() << ".");
                     }
-                } else if (portIfacep && portIfacep->isVirtual() && portp->isInput() && !pinIsNull
+                } ಅನ್ಯಥಾ ಯದಿ (portIfacep && portIfacep->isVirtual() && portp->is_ಒಳಹರಿವು() && !pinIsNull
                            && !ifaceCastable.isAssignable()) {
                     pinp->v3error("Virtual interface argument "
                                   << portp->prettyNameQ()
                                   << " requires a compatible interface type, parameters, and "
                                      "modport.");
-                } else if (portp->isWritable() && pinp->width() != portp->width()) {
+                } ಅನ್ಯಥಾ ಯದಿ (portp->isWritable() && pinp->width() != portp->width()) {
                     pinp->v3widthWarn(portp->width(), pinp->width(),
                                       "Function output argument "
                                           << portp->prettyNameQ() << " requires " << portp->width()
@@ -8222,10 +8222,10 @@ class WidthVisitor final : public VNVisitor {
                                           << " generates " << pinp->width() << " bits.");
                     VNRelinker relinkHandle;
                     pinp->unlinkFrBack(&relinkHandle);
-                    AstNodeExpr* const newp = new AstResizeLValue{pinp->fileline(), pinp};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstResizeLValue{pinp->fileline(), pinp};
                     relinkHandle.relink(newp);
                 }
-                if (portp->direction() != VDirection::REF
+                ಯದಿ (portp->direction() != VDirection::REF
                     && !(portp->basicp()
                          && portp->basicp()->untyped())  // for properties, handled in V3AssertPre
                     && ((VN_IS(portDTypep, BasicDType) && pinDTypep->isNonPackedArray())
@@ -8233,17 +8233,17 @@ class WidthVisitor final : public VNVisitor {
                     pinp->v3error("Function Argument expects " << portDTypep->prettyDTypeNameQ()
                                                                << ", got "
                                                                << pinDTypep->prettyDTypeNameQ());
-                    continue;
+                    ಅನುವರ್ತ;
                 }
                 // An untyped formal preserves the actual argument's self-determined type.
-                if (portp->basicp() && portp->basicp()->untyped()) {
+                ಯದಿ (portp->basicp() && portp->basicp()->untyped()) {
                     iterateCheckSelf(nodep, "Function Argument", pinp, SELF, FINAL);
-                } else if (!portp->basicp() || portp->basicp()->isOpaque()) {
+                } ಅನ್ಯಥಾ ಯದಿ (!portp->basicp() || portp->basicp()->isOpaque()) {
                     // Output args: at return caller = callee, reverse direction.
                     checkClassAssign(nodep, "Function Argument", pinp, portDTypep,
                                      portp->direction() == VDirection::OUTPUT);
                     userIterate(pinp, WidthVP{portDTypep, FINAL, STREAM_USE_ASSIGN}.p());
-                } else {
+                } ಅನ್ಯಥಾ {
                     iterateCheckAssign(nodep, "Function Argument", pinp, FINAL, portDTypep,
                                        portp->direction().pinAccess());
                 }
@@ -8251,218 +8251,218 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    void handleStdRandomizeArgs(AstNodeFTaskRef* const nodep) {
+    ಶೂನ್ಯ handleStdRandomizeArgs(Ast_ಗಂಟು_FTask_Ref* ಧ್ರುವ nodep) {
         AstConst* nullp = nullptr;
-        for (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
+        ಪ್ರತಿ (AstArg *argp = nodep->argsp(), *nextp; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            AstNodeExpr* const exprp = argp->exprp();
-            if (AstConst* const constp = VN_CAST(exprp, Const)) {
-                if (constp->num().isNull()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = argp->exprp();
+            ಯದಿ (AstConst* ಧ್ರುವ constp = VN_CAST(exprp, Const)) {
+                ಯದಿ (constp->ಅಂಕೆ().isNull()) {
                     nullp = constp;
-                    continue;
+                    ಅನುವರ್ತ;
                 }
             }
-            if (VN_IS(exprp, MemberSel)) {
+            ಯದಿ (VN_IS(exprp, MemberSel)) {
                 // Non-standard usage: std::randomize() with class-scoped member
                 // IEEE 1800-2023 (18.12) limits args to current scope variables.
                 // Verilator accepts this for compatibility with other simulators.
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (VN_IS(exprp, VarRef) || VN_IS(exprp, ArraySel) || VN_IS(exprp, StructSel)) {
+            ಯದಿ (VN_IS(exprp, VarRef) || VN_IS(exprp, ArraySel) || VN_IS(exprp, StructSel)) {
                 // Valid usage
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (const AstCMethodHard* const methodp = VN_CAST(exprp, CMethodHard)) {
-                if (methodp->method() == VCMethod::ARRAY_AT
+            ಯದಿ (ಧ್ರುವ AstCMethodHard* ಧ್ರುವ methodp = VN_CAST(exprp, CMethodHard)) {
+                ಯದಿ (methodp->method() == VCMethod::ARRAY_AT
                     || methodp->method() == VCMethod::ARRAY_AT_WRITE) {
-                    continue;
+                    ಅನುವರ್ತ;
                 }
             }
             argp->v3error("Non-variable arguments for 'std::randomize()'.");
         }
-        if (nullp) nullp->v3error("'std::randomize()' does not accept 'null' as arguments.");
+        ಯದಿ (nullp) nullp->v3error("'std::randomize()' does not accept 'null' as arguments.");
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_FTask_Ref* nodep) override {
         // For arguments, is assignment-like context; see IEEE rules in AstNodeAssign
         // Function hasn't been widthed, so make it so.
-        if (nodep->didWidth()) return;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;
         UINFO(5, "  FTASKREF " << nodep);
         AstWith* withp = nullptr;
-        if (nodep->name() == "rand_mode" || nodep->name() == "constraint_mode") {
-            v3Global.useRandomizeMethods(true);
+        ಯದಿ (nodep->name() == "rand_mode" || nodep->name() == "constraint_mode") {
+            v3Global.useRandomizeMethods(ಸತ್ಯ);
             nodep->dtypep(nodep->findBasicDType(VBasicDTypeKwd::INT));
-            return;  // Handled in V3Randomize
-        } else if (nodep->name() == "randomize" || nodep->name() == "srandom"
+            ಪ್ರತ್ಯಾಗಮ;  // Handled in V3Randomize
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "randomize" || nodep->name() == "srandom"
                    || (!nodep->taskp()
                        && (nodep->name() == "get_randstate"
                            || nodep->name() == "set_randstate"))) {
             // TODO perhaps this should move to V3LinkDot
-            AstClass* const classp = VN_CAST(nodep->classOrPackagep(), Class);
-            if (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
-                v3Global.useRandomizeMethods(true);
-                AstNodeDType* const adtypep = nodep->findBitDType();
-                withp = methodWithClause(nodep, false, false, adtypep->findVoidDType(),
+            AstClass* ಧ್ರುವ classp = VN_CAST(nodep->classOrPackagep(), Class);
+            ಯದಿ (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
+                Ast_ಗಂಟು_DType* ಧ್ರುವ adtypep = nodep->findBitDType();
+                withp = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->findVoidDType(),
                                          adtypep->findBitDType(), adtypep);
-                for (const AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                ಪ್ರತಿ (ಧ್ರುವ AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
                     userIterateAndNext(argp->exprp(), WidthVP{SELF, BOTH}.p());
                 }
                 handleStdRandomizeArgs(nodep);  // Provided args should be in current scope
                 processFTaskRefArgs(nodep);
-                if (withp) nodep->withp(withp);
-                nodep->didWidth(true);
-                return;
+                ಯದಿ (withp) nodep->withp(withp);
+                nodep->didWidth(ಸತ್ಯ);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             UASSERT_OBJ(classp, nodep, "Classless rand-thing should have failed in V3LinkDot");
-            if (nodep->name() == "randomize") {
-                AstClassRefDType* const adtypep
-                    = new AstClassRefDType{nodep->fileline(), classp, nullptr};
+            ಯದಿ (nodep->name() == "randomize") {
+                AstClassRefDType* ಧ್ರುವ adtypep
+                    = ನೂತನ AstClassRefDType{nodep->fileline(), classp, nullptr};
                 v3Global.rootp()->typeTablep()->addTypesp(adtypep);
-                withp = methodWithClause(nodep, false, false, adtypep->findVoidDType(),
+                withp = methodWithClause(nodep, ಅಸತ್ಯ, ಅಸತ್ಯ, adtypep->findVoidDType(),
                                          adtypep->findBitDType(), adtypep);
-                for (const AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                ಪ್ರತಿ (ಧ್ರುವ AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
                     userIterateAndNext(argp->exprp(), WidthVP{SELF, BOTH}.p());
                 }
                 handleRandomizeArgs(nodep, classp);
-            } else if (nodep->name() == "srandom") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "srandom") {
                 nodep->taskp(V3Randomize::newSRandomFunc(m_memberMap, classp));
                 m_memberMap.clear();
-            } else if (nodep->name() == "get_randstate") {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "get_randstate") {
                 methodOkArguments(nodep, 0, 0);
-                classp->baseMostClassp()->needRNG(true);
-                v3Global.useRandomizeMethods(true);
-                AstCExpr* const newp
-                    = new AstCExpr{nodep->fileline(), "__Vm_rng.get_randstate()", 1};
+                classp->baseMostClassp()->needRNG(ಸತ್ಯ);
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
+                AstCExpr* ಧ್ರುವ newp
+                    = ನೂತನ AstCExpr{nodep->fileline(), "__Vm_rng.get_randstate()", 1};
                 newp->dtypeSetString();
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else if (nodep->name() == "set_randstate") {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->name() == "set_randstate") {
                 methodOkArguments(nodep, 1, 1);
-                AstNodeExpr* const expr1p = nodep->argsp()->exprp();  // May edit
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ expr1p = nodep->argsp()->exprp();  // May edit
                 iterateCheckString(nodep, "LHS", expr1p, BOTH);
-                AstNodeExpr* const exprp = nodep->argsp()->exprp();
-                classp->baseMostClassp()->needRNG(true);
-                v3Global.useRandomizeMethods(true);
-                AstCExpr* const newp
-                    = new AstCExpr{nodep->fileline(), "__Vm_rng.set_randstate(", 1};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->argsp()->exprp();
+                classp->baseMostClassp()->needRNG(ಸತ್ಯ);
+                v3Global.useRandomizeMethods(ಸತ್ಯ);
+                AstCExpr* ಧ್ರುವ newp
+                    = ನೂತನ AstCExpr{nodep->fileline(), "__Vm_rng.set_randstate(", 1};
                 newp->add(exprp->unlinkFrBack());
                 newp->add(")");
                 newp->dtypeSetVoid();
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else {
-                UASSERT_OBJ(false, nodep, "Bad case");
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ {
+                UASSERT_OBJ(ಅಸತ್ಯ, nodep, "Bad case");
             }
         }
         UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked");
-        if (nodep->didWidth()) {
-            if (withp) nodep->withp(withp);
-            return;
+        ಯದಿ (nodep->didWidth()) {
+            ಯದಿ (withp) nodep->withp(withp);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if ((nodep->taskp()->classMethod() && !nodep->taskp()->isStatic())
+        ಯದಿ ((nodep->taskp()->classMethod() && !nodep->taskp()->isStatic())
             && !VN_IS(m_procedurep, InitialAutomatic) && !m_constraintp) {
-            bool allow = false;
-            if (m_ftaskp && m_ftaskp->classMethod() && !m_ftaskp->isStatic()) {
-                if (const AstFuncRef* const funcRefp = VN_CAST(nodep, FuncRef)) {
+            ತಾರ್ಕಿಕ allow = ಅಸತ್ಯ;
+            ಯದಿ (m_ftaskp && m_ftaskp->classMethod() && !m_ftaskp->isStatic()) {
+                ಯದಿ (ಧ್ರುವ AstFuncRef* ಧ್ರುವ funcRefp = VN_CAST(nodep, FuncRef)) {
                     allow = funcRefp->superReference();
-                } else if (const AstTaskRef* const taskRefp = VN_CAST(nodep, TaskRef)) {
+                } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstTaskRef* ಧ್ರುವ taskRefp = VN_CAST(nodep, TaskRef)) {
                     allow = taskRefp->superReference();
                 }
-                if (!allow) {
-                    const AstClass* callerClassp = m_containingClassFinder.find(m_ftaskp);
-                    if (!callerClassp) {
+                ಯದಿ (!allow) {
+                    ಧ್ರುವ AstClass* callerClassp = m_containingClassFinder.find(m_ftaskp);
+                    ಯದಿ (!callerClassp) {
                         callerClassp = m_containingClassFinder.find(m_ftaskp->classOrPackagep());
                     }
-                    const AstClass* calleeClassp = VN_CAST(nodep->classOrPackagep(), Class);
-                    if (!calleeClassp) {
+                    ಧ್ರುವ AstClass* calleeClassp = VN_CAST(nodep->classOrPackagep(), Class);
+                    ಯದಿ (!calleeClassp) {
                         calleeClassp = m_containingClassFinder.find(nodep->taskp());
                     }
                     allow = AstClass::isClassExtendedFrom(callerClassp, calleeClassp);
                 }
             }
-            if (!allow) {
+            ಯದಿ (!allow) {
                 // An embedded covergroup may call methods of its enclosing class
                 // (IEEE 1800-2023 19.4); V3Covergroup routes the call through its handle.
-                const AstClass* const cgClassp = m_containingClassFinder.find(nodep);
-                if (cgClassp && cgClassp->covergroupEnclosingClassp()) {
-                    const AstClass* calleeClassp = VN_CAST(nodep->classOrPackagep(), Class);
-                    if (!calleeClassp) {
+                ಧ್ರುವ AstClass* ಧ್ರುವ cgClassp = m_containingClassFinder.find(nodep);
+                ಯದಿ (cgClassp && cgClassp->covergroupEnclosingClassp()) {
+                    ಧ್ರುವ AstClass* calleeClassp = VN_CAST(nodep->classOrPackagep(), Class);
+                    ಯದಿ (!calleeClassp) {
                         calleeClassp = m_containingClassFinder.find(nodep->taskp());
                     }
                     allow = AstClass::isClassExtendedFrom(cgClassp->covergroupEnclosingClassp(),
                                                           calleeClassp);
                 }
             }
-            if (!allow) {
+            ಯದಿ (!allow) {
                 nodep->v3error("Cannot call non-static member function "
                                << nodep->prettyNameQ() << " without object (IEEE 1800-2023 8.10)");
             }
         }
-        if (nodep->taskp() && !nodep->scopeNamep()
+        ಯದಿ (nodep->taskp() && !nodep->scopeNamep()
             && (nodep->taskp()->dpiContext() || nodep->taskp()->dpiExport())) {
-            nodep->scopeNamep(new AstScopeName{nodep->fileline(), false});
+            nodep->scopeNamep(ನೂತನ AstScopeName{nodep->fileline(), ಅಸತ್ಯ});
         }
         // And do the arguments to the task/function too
         processFTaskRefArgs(nodep);
-        if (withp) nodep->withp(withp);
-        nodep->didWidth(true);
+        ಯದಿ (withp) nodep->withp(withp);
+        nodep->didWidth(ಸತ್ಯ);
         // See steps that follow in visit(AstFuncRef*)
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Procedure* nodep) override {
         assertAtStatement(nodep);
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         userIterateChildren(nodep, nullptr);
     }
-    void visit(AstSenItem* nodep) override {
-        if (nodep->isComboStar()) return;
+    ಶೂನ್ಯ visit(AstSenItem* nodep) override {
+        ಯದಿ (nodep->isComboStar()) ಪ್ರತ್ಯಾಗಮ;
         UASSERT_OBJ(nodep->isClocked(), nodep, "Invalid edge");
         // Optimize concat/replicate senitems; this has to be done here at the latest, otherwise we
         // emit WIDTHCONCAT if there are unsized constants
-        if (VN_IS(nodep->sensp(), Concat) || VN_IS(nodep->sensp(), Replicate)) {
-            auto* const concatOrReplp = VN_CAST(nodep->sensp(), NodeBiop);
-            auto* const rhsp = concatOrReplp->rhsp()->unlinkFrBack();
-            if (nodep->edgeType() == VEdgeType::ET_CHANGED) {
+        ಯದಿ (VN_IS(nodep->sensp(), Concat) || VN_IS(nodep->sensp(), Replicate)) {
+            auto* ಧ್ರುವ concatOrReplp = VN_CAST(nodep->sensp(), ಗಂಟು_Biop);
+            auto* ಧ್ರುವ rhsp = concatOrReplp->rhsp()->unlinkFrBack();
+            ಯದಿ (nodep->edgeType() == VEdgeType::ET_CHANGED) {
                 // If it's ET_CHANGED, split concatenations into multiple senitems
-                auto* const lhsp = concatOrReplp->lhsp()->unlinkFrBack();
-                nodep->addNextHere(new AstSenItem{lhsp->fileline(), nodep->edgeType(), lhsp});
+                auto* ಧ್ರುವ lhsp = concatOrReplp->lhsp()->unlinkFrBack();
+                nodep->addNextHere(ನೂತನ AstSenItem{lhsp->fileline(), nodep->edgeType(), lhsp});
             }  // Else only use the RHS
-            nodep->replaceWith(new AstSenItem{rhsp->fileline(), nodep->edgeType(), rhsp});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else {
+            nodep->replaceWith(ನೂತನ AstSenItem{rhsp->fileline(), nodep->edgeType(), rhsp});
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+        } ಅನ್ಯಥಾ {
             userIterateChildren(nodep, WidthVP{SELF, BOTH}.p());
-            if (nodep->edgeType().anEdge()) {
-                AstNodeDType* const sensDtp = nodep->sensp()->dtypep()->skipRefp();
-                if (sensDtp->isDouble()) {
+            ಯದಿ (nodep->edgeType().anEdge()) {
+                Ast_ಗಂಟು_DType* ಧ್ರುವ sensDtp = nodep->sensp()->dtypep()->skipRefp();
+                ಯದಿ (sensDtp->isDouble()) {
                     nodep->sensp()->v3error(
                         "Edge event control not legal on real type (IEEE 1800-2023 6.12.1)");
-                } else if (sensDtp->basicp() && !sensDtp->basicp()->keyword().isIntNumeric()) {
+                } ಅನ್ಯಥಾ ಯದಿ (sensDtp->basicp() && !sensDtp->basicp()->keyword().isIntNumeric()) {
                     nodep->sensp()->v3error("Edge event control not legal on non-integral type "
                                             "(IEEE 1800-2023 9.4.2)");
                 }
             }
         }
     }
-    void visit(AstClockingItem* nodep) override {
+    ಶೂನ್ಯ visit(AstClockingItem* nodep) override {
         nodep->exprp()->foreach(
-            [nodep](AstVarRef* const refp) { refp->access(nodep->direction().pinAccess()); });
+            [nodep](AstVarRef* ಧ್ರುವ refp) { refp->access(nodep->direction().pinAccess()); });
         userIterateChildren(nodep, WidthVP{SELF, PRELIM}.p());
     }
-    void visit(AstWait* nodep) override {
-        if (!m_underFork && VN_IS(m_ftaskp, Func)) {
+    ಶೂನ್ಯ visit(AstWait* nodep) override {
+        ಯದಿ (!m_underFork && VN_IS(m_ftaskp, Func)) {
             nodep->v3error("Wait statements are not legal in functions. Suggest use a task "
                            "(IEEE 1800-2023 13.4.4)");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->fileline()->timingOn()) {
-            if (v3Global.opt.timing().isSetTrue()) {
+        ಯದಿ (nodep->fileline()->timingOn()) {
+            ಯದಿ (v3Global.opt.timing().isSetTrue()) {
                 iterateCheckBool(nodep, "Wait", nodep->condp(),
                                  BOTH);  // it's like an if() condition.
                 // TODO check also inside complex event expressions
-                if (AstNodeVarRef* const varrefp = VN_CAST(nodep->condp(), NodeVarRef)) {
-                    if (varrefp->isEvent()) {
+                ಯದಿ (Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ varrefp = VN_CAST(nodep->condp(), ಗಂಟು_Var_Ref)) {
+                    ಯದಿ (varrefp->isEvent()) {
                         varrefp->v3error("Wait statement conditions do not take raw events"
                                          " (IEEE 1800-2023 15.5.3)\n"
                                          << varrefp->warnMore() << "... Suggest use '"
@@ -8470,93 +8470,93 @@ class WidthVisitor final : public VNVisitor {
                     }
                 }
                 iterateNull(nodep->stmtsp());
-                return;
-            } else if (v3Global.opt.timing().isSetFalse()) {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                 nodep->v3warn(E_NOTIMING, "Wait statements require --timing");
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3warn(E_NEEDTIMINGOPT, "Use --timing or --no-timing to specify how wait "
                                                "statements should be handled");
             }
         }
         // If we ignore timing:
         // Statements we'll just execute immediately; equivalent to if they followed this
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
             nodep->replaceWith(stmtsp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstWith* nodep) override {
+    ಶೂನ್ಯ visit(AstWith* nodep) override {
         // Should otherwise be underneath a method call
-        AstNodeDType* const vdtypep = m_vup->dtypeNullSkipRefp();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypeNullSkipRefp();
         VL_RESTORER(m_withp);
         m_withp = nodep;
         userIterateChildren(nodep->indexArgRefp(), nullptr);
-        userIterateChildren(nodep->valueArgRefp(), nullptr);
-        if (!nodep->exprp()) {
+        userIterateChildren(nodep->ಮೌಲ್ಯ_Arg_Refp(), nullptr);
+        ಯದಿ (!nodep->exprp()) {
             nodep->dtypeSetVoid();
-        } else {
-            if (!nodep->exprp()->hasDType()) {
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (!nodep->exprp()->hasDType()) {
                 userIterateAndNext(nodep->exprp(), nullptr);
-            } else {
-                if (vdtypep) {
+            } ಅನ್ಯಥಾ {
+                ಯದಿ (vdtypep) {
                     userIterateAndNext(nodep->exprp(), WidthVP{nodep->dtypep(), PRELIM}.p());
-                } else {  // 'sort with' allows arbitrary type
+                } ಅನ್ಯಥಾ {  // 'sort with' allows arbitrary type
                     userIterateAndNext(nodep->exprp(), WidthVP{SELF, PRELIM}.p());
                 }
             }
 
-            if (!nodep->exprp()->hasDType()) {
+            ಯದಿ (!nodep->exprp()->hasDType()) {
                 nodep->dtypeSetVoid();
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->dtypeFrom(nodep->exprp());
                 iterateCheckAssign(nodep, "'with' return value", nodep->exprp(), FINAL,
                                    nodep->dtypep());
             }
         }
     }
-    void visit(AstLambdaArgRef* nodep) override {
+    ಶೂನ್ಯ visit(AstLambdaArgRef* nodep) override {
         UASSERT_OBJ(m_withp, nodep, "LambdaArgRef not underneath 'with' lambda");
-        if (nodep->index()) {
+        ಯದಿ (nodep->index()) {
             nodep->dtypeFrom(m_withp->indexArgRefp());
-        } else {
-            nodep->dtypeFrom(m_withp->valueArgRefp());
+        } ಅನ್ಯಥಾ {
+            nodep->dtypeFrom(m_withp->ಮೌಲ್ಯ_Arg_Refp());
         }
     }
-    void visit(AstNetlist* nodep) override {
+    ಶೂನ್ಯ visit(AstNetlist* nodep) override {
         // Iterate modules backwards, in bottom-up order.  That's faster
         userIterateChildrenBackwardsConst(nodep, nullptr);
     }
 
     //--------------------
     // Default
-    void visit(AstNodeExpr* nodep) override {
-        if (!nodep->didWidth()) {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
+        ಯದಿ (!nodep->didWidth()) {
             nodep->v3fatalSrc(
                 "Visit function missing? Widthed function missing for math node: " << nodep);
         }
         userIterateChildren(nodep, nullptr);
     }
-    void visit(AstResizeLValue* nodep) override {
+    ಶೂನ್ಯ visit(AstResizeLValue* nodep) override {
         // RESIZELVALUE adjusts width of lvalues for assignments/function calls
         // The parent context determines the required width
         UINFO(9, "visit AstResizeLValue " << nodep << endl);
-        if (nodep->didWidthAndSet()) return;
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
 
         UASSERT_OBJ(nodep->lhsp(), nodep, "ResizeLValue missing lhs expression");
 
         // First, process child to know its natural width
-        if (m_vup->prelim()) {
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
         }
 
         // Get the required width from parent context
-        if (AstNodeDType* const vdtypep = m_vup->dtypeNullp()) {
+        ಯದಿ (Ast_ಗಂಟು_DType* ಧ್ರುವ vdtypep = m_vup->dtypeNullp()) {
             // Parent specified required width - use it
             nodep->dtypeFrom(vdtypep);
-        } else if (!nodep->dtypep()) {
+        } ಅನ್ಯಥಾ ಯದಿ (!nodep->dtypep()) {
             // No parent context, use child's type
             nodep->dtypeFrom(nodep->lhsp());
         }
@@ -8571,30 +8571,30 @@ class WidthVisitor final : public VNVisitor {
 
         // Final processing
         userIterateAndNext(nodep->lhsp(), WidthVP{SELF, FINAL}.p());
-        nodep->didWidth(true);
+        nodep->didWidth(ಸತ್ಯ);
     }
-    void visitClass(AstClass* nodep) {
-        if (nodep->didWidthAndSet()) return;
+    ಶೂನ್ಯ visitClass(AstClass* nodep) {
+        ಯದಿ (nodep->didWidthAndSet()) ಪ್ರತ್ಯಾಗಮ;
 
         // If the class is std::process
-        if (nodep->name() == "process") {
-            AstPackage* const packagep = getItemPackage(nodep);
-            if (packagep && packagep->name() == "std") {
+        ಯದಿ (nodep->name() == "process") {
+            AstPackage* ಧ್ರುವ packagep = getItemPackage(nodep);
+            ಯದಿ (packagep && packagep->name() == "std") {
                 // Change type of m_process to VlProcessRef
-                if (AstVar* const varp
+                ಯದಿ (AstVar* ಧ್ರುವ varp
                     = VN_CAST(m_memberMap.findMember(nodep, "m_process"), Var)) {
-                    AstNodeDType* const dtypep = varp->getChildDTypep();
-                    if (!varp->dtypep()) {
-                        VL_DO_DANGLING(pushDeletep(dtypep->unlinkFrBack()), dtypep);
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = varp->getChildDTypep();
+                    ಯದಿ (!varp->dtypep()) {
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(dtypep->unlinkFrBack()), dtypep);
                     }
-                    AstBasicDType* const newdtypep = new AstBasicDType{
+                    AstBasicDType* ಧ್ರುವ newdtypep = ನೂತನ AstBasicDType{
                         nodep->fileline(), VBasicDTypeKwd::PROCESS_REFERENCE, VSigning::UNSIGNED};
                     v3Global.rootp()->typeTablep()->addTypesp(newdtypep);
                     varp->dtypep(newdtypep);
                 }
                 // Mark that self requires process instance
-                if (AstNodeFTask* const ftaskp
-                    = VN_CAST(m_memberMap.findMember(nodep, "self"), NodeFTask)) {
+                ಯದಿ (Ast_ಗಂಟು_FTask* ಧ್ರುವ ftaskp
+                    = VN_CAST(m_memberMap.findMember(nodep, "self"), ಗಂಟು_FTask)) {
                     ftaskp->setNeedProcess();
                     v3Global.setUsesTiming();
                 }
@@ -8606,22 +8606,22 @@ class WidthVisitor final : public VNVisitor {
         userIterateAndNext(nodep->extendsp(), nullptr);
         userIterateChildren(nodep, nullptr);  // First size all members
     }
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Module* nodep) override {
         assertAtStatement(nodep);
         VL_RESTORER_COPY(m_enumTempNames);
         VL_RESTORER_COPY(m_insideTempNames);
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
+        ಯದಿ (AstClass* ಧ್ರುವ classp = VN_CAST(nodep, Class)) {
             visitClass(classp);
-        } else {
+        } ಅನ್ಯಥಾ {
             VL_RESTORER(m_modep);
             m_modep = nodep;
             // Collect local variables for ASSIGNIN hierarchical reference check
             m_curModVars.clear();
-            nodep->foreach([this](const AstVar* varp) { m_curModVars.insert(varp); });
+            nodep->foreach([ಏತತ್](ಧ್ರುವ AstVar* varp) { m_curModVars.ಸೇರಿಸು(varp); });
             userIterateChildren(nodep, nullptr);
         }
     }
-    void visit(AstNode* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override {
         // Default: Just iterate
         UASSERT_OBJ(!m_vup, nodep,
                     "Visit function missing? Widthed expectation for this node: " << nodep);
@@ -8631,66 +8631,66 @@ class WidthVisitor final : public VNVisitor {
     //----------------------------------------------------------------------
     // WIDTH METHODs -- all iterate
 
-    void visit_Or_Lu64(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_Or_Lu64(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: AstBitsToRealD
         // Real: Output real
         // LHS presumed self-determined, then coerced to real
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             nodep->dtypeSetDouble();
-            AstNodeDType* const subDTypep = nodep->findBitDType(64, 64, VSigning::UNSIGNED);
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = nodep->findBitDType(64, 64, VSigning::UNSIGNED);
             // Self-determined operand
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM}.p());
             iterateCheck(nodep, "LHS", nodep->lhsp(), SELF, FINAL, subDTypep, EXTEND_EXP);
         }
     }
-    void visit(AstIToRD* nodep) override {
+    ಶೂನ್ಯ visit(AstIToRD* nodep) override {
         // Real: Output real
         // LHS presumed self-determined, then coerced to real
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             nodep->dtypeSetDouble();
             // Self-determined operand (TODO check if numeric type)
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM}.p());
-            if (nodep->lhsp()->isSigned()) {
+            ಯದಿ (nodep->lhsp()->isSigned()) {
                 nodep->replaceWith(
-                    new AstISToRD{nodep->fileline(), nodep->lhsp()->unlinkFrBack()});
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                    ನೂತನ AstISToRD{nodep->fileline(), nodep->lhsp()->unlinkFrBack()});
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
             }
         }
     }
-    void visit(AstISToRD* nodep) override {
+    ಶೂನ್ಯ visit(AstISToRD* nodep) override {
         // Real: Output real
         // LHS presumed self-determined, then coerced to real
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             nodep->dtypeSetDouble();
             // Self-determined operand (TODO check if numeric type)
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM}.p());
         }
     }
-    void visit_Os32_Lr(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_Os32_Lr(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: RToI
         // Real: LHS real
         // LHS presumed self-determined, then coerced to real
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetInteger2State();
         }
     }
-    void visit_Ou64_Lr(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_Ou64_Lr(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: RealToBits
         // Real: LHS real
         // LHS presumed self-determined, then coerced to real
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetUInt64();
         }
     }
 
-    void visit_log_not(AstLogNot* nodep) {
+    ಶೂನ್ಯ visit_log_not(AstLogNot* nodep) {
         // CALLER: LogNot
         // Width-check: lhs 1 bit
         // Real: Allowed; implicitly compares with zero
@@ -8702,149 +8702,149 @@ class WidthVisitor final : public VNVisitor {
         //   Width: 1 bit out
         //   Sign: unsigned out (11.8.1)
         UASSERT_OBJ(!nodep->op2p(), nodep, "For unary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "LHS", nodep->op1p(), BOTH);
             nodep->dtypeSetBitOrLogic(nodep->lhsp()->isFourstateOrNoDtype());
             // IEEE 1800-2023 16.12.3: property 'not' is not a sequence operator.
             // Boolean '!' is allowed in sequences (16.7 expression_or_dist).
             // The parser distinguishes the two via AstLogNot::fromProperty().
-            if (m_underSExpr && nodep->fromProperty()) {
+            ಯದಿ (m_underSExpr && nodep->fromProperty()) {
                 nodep->v3error("Unexpected 'not' in sequence expression context");
-                AstConst* const newp
-                    = new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
+                AstConst* ಧ್ರುವ newp
+                    = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
                 newp->dtypeFrom(nodep);
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             }
         }
     }
-    void visit_log_and_or(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_log_and_or(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: LogAnd, LogOr, LogEq, LogIf
         // Widths: 1 bit out, lhs 1 bit, rhs 1 bit
         // IEEE-2012 Table 11-21:
         //   LHS is self-determined
         //   RHS is self-determined
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckBool(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBitOrLogic(
-                AstNodeExpr::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
         }
     }
-    void visitAbortProp(AstAbortOn* nodep) {
+    ಶೂನ್ಯ visitAbortProp(AstAbortOn* nodep) {
         // IEEE 1800-2023 16.12.14: abort condition is a 1-bit self-determined
         // Boolean; property subexpression carries its own type checking.
         // VAbortKind distinguishes accept/reject and sync/async, but the
         // type-check path is identical for all four.
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckBool(nodep, "cond", nodep->condp(), BOTH);
             iterateCheckBool(nodep, "prop", nodep->propp(), BOTH);
             nodep->dtypeSetBit();
         }
     }
-    void visit_red_and_or(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_red_and_or(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: RedAnd, RedOr, ...
         // Signed: Output unsigned, Lhs/Rhs/etc non-real (presumed, not in IEEE)
         // IEEE-2012: Table 11-21 and 11.8.1:
         //   LHS is self-determined
         //   Width: 1 bit out
         //   Sign: unsigned out (11.8.1)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             iterateCheckSizedSelf(nodep, "LHS", nodep->lhsp(), SELF, BOTH);
             nodep->dtypeSetBitOrLogic(nodep->lhsp()->isFourstateOrNoDtype());
         }
     }
-    void visit_red_unknown(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_red_unknown(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: IsUnknown
         // Signed: Output unsigned, Lhs/Rhs/etc non-real (presumed, not in IEEE)
         // IEEE-2012: Table 11-21 and 11.8.1:
         //   LHS is self-determined
         //   Width: 1 bit out
         //   Sign: unsigned out (11.8.1)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
             nodep->dtypeSetBit();
         }
     }
 
     // IEEE 1800-2023 6.22.2 Equivalent types
-    bool isEquivalentDType(const AstNodeDType* lhs, const AstNodeDType* rhs) {
+    ತಾರ್ಕಿಕ isEquivalentDType(ಧ್ರುವ Ast_ಗಂಟು_DType* lhs, ಧ್ರುವ Ast_ಗಂಟು_DType* rhs) {
         // a) If two types match, they are equivalent.
-        if (!lhs || !rhs) return false;
+        ಯದಿ (!lhs || !rhs) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         lhs = lhs->skipRefToEnump();
         rhs = rhs->skipRefToEnump();
-        if (lhs == rhs) return true;
+        ಯದಿ (lhs == rhs) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         // If both are basic types, check if they are the same type
-        if (VN_IS(lhs, BasicDType) && VN_IS(rhs, BasicDType)) {
-            const auto* lb = VN_CAST(lhs, BasicDType);
-            const auto* rb = VN_CAST(rhs, BasicDType);
-            if (lb->isString() != rb->isString()) return false;
+        ಯದಿ (VN_IS(lhs, BasicDType) && VN_IS(rhs, BasicDType)) {
+            ಧ್ರುವ auto* lb = VN_CAST(lhs, BasicDType);
+            ಧ್ರುವ auto* rb = VN_CAST(rhs, BasicDType);
+            ಯದಿ (lb->isString() != rb->isString()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
 
         // d) Unpacked fixed-size array types are equivalent if they have equivalent element types
         // and equal size; the actual range bounds may differ. Note that the element type of a
         // multidimensional array is itself an array type.
-        const bool lhsIsUnpackArray = VN_IS(lhs, UnpackArrayDType);
-        const bool rhsIsUnpackArray = VN_IS(rhs, UnpackArrayDType);
-        if (lhsIsUnpackArray || rhsIsUnpackArray) {
-            if (lhsIsUnpackArray && rhsIsUnpackArray) {
-                const AstUnpackArrayDType* const lhsp = VN_CAST(lhs, UnpackArrayDType);
-                const AstUnpackArrayDType* const rhsp = VN_CAST(rhs, UnpackArrayDType);
-                const int lsz = lhsp->elementsConst();
-                const int rsz = rhsp->elementsConst();
-                if (lsz >= 0 && rsz >= 0 && lsz != rsz) return false;
-                return isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
+        ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsUnpackArray = VN_IS(lhs, UnpackArrayDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsUnpackArray = VN_IS(rhs, UnpackArrayDType);
+        ಯದಿ (lhsIsUnpackArray || rhsIsUnpackArray) {
+            ಯದಿ (lhsIsUnpackArray && rhsIsUnpackArray) {
+                ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ lhsp = VN_CAST(lhs, UnpackArrayDType);
+                ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ rhsp = VN_CAST(rhs, UnpackArrayDType);
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ lsz = lhsp->elementsConst();
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ rsz = rhsp->elementsConst();
+                ಯದಿ (lsz >= 0 && rsz >= 0 && lsz != rsz) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+                ಪ್ರತ್ಯಾಗಮ isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
             }
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
 
         // e) Dynamic array, associative array, and queue types are equivalent if they are the same
         // kind of array (dynamic, associative, or queue), have equivalent index types (for
         // associative arrays), and have equivalent element types.
-        const bool lhsIsDynArray = VN_IS(lhs, DynArrayDType);
-        const bool rhsIsDynArray = VN_IS(rhs, DynArrayDType);
-        const bool lhsIsQueue = VN_IS(lhs, QueueDType);
-        const bool rhsIsQueue = VN_IS(rhs, QueueDType);
-        const bool lhsIsAssocArray = VN_IS(lhs, AssocArrayDType);
-        const bool rhsIsAssocArray = VN_IS(rhs, AssocArrayDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsDynArray = VN_IS(lhs, DynArrayDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsDynArray = VN_IS(rhs, DynArrayDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsQueue = VN_IS(lhs, QueueDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsQueue = VN_IS(rhs, QueueDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsAssocArray = VN_IS(lhs, AssocArrayDType);
+        ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsAssocArray = VN_IS(rhs, AssocArrayDType);
 
-        if (lhsIsDynArray || rhsIsDynArray || lhsIsQueue || rhsIsQueue || lhsIsAssocArray
+        ಯದಿ (lhsIsDynArray || rhsIsDynArray || lhsIsQueue || rhsIsQueue || lhsIsAssocArray
             || rhsIsAssocArray) {
-            if (const AstDynArrayDType* const lhsp = VN_CAST(lhs, DynArrayDType)) {
-                if (const AstDynArrayDType* const rhsp = VN_CAST(rhs, DynArrayDType)) {
-                    return isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
+            ಯದಿ (ಧ್ರುವ AstDynArrayDType* ಧ್ರುವ lhsp = VN_CAST(lhs, DynArrayDType)) {
+                ಯದಿ (ಧ್ರುವ AstDynArrayDType* ಧ್ರುವ rhsp = VN_CAST(rhs, DynArrayDType)) {
+                    ಪ್ರತ್ಯಾಗಮ isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
                 }
             }
 
-            if (const AstQueueDType* const lhsp = VN_CAST(lhs, QueueDType)) {
-                if (const AstQueueDType* const rhsp = VN_CAST(rhs, QueueDType)) {
-                    return isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
+            ಯದಿ (ಧ್ರುವ AstQueueDType* ಧ್ರುವ lhsp = VN_CAST(lhs, QueueDType)) {
+                ಯದಿ (ಧ್ರುವ AstQueueDType* ಧ್ರುವ rhsp = VN_CAST(rhs, QueueDType)) {
+                    ಪ್ರತ್ಯಾಗಮ isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep());
                 }
             }
 
-            if (const AstAssocArrayDType* const lhsp = VN_CAST(lhs, AssocArrayDType)) {
-                if (const AstAssocArrayDType* const rhsp = VN_CAST(rhs, AssocArrayDType)) {
-                    return isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep())
-                           && isEquivalentDType(lhsp->keyDTypep(), rhsp->keyDTypep());
+            ಯದಿ (ಧ್ರುವ AstAssocArrayDType* ಧ್ರುವ lhsp = VN_CAST(lhs, AssocArrayDType)) {
+                ಯದಿ (ಧ್ರುವ AstAssocArrayDType* ಧ್ರುವ rhsp = VN_CAST(rhs, AssocArrayDType)) {
+                    ಪ್ರತ್ಯಾಗಮ isEquivalentDType(lhsp->subDTypep(), rhsp->subDTypep())
+                           && isEquivalentDType(lhsp->ಕೀಲಿ_DTypep(), rhsp->ಕೀಲಿ_DTypep());
                 }
             }
 
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
 
         // c) Packed arrays, packed structures, packed unions, and built-in integral
         // types are equivalent if they contain the same number of total bits, are either all
         // 2-state or all 4-state, and are either all signed or all unsigned.
-        if (lhs->isIntegralOrPacked() && rhs->isIntegralOrPacked()) {
-            if (lhs->width() != rhs->width()) return false;
-            if (lhs->isFourstate() != rhs->isFourstate()) return false;
-            if (lhs->isSigned() != rhs->isSigned()) return false;
-            return true;
+        ಯದಿ (lhs->isIntegralOrPacked() && rhs->isIntegralOrPacked()) {
+            ಯದಿ (lhs->width() != rhs->width()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            ಯದಿ (lhs->isFourstate() != rhs->isFourstate()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            ಯದಿ (lhs->isSigned() != rhs->isSigned()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
 
         // b) An anonymous enum, unpacked struct, or unpacked union type is equivalent to itself
@@ -8852,20 +8852,20 @@ class WidthVisitor final : public VNVisitor {
         // types.
 
         // DTypes compared above, if any remained then not equivalent.
-        if (VN_IS(lhs, EnumDType) || VN_IS(rhs, EnumDType)) return false;
-        return !(VN_IS(lhs, NodeUOrStructDType) || VN_IS(rhs, NodeUOrStructDType));
+        ಯದಿ (VN_IS(lhs, EnumDType) || VN_IS(rhs, EnumDType)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ !(VN_IS(lhs, ಗಂಟು_UOr_Struct_DType) || VN_IS(rhs, ಗಂಟು_UOr_Struct_DType));
     }
 
-    static bool isAggregateType(const AstNode* nodep) {
-        if (!nodep) return false;
-        const AstNodeDType* dtypep = nodep->dtypep();
-        if (!dtypep) return false;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isAggregateType(ಧ್ರುವ Ast_ಗಂಟು* nodep) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep = nodep->dtypep();
+        ಯದಿ (!dtypep) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         dtypep = dtypep->skipRefp();
-        if (!dtypep) return false;
-        return dtypep->isAggregateType();
+        ಯದಿ (!dtypep) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ dtypep->isAggregateType();
     }
 
-    void visit_cmp_eq_gt(AstNodeBiop* nodep, const ComparisonType cmpType) {
+    ಶೂನ್ಯ visit_cmp_eq_gt(Ast_ಗಂಟು_Biop* nodep, ಧ್ರುವ ComparisonType cmpType) {
         // CALLER: AstEq, AstGt, ..., AstLtS
         // Real allowed if and only if real_lhs set
         // See IEEE-2012 11.4.4, and 11.8.1:
@@ -8878,85 +8878,85 @@ class WidthVisitor final : public VNVisitor {
         //   TODO: chandle/class handle/iface handle only allowed to self-compare or against null
         //   TODO: chandle/class handle/iface handle no relational compares
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // Assignment patterns cannot self-determine their type.
             // Iterate the non-pattern operand first so its dtype is available,
             // then propagate that dtype to the pattern operand (analogous to
             // how assignments pass LHS dtype to RHS patterns).
-            const bool lhsIsPat = VN_IS(nodep->lhsp(), Pattern);
-            const bool rhsIsPat = VN_IS(nodep->rhsp(), Pattern);
-            if (lhsIsPat && !rhsIsPat) {
+            ಧ್ರುವ ತಾರ್ಕಿಕ lhsIsPat = VN_IS(nodep->lhsp(), Pattern);
+            ಧ್ರುವ ತಾರ್ಕಿಕ rhsIsPat = VN_IS(nodep->rhsp(), Pattern);
+            ಯದಿ (lhsIsPat && !rhsIsPat) {
                 userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
                 userIterateAndNext(nodep->lhsp(), WidthVP{nodep->rhsp()->dtypep(), PRELIM}.p());
-            } else if (rhsIsPat && !lhsIsPat) {
+            } ಅನ್ಯಥಾ ಯದಿ (rhsIsPat && !lhsIsPat) {
                 userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
                 userIterateAndNext(nodep->rhsp(), WidthVP{nodep->lhsp()->dtypep(), PRELIM}.p());
-            } else {
+            } ಅನ್ಯಥಾ {
                 userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
                 userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             }
 
-            const bool isAggrLhs = isAggregateType(nodep->lhsp());
-            const bool isAggrRhs = isAggregateType(nodep->rhsp());
+            ಧ್ರುವ ತಾರ್ಕಿಕ isAggrLhs = isAggregateType(nodep->lhsp());
+            ಧ್ರುವ ತಾರ್ಕಿಕ isAggrRhs = isAggregateType(nodep->rhsp());
 
-            if ((isAggrLhs || isAggrRhs)
+            ಯದಿ ((isAggrLhs || isAggrRhs)
                 && (cmpType == ComparisonType::NORMAL_EQ || cmpType == ComparisonType::CASE)) {
-                const AstNodeDType* const lhsDType = nodep->lhsp()->dtypep();
-                const AstNodeDType* const rhsDType = nodep->rhsp()->dtypep();
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDType = nodep->lhsp()->dtypep();
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsDType = nodep->rhsp()->dtypep();
 
-                if (lhsDType && rhsDType && !isEquivalentDType(lhsDType, rhsDType)) {
+                ಯದಿ (lhsDType && rhsDType && !isEquivalentDType(lhsDType, rhsDType)) {
                     nodep->v3error("Comparison requires matching data types"
                                    << warnDTypes(nodep, lhsDType, rhsDType));
-                    AstNode* const newp
-                        = new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
+                    Ast_ಗಂಟು* ಧ್ರುವ newp
+                        = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
                 // Elements are compared by their left-to-right order, as when assigned (7.4.6)
                 convertUnpackedOrder(nodep->rhsp(), nodep->lhsp()->dtypep());
-            } else if (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
-                if (cmpType == ComparisonType::WILD) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
+                ಯದಿ (cmpType == ComparisonType::WILD) {
                     nodep->v3error("Real is illegal operand to ?== operator");
-                    AstNode* const newp
-                        = new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
+                    Ast_ಗಂಟು* ಧ್ರುವ newp
+                        = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
-                if (AstNodeBiop* const newp = replaceWithDVersion(nodep)) {
+                ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithDVersion(nodep)) {
                     VL_DANGLING(nodep);
                     nodep = newp;  // Process new node instead
                     iterateCheckReal(nodep, "LHS", nodep->lhsp(), FINAL);
                     iterateCheckReal(nodep, "RHS", nodep->rhsp(), FINAL);
                 }
-            } else if (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
-                if (AstNodeBiop* const newp = replaceWithNVersion(nodep)) {
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
+                ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithNVersion(nodep)) {
                     VL_DANGLING(nodep);
                     nodep = newp;  // Process new node instead
                     iterateCheckString(nodep, "LHS", nodep->lhsp(), FINAL);
                     iterateCheckString(nodep, "RHS", nodep->rhsp(), FINAL);
                 }
-            } else {
-                const bool signedFl = nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned();
-                if (AstNodeBiop* const newp = replaceWithUOrSVersion(nodep, signedFl)) {
+            } ಅನ್ಯಥಾ {
+                ಧ್ರುವ ತಾರ್ಕಿಕ signedFl = nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned();
+                ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithUOrSVersion(nodep, signedFl)) {
                     VL_DANGLING(nodep);
                     nodep = newp;  // Process new node instead
                 }
-                const int width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
-                const int ewidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
-                bool warnOn = true;
-                if (!signedFl && width == 32) {
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ewidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
+                ತಾರ್ಕಿಕ warnOn = ಸತ್ಯ;
+                ಯದಿ (!signedFl && width == 32) {
                     // Waive on unsigned < or <= if RHS is narrower, since can't give wrong answer
-                    if ((VN_IS(nodep, Lt) || VN_IS(nodep, Lte))
+                    ಯದಿ ((VN_IS(nodep, Lt) || VN_IS(nodep, Lte))
                         && (nodep->lhsp()->width() >= nodep->rhsp()->widthMin())) {
-                        warnOn = false;
+                        warnOn = ಅಸತ್ಯ;
                     }
                     // Waive on unsigned > or >= if RHS is wider, since can't give wrong answer
-                    if ((VN_IS(nodep, Gt) || VN_IS(nodep, Gte))
+                    ಯದಿ ((VN_IS(nodep, Gt) || VN_IS(nodep, Gte))
                         && (nodep->lhsp()->widthMin() >= nodep->rhsp()->width())) {
-                        warnOn = false;
+                        warnOn = ಅಸತ್ಯ;
                     }
                 }
                 iterateCheck(nodep, "LHS", nodep->lhsp(), CONTEXT_DET, FINAL,
@@ -8977,7 +8977,7 @@ class WidthVisitor final : public VNVisitor {
                                               && nodep->rhsp()->isFourstateOrNoDtype())));
         }
     }
-    void visit_cmp_real(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_cmp_real(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: EqD, LtD
         // Widths: 1 bit out, lhs width == rhs width
         // Signed compare (not output) if both sides signed
@@ -8985,99 +8985,99 @@ class WidthVisitor final : public VNVisitor {
         // IEEE, 11.4.4: relational compares (<,>,<=,>=,==,===,!=,!==) use
         // "zero padding" on unsigned
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckReal(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBit();
         }
     }
-    void visit_cmp_string(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_cmp_string(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: EqN, LtN
         // Widths: 1 bit out, lhs width == rhs width
         // String compare (not output)
         // Real if and only if real_allow set
         UASSERT_OBJ(nodep->rhsp(), nodep, "For binary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             // See similar handling in visit_cmp_eq_gt where created
             iterateCheckString(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckString(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetBit();
         }
     }
-    void visit_cmp_type(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_cmp_type(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: EqT, LtT
         // Widths: 1 bit out
         // Data type compare (not output)
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, BOTH}.p());
             userIterateAndNext(nodep->rhsp(), WidthVP{SELF, BOTH}.p());
-            const AstAttrOf* const lhsap = VN_AS(nodep->lhsp(), AttrOf);
-            const AstAttrOf* const rhsap = VN_AS(nodep->rhsp(), AttrOf);
+            ಧ್ರುವ AstAttrOf* ಧ್ರುವ lhsap = VN_AS(nodep->lhsp(), AttrOf);
+            ಧ್ರುವ AstAttrOf* ಧ್ರುವ rhsap = VN_AS(nodep->rhsp(), AttrOf);
             UASSERT_OBJ(lhsap->attrType() == VAttrType::TYPEID, lhsap,
                         "Type compare expects type reference");
             UASSERT_OBJ(rhsap->attrType() == VAttrType::TYPEID, rhsap,
                         "Type compare expects type reference");
-            const AstNodeDType* const lhsDtp = lhsap->dtypep();
-            const AstNodeDType* const rhsDtp = rhsap->dtypep();
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDtp = lhsap->dtypep();
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsDtp = rhsap->dtypep();
             UINFO(9, "==type lhsDtp " << lhsDtp);
             UINFO(9, "==type rhsDtp " << lhsDtp);
-            const bool invert = VN_IS(nodep, NeqT);
-            const bool identical
-                = AstNode::computeCastable(lhsDtp, rhsDtp, nodep) == VCastable::SAMEISH;
+            ಧ್ರುವ ತಾರ್ಕಿಕ invert = VN_IS(nodep, NeqT);
+            ಧ್ರುವ ತಾರ್ಕಿಕ identical
+                = Ast_ಗಂಟು::computeCastable(lhsDtp, rhsDtp, nodep) == VCastable::SAMEISH;
             UINFO(9, "== " << identical);
-            const bool eq = invert ^ identical;
-            AstNode* const newp = new AstConst{nodep->fileline(), AstConst::BitTrue{}, eq};
+            ಧ್ರುವ ತಾರ್ಕಿಕ eq = invert ^ identical;
+            Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), AstConst::BitTrue{}, eq};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
 
-    void visit_negate_not(AstNodeUniop* nodep, bool real_ok) {
+    ಶೂನ್ಯ visit_negate_not(Ast_ಗಂಟು_Uniop* nodep, ತಾರ್ಕಿಕ real_ok) {
         // CALLER: (real_ok=false) Not
         // CALLER: (real_ok=true) Negate - allow real numbers
         // Signed: From lhs
         // IEEE-2012 Table 11-21:
         //    Widths: out width = lhs width
         UASSERT_OBJ(!nodep->op2p(), nodep, "For unary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-            if (!real_ok) checkCvtUS(nodep->lhsp(), false);
+            ಯದಿ (!real_ok) checkCvtUS(nodep->lhsp(), ಅಸತ್ಯ);
         }
-        if (real_ok && nodep->lhsp()->isDouble()) {
+        ಯದಿ (real_ok && nodep->lhsp()->isDouble()) {
             spliceCvtD(nodep->lhsp());
-            if (AstNodeUniop* const newp = replaceWithDVersion(nodep)) {
+            ಯದಿ (Ast_ಗಂಟು_Uniop* ಧ್ರುವ newp = replaceWithDVersion(nodep)) {
                 VL_DANGLING(nodep);
                 nodep = newp;  // Process new node instead
                 iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
                 nodep->dtypeSetDouble();
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-        } else {
+        } ಅನ್ಯಥಾ {
             // Note there aren't yet uniops that need version changes
             // So no need to call replaceWithUOrSVersion(nodep, nodep->isSigned())
         }
-        if (m_vup->prelim()) nodep->dtypeFrom(nodep->lhsp());
-        if (m_vup->final()) {
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+        ಯದಿ (m_vup->prelim()) nodep->dtypeFrom(nodep->lhsp());
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
             nodep->dtypep(expDTypep);  // Propagate expression type to negation
-            AstNodeDType* const subDTypep = expDTypep;
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             // Some warning suppressions
-            bool lhsWarn = true;
-            if (VN_IS(nodep, Negate)) {
+            ತಾರ್ಕಿಕ lhsWarn = ಸತ್ಯ;
+            ಯದಿ (VN_IS(nodep, Negate)) {
                 // Warn if user wants extra bit from carry
-                if (subDTypep->widthMin() == (nodep->lhsp()->widthMin() + 1)) lhsWarn = false;
+                ಯದಿ (subDTypep->widthMin() == (nodep->lhsp()->widthMin() + 1)) lhsWarn = ಅಸತ್ಯ;
             }
             iterateCheck(nodep, "LHS", nodep->lhsp(), CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP,
                          lhsWarn);
         }
     }
 
-    void visit_signed_unsigned(AstNodeUniop* nodep, VSigning rs_out) {
+    ಶೂನ್ಯ visit_signed_unsigned(Ast_ಗಂಟು_Uniop* nodep, VSigning rs_out) {
         // CALLER: Signed, Unsigned
         // Width: lhs is self determined width
         // See IEEE-2012 6.24.1:
@@ -9085,21 +9085,21 @@ class WidthVisitor final : public VNVisitor {
         //   Sign: Output sign is as specified by operation
         //   TODO: Type: Two-state if input is two-state, else four-state
         UASSERT_OBJ(!nodep->op2p(), nodep, "For unary ops only!");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM}.p());
-            checkCvtUS(nodep->lhsp(), true);
-            const int width = nodep->lhsp()->width();
-            AstNodeDType* const expDTypep = nodep->findBitOrLogicDType(
+            checkCvtUS(nodep->lhsp(), ಸತ್ಯ);
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = nodep->lhsp()->width();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = nodep->findBitOrLogicDType(
                 width, width, rs_out, nodep->lhsp()->isFourstateOrNoDtype());
             nodep->dtypep(expDTypep);
-            AstNodeDType* const subDTypep = expDTypep;
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             // The child's width is self determined
             iterateCheck(nodep, "LHS", nodep->lhsp(), SELF, FINAL, subDTypep, EXTEND_EXP);
         }
     }
 
-    void visit_shift(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_shift(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: ShiftL, ShiftR, ShiftRS
         // Widths: Output width from lhs, rhs<33 bits
         // Signed: Output signed iff LHS signed; unary operator
@@ -9107,69 +9107,69 @@ class WidthVisitor final : public VNVisitor {
         //   RHS is self-determined. RHS is always treated as unsigned, has no effect on result.
         iterate_shift_prelim(nodep);
         nodep->dtypeChgSigned(nodep->lhsp()->isSigned());
-        const AstNodeBiop* const newp = iterate_shift_final(nodep);
+        ಧ್ರುವ Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = iterate_shift_final(nodep);
         VL_DANGLING(nodep);
-        (void)newp;  // Ununused
+        (ಶೂನ್ಯ)newp;  // Ununused
     }
-    void iterate_shift_prelim(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ iterate_shift_prelim(Ast_ಗಂಟು_Biop* nodep) {
         // Shifts
         // See IEEE-2012 11.4.10 and Table 11-21.
         //   RHS is self-determined. RHS is always treated as unsigned, has no effect on result.
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {
             userIterateAndNext(nodep->lhsp(), WidthVP{SELF, PRELIM}.p());
-            checkCvtUS(nodep->lhsp(), false);
+            checkCvtUS(nodep->lhsp(), ಅಸತ್ಯ);
             iterateCheckSizedSelf(nodep, "RHS", nodep->rhsp(), SELF, BOTH);
             nodep->dtypeFrom(nodep->lhsp());
-            if (!nodep->isFourstateOrNoDtype() && nodep->rhsp()->isFourstateOrNoDtype()) {
+            ಯದಿ (!nodep->isFourstateOrNoDtype() && nodep->rhsp()->isFourstateOrNoDtype()) {
                 nodep->dtypeSetLogicUnsized(nodep->width(), nodep->widthMin(),
                                             nodep->dtypep()->numeric());
             }
         }
     }
-    AstNodeBiop* iterate_shift_final(AstNodeBiop* nodep) {
+    Ast_ಗಂಟು_Biop* iterate_shift_final(Ast_ಗಂಟು_Biop* nodep) {
         // Nodep maybe edited
-        assertAtExpr(nodep);
-        if (m_vup->final()) {
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
-            AstNodeDType* const subDTypep = expDTypep;
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             nodep->dtypep(expDTypep);
             // ShiftRS converts to ShiftR, but not vice-versa
-            if (VN_IS(nodep, ShiftRS)) {
-                if (AstNodeBiop* const newp = replaceWithUOrSVersion(nodep, nodep->isSigned())) {
+            ಯದಿ (VN_IS(nodep, ShiftRS)) {
+                ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithUOrSVersion(nodep, nodep->isSigned())) {
                     VL_DANGLING(nodep);
                     nodep = newp;  // Process new node instead
                 }
             }
-            bool warnOn = true;
+            ತಾರ್ಕಿಕ warnOn = ಸತ್ಯ;
             // No warning if "X = 1'b1<<N"; assume user is doing what they want
-            if (nodep->lhsp()->isOne() && VN_IS(nodep->backp(), NodeAssign)) warnOn = false;
+            ಯದಿ (nodep->lhsp()->isOne() && VN_IS(nodep->backp(), ಗಂಟು_Assign)) warnOn = ಅಸತ್ಯ;
             // We don't currently suppress these, as it's the upper operator (e.g. assign)
             // that reports the WIDTHEXPAND.
-            AstConst* const shiftp = VN_CAST(nodep->rhsp(), Const);
-            if (shiftp && !shiftp->num().isFourState() && shiftp->width() <= 32) {
-                const int64_t shiftVal = shiftp->num().toSQuad();
-                if (VN_IS(nodep, ShiftL)) {
-                    if (shiftVal > 0 && nodep->width() == nodep->lhsp()->width() + shiftVal)
-                        warnOn = false;
+            AstConst* ಧ್ರುವ shiftp = VN_CAST(nodep->rhsp(), Const);
+            ಯದಿ (shiftp && !shiftp->ಅಂಕೆ().isFourState() && shiftp->width() <= 32) {
+                ಧ್ರುವ int64_t shiftVal = shiftp->ಅಂಕೆ().toSQuad();
+                ಯದಿ (VN_IS(nodep, ShiftL)) {
+                    ಯದಿ (shiftVal > 0 && nodep->width() == nodep->lhsp()->width() + shiftVal)
+                        warnOn = ಅಸತ್ಯ;
                 }
             }
             iterateCheck(nodep, "LHS", nodep->lhsp(), CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP,
                          warnOn);
-            if (nodep->rhsp()->width() > 32) {
-                if (shiftp && shiftp->num().mostSetBitP1() <= 32) {
+            ಯದಿ (nodep->rhsp()->width() > 32) {
+                ಯದಿ (shiftp && shiftp->ಅಂಕೆ().mostSetBitP1() <= 32) {
                     // If (number)<<96'h1, then make it into (number)<<32'h1
-                    V3Number num{shiftp, 32, shiftp->num()};
-                    AstNode* const shiftrhsp = nodep->rhsp();
-                    nodep->rhsp()->replaceWith(new AstConst{shiftrhsp->fileline(), num});
-                    VL_DO_DANGLING(shiftrhsp->deleteTree(), shiftrhsp);
+                    V3_ಸಂಖ್ಯೆ ಅಂಕೆ{shiftp, 32, shiftp->ಅಂಕೆ()};
+                    Ast_ಗಂಟು* ಧ್ರುವ shiftrhsp = nodep->rhsp();
+                    nodep->rhsp()->replaceWith(ನೂತನ AstConst{shiftrhsp->fileline(), ಅಂಕೆ});
+                    VL_DO_DANGLING(shiftrhsp->delete_ವೃಕ್ಷ(), shiftrhsp);
                 }
             }
         }
-        return nodep;  // May edit
+        ಪ್ರತ್ಯಾಗಮ nodep;  // May edit
     }
 
-    void visit_boolexpr_and_or(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_boolexpr_and_or(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: And, Or, Xor, ...
         // Lint widths: out width = lhs width = rhs width
         // Signed: if lhs & rhs signed
@@ -9179,23 +9179,23 @@ class WidthVisitor final : public VNVisitor {
         // If errors are off, we need to follow the spec; thus we really need to do the max()
         // because the rhs could be larger, and we need to have proper editing to get the widths
         // to be the same for our operations.
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // Determine expression widths only relying on what's in the subops
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-            checkCvtUS(nodep->lhsp(), false);
-            checkCvtUS(nodep->rhsp(), false);
-            const int width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
-            const int mwidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
-            const bool expSigned = (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned());
+            checkCvtUS(nodep->lhsp(), ಅಸತ್ಯ);
+            checkCvtUS(nodep->rhsp(), ಅಸತ್ಯ);
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ mwidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
+            ಧ್ರುವ ತಾರ್ಕಿಕ expSigned = (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned());
             nodep->dtypeSetBitOrLogicUnsized(
                 width, mwidth, VSigning::fromBool(expSigned),
-                AstNodeExpr::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
         }
-        if (m_vup->final()) {
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
-            AstNodeDType* const subDTypep = expDTypep;
+        ಯದಿ (m_vup->final()) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             nodep->dtypep(expDTypep);
             // Error report and change sizes for suboperands of this node.
             iterateCheck(nodep, "LHS", nodep->lhsp(), CONTEXT_DET, FINAL, subDTypep, EXTEND_EXP);
@@ -9203,7 +9203,7 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    void visit_add_sub_replace(AstNodeBiop* nodep, bool real_ok, const bool modOrDiv) {
+    ಶೂನ್ಯ visit_add_sub_replace(Ast_ಗಂಟು_Biop* nodep, ತಾರ್ಕಿಕ real_ok, ಧ್ರುವ ತಾರ್ಕಿಕ modOrDiv) {
         // CALLER: (real_ok=false) AddS, SubS, ...
         // CALLER: (real_ok=true) Add, Sub, ...
         // Widths: out width = lhs width = rhs width
@@ -9216,27 +9216,27 @@ class WidthVisitor final : public VNVisitor {
         // to be the same for our operations.
         //
         // UINFOTREE(9, nodep, "rus " << m_vup, "rusin");
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // Determine expression widths only relying on what's in the subops
             userIterateAndNext(nodep->lhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
             userIterateAndNext(nodep->rhsp(), WidthVP{CONTEXT_DET, PRELIM}.p());
-            if (!real_ok) {
-                checkCvtUS(nodep->lhsp(), false);
-                checkCvtUS(nodep->rhsp(), false);
+            ಯದಿ (!real_ok) {
+                checkCvtUS(nodep->lhsp(), ಅಸತ್ಯ);
+                checkCvtUS(nodep->rhsp(), ಅಸತ್ಯ);
             }
-            if (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
+            ಯದಿ (nodep->lhsp()->isDouble() || nodep->rhsp()->isDouble()) {
                 spliceCvtD(nodep->lhsp());
                 spliceCvtD(nodep->rhsp());
-                if (AstNodeBiop* const newp = replaceWithDVersion(nodep)) {
+                ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithDVersion(nodep)) {
                     VL_DANGLING(nodep);
                     nodep = newp;  // Process new node instead
                 }
                 nodep->dtypeSetDouble();
                 iterateCheckReal(nodep, "LHS", nodep->lhsp(), FINAL);
                 iterateCheckReal(nodep, "RHS", nodep->rhsp(), FINAL);
-                return;
-            } else if (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (nodep->lhsp()->isString() || nodep->rhsp()->isString()) {
                 nodep->v3error(
                     "Operator "
                     << nodep->prettyTypeName()
@@ -9245,45 +9245,45 @@ class WidthVisitor final : public VNVisitor {
                             ? (nodep->warnMore()
                                + "... Suggest to concatenate strings use '{LHS, RHS, ...}'")
                             : ""));
-                nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::String{}, ""});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
-            } else {
-                const int width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
-                const int mwidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
-                const bool expSigned = (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned());
+                nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::String{}, ""});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ {
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max(nodep->lhsp()->width(), nodep->rhsp()->width());
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ mwidth = std::max(nodep->lhsp()->widthMin(), nodep->rhsp()->widthMin());
+                ಧ್ರುವ ತಾರ್ಕಿಕ expSigned = (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned());
                 nodep->dtypeSetBitOrLogicUnsized(
                     width, mwidth, VSigning::fromBool(expSigned),
                     (modOrDiv && !nodep->rhsp()->isNeqZero())
-                        || AstNodeExpr::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
+                        || Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(nodep->lhsp(), nodep->rhsp()));
             }
         }
-        if (m_vup->final()) {
+        ಯದಿ (m_vup->final()) {
             // Parent's data type was computed using the max(upper, nodep->dtype)
-            AstNodeDType* const expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
-            AstNodeDType* const subDTypep = expDTypep;
+            Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = m_vup->dtypeOverridep(nodep->dtypep());
+            Ast_ಗಂಟು_DType* ಧ್ರುವ subDTypep = expDTypep;
             nodep->dtypep(expDTypep);
             // We don't use LHS && RHS -- unspecified language corner, see t_math_signed5 test
             // bool expSigned = (nodep->lhsp()->isSigned() && nodep->rhsp()->isSigned());
-            if (AstNodeBiop* const newp = replaceWithUOrSVersion(nodep, expDTypep->isSigned())) {
+            ಯದಿ (Ast_ಗಂಟು_Biop* ಧ್ರುವ newp = replaceWithUOrSVersion(nodep, expDTypep->isSigned())) {
                 VL_DANGLING(nodep);
                 nodep = newp;  // Process new node instead
             }
             // Some warning suppressions
-            bool lhsWarn = true;
-            bool rhsWarn = true;
-            if (VN_IS(nodep, Add) || VN_IS(nodep, Sub)) {
+            ತಾರ್ಕಿಕ lhsWarn = ಸತ್ಯ;
+            ತಾರ್ಕಿಕ rhsWarn = ಸತ್ಯ;
+            ಯದಿ (VN_IS(nodep, Add) || VN_IS(nodep, Sub)) {
                 // Warn if user wants extra bit from carry
-                if (subDTypep->widthMin() == (nodep->lhsp()->widthMin() + 1)) lhsWarn = false;
-                if (subDTypep->widthMin() == (nodep->rhsp()->widthMin() + 1)) rhsWarn = false;
-                if (VN_IS(nodep, Add) && nodep->lhsp()->width() == 1
+                ಯದಿ (subDTypep->widthMin() == (nodep->lhsp()->widthMin() + 1)) lhsWarn = ಅಸತ್ಯ;
+                ಯದಿ (subDTypep->widthMin() == (nodep->rhsp()->widthMin() + 1)) rhsWarn = ಅಸತ್ಯ;
+                ಯದಿ (VN_IS(nodep, Add) && nodep->lhsp()->width() == 1
                     && nodep->rhsp()->width() != 1)
-                    lhsWarn = false;  // do_increment + ...
-                if (nodep->rhsp()->width() == 1 && nodep->lhsp()->width() != 1)
-                    rhsWarn = false;  // ... + do_increment
-            } else if (VN_IS(nodep, Mul) || VN_IS(nodep, MulS)) {
-                if (subDTypep->widthMin() >= (nodep->lhsp()->widthMin())) lhsWarn = false;
-                if (subDTypep->widthMin() >= (nodep->rhsp()->widthMin())) rhsWarn = false;
+                    lhsWarn = ಅಸತ್ಯ;  // do_increment + ...
+                ಯದಿ (nodep->rhsp()->width() == 1 && nodep->lhsp()->width() != 1)
+                    rhsWarn = ಅಸತ್ಯ;  // ... + do_increment
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(nodep, Mul) || VN_IS(nodep, MulS)) {
+                ಯದಿ (subDTypep->widthMin() >= (nodep->lhsp()->widthMin())) lhsWarn = ಅಸತ್ಯ;
+                ಯದಿ (subDTypep->widthMin() >= (nodep->rhsp()->widthMin())) rhsWarn = ಅಸತ್ಯ;
             }
             // Final call, so make sure children check their sizes
             // Error report and change sizes for suboperands of this node.
@@ -9294,115 +9294,115 @@ class WidthVisitor final : public VNVisitor {
         }
         // UINFOTREE(9, nodep, "", "rusou");
     }
-    void visit_real_add_sub(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ visit_real_add_sub(Ast_ಗಂಟು_Biop* nodep) {
         // CALLER: AddD, MulD, ...
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // Note similar steps in visit_add_sub_replace promotion to double
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
             iterateCheckReal(nodep, "RHS", nodep->rhsp(), BOTH);
             nodep->dtypeSetDouble();
         }
     }
-    void visit_real_neg_ceil(AstNodeUniop* nodep) {
+    ಶೂನ್ಯ visit_real_neg_ceil(Ast_ಗಂಟು_Uniop* nodep) {
         // CALLER: Negate, Ceil, Log, ...
-        assertAtExpr(nodep);
-        if (m_vup->prelim()) {  // First stage evaluation
+        assert_At_ಅಭಿವ್ಯಕ್ತಿ(nodep);
+        ಯದಿ (m_vup->prelim()) {  // First stage evaluation
             // See alsl visit_negate_not conversion
             iterateCheckReal(nodep, "LHS", nodep->lhsp(), BOTH);
             nodep->dtypeSetDouble();
         }
     }
 
-    void visit_sformatf_format(AstSFormatF* nodep) {
+    ಶೂನ್ಯ visit_sformatf_format(AstSFormatF* nodep) {
         // For sformatf's with constant format, iterate/check arguments
-        UASSERT_OBJ(!nodep->exprFormat(), nodep, "Assumes constant format");
-        bool inPct = false;
-        AstNodeExpr* argp = nodep->exprsp();
+        UASSERT_OBJ(!nodep->ಅಭಿವ್ಯಕ್ತಿ_Format_2(), nodep, "Assumes constant format");
+        ತಾರ್ಕಿಕ inPct = ಅಸತ್ಯ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argp = nodep->exprsp();
         string newFormat;
-        for (char ch : nodep->text()) {
-            if (!inPct && ch == '%') {
-                inPct = true;
+        ಪ್ರತಿ (ವರ್ಣ ch : nodep->text()) {
+            ಯದಿ (!inPct && ch == '%') {
+                inPct = ಸತ್ಯ;
                 newFormat += ch;
-            } else if (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
+            } ಅನ್ಯಥಾ ಯದಿ (inPct && (std::isdigit(ch) || ch == '.' || ch == '-')) {
                 newFormat += ch;
-            } else if (!inPct) {  // Normal text
+            } ಅನ್ಯಥಾ ಯದಿ (!inPct) {  // Normal text
                 newFormat += ch;
-            } else {
-                inPct = false;
-                AstNodeExpr* const nextp = argp ? VN_AS(argp->nextp(), NodeExpr) : nullptr;
-                AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);  // May not exist yet
-                AstNodeExpr* subargp = fargp ? fargp->exprp() : argp;
-                const AstNodeDType* const dtypep
+            } ಅನ್ಯಥಾ {
+                inPct = ಅಸತ್ಯ;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ nextp = argp ? VN_AS(argp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ) : nullptr;
+                AstSFormatArg* ಧ್ರುವ fargp = VN_CAST(argp, SFormatArg);  // May not exist yet
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* subargp = fargp ? fargp->exprp() : argp;
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep
                     = subargp ? subargp->dtypep()->skipRefp() : nullptr;
                 ch = std::tolower(ch);
-                switch (ch) {
-                case '?':  // Unspecified by user, guess
-                    if (dtypep->isDouble()) {
+                ವಿಕಲ್ಪ (ch) {
+                ಪಕ್ಷ '?':  // Unspecified by user, guess
+                    ಯದಿ (dtypep->isDouble()) {
                         ch = 'g';
-                    } else if (dtypep->isString()) {
+                    } ಅನ್ಯಥಾ ಯದಿ (dtypep->isString()) {
                         ch = 's';
-                    } else if (VN_IS(dtypep, BasicDType)) {
+                    } ಅನ್ಯಥಾ ಯದಿ (VN_IS(dtypep, BasicDType)) {
                         ch = nodep->missingArgChar();
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         ch = 'p';
                     }
                     argp = nextp;
-                    break;
-                case '%': break;  // %% - just output a %
-                case 'm': break;  // %m - auto insert "name"
-                case 'l': break;  // %m - auto insert "library"
-                case 'd':
-                    if (subargp) {
+                    ಭಙ್ಗ;
+                ಪಕ್ಷ '%': ಭಙ್ಗ;  // %% - just output a %
+                ಪಕ್ಷ 'm': ಭಙ್ಗ;  // %m - auto insert "name"
+                ಪಕ್ಷ 'l': ಭಙ್ಗ;  // %m - auto insert "library"
+                ಪಕ್ಷ 'd':
+                    ಯದಿ (subargp) {
                         checkFormatNumericArg(subargp, ch);
-                        if (subargp->isDouble()) spliceCvtS(subargp, true, 64);
+                        ಯದಿ (subargp->isDouble()) spliceCvtS(subargp, ಸತ್ಯ, 64);
                         argp = nextp;
                     }
-                    break;
-                case 'b':  // FALLTHRU
-                case 'o':  // FALLTHRU
-                case 'x':
-                    if (subargp) {
+                    ಭಙ್ಗ;
+                ಪಕ್ಷ 'b':  // FALLTHRU
+                ಪಕ್ಷ 'o':  // FALLTHRU
+                ಪಕ್ಷ 'x':
+                    ಯದಿ (subargp) {
                         // V3Randomize may make a %x on a string, or may
                         // have a runtime format which gets past this error
                         checkFormatNumericArg(subargp, ch);
                         argp = nextp;
                     }
-                    break;
-                case 't':  // Decimal/float time
-                    if (subargp) {
+                    ಭಙ್ಗ;
+                ಪಕ್ಷ 't':  // Decimal/float time
+                    ಯದಿ (subargp) {
                         checkFormatNumericArg(subargp, ch);
                         UASSERT_OBJ(!nodep->timeunit().isNone(), nodep,
                                     "display %t has no time units");
                         argp = nextp;
                     }
-                    break;
-                case 'e':  // FALLTHRU
-                case 'f':  // FALLTHRU
-                case 'g':
-                    if (subargp) {
+                    ಭಙ್ಗ;
+                ಪಕ್ಷ 'e':  // FALLTHRU
+                ಪಕ್ಷ 'f':  // FALLTHRU
+                ಪಕ್ಷ 'g':
+                    ಯದಿ (subargp) {
                         checkFormatNumericArg(subargp, ch);
-                        if (!subargp->isDouble()) {
+                        ಯದಿ (!subargp->isDouble()) {
                             iterateCheckReal(nodep, "Display argument", subargp, BOTH);
                         }
                         argp = nextp;
                     }
-                    break;
-                case 'p':  // FALLTHRU
-                case 's':
+                    ಭಙ್ಗ;
+                ಪಕ್ಷ 'p':  // FALLTHRU
+                ಪಕ್ಷ 's':
                     // As with enum.name(): valid values print the mnemonic, else numeric
-                    if (subargp && !fargp) {
-                        if (AstEnumDType* const enumDtp = formatEnumDType(subargp)) {
+                    ಯದಿ (subargp && !fargp) {
+                        ಯದಿ (AstEnumDType* ಧ್ರುವ enumDtp = formatEnumDType(subargp)) {
                             VNRelinker relinker;
                             subargp->unlinkFrBack(&relinker);
                             relinker.relink(newFormatEnumArg(subargp, enumDtp));
                         }
                     }
                     argp = nextp;
-                    break;
-                default:  // Most operators, just move to next argument
+                    ಭಙ್ಗ;
+                ಸ್ವಭಾವ:  // Most operators, just move to next argument
                     argp = nextp;
-                    break;
+                    ಭಙ್ಗ;
                 }  // switch
                 newFormat += ch;
             }
@@ -9410,65 +9410,65 @@ class WidthVisitor final : public VNVisitor {
         nodep->text(newFormat);
     }
 
-    static AstEnumDType* formatEnumDType(AstNodeExpr* subargp) {
+    ಸ್ಥಿರ AstEnumDType* formatEnumDType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* subargp) {
         AstEnumDType* enumDtp = VN_CAST(subargp->dtypep()->skipRefToEnump(), EnumDType);
-        if (!enumDtp) {
-            if (const AstVarRef* const varrefp = VN_CAST(subargp, VarRef)) {
+        ಯದಿ (!enumDtp) {
+            ಯದಿ (ಧ್ರುವ AstVarRef* ಧ್ರುವ varrefp = VN_CAST(subargp, VarRef)) {
                 enumDtp = VN_CAST(varrefp->varp()->dtypep()->skipRefToEnump(), EnumDType);
             }
         }
-        return enumDtp;
+        ಪ್ರತ್ಯಾಗಮ enumDtp;
     }
 
-    AstExprStmt* newEnumCapture(AstNodeExpr* valuep, AstEnumDType* dtypep) {
-        FileLine* const flp = valuep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::XTEMP, m_enumTempNames.get(valuep), dtypep};
-        varp->noSubst(true);
-        if (m_ftaskp) {
-            varp->funcLocal(true);
+    Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* newEnumCapture(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep, AstEnumDType* dtypep) {
+        File_ಸಾಲು* ಧ್ರುವ flp = valuep->fileline();
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{flp, VVarType::XTEMP, m_enumTempNames.get(valuep), dtypep};
+        varp->noSubst(ಸತ್ಯ);
+        ಯದಿ (m_ftaskp) {
+            varp->funcLocal(ಸತ್ಯ);
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             // Declare before use, including in non-inlined class methods.
             m_ftaskp->prependStmtsp(varp);
-        } else {
+        } ಅನ್ಯಥಾ {
             UASSERT_OBJ(m_modep, valuep, "Enum expression without a containing module");
             m_modep->addStmtsp(varp);
         }
         iterate(varp);
-        AstExprStmt* const exprp = new AstExprStmt{
-            flp, new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, valuep},
-            new AstVarRef{flp, varp, VAccess::READ}};
+        Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಧ್ರುವ exprp = ನೂತನ Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt{
+            flp, ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, varp, VAccess::WRITE}, valuep},
+            ನೂತನ AstVarRef{flp, varp, VAccess::READ}};
         iterate(exprp);
-        return exprp;
+        ಪ್ರತ್ಯಾಗಮ exprp;
     }
 
-    AstSFormatArg* newFormatEnumArg(AstNodeExpr* valuep, AstEnumDType* dtypep) {
-        if (valuep->isPure()) valuep = V3Const::constifyEdit(valuep);
-        AstNodeExpr* keyp;
-        if (VN_IS(valuep, Const) || VN_IS(valuep, VarRef) || (!m_modep && !m_ftaskp)) {
+    AstSFormatArg* newFormatEnumArg(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep, AstEnumDType* dtypep) {
+        ಯದಿ (valuep->isPure()) valuep = V3Const::constifyEdit(valuep);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* keyp;
+        ಯದಿ (VN_IS(valuep, Const) || VN_IS(valuep, VarRef) || (!m_modep && !m_ftaskp)) {
             // Standalone parameter expressions are checked for constness by V3Const.
-            keyp = valuep->cloneTree(false);
-        } else {
-            AstExprStmt* const capturep = newEnumCapture(valuep, dtypep);
+            keyp = valuep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        } ಅನ್ಯಥಾ {
+            Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಧ್ರುವ capturep = newEnumCapture(valuep, dtypep);
             valuep = capturep;
-            keyp = capturep->resultp()->cloneTreePure(false);
+            keyp = capturep->resultp()->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
         }
-        const VFormatAttr attr = dtypep->isSigned() ? VFormatAttr::ENUM_SIGNED : VFormatAttr::ENUM;
-        AstSFormatArg* const argp = new AstSFormatArg{valuep->fileline(), attr, valuep};
+        ಧ್ರುವ VFormatAttr attr = dtypep->isSigned() ? VFormatAttr::ENUM_SIGNED : VFormatAttr::ENUM;
+        AstSFormatArg* ಧ್ರುವ argp = ನೂತನ AstSFormatArg{valuep->fileline(), attr, valuep};
         argp->dtypep(dtypep);
         argp->namep(enumSelect(keyp, dtypep, VAttrType::ENUM_NAME));
-        return argp;
+        ಪ್ರತ್ಯಾಗಮ argp;
     }
 
     //----------------------------------------------------------------------
     // LOWER LEVEL WIDTH METHODS  (none iterate)
 
-    bool widthBad(AstNode* nodep, AstNodeDType* expDTypep) {
-        const int expWidth = expDTypep->width();
-        int expWidthMin = expDTypep->widthMin();
+    ತಾರ್ಕಿಕ widthBad(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_DType* expDTypep) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expWidth = expDTypep->width();
+        ಪೂರ್ಣಾಙ್ಕ expWidthMin = expDTypep->widthMin();
         UASSERT_OBJ(nodep->dtypep(), nodep,
                     "Under node " << nodep->prettyTypeName()
                                   << " has no dtype?? Missing Visitor func?");
-        if (expDTypep->basicp()->untyped() || nodep->dtypep()->basicp()->untyped()) return false;
+        ಯದಿ (expDTypep->basicp()->untyped() || nodep->dtypep()->basicp()->untyped()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         // During DepGraph execution, expected width may be 0 if the type hasn't been
         UASSERT_OBJ(nodep->width() != 0, nodep,
                     "Under node " << nodep->prettyTypeName()
@@ -9476,14 +9476,14 @@ class WidthVisitor final : public VNVisitor {
         UASSERT_OBJ(expWidth != 0, nodep,
                     "Node " << nodep->prettyTypeName()
                             << " has no expected width?? Missing Visitor func?");
-        if (expWidthMin == 0) expWidthMin = expWidth;
-        if (nodep->dtypep()->width() == expWidth) return false;
-        if (nodep->dtypep()->widthSized() && nodep->width() != expWidthMin) return true;
-        if (!nodep->dtypep()->widthSized() && nodep->widthMin() > expWidthMin) return true;
-        return false;
+        ಯದಿ (expWidthMin == 0) expWidthMin = expWidth;
+        ಯದಿ (nodep->dtypep()->width() == expWidth) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಯದಿ (nodep->dtypep()->widthSized() && nodep->width() != expWidthMin) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಯದಿ (!nodep->dtypep()->widthSized() && nodep->widthMin() > expWidthMin) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
-    void fixWidthExtend(AstNodeExpr* nodep, AstNodeDType* expDTypep, ExtendRule extendRule) {
+    ಶೂನ್ಯ fixWidthExtend(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, Ast_ಗಂಟು_DType* expDTypep, ExtendRule extendRule) {
         // Fix the width mismatch by extending or truncating bits
         // *ONLY* call this from checkWidth()
         // Truncation is rarer, but can occur:  parameter [3:0] FOO = 64'h12312;
@@ -9494,94 +9494,94 @@ class WidthVisitor final : public VNVisitor {
         // node, while the output dtype is the *expected* sign.
         // It is reasonable to have sign extension with unsigned output,
         // for example $unsigned(a)+$signed(b), the SIGNED(B) will be unsigned dtype out
-        UINFO(4, "  widthExtend_(r=" << static_cast<int>(extendRule) << ") old: " << nodep);
-        if (extendRule == EXTEND_OFF) return;
-        AstConst* const constp = VN_CAST(nodep, Const);
-        const int expWidth = expDTypep->width();
-        if (constp && !constp->num().isNegative()) {
+        UINFO(4, "  widthExtend_(r=" << static_cast<ಪೂರ್ಣಾಙ್ಕ>(extendRule) << ") old: " << nodep);
+        ಯದಿ (extendRule == EXTEND_OFF) ಪ್ರತ್ಯಾಗಮ;
+        AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const);
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expWidth = expDTypep->width();
+        ಯದಿ (constp && !constp->ಅಂಕೆ().isNegative()) {
             // Save later constant propagation work, just right-size it.
-            V3Number num{nodep, expWidth, constp->num()};
-            num.isSigned(false);
-            AstNodeExpr* const newp = new AstConst{nodep->fileline(), num};
+            V3_ಸಂಖ್ಯೆ ಅಂಕೆ{nodep, expWidth, constp->ಅಂಕೆ()};
+            ಅಂಕೆ.isSigned(ಅಸತ್ಯ);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), ಅಂಕೆ};
             constp->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(constp), constp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(constp), constp);
             VL_DANGLING(nodep);
             nodep = newp;
-        } else if (expWidth < nodep->width()) {
+        } ಅನ್ಯಥಾ ಯದಿ (expWidth < nodep->width()) {
             // Trunc - Extract
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            AstNodeExpr* const newp = new AstSel{nodep->fileline(), nodep, 0, expWidth};
-            newp->didWidth(true);  // Don't replace dtype with unsigned
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstSel{nodep->fileline(), nodep, 0, expWidth};
+            newp->didWidth(ಸತ್ಯ);  // Don't replace dtype with unsigned
             linker.relink(newp);
             nodep = newp;
-        } else {
+        } ಅನ್ಯಥಾ {
             // Extend
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            bool doSigned = false;
-            switch (extendRule) {
-            case EXTEND_ZERO: doSigned = false; break;
-            case EXTEND_EXP: doSigned = nodep->isSigned() && expDTypep->isSigned(); break;
-            case EXTEND_LHS: doSigned = nodep->isSigned(); break;
-            default: nodep->v3fatalSrc("bad case");
+            ತಾರ್ಕಿಕ doSigned = ಅಸತ್ಯ;
+            ವಿಕಲ್ಪ (extendRule) {
+            ಪಕ್ಷ EXTEND_ZERO: doSigned = ಅಸತ್ಯ; ಭಙ್ಗ;
+            ಪಕ್ಷ EXTEND_EXP: doSigned = nodep->isSigned() && expDTypep->isSigned(); ಭಙ್ಗ;
+            ಪಕ್ಷ EXTEND_LHS: doSigned = nodep->isSigned(); ಭಙ್ಗ;
+            ಸ್ವಭಾವ: nodep->v3fatalSrc("bad case");
             }
-            AstNodeExpr* const newp
-                = (doSigned ? static_cast<AstNodeExpr*>(new AstExtendS{nodep->fileline(), nodep})
-                            : static_cast<AstNodeExpr*>(new AstExtend{nodep->fileline(), nodep}));
-            newp->didWidth(true);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp
+                = (doSigned ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstExtendS{nodep->fileline(), nodep})
+                            : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstExtend{nodep->fileline(), nodep}));
+            newp->didWidth(ಸತ್ಯ);
             linker.relink(newp);
             nodep = newp;
         }
-        if (expDTypep->isDouble() && !nodep->isDouble()) {
+        ಯದಿ (expDTypep->isDouble() && !nodep->isDouble()) {
             // For AstVar init() among others
             // TODO do all to-real and to-integer conversions in this function
             // rather than in callers
-            AstNodeExpr* const newp = spliceCvtD(nodep);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = spliceCvtD(nodep);
             nodep = newp;
         }
-        if (expDTypep->skipRefp()->isIntegralOrPacked()) {
+        ಯದಿ (expDTypep->skipRefp()->isIntegralOrPacked()) {
             nodep->dtypeChgWidthSigned(expWidth, expDTypep->widthMin(), expDTypep->numeric());
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->dtypeFrom(expDTypep);
         }
         UINFO(4, "             _new: " << nodep);
     }
 
-    void fixWidthReduce(AstNodeExpr* nodep) {
+    ಶೂನ್ಯ fixWidthReduce(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         // Fix the width mismatch by adding a reduction OR operator
         // IF (A(CONSTwide)) becomes IF (A(CONSTreduced))
         // IF (A(somewide)) on pointer becomes on pointer IF (A(NEQ(somewide, Null)))
         // IF (A(somewide)) elsewise becomes IF (A(REDOR(somewide, 0)))
         // Attempt to fix it quietly
-        const int expWidth = 1;
-        const int expSigned = false;
-        if (nodep->width() == expWidth) return;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expWidth = 1;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expSigned = ಅಸತ್ಯ;
+        ಯದಿ (nodep->width() == expWidth) ಪ್ರತ್ಯಾಗಮ;
         UINFO(4, "  widthReduce_old: " << nodep);
-        AstConst* const constp = VN_CAST(nodep, Const);
-        if (constp) {
-            V3Number num(nodep, expWidth);
-            num.opRedOr(constp->num());
-            num.isSigned(expSigned);
-            AstNodeExpr* const newp = new AstConst{nodep->fileline(), num};
+        AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const);
+        ಯದಿ (constp) {
+            V3_ಸಂಖ್ಯೆ ಅಂಕೆ(nodep, expWidth);
+            ಅಂಕೆ.opRedOr(constp->ಅಂಕೆ());
+            ಅಂಕೆ.isSigned(expSigned);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), ಅಂಕೆ};
             constp->replaceWith(newp);
-            VL_DO_DANGLING(constp->deleteTree(), constp);
+            VL_DO_DANGLING(constp->delete_ವೃಕ್ಷ(), constp);
             VL_DANGLING(nodep);
             nodep = newp;
-        } else {
+        } ಅನ್ಯಥಾ {
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            AstNodeExpr* newp;
-            AstNodeDType* const dtypeSkipp = nodep->dtypep()->skipRefp();
-            if (VN_IS(dtypeSkipp, ClassRefDType) || VN_IS(dtypeSkipp, IfaceRefDType)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp;
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypeSkipp = nodep->dtypep()->skipRefp();
+            ಯದಿ (VN_IS(dtypeSkipp, ClassRefDType) || VN_IS(dtypeSkipp, IfaceRefDType)) {
                 // Cannot use AstRedOr, as we may be redurcing a class handle
-                newp = new AstNeq{nodep->fileline(),
-                                  new AstConst{nodep->fileline(), AstConst::Null{}},
+                newp = ನೂತನ AstNeq{nodep->fileline(),
+                                  ನೂತನ AstConst{nodep->fileline(), AstConst::Null{}},
 
                                   nodep};
-            } else {
+            } ಅನ್ಯಥಾ {
                 // But, AstRedOr can be faster on wide
-                newp = new AstRedOr{nodep->fileline(), nodep};
+                newp = ನೂತನ AstRedOr{nodep->fileline(), nodep};
             }
             linker.relink(newp);
             nodep = newp;
@@ -9590,80 +9590,80 @@ class WidthVisitor final : public VNVisitor {
         UINFO(4, "             _new: " << nodep);
     }
 
-    bool fixAutoExtend(AstNodeExpr*& nodepr, int expWidth) {
+    ತಾರ್ಕಿಕ fixAutoExtend(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*& nodepr, ಪೂರ್ಣಾಙ್ಕ expWidth) {
         // For SystemVerilog '0,'1,'x,'z, autoextend and don't warn
-        if (AstConst* const constp = VN_CAST(nodepr, Const)) {
-            if (constp->num().autoExtend() && !constp->num().sized() && constp->width() == 1) {
+        ಯದಿ (AstConst* ಧ್ರುವ constp = VN_CAST(nodepr, Const)) {
+            ಯದಿ (constp->ಅಂಕೆ().autoExtend() && !constp->ಅಂಕೆ().sized() && constp->width() == 1) {
                 // Make it the proper size.  Careful of proper extension of 0's/1's
-                V3Number num(constp, expWidth);
-                num.opRepl(constp->num(), expWidth);  // {width{'1}}
-                AstNodeExpr* const newp = new AstConst{constp->fileline(), num};
+                V3_ಸಂಖ್ಯೆ ಅಂಕೆ(constp, expWidth);
+                ಅಂಕೆ.opRepl(constp->ಅಂಕೆ(), expWidth);  // {width{'1}}
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{constp->fileline(), ಅಂಕೆ};
                 // Spec says always unsigned with proper width
                 UINFOTREE(5, constp, "", "fixAutoExtend_old");
                 UINFOTREE(5, newp, "", "_new");
                 constp->replaceWith(newp);
-                VL_DO_DANGLING(constp->deleteTree(), constp);
+                VL_DO_DANGLING(constp->delete_ವೃಕ್ಷ(), constp);
                 // Tell caller the new constp, and that we changed it.
                 nodepr = newp;
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             }
             // X/Z also upper bit extend.  In pre-SV only to 32-bits, SV forever.
-            else if (!constp->num().sized()
+            ಅನ್ಯಥಾ ಯದಿ (!constp->ಅಂಕೆ().sized()
                      // Make it the proper size.  Careful of proper extension of 0's/1's
-                     && expWidth > 32 && constp->num().isMsbXZ()) {
+                     && expWidth > 32 && constp->ಅಂಕೆ().isMsbXZ()) {
                 constp->v3warn(WIDTHXZEXPAND, "Unsized constant being X/Z extended to "
                                                   << expWidth
                                                   << " bits: " << constp->prettyName());
-                V3Number num(constp, expWidth);
-                num.opExtendXZ(constp->num(), constp->width());
-                AstNodeExpr* const newp = new AstConst{constp->fileline(), num};
+                V3_ಸಂಖ್ಯೆ ಅಂಕೆ(constp, expWidth);
+                ಅಂಕೆ.opExtendXZ(constp->ಅಂಕೆ(), constp->width());
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{constp->fileline(), ಅಂಕೆ};
                 // Spec says always unsigned with proper width
                 UINFOTREE(5, constp, "", "fixUnszExtend_old");
                 UINFOTREE(5, newp, "", "_new");
                 constp->replaceWith(newp);
-                VL_DO_DANGLING(constp->deleteTree(), constp);
+                VL_DO_DANGLING(constp->delete_ವೃಕ್ಷ(), constp);
                 // Tell caller the new constp, and that we changed it.
                 nodepr = newp;
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             }
         }
-        return false;  // No change
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;  // No change
     }
-    bool isBaseClassRecurse(const AstClass* const cls1p, const AstClass* const cls2p) {
+    ತಾರ್ಕಿಕ isBaseClassRecurse(ಧ್ರುವ AstClass* ಧ್ರುವ cls1p, ಧ್ರುವ AstClass* ಧ್ರುವ cls2p) {
         // Returns true if cls1p and cls2p are equal or if cls1p is a base class of cls2p
-        if (cls1p == cls2p) return true;
-        for (const AstClassExtends* cextp = cls2p->extendsp(); cextp;
+        ಯದಿ (cls1p == cls2p) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಪ್ರತಿ (ಧ್ರುವ AstClassExtends* cextp = cls2p->extendsp(); cextp;
              cextp = VN_CAST(cextp->nextp(), ClassExtends)) {
-            if (isBaseClassRecurse(cls1p, cextp->classp())) return true;
+            ಯದಿ (isBaseClassRecurse(cls1p, cextp->classp())) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
     // Lines to end a message on nodep with the data types of its operands
-    static string warnDTypes(const AstNode* nodep, const AstNodeDType* lhsDtp,
-                             const AstNodeDType* rhsDtp, const string& lhsName = "Left-hand",
-                             const string& rhsName = "Right-hand")
+    ಸ್ಥಿರ string warnDTypes(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ Ast_ಗಂಟು_DType* lhsDtp,
+                             ಧ್ರುವ Ast_ಗಂಟು_DType* rhsDtp, ಧ್ರುವ string& lhsName = "Left-hand",
+                             ಧ್ರುವ string& rhsName = "Right-hand")
         VL_REQUIRES(V3Error::s().m_mutex) {
         string lhsState = " " + lhsDtp->stateDTypeName();
         string rhsState = " " + rhsDtp->stateDTypeName();
-        if (lhsState == rhsState) lhsState = rhsState = "";
-        return "\n" + nodep->warnMore() + "... " + lhsName
+        ಯದಿ (lhsState == rhsState) lhsState = rhsState = "";
+        ಪ್ರತ್ಯಾಗಮ "\n" + nodep->warnMore() + "... " + lhsName
                + " data type: " + lhsDtp->prettyDTypeNameQ() + lhsState + "\n" + nodep->warnMore()
                + "... " + rhsName + " data type: " + rhsDtp->prettyDTypeNameQ() + rhsState;
     }
     // Fixed-size unpacked arrays are assignment compatible only with the same number of
     // elements in each dimension (IEEE 1800-2023 7.6); dynamically sized ones always are
-    static bool unpackedArraySizesMatch(const AstNodeDType* lhsDtp, const AstNodeDType* rhsDtp) {
-        while (lhsDtp->isNonPackedArray() && rhsDtp->isNonPackedArray()) {
-            const AstUnpackArrayDType* const lhsArrayp = VN_CAST(lhsDtp, UnpackArrayDType);
-            const AstUnpackArrayDType* const rhsArrayp = VN_CAST(rhsDtp, UnpackArrayDType);
-            if (lhsArrayp && rhsArrayp
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ unpackedArraySizesMatch(ಧ್ರುವ Ast_ಗಂಟು_DType* lhsDtp, ಧ್ರುವ Ast_ಗಂಟು_DType* rhsDtp) {
+        ಯಾವತ್ (lhsDtp->isNonPackedArray() && rhsDtp->isNonPackedArray()) {
+            ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ lhsArrayp = VN_CAST(lhsDtp, UnpackArrayDType);
+            ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ rhsArrayp = VN_CAST(rhsDtp, UnpackArrayDType);
+            ಯದಿ (lhsArrayp && rhsArrayp
                 && lhsArrayp->elementsConst() != rhsArrayp->elementsConst()) {
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
             lhsDtp = lhsDtp->subDTypep()->skipRefp();
             rhsDtp = rhsDtp->subDTypep()->skipRefp();
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
     // Checks whether two types are assignment-compatible according to IEEE 1800-2023 7.6
     // Currently, this function only supports variables, which are of following types:
@@ -9671,111 +9671,111 @@ class WidthVisitor final : public VNVisitor {
     // - Dynamic unpacked array
     // - Associative array
     template <typename T, typename N>
-    void checkUnpackedArrayAssignmentCompatible(const AstNode* nodep, const T* const lhsRefp,
-                                                const N* const rhsRefp) {
+    ಶೂನ್ಯ checkUnpackedArrayAssignmentCompatible(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ T* ಧ್ರುವ lhsRefp,
+                                                ಧ್ರುವ N* ಧ್ರುವ rhsRefp) {
         static_assert(
-            (std::is_same<T, AstVar>::value || std::is_same<T, AstNodeVarRef>::value)
-                && (std::is_same<N, AstVar>::value || std::is_same<N, AstNodeVarRef>::value),
+            (std::is_same<T, AstVar>::ಮೌಲ್ಯ || std::is_same<T, Ast_ಗಂಟು_Var_Ref>::ಮೌಲ್ಯ)
+                && (std::is_same<N, AstVar>::ಮೌಲ್ಯ || std::is_same<N, Ast_ಗಂಟು_Var_Ref>::ಮೌಲ್ಯ),
             "Unsupported types provided.");
-        if (!lhsRefp || !rhsRefp) return;
+        ಯದಿ (!lhsRefp || !rhsRefp) ಪ್ರತ್ಯಾಗಮ;
         std::string lhsName;
         std::string rhsName;
-        if (VN_IS(nodep, Pin)) {
+        ಯದಿ (VN_IS(nodep, Pin)) {
             lhsName = std::string{"Pin"};
             rhsName = std::string{"Expression"};
-        } else {
+        } ಅನ್ಯಥಾ {
             lhsName = std::string{"Left-hand"};
             rhsName = std::string{"Right-hand"};
         }
 
-        const AstNodeDType* const lhsDtp = lhsRefp->dtypep()->skipRefp();
-        const AstNodeDType* const rhsDtp = rhsRefp->dtypep()->skipRefp();
-        const bool isLhsAggregate = lhsDtp->isAggregateType();
-        const bool isRhsAggregate = rhsDtp->isAggregateType();
-        if (!isLhsAggregate && !isRhsAggregate) return;
-        if (isLhsAggregate ^ isRhsAggregate) {
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDtp = lhsRefp->dtypep()->skipRefp();
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsDtp = rhsRefp->dtypep()->skipRefp();
+        ಧ್ರುವ ತಾರ್ಕಿಕ isLhsAggregate = lhsDtp->isAggregateType();
+        ಧ್ರುವ ತಾರ್ಕಿಕ isRhsAggregate = rhsDtp->isAggregateType();
+        ಯದಿ (!isLhsAggregate && !isRhsAggregate) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (isLhsAggregate ^ isRhsAggregate) {
             nodep->v3error(
                 "Illegal assignment: types are not assignment compatible (IEEE 1800-2023 7.6)"
                 << warnDTypes(nodep, lhsDtp, rhsDtp, lhsName, rhsName));
-            return;
-        } else if (VN_IS(lhsDtp, QueueDType) && VN_IS(rhsDtp, EmptyQueueDType)) {
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(lhsDtp, QueueDType) && VN_IS(rhsDtp, EmptyQueueDType)) {
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        std::pair<uint32_t, uint32_t> lhsDim = lhsDtp->dimensions(false),
-                                      rhsDim = rhsDtp->dimensions(false);
+        std::pair<uint32_t, uint32_t> lhsDim = lhsDtp->dimensions(ಅಸತ್ಯ),
+                                      rhsDim = rhsDtp->dimensions(ಅಸತ್ಯ);
         // Check if unpacked array dimensions are matching
-        if (lhsDim.second != rhsDim.second) {
+        ಯದಿ (lhsDim.second != rhsDim.second) {
             nodep->v3error("Illegal assignment: Unmatched number of unpacked dimensions (IEEE "
                            "1800-2023 7.6)"
                            << warnDTypes(nodep, lhsDtp, rhsDtp, lhsName, rhsName));
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
-        const AstNodeDType* lhsDtpIterp = lhsDtp;
-        const AstNodeDType* rhsDtpIterp = rhsDtp;
-        for (uint32_t dim = 0; dim < rhsDim.second; dim++) {
+        ಧ್ರುವ Ast_ಗಂಟು_DType* lhsDtpIterp = lhsDtp;
+        ಧ್ರುವ Ast_ಗಂಟು_DType* rhsDtpIterp = rhsDtp;
+        ಪ್ರತಿ (uint32_t dim = 0; dim < rhsDim.second; dim++) {
             // Associative arrays are compatible only with each other
-            if (VN_IS(lhsDtpIterp, AssocArrayDType) ^ VN_IS(rhsDtpIterp, AssocArrayDType)) {
+            ಯದಿ (VN_IS(lhsDtpIterp, AssocArrayDType) ^ VN_IS(rhsDtpIterp, AssocArrayDType)) {
                 nodep->v3error("Illegal assignment: Associative arrays are assignment compatible "
                                "only with associative arrays (IEEE 1800-2023 7.6)"
                                << warnDTypes(nodep, lhsDtp, rhsDtp, lhsName, rhsName));
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             lhsDtpIterp = lhsDtpIterp->subDTypep()->skipRefp();
             rhsDtpIterp = rhsDtpIterp->subDTypep()->skipRefp();
         }
         // Element types of source and target shall be equivalent
-        if (!isEquivalentDType(lhsDtpIterp, rhsDtpIterp)) {
+        ಯದಿ (!isEquivalentDType(lhsDtpIterp, rhsDtpIterp)) {
             nodep->v3error("Illegal assignment: Array element types are not equivalent (IEEE "
                            "1800-2023 6.22.2)"
                            << warnDTypes(nodep, lhsDtp, rhsDtp, lhsName, rhsName));
         }
     }
-    void checkClassAssign(const AstNode* nodep, const char* side, AstNode* rhsp,
-                          AstNodeDType* const lhsDTypep, bool isOutputArg = false) {
+    ಶೂನ್ಯ checkClassAssign(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* rhsp,
+                          Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDTypep, ತಾರ್ಕಿಕ isOutputArg = ಅಸತ್ಯ) {
         UASSERT_OBJ(rhsp->dtypep(), rhsp, "Node has no type");
-        const AstNodeDType* const lhsRawDTypep = lhsDTypep->skipRefp();
-        const AstNodeDType* const rhsRawDTypep = rhsp->dtypep()->skipRefp();
-        if (const AstClassRefDType* const lhsClassRefp = VN_CAST(lhsRawDTypep, ClassRefDType)) {
-            if (const AstClassRefDType* const rhsClassRefp
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ lhsRawDTypep = lhsDTypep->skipRefp();
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsRawDTypep = rhsp->dtypep()->skipRefp();
+        ಯದಿ (ಧ್ರುವ AstClassRefDType* ಧ್ರುವ lhsClassRefp = VN_CAST(lhsRawDTypep, ClassRefDType)) {
+            ಯದಿ (ಧ್ರುವ AstClassRefDType* ಧ್ರುವ rhsClassRefp
                 = VN_CAST(rhsRawDTypep, ClassRefDType)) {
                 // Output arg swaps sides: caller actual = callee formal at return.
-                const AstClass* const dstp
+                ಧ್ರುವ AstClass* ಧ್ರುವ dstp
                     = isOutputArg ? rhsClassRefp->classp() : lhsClassRefp->classp();
-                const AstClass* const srcp
+                ಧ್ರುವ AstClass* ಧ್ರುವ srcp
                     = isOutputArg ? lhsClassRefp->classp() : rhsClassRefp->classp();
-                if (isBaseClassRecurse(dstp, srcp)) return;
-            } else if (rhsp->isNull()) {
-                return;
+                ಯದಿ (isBaseClassRecurse(dstp, srcp)) ಪ್ರತ್ಯಾಗಮ;
+            } ಅನ್ಯಥಾ ಯದಿ (rhsp->isNull()) {
+                ಪ್ರತ್ಯಾಗಮ;
             }
             nodep->v3error(side << " expects a " << lhsClassRefp->prettyTypeName() << ", got "
                                 << rhsRawDTypep->prettyTypeName());
-        } else if (VN_IS(rhsRawDTypep, ClassRefDType)) {
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(rhsRawDTypep, ClassRefDType)) {
             nodep->v3error(side << " " << rhsRawDTypep->prettyDTypeNameQ()
                                 << " cannot be assigned to non-class "
                                 << lhsDTypep->prettyDTypeNameQ());
         }
-        if (VN_IS(lhsRawDTypep, DynArrayDType) && VN_IS(rhsRawDTypep, UnpackArrayDType)) {
+        ಯದಿ (VN_IS(lhsRawDTypep, DynArrayDType) && VN_IS(rhsRawDTypep, UnpackArrayDType)) {
             VNRelinker relinker;
             rhsp->unlinkFrBack(&relinker);
             relinker.relink(
-                new AstCvtUnpackToQueue{rhsp->fileline(), VN_AS(rhsp, NodeExpr), lhsDTypep});
+                ನೂತನ AstCvtUnpackToQueue{rhsp->fileline(), VN_AS(rhsp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), lhsDTypep});
         }
     }
-    static bool similarDTypeRecurse(const AstNodeDType* const node1p,
-                                    const AstNodeDType* const node2p) {
-        return node1p->skipRefp()->similarDType(node2p->skipRefp());
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ similarDTypeRecurse(ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ node1p,
+                                    ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ node2p) {
+        ಪ್ರತ್ಯಾಗಮ node1p->skipRefp()->similarDType(node2p->skipRefp());
     }
-    void iterateCheckFileDesc(AstNode* parentp, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckFileDesc(Ast_ಗಂಟು* parentp, Ast_ಗಂಟು* underp, Stage stage) {
         UASSERT_OBJ(stage == BOTH, parentp, "Bad call");
         // underp may change as a result of replacement
         underp = userIterateSubtreeReturnEdits(underp, WidthVP{SELF, PRELIM}.p());
-        AstNodeDType* const expDTypep = underp->findUInt32DType();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = underp->findUInt32DType();
         underp
             = iterateCheck(parentp, "file_descriptor", underp, SELF, FINAL, expDTypep, EXTEND_EXP);
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckReal(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckReal(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         // Coerce child to real if not already. Child is self-determined
         // e.g. parentp=ADDD, underp=ADD in ADDD(ADD(a,b), real-CONST)
         // Don't need separate PRELIM and FINAL(double) calls;
@@ -9783,141 +9783,141 @@ class WidthVisitor final : public VNVisitor {
         // otherwise self-determined was correct
         iterateCheckTypedSelfPrelim(parentp, side, underp, parentp->findDoubleDType(), stage);
     }
-    void iterateCheckSigned8(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckSigned8(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         // Coerce child to signed8 if not already. Child is self-determined
         iterateCheckTypedSelfPrelim(parentp, side, underp, parentp->findSigned8DType(), stage);
     }
-    void iterateCheckSigned32(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckSigned32(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         // Coerce child to signed32 if not already. Child is self-determined
         iterateCheckTypedSelfPrelim(parentp, side, underp, parentp->findIntDType(), stage);
     }
-    void iterateCheckUInt32(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckUInt32(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         // Coerce child to unsigned32 if not already. Child is self-determined
         iterateCheckTypedSelfPrelim(parentp, side, underp, parentp->findUInt32DType(), stage);
     }
-    void iterateCheckDelay(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckDelay(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         // Coerce child to 64-bit delay if not already. Child is self-determined
         // underp may change as a result of replacement
-        if (stage & PRELIM) {
+        ಯದಿ (stage & PRELIM) {
             underp = userIterateSubtreeReturnEdits(underp, WidthVP{SELF, PRELIM}.p());
         }
-        if (stage & FINAL) {
-            AstNodeDType* expDTypep;
-            if (underp->dtypep()->skipRefp()->isDouble()) {  // V3Timing will later convert double
+        ಯದಿ (stage & FINAL) {
+            Ast_ಗಂಟು_DType* expDTypep;
+            ಯದಿ (underp->dtypep()->skipRefp()->isDouble()) {  // V3Timing will later convert double
                 expDTypep = parentp->findDoubleDType();
-            } else {
-                FileLine* const newFl = new FileLine{underp->fileline()};
-                newFl->warnOff(V3ErrorCode::WIDTHEXPAND, true);
+            } ಅನ್ಯಥಾ {
+                File_ಸಾಲು* ಧ್ರುವ newFl = ನೂತನ File_ಸಾಲು{underp->fileline()};
+                newFl->warnOff(V3ErrorCode::WIDTHEXPAND, ಸತ್ಯ);
                 underp->fileline(newFl);
                 expDTypep = parentp->findBitDType(64, 64, VSigning::UNSIGNED);
             }
             underp
-                = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP, false);
+                = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP, ಅಸತ್ಯ);
         }
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckString(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckString(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         iterateCheckTyped(parentp, side, underp, parentp->findStringDType(), stage);
     }
-    void iterateCheckTyped(AstNode* parentp, const char* side, AstNode* underp,
-                           AstNodeDType* expDTypep, Stage stage) {
-        if (stage & PRELIM) {
+    ಶೂನ್ಯ iterateCheckTyped(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp,
+                           Ast_ಗಂಟು_DType* expDTypep, Stage stage) {
+        ಯದಿ (stage & PRELIM) {
             underp = userIterateSubtreeReturnEdits(underp, WidthVP{expDTypep, PRELIM}.p());
         }
-        if (stage & FINAL) {
+        ಯದಿ (stage & FINAL) {
             underp = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP);
         }
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckTypedSelfPrelim(AstNode* parentp, const char* side, AstNode* underp,
-                                     AstNodeDType* expDTypep, Stage stage) {
+    ಶೂನ್ಯ iterateCheckTypedSelfPrelim(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp,
+                                     Ast_ಗಂಟು_DType* expDTypep, Stage stage) {
         // underp may change as a result of replacement
-        if (stage & PRELIM) {
+        ಯದಿ (stage & PRELIM) {
             underp = userIterateSubtreeReturnEdits(underp, WidthVP{SELF, PRELIM}.p());
         }
-        if (stage & FINAL) {
+        ಯದಿ (stage & FINAL) {
             underp = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP);
         }
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckIntegralSelf(AstNode* parentp, const char* side, AstNode* underp,
+    ಶೂನ್ಯ iterateCheckIntegralSelf(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp,
                                   Determ determ, Stage stage) {
-        iterateCheckSelf(parentp, side, underp, determ, stage, true);
+        iterateCheckSelf(parentp, side, underp, determ, stage, ಸತ್ಯ);
     }
-    void iterateCheckSelf(AstNode* parentp, const char* side, AstNode* underp, Determ determ,
-                          Stage stage, bool integralOnly = false) {
+    ಶೂನ್ಯ iterateCheckSelf(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Determ determ,
+                          Stage stage, ತಾರ್ಕಿಕ integralOnly = ಅಸತ್ಯ) {
         // Coerce child to any data type; child is self-determined
         // i.e. isolated from expected type.
         // e.g. parentp=CONCAT, underp=lhs in CONCAT(lhs,rhs)
         UASSERT_OBJ(determ == SELF, parentp, "Bad call");
         UASSERT_OBJ(stage == FINAL || stage == BOTH, parentp, "Bad call");
         // underp may change as a result of replacement
-        if (stage & PRELIM) {
+        ಯದಿ (stage & PRELIM) {
             underp = userIterateSubtreeReturnEdits(underp, WidthVP{SELF, PRELIM}.p());
         }
         underp
-            = VN_IS(underp, NodeExpr) ? checkCvtUS(VN_AS(underp, NodeExpr), integralOnly) : underp;
-        AstNodeDType* const expDTypep = underp->dtypep();
+            = VN_IS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ) ? checkCvtUS(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), integralOnly) : underp;
+        Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = underp->dtypep();
         underp = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP);
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckSizedSelf(AstNode* parentp, const char* side, AstNode* underp, Determ determ,
-                               Stage stage, bool deferUntyped = false) {
+    ಶೂನ್ಯ iterateCheckSizedSelf(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Determ determ,
+                               Stage stage, ತಾರ್ಕಿಕ deferUntyped = ಅಸತ್ಯ) {
         // Coerce child to any sized-number data type; child is self-determined
         // i.e. isolated from expected type.
         // e.g. parentp=CONCAT, underp=lhs in CONCAT(lhs,rhs)
         UASSERT_OBJ(determ == SELF, parentp, "Bad call");
         UASSERT_OBJ(stage == FINAL || stage == BOTH, parentp, "Bad call");
         // underp may change as a result of replacement
-        if (stage & PRELIM) {
+        ಯದಿ (stage & PRELIM) {
             underp = userIterateSubtreeReturnEdits(underp, WidthVP{SELF, PRELIM}.p());
         }
-        underp = VN_IS(underp, NodeExpr) ? checkCvtUS(VN_AS(underp, NodeExpr), false) : underp;
-        AstNodeDType* const expDTypep = underp->dtypep();
+        underp = VN_IS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ) ? checkCvtUS(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), ಅಸತ್ಯ) : underp;
+        Ast_ಗಂಟು_DType* ಧ್ರುವ expDTypep = underp->dtypep();
         underp = iterateCheck(parentp, side, underp, SELF, FINAL, expDTypep, EXTEND_EXP);
-        AstNodeDType* const checkDtp = expDTypep->skipRefToEnump();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ checkDtp = expDTypep->skipRefToEnump();
         // Sampling functions may still reference an untyped property formal here.
         // V3AssertPre checks the actual type after property argument substitution.
-        if (!checkDtp->isIntegralOrPacked()
+        ಯದಿ (!checkDtp->isIntegralOrPacked()
             && !(deferUntyped && checkDtp->basicp() && checkDtp->basicp()->untyped())) {
             parentp->v3error(ucfirst(parentp->prettyOperatorName())
                              << " expects a numeric " << side << " operand, but it has data type "
                              << checkDtp->prettyDTypeNameQ() << " (IEEE 1800-2023 11.3)");
         }
-        (void)underp;  // cppcheck
+        (ಶೂನ್ಯ)underp;  // cppcheck
     }
-    void iterateCheckAssign(AstNode* parentp, const char* side, AstNode* rhsp, Stage stage,
-                            AstNodeDType* lhsDTypep, VAccess rhsAccess = VAccess::READ) {
+    ಶೂನ್ಯ iterateCheckAssign(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* rhsp, Stage stage,
+                            Ast_ಗಂಟು_DType* lhsDTypep, VAccess rhsAccess = VAccess::READ) {
         // Check using assignment-like context rules
         // UINFOTREE(1, parentp, "", "checkass");
         UASSERT_OBJ(stage == FINAL, parentp, "Bad width call");
         // Create unpacked byte from string see IEEE 1800-2023 5.9
-        if (AstConst* constp = VN_CAST(rhsp, Const)) {
-            if (const AstUnpackArrayDType* const arrayp
+        ಯದಿ (AstConst* constp = VN_CAST(rhsp, Const)) {
+            ಯದಿ (ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrayp
                 = VN_CAST(lhsDTypep->skipRefp(), UnpackArrayDType)) {
-                if (AstBasicDType* basicp = VN_CAST(arrayp->subDTypep()->skipRefp(), BasicDType)) {
-                    if (basicp->width() == 8 && constp->num().isFromString()) {
-                        AstConsArray* newp = new AstConsArray{
+                ಯದಿ (AstBasicDType* basicp = VN_CAST(arrayp->subDTypep()->skipRefp(), BasicDType)) {
+                    ಯದಿ (basicp->width() == 8 && constp->ಅಂಕೆ().isFromString()) {
+                        AstConsArray* newp = ನೂತನ AstConsArray{
                             constp->fileline(), lhsDTypep,
-                            new AstConst{constp->fileline(), AstConst::WidthedValue{}, 8, 0}};
-                        for (const int aindex : arrayp->declRange().seqLoToHi()) {
-                            int cindex = arrayp->declRange().ascending() ? (arrayp->hi() - aindex)
+                            ನೂತನ AstConst{constp->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 0}};
+                        ಪ್ರತಿ (ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ aindex : arrayp->declRange().seqLoToHi()) {
+                            ಪೂರ್ಣಾಙ್ಕ cindex = arrayp->declRange().ascending() ? (arrayp->hi() - aindex)
                                                                          : (aindex - arrayp->lo());
-                            V3Number selected{constp, 8};
-                            selected.opSel(constp->num(), cindex * 8 + 7, cindex * 8);
+                            V3_ಸಂಖ್ಯೆ selected{constp, 8};
+                            selected.opSel(constp->ಅಂಕೆ(), cindex * 8 + 7, cindex * 8);
                             UINFO(0, "   aindex=" << aindex << "  cindex=" << cindex
                                                   << "  c=" << selected);
-                            if (!selected.isFourState()) {
-                                if (const uint32_t c = selected.toUInt()) {
+                            ಯದಿ (!selected.isFourState()) {
+                                ಯದಿ (ಧ್ರುವ uint32_t c = selected.toUInt()) {
                                     newp->valuep(aindex,
-                                                 new AstConst{constp->fileline(),
-                                                              AstConst::WidthedValue{}, 8, c});
+                                                 ನೂತನ AstConst{constp->fileline(),
+                                                              AstConst::Widthed_ಮೌಲ್ಯ{}, 8, c});
                                 }
                             }
                         }
                         UINFO(6, "   unpackFromString: " << parentp);
                         rhsp->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
                         rhsp = newp;
                     }
                 }
@@ -9925,31 +9925,31 @@ class WidthVisitor final : public VNVisitor {
         }
         // We iterate and size the RHS based on the result of RHS evaluation
         checkClassAssign(parentp, side, rhsp, lhsDTypep);
-        const bool lhsStream = (VN_IS(parentp, NodeAssign)
-                                && VN_IS(VN_AS(parentp, NodeAssign)->lhsp(), NodeStream));
+        ಧ್ರುವ ತಾರ್ಕಿಕ lhsStream = (VN_IS(parentp, ಗಂಟು_Assign)
+                                && VN_IS(VN_AS(parentp, ಗಂಟು_Assign)->lhsp(), ಗಂಟು_Stream));
         rhsp = iterateCheck(parentp, side, rhsp, ASSIGN, FINAL, lhsDTypep,
-                            lhsStream ? EXTEND_OFF : EXTEND_LHS, true, STREAM_USE_NONE, rhsAccess);
+                            lhsStream ? EXTEND_OFF : EXTEND_LHS, ಸತ್ಯ, STREAM_USE_NONE, rhsAccess);
         // UINFOTREE(1, parentp, "", "checkout");
-        (void)rhsp;  // cppcheck
+        (ಶೂನ್ಯ)rhsp;  // cppcheck
     }
     // Convert an unpacked array value to an equivalent type with some dimension reversed,
     // keeping elements in left-to-right order (IEEE 1800-2023 7.6)
-    AstNodeExpr* convertUnpackedOrder(AstNodeExpr* exprp, AstNodeDType* dtypep) {
-        const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
-        if (!arrayp || !arrayp->isReverseOf(exprp->dtypep())) return exprp;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* convertUnpackedOrder(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_DType* dtypep) {
+        ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrayp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+        ಯದಿ (!arrayp || !arrayp->isReverseOf(exprp->dtypep())) ಪ್ರತ್ಯಾಗಮ exprp;
         VNRelinker relinker;
         exprp->unlinkFrBack(&relinker);
-        AstNodeExpr* const newp = new AstCvtUnpackToUnpack{exprp->fileline(), exprp, dtypep};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstCvtUnpackToUnpack{exprp->fileline(), exprp, dtypep};
         relinker.relink(newp);
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
 
-    static bool isLogicalOperator(const AstNode* nodep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isLogicalOperator(ಧ್ರುವ Ast_ಗಂಟು* nodep) {
         // IEEE 1800-2023 Table 11-1 logical operators, which take only integral or real operands
-        return VN_IS(nodep, LogAnd) || VN_IS(nodep, LogEq) || VN_IS(nodep, LogIf)
+        ಪ್ರತ್ಯಾಗಮ VN_IS(nodep, LogAnd) || VN_IS(nodep, LogEq) || VN_IS(nodep, LogIf)
                || VN_IS(nodep, LogNot) || VN_IS(nodep, LogOr);
     }
-    void iterateCheckBool(AstNode* parentp, const char* side, AstNode* underp, Stage stage) {
+    ಶೂನ್ಯ iterateCheckBool(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Stage stage) {
         UASSERT_OBJ(stage == BOTH, parentp,
                     "Bad call");  // Booleans always self-determined so do BOTH at once
         // Underp is used in a self-determined but boolean context, reduce a
@@ -9963,40 +9963,40 @@ class WidthVisitor final : public VNVisitor {
                     "Node has no type");  // Perhaps forgot to do a prelim visit on it?
         //
         // For DOUBLE under a logical op, add implied test against zero, never a warning
-        AstNodeDType* const underVDTypep = underp ? underp->dtypep()->skipRefp() : nullptr;
-        if (underp && underVDTypep->isDouble()) {
+        Ast_ಗಂಟು_DType* ಧ್ರುವ underVDTypep = underp ? underp->dtypep()->skipRefp() : nullptr;
+        ಯದಿ (underp && underVDTypep->isDouble()) {
             UINFO(6, "   spliceCvtCmpD0: " << underp);
             VNRelinker linker;
             underp->unlinkFrBack(&linker);
-            AstNode* const newp
-                = new AstNeqD{parentp->fileline(), VN_AS(underp, NodeExpr),
-                              new AstConst{parentp->fileline(), AstConst::RealDouble{}, 0.0}};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstNeqD{parentp->fileline(), VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ),
+                              ನೂತನ AstConst{parentp->fileline(), AstConst::RealDouble{}, 0.0}};
             linker.relink(newp);
-        } else if (underVDTypep->isString() && !isLogicalOperator(parentp)) {
+        } ಅನ್ಯಥಾ ಯದಿ (underVDTypep->isString() && !isLogicalOperator(parentp)) {
             // For STRING as a condition, likewise test against the empty string, never a
             // warning; a string holds no NUL, so nonzero means non-empty (IEEE 1800-2023 6.16)
             UINFO(6, "   spliceCvtCmpN0: " << underp);
             VNRelinker linker;
             underp->unlinkFrBack(&linker);
-            AstNode* const newp
-                = new AstNeqN{parentp->fileline(), VN_AS(underp, NodeExpr),
-                              new AstConst{parentp->fileline(), AstConst::String{}, ""}};
+            Ast_ಗಂಟು* ಧ್ರುವ newp
+                = ನೂತನ AstNeqN{parentp->fileline(), VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ),
+                              ನೂತನ AstConst{parentp->fileline(), AstConst::String{}, ""}};
             linker.relink(newp);
-        } else if (VN_IS(underVDTypep, ClassRefDType) || VN_IS(underVDTypep, IfaceRefDType)
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(underVDTypep, ClassRefDType) || VN_IS(underVDTypep, IfaceRefDType)
                    || (VN_IS(underVDTypep, BasicDType)
                        && VN_AS(underVDTypep, BasicDType)->isCHandle())) {
             // Allow warning-free "if (handle)"
-            VL_DO_DANGLING(fixWidthReduce(VN_AS(underp, NodeExpr)), underp);  // Changed
-        } else if (!underVDTypep->basicp() || underVDTypep->isAggregateType()
+            VL_DO_DANGLING(fixWidthReduce(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)), underp);  // Changed
+        } ಅನ್ಯಥಾ ಯದಿ (!underVDTypep->basicp() || underVDTypep->isAggregateType()
                    || underVDTypep->isString()) {
             parentp->v3error(ucfirst(parentp->prettyOperatorName())
                              << " expects a numeric " << side << " operand, but it has data type "
                              << underVDTypep->prettyDTypeNameQ() << " (IEEE 1800-2023 11.3)");
-            underp->replaceWith(new AstConst{parentp->fileline(), AstConst::BitFalseErroring{}});
-            VL_DO_DANGLING(pushDeletep(underp), underp);
-        } else {
-            const bool bad = widthBad(underp, parentp->findBitDType());
-            if (bad) {
+            underp->replaceWith(ನೂತನ AstConst{parentp->fileline(), AstConst::BitFalseErroring{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(underp), underp);
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ ತಾರ್ಕಿಕ bad = widthBad(underp, parentp->findBitDType());
+            ಯದಿ (bad) {
                 {  // if (warnOn), but not needed here
                     UINFOTREE(5, parentp->backp(), "", "back");
                     parentp->v3widthWarn(1, underp->width(),
@@ -10013,23 +10013,23 @@ class WidthVisitor final : public VNVisitor {
             }
             // Reduce to one bit even when the width is not reported, such as an unsized
             // (b & 1), so later passes see a 1-bit condition
-            if (AstExprStmt* const exprStmtp = VN_CAST(underp, ExprStmt)) {
+            ಯದಿ (Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Stmtp = VN_CAST(underp, ಅಭಿವ್ಯಕ್ತಿ_Stmt)) {
                 // Reduce only the result, leaving the statements in place
-                fixWidthReduce(exprStmtp->resultp());
-                exprStmtp->dtypeFrom(exprStmtp->resultp());
-            } else if (underp->width() != 1) {
-                VL_DO_DANGLING(fixWidthReduce(VN_AS(underp, NodeExpr)), underp);  // Changed
+                fixWidthReduce(ಅಭಿವ್ಯಕ್ತಿ_Stmtp->resultp());
+                ಅಭಿವ್ಯಕ್ತಿ_Stmtp->dtypeFrom(ಅಭಿವ್ಯಕ್ತಿ_Stmtp->resultp());
+            } ಅನ್ಯಥಾ ಯದಿ (underp->width() != 1) {
+                VL_DO_DANGLING(fixWidthReduce(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)), underp);  // Changed
             }
         }
     }
 
-    static void checkEnum(AstNode* nodep, AstNode* parentp, const AstNodeDType* targetDTypep,
-                          const AstNodeDType* sourceDTypep, const AstNodeExpr* sourceExprp) {
-        if (const AstEnumDType* const targetEnump
+    ಸ್ಥಿರ ಶೂನ್ಯ checkEnum(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* parentp, ಧ್ರುವ Ast_ಗಂಟು_DType* targetDTypep,
+                          ಧ್ರುವ Ast_ಗಂಟು_DType* sourceDTypep, ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sourceExprp) {
+        ಯದಿ (ಧ್ರುವ AstEnumDType* ಧ್ರುವ targetEnump
             = VN_CAST(targetDTypep->skipRefToEnump(), EnumDType)) {
-            const VCastable castable
-                = AstNode::computeCastable(targetEnump, sourceDTypep, sourceExprp);
-            if (castable != VCastable::SAMEISH && castable != VCastable::COMPATIBLE
+            ಧ್ರುವ VCastable castable
+                = Ast_ಗಂಟು::computeCastable(targetEnump, sourceDTypep, sourceExprp);
+            ಯದಿ (castable != VCastable::SAMEISH && castable != VCastable::COMPATIBLE
                 && castable != VCastable::ENUM_IMPLICIT) {
                 nodep->v3warn(ENUMVALUE, "Implicit conversion to enum "
                                              << targetDTypep->prettyDTypeNameQ() << " from "
@@ -10041,9 +10041,9 @@ class WidthVisitor final : public VNVisitor {
         }
     }
 
-    AstNode* iterateCheck(AstNode* parentp, const char* side, AstNode* underp, Determ determ,
-                          Stage stage, AstNodeDType* expDTypep, ExtendRule extendRule,
-                          bool warnOn = true, StreamUse streamUse = STREAM_USE_NONE,
+    Ast_ಗಂಟು* iterateCheck(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side, Ast_ಗಂಟು* underp, Determ determ,
+                          Stage stage, Ast_ಗಂಟು_DType* expDTypep, ExtendRule extendRule,
+                          ತಾರ್ಕಿಕ warnOn = ಸತ್ಯ, StreamUse streamUse = STREAM_USE_NONE,
                           VAccess rhsAccess = VAccess::READ) {
         // Perform data type check on underp, which is underneath parentp used for error reporting
         // Returns the new underp
@@ -10052,91 +10052,91 @@ class WidthVisitor final : public VNVisitor {
         UASSERT_OBJ(underp, parentp, "Node has no child");
         UASSERT_OBJ(underp->dtypep(), underp,
                     "Node has no type");  // Perhaps forgot to do a prelim visit on it?
-        const StreamUse childStreamUse
+        ಧ್ರುವ StreamUse childStreamUse
             = streamUse != STREAM_USE_NONE ? streamUse : streamUseForDeterm(determ);
-        if (rhsAccess.isReadOnly()) {
-            if (AstNodeExpr* const exprp = VN_CAST(underp, NodeExpr)) {
+        ಯದಿ (rhsAccess.isReadOnly()) {
+            ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = VN_CAST(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
                 // A value only read is converted to a reversed expected type.
                 underp = convertUnpackedOrder(exprp, expDTypep);
             }
         }
-        if (VN_IS(underp, NodeDType)) {  // Note the node itself, not node's data type
+        ಯದಿ (VN_IS(underp, ಗಂಟು_DType)) {  // Note the node itself, not node's data type
             // Must be near top of these checks as underp->dtypep() will look normal
             underp->v3error(ucfirst(parentp->prettyOperatorName())
                             << " expected non-datatype " << side << " but "
                             << underp->prettyNameQ() << " is a datatype.");
-        } else if (expDTypep == underp->dtypep()) {  // Perfect
+        } ಅನ್ಯಥಾ ಯದಿ (expDTypep == underp->dtypep()) {  // Perfect
             underp = userIterateSubtreeReturnEdits(underp,
                                                    WidthVP{expDTypep, FINAL, childStreamUse}.p());
-        } else if (expDTypep->isDouble() && underp->isDouble()) {  // Also good
+        } ಅನ್ಯಥಾ ಯದಿ (expDTypep->isDouble() && underp->isDouble()) {  // Also good
             underp = userIterateSubtreeReturnEdits(underp,
                                                    WidthVP{expDTypep, FINAL, childStreamUse}.p());
-        } else if (expDTypep->isDouble() && !underp->isDouble()) {
-            AstNode* const oldp
+        } ಅನ್ಯಥಾ ಯದಿ (expDTypep->isDouble() && !underp->isDouble()) {
+            Ast_ಗಂಟು* ಧ್ರುವ oldp
                 = underp;  // Need FINAL on children; otherwise splice would block it
-            spliceCvtD(VN_AS(underp, NodeExpr));
+            spliceCvtD(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
             underp = userIterateSubtreeReturnEdits(oldp, WidthVP{SELF, FINAL, childStreamUse}.p());
-        } else if (!expDTypep->isDouble() && underp->isDouble()) {
-            AstNode* const oldp
+        } ಅನ್ಯಥಾ ಯದಿ (!expDTypep->isDouble() && underp->isDouble()) {
+            Ast_ಗಂಟು* ಧ್ರುವ oldp
                 = underp;  // Need FINAL on children; otherwise splice would block it
-            spliceCvtS(VN_AS(underp, NodeExpr), true, expDTypep->width());  // Round RHS
+            spliceCvtS(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), ಸತ್ಯ, expDTypep->width());  // Round RHS
             underp = userIterateSubtreeReturnEdits(oldp, WidthVP{SELF, FINAL, childStreamUse}.p());
-        } else if (expDTypep->isString() && !underp->dtypep()->isString()) {
-            AstNode* const oldp
+        } ಅನ್ಯಥಾ ಯದಿ (expDTypep->isString() && !underp->dtypep()->isString()) {
+            Ast_ಗಂಟು* ಧ್ರುವ oldp
                 = underp;  // Need FINAL on children; otherwise splice would block it
-            spliceCvtString(VN_AS(underp, NodeExpr));
+            spliceCvtString(VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
             underp = userIterateSubtreeReturnEdits(oldp, WidthVP{SELF, FINAL, childStreamUse}.p());
-        } else {
-            const AstNodeDType* const underDtp = underp->dtypep()->skipRefp();
-            if (determ != ASSIGN && expDTypep->skipRefp()->isIntegralOrPacked()
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ underDtp = underp->dtypep()->skipRefp();
+            ಯದಿ (determ != ASSIGN && expDTypep->skipRefp()->isIntegralOrPacked()
                 && underDtp->isAggregateType()) {
                 parentp->v3error(ucfirst(parentp->prettyOperatorName())
                                  << " expects a numeric " << side
                                  << " operand, but it has data type "
                                  << underDtp->prettyDTypeNameQ() << " (IEEE 1800-2023 11.3)");
-                AstNode* const newp
-                    = new AstConst{underp->fileline(), AstConst::BitFalseErroring{}};
+                Ast_ಗಂಟು* ಧ್ರುವ newp
+                    = ನೂತನ AstConst{underp->fileline(), AstConst::BitFalseErroring{}};
                 underp->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(underp), underp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(underp), underp);
                 underp = newp;
             }
-            const AstNodeDType* const expDtp = expDTypep->skipRefp();
-            if (determ == ASSIGN && VN_IS(expDtp, NodeUOrStructDType) && expDtp->isAggregateType()
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ expDtp = expDTypep->skipRefp();
+            ಯದಿ (determ == ASSIGN && VN_IS(expDtp, ಗಂಟು_UOr_Struct_DType) && expDtp->isAggregateType()
                 && !underDtp->isAggregateType()) {
                 parentp->v3error("Illegal assignment: types are not assignment compatible (IEEE "
                                  "1800-2023 7.6)"
                                  << warnDTypes(parentp, expDtp, underDtp));
             }
             // Connections of interface arrays have their own check, with a better message
-            if (determ == ASSIGN && !isIfaceArrayDType(expDtp)
+            ಯದಿ (determ == ASSIGN && !isIfaceArrayDType(expDtp)
                 && !unpackedArraySizesMatch(expDtp, underDtp)) {
                 parentp->v3error("Illegal assignment: Unmatched array sizes (IEEE 1800-2023 7.6)"
                                  << warnDTypes(parentp, expDtp, underDtp));
             }
-            const AstBasicDType* const expBasicp = expDTypep->basicp();
-            const AstBasicDType* const underBasicp = underp->dtypep()->basicp();
-            if (expBasicp && underBasicp) {
-                if (!m_enumItemp && !parentp->fileline()->warnIsOff(V3ErrorCode::ENUMVALUE)
+            ಧ್ರುವ AstBasicDType* ಧ್ರುವ expBasicp = expDTypep->basicp();
+            ಧ್ರುವ AstBasicDType* ಧ್ರುವ underBasicp = underp->dtypep()->basicp();
+            ಯದಿ (expBasicp && underBasicp) {
+                ಯದಿ (!m_enumItemp && !parentp->fileline()->warnIsOff(V3ErrorCode::ENUMVALUE)
                     && warnOn) {
-                    if (rhsAccess.isReadOrRW()) {
+                    ಯದಿ (rhsAccess.isReadOrRW()) {
                         checkEnum(underp, parentp, expDTypep, underp->dtypep(),
-                                  VN_AS(underp, NodeExpr));
+                                  VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
                     }
-                    if (rhsAccess.isWriteOrRW()) {
+                    ಯದಿ (rhsAccess.isWriteOrRW()) {
                         checkEnum(underp, parentp, underp->dtypep(), expDTypep, nullptr);
                     }
                 }
-                AstNodeDType* subDTypep = expDTypep;
+                Ast_ಗಂಟು_DType* subDTypep = expDTypep;
                 // We then iterate FINAL before width fixes, as if the under-operation
                 // is e.g. an ADD, the ADD will auto-adjust to the proper data type
                 // or if another operation e.g. ATOI will not.
-                if (determ == SELF) {
+                ಯದಿ (determ == SELF) {
                     underp = userIterateSubtreeReturnEdits(
                         underp, WidthVP{SELF, FINAL, childStreamUse}.p());
-                } else if (determ == ASSIGN) {
+                } ಅನ್ಯಥಾ ಯದಿ (determ == ASSIGN) {
                     // IEEE: Signedness is solely determined by the RHS
                     // (underp), not by the LHS (expDTypep)
-                    if (underp->isSigned() != subDTypep->isSigned()
+                    ಯದಿ (underp->isSigned() != subDTypep->isSigned()
                         || underp->width() != subDTypep->width()) {
                         subDTypep = parentp->findBitOrLogicDType(
                             std::max(subDTypep->width(), underp->width()),
@@ -10148,38 +10148,38 @@ class WidthVisitor final : public VNVisitor {
                     }
                     underp = userIterateSubtreeReturnEdits(
                         underp, WidthVP{subDTypep, FINAL, childStreamUse}.p());
-                } else {
+                } ಅನ್ಯಥಾ {
                     underp = userIterateSubtreeReturnEdits(
                         underp, WidthVP{subDTypep, FINAL, childStreamUse}.p());
                 }
                 // Note the check uses the expected size, not the child's subDTypep as we want the
                 // child node's width to end up correct for the assignment (etc)
-                widthCheckSized(parentp, side, VN_AS(underp, NodeExpr), expDTypep, extendRule,
+                widthCheckSized(parentp, side, VN_AS(underp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ), expDTypep, extendRule,
                                 warnOn);
-            } else if (!VN_IS(parentp, Eq) && !VN_IS(parentp, Neq)
+            } ಅನ್ಯಥಾ ಯದಿ (!VN_IS(parentp, Eq) && !VN_IS(parentp, Neq)
                        && !VN_IS(expDTypep->skipRefp(), IfaceRefDType)
                        && VN_IS(underp->dtypep()->skipRefp(), IfaceRefDType)) {
                 underp->v3error(ucfirst(parentp->prettyOperatorName())
                                 << " expected non-interface on " << side << " but "
                                 << underp->prettyNameQ() << " is an interface.");
-            } else if (const AstIfaceRefDType* expIfaceRefp
+            } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstIfaceRefDType* expIfaceRefp
                        = VN_CAST(expDTypep->skipRefp(), IfaceRefDType)) {
-                const AstIfaceRefDType* underIfaceRefp
+                ಧ್ರುವ AstIfaceRefDType* underIfaceRefp
                     = VN_CAST(underp->dtypep()->skipRefp(), IfaceRefDType);
-                if (VN_IS(underp, Const) && VN_AS(underp, Const)->num().isNull()) {
+                ಯದಿ (VN_IS(underp, Const) && VN_AS(underp, Const)->ಅಂಕೆ().isNull()) {
                     // '= null' is ok
-                } else if (!underIfaceRefp) {
+                } ಅನ್ಯಥಾ ಯದಿ (!underIfaceRefp) {
                     underp->v3error(ucfirst(parentp->prettyOperatorName())
                                     << " expected " << expIfaceRefp->ifaceViaCellp()->prettyNameQ()
                                     << " interface on " << side << " but " << underp->prettyNameQ()
                                     << " is not an interface.");
-                } else if (expIfaceRefp->ifaceViaCellp() != underIfaceRefp->ifaceViaCellp()) {
+                } ಅನ್ಯಥಾ ಯದಿ (expIfaceRefp->ifaceViaCellp() != underIfaceRefp->ifaceViaCellp()) {
                     underp->v3error(ucfirst(parentp->prettyOperatorName())
                                     << " expected " << expIfaceRefp->ifaceViaCellp()->prettyNameQ()
                                     << " interface on " << side << " but " << underp->prettyNameQ()
                                     << " is a different interface ("
                                     << underIfaceRefp->ifaceViaCellp()->prettyNameQ() << ").");
-                } else if (underIfaceRefp->modportp()
+                } ಅನ್ಯಥಾ ಯದಿ (underIfaceRefp->modportp()
                            && expIfaceRefp->modportp() != underIfaceRefp->modportp()) {
                     underp->v3error(ucfirst(parentp->prettyOperatorName())
                                     << " expected "
@@ -10188,32 +10188,32 @@ class WidthVisitor final : public VNVisitor {
                                             : "no")
                                     << " interface modport on " << side << " but got "
                                     << underIfaceRefp->modportp()->prettyNameQ() << " modport.");
-                } else {
+                } ಅನ್ಯಥಾ {
                     underp = userIterateSubtreeReturnEdits(
                         underp, WidthVP{expDTypep, FINAL, childStreamUse}.p());
                 }
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Hope it just works out (perhaps a cast will deal with it)
                 underp = userIterateSubtreeReturnEdits(
                     underp, WidthVP{expDTypep, FINAL, childStreamUse}.p());
             }
         }
-        return underp;
+        ಪ್ರತ್ಯಾಗಮ underp;
     }
 
-    void
-    widthCheckSized(AstNode* parentp, const char* side,
-                    AstNodeExpr* underp,  // Node to be checked or have typecast added in front of
-                    AstNodeDType* expDTypep, ExtendRule extendRule, bool warnOn = true) {
+    ಶೂನ್ಯ
+    widthCheckSized(Ast_ಗಂಟು* parentp, ಧ್ರುವ ವರ್ಣ* side,
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* underp,  // Node to be checked or have typecast added in front of
+                    Ast_ಗಂಟು_DType* expDTypep, ExtendRule extendRule, ತಾರ್ಕಿಕ warnOn = ಸತ್ಯ) {
         // Issue warnings on sized number width mismatches, then do appropriate size extension
         // Generally iterateCheck is what is wanted instead of this
         // UINFO(9,"wchk "<<side<<endl<<"  "<<parentp<<endl<<"  "<<underp<<endl<<"
         // e="<<expDTypep<<" i"<<warnOn<<endl);
-        const AstBasicDType* const expBasicp = expDTypep->basicp();
-        const AstBasicDType* const underBasicp = underp->dtypep()->basicp();
-        if (expDTypep == underp->dtypep()) {
-            return;  // Same type must match
-        } else if (!expBasicp || expBasicp->isDouble() || !underBasicp
+        ಧ್ರುವ AstBasicDType* ಧ್ರುವ expBasicp = expDTypep->basicp();
+        ಧ್ರುವ AstBasicDType* ಧ್ರುವ underBasicp = underp->dtypep()->basicp();
+        ಯದಿ (expDTypep == underp->dtypep()) {
+            ಪ್ರತ್ಯಾಗಮ;  // Same type must match
+        } ಅನ್ಯಥಾ ಯದಿ (!expBasicp || expBasicp->isDouble() || !underBasicp
                    || underBasicp->isDouble()) {
             // This is perhaps a v3fatalSrc as we should have checked the types
             // before calling widthCheck, but we may have missed a non-sized
@@ -10221,39 +10221,39 @@ class WidthVisitor final : public VNVisitor {
             // fault.
             parentp->v3error(ucfirst(parentp->prettyOperatorName())
                              << " expected non-complex non-double " << side << " in width check");
-#if VL_DEBUG
+#ಯದಿ VL_DEBUG
             parentp->v3fatalSrc("widthCheckSized should not be called on doubles/complex types");
 #endif
-            return;
-        } else {
-            const int expWidth = expDTypep->width();
-            int expWidthMin = expDTypep->widthMin();
-            if (expWidthMin == 0) expWidthMin = expWidth;
-            const bool bad = widthBad(underp, expDTypep);
-            if ((bad || underp->width() != expWidth) && fixAutoExtend(underp /*ref*/, expWidth)) {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ expWidth = expDTypep->width();
+            ಪೂರ್ಣಾಙ್ಕ expWidthMin = expDTypep->widthMin();
+            ಯದಿ (expWidthMin == 0) expWidthMin = expWidth;
+            ಧ್ರುವ ತಾರ್ಕಿಕ bad = widthBad(underp, expDTypep);
+            ಯದಿ ((bad || underp->width() != expWidth) && fixAutoExtend(underp /*ref*/, expWidth)) {
                 underp = nullptr;  // Changes underp
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // If user has a sizing cast, assume they know what they are doing
             // (for better or worse)
-            if (VN_IS(parentp->backp(), CastSize)) warnOn = false;
-            if (parentp->fileline()->erroringOn() || underp->fileline()->erroringOn())
-                warnOn = false;
-            if (VN_IS(underp, Const) && VN_AS(underp, Const)->num().isFromString()
+            ಯದಿ (VN_IS(parentp->backp(), CastSize)) warnOn = ಅಸತ್ಯ;
+            ಯದಿ (parentp->fileline()->erroringOn() || underp->fileline()->erroringOn())
+                warnOn = ಅಸತ್ಯ;
+            ಯದಿ (VN_IS(underp, Const) && VN_AS(underp, Const)->ಅಂಕೆ().isFromString()
                 && expWidth > underp->width()
                 && (((expWidth - underp->width()) % 8) == 0)) {  // At least it's character sized
                 // reg [31:0] == "foo" we'll consider probably fine.
                 // Maybe this should be a special warning?  Not for now.
-                warnOn = false;
+                warnOn = ಅಸತ್ಯ;
             }
-            if ((VN_IS(parentp, Add) && underp->width() == 1 && underp->isOne())
+            ಯದಿ ((VN_IS(parentp, Add) && underp->width() == 1 && underp->isOne())
                 || (VN_IS(parentp, Sub) && underp->width() == 1 && underp->isOne()
                     && 0 == std::strcmp(side, "RHS"))) {
                 // "foo + 1'b1", or "foo - 1'b1" are very common, people assume
                 // they extend correctly
-                warnOn = false;
+                warnOn = ಅಸತ್ಯ;
             }
-            if (bad && warnOn) {
+            ಯದಿ (bad && warnOn) {
                 UINFOTREE(5, parentp->backp(), "", "back");
 
                 parentp->v3widthWarn(
@@ -10268,35 +10268,35 @@ class WidthVisitor final : public VNVisitor {
                                 : "")
                         << " bits.");
             }
-            if (bad || underp->width() != expWidth) {
+            ಯದಿ (bad || underp->width() != expWidth) {
                 // If we're in an NodeAssign, don't truncate the RHS if the LHS is
                 // a NodeStream. The streaming operator changes the rules regarding
                 // which bits to truncate.
-                const AstNodeAssign* assignp = VN_CAST(parentp, NodeAssign);
-                const AstPin* pinp = VN_CAST(parentp, Pin);
-                if (assignp && VN_IS(assignp->lhsp(), NodeStream)) {
-                } else if (pinp && pinp->modVarp()->direction() != VDirection::INPUT) {
+                ಧ್ರುವ Ast_ಗಂಟು_Assign* assignp = VN_CAST(parentp, ಗಂಟು_Assign);
+                ಧ್ರುವ AstPin* pinp = VN_CAST(parentp, Pin);
+                ಯದಿ (assignp && VN_IS(assignp->lhsp(), ಗಂಟು_Stream)) {
+                } ಅನ್ಯಥಾ ಯದಿ (pinp && pinp->modVarp()->direction() != VDirection::ಒಳಹರಿವು) {
                     // V3Inst::pinReconnectSimple must deal
                     UINFO(5, "pinInSizeMismatch: " << pinp);
-                } else if (assignp && VN_IS(underp, NodeStream) && expWidth > underp->width()) {
+                } ಅನ್ಯಥಾ ಯದಿ (assignp && VN_IS(underp, ಗಂಟು_Stream) && expWidth > underp->width()) {
                     // IEEE 1800-2023 11.4.14: When assigning a stream to a wider fixed-size
                     // target, widen by filling zero bits on the right. That is, left-justify
                     // the stream bits within the target width.
                     // Build: ShiftL(Extend(stream, expWidth), expWidth - streamWidth)
                     UINFO(5, "Widen NodeStream RHS with left-justify per 11.4.14");
                     VNRelinker linker;
-                    const int shift = expWidth - underp->width();
+                    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ shift = expWidth - underp->width();
                     underp->unlinkFrBack(&linker);
-                    AstExtend* const widenedp = new AstExtend{underp->fileline(), underp};
-                    widenedp->didWidth(true);
+                    AstExtend* ಧ್ರುವ widenedp = ನೂತನ AstExtend{underp->fileline(), underp};
+                    widenedp->didWidth(ಸತ್ಯ);
                     // Shift left so zeros fill on the right
-                    AstNodeExpr* const shiftedp = new AstShiftL{
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ shiftedp = ನೂತನ AstShiftL{
                         underp->fileline(), widenedp,
-                        new AstConst{underp->fileline(), static_cast<uint32_t>(shift)}, expWidth};
+                        ನೂತನ AstConst{underp->fileline(), static_cast<uint32_t>(shift)}, expWidth};
                     // Final dtype should match expected
                     shiftedp->dtypep(expDTypep);
                     linker.relink(shiftedp);
-                } else {
+                } ಅನ್ಯಥಾ {
                     VL_DO_DANGLING(fixWidthExtend(underp, expDTypep, extendRule), underp);
                 }
             }
@@ -10306,237 +10306,237 @@ class WidthVisitor final : public VNVisitor {
     //----------------------------------------------------------------------
     // SIGNED/DOUBLE METHODS
 
-    AstNodeExpr* checkCvtUS(AstNodeExpr* nodep, bool fatal) {
-        if (nodep && nodep->dtypep()->skipRefp()->isDouble()) {
-            if (fatal) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* checkCvtUS(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ತಾರ್ಕಿಕ fatal) {
+        ಯದಿ (nodep && nodep->dtypep()->skipRefp()->isDouble()) {
+            ಯದಿ (fatal) {
                 nodep->v3error("Expected integral input to " << nodep->backp()->prettyTypeName());
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->v3warn(REALCVT,
                               "Implicit conversion of real to integer; expected integral input to "
                                   << nodep->backp()->prettyTypeName());
             }
-            nodep = spliceCvtS(nodep, false, 32);
+            nodep = spliceCvtS(nodep, ಅಸತ್ಯ, 32);
         }
-        return nodep;
+        ಪ್ರತ್ಯಾಗಮ nodep;
     }
 
-    AstNodeExpr* spliceCvtD(AstNodeExpr* nodep) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* spliceCvtD(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         // For integer used in REAL context, convert to real
         // We don't warn here, "2.0 * 2" is common and reasonable
-        if (nodep && !nodep->dtypep()->skipRefp()->isDouble()) {
+        ಯದಿ (nodep && !nodep->dtypep()->skipRefp()->isDouble()) {
             UINFO(6, "   spliceCvtD: " << nodep);
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            AstNodeExpr* newp;
-            if (nodep->dtypep()->skipRefp()->isSigned()) {
-                newp = new AstISToRD{nodep->fileline(), nodep};
-            } else {
-                newp = new AstIToRD{nodep->fileline(), nodep};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp;
+            ಯದಿ (nodep->dtypep()->skipRefp()->isSigned()) {
+                newp = ನೂತನ AstISToRD{nodep->fileline(), nodep};
+            } ಅನ್ಯಥಾ {
+                newp = ನೂತನ AstIToRD{nodep->fileline(), nodep};
             }
             linker.relink(newp);
-            return newp;
-        } else {
-            return nodep;
+            ಪ್ರತ್ಯಾಗಮ newp;
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ nodep;
         }
     }
-    AstNodeExpr* spliceCvtS(AstNodeExpr* nodep, bool warnOn, int width) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* spliceCvtS(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ತಾರ್ಕಿಕ warnOn, ಪೂರ್ಣಾಙ್ಕ width) {
         // IEEE-2012 11.8.1: Signed: Type coercion creates signed
         // 11.8.2: Argument to convert is self-determined
-        if (nodep && nodep->dtypep()->skipRefp()->isDouble()) {
+        ಯದಿ (nodep && nodep->dtypep()->skipRefp()->isDouble()) {
             UINFO(6, "   spliceCvtS: " << nodep);
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+            ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const)) {
                 // We convert to/from int32_t rather than use floor() as want to make sure is
                 // representable in integer's number of bits
-                if (constp->isDouble() && V3Number::epsilonIntegral(constp->num().toDouble())) {
-                    warnOn = false;
+                ಯದಿ (constp->isDouble() && V3_ಸಂಖ್ಯೆ::epsilonIntegral(constp->ಅಂಕೆ().toDouble())) {
+                    warnOn = ಅಸತ್ಯ;
                 }
             }
-            if (warnOn) nodep->v3warn(REALCVT, "Implicit conversion of real to integer");
-            AstNodeExpr* const newp = new AstRToIRoundS{nodep->fileline(), nodep};
+            ಯದಿ (warnOn) nodep->v3warn(REALCVT, "Implicit conversion of real to integer");
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstRToIRoundS{nodep->fileline(), nodep};
             linker.relink(newp);
             newp->dtypeSetBitSized(width, VSigning::SIGNED);
-            return newp;
-        } else {
-            return nodep;
+            ಪ್ರತ್ಯಾಗಮ newp;
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ nodep;
         }
     }
-    AstNodeExpr* spliceCvtString(AstNodeExpr* nodep) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* spliceCvtString(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         // IEEE-2012 11.8.1: Signed: Type coercion creates signed
         // 11.8.2: Argument to convert is self-determined
-        if (nodep && !(nodep->dtypep()->basicp() && nodep->dtypep()->basicp()->isString())) {
+        ಯದಿ (nodep && !(nodep->dtypep()->basicp() && nodep->dtypep()->basicp()->isString())) {
             UINFO(6, "   spliceCvtString: " << nodep);
             VNRelinker linker;
             nodep->unlinkFrBack(&linker);
-            AstNodeExpr* const newp = new AstCvtPackString{nodep->fileline(), nodep};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstCvtPackString{nodep->fileline(), nodep};
             linker.relink(newp);
-            return newp;
-        } else {
-            return nodep;
+            ಪ್ರತ್ಯಾಗಮ newp;
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ nodep;
         }
     }
-    AstNodeBiop* replaceWithUOrSVersion(AstNodeBiop* nodep, bool signedFlavorNeeded) {
+    Ast_ಗಂಟು_Biop* replaceWithUOrSVersion(Ast_ಗಂಟು_Biop* nodep, ತಾರ್ಕಿಕ signedFlavorNeeded) {
         // Given a signed/unsigned node type, create the opposite type
         // Return new node or nullptr if nothing
-        if (signedFlavorNeeded == nodep->signedFlavor()) return nullptr;
-        if (!nodep->dtypep()) nodep->dtypeFrom(nodep->lhsp());
+        ಯದಿ (signedFlavorNeeded == nodep->signedFlavor()) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಯದಿ (!nodep->dtypep()) nodep->dtypeFrom(nodep->lhsp());
         // To simplify callers, some node types don't need to change
-        switch (nodep->type()) {
-        case VNType::Eq: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::Neq: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::EqCase: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::NeqCase: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::EqWild: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::NeqWild: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::Add: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::Sub: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        case VNType::ShiftL: nodep->dtypeChgSigned(signedFlavorNeeded); return nullptr;
-        default: break;
+        ವಿಕಲ್ಪ (nodep->type()) {
+        ಪಕ್ಷ VNType::Eq: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::Neq: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::EqCase: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::NeqCase: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::EqWild: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::NeqWild: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::Add: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::Sub: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪಕ್ಷ VNType::ShiftL: nodep->dtypeChgSigned(signedFlavorNeeded); ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಸ್ವಭಾವ: ಭಙ್ಗ;
         }
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeBiop* newp = nullptr;
-        switch (nodep->type()) {
-        case VNType::Gt: newp = new AstGtS{fl, lhsp, rhsp}; break;
-        case VNType::GtS: newp = new AstGt{fl, lhsp, rhsp}; break;
-        case VNType::Gte: newp = new AstGteS{fl, lhsp, rhsp}; break;
-        case VNType::GteS: newp = new AstGte{fl, lhsp, rhsp}; break;
-        case VNType::Lt: newp = new AstLtS{fl, lhsp, rhsp}; break;
-        case VNType::LtS: newp = new AstLt{fl, lhsp, rhsp}; break;
-        case VNType::Lte: newp = new AstLteS{fl, lhsp, rhsp}; break;
-        case VNType::LteS: newp = new AstLte{fl, lhsp, rhsp}; break;
-        case VNType::Div: newp = new AstDivS{fl, lhsp, rhsp}; break;
-        case VNType::DivS: newp = new AstDiv{fl, lhsp, rhsp}; break;
-        case VNType::ModDiv: newp = new AstModDivS{fl, lhsp, rhsp}; break;
-        case VNType::ModDivS: newp = new AstModDiv{fl, lhsp, rhsp}; break;
-        case VNType::Mul: newp = new AstMulS{fl, lhsp, rhsp}; break;
-        case VNType::MulS: newp = new AstMul{fl, lhsp, rhsp}; break;
-        case VNType::ShiftR: newp = new AstShiftRS{fl, lhsp, rhsp}; break;
-        case VNType::ShiftRS: newp = new AstShiftR{fl, lhsp, rhsp}; break;
-        default:  // LCOV_EXCL_LINE
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_Biop* newp = nullptr;
+        ವಿಕಲ್ಪ (nodep->type()) {
+        ಪಕ್ಷ VNType::Gt: newp = ನೂತನ AstGtS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::GtS: newp = ನೂತನ AstGt{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Gte: newp = ನೂತನ AstGteS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::GteS: newp = ನೂತನ AstGte{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lt: newp = ನೂತನ AstLtS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::LtS: newp = ನೂತನ AstLt{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lte: newp = ನೂತನ AstLteS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::LteS: newp = ನೂತನ AstLte{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Div: newp = ನೂತನ AstDivS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::DivS: newp = ನೂತನ AstDiv{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::ModDiv: newp = ನೂತನ AstModDivS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::ModDivS: newp = ನೂತನ AstModDiv{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Mul: newp = ನೂತನ AstMulS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::MulS: newp = ನೂತನ AstMul{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::ShiftR: newp = ನೂತನ AstShiftRS{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::ShiftRS: newp = ನೂತನ AstShiftR{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಸ್ವಭಾವ:  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Node needs sign change, but bad case: " << nodep);
-            break;
+            ಭಙ್ಗ;
         }
         UINFO(6, "   ReplaceWithUOrSVersion: " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    AstNodeBiop* replaceWithDVersion(AstNodeBiop* nodep) {
+    Ast_ಗಂಟು_Biop* replaceWithDVersion(Ast_ಗಂಟು_Biop* nodep) {
         // Given a signed/unsigned node type, create the opposite type
         // Return new node or nullptr if nothing
-        if (nodep->doubleFlavor()) return nullptr;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeBiop* newp = nullptr;
+        ಯದಿ (nodep->doubleFlavor()) ಪ್ರತ್ಯಾಗಮ nullptr;
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_Biop* newp = nullptr;
         // No width change on output;...                // All below have bool or double outputs
-        switch (nodep->type()) {
-        case VNType::Add: newp = new AstAddD{fl, lhsp, rhsp}; break;
-        case VNType::Sub: newp = new AstSubD{fl, lhsp, rhsp}; break;
-        case VNType::Pow: newp = new AstPowD{fl, lhsp, rhsp}; break;
-        case VNType::Eq:
-        case VNType::EqCase: newp = new AstEqD{fl, lhsp, rhsp}; break;
-        case VNType::Neq:
-        case VNType::NeqCase: newp = new AstNeqD{fl, lhsp, rhsp}; break;
-        case VNType::Gt:
-        case VNType::GtS: newp = new AstGtD{fl, lhsp, rhsp}; break;
-        case VNType::Gte:
-        case VNType::GteS: newp = new AstGteD{fl, lhsp, rhsp}; break;
-        case VNType::Lt:
-        case VNType::LtS: newp = new AstLtD{fl, lhsp, rhsp}; break;
-        case VNType::Lte:
-        case VNType::LteS: newp = new AstLteD{fl, lhsp, rhsp}; break;
-        case VNType::Div:
-        case VNType::DivS: newp = new AstDivD{fl, lhsp, rhsp}; break;
-        case VNType::Mul:
-        case VNType::MulS: newp = new AstMulD{fl, lhsp, rhsp}; break;
-        default:  // LCOV_EXCL_LINE
+        ವಿಕಲ್ಪ (nodep->type()) {
+        ಪಕ್ಷ VNType::Add: newp = ನೂತನ AstAddD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Sub: newp = ನೂತನ AstSubD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Pow: newp = ನೂತನ AstPowD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Eq:
+        ಪಕ್ಷ VNType::EqCase: newp = ನೂತನ AstEqD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Neq:
+        ಪಕ್ಷ VNType::NeqCase: newp = ನೂತನ AstNeqD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Gt:
+        ಪಕ್ಷ VNType::GtS: newp = ನೂತನ AstGtD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Gte:
+        ಪಕ್ಷ VNType::GteS: newp = ನೂತನ AstGteD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lt:
+        ಪಕ್ಷ VNType::LtS: newp = ನೂತನ AstLtD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lte:
+        ಪಕ್ಷ VNType::LteS: newp = ನೂತನ AstLteD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Div:
+        ಪಕ್ಷ VNType::DivS: newp = ನೂತನ AstDivD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Mul:
+        ಪಕ್ಷ VNType::MulS: newp = ನೂತನ AstMulD{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಸ್ವಭಾವ:  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Node needs conversion to double, but bad case: " << nodep);
-            break;
+            ಭಙ್ಗ;
         }
         UINFO(6, "   ReplaceWithDVersion: " << nodep << " w/ " << newp);
         nodep->replaceWith(newp);
         // No width change; the default created type (bool or double) is correct
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    AstNodeBiop* replaceWithNVersion(AstNodeBiop* nodep) {
+    Ast_ಗಂಟು_Biop* replaceWithNVersion(Ast_ಗಂಟು_Biop* nodep) {
         // Given a signed/unsigned node type, replace with string version
         // Return new node or nullptr if nothing
-        if (nodep->stringFlavor()) return nullptr;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeBiop* newp = nullptr;
+        ಯದಿ (nodep->stringFlavor()) ಪ್ರತ್ಯಾಗಮ nullptr;
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_Biop* newp = nullptr;
         // No width change on output;...                // All below have bool or double outputs
-        switch (nodep->type()) {
-        case VNType::Eq:
-        case VNType::EqCase:
-        case VNType::EqWild: newp = new AstEqN{fl, lhsp, rhsp}; break;
-        case VNType::Neq:
-        case VNType::NeqCase:
-        case VNType::NeqWild: newp = new AstNeqN{fl, lhsp, rhsp}; break;
-        case VNType::Gt:
-        case VNType::GtS: newp = new AstGtN{fl, lhsp, rhsp}; break;
-        case VNType::Gte:
-        case VNType::GteS: newp = new AstGteN{fl, lhsp, rhsp}; break;
-        case VNType::Lt:
-        case VNType::LtS: newp = new AstLtN{fl, lhsp, rhsp}; break;
-        case VNType::Lte:
-        case VNType::LteS: newp = new AstLteN{fl, lhsp, rhsp}; break;
-        default:  // LCOV_EXCL_LINE
+        ವಿಕಲ್ಪ (nodep->type()) {
+        ಪಕ್ಷ VNType::Eq:
+        ಪಕ್ಷ VNType::EqCase:
+        ಪಕ್ಷ VNType::EqWild: newp = ನೂತನ AstEqN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Neq:
+        ಪಕ್ಷ VNType::NeqCase:
+        ಪಕ್ಷ VNType::NeqWild: newp = ನೂತನ AstNeqN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Gt:
+        ಪಕ್ಷ VNType::GtS: newp = ನೂತನ AstGtN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Gte:
+        ಪಕ್ಷ VNType::GteS: newp = ನೂತನ AstGteN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lt:
+        ಪಕ್ಷ VNType::LtS: newp = ನೂತನ AstLtN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಪಕ್ಷ VNType::Lte:
+        ಪಕ್ಷ VNType::LteS: newp = ನೂತನ AstLteN{fl, lhsp, rhsp}; ಭಙ್ಗ;
+        ಸ್ವಭಾವ:  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Node needs conversion to string, but bad case: " << nodep);
-            break;
+            ಭಙ್ಗ;
         }
         UINFO(6, "   ReplaceWithNVersion: " << nodep << " w/ " << newp);
         nodep->replaceWith(newp);
         // No width change; the default created type (bool or string) is correct
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    AstNodeUniop* replaceWithDVersion(AstNodeUniop* nodep) {
+    Ast_ಗಂಟು_Uniop* replaceWithDVersion(Ast_ಗಂಟು_Uniop* nodep) {
         // Given a signed/unsigned node type, create the opposite type
         // Return new node or nullptr if nothing
-        if (nodep->doubleFlavor()) return nullptr;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstNodeUniop* newp = nullptr;
-        switch (nodep->type()) {
-        case VNType::Negate: newp = new AstNegateD{fl, lhsp}; break;
-        default:  // LCOV_EXCL_LINE
+        ಯದಿ (nodep->doubleFlavor()) ಪ್ರತ್ಯಾಗಮ nullptr;
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_Uniop* newp = nullptr;
+        ವಿಕಲ್ಪ (nodep->type()) {
+        ಪಕ್ಷ VNType::Negate: newp = ನೂತನ AstNegateD{fl, lhsp}; ಭಙ್ಗ;
+        ಸ್ವಭಾವ:  // LCOV_EXCL_LINE
             nodep->v3fatalSrc("Node needs conversion to double, but bad case: " << nodep);
-            break;
+            ಭಙ್ಗ;
         }
         UINFO(6, "   ReplaceWithDVersion: " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
 
     //----------------------------------------------------------------------
     // METHODS - strings
 
-    void replaceWithSFormat(AstMethodCall* nodep, const string& format) {
+    ಶೂನ್ಯ replaceWithSFormat(AstMethodCall* nodep, ಧ್ರುವ string& format) {
         // For string.itoa and similar, replace with SFormatF
-        AstArg* const argp = nodep->argsp();
+        AstArg* ಧ್ರುವ argp = nodep->argsp();
         UASSERT_OBJ(argp, nodep,
                     "Argument needed for string method, call methodOkArguments before here");
-        AstNodeVarRef* const fromp = VN_AS(nodep->fromp()->unlinkFrBack(), VarRef);
-        AstNode* const newp = new AstAssign{
+        Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ fromp = VN_AS(nodep->fromp()->unlinkFrBack(), VarRef);
+        Ast_ಗಂಟು* ಧ್ರುವ newp = ನೂತನ AstAssign{
             nodep->fileline(), fromp,
-            new AstSFormatF{nodep->fileline(), format, false, argp->exprp()->unlinkFrBack()}};
+            ನೂತನ AstSFormatF{nodep->fileline(), format, ಅಸತ್ಯ, argp->exprp()->unlinkFrBack()}};
         fromp->access(VAccess::WRITE);
-        pushDeletep(nodep->backp());
+        ತಳ್ಳು_Deletep(nodep->backp());
         VL_DO_DANGLING(nodep->backp()->replaceWith(newp), newp);
     }
 
     //----------------------------------------------------------------------
     // METHODS - data types
 
-    AstNodeDType* iterateEditMoveDTypep(AstNode* parentp, AstNodeDType* dtnodep) {
+    Ast_ಗಂಟು_DType* iterateEditMoveDTypep(Ast_ಗಂಟು* parentp, Ast_ಗಂಟು_DType* dtnodep) {
         UASSERT_OBJ(dtnodep, parentp, "Caller should check for nullptr before computing dtype");
         // Iterate into a data type to resolve that type.
         // The data type may either:
@@ -10550,9 +10550,9 @@ class WidthVisitor final : public VNVisitor {
         //    so removing/changing a variable won't lose the dtype
 
         // Case #1 above applies?
-        const bool child1 = (parentp->getChildDTypep() == dtnodep);
-        const bool child2 = (parentp->getChild2DTypep() == dtnodep);
-        if (child1 || child2) {
+        ಧ್ರುವ ತಾರ್ಕಿಕ child1 = (parentp->getChildDTypep() == dtnodep);
+        ಧ್ರುವ ತಾರ್ಕಿಕ child2 = (parentp->getChild2DTypep() == dtnodep);
+        ಯದಿ (child1 || child2) {
             UINFO(9, "iterateEditMoveDTypep child iterating " << dtnodep);
             // Iterate, this might edit the dtypes which means dtnodep now lost
             VL_DO_DANGLING(userIterate(dtnodep, nullptr), dtnodep);
@@ -10568,7 +10568,7 @@ class WidthVisitor final : public VNVisitor {
             dtnodep->unlinkFrBack();
             v3Global.rootp()->typeTablep()->addTypesp(dtnodep);
         }
-        if (!dtnodep->didWidth()) {
+        ಯದಿ (!dtnodep->didWidth()) {
             UINFO(9, "iterateEditMoveDTypep pointer iterating " << dtnodep);
             // See notes in visit(AstBracketArrayDType*)
             UASSERT_OBJ(!VN_IS(dtnodep, BracketArrayDType), parentp,
@@ -10577,192 +10577,192 @@ class WidthVisitor final : public VNVisitor {
             UASSERT_OBJ(dtnodep->didWidth(), parentp,
                         "iterateEditMoveDTypep didn't get width resolution");
         }
-        return dtnodep;
+        ಪ್ರತ್ಯಾಗಮ dtnodep;
     }
 
-    AstConst* dimensionValue(FileLine* fileline, AstNodeDType* nodep, VAttrType attrType,
-                             int dim) {
+    AstConst* dimension_ಮೌಲ್ಯ(File_ಸಾಲು* fileline, Ast_ಗಂಟು_DType* nodep, VAttrType attrType,
+                             ಪೂರ್ಣಾಙ್ಕ dim) {
         // Return the dimension value for the specified attribute and constant dimension
-        AstNodeDType* dtypep = nodep->skipRefp();
+        Ast_ಗಂಟು_DType* dtypep = nodep->skipRefp();
         VNumRange declRange;  // ranged() set false
-        for (int i = 1; i <= dim; ++i) {
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 1; i <= dim; ++i) {
             // UINFO(9, "   dim at "<<dim<<"  "<<dtypep);
             declRange = VNumRange{};  // ranged() set false
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+            ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_Array_DType* ಧ್ರುವ adtypep = VN_CAST(dtypep, ಗಂಟು_Array_DType)) {
                 declRange = adtypep->declRange();
-                if (i < dim) dtypep = adtypep->subDTypep()->skipRefp();
-                continue;
-            } else if (const AstNodeUOrStructDType* const adtypep
-                       = VN_CAST(dtypep, NodeUOrStructDType)) {
+                ಯದಿ (i < dim) dtypep = adtypep->subDTypep()->skipRefp();
+                ಅನುವರ್ತ;
+            } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ adtypep
+                       = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
                 declRange = adtypep->declRange();
-                break;  // Sub elements don't look like arrays and can't iterate into
-            } else if (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
-                if (adtypep->isRanged()) declRange = adtypep->declRange();
-                break;
+                ಭಙ್ಗ;  // Sub elements don't look like arrays and can't iterate into
+            } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstBasicDType* ಧ್ರುವ adtypep = VN_CAST(dtypep, BasicDType)) {
+                ಯದಿ (adtypep->isRanged()) declRange = adtypep->declRange();
+                ಭಙ್ಗ;
             }
-            break;  // LCOV_EXCL_LINE
+            ಭಙ್ಗ;  // LCOV_EXCL_LINE
         }
         AstConst* valp = nullptr;  // If nullptr, construct from val
-        int val = 0;
-        switch (attrType) {
-        case VAttrType::DIM_BITS: {
-            int bits = 1;
-            while (dtypep) {
+        ಪೂರ್ಣಾಙ್ಕ val = 0;
+        ವಿಕಲ್ಪ (attrType) {
+        ಪಕ್ಷ VAttrType::DIM_BITS: {
+            ಪೂರ್ಣಾಙ್ಕ bits = 1;
+            ಯಾವತ್ (dtypep) {
                 // UINFO(9, "   bits at " << bits << "  " << dtypep);
-                if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+                ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_Array_DType* ಧ್ರುವ adtypep = VN_CAST(dtypep, ಗಂಟು_Array_DType)) {
                     bits *= adtypep->declRange().elements();
                     dtypep = adtypep->subDTypep()->skipRefp();
-                    continue;
-                } else if (const AstNodeUOrStructDType* const adtypep
-                           = VN_CAST(dtypep, NodeUOrStructDType)) {
+                    ಅನುವರ್ತ;
+                } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ adtypep
+                           = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
                     bits *= adtypep->isStreamableFixedAggregate() ? adtypep->widthStream()
                                                                   : adtypep->width();
-                    break;
-                } else if (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
+                    ಭಙ್ಗ;
+                } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstBasicDType* ಧ್ರುವ adtypep = VN_CAST(dtypep, BasicDType)) {
                     bits *= adtypep->width();
-                    break;
+                    ಭಙ್ಗ;
                 }
-                break;
+                ಭಙ್ಗ;
             }
-            if (dim == 0) {
+            ಯದಿ (dim == 0) {
                 val = 0;
-            } else if (dim == 1 && !declRange.ranged()
+            } ಅನ್ಯಥಾ ಯದಿ (dim == 1 && !declRange.ranged()
                        && bits == 1) {  // $bits should be sane for non-arrays
                 val = nodep->width();
-            } else {
+            } ಅನ್ಯಥಾ {
                 val = bits;
             }
-            break;  // LCOV_EXCL_LINE
+            ಭಙ್ಗ;  // LCOV_EXCL_LINE
         }
-        case VAttrType::DIM_HIGH: val = !declRange.ranged() ? 0 : declRange.hi(); break;
-        case VAttrType::DIM_LEFT: val = !declRange.ranged() ? 0 : declRange.left(); break;
-        case VAttrType::DIM_LOW: val = !declRange.ranged() ? 0 : declRange.lo(); break;
-        case VAttrType::DIM_RIGHT: val = !declRange.ranged() ? 0 : declRange.right(); break;
-        case VAttrType::DIM_INCREMENT:
+        ಪಕ್ಷ VAttrType::DIM_ಮೇಲಿನ: val = !declRange.ranged() ? 0 : declRange.hi(); ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::DIM_ಎಡ: val = !declRange.ranged() ? 0 : declRange.ಎಡ(); ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::DIM_ಕೆಳಗಿನ: val = !declRange.ranged() ? 0 : declRange.lo(); ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::DIM_ಬಲ: val = !declRange.ranged() ? 0 : declRange.ಬಲ(); ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::DIM_INCREMENT:
             val = (declRange.ranged() && declRange.ascending()) ? -1 : 1;
-            break;
-        case VAttrType::DIM_SIZE: val = !declRange.ranged() ? 0 : declRange.elements(); break;
-        default: nodep->v3fatalSrc("Missing DIM ATTR type case"); break;
+            ಭಙ್ಗ;
+        ಪಕ್ಷ VAttrType::DIM_SIZE: val = !declRange.ranged() ? 0 : declRange.elements(); ಭಙ್ಗ;
+        ಸ್ವಭಾವ: nodep->v3fatalSrc("Missing DIM ATTR type case"); ಭಙ್ಗ;
         }
-        if (!valp) valp = new AstConst{fileline, AstConst::Signed32{}, val};
+        ಯದಿ (!valp) valp = ನೂತನ AstConst{fileline, AstConst::Signed32{}, val};
         UINFO(9, " $dimension " << attrType.ascii() << "(" << cvtToHex(dtypep) << "," << dim
                                 << ")=" << valp);
-        return valp;
+        ಪ್ರತ್ಯಾಗಮ valp;
     }
-    AstVarRef* dimensionVarRefp(AstNodeDType* nodep, VAttrType attrType, uint32_t msbdim) {
+    AstVarRef* dimensionVarRefp(Ast_ಗಂಟು_DType* nodep, VAttrType attrType, uint32_t msbdim) {
         // Return a reference to a constant table which has the specified dimension properties
         // for this data type. The reference is cached, so the table is built only once.
         AstVarRef*& cachedpr = m_tableMap[std::make_pair(nodep, attrType)];
-        if (cachedpr) return cachedpr->cloneTree(false);
+        ಯದಿ (cachedpr) ಪ್ರತ್ಯಾಗಮ cachedpr->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
 
-        AstNodeArrayDType* const vardtypep = new AstUnpackArrayDType{
-            nodep->fileline(), nodep->findIntDType(), new AstRange(nodep->fileline(), msbdim, 0)};
+        Ast_ಗಂಟು_Array_DType* ಧ್ರುವ vardtypep = ನೂತನ AstUnpackArrayDType{
+            nodep->fileline(), nodep->findIntDType(), ನೂತನ AstRange(nodep->fileline(), msbdim, 0)};
         v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
         userIterate(vardtypep, WidthVP{SELF, BOTH}.p());
-        AstConsArray* const consp = new AstConsArray{nodep->fileline(), vardtypep};
-        for (unsigned i = 0; i < msbdim + 1; ++i) {
-            consp->valuep(i, dimensionValue(nodep->fileline(), nodep, attrType, i));
+        AstConsArray* ಧ್ರುವ consp = ನೂತನ AstConsArray{nodep->fileline(), vardtypep};
+        ಪ್ರತಿ (unsigned i = 0; i < msbdim + 1; ++i) {
+            consp->valuep(i, dimension_ಮೌಲ್ಯ(nodep->fileline(), nodep, attrType, i));
         }
 
         // Share identical tables via the constant pool
         cachedpr = V3ConstPool::find(consp);
-        VL_DO_DANGLING(consp->deleteTree(), consp);  // V3ConstPool::find clones it
-        cachedpr->varp()->didWidth(true);
+        VL_DO_DANGLING(consp->delete_ವೃಕ್ಷ(), consp);  // V3ConstPool::find clones it
+        cachedpr->varp()->didWidth(ಸತ್ಯ);
         // Keep the dtype of the value, as the entry might have a different, compatible one
-        cachedpr->didWidth(true);
-        pushDeletep(cachedpr);  // Deleted with the visitor - always cloned
-        return cachedpr->cloneTree(false);
+        cachedpr->didWidth(ಸತ್ಯ);
+        ತಳ್ಳು_Deletep(cachedpr);  // Deleted with the visitor - always cloned
+        ಪ್ರತ್ಯಾಗಮ cachedpr->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
     }
-    static uint64_t enumMaxValue(const AstNode* errNodep, const AstEnumDType* adtypep) {
+    ಸ್ಥಿರ uint64_t enum_Max_ಮೌಲ್ಯ(ಧ್ರುವ Ast_ಗಂಟು* errNodep, ಧ್ರುವ AstEnumDType* adtypep) {
         // Most enums unless overridden are 32 bits, so we size array
         // based on max enum value used.
         // Ideally we would have a fast algorithm when a number is
         // of small width and complete and so can use an array, and
         // a map for when the value is many bits and sparse.
         uint64_t maxval = 0;
-        for (const AstEnumItem* itemp = adtypep->itemsp(); itemp;
+        ಪ್ರತಿ (ಧ್ರುವ AstEnumItem* itemp = adtypep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            const AstConst* const vconstp = VN_CAST(itemp->valuep(), Const);
+            ಧ್ರುವ AstConst* ಧ್ರುವ vconstp = VN_CAST(itemp->valuep(), Const);
             UASSERT_OBJ(vconstp, errNodep, "Enum item without constified value");
-            if (!vconstp->num().isAnyXZ() && vconstp->toUQuad() >= maxval)
+            ಯದಿ (!vconstp->ಅಂಕೆ().isAnyXZ() && vconstp->toUQuad() >= maxval)
                 maxval = vconstp->toUQuad();
         }
-        if (adtypep->itemsp()->width() > 64) {
+        ಯದಿ (adtypep->itemsp()->width() > 64) {
             errNodep->v3warn(E_UNSUPPORTED,
                              "Unsupported: enum next/prev method on enum with > 64 bits");
-            return 64;
+            ಪ್ರತ್ಯಾಗಮ 64;
         }
-        return maxval;
+        ಪ್ರತ್ಯಾಗಮ maxval;
     }
-    AstVarRef* enumVarRefp(AstEnumDType* const nodep, VAttrType attrType, bool assoc,
+    AstVarRef* enumVarRefp(AstEnumDType* ಧ್ರುವ nodep, VAttrType attrType, ತಾರ್ಕಿಕ assoc,
                            uint32_t msbdim) {
         // Return a reference to a constant table which has the specified attrType information
         // for this enum. The reference is cached, so the table is built only once.
         AstVarRef*& cachedpr = m_tableMap[std::make_pair(nodep, attrType)];
-        if (cachedpr) return cachedpr->cloneTree(false);
+        ಯದಿ (cachedpr) ಪ್ರತ್ಯಾಗಮ cachedpr->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
 
         UINFO(9, "Construct Venumtab attr=" << attrType.ascii() << " assoc=" << assoc
                                             << " max=" << msbdim << " for " << nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNodeDType* basep;
-        if (attrType == VAttrType::ENUM_NAME) {
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_DType* basep;
+        ಯದಿ (attrType == VAttrType::ENUM_NAME) {
             basep = nodep->findStringDType();
-        } else if (attrType == VAttrType::ENUM_VALID) {
+        } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_VALID) {
             // TODO in theory we could bit-pack the bits in the table, but
             // would require additional operations to extract, so only
             // would be worth it for larger tables which perhaps could be
             // better handled with equation generation?
             basep = nodep->findBitDType();
-        } else {
+        } ಅನ್ಯಥಾ {
             basep = nodep->dtypep();
         }
-        AstNodeDType* vardtypep;
-        if (assoc) {
+        Ast_ಗಂಟು_DType* vardtypep;
+        ಯದಿ (assoc) {
             // Key by the base type of the enum, not the enum itself, so identical maps of
             // different enum types can be shared in the constant pool
-            vardtypep = new AstAssocArrayDType{flp, basep, nodep->subDTypep()};
-        } else {
-            vardtypep = new AstUnpackArrayDType{flp, basep, new AstRange(flp, msbdim, 0)};
+            vardtypep = ನೂತನ AstAssocArrayDType{flp, basep, nodep->subDTypep()};
+        } ಅನ್ಯಥಾ {
+            vardtypep = ನೂತನ AstUnpackArrayDType{flp, basep, ನೂತನ AstRange(flp, msbdim, 0)};
         }
         v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
 
         // Default for all unspecified values
         AstConst* defaultp = nullptr;
-        if (attrType == VAttrType::ENUM_NAME) {
-            defaultp = new AstConst{flp, AstConst::String{}, ""};
-        } else if (attrType == VAttrType::ENUM_NEXT || attrType == VAttrType::ENUM_PREV) {
-            defaultp = new AstConst{flp, V3Number{nodep, nodep->width(), 0}};
-        } else if (attrType == VAttrType::ENUM_VALID) {
-            defaultp = new AstConst{flp, AstConst::BitFalse{}};
-        } else {
+        ಯದಿ (attrType == VAttrType::ENUM_NAME) {
+            defaultp = ನೂತನ AstConst{flp, AstConst::String{}, ""};
+        } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_NEXT || attrType == VAttrType::ENUM_PREV) {
+            defaultp = ನೂತನ AstConst{flp, V3_ಸಂಖ್ಯೆ{nodep, nodep->width(), 0}};
+        } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_VALID) {
+            defaultp = ನೂತನ AstConst{flp, AstConst::BitFalse{}};
+        } ಅನ್ಯಥಾ {
             nodep->v3fatalSrc("Bad case");
         }
 
         // Find valid values and populate
         UASSERT_OBJ(nodep->itemsp(), nodep, "enum without items");
-        std::map<uint64_t, AstNodeExpr*> values;
+        std::map<uint64_t, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಮೌಲ್ಯಗಳು;
         {
             uint64_t ordinal = 0;
-            AstEnumItem* const firstp = nodep->itemsp();
-            const AstEnumItem* prevp = firstp;  // Prev must start with last item
-            while (prevp->nextp()) prevp = VN_AS(prevp->nextp(), EnumItem);
-            for (AstEnumItem* itemp = firstp; itemp;) {
-                AstEnumItem* const nextp = VN_AS(itemp->nextp(), EnumItem);
-                const AstConst* const vconstp = VN_AS(itemp->valuep(), Const);
+            AstEnumItem* ಧ್ರುವ firstp = nodep->itemsp();
+            ಧ್ರುವ AstEnumItem* prevp = firstp;  // Prev must start with last item
+            ಯಾವತ್ (prevp->nextp()) prevp = VN_AS(prevp->nextp(), EnumItem);
+            ಪ್ರತಿ (AstEnumItem* itemp = firstp; itemp;) {
+                AstEnumItem* ಧ್ರುವ nextp = VN_AS(itemp->nextp(), EnumItem);
+                ಧ್ರುವ AstConst* ಧ್ರುವ vconstp = VN_AS(itemp->valuep(), Const);
                 UASSERT_OBJ(vconstp, nodep, "Enum item without constified value");
-                if (!vconstp->num().isAnyXZ()) {  // Can 2-state runtime decode
-                    const uint64_t i = nodep->isWide() ? ++ordinal : vconstp->toUQuad();
-                    if (attrType == VAttrType::ENUM_NAME) {
-                        values[i] = new AstConst{flp, AstConst::String{},
-                                                 V3Number::displayedEnumName(itemp)};
-                    } else if (attrType == VAttrType::ENUM_NEXT) {
-                        values[i]
-                            = (nextp ? nextp : firstp)->valuep()->cloneTree(false);  // A const
-                    } else if (attrType == VAttrType::ENUM_PREV) {
-                        values[i] = prevp->valuep()->cloneTree(false);  // A const
-                    } else if (attrType == VAttrType::ENUM_VALID) {
-                        values[i] = new AstConst{flp, AstConst::BitTrue{}};
-                    } else {
+                ಯದಿ (!vconstp->ಅಂಕೆ().isAnyXZ()) {  // Can 2-state runtime decode
+                    ಧ್ರುವ uint64_t i = nodep->isWide() ? ++ordinal : vconstp->toUQuad();
+                    ಯದಿ (attrType == VAttrType::ENUM_NAME) {
+                        ಮೌಲ್ಯಗಳು[i] = ನೂತನ AstConst{flp, AstConst::String{},
+                                                 V3_ಸಂಖ್ಯೆ::displayedEnumName(itemp)};
+                    } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_NEXT) {
+                        ಮೌಲ್ಯಗಳು[i]
+                            = (nextp ? nextp : firstp)->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);  // A const
+                    } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_PREV) {
+                        ಮೌಲ್ಯಗಳು[i] = prevp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);  // A const
+                    } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_VALID) {
+                        ಮೌಲ್ಯಗಳು[i] = ನೂತನ AstConst{flp, AstConst::BitTrue{}};
+                    } ಅನ್ಯಥಾ {
                         nodep->v3fatalSrc("Bad case");
                     }
                 }
@@ -10771,181 +10771,181 @@ class WidthVisitor final : public VNVisitor {
             }
         }
         // Add all specified values to table
-        AstNodeExpr* valuep = nullptr;
-        if (assoc) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = nullptr;
+        ಯದಿ (assoc) {
             // Keyed by the enum's base type
-            AstConsAssoc* const consp = new AstConsAssoc{flp, defaultp};
+            AstConsAssoc* ಧ್ರುವ consp = ನೂತನ AstConsAssoc{flp, defaultp};
             consp->dtypep(vardtypep);
-            for (const auto& itr : values) {
-                V3Number key{nodep, nodep->width()};
-                key.setQuad(itr.first);
-                consp->addItemsp(new AstConsAssocItem{flp, new AstConst{flp, key}, itr.second});
+            ಪ್ರತಿ (ಧ್ರುವ auto& itr : ಮೌಲ್ಯಗಳು) {
+                V3_ಸಂಖ್ಯೆ ಕೀಲಿ{nodep, nodep->width()};
+                ಕೀಲಿ.setQuad(itr.first);
+                consp->addItemsp(ನೂತನ AstConsAssocItem{flp, ನೂತನ AstConst{flp, ಕೀಲಿ}, itr.second});
             }
             valuep = consp;
-        } else {
-            AstConsArray* const consp = new AstConsArray{flp, vardtypep, defaultp};
-            for (uint64_t i = 0; i < (msbdim + 1); ++i) {
-                if (values[i]) consp->valuep(i, values[i]);
+        } ಅನ್ಯಥಾ {
+            AstConsArray* ಧ್ರುವ consp = ನೂತನ AstConsArray{flp, vardtypep, defaultp};
+            ಪ್ರತಿ (uint64_t i = 0; i < (msbdim + 1); ++i) {
+                ಯದಿ (ಮೌಲ್ಯಗಳು[i]) consp->valuep(i, ಮೌಲ್ಯಗಳು[i]);
             }
             valuep = consp;
         }
 
         // Share identical tables via the constant pool
         cachedpr = V3ConstPool::find(valuep);
-        VL_DO_DANGLING(pushDeletep(valuep), valuep);  // V3ConstPool::find clones it
-        cachedpr->varp()->didWidth(true);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);  // V3ConstPool::find clones it
+        cachedpr->varp()->didWidth(ಸತ್ಯ);
         // Keep the dtype of the value, as the entry might have a different, compatible one
-        cachedpr->didWidth(true);
-        pushDeletep(cachedpr);  // Deleted with the visitor - always cloned
-        return cachedpr->cloneTree(false);
+        cachedpr->didWidth(ಸತ್ಯ);
+        ತಳ್ಳು_Deletep(cachedpr);  // Deleted with the visitor - always cloned
+        ಪ್ರತ್ಯಾಗಮ cachedpr->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
     }
 
-    AstNodeExpr* enumSelect(AstNodeExpr* nodep, AstEnumDType* adtypep, VAttrType attrType) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enumSelect(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, AstEnumDType* adtypep, VAttrType attrType) {
         // Return expression to get given attrType information from a enum's value (nodep)
-        if (attrType == VAttrType::ENUM_NAME) {
-            if (nodep->isPure()) nodep = V3Const::constifyEdit(nodep);
-            if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-                AstNodeExpr* const newp = new AstConst{nodep->fileline(), AstConst::String{},
-                                                       constp->num().displayedEnumName(adtypep)};
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return newp;
+        ಯದಿ (attrType == VAttrType::ENUM_NAME) {
+            ಯದಿ (nodep->isPure()) nodep = V3Const::constifyEdit(nodep);
+            ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstConst{nodep->fileline(), AstConst::String{},
+                                                       constp->ಅಂಕೆ().displayedEnumName(adtypep)};
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ newp;
             }
         }
-        if (attrType == VAttrType::ENUM_NAME && !nodep->isPure() && (m_modep || m_ftaskp)) {
-            AstExprStmt* const capturep = newEnumCapture(nodep, adtypep);
-            AstNodeExpr* const valuep = capturep->resultp()->unlinkFrBack();
+        ಯದಿ (attrType == VAttrType::ENUM_NAME && !nodep->isPure() && (m_modep || m_ftaskp)) {
+            Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಧ್ರುವ capturep = newEnumCapture(nodep, adtypep);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = capturep->resultp()->unlinkFrBack();
             capturep->resultp(enumSelect(valuep, adtypep, attrType));
             capturep->dtypeSetString();
-            return capturep;
+            ಪ್ರತ್ಯಾಗಮ capturep;
         }
-        if (attrType == VAttrType::ENUM_NAME && adtypep->isWide()) {
+        ಯದಿ (attrType == VAttrType::ENUM_NAME && adtypep->isWide()) {
             // Wide values select an ordinal in the shared name table.
-            AstNodeExpr* indexp = new AstConst{nodep->fileline(), 0};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* indexp = ನೂತನ AstConst{nodep->fileline(), 0};
             uint32_t ordinal = 0;
-            for (const AstEnumItem* itemp = adtypep->itemsp(); itemp;
+            ಪ್ರತಿ (ಧ್ರುವ AstEnumItem* itemp = adtypep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-                if (constp->num().isAnyXZ()) continue;
-                indexp = new AstCond{nodep->fileline(),
-                                     new AstEq{nodep->fileline(), nodep->cloneTree(false),
-                                               itemp->valuep()->cloneTree(false)},
-                                     new AstConst{nodep->fileline(), ++ordinal}, indexp};
+                ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_AS(itemp->valuep(), Const);
+                ಯದಿ (constp->ಅಂಕೆ().isAnyXZ()) ಅನುವರ್ತ;
+                indexp = ನೂತನ AstCond{nodep->fileline(),
+                                     ನೂತನ AstEq{nodep->fileline(), nodep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ),
+                                               itemp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)},
+                                     ನೂತನ AstConst{nodep->fileline(), ++ordinal}, indexp};
             }
-            AstVarRef* const tabRefp = enumVarRefp(adtypep, attrType, false, ordinal);
-            AstNodeExpr* const newp = new AstArraySel{nodep->fileline(), tabRefp, indexp};
+            AstVarRef* ಧ್ರುವ tabRefp = enumVarRefp(adtypep, attrType, ಅಸತ್ಯ, ordinal);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstArraySel{nodep->fileline(), tabRefp, indexp};
             newp->dtypeSetString();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return newp;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ newp;
         }
-        const uint64_t msbdim = enumMaxValue(nodep, adtypep);
-        const bool assoc = msbdim > ENUM_LOOKUP_BITS;
-        AstNodeExpr* newp;
-        if (assoc) {
-            AstVarRef* const tabRefp = enumVarRefp(adtypep, attrType, true, 0);
-            newp = new AstAssocSel{nodep->fileline(), tabRefp, nodep};
-        } else {
-            const int selwidth = V3Number::log2b(msbdim) + 1;  // Width to address a bit
-            AstVarRef* const tabRefp
-                = enumVarRefp(adtypep, attrType, false, (1ULL << selwidth) - 1);
-            AstNodeExpr* const boundp
+        ಧ್ರುವ uint64_t msbdim = enum_Max_ಮೌಲ್ಯ(nodep, adtypep);
+        ಧ್ರುವ ತಾರ್ಕಿಕ assoc = msbdim > ENUM_LOOKUP_BITS;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp;
+        ಯದಿ (assoc) {
+            AstVarRef* ಧ್ರುವ tabRefp = enumVarRefp(adtypep, attrType, ಸತ್ಯ, 0);
+            newp = ನೂತನ AstAssocSel{nodep->fileline(), tabRefp, nodep};
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ selwidth = V3_ಸಂಖ್ಯೆ::log2b(msbdim) + 1;  // Width to address a bit
+            AstVarRef* ಧ್ರುವ tabRefp
+                = enumVarRefp(adtypep, attrType, ಅಸತ್ಯ, (1ULL << selwidth) - 1);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ boundp
                 = attrType == VAttrType::ENUM_NAME
                           && (adtypep->width() > selwidth || msbdim != (1ULL << selwidth) - 1)
-                      ? new AstGt{nodep->fileline(), nodep->cloneTree(false),
-                                  new AstConst{nodep->fileline(),
-                                               V3Number{nodep, adtypep->width(),
+                      ? ನೂತನ AstGt{nodep->fileline(), nodep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ),
+                                  ನೂತನ AstConst{nodep->fileline(),
+                                               V3_ಸಂಖ್ಯೆ{nodep, adtypep->width(),
                                                         static_cast<uint32_t>(msbdim)}}}
                       : nullptr;
-            newp = new AstArraySel{
+            newp = ನೂತನ AstArraySel{
                 nodep->fileline(), tabRefp,
                 // Select in case widths are off due to msblen!=width
                 // We return "random" values if outside the range, which is fine
                 // as next/previous on illegal values just need something good out
-                new AstSel{nodep->fileline(), nodep, 0, selwidth}};
-            if (boundp) {
-                newp = new AstCond{nodep->fileline(), boundp,
-                                   new AstConst{nodep->fileline(), AstConst::String{}, ""}, newp};
+                ನೂತನ AstSel{nodep->fileline(), nodep, 0, selwidth}};
+            ಯದಿ (boundp) {
+                newp = ನೂತನ AstCond{nodep->fileline(), boundp,
+                                   ನೂತನ AstConst{nodep->fileline(), AstConst::String{}, ""}, newp};
             }
         }
-        if (attrType == VAttrType::ENUM_NAME) {
+        ಯದಿ (attrType == VAttrType::ENUM_NAME) {
             newp->dtypeSetString();
-        } else if (attrType == VAttrType::ENUM_VALID) {
+        } ಅನ್ಯಥಾ ಯದಿ (attrType == VAttrType::ENUM_VALID) {
             newp->dtypeSetBit();
-        } else {
+        } ಅನ್ಯಥಾ {
             newp->dtypeFrom(adtypep);  // To prevent a later ENUMVALUE
         }
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    AstNodeExpr* enumTestValid(AstNodeExpr* valp, AstEnumDType* enumDtp) {
-        const uint64_t maxval = enumMaxValue(valp, enumDtp);
-        const bool assoc = maxval > ENUM_LOOKUP_BITS;
-        AstNodeExpr* testp = nullptr;
-        FileLine* const fl_novalue = new FileLine{valp->fileline()};
-        fl_novalue->warnOff(V3ErrorCode::ENUMVALUE, true);
-        fl_novalue->warnOff(V3ErrorCode::CMPCONST, true);
-        if (assoc) {
-            AstVarRef* const tabRefp = enumVarRefp(enumDtp, VAttrType::ENUM_VALID, true, 0);
-            testp = new AstAssocSel{fl_novalue, tabRefp, valp->cloneTreePure(false)};
-        } else {
-            const int selwidth = V3Number::log2b(maxval) + 1;  // Width to address a bit
-            AstVarRef* const tabRefp
-                = enumVarRefp(enumDtp, VAttrType::ENUM_VALID, false, (1ULL << selwidth) - 1);
-            FileLine* const fl_nowidth = new FileLine{fl_novalue};
-            fl_nowidth->warnOff(V3ErrorCode::WIDTH, true);
-            testp = new AstCond{
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enumTestValid(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valp, AstEnumDType* enumDtp) {
+        ಧ್ರುವ uint64_t maxval = enum_Max_ಮೌಲ್ಯ(valp, enumDtp);
+        ಧ್ರುವ ತಾರ್ಕಿಕ assoc = maxval > ENUM_LOOKUP_BITS;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* testp = nullptr;
+        File_ಸಾಲು* ಧ್ರುವ fl_novalue = ನೂತನ File_ಸಾಲು{valp->fileline()};
+        fl_novalue->warnOff(V3ErrorCode::ENUMVALUE, ಸತ್ಯ);
+        fl_novalue->warnOff(V3ErrorCode::CMPCONST, ಸತ್ಯ);
+        ಯದಿ (assoc) {
+            AstVarRef* ಧ್ರುವ tabRefp = enumVarRefp(enumDtp, VAttrType::ENUM_VALID, ಸತ್ಯ, 0);
+            testp = ನೂತನ AstAssocSel{fl_novalue, tabRefp, valp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)};
+        } ಅನ್ಯಥಾ {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ selwidth = V3_ಸಂಖ್ಯೆ::log2b(maxval) + 1;  // Width to address a bit
+            AstVarRef* ಧ್ರುವ tabRefp
+                = enumVarRefp(enumDtp, VAttrType::ENUM_VALID, ಅಸತ್ಯ, (1ULL << selwidth) - 1);
+            File_ಸಾಲು* ಧ್ರುವ fl_nowidth = ನೂತನ File_ಸಾಲು{fl_novalue};
+            fl_nowidth->warnOff(V3ErrorCode::WIDTH, ಸತ್ಯ);
+            testp = ನೂತನ AstCond{
                 fl_novalue,
-                new AstGt{fl_nowidth, valp->cloneTreePure(false),
-                          new AstConst{fl_nowidth, AstConst::Unsized64{}, maxval}},
-                new AstConst{fl_novalue, AstConst::BitFalse{}},
-                new AstArraySel{fl_novalue, tabRefp,
-                                new AstSel{fl_novalue, valp->cloneTreePure(false), 0, selwidth}}};
+                ನೂತನ AstGt{fl_nowidth, valp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ),
+                          ನೂತನ AstConst{fl_nowidth, AstConst::Unsized64{}, maxval}},
+                ನೂತನ AstConst{fl_novalue, AstConst::BitFalse{}},
+                ನೂತನ AstArraySel{fl_novalue, tabRefp,
+                                ನೂತನ AstSel{fl_novalue, valp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), 0, selwidth}}};
         }
-        return testp;
+        ಪ್ರತ್ಯಾಗಮ testp;
     }
 
-    PatVecMap patVectorMap(AstPattern* nodep, const VNumRange& range) {
+    PatVecMap patVectorMap(AstPattern* nodep, ಧ್ರುವ VNumRange& range) {
         PatVecMap patmap;
-        int element = range.left();
-        for (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
+        ಪೂರ್ಣಾಙ್ಕ element = range.ಎಡ();
+        ಪ್ರತಿ (AstPatMember* patp = VN_AS(nodep->itemsp(), PatMember); patp;
              patp = VN_AS(patp->nextp(), PatMember)) {
-            if (patp->keyp()) {
-                if (const AstConst* const constp = patternConstKeyp(patp)) {
-                    if (constp->num().isFourState()) {
+            ಯದಿ (patp->keyp()) {
+                ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = patternConstKeyp(patp)) {
+                    ಯದಿ (constp->ಅಂಕೆ().isFourState()) {
                         patp->keyp()->v3error("Assignment pattern key cannot contain X or Z");
-                    } else {
+                    } ಅನ್ಯಥಾ {
                         element = constp->toSInt();
                     }
                 }
             }
-            const bool newEntry = patmap.emplace(element, patp).second;
-            if (!newEntry) {
+            ಧ್ರುವ ತಾರ್ಕಿಕ newEntry = patmap.emplace(element, patp).second;
+            ಯದಿ (!newEntry) {
                 patp->v3error("Assignment pattern key used multiple times: " << element);
             }
-            element += range.leftToRightInc();
+            element += range.ಎಡ_To_ಬಲ_Inc();
         }
-        return patmap;
+        ಪ್ರತ್ಯಾಗಮ patmap;
     }
 
     // Add to patternp the items of nodep, a concatenation or a single item
-    void patConcatConvertRecurse(AstPattern* patternp, AstNodeExpr* nodep) {
-        if (AstConcat* const concatp = VN_CAST(nodep, Concat)) {
+    ಶೂನ್ಯ patConcatConvertRecurse(AstPattern* patternp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಯದಿ (AstConcat* ಧ್ರುವ concatp = VN_CAST(nodep, Concat)) {
             patConcatConvertRecurse(patternp, concatp->lhsp());
             patConcatConvertRecurse(patternp, concatp->rhsp());
-        } else {
-            AstPatMember* const newp
-                = new AstPatMember{nodep->fileline(), nodep->unlinkFrBack(), nullptr, nullptr};
-            newp->isConcat(true);
+        } ಅನ್ಯಥಾ {
+            AstPatMember* ಧ್ರುವ newp
+                = ನೂತನ AstPatMember{nodep->fileline(), nodep->unlinkFrBack(), nullptr, nullptr};
+            newp->isConcat(ಸತ್ಯ);
             patternp->addItemsp(newp);
         }
     }
 
-    void makeOpenArrayShell(AstNodeFTaskRef* nodep) {
+    ಶೂನ್ಯ makeOpenArrayShell(Ast_ಗಂಟು_FTask_Ref* nodep) {
         UINFO(4, "Replicate openarray function " << nodep->taskp());
-        AstNodeFTask* const oldTaskp = nodep->taskp();
+        Ast_ಗಂಟು_FTask* ಧ್ರುವ oldTaskp = nodep->taskp();
         oldTaskp->dpiOpenParentInc();
         UASSERT_OBJ(!oldTaskp->dpiOpenChild(), oldTaskp,
                     "DPI task should be parent or child, not both");
-        AstNodeFTask* const newTaskp = oldTaskp->cloneTree(false);
-        newTaskp->dpiOpenChild(true);
+        Ast_ಗಂಟು_FTask* ಧ್ರುವ newTaskp = oldTaskp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        newTaskp->dpiOpenChild(ಸತ್ಯ);
         newTaskp->dpiOpenParentClear();
         newTaskp->name(newTaskp->name() + "__Vdpioc" + cvtToStr(oldTaskp->dpiOpenParent()));
         oldTaskp->addNextHere(newTaskp);
@@ -10953,76 +10953,76 @@ class WidthVisitor final : public VNVisitor {
         nodep->taskp(newTaskp);
         nodep->name(nodep->taskp()->name());
         // Replace open array arguments with the callee's task
-        const V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
-        for (const auto& tconnect : tconnects) {
-            AstVar* const portp = tconnect.first;
-            const AstArg* const argp = tconnect.second;
-            const AstNode* const pinp = argp->exprp();
-            if (!pinp) continue;  // Argument error we'll find later
-            if (hasOpenArrayDTypeRecurse(portp->dtypep())) {
-                AstNodeDType* const oldDTypep = portp->dtypep();
+        ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
+        ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+            AstVar* ಧ್ರುವ portp = tconnect.first;
+            ಧ್ರುವ AstArg* ಧ್ರುವ argp = tconnect.second;
+            ಧ್ರುವ Ast_ಗಂಟು* ಧ್ರುವ pinp = argp->exprp();
+            ಯದಿ (!pinp) ಅನುವರ್ತ;  // Argument error we'll find later
+            ಯದಿ (hasOpenArrayDTypeRecurse(portp->dtypep())) {
+                Ast_ಗಂಟು_DType* ಧ್ರುವ oldDTypep = portp->dtypep();
                 portp->dtypep(pinp->dtypep());
-                newTaskp->foreach([oldDTypep, portp](AstNode* nodep) {
-                    if (nodep->dtypep() == oldDTypep) nodep->dtypep(portp->dtypep());
+                newTaskp->foreach([oldDTypep, portp](Ast_ಗಂಟು* nodep) {
+                    ಯದಿ (nodep->dtypep() == oldDTypep) nodep->dtypep(portp->dtypep());
                 });
             }
         }
     }
 
-    bool markHasOpenArray(AstNodeFTask* nodep) {
-        bool hasOpen = false;
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isDpiOpenArray() || hasOpenArrayDTypeRecurse(portp->dtypep())) {
-                    portp->isDpiOpenArray(true);
-                    hasOpen = true;
+    ತಾರ್ಕಿಕ markHasOpenArray(Ast_ಗಂಟು_FTask* nodep) {
+        ತಾರ್ಕಿಕ hasOpen = ಅಸತ್ಯ;
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಯದಿ (AstVar* ಧ್ರುವ portp = VN_CAST(stmtp, Var)) {
+                ಯದಿ (portp->isDpiOpenArray() || hasOpenArrayDTypeRecurse(portp->dtypep())) {
+                    portp->isDpiOpenArray(ಸತ್ಯ);
+                    hasOpen = ಸತ್ಯ;
                 }
             }
         }
-        return hasOpen;
+        ಪ್ರತ್ಯಾಗಮ hasOpen;
     }
-    bool hasOpenArrayDTypeRecurse(AstNodeDType* nodep) {
+    ತಾರ್ಕಿಕ hasOpenArrayDTypeRecurse(Ast_ಗಂಟು_DType* nodep) {
         // Return true iff this datatype or child has an openarray
-        if (VN_IS(nodep, UnsizedArrayDType)) return true;
-        if (nodep->subDTypep()) return hasOpenArrayDTypeRecurse(nodep->subDTypep()->skipRefp());
-        return false;
+        ಯದಿ (VN_IS(nodep, UnsizedArrayDType)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಯದಿ (nodep->subDTypep()) ಪ್ರತ್ಯಾಗಮ hasOpenArrayDTypeRecurse(nodep->subDTypep()->skipRefp());
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
-    AstNodeDType* dtypeNotIntAtomOrVecRecurse(AstNodeDType* nodep, bool ranged = false) {
+    Ast_ಗಂಟು_DType* dtypeNotIntAtomOrVecRecurse(Ast_ಗಂಟು_DType* nodep, ತಾರ್ಕಿಕ ranged = ಅಸತ್ಯ) {
         // If node is _not_ integer or atomic, return node that makes it fail
         nodep = nodep->skipRefToEnump();
-        if (AstBasicDType* const dtp = VN_CAST(nodep, BasicDType)) {
-            if (ranged && (!dtp->isBitLogic() || dtp->isRanged()))
-                return dtp;  // Packed when already packed
-            if (dtp->keyword().isIntNumeric()) return nullptr;
-            return dtp;
-        } else if (AstPackArrayDType* const dtp = VN_CAST(nodep, PackArrayDType)) {
-            if (ranged) return dtp;  // Packed when already packed
-            return dtypeNotIntAtomOrVecRecurse(nodep->subDTypep(), true);
+        ಯದಿ (AstBasicDType* ಧ್ರುವ dtp = VN_CAST(nodep, BasicDType)) {
+            ಯದಿ (ranged && (!dtp->isBitLogic() || dtp->isRanged()))
+                ಪ್ರತ್ಯಾಗಮ dtp;  // Packed when already packed
+            ಯದಿ (dtp->keyword().isIntNumeric()) ಪ್ರತ್ಯಾಗಮ nullptr;
+            ಪ್ರತ್ಯಾಗಮ dtp;
+        } ಅನ್ಯಥಾ ಯದಿ (AstPackArrayDType* ಧ್ರುವ dtp = VN_CAST(nodep, PackArrayDType)) {
+            ಯದಿ (ranged) ಪ್ರತ್ಯಾಗಮ dtp;  // Packed when already packed
+            ಪ್ರತ್ಯಾಗಮ dtypeNotIntAtomOrVecRecurse(nodep->subDTypep(), ಸತ್ಯ);
         }
-        return nodep;
+        ಪ್ರತ್ಯಾಗಮ nodep;
     }
-    AstNodeDType* dtypeNot4StateIntegralRecurse(AstNodeDType* nodep) {
+    Ast_ಗಂಟು_DType* dtypeNot4StateIntegralRecurse(Ast_ಗಂಟು_DType* nodep) {
         // If node is _not_ inet valid data type, 4-state integral packed or union, return node
         // that makes it fail
         nodep = nodep->skipRefp();
-        if (AstBasicDType* const dtp = VN_CAST(nodep, BasicDType)) {
-            if (!dtp->keyword().isFourstate()) return dtp;
-            return nullptr;
-        } else if (AstNodeArrayDType* const dtp = VN_CAST(nodep, NodeArrayDType)) {
-            return dtypeNot4StateIntegralRecurse(dtp->subDTypep());
-        } else if (AstNodeUOrStructDType* const dtp = VN_CAST(nodep, NodeUOrStructDType)) {
-            for (AstMemberDType* itemp = dtp->membersp(); itemp;
+        ಯದಿ (AstBasicDType* ಧ್ರುವ dtp = VN_CAST(nodep, BasicDType)) {
+            ಯದಿ (!dtp->keyword().isFourstate()) ಪ್ರತ್ಯಾಗಮ dtp;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
+        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_Array_DType* ಧ್ರುವ dtp = VN_CAST(nodep, ಗಂಟು_Array_DType)) {
+            ಪ್ರತ್ಯಾಗಮ dtypeNot4StateIntegralRecurse(dtp->subDTypep());
+        } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_UOr_Struct_DType* ಧ್ರುವ dtp = VN_CAST(nodep, ಗಂಟು_UOr_Struct_DType)) {
+            ಪ್ರತಿ (AstMemberDType* itemp = dtp->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                AstNodeDType* const badDtp = dtypeNot4StateIntegralRecurse(itemp->dtypep());
-                if (badDtp) return badDtp;
+                Ast_ಗಂಟು_DType* ಧ್ರುವ badDtp = dtypeNot4StateIntegralRecurse(itemp->dtypep());
+                ಯದಿ (badDtp) ಪ್ರತ್ಯಾಗಮ badDtp;
             }
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        return nodep;
+        ಪ್ರತ್ಯಾಗಮ nodep;
     }
-    void checkForceReleaseLhs(AstNode* nodep, AstNode* lhsp) {
+    ಶೂನ್ಯ checkForceReleaseLhs(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* lhsp) {
         // V3Force can't check as vector may have expanded, or propagated constant into index
-        if (AstNode* const selNodep = V3Width::selectNonConstantRecurse(lhsp))
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ selNodep = V3Width::selectNonConstantRecurse(lhsp))
             nodep->v3error((VN_IS(nodep, Release) ? "Release"s : "Force"s)
                                + " left-hand-side must not have variable bit/part select "
                                  "(IEEE 1800-2023 10.6.2)\n"
@@ -11034,86 +11034,86 @@ class WidthVisitor final : public VNVisitor {
     //----------------------------------------------------------------------
     // METHODS - special type detection
 
-    void assertAtExpr(AstNode* nodep) {
-        if (VL_UNCOVERABLE(!m_vup)) {
+    ಶೂನ್ಯ assert_At_ಅಭಿವ್ಯಕ್ತಿ(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (VL_UNCOVERABLE(!m_vup)) {
             nodep->v3fatalSrc("Unexpected '" << nodep->prettyTypeName() << "' expression under '"
                                              << nodep->backp()->prettyTypeName() << "'");
         }
     }
-    void assertAtStatement(AstNode* nodep) {
-        if (VL_UNCOVERABLE(m_vup && !m_vup->selfDtm())) {
+    ಶೂನ್ಯ assertAtStatement(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (VL_UNCOVERABLE(m_vup && !m_vup->selfDtm())) {
             UINFO(1, "-: " << m_vup);
             nodep->v3fatalSrc("No dtype expected at statement " << nodep->prettyTypeName());
         }
     }
-    void checkConstantOrReplace(AstNode* nodep, bool noFourState, const string& message) {
+    ಶೂನ್ಯ checkConstantOrReplace(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ noFourState, ಧ್ರುವ string& message) {
         // See also V3WidthSel::checkConstantOrReplace
         // Note can't call V3Const::constifyParam(nodep) here, as constify may change nodep on us!
-        AstConst* const constp = VN_CAST(nodep, Const);
-        if (!constp || (noFourState && constp->num().isFourState())) {
+        AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const);
+        ಯದಿ (!constp || (noFourState && constp->ಅಂಕೆ().isFourState())) {
             nodep->v3error(message);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
-            VL_DO_DANGLING2(pushDeletep(nodep), nodep, constp);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
+            VL_DO_DANGLING2(ತಳ್ಳು_Deletep(nodep), nodep, constp);
+            ಪ್ರತ್ಯಾಗಮ;
         }
     }
-    AstNode* nodeForUnsizedWarning(AstNode* nodep) {
+    Ast_ಗಂಟು* ಗಂಟು_For_Unsized_Warning(Ast_ಗಂಟು* nodep) {
         // Return a nodep to use for unsized warnings, reporting on child if can
-        if (nodep->op1p() && nodep->op1p()->dtypep() && !nodep->op1p()->dtypep()->widthSized()) {
-            return nodep->op1p();
-        } else if (nodep->op2p() && nodep->op2p()->dtypep()
+        ಯದಿ (nodep->op1p() && nodep->op1p()->dtypep() && !nodep->op1p()->dtypep()->widthSized()) {
+            ಪ್ರತ್ಯಾಗಮ nodep->op1p();
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->op2p() && nodep->op2p()->dtypep()
                    && !nodep->op2p()->dtypep()->widthSized()) {
-            return nodep->op2p();
+            ಪ್ರತ್ಯಾಗಮ nodep->op2p();
         }
-        return nodep;  // By default return this
+        ಪ್ರತ್ಯಾಗಮ nodep;  // By default return this
     }
-    AstRefDType* checkRefToTypedefRecurse(AstNode* nodep, AstTypedef* typedefp) {
+    AstRefDType* checkRefToTypedefRecurse(Ast_ಗಂಟು* nodep, AstTypedef* typedefp) {
         // Recurse all children looking for self reference
         // This avoids iterateEditMoveDTypep going into a hard to resolve loop
         // Only call once for any given typedef, or will become O(n^2)
-        if (VL_LIKELY(!nodep)) return nullptr;
-        if (auto* const refp = VN_CAST(nodep, RefDType)) {
-            if (refp->typedefp() == typedefp) return refp;
+        ಯದಿ (VL_LIKELY(!nodep)) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಯದಿ (auto* ಧ್ರುವ refp = VN_CAST(nodep, RefDType)) {
+            ಯದಿ (refp->typedefp() == typedefp) ಪ್ರತ್ಯಾಗಮ refp;
         }
-        if (auto* const refp = checkRefToTypedefRecurse(nodep->op1p(), typedefp)) return refp;
-        if (auto* const refp = checkRefToTypedefRecurse(nodep->op2p(), typedefp)) return refp;
-        if (auto* const refp = checkRefToTypedefRecurse(nodep->op3p(), typedefp)) return refp;
-        if (auto* const refp = checkRefToTypedefRecurse(nodep->op4p(), typedefp)) return refp;
-        return nullptr;
+        ಯದಿ (auto* ಧ್ರುವ refp = checkRefToTypedefRecurse(nodep->op1p(), typedefp)) ಪ್ರತ್ಯಾಗಮ refp;
+        ಯದಿ (auto* ಧ್ರುವ refp = checkRefToTypedefRecurse(nodep->op2p(), typedefp)) ಪ್ರತ್ಯಾಗಮ refp;
+        ಯದಿ (auto* ಧ್ರುವ refp = checkRefToTypedefRecurse(nodep->op3p(), typedefp)) ಪ್ರತ್ಯಾಗಮ refp;
+        ಯದಿ (auto* ಧ್ರುವ refp = checkRefToTypedefRecurse(nodep->op4p(), typedefp)) ಪ್ರತ್ಯಾಗಮ refp;
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
 
     //----------------------------------------------------------------------
     // METHODS - interface arrays
 
     // True if an unpacked array of non-virtual interfaces
-    static bool isIfaceArrayDType(const AstNodeDType* dtypep) {
-        if (!VN_IS(dtypep->skipRefp(), UnpackArrayDType)) return false;
-        const AstIfaceRefDType* const irefp = VN_CAST(dtypep->elemDTypep(), IfaceRefDType);
-        return irefp && !irefp->isVirtual();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isIfaceArrayDType(ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep) {
+        ಯದಿ (!VN_IS(dtypep->skipRefp(), UnpackArrayDType)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ irefp = VN_CAST(dtypep->elemDTypep(), IfaceRefDType);
+        ಪ್ರತ್ಯಾಗಮ irefp && !irefp->isVirtual();
     }
 
     // Number of elements of each unpacked dimension of 'dtypep', from the left, e.g. "2x3"
-    static std::string unpackedArraySize(const AstNodeDType* dtypep) {
+    ಸ್ಥಿರ std::string unpackedArraySize(ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep) {
         std::string size;
         dtypep = dtypep->skipRefp();
-        while (const AstUnpackArrayDType* const arrp = VN_CAST(dtypep, UnpackArrayDType)) {
-            if (!size.empty()) size += "x";
+        ಯಾವತ್ (ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrp = VN_CAST(dtypep, UnpackArrayDType)) {
+            ಯದಿ (!size.empty()) size += "x";
             size += std::to_string(arrp->elementsConst());
             dtypep = arrp->subDTypep()->skipRefp();
         }
-        return size;
+        ಪ್ರತ್ಯಾಗಮ size;
     }
 
     // A whole array of interfaces is an AstConsArray of references to its elements, so select
     // its element 'bit' (counted from lo) directly. Returns nullptr if not such an array, or
     // 'bit' is out of range.
-    static AstNodeExpr* newIfaceArrayElement(AstNodeExpr* fromp, int bit) {
-        AstConsArray* const consp = VN_CAST(fromp, ConsArray);
-        if (!consp || !isIfaceArrayDType(consp->dtypep())) return nullptr;
-        const AstUnpackArrayDType* const arrp
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newIfaceArrayElement(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಪೂರ್ಣಾಙ್ಕ bit) {
+        AstConsArray* ಧ್ರುವ consp = VN_CAST(fromp, ConsArray);
+        ಯದಿ (!consp || !isIfaceArrayDType(consp->dtypep())) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrp
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType);
-        if (bit < 0 || bit >= arrp->elementsConst()) return nullptr;
-        return consp->valuep(bit)->cloneTree(false);
+        ಯದಿ (bit < 0 || bit >= arrp->elementsConst()) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪ್ರತ್ಯಾಗಮ consp->valuep(bit)->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
     }
 
     // Widthed references to the element variables of the whole interface array referenced by
@@ -11121,55 +11121,55 @@ class WidthVisitor final : public VNVisitor {
     // element variables being named 'name' + 'suffix'. 'elemVarpr' is the element variable of
     // the leftmost element in the dimensions of 'dtypep', and is moved to the right past them.
     // E.g. 'ifc' of dimensions [0:1][3:2] -> '{'{ifc[0][3], ifc[0][2]}, '{ifc[1][3], ifc[1][2]}}
-    AstNodeExpr* newIfaceArrayValue(const AstNodeVarRef* refp, AstNodeDType* dtypep,
-                                    const std::string& name, const std::string& suffix,
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_Iface_Array_ಮೌಲ್ಯ(ಧ್ರುವ Ast_ಗಂಟು_Var_Ref* refp, Ast_ಗಂಟು_DType* dtypep,
+                                    ಧ್ರುವ std::string& name, ಧ್ರುವ std::string& suffix,
                                     AstVar*& elemVarpr) {
-        FileLine* const flp = refp->fileline();
-        AstUnpackArrayDType* const arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+        File_ಸಾಲು* ಧ್ರುವ flp = refp->fileline();
+        AstUnpackArrayDType* ಧ್ರುವ arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
         // Base case: reference the element variable when no dimensions left
-        if (!arrp) {
-            AstVar* const varp = elemVarpr;
+        ಯದಿ (!arrp) {
+            AstVar* ಧ್ರುವ varp = elemVarpr;
             UASSERT_OBJ(varp && varp->name() == name + suffix, refp,
                         "Missing element variable of interface array " << name);
             elemVarpr = VN_CAST(varp->nextp(), Var);
-            AstNodeVarRef* newp;
-            if (const AstVarXRef* const xrefp = VN_CAST(refp, VarXRef)) {
-                newp = new AstVarXRef{flp, varp, xrefp->dotted(), refp->access()};
-            } else {
-                newp = new AstVarRef{flp, varp, refp->access()};
+            Ast_ಗಂಟು_Var_Ref* newp;
+            ಯದಿ (ಧ್ರುವ AstVarXRef* ಧ್ರುವ xrefp = VN_CAST(refp, VarXRef)) {
+                newp = ನೂತನ AstVarXRef{flp, varp, xrefp->dotted(), refp->access()};
+            } ಅನ್ಯಥಾ {
+                newp = ನೂತನ AstVarRef{flp, varp, refp->access()};
             }
             userIterate(newp, WidthVP{SELF, BOTH}.p());
-            return newp;
+            ಪ್ರತ್ಯಾಗಮ newp;
         }
 
         // Enumerate the current dimension given by 'arrp', from the left index to the right,
         // as the element variables are in that order, indexed from lo
-        AstConsArray* const consp = new AstConsArray{flp, arrp};
-        const VNumRange range = arrp->declRange();
-        for (const int i : range.seqLeftToRight()) {
-            const std::string s = name + "__BRA__" + AstNode::encodeNumber(i) + "__KET__";
+        AstConsArray* ಧ್ರುವ consp = ನೂತನ AstConsArray{flp, arrp};
+        ಧ್ರುವ VNumRange range = arrp->declRange();
+        ಪ್ರತಿ (ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ i : range.seq_ಎಡ_To_ಬಲ()) {
+            ಧ್ರುವ std::string s = name + "__BRA__" + Ast_ಗಂಟು::encode_ಸಂಖ್ಯೆ(i) + "__KET__";
             consp->valuep(i - range.lo(),
-                          newIfaceArrayValue(refp, arrp->subDTypep(), s, suffix, elemVarpr));
+                          new_Iface_Array_ಮೌಲ್ಯ(refp, arrp->subDTypep(), s, suffix, elemVarpr));
         }
-        return consp;
+        ಪ್ರತ್ಯಾಗಮ consp;
     }
 
     // Replace a reference to a whole interface array variable (a __Viftop companion, or an
     // interface array port) split by V3Param, with the AstConsArray of references to its
     // elements, which is how whole arrays of interfaces are handled from here on
-    void replaceSplitIfaceArrayRef(AstNodeVarRef* nodep) {
-        AstVar* const varp = nodep->varp();
+    ಶೂನ್ಯ replaceSplitIfaceArrayRef(Ast_ಗಂಟು_Var_Ref* nodep) {
+        AstVar* ಧ್ರುವ varp = nodep->varp();
         UASSERT_OBJ(varp->isIfaceArraySplit(), nodep, "Not a split interface array");
         std::string name = varp->name();
         std::string suffix;
-        if (varp->isIfaceParent()) {
+        ಯದಿ (varp->isIfaceParent()) {
             name = name.substr(0, name.rfind("__Viftop"));
             suffix = "__Viftop";
         }
         // The element variables follow the whole array variable in order (see V3Param)
         AstVar* elemVarp = VN_CAST(varp->nextp(), Var);
-        nodep->replaceWith(newIfaceArrayValue(nodep, varp->dtypep(), name, suffix, elemVarp));
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(new_Iface_Array_ಮೌಲ್ಯ(nodep, varp->dtypep(), name, suffix, elemVarp));
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
     // Add a pin for each element port of interface array port of pin 'nodep', split by V3Param,
@@ -11178,230 +11178,230 @@ class WidthVisitor final : public VNVisitor {
     // connection, if any. 'suffix' is the name suffix of the dimensions outside 'dtypep'.
     // 'elemVarpr' is the element port variable of the rightmost element in the dimensions of
     // 'dtypep', and is moved to the left past them.
-    void expandIfaceArrayPinDimensions(AstPin* nodep, const AstNodeDType* dtypep,
-                                       AstNodeExpr* conp, const std::string& suffix,
+    ಶೂನ್ಯ expandIfaceArrayPinDimensions(AstPin* nodep, ಧ್ರುವ Ast_ಗಂಟು_DType* dtypep,
+                                       Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* conp, ಧ್ರುವ std::string& suffix,
                                        AstVar*& elemVarpr) {
-        const AstUnpackArrayDType* const arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
+        ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ arrp = VN_CAST(dtypep->skipRefp(), UnpackArrayDType);
         // Base case: add the pin of the element port after 'nodep' when no dimensions left
-        if (!arrp) {
+        ಯದಿ (!arrp) {
             UASSERT_OBJ(elemVarpr && elemVarpr->name() == nodep->modVarp()->name() + suffix, nodep,
                         "Missing element variable of interface array port " << suffix);
-            AstPin* const newp = nodep->cloneTree(false);
+            AstPin* ಧ್ರುವ newp = nodep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
             newp->name(nodep->name() + suffix);
             newp->modVarp(elemVarpr);
             elemVarpr = VN_CAST(elemVarpr->backp(), Var);
-            if (conp) newp->exprp(conp->cloneTree(false));
+            ಯದಿ (conp) newp->exprp(conp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
             nodep->addNextHere(newp);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Enumerate the current dimension given by 'arrp'
         // Each element is added right after 'nodep', so go from right to left,
         // to end with an enumeration from the left index to the right index.
-        const VNumRange range = arrp->declRange();
-        for (int n = range.elements() - 1; n >= 0; --n) {
-            const int i = range.left() + n * range.leftToRightInc();
-            const std::string s = suffix + "__BRA__" + AstNode::encodeNumber(i) + "__KET__";
+        ಧ್ರುವ VNumRange range = arrp->declRange();
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ n = range.elements() - 1; n >= 0; --n) {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ i = range.ಎಡ() + n * range.ಎಡ_To_ಬಲ_Inc();
+            ಧ್ರುವ std::string s = suffix + "__BRA__" + Ast_ಗಂಟು::encode_ಸಂಖ್ಯೆ(i) + "__KET__";
             // Element of the connection, if any, which is only cloned at the leaves
-            AstNodeExpr* const elemConnp = [&]() -> AstNodeExpr* {
-                if (!conp) return nullptr;
-                const AstUnpackArrayDType* const conArrp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ elemConnp = [&]() -> Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* {
+                ಯದಿ (!conp) ಪ್ರತ್ಯಾಗಮ nullptr;
+                ಧ್ರುವ AstUnpackArrayDType* ಧ್ರುವ conArrp
                     = VN_AS(conp->dtypep()->skipRefp(), UnpackArrayDType);
-                const int elements = conArrp->elementsConst();
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ elements = conArrp->elementsConst();
                 // Counted from lo
-                AstNodeExpr* const resultp
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ resultp
                     = VN_AS(conp, ConsArray)
                           ->valuep(conArrp->declRange().ascending() ? n : elements - 1 - n);
                 UASSERT_OBJ(resultp, conp, "Interface array connection of mismatched shape");
-                return resultp;
+                ಪ್ರತ್ಯಾಗಮ resultp;
             }();
             expandIfaceArrayPinDimensions(nodep, arrp->subDTypep(), elemConnp, s, elemVarpr);
         }
     }
 
     // Replace the given interface array port pin with a pin for each element port split by V3Param
-    void expandIfaceArrayPin(AstPin* nodep) {
-        AstVar* const portp = nodep->modVarp();
+    ಶೂನ್ಯ expandIfaceArrayPin(AstPin* nodep) {
+        AstVar* ಧ್ರುವ portp = nodep->modVarp();
         UASSERT_OBJ(portp->isIfaceArraySplit(), nodep, "Not a split interface array port");
         // The element variables follow the port in order (see V3Param). Pins are added from the
         // right, so start at the last.
         AstVar* elemVarp = portp;
-        for (uint32_t n = portp->dtypep()->arrayUnpackedElements(); n; --n) {
+        ಪ್ರತಿ (uint32_t n = portp->dtypep()->arrayUnpackedElements(); n; --n) {
             elemVarp = VN_CAST(elemVarp->nextp(), Var);
             UASSERT_OBJ(elemVarp, portp, "Missing element variables of interface array port");
         }
         // Remove the connection, so the element pins do not clone it all. Deletion is deferred,
         // so its elements can still be cloned from.
-        AstNodeExpr* const exprp = VN_AS(nodep->exprp(), NodeExpr);
-        if (exprp) pushDeletep(exprp->unlinkFrBack());
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = VN_AS(nodep->exprp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+        ಯದಿ (exprp) ತಳ್ಳು_Deletep(exprp->unlinkFrBack());
         // Connect nothing if not a whole array of interfaces of the shape of the port, which is
         // reported elsewhere, so the element pins do not report it again
-        const bool connect
+        ಧ್ರುವ ತಾರ್ಕಿಕ connect
             = exprp && isIfaceArrayDType(exprp->dtypep())
               && unpackedArraySize(exprp->dtypep()) == unpackedArraySize(portp->dtypep());
         expandIfaceArrayPinDimensions(nodep, portp->dtypep(), connect ? exprp : nullptr, "",
                                       elemVarp);
         UASSERT_OBJ(elemVarp == portp, portp, "Mismatched element port variable");
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     //----------------------------------------------------------------------
     // METHODS - special iterators
     // These functions save/restore the AstNUser information so it can pass to child nodes.
 
-    AstNode* userIterateSubtreeReturnEdits(AstNode* nodep, WidthVP* vup) {
-        if (!nodep) return nullptr;
-        AstNode* ret;
+    Ast_ಗಂಟು* userIterateSubtreeReturnEdits(Ast_ಗಂಟು* nodep, WidthVP* vup) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ nullptr;
+        Ast_ಗಂಟು* ret;
         {
             VL_RESTORER(m_vup);
             m_vup = vup;
             ret = iterateSubtreeReturnEdits(nodep);
         }
-        return ret;
+        ಪ್ರತ್ಯಾಗಮ ret;
     }
-    void userIterate(AstNode* nodep, WidthVP* vup) {
-        if (!nodep) return;
+    ಶೂನ್ಯ userIterate(Ast_ಗಂಟು* nodep, WidthVP* vup) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_vup);
         m_vup = vup;
         iterate(nodep);
     }
-    void userIterateAndNext(AstNode* nodep, WidthVP* vup) {
-        if (!nodep) return;
-        if (nodep->didWidth()) return;  // Avoid iterating list we have already iterated
+    ಶೂನ್ಯ userIterateAndNext(Ast_ಗಂಟು* nodep, WidthVP* vup) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (nodep->didWidth()) ಪ್ರತ್ಯಾಗಮ;  // Avoid iterating list we have already iterated
         VL_RESTORER(m_vup);
         m_vup = vup;
         iterateAndNextNull(nodep);
     }
-    void userIterateChildren(AstNode* nodep, WidthVP* vup) {
-        if (!nodep) return;
+    ಶೂನ್ಯ userIterateChildren(Ast_ಗಂಟು* nodep, WidthVP* vup) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_vup);
         m_vup = vup;
         iterateChildren(nodep);
     }
-    void userIterateChildrenBackwardsConst(AstNode* nodep, WidthVP* vup) {
-        if (!nodep) return;
+    ಶೂನ್ಯ userIterateChildrenBackwardsConst(Ast_ಗಂಟು* nodep, WidthVP* vup) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_vup);
         m_vup = vup;
         iterateChildrenBackwardsConst(nodep);
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    WidthVisitor(bool paramsOnly,  // [in] TRUE if we are considering parameters only.
-                 bool doGenerate)  // [in] TRUE if we are inside a generate statement and
+    WidthVisitor(ತಾರ್ಕಿಕ paramsOnly,  // [in] TRUE if we are considering parameters only.
+                 ತಾರ್ಕಿಕ doGenerate)  // [in] TRUE if we are inside a generate statement and
         //                           // don't wish to trigger errors
         : m_enumTempNames{"__Venum"}
         , m_insideTempNames{"__VInside"}
         , m_paramsOnly{paramsOnly}
         , m_doGenerate{doGenerate} {}
-    AstNode* mainAcceptEdit(AstNode* nodep) {
+    Ast_ಗಂಟು* mainAcceptEdit(Ast_ಗಂಟು* nodep) {
         nodep = userIterateSubtreeReturnEdits(nodep, WidthVP{SELF, BOTH}.p());
         // All references to the whole interface array variables split by V3Param are now replaced
-        for (AstVar* const varp : m_splitIfaceArrayVarps) {
-            VL_DO_DANGLING(pushDeletep(varp->unlinkFrBack()), varp);
+        ಪ್ರತಿ (AstVar* ಧ್ರುವ varp : m_splitIfaceArrayVarps) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(varp->unlinkFrBack()), varp);
         }
         m_splitIfaceArrayVarps.clear();
-        return nodep;
+        ಪ್ರತ್ಯಾಗಮ nodep;
     }
-    static bool lowerAsFixedAggregate(const AstNodeDType* const dtypep) {
-        return dtypep->isStreamableFixedAggregate() && dtypep->containsUnpackedStruct();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ lowerAsFixedAggregate(ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep) {
+        ಪ್ರತ್ಯಾಗಮ dtypep->isStreamableFixedAggregate() && dtypep->containsUnpackedStruct();
     }
-    void streamAssignLower(AstNodeAssign* nodep) {
-        AstNodeDType* lhsDTypep = nodep->lhsp()->dtypep();
+    ಶೂನ್ಯ streamAssignLower(Ast_ಗಂಟು_Assign* nodep) {
+        Ast_ಗಂಟು_DType* lhsDTypep = nodep->lhsp()->dtypep();
         // Check width of stream and wrap if needed
-        if (AstNodeStream* const streamp = VN_CAST(nodep->rhsp(), NodeStream)) {
-            AstNodeDType* const lhsDTypeSkippedRefp = lhsDTypep->skipRefp();
-            const int lwidth = lhsDTypeSkippedRefp->widthStream();
-            const int rwidth = streamp->lhsp()->dtypep()->skipRefp()->widthStream();
-            if (lwidth != 0 && lwidth < rwidth) {
+        ಯದಿ (Ast_ಗಂಟು_Stream* ಧ್ರುವ streamp = VN_CAST(nodep->rhsp(), ಗಂಟು_Stream)) {
+            Ast_ಗಂಟು_DType* ಧ್ರುವ lhsDTypeSkippedRefp = lhsDTypep->skipRefp();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ lwidth = lhsDTypeSkippedRefp->widthStream();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ rwidth = streamp->lhsp()->dtypep()->skipRefp()->widthStream();
+            ಯದಿ (lwidth != 0 && lwidth < rwidth) {
                 nodep->v3widthWarn(lwidth, rwidth,
                                    "Target fixed size variable ("
                                        << lwidth << " bits) is narrower than the stream ("
                                        << rwidth << " bits) (IEEE 1800-2023 11.4.14)");
             }
-            if (VN_IS(streamp->lhsp()->dtypep()->skipRefp(), QueueDType)
+            ಯದಿ (VN_IS(streamp->lhsp()->dtypep()->skipRefp(), QueueDType)
                 && !VN_IS(nodep->lhsp()->dtypep()->skipRefp(), QueueDType)) {
-                const int queueElementSize = streamp->lhsp()->dtypep()->subDTypep()->width();
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ queueElementSize = streamp->lhsp()->dtypep()->subDTypep()->width();
                 UASSERT_OBJ(queueElementSize <= lwidth, nodep, "LHS < RHS");
             }
-            if (VN_IS(lhsDTypeSkippedRefp, UnpackArrayDType)
+            ಯದಿ (VN_IS(lhsDTypeSkippedRefp, UnpackArrayDType)
                 || lowerAsFixedAggregate(lhsDTypeSkippedRefp)) {
                 streamp->unlinkFrBack();
                 nodep->rhsp(
-                    new AstCvtPackedToArray{streamp->fileline(), streamp, lhsDTypeSkippedRefp});
+                    ನೂತನ AstCvtPackedToArray{streamp->fileline(), streamp, lhsDTypeSkippedRefp});
             }
         }
-        if (AstNodeStream* const streamp = VN_CAST(nodep->lhsp(), NodeStream)) {
-            const AstNodeDType* const rhsDTypep = nodep->rhsp()->dtypep()->skipRefp();
-            AstNodeDType* const lhsStreamDTypep = streamp->lhsp()->dtypep()->skipRefp();
-            const int lwidth = lhsStreamDTypep->widthStream();
-            const int rwidth = rhsDTypep->widthStream();
-            if (rwidth != 0 && rwidth < lwidth) {
+        ಯದಿ (Ast_ಗಂಟು_Stream* ಧ್ರುವ streamp = VN_CAST(nodep->lhsp(), ಗಂಟು_Stream)) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ rhsDTypep = nodep->rhsp()->dtypep()->skipRefp();
+            Ast_ಗಂಟು_DType* ಧ್ರುವ lhsStreamDTypep = streamp->lhsp()->dtypep()->skipRefp();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ lwidth = lhsStreamDTypep->widthStream();
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ rwidth = rhsDTypep->widthStream();
+            ಯದಿ (rwidth != 0 && rwidth < lwidth) {
                 nodep->v3widthWarn(lwidth, rwidth,
                                    "Stream target requires "
                                        << lwidth << " bits, but source expression only provides "
                                        << rwidth << " bits (IEEE 1800-2023 11.4.14.3)");
             }
-            if (lowerAsFixedAggregate(lhsStreamDTypep)) {
-                AstNodeExpr* const streamExprp = nodep->lhsp()->unlinkFrBack();
-                AstNodeExpr* const dstp = streamp->lhsp()->unlinkFrBack();
-                AstNodeExpr* srcp = nodep->rhsp()->unlinkFrBack();
-                if (VN_IS(streamp, StreamL)) {
+            ಯದಿ (lowerAsFixedAggregate(lhsStreamDTypep)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ streamExprp = nodep->lhsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ dstp = streamp->lhsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* srcp = nodep->rhsp()->unlinkFrBack();
+                ಯದಿ (VN_IS(streamp, StreamL)) {
                     streamp->lhsp(srcp);
                     streamp->dtypeSetBitOrLogicUnsized(
                         srcp->width(), srcp->widthMin(), VSigning::UNSIGNED,
-                        AstNodeExpr::isFourstateOrNoDtype(streamExprp, srcp));
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::isFourstateOrNoDtype(streamExprp, srcp));
                     srcp = streamExprp;
-                } else {
-                    if (srcp->width() > lwidth) {
-                        srcp = new AstSel{streamp->fileline(), srcp, srcp->width() - lwidth,
+                } ಅನ್ಯಥಾ {
+                    ಯದಿ (srcp->width() > lwidth) {
+                        srcp = ನೂತನ AstSel{streamp->fileline(), srcp, srcp->width() - lwidth,
                                           lwidth};
                     }
-                    VL_DO_DANGLING(pushDeletep(streamExprp), streamExprp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(streamExprp), streamExprp);
                 }
                 nodep->lhsp(dstp);
-                nodep->rhsp(new AstCvtPackedToArray{srcp->fileline(), srcp, lhsStreamDTypep});
+                nodep->rhsp(ನೂತನ AstCvtPackedToArray{srcp->fileline(), srcp, lhsStreamDTypep});
                 nodep->dtypeFrom(dstp);
-            } else if (VN_IS(rhsDTypep, UnpackArrayDType)) {
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                nodep->rhsp(new AstCvtArrayToPacked{rhsp->fileline(), rhsp, streamp->dtypep()});
+            } ಅನ್ಯಥಾ ಯದಿ (VN_IS(rhsDTypep, UnpackArrayDType)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+                nodep->rhsp(ನೂತನ AstCvtArrayToPacked{rhsp->fileline(), rhsp, streamp->dtypep()});
             }
         }
     }
-    ~WidthVisitor() override = default;
+    ~WidthVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Width class functions
 
-void V3Width::width(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Width::width(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         // We should do it in bottom-up module order, but it works in any order.
-        const WidthClearVisitor cvisitor{nodep};
+        ಧ್ರುವ WidthClearVisitor cvisitor{nodep};
         // Typedefs and classes are named by the scopes declaring them, so index those
-        const VDTypeNameScopes scopes{nodep};
-        WidthVisitor visitor{false, false};
-        (void)visitor.mainAcceptEdit(nodep);
+        ಧ್ರುವ VDTypeNameScopes scopes{nodep};
+        WidthVisitor visitor{ಅಸತ್ಯ, ಅಸತ್ಯ};
+        (ಶೂನ್ಯ)visitor.mainAcceptEdit(nodep);
         WidthRemoveVisitor rvisitor;
-        (void)rvisitor.mainAcceptEdit(nodep);
+        (ಶೂನ್ಯ)rvisitor.mainAcceptEdit(nodep);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("width", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("width", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 //! Single node parameter propagation
 //! Smaller step... Only do a single node for parameter propagation
-AstNode* V3Width::widthParamsEdit(AstNode* nodep) {
+Ast_ಗಂಟು* V3Width::widthParamsEdit(Ast_ಗಂಟು* nodep) {
     UINFO(4, __FUNCTION__ << ": " << nodep);
     // We should do it in bottom-up module order, but it works in any order.
-    WidthVisitor visitor{true, false};
+    WidthVisitor visitor{ಸತ್ಯ, ಅಸತ್ಯ};
     nodep = visitor.mainAcceptEdit(nodep);
     // No WidthRemoveVisitor, as don't want to drop $signed etc inside gen blocks
-    return nodep;
+    ಪ್ರತ್ಯಾಗಮ nodep;
 }
 
-void V3Width::streamAssignLowerEdit(AstNodeAssign* nodep) {
+ಶೂನ್ಯ V3Width::streamAssignLowerEdit(Ast_ಗಂಟು_Assign* nodep) {
     UINFO(4, __FUNCTION__ << ": " << nodep);
-    WidthVisitor visitor{false, false};
+    WidthVisitor visitor{ಅಸತ್ಯ, ಅಸತ್ಯ};
     visitor.streamAssignLower(nodep);
 }
 
@@ -11414,37 +11414,37 @@ void V3Width::streamAssignLowerEdit(AstNodeAssign* nodep) {
 //! order to be something a generate block can depend on, we can wait until
 //! later to do the width check.
 //! @return  Pointer to the edited node.
-AstNode* V3Width::widthGenerateParamsEdit(
-    AstNode* nodep) {  //!< [in] AST whose parameters widths are to be analyzed.
+Ast_ಗಂಟು* V3Width::widthGenerateParamsEdit(
+    Ast_ಗಂಟು* nodep) {  //!< [in] AST whose parameters widths are to be analyzed.
     UINFO(4, __FUNCTION__ << ": " << nodep);
     // We should do it in bottom-up module order, but it works in any order.
-    WidthVisitor visitor{true, true};
+    WidthVisitor visitor{ಸತ್ಯ, ಸತ್ಯ};
     nodep = visitor.mainAcceptEdit(nodep);
     // No WidthRemoveVisitor, as don't want to drop $signed etc inside gen blocks
-    return nodep;
+    ಪ್ರತ್ಯಾಗಮ nodep;
 }
 
-AstNode* V3Width::selectNonConstantRecurse(AstNode* nodep, bool inSel) {
+Ast_ಗಂಟು* V3Width::selectNonConstantRecurse(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ inSel) {
     // If node has a non-constant select, return that select
-    AstNode* resultp = nullptr;
-    if (AstNodeSel* const anodep = VN_CAST(nodep, NodeSel)) {
+    Ast_ಗಂಟು* resultp = nullptr;
+    ಯದಿ (Ast_ಗಂಟು_Sel* ಧ್ರುವ anodep = VN_CAST(nodep, ಗಂಟು_Sel)) {
         resultp = selectNonConstantRecurse(anodep->fromp(), inSel);
-        if (resultp) return resultp;
-        resultp = selectNonConstantRecurse(anodep->bitp(), true);
-    } else if (AstSel* const anodep = VN_CAST(nodep, Sel)) {
+        ಯದಿ (resultp) ಪ್ರತ್ಯಾಗಮ resultp;
+        resultp = selectNonConstantRecurse(anodep->bitp(), ಸತ್ಯ);
+    } ಅನ್ಯಥಾ ಯದಿ (AstSel* ಧ್ರುವ anodep = VN_CAST(nodep, Sel)) {
         resultp = selectNonConstantRecurse(anodep->fromp(), inSel);
-        if (resultp) return resultp;
-        resultp = selectNonConstantRecurse(anodep->lsbp(), true);
-    } else if (AstNodeVarRef* const anodep = VN_CAST(nodep, NodeVarRef)) {
-        if (inSel && !anodep->varp()->isParam() && !anodep->varp()->isGenVar()) return anodep;
-    } else {
-        if (AstNode* const refp = nodep->op1p()) resultp = selectNonConstantRecurse(refp, inSel);
-        if (resultp) return resultp;
-        if (AstNode* const refp = nodep->op2p()) resultp = selectNonConstantRecurse(refp, inSel);
-        if (resultp) return resultp;
-        if (AstNode* const refp = nodep->op3p()) resultp = selectNonConstantRecurse(refp, inSel);
-        if (resultp) return resultp;
-        if (AstNode* const refp = nodep->op4p()) resultp = selectNonConstantRecurse(refp, inSel);
+        ಯದಿ (resultp) ಪ್ರತ್ಯಾಗಮ resultp;
+        resultp = selectNonConstantRecurse(anodep->lsbp(), ಸತ್ಯ);
+    } ಅನ್ಯಥಾ ಯದಿ (Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ anodep = VN_CAST(nodep, ಗಂಟು_Var_Ref)) {
+        ಯದಿ (inSel && !anodep->varp()->isParam() && !anodep->varp()->isGenVar()) ಪ್ರತ್ಯಾಗಮ anodep;
+    } ಅನ್ಯಥಾ {
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op1p()) resultp = selectNonConstantRecurse(refp, inSel);
+        ಯದಿ (resultp) ಪ್ರತ್ಯಾಗಮ resultp;
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op2p()) resultp = selectNonConstantRecurse(refp, inSel);
+        ಯದಿ (resultp) ಪ್ರತ್ಯಾಗಮ resultp;
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op3p()) resultp = selectNonConstantRecurse(refp, inSel);
+        ಯದಿ (resultp) ಪ್ರತ್ಯಾಗಮ resultp;
+        ಯದಿ (Ast_ಗಂಟು* ಧ್ರುವ refp = nodep->op4p()) resultp = selectNonConstantRecurse(refp, inSel);
     }
-    return resultp;
+    ಪ್ರತ್ಯಾಗಮ resultp;
 }

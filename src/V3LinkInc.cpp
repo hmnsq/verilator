@@ -45,43 +45,43 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkInc.h"
+#ಅನ್ತರ್ಭಾವ "V3LinkInc.h"
 
-#include "V3LinkLValue.h"
+#ಅನ್ತರ್ಭಾವ "V3LinkLValue.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkIncVisitor final : public VNVisitor {
+ವರ್ಗ LinkIncVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     //  AstLogAnd/AstLogOr::user1()  -> bool.  True if already lowered
-    const VNUser1InUse m_inuser1;
+    ಧ್ರುವ VNUser1InUse m_inuser1;
 
     // STATE
-    AstNodeFTask* m_ftaskp = nullptr;  // Function or task we're inside
-    AstNodeModule* m_modp = nullptr;  // Module we're inside
-    int m_modCompoundAssignmentsNum = 0;  // Var name counter
-    AstNode* m_insStmtp = nullptr;  // Where to insert statement
-    bool m_inCovergroup = false;  // Under a covergroup's coverpoint, cross, or option
-    bool m_condEvalContext = false;  // ++/-- is in a conditionally-evaluated position
-    AstNodeExpr* m_incCondp = nullptr;  // Gating condition for ++/-- in short-circuit context
+    Ast_ಗಂಟು_FTask* m_ftaskp = nullptr;  // Function or task we're inside
+    Ast_ಗಂಟು_Module* m_modp = nullptr;  // Module we're inside
+    ಪೂರ್ಣಾಙ್ಕ m_mod_Compound_Assignments_ಅಂಕೆ = 0;  // Var name counter
+    Ast_ಗಂಟು* m_insStmtp = nullptr;  // Where to insert statement
+    ತಾರ್ಕಿಕ m_inCovergroup = ಅಸತ್ಯ;  // Under a covergroup's coverpoint, cross, or option
+    ತಾರ್ಕಿಕ m_condEvalContext = ಅಸತ್ಯ;  // ++/-- is in a conditionally-evaluated position
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_incCondp = nullptr;  // Gating condition for ++/-- in short-circuit context
 
     // METHODS
-    void insertOnTop(AstNode* newp) {
+    ಶೂನ್ಯ ಸೇರಿಸು_On_ತುದಿ(Ast_ಗಂಟು* newp) {
         // Add the thing directly under the current TFunc/Module, or class, as a member
         // Must not unlink the statements, as one of them is being iterated
-        if (m_ftaskp) {
+        ಯದಿ (m_ftaskp) {
             m_ftaskp->prependStmtsp(newp);
-        } else {
+        } ಅನ್ಯಥಾ {
             UASSERT_OBJ(m_modp, newp, "Variable not under FTASK/MODULE");
-            if (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
+            ಯದಿ (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
             m_modp->prependStmtsp(newp);
         }
     }
-    void insertBeforeStmt(AstNode* nodep, AstNode* newp) {
+    ಶೂನ್ಯ ಸೇರಿಸು_Before_Stmt(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* newp) {
         // Return node that must be visited, if any
         UINFOTREE(9, newp, "", "newstmt");
         UASSERT_OBJ(m_insStmtp, nodep, "Expression not underneath a statement");
@@ -89,50 +89,50 @@ class LinkIncVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Module* nodep) override {
+        ಯದಿ (nodep->dead()) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modCompoundAssignmentsNum);
+        VL_RESTORER(m_mod_Compound_Assignments_ಅಂಕೆ);
         m_modp = nodep;
-        m_modCompoundAssignmentsNum = 0;
+        m_mod_Compound_Assignments_ಅಂಕೆ = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
     // A covergroup's expressions are under no statement, and V3Covergroup moves them to its
     // constructor or sample(), so their variables are members of its class
-    void visitCovergroup(AstNode* nodep) {
+    ಶೂನ್ಯ visitCovergroup(Ast_ಗಂಟು* nodep) {
         VL_RESTORER(m_ftaskp);
         VL_RESTORER(m_inCovergroup);
         m_ftaskp = nullptr;
-        m_inCovergroup = true;
+        m_inCovergroup = ಸತ್ಯ;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFuncCovItem* nodep) override { visitCovergroup(nodep); }
-    void visit(AstCgOptionAssign* nodep) override { visitCovergroup(nodep); }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Func_Cov_Item* nodep) override { visitCovergroup(nodep); }
+    ಶೂನ್ಯ visit(AstCgOptionAssign* nodep) override { visitCovergroup(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Cover_Or_Assert* nodep) override {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->propp());
         m_insStmtp = nullptr;
         // Note: no iterating over sentreep here as they will be ignored anyway
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        ಯದಿ (AstAssert* ಧ್ರುವ assertp = VN_CAST(nodep, Assert)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstAssertIntrinsic* ಧ್ರುವ intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
             iterateAndNextNull(intrinsicp->failsp());
         }
         iterateAndNextNull(nodep->passsp());
     }
-    void visit(AstLoop* nodep) override {
+    ಶೂನ್ಯ visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         m_insStmtp = nullptr;  // First thing should be new statement
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstNodeForeach* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Foreach* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
         m_insStmtp = nullptr;  // First thing should be new statement
@@ -140,7 +140,7 @@ class LinkIncVisitor final : public VNVisitor {
         // Done the loop
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstJumpBlock* nodep) override {
+    ಶೂನ್ಯ visit(AstJumpBlock* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
         m_insStmtp = nullptr;  // First thing should be new statement
@@ -148,7 +148,7 @@ class LinkIncVisitor final : public VNVisitor {
         // Done the loop
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstNodeIf* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_If* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->condp());
         m_insStmtp = nullptr;
@@ -156,62 +156,62 @@ class LinkIncVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->elsesp());
         m_insStmtp = nullptr;
     }
-    void visit(AstCaseItem* nodep) override {
+    ಶೂನ್ಯ visit(AstCaseItem* nodep) override {
         {
             VL_RESTORER(m_condEvalContext);
-            m_condEvalContext = true;
+            m_condEvalContext = ಸತ್ಯ;
             iterateAndNextNull(nodep->condsp());
         }
         m_insStmtp = nullptr;  // Next thing should be new statement
         iterateAndNextNull(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
+    ಶೂನ್ಯ visit(AstDelay* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->lhsp());
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstEventControl* nodep) override {
+    ಶೂನ್ಯ visit(AstEventControl* nodep) override {
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstWait* nodep) override {
+    ಶೂನ್ಯ visit(AstWait* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->condp());
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstBegin* nodep) override {
+    ಶೂನ್ಯ visit(AstBegin* nodep) override {
         m_insStmtp = nullptr;  // Pretend not a statement TODO: parse ++/-- as ExprStmt
         iterateChildren(nodep);
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstStmtExpr* nodep) override {
-        AstNodeExpr* const exprp = nodep->exprp();
-        if (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
+    ಶೂನ್ಯ visit(Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->exprp();
+        ಯದಿ (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
             || VN_IS(exprp, PreDec)) {
             // Repalce this StmtExpr with the expression, visiting it will turn it into a NodeStmt
             nodep->replaceWith(exprp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
             m_insStmtp = nullptr;
             iterate(exprp);
             m_insStmtp = nullptr;
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        visit(static_cast<AstNodeStmt*>(nodep));
+        visit(static_cast<Ast_ಗಂಟು_Stmt*>(nodep));
     }
-    void visit(AstNodeStmt* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Stmt* nodep) override {
         m_insStmtp = nodep;
         iterateChildren(nodep);
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void unsupported_visit(AstNode* nodep) {
+    ಶೂನ್ಯ unsupported_visit(Ast_ಗಂಟು* nodep) {
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
-        m_condEvalContext = true;
+        m_condEvalContext = ಸತ್ಯ;
         // Not rescuable by short-circuit gating; drop the gate so nested ++/-- errors
         m_incCondp = nullptr;
         UINFO(9, "Marking unsupported " << nodep);
@@ -219,293 +219,293 @@ class LinkIncVisitor final : public VNVisitor {
     }
     // Hoist LHS into a BLOCKTEMP so it is evaluated exactly once; otherwise the
     // gated RHS ++/-- could modify a variable the LHS reads.
-    AstNodeExpr* captureLogicalLhsToTemp(AstNodeBiop* const nodep) {
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        const string name = "__VincGate"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* captureLogicalLhsToTemp(Ast_ಗಂಟು_Biop* ಧ್ರುವ nodep) {
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        ಧ್ರುವ string name = "__VincGate"s + cvtToStr(++m_mod_Compound_Assignments_ಅಂಕೆ);
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, lhsp->cloneTree(true)}};
+            ನೂತನ AstRefDType{fl, AstRefDType::Flag_Type_Of_ಅಭಿವ್ಯಕ್ತಿ{}, lhsp->clone_ವೃಕ್ಷ(ಸತ್ಯ)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
-        insertOnTop(varp);
-        AstNode* tempInitp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
+        ಯದಿ (m_ftaskp) varp->funcLocal(ಸತ್ಯ);
+        ಸೇರಿಸು_On_ತುದಿ(varp);
+        Ast_ಗಂಟು* tempInitp = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
         // Gate by the enclosing condition so a side-effecting LHS isn't run on short-circuit
-        if (m_incCondp) {
-            tempInitp = new AstIf{fl, m_incCondp->cloneTreePure(true), tempInitp, nullptr};
+        ಯದಿ (m_incCondp) {
+            tempInitp = ನೂತನ AstIf{fl, m_incCondp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ), tempInitp, nullptr};
         }
-        insertBeforeStmt(nodep, tempInitp);
-        nodep->lhsp(new AstVarRef{fl, varp, VAccess::READ});
-        return new AstVarRef{fl, varp, VAccess::READ};
+        ಸೇರಿಸು_Before_Stmt(nodep, tempInitp);
+        nodep->lhsp(ನೂತನ AstVarRef{fl, varp, VAccess::READ});
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{fl, varp, VAccess::READ};
     }
-    void handleShortCircuit(AstNodeBiop* const nodep, bool isOr) {
+    ಶೂನ್ಯ handleShortCircuit(Ast_ಗಂಟು_Biop* ಧ್ರುವ nodep, ತಾರ್ಕಿಕ isOr) {
         // insertBeforeStmt retargets the parent iterator; skip on re-visit
-        if (nodep->user1SetOnce()) return;
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
         iterateAndNextNull(nodep->lhsp());
-        m_condEvalContext = true;
-        AstNodeExpr* ownedCondp = nullptr;
+        m_condEvalContext = ಸತ್ಯ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ownedCondp = nullptr;
         // Gate the RHS by the LHS condition if it evaluates any ++/-- anywhere within
-        if (nodep->rhsp()->exists([](const AstNode* np) {
-                return VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
+        ಯದಿ (nodep->rhsp()->exists([](ಧ್ರುವ Ast_ಗಂಟು* np) {
+                ಪ್ರತ್ಯಾಗಮ VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
                        || VN_IS(np, PostDec) || VN_IS(np, AssignCompound);
             })) {
             // Const LHS or no statement context: clone-and-evaluate-twice is safe
-            AstNodeExpr* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
-                                       ? nodep->lhsp()->cloneTreePure(true)
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
+                                       ? nodep->lhsp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ)
                                        : captureLogicalLhsToTemp(nodep);
             // For ||, RHS runs when LHS is false; gate by !LHS
-            if (isOr) lhsRefp = new AstLogNot{nodep->fileline(), lhsRefp};
-            ownedCondp = m_incCondp ? new AstLogAnd{nodep->fileline(),
-                                                    m_incCondp->cloneTreePure(true), lhsRefp}
+            ಯದಿ (isOr) lhsRefp = ನೂತನ AstLogNot{nodep->fileline(), lhsRefp};
+            ownedCondp = m_incCondp ? ನೂತನ AstLogAnd{nodep->fileline(),
+                                                    m_incCondp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ), lhsRefp}
                                     : lhsRefp;
             m_incCondp = ownedCondp;
         }
         iterateAndNextNull(nodep->rhsp());
-        if (ownedCondp) VL_DO_DANGLING(ownedCondp->deleteTree(), ownedCondp);
+        ಯದಿ (ownedCondp) VL_DO_DANGLING(ownedCondp->delete_ವೃಕ್ಷ(), ownedCondp);
     }
-    void visit(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/false); }
-    void visit(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/true); }
-    void visit(AstLogEq* nodep) override { unsupported_visit(nodep); }
-    void visit(AstLogIf* nodep) override { unsupported_visit(nodep); }
-    void visit(AstCond* nodep) override { unsupported_visit(nodep); }
-    void visit(AstPropSpec* nodep) override { unsupported_visit(nodep); }
-    void prepost_visit(AstNodeUniop* const nodep) {
+    ಶೂನ್ಯ visit(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/ಅಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/ಸತ್ಯ); }
+    ಶೂನ್ಯ visit(AstLogEq* nodep) override { unsupported_visit(nodep); }
+    ಶೂನ್ಯ visit(AstLogIf* nodep) override { unsupported_visit(nodep); }
+    ಶೂನ್ಯ visit(AstCond* nodep) override { unsupported_visit(nodep); }
+    ಶೂನ್ಯ visit(AstPropSpec* nodep) override { unsupported_visit(nodep); }
+    ಶೂನ್ಯ prepost_visit(Ast_ಗಂಟು_Uniop* ಧ್ರುವ nodep) {
         // Not underneath a statement, the increment is one, unless in a covergroup expression,
         // which is under none
-        const bool isStandaloneStmt = !m_insStmtp && !m_inCovergroup;
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
+        ಧ್ರುವ ತಾರ್ಕಿಕ isStandaloneStmt = !m_insStmtp && !m_inCovergroup;
+        AstSelBit* ಧ್ರುವ selbitp = VN_CAST(nodep->lhsp(), SelBit);
+        ಯದಿ (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), ಗಂಟು_Var_Ref)
             && !selbitp->bitp()->isPure()) {
             prepost_stmt_sel_visit(nodep);
-        } else {
-            if (isStandaloneStmt) {
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (isStandaloneStmt) {
                 prepost_stmt_visit(nodep);
-            } else {
-                prepost_expr_visit(nodep);
+            } ಅನ್ಯಥಾ {
+                prepost_ಅಭಿವ್ಯಕ್ತಿ_visit(nodep);
             }
         }
     }
-    AstNodeExpr* getOperationp(AstNode* const nodep, AstNodeExpr* const lhsp,
-                               AstNodeExpr* const rhsp) {
-        if (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
-            return new AstSub{nodep->fileline(), lhsp, rhsp};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getOperationp(Ast_ಗಂಟು* ಧ್ರುವ nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp,
+                               Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp) {
+        ಯದಿ (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstSub{nodep->fileline(), lhsp, rhsp};
         }
-        if (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
-            return new AstAdd{nodep->fileline(), lhsp, rhsp};
+        ಯದಿ (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAdd{nodep->fileline(), lhsp, rhsp};
         }
-        if (AstAssignCompound* assignp = VN_CAST(nodep, AssignCompound)) {
-            switch (assignp->operation()) {
-            case AstAssignCompound::operation::Add:
-                return new AstAdd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::And:
-                return new AstAnd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Div:
-                return new AstDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ModDiv:
-                return new AstModDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Mul:
-                return new AstMul{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Or: return new AstOr{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftL:
-                return new AstShiftL{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftR:
-                return new AstShiftR{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftRS:
-                return new AstShiftRS{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Sub:
-                return new AstSub{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Xor:
-                return new AstXor{nodep->fileline(), lhsp, rhsp};
-            default:;  // Error below  // LCOV_EXCL_LINE
+        ಯದಿ (AstAssignCompound* assignp = VN_CAST(nodep, AssignCompound)) {
+            ವಿಕಲ್ಪ (assignp->operation()) {
+            ಪಕ್ಷ AstAssignCompound::operation::Add:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAdd{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::And:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAnd{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::Div:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstDiv{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::ModDiv:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstModDiv{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::Mul:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstMul{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::Or: ಪ್ರತ್ಯಾಗಮ ನೂತನ AstOr{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::ShiftL:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstShiftL{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::ShiftR:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstShiftR{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::ShiftRS:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstShiftRS{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::Sub:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstSub{nodep->fileline(), lhsp, rhsp};
+            ಪಕ್ಷ AstAssignCompound::operation::Xor:
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstXor{nodep->fileline(), lhsp, rhsp};
+            ಸ್ವಭಾವ:;  // Error below  // LCOV_EXCL_LINE
             }
         }
         nodep->v3fatalSrc("Unhandled compound assignment operation");
     }
-    void prepost_stmt_sel_visit(AstNodeUniop* const nodep) {
+    ಶೂನ್ಯ prepost_stmt_sel_visit(Ast_ಗಂಟು_Uniop* ಧ್ರುವ nodep) {
         // Special case array[something]++, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
         iterateChildren(nodep);
-        FileLine* fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        File_ಸಾಲು* fl = nodep->fileline();
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, 32, 1, ಅಸತ್ಯ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = ನೂತನ AstConst{nodep->fileline(), ಅಂಕೆ_One};
 
         prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstAssignCompound* const nodep) {
+    ಶೂನ್ಯ prepost_stmt_sel_visit(AstAssignCompound* ಧ್ರುವ nodep) {
         // Special case array[something] += expr, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->rhsp()->unlinkFrBack();
 
         prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstNode* const nodep, AstNodeExpr* const lhsp,
-                                AstNodeExpr* const exprp) {
-        AstSelBit* const rdSelbitp = VN_AS(lhsp, SelBit);
-        AstNodeVarRef* const rdFromp = VN_AS(rdSelbitp->fromp()->cloneTreePure(true), NodeVarRef);
+    ಶೂನ್ಯ prepost_stmt_sel_visit(Ast_ಗಂಟು* ಧ್ರುವ nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp,
+                                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp) {
+        AstSelBit* ಧ್ರುವ rdSelbitp = VN_AS(lhsp, SelBit);
+        Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ rdFromp = VN_AS(rdSelbitp->fromp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ), ಗಂಟು_Var_Ref);
         rdFromp->access(VAccess::READ);
-        AstNodeExpr* const rdBitp = rdSelbitp->bitp()->unlinkFrBack();
-        AstSelBit* const wrSelbitp = VN_CAST(lhsp, SelBit);
-        AstNodeExpr* const wrFromp = wrSelbitp->fromp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rdBitp = rdSelbitp->bitp()->unlinkFrBack();
+        AstSelBit* ಧ್ರುವ wrSelbitp = VN_CAST(lhsp, SelBit);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ wrFromp = wrSelbitp->fromp()->unlinkFrBack();
         V3LinkLValue::linkLValueSet(wrFromp);
 
         // Prepare a temporary variable
-        FileLine* const fl = nodep->fileline();
-        const string name = "__VtempIndex"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        ಧ್ರುವ string name = "__VtempIndex"s + cvtToStr(++m_mod_Compound_Assignments_ಅಂಕೆ);
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, rdBitp->cloneTree(true)}};
-        if (m_ftaskp) varp->funcLocal(true);
+            ನೂತನ AstRefDType{fl, AstRefDType::Flag_Type_Of_ಅಭಿವ್ಯಕ್ತಿ{}, rdBitp->clone_ವೃಕ್ಷ(ಸತ್ಯ)}};
+        ಯದಿ (m_ftaskp) varp->funcLocal(ಸತ್ಯ);
 
         // Declare the variable
-        insertOnTop(varp);
+        ಸೇರಿಸು_On_ತುದಿ(varp);
 
         // Define what operation will we be doing
-        AstAssign* const varAssignp
-            = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
-        AstNode* const newp = varAssignp;
+        AstAssign* ಧ್ರುವ varAssignp
+            = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
+        Ast_ಗಂಟು* ಧ್ರುವ newp = varAssignp;
 
-        AstNodeExpr* const valuep
-            = new AstSelBit{fl, rdFromp, new AstVarRef{fl, varp, VAccess::READ}};
-        AstNodeExpr* const storeTop
-            = new AstSelBit{fl, wrFromp, new AstVarRef{fl, varp, VAccess::READ}};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep
+            = ನೂತನ AstSelBit{fl, rdFromp, ನೂತನ AstVarRef{fl, varp, VAccess::READ}};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ store_ತುದಿ
+            = ನೂತನ AstSelBit{fl, wrFromp, ನೂತನ AstVarRef{fl, varp, VAccess::READ}};
 
         AstAssign* assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
+            = ನೂತನ AstAssign{nodep->fileline(), store_ತುದಿ, getOperationp(nodep, valuep, exprp)};
         newp->addNext(assignp);
 
         // if (debug() >= 9) newp->dumpTreeAndNext("-pp-stmt-sel-new: ");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void prepost_stmt_visit(AstNodeUniop* const nodep) {
+    ಶೂನ್ಯ prepost_stmt_visit(Ast_ಗಂಟು_Uniop* ಧ್ರುವ nodep) {
         iterateChildren(nodep);
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ store_ತುದಿ = nodep->lhsp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = nodep->lhsp()->unlinkFrBack();
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, 32, 1, ಅಸತ್ಯ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = ನೂತನ AstConst{nodep->fileline(), ಅಂಕೆ_One};
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_visit(nodep, exprp, store_ತುದಿ, valuep);
     }
-    void prepost_stmt_visit(AstAssignCompound* const nodep) {
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
+    ಶೂನ್ಯ prepost_stmt_visit(AstAssignCompound* ಧ್ರುವ nodep) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ store_ತುದಿ = nodep->lhsp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep = nodep->lhsp()->unlinkFrBack();
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_visit(nodep, exprp, store_ತುದಿ, valuep);
     }
-    void prepost_stmt_visit(AstNode* const nodep, AstNodeExpr* const exprp,
-                            AstNodeExpr* const storeTop, AstNodeExpr* const valuep) {
+    ಶೂನ್ಯ prepost_stmt_visit(Ast_ಗಂಟು* ಧ್ರುವ nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp,
+                            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ store_ತುದಿ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ valuep) {
         V3LinkLValue::linkLValueSet(valuep, VAccess::READ);
-        AstAssign* const assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
+        AstAssign* ಧ್ರುವ assignp
+            = ನೂತನ AstAssign{nodep->fileline(), store_ತುದಿ, getOperationp(nodep, valuep, exprp)};
         nodep->replaceWith(assignp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void prepost_expr_visit(AstNodeUniop* const nodep) {
+    ಶೂನ್ಯ prepost_ಅಭಿವ್ಯಕ್ತಿ_visit(Ast_ಗಂಟು_Uniop* ಧ್ರುವ nodep) {
         iterateChildren(nodep);
         // In a covergroup, whose expressions are under no statement, the increment forms an
         // expression statement in place, as the parser makes '(x += 1)', so it is evaluated only
         // where and when its expression is
-        if (m_condEvalContext && !m_incCondp && !m_inCovergroup) {
+        ಯದಿ (m_condEvalContext && !m_incCondp && !m_inCovergroup) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Pre/post increment/decrement operator"
                                          " within a logical expression (&&, ||, ?:, etc.)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        const bool needGating = m_condEvalContext && m_incCondp && !m_inCovergroup;
-        AstNodeExpr* const readp = nodep->lhsp();
-        AstNodeExpr* const writep = nodep->lhsp()->cloneTreePure(true);
+        ಧ್ರುವ ತಾರ್ಕಿಕ needGating = m_condEvalContext && m_incCondp && !m_inCovergroup;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ readp = nodep->lhsp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ writep = nodep->lhsp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ);
         V3LinkLValue::linkLValueSet(readp, VAccess::READ);
 
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const newconstp = new AstConst{nodep->fileline(), numOne};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, 32, 1, ಅಸತ್ಯ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newconstp = ನೂತನ AstConst{nodep->fileline(), ಅಂಕೆ_One};
 
         // Prepare a temporary variable
-        const string name = "__Vincrement"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+        ಧ್ರುವ string name = "__Vincrement"s + cvtToStr(++m_mod_Compound_Assignments_ಅಂಕೆ);
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, readp->cloneTreePure(true)}};
+            ನೂತನ AstRefDType{fl, AstRefDType::Flag_Type_Of_ಅಭಿವ್ಯಕ್ತಿ{}, readp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
+        ಯದಿ (m_ftaskp) varp->funcLocal(ಸತ್ಯ);
 
         // Declare the variable
-        insertOnTop(varp);
+        ಸೇರಿಸು_On_ತುದಿ(varp);
 
         // Define what operation will we be doing
-        AstNodeExpr* const operp = getOperationp(nodep, readp->cloneTreePure(true), newconstp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ operp = getOperationp(nodep, readp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ), newconstp);
 
-        AstNode* stmtsp = nullptr;
-        if (needGating) {
+        Ast_ಗಂಟು* stmtsp = nullptr;
+        ಯದಿ (needGating) {
             // Short-circuit context: mutate the variable only when the gate is true.
             // The temp holds the old value, plus the new value for pre-inc/dec.
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
-            AstNode* const incp = new AstAssign{fl, writep, operp};
-            if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
-                incp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                            readp->cloneTreePure(true)});
+            AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ)};
+            Ast_ಗಂಟು* ಧ್ರುವ incp = ನೂತನ AstAssign{fl, writep, operp};
+            ಯದಿ (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+                incp->addNext(ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE},
+                                            readp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ)});
             }
-            assignp->addNextHere(new AstIf{fl, m_incCondp->cloneTreePure(true), incp, nullptr});
+            assignp->addNextHere(ನೂತನ AstIf{fl, m_incCondp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ), incp, nullptr});
             stmtsp = assignp;
-        } else if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+        } ಅನ್ಯಥಾ ಯದಿ (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
             // PreInc/PreDec operations
             // Immediately after declaration - increment it by one
-            AstAssign* const assignp
-                = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, operp};
+            AstAssign* ಧ್ರುವ assignp
+                = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}, operp};
             // Immediately after incrementing - assign it to the original variable
-            assignp->addNext(new AstAssign{fl, writep, new AstVarRef{fl, varp, VAccess::READ}});
+            assignp->addNext(ನೂತನ AstAssign{fl, writep, ನೂತನ AstVarRef{fl, varp, VAccess::READ}});
             stmtsp = assignp;
-        } else {
+        } ಅನ್ಯಥಾ {
             // PostInc/PostDec operations
             // Assign the original variable to the temporary one
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
+            AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ)};
             // Increment the original variable by one
-            assignp->addNext(new AstAssign{fl, writep, operp});
+            assignp->addNext(ನೂತನ AstAssign{fl, writep, operp});
             stmtsp = assignp;
         }
 
         // Replace the node with the temporary, after the statements
-        AstNodeExpr* newp = new AstVarRef{readp->fileline(), varp, VAccess::READ};
-        if (m_inCovergroup) {
-            newp = new AstExprStmt{fl, stmtsp, newp};
-        } else {
-            insertBeforeStmt(nodep, stmtsp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = ನೂತನ AstVarRef{readp->fileline(), varp, VAccess::READ};
+        ಯದಿ (m_inCovergroup) {
+            newp = ನೂತನ Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt{fl, stmtsp, newp};
+        } ಅನ್ಯಥಾ {
+            ಸೇರಿಸು_Before_Stmt(nodep, stmtsp);
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstPreInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPreDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstAssignCompound* nodep) override {
-        visit(static_cast<AstNodeStmt*>(nodep));
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
+    ಶೂನ್ಯ visit(AstPreInc* nodep) override { prepost_visit(nodep); }
+    ಶೂನ್ಯ visit(AstPostInc* nodep) override { prepost_visit(nodep); }
+    ಶೂನ್ಯ visit(AstPreDec* nodep) override { prepost_visit(nodep); }
+    ಶೂನ್ಯ visit(AstPostDec* nodep) override { prepost_visit(nodep); }
+    ಶೂನ್ಯ visit(AstAssignCompound* nodep) override {
+        visit(static_cast<Ast_ಗಂಟು_Stmt*>(nodep));
+        AstSelBit* ಧ್ರುವ selbitp = VN_CAST(nodep->lhsp(), SelBit);
+        ಯದಿ (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), ಗಂಟು_Var_Ref)
             && !selbitp->bitp()->isPure()) {
             prepost_stmt_sel_visit(nodep);
-        } else {
+        } ಅನ್ಯಥಾ {
             prepost_stmt_visit(nodep);
         }
     }
-    void visit(AstGenFor* nodep) override { iterateChildren(nodep); }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(AstGenFor* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     explicit LinkIncVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkIncVisitor() override = default;
+    ~LinkIncVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkInc::linkIncrements(AstNetlist* nodep) {
+ಶೂನ್ಯ V3LinkInc::linkIncrements(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkIncVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkinc", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("linkinc", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

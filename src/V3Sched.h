@@ -17,62 +17,62 @@
 #ifndef VERILATOR_V3SCHED_H_
 #define VERILATOR_V3SCHED_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
 
-#include <array>
-#include <functional>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <array>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
+#ಅನ್ತರ್ಭಾವ <utility>
+#ಅನ್ತರ್ಭಾವ <vector>
 
-class SenExprBuilder;
+class Sen_ಅಭಿವ್ಯಕ್ತಿ_Builder;
 
 //============================================================================
 
 namespace V3Sched {
 
 namespace util {
-using VarScopeSet = std::unordered_set<const AstVarScope*>;
+using VarScopeSet = std::unordered_set<ಧ್ರುವ AstVarScope*>;
 
-inline bool isVlForceVec(const AstVarScope* vscp) {
-    const AstCDType* const dtypep = VN_CAST(vscp->dtypep()->skipRefp(), CDType);
-    return dtypep && dtypep->name() == "VlForceVec";
+ಅನ್ತಃಸ್ಥ bool isVlForceVec(ಧ್ರುವ AstVarScope* vscp) {
+    ಧ್ರುವ AstCDType* ಧ್ರುವ dtypep = VN_CAST(vscp->dtypep()->skipRefp(), CDType);
+    ಪ್ರತ್ಯಾಗಮ dtypep && dtypep->name() == "VlForceVec";
 }
 
-inline bool isForceReadMethod(VCMethod method) {
-    return method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
+ಅನ್ತಃಸ್ಥ bool isForceReadMethod(VCMethod method) {
+    ಪ್ರತ್ಯಾಗಮ method == VCMethod::FORCE_READ || method == VCMethod::FORCE_READ_INDEX;
 }
 
-inline void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
+ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ collectForceReadEdgeIgnores(Ast_ಗಂಟು* nodep, VarScopeSet& out) {
     VarScopeSet writtenForceVecs;
     VarScopeSet writtenVars;
 
-    nodep->foreach([&](const AstVarRef* refp) {
-        AstVarScope* const vscp = refp->varScopep();
-        if (!refp->access().isWriteOrRW()) return;
-        if (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
-        if (!isVlForceVec(vscp)) return;
+    nodep->foreach([&](ಧ್ರುವ AstVarRef* refp) {
+        AstVarScope* ಧ್ರುವ vscp = refp->varScopep();
+        ಯದಿ (!refp->access().isWriteOrRW()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (!refp->varp()->ignoreSchedWrite()) writtenVars.emplace(vscp);
+        ಯದಿ (!isVlForceVec(vscp)) ಪ್ರತ್ಯಾಗಮ;
         writtenForceVecs.emplace(vscp);
-        if (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
+        ಯದಿ (!refp->varp()->ignoreSchedWrite()) out.emplace(vscp);
     });
 
-    if (writtenForceVecs.empty() || writtenVars.empty()) return;
+    ಯದಿ (writtenForceVecs.empty() || writtenVars.empty()) ಪ್ರತ್ಯಾಗಮ;
 
-    nodep->foreach([&](const AstCMethodHard* callp) {
-        if (!isForceReadMethod(callp->method())) return;
+    nodep->foreach([&](ಧ್ರುವ AstCMethodHard* callp) {
+        ಯದಿ (!isForceReadMethod(callp->method())) ಪ್ರತ್ಯಾಗಮ;
 
-        const AstVarRef* const fromRefp = VN_CAST(callp->fromp(), VarRef);
-        if (!fromRefp || !writtenForceVecs.count(fromRefp->varScopep())) return;
+        ಧ್ರುವ AstVarRef* ಧ್ರುವ fromRefp = VN_CAST(callp->fromp(), VarRef);
+        ಯದಿ (!fromRefp || !writtenForceVecs.ಎಣಿಕೆ(fromRefp->varScopep())) ಪ್ರತ್ಯಾಗಮ;
 
-        AstNodeExpr* const origp = callp->pinsp();
-        if (!origp) return;
-        origp->foreach([&](const AstVarRef* refp) {
-            AstVarScope* const vscp = refp->varScopep();
-            if (refp->access().isReadOrRW() && writtenVars.count(vscp)) out.emplace(vscp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ origp = callp->pinsp();
+        ಯದಿ (!origp) ಪ್ರತ್ಯಾಗಮ;
+        origp->foreach([&](ಧ್ರುವ AstVarRef* refp) {
+            AstVarScope* ಧ್ರುವ vscp = refp->varScopep();
+            ಯದಿ (refp->access().isReadOrRW() && writtenVars.ಎಣಿಕೆ(vscp)) out.emplace(vscp);
         });
     });
 }
@@ -84,10 +84,10 @@ inline void collectForceReadEdgeIgnores(AstNode* nodep, VarScopeSet& out) {
 // such pairs, with some additional convenience methods.
 
 class LogicByScope final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // TYPES
     // An AstActive and the AstScope it is under
-    struct Entry final {
+    ಸಂರಚನಾ Entry final {
         AstScope* m_scopep;  // The scope the AstActive is under
         AstActive* m_activep;  // The AstActive holding the logic
         std::set<uint32_t> m_triggers;  // Trigger indices m_activep is sensitive to
@@ -95,29 +95,29 @@ public:
     using iterator = std::vector<Entry>::iterator;
     using const_iterator = std::vector<Entry>::const_iterator;
 
-private:
+ಗುಪ್ತ:
     // STATE
     std::vector<Entry> m_entries;  // The AstActives held, with their scopes
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
 
     // Iteration and access
-    iterator begin() { return m_entries.begin(); }
-    iterator end() { return m_entries.end(); }
-    const_iterator begin() const { return m_entries.begin(); }
-    const_iterator end() const { return m_entries.end(); }
-    bool empty() const { return m_entries.empty(); }
-    size_t size() const { return m_entries.size(); }
-    const Entry& operator[](size_t i) const { return m_entries[i]; }
+    iterator begin() { ಪ್ರತ್ಯಾಗಮ m_entries.begin(); }
+    iterator end() { ಪ್ರತ್ಯಾಗಮ m_entries.end(); }
+    const_iterator begin() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_entries.begin(); }
+    const_iterator end() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_entries.end(); }
+    bool empty() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_entries.empty(); }
+    size_t size() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_entries.size(); }
+    ಧ್ರುವ Entry& operator[](size_t i) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_entries[i]; }
 
     // Add an AstActive under the given scope
-    void add(AstScope* scopep, AstActive* activep) { m_entries.push_back({scopep, activep, {}}); }
+    ಶೂನ್ಯ add(AstScope* scopep, AstActive* activep) { m_entries.ತಳ್ಳು_back({scopep, activep, {}}); }
 
     // Add logic
-    void add(AstScope* scopep, AstSenTree* senTreep, AstNode* logicp) {
+    ಶೂನ್ಯ add(AstScope* scopep, Ast_Sen_ವೃಕ್ಷ* senTreep, Ast_ಗಂಟು* logicp) {
         UASSERT_OBJ(!logicp->backp(), logicp, "Already linked");
-        if (m_entries.empty() || m_entries.back().m_scopep != scopep
+        ಯದಿ (m_entries.empty() || m_entries.back().m_scopep != scopep
             || m_entries.back().m_activep->sentreep() != senTreep) {
             add(scopep, new AstActive{logicp->fileline(), "", senTreep});
         }
@@ -125,41 +125,41 @@ public:
     };
 
     // Create copy, with the AstActives cloned
-    LogicByScope clone() const {
+    LogicByScope clone() ಧ್ರುವ {
         LogicByScope result;
-        for (const Entry& entry : m_entries) {
-            result.add(entry.m_scopep, entry.m_activep->cloneTree(false));
+        ಪ್ರತಿ (ಧ್ರುವ Entry& entry : m_entries) {
+            result.add(entry.m_scopep, entry.m_activep->clone_ವೃಕ್ಷ(false));
         }
-        return result;
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 
     // Delete actives (they should all be empty)
-    void deleteActives() {
-        for (const Entry& entry : m_entries) {
-            AstActive* const activep = entry.m_activep;
-            if (v3Global.opt.debugCheck()) {
-                for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    AstNodeProcedure* const procp = VN_CAST(nodep, NodeProcedure);
+    ಶೂನ್ಯ deleteActives() {
+        ಪ್ರತಿ (ಧ್ರುವ Entry& entry : m_entries) {
+            AstActive* ಧ್ರುವ activep = entry.m_activep;
+            ಯದಿ (v3Global.opt.debugCheck()) {
+                ಪ್ರತಿ (Ast_ಗಂಟು* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    Ast_ಗಂಟು_Procedure* ಧ್ರುವ procp = VN_CAST(nodep, ಗಂಟು_Procedure);
                     UASSERT_OBJ(procp && !procp->stmtsp(), activep, "Leftover logic");
                 }
             }
-            if (activep->backp()) activep->unlinkFrBack();
-            VL_DO_DANGLING(activep->deleteTree(), activep);
+            ಯದಿ (activep->backp()) activep->unlinkFrBack();
+            VL_DO_DANGLING(activep->delete_ವೃಕ್ಷ(), activep);
         }
         m_entries.clear();
     };
 
-    void foreachLogic(const std::function<void(AstNode*)>& f) const {
-        for (const Entry& entry : m_entries) {
-            const AstActive* const activep = entry.m_activep;
-            for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) f(nodep);
+    ಶೂನ್ಯ foreachLogic(ಧ್ರುವ std::function<ಶೂನ್ಯ(Ast_ಗಂಟು*)>& f) ಧ್ರುವ {
+        ಪ್ರತಿ (ಧ್ರುವ Entry& entry : m_entries) {
+            ಧ್ರುವ AstActive* ಧ್ರುವ activep = entry.m_activep;
+            ಪ್ರತಿ (Ast_ಗಂಟು* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) f(nodep);
         }
     }
 };
 
 // Logic in the design is classified based on what can trigger its execution.
 // For details see the internals documentation.
-struct LogicClasses final {
+ಸಂರಚನಾ LogicClasses final {
     LogicByScope m_static;  // Static variable initializers
     LogicByScope m_initial;  // initial blocks
     LogicByScope m_final;  // final blocks
@@ -170,40 +170,40 @@ struct LogicClasses final {
     LogicByScope m_observed;  // Observed logic (contains AstAlwaysObserved)
     LogicByScope m_reactive;  // Reactive logic (contains AstAlwaysReactive)
 
-    LogicClasses() = default;
+    LogicClasses() = ಸ್ವಭಾವ;
     VL_UNCOPYABLE(LogicClasses);
-    LogicClasses(LogicClasses&&) = default;
-    LogicClasses& operator=(LogicClasses&&) = default;
+    LogicClasses(LogicClasses&&) = ಸ್ವಭಾವ;
+    LogicClasses& operator=(LogicClasses&&) = ಸ್ವಭಾವ;
 };
 
 // Combinational (including hybrid) logic, and clocked logic in partitioned to compute all clock
 // signals in the 'act' region. For details see the internals documentation.
-struct LogicRegions final {
+ಸಂರಚನಾ LogicRegions final {
     LogicByScope m_pre;  // AstAlwaysPre logic in 'act' region
     LogicByScope m_act;  // 'act' region logic
     LogicByScope m_nba;  // 'nba' region logic
     LogicByScope m_obs;  // AstAlwaysObserved logic in 'obs' region
     LogicByScope m_react;  // AstAlwaysReactive logic in 're' region
 
-    LogicRegions() = default;
+    LogicRegions() = ಸ್ವಭಾವ;
     VL_UNCOPYABLE(LogicRegions);
-    LogicRegions(LogicRegions&&) = default;
-    LogicRegions& operator=(LogicRegions&&) = default;
+    LogicRegions(LogicRegions&&) = ಸ್ವಭಾವ;
+    LogicRegions& operator=(LogicRegions&&) = ಸ್ವಭಾವ;
 };
 
 // Combinational (including hybrid) logic is replicated into the various scheduling regions.
 // For details see the internals documentation.
-struct LogicReplicas final {
+ಸಂರಚನಾ LogicReplicas final {
     LogicByScope m_ico;  // Logic replicated into the 'ico' (Input Combinational) region
     LogicByScope m_act;  // Logic replicated into the 'act' region
     LogicByScope m_nba;  // Logic replicated into the 'nba' region
     LogicByScope m_obs;  // Logic replicated into the 'obs' region
     LogicByScope m_react;  // Logic replicated into the 're' region
 
-    LogicReplicas() = default;
+    LogicReplicas() = ಸ್ವಭಾವ;
     VL_UNCOPYABLE(LogicReplicas);
-    LogicReplicas(LogicReplicas&&) = default;
-    LogicReplicas& operator=(LogicReplicas&&) = default;
+    LogicReplicas(LogicReplicas&&) = ಸ್ವಭಾವ;
+    LogicReplicas& operator=(LogicReplicas&&) = ಸ್ವಭಾವ;
 };
 
 // A TriggerKit holds all the components related to a scheduling region triggers
@@ -262,25 +262,25 @@ struct LogicReplicas final {
 // "Extra" triggers, with "Sense" triggers taking up the bulk of the bits.
 //
 class TriggerKit final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // Triggers are storead as an UnpackedArray with a fixed word size
-    static constexpr uint32_t WORD_SIZE_LOG2 = 6;  // 64-bits / VL_QUADSIZE
-    static constexpr uint32_t WORD_SIZE = 1 << WORD_SIZE_LOG2;
+    ಸ್ಥಿರ constexpr uint32_t WORD_SIZE_LOG2 = 6;  // 64-bits / VL_QUADSIZE
+    ಸ್ಥಿರ constexpr uint32_t WORD_SIZE = 1 << WORD_SIZE_LOG2;
 
-private:
-    const std::string m_name;  // TriggerKit name
-    const bool m_slow;  // TriggerKit is for schedulign 'slow' code
-    const uint32_t m_nSenseWords;  // Number of words for Sense triggers
-    const uint32_t m_nExtraWords;  // Number of words for Extra triggers
-    const uint32_t m_nPreWords;  // Number of words for 'pre' part
-    const uint32_t m_nVecWords = m_nSenseWords + m_nExtraWords;  // Number of words in 'vec' part
+ಗುಪ್ತ:
+    ಧ್ರುವ std::string m_name;  // TriggerKit name
+    ಧ್ರುವ bool m_slow;  // TriggerKit is for schedulign 'slow' code
+    ಧ್ರುವ uint32_t m_n_Sense_ಪದಗಳು;  // Number of words for Sense triggers
+    ಧ್ರುವ uint32_t m_n_Extra_ಪದಗಳು;  // Number of words for Extra triggers
+    ಧ್ರುವ uint32_t m_n_Pre_ಪದಗಳು;  // Number of words for 'pre' part
+    ಧ್ರುವ uint32_t m_n_Vec_ಪದಗಳು = m_n_Sense_ಪದಗಳು + m_n_Extra_ಪದಗಳು;  // Number of words in 'vec' part
 
     // SenItems to corresponding bit indexes
-    std::unordered_map<VNRef<const AstSenItem>, size_t> m_senItem2TrigIdx;
+    std::unordered_map<VNRef<ಧ್ರುವ AstSenItem>, size_t> m_senItem2TrigIdx;
     // Bit index to corresponding SenItem, nullptr for padding and Extra triggers
-    std::vector<const AstSenItem*> m_trigIdx2SenItem;
+    std::vector<ಧ್ರುವ AstSenItem*> m_trigIdx2SenItem;
     // Data type of a single trigger word
-    AstNodeDType* m_wordDTypep = nullptr;
+    Ast_ಗಂಟು_DType* m_wordDTypep = nullptr;
     // Data type of a trigger vector holding one copy of all triggers
     AstUnpackArrayDType* m_trigVecDTypep = nullptr;
     // Data type of an extended trigger vector holding one copy of all triggers
@@ -309,22 +309,22 @@ private:
     mutable AstCFunc* m_clearp = nullptr;
 
     // Methods to lazy construct functions processing trigger vectors
-    AstCFunc* createDumpExtFunc() const;
-    AstCFunc* createAnySetFunc(AstUnpackArrayDType* const dtypep) const;
-    AstCFunc* createClearFunc() const;
-    AstCFunc* createOrIntoFunc(AstUnpackArrayDType* const oDtypep,
-                               AstUnpackArrayDType* const iDtypep) const;
+    AstCFunc* createDumpExtFunc() ಧ್ರುವ;
+    AstCFunc* createAnySetFunc(AstUnpackArrayDType* ಧ್ರುವ dtypep) ಧ್ರುವ;
+    AstCFunc* createClearFunc() ಧ್ರುವ;
+    AstCFunc* createOrIntoFunc(AstUnpackArrayDType* ಧ್ರುವ oDtypep,
+                               AstUnpackArrayDType* ಧ್ರುವ iDtypep) ಧ್ರುವ;
 
-    TriggerKit(const std::string& name, bool slow, uint32_t nSenseWords, uint32_t nExtraWords,
-               uint32_t nPreWords,
-               std::unordered_map<VNRef<const AstSenItem>, size_t> senItem2TrigIdx,
-               const std::vector<const AstSenItem*>& senItemps, bool useAcc);
+    TriggerKit(ಧ್ರುವ std::string& name, bool slow, uint32_t n_Sense_ಪದಗಳು, uint32_t n_Extra_ಪದಗಳು,
+               uint32_t n_Pre_ಪದಗಳು,
+               std::unordered_map<VNRef<ಧ್ರುವ AstSenItem>, size_t> senItem2TrigIdx,
+               ಧ್ರುವ std::vector<ಧ್ರುವ AstSenItem*>& senItemps, bool useAcc);
     VL_UNCOPYABLE(TriggerKit);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Move constructible
-    TriggerKit(TriggerKit&&) = default;
-    ~TriggerKit() = default;
+    TriggerKit(TriggerKit&&) = ಸ್ವಭಾವ;
+    ~TriggerKit() = ಸ್ವಭಾವ;
     TriggerKit& operator=(TriggerKit&&) = delete;
 
     // Utility for extra trigger allocation
@@ -332,71 +332,71 @@ public:
         friend class TriggerKit;
         std::vector<string> m_descriptions;  // Human readable description of extra triggers
 
-    public:
-        ExtraTriggers() = default;
-        ~ExtraTriggers() = default;
+    ಸಾರ್ವಜನಿಕ:
+        ExtraTriggers() = ಸ್ವಭಾವ;
+        ~ExtraTriggers() = ಸ್ವಭಾವ;
 
-        uint32_t allocate(const string& description) {
-            m_descriptions.push_back(description);
-            return m_descriptions.size() - 1;
+        uint32_t allocate(ಧ್ರುವ string& description) {
+            m_descriptions.ತಳ್ಳು_back(description);
+            ಪ್ರತ್ಯಾಗಮ m_descriptions.size() - 1;
         }
-        uint32_t size() const { return m_descriptions.size(); }
+        uint32_t size() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_descriptions.size(); }
     };
     // Generates list of assignments that fills
-    static AstAssign* createSenTrigVecAssignment(AstVarScope* const target,
-                                                 std::vector<AstNodeExpr*>& trigps);
+    ಸ್ಥಿರ AstAssign* createSenTrigVecAssignment(AstVarScope* ಧ್ರುವ target,
+                                                 std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>& trigps);
 
     // Create a TriggerKit for the given AstSenTree vector
-    static TriggerKit create(AstNetlist* netlistp,  //
-                             AstCFunc* const initFuncp,  //
-                             SenExprBuilder& senExprBuilder,  //
-                             const std::vector<const AstSenTree*>& preTreeps,  //
-                             const std::vector<const AstSenTree*>& senTreeps,  //
-                             const string& name,  //
-                             const ExtraTriggers& extraTriggers,  //
+    ಸ್ಥಿರ TriggerKit create(AstNetlist* netlistp,  //
+                             AstCFunc* ಧ್ರುವ initFuncp,  //
+                             Sen_ಅಭಿವ್ಯಕ್ತಿ_Builder& sen_ಅಭಿವ್ಯಕ್ತಿ_Builder,  //
+                             ಧ್ರುವ std::vector<ಧ್ರುವ Ast_Sen_ವೃಕ್ಷ*>& preTreeps,  //
+                             ಧ್ರುವ std::vector<ಧ್ರುವ Ast_Sen_ವೃಕ್ಷ*>& senTreeps,  //
+                             ಧ್ರುವ string& name,  //
+                             ಧ್ರುವ ExtraTriggers& extraTriggers,  //
                              bool slow,  //
                              bool useAcc);
 
     // ACCESSORS
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVarScope* vscAccp() const { return m_vscAccp; }
-    size_t senItem2TrigIdx(const AstSenItem* senItemp) const {
-        return m_senItem2TrigIdx.at(*senItemp);
+    AstVarScope* vscp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_vscp; }
+    AstVarScope* vscAccp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_vscAccp; }
+    size_t senItem2TrigIdx(ಧ್ರುವ AstSenItem* senItemp) ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_senItem2TrigIdx.at(*senItemp);
     }
-    const std::vector<const AstSenItem*>& trigIdx2SenItem() const { return m_trigIdx2SenItem; }
-    AstCFunc* compBasep() const { return m_compVecp; }
-    const std::string& name() const { return m_name; }
+    ಧ್ರುವ std::vector<ಧ್ರುವ AstSenItem*>& trigIdx2SenItem() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_trigIdx2SenItem; }
+    AstCFunc* compBasep() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_compVecp; }
+    ಧ್ರುವ std::string& name() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_name; }
 
     // Helpers for code generation - lazy construct relevant functions
-    AstNodeStmt* newAndNotCall(AstVarScope* op, AstVarScope* ap, AstVarScope* bp) const;
-    AstNodeExpr* newAnySetCall(AstVarScope* vscp) const;
-    AstNodeStmt* newClearCall(AstVarScope* vscp) const;
-    AstNodeStmt* newOrIntoCall(AstVarScope* op, AstVarScope* ip) const;
+    Ast_ಗಂಟು_Stmt* newAndNotCall(AstVarScope* op, AstVarScope* ap, AstVarScope* bp) ಧ್ರುವ;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newAnySetCall(AstVarScope* vscp) ಧ್ರುವ;
+    Ast_ಗಂಟು_Stmt* newClearCall(AstVarScope* vscp) ಧ್ರುವ;
+    Ast_ಗಂಟು_Stmt* newOrIntoCall(AstVarScope* op, AstVarScope* ip) ಧ್ರುವ;
     // Helpers for code generation
-    AstNodeStmt* newCompBaseCall() const;
-    AstNodeStmt* newCompExtCall(AstVarScope* vscp) const;
-    AstNodeStmt* newDumpCall(AstVarScope* vscp, const std::string& tag, bool debugOnly) const;
+    Ast_ಗಂಟು_Stmt* newCompBaseCall() ಧ್ರುವ;
+    Ast_ಗಂಟು_Stmt* newCompExtCall(AstVarScope* vscp) ಧ್ರುವ;
+    Ast_ಗಂಟು_Stmt* newDumpCall(AstVarScope* vscp, ಧ್ರುವ std::string& tag, bool debugOnly) ಧ್ರುವ;
     // Create a new (non-extended) trigger vector - might return nullptr if there are no triggers
-    AstVarScope* newTrigVec(const std::string& name) const;
+    AstVarScope* newTrigVec(ಧ್ರುವ std::string& name) ಧ್ರುವ;
 
     // Index in the trigger vector of the given Extra trigger
-    uint32_t extraTriggerIndex(uint32_t index) const;
+    uint32_t extraTriggerIndex(uint32_t index) ಧ್ರುವ;
 
     // Indices in the trigger vector of the items of the given SenTree, either of the 'pre' copy,
     // or of the regular triggers
-    std::set<uint32_t> triggerIndices(const AstSenTree* senTreep, bool pre) const;
+    std::set<uint32_t> triggerIndices(ಧ್ರುವ Ast_Sen_ವೃಕ್ಷ* senTreep, bool pre) ಧ್ರುವ;
 
     // Statement setting the extra trigger bit at 'index' to the value of 'vscp'
-    AstNodeStmt* newExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) const;
+    Ast_ಗಂಟು_Stmt* newExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) ಧ್ರುವ;
 
     // Set the extra trigger bit at 'index' to the value of 'vscp', then set 'vscp' to 0.
     // Prepended to the trigger computation function.
-    void addExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) const;
+    ಶೂನ್ಯ addExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) ಧ್ರುವ;
 
     // Set trigger bit at 'index' when vscp's value changes from previous evaluation.
     // Creates a prev variable: trigger[bit] = (vscp != prev); prev = vscp
-    void addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc* initFuncp,
-                                         AstVarScope* vscp, uint32_t index) const;
+    ಶೂನ್ಯ add_ಮೌಲ್ಯ_Change_Trigger_Assignment(AstNetlist* netlistp, AstCFunc* initFuncp,
+                                         AstVarScope* vscp, uint32_t index) ಧ್ರುವ;
 };
 
 // Everything needed for combining timing with static scheduling.
@@ -405,59 +405,59 @@ class TimingKit final {
     AstCFunc* m_readyFuncp = nullptr;  // Global timing ready function
 
     // Additional var sensitivities for V3Order
-    std::map<const AstVarScope*, std::set<AstSenTree*>> m_externalDomains;
+    std::map<ಧ್ರುವ AstVarScope*, std::set<Ast_Sen_ವೃಕ್ಷ*>> m_externalDomains;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     LogicByScope m_lbs;  // Actives that resume timing schedulers
-    AstNodeStmt* m_postUpdates = nullptr;  // Post updates for the trigger eval function
+    Ast_ಗಂಟು_Stmt* m_postUpdates = nullptr;  // Post updates for the trigger eval function
 
     // Trigger indices of the external domains of each variable
-    std::map<const AstVarScope*, std::vector<uint32_t>>
-    externalTriggerIndices(const TriggerKit& trigKit) const VL_MT_DISABLED;
+    std::map<ಧ್ರುವ AstVarScope*, std::vector<uint32_t>>
+    externalTriggerIndices(ಧ್ರುವ TriggerKit& trigKit) ಧ್ರುವ VL_MT_DISABLED;
     // Get the delay scheduler variable
-    AstVarScope* getDelayScheduler(AstNetlist* const netlistp) VL_MT_DISABLED;
+    AstVarScope* getDelayScheduler(AstNetlist* ಧ್ರುವ netlistp) VL_MT_DISABLED;
     // Creates a timing resume call (if needed, else returns null)
     AstCCall* createResume(AstVarScope* trigVscp) VL_MT_DISABLED;
     // Creates a timing ready call (if needed, else returns null)
     AstCCall* createReady(AstVarScope* trigVscp) VL_MT_DISABLED;
 
-    TimingKit() = default;
-    TimingKit(LogicByScope&& lbs, AstNodeStmt* postUpdates,
-              std::map<const AstVarScope*, std::set<AstSenTree*>>&& externalDomains)
+    TimingKit() = ಸ್ವಭಾವ;
+    TimingKit(LogicByScope&& lbs, Ast_ಗಂಟು_Stmt* postUpdates,
+              std::map<ಧ್ರುವ AstVarScope*, std::set<Ast_Sen_ವೃಕ್ಷ*>>&& externalDomains)
         : m_externalDomains{externalDomains}
         , m_lbs{lbs}
         , m_postUpdates{postUpdates} {}
     VL_UNCOPYABLE(TimingKit);
-    TimingKit(TimingKit&&) = default;
-    TimingKit& operator=(TimingKit&&) = default;
+    TimingKit(TimingKit&&) = ಸ್ವಭಾವ;
+    TimingKit& operator=(TimingKit&&) = ಸ್ವಭಾವ;
 };
 
 class VirtIfaceTriggers final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // One entry per VarScope of an interface member that may be written through a virtual
     // interface. Each gets its own extra trigger bit with value-change detection.
-    struct TriggerEntry final {
-        const AstIface* m_ifacep;  // Interface type
-        const AstVar* m_memberp;  // Member variable in the interface definition
+    ಸಂರಚನಾ TriggerEntry final {
+        ಧ್ರುವ AstIface* m_ifacep;  // Interface type
+        ಧ್ರುವ AstVar* m_memberp;  // Member variable in the interface definition
         AstVarScope* m_vscp;  // VarScope to monitor
     };
 
     std::vector<TriggerEntry> m_triggers;
 
-    void addTrigger(const AstIface* ifacep, const AstVar* memberp, AstVarScope* vscp) {
-        m_triggers.push_back(TriggerEntry{ifacep, memberp, vscp});
+    ಶೂನ್ಯ addTrigger(ಧ್ರುವ AstIface* ifacep, ಧ್ರುವ AstVar* memberp, AstVarScope* vscp) {
+        m_triggers.ತಳ್ಳು_back(TriggerEntry{ifacep, memberp, vscp});
     }
 
     // Maps each triggered VarScope to its trigger index. addTriggeredIface() uses this
     // to look up triggers -- by specific VarScope for non-virtual reads, or by iterating
     // all entries of the same interface type for virtual interface reads.
-    using VscpTrigMap = std::map<const AstVarScope*, uint32_t>;
-    VscpTrigMap makeVscpToTrigMap(const TriggerKit& trigKit, uint32_t firstIndex) const;
+    using VscpTrigMap = std::map<ಧ್ರುವ AstVarScope*, uint32_t>;
+    VscpTrigMap makeVscpToTrigMap(ಧ್ರುವ TriggerKit& trigKit, uint32_t firstIndex) ಧ್ರುವ;
 
     VL_UNCOPYABLE(VirtIfaceTriggers);
-    VirtIfaceTriggers() = default;
-    VirtIfaceTriggers(VirtIfaceTriggers&&) = default;
-    VirtIfaceTriggers& operator=(VirtIfaceTriggers&&) = default;
+    VirtIfaceTriggers() = ಸ್ವಭಾವ;
+    VirtIfaceTriggers(VirtIfaceTriggers&&) = ಸ್ವಭಾವ;
+    VirtIfaceTriggers& operator=(VirtIfaceTriggers&&) = ಸ್ವಭಾವ;
 };
 
 // Design variables bound to covergroup 'ref'/'const ref' formal arguments at construction.
@@ -467,64 +467,64 @@ public:
 // model those reads, but by the time it runs the constructions sit in logic it does not order,
 // so they are collected before ordering and handed to it.
 class CovergroupRefBindings final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // The design variables one covergroup sample() may read through its reference formals
     using Bindings = std::vector<AstVarScope*>;
 
-private:
+ಗುಪ್ತ:
     // Bindings of one covergroup handle. Exact, and so only present for a handle whose every
     // write is a construction we recognized -- see dropInstance().
-    std::unordered_map<const AstVarScope*, Bindings> m_byInstance;
+    std::unordered_map<ಧ್ರುವ AstVarScope*, Bindings> m_byInstance;
     // Bindings over every construction of a covergroup class, used where the handle a sample()
     // call reaches is not known. An over-approximation, which is safe.
-    std::unordered_map<const AstClass*, Bindings> m_byClass;
+    std::unordered_map<ಧ್ರುವ AstClass*, Bindings> m_byClass;
     // How the sample() calls seen so far resolved. Statistics only, hence mutable: ordering
     // runs once per scheduling region and must hold this by const reference.
-    mutable uint32_t m_numExactCalls = 0;
-    mutable uint32_t m_numUnionCalls = 0;
+    mutable uint32_t m_ಅಂಕೆ_Exact_Calls = 0;
+    mutable uint32_t m_ಅಂಕೆ_Union_Calls = 0;
     // Returned for a covergroup with no reference formal at all.
-    static const Bindings s_none;
+    ಸ್ಥಿರ ಧ್ರುವ Bindings s_none;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Record one construction of covergroup 'classp' binding reference formals to 'bindings'.
     // 'instp' is the handle assigned, or nullptr if the destination could not be identified.
-    void addConstruction(const AstClass* classp, const AstVarScope* instp,
-                         const Bindings& bindings);
+    ಶೂನ್ಯ addConstruction(ಧ್ರುವ AstClass* classp, ಧ್ರುವ AstVarScope* instp,
+                         ಧ್ರುವ Bindings& bindings);
     // Forget the exact bindings of a handle, which turned out to be written by something other
     // than a construction we recognized. Its sample() calls fall back to the class union.
-    void dropInstance(const AstVarScope* instp) { m_byInstance.erase(instp); }
+    ಶೂನ್ಯ dropInstance(ಧ್ರುವ AstVarScope* instp) { m_byInstance.erase(instp); }
     // What a sample() of covergroup 'classp' may read through reference formals, when called on
     // handle 'instp' (nullptr if the call is not on a plain handle reference)
-    const Bindings& forSample(const AstVarScope* instp, const AstClass* classp) const;
+    ಧ್ರುವ Bindings& forSample(ಧ್ರುವ AstVarScope* instp, ಧ್ರುವ AstClass* classp) ಧ್ರುವ;
     // Sample calls of a covergroup with a reference formal resolved to one handle's bindings
-    uint32_t numExactCalls() const { return m_numExactCalls; }
+    uint32_t ಅಂಕೆ_Exact_Calls() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಅಂಕೆ_Exact_Calls; }
     // ... and those that had to take the class union instead
-    uint32_t numUnionCalls() const { return m_numUnionCalls; }
+    uint32_t ಅಂಕೆ_Union_Calls() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಅಂಕೆ_Union_Calls; }
 
     VL_UNCOPYABLE(CovergroupRefBindings);
-    CovergroupRefBindings() = default;
-    CovergroupRefBindings(CovergroupRefBindings&&) = default;
-    CovergroupRefBindings& operator=(CovergroupRefBindings&&) = default;
+    CovergroupRefBindings() = ಸ್ವಭಾವ;
+    CovergroupRefBindings(CovergroupRefBindings&&) = ಸ್ವಭಾವ;
+    CovergroupRefBindings& operator=(CovergroupRefBindings&&) = ಸ್ವಭಾವ;
 };
 
 // Creates trigger vars for signals driven via virtual interfaces
 VirtIfaceTriggers makeVirtIfaceTriggers(AstNetlist* nodep) VL_MT_DISABLED;
 
 // Collects what covergroup reference formal arguments are bound to at construction
-const CovergroupRefBindings makeCovergroupRefBindings(AstNetlist* nodep) VL_MT_DISABLED;
+ಧ್ರುವ CovergroupRefBindings makeCovergroupRefBindings(AstNetlist* nodep) VL_MT_DISABLED;
 
 // Creates the timing kit and marks variables written by suspendables
-TimingKit prepareTiming(AstNetlist* const netlistp) VL_MT_DISABLED;
+TimingKit prepareTiming(AstNetlist* ಧ್ರುವ netlistp) VL_MT_DISABLED;
 
 // Transforms fork sub-statements into separate functions
-void transformForks(AstNetlist* const netlistp) VL_MT_DISABLED;
+ಶೂನ್ಯ transformForks(AstNetlist* ಧ್ರುವ netlistp) VL_MT_DISABLED;
 
 // Top level entry point to scheduling
-void schedule(AstNetlist*) VL_MT_DISABLED;
+ಶೂನ್ಯ schedule(AstNetlist*) VL_MT_DISABLED;
 
 // Sub-steps
 LogicByScope breakCycles(AstNetlist* netlistp,
-                         const LogicByScope& combinationalLogic) VL_MT_DISABLED;
+                         ಧ್ರುವ LogicByScope& combinationalLogic) VL_MT_DISABLED;
 LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLogic,
                        LogicByScope& hybridLogic) VL_MT_DISABLED;
 LogicReplicas replicateLogic(LogicRegions&) VL_MT_DISABLED;
@@ -532,22 +532,22 @@ LogicReplicas replicateLogic(LogicRegions&) VL_MT_DISABLED;
 // Utility functions used by various steps in scheduling
 namespace util {
 // Create a new sub function (not an entry point)
-AstCFunc* makeSubFunction(AstNetlist* netlistp, const string& name, bool slow);
+AstCFunc* makeSubFunction(AstNetlist* netlistp, ಧ್ರುವ string& name, bool slow);
 // Add an argument of the given type to the given function
-AstVarScope* newArgument(AstCFunc* funcp, AstNodeDType* dtypep, const string& name,
+AstVarScope* newArgument(AstCFunc* funcp, Ast_ಗಂಟು_DType* dtypep, ಧ್ರುವ string& name,
                          VDirection direction);
 // Create statement that sets the given 'vscp' to 'val'
-AstNodeStmt* setVar(AstVarScope* vscp, uint32_t val);
+Ast_ಗಂಟು_Stmt* setVar(AstVarScope* vscp, uint32_t val);
 // Create statement that increments the given 'vscp' by one
-AstNodeStmt* incrementVar(AstVarScope* vscp);
+Ast_ಗಂಟು_Stmt* incrementVar(AstVarScope* vscp);
 // Create statement that calls the given 'void' returning function
-AstNodeStmt* callVoidFunc(AstCFunc* funcp);
+Ast_ಗಂಟು_Stmt* callVoidFunc(AstCFunc* funcp);
 // Split large function according to --output-split-cfuncs
-void splitCheck(AstCFunc* ofuncp);
+ಶೂನ್ಯ splitCheck(AstCFunc* ofuncp);
 }  // namespace util
 
-void beforeTrigVisitor(AstNetlist* netlistp, SenExprBuilder& senExprBuilder,
-                       const TriggerKit& trigKit);
+ಶೂನ್ಯ beforeTrigVisitor(AstNetlist* netlistp, Sen_ಅಭಿವ್ಯಕ್ತಿ_Builder& sen_ಅಭಿವ್ಯಕ್ತಿ_Builder,
+                       ಧ್ರುವ TriggerKit& trigKit);
 
 }  // namespace V3Sched
 

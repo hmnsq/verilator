@@ -17,8 +17,8 @@
 #ifndef VERILATOR_V3CASE_H_
 #define VERILATOR_V3CASE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 class AstGenCase;
@@ -26,9 +26,9 @@ class AstGenCase;
 //============================================================================
 
 class V3Case final {
-public:
-    static void caseAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static void caseLint(AstGenCase* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ caseAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ caseLint(AstGenCase* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

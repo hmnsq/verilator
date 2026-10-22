@@ -17,8 +17,8 @@
 #ifndef VERILATOR_V3INST_H_
 #define VERILATOR_V3INST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstAssignW;
 class AstCell;
@@ -28,11 +28,11 @@ class AstPin;
 //============================================================================
 
 class V3Inst final {
-public:
-    static void instAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ instAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
                                           bool alwaysCvt = false) VL_MT_DISABLED;
-    static void checkOutputShort(const AstPin* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ checkOutputShort(ಧ್ರುವ AstPin* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

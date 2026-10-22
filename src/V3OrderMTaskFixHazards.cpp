@@ -94,17 +94,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMTaskGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3Control.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3OrderGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3OrderMTaskGraph.h"
 
-#include <algorithm>
-#include <set>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -112,15 +112,15 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // DpiImportCallVisitor
 
 // Scan node, indicate whether it contains a call to a DPI imported routine.
-class DpiImportCallVisitor final : public VNVisitor {
-    bool m_hasDpiHazard = false;  // Found a DPI import call.
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
+ವರ್ಗ DpiImportCallVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
+    ತಾರ್ಕಿಕ m_hasDpiHazard = ಅಸತ್ಯ;  // Found a DPI import call.
+    ತಾರ್ಕಿಕ m_tracingCall = ಅಸತ್ಯ;  // Iterating into a CCall to a CFunc
     // METHODS
-    void visit(AstCFunc* nodep) override {
-        if (!m_tracingCall) return;
-        m_tracingCall = false;
-        if (nodep->dpiImportWrapper()) {
-            if (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
+    ಶೂನ್ಯ visit(AstCFunc* nodep) override {
+        ಯದಿ (!m_tracingCall) ಪ್ರತ್ಯಾಗಮ;
+        m_tracingCall = ಅಸತ್ಯ;
+        ಯದಿ (nodep->dpiImportWrapper()) {
+            ಯದಿ (nodep->dpiPure() ? !v3Global.opt.threadsDpiPure()
                                  : !v3Global.opt.threadsDpiUnpure()) {
                 // If hierarchical DPI wrapper cost is not found or is of a 0 cost,
                 // we have a normal DPI which induces DPI hazard by default.
@@ -131,37 +131,37 @@ class DpiImportCallVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_CCall* nodep) override {
         iterateChildren(nodep);
         // Enter the function and trace it
-        m_tracingCall = true;
+        m_tracingCall = ಸತ್ಯ;
         iterate(nodep->funcp());
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit DpiImportCallVisitor(AstNode* nodep) { iterate(nodep); }
+    explicit DpiImportCallVisitor(Ast_ಗಂಟು* nodep) { iterate(nodep); }
 
-public:
-    static bool hasDpiHazard(AstNode* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ hasDpiHazard(Ast_ಗಂಟು* nodep) { ಪ್ರತ್ಯಾಗಮ DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
 };
 
 //######################################################################
 // FixDataHazards
 
-class FixDataHazards final {
+ವರ್ಗ FixDataHazards final {
     // TYPES
 
     // Access to one variable, with the MTask performing it
-    struct Access final {
-        const AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
+    ಸಂರಚನಾ Access final {
+        ಧ್ರುವ AstVarScope* m_vscp;  // The variable accessed, its index is in 'user1'
         LogicMTask* m_mtaskp;  // The accessing MTask
         VAccess m_access;  // The kind of access
     };
 
     // NODE STATE
     //  AstVarScope::user1    -> int: Variable index for stable sorting
-    const VNUser1InUse m_user1InUse;
+    ಧ್ರುವ VNUser1InUse m_user1InUse;
 
     // MEMBERS
     OrderMTaskGraph& m_mTaskGraph;  // The Mtask graph
@@ -173,39 +173,39 @@ class FixDataHazards final {
     // 'from -> to' we have seq(from) < seq(to). See the note at top of file on why this matters.
     // This is a topological sort using Kahn's algorithm with MTasks enumerated in a globally
     // non-decreasing critical path order.
-    void assignSequenceNumbers() {
-        struct MTaskCmp final {
-            bool operator()(const LogicMTask* ap, const LogicMTask* bp) const {
+    ಶೂನ್ಯ assignSequenceNumbers() {
+        ಸಂರಚನಾ MTaskCmp final {
+            ತಾರ್ಕಿಕ operator()(ಧ್ರುವ LogicMTask* ap, ಧ್ರುವ LogicMTask* bp) ಧ್ರುವ {
                 // Order by critical path
-                const uint64_t aCp = ap->cpExclusive<GraphWay::FORWARD>();
-                const uint64_t bCp = bp->cpExclusive<GraphWay::FORWARD>();
-                if (aCp != bCp) return aCp < bCp;
+                ಧ್ರುವ uint64_t aCp = ap->cpExclusive<GraphWay::FORWARD>();
+                ಧ್ರುವ uint64_t bCp = bp->cpExclusive<GraphWay::FORWARD>();
+                ಯದಿ (aCp != bCp) ಪ್ರತ್ಯಾಗಮ aCp < bCp;
                 // Break ties by stable id
-                return *ap < *bp;
+                ಪ್ರತ್ಯಾಗಮ *ap < *bp;
             }
         };
         // Set of ready vertices. Initialized to the entry MTask.
         std::set<LogicMTask*, MTaskCmp> ready{m_mTaskGraph.entryp()};
         // 'user' also used to count remaining dependencies of each MTask. Initialize it.
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+        ಪ್ರತಿ (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
             vtx.user(static_cast<uint32_t>(vtx.inEdges().size()));
         }
         // Next sequence number to assign to each MTask.
         uint32_t seq = 0;
         // Process ready vertices in critical path order.
-        while (!ready.empty()) {
+        ಯಾವತ್ (!ready.empty()) {
             // Pick up and detach the ready MTask with the smallest critical path.
-            const auto it = ready.begin();
-            LogicMTask* const mtaskp = *it;
+            ಧ್ರುವ auto it = ready.begin();
+            LogicMTask* ಧ್ರುವ mtaskp = *it;
             ready.erase(it);
             // Assign the next sequence number to the MTask
             mtaskp->user(++seq);
             // Decrement edge count of successors and add to ready set if no dependencies left
-            for (V3GraphEdge& edge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<LogicMTask*>(edge.top());
-                const uint32_t nDeps = top->user() - 1;
-                top->user(nDeps);
-                if (!nDeps) ready.insert(top);
+            ಪ್ರತಿ (V3GraphEdge& edge : mtaskp->outEdges()) {
+                LogicMTask* ಧ್ರುವ ತುದಿ = static_cast<LogicMTask*>(edge.ತುದಿ());
+                ಧ್ರುವ uint32_t nDeps = ತುದಿ->user() - 1;
+                ತುದಿ->user(nDeps);
+                ಯದಿ (!nDeps) ready.ಸೇರಿಸು(ತುದಿ);
             }
         }
         UASSERT(seq == m_mTaskGraph.vertices().size(), "MTask graph is cyclic");
@@ -214,91 +214,91 @@ class FixDataHazards final {
     // Gather every variable access, resolved to the MTask performing it.
     std::vector<Access> gatherAccesses() {
         std::vector<Access> accesses;
-        int nVars = 0;
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+        ಪೂರ್ಣಾಙ್ಕ nVars = 0;
+        ಪ್ರತಿ (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
             LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-            for (const OrderMoveVertex& mVtx : mtask.vertexList()) {
-                const OrderLogicVertex* const lVtxp = mVtx.logicp();
-                if (!lVtxp) continue;
-                for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
-                    AstVarScope* const vscp = acc.m_vscp;
-                    if (!vscp->user1()) vscp->user1(++nVars);
-                    accesses.push_back({vscp, &mtask, acc.m_access});
+            ಪ್ರತಿ (ಧ್ರುವ OrderMoveVertex& mVtx : mtask.vertexList()) {
+                ಧ್ರುವ OrderLogicVertex* ಧ್ರುವ lVtxp = mVtx.logicp();
+                ಯದಿ (!lVtxp) ಅನುವರ್ತ;
+                ಪ್ರತಿ (ಧ್ರುವ OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
+                    AstVarScope* ಧ್ರುವ vscp = acc.m_vscp;
+                    ಯದಿ (!vscp->user1()) vscp->user1(++nVars);
+                    accesses.ತಳ್ಳು_back({vscp, &mtask, acc.m_access});
                 }
             }
         }
-        return accesses;
+        ಪ್ರತ್ಯಾಗಮ accesses;
     }
 
     // Add an edge ordering 'fromp' before 'top', unless they are already ordered
-    void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* top) {
+    ಶೂನ್ಯ addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* ತುದಿ) {
         // Nothing to order within a single MTask
-        if (fromp == top) return;
-        UASSERT_OBJ(fromp->user() < top->user(), fromp,
+        ಯದಿ (fromp == ತುದಿ) ಪ್ರತ್ಯಾಗಮ;
+        UASSERT_OBJ(fromp->user() < ತುದಿ->user(), fromp,
                     "Edge must run in increasing sequence order");
         // Already directly ordered. This is an O(1) set lookup, and catches the common case of
         // a dependency the OrderGraph already provided.
-        if (fromp->hasEdgeTo(top)) return;
+        ಯದಿ (fromp->hasEdgeTo(ತುದಿ)) ಪ್ರತ್ಯಾಗಮ;
         // Otherwise check if already ordered
-        if (m_mTaskGraph.pathExists(fromp, top, nullptr)) return;
+        ಯದಿ (m_mTaskGraph.pathExists(fromp, ತುದಿ, nullptr)) ಪ್ರತ್ಯಾಗಮ;
         // Unordered. Add an edge between them.
-        m_mTaskGraph.addEdge(fromp, top);
+        m_mTaskGraph.addEdge(fromp, ತುದಿ);
     }
 
     // Add the edges required to make the accesses of one variable race free. 'beginp'/'endp'
     // delimit the accesses of a single variable, in sequence number order.
-    void serializeVariable(const Access* beginp, const Access* endp) {
+    ಶೂನ್ಯ serializeVariable(ಧ್ರುವ Access* beginp, ಧ್ರುವ Access* endp) {
         // Nothing to order if at most one MTask accesses this variable. Each MTask appears at
         // most once in the range, see the assertion below, so this is just the range size.
-        if (endp - beginp < 2) return;
+        ಯದಿ (endp - beginp < 2) ಪ್ರತ್ಯಾಗಮ;
 
         std::vector<LogicMTask*>& pendingReaders = m_scratch;
         pendingReaders.clear();
         LogicMTask* prevWriterp = nullptr;
-        for (const Access* accp = beginp; accp != endp; ++accp) {
+        ಪ್ರತಿ (ಧ್ರುವ Access* accp = beginp; accp != endp; ++accp) {
             // The OrderLogicVertices record one access per variable, and at this point each MTask
             // holds exactly one logic block, so an MTask cannot appear twice here.
             UASSERT_OBJ(accp == beginp || accp[-1].m_mtaskp != accp->m_mtaskp, accp->m_mtaskp,
                         "Multiple accesses of a variable in an MTask");
-            LogicMTask* const mtaskp = accp->m_mtaskp;
-            if (accp->m_access.isWriteOrRW()) {
+            LogicMTask* ಧ್ರುವ mtaskp = accp->m_mtaskp;
+            ಯದಿ (accp->m_access.isWriteOrRW()) {
                 // Reads since the previous write must complete before this write
-                for (LogicMTask* const readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
+                ಪ್ರತಿ (LogicMTask* ಧ್ರುವ readerp : pendingReaders) addEdgeIfNeeded(readerp, mtaskp);
                 // Consecutive writes must be ordered. If a read came between them, the edges to
                 // and from that read imply it already.
-                if (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
+                ಯದಿ (prevWriterp && pendingReaders.empty()) addEdgeIfNeeded(prevWriterp, mtaskp);
                 pendingReaders.clear();
                 prevWriterp = mtaskp;
-            } else {
+            } ಅನ್ಯಥಾ {
                 // This read must happen after the preceding write
-                if (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
-                pendingReaders.push_back(mtaskp);
+                ಯದಿ (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
+                pendingReaders.ತಳ್ಳು_back(mtaskp);
             }
         }
     }
 
     // Serialize the given MTasks, in sequence number order
-    void serializeMTasks(std::vector<LogicMTask*>& mtaskps) {
-        std::sort(mtaskps.begin(), mtaskps.end(), [](const LogicMTask* ap, const LogicMTask* bp) {
-            return ap->user() < bp->user();
+    ಶೂನ್ಯ serializeMTasks(std::vector<LogicMTask*>& mtaskps) {
+        std::sort(mtaskps.begin(), mtaskps.end(), [](ಧ್ರುವ LogicMTask* ap, ಧ್ರುವ LogicMTask* bp) {
+            ಪ್ರತ್ಯಾಗಮ ap->user() < bp->user();
         });
         mtaskps.erase(std::unique(mtaskps.begin(), mtaskps.end()), mtaskps.end());
-        for (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
+        ಪ್ರತಿ (size_t i = 1; i < mtaskps.size(); ++i) addEdgeIfNeeded(mtaskps[i - 1], mtaskps[i]);
     }
 
-    bool hasDpiHazard(LogicMTask* mtaskp) {
-        for (const OrderMoveVertex& mVtx : mtaskp->vertexList()) {
-            OrderLogicVertex* const lvtxp = mVtx.logicp();
-            if (!lvtxp) continue;
+    ತಾರ್ಕಿಕ hasDpiHazard(LogicMTask* mtaskp) {
+        ಪ್ರತಿ (ಧ್ರುವ OrderMoveVertex& mVtx : mtaskp->vertexList()) {
+            OrderLogicVertex* ಧ್ರುವ lvtxp = mVtx.logicp();
+            ಯದಿ (!lvtxp) ಅನುವರ್ತ;
             // NOTE: We don't handle DPI exports. If testbench code calls a DPI-exported function
             // at any time during eval() we may have a data hazard. (Likewise in non-threaded mode
             // if an export messes with an ordered variable we're broken.)
 
             // Find all calls to DPI-imported functions, we can put those into a serial order at
             // least. That should solve the most likely DPI-related data hazards.
-            if (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) return true;
+            ಯದಿ (DpiImportCallVisitor::hasDpiHazard(lvtxp->nodep())) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // CONSTRUCTOR
@@ -310,15 +310,15 @@ class FixDataHazards final {
         // Gather variable accesses made by each MTask
         std::vector<Access> accesses = gatherAccesses();
         // Sort by variable (to group by variable), then by sequence number of the accessing MTask
-        std::sort(accesses.begin(), accesses.end(), [](const Access& a, const Access& b) {
-            if (a.m_vscp != b.m_vscp) return a.m_vscp->user1() < b.m_vscp->user1();
-            return a.m_mtaskp->user() < b.m_mtaskp->user();
+        std::sort(accesses.begin(), accesses.end(), [](ಧ್ರುವ Access& a, ಧ್ರುವ Access& b) {
+            ಯದಿ (a.m_vscp != b.m_vscp) ಪ್ರತ್ಯಾಗಮ a.m_vscp->user1() < b.m_vscp->user1();
+            ಪ್ರತ್ಯಾಗಮ a.m_mtaskp->user() < b.m_mtaskp->user();
         });
 
         // Serialize the accesses of each variable
-        for (size_t i = 0; i < accesses.size();) {
+        ಪ್ರತಿ (size_t i = 0; i < accesses.size();) {
             size_t end = i + 1;
-            while (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
+            ಯಾವತ್ (end < accesses.size() && accesses[end].m_vscp == accesses[i].m_vscp) ++end;
             serializeVariable(accesses.data() + i, accesses.data() + end);
             i = end;
         }
@@ -329,30 +329,30 @@ class FixDataHazards final {
         // so this should not hurt performance too much.
         {
             m_scratch.clear();
-            for (const Access& access : accesses) {
-                if (!access.m_access.isWriteOrRW()) continue;
-                if (!access.m_vscp->varp()->isSc()) continue;
-                m_scratch.push_back(access.m_mtaskp);
+            ಪ್ರತಿ (ಧ್ರುವ Access& access : accesses) {
+                ಯದಿ (!access.m_access.isWriteOrRW()) ಅನುವರ್ತ;
+                ಯದಿ (!access.m_vscp->varp()->isSc()) ಅನುವರ್ತ;
+                m_scratch.ತಳ್ಳು_back(access.m_mtaskp);
             }
             serializeMTasks(m_scratch);
         }
 
         // Serialize DPI calls unless user gave '--threads-dpi none'.
-        if (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
+        ಯದಿ (!v3Global.opt.threadsDpiPure() || !v3Global.opt.threadsDpiUnpure()) {
             m_scratch.clear();
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+            ಪ್ರತಿ (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
                 LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-                if (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
+                ಯದಿ (hasDpiHazard(&mtask)) m_scratch.ತಳ್ಳು_back(&mtask);
             }
             serializeMTasks(m_scratch);
         }
     }
 
-public:
-    static void apply(OrderMTaskGraph& mTaskGraph) { FixDataHazards{mTaskGraph}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(OrderMTaskGraph& mTaskGraph) { FixDataHazards{mTaskGraph}; }
 };
 
-void OrderMTaskGraph::fixDataHazards(OrderMTaskGraph& mtaskGraph) {
+ಶೂನ್ಯ OrderMTaskGraph::fixDataHazards(OrderMTaskGraph& mtaskGraph) {
     FixDataHazards::apply(mtaskGraph);
     // The critical paths are maintained as the graph is mutated, check them
     mtaskGraph.validate();

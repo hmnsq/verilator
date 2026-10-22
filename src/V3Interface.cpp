@@ -23,75 +23,75 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Interface.h"
+#ಅನ್ತರ್ಭಾವ "V3Interface.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Track interface references under the Cell they reference
 
-class InlineIntfRefVisitor final : public VNVisitor {
+ವರ್ಗ InlineIntfRefVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     //   AstVar::user1p()   // AstCell which this Var points to
-    const VNUser1InUse m_inuser1;
+    ಧ್ರುವ VNUser1InUse m_inuser1;
 
     string m_scope;  // Scope name
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateChildrenConst(nodep->topModulep()); }
-    void visit(AstCell* nodep) override {
+    ಶೂನ್ಯ visit(AstNetlist* nodep) override { iterateChildrenConst(nodep->ತುದಿ_Modulep()); }
+    ಶೂನ್ಯ visit(AstCell* nodep) override {
         VL_RESTORER_COPY(m_scope);
-        if (m_scope.empty()) {
+        ಯದಿ (m_scope.empty()) {
             m_scope = nodep->name();
-        } else {
+        } ಅನ್ಯಥಾ {
             m_scope += "__DOT__" + nodep->name();
         }
 
-        AstNodeModule* const modp = nodep->modp();
+        Ast_ಗಂಟು_Module* ಧ್ರುವ modp = nodep->modp();
         // Pass Cell pointers down to the next module
-        for (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            AstVar* const varp = pinp->modVarp();
-            const AstVarRef* const varrefp = VN_CAST(pinp->exprp(), VarRef);
-            if (!varrefp) continue;
+        ಪ್ರತಿ (AstPin* pinp = nodep->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            AstVar* ಧ್ರುವ varp = pinp->modVarp();
+            ಧ್ರುವ AstVarRef* ಧ್ರುವ varrefp = VN_CAST(pinp->exprp(), VarRef);
+            ಯದಿ (!varrefp) ಅನುವರ್ತ;
 
-            const AstVar* const fromVarp = varrefp->varp();
-            const AstIfaceRefDType* const irdtp = VN_CAST(fromVarp->dtypep(), IfaceRefDType);
-            if (!irdtp) continue;
+            ಧ್ರುವ AstVar* ಧ್ರುವ fromVarp = varrefp->varp();
+            ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ irdtp = VN_CAST(fromVarp->dtypep(), IfaceRefDType);
+            ಯದಿ (!irdtp) ಅನುವರ್ತ;
 
             AstCell* cellp = VN_CAST(fromVarp->user1p(), Cell);
-            if (!cellp) cellp = irdtp->cellp();
-            if (!cellp) continue;
+            ಯದಿ (!cellp) cellp = irdtp->cellp();
+            ಯದಿ (!cellp) ಅನುವರ್ತ;
             varp->user1p(cellp);
-            const string alias = m_scope + "__DOT__" + pinp->name();
+            ಧ್ರುವ string alias = m_scope + "__DOT__" + pinp->name();
             // Prefer the port's own dtype; the source may have no modport
-            const AstIfaceRefDType* const portIrdtp = VN_CAST(varp->dtypep(), IfaceRefDType);
-            const string modportName = portIrdtp ? portIrdtp->modportName() : irdtp->modportName();
-            FileLine* const flp = pinp->fileline();
-            cellp->addIntfRefsp(new AstIntfRef{flp, alias, m_scope, pinp->name(), modportName});
+            ಧ್ರುವ AstIfaceRefDType* ಧ್ರುವ portIrdtp = VN_CAST(varp->dtypep(), IfaceRefDType);
+            ಧ್ರುವ string modportName = portIrdtp ? portIrdtp->modportName() : irdtp->modportName();
+            File_ಸಾಲು* ಧ್ರುವ flp = pinp->fileline();
+            cellp->addIntfRefsp(ನೂತನ AstIntfRef{flp, alias, m_scope, pinp->name(), modportName});
         }
 
         iterateChildrenConst(modp);
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*) override {}  // Accelerate
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Stmt*) override {}  // Accelerate
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit InlineIntfRefVisitor(AstNode* nodep) { iterateConst(nodep); }
-    ~InlineIntfRefVisitor() override = default;
+    explicit InlineIntfRefVisitor(Ast_ಗಂಟು* nodep) { iterateConst(nodep); }
+    ~InlineIntfRefVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Interface class functions
 
-void V3Interface::interfaceAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Interface::interfaceAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
 
     { InlineIntfRefVisitor{nodep}; }
 
-    V3Global::dumpCheckGlobalTree("interface", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("interface", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

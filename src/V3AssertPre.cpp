@@ -19,24 +19,24 @@
 //      Transform clocking blocks into imperative logic
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AssertPre.h"
+#ಅನ್ತರ್ಭಾವ "V3AssertPre.h"
 
-#include "V3Assert.h"
-#include "V3Const.h"
-#include "V3Task.h"
-#include "V3Timing.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3Assert.h"
+#ಅನ್ತರ್ಭಾವ "V3Const.h"
+#ಅನ್ತರ್ಭಾವ "V3Task.h"
+#ಅನ್ತರ್ಭಾವ "V3Timing.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
-#include <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clocking blocks of clocking items
 
-class AssertPreClockingVisitor final : public VNVisitorConst {
+ವರ್ಗ AssertPreClockingVisitor final : ಸಾರ್ವಜನಿಕ VNVisitorConst {
     // Captures the clocking block of each clocking item before AssertPreVisitor, which needs it
     // at synchronous drives, often visited before the clocking block, e.g. in a parent module
     // NODE STATE
@@ -44,37 +44,37 @@ class AssertPreClockingVisitor final : public VNVisitorConst {
     //                            //               AssertPreVisitor
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextConstNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override { iterateAndNextConstNull(nodep->stmtsp()); }
-    void visit(AstGenBlock* nodep) override { iterateAndNextConstNull(nodep->itemsp()); }
-    void visit(AstClocking* nodep) override {
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (AstClockingItem* const citemp = VN_CAST(itemp, ClockingItem)) {
+    ಶೂನ್ಯ visit(AstNetlist* nodep) override { iterateAndNextConstNull(nodep->modulesp()); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Module* nodep) override { iterateAndNextConstNull(nodep->stmtsp()); }
+    ಶೂನ್ಯ visit(AstGenBlock* nodep) override { iterateAndNextConstNull(nodep->itemsp()); }
+    ಶೂನ್ಯ visit(AstClocking* nodep) override {
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (AstClockingItem* ಧ್ರುವ citemp = VN_CAST(itemp, ClockingItem)) {
                 citemp->user3p(nodep);
             }
         }
     }
     // Clocking blocks are only in modules and their generate blocks
-    void visit(AstNode*) override {}
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು*) override {}
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     explicit AssertPreClockingVisitor(AstNetlist* nodep) { iterateConst(nodep); }
-    ~AssertPreClockingVisitor() override = default;
+    ~AssertPreClockingVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Assert class functions
 
-class AssertPreVisitor final : public VNVisitor {
+ವರ್ಗ AssertPreVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // Removes clocks and other pre-optimizations
     // Eventually inlines calls to sequences, properties, etc.
     // We're not parsing the tree, or anything more complicated.
-private:
+ಗುಪ್ತ:
     // TYPES
-    struct SynchDrive final {
+    ಸಂರಚನಾ SynchDrive final {
         AstClockingItem* itemp;  // Clocking item of the driven clockvar
-        AstNodeExpr* refp;  // Reference to the driven clockvar
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* refp;  // Reference to the driven clockvar
     };
 
     // NODE STATE
@@ -83,13 +83,13 @@ private:
     // AstClockingItem::user3p()         // AstClocking*. Clocking block of the item, captured
     //                                   //               by AssertPreClockingVisitor
     // AstPExpr::user1()                 // bool.         Created from AstUntil
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    ಧ್ರುವ VNUser1InUse m_inuser1;
+    ಧ್ರುವ VNUser2InUse m_inuser2;
+    ಧ್ರುವ VNUser3InUse m_inuser3;
     // STATE
     // Current context:
-    AstNetlist* const m_netlistp = nullptr;  // Current netlist
-    AstNodeModule* m_modp = nullptr;  // Current module
+    AstNetlist* ಧ್ರುವ m_netlistp = nullptr;  // Current netlist
+    Ast_ಗಂಟು_Module* m_modp = nullptr;  // Current module
     AstClocking* m_clockingp = nullptr;  // Current clocking block
     // Reset each module:
     AstClocking* m_defaultClockingp = nullptr;  // Default clocking for current module
@@ -100,10 +100,10 @@ private:
     // Reset each always:
     AstSenItem* m_seniAlwaysp = nullptr;  // Last sensitivity in always
     // Reset each assertion:
-    AstNodeExpr* m_disablep = nullptr;  // Last disable
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_disablep = nullptr;  // Last disable
     AstIf* m_disableSeqIfp = nullptr;  // Used for handling disable iff in sequences
     AstPExpr* m_pexprp = nullptr;  // Last AstPExpr
-    bool m_underCover = false;  // True if the enclosing assertion is a cover
+    ತಾರ್ಕಿಕ m_underCover = ಅಸತ್ಯ;  // True if the enclosing assertion is a cover
     // Other:
     V3UniqueNames m_cycleDlyNames{"__VcycleDly"};  // Cycle delay counter name generator
     V3UniqueNames m_consRepNames{"__VconsRep"};  // Consecutive repetition counter name generator
@@ -114,12 +114,12 @@ private:
     V3UniqueNames m_propVarNames{"__Vpropvar"};  // Property-local variable name generator
     V3UniqueNames m_activeNames{"__VassertsActive"};  // Active asserts map name generator
     V3UniqueNames m_drivenNames{"__VclockingDriven"};  // Clockvar drive flag name generator
-    bool m_inAssign = false;  // True if in an AssignNode
-    bool m_inAssignDlyLhs = false;  // True if in AssignDly's LHS
-    bool m_inSynchDrive = false;  // True if in synchronous drive
-    bool m_inConcatAssign = false;  // True if in assignment to a concatenation
+    ತಾರ್ಕಿಕ m_inAssign = ಅಸತ್ಯ;  // True if in an AssignNode
+    ತಾರ್ಕಿಕ m_inAssignDlyLhs = ಅಸತ್ಯ;  // True if in AssignDly's LHS
+    ತಾರ್ಕಿಕ m_inSynchDrive = ಅಸತ್ಯ;  // True if in synchronous drive
+    ತಾರ್ಕಿಕ m_inConcatAssign = ಅಸತ್ಯ;  // True if in assignment to a concatenation
     std::vector<SynchDrive> m_drives;  // Clockvars written by the synchronous drive
-    bool m_hasCycleDelay = false;  // True if node has cycle delay beneath
+    ತಾರ್ಕಿಕ m_hasCycleDelay = ಅಸತ್ಯ;  // True if node has cycle delay beneath
     std::vector<AstVarXRef*> m_xrefsp;  // list of xrefs that need name fixup
     std::vector<AstSequence*> m_seqsToCleanup;  // Sequences to clean up after traversal
 
@@ -127,83 +127,83 @@ private:
 
     // Flag set by each drive of an output clockvar, added to the module with its clocking item
     AstVar* getCreateDrivenVarp(AstClockingItem* itemp) {
-        if (!itemp->user2p()) {
-            AstVar* const varp = new AstVar{itemp->fileline(), VVarType::MODULETEMP,
+        ಯದಿ (!itemp->user2p()) {
+            AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{itemp->fileline(), VVarType::MODULETEMP,
                                             m_drivenNames.get(itemp), itemp->findBitDType()};
             varp->lifetime(VLifetime::STATIC_EXPLICIT);
             itemp->user2p(varp);
         }
-        return VN_AS(itemp->user2p(), Var);
+        ಪ್ರತ್ಯಾಗಮ VN_AS(itemp->user2p(), Var);
     }
     // Reference to a variable in the scope of a driven clockvar, made like the clockvar's
-    static AstNodeExpr* newDriveRefp(FileLine* flp, const SynchDrive& drive, AstVar* varp,
-                                     const VAccess& access) {
-        if (const AstVarXRef* const xrefp = VN_CAST(drive.refp, VarXRef)) {
-            return new AstVarXRef{flp, varp, xrefp->dotted(), access};
-        } else if (const AstMemberSel* const selp = VN_CAST(drive.refp, MemberSel)) {
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newDriveRefp(File_ಸಾಲು* flp, ಧ್ರುವ SynchDrive& drive, AstVar* varp,
+                                     ಧ್ರುವ VAccess& access) {
+        ಯದಿ (ಧ್ರುವ AstVarXRef* ಧ್ರುವ xrefp = VN_CAST(drive.refp, VarXRef)) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarXRef{flp, varp, xrefp->dotted(), access};
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstMemberSel* ಧ್ರುವ selp = VN_CAST(drive.refp, MemberSel)) {
             // The interface expression is evaluated again, so it must not have side effects;
             // cloneTreePure warns if it has any
-            AstMemberSel* const newSelp
-                = new AstMemberSel{flp, selp->fromp()->cloneTreePure(false), varp};
+            AstMemberSel* ಧ್ರುವ newSelp
+                = ನೂತನ AstMemberSel{flp, selp->fromp()->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), varp};
             newSelp->access(access);
-            return newSelp;
+            ಪ್ರತ್ಯಾಗಮ newSelp;
         }
-        return new AstVarRef{flp, varp, access};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{flp, varp, access};
     }
     // Assignment setting the drive flag of a driven clockvar
-    AstAssign* newDrivenSetp(FileLine* flp, const SynchDrive& drive) {
-        AstVar* const varp = getCreateDrivenVarp(drive.itemp);
-        AstAssign* const setp = new AstAssign{flp, newDriveRefp(flp, drive, varp, VAccess::WRITE),
-                                              new AstConst{flp, AstConst::BitTrue{}}};
-        setp->user1(true);
-        return setp;
+    AstAssign* newDrivenSetp(File_ಸಾಲು* flp, ಧ್ರುವ SynchDrive& drive) {
+        AstVar* ಧ್ರುವ varp = getCreateDrivenVarp(drive.itemp);
+        AstAssign* ಧ್ರುವ setp = ನೂತನ AstAssign{flp, newDriveRefp(flp, drive, varp, VAccess::WRITE),
+                                              ನೂತನ AstConst{flp, AstConst::BitTrue{}}};
+        setp->user1(ಸತ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ setp;
     }
     // Clocking block of a clocking item
-    static AstClocking* clockingOf(const AstClockingItem* itemp) {
+    ಸ್ಥಿರ AstClocking* clockingOf(ಧ್ರುವ AstClockingItem* itemp) {
         UASSERT_OBJ(itemp->user3p(), itemp, "Clocking item not captured in a clocking block");
-        return VN_AS(itemp->user3p(), Clocking);
+        ಪ್ರತ್ಯಾಗಮ VN_AS(itemp->user3p(), Clocking);
     }
     // Clocking event of a driven clockvar, referenced from the drive like the clockvar, or
     // nullptr if unsupported, which is reported on the drive's cycle delay
-    AstSenTree* newDriveSentreep(AstDelay* delayp, const SynchDrive& drive) {
-        AstSenTree* const origp = clockingOf(drive.itemp)->sentreep();
-        if (VN_IS(drive.refp, VarRef)) return origp->cloneTree(false);
-        if (origp->exists([](const AstVarXRef*) { return true; })) {
+    Ast_Sen_ವೃಕ್ಷ* newDriveSentreep(AstDelay* delayp, ಧ್ರುವ SynchDrive& drive) {
+        Ast_Sen_ವೃಕ್ಷ* ಧ್ರುವ origp = clockingOf(drive.itemp)->sentreep();
+        ಯದಿ (VN_IS(drive.refp, VarRef)) ಪ್ರತ್ಯಾಗಮ origp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        ಯದಿ (origp->exists([](ಧ್ರುವ AstVarXRef*) { ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ; })) {
             // The reference is relative to the clocking block
             delayp->v3warn(E_UNSUPPORTED, "Unsupported: cycle delay in synchronous drive to"
                                           " clockvar in another scope, whose clocking event"
                                           " has a hierarchical reference");
-            return nullptr;
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        const AstMemberSel* const selp = VN_CAST(drive.refp, MemberSel);
+        ಧ್ರುವ AstMemberSel* ಧ್ರುವ selp = VN_CAST(drive.refp, MemberSel);
         // Processes outside classes evaluate their events also when not waiting on them,
         // possibly before the interface reference is set, so the event is guarded against a
         // null reference, which needs an integral value; scheduling does not guard it
-        const bool guardNull = selp && !VN_IS(m_modp, Class);
-        if (guardNull) {
-            for (AstSenItem* itemp = origp->sensesp(); itemp;
+        ಧ್ರುವ ತಾರ್ಕಿಕ guardNull = selp && !VN_IS(m_modp, Class);
+        ಯದಿ (guardNull) {
+            ಪ್ರತಿ (AstSenItem* itemp = origp->sensesp(); itemp;
                  itemp = VN_AS(itemp->nextp(), SenItem)) {
-                if (!itemp->sensp()->dtypep()->skipRefp()->isIntegralOrPacked()) {
+                ಯದಿ (!itemp->sensp()->dtypep()->skipRefp()->isIntegralOrPacked()) {
                     delayp->v3warn(E_UNSUPPORTED,
                                    "Unsupported: cycle delay in synchronous drive through"
                                    " an interface reference outside a class, to clocking"
                                    " block with non-integral clocking event");
-                    return nullptr;
+                    ಪ್ರತ್ಯಾಗಮ nullptr;
                 }
             }
         }
         // Interface declaring the clocking block, if driven through an interface reference
-        AstIface* const ifacep
+        AstIface* ಧ್ರುವ ifacep
             = selp ? VN_AS(selp->fromp()->dtypep()->skipRefp(), IfaceRefDType)->ifaceViaCellp()
                    : nullptr;
-        AstSenTree* const sentreep = origp->cloneTree(false);
+        Ast_Sen_ವೃಕ್ಷ* ಧ್ರುವ sentreep = origp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         std::vector<AstVarRef*> refps;
         sentreep->foreach([&](AstVarRef* refp) {
-            if (!refp->classOrPackagep()) refps.push_back(refp);
+            ಯದಿ (!refp->classOrPackagep()) refps.ತಳ್ಳು_back(refp);
         });
-        for (AstVarRef* const refp : refps) {
-            AstVar* const varp = refp->varp();
-            if (ifacep) {
+        ಪ್ರತಿ (AstVarRef* ಧ್ರುವ refp : refps) {
+            AstVar* ಧ್ರುವ varp = refp->varp();
+            ಯದಿ (ifacep) {
                 // Mark the variable as read through an interface reference, as V3Width does for
                 // a member select. The mark is the interface declaring the variable, whose
                 // instances all share it, so drives through references to any instances agree.
@@ -212,154 +212,154 @@ private:
                 varp->sensIfacep(ifacep);
             }
             refp->replaceWith(newDriveRefp(refp->fileline(), drive, varp, refp->access()));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
         }
-        if (guardNull) {
-            for (AstSenItem* itemp = sentreep->sensesp(); itemp;
+        ಯದಿ (guardNull) {
+            ಪ್ರತಿ (AstSenItem* itemp = sentreep->sensesp(); itemp;
                  itemp = VN_AS(itemp->nextp(), SenItem)) {
                 guardNullIface(itemp, selp->fromp());
             }
         }
-        return sentreep;
+        ಪ್ರತ್ಯಾಗಮ sentreep;
     }
     // Make an integral clocking event through an interface reference false while the reference
     // is null
-    static void guardNullIface(AstSenItem* sensesp, AstNodeExpr* fromp) {
-        FileLine* const flp = sensesp->fileline();
-        AstNodeExpr* const sensp = sensesp->sensp()->unlinkFrBack();
-        sensesp->sensp(new AstCond{flp, newNotNullp(flp, fromp), sensp,
-                                   new AstConst{flp, AstConst::DTyped{}, sensp->dtypep()}});
-        if (AstNodeExpr* const condp = sensesp->condp()) {
+    ಸ್ಥಿರ ಶೂನ್ಯ guardNullIface(AstSenItem* sensesp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp) {
+        File_ಸಾಲು* ಧ್ರುವ flp = sensesp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ sensp = sensesp->sensp()->unlinkFrBack();
+        sensesp->sensp(ನೂತನ AstCond{flp, newNotNullp(flp, fromp), sensp,
+                                   ನೂತನ AstConst{flp, AstConst::DTyped{}, sensp->dtypep()}});
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ condp = sensesp->condp()) {
             condp->unlinkFrBack();
-            sensesp->condp(new AstLogAnd{flp, newNotNullp(flp, fromp), condp});
+            sensesp->condp(ನೂತನ AstLogAnd{flp, newNotNullp(flp, fromp), condp});
         }
     }
-    static AstNodeExpr* newNotNullp(FileLine* flp, AstNodeExpr* fromp) {
-        return new AstNeq{flp, fromp->cloneTreePure(false), new AstConst{flp, AstConst::Null{}}};
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newNotNullp(File_ಸಾಲು* flp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp) {
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstNeq{flp, fromp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), ನೂತನ AstConst{flp, AstConst::Null{}}};
     }
     // Procedural '##0': if the default clocking event has not yet occurred in this time step,
     // wait for it; otherwise continue without suspension (IEEE 1800-2023 14.11)
-    AstIf* newCycleDelayZerop(FileLine* flp) const {
-        AstVar* const evtVarp = m_defaultClkEvtVarp;
+    AstIf* newCycleDelayZerop(File_ಸಾಲು* flp) ಧ್ರುವ {
+        AstVar* ಧ್ರುವ evtVarp = m_defaultClkEvtVarp;
         UASSERT_OBJ(evtVarp, flp, "Default clocking event var not pre-created");
-        AstCMethodHard* const isTriggeredp = new AstCMethodHard{
-            flp, new AstVarRef{flp, evtVarp, VAccess::READ}, VCMethod::EVENT_IS_TRIGGERED};
+        AstCMethodHard* ಧ್ರುವ isTriggeredp = ನೂತನ AstCMethodHard{
+            flp, ನೂತನ AstVarRef{flp, evtVarp, VAccess::READ}, VCMethod::EVENT_IS_TRIGGERED};
         isTriggeredp->dtypeSetBit();
-        AstEventControl* const waitp = new AstEventControl{
+        AstEventControl* ಧ್ರುವ waitp = ನೂತನ AstEventControl{
             flp,
-            new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_EVENT,
-                                               new AstVarRef{flp, evtVarp, VAccess::READ}}},
+            ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, ನೂತನ AstSenItem{flp, VEdgeType::ET_EVENT,
+                                               ನೂತನ AstVarRef{flp, evtVarp, VAccess::READ}}},
             nullptr};
-        return new AstIf{flp, new AstNot{flp, isTriggeredp}, waitp};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstIf{flp, ನೂತನ AstNot{flp, isTriggeredp}, waitp};
     }
 
-    static void checkSamplingFuncDType(AstNodeExpr* nodep, const AstNode* exprp) {
-        const AstNodeDType* const dtypep = exprp->dtypep()->skipRefp();
-        if (!dtypep->isIntegralOrPacked()) {
+    ಸ್ಥಿರ ಶೂನ್ಯ checkSamplingFuncDType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ಧ್ರುವ Ast_ಗಂಟು* exprp) {
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = exprp->dtypep()->skipRefp();
+        ಯದಿ (!dtypep->isIntegralOrPacked()) {
             nodep->v3error("Expected numeric type, but got a " << dtypep->prettyDTypeNameQ()
                                                                << " data type");
         }
     }
 
-    AstSenTree* newSenTree(AstNode* nodep, AstSenTree* useTreep = nullptr,
-                           AstNodeCoverOrAssert* cassertp = nullptr) {
+    Ast_Sen_ವೃಕ್ಷ* new_Sen_ವೃಕ್ಷ(Ast_ಗಂಟು* nodep, Ast_Sen_ವೃಕ್ಷ* useTreep = nullptr,
+                           Ast_ಗಂಟು_Cover_Or_Assert* cassertp = nullptr) {
         // Create sentree based on clocked or default clock
         // Return nullptr for always
-        if (useTreep) return useTreep;
-        AstSenTree* newp = nullptr;
+        ಯದಿ (useTreep) ಪ್ರತ್ಯಾಗಮ useTreep;
+        Ast_Sen_ವೃಕ್ಷ* newp = nullptr;
         AstSenItem* senip = m_senip;
-        bool fromAlways = false;
-        if (!senip && m_defaultClockingp) senip = m_defaultClockingp->sentreep()->sensesp();
-        if (!senip) {
+        ತಾರ್ಕಿಕ fromAlways = ಅಸತ್ಯ;
+        ಯದಿ (!senip && m_defaultClockingp) senip = m_defaultClockingp->sentreep()->sensesp();
+        ಯದಿ (!senip) {
             senip = m_seniAlwaysp;
-            fromAlways = true;
+            fromAlways = ಸತ್ಯ;
         }
-        if (!senip) {
+        ಯದಿ (!senip) {
             nodep->v3error("Concurrent assertion has no clock (IEEE 1800-2023 16.16)\n"
                            << nodep->warnMore()
                            << "... Suggest provide a clocking event, a default"
                               " clocking, or a clocked procedural context");
-            newp = new AstSenTree{nodep->fileline(), nullptr};
-        } else {
-            if (cassertp && fromAlways) cassertp->senFromAlways(true);
-            newp = new AstSenTree{nodep->fileline(), senip->cloneTree(true)};
+            newp = ನೂತನ Ast_Sen_ವೃಕ್ಷ{nodep->fileline(), nullptr};
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (cassertp && fromAlways) cassertp->senFromAlways(ಸತ್ಯ);
+            newp = ನೂತನ Ast_Sen_ವೃಕ್ಷ{nodep->fileline(), senip->clone_ವೃಕ್ಷ(ಸತ್ಯ)};
         }
-        return newp;
+        ಪ್ರತ್ಯಾಗಮ newp;
     }
-    AstNodeExpr* getSequenceBodyExprp(const AstSequence* const seqp) const {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getSequenceBodyExprp(ಧ್ರುವ AstSequence* ಧ್ರುವ seqp) ಧ್ರುವ {
         // The statements in AstSequence are optional AstVar (ports) followed by body expr.
-        AstNode* bodyp = seqp->stmtsp();
-        while (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
-        return VN_CAST(bodyp, NodeExpr);
+        Ast_ಗಂಟು* bodyp = seqp->stmtsp();
+        ಯಾವತ್ (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
+        ಪ್ರತ್ಯಾಗಮ VN_CAST(bodyp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
     }
-    AstPropSpec* getPropertyExprp(const AstProperty* const propp) {
+    AstPropSpec* getPropertyExprp(ಧ್ರುವ AstProperty* ಧ್ರುವ propp) {
         // Statements in AstProperty: AstVar (ports/local vars),
         // AstInitialStaticStmt/AstInitialAutomaticStmt (var init), AstPropSpec (body).
-        AstNode* propExprp = propp->stmtsp();
-        while (propExprp
+        Ast_ಗಂಟು* propExprp = propp->stmtsp();
+        ಯಾವತ್ (propExprp
                && (VN_IS(propExprp, Var) || VN_IS(propExprp, InitialStaticStmt)
                    || VN_IS(propExprp, InitialAutomaticStmt))) {
             propExprp = propExprp->nextp();
         }
-        return VN_CAST(propExprp, PropSpec);
+        ಪ್ರತ್ಯಾಗಮ VN_CAST(propExprp, PropSpec);
     }
-    void substituteSequenceCall(AstFuncRef* funcrefp, AstSequence* seqp) {
+    ಶೂನ್ಯ substituteSequenceCall(AstFuncRef* funcrefp, AstSequence* seqp) {
         // IEEE 1800-2023 16.7 (sequence declarations), 16.8 (sequence instances)
         // Inline the sequence body at the call site, replacing the FuncRef
-        AstNodeExpr* bodyExprp = getSequenceBodyExprp(seqp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bodyExprp = getSequenceBodyExprp(seqp);
         UASSERT_OBJ(bodyExprp, funcrefp, "Sequence has no body expression");
         // Clone the body expression since the sequence may be referenced multiple times
-        AstNodeExpr* clonedp = bodyExprp->cloneTree(false);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* clonedp = bodyExprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         // Build substitution map, then do a single traversal to replace all formals
         // (textual substitution per IEEE 16.8.2).
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
+        ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
+        std::unordered_map<ಧ್ರುವ AstVar*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> portMap;
+        ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
             portMap[tconnect.first] = tconnect.second->exprp();
         }
         clonedp->foreach([&](AstVarRef* refp) {
-            const auto it = portMap.find(refp->varp());
-            if (it != portMap.end()) {
-                refp->replaceWith(it->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+            ಧ್ರುವ auto it = portMap.find(refp->varp());
+            ಯದಿ (it != portMap.end()) {
+                refp->replaceWith(it->second->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
             }
         });
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+            ತಳ್ಳು_Deletep(tconnect.second->exprp()->unlinkFrBack());
         }
         V3AssertCommon::checkSvaInstanceDelays(clonedp, funcrefp);
         // Replace the FuncRef with the inlined body
         funcrefp->replaceWith(clonedp);
-        VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(funcrefp), funcrefp);
         // Clear referenced flag; sequences with isReferenced==false are deleted in assertPreAll
-        seqp->isReferenced(false);
+        seqp->isReferenced(ಅಸತ್ಯ);
     }
-    AstPropSpec* clonePropertyBody(AstFuncRef* funcrefp, const AstProperty* propp) {
+    AstPropSpec* clonePropertyBody(AstFuncRef* funcrefp, ಧ್ರುವ AstProperty* propp) {
         AstPropSpec* propExprp = getPropertyExprp(propp);
         // Substitute inner property call before copying in order to not doing the same for
         // each call of outer property call.
         propExprp = substitutePropertyCall(propExprp);
         // Clone subtree after substitution. It is needed, because property might be called
         // multiple times with different arguments.
-        propExprp = propExprp->cloneTree(false);
+        propExprp = propExprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         // Build substitution maps for formal arguments and property-local
         // variables, then perform a single foreach to apply all replacements.
         // Map port vars to their actual argument expressions
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
+        ಧ್ರುವ V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propp->stmtsp());
+        std::unordered_map<ಧ್ರುವ AstVar*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> portMap;
+        ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
             portMap[tconnect.first] = tconnect.second->exprp();
         }
 
         // Promote property-local variables (non-port vars, IEEE 16.10) to
         // module-level __Vpropvar temps. Cross-cycle persistence is handled
         // by the match item lowering in visit(AstImplication*).
-        std::unordered_map<const AstVar*, AstVar*> localVarMap;
-        for (AstNode* stmtp = propp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) {
-                    const string newName = m_propVarNames.get(varp);
-                    AstVar* const newVarp = new AstVar{varp->fileline(), VVarType::MODULETEMP,
+        std::unordered_map<ಧ್ರುವ AstVar*, AstVar*> localVarMap;
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = propp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(stmtp, Var)) {
+                ಯದಿ (!varp->isIO()) {
+                    ಧ್ರುವ string newName = m_propVarNames.get(varp);
+                    AstVar* ಧ್ರುವ newVarp = ನೂತನ AstVar{varp->fileline(), VVarType::MODULETEMP,
                                                        newName, varp->dtypep()};
                     newVarp->lifetime(VLifetime::STATIC_EXPLICIT);
                     m_modp->addStmtsp(newVarp);
@@ -370,117 +370,117 @@ private:
 
         // Single traversal: substitute ports and update local var references
         propExprp->foreach([&](AstVarRef* refp) {
-            const auto portIt = portMap.find(refp->varp());
-            if (portIt != portMap.end()) {
-                refp->replaceWith(portIt->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
-                return;
+            ಧ್ರುವ auto portIt = portMap.find(refp->varp());
+            ಯದಿ (portIt != portMap.end()) {
+                refp->replaceWith(portIt->second->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            const auto localIt = localVarMap.find(refp->varp());
-            if (localIt != localVarMap.end()) refp->varp(localIt->second);
+            ಧ್ರುವ auto localIt = localVarMap.find(refp->varp());
+            ಯದಿ (localIt != localVarMap.end()) refp->varp(localIt->second);
         });  // LCOV_EXCL_LINE -- gcov attributes lambda's implicit return to `})`
 
         // Clean up argument expressions
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        ಪ್ರತಿ (ಧ್ರುವ auto& tconnect : tconnects) {
+            ತಳ್ಳು_Deletep(tconnect.second->exprp()->unlinkFrBack());
         }
         V3AssertCommon::checkSvaInstanceDelays(propExprp, funcrefp);
-        return propExprp;
+        ಪ್ರತ್ಯಾಗಮ propExprp;
     }
     AstPropSpec* substitutePropertyCall(AstPropSpec* nodep) {
-        if (AstFuncRef* const funcrefp = VN_CAST(nodep->propp(), FuncRef)) {
-            if (const AstProperty* const propp = VN_CAST(funcrefp->taskp(), Property)) {
-                AstPropSpec* const propExprp = clonePropertyBody(funcrefp, propp);
+        ಯದಿ (AstFuncRef* ಧ್ರುವ funcrefp = VN_CAST(nodep->propp(), FuncRef)) {
+            ಯದಿ (ಧ್ರುವ AstProperty* ಧ್ರುವ propp = VN_CAST(funcrefp->taskp(), Property)) {
+                AstPropSpec* ಧ್ರುವ propExprp = clonePropertyBody(funcrefp, propp);
 
                 // Handle case with 2 disable iff statement (IEEE 1800-2023 16.12.1)
-                if (nodep->disablep() && propExprp->disablep()) {
+                ಯದಿ (nodep->disablep() && propExprp->disablep()) {
                     nodep->v3error("disable iff expression before property call and in its "
                                    "body is not legal");
-                    pushDeletep(propExprp->disablep()->unlinkFrBack());
+                    ತಳ್ಳು_Deletep(propExprp->disablep()->unlinkFrBack());
                 }
                 // If disable iff is in outer property, move it to inner
-                if (nodep->disablep()) {
-                    AstNodeExpr* const disablep = nodep->disablep()->unlinkFrBack();
+                ಯದಿ (nodep->disablep()) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ disablep = nodep->disablep()->unlinkFrBack();
                     propExprp->disablep(disablep);
                 }
 
-                if (nodep->sensesp() && propExprp->sensesp()) {
+                ಯದಿ (nodep->sensesp() && propExprp->sensesp()) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: Clock event before property call and in its body");
-                    pushDeletep(propExprp->sensesp()->unlinkFrBack());
+                    ತಳ್ಳು_Deletep(propExprp->sensesp()->unlinkFrBack());
                 }
                 // If clock event is in outer property, move it to inner
-                if (nodep->sensesp()) {
-                    AstSenItem* const sensesp = nodep->sensesp();
+                ಯದಿ (nodep->sensesp()) {
+                    AstSenItem* ಧ್ರುವ sensesp = nodep->sensesp();
                     sensesp->unlinkFrBack();
                     propExprp->sensesp(sensesp);
                 }
 
                 // Now substitute property reference with property body
                 nodep->replaceWith(propExprp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return propExprp;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ propExprp;
             }
         }
-        return nodep;
+        ಪ್ರತ್ಯಾಗಮ nodep;
     }
 
-    void substituteNestedPropertyCall(AstFuncRef* funcrefp, const AstProperty* propp) {
-        AstPropSpec* const specp = clonePropertyBody(funcrefp, propp);
-        AstNode* replp = nullptr;
-        if (specp->disablep()) {
+    ಶೂನ್ಯ substituteNestedPropertyCall(AstFuncRef* funcrefp, ಧ್ರುವ AstProperty* propp) {
+        AstPropSpec* ಧ್ರುವ specp = clonePropertyBody(funcrefp, propp);
+        Ast_ಗಂಟು* replp = nullptr;
+        ಯದಿ (specp->disablep()) {
             funcrefp->v3error("Illegal 'disable iff' in a nested property instance"
                               " (IEEE 1800-2023 16.12.1)");
-        } else if (specp->sensesp()) {
+        } ಅನ್ಯಥಾ ಯದಿ (specp->sensesp()) {
             funcrefp->v3warn(E_UNSUPPORTED,
                              "Unsupported: clock event in a nested property instance");
-        } else if (specp->propp()->exists(
-                       [](const AstNodeExpr* np) { return np->isMultiCycleSva(); })) {
+        } ಅನ್ಯಥಾ ಯದಿ (specp->propp()->exists(
+                       [](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* np) { ಪ್ರತ್ಯಾಗಮ np->isMultiCycleSva(); })) {
             funcrefp->v3warn(E_UNSUPPORTED,
                              "Unsupported: multi-cycle body in a nested property instance");
-        } else {
+        } ಅನ್ಯಥಾ {
             replp = specp->propp()->unlinkFrBack();
         }
-        if (!replp) replp = new AstConst{funcrefp->fileline(), AstConst::BitFalse{}};
+        ಯದಿ (!replp) replp = ನೂತನ AstConst{funcrefp->fileline(), AstConst::BitFalse{}};
         funcrefp->replaceWith(replp);
-        VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
-        VL_DO_DANGLING(pushDeletep(specp), specp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(funcrefp), funcrefp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(specp), specp);
     }
 
     // VISITORS
     //========== Statements
-    void visit(AstClocking* const nodep) override {
+    ಶೂನ್ಯ visit(AstClocking* ಧ್ರುವ nodep) override {
         VL_RESTORER(m_clockingp);
         m_clockingp = nodep;
         UINFO(8, "   CLOCKING" << nodep);
-        if (nodep->isDefault()) {
-            if (m_defaultClockingp) {
+        ಯದಿ (nodep->isDefault()) {
+            ಯದಿ (m_defaultClockingp) {
                 nodep->v3error("Only one default clocking block allowed per module"
                                " (IEEE 1800-2023 14.12)");
-            } else {
+            } ಅನ್ಯಥಾ {
                 m_defaultClockingp = nodep;
                 m_defaultClkEvtVarp = nodep->ensureEventp();
             }
         }
         iterateChildren(nodep);
-        if (nodep->eventp()) nodep->addNextHere(nodep->eventp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ಯದಿ (nodep->eventp()) nodep->addNextHere(nodep->eventp()->unlinkFrBack());
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstModportClockingRef* const nodep) override {
+    ಶೂನ್ಯ visit(AstModportClockingRef* ಧ್ರುವ nodep) override {
         // It has to be converted to a list of ModportClockingVarRefs,
         // because clocking blocks are removed in this pass
-        for (AstNode* itemp = nodep->clockingp()->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (AstClockingItem* const citemp = VN_CAST(itemp, ClockingItem)) {
-                if (AstVar* const varp
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = nodep->clockingp()->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (AstClockingItem* ಧ್ರುವ citemp = VN_CAST(itemp, ClockingItem)) {
+                ಯದಿ (AstVar* ಧ್ರುವ varp
                     = citemp->varp() ? citemp->varp() : VN_AS(citemp->user1p(), Var)) {
-                    AstModportVarRef* const modVarp = new AstModportVarRef{
+                    AstModportVarRef* ಧ್ರುವ modVarp = ನೂತನ AstModportVarRef{
                         nodep->fileline(), varp->name(), citemp->direction()};
                     modVarp->varp(varp);
                     nodep->addNextHere(modVarp);
-                    if (citemp->direction().isOutput()) {
+                    ಯದಿ (citemp->direction().isOutput()) {
                         // Drives through the modport set the drive flag
-                        AstVar* const drivenVarp = getCreateDrivenVarp(citemp);
-                        AstModportVarRef* const drivenRefp = new AstModportVarRef{
+                        AstVar* ಧ್ರುವ drivenVarp = getCreateDrivenVarp(citemp);
+                        AstModportVarRef* ಧ್ರುವ drivenRefp = ನೂತನ AstModportVarRef{
                             nodep->fileline(), drivenVarp->name(), VDirection::OUTPUT};
                         drivenRefp->varp(drivenVarp);
                         nodep->addNextHere(drivenRefp);
@@ -488,413 +488,413 @@ private:
                 }
             }
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstClockingItem* const nodep) override {
+    ಶೂನ್ಯ visit(AstClockingItem* ಧ್ರುವ nodep) override {
         // Get a ref to the sampled/driven variable
-        AstVar* const varp = nodep->varp();
-        if (!varp) {
+        AstVar* ಧ್ರುವ varp = nodep->varp();
+        ಯದಿ (!varp) {
             // Unused item
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Flag set by drives of an output clockvar, possibly visited before this item
-        if (nodep->direction().isOutput()) m_modp->addStmtsp(getCreateDrivenVarp(nodep));
-        FileLine* const flp = nodep->fileline();
+        ಯದಿ (nodep->direction().isOutput()) m_modp->addStmtsp(getCreateDrivenVarp(nodep));
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
         V3Const::constifyEdit(nodep->skewp());
-        if (!VN_IS(nodep->skewp(), Const)) {
+        ಯದಿ (!VN_IS(nodep->skewp(), Const)) {
             nodep->skewp()->v3error("Skew must be constant (IEEE 1800-2023 14.4)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        AstConst* const skewp = VN_AS(nodep->skewp(), Const);
-        if (skewp->num().isNegative()) skewp->v3error("Skew cannot be negative");
-        AstNodeExpr* const exprp = nodep->exprp();
+        AstConst* ಧ್ರುವ skewp = VN_AS(nodep->skewp(), Const);
+        ಯದಿ (skewp->ಅಂಕೆ().isNegative()) skewp->v3error("Skew cannot be negative");
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->exprp();
         varp->name(m_clockingp->name() + "__DOT__" + varp->name());
         m_clockingp->addNextHere(varp->unlinkFrBack());
         nodep->user1p(varp);
         varp->user1p(nodep);
-        if (nodep->direction() == VDirection::OUTPUT) {
-            exprp->foreach([](const AstNodeVarRef* varrefp) {
+        ಯದಿ (nodep->direction() == VDirection::OUTPUT) {
+            exprp->foreach([](ಧ್ರುವ Ast_ಗಂಟು_Var_Ref* varrefp) {
                 // Prevent confusing BLKANDNBLK warnings on clockvars due to generated assignments
-                varrefp->fileline()->warnOff(V3ErrorCode::BLKANDNBLK, true);
+                varrefp->fileline()->warnOff(V3ErrorCode::BLKANDNBLK, ಸತ್ಯ);
                 // Mark the driven signal so later passes (e.g. V3Inst port
                 // connection) know the drive flows out from inside the cell.
                 // Item expressions are plain signal references, so only the
                 // driven signal is marked, never index selects.
-                varrefp->varp()->isClockingDriven(true);
+                varrefp->varp()->isClockingDriven(ಸತ್ಯ);
             });
-            AstVarRef* const skewedReadRefp = new AstVarRef{flp, varp, VAccess::READ};
-            skewedReadRefp->user1(true);
+            AstVarRef* ಧ್ರುವ skewedReadRefp = ನೂತನ AstVarRef{flp, varp, VAccess::READ};
+            skewedReadRefp->user1(ಸತ್ಯ);
             // Initialize the clockvar
-            AstVarRef* const skewedWriteRefp = new AstVarRef{flp, varp, VAccess::WRITE};
-            skewedWriteRefp->user1(true);
-            AstInitialStatic* const initClockvarp = new AstInitialStatic{
-                flp, new AstAssign{flp, skewedWriteRefp, exprp->cloneTreePure(false)}};
+            AstVarRef* ಧ್ರುವ skewedWriteRefp = ನೂತನ AstVarRef{flp, varp, VAccess::WRITE};
+            skewedWriteRefp->user1(ಸತ್ಯ);
+            AstInitialStatic* ಧ್ರುವ initClockvarp = ನೂತನ AstInitialStatic{
+                flp, ನೂತನ AstAssign{flp, skewedWriteRefp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}};
             m_modp->addStmtsp(initClockvarp);
             // Each drive sets a flag, so the signal is also assigned when driven with the same
             // value again, e.g. after another assignment to the signal (IEEE 1800-2023 14.16.2)
-            AstVar* const drivenVarp = getCreateDrivenVarp(nodep);
-            m_modp->addStmtsp(new AstInitialStatic{
-                flp, new AstAssign{flp, new AstVarRef{flp, drivenVarp, VAccess::WRITE},
-                                   new AstConst{flp, AstConst::BitFalse{}}}});
+            AstVar* ಧ್ರುವ drivenVarp = getCreateDrivenVarp(nodep);
+            m_modp->addStmtsp(ನೂತನ AstInitialStatic{
+                flp, ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, drivenVarp, VAccess::WRITE},
+                                   ನೂತನ AstConst{flp, AstConst::BitFalse{}}}});
             // Assign the clockvar to the actual var if it was driven
-            AstAssign* const assignp
-                = new AstAssign{flp, exprp->cloneTreePure(false), skewedReadRefp};
-            AstIf* const ifp
-                = new AstIf{flp, new AstVarRef{flp, drivenVarp, VAccess::READ},
-                            new AstAssign{flp, new AstVarRef{flp, drivenVarp, VAccess::WRITE},
-                                          new AstConst{flp, AstConst::BitFalse{}}}};
+            AstAssign* ಧ್ರುವ assignp
+                = ನೂತನ AstAssign{flp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), skewedReadRefp};
+            AstIf* ಧ್ರುವ ifp
+                = ನೂತನ AstIf{flp, ನೂತನ AstVarRef{flp, drivenVarp, VAccess::READ},
+                            ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, drivenVarp, VAccess::WRITE},
+                                          ನೂತನ AstConst{flp, AstConst::BitFalse{}}}};
             ifp->addThensp(assignp);
             // Only in the time step of the clocking event
-            AstCMethodHard* const trigp = new AstCMethodHard{
-                nodep->fileline(), new AstVarRef{flp, m_clockingp->ensureEventp(), VAccess::READ},
+            AstCMethodHard* ಧ್ರುವ trigp = ನೂತನ AstCMethodHard{
+                nodep->fileline(), ನೂತನ AstVarRef{flp, m_clockingp->ensureEventp(), VAccess::READ},
                 VCMethod::EVENT_IS_TRIGGERED};
             trigp->dtypeSetBit();
-            ifp->condp(new AstLogAnd{flp, ifp->condp()->unlinkFrBack(), trigp});
+            ifp->condp(ನೂತನ AstLogAnd{flp, ifp->condp()->unlinkFrBack(), trigp});
             // A skew rounding to no time precision ticks is a zero skew
-            AstNodeExpr* const ticksp
-                = V3Timing::delayToTicks(skewp->cloneTree(false), m_modp->timeunit());
-            const bool zeroSkew = ticksp->isZero();
-            VL_DO_DANGLING(ticksp->deleteTree(), ticksp);
-            if (zeroSkew || !skewp->fileline()->timingOn()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ ticksp
+                = V3Timing::delayToTicks(skewp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), m_modp->timeunit());
+            ಧ್ರುವ ತಾರ್ಕಿಕ zeroSkew = ticksp->isZero();
+            VL_DO_DANGLING(ticksp->delete_ವೃಕ್ಷ(), ticksp);
+            ಯದಿ (zeroSkew || !skewp->fileline()->timingOn()) {
                 // Drive the var in Re-NBA (IEEE 1800-2023 14.16), ignoring skews where timing is
                 // turned off
-                AstSenTree* senTreep = m_clockingp->sentreep()->cloneTree(false);
-                senTreep->addSensesp(new AstSenItem{
-                    flp, VEdgeType::ET_CHANGED, new AstVarRef{flp, drivenVarp, VAccess::READ}});
-                m_clockingp->addNextHere(new AstAlwaysReactive{flp, senTreep, ifp});
-            } else {
+                Ast_Sen_ವೃಕ್ಷ* senTreep = m_clockingp->sentreep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+                senTreep->addSensesp(ನೂತನ AstSenItem{
+                    flp, VEdgeType::ET_CHANGED, ನೂತನ AstVarRef{flp, drivenVarp, VAccess::READ}});
+                m_clockingp->addNextHere(ನೂತನ AstAlwaysReactive{flp, senTreep, ifp});
+            } ಅನ್ಯಥಾ {
                 // Fork only the assignment, so this AlwaysPostponed can be retriggered
                 // before the assignment happens
-                AstFork* const forkp = new AstFork{flp, VJoinType::JOIN_NONE};
-                forkp->immediateStart(true);
-                forkp->addForksp(new AstBegin{flp, "", assignp->unlinkFrBack(), true});
+                AstFork* ಧ್ರುವ forkp = ನೂತನ AstFork{flp, VJoinType::JOIN_NONE};
+                forkp->immediateStart(ಸತ್ಯ);
+                forkp->addForksp(ನೂತನ AstBegin{flp, "", assignp->unlinkFrBack(), ಸತ್ಯ});
                 ifp->addThensp(forkp);
                 // Read the clockvar in Postponed, so a drive late in the time step is applied
                 // at this event plus the skew (IEEE 1800-2023 14.16)
-                m_clockingp->addNextHere(new AstAlwaysPostponed{flp, ifp});
-                if (v3Global.opt.timing().isSetTrue()) {
-                    AstDelay* const delayp = new AstDelay{flp, skewp->unlinkFrBack(), false};
+                m_clockingp->addNextHere(ನೂತನ AstAlwaysPostponed{flp, ifp});
+                ಯದಿ (v3Global.opt.timing().isSetTrue()) {
+                    AstDelay* ಧ್ರುವ delayp = ನೂತನ AstDelay{flp, skewp->unlinkFrBack(), ಅಸತ್ಯ};
                     delayp->timeunit(m_modp->timeunit());
                     assignp->timingControlp(delayp);
-                } else if (v3Global.opt.timing().isSetFalse()) {
+                } ಅನ್ಯಥಾ ಯದಿ (v3Global.opt.timing().isSetFalse()) {
                     nodep->v3warn(E_NOTIMING,
                                   "Clocking output skew greater than #0 requires --timing");
-                } else {
+                } ಅನ್ಯಥಾ {
                     nodep->v3warn(E_NEEDTIMINGOPT,
                                   "Use --timing or --no-timing to specify how "
                                   "clocking output skew greater than #0 should be handled");
                 }
             }
-        } else if (nodep->direction() == VDirection::INPUT) {
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->direction() == VDirection::ಒಳಹರಿವು) {
             // Ref to the clockvar
-            AstVarRef* const refp = new AstVarRef{flp, varp, VAccess::WRITE};
-            refp->user1(true);
-            if (skewp->num().is1Step()) {
+            AstVarRef* ಧ್ರುವ refp = ನೂತನ AstVarRef{flp, varp, VAccess::WRITE};
+            refp->user1(ಸತ್ಯ);
+            ಯದಿ (skewp->ಅಂಕೆ().is1Step()) {
                 // #1step means the value that is sampled is always the signal's last value
                 // before the clock edge (IEEE 1800-2023 14.4)
-                AstSampled* const sampledp
-                    = new AstSampled{flp, exprp->cloneTreePure(false), exprp->dtypep(), true};
-                AstAssign* const assignp = new AstAssign{flp, refp, sampledp};
-                m_clockingp->addNextHere(new AstAlways{
-                    flp, VAlwaysKwd::ALWAYS, m_clockingp->sentreep()->cloneTree(false), assignp});
-            } else if (skewp->isZero()) {
+                AstSampled* ಧ್ರುವ sampledp
+                    = ನೂತನ AstSampled{flp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), exprp->dtypep(), ಸತ್ಯ};
+                AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{flp, refp, sampledp};
+                m_clockingp->addNextHere(ನೂತನ AstAlways{
+                    flp, VAlwaysKwd::ALWAYS, m_clockingp->sentreep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), assignp});
+            } ಅನ್ಯಥಾ ಯದಿ (skewp->isZero()) {
                 // #0 means the var has to be sampled in Observed (IEEE 1800-2023 14.13)
-                AstAssign* const assignp = new AstAssign{flp, refp, exprp->cloneTreePure(false)};
-                m_clockingp->addNextHere(new AstAlwaysObserved{
-                    flp, m_clockingp->sentreep()->cloneTree(false), assignp});
-            } else {
+                AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{flp, refp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)};
+                m_clockingp->addNextHere(ನೂತನ AstAlwaysObserved{
+                    flp, m_clockingp->sentreep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), assignp});
+            } ಅನ್ಯಥಾ {
                 // Create a queue where we'll store sampled values with timestamps
-                AstSampleQueueDType* const queueDtp
-                    = new AstSampleQueueDType{flp, exprp->dtypep()};
+                AstSampleQueueDType* ಧ್ರುವ queueDtp
+                    = ನೂತನ AstSampleQueueDType{flp, exprp->dtypep()};
                 m_netlistp->typeTablep()->addTypesp(queueDtp);
-                AstVar* const queueVarp
-                    = new AstVar{flp, VVarType::MODULETEMP, "__Vqueue__" + varp->name(), queueDtp};
+                AstVar* ಧ್ರುವ queueVarp
+                    = ನೂತನ AstVar{flp, VVarType::MODULETEMP, "__Vqueue__" + varp->name(), queueDtp};
                 queueVarp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_clockingp->addNextHere(queueVarp);
                 // Create a process like this:
                 //     always queue.push(<sampled var>);
-                AstCMethodHard* const pushp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, queueVarp, VAccess::WRITE}, VCMethod::DYN_PUSH,
-                    new AstTime{nodep->fileline(), m_modp->timeunit()}};
-                pushp->addPinsp(exprp->cloneTreePure(false));
+                AstCMethodHard* ಧ್ರುವ pushp = ನೂತನ AstCMethodHard{
+                    flp, ನೂತನ AstVarRef{flp, queueVarp, VAccess::WRITE}, VCMethod::DYN_ತಳ್ಳು,
+                    ನೂತನ AstTime{nodep->fileline(), m_modp->timeunit()}};
+                pushp->addPinsp(exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ));
                 pushp->dtypeSetVoid();
                 m_clockingp->addNextHere(
-                    new AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr, pushp->makeStmt()});
+                    ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr, pushp->makeStmt()});
                 // Create a process like this:
                 //     always @<clocking event> queue.pop(<skew>, /*out*/<skewed var>);
-                AstCMethodHard* const popp = new AstCMethodHard{
-                    flp, new AstVarRef{flp, queueVarp, VAccess::READWRITE}, VCMethod::DYN_POP,
-                    new AstTime{nodep->fileline(), m_modp->timeunit()}};
+                AstCMethodHard* ಧ್ರುವ popp = ನೂತನ AstCMethodHard{
+                    flp, ನೂತನ AstVarRef{flp, queueVarp, VAccess::READWRITE}, VCMethod::DYN_ತೆಗೆ,
+                    ನೂತನ AstTime{nodep->fileline(), m_modp->timeunit()}};
                 popp->addPinsp(skewp->unlinkFrBack());
                 refp->access(VAccess::READWRITE);  // Only conditionally assigned
                 popp->addPinsp(refp);
                 popp->dtypeSetVoid();
-                m_clockingp->addNextHere(new AstAlways{flp, VAlwaysKwd::ALWAYS,
-                                                       m_clockingp->sentreep()->cloneTree(false),
+                m_clockingp->addNextHere(ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS,
+                                                       m_clockingp->sentreep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ),
                                                        popp->makeStmt()});
             }
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->v3fatalSrc("Invalid direction");
         }
     }
-    void visit(AstDelay* nodep) override {
+    ಶೂನ್ಯ visit(AstDelay* nodep) override {
         m_hasCycleDelay |= nodep->isCycleDelay();
         // Only cycle delays are relevant in this stage; also only process once
-        if (!nodep->isCycleDelay()) {
-            if (m_inSynchDrive) {
+        ಯದಿ (!nodep->isCycleDelay()) {
+            ಯದಿ (m_inSynchDrive) {
                 nodep->v3error("Only cycle delays can be used in synchronous drives"
                                " (IEEE 1800-2023 14.16)");
             }
             iterateChildren(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (m_inAssign && !m_inSynchDrive) {
+        ಯದಿ (m_inAssign && !m_inSynchDrive) {
             nodep->v3error("Cycle delays not allowed as intra-assignment delays"
                            " (IEEE 1800-2023 14.11)");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_ವೃಕ್ಷ(), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* valuep = V3Const::constifyEdit(nodep->lhsp()->unlinkFrBack());
-        const AstConst* const constp = VN_CAST(valuep, Const);
-        if (!constp && m_pexprp) {
+        ಯದಿ (nodep->stmtsp()) nodep->addNextHere(nodep->stmtsp()->unlinkFrBackWithNext());
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = V3Const::constifyEdit(nodep->lhsp()->unlinkFrBack());
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(valuep, Const);
+        ಯದಿ (!constp && m_pexprp) {
             // V3AssertNfa handles non-const delays in sequences before this pass and
             // replaces the property; this branch should never be reached.
             nodep->v3fatalSrc("Non-constant cycle delay in assertion: "
                               "should have been caught by V3AssertNfa");
-        } else if (constp && constp->isZero()) {
-            VL_DO_DANGLING(pushDeletep(valuep), valuep);
-            if (m_inSynchDrive) {
+        } ಅನ್ಯಥಾ ಯದಿ (constp && constp->isZero()) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+            ಯದಿ (m_inSynchDrive) {
                 // ##0 has no effect in synchronous drives (IEEE 1800-2023 14.11)
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            if (m_pexprp) {
+            ಯದಿ (m_pexprp) {
                 // ##0 in sequence context = zero delay = same clock tick
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // Procedural ##0: synchronize with default clocking event (IEEE 1800-2023 14.11)
-            if (!m_defaultClockingp) {
+            ಯದಿ (!m_defaultClockingp) {
                 nodep->v3error("Usage of cycle delays requires default clocking"
                                " (IEEE 1800-2023 14.11)");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             nodep->replaceWith(newCycleDelayZerop(flp));
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        AstSenTree* sentreep = nullptr;
-        if (!m_drives.empty()) {
-            if (m_inConcatAssign) {
+        Ast_Sen_ವೃಕ್ಷ* sentreep = nullptr;
+        ಯದಿ (!m_drives.empty()) {
+            ಯದಿ (m_inConcatAssign) {
                 // Also the clockvars may be of different clocking blocks
                 nodep->v3error("Cycle delays cannot be used in synchronous drives to a"
                                " concatenation (IEEE 1800-2023 14.16)");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
             // Count the cycles of the driven clockvar's clocking block (IEEE 1800-2023 14.16)
             sentreep = newDriveSentreep(nodep, m_drives.front());
-            if (!sentreep) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
-                return;
+            ಯದಿ (!sentreep) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-        } else if (!m_defaultClockingp) {
-            if (!m_pexprp) {
+        } ಅನ್ಯಥಾ ಯದಿ (!m_defaultClockingp) {
+            ಯದಿ (!m_pexprp) {
                 nodep->v3error("Usage of cycle delays requires default clocking"
                                " (IEEE 1800-2023 14.11)");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                VL_DO_DANGLING(pushDeletep(valuep), valuep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            sentreep = new AstSenTree{flp, m_senip->cloneTree(false)};
-        } else {
-            sentreep = m_defaultClockingp->sentreep()->cloneTree(false);
+            sentreep = ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, m_senip->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
+        } ಅನ್ಯಥಾ {
+            sentreep = m_defaultClockingp->sentreep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
         }
-        AstEventControl* const controlp
-            = new AstEventControl{nodep->fileline(), sentreep, nullptr};
-        const std::string delayName = m_cycleDlyNames.get(nodep);
-        AstNodeExpr* throughoutp
+        AstEventControl* ಧ್ರುವ controlp
+            = ನೂತನ AstEventControl{nodep->fileline(), sentreep, nullptr};
+        ಧ್ರುವ std::string delayName = m_cycleDlyNames.get(nodep);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* throughoutp
             = nodep->throughoutp() ? nodep->throughoutp()->unlinkFrBack() : nullptr;
 
-        AstVar* const cntVarp = new AstVar{flp, VVarType::BLOCKTEMP, delayName + "__counter",
+        AstVar* ಧ್ರುವ cntVarp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, delayName + "__counter",
                                            nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
         cntVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        AstBegin* const beginp = new AstBegin{flp, delayName + "__block", cntVarp, true};
+        AstBegin* ಧ್ರುವ beginp = ನೂತನ AstBegin{flp, delayName + "__block", cntVarp, ಸತ್ಯ};
         // A non-constant delay is counted at runtime. The count is integral of 64 bits, as
         // V3Width makes delays, or real, which is rounded (IEEE 1800-2023 6.12.1)
-        if (valuep->isDouble()) {
-            valuep = new AstRToIRoundS{flp, valuep};
+        ಯದಿ (valuep->isDouble()) {
+            valuep = ನೂತನ AstRToIRoundS{flp, valuep};
             valuep->dtypeFrom(cntVarp);
-        } else {
-            valuep = new AstSel{flp, valuep, 0, cntVarp->width()};
+        } ಅನ್ಯಥಾ {
+            valuep = ನೂತನ AstSel{flp, valuep, 0, cntVarp->width()};
         }
-        beginp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, cntVarp, VAccess::WRITE}, valuep});
+        beginp->addStmtsp(ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE}, valuep});
         // If the count is zero, a synchronous drive waits for none, like with a constant '##0',
         // and a procedural delay waits like a procedural '##0' (IEEE 1800-2023 14.11)
-        if (!constp && !m_inSynchDrive) {
-            beginp->addStmtsp(new AstIf{
+        ಯದಿ (!constp && !m_inSynchDrive) {
+            beginp->addStmtsp(ನೂತನ AstIf{
                 flp,
-                new AstEq{flp, new AstVarRef{flp, cntVarp, VAccess::READ}, new AstConst{flp, 0}},
+                ನೂತನ AstEq{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ}, ನೂತನ AstConst{flp, 0}},
                 newCycleDelayZerop(flp)});
         }
 
         // Throughout: create flag tracking whether condition held every tick
         AstVar* throughoutOkp = nullptr;
-        if (throughoutp) {
-            throughoutOkp = new AstVar{flp, VVarType::BLOCKTEMP, delayName + "__throughoutOk",
+        ಯದಿ (throughoutp) {
+            throughoutOkp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, delayName + "__throughoutOk",
                                        nodep->findBasicDType(VBasicDTypeKwd::LOGIC_IMPLICIT)};
             throughoutOkp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             beginp->addStmtsp(throughoutOkp);
-            beginp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, throughoutOkp, VAccess::WRITE},
-                                            new AstConst{flp, AstConst::BitTrue{}}});
+            beginp->addStmtsp(ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, throughoutOkp, VAccess::WRITE},
+                                            ನೂತನ AstConst{flp, AstConst::BitTrue{}}});
             // Check condition at tick 0 (sequence start, before entering loop)
             beginp->addStmtsp(
-                new AstIf{flp, new AstLogNot{flp, throughoutp->cloneTreePure(false)},
-                          new AstAssign{flp, new AstVarRef{flp, throughoutOkp, VAccess::WRITE},
-                                        new AstConst{flp, AstConst::BitFalse{}}}});
+                ನೂತನ AstIf{flp, ನೂತನ AstLogNot{flp, throughoutp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)},
+                          ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, throughoutOkp, VAccess::WRITE},
+                                        ನೂತನ AstConst{flp, AstConst::BitFalse{}}}});
         }
 
         {
-            AstLoop* const loopp = new AstLoop{flp};
+            AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{flp};
             // When throughout is present, exit loop early if condition fails
-            AstNodeExpr* loopCondp
-                = new AstGt{flp, new AstVarRef{flp, cntVarp, VAccess::READ}, new AstConst{flp, 0}};
-            if (throughoutOkp) {
-                loopCondp = new AstLogAnd{flp, loopCondp,
-                                          new AstVarRef{flp, throughoutOkp, VAccess::READ}};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* loopCondp
+                = ನೂತನ AstGt{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ}, ನೂತನ AstConst{flp, 0}};
+            ಯದಿ (throughoutOkp) {
+                loopCondp = ನೂತನ AstLogAnd{flp, loopCondp,
+                                          ನೂತನ AstVarRef{flp, throughoutOkp, VAccess::READ}};
             }
-            loopp->addStmtsp(new AstLoopTest{flp, loopp, loopCondp});
+            loopp->addStmtsp(ನೂತನ AstLoopTest{flp, loopp, loopCondp});
             loopp->addStmtsp(controlp);
             loopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, cntVarp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, cntVarp, VAccess::READ},
-                                         new AstConst{flp, 1}}});
+                ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE},
+                              ನೂತನ AstSub{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ},
+                                         ನೂತನ AstConst{flp, 1}}});
             // Check throughout condition at each tick during delay (IEEE 1800-2023 16.9.9)
-            if (throughoutp) {
+            ಯದಿ (throughoutp) {
                 loopp->addStmtsp(
-                    new AstIf{flp, new AstLogNot{flp, throughoutp},
-                              new AstAssign{flp, new AstVarRef{flp, throughoutOkp, VAccess::WRITE},
-                                            new AstConst{flp, AstConst::BitFalse{}}}});
+                    ನೂತನ AstIf{flp, ನೂತನ AstLogNot{flp, throughoutp},
+                              ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, throughoutOkp, VAccess::WRITE},
+                                            ನೂತನ AstConst{flp, AstConst::BitFalse{}}}});
             }
             beginp->addStmtsp(loopp);
         }
         // Compose wrappers on remaining sequence: throughout gate (inner), disable iff (outer)
-        AstNode* remainp = nodep->nextp() ? nodep->nextp()->unlinkFrBackWithNext() : nullptr;
-        if (throughoutOkp) {
+        Ast_ಗಂಟು* remainp = nodep->nextp() ? nodep->nextp()->unlinkFrBackWithNext() : nullptr;
+        ಯದಿ (throughoutOkp) {
             // If condition failed during delay, fail assertion
-            remainp = new AstIf{flp, new AstVarRef{flp, throughoutOkp, VAccess::READ}, remainp,
-                                new AstPExprClause{flp, /*pass=*/false}};
+            remainp = ನೂತನ AstIf{flp, ನೂತನ AstVarRef{flp, throughoutOkp, VAccess::READ}, remainp,
+                                ನೂತನ AstPExprClause{flp, /*pass=*/ಅಸತ್ಯ}};
         }
-        if (m_disableSeqIfp && remainp) {
-            AstIf* const disableSeqIfp = m_disableSeqIfp->cloneTree(false);
+        ಯದಿ (m_disableSeqIfp && remainp) {
+            AstIf* ಧ್ರುವ disableSeqIfp = m_disableSeqIfp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
             disableSeqIfp->addThensp(remainp);
             remainp = disableSeqIfp;
         }
-        if (remainp) {
-            if (throughoutOkp) {
+        ಯದಿ (remainp) {
+            ಯದಿ (throughoutOkp) {
                 // throughoutOkp is declared in beginp scope -- check must be inside it
                 beginp->addStmtsp(remainp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 nodep->addNextHere(remainp);
             }
         }
         nodep->replaceWith(beginp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        if (m_inSynchDrive) {
+    ಶೂನ್ಯ visit(Ast_Sen_ವೃಕ್ಷ* nodep) override {
+        ಯದಿ (m_inSynchDrive) {
             nodep->v3error("Event controls cannot be used in "
                            "synchronous drives (IEEE 1800-2023 14.16)");
         }
 
-        const AstSampled* sampledp;
-        if (nodep->exists([&sampledp](const AstSampled* const sp) {
+        ಧ್ರುವ AstSampled* sampledp;
+        ಯದಿ (nodep->exists([&sampledp](ಧ್ರುವ AstSampled* ಧ್ರುವ sp) {
                 sampledp = sp;
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             })) {
             sampledp->v3warn(E_UNSUPPORTED, "Unsupported: $sampled inside sensitivity list");
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Var_Ref* nodep) override {
         UINFO(8, " -varref:  " << nodep);
         UINFO(8, " -varref-var-back:  " << nodep->varp()->backp());
         UINFO(8, " -varref-var-user1:  " << nodep->varp()->user1p());
-        if (AstClockingItem* const itemp = VN_CAST(
+        ಯದಿ (AstClockingItem* ಧ್ರುವ itemp = VN_CAST(
                 nodep->varp()->user1p() ? nodep->varp()->user1p() : nodep->varp()->firstAbovep(),
                 ClockingItem)) {
-            if (nodep->user1()) return;
+            ಯದಿ (nodep->user1()) ಪ್ರತ್ಯಾಗಮ;
 
             // ensure linking still works, this has to be done only once
-            if (AstVarXRef* xrefp = VN_CAST(nodep, VarXRef)) {
+            ಯದಿ (AstVarXRef* xrefp = VN_CAST(nodep, VarXRef)) {
                 UINFO(8, " -clockvarxref-in:  " << xrefp);
                 string dotted = xrefp->dotted();
-                const size_t dotPos = dotted.rfind('.');
+                ಧ್ರುವ size_t dotPos = dotted.rfind('.');
                 dotted.erase(dotPos, string::npos);
                 xrefp->dotted(dotted);
                 UINFO(8, " -clockvarxref-out: " << xrefp);
                 m_xrefsp.emplace_back(xrefp);
             }
 
-            if (nodep->access().isReadOrRW() && itemp->direction() == VDirection::OUTPUT) {
+            ಯದಿ (nodep->access().isReadOrRW() && itemp->direction() == VDirection::OUTPUT) {
                 nodep->v3error("Cannot read from output clockvar (IEEE 1800-2023 14.3)");
             }
-            if (nodep->access().isWriteOrRW()) {
-                if (itemp->direction() == VDirection::OUTPUT) {
-                    if (!m_inAssignDlyLhs) {
+            ಯದಿ (nodep->access().isWriteOrRW()) {
+                ಯದಿ (itemp->direction() == VDirection::OUTPUT) {
+                    ಯದಿ (!m_inAssignDlyLhs) {
                         nodep->v3error("Only non-blocking assignments can write "
                                        "to clockvars (IEEE 1800-2023 14.16)");
                     }
-                    if (m_inAssign) {
-                        m_inSynchDrive = true;
-                        m_drives.push_back({itemp, nodep});
+                    ಯದಿ (m_inAssign) {
+                        m_inSynchDrive = ಸತ್ಯ;
+                        m_drives.ತಳ್ಳು_back({itemp, nodep});
                     }
-                } else if (itemp->direction() == VDirection::INPUT) {
+                } ಅನ್ಯಥಾ ಯದಿ (itemp->direction() == VDirection::ಒಳಹರಿವು) {
                     nodep->v3error("Cannot write to input clockvar (IEEE 1800-2023 14.3)");
                 }
             }
-            nodep->user1(true);
+            nodep->user1(ಸತ್ಯ);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (AstClockingItem* const itemp = VN_CAST(
+    ಶೂನ್ಯ visit(AstMemberSel* nodep) override {
+        ಯದಿ (AstClockingItem* ಧ್ರುವ itemp = VN_CAST(
                 nodep->varp()->user1p() ? nodep->varp()->user1p() : nodep->varp()->firstAbovep(),
                 ClockingItem)) {
-            if (nodep->access().isReadOrRW() && itemp->direction() == VDirection::OUTPUT) {
+            ಯದಿ (nodep->access().isReadOrRW() && itemp->direction() == VDirection::OUTPUT) {
                 nodep->v3error("Cannot read from output clockvar (IEEE 1800-2023 14.3)");
             }
-            if (nodep->access().isWriteOrRW()) {
-                if (itemp->direction() == VDirection::OUTPUT) {
-                    if (!m_inAssignDlyLhs) {
+            ಯದಿ (nodep->access().isWriteOrRW()) {
+                ಯದಿ (itemp->direction() == VDirection::OUTPUT) {
+                    ಯದಿ (!m_inAssignDlyLhs) {
                         nodep->v3error("Only non-blocking assignments can write "
                                        "to clockvars (IEEE 1800-2023 14.16)");
                     }
-                    if (m_inAssign) {
-                        m_inSynchDrive = true;
-                        m_drives.push_back({itemp, nodep});
+                    ಯದಿ (m_inAssign) {
+                        m_inSynchDrive = ಸತ್ಯ;
+                        m_drives.ತಳ್ಳು_back({itemp, nodep});
                     }
-                } else if (itemp->direction() == VDirection::INPUT) {
+                } ಅನ್ಯಥಾ ಯದಿ (itemp->direction() == VDirection::ಒಳಹರಿವು) {
                     nodep->v3error("Cannot write to input clockvar (IEEE 1800-2023 14.3)");
                 }
             }
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (nodep->user1()) return;
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Assign* nodep) override {
+        ಯದಿ (nodep->user1()) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_inAssign);
         VL_RESTORER(m_inSynchDrive);
         VL_RESTORER(m_inConcatAssign);
         VL_RESTORER_CLEAR(m_drives);
-        m_inAssign = true;
-        m_inSynchDrive = false;
+        m_inAssign = ಸತ್ಯ;
+        m_inSynchDrive = ಅಸತ್ಯ;
         {
             // The braces of a concatenation are a replication, by one
-            const AstNodeExpr* lhsp = nodep->lhsp();
-            if (const AstReplicate* const repp = VN_CAST(lhsp, Replicate)) lhsp = repp->srcp();
+            ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nodep->lhsp();
+            ಯದಿ (ಧ್ರುವ AstReplicate* ಧ್ರುವ repp = VN_CAST(lhsp, Replicate)) lhsp = repp->srcp();
             m_inConcatAssign = VN_IS(lhsp, Concat);
         }
         {
@@ -903,39 +903,39 @@ private:
             iterate(nodep->lhsp());
         }
         iterate(nodep->rhsp());
-        if (nodep->timingControlp()) iterate(nodep->timingControlp());
+        ಯದಿ (nodep->timingControlp()) iterate(nodep->timingControlp());
         // A drive without a cycle delay, also after removing '##0', updates the clockvar now
-        if (m_inSynchDrive && !nodep->timingControlp()) {
-            AstAssign* const assignp = new AstAssign{
+        ಯದಿ (m_inSynchDrive && !nodep->timingControlp()) {
+            AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{
                 nodep->fileline(), nodep->lhsp()->unlinkFrBack(), nodep->rhsp()->unlinkFrBack()};
-            assignp->user1(true);
+            assignp->user1(ಸತ್ಯ);
             nodep->replaceWith(assignp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
             nodep = assignp;
         }
         // Note the drives when they take effect, after the cycle delay if any. Each clockvar
         // of the LHS is driven, e.g. in a concatenation which other simulators accept, although
         // IEEE 1800-2023 14.16 does not allow it
-        AstNode* setsp = nullptr;
-        for (const SynchDrive& drive : m_drives) {
-            setsp = AstNode::addNext(setsp, newDrivenSetp(nodep->fileline(), drive));
+        Ast_ಗಂಟು* setsp = nullptr;
+        ಪ್ರತಿ (ಧ್ರುವ SynchDrive& drive : m_drives) {
+            setsp = Ast_ಗಂಟು::addNext(setsp, newDrivenSetp(nodep->fileline(), drive));
         }
-        if (!setsp) return;
-        if (AstBegin* const beginp = VN_CAST(nodep->timingControlp(), Begin)) {
+        ಯದಿ (!setsp) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (AstBegin* ಧ್ರುವ beginp = VN_CAST(nodep->timingControlp(), Begin)) {
             beginp->addStmtsp(setsp);
-        } else {
+        } ಅನ್ಯಥಾ {
             nodep->addNextHere(setsp);
         }
     }
-    void visit(AstAlways* nodep) override {
+    ಶೂನ್ಯ visit(AstAlways* nodep) override {
         iterateAndNextNull(nodep->sentreep());
-        if (nodep->sentreep()) m_seniAlwaysp = nodep->sentreep()->sensesp();
+        ಯದಿ (nodep->sentreep()) m_seniAlwaysp = nodep->sentreep()->sensesp();
         iterateAndNextNull(nodep->stmtsp());
         m_seniAlwaysp = nullptr;
     }
 
-    void visit(AstNodeCoverOrAssert* nodep) override {
-        if (nodep->sentreep()) return;  // Already processed
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Cover_Or_Assert* nodep) override {
+        ಯದಿ (nodep->sentreep()) ಪ್ರತ್ಯಾಗಮ;  // Already processed
 
         VL_RESTORER(m_senip);
         VL_RESTORER(m_disablep);
@@ -944,315 +944,315 @@ private:
 
         // Find Clocking's buried under nodep->exprsp
         iterateChildren(nodep);
-        if (!nodep->immediate()) nodep->sentreep(newSenTree(nodep, nullptr, nodep));
+        ಯದಿ (!nodep->immediate()) nodep->sentreep(new_Sen_ವೃಕ್ಷ(nodep, nullptr, nodep));
     }
-    void visit(AstFalling* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstFalling* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        if (exprp->width() > 1) exprp = new AstSel{fl, exprp, 0, 1};
-        AstNodeExpr* const futurep = new AstFuture{fl, exprp, newSenTree(nodep)};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (exprp->width() > 1) exprp = ನೂತನ AstSel{fl, exprp, 0, 1};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ futurep = ನೂತನ AstFuture{fl, exprp, new_Sen_ವೃಕ್ಷ(nodep)};
         futurep->dtypeFrom(exprp);
-        exprp = new AstAnd{fl, exprp->cloneTreePure(false), new AstNot{fl, futurep}};
+        exprp = ನೂತನ AstAnd{fl, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), ನೂತನ AstNot{fl, futurep}};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstFell* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstFell* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        if (exprp->width() > 1) exprp = new AstSel{fl, exprp, 0, 1};
-        AstSenTree* sentreep = nodep->sentreep();
-        if (sentreep) sentreep->unlinkFrBack();
-        AstPast* const pastp = new AstPast{fl, exprp};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (exprp->width() > 1) exprp = ನೂತನ AstSel{fl, exprp, 0, 1};
+        Ast_Sen_ವೃಕ್ಷ* sentreep = nodep->sentreep();
+        ಯದಿ (sentreep) sentreep->unlinkFrBack();
+        AstPast* ಧ್ರುವ pastp = ನೂತನ AstPast{fl, exprp};
         pastp->dtypeFrom(exprp);
-        pastp->sentreep(newSenTree(nodep, sentreep));
-        exprp = new AstAnd{fl, pastp, new AstNot{fl, exprp->cloneTreePure(false)}};
+        pastp->sentreep(new_Sen_ವೃಕ್ಷ(nodep, sentreep));
+        exprp = ನೂತನ AstAnd{fl, pastp, ನೂತನ AstNot{fl, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstFuture* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstFuture* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        AstSenTree* const sentreep = nodep->sentreep();
-        if (sentreep) VL_DO_DANGLING(pushDeletep(sentreep->unlinkFrBack()), sentreep);
-        nodep->sentreep(newSenTree(nodep));
+        Ast_Sen_ವೃಕ್ಷ* ಧ್ರುವ sentreep = nodep->sentreep();
+        ಯದಿ (sentreep) VL_DO_DANGLING(ತಳ್ಳು_Deletep(sentreep->unlinkFrBack()), sentreep);
+        nodep->sentreep(new_Sen_ವೃಕ್ಷ(nodep));
     }
-    void visit(AstPast* nodep) override {
+    ಶೂನ್ಯ visit(AstPast* nodep) override {
         checkSamplingFuncDType(nodep, nodep->exprp());
-        if (nodep->sentreep()) return;  // Already processed
+        ಯದಿ (nodep->sentreep()) ಪ್ರತ್ಯಾಗಮ;  // Already processed
         iterateChildren(nodep);
-        nodep->sentreep(newSenTree(nodep));
+        nodep->sentreep(new_Sen_ವೃಕ್ಷ(nodep));
     }
-    void visit(AstSConsRep* nodep) override {
+    ಶೂನ್ಯ visit(AstSConsRep* nodep) override {
         // IEEE 1800-2023 16.9.2 -- Lower standalone exact [*N] (N >= 2) via saturating counter.
         // Range/unbounded forms and SExpr-contained forms are lowered by V3AssertNfa.
         iterateChildren(nodep);
         // V3AssertNfa handles unbounded/ranged forms upstream, so this fast-path
         // is effectively unreachable when NFA is enabled.
-        if (nodep->unbounded() || nodep->maxCountp()) return;  // LCOV_EXCL_LINE
-        const AstConst* const constp = VN_CAST(nodep->countp(), Const);
-        if (VL_UNLIKELY(!constp || constp->toSInt() < 1)) {
+        ಯದಿ (nodep->unbounded() || nodep->maxCountp()) ಪ್ರತ್ಯಾಗಮ;  // LCOV_EXCL_LINE
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep->countp(), Const);
+        ಯದಿ (VL_UNLIKELY(!constp || constp->toSInt() < 1)) {
             nodep->v3fatalSrc("Consecutive repetition count must be a positive constant"
                               " (should have been caught by V3Width)");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        const int n = constp->toSInt();
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const exprp = nodep->exprp()->unlinkFrBack();
-        if (n == 1) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ n = constp->toSInt();
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (n == 1) {
             nodep->replaceWith(exprp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Saturating counter: if (expr) cnt <= min(cnt+1, N); else cnt <= 0;
-        AstVar* const cntVarp = new AstVar{flp, VVarType::MODULETEMP, m_consRepNames.get(""),
+        AstVar* ಧ್ರುವ cntVarp = ನೂತನ AstVar{flp, VVarType::MODULETEMP, m_consRepNames.get(""),
                                            nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
         cntVarp->lifetime(VLifetime::STATIC_EXPLICIT);
         m_modp->addStmtsp(cntVarp);
-        AstNodeExpr* const exprClonep = exprp->cloneTreePure(false);
-        AstNodeExpr* const saturatingIncrp = new AstCond{
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Clonep = exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ saturatingIncrp = ನೂತನ AstCond{
             flp,
-            new AstLt{flp, new AstVarRef{flp, cntVarp, VAccess::READ},
-                      new AstConst{flp, static_cast<uint32_t>(n)}},
-            new AstAdd{flp, new AstVarRef{flp, cntVarp, VAccess::READ}, new AstConst{flp, 1u}},
-            new AstConst{flp, static_cast<uint32_t>(n)}};
-        AstAssignDly* const incrAssignp
-            = new AstAssignDly{flp, new AstVarRef{flp, cntVarp, VAccess::WRITE}, saturatingIncrp};
-        AstAssignDly* const resetAssignp = new AstAssignDly{
-            flp, new AstVarRef{flp, cntVarp, VAccess::WRITE}, new AstConst{flp, 0u}};
-        AstIf* const ifp = new AstIf{flp, exprClonep, incrAssignp, resetAssignp};
-        AstSenTree* const senTreep = newSenTree(nodep);
-        AstAlways* const alwaysp = new AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, ifp};
+            ನೂತನ AstLt{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ},
+                      ನೂತನ AstConst{flp, static_cast<uint32_t>(n)}},
+            ನೂತನ AstAdd{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ}, ನೂತನ AstConst{flp, 1u}},
+            ನೂತನ AstConst{flp, static_cast<uint32_t>(n)}};
+        AstAssignDly* ಧ್ರುವ incrAssignp
+            = ನೂತನ AstAssignDly{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE}, saturatingIncrp};
+        AstAssignDly* ಧ್ರುವ resetAssignp = ನೂತನ AstAssignDly{
+            flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE}, ನೂತನ AstConst{flp, 0u}};
+        AstIf* ಧ್ರುವ ifp = ನೂತನ AstIf{flp, ಅಭಿವ್ಯಕ್ತಿ_Clonep, incrAssignp, resetAssignp};
+        Ast_Sen_ವೃಕ್ಷ* ಧ್ರುವ senTreep = new_Sen_ವೃಕ್ಷ(nodep);
+        AstAlways* ಧ್ರುವ alwaysp = ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, ifp};
         cntVarp->addNextHere(alwaysp);
         // Match: cnt >= N-1 (previous cycles via NBA) && expr (current cycle)
-        AstNodeExpr* const cntCheckp = new AstGte{flp, new AstVarRef{flp, cntVarp, VAccess::READ},
-                                                  new AstConst{flp, static_cast<uint32_t>(n - 1)}};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ cntCheckp = ನೂತನ AstGte{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ},
+                                                  ನೂತನ AstConst{flp, static_cast<uint32_t>(n - 1)}};
         cntCheckp->dtypeSetBit();
-        AstNodeExpr* const matchp = new AstAnd{flp, cntCheckp, exprp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ matchp = ನೂತನ AstAnd{flp, cntCheckp, exprp};
         matchp->dtypeSetBit();
         nodep->replaceWith(matchp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstRising* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstRising* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        if (exprp->width() > 1) exprp = new AstSel{fl, exprp, 0, 1};
-        AstNodeExpr* const futurep = new AstFuture{fl, exprp, newSenTree(nodep)};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (exprp->width() > 1) exprp = ನೂತನ AstSel{fl, exprp, 0, 1};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ futurep = ನೂತನ AstFuture{fl, exprp, new_Sen_ವೃಕ್ಷ(nodep)};
         futurep->dtypeFrom(exprp);
-        exprp = new AstAnd{fl, new AstNot{fl, exprp->cloneTreePure(false)}, futurep};
+        exprp = ನೂತನ AstAnd{fl, ನೂತನ AstNot{fl, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}, futurep};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstRose* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstRose* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        if (exprp->width() > 1) exprp = new AstSel{fl, exprp, 0, 1};
-        AstSenTree* sentreep = nodep->sentreep();
-        if (sentreep) sentreep->unlinkFrBack();
-        AstPast* const pastp = new AstPast{fl, exprp};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (exprp->width() > 1) exprp = ನೂತನ AstSel{fl, exprp, 0, 1};
+        Ast_Sen_ವೃಕ್ಷ* sentreep = nodep->sentreep();
+        ಯದಿ (sentreep) sentreep->unlinkFrBack();
+        AstPast* ಧ್ರುವ pastp = ನೂತನ AstPast{fl, exprp};
         pastp->dtypeFrom(exprp);
-        pastp->sentreep(newSenTree(nodep, sentreep));
-        exprp = new AstAnd{fl, new AstNot{fl, pastp}, exprp->cloneTreePure(false)};
+        pastp->sentreep(new_Sen_ವೃಕ್ಷ(nodep, sentreep));
+        exprp = ನೂತನ AstAnd{fl, ನೂತನ AstNot{fl, pastp}, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    static AstAssocArrayDType* getProcessAssocArrayType(FileLine* const flp) {
+    ಸ್ಥಿರ AstAssocArrayDType* getProcessAssocArrayType(File_ಸಾಲು* ಧ್ರುವ flp) {
         // Type of __VassertsActive___x[std::process]
-        AstNodeDType* valp
+        Ast_ಗಂಟು_DType* valp
             = v3Global.rootp()->typeTablep()->findBasicDType(flp, VBasicDTypeKwd::BIT);
         AstClassRefDType* keyp
-            = new AstClassRefDType{flp, v3Global.rootp()->stdPackageProcessp(), nullptr};
+            = ನೂತನ AstClassRefDType{flp, v3Global.rootp()->stdPackageProcessp(), nullptr};
         keyp->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
         v3Global.rootp()->typeTablep()->addTypesp(keyp);
-        AstAssocArrayDType* const typep = new AstAssocArrayDType{flp, valp, keyp};
+        AstAssocArrayDType* ಧ್ರುವ typep = ನೂತನ AstAssocArrayDType{flp, valp, keyp};
         typep->dtypep(typep);
         v3Global.rootp()->typeTablep()->addTypesp(typep);
-        return typep;
+        ಪ್ರತ್ಯಾಗಮ typep;
     }
-    static AstStmtExpr* getProcessAssocArrayDelete(AstVarRef* const refp) {
+    ಸ್ಥಿರ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* getProcessAssocArrayDelete(AstVarRef* ಧ್ರುವ refp) {
         // Constructs refp.delete(std::process::self()) statement
-        FileLine* const flp = refp->fileline();
-        AstCMethodHard* const deletep = new AstCMethodHard{
+        File_ಸಾಲು* ಧ್ರುವ flp = refp->fileline();
+        AstCMethodHard* ಧ್ರುವ deletep = ನೂತನ AstCMethodHard{
             flp, refp, VCMethod::ASSOC_ERASE, v3Global.rootp()->stdPackageProcessSelfp(flp)};
         deletep->dtypep(refp->findVoidDType());
-        return new AstStmtExpr{flp, deletep};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{flp, deletep};
     }
-    static AstNodeExpr* getProcessAssocArraySize(AstVarRef* const refp) {
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getProcessAssocArraySize(AstVarRef* ಧ್ರುವ refp) {
         // Constructs refp.size() statement
-        AstCMethodHard* const sizep
-            = new AstCMethodHard{refp->fileline(), refp, VCMethod::ASSOC_SIZE};
+        AstCMethodHard* ಧ್ರುವ sizep
+            = ನೂತನ AstCMethodHard{refp->fileline(), refp, VCMethod::ASSOC_SIZE};
         sizep->dtypep(refp->findBasicDType(VBasicDTypeKwd::UINT32));
-        return sizep;
+        ಪ್ರತ್ಯಾಗಮ sizep;
     }
-    void visit(AstSEventually* nodep) override {
+    ಶೂನ್ಯ visit(AstSEventually* nodep) override {
         UASSERT(v3Global.rootp()->stdPackagep(), "Should be imported");
 
-        AstSenTree* const sentreep = newSenTree(nodep);
-        if (!sentreep->sensesp()) {
-            VL_DO_DANGLING(pushDeletep(sentreep), sentreep);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+        Ast_Sen_ವೃಕ್ಷ* ಧ್ರುವ sentreep = new_Sen_ವೃಕ್ಷ(nodep);
+        ಯದಿ (!sentreep->sensesp()) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(sentreep), sentreep);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
-        FileLine* const flp = nodep->fileline();
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
 
         // Track active assertions
-        AstVar* const activep = new AstVar{flp, VVarType::MODULETEMP, m_activeNames.get(""),
+        AstVar* ಧ್ರುವ activep = ನೂತನ AstVar{flp, VVarType::MODULETEMP, m_activeNames.get(""),
                                            getProcessAssocArrayType(flp)};
         activep->lifetime(VLifetime::STATIC_EXPLICIT);
         m_modp->addStmtsp(activep);
 
         // Assertion condition check
-        AstLoop* const loopp = new AstLoop{flp};
-        AstSampled* const condp
-            = new AstSampled{flp, nodep->exprp()->unlinkFrBack(), nullptr, true};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLogNot{flp, condp}});
-        loopp->addStmtsp(new AstEventControl{flp, sentreep, nullptr});
+        AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{flp};
+        AstSampled* ಧ್ರುವ condp
+            = ನೂತನ AstSampled{flp, nodep->exprp()->unlinkFrBack(), nullptr, ಸತ್ಯ};
+        loopp->addStmtsp(ನೂತನ AstLoopTest{flp, loopp, ನೂತನ AstLogNot{flp, condp}});
+        loopp->addStmtsp(ನೂತನ AstEventControl{flp, sentreep, nullptr});
 
         // Add assertion to the active set
-        AstAssocSel* const selp = new AstAssocSel{flp, new AstVarRef{flp, activep, VAccess::WRITE},
+        AstAssocSel* ಧ್ರುವ selp = ನೂತನ AstAssocSel{flp, ನೂತನ AstVarRef{flp, activep, VAccess::WRITE},
                                                   v3Global.rootp()->stdPackageProcessSelfp(flp)};
-        AstAssign* const incrementp = new AstAssign{flp, selp, new AstConst{flp, 1}};
-        AstPExprClause* const clausep = new AstPExprClause{flp};
-        AstStmtExpr* const deletep
-            = getProcessAssocArrayDelete(new AstVarRef{flp, activep, VAccess::WRITE});
+        AstAssign* ಧ್ರುವ incrementp = ನೂತನ AstAssign{flp, selp, ನೂತನ AstConst{flp, 1}};
+        AstPExprClause* ಧ್ರುವ clausep = ನೂತನ AstPExprClause{flp};
+        Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ deletep
+            = getProcessAssocArrayDelete(ನೂತನ AstVarRef{flp, activep, VAccess::WRITE});
 
         // Main assertion block
-        AstBegin* const bodyp = new AstBegin{flp, m_blockNames.get(""), nullptr, true};
+        AstBegin* ಧ್ರುವ bodyp = ನೂತನ AstBegin{flp, m_blockNames.get(""), nullptr, ಸತ್ಯ};
         bodyp->addStmtsp(incrementp);
         bodyp->addStmtsp(loopp);
         bodyp->addStmtsp(clausep);
         bodyp->addStmtsp(deletep);
 
         // Validate assertion condition for each active assert
-        AstVar* const activeCountp = new AstVar{flp, VVarType::BLOCKTEMP, "__VassertCount",
+        AstVar* ಧ್ರುವ activeCountp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, "__VassertCount",
                                                 nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
         activeCountp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
 
-        AstAssign* const initActiveCountp
-            = new AstAssign{flp, new AstVarRef{flp, activeCountp, VAccess::WRITE},
-                            getProcessAssocArraySize(new AstVarRef{flp, activep, VAccess::READ})};
-        AstLoop* const finalLoopp = new AstLoop{flp};
-        AstIf* const finalBodypCondp
-            = new AstIf{flp, condp->cloneTreePure(false), new AstPExprClause{flp},
-                        new AstPExprClause{flp, false}};
+        AstAssign* ಧ್ರುವ initActiveCountp
+            = ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::WRITE},
+                            getProcessAssocArraySize(ನೂತನ AstVarRef{flp, activep, VAccess::READ})};
+        AstLoop* ಧ್ರುವ finalLoopp = ನೂತನ AstLoop{flp};
+        AstIf* ಧ್ರುವ finalBodypCondp
+            = ನೂತನ AstIf{flp, condp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), ನೂತನ AstPExprClause{flp},
+                        ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ}};
         finalLoopp->addStmtsp(
-            new AstLoopTest{flp, finalLoopp,
-                            new AstNeq{flp, new AstVarRef{flp, activeCountp, VAccess::READ},
-                                       new AstConst{flp, 0}}});
+            ನೂತನ AstLoopTest{flp, finalLoopp,
+                            ನೂತನ AstNeq{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::READ},
+                                       ನೂತನ AstConst{flp, 0}}});
         finalLoopp->addStmtsp(finalBodypCondp);
         finalLoopp->addStmtsp(
-            new AstAssign{flp, new AstVarRef{flp, activeCountp, VAccess::WRITE},
-                          new AstSub{flp, new AstVarRef{flp, activeCountp, VAccess::READ},
-                                     new AstConst{flp, 1}}});
+            ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::WRITE},
+                          ನೂತನ AstSub{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::READ},
+                                     ನೂತನ AstConst{flp, 1}}});
 
         // Final assertion block
-        AstBegin* const finalp = new AstBegin{flp, m_blockNames.get(""), nullptr, true};
+        AstBegin* ಧ್ರುವ finalp = ನೂತನ AstBegin{flp, m_blockNames.get(""), nullptr, ಸತ್ಯ};
         finalp->addStmtsp(activeCountp);
         finalp->addStmtsp(initActiveCountp);
         finalp->addStmtsp(finalLoopp);
 
         VL_RESTORER(m_pexprp);
-        m_pexprp = new AstPExpr{flp, bodyp, finalp, nodep->dtypep()};
+        m_pexprp = ನೂತನ AstPExpr{flp, bodyp, finalp, nodep->dtypep()};
         VL_RESTORER(m_hasCycleDelay);
-        m_hasCycleDelay = false;
+        m_hasCycleDelay = ಅಸತ್ಯ;
         iterate(bodyp);
         iterate(finalp);
 
-        if (m_hasCycleDelay) {
+        ಯದಿ (m_hasCycleDelay) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: cycle delay in s_eventually");
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            VL_DO_DANGLING(m_pexprp->deleteTree(), m_pexprp);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            VL_DO_DANGLING(m_pexprp->delete_ವೃಕ್ಷ(), m_pexprp);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         nodep->replaceWith(m_pexprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstStable* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstStable* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        AstSenTree* sentreep = nodep->sentreep();
-        if (sentreep) sentreep->unlinkFrBack();
-        AstPast* const pastp = new AstPast{fl, exprp};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        Ast_Sen_ವೃಕ್ಷ* sentreep = nodep->sentreep();
+        ಯದಿ (sentreep) sentreep->unlinkFrBack();
+        AstPast* ಧ್ರುವ pastp = ನೂತನ AstPast{fl, exprp};
         pastp->dtypeFrom(exprp);
-        pastp->sentreep(newSenTree(nodep, sentreep));
-        exprp = new AstEq{fl, pastp, exprp->cloneTreePure(false)};
+        pastp->sentreep(new_Sen_ವೃಕ್ಷ(nodep, sentreep));
+        exprp = ನೂತನ AstEq{fl, pastp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstSteady* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ಶೂನ್ಯ visit(AstSteady* nodep) override {
+        ಯದಿ (nodep->user1SetOnce()) ಪ್ರತ್ಯಾಗಮ;
         iterateChildren(nodep);
         checkSamplingFuncDType(nodep, nodep->exprp());
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* exprp = nodep->exprp()->unlinkFrBack();
-        if (exprp->width() > 1) exprp = new AstSel{fl, exprp, 0, 1};
-        AstNodeExpr* const futurep = new AstFuture{fl, exprp, newSenTree(nodep)};
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nodep->exprp()->unlinkFrBack();
+        ಯದಿ (exprp->width() > 1) exprp = ನೂತನ AstSel{fl, exprp, 0, 1};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ futurep = ನೂತನ AstFuture{fl, exprp, new_Sen_ವೃಕ್ಷ(nodep)};
         futurep->dtypeFrom(exprp);
-        exprp = new AstEq{fl, exprp->cloneTreePure(false), futurep};
+        exprp = ನೂತನ AstEq{fl, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), futurep};
         exprp->dtypeSetBit();
         nodep->replaceWith(exprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstSampled* nodep) override {
+    ಶೂನ್ಯ visit(AstSampled* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->internal()) checkSamplingFuncDType(nodep, nodep->exprp());
+        ಯದಿ (!nodep->internal()) checkSamplingFuncDType(nodep, nodep->exprp());
     }
 
     // Validate repetition count: must be a non-negative elaboration-time constant.
     // Shared by goto [->N] and nonconsecutive [=N] repetition.
     // On error, replaces nodep with BitFalse placeholder and returns nullptr.
-    const AstConst* validateRepCount(AstNode* nodep, AstNodeExpr*& countp) {
+    ಧ್ರುವ AstConst* validate_Rep_ಎಣಿಕೆ(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*& countp) {
         countp = V3Const::constifyEdit(countp);
-        const AstConst* const constp = VN_CAST(countp, Const);
-        if (!constp) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(countp, Const);
+        ಯದಿ (!constp) {
             nodep->v3error("Repetition count is not an elaboration-time constant"
                            " (IEEE 1800-2023 16.9.2)");
-            VL_DO_DANGLING(pushDeletep(countp), countp);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return nullptr;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(countp), countp);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        if (constp->toSInt() < 0) {
+        ಯದಿ (constp->toSInt() < 0) {
             nodep->v3error("Repetition count must be non-negative"
                            " (IEEE 1800-2023 16.9.2)");
-            VL_DO_DANGLING(pushDeletep(countp), countp);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return nullptr;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(countp), countp);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalseErroring{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        if (constp->isZero()) {
+        ಯದಿ (constp->isZero()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: zero repetition count"
                                          " (IEEE 1800-2023 16.9.2)");
-            VL_DO_DANGLING(pushDeletep(countp), countp);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return nullptr;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(countp), countp);
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
-        return constp;
+        ಪ್ರತ್ಯಾಗಮ constp;
     }
 
     // Lower goto/nonconsecutive repetition to a counter-based PExpr loop.
@@ -1273,282 +1273,282 @@ private:
     //     if (!isOverlapped) @(clk);  // |=> delay
     //     loop { if (sampled(expr)) fail; if (sampled(rhs)) pass; @(clk); }
     //   end
-    AstPExpr* createRepPExpr(FileLine* flp, AstNodeExpr* exprp, AstNodeExpr* countp,
-                             AstNodeExpr* rhsp, bool isOverlapped, bool isNonConsec) {
-        AstSenItem* const sensesp = m_senip;
+    AstPExpr* createRepPExpr(File_ಸಾಲು* flp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp,
+                             Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ತಾರ್ಕಿಕ isOverlapped, ತಾರ್ಕಿಕ isNonConsec) {
+        AstSenItem* ಧ್ರುವ sensesp = m_senip;
         UASSERT_OBJ(sensesp, exprp, "Repetition requires a clock");
 
-        const std::string name
+        ಧ್ರುವ std::string name
             = isNonConsec ? m_nonConsRepNames.get(exprp) : m_gotoRepNames.get(exprp);
-        AstVar* const cntVarp = new AstVar{flp, VVarType::BLOCKTEMP, name + "__counter",
+        AstVar* ಧ್ರುವ cntVarp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, name + "__counter",
                                            exprp->findBasicDType(VBasicDTypeKwd::UINT32)};
         cntVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
 
-        AstBegin* const beginp = new AstBegin{flp, name + "__block", cntVarp, true};
+        AstBegin* ಧ್ರುವ beginp = ನೂತನ AstBegin{flp, name + "__block", cntVarp, ಸತ್ಯ};
         beginp->addStmtsp(
-            new AstAssign{flp, new AstVarRef{flp, cntVarp, VAccess::WRITE}, new AstConst{flp, 0}});
+            ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE}, ನೂತನ AstConst{flp, 0}});
 
         // Counting loop: find N occurrences of expr (shared by goto and nonconsec)
-        AstLoop* const loopp = new AstLoop{flp};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp,
-                                         new AstLt{flp, new AstVarRef{flp, cntVarp, VAccess::READ},
-                                                   countp->cloneTreePure(false)}});
+        AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{flp};
+        loopp->addStmtsp(ನೂತನ AstLoopTest{flp, loopp,
+                                         ನೂತನ AstLt{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ},
+                                                   countp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}});
         // if (expr) cnt++ -- sampled is applied to whole property expr by V3Assert
         loopp->addStmtsp(
-            new AstIf{flp, exprp,
-                      new AstAssign{flp, new AstVarRef{flp, cntVarp, VAccess::WRITE},
-                                    new AstAdd{flp, new AstVarRef{flp, cntVarp, VAccess::READ},
-                                               new AstConst{flp, 1}}}});
-        loopp->addStmtsp(new AstIf{
-            flp, new AstLt{flp, new AstVarRef{flp, cntVarp, VAccess::READ}, countp},
-            new AstEventControl{flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr}});
+            ನೂತನ AstIf{flp, exprp,
+                      ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::WRITE},
+                                    ನೂತನ AstAdd{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ},
+                                               ನೂತನ AstConst{flp, 1}}}});
+        loopp->addStmtsp(ನೂತನ AstIf{
+            flp, ನೂತನ AstLt{flp, ನೂತನ AstVarRef{flp, cntVarp, VAccess::READ}, countp},
+            ನೂತನ AstEventControl{flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr}});
 
         beginp->addStmtsp(loopp);
 
-        if (isNonConsec && rhsp) {
+        ಯದಿ (isNonConsec && rhsp) {
             // IEEE 16.9.2: b[=N] = b[->N] ##1 !b[*0:$]
             // Trailing window: ##1 advance, then scan !expr cycles checking rhs.
             // Window closes when expr becomes true again (fail if rhs was never true).
-            beginp->addStmtsp(new AstEventControl{
-                flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr});  // ##1
-            if (!isOverlapped) {
-                beginp->addStmtsp(new AstEventControl{
-                    flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr});  // |=>
+            beginp->addStmtsp(ನೂತನ AstEventControl{
+                flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr});  // ##1
+            ಯದಿ (!isOverlapped) {
+                beginp->addStmtsp(ನೂತನ AstEventControl{
+                    flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr});  // |=>
             }
             // Window loop: check rhs at each !expr cycle (done variable for termination)
-            AstVar* const doneVarp
-                = new AstVar{flp, VVarType::BLOCKTEMP, name + "__done", exprp->findBitDType()};
+            AstVar* ಧ್ರುವ doneVarp
+                = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, name + "__done", exprp->findBitDType()};
             doneVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             beginp->addStmtsp(doneVarp);
-            beginp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, doneVarp, VAccess::WRITE},
-                                            new AstConst{flp, AstConst::BitFalse{}}});
+            beginp->addStmtsp(ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, doneVarp, VAccess::WRITE},
+                                            ನೂತನ AstConst{flp, AstConst::BitFalse{}}});
             auto setDone = [&]() {
-                return new AstAssign{flp, new AstVarRef{flp, doneVarp, VAccess::WRITE},
-                                     new AstConst{flp, AstConst::BitTrue{}}};
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, doneVarp, VAccess::WRITE},
+                                     ನೂತನ AstConst{flp, AstConst::BitTrue{}}};
             };
-            AstLoop* const windowp = new AstLoop{flp};
+            AstLoop* ಧ್ರುವ windowp = ನೂತನ AstLoop{flp};
             // LoopTest: continue while !done
-            windowp->addStmtsp(new AstLoopTest{
-                flp, windowp, new AstNot{flp, new AstVarRef{flp, doneVarp, VAccess::READ}}});
+            windowp->addStmtsp(ನೂತನ AstLoopTest{
+                flp, windowp, ನೂತನ AstNot{flp, ನೂತನ AstVarRef{flp, doneVarp, VAccess::READ}}});
             // if (expr) { fail; done = 1; } -- window closed, expr true again
-            AstNode* const failsp = new AstPExprClause{flp, false};
+            Ast_ಗಂಟು* ಧ್ರುವ failsp = ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ};
             failsp->addNext(setDone());
-            windowp->addStmtsp(new AstIf{flp, exprp->cloneTreePure(false), failsp});
+            windowp->addStmtsp(ನೂತನ AstIf{flp, exprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), failsp});
             // if (rhs) { pass; done = 1; } -- consequent true at this !expr endpoint
-            AstNode* const passsp = new AstPExprClause{flp, true};
+            Ast_ಗಂಟು* ಧ್ರುವ passsp = ನೂತನ AstPExprClause{flp, ಸತ್ಯ};
             passsp->addNext(setDone());
-            windowp->addStmtsp(new AstIf{flp, rhsp, passsp});
+            windowp->addStmtsp(ನೂತನ AstIf{flp, rhsp, passsp});
             // @(clk) -- advance to next cycle in window
             windowp->addStmtsp(
-                new AstEventControl{flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr});
+                ನೂತನ AstEventControl{flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr});
             beginp->addStmtsp(windowp);
-        } else if (isNonConsec) {
+        } ಅನ್ಯಥಾ ಯದಿ (isNonConsec) {
             // Standalone nonconsec: ##1 into window, then pass
             beginp->addStmtsp(
-                new AstEventControl{flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr});
-            beginp->addStmtsp(new AstPExprClause{flp, true});
-        } else if (rhsp) {
+                ನೂತನ AstEventControl{flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr});
+            beginp->addStmtsp(ನೂತನ AstPExprClause{flp, ಸತ್ಯ});
+        } ಅನ್ಯಥಾ ಯದಿ (rhsp) {
             // Goto rep: check consequent once at match endpoint
-            if (!isOverlapped) {
-                beginp->addStmtsp(new AstEventControl{
-                    flp, new AstSenTree{flp, sensesp->cloneTree(false)}, nullptr});
+            ಯದಿ (!isOverlapped) {
+                beginp->addStmtsp(ನೂತನ AstEventControl{
+                    flp, ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, sensesp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}, nullptr});
             }
-            beginp->addStmtsp(new AstIf{flp, rhsp, new AstPExprClause{flp, true},
-                                        new AstPExprClause{flp, false}});
-        } else {
+            beginp->addStmtsp(ನೂತನ AstIf{flp, rhsp, ನೂತನ AstPExprClause{flp, ಸತ್ಯ},
+                                        ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ}});
+        } ಅನ್ಯಥಾ {
             // Standalone goto: pass after counting
-            beginp->addStmtsp(new AstPExprClause{flp, true});
+            beginp->addStmtsp(ನೂತನ AstPExprClause{flp, ಸತ್ಯ});
         }
 
-        return new AstPExpr{flp, beginp, exprp->findBitDType()};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstPExpr{flp, beginp, exprp->findBitDType()};
     }
 
     // Reject [=M:N] nonconsecutive range that reached V3AssertPre.
     // [->M:N] is fully handled upstream (NFA path); only [=M:N] still lands
     // here because AstSNonConsRep lowering is not yet implemented there.
     // Replaces the node with BitFalse so lowering continues after the warning.
-    bool rejectNonconsecRange(AstNode* nodep, AstNodeExpr* maxCountp) {
-        if (!maxCountp) return false;
+    ತಾರ್ಕಿಕ rejectNonconsecRange(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* maxCountp) {
+        ಯದಿ (!maxCountp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: [=M:N] nonconsecutive range repetition"
                                      " (IEEE 1800-2023 16.9.2)");
-        nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return true;
+        nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    void visit(AstSGotoRep* nodep) override {
+    ಶೂನ್ಯ visit(AstSGotoRep* nodep) override {
         // Standalone goto rep (not inside implication antecedent)
         iterateChildren(nodep);
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* countp = nodep->countp()->unlinkFrBack();
-        if (!validateRepCount(nodep, countp)) return;
-        AstNodeExpr* const exprp = nodep->exprp()->unlinkFrBack();
-        AstPExpr* const pexprp = createRepPExpr(flp, exprp, countp, nullptr, true, false);
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp = nodep->countp()->unlinkFrBack();
+        ಯದಿ (!validate_Rep_ಎಣಿಕೆ(nodep, countp)) ಪ್ರತ್ಯಾಗಮ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->exprp()->unlinkFrBack();
+        AstPExpr* ಧ್ರುವ pexprp = createRepPExpr(flp, exprp, countp, nullptr, ಸತ್ಯ, ಅಸತ್ಯ);
         nodep->replaceWith(pexprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstSNonConsRep* nodep) override {
+    ಶೂನ್ಯ visit(AstSNonConsRep* nodep) override {
         // Standalone nonconsecutive rep (not inside implication antecedent)
         iterateChildren(nodep);
-        if (rejectNonconsecRange(nodep, nodep->maxCountp())) return;
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* countp = nodep->countp()->unlinkFrBack();
-        if (!validateRepCount(nodep, countp)) return;
-        AstNodeExpr* const exprp = nodep->exprp()->unlinkFrBack();
-        AstPExpr* const pexprp = createRepPExpr(flp, exprp, countp, nullptr, true, true);
+        ಯದಿ (rejectNonconsecRange(nodep, nodep->maxCountp())) ಪ್ರತ್ಯಾಗಮ;
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp = nodep->countp()->unlinkFrBack();
+        ಯದಿ (!validate_Rep_ಎಣಿಕೆ(nodep, countp)) ಪ್ರತ್ಯಾಗಮ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = nodep->exprp()->unlinkFrBack();
+        AstPExpr* ಧ್ರುವ pexprp = createRepPExpr(flp, exprp, countp, nullptr, ಸತ್ಯ, ಸತ್ಯ);
         nodep->replaceWith(pexprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstFuncRef* nodep) override {
+    ಶೂನ್ಯ visit(AstFuncRef* nodep) override {
         // IEEE 1800-2023 16.8: Inline sequence instances wherever they appear
         // in the expression tree (inside implications, boolean ops, nested refs, etc.)
-        if (AstSequence* const seqp = VN_CAST(nodep->taskp(), Sequence)) {
+        ಯದಿ (AstSequence* ಧ್ರುವ seqp = VN_CAST(nodep->taskp(), Sequence)) {
             substituteSequenceCall(nodep, seqp);
             // The FuncRef has been replaced; do not access nodep after this point.
             // The replacement node will be visited by the parent's iterateChildren.
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (const AstProperty* const propp = VN_CAST(nodep->taskp(), Property)) {
+        ಯದಿ (ಧ್ರುವ AstProperty* ಧ್ರುವ propp = VN_CAST(nodep->taskp(), Property)) {
             substituteNestedPropertyCall(nodep, propp);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         iterateChildren(nodep);
     }
-    void visit(AstImplication* nodep) override {
-        if (nodep->sentreep()) return;  // Already processed
+    ಶೂನ್ಯ visit(AstImplication* nodep) override {
+        ಯದಿ (nodep->sentreep()) ಪ್ರತ್ಯಾಗಮ;  // Already processed
 
         // Top-level followed-by is claimed by V3AssertNfa; anything reaching here
         // is nested inside iff/implies/or. IEEE 1800-2023 16.12.9 permits the
         // composition, but silent lowering would drop non-vacuous-fail semantics.
-        if (nodep->isFollowedBy()) {
+        ಯದಿ (nodep->isFollowedBy()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: followed-by (#-# / #=#) nested inside property operator"
                           " (iff/implies/or) (IEEE 1800-2023 16.12.9)");
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Handle goto repetition as antecedent before iterateChildren,
         // so the standalone AstSGotoRep visitor doesn't process it
-        if (AstSGotoRep* const gotop = VN_CAST(nodep->lhsp(), SGotoRep)) {
+        ಯದಿ (AstSGotoRep* ಧ್ರುವ gotop = VN_CAST(nodep->lhsp(), SGotoRep)) {
             iterateChildren(gotop);
             iterateAndNextNull(nodep->rhsp());
-            FileLine* const flp = nodep->fileline();
-            AstNodeExpr* countp = gotop->countp()->unlinkFrBack();
-            if (!validateRepCount(nodep, countp)) return;
-            AstNodeExpr* const exprp = gotop->exprp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstPExpr* const pexprp
-                = createRepPExpr(flp, exprp, countp, rhsp, nodep->isOverlapped(), false);
+            File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp = gotop->countp()->unlinkFrBack();
+            ಯದಿ (!validate_Rep_ಎಣಿಕೆ(nodep, countp)) ಪ್ರತ್ಯಾಗಮ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = gotop->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+            AstPExpr* ಧ್ರುವ pexprp
+                = createRepPExpr(flp, exprp, countp, rhsp, nodep->isOverlapped(), ಅಸತ್ಯ);
             nodep->replaceWith(pexprp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Handle nonconsecutive repetition as antecedent before iterateChildren,
         // so the standalone AstSNonConsRep visitor doesn't process it
-        if (AstSNonConsRep* const ncrp = VN_CAST(nodep->lhsp(), SNonConsRep)) {
+        ಯದಿ (AstSNonConsRep* ಧ್ರುವ ncrp = VN_CAST(nodep->lhsp(), SNonConsRep)) {
             iterateChildren(ncrp);
             iterateAndNextNull(nodep->rhsp());
-            if (rejectNonconsecRange(nodep, ncrp->maxCountp())) return;
-            FileLine* const flp = nodep->fileline();
-            AstNodeExpr* countp = ncrp->countp()->unlinkFrBack();
-            if (!validateRepCount(nodep, countp)) return;
-            AstNodeExpr* const exprp = ncrp->exprp()->unlinkFrBack();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstPExpr* const pexprp
-                = createRepPExpr(flp, exprp, countp, rhsp, nodep->isOverlapped(), true);
+            ಯದಿ (rejectNonconsecRange(nodep, ncrp->maxCountp())) ಪ್ರತ್ಯಾಗಮ;
+            File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp = ncrp->countp()->unlinkFrBack();
+            ಯದಿ (!validate_Rep_ಎಣಿಕೆ(nodep, countp)) ಪ್ರತ್ಯಾಗಮ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = ncrp->exprp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+            AstPExpr* ಧ್ರುವ pexprp
+                = createRepPExpr(flp, exprp, countp, rhsp, nodep->isOverlapped(), ಸತ್ಯ);
             nodep->replaceWith(pexprp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         iterateChildren(nodep);
 
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* lhsp = nodep->lhsp()->unlinkFrBack();
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nodep->lhsp()->unlinkFrBack();
 
         // Lower sequence match items (IEEE 16.11): (expr, var = val, ...) |-> / |=>
-        if (AstExprStmt* const exprStmtp = VN_CAST(lhsp, ExprStmt)) {
-            AstNodeExpr* const antExprp = exprStmtp->resultp()->unlinkFrBack();
+        ಯದಿ (Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Stmtp = VN_CAST(lhsp, ಅಭಿವ್ಯಕ್ತಿ_Stmt)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ antExprp = ಅಭಿವ್ಯಕ್ತಿ_Stmtp->resultp()->unlinkFrBack();
 
-            if (nodep->isOverlapped()) {
+            ಯದಿ (nodep->isOverlapped()) {
                 // |-> : assign to __Vpropvar via always_comb (continuous).
                 // The assign evaluates RHS once; V3Sampled snapshots the
                 // result so all consequent refs read the same value.
-                AstNode* matchAssignsp = nullptr;
-                for (AstNode* stmtp = exprStmtp->stmtsp(); stmtp;) {
-                    AstNode* const nextp = stmtp->nextp();
-                    if (AstAssign* const assignp = VN_CAST(stmtp, Assign)) {
+                Ast_ಗಂಟು* matchAssignsp = nullptr;
+                ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = ಅಭಿವ್ಯಕ್ತಿ_Stmtp->stmtsp(); stmtp;) {
+                    Ast_ಗಂಟು* ಧ್ರುವ nextp = stmtp->nextp();
+                    ಯದಿ (AstAssign* ಧ್ರುವ assignp = VN_CAST(stmtp, Assign)) {
                         assignp->unlinkFrBack();
-                        matchAssignsp = AstNode::addNextNull(matchAssignsp, assignp);
+                        matchAssignsp = Ast_ಗಂಟು::addNextNull(matchAssignsp, assignp);
                     }
                     stmtp = nextp;
                 }
-                VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
                 lhsp = antExprp;
 
-                if (matchAssignsp) {
-                    AstAlways* const alwaysp
-                        = new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, matchAssignsp};
+                ಯದಿ (matchAssignsp) {
+                    AstAlways* ಧ್ರುವ alwaysp
+                        = ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, matchAssignsp};
                     m_modp->addStmtsp(alwaysp);
                 }
-            } else {
+            } ಅನ್ಯಥಾ {
                 // |=> : assign to __Vpropvar via NBA in a clocked always block.
                 // The NBA commits before the next cycle's sampled snapshot,
                 // so the consequent (which already references __Vpropvar)
                 // sees the captured value.
-                AstNode* matchAssignsp = nullptr;
-                for (AstNode* stmtp = exprStmtp->stmtsp(); stmtp;) {
-                    AstNode* const nextp = stmtp->nextp();
-                    if (AstAssign* const assignp = VN_CAST(stmtp, Assign)) {
+                Ast_ಗಂಟು* matchAssignsp = nullptr;
+                ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = ಅಭಿವ್ಯಕ್ತಿ_Stmtp->stmtsp(); stmtp;) {
+                    Ast_ಗಂಟು* ಧ್ರುವ nextp = stmtp->nextp();
+                    ಯದಿ (AstAssign* ಧ್ರುವ assignp = VN_CAST(stmtp, Assign)) {
                         assignp->unlinkFrBack();
-                        AstNodeExpr* const assignLhsp = assignp->lhsp()->unlinkFrBack();
-                        AstNodeExpr* const assignRhsp = assignp->rhsp()->unlinkFrBack();
-                        AstAssignDly* const dlyp = new AstAssignDly{flp, assignLhsp, assignRhsp};
-                        VL_DO_DANGLING(pushDeletep(assignp), assignp);
-                        matchAssignsp = AstNode::addNextNull(matchAssignsp, dlyp);
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ assignLhsp = assignp->lhsp()->unlinkFrBack();
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ assignRhsp = assignp->rhsp()->unlinkFrBack();
+                        AstAssignDly* ಧ್ರುವ dlyp = ನೂತನ AstAssignDly{flp, assignLhsp, assignRhsp};
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(assignp), assignp);
+                        matchAssignsp = Ast_ಗಂಟು::addNextNull(matchAssignsp, dlyp);
                     }
                     stmtp = nextp;
                 }
-                VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
                 lhsp = antExprp;
 
-                if (matchAssignsp) {
-                    AstIf* const condp
-                        = new AstIf{flp, antExprp->cloneTreePure(false), matchAssignsp};
-                    AstAlways* const alwaysp
-                        = new AstAlways{flp, VAlwaysKwd::ALWAYS, newSenTree(nodep), condp};
+                ಯದಿ (matchAssignsp) {
+                    AstIf* ಧ್ರುವ condp
+                        = ನೂತನ AstIf{flp, antExprp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), matchAssignsp};
+                    AstAlways* ಧ್ರುವ alwaysp
+                        = ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS, new_Sen_ವೃಕ್ಷ(nodep), condp};
                     m_modp->addStmtsp(alwaysp);
                 }
             }
         }
 
-        if (AstPExpr* const pexprp = VN_CAST(rhsp, PExpr)) {
+        ಯದಿ (AstPExpr* ಧ್ರುವ pexprp = VN_CAST(rhsp, PExpr)) {
             // Implication with sequence expression on RHS (IEEE 1800-2023 16.11, 16.12.7).
             // The PExpr was lowered from the property expression earlier in this pass.
             // Wrap the PExpr body with the antecedent check so the sequence only
             // starts when the antecedent holds.
-            AstNodeExpr* condp;
-            if (nodep->isOverlapped()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp;
+            ಯದಿ (nodep->isOverlapped()) {
                 // Overlapped implication (|->): check antecedent on same cycle.
                 // disable iff is applied at the assertion level, not at the
                 // antecedent gate, matching the existing non-PExpr overlapped path.
                 condp = lhsp;
-            } else {
+            } ಅನ್ಯಥಾ {
                 // Non-overlapped implication (|=>): check antecedent from previous cycle
-                if (m_disablep) {
+                ಯದಿ (m_disablep) {
                     lhsp
-                        = new AstAnd{flp, new AstNot{flp, m_disablep->cloneTreePure(false)}, lhsp};
+                        = ನೂತನ AstAnd{flp, ನೂತನ AstNot{flp, m_disablep->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}, lhsp};
                 }
-                AstPast* const pastp
-                    = new AstPast{flp, lhsp, nullptr, nullptr, /* propertyTiming */ true};
+                AstPast* ಧ್ರುವ pastp
+                    = ನೂತನ AstPast{flp, lhsp, nullptr, nullptr, /* propertyTiming */ ಸತ್ಯ};
                 pastp->dtypeFrom(lhsp);
-                pastp->sentreep(newSenTree(nodep));
+                pastp->sentreep(new_Sen_ವೃಕ್ಷ(nodep));
                 condp = pastp;
             }
             // Wrap existing PExpr body: if (antecedent) { <original body> } else { /* vacuous pass
@@ -1556,154 +1556,154 @@ private:
             // Only the statements are guarded; declarations stay directly in the block. After
             // V3Fork moves the block's statements into a task, V3Task only handles variables
             // that are direct statements of the task.
-            AstBegin* const bodyp = pexprp->bodyp();
-            AstIf* const guardp = new AstIf{flp, condp};
-            for (AstNode* stmtp = bodyp->stmtsp(); stmtp;) {
-                AstNode* const nextp = stmtp->nextp();
-                if (!VN_IS(stmtp, Var)) guardp->addThensp(stmtp->unlinkFrBack());
+            AstBegin* ಧ್ರುವ bodyp = pexprp->bodyp();
+            AstIf* ಧ್ರುವ guardp = ನೂತನ AstIf{flp, condp};
+            ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = bodyp->stmtsp(); stmtp;) {
+                Ast_ಗಂಟು* ಧ್ರುವ nextp = stmtp->nextp();
+                ಯದಿ (!VN_IS(stmtp, Var)) guardp->addThensp(stmtp->unlinkFrBack());
                 stmtp = nextp;
             }
             bodyp->addStmtsp(guardp);
             nodep->replaceWith(pexprp);
             // Don't iterate pexprp here -- it was already iterated when created
             // (in visit(AstSExpr*)), so delays and disable iff are already processed.
-        } else if (nodep->isOverlapped()) {
-            AstNodeExpr* const exprp
-                = m_underCover ? static_cast<AstNodeExpr*>(new AstLogAnd{flp, lhsp, rhsp})
-                               : new AstLogOr{flp, new AstLogNot{flp, lhsp}, rhsp};
+        } ಅನ್ಯಥಾ ಯದಿ (nodep->isOverlapped()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp
+                = m_underCover ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstLogAnd{flp, lhsp, rhsp})
+                               : ನೂತನ AstLogOr{flp, ನೂತನ AstLogNot{flp, lhsp}, rhsp};
             nodep->replaceWith(exprp);
-        } else {
-            if (m_disablep) {
-                lhsp = new AstAnd{flp, new AstNot{flp, m_disablep->cloneTreePure(false)}, lhsp};
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (m_disablep) {
+                lhsp = ನೂತನ AstAnd{flp, ನೂತನ AstNot{flp, m_disablep->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ)}, lhsp};
             }
 
-            AstPast* const pastp
-                = new AstPast{flp, lhsp, nullptr, nullptr, /* propertyTiming */ true};
+            AstPast* ಧ್ರುವ pastp
+                = ನೂತನ AstPast{flp, lhsp, nullptr, nullptr, /* propertyTiming */ ಸತ್ಯ};
             pastp->dtypeFrom(lhsp);
-            pastp->sentreep(newSenTree(nodep));
-            AstNodeExpr* const exprp
-                = m_underCover ? static_cast<AstNodeExpr*>(new AstAnd{flp, pastp, rhsp})
-                               : new AstOr{flp, new AstNot{flp, pastp}, rhsp};
+            pastp->sentreep(new_Sen_ವೃಕ್ಷ(nodep));
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp
+                = m_underCover ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstAnd{flp, pastp, rhsp})
+                               : ನೂತನ AstOr{flp, ನೂತನ AstNot{flp, pastp}, rhsp};
             exprp->dtypeSetBit();
             nodep->replaceWith(exprp);
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstUntil* nodep) override {
-        FileLine* const flp = nodep->fileline();
+    ಶೂನ್ಯ visit(AstUntil* nodep) override {
+        File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
         UASSERT_OBJ(
             !m_pexprp, nodep,
             "'" << nodep->verilogKwd()
                 << "' in complex property expression should have been rejected by V3AssertNfa");
-        if (nodep->isStrong()
+        ಯದಿ (nodep->isStrong()
             && (v3Global.opt.timing().isSetFalse() || !v3Global.opt.timing().isSetTrue())) {
             nodep->v3warn(E_NOTIMING, nodep->verilogKwd() << " requires --timing");
-            nodep->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{flp, AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (nodep->isStrong()) {
+        ಯದಿ (nodep->isStrong()) {
             // p s_until q / p s_until_with q: q must eventually be true. Until then, p must
             // be true on every sampled tick. For s_until, check q first: when q is true on
             // this tick, p is not required. For s_until_with, p must be true on the q tick too.
-            AstNodeExpr* const rawLhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const rawRhsp = nodep->rhsp()->unlinkFrBack();
-            AstSampled* const lhsp = new AstSampled{flp, rawLhsp, rawLhsp->dtypep(), true};
-            AstSampled* const rhsp = new AstSampled{flp, rawRhsp, rawRhsp->dtypep(), true};
-            AstNodeExpr* finalCondp = rhsp->cloneTreePure(false);
-            if (nodep->isOverlapping()) {
-                finalCondp = new AstLogAnd{flp, lhsp->cloneTreePure(false), finalCondp};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rawLhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rawRhsp = nodep->rhsp()->unlinkFrBack();
+            AstSampled* ಧ್ರುವ lhsp = ನೂತನ AstSampled{flp, rawLhsp, rawLhsp->dtypep(), ಸತ್ಯ};
+            AstSampled* ಧ್ರುವ rhsp = ನೂತನ AstSampled{flp, rawRhsp, rawRhsp->dtypep(), ಸತ್ಯ};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* finalCondp = rhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+            ಯದಿ (nodep->isOverlapping()) {
+                finalCondp = ನೂತನ AstLogAnd{flp, lhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), finalCondp};
             }
 
             // Track active assertion attempts. Only the count is needed to emit final failures.
-            AstVar* const activep = new AstVar{flp, VVarType::MODULETEMP, m_activeNames.get(""),
+            AstVar* ಧ್ರುವ activep = ನೂತನ AstVar{flp, VVarType::MODULETEMP, m_activeNames.get(""),
                                                nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
             activep->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(activep);
 
-            AstVar* const donep
-                = new AstVar{flp, VVarType::BLOCKTEMP, "__VassertDone", nodep->findBitDType()};
+            AstVar* ಧ್ರುವ donep
+                = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, "__VassertDone", nodep->findBitDType()};
             donep->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             auto setDone = [&]() {
-                return new AstAssign{flp, new AstVarRef{flp, donep, VAccess::WRITE},
-                                     new AstConst{flp, AstConst::BitTrue{}}};
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, donep, VAccess::WRITE},
+                                     ನೂತನ AstConst{flp, AstConst::BitTrue{}}};
             };
 
-            AstLoop* const loopp = new AstLoop{flp};
-            AstAssign* const decrementVar = new AstAssign{
-                flp, new AstVarRef{flp, activep, VAccess::WRITE},
-                new AstSub{flp, new AstVarRef{flp, activep, VAccess::READ}, new AstConst{flp, 1}}};
-            loopp->addStmtsp(new AstLoopTest{
-                flp, loopp, new AstLogNot{flp, new AstVarRef{flp, donep, VAccess::READ}}});
+            AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{flp};
+            AstAssign* ಧ್ರುವ decrementVar = ನೂತನ AstAssign{
+                flp, ನೂತನ AstVarRef{flp, activep, VAccess::WRITE},
+                ನೂತನ AstSub{flp, ನೂತನ AstVarRef{flp, activep, VAccess::READ}, ನೂತನ AstConst{flp, 1}}};
+            loopp->addStmtsp(ನೂತನ AstLoopTest{
+                flp, loopp, ನೂತನ AstLogNot{flp, ನೂತನ AstVarRef{flp, donep, VAccess::READ}}});
             {
-                AstNode* const passp = new AstPExprClause{flp};
+                Ast_ಗಂಟು* ಧ್ರುವ passp = ನೂತನ AstPExprClause{flp};
                 passp->addNext(decrementVar);
                 passp->addNext(setDone());
-                AstNodeExpr* passCondp = rhsp;
-                if (nodep->isOverlapping()) {
-                    passCondp = new AstLogAnd{flp, lhsp->cloneTreePure(false), passCondp};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* passCondp = rhsp;
+                ಯದಿ (nodep->isOverlapping()) {
+                    passCondp = ನೂತನ AstLogAnd{flp, lhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), passCondp};
                 }
-                loopp->addStmtsp(new AstIf{flp, passCondp, passp});
+                loopp->addStmtsp(ನೂತನ AstIf{flp, passCondp, passp});
             }
             {
-                AstNode* const failp = new AstPExprClause{flp, false};
-                failp->addNext(decrementVar->cloneTree(false));
+                Ast_ಗಂಟು* ಧ್ರುವ failp = ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ};
+                failp->addNext(decrementVar->clone_ವೃಕ್ಷ(ಅಸತ್ಯ));
                 failp->addNext(setDone());
-                loopp->addStmtsp(new AstIf{
+                loopp->addStmtsp(ನೂತನ AstIf{
                     flp,
-                    new AstLogAnd{flp,
-                                  new AstLogNot{flp, new AstVarRef{flp, donep, VAccess::READ}},
-                                  new AstLogNot{flp, lhsp}},
+                    ನೂತನ AstLogAnd{flp,
+                                  ನೂತನ AstLogNot{flp, ನೂತನ AstVarRef{flp, donep, VAccess::READ}},
+                                  ನೂತನ AstLogNot{flp, lhsp}},
                     failp});
             }
-            AstDelay* const delayp = new AstDelay{flp, new AstConst{flp, 1}, false};
+            AstDelay* ಧ್ರುವ delayp = ನೂತನ AstDelay{flp, ನೂತನ AstConst{flp, 1}, ಅಸತ್ಯ};
             delayp->timeunit(m_modp->timeunit());
-            loopp->addStmtsp(new AstIf{
-                flp, new AstLogNot{flp, new AstVarRef{flp, donep, VAccess::READ}}, delayp});
+            loopp->addStmtsp(ನೂತನ AstIf{
+                flp, ನೂತನ AstLogNot{flp, ನೂತನ AstVarRef{flp, donep, VAccess::READ}}, delayp});
 
             // Main assertion block
-            AstBegin* const bodyp = new AstBegin{flp, m_blockNames.get(""), nullptr, true};
+            AstBegin* ಧ್ರುವ bodyp = ನೂತನ AstBegin{flp, m_blockNames.get(""), nullptr, ಸತ್ಯ};
             bodyp->addStmtsp(donep);
-            bodyp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, donep, VAccess::WRITE},
-                                           new AstConst{flp, AstConst::BitFalse{}}});
-            FileLine* const flp = activep->fileline();
+            bodyp->addStmtsp(ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, donep, VAccess::WRITE},
+                                           ನೂತನ AstConst{flp, AstConst::BitFalse{}}});
+            File_ಸಾಲು* ಧ್ರುವ flp = activep->fileline();
             bodyp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, activep, VAccess::WRITE},
-                              new AstAdd{flp, new AstVarRef{flp, activep, VAccess::READ},
-                                         new AstConst{flp, 1}}});
+                ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, activep, VAccess::WRITE},
+                              ನೂತನ AstAdd{flp, ನೂತನ AstVarRef{flp, activep, VAccess::READ},
+                                         ನೂತನ AstConst{flp, 1}}});
             bodyp->addStmtsp(loopp);
 
             // Validate assertion condition for each active assert
-            AstVar* const activeCountp = new AstVar{flp, VVarType::BLOCKTEMP, "__VassertCount",
+            AstVar* ಧ್ರುವ activeCountp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, "__VassertCount",
                                                     nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
             activeCountp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
 
-            AstAssign* const initActiveCountp
-                = new AstAssign{flp, new AstVarRef{flp, activeCountp, VAccess::WRITE},
-                                new AstVarRef{flp, activep, VAccess::READ}};
-            AstLoop* const finalLoopp = new AstLoop{flp};
+            AstAssign* ಧ್ರುವ initActiveCountp
+                = ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::WRITE},
+                                ನೂತನ AstVarRef{flp, activep, VAccess::READ}};
+            AstLoop* ಧ್ರುವ finalLoopp = ನೂತನ AstLoop{flp};
             finalLoopp->addStmtsp(
-                new AstLoopTest{flp, finalLoopp,
-                                new AstNeq{flp, new AstVarRef{flp, activeCountp, VAccess::READ},
-                                           new AstConst{flp, 0}}});
-            finalLoopp->addStmtsp(new AstIf{flp, finalCondp, new AstPExprClause{flp},
-                                            new AstPExprClause{flp, false}});
+                ನೂತನ AstLoopTest{flp, finalLoopp,
+                                ನೂತನ AstNeq{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::READ},
+                                           ನೂತನ AstConst{flp, 0}}});
+            finalLoopp->addStmtsp(ನೂತನ AstIf{flp, finalCondp, ನೂತನ AstPExprClause{flp},
+                                            ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ}});
             finalLoopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, activeCountp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, activeCountp, VAccess::READ},
-                                         new AstConst{flp, 1}}});
+                ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::WRITE},
+                              ನೂತನ AstSub{flp, ನೂತನ AstVarRef{flp, activeCountp, VAccess::READ},
+                                         ನೂತನ AstConst{flp, 1}}});
 
             // Final assertion block
-            AstBegin* const finalp = new AstBegin{flp, m_blockNames.get(""), nullptr, true};
+            AstBegin* ಧ್ರುವ finalp = ನೂತನ AstBegin{flp, m_blockNames.get(""), nullptr, ಸತ್ಯ};
             finalp->addStmtsp(activeCountp);
             finalp->addStmtsp(initActiveCountp);
             finalp->addStmtsp(finalLoopp);
 
-            AstPExpr* const pexprp = new AstPExpr{flp, bodyp, finalp, nodep->dtypep()};
+            AstPExpr* ಧ್ರುವ pexprp = ನೂತನ AstPExpr{flp, bodyp, finalp, nodep->dtypep()};
             VL_RESTORER(m_pexprp);
             VL_RESTORER(m_hasCycleDelay);
             m_pexprp = pexprp;
-            m_hasCycleDelay = false;
+            m_hasCycleDelay = ಅಸತ್ಯ;
             iterate(bodyp);
             iterate(finalp);
 
@@ -1711,62 +1711,62 @@ private:
                         "s_until cycle delay should have been handled by V3AssertNfa");
 
             nodep->replaceWith(pexprp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        AstLoop* const loopp = new AstLoop{flp};
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        AstLogAnd* const loopCondp = new AstLogAnd{flp, lhsp, new AstLogNot{flp, rhsp}};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp, loopCondp});
-        loopp->addStmtsp(new AstEventControl{flp, newSenTree(nodep), nullptr});
+        AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{flp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lhsp = nodep->lhsp()->unlinkFrBack();
+        AstLogAnd* ಧ್ರುವ loopCondp = ನೂತನ AstLogAnd{flp, lhsp, ನೂತನ AstLogNot{flp, rhsp}};
+        loopp->addStmtsp(ನೂತನ AstLoopTest{flp, loopp, loopCondp});
+        loopp->addStmtsp(ನೂತನ AstEventControl{flp, new_Sen_ವೃಕ್ಷ(nodep), nullptr});
 
-        AstNodeExpr* const rhsCopyp = rhsp->cloneTreePure(false);
-        AstNodeExpr* const passCondp
-            = nodep->isOverlapping() ? new AstLogAnd{flp, lhsp->cloneTreePure(false), rhsCopyp}
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ rhsCopyp = rhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ passCondp
+            = nodep->isOverlapping() ? ನೂತನ AstLogAnd{flp, lhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), rhsCopyp}
                                      : rhsCopyp;
-        AstBegin* const beginp = new AstBegin{flp, m_blockNames.get(""), loopp, true};
+        AstBegin* ಧ್ರುವ beginp = ನೂತನ AstBegin{flp, m_blockNames.get(""), loopp, ಸತ್ಯ};
         beginp->addStmtsp(
-            new AstIf{flp, passCondp, new AstPExprClause{flp}, new AstPExprClause{flp, false}});
+            ನೂತನ AstIf{flp, passCondp, ನೂತನ AstPExprClause{flp}, ನೂತನ AstPExprClause{flp, ಅಸತ್ಯ}});
 
-        AstPExpr* const pexprp = new AstPExpr{flp, beginp, nodep->dtypep()};
+        AstPExpr* ಧ್ರುವ pexprp = ನೂತನ AstPExpr{flp, beginp, nodep->dtypep()};
         pexprp->user1(1);
         nodep->replaceWith(pexprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstDefaultDisable* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+    ಶೂನ್ಯ visit(AstDefaultDisable* nodep) override {
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstInferredDisable* nodep) override {
-        AstNode* newp;
-        if (m_defaultDisablep) {
-            newp = m_defaultDisablep->condp()->cloneTreePure(true);
-        } else {
-            newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+    ಶೂನ್ಯ visit(AstInferredDisable* nodep) override {
+        Ast_ಗಂಟು* newp;
+        ಯದಿ (m_defaultDisablep) {
+            newp = m_defaultDisablep->condp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ);
+        } ಅನ್ಯಥಾ {
+            newp = ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstPropSpec* nodep) override {
+    ಶೂನ್ಯ visit(AstPropSpec* nodep) override {
         nodep = substitutePropertyCall(nodep);
         iterateAndNextNull(nodep->sensesp());
-        if (m_senip && m_senip != nodep->sensesp())
+        ಯದಿ (m_senip && m_senip != nodep->sensesp())
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Only one PSL clock allowed per assertion");
-        const AstCover* const coverp = VN_CAST(nodep->backp(), Cover);
-        const bool seqEvent = coverp && coverp->isSeqEvent();
-        if (!nodep->disablep() && m_defaultDisablep && !seqEvent) {
-            nodep->disablep(m_defaultDisablep->condp()->cloneTreePure(true));
+        ಧ್ರುವ AstCover* ಧ್ರುವ coverp = VN_CAST(nodep->backp(), Cover);
+        ಧ್ರುವ ತಾರ್ಕಿಕ seqEvent = coverp && coverp->isSeqEvent();
+        ಯದಿ (!nodep->disablep() && m_defaultDisablep && !seqEvent) {
+            nodep->disablep(m_defaultDisablep->condp()->clone_ವೃಕ್ಷ_Pure(ಸತ್ಯ));
         }
         m_disablep = nodep->disablep();
         // Unlink and just keep a pointer to it, convert to sentree as needed
         m_senip = nodep->sensesp();
         iterateNull(nodep->disablep());
-        if (!VN_AS(nodep->backp(), NodeCoverOrAssert)->immediate()) {
-            const AstNodeDType* const propDtp = nodep->propp()->dtypep();
-            nodep->propp(new AstSampled{nodep->fileline(), nodep->propp()->unlinkFrBack(),
-                                        propDtp->dtypep(), true});
+        ಯದಿ (!VN_AS(nodep->backp(), ಗಂಟು_Cover_Or_Assert)->immediate()) {
+            ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ propDtp = nodep->propp()->dtypep();
+            nodep->propp(ನೂತನ AstSampled{nodep->fileline(), nodep->propp()->unlinkFrBack(),
+                                        propDtp->dtypep(), ಸತ್ಯ});
         }
         // cover counts non-vacuous matches only (IEEE 1800-2023 16.15.2), so an
         // implication antecedent must hold; assert passes vacuously instead.
@@ -1775,93 +1775,93 @@ private:
         iterate(nodep->propp());
         iterateNull(nodep->matchCountp());
     }
-    void visit(AstPExpr* nodep) override {
+    ಶೂನ್ಯ visit(AstPExpr* nodep) override {
         // V3AssertNfa handles multi-cycle property expressions before this pass,
         // so the following unsupported paths are defensive and typically unreached.
-        if (m_pexprp && m_pexprp->user1()) {  // LCOV_EXCL_START
+        ಯದಿ (m_pexprp && m_pexprp->user1()) {  // LCOV_EXCL_START
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Complex property expression inside 'until''");
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಪ್ರತ್ಯಾಗಮ;
         }  // LCOV_EXCL_STOP
-        if (AstLogNot* const notp = VN_CAST(nodep->backp(), LogNot)) {
+        ಯದಿ (AstLogNot* ಧ್ರುವ notp = VN_CAST(nodep->backp(), LogNot)) {
             notp->replaceWith(nodep->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(notp), notp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(notp), notp);
             iterate(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Sequence expression as antecedent of implication is not yet supported
-        if (AstImplication* const implp = VN_CAST(nodep->backp(), Implication)) {
-            if (implp->lhsp() == nodep) {  // LCOV_EXCL_START
+        ಯದಿ (AstImplication* ಧ್ರುವ implp = VN_CAST(nodep->backp(), Implication)) {
+            ಯದಿ (implp->lhsp() == nodep) {  // LCOV_EXCL_START
                 implp->v3warn(E_UNSUPPORTED,
                               "Unsupported: Implication with sequence expression as antecedent");
-                nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                nodep->replaceWith(ನೂತನ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಪ್ರತ್ಯಾಗಮ;
             }  // LCOV_EXCL_STOP
         }
         VL_RESTORER(m_pexprp);
         VL_RESTORER(m_disableSeqIfp);
         m_pexprp = nodep;
 
-        if (m_disablep) {
-            const AstSampled* sampledp = nullptr;
-            if (m_disablep->exists([&sampledp](const AstSampled* const sp) {
+        ಯದಿ (m_disablep) {
+            ಧ್ರುವ AstSampled* sampledp = nullptr;
+            ಯದಿ (m_disablep->exists([&sampledp](ಧ್ರುವ AstSampled* ಧ್ರುವ sp) {
                     sampledp = sp;
-                    return true;
+                    ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 })) {
                 sampledp->v3warn(E_UNSUPPORTED,
                                  "Unsupported: $sampled inside disabled condition of a sequence");
-                m_disablep = new AstConst{m_disablep->fileline(), AstConst::BitFalse{}};
+                m_disablep = ನೂತನ AstConst{m_disablep->fileline(), AstConst::BitFalse{}};
                 // always a copy is used, so remove it now
-                pushDeletep(m_disablep);  // m_disablep used later
+                ತಳ್ಳು_Deletep(m_disablep);  // m_disablep used later
             }
-            FileLine* const flp = nodep->fileline();
+            File_ಸಾಲು* ಧ್ರುವ flp = nodep->fileline();
             // Add counter which counts times the condition turned true
-            AstVar* const disableCntp
-                = new AstVar{flp, VVarType::MODULETEMP, m_disableCntNames.get(""),
+            AstVar* ಧ್ರುವ disableCntp
+                = ನೂತನ AstVar{flp, VVarType::MODULETEMP, m_disableCntNames.get(""),
                              nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
             disableCntp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(disableCntp);
-            AstVarRef* const readCntRefp = new AstVarRef{flp, disableCntp, VAccess::READ};
-            AstVarRef* const writeCntRefp = new AstVarRef{flp, disableCntp, VAccess::WRITE};
-            AstAssign* const incrStmtp = new AstAssign{
-                flp, writeCntRefp, new AstAdd{flp, readCntRefp, new AstConst{flp, 1}}};
-            AstAlways* const alwaysp
-                = new AstAlways{flp, VAlwaysKwd::ALWAYS,
-                                new AstSenTree{flp, new AstSenItem{flp, VEdgeType::ET_POSEDGE,
-                                                                   m_disablep->cloneTree(false)}},
+            AstVarRef* ಧ್ರುವ readCntRefp = ನೂತನ AstVarRef{flp, disableCntp, VAccess::READ};
+            AstVarRef* ಧ್ರುವ writeCntRefp = ನೂತನ AstVarRef{flp, disableCntp, VAccess::WRITE};
+            AstAssign* ಧ್ರುವ incrStmtp = ನೂತನ AstAssign{
+                flp, writeCntRefp, ನೂತನ AstAdd{flp, readCntRefp, ನೂತನ AstConst{flp, 1}}};
+            AstAlways* ಧ್ರುವ alwaysp
+                = ನೂತನ AstAlways{flp, VAlwaysKwd::ALWAYS,
+                                ನೂತನ Ast_Sen_ವೃಕ್ಷ{flp, ನೂತನ AstSenItem{flp, VEdgeType::ET_POSEDGE,
+                                                                   m_disablep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}},
                                 incrStmtp};
             disableCntp->addNextHere(alwaysp);
 
             // Store value of that counter at the beginning of sequence evaluation
-            AstBegin* const bodyp = nodep->bodyp();
-            AstVar* const initialCntp = new AstVar{flp, VVarType::BLOCKTEMP, "__VinitialCnt",
+            AstBegin* ಧ್ರುವ bodyp = nodep->bodyp();
+            AstVar* ಧ್ರುವ initialCntp = ನೂತನ AstVar{flp, VVarType::BLOCKTEMP, "__VinitialCnt",
                                                    nodep->findBasicDType(VBasicDTypeKwd::UINT32)};
             initialCntp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            AstAssign* const assignp
-                = new AstAssign{flp, new AstVarRef{flp, initialCntp, VAccess::WRITE},
-                                readCntRefp->cloneTree(false)};
+            AstAssign* ಧ್ರುವ assignp
+                = ನೂತನ AstAssign{flp, ನೂತನ AstVarRef{flp, initialCntp, VAccess::WRITE},
+                                readCntRefp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
             // Prepend to the sequence body to keep statement list structure valid.
             UASSERT_OBJ(!bodyp->name().empty(), bodyp, "Sequence body should be named");
-            AstNode* const newStmtsp = AstNode::addNext<AstNode, AstNode>(initialCntp, assignp);
+            Ast_ಗಂಟು* ಧ್ರುವ newStmtsp = Ast_ಗಂಟು::addNext<Ast_ಗಂಟು, Ast_ಗಂಟು>(initialCntp, assignp);
             bodyp->prependStmtsp(newStmtsp);
 
             m_disableSeqIfp
-                = new AstIf{flp, new AstEq{flp, new AstVarRef{flp, initialCntp, VAccess::READ},
-                                           readCntRefp->cloneTree(false)}};
+                = ನೂತನ AstIf{flp, ನೂತನ AstEq{flp, ನೂತನ AstVarRef{flp, initialCntp, VAccess::READ},
+                                           readCntRefp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)}};
             // Delete it, because it is always copied before insetion to the AST
-            pushDeletep(m_disableSeqIfp);  // m_disableSeqIfp used later
+            ತಳ್ಳು_Deletep(m_disableSeqIfp);  // m_disableSeqIfp used later
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_defaultClockingp);
         VL_RESTORER(m_defaultClkEvtVarp);
         VL_RESTORER(m_defaultDisablep);
         VL_RESTORER(m_modp);
-        if (!VN_IS(nodep, Class)) {
+        ಯದಿ (!VN_IS(nodep, Class)) {
             // A class nested in a module is in the scope of the module's default clocking
             m_defaultClockingp = nullptr;
             m_defaultClkEvtVarp = nullptr;
@@ -1870,24 +1870,24 @@ private:
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ಶೂನ್ಯ visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstProperty* nodep) override {
+    ಶೂನ್ಯ visit(AstProperty* nodep) override {
         // The body will be visited when will be substituted in place of property reference
         // (AstFuncRef)
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstSequence* nodep) override {
+    ಶೂನ್ಯ visit(AstSequence* nodep) override {
         // Sequence declarations are not visited directly; their bodies are inlined
         // at call sites by visit(AstFuncRef*). Collect for post-traversal cleanup.
-        m_seqsToCleanup.push_back(nodep);
+        m_seqsToCleanup.ತಳ್ಳು_back(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     explicit AssertPreVisitor(AstNetlist* nodep)
         : m_netlistp{nodep} {
@@ -1895,27 +1895,27 @@ public:
         // Process
         iterate(nodep);
         // Fix up varref names
-        for (AstVarXRef* xrefp : m_xrefsp) xrefp->name(xrefp->varp()->name());
+        ಪ್ರತಿ (AstVarXRef* xrefp : m_xrefsp) xrefp->name(xrefp->varp()->name());
         // Clean up sequence declarations after inlining.
         // Referenced sequences that were inlined have isReferenced cleared.
         // Remaining referenced sequences are in unsupported contexts (e.g. @seq event).
-        for (AstSequence* seqp : m_seqsToCleanup) {
-            if (seqp->isReferenced()) {
+        ಪ್ರತಿ (AstSequence* seqp : m_seqsToCleanup) {
+            ಯದಿ (seqp->isReferenced()) {
                 seqp->v3warn(E_UNSUPPORTED,
                              "Unsupported: sequence referenced outside assertion property");
-            } else {
-                VL_DO_DANGLING(seqp->unlinkFrBack()->deleteTree(), seqp);
+            } ಅನ್ಯಥಾ {
+                VL_DO_DANGLING(seqp->unlinkFrBack()->delete_ವೃಕ್ಷ(), seqp);
             }
         }
     }
-    ~AssertPreVisitor() override = default;
+    ~AssertPreVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Top Assert class
 
-void V3AssertPre::assertPreAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3AssertPre::assertPreAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { AssertPreVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("assertpre", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("assertpre", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

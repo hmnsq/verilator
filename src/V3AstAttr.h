@@ -28,7 +28,7 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
@@ -41,31 +41,31 @@ class VFlagLogic2StatePacked {};
 // ######################################################################
 
 class VAbortKind final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // IEEE 1800-2023 16.12.14 property abort operators.
-    enum en : uint8_t {
+    ಗಣನಾ en : uint8_t {
         ACCEPT_ON,  // accept_on(cond) prop: async abort, property succeeds
         REJECT_ON,  // reject_on(cond) prop: async abort, property fails
         SYNC_ACCEPT_ON,  // sync_accept_on(cond) prop: sampled at matured clock, succeeds
         SYNC_REJECT_ON  // sync_reject_on(cond) prop: sampled at matured clock, fails
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VAbortKind(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static const char* const names[]
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"accept_on", "reject_on", "sync_accept_on", "sync_reject_on"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool isAccept() const { return m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
+    bool isAccept() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
 };
 
 //######################################################################
 
 class VAccess final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         READ,  // Read/Consumed, variable not changed
         WRITE,  // Written/Updated, variable might be updated, but not consumed
         //      // so variable might be removable if not consumed elsewhere
@@ -74,69 +74,69 @@ public:
         //          // For non-simple data types only e.g. no tristates/delayed vars.
         NOCHANGE  // No change to previous state, used only in V3LinkLValue
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"RD", "WR", "RW", "--"};
-        return names[m_e];
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"RD", "WR", "RW", "--"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* arrow() const {
-        static constexpr const char* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* arrow() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     VAccess()
         : m_e{READ} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAccess(en _e)
         : m_e{_e} {}
-    explicit VAccess(int _e)
+    explicit VAccess(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    VAccess invert() const {
-        return (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    VAccess invert() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
     }
-    bool isReadOnly() const { return m_e == READ; }  // False with READWRITE
-    bool isWriteOnly() const { return m_e == WRITE; }  // False with READWRITE
-    bool isReadOrRW() const { return m_e == READ || m_e == READWRITE; }
-    bool isWriteOrRW() const { return m_e == WRITE || m_e == READWRITE; }
-    bool isRW() const { return m_e == READWRITE; }
+    bool isReadOnly() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == READ; }  // False with READWRITE
+    bool isWriteOnly() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == WRITE; }  // False with READWRITE
+    bool isReadOrRW() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == READ || m_e == READWRITE; }
+    bool isWriteOrRW() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == WRITE || m_e == READWRITE; }
+    bool isRW() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == READWRITE; }
 };
-constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { return os << rhs.ascii(); }
+constexpr bool operator==(ಧ್ರುವ VAccess& lhs, ಧ್ರುವ VAccess& rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VAccess& lhs, VAccess::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VAccess::en lhs, ಧ್ರುವ VAccess& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VAccess& rhs) { ಪ್ರತ್ಯಾಗಮ os << rhs.ascii(); }
 
 //######################################################################
 
 class VAlwaysKwd final {
-public:
-    enum en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
+    ಗಣನಾ en m_e;
     VAlwaysKwd()
         : m_e{ALWAYS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAlwaysKwd(en _e)
         : m_e{_e} {}
-    explicit VAlwaysKwd(int _e)
+    explicit VAlwaysKwd(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"always", "always_ff", "always_latch", "always_comb", "cont_assign"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VAlwaysKwd& lhs, const VAlwaysKwd& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VAlwaysKwd& lhs, ಧ್ರುವ VAlwaysKwd& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VAlwaysKwd::en lhs, ಧ್ರುವ VAlwaysKwd& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VAssertCtlType final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // IEEE 1800-2023 Table 20-5
-    enum en : uint8_t {
+    ಗಣನಾ en : uint8_t {
         _TO_BE_EVALUATED = 0,
         LOCK = 1,
         UNLOCK = 2,
@@ -150,18 +150,18 @@ public:
         NONVACUOUS_ON = 10,
         VACUOUS_OFF = 11
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VAssertCtlType()
         : m_e{_TO_BE_EVALUATED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertCtlType(en _e)
         : m_e{_e} {}
-    explicit VAssertCtlType(int _e)
+    explicit VAssertCtlType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
         // IEEE 1800-2023 20.11
-        static constexpr const char* const names[] = {"",
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"",
                                                       "",
                                                       "",
                                                       "$asserton",
@@ -173,25 +173,25 @@ public:
                                                       "$assertfailoff",
                                                       "$assertnonvacuouson",
                                                       "$assertvacuousoff"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VAssertCtlType& lhs, const VAssertCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VAssertCtlType& lhs, ಧ್ರುವ VAssertCtlType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertCtlType& lhs, VAssertCtlType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VAssertCtlType& lhs, VAssertCtlType::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VAssertCtlType::en lhs, ಧ್ರುವ VAssertCtlType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 class VAssertDirectiveType final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // IEEE 1800-2023 Table 20-7
-    enum en : uint8_t {
+    ಗಣನಾ en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for directives to be evaluated from expression.
         ASSERT = (1 << 0),
         COVER = (1 << 1),
@@ -203,53 +203,53 @@ public:
         INTRINSIC = (1 << 5),  // Non IEEE type, for intrinsic assertions.
         RESTRICT = (1 << 6),  // Non IEEE type, for ignored restrict assertions.
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VAssertDirectiveType()
         : m_e{ASSERT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertDirectiveType(en _e)
         : m_e{_e} {}
-    explicit VAssertDirectiveType(int _e)
+    explicit VAssertDirectiveType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    string ascii() const {
+    string ascii() ಧ್ರುವ {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ಯದಿ (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & ASSERT) types << "ASSERT ";
-            if (m_e & COVER) types << "COVER ";
-            if (m_e & ASSUME) types << "ASSUME ";
-            if (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
-            if (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
-            if (m_e & INTRINSIC) types << "INTRINSIC ";
-            if (m_e & RESTRICT) types << "RESTRICT ";
+        ಅನ್ಯಥಾ {
+            ಯದಿ (m_e & ASSERT) types << "ASSERT ";
+            ಯದಿ (m_e & COVER) types << "COVER ";
+            ಯದಿ (m_e & ASSUME) types << "ASSUME ";
+            ಯದಿ (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
+            ಯದಿ (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
+            ಯದಿ (m_e & INTRINSIC) types << "INTRINSIC ";
+            ಯದಿ (m_e & RESTRICT) types << "RESTRICT ";
         }
-        const string str = types.str();
+        ಧ್ರುವ string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ಪ್ರತ್ಯಾಗಮ str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VAssertDirectiveType& lhs, const VAssertDirectiveType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VAssertDirectiveType& lhs, ಧ್ರುವ VAssertDirectiveType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertDirectiveType::en lhs, const VAssertDirectiveType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VAssertDirectiveType::en lhs, ಧ್ರುವ VAssertDirectiveType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
 constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
                                              VAssertDirectiveType::en rhs) {
-    return VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ಪ್ರತ್ಯಾಗಮ VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VAssertType final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // IEEE 1800-2023 Table 20-6
-    enum en : uint8_t {
+    ಗಣನಾ en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for assertions that should not be controlled.
         CONCURRENT = (1 << 0),
         SIMPLE_IMMEDIATE = (1 << 1),
@@ -260,88 +260,88 @@ public:
         UNIQUE0 = (1 << 6),
         PRIORITY = (1 << 7),
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VAssertType()
         : m_e{INTERNAL} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertType(en _e)
         : m_e{_e} {}
-    explicit VAssertType(int _e)
+    explicit VAssertType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    bool containsAny(VAssertType other) const { return m_e & other.m_e; }
-    string ascii() const {
+    bool containsAny(VAssertType other) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e & other.m_e; }
+    string ascii() ಧ್ರುವ {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        ಯದಿ (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & CONCURRENT) types << "CONCURRENT ";
-            if (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
-            if (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
-            if (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
-            if (m_e & EXPECT) types << "EXPECT ";
-            if (m_e & UNIQUE) types << "UNIQUE ";
-            if (m_e & UNIQUE0) types << "UNIQUE0 ";
-            if (m_e & PRIORITY) types << "PRIORITY ";
+        ಅನ್ಯಥಾ {
+            ಯದಿ (m_e & CONCURRENT) types << "CONCURRENT ";
+            ಯದಿ (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
+            ಯದಿ (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
+            ಯದಿ (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
+            ಯದಿ (m_e & EXPECT) types << "EXPECT ";
+            ಯದಿ (m_e & UNIQUE) types << "UNIQUE ";
+            ಯದಿ (m_e & UNIQUE0) types << "UNIQUE0 ";
+            ಯದಿ (m_e & PRIORITY) types << "PRIORITY ";
         }
-        const string str = types.str();
+        ಧ್ರುವ string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        ಪ್ರತ್ಯಾಗಮ str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VAssertType& lhs, const VAssertType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VAssertType& lhs, ಧ್ರುವ VAssertType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VAssertType& lhs, VAssertType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VAssertType::en lhs, ಧ್ರುವ VAssertType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 constexpr VAssertType::en operator|(VAssertType::en lhs, VAssertType::en rhs) {
-    return VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ಪ್ರತ್ಯಾಗಮ VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VPropStrength final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         DEFAULT = 0,  // Resolve from assertion/coverage context
         WEAK,
         STRONG,
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VPropStrength(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"default", "weak", "strong"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"default", "weak", "strong"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VPropStrength& lhs, const VPropStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VPropStrength& lhs, ಧ್ರುವ VPropStrength& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VPropStrength& lhs, VPropStrength::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e != rhs;
+constexpr bool operator!=(ಧ್ರುವ VPropStrength& lhs, VPropStrength::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e != rhs;
 }
 
 // ######################################################################
 
 class VAttrType final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // clang-format off
-    enum en: uint8_t  {
+    ಗಣನಾ en: uint8_t  {
         ILLEGAL,
         //
         DIM_BITS,                       // V3Const converts to constant
-        DIM_BITS_OR_NUMBER,             // V3Const converts to constant
+        DIM_BITS_OR_ಸಂಖ್ಯೆ,             // V3Const converts to constant
         DIM_DIMENSIONS,                 // V3Width converts to constant
-        DIM_HIGH,                       // V3Width processes
+        DIM_ಮೇಲಿನ,                       // V3Width processes
         DIM_INCREMENT,                  // V3Width processes
-        DIM_LEFT,                       // V3Width processes
-        DIM_LOW,                        // V3Width processes
-        DIM_RIGHT,                      // V3Width processes
+        DIM_ಎಡ,                       // V3Width processes
+        DIM_ಕೆಳಗಿನ,                        // V3Width processes
+        DIM_ಬಲ,                      // V3Width processes
         DIM_SIZE,                       // V3Width processes
         DIM_UNPK_DIMENSIONS,            // V3Width converts to constant
         //
@@ -349,7 +349,7 @@ public:
         //
         ENUM_FIRST,                     // V3Width processes
         ENUM_LAST,                      // V3Width processes
-        ENUM_NUM,                       // V3Width processes
+        ENUM_ಅಂಕೆ,                       // V3Width processes
         ENUM_NEXT,                      // V3Width processes
         ENUM_PREV,                      // V3Width processes
         ENUM_NAME,                      // V3Width processes
@@ -382,10 +382,10 @@ public:
         VAR_SPLIT_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
     };
     // clang-format on
-    enum en m_e;
-    const char* ascii() const {
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
         // clang-format off
-        static constexpr const char* const names[] = {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {
             "%E-AT",
             "DIM_BITS", "DIM_BITS_OR_NUMBER", "DIM_DIMENSIONS",
             "DIM_HIGH", "DIM_INCREMENT", "DIM_LEFT",
@@ -406,24 +406,24 @@ public:
             "VAR_SC_BIGUINT", "VAR_SC_BV", "VAR_SFORMAT", "VAR_SPLIT_VAR"
         };
         // clang-format on
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // True for attributes that read an operand's type rather than its value, such as $bits.
-    bool isTypeQuery() const {
-        switch (m_e) {
-        case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
-        case DIM_DIMENSIONS:
-        case DIM_HIGH:
-        case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
-        case DIM_SIZE:
-        case DIM_UNPK_DIMENSIONS:
-        case TYPEID:
-        case TYPENAME: return true;
-        default: return false;
+    bool isTypeQuery() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ DIM_BITS:
+        ಪಕ್ಷ DIM_BITS_OR_ಸಂಖ್ಯೆ:
+        ಪಕ್ಷ DIM_DIMENSIONS:
+        ಪಕ್ಷ DIM_ಮೇಲಿನ:
+        ಪಕ್ಷ DIM_INCREMENT:
+        ಪಕ್ಷ DIM_ಎಡ:
+        ಪಕ್ಷ DIM_ಕೆಳಗಿನ:
+        ಪಕ್ಷ DIM_ಬಲ:
+        ಪಕ್ಷ DIM_SIZE:
+        ಪಕ್ಷ DIM_UNPK_DIMENSIONS:
+        ಪಕ್ಷ TYPEID:
+        ಪಕ್ಷ TYPENAME: ಪ್ರತ್ಯಾಗಮ true;
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ false;
         }
     }
     VAttrType()
@@ -431,15 +431,15 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VAttrType(en _e)
         : m_e{_e} {}
-    explicit VAttrType(int _e)
+    explicit VAttrType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VAttrType& lhs, const VAttrType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VAttrType& lhs, ಧ್ರುವ VAttrType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VAttrType& lhs, VAttrType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VAttrType::en lhs, ಧ್ರುವ VAttrType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -448,7 +448,7 @@ class VBaseOverride final {
     bool m_final : 1;
     bool m_initial : 1;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     VBaseOverride()
         : m_extends{false}
         , m_final{false}
@@ -468,29 +468,29 @@ public:
         : m_extends{false}
         , m_final{false}
         , m_initial{true} {}
-    void combine(const VBaseOverride& other) {
+    ಶೂನ್ಯ combine(ಧ್ರುವ VBaseOverride& other) {
         m_extends |= other.m_extends;
         m_final |= other.m_final;
         m_initial |= other.m_initial;
     }
-    bool isAny() const { return m_extends | m_final | m_initial; }
-    bool isExtends() const { return m_extends; }
-    bool isFinal() const { return m_final; }
-    bool isInitial() const { return m_initial; }
-    string ascii() const {
+    bool isAny() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_extends | m_final | m_initial; }
+    bool isExtends() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_extends; }
+    bool isFinal() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_final; }
+    bool isInitial() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_initial; }
+    string ascii() ಧ್ರುವ {
         string out;
-        if (m_initial) out = VString::dot(out, " ", "initial");
-        if (m_extends) out = VString::dot(out, " ", "extends");
-        if (m_final) out = VString::dot(out, " ", "final");
-        return out;
+        ಯದಿ (m_initial) out = VString::dot(out, " ", "initial");
+        ಯದಿ (m_extends) out = VString::dot(out, " ", "extends");
+        ಯದಿ (m_final) out = VString::dot(out, " ", "final");
+        ಪ್ರತ್ಯಾಗಮ out;
     }
 };
 
 // ######################################################################
 
 class VBasicDTypeKwd final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         UNKNOWN,
         BIT,
         BYTE,
@@ -533,9 +533,9 @@ public:
         // Leave last
         _ENUM_MAX
     };
-    enum en m_e;
-    const char* ascii() const VL_MT_SAFE {
-        static constexpr const char* const names[] = {"%E-unk",
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ VL_MT_SAFE {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"%E-unk",
                                                       "bit",
                                                       "byte",
                                                       "chandle",
@@ -569,18 +569,18 @@ public:
                                                       "QData",
                                                       "LOGIC_IMPLICIT",
                                                       " MAX"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* typeName() const VL_MT_SAFE {
-        switch (m_e) {
-        case LOGIC2STATE: return VBasicDTypeKwd{LOGIC}.ascii();
-        case INTEGER2STATE: return VBasicDTypeKwd{INTEGER}.ascii();
-        case TIME2STATE: return VBasicDTypeKwd{TIME}.ascii();
-        default: return ascii();
+    ಧ್ರುವ ವರ್ಣ* typeName() ಧ್ರುವ VL_MT_SAFE {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ LOGIC2STATE: ಪ್ರತ್ಯಾಗಮ VBasicDTypeKwd{LOGIC}.ascii();
+        ಪಕ್ಷ INTEGER2STATE: ಪ್ರತ್ಯಾಗಮ VBasicDTypeKwd{INTEGER}.ascii();
+        ಪಕ್ಷ TIME2STATE: ಪ್ರತ್ಯಾಗಮ VBasicDTypeKwd{TIME}.ascii();
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ ascii();
         }
     }
-    const char* dpiType() const {
-        static constexpr const char* const names[] = {"%E-unk",
+    ಧ್ರುವ ವರ್ಣ* dpiType() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"%E-unk",
                                                       "svBit",
                                                       "char",
                                                       "void*",
@@ -614,9 +614,9 @@ public:
                                                       "QData",
                                                       "%E-logic-implct",
                                                       " MAX"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    static void selfTest() {
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest() {
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
                 "SelfTest: Enum mismatch");
         UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.dpiType(), " MAX"),
@@ -625,126 +625,126 @@ public:
     VBasicDTypeKwd() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBasicDTypeKwd(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VBasicDTypeKwd(int _e) VL_MT_SAFE  //
+    explicit VBasicDTypeKwd(ಪೂರ್ಣಾಙ್ಕ _e) VL_MT_SAFE  //
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    int width() const {
-        switch (m_e) {
-        case BIT: return 1;  // scalar, can't bit extract unless ranged
-        case BYTE: return 8;
-        case CHANDLE: return 64;
-        case NULLTYPE: return 1;  // Historical - bit was used instead of NULLTYPE
-        case EVENT: return 1;
-        case INT: return 32;
-        case INTEGER: return 32;
-        case INTEGER2STATE: return 32;
-        case LOGIC: return 1;  // scalar, can't bit extract unless ranged
-        case LOGIC2STATE: return 1;  // scalar, can't bit extract unless ranged
-        case LONGINT: return 64;
-        case DOUBLE: return 64;  // opaque
-        case SHORTINT: return 16;
-        case TIME: return 64;
-        case TIME2STATE: return 64;
-        case STRING: return 64;  // opaque  // Just the pointer, for today
-        case SCOPEPTR: return 0;  // opaque
-        case CHARPTR: return 0;  // opaque
-        case MTASKSTATE: return 0;  // opaque
-        case DELAY_SCHEDULER: return 0;  // opaque
-        case TRIGGER_SCHEDULER: return 0;  // opaque
-        case DYNAMIC_TRIGGER_SCHEDULER: return 0;  // opaque
-        case FORK_SYNC: return 0;  // opaque
-        case PROCESS_REFERENCE: return 0;  // opaque
-        case RANDOM_GENERATOR: return 0;  // opaque
-        case RANDOM_STDGENERATOR: return 0;  // opaque
-        case COVERGROUP_INSTHANDLE: return 0;  // opaque
-        case UINT32: return 32;
-        case UINT64: return 64;
-        default: return 0;
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಪೂರ್ಣಾಙ್ಕ width() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ BIT: ಪ್ರತ್ಯಾಗಮ 1;  // scalar, can't bit extract unless ranged
+        ಪಕ್ಷ BYTE: ಪ್ರತ್ಯಾಗಮ 8;
+        ಪಕ್ಷ CHANDLE: ಪ್ರತ್ಯಾಗಮ 64;
+        ಪಕ್ಷ NULLTYPE: ಪ್ರತ್ಯಾಗಮ 1;  // Historical - bit was used instead of NULLTYPE
+        ಪಕ್ಷ EVENT: ಪ್ರತ್ಯಾಗಮ 1;
+        ಪಕ್ಷ INT: ಪ್ರತ್ಯಾಗಮ 32;
+        ಪಕ್ಷ INTEGER: ಪ್ರತ್ಯಾಗಮ 32;
+        ಪಕ್ಷ INTEGER2STATE: ಪ್ರತ್ಯಾಗಮ 32;
+        ಪಕ್ಷ LOGIC: ಪ್ರತ್ಯಾಗಮ 1;  // scalar, can't bit extract unless ranged
+        ಪಕ್ಷ LOGIC2STATE: ಪ್ರತ್ಯಾಗಮ 1;  // scalar, can't bit extract unless ranged
+        ಪಕ್ಷ LONGINT: ಪ್ರತ್ಯಾಗಮ 64;
+        ಪಕ್ಷ DOUBLE: ಪ್ರತ್ಯಾಗಮ 64;  // opaque
+        ಪಕ್ಷ SHORTINT: ಪ್ರತ್ಯಾಗಮ 16;
+        ಪಕ್ಷ TIME: ಪ್ರತ್ಯಾಗಮ 64;
+        ಪಕ್ಷ TIME2STATE: ಪ್ರತ್ಯಾಗಮ 64;
+        ಪಕ್ಷ STRING: ಪ್ರತ್ಯಾಗಮ 64;  // opaque  // Just the pointer, for today
+        ಪಕ್ಷ SCOPEPTR: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ CHARPTR: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ MTASKSTATE: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ DELAY_SCHEDULER: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ TRIGGER_SCHEDULER: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ DYNAMIC_TRIGGER_SCHEDULER: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ FORK_SYNC: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ PROCESS_REFERENCE: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ RANDOM_GENERATOR: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ RANDOM_STDGENERATOR: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ COVERGROUP_INSTHANDLE: ಪ್ರತ್ಯಾಗಮ 0;  // opaque
+        ಪಕ್ಷ UINT32: ಪ್ರತ್ಯಾಗಮ 32;
+        ಪಕ್ಷ UINT64: ಪ್ರತ್ಯಾಗಮ 64;
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ 0;
         }
     }
-    bool isSigned() const {
-        return m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isSigned() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                || m_e == INTEGER2STATE || m_e == DOUBLE;
     }
-    bool isUnsigned() const {
-        return m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isUnsigned() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                || m_e == UINT32 || m_e == UINT64 || m_e == BIT || m_e == LOGIC
                || m_e == LOGIC2STATE || m_e == TIME || m_e == TIME2STATE;
     }
-    bool isFourstate() const {
-        return m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
+    bool isFourstate() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
     }
-    bool isZeroInit() const {  // Otherwise initializes to X
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
+    bool isZeroInit() ಧ್ರುವ {  // Otherwise initializes to X
+        ಪ್ರತ್ಯಾಗಮ (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
                 || m_e == INT || m_e == LONGINT || m_e == SHORTINT || m_e == STRING
                 || m_e == DOUBLE);
     }
-    bool isIntNumeric() const {  // Enum increment supported
-        return (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
+    bool isIntNumeric() ಧ್ರುವ {  // Enum increment supported
+        ಪ್ರತ್ಯಾಗಮ (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
                 || m_e == LOGIC || m_e == LOGIC2STATE || m_e == LONGINT || m_e == SHORTINT
                 || m_e == UINT32 || m_e == UINT64 || m_e == TIME || m_e == TIME2STATE);
     }
-    bool isBit() const { return m_e == BIT; }
-    bool isBitLogic() const {  // Bit/logic vector types; can form a packed array
-        return (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
+    bool isBit() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == BIT; }
+    bool isBitLogic() ಧ್ರುವ {  // Bit/logic vector types; can form a packed array
+        ಪ್ರತ್ಯಾಗಮ (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
     }
-    bool isDpiUnsignable() const {  // Can add "unsigned" to DPI
-        return (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isDpiUnsignable() ಧ್ರುವ {  // Can add "unsigned" to DPI
+        ಪ್ರತ್ಯಾಗಮ (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                 || m_e == INTEGER2STATE);
     }
-    bool isDpiCLayout() const {  // Uses standard C layout, for DPI runtime access
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
+    bool isDpiCLayout() ಧ್ರುವ {  // Uses standard C layout, for DPI runtime access
+        ಪ್ರತ್ಯಾಗಮ (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
                 || m_e == DOUBLE || m_e == SHORTINT || m_e == UINT32 || m_e == UINT64);
     }
-    bool isOpaque() const VL_MT_SAFE {  // IE not a simple number we can bit optimize
-        return (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isOpaque() ಧ್ರುವ VL_MT_SAFE {  // IE not a simple number we can bit optimize
+        ಪ್ರತ್ಯಾಗಮ (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                 || m_e == MTASKSTATE || m_e == DELAY_SCHEDULER || m_e == TRIGGER_SCHEDULER
                 || m_e == DYNAMIC_TRIGGER_SCHEDULER || m_e == FORK_SYNC || m_e == PROCESS_REFERENCE
                 || m_e == RANDOM_GENERATOR || m_e == RANDOM_STDGENERATOR
                 || m_e == COVERGROUP_INSTHANDLE || m_e == DOUBLE || m_e == UNTYPED);
     }
-    bool isCHandle() const VL_MT_SAFE { return m_e == CHANDLE; }
-    bool isDouble() const VL_MT_SAFE { return m_e == DOUBLE; }
-    bool isEvent() const { return m_e == EVENT; }
-    bool isString() const VL_MT_SAFE { return m_e == STRING; }
-    bool isMTaskState() const VL_MT_SAFE { return m_e == MTASKSTATE; }
-    bool isSameish(const VBasicDTypeKwd& other) const VL_MT_SAFE {
-        switch (other.m_e) {
-        case LOGIC:
-        case LOGIC2STATE:
-        case LOGIC_IMPLICIT: return m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
-        case INTEGER:
-        case INTEGER2STATE: return m_e == INTEGER || m_e == INTEGER2STATE;
-        case TIME:
-        case TIME2STATE: return m_e == TIME || m_e == TIME2STATE;
-        default: return m_e == other.m_e;
+    bool isCHandle() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == CHANDLE; }
+    bool isDouble() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == DOUBLE; }
+    bool isEvent() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == EVENT; }
+    bool isString() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == STRING; }
+    bool isMTaskState() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == MTASKSTATE; }
+    bool isSameish(ಧ್ರುವ VBasicDTypeKwd& other) ಧ್ರುವ VL_MT_SAFE {
+        ವಿಕಲ್ಪ (other.m_e) {
+        ಪಕ್ಷ LOGIC:
+        ಪಕ್ಷ LOGIC2STATE:
+        ಪಕ್ಷ LOGIC_IMPLICIT: ಪ್ರತ್ಯಾಗಮ m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
+        ಪಕ್ಷ INTEGER:
+        ಪಕ್ಷ INTEGER2STATE: ಪ್ರತ್ಯಾಗಮ m_e == INTEGER || m_e == INTEGER2STATE;
+        ಪಕ್ಷ TIME:
+        ಪಕ್ಷ TIME2STATE: ಪ್ರತ್ಯಾಗಮ m_e == TIME || m_e == TIME2STATE;
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ m_e == other.m_e;
         }
     }
     // Does this represent a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_SAFE {
-        switch (m_e) {
-        case BIT:
-        case BYTE:
-        case CHANDLE:
-        case INT:
-        case INTEGER:
-        case INTEGER2STATE:
-        case LOGIC:
-        case LOGIC2STATE:
-        case LONGINT:
-        case DOUBLE:
-        case SHORTINT:
-        case SCOPEPTR:
-        case CHARPTR:
-        case UINT32:
-        case UINT64: return true;
-        default: return false;
+    bool isLiteralType() ಧ್ರುವ VL_MT_SAFE {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ BIT:
+        ಪಕ್ಷ BYTE:
+        ಪಕ್ಷ CHANDLE:
+        ಪಕ್ಷ INT:
+        ಪಕ್ಷ INTEGER:
+        ಪಕ್ಷ INTEGER2STATE:
+        ಪಕ್ಷ LOGIC:
+        ಪಕ್ಷ LOGIC2STATE:
+        ಪಕ್ಷ LONGINT:
+        ಪಕ್ಷ DOUBLE:
+        ಪಕ್ಷ SHORTINT:
+        ಪಕ್ಷ SCOPEPTR:
+        ಪಕ್ಷ CHARPTR:
+        ಪಕ್ಷ UINT32:
+        ಪಕ್ಷ UINT64: ಪ್ರತ್ಯಾಗಮ true;
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ false;
         }
     }
 
-    const char* traceSigType() const {
+    ಧ್ರುವ ವರ್ಣ* traceSigType() ಧ್ರುವ {
         // VerilatedTraceSigType to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ lut[] = {
             /* UNKNOWN:                   */ "",  // Should not be traced
             /* BIT:                       */ "BIT",
             /* BYTE:                      */ "BYTE",
@@ -779,95 +779,95 @@ public:
             /* UINT64:                    */ "BIT",
             /* LOGIC_IMPLICIT:            */ "",  // Should not be traced
         };
-        static_assert(sizeof(lut) / sizeof(lut[0]) == _ENUM_MAX, "Missing trace signal type");
-        return lut[m_e];
+        static_assert(ಪರಿಮಾಣ(lut) / ಪರಿಮಾಣ(lut[0]) == _ENUM_MAX, "Missing trace signal type");
+        ಪ್ರತ್ಯಾಗಮ lut[m_e];
     }
 };
-constexpr bool operator==(const VBasicDTypeKwd& lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VBasicDTypeKwd& lhs, ಧ್ರುವ VBasicDTypeKwd& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VBasicDTypeKwd::en lhs, ಧ್ರುವ VBasicDTypeKwd& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 /// Boolean or unknown
 class VBoolOrUnknown final {
-public:
-    enum en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
+    ಗಣನಾ en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBoolOrUnknown()
         : m_e{BU_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBoolOrUnknown(en _e)
         : m_e{_e} {}
-    explicit VBoolOrUnknown(int _e)
+    explicit VBoolOrUnknown(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FALSE", "TRUE", "UNK"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"FALSE", "TRUE", "UNK"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool isKnown() const { return m_e != BU_UNKNOWN; }
-    bool trueKnown() const { return m_e == BU_TRUE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
+    bool isKnown() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != BU_UNKNOWN; }
+    bool trueKnown() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == BU_TRUE; }
+    ಶೂನ್ಯ setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
 };
-constexpr bool operator==(const VBoolOrUnknown& lhs, const VBoolOrUnknown& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VBoolOrUnknown& lhs, ಧ್ರುವ VBoolOrUnknown& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VBoolOrUnknown::en lhs, const VBoolOrUnknown& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VBoolOrUnknown::en lhs, ಧ್ರುವ VBoolOrUnknown& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VBoolOrUnknown& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VBranchPred final {
-public:
-    enum en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
+    ಗಣನಾ en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBranchPred()
         : m_e{BP_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBranchPred(en _e)
         : m_e{_e} {}
-    explicit VBranchPred(int _e)
+    explicit VBranchPred(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool unknown() const { return m_e == BP_UNKNOWN; }
-    bool likely() const { return m_e == BP_LIKELY; }
-    bool unlikely() const { return m_e == BP_UNLIKELY; }
-    VBranchPred invert() const {
-        if (m_e == BP_UNLIKELY) return BP_LIKELY;
-        if (m_e == BP_LIKELY) return BP_UNLIKELY;
-        return m_e;
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool unknown() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == BP_UNKNOWN; }
+    bool likely() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == BP_LIKELY; }
+    bool unlikely() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == BP_UNLIKELY; }
+    VBranchPred invert() ಧ್ರುವ {
+        ಯದಿ (m_e == BP_UNLIKELY) ಪ್ರತ್ಯಾಗಮ BP_LIKELY;
+        ಯದಿ (m_e == BP_LIKELY) ಪ್ರತ್ಯಾಗಮ BP_UNLIKELY;
+        ಪ್ರತ್ಯಾಗಮ m_e;
     }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* asciiShort() const {
-        static constexpr const char* const names[] = {"", "L", "!L"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* asciiShort() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"", "L", "!L"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VBranchPred& lhs, const VBranchPred& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VBranchPred& lhs, ಧ್ರುವ VBranchPred& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VBranchPred& lhs, VBranchPred::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VBranchPred::en lhs, ಧ್ರುವ VBranchPred& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VBranchPred& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -875,18 +875,18 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+ಸ್ಥಿರ constexpr bool validateArgsDescriptor(ಧ್ರುವ ವರ್ಣ* descrp) {
     // Is "TODO"
-    if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
+    ಯದಿ (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
-        return true;
+        ಪ್ರತ್ಯಾಗಮ true;
     }
     // Is a sequence of 'r'/'w'/'m' with an optional trailing '+'
-    for (const char* cp = descrp; *cp; ++cp) {
-        if (*cp == '+') return cp != descrp && !cp[1];
-        if (*cp != 'r' && *cp != 'w' && *cp != 'm') return false;
+    ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ* cp = descrp; *cp; ++cp) {
+        ಯದಿ (*cp == '+') ಪ್ರತ್ಯಾಗಮ cp != descrp && !cp[1];
+        ಯದಿ (*cp != 'r' && *cp != 'w' && *cp != 'm') ಪ್ರತ್ಯಾಗಮ false;
     }
-    return true;
+    ಪ್ರತ್ಯಾಗಮ true;
 }
 // LCOV_EXCL_STOP
 };  //namespace
@@ -921,11 +921,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(ARRAY_MAX,                          "max",                    PURE,   CLEAN,  "") \
     macro(ARRAY_MIN,                          "min",                    PURE,   CLEAN,  "") \
     macro(ARRAY_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ARRAY_POP_BACK,                     "pop_back",               false,  CLEAN,  "") \
-    macro(ARRAY_POP_FRONT,                    "pop_front",              false,  CLEAN,  "") \
+    macro(ARRAY_ತೆಗೆ_BACK,                     "pop_back",               false,  CLEAN,  "") \
+    macro(ARRAY_ತೆಗೆ_FRONT,                    "pop_front",              false,  CLEAN,  "") \
     macro(ARRAY_PREV,                         "prev",                   false,  CLEAN,  "m") \
-    macro(ARRAY_PUSH_BACK,                    "push_back",              false,  CLEAN,  "r") \
-    macro(ARRAY_PUSH_FRONT,                   "push_front",             false,  CLEAN,  "r") \
+    macro(ARRAY_ತಳ್ಳು_BACK,                    "push_back",              false,  CLEAN,  "r") \
+    macro(ARRAY_ತಳ್ಳು_FRONT,                   "push_front",             false,  CLEAN,  "r") \
     macro(ARRAY_REVERSE,                      "reverse",                false,  CLEAN,  "") \
     macro(ARRAY_RSORT,                        "rsort",                  false,  CLEAN,  "") \
     macro(ARRAY_R_AND,                        "r_and",                  PURE,   CLEAN,  "") \
@@ -958,8 +958,8 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_CROSS_WITH_BEGIN,        "withBegin",              false,  CLEAN,  "r+") \
     macro(COVERGROUP_CROSS_WITH_END,          "withEnd",                false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_TEST,         "withTest",               false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE,        "withValue",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE_W,      "withValueW",             false,  CLEAN,  "rw") \
+    macro(COVERGROUP_CROSS_WITH_ಮೌಲ್ಯ,        "withValue",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_CROSS_WITH_ಮೌಲ್ಯ_W,      "withValueW",             false,  CLEAN,  "rw") \
     macro(COVERGROUP_FINALIZE_BINS,           "finalizeBins",           false,  CLEAN,  "") \
     macro(COVERGROUP_INCREMENT_BIN,           "incrementBin",           false,  CLEAN,  "r") \
     macro(COVERGROUP_INIT,                    "init",                   false,  CLEAN,  "r+") \
@@ -986,15 +986,15 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_SIZED_SAMPLE_W,          "sizedSampleW",           false,  CLEAN,  "rrr") \
     macro(COVERGROUP_TYPE_COVERAGE,           "typeCoverage",           false,  CLEAN,  "rrrr") \
     macro(COVERGROUP_TYPE_WEIGHT,             "typeWeight",             false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TYPE,              "valueType",              false,  CLEAN,  "rr") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
+    macro(COVERGROUP_ಮೌಲ್ಯ_TYPE,              "valueType",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WEIGHT,                  "weight",                 false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_BEGIN,              "withBegin",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_FINISH,             "withFinish",             false,  CLEAN,  "r+") \
@@ -1009,11 +1009,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(DYN_AT_WRITE_APPEND_BACK,           "atWriteAppendBack",      false,  CLEAN,  "r") \
     macro(DYN_CLEAR,                          "clear",                  false,  CLEAN,  "") \
     macro(DYN_ERASE,                          "erase",                  false,  CLEAN,  "r") \
-    macro(DYN_INSERT,                         "insert",                 false,  CLEAN,  "rr") \
-    macro(DYN_POP,                            "pop",                    false,  CLEAN,  "rrm") \
-    macro(DYN_POP_FRONT,                      "pop_front",              false,  CLEAN,  "") \
-    macro(DYN_PUSH,                           "push",                   false,  CLEAN,  "rr") \
-    macro(DYN_PUSH_FRONT,                     "push_front",             false,  CLEAN,  "r") \
+    macro(DYN_ಸೇರಿಸು,                         "insert",                 false,  CLEAN,  "rr") \
+    macro(DYN_ತೆಗೆ,                            "pop",                    false,  CLEAN,  "rrm") \
+    macro(DYN_ತೆಗೆ_FRONT,                      "pop_front",              false,  CLEAN,  "") \
+    macro(DYN_ತಳ್ಳು,                           "push",                   false,  CLEAN,  "rr") \
+    macro(DYN_ತಳ್ಳು_FRONT,                     "push_front",             false,  CLEAN,  "r") \
     macro(DYN_RENEW,                          "renew",                  false,  CLEAN,  "r") \
     macro(DYN_RENEW_COPY,                     "renew_copy",             false,  CLEAN,  "rr") \
     macro(DYN_RESIZE,                         "resize",                 false,  CLEAN,  "TODO") \
@@ -1080,69 +1080,69 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
 // clang-format on
 
 class VCMethod final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
-    static constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
+    ಸ್ಥಿರ constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    ಸ್ಥಿರ constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
 
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
 #define VL_CMETHOD_ID(id, method, pure, clean, args) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
 #undef VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VCMethod()
         : m_e{_NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCMethod(en _e)
         : m_e{_e} {}
-    explicit VCMethod(int _e)
+    explicit VCMethod(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ ಮೌಲ್ಯಗಳು[] = {
 #define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
 #undef VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool isPure() const VL_PURE {
-        static constexpr bool values[] = {
+    bool isPure() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_CMETHOD_PURE(id, method, pure, clean, args) pure,
             FOR_EACH_CMETHOD(VL_CMETHOD_PURE)
 #undef VL_CMETHOD_PURE
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool isClean() const VL_PURE {
-        static constexpr bool values[] = {
+    bool isClean() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_CMETHOD_CLEAN(id, method, pure, clean, args) clean,
             FOR_EACH_CMETHOD(VL_CMETHOD_CLEAN)
 #undef VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
+    ಧ್ರುವ ವರ್ಣ* args() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ ಮೌಲ್ಯಗಳು[] = {
 #define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
             FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
 #undef VL_CMETHOD_ARGS
                 ""  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
     // Return array method for given name
-    static VCMethod arrayMethod(const string& name);
+    ಸ್ಥಿರ VCMethod arrayMethod(ಧ್ರುವ string& name);
 };
-constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VCMethod& lhs, ಧ್ರುವ VCMethod& rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VCMethod& lhs, VCMethod::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VCMethod::en lhs, ಧ್ರುವ VCMethod& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VCMethod& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // Static assert all argument descriptors are well formed
@@ -1161,45 +1161,45 @@ FOR_EACH_CMETHOD(VL_CMETHOD_ARGS_CHECK)
 // clang-format on
 
 class VCFunction final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    ಸ್ಥಿರ constexpr bool PURE = true;  // For macro expansion of 'pure' field only
 
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
 #define VL_CFUNCTION_ID(id, method, pure, args) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
 #undef VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCFunction(en _e)
         : m_e{_e} {}
-    const char* ascii() const VL_PURE {
-        static const char* const values[] = {
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ ಮೌಲ್ಯಗಳು[] = {
 #define VL_CFUNCTION_NAME(id, function, pure, args) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
 #undef VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool isPure() const VL_PURE {
-        static const bool values[] = {
+    bool isPure() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ ಧ್ರುವ bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_CFUNCTION_PURE(id, method, pure, args) pure,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_PURE)
 #undef VL_CFUNCTION_PURE
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
+    ಧ್ರುವ ವರ್ಣ* args() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ ಮೌಲ್ಯಗಳು[] = {
 #define VL_CFUNCTION_ARGS(id, method, pure, args) args,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
 #undef VL_CFUNCTION_ARGS
                 ""  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
 };
 
@@ -1214,50 +1214,50 @@ FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
 // ######################################################################
 
 class VCStmtType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         NONE,  // Unknown or not applicable
         CTOR_VAR_RESET_CALL,
         _ENUM_MAX  // Leave last
     };
 
-private:
-    struct Item final {
-        enum en m_e;  // Statement's enum mnemonic, for checking
-        const char* m_name;  // Statements name, for debugging
+ಗುಪ್ತ:
+    ಸಂರಚನಾ Item final {
+        ಗಣನಾ en m_e;  // Statement's enum mnemonic, for checking
+        ಧ್ರುವ ವರ್ಣ* m_name;  // Statements name, for debugging
     };
-    static Item s_itemData[];
+    ಸ್ಥಿರ Item s_itemData[];
 
-public:
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en m_e;
     VCStmtType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCStmtType(en _e)
         : m_e{_e} {}
-    explicit VCStmtType(int _e)
+    explicit VCStmtType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[] = {"none", "ctor_var_reset_call"};
-        return names[m_e];
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"none", "ctor_var_reset_call"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == NONE; }
 };
-constexpr bool operator==(const VCStmtType& lhs, const VCStmtType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VCStmtType& lhs, ಧ್ರುವ VCStmtType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VCStmtType& lhs, VCStmtType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VCStmtType::en lhs, ಧ್ರುವ VCStmtType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VCStmtType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VCaseType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         CT_CASE,
         CT_CASEX,
         CT_CASEZ,
@@ -1265,32 +1265,32 @@ public:
         CT_CASEMATCHES,
         CT_RANDSEQUENCE
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VCaseType()
         : m_e{CT_CASE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCaseType(en _e)
         : m_e{_e} {}
-    explicit VCaseType(int _e)
+    explicit VCaseType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ VL_PURE {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"CASE", "CASEX", "CASEZ", "CASEINSIDE", "CASEMATCHES", "RANDSEQUENCE"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VCaseType& lhs, const VCaseType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VCaseType& lhs, ಧ್ರುವ VCaseType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VCaseType& lhs, VCaseType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VCaseType::en lhs, ಧ್ರುವ VCaseType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VCastable final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         UNSUPPORTED,
         SAMEISH,
         COMPATIBLE,
@@ -1300,37 +1300,37 @@ public:
         INCOMPATIBLE,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"UNSUPPORTED",   "SAMEISH",       "COMPATIBLE",  "ENUM_IMPLICIT",
                "ENUM_EXPLICIT", "DYNAMIC_CLASS", "INCOMPATIBLE"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool isAssignable() const { return m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
+    bool isAssignable() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
     VCastable()
         : m_e{UNSUPPORTED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCastable(en _e)
         : m_e{_e} {}
-    explicit VCastable(int _e)
+    explicit VCastable(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VCastable& lhs, const VCastable& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VCastable& lhs, ಧ್ರುವ VCastable& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VCastable& lhs, VCastable::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VCastable::en lhs, ಧ್ರುವ VCastable& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VCastable& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VCoverBinsType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         BINS_ARRAY,  // Array of bins with user-speciifed size
         BINS_AUTO,  // Automatic bins of a 'bins auto[N]' declaration
         BINS_AUTO_IMPLICIT,  // Automatic bins of a coverpoint without bins (IEEE 1800-2023 19.5.3)
@@ -1341,48 +1341,48 @@ public:
         BINS_USER,  // Single bin with one or more values/ranges
         BINS_WILDCARD  // Wildcard bin
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VCoverBinsType()  // LCOV_EXCL_START
         : m_e{BINS_USER} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverBinsType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }  // LCOV_EXCL_LINE
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"array",        "auto",       "auto_implicit", "default", "ignore_bins",
                "illegal_bins", "transition", "bins",          "wildcard"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // Keyword declaring the bins, without any 'wildcard' prefix
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    ಧ್ರುವ ವರ್ಣ* verilogKwd() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {
             "bins", "bins", "bins", "bins", "ignore_bins", "illegal_bins", "bins", "bins", "bins"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // VlCovBinKind enumerator naming the bin's set
-    const char* binSetEnum() const {
-        switch (m_e) {
-        case BINS_IGNORE: return "VlCovBinKind::KIND_IGNORE";
-        case BINS_ILLEGAL: return "VlCovBinKind::KIND_ILLEGAL";
-        case BINS_DEFAULT: return "VlCovBinKind::KIND_DEFAULT";
-        default: return "VlCovBinKind::KIND_NORMAL";
+    ಧ್ರುವ ವರ್ಣ* binSetEnum() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ BINS_IGNORE: ಪ್ರತ್ಯಾಗಮ "VlCovBinKind::KIND_IGNORE";
+        ಪಕ್ಷ BINS_ILLEGAL: ಪ್ರತ್ಯಾಗಮ "VlCovBinKind::KIND_ILLEGAL";
+        ಪಕ್ಷ BINS_DEFAULT: ಪ್ರತ್ಯಾಗಮ "VlCovBinKind::KIND_DEFAULT";
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ "VlCovBinKind::KIND_NORMAL";
         }
     }
     // Normal bins (feed coverage) are anything but ignore/illegal/default
-    bool binIsNormal() const {
-        return m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
+    bool binIsNormal() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
     }
 };
-constexpr bool operator==(const VCoverBinsType& lhs, VCoverBinsType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VCoverBinsType& lhs, VCoverBinsType::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VCoverOptionType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         // Shared by option.* and type_option.*
         WEIGHT,
         GOAL,
@@ -1392,7 +1392,7 @@ public:
         COMMENT,
         // option.* only (IEEE 1800-2023 Table 19-1)
         NAME,
-        CROSS_NUM_PRINT_MISSING,
+        CROSS_ಅಂಕೆ_PRINT_MISSING,
         CROSS_RETAIN_AUTO_BINS,
         DETECT_OVERLAP,
         GET_INST_COVERAGE,
@@ -1406,12 +1406,12 @@ public:
         // sentinel - should never appear after parse-time validation
         UNKNOWN
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverOptionType(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"weight",
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"weight",
                                                       "goal",
                                                       "at_least",
                                                       "auto_bin_max",
@@ -1428,120 +1428,120 @@ public:
                                                       "real_interval",
                                                       "cross_auto_bin_max",
                                                       "unknown"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VCoverOptionType& lhs, VCoverOptionType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VCoverOptionType& lhs, VCoverOptionType::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VTransRepType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         NONE,  // No repetition
         CONSEC,  // Consecutive repetition [*]
         GOTO,  // Goto repetition [->]
         NONCONS  // Nonconsecutive repetition [=]
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VTransRepType()  // LCOV_EXCL_START
         : m_e{NONE} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VTransRepType(en _e)
         : m_e{_e} {}
-    explicit VTransRepType(int _e)  // LCOV_EXCL_START
+    explicit VTransRepType(ಪೂರ್ಣಾಙ್ಕ _e)  // LCOV_EXCL_START
         : m_e(static_cast<en>(_e)) {}  // LCOV_EXCL_STOP  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "[*]", "[->]", "[=]"};
-        return names[m_e];
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }  // LCOV_EXCL_LINE
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"", "[*]", "[->]", "[=]"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* asciiJson() const {
-        static constexpr const char* const names[]
+    ಧ್ರುವ ವರ್ಣ* asciiJson() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"\"none\"", "\"consec\"", "\"goto\"", "\"noncons\""};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
 
 //######################################################################
 
 class VDirection final {
-public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { NONE, ಒಳಹರಿವು, OUTPUT, INOUT, REF, CONSTREF };
+    ಗಣನಾ en m_e;
     VDirection()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDirection(en _e)
         : m_e{_e} {}
-    explicit VDirection(int _e)
+    explicit VDirection(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"NONE", "INPUT", "OUTPUT", "INOUT", "REF", "CONSTREF"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    string verilogKwd() const {
-        static constexpr const char* const names[]
+    string verilogKwd() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"", "input", "output", "inout", "ref", "const ref"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    string prettyName() const { return verilogKwd(); }
-    bool isAny() const { return m_e != NONE; }
-    bool isInout() const { return m_e == INOUT; }
-    bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
-    bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+    string prettyName() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ verilogKwd(); }
+    bool isAny() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != NONE; }
+    bool isInout() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == INOUT; }
+    bool isInoutOrRef() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == INOUT || m_e == REF || m_e == CONSTREF; }
+    bool is_ಒಳಹರಿವು() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == ಒಳಹರಿವು; }
+    bool isNonOutput() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_e == ಒಳಹರಿವು || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
-    bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
-    bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
-    bool isRef() const VL_MT_SAFE { return m_e == REF; }
-    bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
-    string traceSigDirection() const {
-        if (isInout()) {
-            return "VerilatedTraceSigDirection::INOUT";
-        } else if (isWritable()) {
-            return "VerilatedTraceSigDirection::OUTPUT";
-        } else if (isNonOutput()) {
-            return "VerilatedTraceSigDirection::INPUT";
+    bool isOutput() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == OUTPUT; }
+    bool isReadOnly() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == ಒಳಹರಿವು || m_e == CONSTREF; }
+    bool isWritable() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == OUTPUT || m_e == INOUT || m_e == REF; }
+    bool isRef() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == REF; }
+    bool isConstRef() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == CONSTREF; }
+    string traceSigDirection() ಧ್ರುವ {
+        ಯದಿ (isInout()) {
+            ಪ್ರತ್ಯಾಗಮ "VerilatedTraceSigDirection::INOUT";
+        } ಅನ್ಯಥಾ ಯದಿ (isWritable()) {
+            ಪ್ರತ್ಯಾಗಮ "VerilatedTraceSigDirection::OUTPUT";
+        } ಅನ್ಯಥಾ ಯದಿ (isNonOutput()) {
+            ಪ್ರತ್ಯಾಗಮ "VerilatedTraceSigDirection::INPUT";
         }
-        return "VerilatedTraceSigDirection::NONE";
+        ಪ್ರತ್ಯಾಗಮ "VerilatedTraceSigDirection::NONE";
     }
-    VAccess pinAccess() const {
-        switch (m_e) {
-        case NONE: return VAccess::NOCHANGE;
-        case INPUT:
-        case CONSTREF: return VAccess::READ;
-        case OUTPUT: return VAccess::WRITE;
-        case INOUT:
-        case REF: return VAccess::READWRITE;
+    VAccess pinAccess() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ NONE: ಪ್ರತ್ಯಾಗಮ VAccess::NOCHANGE;
+        ಪಕ್ಷ ಒಳಹರಿವು:
+        ಪಕ್ಷ CONSTREF: ಪ್ರತ್ಯಾಗಮ VAccess::READ;
+        ಪಕ್ಷ OUTPUT: ಪ್ರತ್ಯಾಗಮ VAccess::WRITE;
+        ಪಕ್ಷ INOUT:
+        ಪಕ್ಷ REF: ಪ್ರತ್ಯಾಗಮ VAccess::READWRITE;
         }
         v3fatalSrc("Unhandled VDirection");
     }
 };
-constexpr bool operator==(const VDirection& lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VDirection& lhs, ಧ್ರುವ VDirection& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VDirection::en lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VDirection::en lhs, ಧ್ರುವ VDirection& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VDirection& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VDisplayType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         DT_DISPLAY,
         DT_WRITE,
         DT_MONITOR,
@@ -1551,62 +1551,62 @@ public:
         DT_WARNING,
         DT_FATAL
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VDisplayType()
         : m_e{DT_DISPLAY} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDisplayType(en _e)
         : m_e{_e} {}
-    explicit VDisplayType(int _e)
+    explicit VDisplayType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool addNewline() const { return m_e != DT_WRITE; }
-    bool needScopeTracking() const { return m_e != DT_DISPLAY && m_e != DT_WRITE; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool addNewline() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != DT_WRITE; }
+    bool needScopeTracking() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != DT_DISPLAY && m_e != DT_WRITE; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"display", "write", "monitor", "strobe", "info", "error", "warning", "fatal"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VDisplayType& lhs, const VDisplayType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VDisplayType& lhs, ಧ್ರುವ VDisplayType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VDisplayType& lhs, VDisplayType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VDisplayType::en lhs, ಧ್ರುವ VDisplayType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VDumpCtlType final {
-public:
-    enum en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
+    ಗಣನಾ en m_e;
     VDumpCtlType()
         : m_e{ON} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDumpCtlType(en _e)
         : m_e{_e} {}
-    explicit VDumpCtlType(int _e)
+    explicit VDumpCtlType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"$dumpfile",  "$dumpvars", "$dumpall", "$dumpflush",
                "$dumplimit", "$dumpoff",  "$dumpon"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VDumpCtlType& lhs, const VDumpCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VDumpCtlType& lhs, ಧ್ರುವ VDumpCtlType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VDumpCtlType& lhs, VDumpCtlType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VDumpCtlType::en lhs, ಧ್ರುವ VDumpCtlType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VEdgeType final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // REMEMBER to edit the strings below too
-    enum en : uint8_t {
+    ಗಣನಾ en : uint8_t {
         // These must be in general -> most specific order, as we sort by it
         // in V3Const::visit AstSenTree
         // Involving a variable
@@ -1627,9 +1627,9 @@ public:
         ET_FINAL,  // 'final' statements
         ET_NEVER  // Never occurs (optimized away)
     };
-    enum en m_e;
-    bool clockedStmt() const {
-        static constexpr bool clocked[] = {
+    ಗಣನಾ en m_e;
+    bool clockedStmt() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr bool clocked[] = {
             true,  // ET_CHANGED
             true,  // ET_BOTHEDGE
             true,  // ET_POSEDGE
@@ -1646,55 +1646,55 @@ public:
             false,  // ET_FINAL
             false,  // ET_NEVER
         };
-        return clocked[m_e];
+        ಪ್ರತ್ಯಾಗಮ clocked[m_e];
     }
-    bool anEdge() const { return m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
-    VEdgeType invert() const {
-        switch (m_e) {
-        case ET_CHANGED: return ET_CHANGED;
-        case ET_BOTHEDGE: return ET_BOTHEDGE;
-        case ET_POSEDGE: return ET_NEGEDGE;
-        case ET_NEGEDGE: return ET_POSEDGE;
-        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); return ET_NEGEDGE;
+    bool anEdge() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
+    VEdgeType invert() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ ET_CHANGED: ಪ್ರತ್ಯಾಗಮ ET_CHANGED;
+        ಪಕ್ಷ ET_BOTHEDGE: ಪ್ರತ್ಯಾಗಮ ET_BOTHEDGE;
+        ಪಕ್ಷ ET_POSEDGE: ಪ್ರತ್ಯಾಗಮ ET_NEGEDGE;
+        ಪಕ್ಷ ET_NEGEDGE: ಪ್ರತ್ಯಾಗಮ ET_POSEDGE;
+        ಸ್ವಭಾವ: UASSERT_STATIC(0, "Inverting bad edgeType()"); ಪ್ರತ್ಯಾಗಮ ET_NEGEDGE;
         }
     }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"CHANGED", "BOTH",       "POS",    "NEG",    "EVENT",   "TRUE",  "ET_INITIAL_NBA",
                "COMBO",   "COMBO_STAR", "HYBRID", "STATIC", "INITIAL", "FINAL", "NEVER"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    ಧ್ರುವ ವರ್ಣ* verilogKwd() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {
             "[changed]", "edge", "posedge",  "negedge",  "[event]",   "[true]",  "[initial_nba]",
             "*",         "*",    "[hybrid]", "[static]", "[initial]", "[final]", "[never]"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // Return true iff this and the other have mutually exclusive transitions
-    bool exclusiveEdge(const VEdgeType& other) const {
-        switch (m_e) {
-        case VEdgeType::ET_POSEDGE:
-            if (other.m_e == VEdgeType::ET_NEGEDGE) return true;
-            break;
-        case VEdgeType::ET_NEGEDGE:
-            if (other.m_e == VEdgeType::ET_POSEDGE) return true;
-            break;
-        default: break;
+    bool exclusiveEdge(ಧ್ರುವ VEdgeType& other) ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ VEdgeType::ET_POSEDGE:
+            ಯದಿ (other.m_e == VEdgeType::ET_NEGEDGE) ಪ್ರತ್ಯಾಗಮ true;
+            ಭಙ್ಗ;
+        ಪಕ್ಷ VEdgeType::ET_NEGEDGE:
+            ಯದಿ (other.m_e == VEdgeType::ET_POSEDGE) ಪ್ರತ್ಯಾಗಮ true;
+            ಭಙ್ಗ;
+        ಸ್ವಭಾವ: ಭಙ್ಗ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ false;
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VEdgeType(en _e)
         : m_e{_e} {}
-    explicit VEdgeType(int _e)
+    explicit VEdgeType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VEdgeType& lhs, const VEdgeType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VEdgeType& lhs, ಧ್ರುವ VEdgeType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VEdgeType& lhs, VEdgeType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VEdgeType::en lhs, ಧ್ರುವ VEdgeType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -1718,83 +1718,83 @@ constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs 
 // clang-format on
 
 class VEval final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
 #define VL_EVAL_ID(id, iterated, triggers, first, slow) id,
         FOR_EACH_EVAL(VL_EVAL_ID)
 #undef VL_EVAL_ID
             _ENUM_END
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
 
-    const char* ascii() const {
-        static constexpr const char* const values[] = {
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ ಮೌಲ್ಯಗಳು[] = {
 #define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
 #undef VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool isIterated() const {
-        static constexpr bool values[] = {
+    bool isIterated() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_EVAL_IS_ITERATED(id, iterated, triggers, first, slow) iterated,
             FOR_EACH_EVAL(VL_EVAL_IS_ITERATED)
 #undef VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool hasTriggers() const {
-        static constexpr bool values[] = {
+    bool hasTriggers() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, first, slow) triggers,
             FOR_EACH_EVAL(VL_EVAL_HAS_TRIGGERS)
 #undef VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool firstIteration() const {
-        static constexpr bool values[] = {
+    bool firstIteration() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_EVAL_FIRST(id, iterated, triggers, first, slow) first,
             FOR_EACH_EVAL(VL_EVAL_FIRST)
 #undef VL_EVAL_FIRST
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
-    bool slow() const {
-        static constexpr bool values[] = {
+    bool slow() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr bool ಮೌಲ್ಯಗಳು[] = {
 #define VL_EVAL_SLOW(id, iterated, triggers, first, slow) slow,
             FOR_EACH_EVAL(VL_EVAL_SLOW)
 #undef VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು[m_e];
     }
 
     // Short name
-    std::string tag() const { return VString::downcase(ascii()); }
+    std::string tag() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ VString::downcase(ascii()); }
     // Name of the generated entry point function
-    std::string funcName() const { return "_eval_" + tag(); }
+    std::string funcName() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ "_eval_" + tag(); }
     // Name of the VerilatedModel virtual method invoking the entry point
-    std::string evalMethod() const { return "eval" + capitalizedTag(); }
+    std::string evalMethod() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ "eval" + capitalizedTag(); }
     // Name of the function dumping the triggers of this region
-    std::string dumpTriggersFuncName() const { return "_eval_dump_triggers__" + tag(); }
+    std::string dumpTriggersFuncName() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ "_eval_dump_triggers__" + tag(); }
     // Name of the VerilatedModel virtual method dumping this region's triggers
-    std::string dumpTriggersMethod() const { return "dumpTriggers" + capitalizedTag(); }
+    std::string dumpTriggersMethod() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ "dumpTriggers" + capitalizedTag(); }
 
     // cppcheck-suppress noExplicitConstructor
     VEval(en _e)
         : m_e{_e} {}
-    explicit VEval(int _e)
+    explicit VEval(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}
-    operator en() const { return m_e; }
+    operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 
-private:
-    std::string capitalizedTag() const {
-        const std::string name = ascii();
-        return name.substr(0, 1) + VString::downcase(name.substr(1));
+ಗುಪ್ತ:
+    std::string capitalizedTag() ಧ್ರುವ {
+        ಧ್ರುವ std::string name = ascii();
+        ಪ್ರತ್ಯಾಗಮ name.substr(0, 1) + VString::downcase(name.substr(1));
     }
 };
 
@@ -1803,30 +1803,30 @@ private:
 // ######################################################################
 
 class VFwdType final {
-public:
-    enum en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"none", "enum", "struct", "union", "class", "interface class", "generic interface"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     VFwdType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFwdType(en _e)
         : m_e{_e} {}
-    explicit VFwdType(int _e)
+    explicit VFwdType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
     // Is a node type compatible with the declaration
-    bool isNodeCompatible(const AstNode* nodep) const;
+    bool is_ಗಂಟು_Compatible(ಧ್ರುವ Ast_ಗಂಟು* nodep) ಧ್ರುವ;
 };
-constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VFwdType& lhs, ಧ್ರುವ VFwdType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VFwdType& lhs, VFwdType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VFwdType::en lhs, ಧ್ರುವ VFwdType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VFwdType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1837,23 +1837,23 @@ class VIsCached final {
     // else if cachedCnt == s_cachedCntGbl, then m_state is if cached
     uint64_t m_cachedCnt : 63;  // Mark of when cache was computed
     uint64_t m_state : 1;
-    static uint64_t s_cachedCntGbl;  // Global computed count
+    ಸ್ಥಿರ uint64_t s_cachedCntGbl;  // Global computed count
 
-public:
+ಸಾರ್ವಜನಿಕ:
     VIsCached()
         : m_cachedCnt{0}
         , m_state{0} {}
-    bool isCached() const { return m_cachedCnt == s_cachedCntGbl; }
-    bool get() const { return m_state; }
-    void set(bool flag) {
+    bool isCached() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_cachedCnt == s_cachedCntGbl; }
+    bool get() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_state; }
+    ಶೂನ್ಯ set(bool flag) {
         m_cachedCnt = s_cachedCntGbl;
         m_state = flag;
     }
-    void clearCache() {
+    ಶೂನ್ಯ clearCache() {
         m_cachedCnt = 0;
         m_state = 0;
     }
-    static void clearCacheTree() {
+    ಸ್ಥಿರ ಶೂನ್ಯ clear_Cache_ವೃಕ್ಷ() {
         ++s_cachedCntGbl;
         // 64 bits so won't overflow
         // UASSERT_STATIC(s_cachedCntGbl < MAX_CNT, "Overflow of cache counting");
@@ -1864,83 +1864,83 @@ public:
 
 /// Join type
 class VJoinType final {
-public:
-    enum en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
+    ಗಣನಾ en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VJoinType()
         : m_e{JOIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VJoinType(en _e)
         : m_e{_e} {}
-    explicit VJoinType(int _e)
+    explicit VJoinType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
-        return names[m_e];
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {"join", "join_any", "join_none"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* verilogKwd() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"join", "join_any", "join_none"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool join() const { return m_e == JOIN; }
-    bool joinAny() const { return m_e == JOIN_ANY; }
-    bool joinNone() const { return m_e == JOIN_NONE; }
+    bool join() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == JOIN; }
+    bool joinAny() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == JOIN_ANY; }
+    bool joinNone() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == JOIN_NONE; }
 };
-constexpr bool operator==(const VJoinType& lhs, const VJoinType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VJoinType& lhs, ಧ್ರುವ VJoinType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VJoinType& lhs, VJoinType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VJoinType::en lhs, ಧ್ರುವ VJoinType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VJoinType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VLifetime final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         NONE,
         AUTOMATIC_EXPLICIT,  // Automatic assigned by user
         AUTOMATIC_IMPLICIT,  // AUtomatic propagated from above
         STATIC_EXPLICIT,  // Static assigned by user
         STATIC_IMPLICIT
     };  // Static propagated from above
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"NONE", "VAUTOM", "VAUTOMI", "VSTATIC", "VSTATICI"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     VLifetime()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VLifetime(en _e)
         : m_e{_e} {}
-    explicit VLifetime(int _e)
+    explicit VLifetime(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isNone() const { return m_e == NONE; }
-    bool isAutomatic() const { return m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
-    bool isStatic() const { return m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
-    bool isStaticExplicit() const { return m_e == STATIC_EXPLICIT; }
-    VLifetime makeImplicit() const {
-        switch (m_e) {
-        case AUTOMATIC_EXPLICIT: return AUTOMATIC_IMPLICIT;
-        case STATIC_EXPLICIT: return STATIC_IMPLICIT;
-        default: return m_e;
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool isNone() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == NONE; }
+    bool isAutomatic() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
+    bool isStatic() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
+    bool isStaticExplicit() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == STATIC_EXPLICIT; }
+    VLifetime makeImplicit() ಧ್ರುವ {
+        ವಿಕಲ್ಪ (m_e) {
+        ಪಕ್ಷ AUTOMATIC_EXPLICIT: ಪ್ರತ್ಯಾಗಮ AUTOMATIC_IMPLICIT;
+        ಪಕ್ಷ STATIC_EXPLICIT: ಪ್ರತ್ಯಾಗಮ STATIC_IMPLICIT;
+        ಸ್ವಭಾವ: ಪ್ರತ್ಯಾಗಮ m_e;
         }
     }
 };
-constexpr bool operator==(const VLifetime& lhs, const VLifetime& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VLifetime& lhs, ಧ್ರುವ VLifetime& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VLifetime& lhs, VLifetime::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VLifetime::en lhs, ಧ್ರುವ VLifetime& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VLifetime& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1948,107 +1948,107 @@ inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
 //  See also AstRange, which is a symbolic version of this
 
 class VNumRange final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // Iterable sequence of integers
     class Sequence final {
         class Iterator final {
-            int m_index;  // Current index
-            const int m_inc;  // Step, +1 or -1
-        public:
-            Iterator(int index, int inc)
+            ಪೂರ್ಣಾಙ್ಕ m_index;  // Current index
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_inc;  // Step, +1 or -1
+        ಸಾರ್ವಜನಿಕ:
+            Iterator(ಪೂರ್ಣಾಙ್ಕ index, ಪೂರ್ಣಾಙ್ಕ inc)
                 : m_index{index}
                 , m_inc{inc} {}
-            int operator*() const { return m_index; }
+            ಪೂರ್ಣಾಙ್ಕ operator*() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_index; }
             Iterator& operator++() {
                 m_index += m_inc;
-                return *this;
+                ಪ್ರತ್ಯಾಗಮ *this;
             }
-            bool operator!=(const Iterator& that) const { return m_index != that.m_index; }
+            bool operator!=(ಧ್ರುವ Iterator& that) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_index != that.m_index; }
         };
-        const int m_begin;  // First index
-        const int m_end;  // One past the last index
-        const int m_inc;  // Step, +1 or -1
-    public:
-        Sequence(int first, int last, int inc)
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_begin;  // First index
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_end;  // One past the last index
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_inc;  // Step, +1 or -1
+    ಸಾರ್ವಜನಿಕ:
+        Sequence(ಪೂರ್ಣಾಙ್ಕ first, ಪೂರ್ಣಾಙ್ಕ last, ಪೂರ್ಣಾಙ್ಕ inc)
             : m_begin{first}
             , m_end{last + inc}
             , m_inc{inc} {}
-        Iterator begin() const { return Iterator{m_begin, m_inc}; }
-        Iterator end() const { return Iterator{m_end, m_inc}; }
+        Iterator begin() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ Iterator{m_begin, m_inc}; }
+        Iterator end() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ Iterator{m_end, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    ಪೂರ್ಣಾಙ್ಕ m_ಎಡ = 0;  // Left side of range (pre-':')
+    ಪೂರ್ಣಾಙ್ಕ m_ಬಲ = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
-    bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+    bool operator==(ಧ್ರುವ VNumRange& rhs) ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_ಎಡ == rhs.m_ಎಡ && m_ಬಲ == rhs.m_ಬಲ && m_ranged == rhs.m_ranged;
     }
-    bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
-        if ((m_ranged < rhs.m_ranged)) return true;
-        if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
-        return false;
+    bool operator<(ಧ್ರುವ VNumRange& rhs) ಧ್ರುವ {
+        ಯದಿ ((m_ಎಡ < rhs.m_ಎಡ)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_ಎಡ == rhs.m_ಎಡ)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_ಬಲ < rhs.m_ಬಲ)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_ಬಲ == rhs.m_ಬಲ)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_ranged < rhs.m_ranged)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_ranged == rhs.m_ranged)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಪ್ರತ್ಯಾಗಮ false;
     }
     //
-    VNumRange() = default;
-    VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
-        : m_left{left}
-        , m_right{right}
+    VNumRange() = ಸ್ವಭಾವ;
+    VNumRange(ಪೂರ್ಣಾಙ್ಕ hi, ಪೂರ್ಣಾಙ್ಕ lo, bool ascending) { init(hi, lo, ascending); }
+    VNumRange(ಪೂರ್ಣಾಙ್ಕ ಎಡ, ಪೂರ್ಣಾಙ್ಕ ಬಲ)
+        : m_ಎಡ{ಎಡ}
+        , m_ಬಲ{ಬಲ}
         , m_ranged{true} {}
-    ~VNumRange() = default;
+    ~VNumRange() = ಸ್ವಭಾವ;
     // MEMBERS
-    void init(int hi, int lo, bool ascending) {
-        if (lo > hi) std::swap(hi, lo);
-        m_left = ascending ? lo : hi;
-        m_right = ascending ? hi : lo;
+    ಶೂನ್ಯ init(ಪೂರ್ಣಾಙ್ಕ hi, ಪೂರ್ಣಾಙ್ಕ lo, bool ascending) {
+        ಯದಿ (lo > hi) std::swap(hi, lo);
+        m_ಎಡ = ascending ? lo : hi;
+        m_ಬಲ = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+    ಪೂರ್ಣಾಙ್ಕ ಎಡ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಎಡ; }
+    ಪೂರ್ಣಾಙ್ಕ ಬಲ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಬಲ; }
+    ಪೂರ್ಣಾಙ್ಕ hi() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ m_ಎಡ > m_ಬಲ ? m_ಎಡ : m_ಬಲ;
     }  // How to show a declaration
-    int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+    ಪೂರ್ಣಾಙ್ಕ lo() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ m_ಎಡ > m_ಬಲ ? m_ಬಲ : m_ಎಡ;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    ಪೂರ್ಣಾಙ್ಕ ಎಡ_To_ಬಲ_Inc() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seq_ಎಡ_To_ಬಲ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ {m_ಎಡ, m_ಬಲ, ಎಡ_To_ಬಲ_Inc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seq_ಬಲ_To_ಎಡ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ {m_ಬಲ, m_ಎಡ, -ಎಡ_To_ಬಲ_Inc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
-    Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
+    Sequence seqLoToHi() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
-    Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
-    int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
-    bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
-    int hiMaxSelect() const {
-        return (lo() < 0 ? hi() - lo() : hi());
+    Sequence seqHiToLo() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ {hi(), lo(), -1}; }
+    ಪೂರ್ಣಾಙ್ಕ elements() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ hi() - lo() + 1; }
+    bool ranged() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ranged; }
+    bool ascending() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_ಎಡ < m_ಬಲ; }
+    ಪೂರ್ಣಾಙ್ಕ hiMaxSelect() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
-    string ascii() const {
-        if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
-        } else {
-            return "[norg]";
+    string ascii() ಧ್ರುವ {
+        ಯದಿ (ranged()) {
+            ಪ್ರತ್ಯಾಗಮ "["s + std::to_string(ಎಡ()) + ":" + std::to_string(ಬಲ()) + "]";
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ "[norg]";
         }
     }
-    void dump(std::ostream& str) const { str << ascii(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಧ್ರುವ { str << ascii(); }
 };
-inline std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VNumRange& rhs) {
     rhs.dump(os);
-    return os;
+    ಪ್ರತ್ಯಾಗಮ os;
 }
 
 // ######################################################################
 
 class VPragmaType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         COVERAGE_BLOCK_OFF,
         HIER_BLOCK,
         HIER_PARAMS,
@@ -2065,9 +2065,9 @@ public:
         VERILATOR_LIB,
         _ENUM_SIZE
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {
             "COVERAGE_BLOCK_OFF",  //
             "HIER_BLOCK",  //
             "HIER_PARAMS",  //
@@ -2084,52 +2084,52 @@ public:
             "VERILATOR_LIB",  //
             "_ENUM_SIZE"  //
         };
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VPragmaType(en _e)
         : m_e{_e} {}
-    explicit VPragmaType(int _e)
+    explicit VPragmaType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
-constexpr bool operator==(const VPragmaType& lhs, const VPragmaType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VPragmaType& lhs, ಧ್ರುವ VPragmaType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VPragmaType& lhs, VPragmaType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VPragmaType::en lhs, ಧ್ರುವ VPragmaType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VPragmaType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 // Defines what kind of randomization is done on a variable
 
 class VRandAttr final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         NONE,  // Not randomizable
         RAND,  // Has a rand modifier
         RAND_CYCLIC,  // Has a randc modifier
         RAND_INLINE  // Not rand/randc, but used in inline random variable control
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
-        return names[m_e];
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     VRandAttr()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VRandAttr(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    bool isRandomizable() const { return m_e != NONE; }
-    bool isRand() const { return m_e == RAND || m_e == RAND_CYCLIC; }
-    bool isRandC() const { return m_e == RAND_CYCLIC; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool isRandomizable() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e != NONE; }
+    bool isRand() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == RAND || m_e == RAND_CYCLIC; }
+    bool isRandC() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == RAND_CYCLIC; }
 };
-inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VRandAttr& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2140,13 +2140,13 @@ inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
 class VSelfPointerText final {
     // STATIC MEMBERS
     // Keep these in shared pointers to avoid branching for special cases
-    static const std::shared_ptr<const string> s_emptyp;  // Holds ""
-    static const std::shared_ptr<const string> s_thisp;  // Holds "this"
+    ಸ್ಥಿರ ಧ್ರುವ std::shared_ptr<ಧ್ರುವ string> s_emptyp;  // Holds ""
+    ಸ್ಥಿರ ಧ್ರುವ std::shared_ptr<ಧ್ರುವ string> s_thisp;  // Holds "this"
 
     // MEMBERS
-    std::shared_ptr<const string> m_strp;
+    std::shared_ptr<ಧ್ರುವ string> m_strp;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     class Empty {};  // for creator type-overload selection
     explicit VSelfPointerText(Empty)
@@ -2154,93 +2154,93 @@ public:
     class This {};  // for creator type-overload selection
     explicit VSelfPointerText(This)
         : m_strp{s_thisp} {}
-    VSelfPointerText(This, const string& field)
-        : m_strp{std::make_shared<const string>("this->" + field)} {}
+    VSelfPointerText(This, ಧ್ರುವ string& field)
+        : m_strp{std::make_shared<ಧ್ರುವ string>("this->" + field)} {}
     class VlSyms {};  // for creator type-overload selection
-    VSelfPointerText(VlSyms, const string& field)
-        : m_strp{std::make_shared<const string>("(&vlSymsp->vlInst." + field + ')')} {}
+    VSelfPointerText(VlSyms, ಧ್ರುವ string& field)
+        : m_strp{std::make_shared<ಧ್ರುವ string>("(&vlSymsp->vlInst." + field + ')')} {}
 
     // METHODS
-    bool isEmpty() const { return m_strp == s_emptyp; }
-    bool isVlSym() const { return m_strp->find("vlSymsp") != string::npos; }
-    bool hasThis() const { return m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
-    string protect(bool useSelfForThis, bool protect) const;
-    static string replaceThis(bool useSelfForThis, const string& text);
-    const std::string& asString() const { return *m_strp; }
-    bool operator==(const VSelfPointerText& other) const { return *m_strp == *other.m_strp; }
+    bool isEmpty() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_strp == s_emptyp; }
+    bool isVlSym() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_strp->find("vlSymsp") != string::npos; }
+    bool hasThis() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
+    string protect(bool useSelfForThis, bool protect) ಧ್ರುವ;
+    ಸ್ಥಿರ string replaceThis(bool useSelfForThis, ಧ್ರುವ string& text);
+    ಧ್ರುವ std::string& asString() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ *m_strp; }
+    bool operator==(ಧ್ರುವ VSelfPointerText& other) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ *m_strp == *other.m_strp; }
 };
 
 // ######################################################################
 
 class VSigning final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         UNSIGNED,
         SIGNED,
         NOSIGN,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
-        return names[m_e];
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     VSigning()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VSigning(en _e)
         : m_e{_e} {}
-    static VSigning fromBool(bool isSigned) {  // Factory method
-        return isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
+    ಸ್ಥಿರ VSigning fromBool(bool isSigned) {  // Factory method
+        ಪ್ರತ್ಯಾಗಮ isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
     }
-    explicit VSigning(int _e)
+    explicit VSigning(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isSigned() const VL_MT_SAFE { return m_e == SIGNED; }
-    bool isNosign() const VL_MT_SAFE { return m_e == NOSIGN; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool isSigned() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == SIGNED; }
+    bool isNosign() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_e == NOSIGN; }
     // No isUnsigned() as it's ambiguous if NOSIGN should be included or not.
 };
-constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VSigning& lhs, ಧ್ರುವ VSigning& rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VSigning& lhs, VSigning::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VSigning::en lhs, ಧ್ರುವ VSigning& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VSigning& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VStrength final {
-public:
-    enum en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
-    enum en m_e;
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
+    ಗಣನಾ en m_e;
 
     // cppcheck-suppress noExplicitConstructor
     constexpr VStrength(en strengthLevel)
         : m_e{strengthLevel} {}
-    explicit VStrength(int _e)
+    explicit VStrength(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"highz", "small", "medium", "weak", "large", "pull", "strong", "supply"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VStrength& lhs, const VStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VStrength& lhs, ಧ್ರುವ VStrength& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VStrength& lhs, VStrength::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VStrength::en lhs, ಧ್ರುವ VStrength& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VStrength& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 //  VSystemCSectionType - Represents the type of a `systemc_* block (Verilator specific extension)
 
 class VSystemCSectionType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         CTOR,  // `systemc_ctor
         DTOR,  // `systemc_dtor
         HDR,  // `systemc_header
@@ -2249,28 +2249,28 @@ public:
         IMP_HDR,  // `systemc_imp_header
         INT  // `systemc_interface
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"`systemc_ctor",  //
+    ಗಣನಾ en m_e;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"`systemc_ctor",  //
                                                       "`systemc_dtor",  //
                                                       "`systemc_header",  //
                                                       "`systemc_header_post",  //
                                                       "`systemc_implementation",  //
                                                       "`systemc_imp_header",  //
                                                       "`systemc_interface"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VSystemCSectionType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
 };
 
 //######################################################################
 
 class VTracePrefixType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         // Note: Entries must match VerilatedTracePrefixType
         ARRAY_PACKED,
         ARRAY_UNPACKED,
@@ -2280,109 +2280,109 @@ public:
         STRUCT_UNPACKED,
         UNION_PACKED,
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VTracePrefixType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"ARRAY_PACKED",  "ARRAY_UNPACKED",  "SCOPE_MODULE", "SCOPE_INTERFACE",
                "STRUCT_PACKED", "STRUCT_UNPACKED", "UNION_PACKED"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VTracePrefixType& lhs, const VTracePrefixType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VTracePrefixType& lhs, ಧ್ರುವ VTracePrefixType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTracePrefixType& lhs, VTracePrefixType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VTracePrefixType& lhs, VTracePrefixType::en rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VTracePrefixType::en lhs, const VTracePrefixType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VTracePrefixType::en lhs, ಧ್ರುವ VTracePrefixType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VTracePrefixType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VTraceType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         CONSTANT,  // Constant value dump (once at the beginning)
         FULL,  // Full value dump (always emitted)
         CHANGE  // Incremental value dump (emitted only if the value changed)
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VTraceType()
         : m_e{CONSTANT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTraceType(en _e)
         : m_e{_e} {}
-    explicit VTraceType(int _e)
+    explicit VTraceType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"CONSTANT", "FULL", "CHANGE"};
-        return names[m_e];
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"CONSTANT", "FULL", "CHANGE"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    const char* func_prefix() const {
-        static constexpr const char* const names[] = {"trace_const", "trace_full", "trace_chg"};
-        return names[m_e];
+    ಧ್ರುವ ವರ್ಣ* func_prefix() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"trace_const", "trace_full", "trace_chg"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
 };
-constexpr bool operator==(const VTraceType& lhs, const VTraceType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VTraceType& lhs, ಧ್ರುವ VTraceType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VTraceType& lhs, VTraceType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VTraceType::en lhs, ಧ್ರುವ VTraceType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VTraceType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 //######################################################################
 
 class VUseType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         // Enum values are compared with <, so order matters
         INT_FWD_CLASS = 1 << 0,  // Interface (.h) needs a forward class declaration
         INT_INCLUDE = 1 << 1,  // Interface (.h) needs an include
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VUseType()
         : m_e{INT_FWD_CLASS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VUseType(en _e)
         : m_e{_e} {}
-    explicit VUseType(int _e)
+    explicit VUseType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool containsAny(VUseType other) const { return m_e & other.m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
-        return names[m_e - 1];
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool containsAny(VUseType other) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e & other.m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
+        ಪ್ರತ್ಯಾಗಮ names[m_e - 1];
     }
 };
-constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VUseType& lhs, ಧ್ರುವ VUseType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(ಧ್ರುವ VUseType& lhs, VUseType::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VUseType::en lhs, ಧ್ರುವ VUseType& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
 constexpr VUseType::en operator|(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    ಪ್ರತ್ಯಾಗಮ VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 constexpr VUseType::en operator&(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+    ಪ್ರತ್ಯಾಗಮ VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
-inline std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VUseType& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VVarType final {
-public:
-    enum en : uint8_t {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : uint8_t {
         UNKNOWN,
         GPARAM,
         LPARAM,
@@ -2406,54 +2406,54 @@ public:
         IFACEREF,  // Used to link Interfaces between modules
         MEMBER
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VVarType() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VVarType(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VVarType(int _e)
+    explicit VVarType(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ names[]
             = {"?",        "GPARAM",  "LPARAM",   "SPECPARAM", "GENVAR",    "VAR",
                "SUPPLY0",  "SUPPLY1", "WIRE",     "WREAL",     "TRIAND",    "TRIOR",
                "TRIWIRE",  "TRI0",    "TRI1",     "PORT",      "BLOCKTEMP", "MODULETEMP",
                "STMTTEMP", "XTEMP",   "IFACEREF", "MEMBER"};
-        return names[m_e];
+        ಪ್ರತ್ಯಾಗಮ names[m_e];
     }
-    bool isParam() const { return m_e == GPARAM || m_e == LPARAM; }
-    bool isSignal() const {
-        return (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
+    bool isParam() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == GPARAM || m_e == LPARAM; }
+    bool isSignal() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
                 || m_e == PORT || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
                 || m_e == TRIAND);
     }
-    bool isNet() const {
-        return (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
+    bool isNet() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
                 || m_e == SUPPLY1 || m_e == TRIOR || m_e == TRIAND);
     }
-    bool isWor() const { return (m_e == TRIOR); }
-    bool isWiredNet() const { return (m_e == TRIOR || m_e == TRIAND); }
-    bool isContAssignable() const {  // In Verilog, always ok in SystemVerilog
-        return (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
+    bool isWor() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ (m_e == TRIOR); }
+    bool isWiredNet() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ (m_e == TRIOR || m_e == TRIAND); }
+    bool isContAssignable() ಧ್ರುವ {  // In Verilog, always ok in SystemVerilog
+        ಪ್ರತ್ಯಾಗಮ (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
                 || m_e == TRI0 || m_e == TRI1 || m_e == PORT || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF);
     }
-    bool isProcAssignable() const {
-        return (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
+    bool isProcAssignable() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF
                 || m_e == MEMBER);
     }
-    bool isTemp() const {
-        return (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
+    bool isTemp() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
     }
-    bool isVPIAccessible() const {
-        return (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
+    bool isVPIAccessible() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
                 || m_e == WIRE || m_e == TRI0 || m_e == TRI1);
     }
 
-    const char* traceSigKind() const {
+    ಧ್ರುವ ವರ್ಣ* traceSigKind() ಧ್ರುವ {
         // VerilatedTraceSigKind to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ lut[] = {
             /* UNKNOWN:      */ "",  // Should not be traced
             /* GPARAM:       */ "PARAMETER",
             /* LPARAM:       */ "PARAMETER",
@@ -2477,57 +2477,57 @@ public:
             /* IFACEREF:     */ "",  // Should not be traced directly
             /* MEMBER:       */ "VAR",
         };
-        return lut[m_e];
+        ಪ್ರತ್ಯಾಗಮ lut[m_e];
     }
 };
-constexpr bool operator==(const VVarType& lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VVarType& lhs, ಧ್ರುವ VVarType& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ಧ್ರುವ VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs;
 }
-constexpr bool operator==(VVarType::en lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VVarType::en lhs, ಧ್ರುವ VVarType& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VVarType& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Not in sorted order, as depends on above classes
-class VBasicTypeKey final {
-public:
-    const int m_width;  // From AstNodeDType: Bit width of operation
-    const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
-    const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
-    const VSigning m_numeric;  // From AstNodeDType: Node is signed
-    const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
-    bool operator==(const VBasicTypeKey& rhs) const {
-        return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
+class VBasic_Type_ಕೀಲಿ final {
+ಸಾರ್ವಜನಿಕ:
+    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_width;  // From AstNodeDType: Bit width of operation
+    ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
+    ಧ್ರುವ VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
+    ಧ್ರುವ VSigning m_numeric;  // From AstNodeDType: Node is signed
+    ಧ್ರುವ VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
+    bool operator==(ಧ್ರುವ VBasic_Type_ಕೀಲಿ& rhs) ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
-    bool operator<(const VBasicTypeKey& rhs) const {
-        if ((m_width < rhs.m_width)) return true;
-        if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
-        if ((m_widthMin < rhs.m_widthMin)) return true;
-        if (!(m_widthMin == rhs.m_widthMin)) return false;  // lhs > rhs
-        if ((m_numeric < rhs.m_numeric)) return true;
-        if (!(m_numeric == rhs.m_numeric)) return false;  // lhs > rhs
-        if ((m_keyword < rhs.m_keyword)) return true;
-        if (!(m_keyword == rhs.m_keyword)) return false;  // lhs > rhs
-        if ((m_nrange < rhs.m_nrange)) return true;
-        if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
-        return false;
+    bool operator<(ಧ್ರುವ VBasic_Type_ಕೀಲಿ& rhs) ಧ್ರುವ {
+        ಯದಿ ((m_width < rhs.m_width)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_width == rhs.m_width)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_widthMin < rhs.m_widthMin)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_widthMin == rhs.m_widthMin)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_numeric < rhs.m_numeric)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_numeric == rhs.m_numeric)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_keyword < rhs.m_keyword)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_keyword == rhs.m_keyword)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಯದಿ ((m_nrange < rhs.m_nrange)) ಪ್ರತ್ಯಾಗಮ true;
+        ಯದಿ (!(m_nrange == rhs.m_nrange)) ಪ್ರತ್ಯಾಗಮ false;  // lhs > rhs
+        ಪ್ರತ್ಯಾಗಮ false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
-                  const VNumRange& nrange)
+    VBasic_Type_ಕೀಲಿ(ಪೂರ್ಣಾಙ್ಕ width, ಪೂರ್ಣಾಙ್ಕ widthMin, VSigning numeric, VBasicDTypeKwd kwd,
+                  ಧ್ರುವ VNumRange& nrange)
         : m_width{width}
         , m_widthMin{widthMin}
         , m_nrange{nrange}
         , m_numeric{numeric}
         , m_keyword{kwd} {}
-    ~VBasicTypeKey() = default;
+    ~VBasic_Type_ಕೀಲಿ() = ಸ್ವಭಾವ;
 };
 
 #endif  // Guard

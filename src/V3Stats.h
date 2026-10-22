@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3STATS_H_
 #define VERILATOR_V3STATS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
 class AstNetlist;
 
@@ -28,38 +28,38 @@ class AstNetlist;
 
 class VDouble0 final {
     // Double counter, initializes to zero for easy use
-    double m_d = 0.0;  ///< Count of occurrences/ value
-public:
+    ದ್ವಿಗುಣ m_d = 0.0;  ///< Count of occurrences/ value
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    VDouble0() = default;
-    ~VDouble0() = default;
+    VDouble0() = ಸ್ವಭಾವ;
+    ~VDouble0() = ಸ್ವಭಾವ;
 
     // Implicit conversion operators:
-    explicit VDouble0(const uint64_t v)
-        : m_d{static_cast<double>(v)} {}
-    operator double() const { return m_d; }
+    explicit VDouble0(ಧ್ರುವ uint64_t v)
+        : m_d{static_cast<ದ್ವಿಗುಣ>(v)} {}
+    operator ದ್ವಿಗುಣ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_d; }
 
     // Explicit operators:
     VDouble0& operator++() {  // prefix
         ++m_d;
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
-    VDouble0 operator++(int) {  // postfix
-        const VDouble0 old = *this;
+    VDouble0 operator++(ಪೂರ್ಣಾಙ್ಕ) {  // postfix
+        ಧ್ರುವ VDouble0 old = *this;
         ++m_d;
-        return old;
+        ಪ್ರತ್ಯಾಗಮ old;
     }
-    VDouble0& operator=(const double v) {
+    VDouble0& operator=(ಧ್ರುವ ದ್ವಿಗುಣ v) {
         m_d = v;
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
-    VDouble0& operator+=(const double v) {
+    VDouble0& operator+=(ಧ್ರುವ ದ್ವಿಗುಣ v) {
         m_d += v;
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
-    VDouble0& operator-=(const double v) {
+    VDouble0& operator-=(ಧ್ರುವ ದ್ವಿಗುಣ v) {
         m_d -= v;
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
 };
 
@@ -67,94 +67,94 @@ public:
 
 class V3Statistic final {
     // A statistical entry we want published into the database
-    const string m_name;  ///< Name of this statistic
-    double m_value;  ///< Value of statistic (count, ratio, etc.)
+    ಧ್ರುವ string m_name;  ///< Name of this statistic
+    ದ್ವಿಗುಣ m_ಮೌಲ್ಯ;  ///< Value of statistic (count, ratio, etc.)
     unsigned m_precision;  ///< Precision to print with (number of fractional digits)
-    const string m_stage;  ///< Runtime stage
-    const bool m_sumit;  ///< Do summation of similar stats
-    const bool m_perf;  ///< Performance section
+    ಧ್ರುವ string m_stage;  ///< Runtime stage
+    ಧ್ರುವ bool m_sumit;  ///< Do summation of similar stats
+    ಧ್ರುವ bool m_perf;  ///< Performance section
     bool m_printit = true;  ///< Print the results
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    string stage() const VL_MT_SAFE { return m_stage; }
-    string name() const VL_MT_SAFE { return m_name; }
-    double value() const VL_MT_SAFE { return m_value; }
-    unsigned precision() const VL_MT_SAFE { return m_precision; }
-    bool sumit() const VL_MT_SAFE { return m_sumit; }
-    bool perf() const VL_MT_SAFE { return m_perf; }
-    bool printit() const VL_MT_SAFE { return m_printit; }
-    virtual void dump(std::ofstream& os) const VL_MT_SAFE;
-    void combineWith(V3Statistic* otherp) {
-        m_value += otherp->value();
+    string stage() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_stage; }
+    string name() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_name; }
+    ದ್ವಿಗುಣ ಮೌಲ್ಯ() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_ಮೌಲ್ಯ; }
+    unsigned precision() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_precision; }
+    bool sumit() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_sumit; }
+    bool perf() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_perf; }
+    bool printit() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_printit; }
+    ಆಭಾಸ ಶೂನ್ಯ dump(std::ofstream& os) ಧ್ರುವ VL_MT_SAFE;
+    ಶೂನ್ಯ combineWith(V3Statistic* otherp) {
+        m_ಮೌಲ್ಯ += otherp->ಮೌಲ್ಯ();
         otherp->m_printit = false;
     }
     // CONSTRUCTORS
-    V3Statistic(const string& stage, const string& name, double value, unsigned precision,
+    V3Statistic(ಧ್ರುವ string& stage, ಧ್ರುವ string& name, ದ್ವಿಗುಣ ಮೌಲ್ಯ, unsigned precision,
                 bool sumit, bool perf)
         : m_name{name}
-        , m_value{value}
+        , m_ಮೌಲ್ಯ{ಮೌಲ್ಯ}
         , m_precision{precision}
         , m_stage{stage}
         , m_sumit{sumit}
         , m_perf{perf} {}
-    virtual ~V3Statistic() = default;
+    ಆಭಾಸ ~V3Statistic() = ಸ್ವಭಾವ;
 };
 
 //============================================================================
 
 class V3Stats final {
-    static V3Mutex s_mutex;  // Protects accesses
+    ಸ್ಥಿರ V3Mutex s_mutex;  // Protects accesses
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Symbolic names for some statistics that are later read by summaryReport()
-    static constexpr const char* STAT_CPP_CHARS = "Output, C++ bytes written";
-    static constexpr const char* STAT_CPP_FILES = "Output, C++ files written";
-    static constexpr const char* STAT_CPUTIME = "CPU time, Total (sec)";
-    static constexpr const char* STAT_MODEL_SIZE = "Size prediction, Model total (bytes)";
-    static constexpr const char* STAT_SOURCE_CHARS = "Input, Verilog bytes read";
-    static constexpr const char* STAT_SOURCE_MODULES = "Input, Verilog modules read";
-    static constexpr const char* STAT_WALLTIME = "Wall time, Total (sec)";
-    static constexpr const char* STAT_WALLTIME_BUILD = "Wall time, Build (sec)";
-    static constexpr const char* STAT_WALLTIME_CVT = "Wall time, Conversion (sec)";
-    static constexpr const char* STAT_WALLTIME_ELAB = "Wall time, Elaboration (sec)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_CPP_CHARS = "Output, C++ bytes written";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_CPP_FILES = "Output, C++ files written";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_CPUTIME = "CPU time, Total (sec)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_MODEL_SIZE = "Size prediction, Model total (bytes)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_SOURCE_CHARS = "Input, Verilog bytes read";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_SOURCE_MODULES = "Input, Verilog modules read";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_WALLTIME = "Wall time, Total (sec)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_WALLTIME_BUILD = "Wall time, Build (sec)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_WALLTIME_CVT = "Wall time, Conversion (sec)";
+    ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* STAT_WALLTIME_ELAB = "Wall time, Elaboration (sec)";
 
-    static void addStat(const V3Statistic&);
-    static void addStat(const string& stage, const string& name, double value,
+    ಸ್ಥಿರ ಶೂನ್ಯ addStat(ಧ್ರುವ V3Statistic&);
+    ಸ್ಥಿರ ಶೂನ್ಯ addStat(ಧ್ರುವ string& stage, ಧ್ರುವ string& name, ದ್ವಿಗುಣ ಮೌಲ್ಯ,
                         unsigned precision = 0) {
-        addStat(V3Statistic{stage, name, value, precision, false, false});
+        addStat(V3Statistic{stage, name, ಮೌಲ್ಯ, precision, false, false});
     }
-    static void addStat(const string& name, double value, unsigned precision = 0) {
-        addStat(V3Statistic{"*", name, value, precision, false, false});
+    ಸ್ಥಿರ ಶೂನ್ಯ addStat(ಧ್ರುವ string& name, ದ್ವಿಗುಣ ಮೌಲ್ಯ, unsigned precision = 0) {
+        addStat(V3Statistic{"*", name, ಮೌಲ್ಯ, precision, false, false});
     }
     // Add summary statistic - Threadsafe _unlike most other functions here_
-    static void addStatSum(const char* name, double count) VL_MT_SAFE_EXCLUDES(s_mutex) {
+    ಸ್ಥಿರ ಶೂನ್ಯ addStatSum(ಧ್ರುವ ವರ್ಣ* name, ದ್ವಿಗುಣ ಎಣಿಕೆ) VL_MT_SAFE_EXCLUDES(s_mutex) {
         // Avoid memory blow-up when called frequently with zero adds,
         // e.g. from V3Const invoked on individual expressions.
-        if (count == 0.0) return;
-        const V3LockGuard lock{s_mutex};
-        addStat(V3Statistic{"*", name, count, 0, true, false});
+        ಯದಿ (ಎಣಿಕೆ == 0.0) ಪ್ರತ್ಯಾಗಮ;
+        ಧ್ರುವ V3LockGuard lock{s_mutex};
+        addStat(V3Statistic{"*", name, ಎಣಿಕೆ, 0, true, false});
     }
-    static void addStatSum(const std::string& name, double count) {
-        addStatSum(name.c_str(), count);
+    ಸ್ಥಿರ ಶೂನ್ಯ addStatSum(ಧ್ರುವ std::string& name, ದ್ವಿಗುಣ ಎಣಿಕೆ) {
+        addStatSum(name.c_str(), ಎಣಿಕೆ);
     }
-    static void addStatPerf(const string& name, double value) {
-        addStat(V3Statistic{"*", name, value, 6, true, true});
+    ಸ್ಥಿರ ಶೂನ್ಯ addStatPerf(ಧ್ರುವ string& name, ದ್ವಿಗುಣ ಮೌಲ್ಯ) {
+        addStat(V3Statistic{"*", name, ಮೌಲ್ಯ, 6, true, true});
     }
     /// Return value of statistic, or zero if not found
-    static double getStatSum(const string& name);
-    static uint64_t getStatSumQ(const string& name) {
-        return static_cast<uint64_t>(getStatSum(name));
+    ಸ್ಥಿರ ದ್ವಿಗುಣ getStatSum(ಧ್ರುವ string& name);
+    ಸ್ಥಿರ uint64_t getStatSumQ(ಧ್ರುವ string& name) {
+        ಪ್ರತ್ಯಾಗಮ static_cast<uint64_t>(getStatSum(name));
     }
     /// Called each stage
-    static void statsStage(const string& name);
+    ಸ್ಥಿರ ಶೂನ್ಯ statsStage(ಧ್ರುವ string& name);
     /// Called by the top level, and error path, to collect statistics
-    static void statsStageAll(AstNetlist* nodep, const string& stage, bool fastOnly = false);
+    ಸ್ಥಿರ ಶೂನ್ಯ statsStageAll(AstNetlist* nodep, ಧ್ರುವ string& stage, bool fastOnly = false);
     /// Called by the top level to dump the statistics
-    static void statsReport();
+    ಸ್ಥಿರ ಶೂನ್ಯ statsReport();
     /// Called by debug dumps
-    static void infoHeader(std::ofstream& os, const string& prefix);
+    ಸ್ಥಿರ ಶೂನ್ಯ infoHeader(std::ofstream& os, ಧ್ರುವ string& prefix);
     /// Called for final build report
-    static void summaryReport();
+    ಸ್ಥಿರ ಶೂನ್ಯ summaryReport();
 };
 
 #endif  // Guard

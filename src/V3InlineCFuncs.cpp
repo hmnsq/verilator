@@ -25,132 +25,132 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InlineCFuncs.h"
+#ಅನ್ತರ್ಭಾವ "V3InlineCFuncs.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ExecGraph.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3AstUserAllocator.h"
+#ಅನ್ತರ್ಭಾವ "V3ExecGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Bipartite call graph containing function and call site vertices
 
-class InlineCFuncsFunctionVertex;
-class InlineCFuncsCallSiteVertex;
+ವರ್ಗ InlineCFuncsFunctionVertex;
+ವರ್ಗ InlineCFuncsCallSiteVertex;
 
-class InlineCFuncsCallGraph final : public V3Graph {
-public:
+ವರ್ಗ InlineCFuncsCallGraph final : ಸಾರ್ವಜನಿಕ V3Graph {
+ಸಾರ್ವಜನಿಕ:
     InlineCFuncsCallGraph()
         : V3Graph{} {}
-    ~InlineCFuncsCallGraph() override = default;
+    ~InlineCFuncsCallGraph() override = ಸ್ವಭಾವ;
 
-    void addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& top);
-    void addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& top);
+    ಶೂನ್ಯ addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& ತುದಿ);
+    ಶೂನ್ಯ addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& ತುದಿ);
 };
 
-class EitherVertex VL_NOT_FINAL : public V3GraphVertex {
+ವರ್ಗ EitherVertex VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ V3GraphVertex {
     VL_RTTI_IMPL(EitherVertex, V3GraphVertex)
-protected:
+ರಕ್ಷಿತ:
     explicit EitherVertex(InlineCFuncsCallGraph& graph)
         : V3GraphVertex{&graph} {}
 };
 
-class InlineCFuncsFunctionVertex final : public EitherVertex {
+ವರ್ಗ InlineCFuncsFunctionVertex final : ಸಾರ್ವಜನಿಕ EitherVertex {
     VL_RTTI_IMPL(InlineCFuncsFunctionVertex, EitherVertex)
-    AstCFunc* const m_cfuncp;  // The function
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
-    const char* m_keepWyp = nullptr;  // Why the function should not be removed
+    AstCFunc* ಧ್ರುವ m_cfuncp;  // The function
+    ಧ್ರುವ ವರ್ಣ* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
+    ಧ್ರುವ ವರ್ಣ* m_keepWyp = nullptr;  // Why the function should not be removed
     size_t m_size = 0;  // The size of the function
 
-public:
+ಸಾರ್ವಜನಿಕ:
     InlineCFuncsFunctionVertex(InlineCFuncsCallGraph& graph, AstCFunc* cfuncp)
         : EitherVertex{graph}
         , m_cfuncp{cfuncp} {}
-    ~InlineCFuncsFunctionVertex() override = default;
+    ~InlineCFuncsFunctionVertex() override = ಸ್ವಭಾವ;
 
     // ACCESSORS
-    AstCFunc* cfuncp() const { return m_cfuncp; }
-    size_t size() const { return m_size; }
-    void sizeInc(size_t value = 1) { m_size += value; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCFunc* cfuncp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_cfuncp; }
+    size_t size() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_size; }
+    ಶೂನ್ಯ sizeInc(size_t ಮೌಲ್ಯ = 1) { m_size += ಮೌಲ್ಯ; }
+    ತಾರ್ಕಿಕ noInline() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_noInlineWyp; }
+    ಶೂನ್ಯ setNoInline(ಧ್ರುವ ವರ್ಣ* whyp) {
+        ಯದಿ (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
-    bool keep() const { return m_keepWyp; }
-    void setKeep(const char* whyp) {
-        if (!m_keepWyp) m_keepWyp = whyp;
+    ತಾರ್ಕಿಕ keep() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_keepWyp; }
+    ಶೂನ್ಯ setKeep(ಧ್ರುವ ವರ್ಣ* whyp) {
+        ಯದಿ (!m_keepWyp) m_keepWyp = whyp;
     }
-    std::string dotColor() const override {
-        return m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
+    std::string dotColor() ಧ್ರುವ override {
+        ಪ್ರತ್ಯಾಗಮ m_noInlineWyp ? "red" : m_keepWyp ? "orange" : "black";
     }
 
     // debug
-    FileLine* fileline() const override { return m_cfuncp->fileline(); }
-    std::string dotShape() const override { return "box"; }
-    std::string name() const override VL_MT_STABLE {
+    File_ಸಾಲು* fileline() ಧ್ರುವ override { ಪ್ರತ್ಯಾಗಮ m_cfuncp->fileline(); }
+    std::string dotShape() ಧ್ರುವ override { ಪ್ರತ್ಯಾಗಮ "box"; }
+    std::string name() ಧ್ರುವ override VL_MT_STABLE {
         std::string str = cvtToHex(m_cfuncp);
         str += "\n" + m_cfuncp->name();
         str += "\nsize: " + std::to_string(m_size);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        if (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
-        return str;
+        ಯದಿ (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        ಯದಿ (m_keepWyp) str += "\nKeep: "s + m_keepWyp;
+        ಪ್ರತ್ಯಾಗಮ str;
     }
 };
 
-class InlineCFuncsCallSiteVertex final : public EitherVertex {
+ವರ್ಗ InlineCFuncsCallSiteVertex final : ಸಾರ್ವಜನಿಕ EitherVertex {
     VL_RTTI_IMPL(InlineCFuncsCallSiteVertex, EitherVertex)
-    AstCCall* const m_callp;  // The call site
-    const char* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
+    AstCCall* ಧ್ರುವ m_callp;  // The call site
+    ಧ್ರುವ ವರ್ಣ* m_noInlineWyp = nullptr;  // First reason the function should not be inlined
 
-public:
+ಸಾರ್ವಜನಿಕ:
     InlineCFuncsCallSiteVertex(InlineCFuncsCallGraph& graph, AstCCall* callp)
         : EitherVertex{graph}
         , m_callp{callp} {}
-    ~InlineCFuncsCallSiteVertex() override = default;
+    ~InlineCFuncsCallSiteVertex() override = ಸ್ವಭಾವ;
 
     // ACCESSORS
-    AstCCall* callp() const { return m_callp; }
-    bool noInline() const { return m_noInlineWyp; }
-    void setNoInline(const char* whyp) {
-        if (!m_noInlineWyp) m_noInlineWyp = whyp;
+    AstCCall* callp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_callp; }
+    ತಾರ್ಕಿಕ noInline() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_noInlineWyp; }
+    ಶೂನ್ಯ setNoInline(ಧ್ರುವ ವರ್ಣ* whyp) {
+        ಯದಿ (!m_noInlineWyp) m_noInlineWyp = whyp;
     }
 
     // debug
-    FileLine* fileline() const override { return m_callp->fileline(); }
-    std::string dotColor() const override { return m_noInlineWyp ? "red" : "black"; }
-    std::string dotShape() const override { return "ellipse"; }
-    std::string name() const override VL_MT_STABLE {
+    File_ಸಾಲು* fileline() ಧ್ರುವ override { ಪ್ರತ್ಯಾಗಮ m_callp->fileline(); }
+    std::string dotColor() ಧ್ರುವ override { ಪ್ರತ್ಯಾಗಮ m_noInlineWyp ? "red" : "black"; }
+    std::string dotShape() ಧ್ರುವ override { ಪ್ರತ್ಯಾಗಮ "ellipse"; }
+    std::string name() ಧ್ರುವ override VL_MT_STABLE {
         std::string str = cvtToHex(m_callp);
-        if (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
-        return str;
+        ಯದಿ (m_noInlineWyp) str += "\nNoInline: "s + m_noInlineWyp;
+        ಪ್ರತ್ಯಾಗಮ str;
     }
 };
 
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsFunctionVertex& caller,
+ಶೂನ್ಯ InlineCFuncsCallGraph::addEdge(InlineCFuncsFunctionVertex& caller,
                                     InlineCFuncsCallSiteVertex& callsite) {
     UASSERT_OBJ(callsite.inEmpty(), &callsite, "Call site should have at most one incoming edge");
-    new V3GraphEdge{this, &caller, &callsite, 1, true};  // Can cut caller -> callsite
+    ನೂತನ V3GraphEdge{ಏತತ್, &caller, &callsite, 1, ಸತ್ಯ};  // Can cut caller -> callsite
 }
-void InlineCFuncsCallGraph::addEdge(InlineCFuncsCallSiteVertex& callsite,
+ಶೂನ್ಯ InlineCFuncsCallGraph::addEdge(InlineCFuncsCallSiteVertex& callsite,
                                     InlineCFuncsFunctionVertex& callee) {
     UASSERT_OBJ(callsite.outEmpty(), &callsite, "Call site should have at most one outgoing edge");
-    new V3GraphEdge{this, &callsite, &callee, 1, false};
+    ನೂತನ V3GraphEdge{ಏತತ್, &callsite, &callee, 1, ಅಸತ್ಯ};
 }
 
 //######################################################################
 
-class InlineCFuncsVisitor final : public VNVisitor {
+ವರ್ಗ InlineCFuncsVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // AstCFunc::user1p() ->  InlineCFuncsFunctionVertex*, the function vertex
     // AstCCall::user1p() ->  InlineCFuncsCallSiteVertex*, the call site vertex
     // AstVar::user2p()   ->  AstVar*, the cloned inlined local variable
-    const VNUser1InUse m_user1InUse;
+    ಧ್ರುವ VNUser1InUse m_user1InUse;
 
     // STATE
     InlineCFuncsCallGraph m_graph;  // The call graph
@@ -158,158 +158,158 @@ class InlineCFuncsVisitor final : public VNVisitor {
     VDouble0 m_statFuncsInlined;  // Number of functions inlined at least once
     VDouble0 m_statFuncsRemoved;  // Number of fully-inlined functions removed
     // Size threshold: always inline if size <= this
-    const size_t m_sizeThreshold = v3Global.opt.inlineCFuncs();
+    ಧ್ರುವ size_t m_sizeThreshold = v3Global.opt.inlineCFuncs();
     // Product threshold: inline if size * calls <= this
-    const size_t m_prodThreshold = v3Global.opt.inlineCFuncsProduct();
+    ಧ್ರುವ size_t m_prodThreshold = v3Global.opt.inlineCFuncsProduct();
     // Maximum size of caller to consider inlining into
-    const size_t m_maxSizeCFunc = []() -> size_t {
-        int maxCFunc = v3Global.opt.outputSplitCFuncs();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxCFunc <= 0) maxCFunc = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxCFunc, maxFile);
+    ಧ್ರುವ size_t m_maxSizeCFunc = []() -> size_t {
+        ಪೂರ್ಣಾಙ್ಕ maxCFunc = v3Global.opt.outputSplitCFuncs();
+        ಪೂರ್ಣಾಙ್ಕ maxFile = v3Global.opt.outputSplit();
+        ಯದಿ (maxCFunc <= 0) maxCFunc = std::numeric_limits<ಪೂರ್ಣಾಙ್ಕ>::max();
+        ಯದಿ (maxFile <= 0) maxFile = std::numeric_limits<ಪೂರ್ಣಾಙ್ಕ>::max();
+        ಪ್ರತ್ಯಾಗಮ std::min(maxCFunc, maxFile);
     }();
-    const size_t m_maxSizeTrace = []() -> size_t {
-        int maxTrace = v3Global.opt.outputSplitCTrace();
-        int maxFile = v3Global.opt.outputSplit();
-        if (maxTrace <= 0) maxTrace = std::numeric_limits<int>::max();
-        if (maxFile <= 0) maxFile = std::numeric_limits<int>::max();
-        return std::min(maxTrace, maxFile);
+    ಧ್ರುವ size_t m_maxSizeTrace = []() -> size_t {
+        ಪೂರ್ಣಾಙ್ಕ maxTrace = v3Global.opt.outputSplitCTrace();
+        ಪೂರ್ಣಾಙ್ಕ maxFile = v3Global.opt.outputSplit();
+        ಯದಿ (maxTrace <= 0) maxTrace = std::numeric_limits<ಪೂರ್ಣಾಙ್ಕ>::max();
+        ಯದಿ (maxFile <= 0) maxFile = std::numeric_limits<ಪೂರ್ಣಾಙ್ಕ>::max();
+        ಪ್ರತ್ಯಾಗಮ std::min(maxTrace, maxFile);
     }();
     InlineCFuncsFunctionVertex* m_cfuncVtxp = nullptr;  // Vertex of currently iterated function
-    bool m_inExecGraph = false;  // True while inside an AstExecGraph subtree
+    ತಾರ್ಕಿಕ m_inExecGraph = ಅಸತ್ಯ;  // True while inside an AstExecGraph subtree
 
     // METHODS
     InlineCFuncsFunctionVertex* getInlineCFuncsFunctionVertexp(AstCFunc* cfuncp) {
-        if (!cfuncp->user1p()) cfuncp->user1p(new InlineCFuncsFunctionVertex{m_graph, cfuncp});
-        return cfuncp->user1u().to<InlineCFuncsFunctionVertex*>();
+        ಯದಿ (!cfuncp->user1p()) cfuncp->user1p(ನೂತನ InlineCFuncsFunctionVertex{m_graph, cfuncp});
+        ಪ್ರತ್ಯಾಗಮ cfuncp->user1u().to<InlineCFuncsFunctionVertex*>();
     }
 
     InlineCFuncsCallSiteVertex* getInlineCFuncsCallSiteVertexp(AstCCall* callp) {
-        if (!callp->user1p()) callp->user1p(new InlineCFuncsCallSiteVertex{m_graph, callp});
-        return callp->user1u().to<InlineCFuncsCallSiteVertex*>();
+        ಯದಿ (!callp->user1p()) callp->user1p(ನೂತನ InlineCFuncsCallSiteVertex{m_graph, callp});
+        ಪ್ರತ್ಯಾಗಮ callp->user1u().to<InlineCFuncsCallSiteVertex*>();
     }
 
-    AstCLocalScope* inlineCall(AstCFunc* const callerp,  //
-                               AstCCall* const callp,  //
-                               AstCFunc* const calleep,  //
-                               const size_t seqNum) {
+    AstCLocalScope* inlineCall(AstCFunc* ಧ್ರುವ callerp,  //
+                               AstCCall* ಧ್ರುವ callp,  //
+                               AstCFunc* ಧ್ರುವ calleep,  //
+                               ಧ್ರುವ size_t seq_ಅಂಕೆ) {
         UINFO(6, "Inlining CFunc " << calleep->name() << " into " << callerp->name()
                                    << " at call site " << callp);
 
-        AstNodeStmt* const callSitep = VN_AS(callp->backp(), StmtExpr);
+        Ast_ಗಂಟು_Stmt* ಧ್ರುವ callSitep = VN_AS(callp->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ);
         ++m_statCallsInlined;
 
         // Callee might be empty, just delete the call
-        if (!calleep->stmtsp()) {
-            VL_DO_DANGLING(pushDeletep(callSitep->unlinkFrBack()), callSitep);
-            return nullptr;
+        ಯದಿ (!calleep->stmtsp()) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(callSitep->unlinkFrBack()), callSitep);
+            ಪ್ರತ್ಯಾಗಮ nullptr;
         }
 
         // Replace call site with a local scope
-        FileLine* const flp = callSitep->fileline();
-        AstCLocalScope* const lscopep = new AstCLocalScope{flp, nullptr};
+        File_ಸಾಲು* ಧ್ರುವ flp = callSitep->fileline();
+        AstCLocalScope* ಧ್ರುವ lscopep = ನೂತನ AstCLocalScope{flp, nullptr};
         callSitep->replaceWith(lscopep);
-        VL_DO_DANGLING(pushDeletep(callSitep), callSitep);
-        lscopep->addStmtsp(new AstComment{flp, "Inlined CFunc: " + calleep->name()});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(callSitep), callSitep);
+        lscopep->addStmtsp(ನೂತನ AstComment{flp, "Inlined CFunc: " + calleep->name()});
 
         // Although it's in a local scope, we still make names of cloned locals unique
-        const std::string varPrefix
-            = "__Vinline_" + std::to_string(seqNum) + "_" + calleep->name() + "_";
+        ಧ್ರುವ std::string varPrefix
+            = "__Vinline_" + std::to_string(seq_ಅಂಕೆ) + "_" + calleep->name() + "_";
 
         // AstVar::user2p()  ->  AstVar*, the cloned inlined local variable
-        const VNUser2InUse user2InUse;
+        ಧ್ರುವ VNUser2InUse user2InUse;
 
         // Clone local variables, add them to the local scope
-        for (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            AstVar* const newVarp = varp->cloneTree(false);
+        ಪ್ರತಿ (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            AstVar* ಧ್ರುವ newVarp = varp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
             newVarp->name(varPrefix + varp->name());
             lscopep->addStmtsp(newVarp);
             varp->user2p(newVarp);
         }
 
         // Clone the function body
-        AstNode* const bodyp = calleep->stmtsp()->cloneTree(true);
+        Ast_ಗಂಟು* ಧ್ರುವ bodyp = calleep->stmtsp()->clone_ವೃಕ್ಷ(ಸತ್ಯ);
         lscopep->addStmtsp(bodyp);
 
         // Retarget local variable references to the cloned locals
         // Rename locals defined in the body, TODO: there should be none after #6280
         // Reset vertex pointers on calls
-        bodyp->foreachAndNext([&](AstNode* nodep) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (AstVar* const varp = VN_AS(refp->varp()->user2p(), Var)) {
+        bodyp->foreachAndNext([&](Ast_ಗಂಟು* nodep) {
+            ಯದಿ (AstVarRef* ಧ್ರುವ refp = VN_CAST(nodep, VarRef)) {
+                ಯದಿ (AstVar* ಧ್ರುವ varp = VN_AS(refp->varp()->user2p(), Var)) {
                     // Keep dtype; V3Expand may have widened the reference beyond the variable
-                    AstNodeDType* const dtypep = refp->dtypep();
+                    Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = refp->dtypep();
                     refp->varp(varp);
                     refp->dtypep(dtypep);
                 }
-            } else if (AstVar* const varp = VN_CAST(nodep, Var)) {
+            } ಅನ್ಯಥಾ ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(nodep, Var)) {
                 varp->name(varPrefix + varp->name());
-            } else if (AstCCall* const callp = VN_CAST(nodep, CCall)) {
+            } ಅನ್ಯಥಾ ಯದಿ (AstCCall* ಧ್ರುವ callp = VN_CAST(nodep, CCall)) {
                 callp->user1p(nullptr);
             }
         });
 
         // Return the local scope
-        return lscopep;
+        ಪ್ರತ್ಯಾಗಮ lscopep;
     }
 
-    void doInlining() {
+    ಶೂನ್ಯ doInlining() {
         // Need to gather vertices as we are changing the graph
         std::vector<InlineCFuncsFunctionVertex*> m_fVtxps;
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (InlineCFuncsFunctionVertex* const fVtxp = vtx.cast<InlineCFuncsFunctionVertex>()) {
+        ಪ್ರತಿ (V3GraphVertex& vtx : m_graph.vertices()) {
+            ಯದಿ (InlineCFuncsFunctionVertex* ಧ್ರುವ fVtxp = vtx.cast<InlineCFuncsFunctionVertex>()) {
                 m_fVtxps.emplace_back(fVtxp);
             }
         }
 
         // Iterate functions leaf to root
-        for (InlineCFuncsFunctionVertex* const calleeVtxp : vlstd::reverse_view(m_fVtxps)) {
+        ಪ್ರತಿ (InlineCFuncsFunctionVertex* ಧ್ರುವ calleeVtxp : vlstd::reverse_view(m_fVtxps)) {
             // Should we inline this function?
-            if (calleeVtxp->noInline()) continue;  // Told not to
+            ಯದಿ (calleeVtxp->noInline()) ಅನುವರ್ತ;  // Told not to
 
             // Check size heuristics
-            const bool doIt = [&]() {
+            ಧ್ರುವ ತಾರ್ಕಿಕ doIt = [&]() {
                 // Inline if small enough
-                if (calleeVtxp->size() <= m_sizeThreshold) return true;
+                ಯದಿ (calleeVtxp->size() <= m_sizeThreshold) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 // Inline if not too much bloat
-                const size_t nCalls = calleeVtxp->inEdges().size();
-                if (nCalls * calleeVtxp->size() <= m_prodThreshold) return true;
+                ಧ್ರುವ size_t nCalls = calleeVtxp->inEdges().size();
+                ಯದಿ (nCalls * calleeVtxp->size() <= m_prodThreshold) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 // Otherwise don't inline
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }();
-            if (!doIt) continue;
+            ಯದಿ (!doIt) ಅನುವರ್ತ;
 
             // Ok, attempt to inline call sites
             size_t nInlined = 0;
-            for (const V3GraphEdge* const edgep : calleeVtxp->inEdges().unlinkable()) {
-                InlineCFuncsCallSiteVertex* const callVtxp
+            ಪ್ರತಿ (ಧ್ರುವ V3GraphEdge* ಧ್ರುವ edgep : calleeVtxp->inEdges().unlinkable()) {
+                InlineCFuncsCallSiteVertex* ಧ್ರುವ callVtxp
                     = edgep->fromp()->as<InlineCFuncsCallSiteVertex>();
 
-                AstCFunc* const calleep = calleeVtxp->cfuncp();
-                AstCCall* const callp = callVtxp->callp();
+                AstCFunc* ಧ್ರುವ calleep = calleeVtxp->cfuncp();
+                AstCCall* ಧ್ರುವ callp = callVtxp->callp();
                 UINFO(6, "Consider inlining " << calleep->name() << " at call site " << callp);
                 // Should we inline this call site?
-                if (callVtxp->noInline()) continue;  // Told not to
-                if (callVtxp->inEmpty()) continue;  // Don't know where it's called from
+                ಯದಿ (callVtxp->noInline()) ಅನುವರ್ತ;  // Told not to
+                ಯದಿ (callVtxp->inEmpty()) ಅನುವರ್ತ;  // Don't know where it's called from
 
                 // Pick up the caller
                 UASSERT_OBJ(callVtxp->inSize1(), callVtxp->callp(),
                             "Expected exactly one input edge for call site");
-                InlineCFuncsFunctionVertex* const callerVtxp
+                InlineCFuncsFunctionVertex* ಧ್ರುವ callerVtxp
                     = callVtxp->inEdges().frontp()->fromp()->as<InlineCFuncsFunctionVertex>();
-                AstCFunc* const callerp = callerVtxp->cfuncp();
+                AstCFunc* ಧ್ರುವ callerp = callerVtxp->cfuncp();
 
                 // Don't make a function bigger than the limit
-                const size_t limit = callerp->isTrace() ? m_maxSizeTrace : m_maxSizeCFunc;
-                if (callerVtxp->size() + calleeVtxp->size() > limit) continue;
+                ಧ್ರುವ size_t limit = callerp->isTrace() ? m_maxSizeTrace : m_maxSizeCFunc;
+                ಯದಿ (callerVtxp->size() + calleeVtxp->size() > limit) ಅನುವರ್ತ;
 
                 // Can't do it if it's in a different scope, self pointers differ
-                if (callerp->scopep() != calleep->scopep()) continue;
+                ಯದಿ (callerp->scopep() != calleep->scopep()) ಅನುವರ್ತ;
 
                 // Inline it
-                if (!nInlined) ++m_statFuncsInlined;
-                AstNode* const inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
+                ಯದಿ (!nInlined) ++m_statFuncsInlined;
+                Ast_ಗಂಟು* ಧ್ರುವ inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
 
                 // Need to adjust the graph:
                 // 1. Delete inlined call site
@@ -317,62 +317,62 @@ class InlineCFuncsVisitor final : public VNVisitor {
                 // 2. Add new inlined call sites - also increments size of caller
                 VL_RESTORER(m_cfuncVtxp);
                 m_cfuncVtxp = callerVtxp;
-                if (inlinedp) iterateChildrenConst(inlinedp);
+                ಯದಿ (inlinedp) iterateChildrenConst(inlinedp);
             }
         }
     }
 
-    void removeUnusedFuncs() {
+    ಶೂನ್ಯ removeUnusedFuncs() {
         // Iterate root to leaves
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsFunctionVertex* const fVtxp = vtxp->cast<InlineCFuncsFunctionVertex>();
-            if (!fVtxp) continue;
+        ಪ್ರತಿ (V3GraphVertex* ಧ್ರುವ vtxp : m_graph.vertices().unlinkable()) {
+            InlineCFuncsFunctionVertex* ಧ್ರುವ fVtxp = vtxp->cast<InlineCFuncsFunctionVertex>();
+            ಯದಿ (!fVtxp) ಅನುವರ್ತ;
             // Keep if still called
-            if (!fVtxp->inEmpty()) continue;
+            ಯದಿ (!fVtxp->inEmpty()) ಅನುವರ್ತ;
             // Keep for other reasons
-            if (fVtxp->keep()) continue;
+            ಯದಿ (fVtxp->keep()) ಅನುವರ್ತ;
 
-            AstCFunc* const funcp = fVtxp->cfuncp();
+            AstCFunc* ಧ್ರುವ funcp = fVtxp->cfuncp();
             UINFO(6, "Removing unused CFunc " << funcp);
             ++m_statFuncsRemoved;
 
             // Unlink all call sites
-            for (const V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                edgep->top()->unlinkEdges(&m_graph);
+            ಪ್ರತಿ (ಧ್ರುವ V3GraphEdge* ಧ್ರುವ edgep : vtxp->outEdges().unlinkable()) {
+                edgep->ತುದಿ()->unlinkEdges(&m_graph);
             }
             // Delete function vertex
             vtxp->unlinkDelete(&m_graph);
             // Delete the function
-            VL_DO_DANGLING(pushDeletep(funcp->unlinkFrBack()), funcp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(funcp->unlinkFrBack()), funcp);
         }
 
         // Delete inlined/deleted call site vertices (for debugging only)
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            InlineCFuncsCallSiteVertex* const cVtxp = vtxp->cast<InlineCFuncsCallSiteVertex>();
-            if (!cVtxp) continue;
-            if (!cVtxp->inEmpty()) continue;
-            if (!cVtxp->outEmpty()) continue;
+        ಪ್ರತಿ (V3GraphVertex* ಧ್ರುವ vtxp : m_graph.vertices().unlinkable()) {
+            InlineCFuncsCallSiteVertex* ಧ್ರುವ cVtxp = vtxp->cast<InlineCFuncsCallSiteVertex>();
+            ಯದಿ (!cVtxp) ಅನುವರ್ತ;
+            ಯದಿ (!cVtxp->inEmpty()) ಅನುವರ್ತ;
+            ಯದಿ (!cVtxp->outEmpty()) ಅನುವರ್ತ;
             vtxp->unlinkDelete(&m_graph);
         }
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ visit(AstCFunc* nodep) override {
         // Create the function vertex
-        InlineCFuncsFunctionVertex* const vtxp = getInlineCFuncsFunctionVertexp(nodep);
+        InlineCFuncsFunctionVertex* ಧ್ರುವ vtxp = getInlineCFuncsFunctionVertexp(nodep);
 
         // Check if the function itself is not inlineable
-        if (nodep->rtnTypeVoid() != "void") vtxp->setNoInline("Not void");
-        if (nodep->dpiImportPrototype()) vtxp->setNoInline("DPI import prototype");
-        if (nodep->recursive()) vtxp->setNoInline("Recursive");
-        if (nodep->argsp()) vtxp->setNoInline("Has arguments");
-        if (nodep->isVirtual()) vtxp->setNoInline("Virtual method");
+        ಯದಿ (nodep->rtnTypeVoid() != "void") vtxp->setNoInline("Not void");
+        ಯದಿ (nodep->dpiImportPrototype()) vtxp->setNoInline("DPI import prototype");
+        ಯದಿ (nodep->recursive()) vtxp->setNoInline("Recursive");
+        ಯದಿ (nodep->argsp()) vtxp->setNoInline("Has arguments");
+        ಯದಿ (nodep->isVirtual()) vtxp->setNoInline("Virtual method");
 
         // Check if the function should not be removed
-        if (nodep->entryPoint()) vtxp->setKeep("Entry point");
-        if (nodep->dpiImportPrototype()) vtxp->setKeep("DPI import prototype");
-        if (nodep->dpiExportDispatcher()) vtxp->setKeep("DPI export implementation");
-        if (nodep->isVirtual()) vtxp->setKeep("Virtual method");
+        ಯದಿ (nodep->entryPoint()) vtxp->setKeep("Entry point");
+        ಯದಿ (nodep->dpiImportPrototype()) vtxp->setKeep("DPI import prototype");
+        ಯದಿ (nodep->dpiExportDispatcher()) vtxp->setKeep("DPI export implementation");
+        ಯದಿ (nodep->isVirtual()) vtxp->setKeep("Virtual method");
 
         // Iterate children
         VL_RESTORER(m_cfuncVtxp);
@@ -381,92 +381,92 @@ class InlineCFuncsVisitor final : public VNVisitor {
     }
 
     // Inlineable calls
-    void visit(AstCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
-        AstCFunc* const calleep = nodep->funcp();
+    ಶೂನ್ಯ visit(AstCCall* nodep) override {
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+        AstCFunc* ಧ್ರುವ calleep = nodep->funcp();
 
         // Create the call site vertex
-        InlineCFuncsCallSiteVertex* const vtxp = getInlineCFuncsCallSiteVertexp(nodep);
+        InlineCFuncsCallSiteVertex* ಧ್ರುವ vtxp = getInlineCFuncsCallSiteVertexp(nodep);
 
         // Check if the call site is not inlineable
-        if (!VN_IS(nodep->backp(), StmtExpr)) vtxp->setNoInline("Not in statement position");
-        if (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
-        if (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
+        ಯದಿ (!VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) vtxp->setNoInline("Not in statement position");
+        ಯದಿ (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
+        ಯದಿ (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
 
         // Add caller/callee edges
-        if (m_cfuncVtxp) m_graph.addEdge(*m_cfuncVtxp, *vtxp);
+        ಯದಿ (m_cfuncVtxp) m_graph.addEdge(*m_cfuncVtxp, *vtxp);
         m_graph.addEdge(*vtxp, *getInlineCFuncsFunctionVertexp(calleep));
 
         // Iterate children
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_CCall* nodep) override {
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Called elsewhere");
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    ಶೂನ್ಯ visit(AstAddrOfCFunc* nodep) override {
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Referenced by AddressOfCFunc");
         iterateChildrenConst(nodep);
     }
 
     // Nodes preventing inlining
-    void visit(AstTraceDecl* nodep) override {
+    ಶೂನ್ಯ visit(AstTraceDecl* nodep) override {
         // Referenced by TraceInc
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains TraceDecl");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains TraceDecl");
 
-        if (AstCCall* const callp = nodep->dtypeCallp()) {
+        ಯದಿ (AstCCall* ಧ್ರುವ callp = nodep->dtypeCallp()) {
             getInlineCFuncsCallSiteVertexp(callp)->setNoInline("Referenced by TraceDecl");
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstExecGraph* nodep) override {
+    ಶೂನ್ಯ visit(AstExecGraph* nodep) override {
         // AstExecGraph is not cloneable, so can't inline the containing function
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains ExecGraph");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains ExecGraph");
         // Also mark functions referenced in the dependency graph
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
+        ಪ್ರತಿ (ಧ್ರುವ V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
             getInlineCFuncsFunctionVertexp(vtx.as<ExecMTask>()->funcp())
                 ->setKeep("MTask function");
         }
         VL_RESTORER(m_inExecGraph);
-        m_inExecGraph = true;
+        m_inExecGraph = ಸತ್ಯ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmt* nodep) override {
+    ಶೂನ್ಯ visit(AstCStmt* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmt");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmt");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExpr* nodep) override {
+    ಶೂನ್ಯ visit(AstCExpr* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExpr");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExpr");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCStmtUser* nodep) override {
+    ಶೂನ್ಯ visit(AstCStmtUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmtUser");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CStmtUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
+    ಶೂನ್ಯ visit(AstCExprUser* nodep) override {
         // Can reference anything in text
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExprUser");
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CExprUser");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReturn* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CReturn");
+    ಶೂನ್ಯ visit(AstCReturn* nodep) override {
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->setNoInline("Contains CReturn");
         iterateChildrenConst(nodep);
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
-        if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override {
+        ಯದಿ (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         iterateChildrenConst(nodep);
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     explicit InlineCFuncsVisitor(AstNetlist* nodep) {
         // Phase 1: Build call graph
@@ -475,13 +475,13 @@ public:
         m_graph.acyclic(V3GraphEdge::followAlwaysTrue);
         // Order vertices (any topological order is fine)
         m_graph.order();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-graph");
+        ಯದಿ (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-graph");
         // Phase 2: Inline calls
         doInlining();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-inlined");
+        ಯದಿ (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-inlined");
         // Phase 3: Remove unused functions
         removeUnusedFuncs();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-kept");
+        ಯದಿ (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("inlinecfuncs-kept");
     }
     ~InlineCFuncsVisitor() override {
         V3Stats::addStat("Optimizations, Inline CFuncs, calls inlined", m_statCallsInlined);
@@ -493,10 +493,10 @@ public:
 //######################################################################
 // InlineCFuncs class functions
 
-void V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     // Don't inline when profiling per-function (it would lose granularity)
-    if (v3Global.opt.profCFuncs()) return;
+    ಯದಿ (v3Global.opt.profCFuncs()) ಪ್ರತ್ಯಾಗಮ;
     { InlineCFuncsVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("inlinecfuncs", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("inlinecfuncs", 0, dump_ವೃಕ್ಷ_Either_Level() >= 6);
 }

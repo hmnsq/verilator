@@ -17,66 +17,66 @@
 #ifndef VERILATOR_V3PREEXPR_H_
 #define VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3FileLine.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
 
-#include <deque>
+#ಅನ್ತರ್ಭಾವ <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token final {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    ಗಣನಾ token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+ಗುಪ್ತ:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_ಸಾಲು* ಧ್ರುವ m_fileline;  // Token fileline
+    token_t ಧ್ರುವ m_token;  // Token value
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token(File_ಸಾಲು* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token(File_ಸಾಲು* fileline, bool ಮೌಲ್ಯ)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{ಮೌಲ್ಯ ? ONE : ZERO} {}
+    ~V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token() = ಸ್ವಭಾವ;
+    ಧ್ರುವ ವರ್ಣ* ascii() ಧ್ರುವ {
+        ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        ಪ್ರತ್ಯಾಗಮ names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_ಸಾಲು* fileline() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_fileline; }
+    token_t token() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_token; }
+    bool is_ಮೌಲ್ಯ() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_token == ZERO || m_token == ONE; }
+    bool ಮೌಲ್ಯ() ಧ್ರುವ {
+        UASSERT(is_ಮೌಲ್ಯ(), "preproc expr fetch of non-value");
+        ಪ್ರತ್ಯಾಗಮ m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_ಅಭಿವ್ಯಕ್ತಿ final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token> m_ಮೌಲ್ಯಗಳು;  // Value stack
+    std::deque<V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token> m_ops;  // Operator stack
+    File_ಸಾಲು* m_firstFileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    ಗಣನಾ action_t : uint8_t {
+        VV,  //ಮೌಲ್ಯ
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ* actionAscii(action_t en) {
+        ಸ್ಥಿರ constexpr ಧ್ರುವ ವರ್ಣ* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        ಪ್ರತ್ಯಾಗಮ names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parseTable[V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::MAX][V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTestOne(ಧ್ರುವ string& ಅಭಿವ್ಯಕ್ತಿ, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << ಅಭಿವ್ಯಕ್ತಿ);
+        File_ಸಾಲು* ಧ್ರುವ flp = nullptr;
+        V3_Pre_ಅಭಿವ್ಯಕ್ತಿ parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ* cp = ಅಭಿವ್ಯಕ್ತಿ.c_str(); *cp; ++cp) {
+            ಯದಿ (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                ವಿಕಲ್ಪ (*cp) {
+                ಪಕ್ಷ '0': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::ZERO}); ಭಙ್ಗ;
+                ಪಕ್ಷ '1': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::ONE}); ಭಙ್ಗ;
+                ಪಕ್ಷ '!': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LNOT}); ಭಙ್ಗ;
+                ಪಕ್ಷ '|': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LOR}); ಭಙ್ಗ;
+                ಪಕ್ಷ '&': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LAND}); ಭಙ್ಗ;
+                ಪಕ್ಷ '-': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::IMP}); ಭಙ್ಗ;
+                ಪಕ್ಷ '<': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::EQV}); ಭಙ್ಗ;
+                ಪಕ್ಷ '(': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::BRA}); ಭಙ್ಗ;
+                ಪಕ್ಷ ')': parser.ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::KET}); ಭಙ್ಗ;
+                ಸ್ವಭಾವ: ಭಙ್ಗ;
                 }
-            } else if (*cp == ' ') {
+            } ಅನ್ಯಥಾ ಯದಿ (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        ಧ್ರುವ bool got = parser.result();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    ಶೂನ್ಯ ತಳ್ಳು_Op(ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.ತಳ್ಳು_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    ಶೂನ್ಯ ತಳ್ಳು_ಮೌಲ್ಯ(ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
+    V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token ತೆಗೆ_ಮೌಲ್ಯ() {
+        ಯದಿ (m_ಮೌಲ್ಯಗಳು.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            ಪ್ರತ್ಯಾಗಮ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token tok = m_ಮೌಲ್ಯಗಳು.back();
+        m_ಮೌಲ್ಯಗಳು.ತೆಗೆ_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        ಪ್ರತ್ಯಾಗಮ tok;
     }
-    void reduce() {
+    ಶೂನ್ಯ reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.ತೆಗೆ_back();
+        ವಿಕಲ್ಪ (tok.token()) {
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::KET: {
+            ಯಾವತ್ (m_ops.back().token() != V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::END
+                   && m_ops.back().token() != V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            ಯದಿ (m_ops.back().token() == V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::BRA) {
+                m_ops.ತೆಗೆ_back();
+            } ಅನ್ಯಥಾ {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            break;
+            ಭಙ್ಗ;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LNOT: {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token lhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ತಳ್ಳು_ಮೌಲ್ಯ(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{tok.fileline(), !lhs.ಮೌಲ್ಯ()});
+            ಭಙ್ಗ;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LAND: {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token rhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token lhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ತಳ್ಳು_ಮೌಲ್ಯ(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{tok.fileline(), lhs.ಮೌಲ್ಯ() && rhs.ಮೌಲ್ಯ()});
+            ಭಙ್ಗ;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::LOR: {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token rhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token lhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ತಳ್ಳು_ಮೌಲ್ಯ(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{tok.fileline(), lhs.ಮೌಲ್ಯ() || rhs.ಮೌಲ್ಯ()});
+            ಭಙ್ಗ;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::IMP: {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token rhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token lhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ತಳ್ಳು_ಮೌಲ್ಯ(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{tok.fileline(), !lhs.ಮೌಲ್ಯ() || rhs.ಮೌಲ್ಯ()});
+            ಭಙ್ಗ;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        ಪಕ್ಷ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::EQV: {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token rhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token lhs = ತೆಗೆ_ಮೌಲ್ಯ();
+            ತಳ್ಳು_ಮೌಲ್ಯ(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{tok.fileline(), lhs.ಮೌಲ್ಯ() == rhs.ಮೌಲ್ಯ()});
+            ಭಙ್ಗ;
         }
-        default: {
+        ಸ್ವಭಾವ: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            ಭಙ್ಗ;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    ಶೂನ್ಯ parse() {
+        ಯಾವತ್ (!m_inputs.empty()) {
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token tok = m_inputs.front();
+            m_inputs.ತೆಗೆ_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            ಯದಿ (tok.is_ಮೌಲ್ಯ()) {
+                ತಳ್ಳು_ಮೌಲ್ಯ(tok);
+                ಅನುವರ್ತ;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token ತುದಿ_Tok = m_ops.back();
+            auto action = parseTable[ತುದಿ_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << ತುದಿ_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            ವಿಕಲ್ಪ (action) {
+            ಪಕ್ಷ RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                ಭಙ್ಗ;
+            ಪಕ್ಷ SS:  // Shift
+                m_ops.ತಳ್ಳು_back(tok);
+                ಭಙ್ಗ;
+            ಪಕ್ಷ AA:  // Accept
+                ಭಙ್ಗ;
+            ಸ್ವಭಾವ: tok.fileline()->v3error("Syntax error in `ifdef () expression"); ಪ್ರತ್ಯಾಗಮ;
             }
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_ಅಭಿವ್ಯಕ್ತಿ() = ಸ್ವಭಾವ;
+    ~V3_Pre_ಅಭಿವ್ಯಕ್ತಿ() = ಸ್ವಭಾವ;
+    ಶೂನ್ಯ reset(File_ಸಾಲು* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_ಮೌಲ್ಯಗಳು.clear();
         m_ops.clear();
         m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        ತಳ್ಳು_Op(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{flp, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::END});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    ಶೂನ್ಯ ತಳ್ಳು_ಒಳಹರಿವು(ಧ್ರುವ V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token& token) {
+        ಯದಿ (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.ತಳ್ಳು_back(token);
     }
     bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+        ತಳ್ಳು_ಒಳಹರಿವು(V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token{m_firstFileline, V3_Pre_ಅಭಿವ್ಯಕ್ತಿ_Token::END});
         parse();
-        return popValue().value();
+        ಪ್ರತ್ಯಾಗಮ ತೆಗೆ_ಮೌಲ್ಯ().ಮೌಲ್ಯ();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
 #endif  // Guard

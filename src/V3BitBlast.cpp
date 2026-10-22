@@ -66,51 +66,51 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3BitBlast.h"
+#ಅನ್ತರ್ಭಾವ "V3BitBlast.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3AstUserAllocator.h"
+#ಅನ್ತರ್ಭಾವ "V3SharedTmps.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <algorithm>
+#ಅನ್ತರ್ಭಾವ <algorithm>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
+ವರ್ಗ BitBlastVisitor final : ಸಾರ್ವಜನಿಕ VNVisitorConst, ಸಾರ್ವಜನಿಕ VNDeleter {
     // TYPES
 
     // A read of a variable: a constant bit select or a whole VarRef
-    struct RdRef final {
-        AstNodeExpr* exprp;  // Sel, or the VarRef if whole
-        int lsb;  // First bit read
-        int msb;  // Last bit read
+    ಸಂರಚನಾ RdRef final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp;  // Sel, or the VarRef if whole
+        ಪೂರ್ಣಾಙ್ಕ lsb;  // First bit read
+        ಪೂರ್ಣಾಙ್ಕ msb;  // Last bit read
     };
 
     // A write of a variable: a constant bit select or a whole VarRef
-    struct WrRef final {
-        AstNodeExpr* exprp;  // The Sel, or the VarRef if whole
-        AstNodeAssign* assignp;  // The assignment, if it can be expanded
-        int lsb;  // The first bit written
-        int msb;  // The last bit written
+    ಸಂರಚನಾ WrRef final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp;  // The Sel, or the VarRef if whole
+        Ast_ಗಂಟು_Assign* assignp;  // The assignment, if it can be expanded
+        ಪೂರ್ಣಾಙ್ಕ lsb;  // The first bit written
+        ಪೂರ್ಣಾಙ್ಕ msb;  // The last bit written
     };
 
     // A fragment of a split AstVarScope
-    struct Fragment final {
-        int lsb;  // The first bit in the variable
-        int msb;  // The last bit in the variable
+    ಸಂರಚನಾ Fragment final {
+        ಪೂರ್ಣಾಙ್ಕ lsb;  // The first bit in the variable
+        ಪೂರ್ಣಾಙ್ಕ msb;  // The last bit in the variable
         AstVarScope* vscp;  // The AstVarScope of the fragment
     };
 
     // The information about an AstVarScope of an eligible variable
-    struct VscpInfo final {
+    ಸಂರಚನಾ VscpInfo final {
         std::vector<RdRef> rdRefs;  // The reads of the AstVarScope
         std::vector<WrRef> wrRefs;  // The writes of the AstVarScope
         std::vector<Fragment> fragments;  // The fragments in LSB order, empty if not split
-        bool blocked = false;  // Referenced other than by an RdRef or WrRef
+        ತಾರ್ಕಿಕ blocked = ಅಸತ್ಯ;  // Referenced other than by an RdRef or WrRef
     };
 
     // NODE STATE
@@ -118,16 +118,16 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     //  AstVarScope::user1()        -> VscpInfo, via m_vscpInfos
     //  AstVar::user2()             -> Fragment AstVars by LSB and MSB, via m_fragmentVarps
     //  AstScope::user2p()          -> AstActive*: combinational active, see comboActive
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    ಧ್ರುವ VNUser1InUse m_user1InUse;
+    ಧ್ರುವ VNUser2InUse m_user2InUse;
 
     // STATE
     // The fragment AstVars created so far, by LSB and MSB. AstVarScopes with the same
     // fragment share its AstVar.
-    AstUser2Allocator<AstVar, std::map<std::pair<int, int>, AstVar*>> m_fragmentVarps;
+    AstUser2Allocator<AstVar, std::map<std::pair<ಪೂರ್ಣಾಙ್ಕ, ಪೂರ್ಣಾಙ್ಕ>, AstVar*>> m_fragmentVarps;
     AstUser1Allocator<AstVarScope, VscpInfo> m_vscpInfos;
     std::vector<AstVarScope*> m_vscps;  // AstVarScopes of eligible variables, in encounter order
-    AstNodeAssign* m_assignp = nullptr;  // The enclosing assignment, if it can be expanded
+    Ast_ಗಂಟು_Assign* m_assignp = nullptr;  // The enclosing assignment, if it can be expanded
     V3SharedTmps m_tmps{"__VbitblastTmp", VVarType::MODULETEMP};  // Temporaries of RHSs
     VDouble0 m_statSplitAttr;  // AstVarScopes split only due to split_var
     VDouble0 m_statSplitAuto;  // AstVarScopes split automatically
@@ -137,80 +137,80 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // METHODS
 
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
-    static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
+    ಸ್ಥಿರ ಶೂನ್ಯ warnNoSplit(AstVar* varp, ಧ್ರುವ Ast_ಗಂಟು* wherep, ಧ್ರುವ ವರ್ಣ* reasonp) {
         // Only warn if user requested splitting
-        if (!varp->attrSplitVar()) return;
+        ಯದಿ (!varp->attrSplitVar()) ಪ್ರತ್ಯಾಗಮ;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
                                      << " marked split_var but will not be split because "
                                      << reasonp);
-        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, true);  // Warn only once
+        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, ಸತ್ಯ);  // Warn only once
     }
 
     // Is the variable eligible for splitting by its type and properties. Note this might be
     // overridden by a visit to an unsupported construct, so it is not completely determined
     // until the whole netlist is visited.
-    static bool isEligible(AstVar* varp) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isEligible(AstVar* varp) {
         // Compute and cache eligibility on first encounter
-        if (!varp->user1()) {
-            const bool eligible = [&]() {
-                const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
+        ಯದಿ (!varp->user1()) {
+            ಧ್ರುವ ತಾರ್ಕಿಕ eligible = [&]() {
+                ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = varp->dtypep()->skipRefp();
                 // Packed types only
-                if (!dtypep->isIntegralOrPacked()) return false;
+                ಯದಿ (!dtypep->isIntegralOrPacked()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 // Wider than one bit
-                if (dtypep->width() <= 1) return false;
+                ಯದಿ (dtypep->width() <= 1) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 // Check properties
-                const char* const reasonp = varp->cannotSplitKindReason();
+                ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ reasonp = varp->cannotSplitKindReason();
                 // Warn that it cannot be split if user explicitly requested splitting
-                if (reasonp) warnNoSplit(varp, varp, reasonp);
+                ಯದಿ (reasonp) warnNoSplit(varp, varp, reasonp);
                 // Eligible if no refusal reason returned
-                return !reasonp;
+                ಪ್ರತ್ಯಾಗಮ !reasonp;
             }();
             varp->user1(2 | eligible);
         }
         // Return the cached result
-        return varp->user1() & 1;
+        ಪ್ರತ್ಯಾಗಮ varp->user1() & 1;
     }
 
     // The VscpInfo of the AstVarScope of an eligible variable
     VscpInfo& vscpInfoOf(AstVarScope* vscp) {
-        if (VscpInfo* const infop = m_vscpInfos.tryGet(vscp)) return *infop;
+        ಯದಿ (VscpInfo* ಧ್ರುವ infop = m_vscpInfos.tryGet(vscp)) ಪ್ರತ್ಯಾಗಮ *infop;
         // Also record on first encounter
-        m_vscps.push_back(vscp);
-        return m_vscpInfos(vscp);
+        m_vscps.ತಳ್ಳು_back(vscp);
+        ಪ್ರತ್ಯಾಗಮ m_vscpInfos(vscp);
     }
 
     // Record step methods
 
     // Block splitting of the AstVarScope, due to the construct in 'wherep'
-    static void block(AstVar* varp, VscpInfo& info, const AstNode* wherep) {
+    ಸ್ಥಿರ ಶೂನ್ಯ block(AstVar* varp, VscpInfo& info, ಧ್ರುವ Ast_ಗಂಟು* wherep) {
         warnNoSplit(varp, wherep, "it is referenced in an unsupported way");
-        if (info.blocked) return;
-        info.blocked = true;
+        ಯದಿ (info.blocked) ಪ್ರತ್ಯಾಗಮ;
+        info.blocked = ಸತ್ಯ;
         info.rdRefs.clear();
         info.wrRefs.clear();
     }
 
     // Record the reference 'exprp' of bits 'lsb' to 'msb' through 'refp'
-    void record(AstNodeExpr* exprp, AstVarRef* refp, int lsb, int msb) {
-        AstVar* const varp = refp->varp();
-        if (!isEligible(varp)) return;
+    ಶೂನ್ಯ record(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVarRef* refp, ಪೂರ್ಣಾಙ್ಕ lsb, ಪೂರ್ಣಾಙ್ಕ msb) {
+        AstVar* ಧ್ರುವ varp = refp->varp();
+        ಯದಿ (!isEligible(varp)) ಪ್ರತ್ಯಾಗಮ;
         VscpInfo& info = vscpInfoOf(refp->varScopep());
         // RW reference blocks splitting
-        if (refp->access().isRW()) block(varp, info, exprp);
+        ಯದಿ (refp->access().isRW()) block(varp, info, exprp);
         // Don't recod if blocked (due to RW above, or any other reason from elsewhere)
-        if (info.blocked) return;
+        ಯದಿ (info.blocked) ಪ್ರತ್ಯಾಗಮ;
         // Record reference
-        if (refp->access().isReadOnly()) {
-            info.rdRefs.push_back({exprp, lsb, msb});
-            return;
+        ಯದಿ (refp->access().isReadOnly()) {
+            info.rdRefs.ತಳ್ಳು_back({exprp, lsb, msb});
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // A write as an assignment LHS can be expanded into assignments to multiple fragments
-        const bool canExpand = m_assignp && exprp == m_assignp->lhsp();
-        info.wrRefs.push_back({exprp, canExpand ? m_assignp : nullptr, lsb, msb});
+        ಧ್ರುವ ತಾರ್ಕಿಕ canExpand = m_assignp && exprp == m_assignp->lhsp();
+        info.wrRefs.ತಳ್ಳು_back({exprp, canExpand ? m_assignp : nullptr, lsb, msb});
     }
 
     // Assignment visitor, shared by the assignment types that can be expanded
-    void visitAssignment(AstNodeAssign* nodep) {
+    ಶೂನ್ಯ visitAssignment(Ast_ಗಂಟು_Assign* nodep) {
         VL_RESTORER(m_assignp);
         // Not with timing control, but always needs visiting
         m_assignp = nodep->timingControlp() ? nullptr : nodep;
@@ -220,92 +220,92 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Decision step methods
 
     // The AstVar of the fragment of 'varp' of bits 'lsb' to 'msb', created on first use
-    AstVar* fragmentVarp(AstVar* varp, int lsb, int msb) {
+    AstVar* fragmentVarp(AstVar* varp, ಪೂರ್ಣಾಙ್ಕ lsb, ಪೂರ್ಣಾಙ್ಕ msb) {
         AstVar*& fragVarpr = m_fragmentVarps(varp)[{lsb, msb}];
-        if (fragVarpr) return fragVarpr;
-        const int width = msb - lsb + 1;
-        std::string name = varp->name() + "__BRA__" + AstNode::encodeNumber(msb);
-        if (width > 1) name += AstNode::encodeName(":") + AstNode::encodeNumber(lsb);
+        ಯದಿ (fragVarpr) ಪ್ರತ್ಯಾಗಮ fragVarpr;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = msb - lsb + 1;
+        std::string name = varp->name() + "__BRA__" + Ast_ಗಂಟು::encode_ಸಂಖ್ಯೆ(msb);
+        ಯದಿ (width > 1) name += Ast_ಗಂಟು::encodeName(":") + Ast_ಗಂಟು::encode_ಸಂಖ್ಯೆ(lsb);
         name += "__KET__";
-        AstNodeDType* const dtypep = varp->dtypep()->isFourstate()
+        Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = varp->dtypep()->isFourstate()
                                          ? varp->findLogicDType(width, width, VSigning::UNSIGNED)
                                          : varp->findBitDType(width, width, VSigning::UNSIGNED);
-        fragVarpr = new AstVar{varp->fileline(), varp->varType(), name, dtypep};
+        fragVarpr = ನೂತನ AstVar{varp->fileline(), varp->varType(), name, dtypep};
         fragVarpr->propagateSplitAttrFrom(varp);
         varp->addHereThisAsNext(fragVarpr);
-        return fragVarpr;
+        ಪ್ರತ್ಯಾಗಮ fragVarpr;
     }
 
     // Decide whether to split the AstVarScope, and if so, create its fragments
-    void decide(AstVarScope* vscp, VscpInfo& info) {
-        if (info.blocked) return;
-        AstVar* const varp = vscp->varp();
+    ಶೂನ್ಯ decide(AstVarScope* vscp, VscpInfo& info) {
+        ಯದಿ (info.blocked) ಪ್ರತ್ಯಾಗಮ;
+        AstVar* ಧ್ರುವ varp = vscp->varp();
         // Split automatically if all references are disjoint or identical bit selects
-        const bool isAuto = [&]() {
-            std::vector<std::pair<int, int>> ranges;  // [lsb, msb] inclusive
-            for (const RdRef& ref : info.rdRefs) {
-                if (VN_IS(ref.exprp, VarRef)) return false;
+        ಧ್ರುವ ತಾರ್ಕಿಕ isAuto = [&]() {
+            std::vector<std::pair<ಪೂರ್ಣಾಙ್ಕ, ಪೂರ್ಣಾಙ್ಕ>> ranges;  // [lsb, msb] inclusive
+            ಪ್ರತಿ (ಧ್ರುವ RdRef& ref : info.rdRefs) {
+                ಯದಿ (VN_IS(ref.exprp, VarRef)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 ranges.emplace_back(ref.lsb, ref.msb);
             }
-            for (const WrRef& ref : info.wrRefs) {
-                if (VN_IS(ref.exprp, VarRef)) return false;
+            ಪ್ರತಿ (ಧ್ರುವ WrRef& ref : info.wrRefs) {
+                ಯದಿ (VN_IS(ref.exprp, VarRef)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 ranges.emplace_back(ref.lsb, ref.msb);
             }
             std::sort(ranges.begin(), ranges.end());
-            for (size_t i = 0; i + 1 < ranges.size(); ++i) {
-                const std::pair<int, int>& a = ranges[i];
-                const std::pair<int, int>& b = ranges[i + 1];
-                if (a != b && a.second >= b.first) return false;
+            ಪ್ರತಿ (size_t i = 0; i + 1 < ranges.size(); ++i) {
+                ಧ್ರುವ std::pair<ಪೂರ್ಣಾಙ್ಕ, ಪೂರ್ಣಾಙ್ಕ>& a = ranges[i];
+                ಧ್ರುವ std::pair<ಪೂರ್ಣಾಙ್ಕ, ಪೂರ್ಣಾಙ್ಕ>& b = ranges[i + 1];
+                ಯದಿ (a != b && a.second >= b.first) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }();
         // Otherwise only if requested
-        if (!isAuto && !varp->attrSplitVar()) return;
+        ಯದಿ (!isAuto && !varp->attrSplitVar()) ಪ್ರತ್ಯಾಗಮ;
         // The fragment boundaries are the boundaries of the ranges written,
         // and of the range referenced, as bits outside of it are not used
-        int lsb = varp->width();
-        int msb = -1;
-        for (const RdRef& ref : info.rdRefs) {
+        ಪೂರ್ಣಾಙ್ಕ lsb = varp->width();
+        ಪೂರ್ಣಾಙ್ಕ msb = -1;
+        ಪ್ರತಿ (ಧ್ರುವ RdRef& ref : info.rdRefs) {
             lsb = std::min(lsb, ref.lsb);
             msb = std::max(msb, ref.msb);
         }
-        std::vector<int> bounds;
-        for (const WrRef& ref : info.wrRefs) {
+        std::vector<ಪೂರ್ಣಾಙ್ಕ> bounds;
+        ಪ್ರತಿ (ಧ್ರುವ WrRef& ref : info.wrRefs) {
             lsb = std::min(lsb, ref.lsb);
             msb = std::max(msb, ref.msb);
-            bounds.push_back(ref.lsb);
-            bounds.push_back(ref.msb + 1);
+            bounds.ತಳ್ಳು_back(ref.lsb);
+            bounds.ತಳ್ಳು_back(ref.msb + 1);
         }
-        bounds.push_back(lsb);
-        bounds.push_back(msb + 1);
+        bounds.ತಳ್ಳು_back(lsb);
+        bounds.ತಳ್ಳು_back(msb + 1);
         std::sort(bounds.begin(), bounds.end());
         bounds.erase(std::unique(bounds.begin(), bounds.end()), bounds.end());
         // Nothing to do if the only fragment is the whole variable
-        if (bounds.size() == 2 && lsb == 0 && msb == varp->width() - 1) return;
+        ಯದಿ (bounds.size() == 2 && lsb == 0 && msb == varp->width() - 1) ಪ್ರತ್ಯಾಗಮ;
         // Writes that cannot be expanded must write one fragment
-        for (const WrRef& ref : info.wrRefs) {
+        ಪ್ರತಿ (ಧ್ರುವ WrRef& ref : info.wrRefs) {
             // On the LHS of assignment it can be expanded
-            if (ref.assignp) continue;
+            ಯದಿ (ref.assignp) ಅನುವರ್ತ;
             // If write is to a whole fragment, it can be replaced
-            if (*std::upper_bound(bounds.begin(), bounds.end(), ref.lsb) == ref.msb + 1) {
-                continue;
+            ಯದಿ (*std::upper_bound(bounds.begin(), bounds.end(), ref.lsb) == ref.msb + 1) {
+                ಅನುವರ್ತ;
             }
             // Otherwise can't split
             warnNoSplit(varp, ref.exprp, "it is written in an unsupported way");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Splitting this variable
         ++(isAuto ? m_statSplitAuto : m_statSplitAttr);
 
         // Create the fragment AstVarScopes
-        for (size_t i = 0; i + 1 < bounds.size(); ++i) {
-            const int lsb = bounds[i];
-            const int msb = bounds[i + 1] - 1;
-            AstVar* const fragVarp = fragmentVarp(varp, lsb, msb);
-            AstVarScope* const newp = new AstVarScope{vscp->fileline(), vscp->scopep(), fragVarp};
+        ಪ್ರತಿ (size_t i = 0; i + 1 < bounds.size(); ++i) {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ lsb = bounds[i];
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ msb = bounds[i + 1] - 1;
+            AstVar* ಧ್ರುವ fragVarp = fragmentVarp(varp, lsb, msb);
+            AstVarScope* ಧ್ರುವ newp = ನೂತನ AstVarScope{vscp->fileline(), vscp->scopep(), fragVarp};
             vscp->addHereThisAsNext(newp);
-            info.fragments.push_back({lsb, msb, newp});
+            info.fragments.ತಳ್ಳು_back({lsb, msb, newp});
             ++m_statFragments;
         }
     }
@@ -313,128 +313,128 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // Rewrite step methods
 
     // Index of the fragment containing bit 'bit'
-    static size_t fragmentIndex(const VscpInfo& info, int bit) {
-        const auto it = std::upper_bound(info.fragments.begin(), info.fragments.end(), bit,
-                                         [](int b, const Fragment& fragment) {  //
-                                             return b <= fragment.msb;
+    ಸ್ಥಿರ size_t fragmentIndex(ಧ್ರುವ VscpInfo& info, ಪೂರ್ಣಾಙ್ಕ bit) {
+        ಧ್ರುವ auto it = std::upper_bound(info.fragments.begin(), info.fragments.end(), bit,
+                                         [](ಪೂರ್ಣಾಙ್ಕ b, ಧ್ರುವ Fragment& fragment) {  //
+                                             ಪ್ರತ್ಯಾಗಮ b <= fragment.msb;
                                          });
-        return it - info.fragments.begin();
+        ಪ್ರತ್ಯಾಗಮ it - info.fragments.begin();
     }
 
     // Replace the read 'ref' with the bits of the fragments it overlaps
-    void rewriteRead(const RdRef& ref, const VscpInfo& info) {
-        FileLine* const flp = ref.exprp->fileline();
-        AstNodeExpr* resultp = nullptr;
-        for (size_t i = fragmentIndex(info, ref.lsb); i < info.fragments.size(); ++i) {
-            const Fragment& fragment = info.fragments[i];
-            if (fragment.lsb > ref.msb) break;
-            const int partLsb = std::max(ref.lsb, fragment.lsb);
-            const int partMsb = std::min(ref.msb, fragment.msb);
-            AstNodeExpr* bitsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
-            if (partLsb != fragment.lsb || partMsb != fragment.msb) {
-                bitsp = new AstSel{flp, bitsp, partLsb - fragment.lsb, partMsb - partLsb + 1};
+    ಶೂನ್ಯ rewriteRead(ಧ್ರುವ RdRef& ref, ಧ್ರುವ VscpInfo& info) {
+        File_ಸಾಲು* ಧ್ರುವ flp = ref.exprp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp = nullptr;
+        ಪ್ರತಿ (size_t i = fragmentIndex(info, ref.lsb); i < info.fragments.size(); ++i) {
+            ಧ್ರುವ Fragment& fragment = info.fragments[i];
+            ಯದಿ (fragment.lsb > ref.msb) ಭಙ್ಗ;
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ partLsb = std::max(ref.lsb, fragment.lsb);
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ partMsb = std::min(ref.msb, fragment.msb);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitsp = ನೂತನ AstVarRef{flp, fragment.vscp, VAccess::READ};
+            ಯದಿ (partLsb != fragment.lsb || partMsb != fragment.msb) {
+                bitsp = ನೂತನ AstSel{flp, bitsp, partLsb - fragment.lsb, partMsb - partLsb + 1};
             }
             // Higher bits go to the left
-            resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+            resultp = resultp ? ನೂತನ AstConcat{flp, bitsp, resultp} : bitsp;
         }
         ref.exprp->replaceWith(resultp);
-        VL_DO_DANGLING(pushDeletep(ref.exprp), ref.exprp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(ref.exprp), ref.exprp);
     }
 
     // Can the bits of the RHS of an assignment to multiple fragments be selected directly for
     // each fragment. It must be pure and cheap, and must not read a fragment being written, which
     // it cannot, as it is wider than one fragment, and its reads were rewritten into fragments.
-    static bool isSelectable(const AstNodeExpr* nodep) {
-        if (VN_IS(nodep, Const)) return true;
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            if (!VN_IS(selp->lsbp(), Const)) return false;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isSelectable(ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಯದಿ (VN_IS(nodep, Const)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಯದಿ (ಧ್ರುವ AstSel* ಧ್ರುವ selp = VN_CAST(nodep, Sel)) {
+            ಯದಿ (!VN_IS(selp->lsbp(), Const)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             nodep = selp->fromp();
         }
-        const AstVarRef* const refp = VN_CAST(nodep, VarRef);
-        if (!refp) return false;
+        ಧ್ರುವ AstVarRef* ಧ್ರುವ refp = VN_CAST(nodep, VarRef);
+        ಯದಿ (!refp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         // Not a forced variable (trips several bugs in V3Force)
-        if (refp->varp()->isForced()) return false;
+        ಯದಿ (refp->varp()->isForced()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         // Not a SystemC variable, which can only be accessed whole, not selected from.
-        return !refp->varp()->isSc();
+        ಪ್ರತ್ಯಾಗಮ !refp->varp()->isSc();
     }
 
     // Replace the write 'ref' with the fragments it covers
-    void rewriteWrite(AstScope* scopep, const WrRef& ref, const VscpInfo& info) {
-        FileLine* const flp = ref.exprp->fileline();
-        const size_t first = fragmentIndex(info, ref.lsb);
-        const size_t last = fragmentIndex(info, ref.msb);
+    ಶೂನ್ಯ rewriteWrite(AstScope* scopep, ಧ್ರುವ WrRef& ref, ಧ್ರುವ VscpInfo& info) {
+        File_ಸಾಲು* ಧ್ರುವ flp = ref.exprp->fileline();
+        ಧ್ರುವ size_t first = fragmentIndex(info, ref.lsb);
+        ಧ್ರುವ size_t last = fragmentIndex(info, ref.msb);
         UASSERT_OBJ(info.fragments[first].lsb == ref.lsb, ref.exprp,
                     "Write not at fragment boundary");
         // If one fragment, write it instead
-        if (first == last) {
-            ref.exprp->replaceWith(new AstVarRef{flp, info.fragments[first].vscp, VAccess::WRITE});
-            VL_DO_DANGLING(pushDeletep(ref.exprp), ref.exprp);
-            return;
+        ಯದಿ (first == last) {
+            ref.exprp->replaceWith(ನೂತನ AstVarRef{flp, info.fragments[first].vscp, VAccess::WRITE});
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(ref.exprp), ref.exprp);
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Otherwise it must be an assignment LHS: expand the assignment into
         // an assignment to each fragment
-        AstNodeAssign* const origp = ref.assignp;
-        AstNodeExpr* rhsp = origp->rhsp()->unlinkFrBack();
+        Ast_ಗಂಟು_Assign* ಧ್ರುವ origp = ref.assignp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp = origp->rhsp()->unlinkFrBack();
         // Unless its bits can be selected directly, assign the RHS to a temporary first, so it
         // is evaluated once, and reads the fragments before any of them is written
-        if (!isSelectable(rhsp)) {
+        ಯದಿ (!isSelectable(rhsp)) {
             ++m_statTmps;
-            AstVarScope* const tmpp = m_tmps.make(flp, scopep, rhsp->dtypep());
-            AstVarRef* const tmpRefp = new AstVarRef{flp, tmpp, VAccess::WRITE};
-            origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, rhsp});
-            rhsp = new AstVarRef{flp, tmpp, VAccess::READ};
+            AstVarScope* ಧ್ರುವ tmpp = m_tmps.make(flp, scopep, rhsp->dtypep());
+            AstVarRef* ಧ್ರುವ tmpRefp = ನೂತನ AstVarRef{flp, tmpp, VAccess::WRITE};
+            origp->addHereThisAsNext(ನೂತನ AstAssign{flp, tmpRefp, rhsp});
+            rhsp = ನೂತನ AstVarRef{flp, tmpp, VAccess::READ};
         }
         // Assign each fragment its bits of the RHS
-        for (size_t i = first; i <= last; ++i) {
-            const Fragment& fragment = info.fragments[i];
-            const int lsb = fragment.lsb - ref.lsb;  // LSB of the fragment's bits in the RHS
-            const int width = fragment.msb - fragment.lsb + 1;
-            AstVarRef* const lhsp = new AstVarRef{flp, fragment.vscp, VAccess::WRITE};
-            AstSel* const selp = new AstSel{flp, rhsp->cloneTreePure(false), lsb, width};
+        ಪ್ರತಿ (size_t i = first; i <= last; ++i) {
+            ಧ್ರುವ Fragment& fragment = info.fragments[i];
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ lsb = fragment.lsb - ref.lsb;  // LSB of the fragment's bits in the RHS
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = fragment.msb - fragment.lsb + 1;
+            AstVarRef* ಧ್ರುವ lhsp = ನೂತನ AstVarRef{flp, fragment.vscp, VAccess::WRITE};
+            AstSel* ಧ್ರುವ selp = ನೂತನ AstSel{flp, rhsp->clone_ವೃಕ್ಷ_Pure(ಅಸತ್ಯ), lsb, width};
             origp->addHereThisAsNext(origp->cloneType(lhsp, selp));
         }
-        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        VL_DO_DANGLING(pushDeletep(origp->unlinkFrBack()), origp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(origp->unlinkFrBack()), origp);
     }
 
     // The combinational AstActive of the scope, cached
-    static AstActive* comboActive(AstScope* scopep) {
-        if (!scopep->user2p()) scopep->user2p(scopep->comboActivep(true));
-        return VN_AS(scopep->user2p(), Active);
+    ಸ್ಥಿರ AstActive* comboActive(AstScope* scopep) {
+        ಯದಿ (!scopep->user2p()) scopep->user2p(scopep->comboActivep(ಸತ್ಯ));
+        ಪ್ರತ್ಯಾಗಮ VN_AS(scopep->user2p(), Active);
     }
 
     // VISITORS
-    void visit(AstNodeDType*) override {}  // No references in data types
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstAssign* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignW* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
-    void visit(AstSel* nodep) override {
-        AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef);
-        if (!refp || !isEligible(refp->varp())) {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_DType*) override {}  // No references in data types
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ visit(AstAssign* nodep) override { visitAssignment(nodep); }
+    ಶೂನ್ಯ visit(AstAssignW* nodep) override { visitAssignment(nodep); }
+    ಶೂನ್ಯ visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
+    ಶೂನ್ಯ visit(AstSel* nodep) override {
+        AstVarRef* ಧ್ರುವ refp = VN_CAST(nodep->fromp(), VarRef);
+        ಯದಿ (!refp || !isEligible(refp->varp())) {
             iterateChildrenConst(nodep);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Must be constant and in range. V3Unknown only guards the LSB, so a select with
         // the LSB in range, but the MSB beyond the variable can reach here.
-        const AstConst* const lsbp = VN_CAST(nodep->lsbp(), Const);
-        if (!lsbp || lsbp->toSInt() + nodep->widthConst() > refp->varp()->width()) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ lsbp = VN_CAST(nodep->lsbp(), Const);
+        ಯದಿ (!lsbp || lsbp->toSInt() + nodep->widthConst() > refp->varp()->width()) {
             block(refp->varp(), vscpInfoOf(refp->varScopep()), refp);
             iterateConst(nodep->lsbp());
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Record partial access
         record(nodep, refp, lsbp->toSInt(), lsbp->toSInt() + nodep->widthConst() - 1);
     }
-    void visit(AstVarRef* nodep) override {
+    ಶೂನ್ಯ visit(AstVarRef* nodep) override {
         // Record whole access
         record(nodep, nodep, 0, nodep->varp()->width() - 1);
     }
-    void visit(AstMemberSel* nodep) override {
+    ಶೂನ್ಯ visit(AstMemberSel* nodep) override {
         iterateChildrenConst(nodep);
         // The AstVarScope is not known, so all of them are blocked, by making it ineligible
-        AstVar* const varp = nodep->varp();
-        if (!isEligible(varp)) return;
+        AstVar* ಧ್ರುವ varp = nodep->varp();
+        ಯದಿ (!isEligible(varp)) ಪ್ರತ್ಯಾಗಮ;
         varp->user1(2);  // Mark not eligible
         warnNoSplit(varp, nodep, "it is referenced in an unsupported way");
     }
@@ -445,35 +445,35 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         iterateConst(netlistp);
 
         // Decide which AstVarScopes are split, unless the variable became ineligible
-        for (AstVarScope* const vscp : m_vscps) {
-            if (isEligible(vscp->varp())) decide(vscp, m_vscpInfos(vscp));
+        ಪ್ರತಿ (AstVarScope* ಧ್ರುವ vscp : m_vscps) {
+            ಯದಿ (isEligible(vscp->varp())) decide(vscp, m_vscpInfos(vscp));
         }
 
         // Rewrite the reads, then the writes, which might move the reads in their RHS
-        for (AstVarScope* const vscp : m_vscps) {
-            const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            for (const RdRef& ref : info.rdRefs) rewriteRead(ref, info);
+        ಪ್ರತಿ (AstVarScope* ಧ್ರುವ vscp : m_vscps) {
+            ಧ್ರುವ VscpInfo& info = m_vscpInfos(vscp);
+            ಯದಿ (info.fragments.empty()) ಅನುವರ್ತ;
+            ಪ್ರತಿ (ಧ್ರುವ RdRef& ref : info.rdRefs) rewriteRead(ref, info);
         }
-        for (AstVarScope* const vscp : m_vscps) {
-            const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            for (const WrRef& ref : info.wrRefs) rewriteWrite(vscp->scopep(), ref, info);
+        ಪ್ರತಿ (AstVarScope* ಧ್ರುವ vscp : m_vscps) {
+            ಧ್ರುವ VscpInfo& info = m_vscpInfos(vscp);
+            ಯದಿ (info.fragments.empty()) ಅನುವರ್ತ;
+            ಪ್ರತಿ (ಧ್ರುವ WrRef& ref : info.wrRefs) rewriteWrite(vscp->scopep(), ref, info);
         }
 
         // Drive variables that must be kept from their fragments
-        for (AstVarScope* const vscp : m_vscps) {
-            const VscpInfo& info = m_vscpInfos(vscp);
-            if (info.fragments.empty()) continue;
-            if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
-            AstActive* const activep = comboActive(vscp->scopep());
-            FileLine* const flp = vscp->fileline();
-            for (const Fragment& fragment : info.fragments) {
-                AstVarRef* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-                const int width = fragment.msb - fragment.lsb + 1;
-                AstSel* const lhsp = new AstSel{flp, lhsRefp, fragment.lsb, width};
-                AstVarRef* const rhsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
-                activep->addStmtsp(new AstAlways{new AstAssignW{flp, lhsp, rhsp}});
+        ಪ್ರತಿ (AstVarScope* ಧ್ರುವ vscp : m_vscps) {
+            ಧ್ರುವ VscpInfo& info = m_vscpInfos(vscp);
+            ಯದಿ (info.fragments.empty()) ಅನುವರ್ತ;
+            ಯದಿ (!(vscp->varp()->isTrace() && vscp->isTrace())) ಅನುವರ್ತ;
+            AstActive* ಧ್ರುವ activep = comboActive(vscp->scopep());
+            File_ಸಾಲು* ಧ್ರುವ flp = vscp->fileline();
+            ಪ್ರತಿ (ಧ್ರುವ Fragment& fragment : info.fragments) {
+                AstVarRef* ಧ್ರುವ lhsRefp = ನೂತನ AstVarRef{flp, vscp, VAccess::WRITE};
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = fragment.msb - fragment.lsb + 1;
+                AstSel* ಧ್ರುವ lhsp = ನೂತನ AstSel{flp, lhsRefp, fragment.lsb, width};
+                AstVarRef* ಧ್ರುವ rhsp = ನೂತನ AstVarRef{flp, fragment.vscp, VAccess::READ};
+                activep->addStmtsp(ನೂತನ AstAlways{ನೂತನ AstAssignW{flp, lhsp, rhsp}});
             }
         }
 
@@ -485,15 +485,15 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         V3Stats::addStat("Optimizations, Bitblast, assignments through temporary", m_statTmps);
     }
 
-public:
-    static void apply(AstNetlist* netlistp) { BitBlastVisitor{netlistp}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(AstNetlist* netlistp) { BitBlastVisitor{netlistp}; }
 };
 
 //######################################################################
 // V3BitBlast class functions
 
-void V3BitBlast::bitBlastAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3BitBlast::bitBlastAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     BitBlastVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("bitblast", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("bitblast", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

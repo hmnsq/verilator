@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3COVERAGEJOIN_H_
 #define VERILATOR_V3COVERAGEJOIN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3CoverageJoin final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    static void coverageJoin(AstNetlist* rootp) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ coverageJoin(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

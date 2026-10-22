@@ -18,85 +18,85 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Cfg.h"
+#ಅನ್ತರ್ಭಾವ "V3Cfg.h"
 
-#include "V3Ast.h"
-#include "V3EmitV.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitV.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // CfgBlock method definitions
 
-std::string CfgBlock::name() const {
+std::string CfgBlock::name() ಧ್ರುವ {
     std::stringstream ss;
     ss << "BB " + std::to_string(id()) + ":\n";
-    for (AstNode* nodep : m_stmtps) {
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
+    ಪ್ರತಿ (Ast_ಗಂಟು* nodep : m_stmtps) {
+        ಯದಿ (ಧ್ರುವ AstIf* ಧ್ರುವ ifp = VN_CAST(nodep, If)) {
             ss << "if (";
-            V3EmitV::debugVerilogForTree(ifp->condp(), ss);
+            V3EmitV::debug_Verilog_For_ವೃಕ್ಷ(ifp->condp(), ss);
             ss << ") ...";
-        } else if (const AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
+        } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstLoopTest* ಧ್ರುವ testp = VN_CAST(nodep, LoopTest)) {
             ss << "if  (!";
-            V3EmitV::debugVerilogForTree(testp->condp(), ss);
+            V3EmitV::debug_Verilog_For_ವೃಕ್ಷ(testp->condp(), ss);
             ss << ") break;";
-        } else {
-            V3EmitV::debugVerilogForTree(nodep, ss);
+        } ಅನ್ಯಥಾ {
+            V3EmitV::debug_Verilog_For_ವೃಕ್ಷ(nodep, ss);
         }
     }
     std::string text = VString::replaceSubstr(
         VString::replaceSubstr(ss.str(), "\n", "\\l        "), "\"", "\\\"");
-    if (isEnter()) text = "**ENTER**\n" + text;
-    if (isExit()) text = text + "\n**EXIT**";
-    return text;
+    ಯದಿ (isEnter()) text = "**ENTER**\n" + text;
+    ಯದಿ (isExit()) text = text + "\n**EXIT**";
+    ಪ್ರತ್ಯಾಗಮ text;
 }
-std::string CfgBlock::dotShape() const { return "rect"; }
-std::string CfgBlock::dotRank() const {
-    if (isEnter()) return "source";
-    if (isExit()) return "sink";
-    return "";
+std::string CfgBlock::dotShape() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ "rect"; }
+std::string CfgBlock::dotRank() ಧ್ರುವ {
+    ಯದಿ (isEnter()) ಪ್ರತ್ಯಾಗಮ "source";
+    ಯದಿ (isExit()) ಪ್ರತ್ಯಾಗಮ "sink";
+    ಪ್ರತ್ಯಾಗಮ "";
 }
 
 //######################################################################
 // CfgEdge method definitions
 
-std::string CfgEdge::dotLabel() const {
+std::string CfgEdge::dotLabel() ಧ್ರುವ {
     std::string label = "E" + std::to_string(id());
-    const CfgEdge* const untknp = srcp()->untknEdgep();
-    if (this == untknp) {
+    ಧ್ರುವ CfgEdge* ಧ್ರುವ untknp = srcp()->untknEdgep();
+    ಯದಿ (ಏತತ್ == untknp) {
         label += " / F";
-    } else if (untknp) {
+    } ಅನ್ಯಥಾ ಯದಿ (untknp) {
         label += " / T";
     }
-    return label;
+    ಪ್ರತ್ಯಾಗಮ label;
 }
 
 //######################################################################
 // CfgGraph method definitions
 
-static void cfgOrderVisitBlock(std::vector<CfgBlock*>& postOrderEnumeration, CfgBlock* bbp) {
+ಸ್ಥಿರ ಶೂನ್ಯ cfgOrderVisitBlock(std::vector<CfgBlock*>& postOrderEnumeration, CfgBlock* bbp) {
     // Mark visited
     bbp->user(1);
     // Visit un-visited successors
-    if (CfgBlock* const takenp = bbp->takenp()) {
-        if (!takenp->user()) cfgOrderVisitBlock(postOrderEnumeration, takenp);
-        if (CfgBlock* const untknp = bbp->untknp()) {
-            if (!untknp->user()) cfgOrderVisitBlock(postOrderEnumeration, untknp);
+    ಯದಿ (CfgBlock* ಧ್ರುವ takenp = bbp->takenp()) {
+        ಯದಿ (!takenp->user()) cfgOrderVisitBlock(postOrderEnumeration, takenp);
+        ಯದಿ (CfgBlock* ಧ್ರುವ untknp = bbp->untknp()) {
+            ಯದಿ (!untknp->user()) cfgOrderVisitBlock(postOrderEnumeration, untknp);
         }
     }
     // Add to post order enumeration
     postOrderEnumeration.emplace_back(bbp);
 };
 
-void CfgGraph::rpoBlocks() {
+ಶೂನ್ಯ CfgGraph::rpoBlocks() {
     UASSERT_OBJ(m_nEdits != m_nLastOrdered, m_enterp, "Redundant 'CfgGraph::order' call");
     m_nLastOrdered = m_nEdits;
 
     // Reset marks
-    for (V3GraphVertex& v : vertices()) v.user(0);
+    ಪ್ರತಿ (V3GraphVertex& v : vertices()) v.user(0);
 
     // Compute post-order enumeration. Simple recursive algorith will do.
     std::vector<CfgBlock*> postOrderEnumeration;
@@ -105,96 +105,96 @@ void CfgGraph::rpoBlocks() {
     UASSERT_OBJ(postOrderEnumeration.size() == m_nBlocks, m_enterp, "Inconsistent block count");
 
     // Assign block IDs equal to the reverse post-order number and sort vertices
-    for (size_t i = 0; i < postOrderEnumeration.size(); ++i) {
-        CfgBlock* const bbp = postOrderEnumeration[m_nBlocks - 1 - i];
-        bbp->m_rpoNumber = i;
+    ಪ್ರತಿ (size_t i = 0; i < postOrderEnumeration.size(); ++i) {
+        CfgBlock* ಧ್ರುವ bbp = postOrderEnumeration[m_nBlocks - 1 - i];
+        bbp->m_rpo_ಸಂಖ್ಯೆ = i;
         vertices().unlink(bbp);
         vertices().linkBack(bbp);
     }
 
     // Assign edge IDs
-    size_t edgeCount = 0;
-    for (V3GraphVertex& v : vertices()) {
+    size_t edge_ಎಣಿಕೆ = 0;
+    ಪ್ರತಿ (V3GraphVertex& v : vertices()) {
         // cppcheck-suppress constVariableReference // cppcheck is wrong
-        for (V3GraphEdge& e : v.outEdges()) static_cast<CfgEdge&>(e).m_id = edgeCount++;
+        ಪ್ರತಿ (V3GraphEdge& e : v.outEdges()) static_cast<CfgEdge&>(e).m_id = edge_ಎಣಿಕೆ++;
     }
-    UASSERT_OBJ(edgeCount == m_nEdges, m_enterp, "Inconsistent edge count");
+    UASSERT_OBJ(edge_ಎಣಿಕೆ == m_nEdges, m_enterp, "Inconsistent edge count");
 }
 
-bool CfgGraph::containsLoop() const {
-    for (const V3GraphVertex& vtx : vertices()) {
-        const CfgBlock& current = static_cast<const CfgBlock&>(vtx);
-        for (const V3GraphEdge& edge : current.outEdges()) {
-            const CfgBlock& successor = *static_cast<const CfgBlock*>(edge.top());
+ತಾರ್ಕಿಕ CfgGraph::containsLoop() ಧ್ರುವ {
+    ಪ್ರತಿ (ಧ್ರುವ V3GraphVertex& vtx : vertices()) {
+        ಧ್ರುವ CfgBlock& current = static_cast<ಧ್ರುವ CfgBlock&>(vtx);
+        ಪ್ರತಿ (ಧ್ರುವ V3GraphEdge& edge : current.outEdges()) {
+            ಧ್ರುವ CfgBlock& successor = *static_cast<ಧ್ರುವ CfgBlock*>(edge.ತುದಿ());
             // IDs are the reverse post-order numbering, so easy to check for a back-edge
-            if (successor.id() < current.id()) return true;
+            ಯದಿ (successor.id() < current.id()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
     }
-    return false;
+    ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
 }
 
-void CfgGraph::minimize() {
+ಶೂನ್ಯ CfgGraph::minimize() {
     // Remove empty blocks (except enter and exit)
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        CfgBlock* const bbp = static_cast<CfgBlock*>(vtxp);
-        if (bbp->isEnter()) continue;
-        if (bbp->isExit()) continue;
-        if (!bbp->stmtps().empty()) continue;
+    ಪ್ರತಿ (V3GraphVertex* ಧ್ರುವ vtxp : vertices().unlinkable()) {
+        CfgBlock* ಧ್ರುವ bbp = static_cast<CfgBlock*>(vtxp);
+        ಯದಿ (bbp->isEnter()) ಅನುವರ್ತ;
+        ಯದಿ (bbp->isExit()) ಅನುವರ್ತ;
+        ಯದಿ (!bbp->stmtps().empty()) ಅನುವರ್ತ;
         UASSERT(!bbp->isBranch(), "Empty block should have a single successor");
-        CfgBlock* const succp = bbp->takenp();
-        for (V3GraphEdge* const edgep : bbp->inEdges().unlinkable()) edgep->relinkTop(succp);
+        CfgBlock* ಧ್ರುವ succp = bbp->takenp();
+        ಪ್ರತಿ (V3GraphEdge* ಧ್ರುವ edgep : bbp->inEdges().unlinkable()) edgep->relink_ತುದಿ(succp);
         ++m_nEdits;
         --m_nEdges;
         --m_nBlocks;
-        VL_DO_DANGLING(bbp->unlinkDelete(this), bbp);
+        VL_DO_DANGLING(bbp->unlinkDelete(ಏತತ್), bbp);
     }
 
     // Combine sequential blocks
-    for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
-        CfgBlock* const srcp = static_cast<CfgBlock*>(vtxp);
-        if (srcp->isExit()) continue;
-        if (srcp->isBranch()) continue;
-        CfgBlock* const dstp = srcp->takenp();
-        if (dstp->isJoin()) continue;
+    ಪ್ರತಿ (V3GraphVertex* ಧ್ರುವ vtxp : vertices().unlinkable()) {
+        CfgBlock* ಧ್ರುವ srcp = static_cast<CfgBlock*>(vtxp);
+        ಯದಿ (srcp->isExit()) ಅನುವರ್ತ;
+        ಯದಿ (srcp->isBranch()) ಅನುವರ್ತ;
+        CfgBlock* ಧ್ರುವ dstp = srcp->takenp();
+        ಯದಿ (dstp->isJoin()) ಅನುವರ್ತ;
         // Combine them
-        if (srcp->isEnter()) m_enterp = dstp;
-        std::vector<AstNodeStmt*> stmtps{std::move(srcp->m_stmtps)};
+        ಯದಿ (srcp->isEnter()) m_enterp = dstp;
+        std::vector<Ast_ಗಂಟು_Stmt*> stmtps{std::move(srcp->m_stmtps)};
         stmtps.reserve(stmtps.size() + dstp->m_stmtps.size());
-        stmtps.insert(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
+        stmtps.ಸೇರಿಸು(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
         dstp->m_stmtps = std::move(stmtps);
-        for (V3GraphEdge* const edgep : srcp->inEdges().unlinkable()) edgep->relinkTop(dstp);
+        ಪ್ರತಿ (V3GraphEdge* ಧ್ರುವ edgep : srcp->inEdges().unlinkable()) edgep->relink_ತುದಿ(dstp);
         ++m_nEdits;
         --m_nEdges;
         --m_nBlocks;
-        VL_DO_DANGLING(srcp->unlinkDelete(this), srcp);
+        VL_DO_DANGLING(srcp->unlinkDelete(ಏತತ್), srcp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-minimize");
+    ಯದಿ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ಯದಿ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-minimize");
 }
 
-void CfgGraph::breakCriticalEdges() {
+ಶೂನ್ಯ CfgGraph::breakCriticalEdges() {
     // Gather critical edges
     std::vector<CfgEdge*> criticalEdges;
     criticalEdges.reserve(m_nEdges);
-    for (V3GraphVertex& vtx : vertices()) {
-        const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-        if (!bb.isBranch()) continue;
-        for (V3GraphEdge& edge : vtx.outEdges()) {
-            const CfgBlock& succ = static_cast<const CfgBlock&>(*edge.top());
-            if (!succ.isJoin()) continue;
+    ಪ್ರತಿ (V3GraphVertex& vtx : vertices()) {
+        ಧ್ರುವ CfgBlock& bb = static_cast<ಧ್ರುವ CfgBlock&>(vtx);
+        ಯದಿ (!bb.isBranch()) ಅನುವರ್ತ;
+        ಪ್ರತಿ (V3GraphEdge& edge : vtx.outEdges()) {
+            ಧ್ರುವ CfgBlock& succ = static_cast<ಧ್ರುವ CfgBlock&>(*edge.ತುದಿ());
+            ಯದಿ (!succ.isJoin()) ಅನುವರ್ತ;
             criticalEdges.emplace_back(static_cast<CfgEdge*>(&edge));
         }
     }
     // Insert blocks
-    for (CfgEdge* const edgep : criticalEdges) {
-        CfgBlock* const newp = addBlock();
+    ಪ್ರತಿ (CfgEdge* ಧ್ರುವ edgep : criticalEdges) {
+        CfgBlock* ಧ್ರುವ newp = addBlock();
         addTakenEdge(newp, edgep->dstp());
-        edgep->relinkTop(newp);
+        edgep->relink_ತುದಿ(newp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
+    ಯದಿ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ಯದಿ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
 }
 
 // Given a branching basic block, if the sub-graph below this branch, up until
@@ -212,16 +212,16 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
     bbp->user(1);
 
     // We need the edge converting to a join block along both path. This is how we find it:
-    const auto chaseEdge = [&](CfgEdge* edgep) -> CfgEdge* {
-        while (true) {
+    ಧ್ರುವ auto chaseEdge = [&](CfgEdge* edgep) -> CfgEdge* {
+        ಯಾವತ್ (ಸತ್ಯ) {
             CfgBlock* dstp = edgep->dstp();
             // Stop if found the joining block along this path
-            if (dstp->isJoin()) return edgep;
+            ಯದಿ (dstp->isJoin()) ಪ್ರತ್ಯಾಗಮ edgep;
             // If the successor is a branch, recursively get it's 2-way join block
-            while (dstp->isBranch()) {
+            ಯಾವತ್ (dstp->isBranch()) {
                 dstp = getOrCreateTwoWayJoinFor(dstp);
                 // If the subgarph below dstp is not series-parallel, then no solution
-                if (!dstp) return nullptr;
+                ಯದಿ (!dstp) ಪ್ರತ್ಯಾಗಮ nullptr;
             }
             UASSERT_OBJ(!dstp->isExit(), bbp, "Non-convergent branch - multiple Exit blocks?");
             edgep = dstp->takenEdgep();
@@ -229,62 +229,62 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
     };
 
     // Walk down both paths
-    CfgEdge* const takenEdgep = chaseEdge(bbp->takenEdgep());
-    if (!takenEdgep) return nullptr;
-    CfgEdge* const untknEdgep = chaseEdge(bbp->untknEdgep());
-    if (!untknEdgep) return nullptr;
+    CfgEdge* ಧ್ರುವ takenEdgep = chaseEdge(bbp->takenEdgep());
+    ಯದಿ (!takenEdgep) ಪ್ರತ್ಯಾಗಮ nullptr;
+    CfgEdge* ಧ್ರುವ untknEdgep = chaseEdge(bbp->untknEdgep());
+    ಯದಿ (!untknEdgep) ಪ್ರತ್ಯಾಗಮ nullptr;
     // If we ended up at different joining blocks, then there is a path from one
     // of the branches into a path of another branch before 'bbp', no solution
-    if (takenEdgep->dstp() != untknEdgep->dstp()) return nullptr;
+    ಯದಿ (takenEdgep->dstp() != untknEdgep->dstp()) ಪ್ರತ್ಯಾಗಮ nullptr;
 
     // Pick up the common successor
-    CfgBlock* const succp = takenEdgep->dstp();
+    CfgBlock* ಧ್ರುವ succp = takenEdgep->dstp();
     // If the common successor is a 2-way join, we can use it directly
-    if (succp->isTwoWayJoin()) return succp;
+    ಯದಿ (succp->isTwoWayJoin()) ಪ್ರತ್ಯಾಗಮ succp;
     // Otherwise insert a new block to join the 2 paths of the original block
-    CfgBlock* const joinp = addBlock();
+    CfgBlock* ಧ್ರುವ joinp = addBlock();
     addTakenEdge(joinp, succp);
-    takenEdgep->relinkTop(joinp);
-    untknEdgep->relinkTop(joinp);
-    return joinp;
+    takenEdgep->relink_ತುದಿ(joinp);
+    untknEdgep->relink_ತುದಿ(joinp);
+    ಪ್ರತ್ಯಾಗಮ joinp;
 }
 
-bool CfgGraph::insertTwoWayJoins() {
+ತಾರ್ಕಿಕ CfgGraph::ಸೇರಿಸು_Two_Way_Joins() {
     // Reset marks
-    for (V3GraphVertex& v : vertices()) v.user(0);
+    ಪ್ರತಿ (V3GraphVertex& v : vertices()) v.user(0);
 
-    bool isSeriesParallel = true;
+    ತಾರ್ಕಿಕ isSeriesParallel = ಸತ್ಯ;
 
     // We will be adding vertices at the end. That's OK, they don't need to be visited again
-    for (V3GraphVertex& v : vertices()) {
+    ಪ್ರತಿ (V3GraphVertex& v : vertices()) {
         CfgBlock& bb = static_cast<CfgBlock&>(v);
         // Skip if already visited
-        if (bb.user()) continue;
+        ಯದಿ (bb.user()) ಅನುವರ್ತ;
         // Skip if not a branch
-        if (!bb.isBranch()) continue;
+        ಯದಿ (!bb.isBranch()) ಅನುವರ್ತ;
         // Fix it up, record if failed
-        if (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = false;
+        ಯದಿ (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = ಅಸತ್ಯ;
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
+    ಯದಿ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ಯದಿ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
 
-    return isSeriesParallel;
+    ಪ್ರತ್ಯಾಗಮ isSeriesParallel;
 }
 
 //######################################################################
 // CfgDominatorTree
 
-const CfgBlock* CfgDominatorTree::intersect(const CfgBlock* ap, const CfgBlock* bp) {
-    while (ap != bp) {
-        while (*ap > *bp) ap = m_bb2Idom[*ap];
-        while (*bp > *ap) bp = m_bb2Idom[*bp];
+ಧ್ರುವ CfgBlock* Cfg_Dominator_ವೃಕ್ಷ::intersect(ಧ್ರುವ CfgBlock* ap, ಧ್ರುವ CfgBlock* bp) {
+    ಯಾವತ್ (ap != bp) {
+        ಯಾವತ್ (*ap > *bp) ap = m_bb2Idom[*ap];
+        ಯಾವತ್ (*bp > *ap) bp = m_bb2Idom[*bp];
     }
-    return ap;
+    ಪ್ರತ್ಯಾಗಮ ap;
 }
 
-CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
-    : m_bb2Idom{cfg.makeBlockMap<const CfgBlock*>()} {
+Cfg_Dominator_ವೃಕ್ಷ::Cfg_Dominator_ವೃಕ್ಷ(ಧ್ರುವ CfgGraph& cfg)
+    : m_bb2Idom{cfg.makeBlockMap<ಧ್ರುವ CfgBlock*>()} {
 
     // Build the immediate dominator map, using algorithm from:
     // "A Simple, Fast Dominance Algorithm", Keith D. Cooper et al., 2006
@@ -293,27 +293,27 @@ CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
     // Point enteer block to itself, while computing below
     m_bb2Idom[cfg.enter()] = &cfg.enter();
     // Iterate until settled
-    for (bool changed = true; changed;) {
-        changed = false;
+    ಪ್ರತಿ (ತಾರ್ಕಿಕ changed = ಸತ್ಯ; changed;) {
+        changed = ಅಸತ್ಯ;
         // For each vertex except enter block
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& curr = static_cast<const CfgBlock&>(vtx);
-            if (curr.isEnter()) continue;  // Skip entry block
+        ಪ್ರತಿ (ಧ್ರುವ V3GraphVertex& vtx : cfg.vertices()) {
+            ಧ್ರುವ CfgBlock& curr = static_cast<ಧ್ರುವ CfgBlock&>(vtx);
+            ಯದಿ (curr.isEnter()) ಅನುವರ್ತ;  // Skip entry block
 
             // For each predecessor of current block
-            const CfgBlock* idom = nullptr;
-            for (const V3GraphEdge& edge : curr.inEdges()) {
-                const CfgBlock& pred = static_cast<const CfgBlock&>(*edge.fromp());
+            ಧ್ರುವ CfgBlock* idom = nullptr;
+            ಪ್ರತಿ (ಧ್ರುವ V3GraphEdge& edge : curr.inEdges()) {
+                ಧ್ರುವ CfgBlock& pred = static_cast<ಧ್ರುವ CfgBlock&>(*edge.fromp());
                 // Skip if perdecessor not yet processed
-                if (!m_bb2Idom[pred]) continue;
+                ಯದಿ (!m_bb2Idom[pred]) ಅನುವರ್ತ;
                 // Pick first, then use intersect
                 idom = !idom ? &pred : intersect(&pred, idom);
             }
 
             // If chenged, record it, else move on
-            if (idom == m_bb2Idom[curr]) continue;
+            ಯದಿ (idom == m_bb2Idom[curr]) ಅನುವರ್ತ;
             m_bb2Idom[curr] = idom;
-            changed = true;
+            changed = ಸತ್ಯ;
         }
     }
 

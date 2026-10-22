@@ -22,23 +22,23 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Covergroup.h"
+#ಅನ್ತರ್ಭಾವ "V3Covergroup.h"
 
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3Const.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3MemberMap.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
-#include <bitset>
-#include <cmath>
-#include <deque>
-#include <set>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <bitset>
+#ಅನ್ತರ್ಭಾವ <cmath>
+#ಅನ್ತರ್ಭಾವ <deque>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <tuple>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -46,50 +46,50 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Embedded covergroup assignment validation; and in the same pass over the netlist, the
 // type_option variables through which SystemVerilog may set type_option.merge_instances
 
-class CovergroupAssignValidVisitor final : public VNVisitorConst {
+ವರ್ಗ CovergroupAssignValidVisitor final : ಸಾರ್ವಜನಿಕ VNVisitorConst {
     VMemberMap m_memberMap;
-    std::map<const AstVar*, const AstNodeFTask*>
+    std::map<ಧ್ರುವ AstVar*, ಧ್ರುವ Ast_ಗಂಟು_FTask*>
         m_constructors;  // Implicit instance -> constructor
-    std::set<const AstVar*> m_mergeableTypeOptions;  // See mergeableTypeOptions()
-    const AstNodeFTask* m_ftaskp = nullptr;
-    bool m_collecting = true;
-    bool m_valid = true;
+    std::set<ಧ್ರುವ AstVar*> m_mergeableTypeOptions;  // See mergeableTypeOptions()
+    ಧ್ರುವ Ast_ಗಂಟು_FTask* m_ftaskp = nullptr;
+    ತಾರ್ಕಿಕ m_collecting = ಸತ್ಯ;
+    ತಾರ್ಕಿಕ m_valid = ಸತ್ಯ;
 
-    void visit(AstClass* nodep) override {
+    ಶೂನ್ಯ visit(AstClass* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nullptr;
-        if (m_collecting) {
-            const AstNodeFTask* const constructorp
-                = VN_CAST(m_memberMap.findMember(nodep, "new"), NodeFTask);
-            for (const AstNode* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
-                const AstVar* const varp = VN_CAST(itemp, Var);
+        ಯದಿ (m_collecting) {
+            ಧ್ರುವ Ast_ಗಂಟು_FTask* ಧ್ರುವ constructorp
+                = VN_CAST(m_memberMap.findMember(nodep, "new"), ಗಂಟು_FTask);
+            ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
+                ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(itemp, Var);
                 // Only the implicit instance is restricted, not explicitly typed aliases.
-                if (!varp || !varp->isClassMember() || varp->isDeclTyped()) continue;
-                const AstClassRefDType* const refp
+                ಯದಿ (!varp || !varp->isClassMember() || varp->isDeclTyped()) ಅನುವರ್ತ;
+                ಧ್ರುವ AstClassRefDType* ಧ್ರುವ refp
                     = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                if (refp && refp->classp()->covergroupEnclosingClassp() == nodep) {
+                ಯದಿ (refp && refp->classp()->covergroupEnclosingClassp() == nodep) {
                     m_constructors.emplace(varp, constructorp);
                 }
             }
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_collecting) {
-            const AstVar* varp = nullptr;
-            if (const AstNodeVarRef* const refp = VN_CAST(nodep->lhsp(), NodeVarRef)) {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Assign* nodep) override {
+        ಯದಿ (!m_collecting) {
+            ಧ್ರುವ AstVar* varp = nullptr;
+            ಯದಿ (ಧ್ರುವ Ast_ಗಂಟು_Var_Ref* ಧ್ರುವ refp = VN_CAST(nodep->lhsp(), ಗಂಟು_Var_Ref)) {
                 varp = refp->varp();
-            } else if (const AstMemberSel* const selp = VN_CAST(nodep->lhsp(), MemberSel)) {
+            } ಅನ್ಯಥಾ ಯದಿ (ಧ್ರುವ AstMemberSel* ಧ್ರುವ selp = VN_CAST(nodep->lhsp(), MemberSel)) {
                 varp = selp->varp();
             }
-            const auto it = m_constructors.find(varp);
-            if (it != m_constructors.end() && (!m_ftaskp || m_ftaskp != it->second)) {
-                m_valid = false;
+            ಧ್ರುವ auto it = m_constructors.find(varp);
+            ಯದಿ (it != m_constructors.end() && (!m_ftaskp || m_ftaskp != it->second)) {
+                m_valid = ಅಸತ್ಯ;
                 nodep->v3error("Embedded covergroup variable "
                                << varp->prettyNameQ()
                                << " may only be assigned in the enclosing class's 'new' method "
@@ -98,110 +98,110 @@ class CovergroupAssignValidVisitor final : public VNVisitorConst {
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Var_Ref* nodep) override {
         // Type options may be set at any time (IEEE 1800-2023 19.7.1), so SystemVerilog may set
         // type_option.merge_instances with any use of a type_option but a read of another
         // member, as not every write is marked yet (std::randomize)
-        if (m_collecting && nodep->varp()->name() == "type_option") {
-            const AstStructSel* const selp = VN_CAST(nodep->backp(), StructSel);
-            if (!selp || selp->fromp() != nodep || selp->name() == "merge_instances"
+        ಯದಿ (m_collecting && nodep->varp()->name() == "type_option") {
+            ಧ್ರುವ AstStructSel* ಧ್ರುವ selp = VN_CAST(nodep->backp(), StructSel);
+            ಯದಿ (!selp || selp->fromp() != nodep || selp->name() == "merge_instances"
                 || !nodep->access().isReadOnly()) {
-                m_mergeableTypeOptions.insert(nodep->varp());
+                m_mergeableTypeOptions.ಸೇರಿಸು(nodep->varp());
             }
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     explicit CovergroupAssignValidVisitor(AstNetlist* nodep) {
         // Uses can precede their enclosing class in the tree.
         iterateConst(nodep);
-        m_collecting = false;
-        if (!m_constructors.empty()) iterateConst(nodep);
+        m_collecting = ಅಸತ್ಯ;
+        ಯದಿ (!m_constructors.empty()) iterateConst(nodep);
     }
-    bool valid() const { return m_valid; }
+    ತಾರ್ಕಿಕ valid() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_valid; }
     // type_option variables through which SystemVerilog may set type_option.merge_instances, so
     // that covergroups are tested with optionVar(true)
-    const std::set<const AstVar*>& mergeableTypeOptions() const { return m_mergeableTypeOptions; }
+    ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& mergeableTypeOptions() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_mergeableTypeOptions; }
 };
 
 //######################################################################
 // Covergroup expression validation visitor
 
-class CovergroupExprValidVisitor final : public VNVisitor {
-    const std::set<const AstVar*>& m_sampleMembers;
-    const std::set<const AstVar*>& m_constructorRefMembers;
-    bool m_inCoverageExpression = false;
-    bool m_sampleFormalAllowed = false;
+ವರ್ಗ Covergroup_ಅಭಿವ್ಯಕ್ತಿ_Valid_Visitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
+    ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& m_sampleMembers;
+    ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& m_constructorRefMembers;
+    ತಾರ್ಕಿಕ m_inCoverageExpression = ಅಸತ್ಯ;
+    ತಾರ್ಕಿಕ m_sampleFormalAllowed = ಅಸತ್ಯ;
 
-    void scanSampleExpression(AstNode* nodep) {
-        if (!nodep) return;
+    ಶೂನ್ಯ scanSampleExpression(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_sampleFormalAllowed);
-        m_sampleFormalAllowed = true;
+        m_sampleFormalAllowed = ಸತ್ಯ;
         iterateAndNextNull(nodep);
     }
 
-    void scanCoverageExpression(AstNode* nodep) {
-        if (!nodep) return;
+    ಶೂನ್ಯ scanCoverageExpression(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (!nodep) ಪ್ರತ್ಯಾಗಮ;
         VL_RESTORER(m_inCoverageExpression);
-        m_inCoverageExpression = true;
+        m_inCoverageExpression = ಸತ್ಯ;
         iterateAndNextNull(nodep);
     }
 
-    void visit(AstCoverpoint* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverpoint* nodep) override {
         scanSampleExpression(nodep->exprp());
         scanSampleExpression(nodep->iffp());
         iterateAndNextNull(nodep->binsp());
         iterateAndNextNull(nodep->optionsp());
     }
-    void visit(AstCoverCross* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCross* nodep) override {
         iterateAndNextNull(nodep->itemsp());
         scanSampleExpression(nodep->iffp());
         iterateAndNextNull(nodep->optionsp());
         iterateAndNextNull(nodep->binsp());
     }
-    void visit(AstCoverCrossBin* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCrossBin* nodep) override {
         iterateAndNextNull(nodep->selectp());
         scanSampleExpression(nodep->iffp());
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCrossWith* nodep) override {
         iterateAndNextNull(nodep->selectp());
         scanCoverageExpression(nodep->filterp());
         scanCoverageExpression(nodep->countp());
     }
-    void visit(AstCoverBinsof* nodep) override { scanCoverageExpression(nodep->rangesp()); }
-    void visit(AstCoverBin* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverBinsof* nodep) override { scanCoverageExpression(nodep->rangesp()); }
+    ಶೂನ್ಯ visit(AstCoverBin* nodep) override {
         scanCoverageExpression(nodep->rangesp());
         scanSampleExpression(nodep->iffp());
         scanCoverageExpression(nodep->arraySizep());
         scanCoverageExpression(nodep->transp());
     }
-    void visit(AstVarRef* nodep) override {
-        if (!m_sampleFormalAllowed && m_sampleMembers.count(nodep->varp())) {
+    ಶೂನ್ಯ visit(AstVarRef* nodep) override {
+        ಯದಿ (!m_sampleFormalAllowed && m_sampleMembers.ಎಣಿಕೆ(nodep->varp())) {
             nodep->v3error("Covergroup sample formal argument "
                            << nodep->varp()->prettyNameQ()
                            << " may only be used in a coverpoint or conditional guard "
                               "expression (IEEE 1800-2023 19.8.1).");
         }
-        if (m_inCoverageExpression && m_constructorRefMembers.count(nodep->varp())) {
+        ಯದಿ (m_inCoverageExpression && m_constructorRefMembers.ಎಣಿಕೆ(nodep->varp())) {
             nodep->v3error("Ref covergroup constructor formal argument "
                            << nodep->varp()->prettyNameQ()
                            << " may not be used in a covergroup expression "
                               "(IEEE 1800-2023 19.5).");
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (m_inCoverageExpression && nodep->taskp()) {
-            bool invalidDirection = false;
-            for (AstNode* stmtp = nodep->taskp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                const AstVar* const varp = VN_CAST(stmtp, Var);
-                if (varp && varp->isIO() && varp->isWritable()) {
-                    invalidDirection = true;
-                    break;
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        ಯದಿ (m_inCoverageExpression && nodep->taskp()) {
+            ತಾರ್ಕಿಕ invalidDirection = ಅಸತ್ಯ;
+            ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = nodep->taskp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(stmtp, Var);
+                ಯದಿ (varp && varp->isIO() && varp->isWritable()) {
+                    invalidDirection = ಸತ್ಯ;
+                    ಭಙ್ಗ;
                 }
             }
-            if (invalidDirection) {
+            ಯದಿ (invalidDirection) {
                 nodep->v3error("Function " << nodep->taskp()->prettyNameQ()
                                            << " called in a covergroup expression has an "
                                               "output, inout, or non-const ref argument "
@@ -210,14 +210,14 @@ class CovergroupExprValidVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
-    CovergroupExprValidVisitor(const std::set<const AstVar*>& sampleMembers,
-                               const std::set<const AstVar*>& constructorRefMembers)
+ಸಾರ್ವಜನಿಕ:
+    Covergroup_ಅಭಿವ್ಯಕ್ತಿ_Valid_Visitor(ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& sampleMembers,
+                               ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& constructorRefMembers)
         : m_sampleMembers{sampleMembers}
         , m_constructorRefMembers{constructorRefMembers} {}
-    void scan(AstNode* nodep) { iterate(nodep); }
+    ಶೂನ್ಯ scan(Ast_ಗಂಟು* nodep) { iterate(nodep); }
 };
 
 //######################################################################
@@ -227,19 +227,19 @@ public:
 // domain.  Bounds are coverpoint values at FunctionalCoverageVisitor::runWidth(),
 // sign-extended like a CrossValueRange's.
 
-class BinRun final {
-public:
+ವರ್ಗ BinRun final {
+ಸಾರ್ವಜನಿಕ:
     // MEMBERS
-    uint32_t m_count;  // Number of bins
-    V3Number m_lo;  // Lowest value of the first bin
-    V3Number m_stride;  // Number of values of each bin but the last
-    V3Number m_hi;  // Highest value of the last bin
-    bool m_empty = false;  // A single bin without a value of the coverpoint type
+    uint32_t m_ಎಣಿಕೆ;  // Number of bins
+    V3_ಸಂಖ್ಯೆ m_lo;  // Lowest value of the first bin
+    V3_ಸಂಖ್ಯೆ m_stride;  // Number of values of each bin but the last
+    V3_ಸಂಖ್ಯೆ m_hi;  // Highest value of the last bin
+    ತಾರ್ಕಿಕ m_empty = ಅಸತ್ಯ;  // A single bin without a value of the coverpoint type
     uint32_t m_declared = 0;  // Runtime index of the first bin, once generated
 
     // CONSTRUCTORS
-    BinRun(AstNode* nodep, int width, uint32_t count)
-        : m_count{count}
+    BinRun(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ width, uint32_t ಎಣಿಕೆ)
+        : m_ಎಣಿಕೆ{ಎಣಿಕೆ}
         , m_lo{nodep, width}
         , m_stride{nodep, width, 1}
         , m_hi{nodep, width} {}
@@ -248,13 +248,13 @@ public:
 //######################################################################
 // Functional coverage visitor
 
-class FunctionalCoverageVisitor final : public VNVisitor {
+ವರ್ಗ FunctionalCoverageVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstCoverpoint::user1p()  -> AstVar*.  Previous-value variable for transition bins
     //  AstCoverpoint::user2()   -> bool.  Had a bins declaration ignored, so no automatic bins
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ಧ್ರುವ VNUser1InUse m_inuser1;
+    ಧ್ರುವ VNUser2InUse m_inuser2;
 
     // STATE
     std::set<AstCoverpoint*>
@@ -262,7 +262,7 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     std::set<AstCoverCross*> m_runtimeCrosses;  // Crosses over finalized live-bin dimensions
     std::map<AstVar*, AstVar*> m_excludedVars;  // Sample-time state-exclusion flags
     AstClass* m_covergroupp = nullptr;  // Current covergroup being processed
-    AstNodeModule* m_unitp = nullptr;  // Design unit declaring the current class, outside classes
+    Ast_ಗಂಟು_Module* m_unitp = nullptr;  // Design unit declaring the current class, outside classes
     AstClass* m_enclosingClassp = nullptr;  // Class lexically enclosing the covergroup, if any
     AstVar* m_embeddedVarp = nullptr;  // Embedded covergroup member of m_enclosingClassp, if any
     std::string m_covergroupName;  // Current covergroup's type name, see covergroupTypeName()
@@ -274,21 +274,21 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     std::vector<AstCoverCross*> m_coverCrosses;  // Cross coverage items in current covergroup
     std::vector<AstCgOptionAssign*> m_cgOptions;  // Covergroup-level options, before lowering
     uint32_t m_cgTypeWeight = 1;  // The covergroup's type_option.weight, a constant
-    bool m_cgMergeInstances = false;  // The covergroup's type_option.merge_instances, a constant
+    ತಾರ್ಕಿಕ m_cgMergeInstances = ಅಸತ್ಯ;  // The covergroup's type_option.merge_instances, a constant
     // The covergroup's type_option.merge_instances is, or SystemVerilog may make it, true
-    bool m_cgMayMerge = false;
+    ತಾರ್ಕಿಕ m_cgMayMerge = ಅಸತ್ಯ;
     // type_option members through which SystemVerilog may set type_option.merge_instances,
     // see CovergroupAssignValidVisitor::mergeableTypeOptions()
-    const std::set<const AstVar*>& m_mergeableTypeOptions;
-    int m_cgAtLeast = 1;  // Covergroup option.at_least
+    ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& m_mergeableTypeOptions;
+    ಪೂರ್ಣಾಙ್ಕ m_cgAtLeast = 1;  // Covergroup option.at_least
 
-    struct EmbeddedEventTrigger final {
-        FileLine* eventFl;  // Clocking-event source location
+    ಸಂರಚನಾ EmbeddedEventTrigger final {
+        File_ಸಾಲು* eventFl;  // Clocking-event source location
         AstVar* baseVarp;  // Base enclosing-class member in the event expression
         AstVar* memberVarp;  // Selected member in a 'base.member' expression, or nullptr
         VEdgeType edgeType;  // Clocking-event edge qualifier
         AstVar* prevVarp;  // Member containing the previous event value, or nullptr
-        EmbeddedEventTrigger(FileLine* eventFl, AstVar* baseVarp, AstVar* memberVarp,
+        EmbeddedEventTrigger(File_ಸಾಲು* eventFl, AstVar* baseVarp, AstVar* memberVarp,
                              VEdgeType edgeType)
             : eventFl{eventFl}
             , baseVarp{baseVarp}
@@ -299,47 +299,47 @@ class FunctionalCoverageVisitor final : public VNVisitor {
 
     std::set<std::string> m_crossedCpNames;  // Coverpoints referenced by a cross
     std::map<std::string, AstVar*> m_cpVarMap;  // Coverpoint name -> its VlCoverpoint member
-    struct BinRuns final {
+    ಸಂರಚನಾ BinRuns final {
         std::vector<BinRun> runs;  // Runs of an array or automatic bins declaration, in order
-        uint32_t count = 0;  // Bins across all runs
-        bool unsupported = false;  // Too many bins, or invalid: the declaration is ignored
+        uint32_t ಎಣಿಕೆ = 0;  // Bins across all runs
+        ತಾರ್ಕಿಕ unsupported = ಅಸತ್ಯ;  // Too many bins, or invalid: the declaration is ignored
         // The value of each bin, which names it, of a wildcard array; else the bins are indexed
-        std::vector<std::string> values;
+        std::vector<std::string> ಮೌಲ್ಯಗಳು;
         // Too many values of an ignore or illegal wildcard array, which is then one bin
-        bool single = false;
+        ತಾರ್ಕಿಕ single = ಅಸತ್ಯ;
     };
-    struct CrossBinValues final {
+    ಸಂರಚನಾ Cross_Bin_ಮೌಲ್ಯಗಳು final {
         AstCoverBin* binp;  // Declaration owning this Normal bin
-        AstNodeExpr* valuep;  // Individual array-bin value, or nullptr for a scalar bin
-        const BinRun* runp = nullptr;  // Run computing the bin's values, if any
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep;  // Individual array-bin value, or nullptr for a scalar bin
+        ಧ್ರುವ BinRun* runp = nullptr;  // Run computing the bin's values, if any
         uint32_t element = 0;  // Index of the bin within runp
     };
-    struct BinSpan final {
+    ಸಂರಚನಾ BinSpan final {
         uint32_t first = 0;  // First Normal index of the bin declaration
-        uint32_t count = 0;  // Number of Normal bins of the declaration
+        uint32_t ಎಣಿಕೆ = 0;  // Number of Normal bins of the declaration
         uint32_t declared = 0;  // First runtime bin index, across all bin kinds
         int32_t sized = -1;  // Index of the sized array, placed at construction; or -1
     };
-    struct CoverpointBins final {
+    ಸಂರಚನಾ CoverpointBins final {
         uint32_t total = 0;  // Number of Normal bins
-        AstNodeExpr* exprp = nullptr;  // Sampled expression, for the value domain
-        bool crossed = false;  // Feeds a cross, which needs 'values'
-        std::vector<CrossBinValues> values;  // Values in runtime Normal-bin index order
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nullptr;  // Sampled expression, for the value domain
+        ತಾರ್ಕಿಕ crossed = ಅಸತ್ಯ;  // Feeds a cross, which needs 'values'
+        std::vector<Cross_Bin_ಮೌಲ್ಯಗಳು> ಮೌಲ್ಯಗಳು;  // Values in runtime Normal-bin index order
         std::unordered_map<std::string, BinSpan> spans;  // Declared bin name -> index span
         BinSpan implicitAuto{0, 0, 0};  // Implicit automatic bins, each named 'auto_<i>'
         std::deque<BinRun> runs;  // Runs 'values' refers to
     };
     std::map<AstVar*, CoverpointBins> m_cpBins;  // Runtime coverpoint -> binsof index ranges
     // Names of the bins declarations each coverpoint ignored, which binsof selects as no bins
-    std::map<const AstCoverpoint*, std::vector<std::string>> m_droppedBins;
+    std::map<ಧ್ರುವ AstCoverpoint*, std::vector<std::string>> m_droppedBins;
     // Prefixes of the constructor temporaries of constructed bins, as coverpoint and bin names
     // alone may repeat: coverpoint 'a_' bins 'b', and coverpoint 'a' bins '_b'
     V3UniqueNames m_sizedNames{"__Vsized"};
-    std::vector<AstNodeExpr*> m_detachedValues;  // Array-bin values m_cpBins refers to
+    std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> m_detached_ಮೌಲ್ಯಗಳು;  // Array-bin values m_cpBins refers to
     std::set<AstCoverCross*>
         m_droppedCrosses;  // Crosses with a bare-variable item: drop (COVERIGN)
     std::map<uint32_t, AstCoverpointDType*> m_cpDTypes;  // Hit-list bound -> interned dtype
-    using CrossShape = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint64_t, bool>;
+    using CrossShape = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t, uint64_t, ತಾರ್ಕಿಕ>;
     std::map<CrossShape, AstCoverCrossDType*> m_cxDTypes;
     AstVar* m_cgInstVarp = nullptr;  // __Vcg_inst handle member of the current covergroup
 
@@ -347,42 +347,42 @@ class FunctionalCoverageVisitor final : public VNVisitor {
 
     // METHODS
     // The covergroup's 'option' or static 'type_option' member (V3LinkParse creates both)
-    AstVar* optionVar(bool typeOption) {
-        AstVar* const varp = VN_AS(
+    AstVar* optionVar(ತಾರ್ಕಿಕ typeOption) {
+        AstVar* ಧ್ರುವ varp = VN_AS(
             m_memberMap.findMember(m_covergroupp, typeOption ? "type_option" : "option"), Var);
         UASSERT_OBJ(varp, m_covergroupp, "Covergroup missing option member");
-        return varp;
+        ಪ್ರತ್ಯಾಗಮ varp;
     }
 
     // 'option.<member>' or 'type_option.<member>', per optionVarp
-    AstStructSel* newOptionSel(FileLine* fl, AstVar* optionVarp, const std::string& member,
+    AstStructSel* newOptionSel(File_ಸಾಲು* fl, AstVar* optionVarp, ಧ್ರುವ std::string& member,
                                VAccess access) {
-        const AstMemberDType* const memberp
+        ಧ್ರುವ AstMemberDType* ಧ್ರುವ memberp
             = VN_AS(m_memberMap.findMember(optionVarp->dtypep()->skipRefp(), member), MemberDType);
         UASSERT_OBJ(memberp, optionVarp, "Coverage option structure missing '" << member << "'");
-        AstNodeExpr* const fromp = optionVarp->lifetime().isStatic()
-                                       ? new AstVarRef{fl, optionVarp, access}
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ fromp = optionVarp->lifetime().isStatic()
+                                       ? ನೂತನ AstVarRef{fl, optionVarp, access}
                                        : memberRef(fl, optionVarp, access);
-        AstStructSel* const selp = new AstStructSel{fl, fromp, member};
+        AstStructSel* ಧ್ರುವ selp = ನೂತನ AstStructSel{fl, fromp, member};
         selp->dtypep(memberp->subDTypep()->skipRefToEnump());
-        selp->didWidth(true);
-        return selp;
+        selp->didWidth(ಸತ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ selp;
     }
 
     // A constant option.at_least; a negative count of hits has no meaning, so takes the default
-    static int constAtLeast(const AstConst* constp) {
-        const int value = constp->toSInt();
-        if (value >= 0) return value;
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ constAtLeast(ಧ್ರುವ AstConst* constp) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ = constp->toSInt();
+        ಯದಿ (ಮೌಲ್ಯ >= 0) ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯ;
         constp->v3warn(COVERIGN, "Ignoring negative 'option.at_least'; using 1");
-        return 1;
+        ಪ್ರತ್ಯಾಗಮ 1;
     }
 
     // An option's constant value, or nullptr after a warning, as non-constant is unsupported
-    static const AstConst* constOption(const AstNode* valuep, VCoverOptionType optType) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) return constp;
+    ಸ್ಥಿರ ಧ್ರುವ AstConst* constOption(ಧ್ರುವ Ast_ಗಂಟು* valuep, VCoverOptionType optType) {
+        ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(valuep, Const)) ಪ್ರತ್ಯಾಗಮ constp;
         valuep->v3warn(COVERIGN, "Ignoring unsupported: non-constant 'option."
                                      << optType.ascii() << "'; using default value");
-        return nullptr;
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
 
     // Store the covergroup-level options (IEEE 1800-2023 19.7) where SystemVerilog and the
@@ -392,99 +392,99 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // static member.  Without its own type_option.merge_instances, a covergroup has the
     // default of --coverage-merge-instances.  A constant option.at_least is the default of
     // the coverpoints and crosses.
-    void lowerCovergroupOptions() {
-        bool mergeSet = false;  // The covergroup sets type_option.merge_instances
+    ಶೂನ್ಯ lowerCovergroupOptions() {
+        ತಾರ್ಕಿಕ mergeSet = ಅಸತ್ಯ;  // The covergroup sets type_option.merge_instances
         m_cgAtLeast = 1;
-        for (AstCgOptionAssign* const optp : m_cgOptions) {
-            if (optp->optType() == VCoverOptionType::AT_LEAST) {
-                if (const AstConst* const constp = constOption(optp->valuep(), optp->optType())) {
+        ಪ್ರತಿ (AstCgOptionAssign* ಧ್ರುವ optp : m_cgOptions) {
+            ಯದಿ (optp->optType() == VCoverOptionType::AT_LEAST) {
+                ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = constOption(optp->valuep(), optp->optType())) {
                     m_cgAtLeast = constAtLeast(constp);
                 }
-                VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
-                continue;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(optp->unlinkFrBack()), optp);
+                ಅನುವರ್ತ;
             }
-            FileLine* const fl = optp->fileline();
+            File_ಸಾಲು* ಧ್ರುವ fl = optp->fileline();
             // V3Width left the type options constant, and type_option.weight non-negative
-            const AstConst* const constp = VN_CAST(optp->valuep(), Const);
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(optp->valuep(), Const);
             std::string member = "weight";
-            if (optp->optType() == VCoverOptionType::MERGE_INSTANCES) {
+            ಯದಿ (optp->optType() == VCoverOptionType::MERGE_INSTANCES) {
                 member = "merge_instances";
-                m_cgMergeInstances = !constp->num().isEqZero();
-                mergeSet = true;
-            } else if (optp->optType() == VCoverOptionType::GET_INST_COVERAGE) {
+                m_cgMergeInstances = !constp->ಅಂಕೆ().isEqZero();
+                mergeSet = ಸತ್ಯ;
+            } ಅನ್ಯಥಾ ಯದಿ (optp->optType() == VCoverOptionType::GET_INST_COVERAGE) {
                 member = "get_inst_coverage";
-            } else {
+            } ಅನ್ಯಥಾ {
                 UASSERT_OBJ(optp->optType() == VCoverOptionType::WEIGHT, optp,
                             "Unexpected covergroup option reaching V3Covergroup");
-                if (optp->typeOption()) m_cgTypeWeight = constp->toUInt();
+                ಯದಿ (optp->typeOption()) m_cgTypeWeight = constp->toUInt();
             }
-            AstAssign* const assignp = new AstAssign{
+            AstAssign* ಧ್ರುವ assignp = ನೂತನ AstAssign{
                 fl, newOptionSel(fl, optionVar(optp->typeOption()), member, VAccess::WRITE),
                 optp->valuep()->unlinkFrBack()};
-            if (optp->typeOption()) {
-                m_covergroupp->addMembersp(new AstInitialStatic{fl, assignp});
-                VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
-            } else {
+            ಯದಿ (optp->typeOption()) {
+                m_covergroupp->addMembersp(ನೂತನ AstInitialStatic{fl, assignp});
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(optp->unlinkFrBack()), optp);
+            } ಅನ್ಯಥಾ {
                 optp->replaceWith(assignp);
-                VL_DO_DANGLING(pushDeletep(optp), optp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(optp), optp);
             }
         }
         m_cgOptions.clear();
-        if (!mergeSet && v3Global.opt.coverageMergeInstances()) {
-            FileLine* const fl = m_covergroupp->fileline();
-            m_covergroupp->addMembersp(new AstInitialStatic{
-                fl, new AstAssign{
-                        fl, newOptionSel(fl, optionVar(true), "merge_instances", VAccess::WRITE),
-                        new AstConst{fl, AstConst::BitTrue{}}}});
-            m_cgMergeInstances = true;
+        ಯದಿ (!mergeSet && v3Global.opt.coverageMergeInstances()) {
+            File_ಸಾಲು* ಧ್ರುವ fl = m_covergroupp->fileline();
+            m_covergroupp->addMembersp(ನೂತನ AstInitialStatic{
+                fl, ನೂತನ AstAssign{
+                        fl, newOptionSel(fl, optionVar(ಸತ್ಯ), "merge_instances", VAccess::WRITE),
+                        ನೂತನ AstConst{fl, AstConst::BitTrue{}}}});
+            m_cgMergeInstances = ಸತ್ಯ;
         }
-        m_cgMayMerge = m_cgMergeInstances || m_mergeableTypeOptions.count(optionVar(true));
+        m_cgMayMerge = m_cgMergeInstances || m_mergeableTypeOptions.ಎಣಿಕೆ(optionVar(ಸತ್ಯ));
     }
 
     // The weight of an item in the coverage database, which merges the instances: its
     // type_option.weight if the covergroup merges them too (IEEE 1800-2023 19.11.3); else its
     // option.weight if a constant, and so of every instance; else its type_option.weight
-    uint32_t itemDatabaseWeight(AstNode* optionsp) const {
-        const AstNodeExpr* weightp = nullptr;  // The option.weight in effect
+    uint32_t itemDatabaseWeight(Ast_ಗಂಟು* optionsp) ಧ್ರುವ {
+        ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* weightp = nullptr;  // The option.weight in effect
         uint32_t typeWeight = 1;
-        for (AstNode* nodep = optionsp; nodep; nodep = nodep->nextp()) {
-            const AstCoverOption* const optp = VN_AS(nodep, CoverOption);
-            if (!(optp->optType() == VCoverOptionType::WEIGHT)) continue;
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = optionsp; nodep; nodep = nodep->nextp()) {
+            ಧ್ರುವ AstCoverOption* ಧ್ರುವ optp = VN_AS(nodep, CoverOption);
+            ಯದಿ (!(optp->optType() == VCoverOptionType::WEIGHT)) ಅನುವರ್ತ;
             // V3Width left type_option.weight a non-negative constant
-            if (optp->typeOption()) {
+            ಯದಿ (optp->typeOption()) {
                 typeWeight = VN_AS(optp->valuep(), Const)->toUInt();
-            } else {
+            } ಅನ್ಯಥಾ {
                 weightp = optp->valuep();
             }
         }
-        if (m_cgMergeInstances) return typeWeight;
-        if (!weightp) return 1;
-        if (const AstConst* const constp = VN_CAST(weightp, Const)) return constp->toUInt();
-        return typeWeight;
+        ಯದಿ (m_cgMergeInstances) ಪ್ರತ್ಯಾಗಮ typeWeight;
+        ಯದಿ (!weightp) ಪ್ರತ್ಯಾಗಮ 1;
+        ಯದಿ (ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(weightp, Const)) ಪ್ರತ್ಯಾಗಮ constp->toUInt();
+        ಪ್ರತ್ಯಾಗಮ typeWeight;
     }
 
     // Configure an item's option.weight, its weight in instance coverage (IEEE 1800-2023
     // 19.11), and, if the covergroup may merge its instances, its type_option.weight, its
     // weight in type coverage then (19.11.3).
-    void generateItemWeight(FileLine* fl, AstVar* itemVarp, AstNode* optionsp) {
-        for (AstNode* nodep = optionsp; nodep; nodep = nodep->nextp()) {
-            const AstCoverOption* const optp = VN_AS(nodep, CoverOption);
-            if (!(optp->optType() == VCoverOptionType::WEIGHT)) continue;
-            if (!optp->typeOption()) {
+    ಶೂನ್ಯ generateItemWeight(File_ಸಾಲು* fl, AstVar* itemVarp, Ast_ಗಂಟು* optionsp) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = optionsp; nodep; nodep = nodep->nextp()) {
+            ಧ್ರುವ AstCoverOption* ಧ್ರುವ optp = VN_AS(nodep, CoverOption);
+            ಯದಿ (!(optp->optType() == VCoverOptionType::WEIGHT)) ಅನುವರ್ತ;
+            ಯದಿ (!optp->typeOption()) {
                 m_constructorp->addStmtsp(
                     itemCall(fl, itemVarp, VCMethod::COVERGROUP_WEIGHT,
-                             {optp->valuep()->cloneTree(false), fileLineDebug(optp->fileline())})
+                             {optp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), file_ಸಾಲು_Debug(optp->fileline())})
                         ->makeStmt());
-            } else if (m_cgMayMerge) {
+            } ಅನ್ಯಥಾ ಯದಿ (m_cgMayMerge) {
                 // V3Width left type_option.weight a non-negative constant
                 m_constructorp->addStmtsp(itemCall(fl, itemVarp, VCMethod::COVERGROUP_TYPE_WEIGHT,
-                                                   {optp->valuep()->cloneTree(false)})
+                                                   {optp->valuep()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)})
                                               ->makeStmt());
             }
         }
     }
 
-    void processCovergroup() {
+    ಶೂನ್ಯ processCovergroup() {
         UINFO(4, "Processing covergroup: " << m_covergroupp->name() << " with "
                                            << m_coverpoints.size() << " coverpoints and "
                                            << m_coverCrosses.size() << " crosses");
@@ -500,8 +500,8 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         m_droppedCrosses.clear();
         m_cgInstVarp = nullptr;
         m_cgTypeWeight = 1;
-        m_cgMergeInstances = false;
-        m_cgMayMerge = false;
+        m_cgMergeInstances = ಅಸತ್ಯ;
+        m_cgMayMerge = ಅಸತ್ಯ;
 
         lowerCovergroupOptions();
 
@@ -509,61 +509,61 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // and to flag any cross naming a bare variable -- a would-be implicit coverpoint, which
         // Verilator does not synthesize.  An unresolvable item drops only that one cross (with a
         // COVERIGN in generateCrossCode), leaving the rest of the covergroup intact.
-        for (AstCoverCross* crossp : m_coverCrosses) {
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (refp->exprp()) continue;  // hierarchical ref: dropped in generateCrossCode
-                if (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
-                    m_droppedCrosses.insert(crossp);  // bare variable: drop this cross only
-                } else {
-                    m_crossedCpNames.insert(refp->name());
+        ಪ್ರತಿ (AstCoverCross* crossp : m_coverCrosses) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ಧ್ರುವ AstCoverpointRef* ಧ್ರುವ refp = VN_AS(itemp, CoverpointRef);
+                ಯದಿ (refp->exprp()) ಅನುವರ್ತ;  // hierarchical ref: dropped in generateCrossCode
+                ಯದಿ (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
+                    m_droppedCrosses.ಸೇರಿಸು(crossp);  // bare variable: drop this cross only
+                } ಅನ್ಯಥಾ {
+                    m_crossedCpNames.ಸೇರಿಸು(refp->name());
                 }
             }
         }
 
-        std::vector<AstNode*> pending;
+        std::vector<Ast_ಗಂಟು*> pending;
         std::map<AstCoverpoint*, std::vector<AstCoverCross*>> consumers;
         std::map<AstCoverCross*, std::vector<AstCoverpoint*>> inputs;
-        for (AstCoverpoint* const cpp : m_coverpoints) {
+        ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ cpp : m_coverpoints) {
             checkBinNames(cpp);
             checkConstructedBins(cpp);
-            if (!cpp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()) continue;
+            ಯದಿ (!cpp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()) ಅನುವರ್ತ;
             // Bins without values leave the report (IEEE 1800-2023 19.11.1), exclusions or not.
             // Constructed bins get their values when the covergroup is constructed.
-            if (!coverpointHasStateExclusions(cpp) && !coverpointHasEmptyBins(cpp)
+            ಯದಿ (!coverpointHasStateExclusions(cpp) && !coverpointHasEmptyBins(cpp)
                 && !coverpointHasConstructedBins(cpp)) {
-                continue;
+                ಅನುವರ್ತ;
             }
-            m_runtimePoints.insert(cpp);
-            pending.push_back(cpp);
+            m_runtimePoints.ಸೇರಿಸು(cpp);
+            pending.ತಳ್ಳು_back(cpp);
         }
-        for (AstCoverCross* const crossp : m_coverCrosses) {
-            if (m_droppedCrosses.count(crossp)) continue;
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (refp->exprp()) continue;
-                const auto point = m_coverpointMap.find(refp->name());
-                if (point != m_coverpointMap.end()) {
-                    consumers[point->second].push_back(crossp);
-                    inputs[crossp].push_back(point->second);
+        ಪ್ರತಿ (AstCoverCross* ಧ್ರುವ crossp : m_coverCrosses) {
+            ಯದಿ (m_droppedCrosses.ಎಣಿಕೆ(crossp)) ಅನುವರ್ತ;
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ಧ್ರುವ AstCoverpointRef* ಧ್ರುವ refp = VN_AS(itemp, CoverpointRef);
+                ಯದಿ (refp->exprp()) ಅನುವರ್ತ;
+                ಧ್ರುವ auto point = m_coverpointMap.find(refp->name());
+                ಯದಿ (point != m_coverpointMap.end()) {
+                    consumers[point->second].ತಳ್ಳು_back(crossp);
+                    inputs[crossp].ತಳ್ಳು_back(point->second);
                 }
             }
             // The values of a filter's bin tuples are known when the covergroup is constructed
-            if (crossp->exists([](const AstCoverCrossWith*) { return true; })) {
+            ಯದಿ (crossp->exists([](ಧ್ರುವ AstCoverCrossWith*) { ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ; })) {
                 m_runtimeCrosses.emplace(crossp);
-                pending.push_back(crossp);
+                pending.ತಳ್ಳು_back(crossp);
             }
         }
-        for (size_t next = 0; next < pending.size(); ++next) {
-            if (AstCoverpoint* const pointp = VN_CAST(pending[next], Coverpoint)) {
-                for (AstCoverCross* const crossp : consumers[pointp]) {
-                    if (m_runtimeCrosses.emplace(crossp).second) pending.push_back(crossp);
+        ಪ್ರತಿ (size_t next = 0; next < pending.size(); ++next) {
+            ಯದಿ (AstCoverpoint* ಧ್ರುವ pointp = VN_CAST(pending[next], Coverpoint)) {
+                ಪ್ರತಿ (AstCoverCross* ಧ್ರುವ crossp : consumers[pointp]) {
+                    ಯದಿ (m_runtimeCrosses.emplace(crossp).second) pending.ತಳ್ಳು_back(crossp);
                 }
-            } else {
-                for (AstCoverpoint* const pointp : inputs[VN_AS(pending[next], CoverCross)]) {
-                    if (pointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()
+            } ಅನ್ಯಥಾ {
+                ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ pointp : inputs[VN_AS(pending[next], CoverCross)]) {
+                    ಯದಿ (pointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked()
                         && m_runtimePoints.emplace(pointp).second) {
-                        pending.push_back(pointp);
+                        pending.ತಳ್ಳು_back(pointp);
                     }
                 }
             }
@@ -574,20 +574,20 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         generateInstanceAttach();
 
         // For each coverpoint, generate sampling code
-        for (AstCoverpoint* cpp : m_coverpoints) generateCoverpointCode(cpp);
+        ಪ್ರತಿ (AstCoverpoint* cpp : m_coverpoints) generateCoverpointCode(cpp);
 
         // For each cross, generate sampling code
-        for (AstCoverCross* crossp : m_coverCrosses) generateCrossCode(crossp);
+        ಪ್ರತಿ (AstCoverCross* crossp : m_coverCrosses) generateCrossCode(crossp);
 
         // Every cross has been built, so runtime points only need their exclusions from here.
-        for (AstCoverpoint* const cpp : m_coverpoints) {
-            if (!m_runtimePoints.count(cpp)) continue;
+        ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ cpp : m_coverpoints) {
+            ಯದಿ (!m_runtimePoints.ಎಣಿಕೆ(cpp)) ಅನುವರ್ತ;
             m_constructorp->addStmtsp(itemCall(cpp->fileline(), m_cpVarMap.at(cpp->name()),
-                                               VCMethod::COVERGROUP_VALUE_RELEASE)
+                                               VCMethod::COVERGROUP_ಮೌಲ್ಯ_RELEASE)
                                           ->makeStmt());
         }
-        for (AstNodeExpr* valuep : m_detachedValues) VL_DO_DANGLING(pushDeletep(valuep), valuep);
-        m_detachedValues.clear();
+        ಪ್ರತಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep : m_detached_ಮೌಲ್ಯಗಳು) VL_DO_DANGLING(ತಳ್ಳು_Deletep(valuep), valuep);
+        m_detached_ಮೌಲ್ಯಗಳು.clear();
 
         // Generate coverage computation code (even for empty covergroups).  Bin registration
         // with the coverage database is handled per coverpoint/cross by their runtime
@@ -595,134 +595,134 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         generateCoverageComputationCode();
     }
 
-    static constexpr size_t VALUE_LIST_ENTRIES = 256;  // Metadata entries per constructor call
+    ಸ್ಥಿರ constexpr size_t ಮೌಲ್ಯ_LIST_ENTRIES = 256;  // Metadata entries per constructor call
 
     // The value of a constant count, of bins or value tuples: -1 if it is negative, and
     // saturated above the largest limit
-    static int64_t constCount(const AstConst* constp) {
-        const V3Number& num = constp->num();
-        if (constp->isSigned() && num.isNegative()) return -1;
-        return num.mostSetBitP1() > 32 ? INT64_MAX : static_cast<int64_t>(num.toUQuad());
+    ಸ್ಥಿರ int64_t const_ಎಣಿಕೆ(ಧ್ರುವ AstConst* constp) {
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಅಂಕೆ = constp->ಅಂಕೆ();
+        ಯದಿ (constp->isSigned() && ಅಂಕೆ.isNegative()) ಪ್ರತ್ಯಾಗಮ -1;
+        ಪ್ರತ್ಯಾಗಮ ಅಂಕೆ.mostSetBitP1() > 32 ? INT64_MAX : static_cast<int64_t>(ಅಂಕೆ.toUQuad());
     }
 
     // Whether a count, 'whatp', is integral and, if constant, positive, as the standard's clause
     // 'clausep' requires; else errors
-    static bool checkCount(const AstNodeExpr* countp, const char* whatp, const char* clausep) {
-        const AstConst* const constp = VN_CAST(countp, Const);
-        if (!countp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ check_ಎಣಿಕೆ(ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp, ಧ್ರುವ ವರ್ಣ* whatp, ಧ್ರುವ ವರ್ಣ* clausep) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(countp, Const);
+        ಯದಿ (!countp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             countp->v3error(whatp << " must be integral (IEEE 1800-2023 " << clausep << ")");
-            return false;
-        } else if (constp && (constp->num().isFourState() || constCount(constp) < 1)) {
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        } ಅನ್ಯಥಾ ಯದಿ (constp && (constp->ಅಂಕೆ().isFourState() || const_ಎಣಿಕೆ(constp) < 1)) {
             countp->v3error(whatp << " must be >= 1, got "
-                                  << (constp->num().isFourState() ? constp->num().ascii(false)
-                                                                  : constp->num().toDecimalS())
+                                  << (constp->ಅಂಕೆ().isFourState() ? constp->ಅಂಕೆ().ascii(ಅಸತ್ಯ)
+                                                                  : constp->ಅಂಕೆ().toDecimalS())
                                   << " (IEEE 1800-2023 " << clausep << ")");
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // The number of bins requested by a valid 'bins auto[N]', or 0
-    static uint32_t autoBinsRequested(const AstCoverBin* binp) {
-        const AstConst* const constp = VN_CAST(binp->arraySizep(), Const);
-        if (!constp) return 0;
-        const int64_t count = constCount(constp);
-        return count < 1 || count > v3Global.opt.coverageMaxBins() ? 0
-                                                                   : static_cast<uint32_t>(count);
+    ಸ್ಥಿರ uint32_t autoBinsRequested(ಧ್ರುವ AstCoverBin* binp) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(binp->arraySizep(), Const);
+        ಯದಿ (!constp) ಪ್ರತ್ಯಾಗಮ 0;
+        ಧ್ರುವ int64_t ಎಣಿಕೆ = const_ಎಣಿಕೆ(constp);
+        ಪ್ರತ್ಯಾಗಮ ಎಣಿಕೆ < 1 || ಎಣಿಕೆ > v3Global.opt.coverageMaxBins() ? 0
+                                                                   : static_cast<uint32_t>(ಎಣಿಕೆ);
     }
 
     // True for a 'bins auto[N]' declaration, or the implicit automatic bins of a coverpoint
-    static bool isAutoBins(const AstCoverBin* binp) {
-        return binp->binsType() == VCoverBinsType::BINS_AUTO
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isAutoBins(ಧ್ರುವ AstCoverBin* binp) {
+        ಪ್ರತ್ಯಾಗಮ binp->binsType() == VCoverBinsType::BINS_AUTO
                || binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT;
     }
 
     // True for a sized array of bins, 'bins b[N] = {...}', whose values an integral coverpoint
     // distributes over N bins when the covergroup is constructed (IEEE 1800-2023 19.5.1)
-    static bool isSizedArray(const AstCoverBin* binp) {
-        return binp->arraySizep() && !isAutoBins(binp);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isSizedArray(ಧ್ರುವ AstCoverBin* binp) {
+        ಪ್ರತ್ಯಾಗಮ binp->arraySizep() && !isAutoBins(binp);
     }
 
     // The 'with' filter of a bin, if any (IEEE 1800-2023 19.5.1.1)
-    static AstCoverWith* binWith(const AstCoverBin* binp) {
-        return VN_CAST(binp->rangesp(), CoverWith);
+    ಸ್ಥಿರ AstCoverWith* binWith(ಧ್ರುವ AstCoverBin* binp) {
+        ಪ್ರತ್ಯಾಗಮ VN_CAST(binp->rangesp(), CoverWith);
     }
 
     // True for bins whose values the covergroup constructor computes: a sized array, or bins of
     // the values a 'with' filter keeps
-    static bool isConstructedBins(const AstCoverBin* binp) {
-        return isSizedArray(binp) || binWith(binp);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isConstructedBins(ಧ್ರುವ AstCoverBin* binp) {
+        ಪ್ರತ್ಯಾಗಮ isSizedArray(binp) || binWith(binp);
     }
 
     // The range list of a bin's values, or of the candidates of its 'with' filter; null for all
     // of the coverpoint's values, which a filter of the coverpoint's name has
-    static AstNode* binRangesp(const AstCoverBin* binp) {
-        const AstCoverWith* const withp = binWith(binp);
-        if (!withp) return binp->rangesp();
-        return VN_IS(withp->subp(), CoverpointRef) ? nullptr : withp->subp();
+    ಸ್ಥಿರ Ast_ಗಂಟು* binRangesp(ಧ್ರುವ AstCoverBin* binp) {
+        ಧ್ರುವ AstCoverWith* ಧ್ರುವ withp = binWith(binp);
+        ಯದಿ (!withp) ಪ್ರತ್ಯಾಗಮ binp->rangesp();
+        ಪ್ರತ್ಯಾಗಮ VN_IS(withp->subp(), CoverpointRef) ? nullptr : withp->subp();
     }
 
     // Report and delete a bins declaration of a name that another of its coverpoint has
-    void checkBinNames(AstCoverpoint* coverpointp) {
+    ಶೂನ್ಯ checkBinNames(AstCoverpoint* coverpointp) {
         std::set<std::string> names;
-        for (AstNode* nodep = coverpointp->binsp(); nodep;) {
-            AstCoverBin* const binp = VN_AS(nodep, CoverBin);
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep;) {
+            AstCoverBin* ಧ್ರುವ binp = VN_AS(nodep, CoverBin);
             nodep = nodep->nextp();
-            if (names.emplace(binp->name()).second) continue;
+            ಯದಿ (names.emplace(binp->name()).second) ಅನುವರ್ತ;
             binp->v3error("Duplicate bin " << binp->prettyNameQ() << " in coverpoint "
                                            << coverpointp->prettyNameQ()
                                            << " (IEEE 1800-2023 3.13)");
-            VL_DO_DANGLING(pushDeletep(binp->unlinkFrBack()), binp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(binp->unlinkFrBack()), binp);
         }
     }
 
     // Delete an ignored bins declaration, which binsof then selects as no bins
-    void dropBins(const AstCoverpoint* coverpointp, AstCoverBin* binp) {
-        m_droppedBins[coverpointp].push_back(binp->name());
-        VL_DO_DANGLING(pushDeletep(binp->unlinkFrBack()), binp);
+    ಶೂನ್ಯ dropBins(ಧ್ರುವ AstCoverpoint* coverpointp, AstCoverBin* binp) {
+        m_droppedBins[coverpointp].ತಳ್ಳು_back(binp->name());
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(binp->unlinkFrBack()), binp);
     }
 
     // Check the size of a sized array of bins, which drops an invalid array.  A real coverpoint's
     // are unsupported, and treated as arrays of a bin per value.  False unless it stays sized.
-    bool checkBinsArraySize(const AstCoverpoint* coverpointp, AstCoverBin* binp, bool integral) {
-        AstNodeExpr* const sizep = binp->arraySizep();
-        if (VN_IS(sizep, Unbounded)) {  // A parameter of '$'; see bins_orBraE
+    ತಾರ್ಕಿಕ checkBinsArraySize(ಧ್ರುವ AstCoverpoint* coverpointp, AstCoverBin* binp, ತಾರ್ಕಿಕ integral) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ sizep = binp->arraySizep();
+        ಯದಿ (VN_IS(sizep, Unbounded)) {  // A parameter of '$'; see bins_orBraE
             binp->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)");
-        } else if (checkCount(sizep, "Bins array size", "19.5.1")) {
-            if (integral) return true;
+        } ಅನ್ಯಥಾ ಯದಿ (check_ಎಣಿಕೆ(sizep, "Bins array size", "19.5.1")) {
+            ಯದಿ (integral) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             binp->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size of a real "
                                    "coverpoint (treated as '[]')");
-            VL_DO_DANGLING(pushDeletep(sizep->unlinkFrBack()), sizep);
-            return false;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(sizep->unlinkFrBack()), sizep);
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
         dropBins(coverpointp, binp);
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // Check the bins of a coverpoint whose values the constructor computes, dropping invalid
     // ones.  A wildcard array of too many ranges of values is ignored, or if ignore or illegal,
     // treated as one bin; filtering too many ranges of values ignores the bins.
-    void checkConstructedBins(AstCoverpoint* coverpointp) {
-        const bool integral = coverpointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked();
-        for (AstNode* nodep = coverpointp->binsp(); nodep;) {
-            AstCoverBin* const binp = VN_AS(nodep, CoverBin);
+    ಶೂನ್ಯ checkConstructedBins(AstCoverpoint* coverpointp) {
+        ಧ್ರುವ ತಾರ್ಕಿಕ integral = coverpointp->exprp()->dtypep()->skipRefp()->isIntegralOrPacked();
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep;) {
+            AstCoverBin* ಧ್ರುವ binp = VN_AS(nodep, CoverBin);
             nodep = nodep->nextp();
-            if (!isConstructedBins(binp)) continue;
-            if (isSizedArray(binp) && !checkBinsArraySize(coverpointp, binp, integral)) continue;
-            if (!binp->isWildcard()
+            ಯದಿ (!isConstructedBins(binp)) ಅನುವರ್ತ;
+            ಯದಿ (isSizedArray(binp) && !checkBinsArraySize(coverpointp, binp, integral)) ಅನುವರ್ತ;
+            ಯದಿ (!binp->isWildcard()
                 || sizedWildcardRuns(binp, coverpointp->exprp())
                        <= v3Global.opt.coverageMaxBins()) {
-                if (binWith(binp) && withCandidatesOver(binp, coverpointp->exprp())) {
+                ಯದಿ (binWith(binp) && withCandidatesOver(binp, coverpointp->exprp())) {
                     binp->v3warn(COVERIGN, "Unsupported: 'with' filter of more than 2**32 "
                                            "candidate values; bin "
                                                << binp->prettyNameQ() << " ignored");
-                    if (binp->binsType().binIsNormal()) coverpointp->user2(true);
+                    ಯದಿ (binp->binsType().binIsNormal()) coverpointp->user2(ಸತ್ಯ);
                     dropBins(coverpointp, binp);
                 }
-                continue;
+                ಅನುವರ್ತ;
             }
             // An ignore or illegal array still excludes or checks its values, as one bin
-            const bool single = !binp->binsType().binIsNormal() && !binWith(binp);
+            ಧ್ರುವ ತಾರ್ಕಿಕ single = !binp->binsType().binIsNormal() && !binWith(binp);
             binp->v3warn(COVERIGN,
                          "Unsupported: " << (binWith(binp) ? "'with' filter of wildcard '"
                                                            : "sized wildcard array '")
@@ -733,13 +733,13 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                          << (single ? " treated as one bin" : " ignored") << "\n"
                                          << binp->warnMore()
                                          << "... Suggest a larger --coverage-max-bins");
-            if (single) {
-                AstNodeExpr* const sizep = binp->arraySizep();
-                VL_DO_DANGLING(pushDeletep(sizep->unlinkFrBack()), sizep);
-                binp->isArray(false);
-                continue;
+            ಯದಿ (single) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ sizep = binp->arraySizep();
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(sizep->unlinkFrBack()), sizep);
+                binp->isArray(ಅಸತ್ಯ);
+                ಅನುವರ್ತ;
             }
-            if (binp->binsType().binIsNormal()) coverpointp->user2(true);
+            ಯದಿ (binp->binsType().binIsNormal()) coverpointp->user2(ಸತ್ಯ);
             dropBins(coverpointp, binp);
         }
     }
@@ -747,90 +747,90 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // True if a 'with' filter would be evaluated for more than 2**32 candidate values, known
     // now for the coverpoint's name, or for a range list of constants: each is evaluated once
     // but for an array 'b[N]', which keeps their order and duplicates (see withBegin())
-    static bool withCandidatesOver(AstCoverBin* binp, AstNodeExpr* exprp) {
-        const int width = runWidth(exprp);
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        if (!binRangesp(binp)) runs = coverpointValues(binp, exprp);
-        const auto constant
-            = [](const AstNode* nodep) { return VN_IS(nodep, Const) || VN_IS(nodep, Unbounded); };
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ withCandidatesOver(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = runWidth(exprp);
+        std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> runs;
+        ಯದಿ (!binRangesp(binp)) runs = coverpoint_ಮೌಲ್ಯಗಳು(binp, exprp);
+        ಧ್ರುವ auto constant
+            = [](ಧ್ರುವ Ast_ಗಂಟು* nodep) { ಪ್ರತ್ಯಾಗಮ VN_IS(nodep, Const) || VN_IS(nodep, Unbounded); };
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            ಧ್ರುವ AstInsideRange* ಧ್ರುವ irp = VN_CAST(rangep, InsideRange);
             // Else known when constructed
-            if (irp ? !constant(irp->lhsp()) || !constant(irp->rhsp()) : !VN_IS(rangep, Const)) {
-                return false;
+            ಯದಿ (irp ? !constant(irp->lhsp()) || !constant(irp->rhsp()) : !VN_IS(rangep, Const)) {
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, binp->isWildcard(), range)
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, exprp)};
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(rangep, exprp, ಸತ್ಯ, binp->isWildcard(), range)
                 || crossRangeEmpty(range)) {
-                continue;
+                ಅನುವರ್ತ;
             }
-            std::vector<std::pair<V3Number, V3Number>> found{{range.lo, range.hi}};
-            if (range.wildcard) {  // checkConstructedBins bounded the runs
+            std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> found{{range.lo, range.hi}};
+            ಯದಿ (range.wildcard) {  // checkConstructedBins bounded the runs
                 found.clear();
                 crossRangeRuns(range, v3Global.opt.coverageMaxBins(), found);
             }
-            for (const std::pair<V3Number, V3Number>& run : found) {
-                runs.emplace_back(V3Number{rangep, width, run.first},
-                                  V3Number{rangep, width, run.second});
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : found) {
+                runs.emplace_back(V3_ಸಂಖ್ಯೆ{rangep, width, run.first},
+                                  V3_ಸಂಖ್ಯೆ{rangep, width, run.second});
             }
         }
-        if (!isSizedArray(binp)) {  // The union of the values
-            std::sort(runs.begin(), runs.end(), [](const auto& lhs, const auto& rhs) {
-                return crossValueLess(lhs.first, rhs.first);
+        ಯದಿ (!isSizedArray(binp)) {  // The union of the values
+            std::sort(runs.begin(), runs.end(), [](ಧ್ರುವ auto& lhs, ಧ್ರುವ auto& rhs) {
+                ಪ್ರತ್ಯಾಗಮ cross_ಮೌಲ್ಯ_Less(lhs.first, rhs.first);
             });
-            std::vector<std::pair<V3Number, V3Number>> merged;
-            for (const std::pair<V3Number, V3Number>& run : runs) {
-                if (merged.empty() || crossValueLess(merged.back().second, run.first)) {
-                    merged.push_back(run);
-                } else if (crossValueLess(merged.back().second, run.second)) {
+            std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> merged;
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : runs) {
+                ಯದಿ (merged.empty() || cross_ಮೌಲ್ಯ_Less(merged.back().second, run.first)) {
+                    merged.ತಳ್ಳು_back(run);
+                } ಅನ್ಯಥಾ ಯದಿ (cross_ಮೌಲ್ಯ_Less(merged.back().second, run.second)) {
                     merged.back().second = run.second;
                 }
             }
             runs = std::move(merged);
         }
-        uint64_t count = 0;
-        for (const std::pair<V3Number, V3Number>& run : runs) {
-            V3Number span{exprp, width};
+        uint64_t ಎಣಿಕೆ = 0;
+        ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : runs) {
+            V3_ಸಂಖ್ಯೆ span{exprp, width};
             span.opSub(run.second, run.first);
-            if (span.mostSetBitP1() > 32) return true;  // More than 2**32 values
-            count += span.toUQuad() + 1;
-            if (count > (uint64_t{1} << 32)) return true;
+            ಯದಿ (span.mostSetBitP1() > 32) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;  // More than 2**32 values
+            ಎಣಿಕೆ += span.toUQuad() + 1;
+            ಯದಿ (ಎಣಿಕೆ > (uint64_t{1} << 32)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // The ranges of values the wildcard patterns of a sized wildcard array, or of a 'with'
     // filter's candidates, give, counted up to more than --coverage-max-bins
-    static size_t sizedWildcardRuns(const AstCoverBin* binp, AstNodeExpr* exprp) {
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            if (!VN_IS(rangep, Const)) continue;  // A range, or a value known at construction
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (resolveValue(rangep, exprp, true, true, range) && !crossRangeEmpty(range)) {
+    ಸ್ಥಿರ size_t sizedWildcardRuns(ಧ್ರುವ AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> runs;
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            ಯದಿ (!VN_IS(rangep, Const)) ಅನುವರ್ತ;  // A range, or a value known at construction
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, exprp)};
+            ಯದಿ (resolve_ಮೌಲ್ಯ(rangep, exprp, ಸತ್ಯ, ಸತ್ಯ, range) && !crossRangeEmpty(range)) {
                 crossRangeRuns(range, v3Global.opt.coverageMaxBins(), runs);
             }
         }
-        return runs.size();
+        ಪ್ರತ್ಯಾಗಮ runs.size();
     }
 
     // Check the automatic bins declarations of a coverpoint.  Each stays one declaration, which
     // generates as a partition of the coverpoint domain (see autoBinRuns).
-    void checkAutomaticBins(AstCoverpoint* coverpointp, const AstNodeExpr* exprp) {
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (cbinp->binsType() != VCoverBinsType::BINS_AUTO) continue;
-            const AstConst* const constp = VN_CAST(cbinp->arraySizep(), Const);
-            if (!constp) {
+    ಶೂನ್ಯ checkAutomaticBins(AstCoverpoint* coverpointp, ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ಧ್ರುವ cbinp = VN_AS(binp, CoverBin);
+            ಯದಿ (cbinp->binsType() != VCoverBinsType::BINS_AUTO) ಅನುವರ್ತ;
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(cbinp->arraySizep(), Const);
+            ಯದಿ (!constp) {
                 cbinp->v3error("Automatic bins array size must be a constant");
-            } else if (constCount(constp) < 1) {
+            } ಅನ್ಯಥಾ ಯದಿ (const_ಎಣಿಕೆ(constp) < 1) {
                 cbinp->v3error("Automatic bins array size must be >= 1, got "
-                               << constp->num().toDecimalS());
-            } else if (constCount(constp) > v3Global.opt.coverageMaxBins()) {
+                               << constp->ಅಂಕೆ().toDecimalS());
+            } ಅನ್ಯಥಾ ಯದಿ (const_ಎಣಿಕೆ(constp) > v3Global.opt.coverageMaxBins()) {
                 cbinp->v3error("Automatic bins array size of "
-                               << constp->num().toDecimalU() << " exceeds limit of "
+                               << constp->ಅಂಕೆ().toDecimalU() << " exceeds limit of "
                                << v3Global.opt.coverageMaxBins() << '\n'
                                << cbinp->warnMore() << "... Suggest a larger --coverage-max-bins");
-            } else if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+            } ಅನ್ಯಥಾ ಯದಿ (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
                 cbinp->v3error("Automatic bins are not allowed on a coverpoint of a non-integral "
                                "expression (IEEE 1800-2023 19.5.3).");
             }
@@ -840,73 +840,73 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Extract all option values of a coverpoint or cross in a single pass.
     // atLeastOut: option.at_least (default the covergroup's)
     // autoBinMaxOut: option.auto_bin_max (coverpoint overrides covergroup, default 64)
-    void extractItemOptions(AstNode* optionsp, int& atLeastOut, int& autoBinMaxOut) {
+    ಶೂನ್ಯ extractItemOptions(Ast_ಗಂಟು* optionsp, ಪೂರ್ಣಾಙ್ಕ& atLeastOut, ಪೂರ್ಣಾಙ್ಕ& autoBinMaxOut) {
         atLeastOut = m_cgAtLeast;
         autoBinMaxOut = -1;  // -1 = not set at coverpoint level
-        for (AstNode* optionp = optionsp; optionp; optionp = optionp->nextp()) {
-            AstCoverOption* const optp = VN_AS(optionp, CoverOption);
+        ಪ್ರತಿ (Ast_ಗಂಟು* optionp = optionsp; optionp; optionp = optionp->nextp()) {
+            AstCoverOption* ಧ್ರುವ optp = VN_AS(optionp, CoverOption);
             // Weights may be non-constant; generateItemWeight() handles them.  A cross keeps
             // its unsupported options, which V3LinkParse warned of.
-            if (!(optp->optType() == VCoverOptionType::AT_LEAST
+            ಯದಿ (!(optp->optType() == VCoverOptionType::AT_LEAST
                   || optp->optType() == VCoverOptionType::AUTO_BIN_MAX)) {
-                continue;
+                ಅನುವರ್ತ;
             }
-            const AstConst* const constp = constOption(optp->valuep(), optp->optType());
-            if (!constp) continue;
-            if (optp->optType() == VCoverOptionType::AT_LEAST) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ constp = constOption(optp->valuep(), optp->optType());
+            ಯದಿ (!constp) ಅನುವರ್ತ;
+            ಯದಿ (optp->optType() == VCoverOptionType::AT_LEAST) {
                 atLeastOut = constAtLeast(constp);
-            } else {
+            } ಅನ್ಯಥಾ {
                 autoBinMaxOut = constp->toSInt();
             }
         }
         // Fall back to covergroup-level auto_bin_max if not set at coverpoint level
-        if (autoBinMaxOut < 0) {
-            if (m_covergroupp->cgAutoBinMax() >= 0) {
+        ಯದಿ (autoBinMaxOut < 0) {
+            ಯದಿ (m_covergroupp->cgAutoBinMax() >= 0) {
                 autoBinMaxOut = m_covergroupp->cgAutoBinMax();
-            } else {
+            } ಅನ್ಯಥಾ {
                 autoBinMaxOut = 64;  // Default per IEEE 1800-2023 Table 19-1
             }
         }
     }
 
     // IEEE 1800-2023 19.5.2: an enum coverpoint has one automatic bin per enumeration value
-    void createEnumAutoBins(AstCoverpoint* coverpointp, AstNodeExpr* exprp,
-                            const AstEnumDType* enump) {
-        FileLine* const fl = coverpointp->fileline();
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
+    ಶೂನ್ಯ createEnumAutoBins(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
+                            ಧ್ರುವ AstEnumDType* enump) {
+        File_ಸಾಲು* ಧ್ರುವ fl = coverpointp->fileline();
+        ಪ್ರತಿ (ಧ್ರುವ AstEnumItem* itemp = enump->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            AstConst* const lop = newValueConst(fl, VN_AS(itemp->valuep(), Const)->num(), exprp);
-            AstInsideRange* const rangep = new AstInsideRange{fl, lop, lop->cloneTree(false)};
+            AstConst* ಧ್ರುವ lop = new_ಮೌಲ್ಯ_Const(fl, VN_AS(itemp->valuep(), Const)->ಅಂಕೆ(), exprp);
+            AstInsideRange* ಧ್ರುವ rangep = ನೂತನ AstInsideRange{fl, lop, lop->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
             rangep->dtypeFrom(exprp);
             coverpointp->addBinsp(
-                new AstCoverBin{fl, "auto[" + itemp->name() + "]", rangep, false, false});
+                ನೂತನ AstCoverBin{fl, "auto[" + itemp->name() + "]", rangep, ಅಸತ್ಯ, ಅಸತ್ಯ});
         }
     }
 
     // IEEE 1800-2023 19.5.3/19.11.1: partition first, then apply exclusions.  The partition is one
     // automatic bins declaration, generated as a run like 'bins auto[N]' but numbering its bins.
-    void createImplicitAutoBins(AstCoverpoint* coverpointp, AstNodeExpr* exprp, int autoBinMax) {
-        if (coverpointp->user2()) return;  // Declared bins, ignored, leave no bins
-        for (AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const VCoverBinsType kind = VN_AS(nodep, CoverBin)->binsType();
-            if (kind != VCoverBinsType::BINS_IGNORE && kind != VCoverBinsType::BINS_ILLEGAL)
-                return;
+    ಶೂನ್ಯ createImplicitAutoBins(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಪೂರ್ಣಾಙ್ಕ autoBinMax) {
+        ಯದಿ (coverpointp->user2()) ಪ್ರತ್ಯಾಗಮ;  // Declared bins, ignored, leave no bins
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ಧ್ರುವ VCoverBinsType kind = VN_AS(nodep, CoverBin)->binsType();
+            ಯದಿ (kind != VCoverBinsType::BINS_IGNORE && kind != VCoverBinsType::BINS_ILLEGAL)
+                ಪ್ರತ್ಯಾಗಮ;
         }
-        if (const AstEnumDType* const enump
+        ಯದಿ (ಧ್ರುವ AstEnumDType* ಧ್ರುವ enump
             = VN_CAST(exprp->dtypep()->skipRefToEnump(), EnumDType)) {
             createEnumAutoBins(coverpointp, exprp, enump);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        const int width = exprp->width();
-        uint32_t count = width < 31 ? std::min<uint32_t>(uint32_t{1} << width, autoBinMax)
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = exprp->width();
+        uint32_t ಎಣಿಕೆ = width < 31 ? std::min<uint32_t>(uint32_t{1} << width, autoBinMax)
                                     : static_cast<uint32_t>(autoBinMax);
-        if (!count) return;
-        if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+        ಯದಿ (!ಎಣಿಕೆ) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             coverpointp->v3error("Coverpoint of a non-integral expression requires explicit bins "
                                  "(IEEE 1800-2023 19.5.3).");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (count > v3Global.opt.coverageMaxBins()) {
+        ಯದಿ (ಎಣಿಕೆ > v3Global.opt.coverageMaxBins()) {
             coverpointp->v3warn(COVERIGN, "Unsupported: more than "
                                               << v3Global.opt.coverageMaxBins()
                                               << " automatic bins from 'option.auto_bin_max'; "
@@ -914,102 +914,102 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                               << v3Global.opt.coverageMaxBins() << ".\n"
                                               << coverpointp->warnMore()
                                               << "... Suggest a larger --coverage-max-bins");
-            count = v3Global.opt.coverageMaxBins();
+            ಎಣಿಕೆ = v3Global.opt.coverageMaxBins();
         }
-        FileLine* const fl = coverpointp->fileline();
-        coverpointp->addBinsp(new AstCoverBin{fl, "auto", new AstConst{fl, count},
+        File_ಸಾಲು* ಧ್ರುವ fl = coverpointp->fileline();
+        coverpointp->addBinsp(ನೂತನ AstCoverBin{fl, "auto", ನೂತನ AstConst{fl, ಎಣಿಕೆ},
                                               VCoverBinsType::BINS_AUTO_IMPLICIT});
     }
 
     // Sanitize generated names to be valid C++ identifiers
-    static string sanitizeGeneratedName(string name) {
+    ಸ್ಥಿರ string sanitizeGeneratedName(string name) {
         std::replace(name.begin(), name.end(), '[', '_');
         std::replace(name.begin(), name.end(), ']', '_');
-        return name;
+        ಪ್ರತ್ಯಾಗಮ name;
     }
 
     // Capture an iff guard in a function-local temporary so it is evaluated once per sample()
-    AstVarRef* captureIffToTemp(AstNodeExpr* iffp, const string& tempName) {
-        FileLine* const fl = iffp->fileline();
-        AstVar* const iffVarp
-            = new AstVar{fl, VVarType::BLOCKTEMP, tempName, iffp->findBitDType()};
-        iffVarp->funcLocal(true);
+    AstVarRef* captureIffToTemp(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* iffp, ಧ್ರುವ string& tempName) {
+        File_ಸಾಲು* ಧ್ರುವ fl = iffp->fileline();
+        AstVar* ಧ್ರುವ iffVarp
+            = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP, tempName, iffp->findBitDType()};
+        iffVarp->funcLocal(ಸತ್ಯ);
         m_sampleFuncp->addStmtsp(iffVarp);
         iffp->unlinkFrBack();
         m_sampleFuncp->addStmtsp(
-            new AstAssign{fl, new AstVarRef{fl, iffVarp, VAccess::WRITE}, iffp});
-        return new AstVarRef{fl, iffVarp, VAccess::READ};
+            ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, iffVarp, VAccess::WRITE}, iffp});
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{fl, iffVarp, VAccess::READ};
     }
 
     // Add a statement sampling the current coverpoint to sample(), under its iff guard if any
-    void addSampleStmt(AstNode* stmtp) {
-        if (m_cpGuardp) {
+    ಶೂನ್ಯ addSampleStmt(Ast_ಗಂಟು* stmtp) {
+        ಯದಿ (m_cpGuardp) {
             m_cpGuardp->addThensp(stmtp);
-        } else {
+        } ಅನ್ಯಥಾ {
             m_sampleFuncp->addStmtsp(stmtp);
         }
     }
 
     // Create previous value variable for transition tracking
-    AstVar* createPrevValueVar(AstCoverpoint* coverpointp, AstNodeExpr* exprp) {
+    AstVar* create_Prev_ಮೌಲ್ಯ_Var(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
         // Check if already created
-        if (AstVar* const prevVarp = VN_CAST(coverpointp->user1p(), Var)) return prevVarp;
+        ಯದಿ (AstVar* ಧ್ರುವ prevVarp = VN_CAST(coverpointp->user1p(), Var)) ಪ್ರತ್ಯಾಗಮ prevVarp;
 
         // Create variable to store previous sampled value
-        const string varName = "__Vprev_" + coverpointp->name();
+        ಧ್ರುವ string varName = "__Vprev_" + coverpointp->name();
         AstVar* prevVarp
-            = new AstVar{coverpointp->fileline(), VVarType::MEMBER, varName, exprp->dtypep()};
+            = ನೂತನ AstVar{coverpointp->fileline(), VVarType::MEMBER, varName, exprp->dtypep()};
         m_covergroupp->addMembersp(prevVarp);
 
         UINFO(4, "    Created previous value variable: " << varName);
 
         // Initialize to zero in constructor
-        AstNodeExpr* const initExprp
-            = new AstConst{prevVarp->fileline(), AstConst::WidthedValue{}, prevVarp->width(), 0};
-        AstNodeStmt* const initStmtp = new AstAssign{
-            prevVarp->fileline(), new AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ initExprp
+            = ನೂತನ AstConst{prevVarp->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, prevVarp->width(), 0};
+        Ast_ಗಂಟು_Stmt* ಧ್ರುವ initStmtp = ನೂತನ AstAssign{
+            prevVarp->fileline(), ನೂತನ AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
             initExprp};
         m_constructorp->addStmtsp(initStmtp);
 
         coverpointp->user1p(prevVarp);
-        return prevVarp;
+        ಪ್ರತ್ಯಾಗಮ prevVarp;
     }
 
     // Create state position variable for multi-value transition bins
     // Tracks position in sequence: 0=not started, 1=seen first item, etc.
     AstVar* createSequenceStateVar(AstCoverpoint* coverpointp, AstCoverBin* binp) {
         // Create variable to track sequence position
-        const string varName = "__Vseqpos_" + coverpointp->name() + "_" + binp->name();
+        ಧ್ರುವ string varName = "__Vseqpos_" + coverpointp->name() + "_" + binp->name();
         // Use 8-bit integer for state position (sequences rarely > 255 items)
         AstVar* stateVarp
-            = new AstVar{binp->fileline(), VVarType::MEMBER, varName, VFlagLogicPacked{}, 8};
+            = ನೂತನ AstVar{binp->fileline(), VVarType::MEMBER, varName, VFlagLogicPacked{}, 8};
         m_covergroupp->addMembersp(stateVarp);
 
         UINFO(4, "    Created sequence state variable: " << varName);
 
         // Initialize to 0 (not started) in constructor
-        AstNodeStmt* const initStmtp = new AstAssign{
-            stateVarp->fileline(), new AstVarRef{stateVarp->fileline(), stateVarp, VAccess::WRITE},
-            new AstConst{stateVarp->fileline(), AstConst::WidthedValue{}, 8, 0}};
+        Ast_ಗಂಟು_Stmt* ಧ್ರುವ initStmtp = ನೂತನ AstAssign{
+            stateVarp->fileline(), ನೂತನ AstVarRef{stateVarp->fileline(), stateVarp, VAccess::WRITE},
+            ನೂತನ AstConst{stateVarp->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 0}};
         m_constructorp->addStmtsp(initStmtp);
 
-        return stateVarp;
+        ಪ್ರತ್ಯಾಗಮ stateVarp;
     }
 
-    void generateCoverpointCode(AstCoverpoint* coverpointp) {
+    ಶೂನ್ಯ generateCoverpointCode(AstCoverpoint* coverpointp) {
         UINFO(4, "  Generating code for coverpoint: " << coverpointp->name());
 
         // Get the coverpoint expression
-        AstNodeExpr* exprp = coverpointp->exprp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = coverpointp->exprp();
 
         // Check automatic bins before processing
         checkAutomaticBins(coverpointp, exprp);
 
         // Extract all coverpoint options in a single pass
-        int atLeastValue;
-        int autoBinMax;
-        extractItemOptions(coverpointp->optionsp(), atLeastValue, autoBinMax);
-        UINFO(6, "    Coverpoint at_least = " << atLeastValue << " auto_bin_max = " << autoBinMax);
+        ಪೂರ್ಣಾಙ್ಕ at_Least_ಮೌಲ್ಯ;
+        ಪೂರ್ಣಾಙ್ಕ autoBinMax;
+        extractItemOptions(coverpointp->optionsp(), at_Least_ಮೌಲ್ಯ, autoBinMax);
+        UINFO(6, "    Coverpoint at_least = " << at_Least_ಮೌಲ್ಯ << " auto_bin_max = " << autoBinMax);
 
         // Create implicit automatic bins if no regular bins exist
         createImplicitAutoBins(coverpointp, exprp, autoBinMax);
@@ -1017,131 +1017,131 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // A false iff guard disables sampling of the coverpoint (IEEE 1800-2023 19.5), so
         // neither is its expression evaluated, nor are its bins or transition state updated
         VL_RESTORER(m_cpGuardp);
-        if (AstNodeExpr* const iffp = coverpointp->iffp()) {
-            m_cpGuardp = new AstIf{iffp->fileline(), iffp->unlinkFrBack()};
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ iffp = coverpointp->iffp()) {
+            m_cpGuardp = ನೂತನ AstIf{iffp->fileline(), iffp->unlinkFrBack()};
         }
 
-        AstVar* const valueVarp = new AstVar{
+        AstVar* ಧ್ರುವ ಮೌಲ್ಯ_Varp = ನೂತನ AstVar{
             coverpointp->fileline(), VVarType::BLOCKTEMP,
             "__VcpValue_" + sanitizeGeneratedName(coverpointp->name()), exprp->dtypep()};
-        valueVarp->funcLocal(true);
-        m_sampleFuncp->addStmtsp(valueVarp);
+        ಮೌಲ್ಯ_Varp->funcLocal(ಸತ್ಯ);
+        m_sampleFuncp->addStmtsp(ಮೌಲ್ಯ_Varp);
         exprp->unlinkFrBack();
-        addSampleStmt(new AstAssign{
+        addSampleStmt(ನೂತನ AstAssign{
             coverpointp->fileline(),
-            new AstVarRef{coverpointp->fileline(), valueVarp, VAccess::WRITE}, exprp});
-        coverpointp->exprp(new AstVarRef{coverpointp->fileline(), valueVarp, VAccess::READ});
+            ನೂತನ AstVarRef{coverpointp->fileline(), ಮೌಲ್ಯ_Varp, VAccess::WRITE}, exprp});
+        coverpointp->exprp(ನೂತನ AstVarRef{coverpointp->fileline(), ಮೌಲ್ಯ_Varp, VAccess::READ});
         exprp = coverpointp->exprp();
 
         // Every coverpoint routes through the VlCoverpoint runtime.  Transition coverpoints are
         // included: their per-value matching is still generated as a state machine in sample()
         // (see generateCoverpoint), but the bin hit is recorded in the runtime bin
         // rather than a bare counter.
-        generateCoverpoint(coverpointp, exprp, atLeastValue);
+        generateCoverpoint(coverpointp, exprp, at_Least_ಮೌಲ್ಯ);
         // Sampling follows what generateCoverpoint added unguarded, such as clearing the hit list
-        if (m_cpGuardp) m_sampleFuncp->addStmtsp(m_cpGuardp);
+        ಯದಿ (m_cpGuardp) m_sampleFuncp->addStmtsp(m_cpGuardp);
     }
 
     // Build the condition under which a default bin matches: NOT(OR of all normal bins).
-    AstNodeExpr* buildDefaultCondition(AstCoverpoint* coverpointp, AstNodeExpr* exprp,
-                                       FileLine* fl) {
-        AstNodeExpr* anyBinMatchp = nullptr;
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildDefaultCondition(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
+                                       File_ಸಾಲು* fl) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* anyBinMatchp = nullptr;
+        ಪ್ರತಿ (Ast_ಗಂಟು* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ಧ್ರುವ cbinp = VN_AS(binp, CoverBin);
+            ಯದಿ (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT
                 || cbinp->binsType() == VCoverBinsType::BINS_IGNORE
                 || cbinp->binsType() == VCoverBinsType::BINS_ILLEGAL)
-                continue;
+                ಅನುವರ್ತ;
             // The values of constructed bins are known at construction; see emitSizedSample
-            if (isConstructedBins(cbinp)) continue;
-            if (isAutoBins(cbinp)) {
+            ಯದಿ (isConstructedBins(cbinp)) ಅನುವರ್ತ;
+            ಯದಿ (isAutoBins(cbinp)) {
                 // Automatic bins partition the whole domain, leaving no default value
-                if (anyBinMatchp) VL_DO_DANGLING(pushDeletep(anyBinMatchp), anyBinMatchp);
-                return new AstConst{fl, AstConst::BitFalse{}};
+                ಯದಿ (anyBinMatchp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(anyBinMatchp), anyBinMatchp);
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, AstConst::BitFalse{}};
             }
-            AstNodeExpr* const binCondp = buildBinCondition(cbinp, exprp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ binCondp = buildBinCondition(cbinp, exprp);
             UASSERT_OBJ(binCondp, cbinp,
                         "buildBinCondition returned nullptr for non-ignore/non-illegal bin");
-            anyBinMatchp = anyBinMatchp ? new AstOr{fl, anyBinMatchp, binCondp} : binCondp;
+            anyBinMatchp = anyBinMatchp ? ನೂತನ AstOr{fl, anyBinMatchp, binCondp} : binCondp;
         }
-        return anyBinMatchp ? static_cast<AstNodeExpr*>(new AstNot{fl, anyBinMatchp})
-                            : static_cast<AstNodeExpr*>(new AstConst{fl, AstConst::BitTrue{}});
+        ಪ್ರತ್ಯಾಗಮ anyBinMatchp ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstNot{fl, anyBinMatchp})
+                            : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstConst{fl, AstConst::BitTrue{}});
     }
 
     //====================================================================
     // VlCoverpoint conversion
 
-    static bool coverpointHasStateExclusions(const AstCoverpoint* coverpointp) {
-        for (const AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const AstCoverBin* const binp = VN_AS(nodep, CoverBin);
-            if (!binp->transp() && binp->rangesp()
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ coverpointHasStateExclusions(ಧ್ರುವ AstCoverpoint* coverpointp) {
+        ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ಧ್ರುವ AstCoverBin* ಧ್ರುವ binp = VN_AS(nodep, CoverBin);
+            ಯದಿ (!binp->transp() && binp->rangesp()
                 && (binp->binsType() == VCoverBinsType::BINS_IGNORE
                     || binp->binsType() == VCoverBinsType::BINS_ILLEGAL)) {
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             }
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
-    static bool coverpointHasConstructedBins(const AstCoverpoint* coverpointp) {
-        for (const AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            if (isConstructedBins(VN_AS(nodep, CoverBin))) return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ coverpointHasConstructedBins(ಧ್ರುವ AstCoverpoint* coverpointp) {
+        ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ಯದಿ (isConstructedBins(VN_AS(nodep, CoverBin))) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // True if a Normal state bin, or an array-bin element, has no value of the coverpoint's
     // type (IEEE 1800-2023 19.5.7).  Array ranges enumerate in-type values, so cannot vanish.
-    static bool coverpointHasEmptyBins(const AstCoverpoint* coverpointp) {
-        AstNodeExpr* const exprp = coverpointp->exprp();
-        for (AstNode* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
-            const AstCoverBin* const binp = VN_AS(nodep, CoverBin);
-            if (!binp->binsType().binIsNormal() || binp->transp() || !binp->rangesp()) continue;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ coverpointHasEmptyBins(ಧ್ರುವ AstCoverpoint* coverpointp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ exprp = coverpointp->exprp();
+        ಪ್ರತಿ (Ast_ಗಂಟು* nodep = coverpointp->binsp(); nodep; nodep = nodep->nextp()) {
+            ಧ್ರುವ AstCoverBin* ಧ್ರುವ binp = VN_AS(nodep, CoverBin);
+            ಯದಿ (!binp->binsType().binIsNormal() || binp->transp() || !binp->rangesp()) ಅನುವರ್ತ;
             // A wildcard array has a bin for each value its elements match, so none empty, and
             // the constructor creates no bin without values of a 'with' filter
-            if ((binp->isArray() && binp->isWildcard()) || binWith(binp)) continue;
-            bool empty = true;
-            for (AstNode* valuep = binp->rangesp(); valuep; valuep = valuep->nextp()) {
-                if (binp->isArray() && VN_IS(valuep, InsideRange)) continue;
-                CrossValueRange range{valuep, resolveWidth(valuep, exprp)};
-                const bool none = resolveValue(valuep, exprp, true, binp->isWildcard(), range)
+            ಯದಿ ((binp->isArray() && binp->isWildcard()) || binWith(binp)) ಅನುವರ್ತ;
+            ತಾರ್ಕಿಕ empty = ಸತ್ಯ;
+            ಪ್ರತಿ (Ast_ಗಂಟು* valuep = binp->rangesp(); valuep; valuep = valuep->nextp()) {
+                ಯದಿ (binp->isArray() && VN_IS(valuep, InsideRange)) ಅನುವರ್ತ;
+                Cross_ಮೌಲ್ಯ_Range range{valuep, resolveWidth(valuep, exprp)};
+                ಧ್ರುವ ತಾರ್ಕಿಕ none = resolve_ಮೌಲ್ಯ(valuep, exprp, ಸತ್ಯ, binp->isWildcard(), range)
                                   && crossRangeEmpty(range);
-                if (binp->isArray() && none) return true;
+                ಯದಿ (binp->isArray() && none) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                 empty &= none;
             }
-            if (empty && !binp->isArray()) return true;
+            ಯದಿ (empty && !binp->isArray()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // True if a coverpoint has any transition bin.  Used to decide whether sample() emits the
     // end-of-sample previous-value update that transition matching needs.
-    static bool coverpointHasTransition(AstCoverpoint* coverpointp) {
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            if (VN_AS(binp, CoverBin)->transp()) return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ coverpointHasTransition(AstCoverpoint* coverpointp) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            ಯದಿ (VN_AS(binp, CoverBin)->transp()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // The interned AstBasicDType for one of the covergroup runtime keywords.
-    static AstBasicDType* basicDType(FileLine* fl, VBasicDTypeKwd kwd) {
-        return v3Global.rootp()->typeTablep()->findBasicDType(fl, kwd);
+    ಸ್ಥಿರ AstBasicDType* basicDType(File_ಸಾಲು* fl, VBasicDTypeKwd kwd) {
+        ಪ್ರತ್ಯಾಗಮ v3Global.rootp()->typeTablep()->findBasicDType(fl, kwd);
     }
 
     // Get (or create) the coverpoint dtype for a hit-list bound, interned so each distinct bound
     // yields one node.
-    AstCoverpointDType* coverpointDType(FileLine* fl, uint32_t hitBound) {
+    AstCoverpointDType* coverpointDType(File_ಸಾಲು* fl, uint32_t hitBound) {
         AstCoverpointDType*& typep = m_cpDTypes[hitBound];
-        if (!typep) {
-            typep = new AstCoverpointDType{fl, hitBound};
+        ಯದಿ (!typep) {
+            typep = ನೂತನ AstCoverpointDType{fl, hitBound};
             v3Global.rootp()->typeTablep()->addTypesp(typep);
         }
-        return typep;
+        ಪ್ರತ್ಯಾಗಮ typep;
     }
 
     // The key of the covergroup's type in the coverage registry, which get_coverage() queries
-    std::string covergroupProtectedName() const {
-        return VIdProtect::protectWordsIf(m_covergroupName, v3Global.opt.protectIds());
+    std::string covergroupProtectedName() ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ VIdProtect::protect_ಪದಗಳು_If(m_covergroupName, v3Global.opt.protectIds());
     }
 
     // The name of the covergroup's type, which keys the coverage registry and database: as
@@ -1149,22 +1149,22 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // specializations, and alike in each Verilator run of a hierarchical design.  As design units
     // of distinct libraries may share a name, one of a library other than the default is prefixed
     // by its library, as '%l' prints it (IEEE 1800-2023 33.4).
-    std::string covergroupTypeName() const {
+    std::string covergroupTypeName() ಧ್ರುವ {
         UASSERT_OBJ(m_unitp, m_covergroupp, "Covergroup declared outside of a design unit");
-        const std::string& libname = m_unitp->libname();
-        const std::string name = m_covergroupp->dtypeName(true);
-        return libname == "work" ? name : libname + "." + name;
+        ಧ್ರುವ std::string& libname = m_unitp->libname();
+        ಧ್ರುವ std::string name = m_covergroupp->dtypeName(ಸತ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ libname == "work" ? name : libname + "." + name;
     }
 
     // Emit the covergroup's instance handle member and the constructor statement that creates
     // its node in the per-context coverage registry.  Runs before any coverpoint or cross is
     // generated, so their runtimes can be added to the node as they are created.
-    void generateInstanceAttach() {
-        FileLine* const fl = m_covergroupp->fileline();
+    ಶೂನ್ಯ generateInstanceAttach() {
+        File_ಸಾಲು* ಧ್ರುವ fl = m_covergroupp->fileline();
         // V3LinkParse synthesizes a 'new' for every covergroup; the item generators below already
         // rely on that, and this attach runs even for a covergroup with no coverpoints at all.
         UASSERT_OBJ(m_constructorp, m_covergroupp, "Covergroup missing synthesized constructor");
-        m_cgInstVarp = new AstVar{fl, VVarType::MEMBER, "__Vcg_inst",
+        m_cgInstVarp = ನೂತನ AstVar{fl, VVarType::MEMBER, "__Vcg_inst",
                                   basicDType(fl, VBasicDTypeKwd::COVERGROUP_INSTHANDLE)};
         m_covergroupp->addMembersp(m_cgInstVarp);
 
@@ -1174,88 +1174,88 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                 "->newCovergroupInst("
                                     + quoted(covergroupProtectedName())
                                     + (m_cgMayMerge ? ", true" : ", false") + ")")},
-                     /*usePtr=*/false)
+                     /*usePtr=*/ಅಸತ್ಯ)
                 ->makeStmt());
         // The node reads option.weight in place, so procedural assignments take effect
-        AstCExpr* const weightAddrp = new AstCExpr{fl, "&"};
-        weightAddrp->add(newOptionSel(fl, optionVar(false), "weight", VAccess::READ));
+        AstCExpr* ಧ್ರುವ weightAddrp = ನೂತನ AstCExpr{fl, "&"};
+        weightAddrp->add(newOptionSel(fl, optionVar(ಅಸತ್ಯ), "weight", VAccess::READ));
         m_constructorp->addStmtsp(itemCall(fl, m_cgInstVarp, VCMethod::COVERGROUP_LEND_WEIGHT,
-                                           {weightAddrp, fileLineDebug(fl)}, /*usePtr=*/false)
+                                           {weightAddrp, file_ಸಾಲು_Debug(fl)}, /*usePtr=*/ಅಸತ್ಯ)
                                       ->makeStmt());
     }
 
     // A '__Vcg_inst.p()-><method>()' call on the covergroup's instance node
-    AstCMethodHard* instanceCall(FileLine* fl, VCMethod method) {
+    AstCMethodHard* instanceCall(File_ಸಾಲು* fl, VCMethod method) {
         // '__Vcg_inst.p()' -- a value handle, so '.' not '->'
-        AstCMethodHard* const instp
-            = new AstCMethodHard{fl, memberRef(fl, m_cgInstVarp), VCMethod::COVERGROUP_INST_P};
-        instp->usePtr(false);
+        AstCMethodHard* ಧ್ರುವ instp
+            = ನೂತನ AstCMethodHard{fl, memberRef(fl, m_cgInstVarp), VCMethod::COVERGROUP_INST_P};
+        instp->usePtr(ಅಸತ್ಯ);
         instp->dtypeSetVoid();  // Opaque receiver; only ever the 'fromp' of the call below
-        AstCMethodHard* const callp = new AstCMethodHard{fl, instp, method};
-        callp->usePtr(true);
-        return callp;
+        AstCMethodHard* ಧ್ರುವ callp = ನೂತನ AstCMethodHard{fl, instp, method};
+        callp->usePtr(ಸತ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ callp;
     }
 
     // Emit 'this->__Vcp_x = this->__Vcg_inst.p()->addCoverpoint<K>();' (or addCross), which
     // creates the item runtime in the instance node and borrows a pointer to it.
-    AstAssign* makeItemCreate(FileLine* fl, AstVar* itemVarp, VCMethod method) {
-        AstCMethodHard* const createp = instanceCall(fl, method);
+    AstAssign* makeItemCreate(File_ಸಾಲು* fl, AstVar* itemVarp, VCMethod method) {
+        AstCMethodHard* ಧ್ರುವ createp = instanceCall(fl, method);
         createp->dtypep(itemVarp->dtypep());
-        return new AstAssign{fl, memberRef(fl, itemVarp, VAccess::WRITE), createp};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAssign{fl, memberRef(fl, itemVarp, VAccess::WRITE), createp};
     }
 
     // Constant bounds of one rangesp() element (an InsideRange or a single Const).  Each bound is
     // the raw AST node -- an AstConst or an AstUnbounded ('$') -- with the const/unbounded view
     // derived on demand, so there is one source of truth per bound.  After a successful
     // constRangeBounds() neither node is null; a single Const has both bounds aliasing one node.
-    struct RangeBounds final {
-        AstNode* loNodep = nullptr;  // low bound: AstConst or AstUnbounded
-        AstNode* hiNodep = nullptr;  // high bound: AstConst or AstUnbounded
-        bool loUnbounded() const { return VN_IS(loNodep, Unbounded); }
-        bool hiUnbounded() const { return VN_IS(hiNodep, Unbounded); }
-        AstConst* loConstp() const { return VN_CAST(loNodep, Const); }
-        AstConst* hiConstp() const { return VN_CAST(hiNodep, Const); }
+    ಸಂರಚನಾ RangeBounds final {
+        Ast_ಗಂಟು* loNodep = nullptr;  // low bound: AstConst or AstUnbounded
+        Ast_ಗಂಟು* hiNodep = nullptr;  // high bound: AstConst or AstUnbounded
+        ತಾರ್ಕಿಕ loUnbounded() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ VN_IS(loNodep, Unbounded); }
+        ತಾರ್ಕಿಕ hiUnbounded() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ VN_IS(hiNodep, Unbounded); }
+        AstConst* loConstp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ VN_CAST(loNodep, Const); }
+        AstConst* hiConstp() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ VN_CAST(hiNodep, Const); }
     };
 
     // Decode one rangesp() element into its constant bounds.  Returns false if rp is neither an
     // InsideRange nor a single Const, or if a present bound is non-constant or 4-state.  '$'
     // bounds are left as AstUnbounded (not resolved) -- the caller applies its own policy.
     // Centralizes the InsideRange/Const/Unbounded decode shared by the hit-list-bound paths.
-    static bool constRangeBounds(AstNode* rp, RangeBounds& rb) {
-        if (AstInsideRange* const irp = VN_CAST(rp, InsideRange)) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ constRangeBounds(Ast_ಗಂಟು* rp, RangeBounds& rb) {
+        ಯದಿ (AstInsideRange* ಧ್ರುವ irp = VN_CAST(rp, InsideRange)) {
             rb.loNodep = irp->lhsp();
             rb.hiNodep = irp->rhsp();
-        } else if (AstConst* const cp = VN_CAST(rp, Const)) {
+        } ಅನ್ಯಥಾ ಯದಿ (AstConst* ಧ್ರುವ cp = VN_CAST(rp, Const)) {
             rb.loNodep = rb.hiNodep = cp;
-        } else {
-            return false;
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
         // Each bound must be a constant unless it is '$'; reject non-const and 4-state.
-        AstConst* const lc = rb.loConstp();
-        AstConst* const hc = rb.hiConstp();
-        if ((!lc && !rb.loUnbounded()) || (!hc && !rb.hiUnbounded())) return false;
-        if ((lc && lc->num().isFourState()) || (hc && hc->num().isFourState())) return false;
-        return true;
+        AstConst* ಧ್ರುವ lc = rb.loConstp();
+        AstConst* ಧ್ರುವ hc = rb.hiConstp();
+        ಯದಿ ((!lc && !rb.loUnbounded()) || (!hc && !rb.hiUnbounded())) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಯದಿ ((lc && lc->ಅಂಕೆ().isFourState()) || (hc && hc->ಅಂಕೆ().isFourState())) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Collect the covered value intervals of a single (non-array) Normal bin.  Returns false
     // if any range isn't a constant/open InsideRange or single Const (e.g. wildcard, non-const).
-    static bool extractRangeIntervals(AstCoverBin* cbinp, uint64_t maxVal,
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ extractRangeIntervals(AstCoverBin* cbinp, uint64_t maxVal,
                                       std::vector<std::pair<uint64_t, uint64_t>>& out) {
-        if (!cbinp->rangesp()) return false;
-        for (AstNode* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
+        ಯದಿ (!cbinp->rangesp()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತಿ (Ast_ಗಂಟು* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
             RangeBounds rb;
-            if (!constRangeBounds(rp, rb)) return false;
-            if ((rb.loConstp() && rb.loConstp()->width() > 64)
+            ಯದಿ (!constRangeBounds(rp, rb)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            ಯದಿ ((rb.loConstp() && rb.loConstp()->width() > 64)
                 || (rb.hiConstp() && rb.hiConstp()->width() > 64)) {
-                return false;  // Use the safe slot-count bound for wide values.
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;  // Use the safe slot-count bound for wide values.
             }
-            const uint64_t lo = rb.loUnbounded() ? 0 : rb.loConstp()->toUQuad();
-            const uint64_t hi = rb.hiUnbounded() ? maxVal : rb.hiConstp()->toUQuad();
-            if (lo > hi) return false;
+            ಧ್ರುವ uint64_t lo = rb.loUnbounded() ? 0 : rb.loConstp()->toUQuad();
+            ಧ್ರುವ uint64_t hi = rb.hiUnbounded() ? maxVal : rb.hiConstp()->toUQuad();
+            ಯದಿ (lo > hi) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             out.emplace_back(lo, hi);
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Append one Normal bin's cross-slot interval-sets to `bins` and bump `slotCount` by an upper
@@ -1263,46 +1263,46 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // enumerable (the caller then falls back to the always-safe slot count).  A non-array bin
     // is one slot covering the union of its intervals; the bins of an array element or of an
     // automatic bins declaration hold disjoint values, so the element or declaration counts once.
-    bool appendBinCrossSlots(AstCoverBin* cbinp, uint64_t maxVal, AstNodeExpr* exprp,
+    ತಾರ್ಕಿಕ appendBinCrossSlots(AstCoverBin* cbinp, uint64_t maxVal, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
                              std::vector<std::vector<std::pair<uint64_t, uint64_t>>>& bins,
-                             int& slotCount) {
-        if (isAutoBins(cbinp)) {
-            ++slotCount;
-            bins.push_back({{0, maxVal}});
-            return exprp->width() <= 64;
+                             ಪೂರ್ಣಾಙ್ಕ& slot_ಎಣಿಕೆ) {
+        ಯದಿ (isAutoBins(cbinp)) {
+            ++slot_ಎಣಿಕೆ;
+            bins.ತಳ್ಳು_back({{0, maxVal}});
+            ಪ್ರತ್ಯಾಗಮ exprp->width() <= 64;
         }
-        if (binWith(cbinp)) {
+        ಯದಿ (binWith(cbinp)) {
             // A value is in one bin of a filter's, but of a sized array, in one for each range
             // list element holding it; the coverpoint's name is one element
-            int elements = 0;
-            for (const AstNode* rp = binRangesp(cbinp); rp && isSizedArray(cbinp);
+            ಪೂರ್ಣಾಙ್ಕ elements = 0;
+            ಪ್ರತಿ (ಧ್ರುವ Ast_ಗಂಟು* rp = binRangesp(cbinp); rp && isSizedArray(cbinp);
                  rp = rp->nextp()) {
                 ++elements;
             }
-            slotCount += std::max(1, elements);
-            return false;
+            slot_ಎಣಿಕೆ += std::max(1, elements);
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        if (cbinp->isArray() && cbinp->isWildcard() && !cbinp->arraySizep()) {
+        ಯದಿ (cbinp->isArray() && cbinp->isWildcard() && !cbinp->arraySizep()) {
             // A value is in at most one bin of a wildcard array: one slot covering its values.
             // Signed values are sign-extended, not unsigned intervals (see computeHitListBound)
-            ++slotCount;
-            if (exprp->isSigned() || exprp->width() > 64) return false;
-            const BinRuns runs = wildcardBinRuns(cbinp, exprp, false);
-            if (runs.unsupported) return false;
+            ++slot_ಎಣಿಕೆ;
+            ಯದಿ (exprp->isSigned() || exprp->width() > 64) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+            ಧ್ರುವ BinRuns runs = wildcardBinRuns(cbinp, exprp, ಅಸತ್ಯ);
+            ಯದಿ (runs.unsupported) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             std::vector<std::pair<uint64_t, uint64_t>> ivs;
-            for (const BinRun& run : runs.runs) {
+            ಪ್ರತಿ (ಧ್ರುವ BinRun& run : runs.runs) {
                 ivs.emplace_back(run.m_lo.toUQuad(), run.m_hi.toUQuad());
             }
-            bins.push_back(std::move(ivs));
-            return true;
+            bins.ತಳ್ಳು_back(std::move(ivs));
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (cbinp->isArray()) return appendArrayBinCrossSlots(cbinp, exprp, bins, slotCount);
+        ಯದಿ (cbinp->isArray()) ಪ್ರತ್ಯಾಗಮ appendArrayBinCrossSlots(cbinp, exprp, bins, slot_ಎಣಿಕೆ);
         // Non-array bin: one slot covering the union of its intervals.
-        ++slotCount;
+        ++slot_ಎಣಿಕೆ;
         std::vector<std::pair<uint64_t, uint64_t>> ivs;
-        if (cbinp->isWildcard() || !extractRangeIntervals(cbinp, maxVal, ivs)) return false;
-        bins.push_back(std::move(ivs));
-        return true;
+        ಯದಿ (cbinp->isWildcard() || !extractRangeIntervals(cbinp, maxVal, ivs)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        bins.ತಳ್ಳು_back(std::move(ivs));
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Append the cross slots of an array Normal bin: each element is a slot covering its
@@ -1311,149 +1311,149 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Elements of a signed coverpoint, non-constant elements, and elements with values beyond
     // 64 bits can't be enumerated, so they count one slot but lose exactness.  Returns false if
     // any element wasn't enumerable to exact values.
-    bool appendArrayBinCrossSlots(AstCoverBin* cbinp, AstNodeExpr* exprp,
+    ತಾರ್ಕಿಕ appendArrayBinCrossSlots(AstCoverBin* cbinp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
                                   std::vector<std::vector<std::pair<uint64_t, uint64_t>>>& bins,
-                                  int& slotCount) {
+                                  ಪೂರ್ಣಾಙ್ಕ& slot_ಎಣಿಕೆ) {
         // Signed values resolve sign-extended, not as unsigned intervals, and wildcard patterns
         // are not intervals
-        bool exact = !exprp->isSigned() && !cbinp->isWildcard();
-        for (AstNode* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
-            ++slotCount;
+        ತಾರ್ಕಿಕ exact = !exprp->isSigned() && !cbinp->isWildcard();
+        ಪ್ರತಿ (Ast_ಗಂಟು* rp = cbinp->rangesp(); rp; rp = rp->nextp()) {
+            ++slot_ಎಣಿಕೆ;
             RangeBounds rb;
-            CrossValueRange range{rp, resolveWidth(rp, exprp)};
-            if (!exact || !constRangeBounds(rp, rb)
-                || !resolveValue(rp, exprp, true, false, range)) {
-                exact = false;
-                continue;
+            Cross_ಮೌಲ್ಯ_Range range{rp, resolveWidth(rp, exprp)};
+            ಯದಿ (!exact || !constRangeBounds(rp, rb)
+                || !resolve_ಮೌಲ್ಯ(rp, exprp, ಸತ್ಯ, ಅಸತ್ಯ, range)) {
+                exact = ಅಸತ್ಯ;
+                ಅನುವರ್ತ;
             }
-            if (crossRangeEmpty(range)) continue;  // Its bin, if any, holds no value
-            if (range.hi.mostSetBitP1() > 64) {
-                exact = false;
-                continue;
+            ಯದಿ (crossRangeEmpty(range)) ಅನುವರ್ತ;  // Its bin, if any, holds no value
+            ಯದಿ (range.hi.mostSetBitP1() > 64) {
+                exact = ಅಸತ್ಯ;
+                ಅನುವರ್ತ;
             }
-            bins.push_back({{range.lo.toUQuad(), range.hi.toUQuad()}});
+            bins.ತಳ್ಳು_back({{range.lo.toUQuad(), range.hi.toUQuad()}});
         }
-        return exact;
+        ಪ್ರತ್ಯಾಗಮ exact;
     }
 
     // Compute the hit-list bound for a coverpoint: the maximum number of Normal
     // bins one sample value can match.  Non-cross-fed coverpoints don't feed a cross, so
     // their hit list is unused -> 1.  Otherwise compute the exact max bin overlap; fall back
     // to the (always-safe) Normal-slot count when any bin isn't statically analyzable.
-    int computeHitListBound(AstCoverpoint* coverpointp, AstNodeExpr* exprp, bool crossFed) {
-        if (!crossFed) return 1;
-        const int width = exprp->width();
-        const uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
+    ಪೂರ್ಣಾಙ್ಕ computeHitListBound(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ crossFed) {
+        ಯದಿ (!crossFed) ಪ್ರತ್ಯಾಗಮ 1;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = exprp->width();
+        ಧ್ರುವ uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
         // One entry per Normal bin (cross slot): its covered intervals.
         std::vector<std::vector<std::pair<uint64_t, uint64_t>>> bins;
-        int slotCount = 0;  // == runtime m_normal; the safe fallback bound
+        ಪೂರ್ಣಾಙ್ಕ slot_ಎಣಿಕೆ = 0;  // == runtime m_normal; the safe fallback bound
         // Unsigned intervals cannot establish overlap between differently sized signed values.
-        bool exact = !exprp->isSigned();
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            if (!cbinp->binsType().binIsNormal())
-                continue;  // ignore/illegal/default: not hit-listed
-            if (!appendBinCrossSlots(cbinp, maxVal, exprp, bins, slotCount)) exact = false;
+        ತಾರ್ಕಿಕ exact = !exprp->isSigned();
+        ಪ್ರತಿ (Ast_ಗಂಟು* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ಧ್ರುವ cbinp = VN_AS(binp, CoverBin);
+            ಯದಿ (!cbinp->binsType().binIsNormal())
+                ಅನುವರ್ತ;  // ignore/illegal/default: not hit-listed
+            ಯದಿ (!appendBinCrossSlots(cbinp, maxVal, exprp, bins, slot_ಎಣಿಕೆ)) exact = ಅಸತ್ಯ;
         }
-        if (!exact) return std::max(1, slotCount);
-        if (bins.empty()) return 1;
+        ಯದಿ (!exact) ಪ್ರತ್ಯಾಗಮ std::max(1, slot_ಎಣಿಕೆ);
+        ಯದಿ (bins.empty()) ಪ್ರತ್ಯಾಗಮ 1;
         // Max overlap occurs at some interval start; count covering bins at each lo.
         std::vector<uint64_t> pts;
-        for (const auto& b : bins)
-            for (const auto& iv : b) pts.push_back(iv.first);
+        ಪ್ರತಿ (ಧ್ರುವ auto& b : bins)
+            ಪ್ರತಿ (ಧ್ರುವ auto& iv : b) pts.ತಳ್ಳು_back(iv.first);
         std::sort(pts.begin(), pts.end());
         pts.erase(std::unique(pts.begin(), pts.end()), pts.end());
-        int maxOverlap = 1;
-        for (const uint64_t p : pts) {
-            int cnt = 0;
-            for (const auto& b : bins) {
-                for (const auto& iv : b) {
-                    if (iv.first <= p && p <= iv.second) {
+        ಪೂರ್ಣಾಙ್ಕ maxOverlap = 1;
+        ಪ್ರತಿ (ಧ್ರುವ uint64_t p : pts) {
+            ಪೂರ್ಣಾಙ್ಕ cnt = 0;
+            ಪ್ರತಿ (ಧ್ರುವ auto& b : bins) {
+                ಪ್ರತಿ (ಧ್ರುವ auto& iv : b) {
+                    ಯದಿ (iv.first <= p && p <= iv.second) {
                         ++cnt;
-                        break;  // count each bin at most once
+                        ಭಙ್ಗ;  // count each bin at most once
                     }
                 }
             }
-            if (cnt > maxOverlap) maxOverlap = cnt;
+            ಯದಿ (cnt > maxOverlap) maxOverlap = cnt;
         }
-        return maxOverlap;
+        ಪ್ರತ್ಯಾಗಮ maxOverlap;
     }
 
     // A 'this->m_member' reference for embedding in an AstCStmt
-    AstVarRef* memberRef(FileLine* fl, AstVar* varp, VAccess access = VAccess::READ) {
-        AstVarRef* const refp = new AstVarRef{fl, varp, access};
+    AstVarRef* memberRef(File_ಸಾಲು* fl, AstVar* varp, VAccess access = VAccess::READ) {
+        AstVarRef* ಧ್ರುವ refp = ನೂತನ AstVarRef{fl, varp, access};
         refp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-        return refp;
+        ಪ್ರತ್ಯಾಗಮ refp;
     }
 
     // A 'this->m_member-><method>(args...)' call on one member.  usePtr is false only for
     // __Vcg_inst, which is a value handle; the item members are borrowed pointers into the
     // instance node.  Numeric arguments are AstConst; the rest are C++ text that has no AST
     // form (see ctext).
-    AstCMethodHard* itemCall(FileLine* fl, AstVar* varp, VCMethod method,
-                             const std::vector<AstNodeExpr*>& args = {}, bool usePtr = true) {
-        AstCMethodHard* const callp = new AstCMethodHard{fl, memberRef(fl, varp), method};
-        for (AstNodeExpr* const argp : args) callp->addPinsp(argp);
+    AstCMethodHard* itemCall(File_ಸಾಲು* fl, AstVar* varp, VCMethod method,
+                             ಧ್ರುವ std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>& args = {}, ತಾರ್ಕಿಕ usePtr = ಸತ್ಯ) {
+        AstCMethodHard* ಧ್ರುವ callp = ನೂತನ AstCMethodHard{fl, memberRef(fl, varp), method};
+        ಪ್ರತಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ argp : args) callp->addPinsp(argp);
         callp->usePtr(usePtr);
         callp->dtypeSetVoid();
-        return callp;
+        ಪ್ರತ್ಯಾಗಮ callp;
     }
 
     // An unsigned integer argument.
-    static AstConst* cnum(FileLine* fl, uint32_t value) { return new AstConst{fl, value}; }
+    ಸ್ಥಿರ AstConst* cnum(File_ಸಾಲು* fl, uint32_t ಮೌಲ್ಯ) { ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, ಮೌಲ್ಯ}; }
 
     // A literal C++ argument with no AST equivalent: a 'const char*' string literal (an SV
     // string AstConst emits '"..."s', a std::string temporary the runtime cannot borrow), a
     // VlCovBinKind enum token, a constant selection-word initializer list, a VlFileLineDebug, or
     // a '__V' temporary declared by the enclosing AstCStmt.
-    static AstCExpr* ctext(FileLine* fl, const std::string& text) {
-        return new AstCExpr{fl, text};
+    ಸ್ಥಿರ AstCExpr* ctext(File_ಸಾಲು* fl, ಧ್ರುವ std::string& text) {
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstCExpr{fl, text};
     }
 
     // A C++ string literal.  Escapes control characters as the emitter does elsewhere -- bin
     // names and filenames reach the generated code verbatim when --protect-ids is off, and an
     // SV escaped identifier may hold a quote or backslash.
-    static std::string quoted(const std::string& text) {
-        return "\"" + V3OutFormatter::quoteNameControls(text) + "\"";
+    ಸ್ಥಿರ std::string quoted(ಧ್ರುವ std::string& text) {
+        ಪ್ರತ್ಯಾಗಮ "\"" + V3OutFormatter::quoteNameControls(text) + "\"";
     }
 
     // A 'VlFileLineDebug' argument: where the runtime reports an error about fl's construct
-    static AstCExpr* fileLineDebug(FileLine* fl) {
-        const std::string filename
+    ಸ್ಥಿರ AstCExpr* file_ಸಾಲು_Debug(File_ಸಾಲು* fl) {
+        ಧ್ರುವ std::string filename
             = VIdProtect::protectIf(fl->filename(), v3Global.opt.protectIds());
-        return ctext(fl, "VlFileLineDebug{" + quoted(filename) + ", "
+        ಪ್ರತ್ಯಾಗಮ ctext(fl, "VlFileLineDebug{" + quoted(filename) + ", "
                              + std::to_string(fl->lineno()) + "}");
     }
 
     // Check that an element of an array bin (bins b[] = {values/ranges}) is a two-state
     // constant value or range; false if not, after reporting it if 'report'.
-    static bool checkArrayBinElement(AstCoverBin* arrayBinp, AstNode* rangep, bool report = true) {
-        if (const AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-            const AstConst* const minp = VN_CAST(irp->lhsp(), Const);
-            const AstConst* const maxp = VN_CAST(irp->rhsp(), Const);
-            if ((!minp && !VN_IS(irp->lhsp(), Unbounded))
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ checkArrayBinElement(AstCoverBin* arrayBinp, Ast_ಗಂಟು* rangep, ತಾರ್ಕಿಕ report = ಸತ್ಯ) {
+        ಯದಿ (ಧ್ರುವ AstInsideRange* ಧ್ರುವ irp = VN_CAST(rangep, InsideRange)) {
+            ಧ್ರುವ AstConst* ಧ್ರುವ minp = VN_CAST(irp->lhsp(), Const);
+            ಧ್ರುವ AstConst* ಧ್ರುವ maxp = VN_CAST(irp->rhsp(), Const);
+            ಯದಿ ((!minp && !VN_IS(irp->lhsp(), Unbounded))
                 || (!maxp && !VN_IS(irp->rhsp(), Unbounded))) {
-                if (report) {
+                ಯದಿ (report) {
                     arrayBinp->v3error("Non-constant expression in array bins range; "
                                        "range bounds must be constants (IEEE 1800-2023 19.5)");
                 }
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            if ((minp && minp->num().isFourState()) || (maxp && maxp->num().isFourState())) {
-                if (report) {
+            ಯದಿ ((minp && minp->ಅಂಕೆ().isFourState()) || (maxp && maxp->ಅಂಕೆ().isFourState())) {
+                ಯದಿ (report) {
                     arrayBinp->v3error("Four-state (x/z) value in array bins range bound; "
                                        "range bounds must be two-state constants");
                 }
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-        } else if (!VN_IS(rangep, Const)) {
-            if (report) {
+        } ಅನ್ಯಥಾ ಯದಿ (!VN_IS(rangep, Const)) {
+            ಯದಿ (report) {
                 arrayBinp->v3error("Non-constant expression in array bins value list; "
                                    "values must be constants (IEEE 1800-2023 19.5)");
             }
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Individual equality targets of an array bin (bins b[] = {values/ranges}) of a real
@@ -1462,25 +1462,25 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // covers [lo:maxVal] and '[$:hi]' covers [0:hi].  One target is produced per value; ranges
     // whose resolved size would exceed --coverage-max-real-bins (e.g. an open '[lo:$]') are
     // unsupported -- emits COVERIGN, sets unsupportedOut, yields nothing.
-    std::vector<AstNodeExpr*> extractArrayValues(AstCoverBin* arrayBinp, AstNodeExpr* exprp,
-                                                 bool& unsupportedOut) {
-        unsupportedOut = false;
-        const int width = exprp->width();
-        const uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
-        std::vector<AstNodeExpr*> values;
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+    std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> extract_Array_ಮೌಲ್ಯಗಳು(AstCoverBin* arrayBinp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
+                                                 ತಾರ್ಕಿಕ& unsupportedOut) {
+        unsupportedOut = ಅಸತ್ಯ;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = exprp->width();
+        ಧ್ರುವ uint64_t maxVal = (width >= 64) ? UINT64_MAX : ((1ULL << width) - 1);
+        std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಮೌಲ್ಯಗಳು;
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep)) return values;
-            if (AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-                const bool loUnb = VN_IS(irp->lhsp(), Unbounded);
-                const bool hiUnb = VN_IS(irp->rhsp(), Unbounded);
-                const uint64_t lo = loUnb ? 0 : VN_AS(irp->lhsp(), Const)->toUQuad();
-                const uint64_t hi = hiUnb ? maxVal : VN_AS(irp->rhsp(), Const)->toUQuad();
-                if (hi < lo) continue;  // empty range contributes no bins
+            ಯದಿ (!checkArrayBinElement(arrayBinp, rangep)) ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು;
+            ಯದಿ (AstInsideRange* ಧ್ರುವ irp = VN_CAST(rangep, InsideRange)) {
+                ಧ್ರುವ ತಾರ್ಕಿಕ loUnb = VN_IS(irp->lhsp(), Unbounded);
+                ಧ್ರುವ ತಾರ್ಕಿಕ hiUnb = VN_IS(irp->rhsp(), Unbounded);
+                ಧ್ರುವ uint64_t lo = loUnb ? 0 : VN_AS(irp->lhsp(), Const)->toUQuad();
+                ಧ್ರುವ uint64_t hi = hiUnb ? maxVal : VN_AS(irp->rhsp(), Const)->toUQuad();
+                ಯದಿ (hi < lo) ಅನುವರ್ತ;  // empty range contributes no bins
                 // Guard against a '$'-bounded or otherwise huge range exploding the bin count.
-                const uint64_t span = hi - lo;  // == valueCount - 1 (no overflow: hi >= lo)
-                if (span >= v3Global.opt.coverageMaxRealBins()
-                    || values.size() + span + 1 > v3Global.opt.coverageMaxRealBins()) {
+                ಧ್ರುವ uint64_t span = hi - lo;  // == valueCount - 1 (no overflow: hi >= lo)
+                ಯದಿ (span >= v3Global.opt.coverageMaxRealBins()
+                    || ಮೌಲ್ಯಗಳು.size() + span + 1 > v3Global.opt.coverageMaxRealBins()) {
                     arrayBinp->v3warn(COVERIGN,
                                       "Unsupported: array 'bins' of a real coverpoint "
                                       "covering more than "
@@ -1488,46 +1488,46 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                           << arrayBinp->prettyNameQ() << " ignored.\n"
                                           << arrayBinp->warnMore()
                                           << "... Suggest a larger --coverage-max-real-bins");
-                    unsupportedOut = true;
-                    for (AstNodeExpr* const vp : values) VL_DO_DANGLING(pushDeletep(vp), vp);
-                    values.clear();
-                    return values;
+                    unsupportedOut = ಸತ್ಯ;
+                    ಪ್ರತಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ vp : ಮೌಲ್ಯಗಳು) VL_DO_DANGLING(ತಳ್ಳು_Deletep(vp), vp);
+                    ಮೌಲ್ಯಗಳು.clear();
+                    ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು;
                 }
-                for (uint64_t v = lo; v <= hi; ++v)
-                    values.push_back(new AstConst{irp->fileline(), AstConst::WidthedValue{}, width,
+                ಪ್ರತಿ (uint64_t v = lo; v <= hi; ++v)
+                    ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(ನೂತನ AstConst{irp->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, width,
                                                   static_cast<uint32_t>(v)});
-            } else {
-                values.push_back(VN_AS(rangep->cloneTree(false), NodeExpr));
+            } ಅನ್ಯಥಾ {
+                ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(VN_AS(rangep->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
             }
         }
-        return values;
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು;
     }
 
-    static int runWidth(const AstNodeExpr* exprp) { return exprp->width() + 1; }
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ runWidth(ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) { ಪ್ರತ್ಯಾಗಮ exprp->width() + 1; }
 
     // Automatic bins partition the coverpoint domain in value order (IEEE 1800-2023 19.5.3): N
     // bins, capped at the number of values, each hold 2^width / N values, and the last bin also
     // holds the remainder.  False for an invalid declaration, already reported.
-    bool autoBinRuns(AstCoverBin* binp, AstNodeExpr* exprp, BinRuns& out) {
-        const uint32_t requested = autoBinsRequested(binp);
-        if (!requested || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) return false;
-        const int width = exprp->width();
-        const int arithmeticWidth = runWidth(exprp);
-        const uint32_t count
+    ತಾರ್ಕಿಕ autoBinRuns(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, BinRuns& out) {
+        ಧ್ರುವ uint32_t requested = autoBinsRequested(binp);
+        ಯದಿ (!requested || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = exprp->width();
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ arithmeticWidth = runWidth(exprp);
+        ಧ್ರುವ uint32_t ಎಣಿಕೆ
             = width < 32
                   ? static_cast<uint32_t>(std::min<uint64_t>(uint64_t{1} << width, requested))
                   : requested;
-        BinRun run{binp, arithmeticWidth, count};
-        V3Number total{binp, arithmeticWidth};
+        BinRun run{binp, arithmeticWidth, ಎಣಿಕೆ};
+        V3_ಸಂಖ್ಯೆ total{binp, arithmeticWidth};
         total.setBit(width, 1);
-        run.m_stride.opDiv(total, V3Number{binp, arithmeticWidth, count});
-        const CrossValueRange domain
-            = crossValueDomain(binp, width, exprp->isSigned(), arithmeticWidth);
+        run.m_stride.opDiv(total, V3_ಸಂಖ್ಯೆ{binp, arithmeticWidth, ಎಣಿಕೆ});
+        ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range domain
+            = cross_ಮೌಲ್ಯ_Domain(binp, width, exprp->isSigned(), arithmeticWidth);
         run.m_lo = domain.lo;
         run.m_hi = domain.hi;
-        out.runs.push_back(std::move(run));
-        out.count = count;
-        return true;
+        out.runs.ತಳ್ಳು_back(std::move(run));
+        out.ಎಣಿಕೆ = ಎಣಿಕೆ;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // The elements of an array bin (bins b[] = {values/ranges}), in order, as runs of
@@ -1535,34 +1535,34 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // 1800-2023 19.5.7), while a singleton names a bin even without such a value.  Errors on a
     // non-constant element.  More than --coverage-max-bins bins (e.g. an open '[lo:$]' range over
     // a wide coverpoint) are unsupported -- emits COVERIGN, and sets unsupported.
-    BinRuns arrayBinRuns(AstCoverBin* arrayBinp, AstNodeExpr* exprp) {
+    BinRuns arrayBinRuns(AstCoverBin* arrayBinp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
         BinRuns out;
-        const int width = runWidth(exprp);
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = runWidth(exprp);
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep)) return out;
-            const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            bool empty = true;
-            if (!resolveValue(rangep, exprp, true, false, range)) {
+            ಯದಿ (!checkArrayBinElement(arrayBinp, rangep)) ಪ್ರತ್ಯಾಗಮ out;
+            ಧ್ರುವ AstInsideRange* ಧ್ರುವ irp = VN_CAST(rangep, InsideRange);
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, exprp)};
+            ತಾರ್ಕಿಕ empty = ಸತ್ಯ;
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(rangep, exprp, ಸತ್ಯ, ಅಸತ್ಯ, range)) {
                 rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                               "of an integral coverpoint.");
-            } else {
+            } ಅನ್ಯಥಾ {
                 empty = crossRangeEmpty(range);
             }
-            if (empty && irp) continue;  // A range without values contributes no bins
+            ಯದಿ (empty && irp) ಅನುವರ್ತ;  // A range without values contributes no bins
             BinRun run{rangep, width, 1};
             run.m_empty = empty;
-            uint64_t count = 1;
-            if (!empty) {
+            uint64_t ಎಣಿಕೆ = 1;
+            ಯದಿ (!empty) {
                 run.m_lo.opAssign(range.lo);
                 run.m_hi.opAssign(range.hi);
-                V3Number span{rangep, width};
+                V3_ಸಂಖ್ಯೆ span{rangep, width};
                 span.opSub(run.m_hi, run.m_lo);
                 // Wider spans exceed any limit
-                count = span.mostSetBitP1() > 32 ? UINT64_MAX : span.toUQuad() + 1;
+                ಎಣಿಕೆ = span.mostSetBitP1() > 32 ? UINT64_MAX : span.toUQuad() + 1;
             }
-            if (count > v3Global.opt.coverageMaxBins() - out.count) {
+            ಯದಿ (ಎಣಿಕೆ > v3Global.opt.coverageMaxBins() - out.ಎಣಿಕೆ) {
                 arrayBinp->v3warn(COVERIGN, "Unsupported: array 'bins' covering more than "
                                                 << v3Global.opt.coverageMaxBins()
                                                 << " values (e.g. an open '[lo:$]' range over "
@@ -1571,15 +1571,15 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                                 << arrayBinp->warnMore()
                                                 << "... Suggest a larger --coverage-max-bins");
                 out.runs.clear();
-                out.count = 0;
-                out.unsupported = true;
-                return out;
+                out.ಎಣಿಕೆ = 0;
+                out.unsupported = ಸತ್ಯ;
+                ಪ್ರತ್ಯಾಗಮ out;
             }
-            run.m_count = static_cast<uint32_t>(count);
-            out.count += run.m_count;
-            out.runs.push_back(std::move(run));
+            run.m_ಎಣಿಕೆ = static_cast<uint32_t>(ಎಣಿಕೆ);
+            out.ಎಣಿಕೆ += run.m_ಎಣಿಕೆ;
+            out.runs.ತಳ್ಳು_back(std::move(run));
         }
-        return out;
+        ಪ್ರತ್ಯಾಗಮ out;
     }
 
     // The bins of a wildcard array (wildcard bins b[] = {...}): one for each coverpoint value
@@ -1587,62 +1587,62 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // (19.5.1), as runs of single-value bins.  Errors on a non-constant element.  More than
     // --coverage-max-bins values are unsupported -- emits COVERIGN, and sets unsupported, and for
     // an ignore or illegal array, single.  'report' false omits these diagnostics.
-    static BinRuns wildcardBinRuns(AstCoverBin* arrayBinp, AstNodeExpr* exprp, bool report) {
+    ಸ್ಥಿರ BinRuns wildcardBinRuns(AstCoverBin* arrayBinp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ report) {
         BinRuns out;
-        const int width = runWidth(exprp);
-        const V3Number one{arrayBinp, width, 1};
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = runWidth(exprp);
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ one{arrayBinp, width, 1};
         // Disjoint runs of the values, in value order, each value once
-        std::vector<std::pair<V3Number, V3Number>> spans;
-        uint64_t count = 0;  // Values of 'spans'
-        for (AstNode* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
+        std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> spans;
+        uint64_t ಎಣಿಕೆ = 0;  // Values of 'spans'
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = arrayBinp->rangesp(); rangep; rangep = rangep->nextp()) {
             rangep = V3Const::constifyEdit(rangep);
-            if (!checkArrayBinElement(arrayBinp, rangep, report)) {
-                out.unsupported = true;
-                return out;
+            ಯದಿ (!checkArrayBinElement(arrayBinp, rangep, report)) {
+                out.unsupported = ಸತ್ಯ;
+                ಪ್ರತ್ಯಾಗಮ out;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, true, range)) {
-                if (report) {
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, exprp)};
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(rangep, exprp, ಸತ್ಯ, ಸತ್ಯ, range)) {
+                ಯದಿ (report) {
                     rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a "
                                                   "coverage bin of an integral coverpoint.");
                 }
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (crossRangeEmpty(range)) continue;
-            std::vector<std::pair<V3Number, V3Number>> found;
+            ಯದಿ (crossRangeEmpty(range)) ಅನುವರ್ತ;
+            std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> found;
             crossRangeRuns(range, v3Global.opt.coverageMaxBins(), found);
-            for (const std::pair<V3Number, V3Number>& run : found) {
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : found) {
                 // Coverpoint values, sign-extended in both widths
-                spans.emplace_back(V3Number{rangep, width, run.first},
-                                   V3Number{rangep, width, run.second});
+                spans.emplace_back(V3_ಸಂಖ್ಯೆ{rangep, width, run.first},
+                                   V3_ಸಂಖ್ಯೆ{rangep, width, run.second});
             }
-            std::sort(spans.begin(), spans.end(), [](const auto& lhs, const auto& rhs) {
-                return crossValueLess(lhs.first, rhs.first);
+            std::sort(spans.begin(), spans.end(), [](ಧ್ರುವ auto& lhs, ಧ್ರುವ auto& rhs) {
+                ಪ್ರತ್ಯಾಗಮ cross_ಮೌಲ್ಯ_Less(lhs.first, rhs.first);
             });
-            std::vector<std::pair<V3Number, V3Number>> merged;
-            for (const std::pair<V3Number, V3Number>& span : spans) {
+            std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> merged;
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& span : spans) {
                 // Adjacent or overlapping values join a run; 'first - 1' cannot overflow
-                V3Number before{rangep, width};
+                V3_ಸಂಖ್ಯೆ before{rangep, width};
                 before.opSub(span.first, one);
-                if (merged.empty() || crossValueLess(merged.back().second, before)) {
-                    merged.push_back(span);
-                } else if (crossValueLess(merged.back().second, span.second)) {
+                ಯದಿ (merged.empty() || cross_ಮೌಲ್ಯ_Less(merged.back().second, before)) {
+                    merged.ತಳ್ಳು_back(span);
+                } ಅನ್ಯಥಾ ಯದಿ (cross_ಮೌಲ್ಯ_Less(merged.back().second, span.second)) {
                     merged.back().second = span.second;
                 }
             }
-            count = 0;
-            for (const std::pair<V3Number, V3Number>& span : merged) {
-                V3Number size{rangep, width};
+            ಎಣಿಕೆ = 0;
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& span : merged) {
+                V3_ಸಂಖ್ಯೆ size{rangep, width};
                 size.opSub(span.second, span.first);
                 // Beyond 2^32 values exceed any limit
-                count += size.mostSetBitP1() > 32 ? uint64_t{1} << 33 : size.toUQuad() + 1;
-                if (count > v3Global.opt.coverageMaxBins()) break;
+                ಎಣಿಕೆ += size.mostSetBitP1() > 32 ? uint64_t{1} << 33 : size.toUQuad() + 1;
+                ಯದಿ (ಎಣಿಕೆ > v3Global.opt.coverageMaxBins()) ಭಙ್ಗ;
             }
             spans = std::move(merged);
-            if (count > v3Global.opt.coverageMaxBins()) {
+            ಯದಿ (ಎಣಿಕೆ > v3Global.opt.coverageMaxBins()) {
                 // An ignore or illegal array still excludes or checks its values, as one bin
                 out.single = !arrayBinp->binsType().binIsNormal();
-                if (report) {
+                ಯದಿ (report) {
                     arrayBinp->v3warn(
                         COVERIGN, "Unsupported: wildcard array '"
                                       << arrayBinp->binsType().verilogKwd()
@@ -1653,91 +1653,91 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                       << arrayBinp->warnMore()
                                       << "... Suggest a larger --coverage-max-bins");
                 }
-                out.unsupported = true;
-                return out;
+                out.unsupported = ಸತ್ಯ;
+                ಪ್ರತ್ಯಾಗಮ out;
             }
         }
-        for (const std::pair<V3Number, V3Number>& span : spans) {
+        ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& span : spans) {
             out.runs.emplace_back(arrayBinp, width, 0);
             BinRun& run = out.runs.back();
             run.m_lo = span.first;
             run.m_hi = span.second;
             // A bin for each value, named by it in the coverpoint's type
-            V3Number value = span.first;
-            while (true) {
-                const V3Number typed{arrayBinp, exprp->width(), value};
-                out.values.push_back(exprp->isSigned() ? typed.toDecimalS() : typed.toDecimalU());
-                ++run.m_count;
-                if (value.isCaseEq(span.second)) break;
-                V3Number next{arrayBinp, width};
-                value = next.opAdd(value, one);
+            V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ = span.first;
+            ಯಾವತ್ (ಸತ್ಯ) {
+                ಧ್ರುವ V3_ಸಂಖ್ಯೆ typed{arrayBinp, exprp->width(), ಮೌಲ್ಯ};
+                out.ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(exprp->isSigned() ? typed.toDecimalS() : typed.toDecimalU());
+                ++run.m_ಎಣಿಕೆ;
+                ಯದಿ (ಮೌಲ್ಯ.isCaseEq(span.second)) ಭಙ್ಗ;
+                V3_ಸಂಖ್ಯೆ next{arrayBinp, width};
+                ಮೌಲ್ಯ = next.opAdd(ಮೌಲ್ಯ, one);
             }
         }
-        out.count = static_cast<uint32_t>(count);
-        return out;
+        out.ಎಣಿಕೆ = static_cast<uint32_t>(ಎಣಿಕೆ);
+        ಪ್ರತ್ಯಾಗಮ out;
     }
 
     // The runs of an automatic bins declaration, or of an array bin of an integral coverpoint.
     // False for other bins, which do not generate as runs, including a wildcard array then one
     // bin (see BinRuns::single).
-    bool binRunsFor(AstCoverBin* binp, AstNodeExpr* exprp, BinRuns& out) {
-        if (isAutoBins(binp)) {
-            if (!autoBinRuns(binp, exprp, out)) out.unsupported = true;
-            return true;
+    ತಾರ್ಕಿಕ binRunsFor(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, BinRuns& out) {
+        ಯದಿ (isAutoBins(binp)) {
+            ಯದಿ (!autoBinRuns(binp, exprp, out)) out.unsupported = ಸತ್ಯ;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (binp->isArray() && binp->isWildcard()) {
-            if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-                AstNodeExpr* const falsep = wildcardTypeError(binp, exprp);
-                VL_DO_DANGLING(pushDeletep(falsep), falsep);
-                out.unsupported = true;
-            } else {
-                out = wildcardBinRuns(binp, exprp, true);
-                if (out.single) {
-                    binp->isArray(false);  // Generates as one bin
-                    return false;
+        ಯದಿ (binp->isArray() && binp->isWildcard()) {
+            ಯದಿ (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ falsep = wildcardTypeError(binp, exprp);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(falsep), falsep);
+                out.unsupported = ಸತ್ಯ;
+            } ಅನ್ಯಥಾ {
+                out = wildcardBinRuns(binp, exprp, ಸತ್ಯ);
+                ಯದಿ (out.single) {
+                    binp->isArray(ಅಸತ್ಯ);  // Generates as one bin
+                    ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 }
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (!binp->isArray() || binp->transp() || binp->isWildcard()
+        ಯದಿ (!binp->isArray() || binp->transp() || binp->isWildcard()
             || !exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
         out = arrayBinRuns(binp, exprp);
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Emit a 'this->m_cp->addSingleNamer/addArrayNamer(...)' statement for one bin whose first
     // runtime bin index is 'declared'; or with 'valueNames', those naming each bin of an array
-    AstNodeStmt* makeNamer(AstVar* cpVarp, AstCoverBin* binp, int64_t count, uint32_t declared,
-                           const std::vector<AstNodeExpr*>& values = {},
-                           const std::vector<std::string>& valueNames = {}) {
-        FileLine* const fl = binp->fileline();
+    Ast_ಗಂಟು_Stmt* makeNamer(AstVar* cpVarp, AstCoverBin* binp, int64_t ಎಣಿಕೆ, uint32_t declared,
+                           ಧ್ರುವ std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>& ಮೌಲ್ಯಗಳು = {},
+                           ಧ್ರುವ std::vector<std::string>& ಮೌಲ್ಯ_Names = {}) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
         CoverpointBins& bins = m_cpBins.at(cpVarp);
-        const uint32_t normalCount
-            = binp->binsType().binIsNormal() ? static_cast<uint32_t>(count < 0 ? 1 : count) : 0;
-        const BinSpan span{bins.total, normalCount, declared};
-        if (binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT) {
+        ಧ್ರುವ uint32_t normal_ಎಣಿಕೆ
+            = binp->binsType().binIsNormal() ? static_cast<uint32_t>(ಎಣಿಕೆ < 0 ? 1 : ಎಣಿಕೆ) : 0;
+        ಧ್ರುವ BinSpan span{bins.total, normal_ಎಣಿಕೆ, declared};
+        ಯದಿ (binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT) {
             bins.implicitAuto = span;  // Selected by bin, see implicitAutoBinSpan
-        } else {
+        } ಅನ್ಯಥಾ {
             bins.spans.emplace(binp->name(), span);
         }
-        bins.total += normalCount;
-        for (uint32_t i = 0; bins.crossed && i < normalCount; ++i) {
-            bins.values.push_back({binp, values.empty() ? nullptr : values[i]});
+        bins.total += normal_ಎಣಿಕೆ;
+        ಪ್ರತಿ (uint32_t i = 0; bins.crossed && i < normal_ಎಣಿಕೆ; ++i) {
+            bins.ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back({binp, ಮೌಲ್ಯಗಳು.empty() ? nullptr : ಮೌಲ್ಯಗಳು[i]});
         }
         // Under --protect-ids the filename and bin name flow into the coverage database
         // verbatim, so obfuscate them exactly as line/toggle coverage points are (whole-
         // unit filename, per-word bin name).  A no-op when --protect-ids is off.
-        const bool prot = v3Global.opt.protectIds();
-        const bool single = count < 0;
-        if (!valueNames.empty()) {
+        ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
+        ಧ್ರುವ ತಾರ್ಕಿಕ single = ಎಣಿಕೆ < 0;
+        ಯದಿ (!ಮೌಲ್ಯ_Names.empty()) {
             // A bin of a wildcard array is named by its value (IEEE 1800-2023 19.5.1)
-            AstNodeStmt* stmtsp = nullptr;
-            for (const std::string& value : valueNames) {
-                const std::string name
-                    = VIdProtect::protectWordsIf(binp->name(), prot) + "[" + value + "]";
-                stmtsp = AstNode::addNext(
+            Ast_ಗಂಟು_Stmt* stmtsp = nullptr;
+            ಪ್ರತಿ (ಧ್ರುವ std::string& ಮೌಲ್ಯ : ಮೌಲ್ಯ_Names) {
+                ಧ್ರುವ std::string name
+                    = VIdProtect::protect_ಪದಗಳು_If(binp->name(), prot) + "[" + ಮೌಲ್ಯ + "]";
+                stmtsp = Ast_ಗಂಟು::addNext(
                     stmtsp,
                     itemCall(fl, cpVarp, VCMethod::COVERGROUP_ADD_SINGLE_NAMER,
                              {ctext(fl, binp->binsType().binSetEnum()), ctext(fl, quoted(name)),
@@ -1746,15 +1746,15 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                               cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})
                         ->makeStmt());
             }
-            return stmtsp;
+            ಪ್ರತ್ಯಾಗಮ stmtsp;
         }
-        std::vector<AstNodeExpr*> args{ctext(fl, binp->binsType().binSetEnum())};
-        if (!single) args.push_back(cnum(fl, static_cast<uint32_t>(count)));  // value array bin
-        args.push_back(ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))));
-        args.push_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
-        return itemCall(fl, cpVarp,
+        std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> args{ctext(fl, binp->binsType().binSetEnum())};
+        ಯದಿ (!single) args.ತಳ್ಳು_back(cnum(fl, static_cast<uint32_t>(ಎಣಿಕೆ)));  // value array bin
+        args.ತಳ್ಳು_back(ctext(fl, quoted(VIdProtect::protect_ಪದಗಳು_If(binp->name(), prot))));
+        args.ತಳ್ಳು_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
+        args.ತಳ್ಳು_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
+        args.ತಳ್ಳು_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
+        ಪ್ರತ್ಯಾಗಮ itemCall(fl, cpVarp,
                         single ? VCMethod::COVERGROUP_ADD_SINGLE_NAMER
                         : binp->binsType() == VCoverBinsType::BINS_AUTO_IMPLICIT
                             ? VCMethod::COVERGROUP_ADD_NUMBERED_NAMER
@@ -1765,230 +1765,230 @@ class FunctionalCoverageVisitor final : public VNVisitor {
 
     // Emit 'if (iff && cond) m_cp.incrementBin(idx);' (or recordHit, + illegal action) in sample()
     // Where a bin's hit is recorded in the runtime VlCoverpoint member.
-    struct ConvBinTarget final {
+    ಸಂರಚನಾ ConvBinTarget final {
         AstVar* cpVarp;  // the __Vcp_<coverpoint> member
         uint32_t idx;  // bin index within that coverpoint
-        bool isNormal;  // Normal -> incrementBin (count + cross hit list); else recordHit (count)
+        ತಾರ್ಕಿಕ isNormal;  // Normal -> incrementBin (count + cross hit list); else recordHit (count)
     };
 
     // Emit 'this->m_cp.incrementBin(idx);' (Normal) or '.recordHit(idx);'
     // (ignore/illegal/default).
-    AstNodeStmt* makeRuntimeBinHit(FileLine* fl, AstVar* cpVarp, AstNodeExpr* idxp,
-                                   bool isNormal) {
-        return itemCall(fl, cpVarp,
+    Ast_ಗಂಟು_Stmt* makeRuntimeBinHit(File_ಸಾಲು* fl, AstVar* cpVarp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* idxp,
+                                   ತಾರ್ಕಿಕ isNormal) {
+        ಪ್ರತ್ಯಾಗಮ itemCall(fl, cpVarp,
                         isNormal ? VCMethod::COVERGROUP_INCREMENT_BIN
                                  : VCMethod::COVERGROUP_RECORD_HIT,
                         {idxp})
             ->makeStmt();
     }
-    AstNodeStmt* makeRuntimeBinHit(FileLine* fl, const ConvBinTarget& tgt) {
-        return makeRuntimeBinHit(fl, tgt.cpVarp, cnum(fl, static_cast<uint32_t>(tgt.idx)),
+    Ast_ಗಂಟು_Stmt* makeRuntimeBinHit(File_ಸಾಲು* fl, ಧ್ರುವ ConvBinTarget& tgt) {
+        ಪ್ರತ್ಯಾಗಮ makeRuntimeBinHit(fl, tgt.cpVarp, cnum(fl, static_cast<uint32_t>(tgt.idx)),
                                  tgt.isNormal);
     }
 
     // The condition under which a bin counts a sample: condp, and the bin's iff, and for a
     // Normal or default state bin, that the value is not excluded
-    AstNodeExpr* binCondition(AstCoverBin* binp, AstVar* cpVarp, AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        if (binp->iffp()) condp = new AstLogAnd{fl, binp->iffp()->cloneTree(false), condp};
-        const auto excluded = m_excludedVars.find(cpVarp);
-        if (excluded != m_excludedVars.end() && !binp->transp()
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* binCondition(AstCoverBin* binp, AstVar* cpVarp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        ಯದಿ (binp->iffp()) condp = ನೂತನ AstLogAnd{fl, binp->iffp()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), condp};
+        ಧ್ರುವ auto excluded = m_excludedVars.find(cpVarp);
+        ಯದಿ (excluded != m_excludedVars.end() && !binp->transp()
             && (binp->binsType().binIsNormal()
                 || binp->binsType() == VCoverBinsType::BINS_DEFAULT)) {
-            condp = new AstLogAnd{
-                fl, new AstNot{fl, new AstVarRef{fl, excluded->second, VAccess::READ}}, condp};
+            condp = ನೂತನ AstLogAnd{
+                fl, ನೂತನ AstNot{fl, ನೂತನ AstVarRef{fl, excluded->second, VAccess::READ}}, condp};
         }
-        return condp;
+        ಪ್ರತ್ಯಾಗಮ condp;
     }
 
-    void emitConvHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                       AstNodeExpr* idxp, AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        AstNode* actionp = makeRuntimeBinHit(fl, cpVarp, idxp, binp->binsType().binIsNormal());
-        if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+    ಶೂನ್ಯ emitConvHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                       Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* idxp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        Ast_ಗಂಟು* actionp = makeRuntimeBinHit(fl, cpVarp, idxp, binp->binsType().binIsNormal());
+        ಯದಿ (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
             actionp->addNext(makeIllegalBinAction(fl, "Illegal bin " + binp->prettyNameQ()
                                                           + " hit in coverpoint "
                                                           + coverpointp->prettyNameQ()));
         }
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for coverpoint");
-        addSampleStmt(new AstIf{fl, binCondition(binp, cpVarp, condp), actionp, nullptr});
+        addSampleStmt(ನೂತನ AstIf{fl, binCondition(binp, cpVarp, condp), actionp, nullptr});
     }
 
     // Emit the sample() code of sized array 'sized': count the value in its bins holding it when
     // enabled, as other bins are, and for default bins note in matchedp whether any holds it
-    void emitSizedSample(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                         AstNodeExpr* exprp, uint32_t sized, AstVar* matchedp) {
-        FileLine* const fl = binp->fileline();
-        AstNodeExpr* enabledp = binCondition(binp, cpVarp, new AstConst{fl, AstConst::BitTrue{}});
+    ಶೂನ್ಯ emitSizedSample(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                         Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, uint32_t sized, AstVar* matchedp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enabledp = binCondition(binp, cpVarp, ನೂತನ AstConst{fl, AstConst::BitTrue{}});
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for coverpoint");
-        const bool illegal = binp->binsType() == VCoverBinsType::BINS_ILLEGAL;
-        if (illegal) {
+        ಧ್ರುವ ತಾರ್ಕಿಕ illegal = binp->binsType() == VCoverBinsType::BINS_ILLEGAL;
+        ಯದಿ (illegal) {
             // The illegal action reads the condition too, which is evaluated once, as the guard
             // may have side effects
-            AstVar* const varp
-                = new AstVar{fl, VVarType::BLOCKTEMP,
+            AstVar* ಧ್ರುವ varp
+                = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP,
                              "__VcpEnabled_" + sanitizeGeneratedName(coverpointp->name()) + "_"
                                  + cvtToStr(sized),
                              binp->findBitDType()};
-            varp->funcLocal(true);
+            varp->funcLocal(ಸತ್ಯ);
             m_sampleFuncp->addStmtsp(varp);
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, enabledp});
-            enabledp = new AstVarRef{fl, varp, VAccess::READ};
+            addSampleStmt(ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}, enabledp});
+            enabledp = ನೂತನ AstVarRef{fl, varp, VAccess::READ};
         }
-        AstCMethodHard* const callp
+        AstCMethodHard* ಧ್ರುವ callp
             = itemCall(fl, cpVarp,
                        exprp->isWide() ? VCMethod::COVERGROUP_SIZED_SAMPLE_W
                                        : VCMethod::COVERGROUP_SIZED_SAMPLE,
-                       {cnum(fl, sized), exprp->cloneTree(false), enabledp});
+                       {cnum(fl, sized), exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), enabledp});
         callp->dtypeSetBit();
-        if (illegal) {
-            addSampleStmt(new AstIf{fl, new AstLogAnd{fl, callp, enabledp->cloneTree(false)},
+        ಯದಿ (illegal) {
+            addSampleStmt(ನೂತನ AstIf{fl, ನೂತನ AstLogAnd{fl, callp, enabledp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)},
                                     makeIllegalBinAction(fl, "Illegal bin " + binp->prettyNameQ()
                                                                  + " hit in coverpoint "
                                                                  + coverpointp->prettyNameQ())});
-        } else if (matchedp && binp->binsType().binIsNormal()) {
+        } ಅನ್ಯಥಾ ಯದಿ (matchedp && binp->binsType().binIsNormal()) {
             addSampleStmt(
-                new AstAssign{fl, new AstVarRef{fl, matchedp, VAccess::WRITE},
-                              new AstOr{fl, new AstVarRef{fl, matchedp, VAccess::READ}, callp}});
-        } else {
+                ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, matchedp, VAccess::WRITE},
+                              ನೂತನ AstOr{fl, ನೂತನ AstVarRef{fl, matchedp, VAccess::READ}, callp}});
+        } ಅನ್ಯಥಾ {
             addSampleStmt(callp->makeStmt());
         }
     }
 
     // A variable local to the constructor
-    AstVar* constructorTemp(FileLine* fl, const string& name, AstNodeDType* dtypep) {
-        AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, name, dtypep};
-        varp->funcLocal(true);
+    AstVar* constructorTemp(File_ಸಾಲು* fl, ಧ್ರುವ string& name, Ast_ಗಂಟು_DType* dtypep) {
+        AstVar* ಧ್ರುವ varp = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP, name, dtypep};
+        varp->funcLocal(ಸತ್ಯ);
         m_constructorp->addStmtsp(varp);
-        return varp;
+        ಪ್ರತ್ಯಾಗಮ varp;
     }
 
     // Truncate or extend, as its signedness sets, a value to a type
-    static AstNodeExpr* resizeValue(AstNodeExpr* valuep, AstNodeDType* dtypep) {
-        FileLine* const fl = valuep->fileline();
-        if (valuep->width() > dtypep->width()) {
-            valuep = new AstSel{fl, valuep, 0, dtypep->width()};
-        } else if (valuep->width() < dtypep->width()) {
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resize_ಮೌಲ್ಯ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep, Ast_ಗಂಟು_DType* dtypep) {
+        File_ಸಾಲು* ಧ್ರುವ fl = valuep->fileline();
+        ಯದಿ (valuep->width() > dtypep->width()) {
+            valuep = ನೂತನ AstSel{fl, valuep, 0, dtypep->width()};
+        } ಅನ್ಯಥಾ ಯದಿ (valuep->width() < dtypep->width()) {
             valuep = valuep->isSigned()
-                         ? static_cast<AstNodeExpr*>(new AstExtendS{fl, valuep, dtypep->width()})
-                         : new AstExtend{fl, valuep, dtypep->width()};
+                         ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstExtendS{fl, valuep, dtypep->width()})
+                         : ನೂತನ AstExtend{fl, valuep, dtypep->width()};
         }
         valuep->dtypep(dtypep);
-        return valuep;
+        ಪ್ರತ್ಯಾಗಮ valuep;
     }
 
     // The runtime arguments of a count, which the constructor evaluates once into a temporary:
     // its value, a count wider than 64 bits saturated over any limit, and whether it is positive
-    std::pair<AstNodeExpr*, AstNodeExpr*> newCountArgs(FileLine* fl, const string& name,
-                                                       AstNodeExpr* exprp) {
-        AstVar* const countp = constructorTemp(fl, name, exprp->dtypep());
+    std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> new_ಎಣಿಕೆ_Args(File_ಸಾಲು* fl, ಧ್ರುವ string& name,
+                                                       Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        AstVar* ಧ್ರುವ countp = constructorTemp(fl, name, exprp->dtypep());
         m_constructorp->addStmtsp(
-            new AstAssign{fl, new AstVarRef{fl, countp, VAccess::WRITE}, exprp->cloneTree(false)});
-        const auto countRef = [&]() { return new AstVarRef{fl, countp, VAccess::READ}; };
-        AstConst* const zerop = new AstConst{fl, AstConst::DTyped{}, countp->dtypep()};
-        AstNodeExpr* const positivep
-            = countp->isSigned() ? static_cast<AstNodeExpr*>(new AstGtS{fl, countRef(), zerop})
-                                 : new AstNeq{fl, countRef(), zerop};
-        AstNodeExpr* valuep = resizeValue(countRef(), countp->findUInt64DType());
-        if (countp->width() > VL_QUADSIZE) {
-            valuep = new AstCond{
+            ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, countp, VAccess::WRITE}, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)});
+        ಧ್ರುವ auto ಎಣಿಕೆ_Ref = [&]() { ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{fl, countp, VAccess::READ}; };
+        AstConst* ಧ್ರುವ zerop = ನೂತನ AstConst{fl, AstConst::DTyped{}, countp->dtypep()};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ positivep
+            = countp->isSigned() ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstGtS{fl, ಎಣಿಕೆ_Ref(), zerop})
+                                 : ನೂತನ AstNeq{fl, ಎಣಿಕೆ_Ref(), zerop};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = resize_ಮೌಲ್ಯ(ಎಣಿಕೆ_Ref(), countp->findUInt64DType());
+        ಯದಿ (countp->width() > VL_QUADSIZE) {
+            valuep = ನೂತನ AstCond{
                 fl,
-                new AstRedOr{
-                    fl, new AstSel{fl, countRef(), VL_QUADSIZE, countp->width() - VL_QUADSIZE}},
-                new AstConst{fl, AstConst::Unsized64{}, std::numeric_limits<uint64_t>::max()},
+                ನೂತನ AstRedOr{
+                    fl, ನೂತನ AstSel{fl, ಎಣಿಕೆ_Ref(), VL_QUADSIZE, countp->width() - VL_QUADSIZE}},
+                ನೂತನ AstConst{fl, AstConst::Unsized64{}, std::numeric_limits<uint64_t>::max()},
                 valuep};
             valuep->dtypeSetUInt64();
         }
-        return {valuep, positivep};
+        ಪ್ರತ್ಯಾಗಮ {valuep, positivep};
     }
     // The runtime arguments of a constant count
-    static std::pair<AstNodeExpr*, AstNodeExpr*> newCountArgs(FileLine* fl, uint64_t count) {
-        return {new AstConst{fl, AstConst::Unsized64{}, count},
-                new AstConst{fl, AstConst::BitTrue{}}};
+    ಸ್ಥಿರ std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> new_ಎಣಿಕೆ_Args(File_ಸಾಲು* fl, uint64_t ಎಣಿಕೆ) {
+        ಪ್ರತ್ಯಾಗಮ {ನೂತನ AstConst{fl, AstConst::Unsized64{}, ಎಣಿಕೆ},
+                ನೂತನ AstConst{fl, AstConst::BitTrue{}}};
     }
 
     // The values of a coverpoint, which its name denotes (IEEE 1800-2023 19.5.1.1), as runs in
     // value order: an enumerated type's values (6.19), else all values of its type.  Bounds
     // are at runWidth(), sign-extended like a CrossValueRange's.
-    static std::vector<std::pair<V3Number, V3Number>> coverpointValues(AstNode* nodep,
-                                                                       AstNodeExpr* exprp) {
-        const int width = runWidth(exprp);
-        std::vector<std::pair<V3Number, V3Number>> runs;
-        const AstEnumDType* const enump = VN_CAST(exprp->dtypep()->skipRefToEnump(), EnumDType);
-        if (!enump) {
-            const CrossValueRange domain
-                = crossValueDomain(nodep, exprp->width(), exprp->isSigned(), width);
+    ಸ್ಥಿರ std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> coverpoint_ಮೌಲ್ಯಗಳು(Ast_ಗಂಟು* nodep,
+                                                                       Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = runWidth(exprp);
+        std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> runs;
+        ಧ್ರುವ AstEnumDType* ಧ್ರುವ enump = VN_CAST(exprp->dtypep()->skipRefToEnump(), EnumDType);
+        ಯದಿ (!enump) {
+            ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range domain
+                = cross_ಮೌಲ್ಯ_Domain(nodep, exprp->width(), exprp->isSigned(), width);
             runs.emplace_back(domain.lo, domain.hi);
-            return runs;
+            ಪ್ರತ್ಯಾಗಮ runs;
         }
-        std::vector<V3Number> values;
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
+        std::vector<V3_ಸಂಖ್ಯೆ> ಮೌಲ್ಯಗಳು;
+        ಪ್ರತಿ (ಧ್ರುವ AstEnumItem* itemp = enump->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            const V3Number& num = VN_AS(itemp->valuep(), Const)->num();
-            if (num.isFourState()) continue;  // Not a coverpoint value (19.5.7)
-            values.emplace_back(nodep, width);
-            if (exprp->isSigned()) {
-                values.back().opExtendS(num, num.width());
-            } else {
-                values.back().opAssign(num);
+            ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಅಂಕೆ = VN_AS(itemp->valuep(), Const)->ಅಂಕೆ();
+            ಯದಿ (ಅಂಕೆ.isFourState()) ಅನುವರ್ತ;  // Not a coverpoint value (19.5.7)
+            ಮೌಲ್ಯಗಳು.emplace_back(nodep, width);
+            ಯದಿ (exprp->isSigned()) {
+                ಮೌಲ್ಯಗಳು.back().opExtendS(ಅಂಕೆ, ಅಂಕೆ.width());
+            } ಅನ್ಯಥಾ {
+                ಮೌಲ್ಯಗಳು.back().opAssign(ಅಂಕೆ);
             }
         }
-        std::sort(values.begin(), values.end(), crossValueLess);
-        const V3Number one{nodep, width, 1};
-        for (const V3Number& value : values) {
-            V3Number next{nodep, width};
-            if (!runs.empty() && next.opAdd(runs.back().second, one).isCaseEq(value)) {
-                runs.back().second = value;
-            } else {
-                runs.emplace_back(value, value);
+        std::sort(ಮೌಲ್ಯಗಳು.begin(), ಮೌಲ್ಯಗಳು.end(), cross_ಮೌಲ್ಯ_Less);
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ one{nodep, width, 1};
+        ಪ್ರತಿ (ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಮೌಲ್ಯ : ಮೌಲ್ಯಗಳು) {
+            V3_ಸಂಖ್ಯೆ next{nodep, width};
+            ಯದಿ (!runs.empty() && next.opAdd(runs.back().second, one).isCaseEq(ಮೌಲ್ಯ)) {
+                runs.back().second = ಮೌಲ್ಯ;
+            } ಅನ್ಯಥಾ {
+                runs.emplace_back(ಮೌಲ್ಯ, ಮೌಲ್ಯ);
             }
         }
-        return runs;
+        ಪ್ರತ್ಯಾಗಮ runs;
     }
 
     // Emit the constructor code building the bins 'binp' whose values it computes: the values of
     // each element that are coverpoint values (IEEE 1800-2023 19.5.7), those a 'with' filter
     // keeps (19.5.1.1), then its bins
-    void generateConstructedBins(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                                 AstNodeExpr* exprp) {
-        FileLine* const fl = binp->fileline();
-        const string prefix
+    ಶೂನ್ಯ generateConstructedBins(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        ಧ್ರುವ string prefix
             = m_sizedNames.get(sanitizeGeneratedName(coverpointp->name() + "__" + binp->name()));
         // The count, and whether it is positive; one of a filter's scalar bin, or bin per value
-        const std::pair<AstNodeExpr*, AstNodeExpr*> count
-            = binp->arraySizep() ? newCountArgs(fl, prefix + "_count", binp->arraySizep())
-                                 : newCountArgs(fl, 1);
-        AstCoverWith* const withp = binWith(binp);
-        if (withp && !binRangesp(binp)) {  // The coverpoint's name: all of its values
-            for (const std::pair<V3Number, V3Number>& run : coverpointValues(binp, exprp)) {
+        ಧ್ರುವ std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಎಣಿಕೆ
+            = binp->arraySizep() ? new_ಎಣಿಕೆ_Args(fl, prefix + "_count", binp->arraySizep())
+                                 : new_ಎಣಿಕೆ_Args(fl, 1);
+        AstCoverWith* ಧ್ರುವ withp = binWith(binp);
+        ಯದಿ (withp && !binRangesp(binp)) {  // The coverpoint's name: all of its values
+            ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : coverpoint_ಮೌಲ್ಯಗಳು(binp, exprp)) {
                 m_constructorp->addStmtsp(itemCall(fl, cpVarp,
                                                    exprp->isWide()
                                                        ? VCMethod::COVERGROUP_SIZED_RANGE_W
                                                        : VCMethod::COVERGROUP_SIZED_RANGE,
-                                                   {newValueConst(fl, run.first, exprp),
-                                                    newValueConst(fl, run.second, exprp)})
+                                                   {new_ಮೌಲ್ಯ_Const(fl, run.first, exprp),
+                                                    new_ಮೌಲ್ಯ_Const(fl, run.second, exprp)})
                                               ->makeStmt());
             }
         }
         uint32_t element = 0;
-        for (AstNode* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
-            if (VN_IS(rangep, Unbounded)) {  // A parameter of '$'
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = binRangesp(binp); rangep; rangep = rangep->nextp()) {
+            ಯದಿ (VN_IS(rangep, Unbounded)) {  // A parameter of '$'
                 binp->v3error("Bins value may not be '$', which may only bound a range "
                               "(IEEE 1800-2023 6.20.7)");
-                continue;
+                ಅನುವರ್ತ;
             }
             generateSizedElement(cpVarp, binp, rangep, exprp, prefix + "_" + cvtToStr(element++));
         }
-        if (withp) generateWithFilter(binp, withp, cpVarp, exprp, prefix);
-        std::vector<AstNodeExpr*> args{ctext(fl, binp->binsType().binSetEnum()), count.first,
-                                       count.second};
+        ಯದಿ (withp) generateWithFilter(binp, withp, cpVarp, exprp, prefix);
+        std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> args{ctext(fl, binp->binsType().binSetEnum()), ಎಣಿಕೆ.first,
+                                       ಎಣಿಕೆ.second};
         // A filter's bins have the limit it began with
-        if (!withp) args.push_back(cnum(fl, v3Global.opt.coverageMaxBins()));
-        const bool prot = v3Global.opt.protectIds();
-        args.push_back(ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))));
-        args.push_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
-        args.push_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
+        ಯದಿ (!withp) args.ತಳ್ಳು_back(cnum(fl, v3Global.opt.coverageMaxBins()));
+        ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
+        args.ತಳ್ಳು_back(ctext(fl, quoted(VIdProtect::protect_ಪದಗಳು_If(binp->name(), prot))));
+        args.ತಳ್ಳು_back(ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))));
+        args.ತಳ್ಳು_back(cnum(fl, static_cast<uint32_t>(fl->lineno())));
+        args.ತಳ್ಳು_back(cnum(fl, static_cast<uint32_t>(fl->firstColumn())));
         m_constructorp->addStmtsp(
             itemCall(fl, cpVarp,
                      withp ? VCMethod::COVERGROUP_WITH_FINISH : VCMethod::COVERGROUP_SIZED_FINISH,
@@ -2012,11 +2012,11 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     //       }
     //       if (run) more = withRun(first, last);
     //   }
-    void generateWithFilter(AstCoverBin* binp, AstCoverWith* withp, AstVar* cpVarp,
-                            AstNodeExpr* exprp, const string& prefix) {
-        FileLine* const fl = withp->fileline();
-        const bool wide = exprp->isWide();
-        const string grouping = !binp->isArray()     ? "Single"
+    ಶೂನ್ಯ generateWithFilter(AstCoverBin* binp, AstCoverWith* withp, AstVar* cpVarp,
+                            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ string& prefix) {
+        File_ಸಾಲು* ಧ್ರುವ fl = withp->fileline();
+        ಧ್ರುವ ತಾರ್ಕಿಕ wide = exprp->isWide();
+        ಧ್ರುವ string grouping = !binp->isArray()     ? "Single"
                                 : binp->arraySizep() ? "Fixed"
                                                      : "Values";
         m_constructorp->addStmtsp(itemCall(fl, cpVarp, VCMethod::COVERGROUP_WITH_BEGIN,
@@ -2025,69 +2025,69 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                       ->makeStmt());
         // The candidates count in the coverpoint's width, and the filter reads each as 'item',
         // of the coverpoint's type, so that a filter changing 'item' cannot change the loop
-        AstNodeDType* const valueDTypep = exprp->dtypep();
-        AstVar* const valuep = constructorTemp(fl, prefix + "_value", valueDTypep);
-        AstVar* const lastp = constructorTemp(fl, prefix + "_last", valueDTypep);
-        AstVar* const firstp = constructorTemp(fl, prefix + "_first", valueDTypep);
-        AstVar* const runp = constructorTemp(fl, prefix + "_run", binp->findBitDType());
-        AstVar* const morep = constructorTemp(fl, prefix + "_more", binp->findBitDType());
-        AstVar* const itemp = withp->itemp()->unlinkFrBack();
+        Ast_ಗಂಟು_DType* ಧ್ರುವ ಮೌಲ್ಯ_DTypep = exprp->dtypep();
+        AstVar* ಧ್ರುವ valuep = constructorTemp(fl, prefix + "_value", ಮೌಲ್ಯ_DTypep);
+        AstVar* ಧ್ರುವ lastp = constructorTemp(fl, prefix + "_last", ಮೌಲ್ಯ_DTypep);
+        AstVar* ಧ್ರುವ firstp = constructorTemp(fl, prefix + "_first", ಮೌಲ್ಯ_DTypep);
+        AstVar* ಧ್ರುವ runp = constructorTemp(fl, prefix + "_run", binp->findBitDType());
+        AstVar* ಧ್ರುವ morep = constructorTemp(fl, prefix + "_more", binp->findBitDType());
+        AstVar* ಧ್ರುವ itemp = withp->itemp()->unlinkFrBack();
         itemp->name(prefix + "_item");
         m_constructorp->addStmtsp(itemp);
-        const auto ref = [&](AstVar* varp) { return new AstVarRef{fl, varp, VAccess::READ}; };
-        const auto assign = [&](AstVar* varp, AstNodeExpr* rhsp) -> AstNode* {
-            return new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, rhsp};
+        ಧ್ರುವ auto ref = [&](AstVar* varp) { ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{fl, varp, VAccess::READ}; };
+        ಧ್ರುವ auto assign = [&](AstVar* varp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) -> Ast_ಗಂಟು* {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}, rhsp};
         };
-        const auto flag = [&](AstVar* varp, bool value) {
-            return assign(varp, value ? new AstConst{fl, AstConst::BitTrue{}}
-                                      : new AstConst{fl, AstConst::BitFalse{}});
+        ಧ್ರುವ auto flag = [&](AstVar* varp, ತಾರ್ಕಿಕ ಮೌಲ್ಯ) {
+            ಪ್ರತ್ಯಾಗಮ assign(varp, ಮೌಲ್ಯ ? ನೂತನ AstConst{fl, AstConst::BitTrue{}}
+                                      : ನೂತನ AstConst{fl, AstConst::BitFalse{}});
         };
-        const auto bound = [&](VCMethod narrow, VCMethod wideMethod, AstVar* varp) -> AstNode* {
-            if (wide) {
-                return itemCall(fl, cpVarp, wideMethod, {new AstVarRef{fl, varp, VAccess::WRITE}})
+        ಧ್ರುವ auto bound = [&](VCMethod narrow, VCMethod wideMethod, AstVar* varp) -> Ast_ಗಂಟು* {
+            ಯದಿ (wide) {
+                ಪ್ರತ್ಯಾಗಮ itemCall(fl, cpVarp, wideMethod, {ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}})
                     ->makeStmt();
             }
-            AstCMethodHard* const callp = itemCall(fl, cpVarp, narrow);
+            AstCMethodHard* ಧ್ರುವ callp = itemCall(fl, cpVarp, narrow);
             callp->dtypeSetUInt64();
-            return assign(varp, resizeValue(callp, valueDTypep));
+            ಪ್ರತ್ಯಾಗಮ assign(varp, resize_ಮೌಲ್ಯ(callp, ಮೌಲ್ಯ_DTypep));
         };
-        const auto keep = [&](AstNodeExpr* lop, AstNodeExpr* hip) {
-            AstCMethodHard* const callp = itemCall(
+        ಧ್ರುವ auto keep = [&](Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lop, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* hip) {
+            AstCMethodHard* ಧ್ರುವ callp = itemCall(
                 fl, cpVarp, wide ? VCMethod::COVERGROUP_WITH_RUN_W : VCMethod::COVERGROUP_WITH_RUN,
                 {lop, hip});
             callp->dtypeSetBit();
-            return assign(morep, callp);
+            ಪ್ರತ್ಯಾಗಮ assign(morep, callp);
         };
-        const auto step = [&](bool up) {
-            AstConst* const onep = new AstConst{fl, AstConst::WidthedValue{}, exprp->width(), 1};
-            AstNodeExpr* const stepp
-                = up ? static_cast<AstNodeExpr*>(new AstAdd{fl, ref(valuep), onep})
-                     : new AstSub{fl, ref(valuep), onep};
-            stepp->dtypep(valueDTypep);
-            return stepp;
+        ಧ್ರುವ auto step = [&](ತಾರ್ಕಿಕ up) {
+            AstConst* ಧ್ರುವ onep = ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, exprp->width(), 1};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ stepp
+                = up ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ನೂತನ AstAdd{fl, ref(valuep), onep})
+                     : ನೂತನ AstSub{fl, ref(valuep), onep};
+            stepp->dtypep(ಮೌಲ್ಯ_DTypep);
+            ಪ್ರತ್ಯಾಗಮ stepp;
         };
-        AstLoop* const innerp = new AstLoop{fl};
+        AstLoop* ಧ್ರುವ innerp = ನೂತನ AstLoop{fl};
         innerp->addStmtsp(assign(itemp, ref(valuep)));
-        innerp->addStmtsp(new AstIf{
+        innerp->addStmtsp(ನೂತನ AstIf{
             fl, withp->filterp()->unlinkFrBack(),
-            new AstIf{fl, new AstNot{fl, ref(runp)},
-                      assign(firstp, ref(valuep))->addNext(flag(runp, true))},
-            new AstIf{fl, ref(runp), keep(ref(firstp), step(false))->addNext(flag(runp, false))}});
-        innerp->addStmtsp(new AstLoopTest{
-            fl, innerp, new AstLogAnd{fl, ref(morep), new AstNeq{fl, ref(valuep), ref(lastp)}}});
-        innerp->addStmtsp(assign(valuep, step(true)));
-        AstLoop* const outerp = new AstLoop{fl};
-        AstCMethodHard* const nextp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_WITH_NEXT);
+            ನೂತನ AstIf{fl, ನೂತನ AstNot{fl, ref(runp)},
+                      assign(firstp, ref(valuep))->addNext(flag(runp, ಸತ್ಯ))},
+            ನೂತನ AstIf{fl, ref(runp), keep(ref(firstp), step(ಅಸತ್ಯ))->addNext(flag(runp, ಅಸತ್ಯ))}});
+        innerp->addStmtsp(ನೂತನ AstLoopTest{
+            fl, innerp, ನೂತನ AstLogAnd{fl, ref(morep), ನೂತನ AstNeq{fl, ref(valuep), ref(lastp)}}});
+        innerp->addStmtsp(assign(valuep, step(ಸತ್ಯ)));
+        AstLoop* ಧ್ರುವ outerp = ನೂತನ AstLoop{fl};
+        AstCMethodHard* ಧ್ರುವ nextp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_WITH_NEXT);
         nextp->dtypeSetBit();
-        outerp->addStmtsp(new AstLoopTest{fl, outerp, nextp});
+        outerp->addStmtsp(ನೂತನ AstLoopTest{fl, outerp, nextp});
         outerp->addStmtsp(
             bound(VCMethod::COVERGROUP_WITH_LO, VCMethod::COVERGROUP_WITH_LO_W, valuep));
         outerp->addStmtsp(
             bound(VCMethod::COVERGROUP_WITH_HI, VCMethod::COVERGROUP_WITH_HI_W, lastp));
-        outerp->addStmtsp(flag(runp, false));
+        outerp->addStmtsp(flag(runp, ಅಸತ್ಯ));
         outerp->addStmtsp(innerp);
-        outerp->addStmtsp(new AstIf{fl, ref(runp), keep(ref(firstp), ref(lastp))});
-        m_constructorp->addStmtsp(flag(morep, true));
+        outerp->addStmtsp(ನೂತನ AstIf{fl, ref(runp), keep(ref(firstp), ref(lastp))});
+        m_constructorp->addStmtsp(flag(morep, ಸತ್ಯ));
         m_constructorp->addStmtsp(outerp);
     }
 
@@ -2095,158 +2095,158 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // values the constructor computes: resolved now if constant, else when constructed by
     // clipping to the coverpoint's values.  A wildcard pattern's values give a range for each
     // run of them.  'prefix' names its temporaries.
-    void generateSizedElement(AstVar* cpVarp, const AstCoverBin* binp, AstNode* rangep,
-                              AstNodeExpr* exprp, const string& prefix) {
-        FileLine* const fl = rangep->fileline();
-        const VCMethod method = exprp->isWide() ? VCMethod::COVERGROUP_SIZED_RANGE_W
+    ಶೂನ್ಯ generateSizedElement(AstVar* cpVarp, ಧ್ರುವ AstCoverBin* binp, Ast_ಗಂಟು* rangep,
+                              Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ string& prefix) {
+        File_ಸಾಲು* ಧ್ರುವ fl = rangep->fileline();
+        ಧ್ರುವ VCMethod method = exprp->isWide() ? VCMethod::COVERGROUP_SIZED_RANGE_W
                                                 : VCMethod::COVERGROUP_SIZED_RANGE;
-        const AstInsideRange* const irp = VN_CAST(rangep, InsideRange);
-        AstNodeExpr* const lowp = irp ? irp->lhsp() : VN_AS(rangep, NodeExpr);
-        AstNodeExpr* const highp = irp ? irp->rhsp() : nullptr;
-        const auto unbounded
-            = [](const AstNodeExpr* boundp) { return !boundp || VN_IS(boundp, Unbounded); };
-        const auto constant
-            = [&](const AstNodeExpr* boundp) { return unbounded(boundp) || VN_IS(boundp, Const); };
-        const auto integral = [&](const AstNodeExpr* boundp) {
-            return unbounded(boundp) || boundp->dtypep()->skipRefp()->isIntegralOrPacked();
+        ಧ್ರುವ AstInsideRange* ಧ್ರುವ irp = VN_CAST(rangep, InsideRange);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ lowp = irp ? irp->lhsp() : VN_AS(rangep, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ highp = irp ? irp->rhsp() : nullptr;
+        ಧ್ರುವ auto unbounded
+            = [](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp) { ಪ್ರತ್ಯಾಗಮ !boundp || VN_IS(boundp, Unbounded); };
+        ಧ್ರುವ auto constant
+            = [&](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp) { ಪ್ರತ್ಯಾಗಮ unbounded(boundp) || VN_IS(boundp, Const); };
+        ಧ್ರುವ auto integral = [&](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp) {
+            ಪ್ರತ್ಯಾಗಮ unbounded(boundp) || boundp->dtypep()->skipRefp()->isIntegralOrPacked();
         };
-        if (constant(lowp) && constant(highp)) {
-            const auto fourState = [](const AstNodeExpr* boundp) {
-                const AstConst* const constp = VN_CAST(boundp, Const);
-                return constp && constp->num().isFourState();
+        ಯದಿ (constant(lowp) && constant(highp)) {
+            ಧ್ರುವ auto fourState = [](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp) {
+                ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(boundp, Const);
+                ಪ್ರತ್ಯಾಗಮ constp && constp->ಅಂಕೆ().isFourState();
             };
-            if (irp && (fourState(lowp) || fourState(highp))) {
+            ಯದಿ (irp && (fourState(lowp) || fourState(highp))) {
                 rangep->v3error("Four-state (x/z) value in "
                                 << (binp->isArray() ? "array bins" : "bin")
                                 << " range bound; range bounds must be two-state constants");
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
-            CrossValueRange range{rangep, resolveWidth(rangep, exprp)};
-            if (!resolveValue(rangep, exprp, true, binp->isWildcard(), range)) {
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, exprp)};
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(rangep, exprp, ಸತ್ಯ, binp->isWildcard(), range)) {
                 rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                               "of an integral coverpoint.");
-            } else if (!crossRangeEmpty(range)) {
-                std::vector<std::pair<V3Number, V3Number>> runs{{range.lo, range.hi}};
-                if (range.wildcard) {  // checkConstructedBins bounded the runs
+            } ಅನ್ಯಥಾ ಯದಿ (!crossRangeEmpty(range)) {
+                std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>> runs{{range.lo, range.hi}};
+                ಯದಿ (range.wildcard) {  // checkConstructedBins bounded the runs
                     runs.clear();
                     crossRangeRuns(range, v3Global.opt.coverageMaxBins(), runs);
                 }
-                for (const std::pair<V3Number, V3Number>& run : runs) {
+                ಪ್ರತಿ (ಧ್ರುವ std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>& run : runs) {
                     m_constructorp->addStmtsp(itemCall(fl, cpVarp, method,
-                                                       {newValueConst(fl, run.first, exprp),
-                                                        newValueConst(fl, run.second, exprp)})
+                                                       {new_ಮೌಲ್ಯ_Const(fl, run.first, exprp),
+                                                        new_ಮೌಲ್ಯ_Const(fl, run.second, exprp)})
                                                   ->makeStmt());
                 }
             }
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (!integral(lowp) || !integral(highp)) {
+        ಯದಿ (!integral(lowp) || !integral(highp)) {
             rangep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a coverage bin "
                                           "of an integral coverpoint.");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
         // Compare values and the coverpoint's domain signed, in a width holding all of them
-        const auto boundWidth
-            = [&](const AstNodeExpr* boundp) { return unbounded(boundp) ? 0 : boundp->width(); };
-        const int width = std::max({exprp->width(), boundWidth(lowp), boundWidth(highp)}) + 1;
-        const CrossValueRange domain
-            = crossValueDomain(rangep, exprp->width(), exprp->isSigned(), width);
-        AstVar* const lop = constructorTemp(fl, prefix + "_lo", exprp->dtypep());
+        ಧ್ರುವ auto boundWidth
+            = [&](ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp) { ಪ್ರತ್ಯಾಗಮ unbounded(boundp) ? 0 : boundp->width(); };
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = std::max({exprp->width(), boundWidth(lowp), boundWidth(highp)}) + 1;
+        ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range domain
+            = cross_ಮೌಲ್ಯ_Domain(rangep, exprp->width(), exprp->isSigned(), width);
+        AstVar* ಧ್ರುವ lop = constructorTemp(fl, prefix + "_lo", exprp->dtypep());
         lop->dtypeSetBitSized(width, VSigning::SIGNED);
-        AstVar* const hip = constructorTemp(fl, prefix + "_hi", lop->dtypep());
-        const auto bound = [&](AstNodeExpr* boundp, const V3Number& limit) -> AstNodeExpr* {
-            if (unbounded(boundp)) {
-                AstConst* const limitp = new AstConst{fl, limit};
+        AstVar* ಧ್ರುವ hip = constructorTemp(fl, prefix + "_hi", lop->dtypep());
+        ಧ್ರುವ auto bound = [&](Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* boundp, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& limit) -> Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* {
+            ಯದಿ (unbounded(boundp)) {
+                AstConst* ಧ್ರುವ limitp = ನೂತನ AstConst{fl, limit};
                 limitp->dtypeFrom(lop);
-                return limitp;
+                ಪ್ರತ್ಯಾಗಮ limitp;
             }
-            AstNodeExpr* valuep = boundp->cloneTree(false);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep = boundp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
             // A value no wider than a signed coverpoint has its type (see crossRangeBound)
-            if (exprp->isSigned() && boundp->width() <= exprp->width()) {
-                valuep = resizeValue(valuep, exprp->dtypep());
+            ಯದಿ (exprp->isSigned() && boundp->width() <= exprp->width()) {
+                valuep = resize_ಮೌಲ್ಯ(valuep, exprp->dtypep());
             }
-            return resizeValue(valuep, lop->dtypep());
+            ಪ್ರತ್ಯಾಗಮ resize_ಮೌಲ್ಯ(valuep, lop->dtypep());
         };
-        const auto ref = [&](AstVar* varp, VAccess access = VAccess::READ) {
-            return new AstVarRef{fl, varp, access};
+        ಧ್ರುವ auto ref = [&](AstVar* varp, VAccess access = VAccess::READ) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstVarRef{fl, varp, access};
         };
         m_constructorp->addStmtsp(
-            new AstAssign{fl, ref(lop, VAccess::WRITE), bound(lowp, domain.lo)});
+            ನೂತನ AstAssign{fl, ref(lop, VAccess::WRITE), bound(lowp, domain.lo)});
         m_constructorp->addStmtsp(
-            new AstAssign{fl, ref(hip, VAccess::WRITE), irp ? bound(highp, domain.hi) : ref(lop)});
-        AstConst* const minp = new AstConst{fl, domain.lo};
-        AstConst* const maxp = new AstConst{fl, domain.hi};
+            ನೂತನ AstAssign{fl, ref(hip, VAccess::WRITE), irp ? bound(highp, domain.hi) : ref(lop)});
+        AstConst* ಧ್ರುವ minp = ನೂತನ AstConst{fl, domain.lo};
+        AstConst* ಧ್ರುವ maxp = ನೂತನ AstConst{fl, domain.hi};
         minp->dtypeFrom(lop);
         maxp->dtypeFrom(lop);
-        AstCond* const lowerp
-            = new AstCond{fl, new AstLtS{fl, ref(lop), minp}, minp->cloneTree(false), ref(lop)};
-        AstCond* const upperp
-            = new AstCond{fl, new AstGtS{fl, ref(hip), maxp}, maxp->cloneTree(false), ref(hip)};
+        AstCond* ಧ್ರುವ lowerp
+            = ನೂತನ AstCond{fl, ನೂತನ AstLtS{fl, ref(lop), minp}, minp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), ref(lop)};
+        AstCond* ಧ್ರುವ upperp
+            = ನೂತನ AstCond{fl, ನೂತನ AstGtS{fl, ref(hip), maxp}, maxp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), ref(hip)};
         lowerp->dtypeFrom(lop);
         upperp->dtypeFrom(lop);
-        m_constructorp->addStmtsp(new AstAssign{fl, ref(lop, VAccess::WRITE), lowerp});
-        m_constructorp->addStmtsp(new AstAssign{fl, ref(hip, VAccess::WRITE), upperp});
-        m_constructorp->addStmtsp(new AstIf{fl, new AstLteS{fl, ref(lop), ref(hip)},
+        m_constructorp->addStmtsp(ನೂತನ AstAssign{fl, ref(lop, VAccess::WRITE), lowerp});
+        m_constructorp->addStmtsp(ನೂತನ AstAssign{fl, ref(hip, VAccess::WRITE), upperp});
+        m_constructorp->addStmtsp(ನೂತನ AstIf{fl, ನೂತನ AstLteS{fl, ref(lop), ref(hip)},
                                             itemCall(fl, cpVarp, method,
-                                                     {resizeValue(ref(lop), exprp->dtypep()),
-                                                      resizeValue(ref(hip), exprp->dtypep())})
+                                                     {resize_ಮೌಲ್ಯ(ref(lop), exprp->dtypep()),
+                                                      resize_ಮೌಲ್ಯ(ref(hip), exprp->dtypep())})
                                                 ->makeStmt()});
     }
 
     // The runtime index of the bin of a run holding the coverpoint value, which is in the run:
     // declared + (value - lo) / stride, capped at the last bin, which holds any remainder.
-    static AstNodeExpr* runBinIndex(FileLine* fl, AstNodeExpr* exprp, const BinRun& run) {
-        if (run.m_count == 1) return cnum(fl, run.m_declared);
-        const int width = exprp->width();
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* runBinIndex(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ BinRun& run) {
+        ಯದಿ (run.m_ಎಣಿಕೆ == 1) ಪ್ರತ್ಯಾಗಮ cnum(fl, run.m_declared);
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ width = exprp->width();
         // A run spans at most 2^width values, so offsets in it are unsigned width-bit numbers
-        AstNodeExpr* indexp
-            = new AstSub{fl, exprp->cloneTree(false), newValueConst(fl, run.m_lo, exprp)};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* indexp
+            = ನೂತನ AstSub{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), new_ಮೌಲ್ಯ_Const(fl, run.m_lo, exprp)};
         indexp->dtypeSetBitSized(width, VSigning::UNSIGNED);
-        V3Number stride{fl, width, 0};
+        V3_ಸಂಖ್ಯೆ stride{fl, width, 0};
         stride.opAssign(run.m_stride);
-        if (stride.countOnes() != 1) {
-            indexp = new AstDiv{fl, indexp, new AstConst{fl, stride}};
-        } else if (!stride.isEqOne()) {
-            indexp = new AstShiftR{fl, indexp, new AstConst{fl, stride.mostSetBitP1() - 1}};
+        ಯದಿ (stride.ಎಣಿಕೆ_Ones() != 1) {
+            indexp = ನೂತನ AstDiv{fl, indexp, ನೂತನ AstConst{fl, stride}};
+        } ಅನ್ಯಥಾ ಯದಿ (!stride.isEqOne()) {
+            indexp = ನೂತನ AstShiftR{fl, indexp, ನೂತನ AstConst{fl, stride.mostSetBitP1() - 1}};
         }
         // Compare the run's values with those of count bins of stride values, without overflow
-        const int extWidth = run.m_lo.width() + 1;
-        V3Number lo{fl, extWidth, 0};
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ extWidth = run.m_lo.width() + 1;
+        V3_ಸಂಖ್ಯೆ lo{fl, extWidth, 0};
         lo.opExtendS(run.m_lo, run.m_lo.width());
-        V3Number span{fl, extWidth, 0};
+        V3_ಸಂಖ್ಯೆ span{fl, extWidth, 0};
         span.opExtendS(run.m_hi, run.m_hi.width());
-        span.opSub(V3Number{span}, lo);
-        V3Number covered{fl, extWidth, 0};
+        span.opSub(V3_ಸಂಖ್ಯೆ{span}, lo);
+        V3_ಸಂಖ್ಯೆ covered{fl, extWidth, 0};
         covered.opAssign(run.m_stride);
-        covered.opMul(V3Number{covered}, V3Number{fl, extWidth, run.m_count});
-        V3Number hasRemainder{fl, 1, 0};
-        if (!hasRemainder.opGte(span, covered).isEqZero()) {
-            AstConst* const lastp = new AstConst{fl, V3Number{fl, width, run.m_count - 1}};
-            indexp = new AstCond{fl, new AstGt{fl, indexp->cloneTree(false), lastp},
-                                 lastp->cloneTree(false), indexp};
+        covered.opMul(V3_ಸಂಖ್ಯೆ{covered}, V3_ಸಂಖ್ಯೆ{fl, extWidth, run.m_ಎಣಿಕೆ});
+        V3_ಸಂಖ್ಯೆ hasRemainder{fl, 1, 0};
+        ಯದಿ (!hasRemainder.opGte(span, covered).isEqZero()) {
+            AstConst* ಧ್ರುವ lastp = ನೂತನ AstConst{fl, V3_ಸಂಖ್ಯೆ{fl, width, run.m_ಎಣಿಕೆ - 1}};
+            indexp = ನೂತನ AstCond{fl, ನೂತನ AstGt{fl, indexp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), lastp},
+                                 lastp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), indexp};
         }
-        if (width < VL_IDATASIZE) {
-            indexp = new AstExtend{fl, indexp, VL_IDATASIZE};
-        } else if (width > VL_IDATASIZE) {
-            indexp = new AstSel{fl, indexp, 0, VL_IDATASIZE};
+        ಯದಿ (width < VL_IDATASIZE) {
+            indexp = ನೂತನ AstExtend{fl, indexp, VL_IDATASIZE};
+        } ಅನ್ಯಥಾ ಯದಿ (width > VL_IDATASIZE) {
+            indexp = ನೂತನ AstSel{fl, indexp, 0, VL_IDATASIZE};
         }
-        return new AstAdd{fl, cnum(fl, run.m_declared), indexp};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAdd{fl, cnum(fl, run.m_declared), indexp};
     }
 
     // Emit the sample() hit of a run of bins, whose code does not grow with its number of bins:
     //   if (iff && lo <= value && value <= hi) m_cp.incrementBin(<runBinIndex>);
-    void emitRunHit(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
-                    AstNodeExpr* exprp, const BinRun& run) {
-        FileLine* const fl = binp->fileline();
-        AstConst* const lop = newValueConst(fl, run.m_lo, exprp);
-        AstNodeExpr* condp = nullptr;
-        if (run.m_lo.isCaseEq(run.m_hi)) {
-            condp = new AstEq{fl, exprp->cloneTree(false), lop};
-        } else {
-            AstConst* const hip = newValueConst(fl, run.m_hi, exprp);
+    ಶೂನ್ಯ emitRunHit(AstCoverpoint* coverpointp, AstCoverBin* binp, AstVar* cpVarp,
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ BinRun& run) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        AstConst* ಧ್ರುವ lop = new_ಮೌಲ್ಯ_Const(fl, run.m_lo, exprp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = nullptr;
+        ಯದಿ (run.m_lo.isCaseEq(run.m_hi)) {
+            condp = ನೂತನ AstEq{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), lop};
+        } ಅನ್ಯಥಾ {
+            AstConst* ಧ್ರುವ hip = new_ಮೌಲ್ಯ_Const(fl, run.m_hi, exprp);
             condp = makeRangeCondition(fl, exprp, lop, hip);
-            VL_DO_DANGLING(pushDeletep(lop), lop);
-            VL_DO_DANGLING(pushDeletep(hip), hip);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(lop), lop);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(hip), hip);
         }
         emitConvHitIf(coverpointp, binp, cpVarp, runBinIndex(fl, exprp, run), condp);
     }
@@ -2254,32 +2254,32 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Emit a transition bin's hit action into sample():
     //   if (cond) { m_cp.incrementBin/recordHit(idx); [illegal: $error; $stop] }
     // Used by the transition generators so a completed sequence records into the runtime bin.
-    void addConvTransHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, const ConvBinTarget& tgt,
-                           AstNodeExpr* condp) {
-        FileLine* const fl = binp->fileline();
-        AstNode* actionp = makeRuntimeBinHit(fl, tgt);
-        if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+    ಶೂನ್ಯ addConvTransHitIf(AstCoverpoint* coverpointp, AstCoverBin* binp, ಧ್ರುವ ConvBinTarget& tgt,
+                           Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+        Ast_ಗಂಟು* actionp = makeRuntimeBinHit(fl, tgt);
+        ಯದಿ (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
             actionp->addNext(makeIllegalBinAction(
                 fl, "Illegal transition bin " + binp->prettyNameQ() + " hit in coverpoint "
                         + coverpointp->prettyNameQ()));
         }
         UASSERT_OBJ(m_sampleFuncp, binp, "sample() CFunc not set for transition bin");
-        addSampleStmt(new AstIf{fl, condp, actionp, nullptr});
+        addSampleStmt(ನೂತನ AstIf{fl, condp, actionp, nullptr});
     }
 
     // Route a coverpoint through a VlCoverpoint member: emit the member, its sample()
     // increments, the constructor configuration (init + namers), and registration.
-    void generateCoverpoint(AstCoverpoint* coverpointp, AstNodeExpr* exprp, int atLeastValue) {
-        FileLine* const fl = coverpointp->fileline();
-        const bool dynamic = m_runtimePoints.count(coverpointp);
+    ಶೂನ್ಯ generateCoverpoint(AstCoverpoint* coverpointp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಪೂರ್ಣಾಙ್ಕ at_Least_ಮೌಲ್ಯ) {
+        File_ಸಾಲು* ಧ್ರುವ fl = coverpointp->fileline();
+        ಧ್ರುವ ತಾರ್ಕಿಕ dynamic = m_runtimePoints.ಎಣಿಕೆ(coverpointp);
         UINFO(4, "  Generating VlCoverpoint member: " << coverpointp->name());
 
         // Size the hit list to the gen-time max bin overlap (1 unless cross-fed with
         // overlapping ranges), so no cross hit is ever dropped and storage is minimal.
-        const bool crossFed = m_crossedCpNames.count(coverpointp->name()) != 0;
-        const int hitBound = computeHitListBound(coverpointp, exprp, crossFed);
+        ಧ್ರುವ ತಾರ್ಕಿಕ crossFed = m_crossedCpNames.ಎಣಿಕೆ(coverpointp->name()) != 0;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ hitBound = computeHitListBound(coverpointp, exprp, crossFed);
         UINFO(6, "    Hit-list bound (max bin overlap) = " << hitBound);
-        AstVar* const cpVarp = new AstVar{fl, VVarType::MEMBER, "__Vcp_" + coverpointp->name(),
+        AstVar* ಧ್ರುವ cpVarp = ನೂತನ AstVar{fl, VVarType::MEMBER, "__Vcp_" + coverpointp->name(),
                                           coverpointDType(fl, static_cast<uint32_t>(hitBound))};
         m_covergroupp->addMembersp(cpVarp);
         m_cpVarMap[coverpointp->name()] = cpVarp;
@@ -2293,171 +2293,171 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // A cross reads this coverpoint's hit list, so clear it at the start of the
         // coverpoint's sample() contribution (before any incrementBin appends to it), even
         // when the iff guard disables sampling.
-        if (crossFed) {
+        ಯದಿ (crossFed) {
             UASSERT_OBJ(m_sampleFuncp, coverpointp, "sample() CFunc not set for clearHitList");
             m_sampleFuncp->addStmtsp(
                 itemCall(fl, cpVarp, VCMethod::COVERGROUP_CLEAR_HIT_LIST)->makeStmt());
         }
-        if (dynamic && coverpointHasStateExclusions(coverpointp)) {
-            AstVar* const excludedp
-                = new AstVar{fl, VVarType::BLOCKTEMP,
+        ಯದಿ (dynamic && coverpointHasStateExclusions(coverpointp)) {
+            AstVar* ಧ್ರುವ excludedp
+                = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP,
                              "__VcpExcluded_" + sanitizeGeneratedName(coverpointp->name()),
                              coverpointp->findBitDType()};
-            excludedp->funcLocal(true);
+            excludedp->funcLocal(ಸತ್ಯ);
             m_sampleFuncp->addStmtsp(excludedp);
-            AstCMethodHard* const callp
+            AstCMethodHard* ಧ್ರುವ callp
                 = itemCall(fl, cpVarp,
-                           exprp->isWide() ? VCMethod::COVERGROUP_VALUE_EXCLUDED_W
-                                           : VCMethod::COVERGROUP_VALUE_EXCLUDED,
-                           {exprp->cloneTree(false)});
+                           exprp->isWide() ? VCMethod::COVERGROUP_ಮೌಲ್ಯ_EXCLUDED_W
+                                           : VCMethod::COVERGROUP_ಮೌಲ್ಯ_EXCLUDED,
+                           {exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)});
             callp->dtypeSetBit();
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, excludedp, VAccess::WRITE}, callp});
+            addSampleStmt(ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, excludedp, VAccess::WRITE}, callp});
             m_excludedVars.emplace(cpVarp, excludedp);
         }
 
         // Walk bins (non-default, then default), assigning sequential indices that match the
         // namer append order; emit sample increments and collect namer statements.  Constructed
         // bins follow them all, placed when the coverpoint is constructed.
-        std::vector<AstNodeStmt*> namerStmts;
+        std::vector<Ast_ಗಂಟು_Stmt*> namerStmts;
         std::vector<AstCoverBin*> defaultBins;
         std::vector<AstCoverBin*> sizedBins;
-        std::vector<std::tuple<AstCoverBin*, uint32_t, AstNodeExpr*>> metadata;
-        std::vector<const BinRun*> runMetadata;
+        std::vector<std::tuple<AstCoverBin*, uint32_t, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>> metadata;
+        std::vector<ಧ್ರುವ BinRun*> runMetadata;
         uint64_t idx = 0;  // Runtime index of the next bin; 32-bit once checked below
-        for (AstNode* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
-            AstCoverBin* const cbinp = VN_AS(binp, CoverBin);
-            const int errorsBefore = dynamic ? V3Error::errorCount() : 0;
-            if (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT) {
-                defaultBins.push_back(cbinp);
-                continue;
+        ಪ್ರತಿ (Ast_ಗಂಟು* binp = coverpointp->binsp(); binp; binp = binp->nextp()) {
+            AstCoverBin* ಧ್ರುವ cbinp = VN_AS(binp, CoverBin);
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ errorsBefore = dynamic ? V3Error::error_ಎಣಿಕೆ() : 0;
+            ಯದಿ (cbinp->binsType() == VCoverBinsType::BINS_DEFAULT) {
+                defaultBins.ತಳ್ಳು_back(cbinp);
+                ಅನುವರ್ತ;
             }
-            if (isConstructedBins(cbinp)) {
+            ಯದಿ (isConstructedBins(cbinp)) {
                 UASSERT_OBJ(dynamic, cbinp, "Constructed bins without value metadata");
                 BinSpan span;
                 span.sized = static_cast<int32_t>(sizedBins.size());
                 m_cpBins.at(cpVarp).spans.emplace(cbinp->name(), span);
-                sizedBins.push_back(cbinp);
-                continue;
+                sizedBins.ತಳ್ಳು_back(cbinp);
+                ಅನುವರ್ತ;
             }
-            if (cbinp->transp()) {
+            ಯದಿ (cbinp->transp()) {
                 // Transition bin (incl. array transition 'bins t[] = (a=>b),(c=>d)' and
                 // illegal_bins/ignore_bins transitions).  All sequences of one transition bin
                 // share a bin name and merge in the coverage DB to a single point, so model
                 // them as one runtime bin incremented by any matching sequence.  The sequence
                 // matching is generated as a state machine, with the hit routed to this bin's
                 // runtime slot.
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
-                const ConvBinTarget tgt{cpVarp, static_cast<uint32_t>(idx),
+                namerStmts.ತಳ್ಳು_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
+                ಧ್ರುವ ConvBinTarget tgt{cpVarp, static_cast<uint32_t>(idx),
                                         cbinp->binsType().binIsNormal()};
-                for (AstNode* sp = cbinp->transp(); sp; sp = sp->nextp())
+                ಪ್ರತಿ (Ast_ಗಂಟು* sp = cbinp->transp(); sp; sp = sp->nextp())
                     generateSingleTransitionCode(coverpointp, cbinp, exprp, tgt,
                                                  VN_AS(sp, CoverTransSet));
-                if (dynamic && V3Error::errorCount() == errorsBefore) {
+                ಯದಿ (dynamic && V3Error::error_ಎಣಿಕೆ() == errorsBefore) {
                     metadata.emplace_back(cbinp, static_cast<uint32_t>(idx), nullptr);
                 }
                 ++idx;
-                continue;
+                ಅನುವರ್ತ;
             }
             BinRuns plan;
-            if (binRunsFor(cbinp, exprp, plan)) {
+            ಯದಿ (binRunsFor(cbinp, exprp, plan)) {
                 // Array elements and automatic bins generate as runs, so neither sample() nor
                 // the constructor grows with their number of bins.
-                if (plan.unsupported) {  // bin ignored or invalid; reserve no slot
-                    m_droppedBins[coverpointp].push_back(cbinp->name());
-                    continue;
+                ಯದಿ (plan.unsupported) {  // bin ignored or invalid; reserve no slot
+                    m_droppedBins[coverpointp].ತಳ್ಳು_back(cbinp->name());
+                    ಅನುವರ್ತ;
                 }
                 CoverpointBins& bins = m_cpBins.at(cpVarp);
-                const uint32_t firstValue = bins.total;
-                const uint32_t firstDeclared = static_cast<uint32_t>(idx);
-                namerStmts.push_back(
-                    makeNamer(cpVarp, cbinp, plan.count, firstDeclared, {}, plan.values));
-                for (BinRun& run : plan.runs) {
+                ಧ್ರುವ uint32_t first_ಮೌಲ್ಯ = bins.total;
+                ಧ್ರುವ uint32_t firstDeclared = static_cast<uint32_t>(idx);
+                namerStmts.ತಳ್ಳು_back(
+                    makeNamer(cpVarp, cbinp, plan.ಎಣಿಕೆ, firstDeclared, {}, plan.ಮೌಲ್ಯಗಳು));
+                ಪ್ರತಿ (BinRun& run : plan.runs) {
                     run.m_declared = static_cast<uint32_t>(idx);
-                    bins.runs.push_back(std::move(run));
-                    const BinRun& stored = bins.runs.back();
-                    if (bins.crossed && cbinp->binsType().binIsNormal()) {
-                        const uint32_t first = firstValue + stored.m_declared - firstDeclared;
-                        for (uint32_t element = 0; element < stored.m_count; ++element) {
-                            bins.values[first + element].runp = &stored;
-                            bins.values[first + element].element = element;
+                    bins.runs.ತಳ್ಳು_back(std::move(run));
+                    ಧ್ರುವ BinRun& stored = bins.runs.back();
+                    ಯದಿ (bins.crossed && cbinp->binsType().binIsNormal()) {
+                        ಧ್ರುವ uint32_t first = first_ಮೌಲ್ಯ + stored.m_declared - firstDeclared;
+                        ಪ್ರತಿ (uint32_t element = 0; element < stored.m_ಎಣಿಕೆ; ++element) {
+                            bins.ಮೌಲ್ಯಗಳು[first + element].runp = &stored;
+                            bins.ಮೌಲ್ಯಗಳು[first + element].element = element;
                         }
                     }
-                    if (!stored.m_empty) {
+                    ಯದಿ (!stored.m_empty) {
                         emitRunHit(coverpointp, cbinp, cpVarp, exprp, stored);
-                        if (dynamic && V3Error::errorCount() == errorsBefore) {
-                            runMetadata.push_back(&stored);
+                        ಯದಿ (dynamic && V3Error::error_ಎಣಿಕೆ() == errorsBefore) {
+                            runMetadata.ತಳ್ಳು_back(&stored);
                         }
                     }
-                    idx += stored.m_count;
+                    idx += stored.m_ಎಣಿಕೆ;
                 }
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (cbinp->isArray()) {  // value array of a real coverpoint: b[0]..b[N-1]
+            ಯದಿ (cbinp->isArray()) {  // value array of a real coverpoint: b[0]..b[N-1]
                 // Only integral coverpoints have runtime value metadata (m_runtimePoints)
                 UASSERT_OBJ(!dynamic, cbinp, "Runtime value metadata for a real coverpoint");
-                bool unsupported = false;
-                std::vector<AstNodeExpr*> values = extractArrayValues(cbinp, exprp, unsupported);
-                if (unsupported) {  // bin ignored (COVERIGN emitted); reserve no slot
-                    m_droppedBins[coverpointp].push_back(cbinp->name());
-                    continue;
+                ತಾರ್ಕಿಕ unsupported = ಅಸತ್ಯ;
+                std::vector<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಮೌಲ್ಯಗಳು = extract_Array_ಮೌಲ್ಯಗಳು(cbinp, exprp, unsupported);
+                ಯದಿ (unsupported) {  // bin ignored (COVERIGN emitted); reserve no slot
+                    m_droppedBins[coverpointp].ತಳ್ಳು_back(cbinp->name());
+                    ಅನುವರ್ತ;
                 }
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, static_cast<int64_t>(values.size()),
-                                               static_cast<uint32_t>(idx), values));
-                for (AstNodeExpr* valuep : values) {
+                namerStmts.ತಳ್ಳು_back(makeNamer(cpVarp, cbinp, static_cast<int64_t>(ಮೌಲ್ಯಗಳು.size()),
+                                               static_cast<uint32_t>(idx), ಮೌಲ್ಯಗಳು));
+                ಪ್ರತಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep : ಮೌಲ್ಯಗಳು) {
                     // The cross selections of this covergroup still read the value.
-                    m_detachedValues.push_back(valuep);
+                    m_detached_ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(valuep);
                     emitConvHitIf(coverpointp, cbinp, cpVarp,
                                   cnum(cbinp->fileline(), static_cast<uint32_t>(idx)),
-                                  buildValueCondition(cbinp, exprp, valuep));
+                                  build_ಮೌಲ್ಯ_Condition(cbinp, exprp, valuep));
                     ++idx;
                 }
-            } else {
-                namerStmts.push_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
+            } ಅನ್ಯಥಾ {
+                namerStmts.ತಳ್ಳು_back(makeNamer(cpVarp, cbinp, -1, static_cast<uint32_t>(idx)));
                 // buildBinCondition is null for 'ignore_bins = default' (no ranges); the bin
                 // still gets a reserved slot (recorded, never incremented).
-                if (AstNodeExpr* const condp = buildBinCondition(cbinp, exprp))
+                ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ condp = buildBinCondition(cbinp, exprp))
                     emitConvHitIf(coverpointp, cbinp, cpVarp,
                                   cnum(cbinp->fileline(), static_cast<uint32_t>(idx)), condp);
-                if (dynamic && V3Error::errorCount() == errorsBefore) {
+                ಯದಿ (dynamic && V3Error::error_ಎಣಿಕೆ() == errorsBefore) {
                     metadata.emplace_back(cbinp, static_cast<uint32_t>(idx), nullptr);
                 }
                 ++idx;
             }
         }
         // A cross selecting an ignored bins declaration selects no bins
-        for (const std::string& name : m_droppedBins[coverpointp]) {
+        ಪ್ರತಿ (ಧ್ರುವ std::string& name : m_droppedBins[coverpointp]) {
             m_cpBins.at(cpVarp).spans.emplace(name, BinSpan{});
         }
         // A value a constructed bin holds is no default bin's; only sampling tells which do
         AstVar* sizedMatchedp = nullptr;
-        if (!defaultBins.empty()
-            && std::any_of(sizedBins.begin(), sizedBins.end(), [](const AstCoverBin* binp) {
-                   return binp->binsType().binIsNormal();
+        ಯದಿ (!defaultBins.empty()
+            && std::any_of(sizedBins.begin(), sizedBins.end(), [](ಧ್ರುವ AstCoverBin* binp) {
+                   ಪ್ರತ್ಯಾಗಮ binp->binsType().binIsNormal();
                })) {
-            sizedMatchedp = new AstVar{fl, VVarType::BLOCKTEMP,
+            sizedMatchedp = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP,
                                        "__VcpSized_" + sanitizeGeneratedName(coverpointp->name()),
                                        coverpointp->findBitDType()};
-            sizedMatchedp->funcLocal(true);
+            sizedMatchedp->funcLocal(ಸತ್ಯ);
             m_sampleFuncp->addStmtsp(sizedMatchedp);
-            addSampleStmt(new AstAssign{fl, new AstVarRef{fl, sizedMatchedp, VAccess::WRITE},
-                                        new AstConst{fl, AstConst::BitFalse{}}});
+            addSampleStmt(ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, sizedMatchedp, VAccess::WRITE},
+                                        ನೂತನ AstConst{fl, AstConst::BitFalse{}}});
         }
-        for (uint32_t sized = 0; sized < sizedBins.size(); ++sized) {
+        ಪ್ರತಿ (uint32_t sized = 0; sized < sizedBins.size(); ++sized) {
             emitSizedSample(coverpointp, sizedBins[sized], cpVarp, exprp, sized, sizedMatchedp);
         }
-        for (AstCoverBin* const defBinp : defaultBins) {
-            FileLine* const dfl = defBinp->fileline();
-            namerStmts.push_back(makeNamer(cpVarp, defBinp, -1, static_cast<uint32_t>(idx)));
-            AstNodeExpr* condp = buildDefaultCondition(coverpointp, exprp, dfl);
-            if (sizedMatchedp) {
-                condp = new AstLogAnd{
-                    dfl, new AstNot{dfl, new AstVarRef{dfl, sizedMatchedp, VAccess::READ}}, condp};
+        ಪ್ರತಿ (AstCoverBin* ಧ್ರುವ defBinp : defaultBins) {
+            File_ಸಾಲು* ಧ್ರುವ dfl = defBinp->fileline();
+            namerStmts.ತಳ್ಳು_back(makeNamer(cpVarp, defBinp, -1, static_cast<uint32_t>(idx)));
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = buildDefaultCondition(coverpointp, exprp, dfl);
+            ಯದಿ (sizedMatchedp) {
+                condp = ನೂತನ AstLogAnd{
+                    dfl, ನೂತನ AstNot{dfl, ನೂತನ AstVarRef{dfl, sizedMatchedp, VAccess::READ}}, condp};
             }
             emitConvHitIf(coverpointp, defBinp, cpVarp, cnum(dfl, static_cast<uint32_t>(idx)),
                           condp);
             ++idx;
         }
-        if (idx > std::numeric_limits<uint32_t>::max()) {
+        ಯದಿ (idx > std::numeric_limits<uint32_t>::max()) {
             // The runtime indexes bins with 32 bits; stop before generating a model
             coverpointp->v3warn(E_UNSUPPORTED, "Unsupported: coverpoint with more than "
                                                    << std::numeric_limits<uint32_t>::max()
@@ -2467,50 +2467,50 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // Transition coverpoints track the previous sampled value; update it once at the end of
         // this coverpoint's sample() contribution (the prev var was created on demand by the
         // transition matching above).
-        if (coverpointHasTransition(coverpointp)) {
-            AstVar* const prevVarp = VN_AS(coverpointp->user1p(), Var);
+        ಯದಿ (coverpointHasTransition(coverpointp)) {
+            AstVar* ಧ್ರುವ prevVarp = VN_AS(coverpointp->user1p(), Var);
             addSampleStmt(
-                new AstAssign{coverpointp->fileline(),
-                              new AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
-                              exprp->cloneTree(false)});
+                ನೂತನ AstAssign{coverpointp->fileline(),
+                              ನೂತನ AstVarRef{prevVarp->fileline(), prevVarp, VAccess::WRITE},
+                              exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)});
         }
 
         // Constructor: init (allocates), namers, then registration (under --coverage).
         // Under --protect-ids the hierarchy and page string reach the coverage database
         // verbatim, so obfuscate them like line/toggle points (per-word hierarchy, whole-
         // unit page).  No-ops when --protect-ids is off.
-        const bool prot = v3Global.opt.protectIds();
-        const std::string hier
-            = VIdProtect::protectWordsIf(m_covergroupName + "." + coverpointp->name(), prot);
+        ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
+        ಧ್ರುವ std::string hier
+            = VIdProtect::protect_ಪದಗಳು_If(m_covergroupName + "." + coverpointp->name(), prot);
         m_constructorp->addStmtsp(
             itemCall(fl, cpVarp, VCMethod::COVERGROUP_INIT,
-                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(atLeastValue)),
+                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(at_Least_ಮೌಲ್ಯ)),
                       cnum(fl, static_cast<uint32_t>(idx))})
                 ->makeStmt());
-        for (AstNodeStmt* const ns : namerStmts) m_constructorp->addStmtsp(ns);
-        if (dynamic) {
+        ಪ್ರತಿ (Ast_ಗಂಟು_Stmt* ಧ್ರುವ ns : namerStmts) m_constructorp->addStmtsp(ns);
+        ಯದಿ (dynamic) {
             m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_VALUE_TYPE,
+                itemCall(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_TYPE,
                          {cnum(fl, exprp->width()), cnum(fl, exprp->isSigned())})
                     ->makeStmt());
-            ValueLists lists;
-            for (const auto& entry : metadata) {
-                collectValueMetadata(lists, exprp, std::get<0>(entry), std::get<1>(entry),
+            ಮೌಲ್ಯ_Lists lists;
+            ಪ್ರತಿ (ಧ್ರುವ auto& entry : metadata) {
+                collect_ಮೌಲ್ಯ_Metadata(lists, exprp, std::get<0>(entry), std::get<1>(entry),
                                      std::get<2>(entry));
             }
-            for (const BinRun* const runp : runMetadata) collectRunMetadata(lists, exprp, *runp);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_RANGES, lists.m_ranges);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_RUNS, lists.m_runs);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_PATTERNS, lists.m_patterns);
-            emitValueList(fl, cpVarp, VCMethod::COVERGROUP_VALUE_TRANSITIONS, lists.m_transitions);
-            for (AstCoverBin* const binp : sizedBins) {
+            ಪ್ರತಿ (ಧ್ರುವ BinRun* ಧ್ರುವ runp : runMetadata) collectRunMetadata(lists, exprp, *runp);
+            emit_ಮೌಲ್ಯ_List(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_RANGES, lists.m_ranges);
+            emit_ಮೌಲ್ಯ_List(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_RUNS, lists.m_runs);
+            emit_ಮೌಲ್ಯ_List(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_PATTERNS, lists.m_patterns);
+            emit_ಮೌಲ್ಯ_List(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_TRANSITIONS, lists.m_transitions);
+            ಪ್ರತಿ (AstCoverBin* ಧ್ರುವ binp : sizedBins) {
                 generateConstructedBins(coverpointp, binp, cpVarp, exprp);
             }
             m_constructorp->addStmtsp(
-                itemCall(fl, cpVarp, VCMethod::COVERGROUP_VALUE_FINALIZE)->makeStmt());
+                itemCall(fl, cpVarp, VCMethod::COVERGROUP_ಮೌಲ್ಯ_FINALIZE)->makeStmt());
         }
-        if (v3Global.opt.coverage()) {
-            const std::string page
+        ಯದಿ (v3Global.opt.coverage()) {
+            ಧ್ರುವ std::string page
                 = VIdProtect::protectIf("v_covergroup/" + m_covergroupName, prot);
             m_constructorp->addStmtsp(
                 itemCall(fl, cpVarp, VCMethod::COVERGROUP_REGISTER_BINS,
@@ -2524,37 +2524,37 @@ class FunctionalCoverageVisitor final : public VNVisitor {
 
     // Generate state machine code for multi-value transition sequences
     // Handles transitions like (1 => 2 => 3 => 4)
-    void generateMultiValueTransitionCode(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                          AstNodeExpr* exprp, const ConvBinTarget& tgt,
-                                          const std::vector<AstCoverTransItem*>& items) {
+    ಶೂನ್ಯ generate_Multi_ಮೌಲ್ಯ_Transition_Code(AstCoverpoint* coverpointp, AstCoverBin* binp,
+                                          Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ ConvBinTarget& tgt,
+                                          ಧ್ರುವ std::vector<AstCoverTransItem*>& ವಸ್ತುಗಳು) {
         UINFO(4, "    Generating multi-value transition state machine for: " << binp->name());
-        UINFO(4, "      Sequence length: " << items.size() << " items");
+        UINFO(4, "      Sequence length: " << ವಸ್ತುಗಳು.size() << " items");
 
         // Create state position variable
-        AstVar* const stateVarp = createSequenceStateVar(coverpointp, binp);
+        AstVar* ಧ್ರುವ stateVarp = createSequenceStateVar(coverpointp, binp);
 
         // Build case statement with N cases (one for each state 0 to N-1)
         // State 0: Not started, looking for first item
         // State 1 to N-1: In progress, looking for next item
 
-        AstCase* const casep
-            = new AstCase{binp->fileline(), VCaseType::CT_CASE,
-                          new AstVarRef{stateVarp->fileline(), stateVarp, VAccess::READ}, nullptr};
+        AstCase* ಧ್ರುವ casep
+            = ನೂತನ AstCase{binp->fileline(), VCaseType::CT_CASE,
+                          ನೂತನ AstVarRef{stateVarp->fileline(), stateVarp, VAccess::READ}, nullptr};
 
         // Generate each case item in the switch statement
-        for (size_t state = 0; state < items.size(); ++state) {
+        ಪ್ರತಿ (size_t state = 0; state < ವಸ್ತುಗಳು.size(); ++state) {
             AstCaseItem* caseItemp = generateTransitionStateCase(coverpointp, binp, exprp, tgt,
-                                                                 stateVarp, items, state);
+                                                                 stateVarp, ವಸ್ತುಗಳು, state);
             casep->addItemsp(caseItemp);
         }
 
         // Add default case (reset to state 0) to prevent CASEINCOMPLETE warnings,
         // since the state variable is wider than the number of valid states.
-        AstCaseItem* const defaultItemp = new AstCaseItem{
+        AstCaseItem* ಧ್ರುವ defaultItemp = ನೂತನ AstCaseItem{
             binp->fileline(), nullptr,
-            new AstAssign{binp->fileline(),
-                          new AstVarRef{binp->fileline(), stateVarp, VAccess::WRITE},
-                          new AstConst{binp->fileline(), AstConst::WidthedValue{}, 8, 0}}};
+            ನೂತನ AstAssign{binp->fileline(),
+                          ನೂತನ AstVarRef{binp->fileline(), stateVarp, VAccess::WRITE},
+                          ನೂತನ AstConst{binp->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 0}}};
         casep->addItemsp(defaultItemp);
 
         addSampleStmt(casep);
@@ -2564,250 +2564,250 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // Generate code for a single state in the transition state machine
     // Returns the case item for this state
     AstCaseItem* generateTransitionStateCase(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                             AstNodeExpr* exprp, const ConvBinTarget& tgt,
+                                             Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ ConvBinTarget& tgt,
                                              AstVar* stateVarp,
-                                             const std::vector<AstCoverTransItem*>& items,
+                                             ಧ್ರುವ std::vector<AstCoverTransItem*>& ವಸ್ತುಗಳು,
                                              size_t state) {
-        FileLine* const fl = binp->fileline();
+        File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
 
         // Build condition for current value matching expected item at this state
-        AstNodeExpr* const matchCondp = buildTransitionItemCondition(items[state], exprp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ matchCondp = buildTransitionItemCondition(ವಸ್ತುಗಳು[state], exprp);
 
-        AstNodeStmt* matchActionp = nullptr;
+        Ast_ಗಂಟು_Stmt* matchActionp = nullptr;
 
-        if (state == items.size() - 1) {
+        ಯದಿ (state == ವಸ್ತುಗಳು.size() - 1) {
             // Last state: sequence complete!  Record the hit in the runtime VlCoverpoint.
             matchActionp = makeRuntimeBinHit(fl, tgt);
 
             // For illegal_bins, add error message
-            if (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
-                const string errMsg = "Illegal transition bin " + binp->prettyNameQ()
+            ಯದಿ (binp->binsType() == VCoverBinsType::BINS_ILLEGAL) {
+                ಧ್ರುವ string err_ಸಂದೇಶ = "Illegal transition bin " + binp->prettyNameQ()
                                       + " hit in coverpoint " + coverpointp->prettyNameQ();
-                matchActionp = matchActionp->addNext(makeIllegalBinAction(fl, errMsg));
+                matchActionp = matchActionp->addNext(makeIllegalBinAction(fl, err_ಸಂದೇಶ));
             }
 
             // Reset state to 0
             matchActionp = matchActionp->addNext(
-                new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::WidthedValue{}, 8, 0}});
-        } else {
+                ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, stateVarp, VAccess::WRITE},
+                              ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 0}});
+        } ಅನ್ಯಥಾ {
             // Intermediate state: advance to next state
-            matchActionp = new AstAssign{
-                fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                new AstConst{fl, AstConst::WidthedValue{}, 8, static_cast<uint32_t>(state + 1)}};
+            matchActionp = ನೂತನ AstAssign{
+                fl, ನೂತನ AstVarRef{fl, stateVarp, VAccess::WRITE},
+                ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 8, static_cast<uint32_t>(state + 1)}};
         }
 
         // Build restart logic: check if current value matches first item
         // If so, restart sequence from state 1 (even if we're in middle of sequence)
-        AstNodeStmt* noMatchActionp = nullptr;
-        if (state > 0) {
+        Ast_ಗಂಟು_Stmt* noMatchActionp = nullptr;
+        ಯದಿ (state > 0) {
             // Check if current value matches first item (restart condition)
-            AstNodeExpr* const restartCondp = buildTransitionItemCondition(items[0], exprp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ restartCondp = buildTransitionItemCondition(ವಸ್ತುಗಳು[0], exprp);
 
-            UASSERT_OBJ(restartCondp, items[0],
+            UASSERT_OBJ(restartCondp, ವಸ್ತುಗಳು[0],
                         "buildTransitionItemCondition returned nullptr for restart");
 
             // Restart to state 1
-            AstNodeStmt* restartActionp
-                = new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                                new AstConst{fl, AstConst::WidthedValue{}, 8, 1}};
+            Ast_ಗಂಟು_Stmt* restartActionp
+                = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, stateVarp, VAccess::WRITE},
+                                ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 1}};
 
             // Reset to state 0 (else branch)
-            AstNodeStmt* resetActionp
-                = new AstAssign{fl, new AstVarRef{fl, stateVarp, VAccess::WRITE},
-                                new AstConst{fl, AstConst::WidthedValue{}, 8, 0}};
+            Ast_ಗಂಟು_Stmt* resetActionp
+                = ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, stateVarp, VAccess::WRITE},
+                                ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 8, 0}};
 
-            noMatchActionp = new AstIf{fl, restartCondp, restartActionp, resetActionp};
+            noMatchActionp = ನೂತನ AstIf{fl, restartCondp, restartActionp, resetActionp};
         }
         // For state 0, no action needed if no match (stay in state 0)
 
         // Combine into if-else
-        AstNodeStmt* const stmtp = new AstIf{fl, matchCondp, matchActionp, noMatchActionp};
+        Ast_ಗಂಟು_Stmt* ಧ್ರುವ stmtp = ನೂತನ AstIf{fl, matchCondp, matchActionp, noMatchActionp};
 
         // Create case item for this state value
-        AstCaseItem* const caseItemp = new AstCaseItem{
-            fl, new AstConst{fl, AstConst::WidthedValue{}, 8, static_cast<uint32_t>(state)},
+        AstCaseItem* ಧ್ರುವ caseItemp = ನೂತನ AstCaseItem{
+            fl, ನೂತನ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 8, static_cast<uint32_t>(state)},
             stmtp};
 
-        return caseItemp;
+        ಪ್ರತ್ಯಾಗಮ caseItemp;
     }
 
     // Create: $error(msg); $stop;  Used when an illegal bin is hit.
-    AstNodeStmt* makeIllegalBinAction(FileLine* fl, const string& errMsg) {
-        AstDisplay* const errorp
-            = new AstDisplay{fl, VDisplayType::DT_ERROR, errMsg, nullptr, nullptr};
+    Ast_ಗಂಟು_Stmt* makeIllegalBinAction(File_ಸಾಲು* fl, ಧ್ರುವ string& err_ಸಂದೇಶ) {
+        AstDisplay* ಧ್ರುವ errorp
+            = ನೂತನ AstDisplay{fl, VDisplayType::DT_ERROR, err_ಸಂದೇಶ, nullptr, nullptr};
         errorp->fmtp()->timeunit(m_covergroupp->timeunit());
-        static_cast<AstNode*>(errorp)->addNext(new AstStop{fl, true});
-        return errorp;
+        static_cast<Ast_ಗಂಟು*>(errorp)->addNext(ನೂತನ AstStop{fl, ಸತ್ಯ});
+        ಪ್ರತ್ಯಾಗಮ errorp;
     }
 
     // Preserve the coverpoint's width and signedness after V3Width.
-    static AstConst* newValueConst(FileLine* fl, const V3Number& value, const AstNodeExpr* exprp) {
-        V3Number narrowed{fl, exprp->width(), 0};
-        narrowed.opAssign(value);
-        AstConst* const constp = new AstConst{fl, narrowed};
+    ಸ್ಥಿರ AstConst* new_ಮೌಲ್ಯ_Const(File_ಸಾಲು* fl, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಮೌಲ್ಯ, ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        V3_ಸಂಖ್ಯೆ narrowed{fl, exprp->width(), 0};
+        narrowed.opAssign(ಮೌಲ್ಯ);
+        AstConst* ಧ್ರುವ constp = ನೂತನ AstConst{fl, narrowed};
         constp->dtypeFrom(exprp);
-        return constp;
+        ಪ್ರತ್ಯಾಗಮ constp;
     }
 
     // A real copy of a real or integral range bound, for comparing with a real coverpoint.
-    static AstConst* newRealConst(AstConst* constp) {
-        if (constp->num().isDouble()) return constp->cloneTree(false);
-        V3Number real{&constp->num(), 64};
-        real.opIToRD(constp->num(), constp->isSigned());
-        return new AstConst{constp->fileline(), real};
+    ಸ್ಥಿರ AstConst* newRealConst(AstConst* constp) {
+        ಯದಿ (constp->ಅಂಕೆ().isDouble()) ಪ್ರತ್ಯಾಗಮ constp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        V3_ಸಂಖ್ಯೆ real{&constp->ಅಂಕೆ(), 64};
+        real.opIToRD(constp->ಅಂಕೆ(), constp->isSigned());
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{constp->fileline(), real};
     }
 
     // Clone a constant node, widening to targetWidth if needed (zero-extend).
     // Used to ensure comparisons use matching widths after V3Width has run.
-    static AstConst* widenConst(FileLine* fl, AstConst* constp, int targetWidth) {
-        if (constp->width() == targetWidth) return constp->cloneTree(false);
-        V3Number num{fl, targetWidth, 0};
-        num.opAssign(constp->num());
-        return new AstConst{fl, num};
+    ಸ್ಥಿರ AstConst* widenConst(File_ಸಾಲು* fl, AstConst* constp, ಪೂರ್ಣಾಙ್ಕ targetWidth) {
+        ಯದಿ (constp->width() == targetWidth) ಪ್ರತ್ಯಾಗಮ constp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ);
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ{fl, targetWidth, 0};
+        ಅಂಕೆ.opAssign(constp->ಅಂಕೆ());
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, ಅಂಕೆ};
     }
 
     // Build a range condition: minp <= exprp <= maxp.
     // Uses signed comparisons if exprp is signed; omits trivially-true domain bounds.
     // All arguments are non-owning; clones exprp/minp/maxp as needed.
-    AstNodeExpr* makeRangeCondition(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* minp,
-                                    AstNodeExpr* maxp) {
-        const int exprWidth = exprp->widthMin();
-        AstConst* const minConstp = VN_AS(minp, Const);
-        AstConst* const maxConstp = VN_AS(maxp, Const);
-        if (exprp->isDouble()) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* makeRangeCondition(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* minp,
+                                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* maxp) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ಅಭಿವ್ಯಕ್ತಿ_Width = exprp->widthMin();
+        AstConst* ಧ್ರುವ minConstp = VN_AS(minp, Const);
+        AstConst* ಧ್ರುವ maxConstp = VN_AS(maxp, Const);
+        ಯದಿ (exprp->isDouble()) {
             // A real coverpoint has no finite domain bounds to omit.
-            return new AstAnd{fl,
-                              new AstGteD{fl, exprp->cloneTree(false), newRealConst(minConstp)},
-                              new AstLteD{fl, exprp->cloneTree(false), newRealConst(maxConstp)}};
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAnd{fl,
+                              ನೂತನ AstGteD{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), newRealConst(minConstp)},
+                              ನೂತನ AstLteD{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), newRealConst(maxConstp)}};
         }
         // Widen constants to match expression width so post-V3Width nodes use correct macros
-        AstConst* const minWidep = widenConst(fl, minConstp, exprWidth);
-        AstConst* const maxWidep = widenConst(fl, maxConstp, exprWidth);
-        V3Number minimum{fl, exprWidth, 0};
-        V3Number maximum{fl, exprWidth, 0};
+        AstConst* ಧ್ರುವ minWidep = widenConst(fl, minConstp, ಅಭಿವ್ಯಕ್ತಿ_Width);
+        AstConst* ಧ್ರುವ maxWidep = widenConst(fl, maxConstp, ಅಭಿವ್ಯಕ್ತಿ_Width);
+        V3_ಸಂಖ್ಯೆ minimum{fl, ಅಭಿವ್ಯಕ್ತಿ_Width, 0};
+        V3_ಸಂಖ್ಯೆ maximum{fl, ಅಭಿವ್ಯಕ್ತಿ_Width, 0};
         maximum.setAllBits1();
-        if (exprp->isSigned()) {
-            minimum.setBit(exprWidth - 1, 1);
-            maximum.setBit(exprWidth - 1, 0);
+        ಯದಿ (exprp->isSigned()) {
+            minimum.setBit(ಅಭಿವ್ಯಕ್ತಿ_Width - 1, 1);
+            maximum.setBit(ಅಭಿವ್ಯಕ್ತಿ_Width - 1, 0);
         }
-        AstNodeExpr* lowerp = nullptr;
-        AstNodeExpr* upperp = nullptr;
-        if (minWidep->num().isCaseEq(minimum)) {
-            VL_DO_DANGLING(pushDeletep(minWidep), minWidep);
-        } else {
-            lowerp = exprp->isSigned() ? static_cast<AstNodeExpr*>(
-                                             new AstGteS{fl, exprp->cloneTree(false), minWidep})
-                                       : static_cast<AstNodeExpr*>(
-                                             new AstGte{fl, exprp->cloneTree(false), minWidep});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lowerp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* upperp = nullptr;
+        ಯದಿ (minWidep->ಅಂಕೆ().isCaseEq(minimum)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(minWidep), minWidep);
+        } ಅನ್ಯಥಾ {
+            lowerp = exprp->isSigned() ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                             ನೂತನ AstGteS{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), minWidep})
+                                       : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                             ನೂತನ AstGte{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), minWidep});
         }
-        if (maxWidep->num().isCaseEq(maximum)) {
-            VL_DO_DANGLING(pushDeletep(maxWidep), maxWidep);
-        } else {
-            upperp = exprp->isSigned() ? static_cast<AstNodeExpr*>(
-                                             new AstLteS{fl, exprp->cloneTree(false), maxWidep})
-                                       : static_cast<AstNodeExpr*>(
-                                             new AstLte{fl, exprp->cloneTree(false), maxWidep});
+        ಯದಿ (maxWidep->ಅಂಕೆ().isCaseEq(maximum)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(maxWidep), maxWidep);
+        } ಅನ್ಯಥಾ {
+            upperp = exprp->isSigned() ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                             ನೂತನ AstLteS{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), maxWidep})
+                                       : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                             ನೂತನ AstLte{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), maxWidep});
         }
-        if (lowerp && upperp) return new AstAnd{fl, lowerp, upperp};
-        if (lowerp) return lowerp;
-        if (upperp) return upperp;
-        return new AstConst{fl, AstConst::BitTrue{}};
+        ಯದಿ (lowerp && upperp) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstAnd{fl, lowerp, upperp};
+        ಯದಿ (lowerp) ಪ್ರತ್ಯಾಗಮ lowerp;
+        ಯದಿ (upperp) ಪ್ರತ್ಯಾಗಮ upperp;
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, AstConst::BitTrue{}};
     }
 
     // Build a one-sided comparison for an open-ended bin range whose other bound is '$'.
     // '$' denotes the coverpoint domain extreme, so {[lo:$]} == (expr >= lo) and
     // {[$:hi]} == (expr <= hi).
-    AstNodeExpr* makeOpenRangeCondition(FileLine* fl, AstNodeExpr* exprp, AstConst* boundp,
-                                        bool isLowerBound) {
-        AstConst* const widep = widenConst(fl, boundp, exprp->widthMin());
-        if (isLowerBound) {
-            if (exprp->isSigned()) return new AstGteS{fl, exprp->cloneTree(false), widep};
-            return new AstGte{fl, exprp->cloneTree(false), widep};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* makeOpenRangeCondition(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstConst* boundp,
+                                        ತಾರ್ಕಿಕ isLowerBound) {
+        AstConst* ಧ್ರುವ widep = widenConst(fl, boundp, exprp->widthMin());
+        ಯದಿ (isLowerBound) {
+            ಯದಿ (exprp->isSigned()) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstGteS{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), widep};
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstGte{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), widep};
         }
-        if (exprp->isSigned()) return new AstLteS{fl, exprp->cloneTree(false), widep};
-        return new AstLte{fl, exprp->cloneTree(false), widep};
+        ಯದಿ (exprp->isSigned()) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstLteS{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), widep};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstLte{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), widep};
     }
 
     // Build condition for a single transition item.
     // Returns expression that checks if exprp matches the item's value/range list.
     // Overload for when the expression is a variable read -- creates and manages the VarRef
     // internally, so callers don't need to construct a temporary node.
-    AstNodeExpr* buildTransitionItemCondition(AstCoverTransItem* itemp, AstVar* varp) {
-        AstNodeExpr* varRefp = new AstVarRef{varp->fileline(), varp, VAccess::READ};
-        AstNodeExpr* const condp = buildTransitionItemCondition(itemp, varRefp);
-        VL_DO_DANGLING(pushDeletep(varRefp), varRefp);
-        return condp;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildTransitionItemCondition(AstCoverTransItem* itemp, AstVar* varp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* varRefp = ನೂತನ AstVarRef{varp->fileline(), varp, VAccess::READ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ condp = buildTransitionItemCondition(itemp, varRefp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(varRefp), varRefp);
+        ಪ್ರತ್ಯಾಗಮ condp;
     }
 
     // Non-owning: exprp is cloned internally; caller retains ownership of exprp.
-    AstNodeExpr* buildTransitionItemCondition(AstCoverTransItem* itemp, AstNodeExpr* exprp) {
-        AstNodeExpr* condp = nullptr;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildTransitionItemCondition(AstCoverTransItem* itemp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = nullptr;
 
-        for (AstNode* valp = itemp->valuesp(); valp; valp = valp->nextp()) {
-            AstNodeExpr* singleCondp = nullptr;
+        ಪ್ರತಿ (Ast_ಗಂಟು* valp = itemp->valuesp(); valp; valp = valp->nextp()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* singleCondp = nullptr;
             valp = V3Const::constifyEdit(valp);
-            AstConst* const constp = VN_CAST(valp, Const);
-            if (!constp) {
+            AstConst* ಧ್ರುವ constp = VN_CAST(valp, Const);
+            ಯದಿ (!constp) {
                 valp->v3error("Non-constant expression in transition bin; "
                               "values must be constants (IEEE 1800-2023 19.5)");
-                return new AstConst{valp->fileline(), AstConst::BitFalseErroring{}};
+                ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{valp->fileline(), AstConst::BitFalseErroring{}};
             }
             singleCondp
-                = new AstEq{constp->fileline(), exprp->cloneTree(false), constp->cloneTree(false)};
-            if (condp) {
-                condp = new AstOr{itemp->fileline(), condp, singleCondp};
-            } else {
+                = ನೂತನ AstEq{constp->fileline(), exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), constp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
+            ಯದಿ (condp) {
+                condp = ನೂತನ AstOr{itemp->fileline(), condp, singleCondp};
+            } ಅನ್ಯಥಾ {
                 condp = singleCondp;
             }
         }
 
-        return condp;
+        ಪ್ರತ್ಯಾಗಮ condp;
     }
 
     // Generate code for a single transition sequence (used by both regular and array bins)
-    void generateSingleTransitionCode(AstCoverpoint* coverpointp, AstCoverBin* binp,
-                                      AstNodeExpr* exprp, const ConvBinTarget& tgt,
+    ಶೂನ್ಯ generateSingleTransitionCode(AstCoverpoint* coverpointp, AstCoverBin* binp,
+                                      Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ ConvBinTarget& tgt,
                                       AstCoverTransSet* transSetp) {
         UINFO(4, "      Generating code for transition sequence");
 
         // Get or create previous value variable
-        AstVar* const prevVarp = createPrevValueVar(coverpointp, exprp);
+        AstVar* ಧ್ರುವ prevVarp = create_Prev_ಮೌಲ್ಯ_Var(coverpointp, exprp);
 
         UASSERT_OBJ(
             transSetp, binp,
             "Transition bin has no transition set (transp() was checked before calling this)");
 
         // Get transition items (the sequence: item1 => item2 => item3)
-        std::vector<AstCoverTransItem*> items;
-        for (AstNode* itemp = transSetp->itemsp(); itemp; itemp = itemp->nextp())
-            items.push_back(VN_AS(itemp, CoverTransItem));
+        std::vector<AstCoverTransItem*> ವಸ್ತುಗಳು;
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = transSetp->itemsp(); itemp; itemp = itemp->nextp())
+            ವಸ್ತುಗಳು.ತಳ್ಳು_back(VN_AS(itemp, CoverTransItem));
 
-        if (items.empty()) {
+        ಯದಿ (ವಸ್ತುಗಳು.empty()) {
             binp->v3error("Transition set without items");
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
-        if (items.size() == 1) {
+        ಯದಿ (ವಸ್ತುಗಳು.size() == 1) {
             // Single item transition not valid (need at least 2 values for =>)
             binp->v3error("Transition requires at least two values");
-            return;
-        } else if (items.size() == 2) {
+            ಪ್ರತ್ಯಾಗಮ;
+        } ಅನ್ಯಥಾ ಯದಿ (ವಸ್ತುಗಳು.size() == 2) {
             // Simple two-value transition: (val1 => val2)
             // Use optimized direct comparison (no state machine needed)
-            AstNodeExpr* const cond1p = buildTransitionItemCondition(items[0], prevVarp);
-            AstNodeExpr* const cond2p = buildTransitionItemCondition(items[1], exprp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ cond1p = buildTransitionItemCondition(ವಸ್ತುಗಳು[0], prevVarp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ cond2p = buildTransitionItemCondition(ವಸ್ತುಗಳು[1], exprp);
 
             // Combine: prev matches val1 AND current matches val2
-            AstNodeExpr* fullCondp = new AstAnd{binp->fileline(), cond1p, cond2p};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fullCondp = ನೂತನ AstAnd{binp->fileline(), cond1p, cond2p};
 
             addConvTransHitIf(coverpointp, binp, tgt, fullCondp);
 
             UINFO(4, "        Successfully added 2-value transition if statement");
-        } else {
+        } ಅನ್ಯಥಾ {
             // Multi-value sequence (a => b => c => ...)
             // Use state machine to track position in sequence
-            generateMultiValueTransitionCode(coverpointp, binp, exprp, tgt, items);
+            generate_Multi_ಮೌಲ್ಯ_Transition_Code(coverpointp, binp, exprp, tgt, ವಸ್ತುಗಳು);
         }
     }
 
@@ -2815,74 +2815,74 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     // and the temporary array stay literal text -- a CMethodHard is one call, not a block --
     // but callp itself carries the member, method and '->'.  Construction only: init() copies
     // the array into the cross, so sample() reads it from there and needs no array at all.
-    AstCStmt* makeCrossCpsCall(FileLine* fl, const std::vector<AstVar*>& cpVars,
+    AstCStmt* makeCrossCpsCall(File_ಸಾಲು* fl, ಧ್ರುವ std::vector<AstVar*>& cpVars,
                                AstCMethodHard* callp) {
-        AstCStmt* const cs = new AstCStmt{fl};
+        AstCStmt* ಧ್ರುವ cs = ನೂತನ AstCStmt{fl};
         cs->add("{ VlCoverpoint* __Vcx_cps[] = {");
-        for (size_t d = 0; d < cpVars.size(); ++d) {
-            if (d != 0) cs->add(", ");
+        ಪ್ರತಿ (size_t d = 0; d < cpVars.size(); ++d) {
+            ಯದಿ (d != 0) cs->add(", ");
             cs->add(memberRef(fl, cpVars[d]));
         }
         cs->add("}; ");
         cs->add(callp);
         cs->add("; }");
-        return cs;
+        ಪ್ರತ್ಯಾಗಮ cs;
     }
 
     // Assign the per-bin flags individually: one-bit SV results have integer C++ storage types,
     // which may narrow in a bool initializer list but convert implicitly in assignments.
-    AstCStmt* makeCrossIffsCall(FileLine* fl, const std::vector<AstCoverCrossBin*>& bins,
+    AstCStmt* makeCrossIffsCall(File_ಸಾಲು* fl, ಧ್ರುವ std::vector<AstCoverCrossBin*>& bins,
                                 AstCMethodHard* callp) {
-        AstCStmt* const cs = new AstCStmt{fl};
+        AstCStmt* ಧ್ರುವ cs = ನೂತನ AstCStmt{fl};
         cs->add("{ bool __Vcx_iffs[" + cvtToStr(bins.size()) + "]; ");
-        for (size_t i = 0; i < bins.size(); ++i) {
-            const AstCoverCrossBin* const binp = bins[i];
+        ಪ್ರತಿ (size_t i = 0; i < bins.size(); ++i) {
+            ಧ್ರುವ AstCoverCrossBin* ಧ್ರುವ binp = bins[i];
             cs->add("__Vcx_iffs[" + cvtToStr(i) + "] = ");
-            cs->add(binp->iffp() ? binp->iffp()->cloneTree(false)
-                                 : new AstConst{fl, AstConst::BitTrue{}});
+            cs->add(binp->iffp() ? binp->iffp()->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)
+                                 : ನೂತನ AstConst{fl, AstConst::BitTrue{}});
             cs->add("; ");
         }
         cs->add(callp);
         cs->add("; }");
-        return cs;
+        ಪ್ರತ್ಯಾಗಮ cs;
     }
 
     using CrossSelection = std::vector<uint64_t>;
-    struct ResolvedCrossBin final {
+    ಸಂರಚನಾ ResolvedCrossBin final {
         AstCoverCrossBin* binp;
         CrossSelection selection;
     };
-    struct CrossLayout final {
+    ಸಂರಚನಾ CrossLayout final {
         uint32_t tuples = 0;
         uint32_t autoBins = 0;
-        uint64_t binWords = 0;
-        bool valid = true;
+        uint64_t bin_ಪದಗಳು = 0;
+        ತಾರ್ಕಿಕ valid = ಸತ್ಯ;
         std::vector<ResolvedCrossBin> bins;
     };
-    struct CrossSelectionContext final {
+    ಸಂರಚನಾ CrossSelectionContext final {
         AstCoverCross* crossp;  // Cross whose tuple space is being selected
-        const std::vector<AstVar*>& cpVars;  // Feeding coverpoints in dimension order
-        const std::map<std::string, uint32_t>& dimensions;  // Coverpoint name -> dimension
+        ಧ್ರುವ std::vector<AstVar*>& cpVars;  // Feeding coverpoints in dimension order
+        ಧ್ರುವ std::map<std::string, uint32_t>& dimensions;  // Coverpoint name -> dimension
         uint32_t tuples;  // Size of the Cartesian product
         std::vector<uint32_t> strides;  // Flat-index stride per dimension
-        bool valid = true;  // False if this explicit bin cannot be implemented
+        ತಾರ್ಕಿಕ valid = ಸತ್ಯ;  // False if this explicit bin cannot be implemented
     };
-    struct CrossBinsofTarget final {
-        const CoverpointBins* m_binsp = nullptr;  // Declared bins; null after a reported error
+    ಸಂರಚನಾ CrossBinsofTarget final {
+        ಧ್ರುವ CoverpointBins* m_binsp = nullptr;  // Declared bins; null after a reported error
         uint32_t m_dimension = 0;  // Coverpoint index within the cross
         uint32_t m_first = 0;  // First declared normal bin in the selected span
-        uint32_t m_count = 0;  // Number of declared normal bins in the selected span
+        uint32_t m_ಎಣಿಕೆ = 0;  // Number of declared normal bins in the selected span
         uint32_t m_declaredFirst = 0;  // First runtime bin index of the selected span
         uint32_t m_declaredEnd = UINT32_MAX;  // One past the last runtime bin index
         int32_t m_sized = -1;  // Index of the sized array holding the selected bins; or -1
     };
-    struct CrossValueRange final {
-        V3Number lo;  // Inclusive lower bound, sign-extended to the comparison width
-        V3Number hi;  // Inclusive upper bound
-        V3Number pattern;  // Allowed bit values; all X for an ordinary interval
-        bool wildcard = false;  // A wildcard singleton rather than an exact four-state value
+    ಸಂರಚನಾ Cross_ಮೌಲ್ಯ_Range final {
+        V3_ಸಂಖ್ಯೆ lo;  // Inclusive lower bound, sign-extended to the comparison width
+        V3_ಸಂಖ್ಯೆ hi;  // Inclusive upper bound
+        V3_ಸಂಖ್ಯೆ pattern;  // Allowed bit values; all X for an ordinary interval
+        ತಾರ್ಕಿಕ wildcard = ಅಸತ್ಯ;  // A wildcard singleton rather than an exact four-state value
 
-        CrossValueRange(AstNode* nodep, int width)
+        Cross_ಮೌಲ್ಯ_Range(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ width)
             : lo{nodep, width}
             , hi{nodep, width}
             , pattern{nodep, width} {
@@ -2890,227 +2890,227 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         }
     };
 
-    static std::vector<AstNode*> crossBinValues(const CrossBinValues& bin) {
-        if (bin.valuep) return {bin.valuep};
-        std::vector<AstNode*> values;
-        if (bin.binp->transp()) {
+    ಸ್ಥಿರ std::vector<Ast_ಗಂಟು*> cross_Bin_ಮೌಲ್ಯಗಳು(ಧ್ರುವ Cross_Bin_ಮೌಲ್ಯಗಳು& bin) {
+        ಯದಿ (bin.valuep) ಪ್ರತ್ಯಾಗಮ {bin.valuep};
+        std::vector<Ast_ಗಂಟು*> ಮೌಲ್ಯಗಳು;
+        ಯದಿ (bin.binp->transp()) {
             // IEEE 1800-2023 19.6.1: binsof uses the last value of each transition.
-            for (AstNode* setp = bin.binp->transp(); setp; setp = setp->nextp()) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* setp = bin.binp->transp(); setp; setp = setp->nextp()) {
                 AstCoverTransItem* lastp = VN_AS(setp, CoverTransSet)->itemsp();
-                while (lastp->nextp()) lastp = VN_AS(lastp->nextp(), CoverTransItem);
-                for (AstNode* valuep = lastp->valuesp(); valuep; valuep = valuep->nextp()) {
-                    values.push_back(valuep);
+                ಯಾವತ್ (lastp->nextp()) lastp = VN_AS(lastp->nextp(), CoverTransItem);
+                ಪ್ರತಿ (Ast_ಗಂಟು* valuep = lastp->valuesp(); valuep; valuep = valuep->nextp()) {
+                    ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(valuep);
                 }
             }
-        } else {
-            for (AstNode* valuep = bin.binp->rangesp(); valuep; valuep = valuep->nextp()) {
-                values.push_back(valuep);
+        } ಅನ್ಯಥಾ {
+            ಪ್ರತಿ (Ast_ಗಂಟು* valuep = bin.binp->rangesp(); valuep; valuep = valuep->nextp()) {
+                ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(valuep);
             }
         }
-        return values;
+        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯಗಳು;
     }
 
     // The values of the element-th bin of a run, sign-extended to 'width'
-    static CrossValueRange runBinRange(AstNode* nodep, const BinRun& run, uint32_t element,
-                                       int width) {
-        const int runw = run.m_lo.width();
-        V3Number offset{nodep, runw};
-        offset.opMul(run.m_stride, V3Number{nodep, runw, element});
-        V3Number lo{nodep, runw};
+    ಸ್ಥಿರ Cross_ಮೌಲ್ಯ_Range runBinRange(Ast_ಗಂಟು* nodep, ಧ್ರುವ BinRun& run, uint32_t element,
+                                       ಪೂರ್ಣಾಙ್ಕ width) {
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ runw = run.m_lo.width();
+        V3_ಸಂಖ್ಯೆ offset{nodep, runw};
+        offset.opMul(run.m_stride, V3_ಸಂಖ್ಯೆ{nodep, runw, element});
+        V3_ಸಂಖ್ಯೆ lo{nodep, runw};
         lo.opAdd(run.m_lo, offset);
-        V3Number hi = run.m_hi;
-        if (element + 1 < run.m_count) {
-            offset.opSub(run.m_stride, V3Number{nodep, runw, 1});
+        V3_ಸಂಖ್ಯೆ hi = run.m_hi;
+        ಯದಿ (element + 1 < run.m_ಎಣಿಕೆ) {
+            offset.opSub(run.m_stride, V3_ಸಂಖ್ಯೆ{nodep, runw, 1});
             hi.opAdd(lo, offset);
         }
-        CrossValueRange range{nodep, width};
+        Cross_ಮೌಲ್ಯ_Range range{nodep, width};
         range.lo.opExtendS(lo, runw);
         range.hi.opExtendS(hi, runw);
-        return range;
+        ಪ್ರತ್ಯಾಗಮ range;
     }
 
-    static int crossRangeWidth(AstNode* nodep) {
-        if (const AstInsideRange* const rangep = VN_CAST(nodep, InsideRange)) {
-            return std::max(rangep->lhsp()->width(), rangep->rhsp()->width());
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ crossRangeWidth(Ast_ಗಂಟು* nodep) {
+        ಯದಿ (ಧ್ರುವ AstInsideRange* ಧ್ರುವ rangep = VN_CAST(nodep, InsideRange)) {
+            ಪ್ರತ್ಯಾಗಮ std::max(rangep->lhsp()->width(), rangep->rhsp()->width());
         }
-        return nodep->width();
+        ಪ್ರತ್ಯಾಗಮ nodep->width();
     }
 
-    static bool crossValueLess(const V3Number& lhs, const V3Number& rhs) {
-        V3Number result{&lhs};
-        return !result.opLtS(lhs, rhs).isEqZero();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ cross_ಮೌಲ್ಯ_Less(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs) {
+        V3_ಸಂಖ್ಯೆ result{&lhs};
+        ಪ್ರತ್ಯಾಗಮ !result.opLtS(lhs, rhs).isEqZero();
     }
 
     // Round a real bound inward to the nearest coverpoint value (IEEE 1800-2023 19.5.7).  Sets
     // 'empty' if the domain has no value on the bound's side.
-    static void crossRealBound(const AstConst* constp, AstNodeExpr* exprp, bool upper,
-                               const CrossValueRange& domain, V3Number& result, bool& empty) {
-        const double value = constp->num().toDouble();
-        const double bound = upper ? std::floor(value) : std::ceil(value);
+    ಸ್ಥಿರ ಶೂನ್ಯ crossRealBound(ಧ್ರುವ AstConst* constp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ upper,
+                               ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& domain, V3_ಸಂಖ್ಯೆ& result, ತಾರ್ಕಿಕ& empty) {
+        ಧ್ರುವ ದ್ವಿಗುಣ ಮೌಲ್ಯ = constp->ಅಂಕೆ().toDouble();
+        ಧ್ರುವ ದ್ವಿಗುಣ bound = upper ? std::floor(ಮೌಲ್ಯ) : std::ceil(ಮೌಲ್ಯ);
         // Powers of two are exact, so the integral bound compares exactly with the domain edges.
-        const double limit
+        ಧ್ರುವ ದ್ವಿಗುಣ limit
             = std::ldexp(1.0, exprp->isSigned() ? exprp->width() - 1 : exprp->width());
-        const double minimum = exprp->isSigned() ? -limit : 0.0;
-        if (std::isnan(bound) || (upper ? bound < minimum : bound >= limit)) {
-            empty = true;
+        ಧ್ರುವ ದ್ವಿಗುಣ minimum = exprp->isSigned() ? -limit : 0.0;
+        ಯದಿ (std::isnan(bound) || (upper ? bound < minimum : bound >= limit)) {
+            empty = ಸತ್ಯ;
             result = domain.lo;
-        } else if (bound < minimum) {
+        } ಅನ್ಯಥಾ ಯದಿ (bound < minimum) {
             result = domain.lo;
-        } else if (bound >= limit) {
+        } ಅನ್ಯಥಾ ಯದಿ (bound >= limit) {
             result = domain.hi;
-        } else {
-            V3Number real{&result, 64};
+        } ಅನ್ಯಥಾ {
+            V3_ಸಂಖ್ಯೆ real{&result, 64};
             real.setDouble(bound);
             result.opRToIRoundS(real);
         }
     }
 
-    static bool crossRangeBound(AstNode* nodep, AstNodeExpr* exprp, bool upper, bool binValue,
-                                const CrossValueRange& domain, V3Number& result, bool& empty) {
-        if (VN_IS(nodep, Unbounded)) {
-            V3Number limit{nodep, exprp->width()};
-            if (upper) limit.setAllBits1();
-            if (exprp->isSigned()) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ crossRangeBound(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ upper, ತಾರ್ಕಿಕ bin_ಮೌಲ್ಯ,
+                                ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& domain, V3_ಸಂಖ್ಯೆ& result, ತಾರ್ಕಿಕ& empty) {
+        ಯದಿ (VN_IS(nodep, Unbounded)) {
+            V3_ಸಂಖ್ಯೆ limit{nodep, exprp->width()};
+            ಯದಿ (upper) limit.setAllBits1();
+            ಯದಿ (exprp->isSigned()) {
                 limit.setBit(exprp->width() - 1, !upper);
                 result.opExtendS(limit, limit.width());
-            } else {
+            } ಅನ್ಯಥಾ {
                 result.opAssign(limit);
             }
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        const AstConst* const constp = VN_CAST(nodep, Const);
-        if (!constp) return false;
-        if (constp->num().isDouble()) {
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const);
+        ಯದಿ (!constp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಯದಿ (constp->ಅಂಕೆ().isDouble()) {
             crossRealBound(constp, exprp, upper, domain, result, empty);
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (constp->num().isString()) return false;
-        if (binValue && exprp->isSigned() && constp->width() <= exprp->width()) {
+        ಯದಿ (constp->ಅಂಕೆ().isString()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಯದಿ (bin_ಮೌಲ್ಯ && exprp->isSigned() && constp->width() <= exprp->width()) {
             // Bin bit patterns use the coverpoint's effective type (IEEE 1800-2023 19.5.7).
             // Wider values and intersect filters retain their values for domain clipping.
-            V3Number value{nodep, exprp->width()};
-            if (constp->isSigned()) {
-                value.opExtendS(constp->num(), constp->width());
-            } else {
-                value.opAssign(constp->num());
+            V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ{nodep, exprp->width()};
+            ಯದಿ (constp->isSigned()) {
+                ಮೌಲ್ಯ.opExtendS(constp->ಅಂಕೆ(), constp->width());
+            } ಅನ್ಯಥಾ {
+                ಮೌಲ್ಯ.opAssign(constp->ಅಂಕೆ());
             }
-            result.opExtendS(value, value.width());
-        } else if (constp->isSigned()) {
-            result.opExtendS(constp->num(), constp->width());
-        } else {
-            result.opAssign(constp->num());
+            result.opExtendS(ಮೌಲ್ಯ, ಮೌಲ್ಯ.width());
+        } ಅನ್ಯಥಾ ಯದಿ (constp->isSigned()) {
+            result.opExtendS(constp->ಅಂಕೆ(), constp->width());
+        } ಅನ್ಯಥಾ {
+            result.opAssign(constp->ಅಂಕೆ());
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    static CrossValueRange crossValueDomain(AstNode* nodep, int valueWidth, bool isSigned,
-                                            int width) {
-        CrossValueRange domain{nodep, width};
-        V3Number lo{nodep, valueWidth};
-        V3Number hi{nodep, valueWidth};
+    ಸ್ಥಿರ Cross_ಮೌಲ್ಯ_Range cross_ಮೌಲ್ಯ_Domain(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ_Width, ತಾರ್ಕಿಕ isSigned,
+                                            ಪೂರ್ಣಾಙ್ಕ width) {
+        Cross_ಮೌಲ್ಯ_Range domain{nodep, width};
+        V3_ಸಂಖ್ಯೆ lo{nodep, ಮೌಲ್ಯ_Width};
+        V3_ಸಂಖ್ಯೆ hi{nodep, ಮೌಲ್ಯ_Width};
         hi.setAllBits1();
-        if (isSigned) {
-            lo.setBit(valueWidth - 1, 1);
-            hi.setBit(valueWidth - 1, 0);
-            domain.lo.opExtendS(lo, valueWidth);
-            domain.hi.opExtendS(hi, valueWidth);
-        } else {
+        ಯದಿ (isSigned) {
+            lo.setBit(ಮೌಲ್ಯ_Width - 1, 1);
+            hi.setBit(ಮೌಲ್ಯ_Width - 1, 0);
+            domain.lo.opExtendS(lo, ಮೌಲ್ಯ_Width);
+            domain.hi.opExtendS(hi, ಮೌಲ್ಯ_Width);
+        } ಅನ್ಯಥಾ {
             domain.lo.opAssign(lo);
             domain.hi.opAssign(hi);
         }
-        return domain;
+        ಪ್ರತ್ಯಾಗಮ domain;
     }
 
-    static void intersectCrossRange(CrossValueRange& range, const CrossValueRange& other) {
-        if (crossValueLess(range.lo, other.lo)) range.lo = other.lo;
-        if (crossValueLess(other.hi, range.hi)) range.hi = other.hi;
+    ಸ್ಥಿರ ಶೂನ್ಯ intersectCrossRange(Cross_ಮೌಲ್ಯ_Range& range, ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& other) {
+        ಯದಿ (cross_ಮೌಲ್ಯ_Less(range.lo, other.lo)) range.lo = other.lo;
+        ಯದಿ (cross_ಮೌಲ್ಯ_Less(other.hi, range.hi)) range.hi = other.hi;
     }
 
-    static bool crossValueRange(AstNode* nodep, AstNodeExpr* exprp, bool binValue, bool wildcard,
-                                const CrossValueRange& domain, CrossValueRange& range) {
-        bool empty = false;
-        const AstConst* const constp = VN_CAST(nodep, Const);
-        if (const AstInsideRange* const rangep = VN_CAST(nodep, InsideRange)) {
-            if (!crossRangeBound(rangep->lhsp(), exprp, false, binValue, domain, range.lo, empty)
-                || !crossRangeBound(rangep->rhsp(), exprp, true, binValue, domain, range.hi, empty)
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ cross_ಮೌಲ್ಯ_Range(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ bin_ಮೌಲ್ಯ, ತಾರ್ಕಿಕ wildcard,
+                                ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& domain, Cross_ಮೌಲ್ಯ_Range& range) {
+        ತಾರ್ಕಿಕ empty = ಅಸತ್ಯ;
+        ಧ್ರುವ AstConst* ಧ್ರುವ constp = VN_CAST(nodep, Const);
+        ಯದಿ (ಧ್ರುವ AstInsideRange* ಧ್ರುವ rangep = VN_CAST(nodep, InsideRange)) {
+            ಯದಿ (!crossRangeBound(rangep->lhsp(), exprp, ಅಸತ್ಯ, bin_ಮೌಲ್ಯ, domain, range.lo, empty)
+                || !crossRangeBound(rangep->rhsp(), exprp, ಸತ್ಯ, bin_ಮೌಲ್ಯ, domain, range.hi, empty)
                 || range.lo.isFourState() || range.hi.isFourState()) {
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-        } else if (constp && constp->num().isDouble()) {
+        } ಅನ್ಯಥಾ ಯದಿ (constp && constp->ಅಂಕೆ().isDouble()) {
             // A real value participates only if integral; it has no wildcard bits.
-            crossRealBound(constp, exprp, false, domain, range.lo, empty);
-            crossRealBound(constp, exprp, true, domain, range.hi, empty);
-        } else {
-            if (!crossRangeBound(nodep, exprp, false, binValue, domain, range.lo, empty)) {
-                return false;
+            crossRealBound(constp, exprp, ಅಸತ್ಯ, domain, range.lo, empty);
+            crossRealBound(constp, exprp, ಸತ್ಯ, domain, range.hi, empty);
+        } ಅನ್ಯಥಾ {
+            ಯದಿ (!crossRangeBound(nodep, exprp, ಅಸತ್ಯ, bin_ಮೌಲ್ಯ, domain, range.lo, empty)) {
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            if (binValue && exprp->isSigned() && constp && !constp->isSigned()
+            ಯದಿ (bin_ಮೌಲ್ಯ && exprp->isSigned() && constp && !constp->isSigned()
                 && constp->width() > exprp->width()) {
-                bool representable = true;
-                for (int bit = exprp->width(); bit < constp->width(); ++bit) {
-                    representable &= !constp->num().bitIs1(bit);
+                ತಾರ್ಕಿಕ representable = ಸತ್ಯ;
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = exprp->width(); bit < constp->width(); ++bit) {
+                    representable &= !constp->ಅಂಕೆ().bitIs1(bit);
                 }
-                if (representable) {
-                    V3Number value{nodep, exprp->width()};
-                    value.opAssign(constp->num());
-                    range.lo.opExtendS(value, value.width());
+                ಯದಿ (representable) {
+                    V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ{nodep, exprp->width()};
+                    ಮೌಲ್ಯ.opAssign(constp->ಅಂಕೆ());
+                    range.lo.opExtendS(ಮೌಲ್ಯ, ಮೌಲ್ಯ.width());
                 }
             }
             range.hi = range.lo;
             range.wildcard = wildcard;
-            if (wildcard) {
+            ಯದಿ (wildcard) {
                 range.pattern = range.lo;
                 range.lo = domain.lo;
                 range.hi = domain.hi;
-                if (constp && constp->isSigned()) {
+                ಯದಿ (constp && constp->isSigned()) {
                     // Replicated X sign bits are correlated, not independent wildcards.
                     // The source domain preserves expansion-before-casting (19.5.7).
                     intersectCrossRange(
-                        range, crossValueDomain(nodep, constp->width(), true, domain.lo.width()));
+                        range, cross_ಮೌಲ್ಯ_Domain(nodep, constp->width(), ಸತ್ಯ, domain.lo.width()));
                 }
             }
         }
-        if (empty) {
+        ಯದಿ (empty) {
             range.lo = domain.hi;
             range.hi = domain.lo;
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (!range.lo.isFourState()) intersectCrossRange(range, domain);
-        if (range.wildcard && exprp->isSigned()) {
-            const int sign = exprp->width() - 1;
-            if (constp && !constp->isSigned() && constp->width() > exprp->width()) {
+        ಯದಿ (!range.lo.isFourState()) intersectCrossRange(range, domain);
+        ಯದಿ (range.wildcard && exprp->isSigned()) {
+            ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ sign = exprp->width() - 1;
+            ಯದಿ (constp && !constp->isSigned() && constp->width() > exprp->width()) {
                 // Unsigned equality preserves every target bit pattern if discarded bits are zero.
-                for (int bit = exprp->width(); bit < constp->width(); ++bit) {
-                    if (constp->num().bitIs1(bit)) {
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = exprp->width(); bit < constp->width(); ++bit) {
+                    ಯದಿ (constp->ಅಂಕೆ().bitIs1(bit)) {
                         range.lo = domain.hi;
                         range.hi = domain.lo;
-                        return true;
+                        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
                     }
                 }
-                for (int bit = exprp->width(); bit < range.pattern.width(); ++bit) {
-                    if (range.pattern.bitIsXZ(sign))
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = exprp->width(); bit < range.pattern.width(); ++bit) {
+                    ಯದಿ (range.pattern.bitIsXZ(sign))
                         range.pattern.setBit(bit, 'x');
-                    else
+                    ಅನ್ಯಥಾ
                         range.pattern.setBit(bit, range.pattern.bitIs1(sign));
                 }
-                return true;
+                ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
             }
             // Discarded high bits constrain the target sign, rather than becoming don't-cares.
-            for (int bit = exprp->width(); bit < range.pattern.width(); ++bit) {
-                if (range.pattern.bitIsXZ(bit)) continue;
-                const bool value = range.pattern.bitIs1(bit);
-                if (!range.pattern.bitIsXZ(sign) && range.pattern.bitIs1(sign) != value) {
+            ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = exprp->width(); bit < range.pattern.width(); ++bit) {
+                ಯದಿ (range.pattern.bitIsXZ(bit)) ಅನುವರ್ತ;
+                ಧ್ರುವ ತಾರ್ಕಿಕ ಮೌಲ್ಯ = range.pattern.bitIs1(bit);
+                ಯದಿ (!range.pattern.bitIsXZ(sign) && range.pattern.bitIs1(sign) != ಮೌಲ್ಯ) {
                     range.lo = domain.hi;
                     range.hi = domain.lo;
-                    break;
+                    ಭಙ್ಗ;
                 }
-                range.pattern.setBit(sign, value);
+                range.pattern.setBit(sign, ಮೌಲ್ಯ);
             }
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    enum CrossRangeState : uint8_t {
+    ಗಣನಾ CrossRangeState : uint8_t {
         CROSS_INSIDE_BOUNDS = 0,  // Prefix is strictly inside the interval
         CROSS_AT_LOWER = 1,
         CROSS_AT_UPPER = 2,
@@ -3118,213 +3118,213 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         CROSS_NO_MATCH = 4  // Prefix cannot match the interval/pattern
     };
 
-    static CrossRangeState crossRangeStep(const CrossValueRange& range, CrossRangeState state,
-                                          int bit, int value) {
-        if (state == CROSS_NO_MATCH) return CROSS_NO_MATCH;
+    ಸ್ಥಿರ CrossRangeState crossRangeStep(ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& range, CrossRangeState state,
+                                          ಪೂರ್ಣಾಙ್ಕ bit, ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ) {
+        ಯದಿ (state == CROSS_NO_MATCH) ಪ್ರತ್ಯಾಗಮ CROSS_NO_MATCH;
         // Flipping the sign bit makes signed order lexicographic.
-        const bool sign = bit == range.pattern.width() - 1;
-        if (!range.pattern.bitIsXZ(bit) && value != (range.pattern.bitIs1(bit) ^ sign)) {
-            return CROSS_NO_MATCH;
+        ಧ್ರುವ ತಾರ್ಕಿಕ sign = bit == range.pattern.width() - 1;
+        ಯದಿ (!range.pattern.bitIsXZ(bit) && ಮೌಲ್ಯ != (range.pattern.bitIs1(bit) ^ sign)) {
+            ಪ್ರತ್ಯಾಗಮ CROSS_NO_MATCH;
         }
-        const int low = range.lo.bitIs1(bit) ^ sign;
-        const int high = range.hi.bitIs1(bit) ^ sign;
-        if (((state & CROSS_AT_LOWER) && value < low)
-            || ((state & CROSS_AT_UPPER) && value > high)) {
-            return CROSS_NO_MATCH;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ಕೆಳಗಿನ = range.lo.bitIs1(bit) ^ sign;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ ಮೇಲಿನ = range.hi.bitIs1(bit) ^ sign;
+        ಯದಿ (((state & CROSS_AT_LOWER) && ಮೌಲ್ಯ < ಕೆಳಗಿನ)
+            || ((state & CROSS_AT_UPPER) && ಮೌಲ್ಯ > ಮೇಲಿನ)) {
+            ಪ್ರತ್ಯಾಗಮ CROSS_NO_MATCH;
         }
-        return static_cast<CrossRangeState>(
-            ((state & CROSS_AT_LOWER) && value == low ? CROSS_AT_LOWER : CROSS_INSIDE_BOUNDS)
-            | ((state & CROSS_AT_UPPER) && value == high ? CROSS_AT_UPPER : CROSS_INSIDE_BOUNDS));
+        ಪ್ರತ್ಯಾಗಮ static_cast<CrossRangeState>(
+            ((state & CROSS_AT_LOWER) && ಮೌಲ್ಯ == ಕೆಳಗಿನ ? CROSS_AT_LOWER : CROSS_INSIDE_BOUNDS)
+            | ((state & CROSS_AT_UPPER) && ಮೌಲ್ಯ == ಮೇಲಿನ ? CROSS_AT_UPPER : CROSS_INSIDE_BOUNDS));
     }
 
-    static bool crossWildcardIntersects(const CrossValueRange& range) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ crossWildcardIntersects(ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& range) {
         unsigned states = 1U << CROSS_AT_BOUNDS;
-        for (int bit = range.pattern.width() - 1; bit >= 0 && states; --bit) {
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = range.pattern.width() - 1; bit >= 0 && states; --bit) {
             unsigned next = 0;
-            for (const CrossRangeState state :
+            ಪ್ರತಿ (ಧ್ರುವ CrossRangeState state :
                  {CROSS_INSIDE_BOUNDS, CROSS_AT_LOWER, CROSS_AT_UPPER, CROSS_AT_BOUNDS}) {
-                if (!(states & (1U << state))) continue;
-                for (int value = 0; value < 2; ++value) {
-                    const CrossRangeState equal = crossRangeStep(range, state, bit, value);
-                    if (equal != CROSS_NO_MATCH) next |= 1U << equal;
+                ಯದಿ (!(states & (1U << state))) ಅನುವರ್ತ;
+                ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ = 0; ಮೌಲ್ಯ < 2; ++ಮೌಲ್ಯ) {
+                    ಧ್ರುವ CrossRangeState equal = crossRangeStep(range, state, bit, ಮೌಲ್ಯ);
+                    ಯದಿ (equal != CROSS_NO_MATCH) next |= 1U << equal;
                 }
             }
             states = next;
         }
-        return states != 0;
+        ಪ್ರತ್ಯಾಗಮ states != 0;
     }
 
     // The least value at least 'from' with the non-x bits of 'pattern', in unsigned order; false
     // if none.  A bit scan, which does not enumerate the pattern's x bits.
-    static bool nextPatternValue(const V3Number& pattern, const V3Number& from, V3Number& result) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ next_Pattern_ಮೌಲ್ಯ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& pattern, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& from, V3_ಸಂಖ್ಯೆ& result) {
         result.opAssign(from);
-        int carry = -1;  // Lowest x bit above the bit scanned where 'from' has a 0
-        for (int bit = from.width() - 1; bit >= 0; --bit) {
-            if (pattern.bitIsXZ(bit)) {
-                if (!from.bitIs1(bit)) carry = bit;
-                continue;
+        ಪೂರ್ಣಾಙ್ಕ carry = -1;  // Lowest x bit above the bit scanned where 'from' has a 0
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = from.width() - 1; bit >= 0; --bit) {
+            ಯದಿ (pattern.bitIsXZ(bit)) {
+                ಯದಿ (!from.bitIs1(bit)) carry = bit;
+                ಅನುವರ್ತ;
             }
-            if (pattern.bitIs1(bit) == from.bitIs1(bit)) continue;
-            if (from.bitIs1(bit)) {  // Only a greater prefix, an x bit above raised, can match
-                if (carry < 0) return false;
+            ಯದಿ (pattern.bitIs1(bit) == from.bitIs1(bit)) ಅನುವರ್ತ;
+            ಯದಿ (from.bitIs1(bit)) {  // Only a greater prefix, an x bit above raised, can match
+                ಯದಿ (carry < 0) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
                 bit = carry;
             }
             // Then the least such value: the pattern's bits, with x bits of zero
             result.setBit(bit, 1);
-            while (--bit >= 0) result.setBit(bit, pattern.bitIs1(bit));
-            return true;
+            ಯಾವತ್ (--bit >= 0) result.setBit(bit, pattern.bitIs1(bit));
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Append to 'runs' the maximal runs of consecutive values of 'range' that its pattern
     // matches, in value order, until there are more than 'limit'.  A match continues through
     // the pattern's trailing x bits only, which the next value's carry leaves.
-    static void crossRangeRuns(const CrossValueRange& range, size_t limit,
-                               std::vector<std::pair<V3Number, V3Number>>& runs) {
+    ಸ್ಥಿರ ಶೂನ್ಯ crossRangeRuns(ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& range, size_t limit,
+                               std::vector<std::pair<V3_ಸಂಖ್ಯೆ, V3_ಸಂಖ್ಯೆ>>& runs) {
         // Values order signed, which is the unsigned order of values with the sign bit flipped
-        const int sign = range.lo.width() - 1;
-        const auto flipped = [sign](V3Number value) {
-            if (!value.bitIsXZ(sign)) value.setBit(sign, !value.bitIs1(sign));
-            return value;
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ sign = range.lo.width() - 1;
+        ಧ್ರುವ auto flipped = [sign](V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ) {
+            ಯದಿ (!ಮೌಲ್ಯ.bitIsXZ(sign)) ಮೌಲ್ಯ.setBit(sign, !ಮೌಲ್ಯ.bitIs1(sign));
+            ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯ;
         };
-        const V3Number pattern = flipped(range.pattern);
-        const V3Number hi = flipped(range.hi);
-        const V3Number one{&hi, hi.width(), 1};
-        V3Number trailing{&hi, hi.width()};
-        for (int bit = 0; bit <= sign && pattern.bitIsXZ(bit); ++bit) trailing.setBit(bit, 1);
-        V3Number from = flipped(range.lo);
-        V3Number first{&hi, hi.width()};
-        V3Number last{&hi, hi.width()};
-        V3Number less{&hi};
-        while (runs.size() <= limit && nextPatternValue(pattern, from, first)
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ pattern = flipped(range.pattern);
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ hi = flipped(range.hi);
+        ಧ್ರುವ V3_ಸಂಖ್ಯೆ one{&hi, hi.width(), 1};
+        V3_ಸಂಖ್ಯೆ trailing{&hi, hi.width()};
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bit = 0; bit <= sign && pattern.bitIsXZ(bit); ++bit) trailing.setBit(bit, 1);
+        V3_ಸಂಖ್ಯೆ from = flipped(range.lo);
+        V3_ಸಂಖ್ಯೆ first{&hi, hi.width()};
+        V3_ಸಂಖ್ಯೆ last{&hi, hi.width()};
+        V3_ಸಂಖ್ಯೆ less{&hi};
+        ಯಾವತ್ (runs.size() <= limit && next_Pattern_ಮೌಲ್ಯ(pattern, from, first)
                && less.opLt(hi, first).isEqZero()) {
             last.opOr(first, trailing);
-            if (!less.opLt(hi, last).isEqZero()) last = hi;
+            ಯದಿ (!less.opLt(hi, last).isEqZero()) last = hi;
             runs.emplace_back(flipped(first), flipped(last));
-            if (last.isCaseEq(hi)) break;
+            ಯದಿ (last.isCaseEq(hi)) ಭಙ್ಗ;
             from.opAdd(last, one);
         }
     }
 
     // True if no coverpoint value participates in a resolved value or range.  A value with x
     // or z bits participates only as a wildcard pattern (IEEE 1800-2023 19.5.7).
-    static bool crossRangeEmpty(const CrossValueRange& range) {
-        if (range.lo.isFourState()) return true;
-        return crossValueLess(range.hi, range.lo)
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ crossRangeEmpty(ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& range) {
+        ಯದಿ (range.lo.isFourState()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ cross_ಮೌಲ್ಯ_Less(range.hi, range.lo)
                || (range.wildcard && !crossWildcardIntersects(range));
     }
 
     // Comparison width that holds both the coverpoint's and a bin or intersect value's range.
-    static int resolveWidth(AstNode* nodep, const AstNodeExpr* exprp) {
-        return std::max(exprp->width(), crossRangeWidth(nodep)) + 1;
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ resolveWidth(Ast_ಗಂಟು* nodep, ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಪ್ರತ್ಯಾಗಮ std::max(exprp->width(), crossRangeWidth(nodep)) + 1;
     }
 
     // Resolve a bin or intersect value to coverpoint values (IEEE 1800-2023 19.5.7), in the
     // width 'range' was created with.  False if the value is not a constant integral or real.
-    static bool resolveValue(AstNode* nodep, AstNodeExpr* exprp, bool binValue, bool wildcard,
-                             CrossValueRange& range) {
-        const CrossValueRange domain
-            = crossValueDomain(nodep, exprp->width(), exprp->isSigned(), range.lo.width());
-        return crossValueRange(nodep, exprp, binValue, wildcard, domain, range);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ resolve_ಮೌಲ್ಯ(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ತಾರ್ಕಿಕ bin_ಮೌಲ್ಯ, ತಾರ್ಕಿಕ wildcard,
+                             Cross_ಮೌಲ್ಯ_Range& range) {
+        ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range domain
+            = cross_ಮೌಲ್ಯ_Domain(nodep, exprp->width(), exprp->isSigned(), range.lo.width());
+        ಪ್ರತ್ಯಾಗಮ cross_ಮೌಲ್ಯ_Range(nodep, exprp, bin_ಮೌಲ್ಯ, wildcard, domain, range);
     }
 
-    static bool crossRangesIntersect(const CrossValueRange& bin, const CrossValueRange& filter) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ crossRangesIntersect(ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& bin, ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& filter) {
         // Values with x or z bits do not participate, even in an identical filter.
-        if (bin.lo.isFourState() || filter.lo.isFourState()) return false;
-        CrossValueRange match = bin;
+        ಯದಿ (bin.lo.isFourState() || filter.lo.isFourState()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        Cross_ಮೌಲ್ಯ_Range match = bin;
         intersectCrossRange(match, filter);
-        return !crossValueLess(match.hi, match.lo)
+        ಪ್ರತ್ಯಾಗಮ !cross_ಮೌಲ್ಯ_Less(match.hi, match.lo)
                && (!bin.wildcard || crossWildcardIntersects(match));
     }
 
-    static void unsupportedCrossRange(AstCoverBinsof* selectp, bool& valid) {
+    ಸ್ಥಿರ ಶೂನ್ಯ unsupportedCrossRange(AstCoverBinsof* selectp, ತಾರ್ಕಿಕ& valid) {
         selectp->v3warn(COVERIGN, "Unsupported: non-constant or non-integral 'intersect' value, "
                                   "or four-state range bound.");
-        valid = false;
+        valid = ಅಸತ್ಯ;
     }
 
-    static bool crossValueMatchesFilters(AstCoverBinsof* selectp, AstNode* valuep,
-                                         AstNodeExpr* exprp, const AstCoverBin* binp,
-                                         const CrossValueRange& domain,
-                                         const std::vector<CrossValueRange>& filters,
-                                         bool& valid) {
-        CrossValueRange range{valuep, domain.lo.width()};
-        if (!crossValueRange(valuep, exprp, true, binp->isWildcard(), domain, range)) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ cross_ಮೌಲ್ಯ_Matches_Filters(AstCoverBinsof* selectp, Ast_ಗಂಟು* valuep,
+                                         Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ AstCoverBin* binp,
+                                         ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& domain,
+                                         ಧ್ರುವ std::vector<Cross_ಮೌಲ್ಯ_Range>& filters,
+                                         ತಾರ್ಕಿಕ& valid) {
+        Cross_ಮೌಲ್ಯ_Range range{valuep, domain.lo.width()};
+        ಯದಿ (!cross_ಮೌಲ್ಯ_Range(valuep, exprp, ಸತ್ಯ, binp->isWildcard(), domain, range)) {
             unsupportedCrossRange(selectp, valid);
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        for (const CrossValueRange& filter : filters) {
-            if (crossRangesIntersect(range, filter)) return true;
+        ಪ್ರತಿ (ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& filter : filters) {
+            ಯದಿ (crossRangesIntersect(range, filter)) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
-    std::vector<bool> selectCoverpointBins(AstCoverBinsof* selectp, const CoverpointBins& bins,
-                                           uint32_t first, uint32_t count, bool& valid) {
-        if (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+    std::vector<ತಾರ್ಕಿಕ> selectCoverpointBins(AstCoverBinsof* selectp, ಧ್ರುವ CoverpointBins& bins,
+                                           uint32_t first, uint32_t ಎಣಿಕೆ, ತಾರ್ಕಿಕ& valid) {
+        ಯದಿ (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
             unsupportedCrossRange(selectp, valid);
-            return {};
+            ಪ್ರತ್ಯಾಗಮ {};
         }
-        std::vector<bool> selected(bins.total, false);
-        std::vector<std::vector<AstNode*>> values;
-        int width = bins.exprp->width();
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+        std::vector<ತಾರ್ಕಿಕ> selected(bins.total, ಅಸತ್ಯ);
+        std::vector<std::vector<Ast_ಗಂಟು*>> ಮೌಲ್ಯಗಳು;
+        ಪೂರ್ಣಾಙ್ಕ width = bins.exprp->width();
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
             width = std::max(width, crossRangeWidth(rangep));
         }
-        if (selectp->rangesp()) {
-            values.reserve(count);
-            for (uint32_t i = first; i < first + count; ++i) {
+        ಯದಿ (selectp->rangesp()) {
+            ಮೌಲ್ಯಗಳು.reserve(ಎಣಿಕೆ);
+            ಪ್ರತಿ (uint32_t i = first; i < first + ಎಣಿಕೆ; ++i) {
                 // A run's values are in the coverpoint type, whose width 'width' covers
-                values.push_back(bins.values[i].runp ? std::vector<AstNode*>{}
-                                                     : crossBinValues(bins.values[i]));
-                for (AstNode* const valuep : values.back()) {
+                ಮೌಲ್ಯಗಳು.ತಳ್ಳು_back(bins.ಮೌಲ್ಯಗಳು[i].runp ? std::vector<Ast_ಗಂಟು*>{}
+                                                     : cross_Bin_ಮೌಲ್ಯಗಳು(bins.ಮೌಲ್ಯಗಳು[i]));
+                ಪ್ರತಿ (Ast_ಗಂಟು* ಧ್ರುವ valuep : ಮೌಲ್ಯಗಳು.back()) {
                     width = std::max(width, crossRangeWidth(valuep));
                 }
             }
         }
         // One extra bit preserves both unsigned maxima and negative signed bounds.
         ++width;
-        const CrossValueRange domain
-            = crossValueDomain(selectp, bins.exprp->width(), bins.exprp->isSigned(), width);
-        std::vector<CrossValueRange> filters;
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
-            CrossValueRange filter{rangep, width};
-            if (!crossValueRange(rangep, bins.exprp, false, false, domain, filter)) {
+        ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range domain
+            = cross_ಮೌಲ್ಯ_Domain(selectp, bins.exprp->width(), bins.exprp->isSigned(), width);
+        std::vector<Cross_ಮೌಲ್ಯ_Range> filters;
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+            Cross_ಮೌಲ್ಯ_Range filter{rangep, width};
+            ಯದಿ (!cross_ಮೌಲ್ಯ_Range(rangep, bins.exprp, ಅಸತ್ಯ, ಅಸತ್ಯ, domain, filter)) {
                 unsupportedCrossRange(selectp, valid);
-                return {};
+                ಪ್ರತ್ಯಾಗಮ {};
             }
-            filters.push_back(std::move(filter));
+            filters.ತಳ್ಳು_back(std::move(filter));
         }
-        for (uint32_t i = first; i < first + count; ++i) {
-            if (!selectp->rangesp()) {
-                selected[i] = true;
-                continue;
+        ಪ್ರತಿ (uint32_t i = first; i < first + ಎಣಿಕೆ; ++i) {
+            ಯದಿ (!selectp->rangesp()) {
+                selected[i] = ಸತ್ಯ;
+                ಅನುವರ್ತ;
             }
-            if (const BinRun* const runp = bins.values[i].runp) {
-                const CrossValueRange range
-                    = runBinRange(selectp, *runp, bins.values[i].element, width);
+            ಯದಿ (ಧ್ರುವ BinRun* ಧ್ರುವ runp = bins.ಮೌಲ್ಯಗಳು[i].runp) {
+                ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range range
+                    = runBinRange(selectp, *runp, bins.ಮೌಲ್ಯಗಳು[i].element, width);
                 selected[i] = std::any_of(filters.begin(), filters.end(),
-                                          [&](const CrossValueRange& filter) {
-                                              return crossRangesIntersect(range, filter);
+                                          [&](ಧ್ರುವ Cross_ಮೌಲ್ಯ_Range& filter) {
+                                              ಪ್ರತ್ಯಾಗಮ crossRangesIntersect(range, filter);
                                           });
-                continue;
+                ಅನುವರ್ತ;
             }
-            for (AstNode* const valuep : values[i - first]) {
-                selected[i] = crossValueMatchesFilters(
-                    selectp, valuep, bins.exprp, bins.values[i].binp, domain, filters, valid);
-                if (!valid) return {};
-                if (selected[i]) break;
+            ಪ್ರತಿ (Ast_ಗಂಟು* ಧ್ರುವ valuep : ಮೌಲ್ಯಗಳು[i - first]) {
+                selected[i] = cross_ಮೌಲ್ಯ_Matches_Filters(
+                    selectp, valuep, bins.exprp, bins.ಮೌಲ್ಯಗಳು[i].binp, domain, filters, valid);
+                ಯದಿ (!valid) ಪ್ರತ್ಯಾಗಮ {};
+                ಯದಿ (selected[i]) ಭಙ್ಗ;
             }
         }
-        if (selectp->isNegated()) {
-            for (uint32_t i = 0; i < bins.total; ++i) selected[i] = !selected[i];
+        ಯದಿ (selectp->isNegated()) {
+            ಪ್ರತಿ (uint32_t i = 0; i < bins.total; ++i) selected[i] = !selected[i];
         }
-        return selected;
+        ಪ್ರತ್ಯಾಗಮ selected;
     }
 
     // Constructor-time value metadata of one coverpoint, as C++ list entries
-    struct ValueLists final {
+    ಸಂರಚನಾ ಮೌಲ್ಯ_Lists final {
         std::vector<std::string> m_ranges;  // Bin, then low and high words
         std::vector<std::string> m_runs;  // First bin, count, then low, span, and high words
         std::vector<std::string> m_patterns;  // Bin, then value, mask, low, and high words
@@ -3332,157 +3332,157 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     };
 
     // Append a value's words, in the coverpoint's width, to a C++ list entry.
-    static void appendWords(std::string& text, const V3Number& value, const AstNodeExpr* exprp) {
-        V3Number narrowed{&value, exprp->width()};
-        narrowed.opAssign(value);
-        for (int word = 0; word < exprp->widthWords(); ++word) {
+    ಸ್ಥಿರ ಶೂನ್ಯ append_ಪದಗಳು(std::string& text, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಮೌಲ್ಯ, ಧ್ರುವ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        V3_ಸಂಖ್ಯೆ narrowed{&ಮೌಲ್ಯ, exprp->width()};
+        narrowed.opAssign(ಮೌಲ್ಯ);
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ word = 0; word < exprp->width_ಪದಗಳು(); ++word) {
             text += ", " + cvtToStr(narrowed.edataWord(word)) + "U";
         }
     }
 
-    void collectValueMetadata(ValueLists& lists, AstNodeExpr* exprp, AstCoverBin* binp,
-                              uint32_t index, AstNodeExpr* valuep) {
-        const std::string bin = cvtToStr(index) + "U";
-        if (binp->transp()) lists.m_transitions.push_back(bin);
-        for (AstNode* const sourcep : crossBinValues({binp, valuep})) {
-            CrossValueRange range{sourcep, resolveWidth(sourcep, exprp)};
-            if (!resolveValue(sourcep, exprp, true, binp->isWildcard(), range)) {
+    ಶೂನ್ಯ collect_ಮೌಲ್ಯ_Metadata(ಮೌಲ್ಯ_Lists& lists, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstCoverBin* binp,
+                              uint32_t index, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep) {
+        ಧ್ರುವ std::string bin = cvtToStr(index) + "U";
+        ಯದಿ (binp->transp()) lists.m_transitions.ತಳ್ಳು_back(bin);
+        ಪ್ರತಿ (Ast_ಗಂಟು* ಧ್ರುವ sourcep : cross_Bin_ಮೌಲ್ಯಗಳು({binp, valuep})) {
+            Cross_ಮೌಲ್ಯ_Range range{sourcep, resolveWidth(sourcep, exprp)};
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(sourcep, exprp, ಸತ್ಯ, binp->isWildcard(), range)) {
                 // Sampling already resolved every state bin value, so only transitions remain.
                 sourcep->v3warn(E_UNSUPPORTED, "Unsupported: non-integral value in a transition "
                                                "bin of a coverpoint with exclusions.");
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (crossRangeEmpty(range)) continue;
+            ಯದಿ (crossRangeEmpty(range)) ಅನುವರ್ತ;
             std::string entry = bin;
-            if (range.wildcard) {
-                V3Number value{sourcep, exprp->width()};
-                V3Number mask{sourcep, exprp->width()};
+            ಯದಿ (range.wildcard) {
+                V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ{sourcep, exprp->width()};
+                V3_ಸಂಖ್ಯೆ mask{sourcep, exprp->width()};
                 mask.opBitsNonXZ(range.pattern);
-                value.opBitsOne(range.pattern);
-                appendWords(entry, value, exprp);
-                appendWords(entry, mask, exprp);
+                ಮೌಲ್ಯ.opBitsOne(range.pattern);
+                append_ಪದಗಳು(entry, ಮೌಲ್ಯ, exprp);
+                append_ಪದಗಳು(entry, mask, exprp);
             }
-            appendWords(entry, range.lo, exprp);
-            appendWords(entry, range.hi, exprp);
-            (range.wildcard ? lists.m_patterns : lists.m_ranges).push_back(entry);
+            append_ಪದಗಳು(entry, range.lo, exprp);
+            append_ಪದಗಳು(entry, range.hi, exprp);
+            (range.wildcard ? lists.m_patterns : lists.m_ranges).ತಳ್ಳು_back(entry);
         }
     }
 
     // Describe a run with one entry, from which the runtime computes the values of its bins.
-    static void collectRunMetadata(ValueLists& lists, AstNodeExpr* exprp, const BinRun& run) {
-        V3Number span{exprp, run.m_stride.width(), 0};
-        span.opSub(run.m_stride, V3Number{exprp, run.m_stride.width(), 1});
-        std::string entry = cvtToStr(run.m_declared) + "U, " + cvtToStr(run.m_count) + "U";
-        appendWords(entry, run.m_lo, exprp);
-        appendWords(entry, span, exprp);
-        appendWords(entry, run.m_hi, exprp);
-        lists.m_runs.push_back(entry);
+    ಸ್ಥಿರ ಶೂನ್ಯ collectRunMetadata(ಮೌಲ್ಯ_Lists& lists, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ BinRun& run) {
+        V3_ಸಂಖ್ಯೆ span{exprp, run.m_stride.width(), 0};
+        span.opSub(run.m_stride, V3_ಸಂಖ್ಯೆ{exprp, run.m_stride.width(), 1});
+        std::string entry = cvtToStr(run.m_declared) + "U, " + cvtToStr(run.m_ಎಣಿಕೆ) + "U";
+        append_ಪದಗಳು(entry, run.m_lo, exprp);
+        append_ಪದಗಳು(entry, span, exprp);
+        append_ಪದಗಳು(entry, run.m_hi, exprp);
+        lists.m_runs.ತಳ್ಳು_back(entry);
     }
 
     // Emit one batched metadata list, bounding the size of each call's temporary list.
-    void emitValueList(FileLine* fl, AstVar* cpVarp, VCMethod method,
-                       const std::vector<std::string>& entries) {
-        for (size_t first = 0; first < entries.size(); first += VALUE_LIST_ENTRIES) {
-            const size_t end = std::min(entries.size(), first + VALUE_LIST_ENTRIES);
+    ಶೂನ್ಯ emit_ಮೌಲ್ಯ_List(File_ಸಾಲು* fl, AstVar* cpVarp, VCMethod method,
+                       ಧ್ರುವ std::vector<std::string>& entries) {
+        ಪ್ರತಿ (size_t first = 0; first < entries.size(); first += ಮೌಲ್ಯ_LIST_ENTRIES) {
+            ಧ್ರುವ size_t end = std::min(entries.size(), first + ಮೌಲ್ಯ_LIST_ENTRIES);
             std::string text = "{" + entries[first];
-            for (size_t i = first + 1; i < end; ++i) text += ", " + entries[i];
+            ಪ್ರತಿ (size_t i = first + 1; i < end; ++i) text += ", " + entries[i];
             m_constructorp->addStmtsp(
                 itemCall(fl, cpVarp, method, {ctext(fl, text + "}")})->makeStmt());
         }
     }
 
-    static bool checkCrossRef(const AstCoverCrossRef* refp, const AstCoverCross* crossp) {
-        if (refp->name() == crossp->name()) return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ checkCrossRef(ಧ್ರುವ AstCoverCrossRef* refp, ಧ್ರುವ AstCoverCross* crossp) {
+        ಯದಿ (refp->name() == crossp->name()) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         refp->v3error("Cross selection "
                       << refp->prettyNameQ() << " may only name its enclosing cross "
                       << crossp->prettyNameQ() << " (IEEE 1800-2023 19.6.1.2).");
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
-    static bool checkCrossBinName(const AstCoverCrossBin* binp, std::set<std::string>& names) {
-        if (names.emplace(binp->name()).second) return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ checkCrossBinName(ಧ್ರುವ AstCoverCrossBin* binp, std::set<std::string>& names) {
+        ಯದಿ (names.emplace(binp->name()).second) ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         binp->v3error("Duplicate cross bin " << binp->prettyNameQ()
                                              << " (IEEE 1800-2023 19.6.1).");
-        return false;
+        ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
     }
 
     // The span of the implicit automatic bin reported as 'name' ('auto_<i>', see
     // createImplicitAutoBins), found without naming each of its bins
-    static bool implicitAutoBinSpan(const CoverpointBins& bins, const std::string& name,
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ implicitAutoBinSpan(ಧ್ರುವ CoverpointBins& bins, ಧ್ರುವ std::string& name,
                                     BinSpan& span) {
-        const std::string prefix = "auto_";
-        if (!VString::startsWith(name, prefix)) return false;
-        const std::string digits = name.substr(prefix.size());
-        const unsigned long index = std::strtoul(digits.c_str(), nullptr, 10);
+        ಧ್ರುವ std::string prefix = "auto_";
+        ಯದಿ (!VString::startsWith(name, prefix)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ std::string digits = name.substr(prefix.size());
+        ಧ್ರುವ unsigned long index = std::strtoul(digits.c_str(), nullptr, 10);
         // Only the reported spelling names the bin, not e.g. 'auto_01' or 'auto_x'
-        if (index >= bins.implicitAuto.count || digits != cvtToStr(index)) return false;
-        const uint32_t offset = static_cast<uint32_t>(index);
+        ಯದಿ (index >= bins.implicitAuto.ಎಣಿಕೆ || digits != cvtToStr(index)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ uint32_t offset = static_cast<uint32_t>(index);
         span = BinSpan{bins.implicitAuto.first + offset, 1, bins.implicitAuto.declared + offset};
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     CrossBinsofTarget
-    resolveBinsofTarget(const AstCoverBinsof* selectp, const AstCoverCross* crossp,
-                        const std::vector<AstVar*>& cpVars,
-                        const std::map<std::string, uint32_t>& dimensions) const {
-        const auto dim = dimensions.find(selectp->pointp()->name());
-        if (dim == dimensions.end()) {
+    resolveBinsofTarget(ಧ್ರುವ AstCoverBinsof* selectp, ಧ್ರುವ AstCoverCross* crossp,
+                        ಧ್ರುವ std::vector<AstVar*>& cpVars,
+                        ಧ್ರುವ std::map<std::string, uint32_t>& dimensions) ಧ್ರುವ {
+        ಧ್ರುವ auto dim = dimensions.find(selectp->pointp()->name());
+        ಯದಿ (dim == dimensions.end()) {
             selectp->v3error("binsof coverpoint "
                              << selectp->pointp()->prettyNameQ() << " is not an item of cross "
                              << crossp->prettyNameQ() << " (IEEE 1800-2023 19.6.1).");
-            return {};
+            ಪ್ರತ್ಯಾಗಮ {};
         }
-        const CoverpointBins& bins = m_cpBins.at(cpVars[dim->second]);
+        ಧ್ರುವ CoverpointBins& bins = m_cpBins.at(cpVars[dim->second]);
         CrossBinsofTarget target{&bins, dim->second, 0, bins.total};
-        if (!selectp->name().empty()) {
-            const auto bin = bins.spans.find(selectp->name());
+        ಯದಿ (!selectp->name().empty()) {
+            ಧ್ರುವ auto bin = bins.spans.find(selectp->name());
             BinSpan span{0, 0, 0};
-            if (bin != bins.spans.end()) {
+            ಯದಿ (bin != bins.spans.end()) {
                 span = bin->second;
-            } else if (!implicitAutoBinSpan(bins, selectp->name(), span)) {
+            } ಅನ್ಯಥಾ ಯದಿ (!implicitAutoBinSpan(bins, selectp->name(), span)) {
                 selectp->v3error("Cannot find bin " << selectp->prettyNameQ() << " in coverpoint "
                                                     << selectp->pointp()->prettyNameQ()
                                                     << " (IEEE 1800-2023 19.6.1).");
-                return {};
+                ಪ್ರತ್ಯಾಗಮ {};
             }
             target.m_first = span.first;
-            target.m_count = span.count;
+            target.m_ಎಣಿಕೆ = span.ಎಣಿಕೆ;
             target.m_declaredFirst = span.declared;
-            target.m_declaredEnd = span.declared + span.count;
+            target.m_declaredEnd = span.declared + span.ಎಣಿಕೆ;
             target.m_sized = span.sized;
         }
-        return target;
+        ಪ್ರತ್ಯಾಗಮ target;
     }
 
     // The variables a 'with' filter reads, each by its first reference
-    using CrossFilterReads = std::map<const AstVar*, AstVarRef*>;
+    using CrossFilterReads = std::map<ಧ್ರುವ AstVar*, AstVarRef*>;
 
     // Whether a 'with' filter has a count of value tuples, of 'matches' other than '$'
-    static bool countsValueTuples(const AstCoverCrossWith* withp) {
-        return withp->countp() && !VN_IS(withp->countp(), Unbounded);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ counts_ಮೌಲ್ಯ_Tuples(ಧ್ರುವ AstCoverCrossWith* withp) {
+        ಪ್ರತ್ಯಾಗಮ withp->countp() && !VN_IS(withp->countp(), Unbounded);
     }
 
     // Whether the runtime knows the values of the cross items a 'with' filter reads, or to count
     // value tuples, of all items, of integral coverpoints; else warns
-    static bool crossFilterSupported(const AstCoverCrossWith* withp,
-                                     const CrossFilterReads& reads) {
-        for (const AstVar* varp = withp->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            if (varp->dtypep()->skipRefp()->isIntegralOrPacked()) continue;
-            const auto it = reads.find(varp);
-            if (it != reads.end()) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ crossFilterSupported(ಧ್ರುವ AstCoverCrossWith* withp,
+                                     ಧ್ರುವ CrossFilterReads& reads) {
+        ಪ್ರತಿ (ಧ್ರುವ AstVar* varp = withp->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            ಯದಿ (varp->dtypep()->skipRefp()->isIntegralOrPacked()) ಅನುವರ್ತ;
+            ಧ್ರುವ auto it = reads.find(varp);
+            ಯದಿ (it != reads.end()) {
                 it->second->v3warn(COVERIGN, "Unsupported: cross bin 'with' filter reading the "
                                              "value of non-integral coverpoint "
                                                  << it->second->prettyNameQ());
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            if (countsValueTuples(withp)) {
+            ಯದಿ (counts_ಮೌಲ್ಯ_Tuples(withp)) {
                 withp->countp()->v3warn(COVERIGN, "Unsupported: cross bin 'matches' count of "
                                                   "value tuples of non-integral coverpoint "
                                                       << varp->prettyNameQ());
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
         }
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     // Emit the constructor code selecting, of the bin tuples of the selection, those with enough
@@ -3497,61 +3497,61 @@ class FunctionalCoverageVisitor final : public VNVisitor {
     //   withEnd();
     // The dimensions are those of the items read, or to count value tuples, of all items: the
     // filter's result for a value tuple of the items it reads repeats for each of the others'.
-    void generateCrossFilter(const AstCoverCrossWith* withp, const CrossFilterReads& reads,
-                             const AstCoverCrossBin* binp, const AstCoverCross* crossp,
-                             AstVar* cxp, const std::map<string, uint32_t>& dimensions,
-                             uint32_t items) {
-        FileLine* const fl = withp->fileline();
-        const string prefix
+    ಶೂನ್ಯ generateCrossFilter(ಧ್ರುವ AstCoverCrossWith* withp, ಧ್ರುವ CrossFilterReads& reads,
+                             ಧ್ರುವ AstCoverCrossBin* binp, ಧ್ರುವ AstCoverCross* crossp,
+                             AstVar* cxp, ಧ್ರುವ std::map<string, uint32_t>& dimensions,
+                             uint32_t ವಸ್ತುಗಳು) {
+        File_ಸಾಲು* ಧ್ರುವ fl = withp->fileline();
+        ಧ್ರುವ string prefix
             = m_sizedNames.get(sanitizeGeneratedName(crossp->name() + "__" + binp->name()));
-        const bool counting = countsValueTuples(withp);
+        ಧ್ರುವ ತಾರ್ಕಿಕ counting = counts_ಮೌಲ್ಯ_Tuples(withp);
         // The count, 0 for all
-        const std::pair<AstNodeExpr*, AstNodeExpr*> count
-            = counting ? newCountArgs(fl, prefix + "_count", withp->countp())
-                       : newCountArgs(fl, withp->countp() ? 0 : 1);
-        AstLoop* const loopp = new AstLoop{fl};
-        AstCMethodHard* const nextp = itemCall(fl, cxp, VCMethod::COVERGROUP_WITH_NEXT);
+        ಧ್ರುವ std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಎಣಿಕೆ
+            = counting ? new_ಎಣಿಕೆ_Args(fl, prefix + "_count", withp->countp())
+                       : new_ಎಣಿಕೆ_Args(fl, withp->countp() ? 0 : 1);
+        AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{fl};
+        AstCMethodHard* ಧ್ರುವ nextp = itemCall(fl, cxp, VCMethod::COVERGROUP_WITH_NEXT);
         nextp->dtypeSetBit();
-        loopp->addStmtsp(new AstLoopTest{fl, loopp, nextp});
+        loopp->addStmtsp(ನೂತನ AstLoopTest{fl, loopp, nextp});
         string dims;
-        for (uint32_t dim = 0; counting && dim < items; ++dim) {
+        ಪ್ರತಿ (uint32_t dim = 0; counting && dim < ವಸ್ತುಗಳು; ++dim) {
             dims += (dims.empty() ? "" : ", ") + cvtToStr(dim) + "U";
         }
-        while (AstVar* const varp = withp->varsp()) {
+        ಯಾವತ್ (AstVar* ಧ್ರುವ varp = withp->varsp()) {
             varp->unlinkFrBack();
-            if (!reads.count(varp)) {
-                VL_DO_DANGLING(pushDeletep(varp), varp);
-                continue;
+            ಯದಿ (!reads.ಎಣಿಕೆ(varp)) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(varp), varp);
+                ಅನುವರ್ತ;
             }
-            const auto dimIt = dimensions.find(varp->name());
+            ಧ್ರುವ auto dimIt = dimensions.find(varp->name());
             UASSERT_OBJ(dimIt != dimensions.end(), varp, "Cross 'with' candidate not of an item");
-            const uint32_t dim = dimIt->second;
-            if (!counting) dims += (dims.empty() ? "" : ", ") + cvtToStr(dim) + "U";
+            ಧ್ರುವ uint32_t dim = dimIt->second;
+            ಯದಿ (!counting) dims += (dims.empty() ? "" : ", ") + cvtToStr(dim) + "U";
             varp->name(prefix + "_" + sanitizeGeneratedName(varp->name()));
             m_constructorp->addStmtsp(varp);
-            if (varp->isWide()) {
-                loopp->addStmtsp(itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_VALUE_W,
-                                          {cnum(fl, dim), new AstVarRef{fl, varp, VAccess::WRITE}})
+            ಯದಿ (varp->isWide()) {
+                loopp->addStmtsp(itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_ಮೌಲ್ಯ_W,
+                                          {cnum(fl, dim), ನೂತನ AstVarRef{fl, varp, VAccess::WRITE}})
                                      ->makeStmt());
-            } else {
-                AstCMethodHard* const valuep
-                    = itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_VALUE, {cnum(fl, dim)});
+            } ಅನ್ಯಥಾ {
+                AstCMethodHard* ಧ್ರುವ valuep
+                    = itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_ಮೌಲ್ಯ, {cnum(fl, dim)});
                 valuep->dtypeSetUInt64();
-                AstNodeDType* const dtypep = varp->findLogicDType(
+                Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = varp->findLogicDType(
                     varp->width(), varp->width(),
                     varp->isSigned() ? VSigning::SIGNED : VSigning::UNSIGNED);
-                loopp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                               resizeValue(valuep, dtypep)});
+                loopp->addStmtsp(ನೂತನ AstAssign{fl, ನೂತನ AstVarRef{fl, varp, VAccess::WRITE},
+                                               resize_ಮೌಲ್ಯ(valuep, dtypep)});
             }
         }
         loopp->addStmtsp(itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_TEST,
                                   {withp->filterp()->unlinkFrBack()})
                              ->makeStmt());
-        const bool prot = v3Global.opt.protectIds();
+        ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
         m_constructorp->addStmtsp(
             itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_BEGIN,
-                     {ctext(fl, "{" + dims + "}"), count.first, count.second,
-                      ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))),
+                     {ctext(fl, "{" + dims + "}"), ಎಣಿಕೆ.first, ಎಣಿಕೆ.second,
+                      ctext(fl, quoted(VIdProtect::protect_ಪದಗಳು_If(binp->name(), prot))),
                       ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                       cnum(fl, static_cast<uint32_t>(fl->lineno()))})
                 ->makeStmt());
@@ -3560,60 +3560,60 @@ class FunctionalCoverageVisitor final : public VNVisitor {
             itemCall(fl, cxp, VCMethod::COVERGROUP_CROSS_WITH_END)->makeStmt());
     }
 
-    bool generateRuntimeSelection(AstNode* nodep, const AstCoverCrossBin* binp,
+    ತಾರ್ಕಿಕ generateRuntimeSelection(Ast_ಗಂಟು* nodep, ಧ್ರುವ AstCoverCrossBin* binp,
                                   AstCoverCross* crossp, AstVar* cxp,
-                                  const std::vector<AstVar*>& cpVars,
-                                  const std::map<string, uint32_t>& dimensions) {
-        FileLine* const fl = nodep->fileline();
-        if (const AstCoverCrossRef* const refp = VN_CAST(nodep, CoverCrossRef)) {
-            if (!checkCrossRef(refp, crossp)) return false;
+                                  ಧ್ರುವ std::vector<AstVar*>& cpVars,
+                                  ಧ್ರುವ std::map<string, uint32_t>& dimensions) {
+        File_ಸಾಲು* ಧ್ರುವ fl = nodep->fileline();
+        ಯದಿ (ಧ್ರುವ AstCoverCrossRef* ಧ್ರುವ refp = VN_CAST(nodep, CoverCrossRef)) {
+            ಯದಿ (!checkCrossRef(refp, crossp)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             m_constructorp->addStmtsp(
                 itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_ALL)->makeStmt());
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (const AstCoverCrossSelect* const opp = VN_CAST(nodep, CoverCrossSelect)) {
-            if (!generateRuntimeSelection(opp->lhsp(), binp, crossp, cxp, cpVars, dimensions)
+        ಯದಿ (ಧ್ರುವ AstCoverCrossSelect* ಧ್ರುವ opp = VN_CAST(nodep, CoverCrossSelect)) {
+            ಯದಿ (!generateRuntimeSelection(opp->lhsp(), binp, crossp, cxp, cpVars, dimensions)
                 || !generateRuntimeSelection(opp->rhsp(), binp, crossp, cxp, cpVars, dimensions)) {
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
             m_constructorp->addStmtsp(itemCall(fl, cxp,
                                                opp->isOr() ? VCMethod::COVERGROUP_SELECT_OR
                                                            : VCMethod::COVERGROUP_SELECT_AND)
                                           ->makeStmt());
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        if (const AstCoverCrossWith* const withp = VN_CAST(nodep, CoverCrossWith)) {
+        ಯದಿ (ಧ್ರುವ AstCoverCrossWith* ಧ್ರುವ withp = VN_CAST(nodep, CoverCrossWith)) {
             CrossFilterReads reads;
             withp->filterp()->foreach([&](AstVarRef* refp) { reads.emplace(refp->varp(), refp); });
             // The count of 'matches' is a positive integer, or '$' (IEEE 1800-2023 19.6.1.2)
-            if ((countsValueTuples(withp)
-                 && !checkCount(withp->countp(), "Cross bin 'matches' count", "19.6.1.2"))
+            ಯದಿ ((counts_ಮೌಲ್ಯ_Tuples(withp)
+                 && !check_ಎಣಿಕೆ(withp->countp(), "Cross bin 'matches' count", "19.6.1.2"))
                 || !crossFilterSupported(withp, reads)
                 || !generateRuntimeSelection(withp->selectp(), binp, crossp, cxp, cpVars,
                                              dimensions)) {
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
             generateCrossFilter(withp, reads, binp, crossp, cxp, dimensions,
                                 static_cast<uint32_t>(cpVars.size()));
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        AstCoverBinsof* const selectp = VN_AS(nodep, CoverBinsof);
-        const CrossBinsofTarget target = resolveBinsofTarget(selectp, crossp, cpVars, dimensions);
-        if (!target.m_binsp) return false;
-        const CoverpointBins& bins = *target.m_binsp;
-        if (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            bool valid = true;
+        AstCoverBinsof* ಧ್ರುವ selectp = VN_AS(nodep, CoverBinsof);
+        ಧ್ರುವ CrossBinsofTarget target = resolveBinsofTarget(selectp, crossp, cpVars, dimensions);
+        ಯದಿ (!target.m_binsp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ CoverpointBins& bins = *target.m_binsp;
+        ಯದಿ (selectp->rangesp() && !bins.exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+            ತಾರ್ಕಿಕ valid = ಸತ್ಯ;
             unsupportedCrossRange(selectp, valid);
-            return false;
+            ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         }
-        AstNodeExpr* firstp;
-        AstNodeExpr* endp;
-        if (target.m_sized < 0) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* firstp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* endp;
+        ಯದಿ (target.m_sized < 0) {
             firstp = cnum(fl, target.m_declaredFirst);
             endp = cnum(fl, target.m_declaredEnd);
-        } else {  // A sized array, whose bins the coverpoint's construction placed
-            AstVar* const cpVarp = cpVars[target.m_dimension];
-            const uint32_t sized = static_cast<uint32_t>(target.m_sized);
+        } ಅನ್ಯಥಾ {  // A sized array, whose bins the coverpoint's construction placed
+            AstVar* ಧ್ರುವ cpVarp = cpVars[target.m_dimension];
+            ಧ್ರುವ uint32_t sized = static_cast<uint32_t>(target.m_sized);
             firstp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_SIZED_FIRST, {cnum(fl, sized)});
             endp = itemCall(fl, cpVarp, VCMethod::COVERGROUP_SIZED_END, {cnum(fl, sized)});
             firstp->dtypeSetUInt32();
@@ -3624,41 +3624,41 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                      {cnum(fl, target.m_dimension), firstp, endp, cnum(fl, selectp->isNegated()),
                       cnum(fl, selectp->rangesp() != nullptr)})
                 ->makeStmt());
-        for (AstNode* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
-            CrossValueRange range{rangep, resolveWidth(rangep, bins.exprp)};
-            if (!resolveValue(rangep, bins.exprp, false, false, range)) {
-                bool valid = true;
+        ಪ್ರತಿ (Ast_ಗಂಟು* rangep = selectp->rangesp(); rangep; rangep = rangep->nextp()) {
+            Cross_ಮೌಲ್ಯ_Range range{rangep, resolveWidth(rangep, bins.exprp)};
+            ಯದಿ (!resolve_ಮೌಲ್ಯ(rangep, bins.exprp, ಅಸತ್ಯ, ಅಸತ್ಯ, range)) {
+                ತಾರ್ಕಿಕ valid = ಸತ್ಯ;
                 unsupportedCrossRange(selectp, valid);
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
-            if (crossRangeEmpty(range)) continue;
+            ಯದಿ (crossRangeEmpty(range)) ಅನುವರ್ತ;
             m_constructorp->addStmtsp(itemCall(fl, cxp,
                                                bins.exprp->isWide()
                                                    ? VCMethod::COVERGROUP_SELECT_RANGE_W
                                                    : VCMethod::COVERGROUP_SELECT_RANGE,
-                                               {newValueConst(fl, range.lo, bins.exprp),
-                                                newValueConst(fl, range.hi, bins.exprp)})
+                                               {new_ಮೌಲ್ಯ_Const(fl, range.lo, bins.exprp),
+                                                new_ಮೌಲ್ಯ_Const(fl, range.hi, bins.exprp)})
                                           ->makeStmt());
         }
         m_constructorp->addStmtsp(
             itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_DIM_END)->makeStmt());
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
     std::vector<AstCoverCrossBin*>
     generateRuntimeCrossBins(AstCoverCross* crossp, AstVar* cxp,
-                             const std::vector<AstVar*>& cpVars,
-                             const std::map<string, uint32_t>& dimensions) {
+                             ಧ್ರುವ std::vector<AstVar*>& cpVars,
+                             ಧ್ರುವ std::map<string, uint32_t>& dimensions) {
         std::vector<AstCoverCrossBin*> bins;
         std::set<string> names;
-        for (AstNode* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
-            AstCoverCrossBin* const binp = VN_AS(itemp, CoverCrossBin);
-            if (!checkCrossBinName(binp, names)) continue;
-            FileLine* const fl = binp->fileline();
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
+            AstCoverCrossBin* ಧ್ರುವ binp = VN_AS(itemp, CoverCrossBin);
+            ಯದಿ (!checkCrossBinName(binp, names)) ಅನುವರ್ತ;
+            File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
             // Generate the selection apart, so that an unsupported one leaves no code, which
             // could leave its state for the next bin
-            AstFunc* const selectionp = new AstFunc{fl, "", nullptr, nullptr};
-            bool supported;
+            AstFunc* ಧ್ರುವ selectionp = ನೂತನ AstFunc{fl, "", nullptr, nullptr};
+            ತಾರ್ಕಿಕ supported;
             {
                 VL_RESTORER(m_constructorp);
                 m_constructorp = selectionp;
@@ -3666,222 +3666,222 @@ class FunctionalCoverageVisitor final : public VNVisitor {
                                                      dimensions);
             }
             // A supported selection has code
-            if (supported) m_constructorp->addStmtsp(selectionp->stmtsp()->unlinkFrBackWithNext());
-            VL_DO_DANGLING(pushDeletep(selectionp), selectionp);
-            if (!supported) continue;
-            const bool protect = v3Global.opt.protectIds();
+            ಯದಿ (supported) m_constructorp->addStmtsp(selectionp->stmtsp()->unlinkFrBackWithNext());
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(selectionp), selectionp);
+            ಯದಿ (!supported) ಅನುವರ್ತ;
+            ಧ್ರುವ ತಾರ್ಕಿಕ protect = v3Global.opt.protectIds();
             m_constructorp->addStmtsp(
                 itemCall(fl, cxp, VCMethod::COVERGROUP_SELECT_BIN,
                          {ctext(fl, binp->binsType().binSetEnum()),
-                          ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), protect))),
+                          ctext(fl, quoted(VIdProtect::protect_ಪದಗಳು_If(binp->name(), protect))),
                           ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), protect))),
                           cnum(fl, fl->lineno()), cnum(fl, fl->firstColumn()),
                           cnum(fl, static_cast<uint32_t>(bins.size()))})
                     ->makeStmt());
-            bins.push_back(binp);
+            bins.ತಳ್ಳು_back(binp);
         }
         m_constructorp->addStmtsp(
             itemCall(crossp->fileline(), cxp, VCMethod::COVERGROUP_FINALIZE_BINS)->makeStmt());
-        return bins;
+        ಪ್ರತ್ಯಾಗಮ bins;
     }
 
-    static void setCrossSelectionRange(CrossSelection& selection, uint64_t first, uint64_t end) {
-        while (first < end) {
-            const unsigned bit = first % 64;
-            const unsigned bits = std::min<uint64_t>(64 - bit, end - first);
+    ಸ್ಥಿರ ಶೂನ್ಯ setCrossSelectionRange(CrossSelection& selection, uint64_t first, uint64_t end) {
+        ಯಾವತ್ (first < end) {
+            ಧ್ರುವ unsigned bit = first % 64;
+            ಧ್ರುವ unsigned bits = std::min<uint64_t>(64 - bit, end - first);
             selection[VL_BITWORD_Q(first)]
                 |= (bits == 64 ? ~uint64_t{0} : (uint64_t{1} << bits) - 1) << bit;
             first += bits;
         }
     }
 
-    CrossSelection crossSelection(AstNode* nodep, CrossSelectionContext& ctx) {
-        if (const AstCoverCrossRef* const refp = VN_CAST(nodep, CoverCrossRef)) {
-            if (!checkCrossRef(refp, ctx.crossp)) {
-                ctx.valid = false;
-                return {};
+    CrossSelection crossSelection(Ast_ಗಂಟು* nodep, CrossSelectionContext& ctx) {
+        ಯದಿ (ಧ್ರುವ AstCoverCrossRef* ಧ್ರುವ refp = VN_CAST(nodep, CoverCrossRef)) {
+            ಯದಿ (!checkCrossRef(refp, ctx.crossp)) {
+                ctx.valid = ಅಸತ್ಯ;
+                ಪ್ರತ್ಯಾಗಮ {};
             }
             CrossSelection result(
                 VL_BITWORD_Q(static_cast<uint64_t>(ctx.tuples) + VL_QUADSIZE - 1), 0);
             setCrossSelectionRange(result, 0, ctx.tuples);
-            return result;
+            ಪ್ರತ್ಯಾಗಮ result;
         }
-        if (AstCoverCrossSelect* const opp = VN_CAST(nodep, CoverCrossSelect)) {
+        ಯದಿ (AstCoverCrossSelect* ಧ್ರುವ opp = VN_CAST(nodep, CoverCrossSelect)) {
             CrossSelection lhs = crossSelection(opp->lhsp(), ctx);
-            const CrossSelection rhs = crossSelection(opp->rhsp(), ctx);
-            if (!ctx.valid) return {};
-            for (size_t i = 0; i < lhs.size(); ++i) {
+            ಧ್ರುವ CrossSelection rhs = crossSelection(opp->rhsp(), ctx);
+            ಯದಿ (!ctx.valid) ಪ್ರತ್ಯಾಗಮ {};
+            ಪ್ರತಿ (size_t i = 0; i < lhs.size(); ++i) {
                 lhs[i] = opp->isOr() ? lhs[i] | rhs[i] : lhs[i] & rhs[i];
             }
-            return lhs;
+            ಪ್ರತ್ಯಾಗಮ lhs;
         }
-        AstCoverBinsof* const selectp = VN_AS(nodep, CoverBinsof);
-        const CrossBinsofTarget target
+        AstCoverBinsof* ಧ್ರುವ selectp = VN_AS(nodep, CoverBinsof);
+        ಧ್ರುವ CrossBinsofTarget target
             = resolveBinsofTarget(selectp, ctx.crossp, ctx.cpVars, ctx.dimensions);
-        if (!target.m_binsp) {
-            ctx.valid = false;
-            return {};
+        ಯದಿ (!target.m_binsp) {
+            ctx.valid = ಅಸತ್ಯ;
+            ಪ್ರತ್ಯಾಗಮ {};
         }
-        const CoverpointBins& bins = *target.m_binsp;
+        ಧ್ರುವ CoverpointBins& bins = *target.m_binsp;
         // Coverpoints with sized arrays are runtime points, so feed only runtime crosses
         UASSERT_OBJ(target.m_sized < 0, selectp, "Sized bin array selected by a static cross");
-        const std::vector<bool> selected
-            = selectCoverpointBins(selectp, bins, target.m_first, target.m_count, ctx.valid);
-        if (!ctx.valid) return {};
+        ಧ್ರುವ std::vector<ತಾರ್ಕಿಕ> selected
+            = selectCoverpointBins(selectp, bins, target.m_first, target.m_ಎಣಿಕೆ, ctx.valid);
+        ಯದಿ (!ctx.valid) ಪ್ರತ್ಯಾಗಮ {};
         CrossSelection result(VL_BITWORD_Q(static_cast<uint64_t>(ctx.tuples) + VL_QUADSIZE - 1),
                               0);
-        const uint64_t stride = ctx.strides[target.m_dimension];
-        const uint64_t period = stride * bins.total;
-        for (uint64_t base = 0; base < ctx.tuples; base += period) {
-            for (uint32_t i = 0; i < bins.total;) {
-                if (!selected[i]) {
+        ಧ್ರುವ uint64_t stride = ctx.strides[target.m_dimension];
+        ಧ್ರುವ uint64_t period = stride * bins.total;
+        ಪ್ರತಿ (uint64_t base = 0; base < ctx.tuples; base += period) {
+            ಪ್ರತಿ (uint32_t i = 0; i < bins.total;) {
+                ಯದಿ (!selected[i]) {
                     ++i;
-                    continue;
+                    ಅನುವರ್ತ;
                 }
-                const uint32_t begin = i++;
-                while (i < bins.total && selected[i]) ++i;
+                ಧ್ರುವ uint32_t begin = i++;
+                ಯಾವತ್ (i < bins.total && selected[i]) ++i;
                 setCrossSelectionRange(result, base + begin * stride, base + i * stride);
             }
         }
-        return result;
+        ಪ್ರತ್ಯಾಗಮ result;
     }
 
     // Size the Cartesian product of the declared Normal bins, with each dimension's flat-index
     // stride.  Live runtime bins only shrink it.  Warns and returns false if it is too large.
-    bool crossShape(AstCoverCross* crossp, const std::vector<AstVar*>& cpVars,
-                    std::vector<uint32_t>& strides, uint32_t& tuples) const {
+    ತಾರ್ಕಿಕ crossShape(AstCoverCross* crossp, ಧ್ರುವ std::vector<AstVar*>& cpVars,
+                    std::vector<uint32_t>& strides, uint32_t& tuples) ಧ್ರುವ {
         uint64_t product = std::any_of(cpVars.begin(), cpVars.end(),
-                                       [this](AstVar* varp) { return !m_cpBins.at(varp).total; })
+                                       [ಏತತ್](AstVar* varp) { ಪ್ರತ್ಯಾಗಮ !m_cpBins.at(varp).total; })
                                ? 0
                                : 1;
         strides.resize(cpVars.size());
-        for (size_t d = cpVars.size(); d > 0; --d) {
+        ಪ್ರತಿ (size_t d = cpVars.size(); d > 0; --d) {
             strides[d - 1] = static_cast<uint32_t>(product);
             product *= m_cpBins.at(cpVars[d - 1]).total;
-            if (product > UINT32_MAX) {
+            ಯದಿ (product > UINT32_MAX) {
                 crossp->v3warn(COVERIGN,
                                "Unsupported: cross coverage with more than 2^32-1 tuples.");
-                return false;
+                ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
             }
         }
         tuples = static_cast<uint32_t>(product);
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    CrossLayout resolveCrossLayout(AstCoverCross* crossp, const std::vector<AstVar*>& cpVars,
-                                   const std::map<std::string, uint32_t>& dimensions) {
+    CrossLayout resolveCrossLayout(AstCoverCross* crossp, ಧ್ರುವ std::vector<AstVar*>& cpVars,
+                                   ಧ್ರುವ std::map<std::string, uint32_t>& dimensions) {
         CrossLayout layout;
         CrossSelectionContext ctx{crossp, cpVars, dimensions, 0, {}};
-        if (!crossShape(crossp, cpVars, ctx.strides, ctx.tuples)) {
-            layout.valid = false;
-            return layout;
+        ಯದಿ (!crossShape(crossp, cpVars, ctx.strides, ctx.tuples)) {
+            layout.valid = ಅಸತ್ಯ;
+            ಪ್ರತ್ಯಾಗಮ layout;
         }
         layout.tuples = ctx.tuples;
         CrossSelection occupied;
         CrossSelection excluded;
         std::set<std::string> names;
-        for (AstNode* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
-            AstCoverCrossBin* const binp = VN_AS(itemp, CoverCrossBin);
-            if (!checkCrossBinName(binp, names)) continue;
-            ctx.valid = true;
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->binsp(); itemp; itemp = itemp->nextp()) {
+            AstCoverCrossBin* ಧ್ರುವ binp = VN_AS(itemp, CoverCrossBin);
+            ಯದಿ (!checkCrossBinName(binp, names)) ಅನುವರ್ತ;
+            ctx.valid = ಸತ್ಯ;
             CrossSelection selection = crossSelection(binp->selectp(), ctx);
-            if (!ctx.valid || std::all_of(selection.begin(), selection.end(), [](uint64_t word) {
-                    return word == 0;
+            ಯದಿ (!ctx.valid || std::all_of(selection.begin(), selection.end(), [](uint64_t word) {
+                    ಪ್ರತ್ಯಾಗಮ word == 0;
                 })) {
-                continue;
+                ಅನುವರ್ತ;
             }
-            if (occupied.empty()) {
+            ಯದಿ (occupied.empty()) {
                 occupied.resize(selection.size(), 0);
                 excluded.resize(selection.size(), 0);
             }
-            for (size_t i = 0; i < selection.size(); ++i) {
+            ಪ್ರತಿ (size_t i = 0; i < selection.size(); ++i) {
                 occupied[i] |= selection[i];
-                if (!binp->binsType().binIsNormal()) excluded[i] |= selection[i];
+                ಯದಿ (!binp->binsType().binIsNormal()) excluded[i] |= selection[i];
             }
-            layout.bins.push_back({binp, std::move(selection)});
+            layout.bins.ತಳ್ಳು_back({binp, std::move(selection)});
         }
-        if (!layout.bins.empty()) {
+        ಯದಿ (!layout.bins.empty()) {
             // IEEE 1800-2023 19.6.2/19.6.3: exclusions also remove tuples from named
             // bins, independently of declaration order and sampling guards.
-            for (ResolvedCrossBin& resolved : layout.bins) {
-                for (size_t i = 0; i < resolved.selection.size(); ++i) {
-                    if (resolved.binp->binsType().binIsNormal()) {
+            ಪ್ರತಿ (ResolvedCrossBin& resolved : layout.bins) {
+                ಪ್ರತಿ (size_t i = 0; i < resolved.selection.size(); ++i) {
+                    ಯದಿ (resolved.binp->binsType().binIsNormal()) {
                         resolved.selection[i] &= ~excluded[i];
                     }
-                    if (resolved.selection[i]) ++layout.binWords;
+                    ಯದಿ (resolved.selection[i]) ++layout.bin_ಪದಗಳು;
                 }
             }
             layout.bins.erase(std::remove_if(layout.bins.begin(), layout.bins.end(),
-                                             [](const ResolvedCrossBin& resolved) {
-                                                 return std::all_of(
+                                             [](ಧ್ರುವ ResolvedCrossBin& resolved) {
+                                                 ಪ್ರತ್ಯಾಗಮ std::all_of(
                                                      resolved.selection.begin(),
                                                      resolved.selection.end(),
-                                                     [](uint64_t word) { return word == 0; });
+                                                     [](uint64_t word) { ಪ್ರತ್ಯಾಗಮ word == 0; });
                                              }),
                               layout.bins.end());
             layout.autoBins = layout.tuples;
-            for (const uint64_t word : occupied) {
-                layout.autoBins -= static_cast<uint32_t>(std::bitset<VL_QUADSIZE>{word}.count());
+            ಪ್ರತಿ (ಧ್ರುವ uint64_t word : occupied) {
+                layout.autoBins -= static_cast<uint32_t>(std::bitset<VL_QUADSIZE>{word}.ಎಣಿಕೆ());
             }
         }
-        return layout;
+        ಪ್ರತ್ಯಾಗಮ layout;
     }
 
-    AstCoverCrossDType* crossDType(FileLine* fl, uint32_t dimensions, const CrossLayout& layout,
-                                   bool dynamic = false) {
-        const uint32_t bins = static_cast<uint32_t>(layout.bins.size());
-        const CrossShape shape{dimensions,      layout.tuples,   bins,
-                               layout.autoBins, layout.binWords, dynamic};
+    AstCoverCrossDType* crossDType(File_ಸಾಲು* fl, uint32_t dimensions, ಧ್ರುವ CrossLayout& layout,
+                                   ತಾರ್ಕಿಕ dynamic = ಅಸತ್ಯ) {
+        ಧ್ರುವ uint32_t bins = static_cast<uint32_t>(layout.bins.size());
+        ಧ್ರುವ CrossShape shape{dimensions,      layout.tuples,   bins,
+                               layout.autoBins, layout.bin_ಪದಗಳು, dynamic};
         AstCoverCrossDType*& typep = m_cxDTypes[shape];
-        if (!typep) {
-            typep = new AstCoverCrossDType{
-                fl, dimensions, layout.tuples, bins, layout.autoBins, layout.binWords, dynamic};
+        ಯದಿ (!typep) {
+            typep = ನೂತನ AstCoverCrossDType{
+                fl, dimensions, layout.tuples, bins, layout.autoBins, layout.bin_ಪದಗಳು, dynamic};
             v3Global.rootp()->typeTablep()->addTypesp(typep);
         }
-        return typep;
+        ಪ್ರತ್ಯಾಗಮ typep;
     }
 
     std::vector<AstCoverCrossBin*> generateCrossBins(AstCoverCross* crossp, AstVar* cxVarp,
-                                                     const CrossLayout& layout) {
+                                                     ಧ್ರುವ CrossLayout& layout) {
         std::vector<AstCoverCrossBin*> bins;
-        for (const ResolvedCrossBin& resolved : layout.bins) {
-            AstCoverCrossBin* const binp = resolved.binp;
-            const CrossSelection& selection = resolved.selection;
-            FileLine* const fl = binp->fileline();
-            const bool prot = v3Global.opt.protectIds();
+        ಪ್ರತಿ (ಧ್ರುವ ResolvedCrossBin& resolved : layout.bins) {
+            AstCoverCrossBin* ಧ್ರುವ binp = resolved.binp;
+            ಧ್ರುವ CrossSelection& selection = resolved.selection;
+            File_ಸಾಲು* ಧ್ರುವ fl = binp->fileline();
+            ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
             std::string mask = "{";
-            for (size_t i = 0; i < selection.size(); ++i) {
-                if (i) mask += ", ";
+            ಪ್ರತಿ (size_t i = 0; i < selection.size(); ++i) {
+                ಯದಿ (i) mask += ", ";
                 mask += std::to_string(selection[i]) + "ULL";
             }
             mask += "}";
             m_constructorp->addStmtsp(
                 itemCall(fl, cxVarp, VCMethod::COVERGROUP_ADD_BIN,
                          {ctext(fl, binp->binsType().binSetEnum()), ctext(fl, mask),
-                          ctext(fl, quoted(VIdProtect::protectWordsIf(binp->name(), prot))),
+                          ctext(fl, quoted(VIdProtect::protect_ಪದಗಳು_If(binp->name(), prot))),
                           ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                           cnum(fl, static_cast<uint32_t>(fl->lineno())),
                           cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})
                     ->makeStmt());
-            bins.push_back(binp);
+            bins.ತಳ್ಳು_back(binp);
         }
-        if (!bins.empty()) {
+        ಯದಿ (!bins.empty()) {
             m_constructorp->addStmtsp(
                 itemCall(crossp->fileline(), cxVarp, VCMethod::COVERGROUP_FINALIZE_BINS)
                     ->makeStmt());
         }
-        return bins;
+        ಪ್ರತ್ಯಾಗಮ bins;
     }
 
     // Route a cross through a VlCoverCross member: emit the member, its constructor init +
     // registration, and the sample() call.  The feeding coverpoints are already generated
     // (their hit lists drive the cross). Each explicit bin adds one configuration call.
-    void generateCross(AstCoverCross* crossp) {
-        FileLine* const fl = crossp->fileline();
-        const bool dynamic = m_runtimeCrosses.count(crossp);
+    ಶೂನ್ಯ generateCross(AstCoverCross* crossp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = crossp->fileline();
+        ಧ್ರುವ ತಾರ್ಕಿಕ dynamic = m_runtimeCrosses.ಎಣಿಕೆ(crossp);
         UINFO(4, "  Generating VlCoverCross member: " << crossp->name());
 
-        if (AstNodeExpr* const iffp = crossp->iffp()) {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ iffp = crossp->iffp()) {
             crossp->iffp(
                 captureIffToTemp(iffp, "__VcrossIff_" + sanitizeGeneratedName(crossp->name())));
         }
@@ -3890,58 +3890,58 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // known coverpoint (a cross with an unresolvable item was dropped earlier).
         std::vector<AstVar*> cpVars;
         std::map<std::string, uint32_t> dimensions;
-        for (AstNode* itemp = crossp->itemsp(); itemp;) {
-            AstNode* const nextp = itemp->nextp();
-            AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-            const auto it = m_cpVarMap.find(refp->name());
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->itemsp(); itemp;) {
+            Ast_ಗಂಟು* ಧ್ರುವ nextp = itemp->nextp();
+            AstCoverpointRef* ಧ್ರುವ refp = VN_AS(itemp, CoverpointRef);
+            ಧ್ರುವ auto it = m_cpVarMap.find(refp->name());
             UASSERT_OBJ(it != m_cpVarMap.end(), crossp, "Cross references an unknown coverpoint");
             dimensions.emplace(refp->name(), static_cast<uint32_t>(cpVars.size()));
-            cpVars.push_back(it->second);
-            VL_DO_DANGLING(pushDeletep(refp->unlinkFrBack()), refp);
+            cpVars.ತಳ್ಳು_back(it->second);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp->unlinkFrBack()), refp);
             itemp = nextp;
         }
-        const int dims = static_cast<int>(cpVars.size());
+        ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ dims = static_cast<ಪೂರ್ಣಾಙ್ಕ>(cpVars.size());
         CrossLayout layout;
-        if (dynamic) {
+        ಯದಿ (dynamic) {
             // The runtime sizes the layout from live bins; only check the declared bound here.
             std::vector<uint32_t> strides;
             uint32_t tuples = 0;
             layout.valid = crossShape(crossp, cpVars, strides, tuples);
-        } else {
+        } ಅನ್ಯಥಾ {
             layout = resolveCrossLayout(crossp, cpVars, dimensions);
         }
-        if (!layout.valid) return;
+        ಯದಿ (!layout.valid) ಪ್ರತ್ಯಾಗಮ;
 
-        AstVar* const cxVarp
-            = new AstVar{fl, VVarType::MEMBER, "__Vcx_" + crossp->name(),
+        AstVar* ಧ್ರುವ cxVarp
+            = ನೂತನ AstVar{fl, VVarType::MEMBER, "__Vcx_" + crossp->name(),
                          crossDType(fl, static_cast<uint32_t>(dims), layout, dynamic)};
         m_covergroupp->addMembersp(cxVarp);
         m_constructorp->addStmtsp(makeItemCreate(fl, cxVarp,
                                                  dynamic ? VCMethod::COVERGROUP_ADD_CROSS_DYN
                                                          : VCMethod::COVERGROUP_ADD_CROSS));
         generateItemWeight(fl, cxVarp, crossp->optionsp());
-        int atLeastValue;
-        int autoBinMax;  // Not a cross option
-        extractItemOptions(crossp->optionsp(), atLeastValue, autoBinMax);
+        ಪೂರ್ಣಾಙ್ಕ at_Least_ಮೌಲ್ಯ;
+        ಪೂರ್ಣಾಙ್ಕ autoBinMax;  // Not a cross option
+        extractItemOptions(crossp->optionsp(), at_Least_ಮೌಲ್ಯ, autoBinMax);
 
         // Constructor: init (after the coverpoints, which generate earlier) then registration.
         // Obfuscate the hierarchy/filename/page under --protect-ids as for coverpoints above.
-        const bool prot = v3Global.opt.protectIds();
-        const std::string hier
-            = VIdProtect::protectWordsIf(m_covergroupName + "." + crossp->name(), prot);
+        ಧ್ರುವ ತಾರ್ಕಿಕ prot = v3Global.opt.protectIds();
+        ಧ್ರುವ std::string hier
+            = VIdProtect::protect_ಪದಗಳು_If(m_covergroupName + "." + crossp->name(), prot);
         m_constructorp->addStmtsp(makeCrossCpsCall(
             fl, cpVars,
             itemCall(fl, cxVarp, VCMethod::COVERGROUP_INIT,
-                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(atLeastValue)),
+                     {ctext(fl, quoted(hier)), cnum(fl, static_cast<uint32_t>(at_Least_ಮೌಲ್ಯ)),
                       cnum(fl, static_cast<uint32_t>(dims)), ctext(fl, "__Vcx_cps"),
                       ctext(fl, quoted(VIdProtect::protectIf(fl->filename(), prot))),
                       cnum(fl, static_cast<uint32_t>(fl->lineno())),
                       cnum(fl, static_cast<uint32_t>(fl->firstColumn()))})));
-        const std::vector<AstCoverCrossBin*> bins
+        ಧ್ರುವ std::vector<AstCoverCrossBin*> bins
             = dynamic ? generateRuntimeCrossBins(crossp, cxVarp, cpVars, dimensions)
                       : generateCrossBins(crossp, cxVarp, layout);
-        if (v3Global.opt.coverage()) {
-            const std::string page
+        ಯದಿ (v3Global.opt.coverage()) {
+            ಧ್ರುವ std::string page
                 = VIdProtect::protectIf("v_covergroup/" + m_covergroupName, prot);
             m_constructorp->addStmtsp(itemCall(fl, cxVarp, VCMethod::COVERGROUP_REGISTER_BINS,
                                                {ctext(fl, "vlSymsp->_vm_contextp__->coveragep()"),
@@ -3955,24 +3955,24 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         UASSERT_OBJ(m_sampleFuncp, crossp, "sample() CFunc not set for cross");
         // The cross remembers its feeding coverpoints, so sample() needs no cps array;
         // per-bin iff guards still need a temporary array, hence the block form.
-        const bool hasIffs
+        ಧ್ರುವ ತಾರ್ಕಿಕ hasIffs
             = std::any_of(bins.begin(), bins.end(),
-                          [](const AstCoverCrossBin* binp) { return binp->iffp() != nullptr; });
-        AstNodeStmt* const samplep
-            = !hasIffs ? static_cast<AstNodeStmt*>(
+                          [](ಧ್ರುವ AstCoverCrossBin* binp) { ಪ್ರತ್ಯಾಗಮ binp->iffp() != nullptr; });
+        Ast_ಗಂಟು_Stmt* ಧ್ರುವ samplep
+            = !hasIffs ? static_cast<Ast_ಗಂಟು_Stmt*>(
                              itemCall(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE)->makeStmt())
-                       : static_cast<AstNodeStmt*>(makeCrossIffsCall(
+                       : static_cast<Ast_ಗಂಟು_Stmt*>(makeCrossIffsCall(
                              fl, bins,
                              itemCall(fl, cxVarp, VCMethod::COVERGROUP_SAMPLE_IFFS,
                                       {ctext(fl, "__Vcx_iffs")})));
-        if (AstNodeExpr* const iffp = crossp->iffp()) {
-            m_sampleFuncp->addStmtsp(new AstIf{fl, iffp->cloneTree(false), samplep});
-        } else {
+        ಯದಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ iffp = crossp->iffp()) {
+            m_sampleFuncp->addStmtsp(ನೂತನ AstIf{fl, iffp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), samplep});
+        } ಅನ್ಯಥಾ {
             m_sampleFuncp->addStmtsp(samplep);
         }
     }
 
-    void generateCrossCode(AstCoverCross* crossp) {
+    ಶೂನ್ಯ generateCrossCode(AstCoverCross* crossp) {
         UINFO(4, "  Generating code for cross: " << crossp->name());
 
         // Non-standard hierarchical/dotted cross item (e.g. 'cross a.b'): an implicit coverpoint
@@ -3981,12 +3981,12 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // this cross.  When support is added the implicit coverpoint should be synthesized
         // upstream (V3LinkParse) as a real AstCoverpoint so it flows through the normal coverpoint
         // path - by here coverpoint lowering has already run.
-        for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-            const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-            if (refp->exprp()) {
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಧ್ರುವ AstCoverpointRef* ಧ್ರುವ refp = VN_AS(itemp, CoverpointRef);
+            ಯದಿ (refp->exprp()) {
                 refp->v3warn(COVERIGN,
                              "Unsupported: cross of hierarchical reference (implicit coverpoint)");
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
         }
 
@@ -3994,153 +3994,153 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // synthesize) is dropped entirely with a COVERIGN warning -- it produces no coverage
         // either way -- but only this cross is dropped; its sibling crosses are still generated
         // and the real coverpoints it referenced remain as independent coverpoints.
-        if (m_droppedCrosses.count(crossp)) {
-            for (AstNode* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
-                const AstCoverpointRef* const refp = VN_AS(itemp, CoverpointRef);
-                if (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
+        ಯದಿ (m_droppedCrosses.ಎಣಿಕೆ(crossp)) {
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = crossp->itemsp(); itemp; itemp = itemp->nextp()) {
+                ಧ್ರುವ AstCoverpointRef* ಧ್ರುವ refp = VN_AS(itemp, CoverpointRef);
+                ಯದಿ (m_coverpointMap.find(refp->name()) == m_coverpointMap.end()) {
                     refp->v3warn(COVERIGN, "Unsupported: cross of "
                                                << refp->prettyNameQ()
                                                << " which is not a coverpoint (implicit "
                                                   "coverpoint)");
-                    break;
+                    ಭಙ್ಗ;
                 }
             }
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
 
         // Every cross that isn't dropped routes through a VlCoverCross member.
         generateCross(crossp);
     }
 
-    AstNodeExpr* buildBinCondition(AstCoverBin* binp, AstNodeExpr* exprp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildBinCondition(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
         // Get the range list from the bin
-        AstNode* const rangep = binp->rangesp();
-        if (!rangep) return nullptr;
+        Ast_ಗಂಟು* ಧ್ರುವ rangep = binp->rangesp();
+        ಯದಿ (!rangep) ಪ್ರತ್ಯಾಗಮ nullptr;
 
         // Integral values resolve to the coverpoint's type, as its runtime metadata does
-        const bool integral = exprp->dtypep()->skipRefp()->isIntegralOrPacked();
+        ಧ್ರುವ ತಾರ್ಕಿಕ integral = exprp->dtypep()->skipRefp()->isIntegralOrPacked();
         // No value form of a wildcard bin is allowed on a real coverpoint (IEEE 1800-2023 19.5.4)
-        if (binp->isWildcard() && !integral) return wildcardTypeError(binp, exprp);
+        ಯದಿ (binp->isWildcard() && !integral) ಪ್ರತ್ಯಾಗಮ wildcardTypeError(binp, exprp);
 
         // Build condition by OR-ing all ranges together
-        AstNodeExpr* fullCondp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fullCondp = nullptr;
 
-        for (AstNode* currRangep = rangep; currRangep; currRangep = currRangep->nextp()) {
-            AstNodeExpr* rangeCondp = nullptr;
+        ಪ್ರತಿ (Ast_ಗಂಟು* currRangep = rangep; currRangep; currRangep = currRangep->nextp()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangeCondp = nullptr;
             currRangep = V3Const::constifyEdit(currRangep);
 
-            if (AstInsideRange* irp = VN_CAST(currRangep, InsideRange)) {
-                AstNodeExpr* const minExprp = irp->lhsp();
-                AstNodeExpr* const maxExprp = irp->rhsp();
-                AstConst* const minConstp = VN_CAST(minExprp, Const);
-                AstConst* const maxConstp = VN_CAST(maxExprp, Const);
-                const bool loUnbounded = VN_IS(minExprp, Unbounded);
-                const bool hiUnbounded = VN_IS(maxExprp, Unbounded);
-                if (loUnbounded || hiUnbounded) {
+            ಯದಿ (AstInsideRange* irp = VN_CAST(currRangep, InsideRange)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ minExprp = irp->lhsp();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ maxExprp = irp->rhsp();
+                AstConst* ಧ್ರುವ minConstp = VN_CAST(minExprp, Const);
+                AstConst* ಧ್ರುವ maxConstp = VN_CAST(maxExprp, Const);
+                ಧ್ರುವ ತಾರ್ಕಿಕ loUnbounded = VN_IS(minExprp, Unbounded);
+                ಧ್ರುವ ತಾರ್ಕಿಕ hiUnbounded = VN_IS(maxExprp, Unbounded);
+                ಯದಿ (loUnbounded || hiUnbounded) {
                     // Open-ended range: '$' is the coverpoint domain min/max, so the
                     // range reduces to a single inequality (e.g. {[10:$]} -> expr >= 10).
-                    AstConst* const boundp = hiUnbounded ? minConstp : maxConstp;
-                    if (loUnbounded && hiUnbounded) {
-                        rangeCondp = new AstConst{irp->fileline(), AstConst::BitTrue{}};
-                    } else if (!boundp) {
+                    AstConst* ಧ್ರುವ boundp = hiUnbounded ? minConstp : maxConstp;
+                    ಯದಿ (loUnbounded && hiUnbounded) {
+                        rangeCondp = ನೂತನ AstConst{irp->fileline(), AstConst::BitTrue{}};
+                    } ಅನ್ಯಥಾ ಯದಿ (!boundp) {
                         irp->v3error("Non-constant expression in bin range; "
                                      "range bounds must be constants (IEEE 1800-2023 19.5)");
-                        if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                        return nullptr;
-                    } else if (boundp->num().isFourState()) {
+                        ಯದಿ (fullCondp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(fullCondp), fullCondp);
+                        ಪ್ರತ್ಯಾಗಮ nullptr;
+                    } ಅನ್ಯಥಾ ಯದಿ (boundp->ಅಂಕೆ().isFourState()) {
                         irp->v3error("Four-state (x/z) value in bin range bound; "
                                      "range bounds must be two-state constants");
-                        if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                        return nullptr;
-                    } else if (integral) {
-                        rangeCondp = buildValueCondition(binp, exprp, irp);
-                    } else {
+                        ಯದಿ (fullCondp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(fullCondp), fullCondp);
+                        ಪ್ರತ್ಯಾಗಮ nullptr;
+                    } ಅನ್ಯಥಾ ಯದಿ (integral) {
+                        rangeCondp = build_ಮೌಲ್ಯ_Condition(binp, exprp, irp);
+                    } ಅನ್ಯಥಾ {
                         rangeCondp = makeOpenRangeCondition(irp->fileline(), exprp, boundp,
                                                             /*isLowerBound=*/hiUnbounded);
                     }
-                } else if (!minConstp || !maxConstp) {
+                } ಅನ್ಯಥಾ ಯದಿ (!minConstp || !maxConstp) {
                     irp->v3error("Non-constant expression in bin range; "
                                  "range bounds must be constants (IEEE 1800-2023 19.5)");
-                    if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                    return nullptr;
-                } else if (minConstp->num().isFourState() || maxConstp->num().isFourState()) {
+                    ಯದಿ (fullCondp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(fullCondp), fullCondp);
+                    ಪ್ರತ್ಯಾಗಮ nullptr;
+                } ಅನ್ಯಥಾ ಯದಿ (minConstp->ಅಂಕೆ().isFourState() || maxConstp->ಅಂಕೆ().isFourState()) {
                     irp->v3error("Four-state (x/z) value in bin range bound; "
                                  "range bounds must be two-state constants");
-                    if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                    return nullptr;
-                } else if (integral) {
-                    rangeCondp = buildValueCondition(binp, exprp, irp);
-                } else {
+                    ಯದಿ (fullCondp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(fullCondp), fullCondp);
+                    ಪ್ರತ್ಯಾಗಮ nullptr;
+                } ಅನ್ಯಥಾ ಯದಿ (integral) {
+                    rangeCondp = build_ಮೌಲ್ಯ_Condition(binp, exprp, irp);
+                } ಅನ್ಯಥಾ {
                     rangeCondp = makeRangeCondition(irp->fileline(), exprp, minExprp, maxExprp);
                 }
-            } else if (AstConst* constp = VN_CAST(currRangep, Const)) {
-                rangeCondp = buildValueCondition(binp, exprp, constp);
-            } else {
+            } ಅನ್ಯಥಾ ಯದಿ (AstConst* constp = VN_CAST(currRangep, Const)) {
+                rangeCondp = build_ಮೌಲ್ಯ_Condition(binp, exprp, constp);
+            } ಅನ್ಯಥಾ {
                 currRangep->v3error("Non-constant expression in bin range; values must be "
                                     "constants (IEEE 1800-2023 19.5)");
-                if (fullCondp) VL_DO_DANGLING(pushDeletep(fullCondp), fullCondp);
-                return nullptr;
+                ಯದಿ (fullCondp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(fullCondp), fullCondp);
+                ಪ್ರತ್ಯಾಗಮ nullptr;
             }
 
             UASSERT_OBJ(rangeCondp, binp, "rangeCondp is null after building range condition");
             fullCondp
-                = fullCondp ? new AstOr{binp->fileline(), fullCondp, rangeCondp} : rangeCondp;
+                = fullCondp ? ನೂತನ AstOr{binp->fileline(), fullCondp, rangeCondp} : rangeCondp;
         }
 
-        return fullCondp;
+        ಪ್ರತ್ಯಾಗಮ fullCondp;
     }
 
     // Wildcard bits have no meaning for a non-integral coverpoint.
-    static AstNodeExpr* wildcardTypeError(AstCoverBin* binp, AstNodeExpr* exprp) {
-        const AstNodeDType* const dtypep = exprp->dtypep()->skipRefp();
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* wildcardTypeError(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಧ್ರುವ Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep = exprp->dtypep()->skipRefp();
         exprp->v3error("Cannot use a wildcard bin on a coverpoint of type "
                        << dtypep->prettyDTypeNameQ() << " (IEEE 1800-2023 19.5.4).\n"
                        << exprp->warnContextPrimary() << '\n'
                        << binp->warnOther() << "... Location of wildcard bin\n"
                        << binp->warnContextSecondary());
-        return new AstConst{binp->fileline(), AstConst::BitFalse{}};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{binp->fileline(), AstConst::BitFalse{}};
     }
 
     // Match one bin value, range, or wildcard pattern.  Integral coverpoints first resolve the
     // value to their type (IEEE 1800-2023 19.5.7).  Non-owning: clones what it uses.
-    AstNodeExpr* buildValueCondition(AstCoverBin* binp, AstNodeExpr* exprp, AstNode* valuep) {
-        FileLine* const fl = valuep->fileline();
-        if (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
-            return new AstEq{fl, exprp->cloneTree(false),
-                             VN_AS(valuep, NodeExpr)->cloneTree(false)};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* build_ಮೌಲ್ಯ_Condition(AstCoverBin* binp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು* valuep) {
+        File_ಸಾಲು* ಧ್ರುವ fl = valuep->fileline();
+        ಯದಿ (!exprp->dtypep()->skipRefp()->isIntegralOrPacked()) {
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstEq{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ),
+                             VN_AS(valuep, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
         }
-        CrossValueRange range{valuep, resolveWidth(valuep, exprp)};
-        if (!resolveValue(valuep, exprp, true, binp->isWildcard(), range)) {
+        Cross_ಮೌಲ್ಯ_Range range{valuep, resolveWidth(valuep, exprp)};
+        ಯದಿ (!resolve_ಮೌಲ್ಯ(valuep, exprp, ಸತ್ಯ, binp->isWildcard(), range)) {
             valuep->v3warn(E_UNSUPPORTED,
                            "Unsupported: non-integral value in a coverage bin of an "
                            "integral coverpoint.");
-            return new AstConst{fl, AstConst::BitFalse{}};
+            ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, AstConst::BitFalse{}};
         }
-        if (crossRangeEmpty(range)) return new AstConst{fl, AstConst::BitFalse{}};
-        AstConst* const lop = newValueConst(fl, range.lo, exprp);
-        AstConst* const hip = newValueConst(fl, range.hi, exprp);
-        AstNodeExpr* condp = nullptr;
-        if (lop->num().isCaseEq(hip->num())) {
-            condp = new AstEq{fl, exprp->cloneTree(false), lop};
-        } else {
+        ಯದಿ (crossRangeEmpty(range)) ಪ್ರತ್ಯಾಗಮ ನೂತನ AstConst{fl, AstConst::BitFalse{}};
+        AstConst* ಧ್ರುವ lop = new_ಮೌಲ್ಯ_Const(fl, range.lo, exprp);
+        AstConst* ಧ್ರುವ hip = new_ಮೌಲ್ಯ_Const(fl, range.hi, exprp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = nullptr;
+        ಯದಿ (lop->ಅಂಕೆ().isCaseEq(hip->ಅಂಕೆ())) {
+            condp = ನೂತನ AstEq{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), lop};
+        } ಅನ್ಯಥಾ {
             condp = makeRangeCondition(fl, exprp, lop, hip);
-            VL_DO_DANGLING(pushDeletep(lop), lop);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(lop), lop);
         }
-        VL_DO_DANGLING(pushDeletep(hip), hip);
-        if (!range.wildcard) return condp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(hip), hip);
+        ಯದಿ (!range.wildcard) ಪ್ರತ್ಯಾಗಮ condp;
         // Match the pattern's value bits within the source-value bounds.
-        V3Number mask{valuep, exprp->width()};
-        V3Number value{valuep, exprp->width()};
+        V3_ಸಂಖ್ಯೆ mask{valuep, exprp->width()};
+        V3_ಸಂಖ್ಯೆ ಮೌಲ್ಯ{valuep, exprp->width()};
         mask.opBitsNonXZ(range.pattern);
-        value.opBitsOne(range.pattern);
-        AstConst* const maskConstp = newValueConst(fl, mask, exprp);
-        AstConst* const valueConstp = newValueConst(fl, value, exprp);
-        AstNodeExpr* const exprMasked = new AstAnd{fl, exprp->cloneTree(false), maskConstp};
-        AstNodeExpr* const valueMasked = new AstAnd{fl, valueConstp, maskConstp->cloneTree(false)};
-        return new AstLogAnd{fl, condp, new AstEq{fl, exprMasked, valueMasked}};
+        ಮೌಲ್ಯ.opBitsOne(range.pattern);
+        AstConst* ಧ್ರುವ maskConstp = new_ಮೌಲ್ಯ_Const(fl, mask, exprp);
+        AstConst* ಧ್ರುವ ಮೌಲ್ಯ_Constp = new_ಮೌಲ್ಯ_Const(fl, ಮೌಲ್ಯ, exprp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ ಅಭಿವ್ಯಕ್ತಿ_Masked = ನೂತನ AstAnd{fl, exprp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), maskConstp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ ಮೌಲ್ಯ_Masked = ನೂತನ AstAnd{fl, ಮೌಲ್ಯ_Constp, maskConstp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ)};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstLogAnd{fl, condp, ನೂತನ AstEq{fl, ಅಭಿವ್ಯಕ್ತಿ_Masked, ಮೌಲ್ಯ_Masked}};
     }
 
-    void generateCoverageComputationCode() {
+    ಶೂನ್ಯ generateCoverageComputationCode() {
         UINFO(4, "  Generating coverage computation code");
 
         // Invalidate cache: addMembersp() calls in generateCoverpointCode/generateCrossCode
@@ -4151,345 +4151,345 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // option.weight (IEEE 1800-2023 19.11).  The instance node holds their runtimes.  With
         // the instances merged, get_coverage() instead, unless option.get_inst_coverage
         // (Table 19-1).
-        AstFunc* const getInstCoveragep
+        AstFunc* ಧ್ರುವ getInstCoveragep
             = VN_AS(m_memberMap.findMember(m_covergroupp, "get_inst_coverage"), Func);
-        FileLine* const instFl = getInstCoveragep->fileline();
-        AstCMethodHard* const instCallp = instanceCall(instFl, VCMethod::COVERGROUP_COVERAGE);
+        File_ಸಾಲು* ಧ್ರುವ instFl = getInstCoveragep->fileline();
+        AstCMethodHard* ಧ್ರುವ instCallp = instanceCall(instFl, VCMethod::COVERGROUP_COVERAGE);
         instCallp->dtypeSetDouble();
-        AstNodeExpr* instValuep = instCallp;
-        if (m_cgMayMerge) {
-            AstNodeExpr* const mergedp = new AstLogAnd{
-                instFl, newOptionSel(instFl, optionVar(true), "merge_instances", VAccess::READ),
-                new AstLogNot{instFl, newOptionSel(instFl, optionVar(false), "get_inst_coverage",
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* instValuep = instCallp;
+        ಯದಿ (m_cgMayMerge) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ mergedp = ನೂತನ AstLogAnd{
+                instFl, newOptionSel(instFl, optionVar(ಸತ್ಯ), "merge_instances", VAccess::READ),
+                ನೂತನ AstLogNot{instFl, newOptionSel(instFl, optionVar(ಅಸತ್ಯ), "get_inst_coverage",
                                                    VAccess::READ)}};
-            instValuep = new AstCond{instFl, mergedp, typeCoverageCall(instFl), instCallp};
+            instValuep = ನೂತನ AstCond{instFl, mergedp, typeCoverageCall(instFl), instCallp};
         }
-        getInstCoveragep->addStmtsp(new AstAssign{
-            instFl, new AstVarRef{instFl, VN_AS(getInstCoveragep->fvarp(), Var), VAccess::WRITE},
+        getInstCoveragep->addStmtsp(ನೂತನ AstAssign{
+            instFl, ನೂತನ AstVarRef{instFl, VN_AS(getInstCoveragep->fvarp(), Var), VAccess::WRITE},
             instValuep});
 
         // get_coverage(): the average of the covergroup's instances, weighted by their
         // option.weight, or with type_option.merge_instances, the coverage of the union of their
         // bins (IEEE 1800-2023 19.11.3).  Static, so the registry finds the instances.
-        AstFunc* const getCoveragep
+        AstFunc* ಧ್ರುವ getCoveragep
             = VN_AS(m_memberMap.findMember(m_covergroupp, "get_coverage"), Func);
-        FileLine* const typeFl = getCoveragep->fileline();
-        getCoveragep->addStmtsp(new AstAssign{
-            typeFl, new AstVarRef{typeFl, VN_AS(getCoveragep->fvarp(), Var), VAccess::WRITE},
+        File_ಸಾಲು* ಧ್ರುವ typeFl = getCoveragep->fileline();
+        getCoveragep->addStmtsp(ನೂತನ AstAssign{
+            typeFl, ನೂತನ AstVarRef{typeFl, VN_AS(getCoveragep->fvarp(), Var), VAccess::WRITE},
             typeCoverageCall(typeFl)});
     }
 
     // The registry call computing the covergroup's type coverage, per its type options
-    AstCMethodHard* typeCoverageCall(FileLine* fl) {
-        AstCExpr* const registryp = ctext(fl, "vlSymsp->_vm_contextp__->covergroupRegistryp()");
+    AstCMethodHard* typeCoverageCall(File_ಸಾಲು* fl) {
+        AstCExpr* ಧ್ರುವ registryp = ctext(fl, "vlSymsp->_vm_contextp__->covergroupRegistryp()");
         registryp->dtypeSetVoid();  // Opaque receiver; only ever the 'fromp' of the call below
-        AstCMethodHard* const callp
-            = new AstCMethodHard{fl, registryp, VCMethod::COVERGROUP_TYPE_COVERAGE};
+        AstCMethodHard* ಧ್ರುವ callp
+            = ನೂತನ AstCMethodHard{fl, registryp, VCMethod::COVERGROUP_TYPE_COVERAGE};
         callp->addPinsp(ctext(fl, quoted(covergroupProtectedName())));
-        callp->addPinsp(newOptionSel(fl, optionVar(true), "weight", VAccess::READ));
-        callp->addPinsp(newOptionSel(fl, optionVar(true), "merge_instances", VAccess::READ));
-        callp->addPinsp(fileLineDebug(m_covergroupp->fileline()));
-        callp->usePtr(true);
+        callp->addPinsp(newOptionSel(fl, optionVar(ಸತ್ಯ), "weight", VAccess::READ));
+        callp->addPinsp(newOptionSel(fl, optionVar(ಸತ್ಯ), "merge_instances", VAccess::READ));
+        callp->addPinsp(file_ಸಾಲು_Debug(m_covergroupp->fileline()));
+        callp->usePtr(ಸತ್ಯ);
         callp->dtypeSetDouble();
-        return callp;
+        ಪ್ರತ್ಯಾಗಮ callp;
     }
 
     // VISITORS
-    static bool isEnclosingInstanceVar(const AstVar* varp) {
-        return varp->isClassMember() && !varp->lifetime().isStatic() && !varp->isParam();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isEnclosingInstanceVar(ಧ್ರುವ AstVar* varp) {
+        ಪ್ರತ್ಯಾಗಮ varp->isClassMember() && !varp->lifetime().isStatic() && !varp->isParam();
     }
 
-    void rewriteThisRef(AstThisRef* refp, AstVar* handleVarp) {
-        const AstClassRefDType* const refDTypep
+    ಶೂನ್ಯ rewriteThisRef(AstThisRef* refp, AstVar* handleVarp) {
+        ಧ್ರುವ AstClassRefDType* ಧ್ರುವ refDTypep
             = VN_CAST(refp->dtypep()->skipRefp(), ClassRefDType);
         UASSERT_OBJ(refDTypep && refDTypep->classp() == m_covergroupp, refp,
                     "Unexpected this reference in embedded covergroup");
-        AstNodeExpr* const newp = new AstVarRef{refp->fileline(), handleVarp, VAccess::READ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ newp = ನೂತನ AstVarRef{refp->fileline(), handleVarp, VAccess::READ};
         refp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
     }
 
-    void rewriteVarRef(AstVarRef* refp, AstVar* handleVarp) {
-        FileLine* const fl = refp->fileline();
+    ಶೂನ್ಯ rewriteVarRef(AstVarRef* refp, AstVar* handleVarp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = refp->fileline();
         // As V3LinkLValue does, the handle of a written member select is marked written
-        AstMemberSel* const selp
-            = new AstMemberSel{fl, new AstVarRef{fl, handleVarp, refp->access()}, refp->varp()};
+        AstMemberSel* ಧ್ರುವ selp
+            = ನೂತನ AstMemberSel{fl, ನೂತನ AstVarRef{fl, handleVarp, refp->access()}, refp->varp()};
         selp->access(refp->access());
         refp->replaceWith(selp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
     }
 
-    void rewriteFuncRef(AstFuncRef* refp, AstVar* handleVarp) {
-        FileLine* const fl = refp->fileline();
-        AstArg* const argsp = refp->argsp() ? refp->argsp()->unlinkFrBackWithNext() : nullptr;
-        AstMethodCall* const callp = new AstMethodCall{
-            fl, new AstVarRef{fl, handleVarp, VAccess::READ}, refp->name(), argsp};
+    ಶೂನ್ಯ rewriteFuncRef(AstFuncRef* refp, AstVar* handleVarp) {
+        File_ಸಾಲು* ಧ್ರುವ fl = refp->fileline();
+        AstArg* ಧ್ರುವ argsp = refp->argsp() ? refp->argsp()->unlinkFrBackWithNext() : nullptr;
+        AstMethodCall* ಧ್ರುವ callp = ನೂತನ AstMethodCall{
+            fl, ನೂತನ AstVarRef{fl, handleVarp, VAccess::READ}, refp->name(), argsp};
         callp->taskp(refp->taskp());
         callp->dtypeFrom(refp);
         refp->replaceWith(callp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
     }
 
     // True if funcp is an instance method of the enclosing class or one of its bases
-    bool isEnclosingInstanceFunc(const AstNodeFTask* funcp) const {
-        if (!funcp->classMethod() || funcp->isStatic()) return false;
-        return AstClass::isClassExtendedFrom(m_enclosingClassp, VN_AS(funcp->aboveLoopp(), Class));
+    ತಾರ್ಕಿಕ isEnclosingInstanceFunc(ಧ್ರುವ Ast_ಗಂಟು_FTask* funcp) ಧ್ರುವ {
+        ಯದಿ (!funcp->classMethod() || funcp->isStatic()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ AstClass::isClassExtendedFrom(m_enclosingClassp, VN_AS(funcp->aboveLoopp(), Class));
     }
 
-    bool isEmbeddedCovergroupVar(const AstVar* varp) const {
-        if (!varp || !varp->isClassMember() || varp->isDeclTyped()) return false;
-        const AstClassRefDType* const refp = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-        return refp && refp->classp() == m_covergroupp;
+    ತಾರ್ಕಿಕ isEmbeddedCovergroupVar(ಧ್ರುವ AstVar* varp) ಧ್ರುವ {
+        ಯದಿ (!varp || !varp->isClassMember() || varp->isDeclTyped()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ AstClassRefDType* ಧ್ರುವ refp = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
+        ಪ್ರತ್ಯಾಗಮ refp && refp->classp() == m_covergroupp;
     }
 
-    AstVar* findEmbeddedCovergroupVar() const {
-        if (!m_enclosingClassp) return nullptr;
-        for (AstNode* itemp = m_enclosingClassp->membersp(); itemp; itemp = itemp->nextp()) {
-            if (AstVar* const varp = VN_CAST(itemp, Var)) {
-                if (isEmbeddedCovergroupVar(varp)) return varp;
+    AstVar* findEmbeddedCovergroupVar() ಧ್ರುವ {
+        ಯದಿ (!m_enclosingClassp) ಪ್ರತ್ಯಾಗಮ nullptr;
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = m_enclosingClassp->membersp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (AstVar* ಧ್ರುವ varp = VN_CAST(itemp, Var)) {
+                ಯದಿ (isEmbeddedCovergroupVar(varp)) ಪ್ರತ್ಯಾಗಮ varp;
             }
         }
         // V3LinkParse always creates an implicit variable for an embedded covergroup.
-        return nullptr;  // LCOV_EXCL_LINE
+        ಪ್ರತ್ಯಾಗಮ nullptr;  // LCOV_EXCL_LINE
     }
 
-    std::vector<AstNodeAssign*> findCovergroupConstructions() {
-        std::vector<AstNodeAssign*> foundps;
-        if (!m_embeddedVarp) return foundps;
-        AstFunc* const enclosingNewp
+    std::vector<Ast_ಗಂಟು_Assign*> findCovergroupConstructions() {
+        std::vector<Ast_ಗಂಟು_Assign*> foundps;
+        ಯದಿ (!m_embeddedVarp) ಪ್ರತ್ಯಾಗಮ foundps;
+        AstFunc* ಧ್ರುವ enclosingNewp
             = VN_CAST(m_memberMap.findMember(m_enclosingClassp, "new"), Func);
-        if (!enclosingNewp) return foundps;
-        enclosingNewp->foreach([&](AstNodeAssign* asgnp) {
-            const AstNew* const newp = VN_CAST(asgnp->rhsp(), New);
-            const AstVarRef* const lhsRefp = VN_CAST(asgnp->lhsp(), VarRef);
-            if (!newp || !lhsRefp || lhsRefp->varp() != m_embeddedVarp) return;
-            const AstClassRefDType* const refp = VN_CAST(newp->dtypep(), ClassRefDType);
-            if (refp && refp->classp() == m_covergroupp) foundps.push_back(asgnp);
+        ಯದಿ (!enclosingNewp) ಪ್ರತ್ಯಾಗಮ foundps;
+        enclosingNewp->foreach([&](Ast_ಗಂಟು_Assign* asgnp) {
+            ಧ್ರುವ AstNew* ಧ್ರುವ newp = VN_CAST(asgnp->rhsp(), New);
+            ಧ್ರುವ AstVarRef* ಧ್ರುವ lhsRefp = VN_CAST(asgnp->lhsp(), VarRef);
+            ಯದಿ (!newp || !lhsRefp || lhsRefp->varp() != m_embeddedVarp) ಪ್ರತ್ಯಾಗಮ;
+            ಧ್ರುವ AstClassRefDType* ಧ್ರುವ refp = VN_CAST(newp->dtypep(), ClassRefDType);
+            ಯದಿ (refp && refp->classp() == m_covergroupp) foundps.ತಳ್ಳು_back(asgnp);
         });
-        return foundps;
+        ಪ್ರತ್ಯಾಗಮ foundps;
     }
 
-    std::set<const AstVar*> enclosingInstanceVars() const {
-        std::set<const AstVar*> vars;
-        if (m_enclosingClassp) {
-            m_enclosingClassp->foreachMember([&](AstClass* const, AstVar* const varp) {
-                if (isEnclosingInstanceVar(varp)) vars.insert(varp);
+    std::set<ಧ್ರುವ AstVar*> enclosingInstanceVars() ಧ್ರುವ {
+        std::set<ಧ್ರುವ AstVar*> vars;
+        ಯದಿ (m_enclosingClassp) {
+            m_enclosingClassp->foreachMember([&](AstClass* ಧ್ರುವ, AstVar* ಧ್ರುವ varp) {
+                ಯದಿ (isEnclosingInstanceVar(varp)) vars.ಸೇರಿಸು(varp);
             });
         }
-        return vars;
+        ಪ್ರತ್ಯಾಗಮ vars;
     }
 
-    bool hasEnclosingEventRef(AstCovergroup* cgp) const {
-        if (!m_embeddedVarp || !cgp->eventp()) return false;
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
-        bool found = false;
+    ತಾರ್ಕಿಕ hasEnclosingEventRef(AstCovergroup* cgp) ಧ್ರುವ {
+        ಯದಿ (!m_embeddedVarp || !cgp->eventp()) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಧ್ರುವ std::set<ಧ್ರುವ AstVar*> enclosingVars = enclosingInstanceVars();
+        ತಾರ್ಕಿಕ found = ಅಸತ್ಯ;
         cgp->eventp()->foreach([&](AstVarRef* refp) {
-            if (enclosingVars.count(refp->varp())) found = true;
+            ಯದಿ (enclosingVars.ಎಣಿಕೆ(refp->varp())) found = ಸತ್ಯ;
         });
-        return found;
+        ಪ್ರತ್ಯಾಗಮ found;
     }
 
-    static bool parseEmbeddedEventExpr(AstNodeExpr* exprp, AstVar*& baseVarp,
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ parse_Embedded_Event_ಅಭಿವ್ಯಕ್ತಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVar*& baseVarp,
                                        AstVar*& memberVarp) {
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        ಯದಿ (AstVarRef* ಧ್ರುವ refp = VN_CAST(exprp, VarRef)) {
             baseVarp = refp->varp();
             memberVarp = nullptr;
-            return true;
+            ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
         }
-        AstMemberSel* const selp = VN_CAST(exprp, MemberSel);
-        if (!selp) return false;
-        AstVarRef* const baseRefp = VN_CAST(selp->fromp(), VarRef);
-        if (!baseRefp) return false;
+        AstMemberSel* ಧ್ರುವ selp = VN_CAST(exprp, MemberSel);
+        ಯದಿ (!selp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        AstVarRef* ಧ್ರುವ baseRefp = VN_CAST(selp->fromp(), VarRef);
+        ಯದಿ (!baseRefp) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
         baseVarp = baseRefp->varp();
         memberVarp = selp->varp();
-        return true;
+        ಪ್ರತ್ಯಾಗಮ ಸತ್ಯ;
     }
 
-    bool isEventLvalue(AstNodeExpr* exprp, const EmbeddedEventTrigger& trigger) const {
-        if (AstSel* const selp = VN_CAST(exprp, Sel)) exprp = selp->fromp();
+    ತಾರ್ಕಿಕ isEventLvalue(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಧ್ರುವ EmbeddedEventTrigger& trigger) ಧ್ರುವ {
+        ಯದಿ (AstSel* ಧ್ರುವ selp = VN_CAST(exprp, Sel)) exprp = selp->fromp();
         AstVar* baseVarp = nullptr;
         AstVar* memberVarp = nullptr;
-        if (!parseEmbeddedEventExpr(exprp, baseVarp, memberVarp)) return false;
-        return baseVarp == trigger.baseVarp && memberVarp == trigger.memberVarp;
+        ಯದಿ (!parse_Embedded_Event_ಅಭಿವ್ಯಕ್ತಿ(exprp, baseVarp, memberVarp)) ಪ್ರತ್ಯಾಗಮ ಅಸತ್ಯ;
+        ಪ್ರತ್ಯಾಗಮ baseVarp == trigger.baseVarp && memberVarp == trigger.memberVarp;
     }
 
-    AstNodeExpr* newEventRead(FileLine* fl, const EmbeddedEventTrigger& trigger) const {
-        AstNodeExpr* const basep = new AstVarRef{fl, trigger.baseVarp, VAccess::READ};
-        if (!trigger.memberVarp) return basep;
-        AstMemberSel* const selp = new AstMemberSel{fl, basep, trigger.memberVarp};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newEventRead(File_ಸಾಲು* fl, ಧ್ರುವ EmbeddedEventTrigger& trigger) ಧ್ರುವ {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ basep = ನೂತನ AstVarRef{fl, trigger.baseVarp, VAccess::READ};
+        ಯದಿ (!trigger.memberVarp) ಪ್ರತ್ಯಾಗಮ basep;
+        AstMemberSel* ಧ್ರುವ selp = ನೂತನ AstMemberSel{fl, basep, trigger.memberVarp};
         selp->access(VAccess::READ);
-        return selp;
+        ಪ್ರತ್ಯಾಗಮ selp;
     }
 
-    string eventPrevName(const EmbeddedEventTrigger& trigger, size_t triggerIndex) const {
+    string eventPrevName(ಧ್ರುವ EmbeddedEventTrigger& trigger, size_t triggerIndex) ಧ್ರುವ {
         string name = "__Vcg_prev_" + m_embeddedVarp->name() + "_" + std::to_string(triggerIndex)
                       + "_" + trigger.baseVarp->name();
-        if (trigger.memberVarp) name += "_" + trigger.memberVarp->name();
-        return name;
+        ಯದಿ (trigger.memberVarp) name += "_" + trigger.memberVarp->name();
+        ಪ್ರತ್ಯಾಗಮ name;
     }
 
-    AstNodeExpr* newEmbeddedVarNonNull(FileLine* fl) const {
-        return new AstNeq{fl, new AstVarRef{fl, m_embeddedVarp, VAccess::READ},
-                          new AstConst{fl, AstConst::Null{}}};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newEmbeddedVarNonNull(File_ಸಾಲು* fl) ಧ್ರುವ {
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstNeq{fl, ನೂತನ AstVarRef{fl, m_embeddedVarp, VAccess::READ},
+                          ನೂತನ AstConst{fl, AstConst::Null{}}};
     }
 
-    AstNodeStmt* newSampleStmt(FileLine* fl) const {
-        AstMethodCall* const callp = new AstMethodCall{
-            fl, new AstVarRef{fl, m_embeddedVarp, VAccess::READ}, "sample", nullptr};
+    Ast_ಗಂಟು_Stmt* newSampleStmt(File_ಸಾಲು* fl) ಧ್ರುವ {
+        AstMethodCall* ಧ್ರುವ callp = ನೂತನ AstMethodCall{
+            fl, ನೂತನ AstVarRef{fl, m_embeddedVarp, VAccess::READ}, "sample", nullptr};
         callp->taskp(m_sampleFuncp);
         callp->dtypeSetVoid();
-        return callp->makeStmt();
+        ಪ್ರತ್ಯಾಗಮ callp->makeStmt();
     }
 
-    void installEmbeddedEventFork(AstSenTree* eventp,
-                                  const std::vector<AstNodeAssign*>& constructps) {
+    ಶೂನ್ಯ installEmbeddedEventFork(Ast_Sen_ವೃಕ್ಷ* eventp,
+                                  ಧ್ರುವ std::vector<Ast_ಗಂಟು_Assign*>& constructps) {
         // IEEE 1800-2023 19.3 samples coverpoints whenever their clocking event occurs. A
         // per-instance event cannot use V3Active's static sensitivity path, so spawn
         // 'fork forever begin @(event); cg.sample(); end join_none' after each construction.
-        for (AstNodeAssign* const constructp : constructps) {
-            FileLine* const fl = constructp->fileline();
-            AstLoop* const loopp = new AstLoop{fl};
-            loopp->addStmtsp(new AstEventControl{fl, eventp->cloneTree(false), nullptr});
-            loopp->addStmtsp(new AstIf{fl, newEmbeddedVarNonNull(fl), newSampleStmt(fl)});
-            AstFork* const forkp = new AstFork{fl, VJoinType::JOIN_NONE};
-            forkp->immediateStart(true);
-            forkp->addForksp(new AstBegin{fl, "", loopp, true});
+        ಪ್ರತಿ (Ast_ಗಂಟು_Assign* ಧ್ರುವ constructp : constructps) {
+            File_ಸಾಲು* ಧ್ರುವ fl = constructp->fileline();
+            AstLoop* ಧ್ರುವ loopp = ನೂತನ AstLoop{fl};
+            loopp->addStmtsp(ನೂತನ AstEventControl{fl, eventp->clone_ವೃಕ್ಷ(ಅಸತ್ಯ), nullptr});
+            loopp->addStmtsp(ನೂತನ AstIf{fl, newEmbeddedVarNonNull(fl), newSampleStmt(fl)});
+            AstFork* ಧ್ರುವ forkp = ನೂತನ AstFork{fl, VJoinType::JOIN_NONE};
+            forkp->immediateStart(ಸತ್ಯ);
+            forkp->addForksp(ನೂತನ AstBegin{fl, "", loopp, ಸತ್ಯ});
             constructp->addNextHere(forkp);
         }
-        VL_DO_DANGLING(pushDeletep(eventp), eventp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(eventp), eventp);
     }
 
-    AstNodeExpr* newEventReadyCondition(FileLine* fl, const EmbeddedEventTrigger& trigger) const {
-        AstNodeExpr* const curp = newEventRead(fl, trigger);
-        AstNodeExpr* const prevp = new AstVarRef{fl, trigger.prevVarp, VAccess::READ};
-        AstNodeExpr* edgep = nullptr;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newEventReadyCondition(File_ಸಾಲು* fl, ಧ್ರುವ EmbeddedEventTrigger& trigger) ಧ್ರುವ {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ curp = newEventRead(fl, trigger);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಧ್ರುವ prevp = ನೂತನ AstVarRef{fl, trigger.prevVarp, VAccess::READ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* edgep = nullptr;
         // IEEE 1800-2023 9.4.2 detects edge-qualified events only on the expression's LSB,
         // while an implicit change event observes the complete expression.
-        if (trigger.edgeType == VEdgeType::ET_POSEDGE) {
-            edgep = new AstSel{fl, new AstAnd{fl, curp, new AstNot{fl, prevp}}, 0, 1};
-        } else if (trigger.edgeType == VEdgeType::ET_NEGEDGE) {
-            edgep = new AstSel{fl, new AstAnd{fl, new AstNot{fl, curp}, prevp}, 0, 1};
-        } else if (trigger.edgeType == VEdgeType::ET_BOTHEDGE) {
-            edgep = new AstSel{fl, new AstXor{fl, curp, prevp}, 0, 1};
-        } else {
-            edgep = new AstNeq{fl, curp, prevp};
+        ಯದಿ (trigger.edgeType == VEdgeType::ET_POSEDGE) {
+            edgep = ನೂತನ AstSel{fl, ನೂತನ AstAnd{fl, curp, ನೂತನ AstNot{fl, prevp}}, 0, 1};
+        } ಅನ್ಯಥಾ ಯದಿ (trigger.edgeType == VEdgeType::ET_NEGEDGE) {
+            edgep = ನೂತನ AstSel{fl, ನೂತನ AstAnd{fl, ನೂತನ AstNot{fl, curp}, prevp}, 0, 1};
+        } ಅನ್ಯಥಾ ಯದಿ (trigger.edgeType == VEdgeType::ET_BOTHEDGE) {
+            edgep = ನೂತನ AstSel{fl, ನೂತನ AstXor{fl, curp, prevp}, 0, 1};
+        } ಅನ್ಯಥಾ {
+            edgep = ನೂತನ AstNeq{fl, curp, prevp};
         }
-        return new AstLogAnd{fl, newEmbeddedVarNonNull(fl), edgep};
+        ಪ್ರತ್ಯಾಗಮ ನೂತನ AstLogAnd{fl, newEmbeddedVarNonNull(fl), edgep};
     }
 
     std::vector<EmbeddedEventTrigger> collectEmbeddedEventTriggers(AstCovergroup* cgp) {
         std::vector<EmbeddedEventTrigger> triggers;
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
-        for (AstNode* senp = cgp->eventp()->sensesp(); senp; senp = senp->nextp()) {
-            AstSenItem* const itemp = VN_AS(senp, SenItem);
+        ಧ್ರುವ std::set<ಧ್ರುವ AstVar*> enclosingVars = enclosingInstanceVars();
+        ಪ್ರತಿ (Ast_ಗಂಟು* senp = cgp->eventp()->sensesp(); senp; senp = senp->nextp()) {
+            AstSenItem* ಧ್ರುವ itemp = VN_AS(senp, SenItem);
             AstVar* baseVarp = nullptr;
             AstVar* memberVarp = nullptr;
-            if (!parseEmbeddedEventExpr(itemp->sensp(), baseVarp, memberVarp)
-                || !enclosingVars.count(baseVarp)) {
-                return {};
+            ಯದಿ (!parse_Embedded_Event_ಅಭಿವ್ಯಕ್ತಿ(itemp->sensp(), baseVarp, memberVarp)
+                || !enclosingVars.ಎಣಿಕೆ(baseVarp)) {
+                ಪ್ರತ್ಯಾಗಮ {};
             }
             triggers.emplace_back(itemp->fileline(), baseVarp, memberVarp, itemp->edgeType());
         }
-        return triggers;
+        ಪ್ರತ್ಯಾಗಮ triggers;
     }
 
-    void installEmbeddedEventTriggers(std::vector<EmbeddedEventTrigger>& triggers,
-                                      const std::vector<AstNodeAssign*>& constructps) {
+    ಶೂನ್ಯ installEmbeddedEventTriggers(std::vector<EmbeddedEventTrigger>& triggers,
+                                      ಧ್ರುವ std::vector<Ast_ಗಂಟು_Assign*>& constructps) {
         // Without --timing, approximate a per-instance event by sampling after assignments
         // within the enclosing class. External writes and exact scheduling cannot be observed.
-        if (constructps.empty()) return;
-        for (size_t triggerIndex = 0; triggerIndex < triggers.size(); ++triggerIndex) {
+        ಯದಿ (constructps.empty()) ಪ್ರತ್ಯಾಗಮ;
+        ಪ್ರತಿ (size_t triggerIndex = 0; triggerIndex < triggers.size(); ++triggerIndex) {
             EmbeddedEventTrigger& trigger = triggers[triggerIndex];
-            std::vector<AstNodeAssign*> assignps;
-            m_enclosingClassp->foreach([&](AstNodeAssign* asgnp) {
-                if (isEventLvalue(asgnp->lhsp(), trigger)) assignps.push_back(asgnp);
+            std::vector<Ast_ಗಂಟು_Assign*> assignps;
+            m_enclosingClassp->foreach([&](Ast_ಗಂಟು_Assign* asgnp) {
+                ಯದಿ (isEventLvalue(asgnp->lhsp(), trigger)) assignps.ತಳ್ಳು_back(asgnp);
             });
-            if (assignps.empty()) {
+            ಯದಿ (assignps.empty()) {
                 trigger.eventFl->v3warn(
                     COVERIGN, "Unsupported: 'covergroup' clocking event signal has no assignment "
                               "within the enclosing class; no coverage sampled. Use --timing for "
                               "full support.");
-                continue;
+                ಅನುವರ್ತ;
             }
-            AstNodeDType* const dtypep
+            Ast_ಗಂಟು_DType* ಧ್ರುವ dtypep
                 = trigger.memberVarp ? trigger.memberVarp->dtypep() : trigger.baseVarp->dtypep();
-            AstVar* const prevVarp = new AstVar{trigger.eventFl, VVarType::MEMBER,
+            AstVar* ಧ್ರುವ prevVarp = ನೂತನ AstVar{trigger.eventFl, VVarType::MEMBER,
                                                 eventPrevName(trigger, triggerIndex), dtypep};
             m_enclosingClassp->addMembersp(prevVarp);
             trigger.prevVarp = prevVarp;
-            for (AstNodeAssign* const asgnp : assignps) {
-                FileLine* const fl = asgnp->fileline();
-                AstIf* const ifp
-                    = new AstIf{fl, newEventReadyCondition(fl, trigger), newSampleStmt(fl)};
-                ifp->addNextHere(new AstAssign{fl,
-                                               new AstVarRef{fl, trigger.prevVarp, VAccess::WRITE},
+            ಪ್ರತಿ (Ast_ಗಂಟು_Assign* ಧ್ರುವ asgnp : assignps) {
+                File_ಸಾಲು* ಧ್ರುವ fl = asgnp->fileline();
+                AstIf* ಧ್ರುವ ifp
+                    = ನೂತನ AstIf{fl, newEventReadyCondition(fl, trigger), newSampleStmt(fl)};
+                ifp->addNextHere(ನೂತನ AstAssign{fl,
+                                               ನೂತನ AstVarRef{fl, trigger.prevVarp, VAccess::WRITE},
                                                newEventRead(fl, trigger)});
                 asgnp->addNextHere(ifp);
             }
         }
     }
 
-    void deleteCoverageItems() {
-        for (AstCoverpoint* const cpp : m_coverpoints) {
-            VL_DO_DANGLING(pushDeletep(cpp->unlinkFrBack()), cpp);
+    ಶೂನ್ಯ delete_Coverage_ವಸ್ತುಗಳು() {
+        ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ cpp : m_coverpoints) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(cpp->unlinkFrBack()), cpp);
         }
-        for (AstCoverCross* const crossp : m_coverCrosses) {
-            VL_DO_DANGLING(pushDeletep(crossp->unlinkFrBack()), crossp);
+        ಪ್ರತಿ (AstCoverCross* ಧ್ರುವ crossp : m_coverCrosses) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(crossp->unlinkFrBack()), crossp);
         }
         // Options not lowered: the covergroup was not processed
-        for (AstCgOptionAssign* const optp : m_cgOptions) {
-            VL_DO_DANGLING(pushDeletep(optp->unlinkFrBack()), optp);
+        ಪ್ರತಿ (AstCgOptionAssign* ಧ್ರುವ optp : m_cgOptions) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(optp->unlinkFrBack()), optp);
         }
         m_cgOptions.clear();
     }
 
-    class FormalRefVisitor final : public VNVisitor {
-        const std::map<const AstVar*, AstVar*>& m_replacements;
+    ವರ್ಗ FormalRefVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
+        ಧ್ರುವ std::map<ಧ್ರುವ AstVar*, AstVar*>& m_replacements;
 
-        void visit(AstVarRef* nodep) override {
-            const auto it = m_replacements.find(nodep->varp());
-            if (it == m_replacements.end()) return;
+        ಶೂನ್ಯ visit(AstVarRef* nodep) override {
+            ಧ್ರುವ auto it = m_replacements.find(nodep->varp());
+            ಯದಿ (it == m_replacements.end()) ಪ್ರತ್ಯಾಗಮ;
             nodep->varp(it->second);
         }
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
+        ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-    public:
-        explicit FormalRefVisitor(const std::map<const AstVar*, AstVar*>& replacements)
+    ಸಾರ್ವಜನಿಕ:
+        explicit FormalRefVisitor(ಧ್ರುವ std::map<ಧ್ರುವ AstVar*, AstVar*>& replacements)
             : m_replacements{replacements} {}
-        void scan(AstNode* nodep) { iterate(nodep); }
+        ಶೂನ್ಯ scan(Ast_ಗಂಟು* nodep) { iterate(nodep); }
     };
 
-    void validateCovergroupExpressions() {
-        std::set<const AstVar*> sampleMembers;
-        std::set<const AstVar*> constructorRefMembers;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO() || (!varp->isRef() && !varp->isConstRef())) continue;
-            const AstVar* const memberp
+    ಶೂನ್ಯ validateCovergroupExpressions() {
+        std::set<ಧ್ರುವ AstVar*> sampleMembers;
+        std::set<ಧ್ರುವ AstVar*> constructorRefMembers;
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(stmtp, Var);
+            ಯದಿ (!varp || !varp->isIO() || (!varp->isRef() && !varp->isConstRef())) ಅನುವರ್ತ;
+            ಧ್ರುವ AstVar* ಧ್ರುವ memberp
                 = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
             UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                         "Covergroup constructor argument missing persistent member");
-            constructorRefMembers.insert(varp);
-            constructorRefMembers.insert(memberp);
+            constructorRefMembers.ಸೇರಿಸು(varp);
+            constructorRefMembers.ಸೇರಿಸು(memberp);
         }
-        for (AstNode* stmtp = m_sampleFuncp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) continue;
-            const AstVar* const memberp
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = m_sampleFuncp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(stmtp, Var);
+            ಯದಿ (!varp || !varp->isIO()) ಅನುವರ್ತ;
+            ಧ್ರುವ AstVar* ಧ್ರುವ memberp
                 = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
             UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                         "Covergroup sample argument missing persistent member");
-            sampleMembers.insert(memberp);
+            sampleMembers.ಸೇರಿಸು(memberp);
         }
-        CovergroupExprValidVisitor{sampleMembers, constructorRefMembers}.scan(m_constructorp);
+        Covergroup_ಅಭಿವ್ಯಕ್ತಿ_Valid_Visitor{sampleMembers, constructorRefMembers}.scan(m_constructorp);
     }
 
-    void rebindFormalRefs() {
-        std::map<const AstVar*, AstVar*> replacements;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) continue;
-                AstVar* const memberp
+    ಶೂನ್ಯ rebindFormalRefs() {
+        std::map<ಧ್ರುವ AstVar*, AstVar*> replacements;
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = m_constructorp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಯದಿ (ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(stmtp, Var)) {
+                ಯದಿ (!varp->isIO()) ಅನುವರ್ತ;
+                AstVar* ಧ್ರುವ memberp
                     = VN_CAST(m_memberMap.findMember(m_covergroupp, varp->name()), Var);
                 UASSERT_OBJ(memberp && memberp->isClassMember(), varp,
                             "Covergroup constructor argument missing persistent member");
@@ -4497,27 +4497,27 @@ class FunctionalCoverageVisitor final : public VNVisitor {
             }
         }
         size_t expectedBindings = 0;
-        for (const auto& pair : replacements) {
-            if (pair.first->isRef() || pair.first->isConstRef()) ++expectedBindings;
+        ಪ್ರತಿ (ಧ್ರುವ auto& pair : replacements) {
+            ಯದಿ (pair.first->isRef() || pair.first->isConstRef()) ++expectedBindings;
         }
         size_t rewrittenBindings = 0;
-        for (AstNode* stmtp = m_constructorp->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
-            if (AstAssign* const assignp = VN_CAST(stmtp, Assign)) {
-                AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-                AstVarRef* const rhsp = VN_CAST(assignp->rhsp(), VarRef);
-                if (lhsp && rhsp
+        ಪ್ರತಿ (Ast_ಗಂಟು* stmtp = m_constructorp->stmtsp(); stmtp;) {
+            Ast_ಗಂಟು* ಧ್ರುವ nextp = stmtp->nextp();
+            ಯದಿ (AstAssign* ಧ್ರುವ assignp = VN_CAST(stmtp, Assign)) {
+                AstVarRef* ಧ್ರುವ lhsp = VN_CAST(assignp->lhsp(), VarRef);
+                AstVarRef* ಧ್ರುವ rhsp = VN_CAST(assignp->rhsp(), VarRef);
+                ಯದಿ (lhsp && rhsp
                     && (lhsp->varp()->declDirection() == VDirection::REF
                         || lhsp->varp()->declDirection() == VDirection::CONSTREF)) {
-                    const auto it = replacements.find(rhsp->varp());
+                    ಧ್ರುವ auto it = replacements.find(rhsp->varp());
                     UASSERT_OBJ(it != replacements.end() && it->second == lhsp->varp(), assignp,
                                 "Unexpected covergroup reference binding assignment");
-                    AstCExpr* const bindp = new AstCExpr{assignp->fileline(), ""};
+                    AstCExpr* ಧ್ರುವ bindp = ನೂತನ AstCExpr{assignp->fileline(), ""};
                     bindp->add(lhsp->unlinkFrBack());
                     bindp->add(" = &");
                     bindp->add(rhsp->unlinkFrBack());
                     assignp->replaceWith(bindp->makeStmt());
-                    VL_DO_DANGLING(pushDeletep(assignp), assignp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(assignp), assignp);
                     ++rewrittenBindings;
                 }
             }
@@ -4526,11 +4526,11 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         UASSERT_OBJ(rewrittenBindings == expectedBindings, m_constructorp,
                     "Covergroup reference argument missing binding");
         FormalRefVisitor visitor{replacements};
-        for (AstCoverpoint* const cpp : m_coverpoints) visitor.scan(cpp);
-        for (AstCoverCross* const crossp : m_coverCrosses) visitor.scan(crossp);
+        ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ cpp : m_coverpoints) visitor.scan(cpp);
+        ಪ್ರತಿ (AstCoverCross* ಧ್ರುವ crossp : m_coverCrosses) visitor.scan(crossp);
     }
 
-    AstVarRef* installEnclosingBackPointer(const std::vector<AstNodeAssign*>& constructps) {
+    AstVarRef* installEnclosingBackPointer(ಧ್ರುವ std::vector<Ast_ಗಂಟು_Assign*>& constructps) {
         // Simple-case support for embedded covergroups (IEEE 1800-2023 19.4) whose
         // coverpoints reference members of the enclosing class ("Class members can be used
         // in coverpoint expressions").  The covergroup is lowered into a sibling class with
@@ -4539,87 +4539,87 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         // route member references through it, and pass it into the constructor so
         // coverage initialization can read enclosing members. Returns an invalid
         // reference if an outer class member cannot be reached; otherwise returns an empty result.
-        if (!m_enclosingClassp) return nullptr;  // Offending refs require an enclosing class
+        ಯದಿ (!m_enclosingClassp) ಪ್ರತ್ಯಾಗಮ nullptr;  // Offending refs require an enclosing class
 
         AstVarRef* invalidp = nullptr;
-        AstNode* offenderp = nullptr;
-        std::set<const AstVar*> ownVars;
-        for (AstNode* itemp = m_covergroupp->membersp(); itemp; itemp = itemp->nextp()) {
-            if (const AstVar* const varp = VN_CAST(itemp, Var)) ownVars.insert(varp);
+        Ast_ಗಂಟು* offenderp = nullptr;
+        std::set<ಧ್ರುವ AstVar*> ownVars;
+        ಪ್ರತಿ (Ast_ಗಂಟು* itemp = m_covergroupp->membersp(); itemp; itemp = itemp->nextp()) {
+            ಯದಿ (ಧ್ರುವ AstVar* ಧ್ರುವ varp = VN_CAST(itemp, Var)) ownVars.ಸೇರಿಸು(varp);
         }
-        const std::set<const AstVar*> enclosingVars = enclosingInstanceVars();
+        ಧ್ರುವ std::set<ಧ್ರುವ AstVar*> enclosingVars = enclosingInstanceVars();
         std::vector<AstVarRef*> refsToRewrite;
         std::vector<AstThisRef*> thisRefsToRewrite;
         std::vector<AstFuncRef*> funcRefsToRewrite;
-        const auto scan = [&](AstNode* rootp) {
+        ಧ್ರುವ auto scan = [&](Ast_ಗಂಟು* rootp) {
             rootp->foreach([&](AstVarRef* refp) {
-                if (invalidp) return;
-                const AstVar* const varp = refp->varp();
-                if (!isEnclosingInstanceVar(varp) || ownVars.count(varp)) return;
-                if (!enclosingVars.count(varp)) {
+                ಯದಿ (invalidp) ಪ್ರತ್ಯಾಗಮ;
+                ಧ್ರುವ AstVar* ಧ್ರುವ varp = refp->varp();
+                ಯದಿ (!isEnclosingInstanceVar(varp) || ownVars.ಎಣಿಕೆ(varp)) ಪ್ರತ್ಯಾಗಮ;
+                ಯದಿ (!enclosingVars.ಎಣಿಕೆ(varp)) {
                     invalidp = refp;
-                    return;
+                    ಪ್ರತ್ಯಾಗಮ;
                 }
-                refsToRewrite.push_back(refp);
-                if (!offenderp) offenderp = refp;
+                refsToRewrite.ತಳ್ಳು_back(refp);
+                ಯದಿ (!offenderp) offenderp = refp;
             });
-            if (invalidp) return;
+            ಯದಿ (invalidp) ಪ್ರತ್ಯಾಗಮ;
             rootp->foreach([&](AstThisRef* refp) {
-                const AstClassRefDType* const refDTypep
+                ಧ್ರುವ AstClassRefDType* ಧ್ರುವ refDTypep
                     = VN_CAST(refp->dtypep()->skipRefp(), ClassRefDType);
-                if (refDTypep && refDTypep->classp() == m_covergroupp) {
-                    thisRefsToRewrite.push_back(refp);
-                    if (!offenderp) offenderp = refp;
+                ಯದಿ (refDTypep && refDTypep->classp() == m_covergroupp) {
+                    thisRefsToRewrite.ತಳ್ಳು_back(refp);
+                    ಯದಿ (!offenderp) offenderp = refp;
                 }
             });
             rootp->foreach([&](AstFuncRef* refp) {
-                if (!isEnclosingInstanceFunc(refp->taskp())) return;
-                funcRefsToRewrite.push_back(refp);
-                if (!offenderp) offenderp = refp;
+                ಯದಿ (!isEnclosingInstanceFunc(refp->taskp())) ಪ್ರತ್ಯಾಗಮ;
+                funcRefsToRewrite.ತಳ್ಳು_back(refp);
+                ಯದಿ (!offenderp) offenderp = refp;
             });
         };
-        for (AstCoverpoint* const cpp : m_coverpoints) scan(cpp);
-        for (AstCoverCross* const crossp : m_coverCrosses) scan(crossp);
-        for (AstCgOptionAssign* const optp : m_cgOptions) scan(optp);
-        if (invalidp || !offenderp) return invalidp;
+        ಪ್ರತಿ (AstCoverpoint* ಧ್ರುವ cpp : m_coverpoints) scan(cpp);
+        ಪ್ರತಿ (AstCoverCross* ಧ್ರುವ crossp : m_coverCrosses) scan(crossp);
+        ಪ್ರತಿ (AstCgOptionAssign* ಧ್ರುವ optp : m_cgOptions) scan(optp);
+        ಯದಿ (invalidp || !offenderp) ಪ್ರತ್ಯಾಗಮ invalidp;
 
         UASSERT_OBJ(m_embeddedVarp, m_covergroupp, "Embedded covergroup variable not found");
         // Commit: add the back-pointer member, rewrite the references, initialize the handle.
-        FileLine* const fl = m_covergroupp->fileline();
-        AstClassRefDType* const enclDTypep = new AstClassRefDType{fl, m_enclosingClassp, nullptr};
-        enclDTypep->rawPointer(true);
+        File_ಸಾಲು* ಧ್ರುವ fl = m_covergroupp->fileline();
+        AstClassRefDType* ಧ್ರುವ enclDTypep = ನೂತನ AstClassRefDType{fl, m_enclosingClassp, nullptr};
+        enclDTypep->rawPointer(ಸತ್ಯ);
         v3Global.rootp()->typeTablep()->addTypesp(enclDTypep);
-        AstVar* const handleVarp
-            = new AstVar{fl, VVarType::MEMBER, "__Vcg_enclosingp", enclDTypep};
+        AstVar* ಧ್ರುವ handleVarp
+            = ನೂತನ AstVar{fl, VVarType::MEMBER, "__Vcg_enclosingp", enclDTypep};
         m_covergroupp->addMembersp(handleVarp);
-        AstVar* const argumentp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vcg_parentp", enclDTypep};
-        argumentp->direction(VDirection::INPUT);
-        argumentp->declDirection(VDirection::INPUT);
-        argumentp->funcLocal(true);
-        argumentp->noReset(true);
+        AstVar* ಧ್ರುವ argumentp = ನೂತನ AstVar{fl, VVarType::BLOCKTEMP, "__Vcg_parentp", enclDTypep};
+        argumentp->direction(VDirection::ಒಳಹರಿವು);
+        argumentp->declDirection(VDirection::ಒಳಹರಿವು);
+        argumentp->funcLocal(ಸತ್ಯ);
+        argumentp->noReset(ಸತ್ಯ);
         argumentp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         m_constructorp->addStmtsp(argumentp);
-        m_constructorp->prependStmtsp(new AstAssign{fl, memberRef(fl, handleVarp, VAccess::WRITE),
-                                                    new AstVarRef{fl, argumentp, VAccess::READ}});
+        m_constructorp->prependStmtsp(ನೂತನ AstAssign{fl, memberRef(fl, handleVarp, VAccess::WRITE),
+                                                    ನೂತನ AstVarRef{fl, argumentp, VAccess::READ}});
 
         // Route each enclosing-member reference through the back-pointer: 'm' -> 'h.m'.
-        for (AstVarRef* const refp : refsToRewrite) { rewriteVarRef(refp, handleVarp); }
-        for (AstThisRef* const refp : thisRefsToRewrite) { rewriteThisRef(refp, handleVarp); }
-        for (AstFuncRef* const refp : funcRefsToRewrite) { rewriteFuncRef(refp, handleVarp); }
+        ಪ್ರತಿ (AstVarRef* ಧ್ರುವ refp : refsToRewrite) { rewriteVarRef(refp, handleVarp); }
+        ಪ್ರತಿ (AstThisRef* ಧ್ರುವ refp : thisRefsToRewrite) { rewriteThisRef(refp, handleVarp); }
+        ಪ್ರತಿ (AstFuncRef* ಧ್ರುವ refp : funcRefsToRewrite) { rewriteFuncRef(refp, handleVarp); }
 
         // Append a named hidden argument to preserve positional and defaulted user arguments.
-        for (AstNodeAssign* const constructp : constructps) {
-            FileLine* const cfl = constructp->fileline();
-            AstCExpr* const thisp = new AstCExpr{cfl, "this"};
+        ಪ್ರತಿ (Ast_ಗಂಟು_Assign* ಧ್ರುವ constructp : constructps) {
+            File_ಸಾಲು* ಧ್ರುವ cfl = constructp->fileline();
+            AstCExpr* ಧ್ರುವ thisp = ನೂತನ AstCExpr{cfl, "this"};
             thisp->dtypep(enclDTypep);
-            VN_AS(constructp->rhsp(), New)->addArgsp(new AstArg{cfl, argumentp->name(), thisp});
+            VN_AS(constructp->rhsp(), New)->addArgsp(ನೂತನ AstArg{cfl, argumentp->name(), thisp});
         }
-        return nullptr;
+        ಪ್ರತ್ಯಾಗಮ nullptr;
     }
 
-    void visit(AstClass* nodep) override {
+    ಶೂನ್ಯ visit(AstClass* nodep) override {
         UINFO(9, "Visiting class: " << nodep->name() << " isCovergroup=" << nodep->isCovergroup());
-        if (nodep->isCovergroup()) {
+        ಯದಿ (nodep->isCovergroup()) {
             VL_RESTORER(m_covergroupp);
             VL_RESTORER(m_embeddedVarp);
             VL_RESTORER(m_sampleFuncp);
@@ -4635,41 +4635,41 @@ class FunctionalCoverageVisitor final : public VNVisitor {
             m_sampleFuncp = nullptr;
             m_constructorp = nullptr;
             std::vector<EmbeddedEventTrigger> embeddedEventTriggers;
-            AstSenTree* embeddedEventForkp = nullptr;
+            Ast_Sen_ವೃಕ್ಷ* embeddedEventForkp = nullptr;
 
             // Extract and store the clocking event from AstCovergroup node
             // The parser creates this node to preserve the event information
-            bool hasUnsupportedEvent = false;
-            for (AstNode* itemp = nodep->membersp(); itemp;) {
-                AstNode* const nextp = itemp->nextp();
-                if (AstCovergroup* const cgp = VN_CAST(itemp, Covergroup)) {
+            ತಾರ್ಕಿಕ hasUnsupportedEvent = ಅಸತ್ಯ;
+            ಪ್ರತಿ (Ast_ಗಂಟು* itemp = nodep->membersp(); itemp;) {
+                Ast_ಗಂಟು* ಧ್ರುವ nextp = itemp->nextp();
+                ಯದಿ (AstCovergroup* ಧ್ರುವ cgp = VN_CAST(itemp, Covergroup)) {
                     // Store the event in the global map for V3Active to retrieve later
                     // V3LinkParse only creates this sentinel AstCovergroup node when a clocking
                     // event exists, so cgp->eventp() is always non-null here.
                     UASSERT_OBJ(cgp->eventp(), cgp,
                                 "Sentinel AstCovergroup in class must have non-null eventp");
-                    if (hasEnclosingEventRef(cgp)) {
+                    ಯದಿ (hasEnclosingEventRef(cgp)) {
                         UASSERT_OBJ(m_embeddedVarp, cgp,
                                     "Embedded covergroup event has no instance variable");
-                        if (v3Global.opt.timing().isSetTrue()) {
+                        ಯದಿ (v3Global.opt.timing().isSetTrue()) {
                             embeddedEventForkp = cgp->eventp()->unlinkFrBack();
-                        } else {
+                        } ಅನ್ಯಥಾ {
                             embeddedEventTriggers = collectEmbeddedEventTriggers(cgp);
-                            if (embeddedEventTriggers.empty()) {
+                            ಯದಿ (embeddedEventTriggers.empty()) {
                                 cgp->v3warn(COVERIGN,
                                             "Unsupported: 'covergroup' clocking event on complex "
                                             "member expression; use --timing for full support.");
-                                hasUnsupportedEvent = true;
+                                hasUnsupportedEvent = ಸತ್ಯ;
                             }
                         }
-                        VL_DO_DANGLING(pushDeletep(cgp->unlinkFrBack()), cgp);
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(cgp->unlinkFrBack()), cgp);
                         itemp = nextp;
-                        continue;
+                        ಅನುವರ್ತ;
                     }
                     // V3Active handles events that do not depend on an enclosing instance.
                     UINFO(4, "Keeping covergroup event node for V3Active: " << nodep->name());
                     itemp = nextp;
-                    continue;
+                    ಅನುವರ್ತ;
                 }
                 itemp = nextp;
             }
@@ -4679,51 +4679,51 @@ class FunctionalCoverageVisitor final : public VNVisitor {
             // V3LinkParse always synthesizes a sample() method for every covergroup, and the
             // sampling-code generation below dereferences m_sampleFuncp unconditionally.
             UASSERT_OBJ(m_sampleFuncp, nodep, "Covergroup missing synthesized sample() method");
-            m_sampleFuncp->isCovergroupSample(true);
+            m_sampleFuncp->isCovergroupSample(ಸತ್ಯ);
             m_constructorp = VN_CAST(m_memberMap.findMember(nodep, "new"), Func);
             UINFO(9, "Found sample() method: " << (m_sampleFuncp ? "yes" : "no"));
             UINFO(9, "Found constructor: " << (m_constructorp ? "yes" : "no"));
 
             // If covergroup has unsupported clocking event, skip processing it
             // but still clean up coverpoints so they don't reach downstream passes
-            if (hasUnsupportedEvent) {
+            ಯದಿ (hasUnsupportedEvent) {
                 iterateChildren(nodep);
                 validateCovergroupExpressions();
                 rebindFormalRefs();
-                deleteCoverageItems();
-                if (embeddedEventForkp) {
-                    VL_DO_DANGLING(pushDeletep(embeddedEventForkp), embeddedEventForkp);
+                delete_Coverage_ವಸ್ತುಗಳು();
+                ಯದಿ (embeddedEventForkp) {
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(embeddedEventForkp), embeddedEventForkp);
                 }
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
 
             iterateChildren(nodep);
             validateCovergroupExpressions();
             rebindFormalRefs();
-            const std::vector<AstNodeAssign*> constructps = findCovergroupConstructions();
+            ಧ್ರುವ std::vector<Ast_ಗಂಟು_Assign*> constructps = findCovergroupConstructions();
 
             // Embedded covergroups (IEEE 1800-2023 19.4): coverpoints, iff expressions, and
             // crosses may reference members of the enclosing class. The covergroup is lowered
             // into a sibling class with no implicit handle to the enclosing instance. Install
             // an explicit back-pointer and route the references through it.
-            if (AstVarRef* const invalidp = installEnclosingBackPointer(constructps)) {
+            ಯದಿ (AstVarRef* ಧ್ರುವ invalidp = installEnclosingBackPointer(constructps)) {
                 invalidp->v3error("Non-static member "
                                   << invalidp->varp()->prettyNameQ()
                                   << " of an outer class requires an explicit "
                                      "object handle (IEEE 1800-2023 8.23).");
-                deleteCoverageItems();
-                if (embeddedEventForkp) {
-                    VL_DO_DANGLING(pushDeletep(embeddedEventForkp), embeddedEventForkp);
+                delete_Coverage_ವಸ್ತುಗಳು();
+                ಯದಿ (embeddedEventForkp) {
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(embeddedEventForkp), embeddedEventForkp);
                 }
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
             }
             installEmbeddedEventTriggers(embeddedEventTriggers, constructps);
-            if (embeddedEventForkp) installEmbeddedEventFork(embeddedEventForkp, constructps);
+            ಯದಿ (embeddedEventForkp) installEmbeddedEventFork(embeddedEventForkp, constructps);
             processCovergroup();
             // Remove lowered coverpoints/crosses from the class - they have been
             // fully translated into C++ code and must not reach downstream passes
-            deleteCoverageItems();
-        } else {
+            delete_Coverage_ವಸ್ತುಗಳು();
+        } ಅನ್ಯಥಾ {
             // Track the lexically enclosing class so a nested covergroup can resolve
             // references to the enclosing object's members (installEnclosingBackPointer).
             VL_RESTORER(m_enclosingClassp);
@@ -4732,50 +4732,50 @@ class FunctionalCoverageVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstCoverpoint* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverpoint* nodep) override {
         UINFO(9, "Found coverpoint: " << nodep->name());
-        m_coverpoints.push_back(nodep);
+        m_coverpoints.ತಳ್ಳು_back(nodep);
         m_coverpointMap.emplace(nodep->name(), nodep);
         iterateChildren(nodep);
     }
 
-    void visit(AstCoverCross* nodep) override {
+    ಶೂನ್ಯ visit(AstCoverCross* nodep) override {
         UINFO(9, "Found cross: " << nodep->name());
-        m_coverCrosses.push_back(nodep);
+        m_coverCrosses.ತಳ್ಳು_back(nodep);
         iterateChildren(nodep);
     }
 
     // V3Width leaves only the covergroup-level options lowerCovergroupOptions() takes
-    void visit(AstCgOptionAssign* nodep) override { m_cgOptions.push_back(nodep); }
+    ಶೂನ್ಯ visit(AstCgOptionAssign* nodep) override { m_cgOptions.ತಳ್ಳು_back(nodep); }
 
     // A package, interface, or module, so the design unit declaring the classes within
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_unitp);
         m_unitp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ visit(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     FunctionalCoverageVisitor(AstNetlist* nodep,
-                              const std::set<const AstVar*>& mergeableTypeOptions)
+                              ಧ್ರುವ std::set<ಧ್ರುವ AstVar*>& mergeableTypeOptions)
         : m_mergeableTypeOptions{mergeableTypeOptions} {
         iterate(nodep);
     }
-    ~FunctionalCoverageVisitor() override = default;
+    ~FunctionalCoverageVisitor() override = ಸ್ವಭಾವ;
 };
 
 //######################################################################
 // Functional coverage class functions
 
-void V3Covergroup::covergroup(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Covergroup::covergroup(AstNetlist* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
-    const CovergroupAssignValidVisitor validVisitor{nodep};
-    if (!validVisitor.valid()) V3Error::abortIfErrors();
+    ಧ್ರುವ CovergroupAssignValidVisitor validVisitor{nodep};
+    ಯದಿ (!validVisitor.valid()) V3Error::abortIfErrors();
     {  // Destruct before checking
         FunctionalCoverageVisitor{nodep, validVisitor.mergeableTypeOptions()};
     }
-    V3Global::dumpCheckGlobalTree("coveragefunc", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("coveragefunc", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

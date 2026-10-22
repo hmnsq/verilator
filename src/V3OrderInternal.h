@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3Order.h"
+#ಅನ್ತರ್ಭಾವ "V3OrderGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <string>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(ಧ್ರುವ V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ಧ್ರುವ std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            ಧ್ರುವ V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+ಶೂನ್ಯ orderOrderGraph(OrderGraph& graph, ಧ್ರುವ std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+ಶೂನ್ಯ processDomains(OrderGraph& graph,  //
+                    ಧ್ರುವ std::string& tag,  //
+                    ಧ್ರುವ ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ಗಂಟು_Stmt* createSerial(OrderMoveGraph& moveGraph, ಧ್ರುವ std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ಗಂಟು_Stmt* createParallel(OrderMoveGraph& moveGraph, ಧ್ರುವ std::string& tag, bool slow);
 
 };  // namespace V3Order
 

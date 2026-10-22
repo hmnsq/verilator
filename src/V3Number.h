@@ -14,34 +14,34 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3NUMBER_H_
-#define VERILATOR_V3NUMBER_H_
+#ifndef VERILATOR_V3_ಸಂಖ್ಯೆ_H
+#define VERILATOR_V3_ಸಂಖ್ಯೆ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Hash.h"
-#include "V3StdFuture.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Hash.h"
+#ಅನ್ತರ್ಭಾವ "V3StdFuture.h"
 
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <array>
+#ಅನ್ತರ್ಭಾವ <cmath>
+#ಅನ್ತರ್ಭಾವ <limits>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 class AstEnumDType;
 class AstEnumItem;
-class AstNode;
-class AstNodeDType;
+class Ast_ಗಂಟು;
+class Ast_ಗಂಟು_DType;
 class AstSFormatArg;
-class FileLine;
+class File_ಸಾಲು;
 
 //============================================================================
 
 class VFormatAttr final {
-public:
-    enum en : char {
+ಸಾರ್ವಜನಿಕ:
+    ಗಣನಾ en : ವರ್ಣ {
         //               // AstSFormatArg is typically skipped for UNSIGNED, as is the default
         UNSIGNED = VL_VFORMATATTR_UNSIGNED,
         SIGNED = VL_VFORMATATTR_SIGNED,
@@ -54,85 +54,85 @@ public:
         STRING = VL_VFORMATATTR_STRING,
         TIMEUNIT = VL_VFORMATATTR_TIMEUNIT
     };
-    enum en m_e;
+    ಗಣನಾ en m_e;
     VFormatAttr()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFormatAttr(en _e)
         : m_e{_e} {}
-    explicit VFormatAttr(int _e)
+    explicit VFormatAttr(ಪೂರ್ಣಾಙ್ಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    char ascii() const { return m_e; }
-    bool isComplex() const { return m_e == COMPLEX; }
-    bool isDouble() const { return m_e == DOUBLE; }
-    bool isEnum() const { return m_e == ENUM || m_e == ENUM_SIGNED; }
-    bool isSigned() const { return m_e == SIGNED; }
-    bool isString() const { return m_e == STRING; }
-    bool isUnsigned() const { return m_e == UNSIGNED; }
+    constexpr operator en() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    ವರ್ಣ ascii() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e; }
+    bool isComplex() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == COMPLEX; }
+    bool isDouble() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == DOUBLE; }
+    bool isEnum() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == ENUM || m_e == ENUM_SIGNED; }
+    bool isSigned() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == SIGNED; }
+    bool isString() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == STRING; }
+    bool isUnsigned() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_e == UNSIGNED; }
 };
-constexpr bool operator==(const VFormatAttr& lhs, const VFormatAttr& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ಧ್ರುವ VFormatAttr& lhs, ಧ್ರುವ VFormatAttr& rhs) {
+    ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFormatAttr& lhs, VFormatAttr::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFormatAttr::en lhs, const VFormatAttr& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFormatAttr& rhs) {
-    return os << rhs.ascii();
+constexpr bool operator==(ಧ್ರುವ VFormatAttr& lhs, VFormatAttr::en rhs) { ಪ್ರತ್ಯಾಗಮ lhs.m_e == rhs; }
+constexpr bool operator==(VFormatAttr::en lhs, ಧ್ರುವ VFormatAttr& rhs) { ಪ್ರತ್ಯಾಗಮ lhs == rhs.m_e; }
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ VFormatAttr& rhs) {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 //============================================================================
 
-class V3NumberData final {
-public:
+class V3_ಸಂಖ್ಯೆ_Data final {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
-    struct ValueAndX final {
+    ಸಂರಚನಾ ಮೌಲ್ಯ_And_X final {
         // Value, with bit 0 in bit 0 of this vector (unless X/Z)
-        uint32_t m_value;
+        uint32_t m_ಮೌಲ್ಯ;
         // Each bit is true if it's X or Z, 10=z, 11=x
-        uint32_t m_valueX;
-        bool operator==(const ValueAndX& other) const VL_MT_SAFE {
-            return m_value == other.m_value && m_valueX == other.m_valueX;
+        uint32_t m_ಮೌಲ್ಯ_X;
+        bool operator==(ಧ್ರುವ ಮೌಲ್ಯ_And_X& other) ಧ್ರುವ VL_MT_SAFE {
+            ಪ್ರತ್ಯಾಗಮ m_ಮೌಲ್ಯ == other.m_ಮೌಲ್ಯ && m_ಮೌಲ್ಯ_X == other.m_ಮೌಲ್ಯ_X;
         }
     };
 
-    enum class V3NumberDataType : uint8_t {
+    ಗಣನಾ class V3_ಸಂಖ್ಯೆ_Data_Type : uint8_t {
         UNINITIALIZED = 0,
         LOGIC = 1,
         DOUBLE = 2,
         STRING = 3,
     };
-    friend std::ostream& operator<<(std::ostream& os, const V3NumberDataType& rhs) VL_MT_SAFE {
-        switch (rhs) {
-        case V3NumberDataType::UNINITIALIZED: return os << "UNINITIALIZED";
-        case V3NumberDataType::LOGIC: return os << "LOGIC";
-        case V3NumberDataType::DOUBLE: return os << "DOUBLE";
-        case V3NumberDataType::STRING: return os << "STRING";
+    friend std::ostream& operator<<(std::ostream& os, ಧ್ರುವ V3_ಸಂಖ್ಯೆ_Data_Type& rhs) VL_MT_SAFE {
+        ವಿಕಲ್ಪ (rhs) {
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED: ಪ್ರತ್ಯಾಗಮ os << "UNINITIALIZED";
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC: ಪ್ರತ್ಯಾಗಮ os << "LOGIC";
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE: ಪ್ರತ್ಯಾಗಮ os << "DOUBLE";
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::STRING: ಪ್ರತ್ಯಾಗಮ os << "STRING";
         }
-        return os;
+        ಪ್ರತ್ಯಾಗಮ os;
     }
 
-private:
+ಗುಪ್ತ:
     // CONSTANTS
     // At least 2 words (64 fourstate bits). 4 words (128 fourstate bits) in most cases,
     // i.e. when std::string has 32 bytes.
-    static constexpr int INLINE_WORDS = std::max(
-        static_cast<size_t>(2), std::max(sizeof(std::string) / sizeof(ValueAndX),
-                                         sizeof(std::vector<ValueAndX>) / sizeof(ValueAndX)));
+    ಸ್ಥಿರ constexpr ಪೂರ್ಣಾಙ್ಕ INLINE_ಪದಗಳು = std::max(
+        static_cast<size_t>(2), std::max(ಪರಿಮಾಣ(std::string) / ಪರಿಮಾಣ(ಮೌಲ್ಯ_And_X),
+                                         ಪರಿಮಾಣ(std::vector<ಮೌಲ್ಯ_And_X>) / ಪರಿಮಾಣ(ಮೌಲ್ಯ_And_X)));
     // When m_width > MAX_INLINE_WIDTH number is stored in m_dynamicNumber.
     // Otherwise number is stored in m_inlineNumber.
-    static constexpr int MAX_INLINE_WIDTH = INLINE_WORDS * sizeof(ValueAndX) / 2 * 8;
+    ಸ್ಥಿರ constexpr ಪೂರ್ಣಾಙ್ಕ MAX_INLINE_WIDTH = INLINE_ಪದಗಳು * ಪರಿಮಾಣ(ಮೌಲ್ಯ_And_X) / 2 * 8;
 
     // MEMBERS
-    union {
-        std::array<ValueAndX, INLINE_WORDS> m_inlineNumber;
-        std::vector<ValueAndX> m_dynamicNumber;
+    ಸಙ್ಘ {
+        std::array<ಮೌಲ್ಯ_And_X, INLINE_ಪದಗಳು> m_inline_ಸಂಖ್ಯೆ;
+        std::vector<ಮೌಲ್ಯ_And_X> m_dynamic_ಸಂಖ್ಯೆ;
         std::string m_string;
     };
 
-    int m_width = 0;  // Width (in bits) as specified/calculated
-    V3NumberDataType m_type;
+    ಪೂರ್ಣಾಙ್ಕ m_width = 0;  // Width (in bits) as specified/calculated
+    V3_ಸಂಖ್ಯೆ_Data_Type m_type;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     bool m_sized : 1;  // True if the user specified the width, else we track it.
     bool m_signed : 1;  // True if signed value
     bool m_is1Step : 1;  // True if 1step
@@ -142,8 +142,8 @@ public:
     bool m_hasOrigParamName : 1;  // Owning AstConst has originating parameter-name metadata
 
     // CONSTRUCTORS
-    V3NumberData()
-        : m_type{V3NumberDataType::UNINITIALIZED}
+    V3_ಸಂಖ್ಯೆ_Data()
+        : m_type{V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED}
         , m_sized{false}
         , m_signed{false}
         , m_is1Step{false}
@@ -152,11 +152,11 @@ public:
         , m_autoExtend{false}
         , m_hasOrigParamName{false} {}
 
-    ~V3NumberData() { destroyStoredValue(); }
+    ~V3_ಸಂಖ್ಯೆ_Data() { destroy_Stored_ಮೌಲ್ಯ(); }
 
     // m_hasOrigParamName is ownership bookkeeping for an AstConst side-table entry, not part of
     // the numeric value. Copies/moves of V3NumberData must not claim the destination has metadata.
-    V3NumberData(const V3NumberData& other)
+    V3_ಸಂಖ್ಯೆ_Data(ಧ್ರುವ V3_ಸಂಖ್ಯೆ_Data& other)
         : m_width{other.m_width}
         , m_type{other.m_type}
         , m_sized{other.m_sized}
@@ -166,25 +166,25 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            initDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+        ಯದಿ (other.is_Inline_ಸಂಖ್ಯೆ()) {
+            init_Inline_ಸಂಖ್ಯೆ(other.m_inline_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.is_Dynamic_ಸಂಖ್ಯೆ()) {
+            init_Dynamic_ಸಂಖ್ಯೆ(other.m_dynamic_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.isString()) {
             initString(other.m_string);
         }
     }
 
-    V3NumberData& operator=(const V3NumberData& other) {
-        if (other.isInlineNumber()) {
-            destroyStoredValue();
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            reinitWithOrAssignDynamicNumber(other.m_dynamicNumber);
-        } else if (other.isString()) {
+    V3_ಸಂಖ್ಯೆ_Data& operator=(ಧ್ರುವ V3_ಸಂಖ್ಯೆ_Data& other) {
+        ಯದಿ (other.is_Inline_ಸಂಖ್ಯೆ()) {
+            destroy_Stored_ಮೌಲ್ಯ();
+            init_Inline_ಸಂಖ್ಯೆ(other.m_inline_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.is_Dynamic_ಸಂಖ್ಯೆ()) {
+            reinit_With_Or_Assign_Dynamic_ಸಂಖ್ಯೆ(other.m_dynamic_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.isString()) {
             reinitWithOrAssignString(other.m_string);
-        } else {
-            destroyStoredValue();
+        } ಅನ್ಯಥಾ {
+            destroy_Stored_ಮೌಲ್ಯ();
         }
         m_width = other.m_width;
         m_type = other.m_type;
@@ -194,10 +194,10 @@ public:
         m_isNull = other.m_isNull;
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
 
-    V3NumberData(V3NumberData&& other)
+    V3_ಸಂಖ್ಯೆ_Data(V3_ಸಂಖ್ಯೆ_Data&& other)
         : m_width{other.m_width}
         , m_type{other.m_type}
         , m_sized{other.m_sized}
@@ -207,26 +207,26 @@ public:
         , m_fromString{other.m_fromString}
         , m_autoExtend{other.m_autoExtend}
         , m_hasOrigParamName{false} {
-        if (other.isInlineNumber()) {
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            initDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+        ಯದಿ (other.is_Inline_ಸಂಖ್ಯೆ()) {
+            init_Inline_ಸಂಖ್ಯೆ(other.m_inline_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.is_Dynamic_ಸಂಖ್ಯೆ()) {
+            init_Dynamic_ಸಂಖ್ಯೆ(std::move(other.m_dynamic_ಸಂಖ್ಯೆ));
+        } ಅನ್ಯಥಾ ಯದಿ (other.isString()) {
             initString(std::move(other.m_string));
         }
-        other.m_type = V3NumberDataType::UNINITIALIZED;
+        other.m_type = V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED;
     }
 
-    V3NumberData& operator=(V3NumberData&& other) {
-        if (other.isInlineNumber()) {
-            destroyStoredValue();
-            initInlineNumber(other.m_inlineNumber);
-        } else if (other.isDynamicNumber()) {
-            reinitWithOrAssignDynamicNumber(std::move(other.m_dynamicNumber));
-        } else if (other.isString()) {
+    V3_ಸಂಖ್ಯೆ_Data& operator=(V3_ಸಂಖ್ಯೆ_Data&& other) {
+        ಯದಿ (other.is_Inline_ಸಂಖ್ಯೆ()) {
+            destroy_Stored_ಮೌಲ್ಯ();
+            init_Inline_ಸಂಖ್ಯೆ(other.m_inline_ಸಂಖ್ಯೆ);
+        } ಅನ್ಯಥಾ ಯದಿ (other.is_Dynamic_ಸಂಖ್ಯೆ()) {
+            reinit_With_Or_Assign_Dynamic_ಸಂಖ್ಯೆ(std::move(other.m_dynamic_ಸಂಖ್ಯೆ));
+        } ಅನ್ಯಥಾ ಯದಿ (other.isString()) {
             reinitWithOrAssignString(std::move(other.m_string));
-        } else {
-            destroyStoredValue();
+        } ಅನ್ಯಥಾ {
+            destroy_Stored_ಮೌಲ್ಯ();
         }
         m_width = other.m_width;
         m_type = other.m_type;
@@ -236,641 +236,641 @@ public:
         m_isNull = other.m_isNull;
         m_fromString = other.m_fromString;
         m_autoExtend = other.m_autoExtend;
-        other.m_type = V3NumberDataType::UNINITIALIZED;
-        return *this;
+        other.m_type = V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
 
     // ACCESSORS
-    ValueAndX* num() {
-        UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+    ಮೌಲ್ಯ_And_X* ಅಂಕೆ() {
+        UASSERT(is_ಸಂಖ್ಯೆ(), "`num` member accessed when data type is " << m_type);
+        ಪ್ರತ್ಯಾಗಮ is_Inline_ಸಂಖ್ಯೆ() ? m_inline_ಸಂಖ್ಯೆ.data() : m_dynamic_ಸಂಖ್ಯೆ.data();
     }
-    const ValueAndX* num() const VL_MT_SAFE {
-        UASSERT(isNumber(), "`num` member accessed when data type is " << m_type);
-        return isInlineNumber() ? m_inlineNumber.data() : m_dynamicNumber.data();
+    ಧ್ರುವ ಮೌಲ್ಯ_And_X* ಅಂಕೆ() ಧ್ರುವ VL_MT_SAFE {
+        UASSERT(is_ಸಂಖ್ಯೆ(), "`num` member accessed when data type is " << m_type);
+        ಪ್ರತ್ಯಾಗಮ is_Inline_ಸಂಖ್ಯೆ() ? m_inline_ಸಂಖ್ಯೆ.data() : m_dynamic_ಸಂಖ್ಯೆ.data();
     }
     std::string& str() {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        ಪ್ರತ್ಯಾಗಮ m_string;
     }
-    const std::string& str() const VL_MT_SAFE {
+    ಧ್ರುವ std::string& str() ಧ್ರುವ VL_MT_SAFE {
         UASSERT(isString(), "`str` member accessed when data type is " << m_type);
-        return m_string;
+        ಪ್ರತ್ಯಾಗಮ m_string;
     }
 
-    int width() const VL_MT_SAFE { return m_width; }
-    V3NumberDataType type() const VL_MT_SAFE { return m_type; }
+    ಪೂರ್ಣಾಙ್ಕ width() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_width; }
+    V3_ಸಂಖ್ಯೆ_Data_Type type() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_type; }
 
     // METHODS
-    void resize(int bitsCount) {
-        if (m_width == bitsCount) return;
-        if (bitsToWords(m_width) == bitsToWords(bitsCount)) {
-            m_width = bitsCount;
-            return;
+    ಶೂನ್ಯ resize(ಪೂರ್ಣಾಙ್ಕ bits_ಎಣಿಕೆ) {
+        ಯದಿ (m_width == bits_ಎಣಿಕೆ) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (bits_To_ಪದಗಳು(m_width) == bits_To_ಪದಗಳು(bits_ಎಣಿಕೆ)) {
+            m_width = bits_ಎಣಿಕೆ;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (isDynamicNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
-                m_dynamicNumber.resize(bitsToWords(bitsCount));
-            } else {
-                const auto dynamicBits = std::move(m_dynamicNumber);
-                destroyDynamicNumber();
-                initInlineNumber();
-                std::memcpy(m_inlineNumber.data(), dynamicBits.data(), sizeof(m_inlineNumber));
+        ಯದಿ (is_Dynamic_ಸಂಖ್ಯೆ()) {
+            ಯದಿ (bits_ಎಣಿಕೆ > MAX_INLINE_WIDTH) {
+                m_dynamic_ಸಂಖ್ಯೆ.resize(bits_To_ಪದಗಳು(bits_ಎಣಿಕೆ));
+            } ಅನ್ಯಥಾ {
+                ಧ್ರುವ auto dynamicBits = std::move(m_dynamic_ಸಂಖ್ಯೆ);
+                destroy_Dynamic_ಸಂಖ್ಯೆ();
+                init_Inline_ಸಂಖ್ಯೆ();
+                std::memcpy(m_inline_ಸಂಖ್ಯೆ.data(), dynamicBits.data(), ಪರಿಮಾಣ(m_inline_ಸಂಖ್ಯೆ));
             }
-        } else if (isInlineNumber()) {
-            if (bitsCount > MAX_INLINE_WIDTH) {
-                const auto bits = m_inlineNumber;
-                initDynamicNumber(bitsToWords(bitsCount));
-                std::memcpy(m_dynamicNumber.data(), bits.data(), sizeof(bits));
+        } ಅನ್ಯಥಾ ಯದಿ (is_Inline_ಸಂಖ್ಯೆ()) {
+            ಯದಿ (bits_ಎಣಿಕೆ > MAX_INLINE_WIDTH) {
+                ಧ್ರುವ auto bits = m_inline_ಸಂಖ್ಯೆ;
+                init_Dynamic_ಸಂಖ್ಯೆ(bits_To_ಪದಗಳು(bits_ಎಣಿಕೆ));
+                std::memcpy(m_dynamic_ಸಂಖ್ಯೆ.data(), bits.data(), ಪರಿಮಾಣ(bits));
             }
         }
-        m_width = bitsCount;
+        m_width = bits_ಎಣಿಕೆ;
     }
 
-    void setString() {
+    ಶೂನ್ಯ setString() {
         // If there has been a string already it is kept intact.
-        if (isString()) return;
-        if (isDynamicNumber()) destroyDynamicNumber();
+        ಯದಿ (isString()) ಪ್ರತ್ಯಾಗಮ;
+        ಯದಿ (is_Dynamic_ಸಂಖ್ಯೆ()) destroy_Dynamic_ಸಂಖ್ಯೆ();
         initString();
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_ಸಂಖ್ಯೆ_Data_Type::STRING;
     }
-    void setString(std::string&& s) {
+    ಶೂನ್ಯ setString(std::string&& s) {
         reinitWithOrAssignString(std::move(s));
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_ಸಂಖ್ಯೆ_Data_Type::STRING;
     }
-    void setString(const std::string& s) {
+    ಶೂನ್ಯ setString(ಧ್ರುವ std::string& s) {
         reinitWithOrAssignString(s);
-        m_type = V3NumberDataType::STRING;
+        m_type = V3_ಸಂಖ್ಯೆ_Data_Type::STRING;
     }
 
-    void setDouble() {
-        destroyStoredValue();
-        if (!isInlineNumber()) initInlineNumber();
-        m_type = V3NumberDataType::DOUBLE;
+    ಶೂನ್ಯ setDouble() {
+        destroy_Stored_ಮೌಲ್ಯ();
+        ಯದಿ (!is_Inline_ಸಂಖ್ಯೆ()) init_Inline_ಸಂಖ್ಯೆ();
+        m_type = V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE;
         resize(64);
     }
 
-    void setLogic() {
-        if (isString()) destroyString();
-        if (!isNumber()) {
-            if (m_width <= MAX_INLINE_WIDTH) {
-                initInlineNumber();
-            } else {
-                initDynamicNumber(bitsToWords(m_width));
+    ಶೂನ್ಯ setLogic() {
+        ಯದಿ (isString()) destroyString();
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) {
+            ಯದಿ (m_width <= MAX_INLINE_WIDTH) {
+                init_Inline_ಸಂಖ್ಯೆ();
+            } ಅನ್ಯಥಾ {
+                init_Dynamic_ಸಂಖ್ಯೆ(bits_To_ಪದಗಳು(m_width));
             }
         }
-        m_type = V3NumberDataType::LOGIC;
+        m_type = V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC;
         resize(m_width);
     }
 
-private:
-    static constexpr int bitsToWords(int bitsCount) VL_PURE { return (bitsCount + 31) / 32; }
+ಗುಪ್ತ:
+    ಸ್ಥಿರ constexpr ಪೂರ್ಣಾಙ್ಕ bits_To_ಪದಗಳು(ಪೂರ್ಣಾಙ್ಕ bits_ಎಣಿಕೆ) VL_PURE { ಪ್ರತ್ಯಾಗಮ (bits_ಎಣಿಕೆ + 31) / 32; }
 
-    bool isNumber() const VL_MT_SAFE {
-        return m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC;
+    bool is_ಸಂಖ್ಯೆ() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ m_type == V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE || m_type == V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC;
     }
-    bool isInlineNumber() const VL_MT_SAFE {
-        return (m_width <= MAX_INLINE_WIDTH)
-               && (m_type == V3NumberDataType::DOUBLE || m_type == V3NumberDataType::LOGIC);
+    bool is_Inline_ಸಂಖ್ಯೆ() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ (m_width <= MAX_INLINE_WIDTH)
+               && (m_type == V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE || m_type == V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC);
     }
-    bool isDynamicNumber() const VL_MT_SAFE {
-        return (m_width > MAX_INLINE_WIDTH) && (m_type == V3NumberDataType::LOGIC);
+    bool is_Dynamic_ಸಂಖ್ಯೆ() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ (m_width > MAX_INLINE_WIDTH) && (m_type == V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC);
     }
-    bool isString() const VL_MT_SAFE { return m_type == V3NumberDataType::STRING; }
+    bool isString() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_type == V3_ಸಂಖ್ಯೆ_Data_Type::STRING; }
 
     template <typename... Args>
-    void initInlineNumber(Args&&... args) {
-        new (&m_inlineNumber) std::array<ValueAndX, INLINE_WORDS>(std::forward<Args>(args)...);
+    ಶೂನ್ಯ init_Inline_ಸಂಖ್ಯೆ(Args&&... args) {
+        new (&m_inline_ಸಂಖ್ಯೆ) std::array<ಮೌಲ್ಯ_And_X, INLINE_ಪದಗಳು>(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    void initDynamicNumber(Args&&... args) {
-        new (&m_dynamicNumber) std::vector<ValueAndX>(std::forward<Args>(args)...);
+    ಶೂನ್ಯ init_Dynamic_ಸಂಖ್ಯೆ(Args&&... args) {
+        new (&m_dynamic_ಸಂಖ್ಯೆ) std::vector<ಮೌಲ್ಯ_And_X>(std::forward<Args>(args)...);
     }
     template <typename... Args>
-    void initString(Args&&... args) {
+    ಶೂನ್ಯ initString(Args&&... args) {
         new (&m_string) std::string(std::forward<Args>(args)...);
     }
 
     string formatDecimal();
 
-    void destroyDynamicNumber() { m_dynamicNumber.~vector(); }
-    void destroyString() { m_string.~string(); }
-    void destroyStoredValue() {
-        if (isString())
+    ಶೂನ್ಯ destroy_Dynamic_ಸಂಖ್ಯೆ() { m_dynamic_ಸಂಖ್ಯೆ.~vector(); }
+    ಶೂನ್ಯ destroyString() { m_string.~string(); }
+    ಶೂನ್ಯ destroy_Stored_ಮೌಲ್ಯ() {
+        ಯದಿ (isString())
             destroyString();
-        else if (isDynamicNumber())
-            destroyDynamicNumber();
+        ಅನ್ಯಥಾ ಯದಿ (is_Dynamic_ಸಂಖ್ಯೆ())
+            destroy_Dynamic_ಸಂಖ್ಯೆ();
     }
 
     template <typename T>
-    void reinitWithOrAssignDynamicNumber(T&& s) {
-        if (isDynamicNumber()) {
-            m_dynamicNumber = std::forward<T>(s);
-            return;
+    ಶೂನ್ಯ reinit_With_Or_Assign_Dynamic_ಸಂಖ್ಯೆ(T&& s) {
+        ಯದಿ (is_Dynamic_ಸಂಖ್ಯೆ()) {
+            m_dynamic_ಸಂಖ್ಯೆ = std::forward<T>(s);
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (isString()) destroyString();
-        initDynamicNumber(std::forward<T>(s));
+        ಯದಿ (isString()) destroyString();
+        init_Dynamic_ಸಂಖ್ಯೆ(std::forward<T>(s));
     }
     template <typename T>
-    void reinitWithOrAssignString(T&& s) {
-        if (isString()) {
+    ಶೂನ್ಯ reinitWithOrAssignString(T&& s) {
+        ಯದಿ (isString()) {
             m_string = std::forward<T>(s);
-            return;
+            ಪ್ರತ್ಯಾಗಮ;
         }
-        if (isDynamicNumber()) destroyDynamicNumber();
+        ಯದಿ (is_Dynamic_ಸಂಖ್ಯೆ()) destroy_Dynamic_ಸಂಖ್ಯೆ();
         initString(std::forward<T>(s));
     }
 };
 
-class V3Number final {
+class V3_ಸಂಖ್ಯೆ final {
     // TYPES
-    using ValueAndX = V3NumberData::ValueAndX;
-    using V3NumberDataType = V3NumberData::V3NumberDataType;
+    using ಮೌಲ್ಯ_And_X = V3_ಸಂಖ್ಯೆ_Data::ಮೌಲ್ಯ_And_X;
+    using V3_ಸಂಖ್ಯೆ_Data_Type = V3_ಸಂಖ್ಯೆ_Data::V3_ಸಂಖ್ಯೆ_Data_Type;
 
     // MEMBERS
-    V3NumberData m_data;
-    AstNode* m_nodep = nullptr;  // Parent node - for error reporting only
-    FileLine* m_fileline = nullptr;  // Source location - if no parent node is reasonable
+    V3_ಸಂಖ್ಯೆ_Data m_data;
+    Ast_ಗಂಟು* m_nodep = nullptr;  // Parent node - for error reporting only
+    File_ಸಾಲು* m_fileline = nullptr;  // Source location - if no parent node is reasonable
 
     // METHODS
-    void setNull() {
+    ಶೂನ್ಯ setNull() {
         m_data.setLogic();
         m_data.m_isNull = true;
         m_data.m_autoExtend = true;
     }
-    V3Number& setSingleBits(char value);
-    void fillBits(int destLsb, int width, char value);
-    void copyBits(int destLsb, const V3Number& source, int sourceLsb, int width);
-    V3Number& setString(const string& str) {
+    V3_ಸಂಖ್ಯೆ& setSingleBits(ವರ್ಣ ಮೌಲ್ಯ);
+    ಶೂನ್ಯ fillBits(ಪೂರ್ಣಾಙ್ಕ destLsb, ಪೂರ್ಣಾಙ್ಕ width, ವರ್ಣ ಮೌಲ್ಯ);
+    ಶೂನ್ಯ copyBits(ಪೂರ್ಣಾಙ್ಕ destLsb, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& source, ಪೂರ್ಣಾಙ್ಕ sourceLsb, ಪೂರ್ಣಾಙ್ಕ width);
+    V3_ಸಂಖ್ಯೆ& setString(ಧ್ರುವ string& str) {
         m_data.setString(str);
-        return *this;
+        ಪ್ರತ್ಯಾಗಮ *this;
     }
-    void opCleanThis(bool warnOnTruncation = false);
+    ಶೂನ್ಯ opCleanThis(bool warnOnTruncation = false);
 
-public:
-    void nodep(AstNode* nodep) VL_MT_STABLE;
-    AstNode* nodep() const VL_MT_SAFE { return m_nodep; }  // For debug only
-    FileLine* fileline() const VL_MT_SAFE { return m_fileline; }
-    V3Number& setZero();
-    V3Number& setQuad(uint64_t value);
-    V3Number& setLong(uint32_t value);
-    V3Number& setLongS(int32_t value);
-    V3Number& setDouble(double value);
-    void setBitX0(int bit);
-    void setBit(int bit, char value) {  // Note: must be initialized as number and pre-zeroed!
-        if (bit >= m_data.width()) return;
-        const uint32_t mask = (1UL << (bit & 31));
-        ValueAndX& v = m_data.num()[bit / 32];
-        if (value == '0' || value == 0) {
-            v.m_value &= ~mask;
-            v.m_valueX &= ~mask;
-        } else if (value == '1' || value == 1) {
-            v.m_value |= mask;
-            v.m_valueX &= ~mask;
-        } else if (value == 'z' || value == 2) {
-            v.m_value &= ~mask;
-            v.m_valueX |= mask;
-        } else {  // X
-            v.m_value |= mask;
-            v.m_valueX |= mask;
+ಸಾರ್ವಜನಿಕ:
+    ಶೂನ್ಯ nodep(Ast_ಗಂಟು* nodep) VL_MT_STABLE;
+    Ast_ಗಂಟು* nodep() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_nodep; }  // For debug only
+    File_ಸಾಲು* fileline() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_fileline; }
+    V3_ಸಂಖ್ಯೆ& setZero();
+    V3_ಸಂಖ್ಯೆ& setQuad(uint64_t ಮೌಲ್ಯ);
+    V3_ಸಂಖ್ಯೆ& setLong(uint32_t ಮೌಲ್ಯ);
+    V3_ಸಂಖ್ಯೆ& setLongS(int32_t ಮೌಲ್ಯ);
+    V3_ಸಂಖ್ಯೆ& setDouble(ದ್ವಿಗುಣ ಮೌಲ್ಯ);
+    ಶೂನ್ಯ setBitX0(ಪೂರ್ಣಾಙ್ಕ bit);
+    ಶೂನ್ಯ setBit(ಪೂರ್ಣಾಙ್ಕ bit, ವರ್ಣ ಮೌಲ್ಯ) {  // Note: must be initialized as number and pre-zeroed!
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ;
+        ಧ್ರುವ uint32_t mask = (1UL << (bit & 31));
+        ಮೌಲ್ಯ_And_X& v = m_data.ಅಂಕೆ()[bit / 32];
+        ಯದಿ (ಮೌಲ್ಯ == '0' || ಮೌಲ್ಯ == 0) {
+            v.m_ಮೌಲ್ಯ &= ~mask;
+            v.m_ಮೌಲ್ಯ_X &= ~mask;
+        } ಅನ್ಯಥಾ ಯದಿ (ಮೌಲ್ಯ == '1' || ಮೌಲ್ಯ == 1) {
+            v.m_ಮೌಲ್ಯ |= mask;
+            v.m_ಮೌಲ್ಯ_X &= ~mask;
+        } ಅನ್ಯಥಾ ಯದಿ (ಮೌಲ್ಯ == 'z' || ಮೌಲ್ಯ == 2) {
+            v.m_ಮೌಲ್ಯ &= ~mask;
+            v.m_ಮೌಲ್ಯ_X |= mask;
+        } ಅನ್ಯಥಾ {  // X
+            v.m_ಮೌಲ್ಯ |= mask;
+            v.m_ಮೌಲ್ಯ_X |= mask;
         }
     }
 
-private:
-    char bitIs(int bit) const {
-        if (bit >= m_data.width() || bit < 0) {
+ಗುಪ್ತ:
+    ವರ್ಣ bitIs(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ {
+        ಯದಿ (bit >= m_data.width() || bit < 0) {
             // We never sign extend
-            return '0';
+            ಪ್ರತ್ಯಾಗಮ '0';
         }
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                        | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ("01zx"[(((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) ? 1 : 0)
+                        | ((v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))) ? 2 : 0))]);
     }
-    char bitIsExtend(int bit, int lbits) const {
+    ವರ್ಣ bitIsExtend(ಪೂರ್ಣಾಙ್ಕ bit, ಪೂರ್ಣಾಙ್ಕ lbits) ಧ್ರುವ {
         // lbits usually = width, but for C optimizations width=32_bits, lbits = 32_or_less
-        if (bit < 0) return '0';
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ '0';
         UASSERT(lbits <= m_data.width(), "Extend of wrong size");
-        if (bit >= lbits) {
+        ಯದಿ (bit >= lbits) {
             bit = lbits ? lbits - 1 : 0;
-            const ValueAndX v = m_data.num()[bit / 32];
+            ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
             // We do sign extend
-            return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                            | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+            ಪ್ರತ್ಯಾಗಮ ("01zx"[(((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) ? 1 : 0)
+                            | ((v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))) ? 2 : 0))]);
         }
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ("01zx"[(((v.m_value & (1UL << (bit & 31))) ? 1 : 0)
-                        | ((v.m_valueX & (1UL << (bit & 31))) ? 2 : 0))]);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ("01zx"[(((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) ? 1 : 0)
+                        | ((v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))) ? 2 : 0))]);
     }
 
-public:
-    bool bitIs0(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return !bitIsXZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value | v.m_valueX) & (1UL << (bit & 31))) == 0;
+ಸಾರ್ವಜನಿಕ:
+    bool bitIs0(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ VL_MT_SAFE {
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ !bitIsXZ(m_data.width() - 1);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((v.m_ಮೌಲ್ಯ | v.m_ಮೌಲ್ಯ_X) & (1UL << (bit & 31))) == 0;
     }
-    bool bitIs1(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return false;
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+    bool bitIs1(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ VL_MT_SAFE {
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ false;
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) && !(v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))));
     }
-    bool bitIs1Extend(int bit) const {
+    bool bitIs1Extend(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ {
         // Correct number of zero bits/width matters
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIs1Extend(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && !(v.m_valueX & (1UL << (bit & 31))));
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ bitIs1Extend(m_data.width() - 1);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) && !(v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))));
     }
-    bool bitIsX(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsX(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ VL_MT_SAFE {
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ bitIsZ(m_data.width() - 1);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) && (v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))));
     }
-    bool bitIsXZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsXZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsXZ(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ VL_MT_SAFE {
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ bitIsXZ(m_data.width() - 1);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))));
     }
-    bool bitIsZ(int bit) const VL_MT_SAFE {
-        if (!isNumber()) return false;
-        if (bit < 0) return false;
-        if (bit >= m_data.width()) return bitIsZ(m_data.width() - 1);
-        const ValueAndX v = m_data.num()[bit / 32];
-        return ((~v.m_value & (1UL << (bit & 31))) && (v.m_valueX & (1UL << (bit & 31))));
+    bool bitIsZ(ಪೂರ್ಣಾಙ್ಕ bit) ಧ್ರುವ VL_MT_SAFE {
+        ಯದಿ (!is_ಸಂಖ್ಯೆ()) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit < 0) ಪ್ರತ್ಯಾಗಮ false;
+        ಯದಿ (bit >= m_data.width()) ಪ್ರತ್ಯಾಗಮ bitIsZ(m_data.width() - 1);
+        ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[bit / 32];
+        ಪ್ರತ್ಯಾಗಮ ((~v.m_ಮೌಲ್ಯ & (1UL << (bit & 31))) && (v.m_ಮೌಲ್ಯ_X & (1UL << (bit & 31))));
     }
 
-private:
-    uint32_t bitsValue(int lsb, int nbits) const VL_MT_SAFE {
+ಗುಪ್ತ:
+    uint32_t bits_ಮೌಲ್ಯ(ಪೂರ್ಣಾಙ್ಕ lsb, ಪೂರ್ಣಾಙ್ಕ nbits) ಧ್ರುವ VL_MT_SAFE {
         uint32_t v = 0;
-        for (int bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
-        return v;
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ bitn = 0; bitn < nbits; bitn++) v |= (bitIs1(lsb + bitn) << bitn);
+        ಪ್ರತ್ಯಾಗಮ v;
     }
 
-    int countX(int lsb, int nbits) const VL_MT_SAFE;
-    int countZ(int lsb, int nbits) const VL_MT_SAFE;
+    ಪೂರ್ಣಾಙ್ಕ ಎಣಿಕೆ_X(ಪೂರ್ಣಾಙ್ಕ lsb, ಪೂರ್ಣಾಙ್ಕ nbits) ಧ್ರುವ VL_MT_SAFE;
+    ಪೂರ್ಣಾಙ್ಕ ಎಣಿಕೆ_Z(ಪೂರ್ಣಾಙ್ಕ lsb, ಪೂರ್ಣಾಙ್ಕ nbits) ಧ್ರುವ VL_MT_SAFE;
 
-    int words() const VL_MT_SAFE { return ((width() + 31) / 32); }
-    uint32_t hiWordMask() const VL_MT_SAFE {
+    ಪೂರ್ಣಾಙ್ಕ ಪದಗಳು() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ ((width() + 31) / 32); }
+    uint32_t hiWordMask() ಧ್ರುವ VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return VL_MASK_I(width());
+        ಪ್ರತ್ಯಾಗಮ VL_MASK_I(width());
     }
 
-    V3Number& opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus);
+    V3_ಸಂಖ್ಯೆ& opModDivGuts(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs, bool is_modulus);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit V3Number(AstNode* nodep) { init(nodep, 1); }
-    V3Number(AstNode* nodep, int width) {  // 0=unsized
+    explicit V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep) { init(nodep, 1); }
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ width) {  // 0=unsized
         init(nodep, width, width > 0);
     }
     // Construct with value, changing to new width
-    V3Number(AstNode* nodep, int width, const V3Number& value) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ width, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಮೌಲ್ಯ) {
         init(nodep, width, width > 0);
-        opAssign(value);
+        opAssign(ಮೌಲ್ಯ);
     }
-    V3Number(AstNode* nodep, int width, uint32_t value, bool sized = true) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ width, uint32_t ಮೌಲ್ಯ, bool sized = true) {
         init(nodep, width, sized);
-        m_data.num()[0].m_value = value;
+        m_data.ಅಂಕೆ()[0].m_ಮೌಲ್ಯ = ಮೌಲ್ಯ;
         opCleanThis();
     }
-    V3Number(FileLine* flp, int width, uint32_t value, bool sized = true) {
+    V3_ಸಂಖ್ಯೆ(File_ಸಾಲು* flp, ಪೂರ್ಣಾಙ್ಕ width, uint32_t ಮೌಲ್ಯ, bool sized = true) {
         init(nullptr, width, sized);
         m_fileline = flp;
-        m_data.num()[0].m_value = value;
+        m_data.ಅಂಕೆ()[0].m_ಮೌಲ್ಯ = ಮೌಲ್ಯ;
         opCleanThis();
     }
     // Create from a verilog 32'hxxxx number.
-    class VerilogNumberLiteral {};  // For creator type-overload selection
-    V3Number(AstNode* nodep, VerilogNumberLiteral, const char* sourcep) { create(nodep, sourcep); }
-    V3Number(FileLine* flp, VerilogNumberLiteral, const char* sourcep) { create(flp, sourcep); }
+    class Verilog_ಸಂಖ್ಯೆ_Literal {};  // For creator type-overload selection
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, Verilog_ಸಂಖ್ಯೆ_Literal, ಧ್ರುವ ವರ್ಣ* sourcep) { create(nodep, sourcep); }
+    V3_ಸಂಖ್ಯೆ(File_ಸಾಲು* flp, Verilog_ಸಂಖ್ಯೆ_Literal, ಧ್ರುವ ವರ್ಣ* sourcep) { create(flp, sourcep); }
     class VerilogStringLiteral {};  // For creator type-overload selection
-    V3Number(AstNode* nodep, VerilogStringLiteral, const string& str);
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, VerilogStringLiteral, ಧ್ರುವ string& str);
     class Double {};
-    V3Number(AstNode* nodep, Double, double value) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, Double, ದ್ವಿಗುಣ ಮೌಲ್ಯ) {
         init(nodep, 64);
-        setDouble(value);
+        setDouble(ಮೌಲ್ಯ);
     }
     class String {};
-    V3Number(AstNode* nodep, String, const string& value) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, String, ಧ್ರುವ string& ಮೌಲ್ಯ) {
         init(nodep);
-        setString(value);
+        setString(ಮೌಲ್ಯ);
         m_data.m_fromString = true;
     }
     class OneStep {};
-    V3Number(AstNode* nodep, OneStep) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, OneStep) {
         init(nodep, 64);
         m_data.m_is1Step = true;
     }
     class Null {};
-    V3Number(AstNode* nodep, Null) {
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, Null) {
         init(nodep);
         setNull();
     }
-    explicit V3Number(const V3Number* nump, int width = 1) {
+    explicit V3_ಸಂಖ್ಯೆ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ* nump, ಪೂರ್ಣಾಙ್ಕ width = 1) {
         init(nullptr, width);
         m_fileline = nump->fileline();
     }
-    V3Number(const V3Number* nump, int width, uint32_t value) {
+    V3_ಸಂಖ್ಯೆ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ* nump, ಪೂರ್ಣಾಙ್ಕ width, uint32_t ಮೌಲ್ಯ) {
         init(nullptr, width);
-        m_data.num()[0].m_value = value;
+        m_data.ಅಂಕೆ()[0].m_ಮೌಲ್ಯ = ಮೌಲ್ಯ;
         opCleanThis();
         m_fileline = nump->fileline();
     }
-    V3Number(AstNode* nodep, const AstNodeDType* nodedtypep);
+    V3_ಸಂಖ್ಯೆ(Ast_ಗಂಟು* nodep, ಧ್ರುವ Ast_ಗಂಟು_DType* nodedtypep);
 
-    V3Number(const V3Number& other) = default;
-    V3Number& operator=(const V3Number& other) = default;
+    V3_ಸಂಖ್ಯೆ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& other) = ಸ್ವಭಾವ;
+    V3_ಸಂಖ್ಯೆ& operator=(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& other) = ಸ್ವಭಾವ;
 
-    V3Number(V3Number&& other) = default;
-    V3Number& operator=(V3Number&& other) = default;
+    V3_ಸಂಖ್ಯೆ(V3_ಸಂಖ್ಯೆ&& other) = ಸ್ವಭಾವ;
+    V3_ಸಂಖ್ಯೆ& operator=(V3_ಸಂಖ್ಯೆ&& other) = ಸ್ವಭಾವ;
 
-    ~V3Number() = default;
+    ~V3_ಸಂಖ್ಯೆ() = ಸ್ವಭಾವ;
 
-private:
-    void selfTestThis();
-    void create(AstNode* nodep, const char* sourcep) {
+ಗುಪ್ತ:
+    ಶೂನ್ಯ selfTestThis();
+    ಶೂನ್ಯ create(Ast_ಗಂಟು* nodep, ಧ್ರುವ ವರ್ಣ* sourcep) {
         init(nodep, 0);
         m_fileline = nullptr;
         create(sourcep);
     }
-    void create(FileLine* flp, const char* sourcep) {
+    ಶೂನ್ಯ create(File_ಸಾಲು* flp, ಧ್ರುವ ವರ್ಣ* sourcep) {
         init(nullptr, 0);
         m_fileline = flp;
         create(sourcep);
     }
-    void create(const char* sourcep);
-    void init(AstNode* nodep, int swidth = -1, bool sized = true) {
+    ಶೂನ್ಯ create(ಧ್ರುವ ವರ್ಣ* sourcep);
+    ಶೂನ್ಯ init(Ast_ಗಂಟು* nodep, ಪೂರ್ಣಾಙ್ಕ swidth = -1, bool sized = true) {
         this->nodep(nodep);
-        if (swidth >= 0) {
-            if (swidth == 0) {
+        ಯದಿ (swidth >= 0) {
+            ಯದಿ (swidth == 0) {
                 swidth = 1;
                 sized = false;
             }
             m_data.setLogic();
             m_data.resize(swidth);
             m_data.m_sized = sized;
-            for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-        } else {
+            ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < ಪದಗಳು(); ++i) m_data.ಅಂಕೆ()[i] = {0, 0};
+        } ಅನ್ಯಥಾ {
             m_data.resize(1);
             m_data.m_sized = false;
         }
     }
-    static string displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE;
-    string displayed(const string& vformat) const VL_MT_STABLE {
-        return displayed(m_fileline, vformat);
+    ಸ್ಥಿರ string displayPad(size_t fmtsize, ವರ್ಣ pad, bool ಎಡ, ಧ್ರುವ string& in) VL_PURE;
+    string displayed(ಧ್ರುವ string& vformat) ಧ್ರುವ VL_MT_STABLE {
+        ಪ್ರತ್ಯಾಗಮ displayed(m_fileline, vformat);
     }
-    void warnTooMany(const string& value);
+    ಶೂನ್ಯ warnTooMany(ಧ್ರುವ string& ಮೌಲ್ಯ);
 
-public:
-    void v3errorEnd(const std::ostringstream& sstr) const VL_RELEASE(V3Error::s().m_mutex);
-    void v3errorEndFatal(const std::ostringstream& sstr) const VL_ATTR_NORETURN
+ಸಾರ್ವಜನಿಕ:
+    ಶೂನ್ಯ v3errorEnd(ಧ್ರುವ std::ostringstream& sstr) ಧ್ರುವ VL_RELEASE(V3Error::s().m_mutex);
+    ಶೂನ್ಯ v3errorEndFatal(ಧ್ರುವ std::ostringstream& sstr) ಧ್ರುವ VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex);
-    void width(int width, bool sized = true) {
+    ಶೂನ್ಯ width(ಪೂರ್ಣಾಙ್ಕ width, bool sized = true) {
         m_data.m_sized = sized;
         m_data.resize(width);
     }
 
     // SETTERS
-    V3Number& setAllBitsXRemoved();
-    V3Number& setAllBitsX();
-    V3Number& setAllBitsZ();
-    V3Number& setAllBits0();
-    V3Number& setAllBits1();
-    V3Number& setValue1();
+    V3_ಸಂಖ್ಯೆ& setAllBitsXRemoved();
+    V3_ಸಂಖ್ಯೆ& setAllBitsX();
+    V3_ಸಂಖ್ಯೆ& setAllBitsZ();
+    V3_ಸಂಖ್ಯೆ& setAllBits0();
+    V3_ಸಂಖ್ಯೆ& setAllBits1();
+    V3_ಸಂಖ್ಯೆ& setValue1();
     // IE if nbits=1, then 0b1, if 2->0b11, if 3->0b111 etc
-    V3Number& setMask(int nbits, int lsb = 0);
+    V3_ಸಂಖ್ಯೆ& setMask(ಪೂರ್ಣಾಙ್ಕ nbits, ಪೂರ್ಣಾಙ್ಕ lsb = 0);
 
     // ACCESSORS
-    string ascii(bool prefixed = true, bool cleanVerilog = false) const VL_MT_STABLE;
-    string displayed(const AstNode* nodep, const string& vformat,
-                     const VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) const VL_MT_STABLE;
-    string displayed(FileLine* fl, const string& vformat,
-                     const VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) const VL_MT_STABLE;
-    string displayedEnum(const AstSFormatArg* argp, const string& vformat) const VL_MT_STABLE;
-    string displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE;
-    static string displayedEnumName(const AstEnumItem* itemp);
-    static bool displayedFmtHasArg(char format, bool isScan);
-    string emitC() const VL_MT_STABLE;
-    int width() const VL_MT_SAFE { return m_data.width(); }
-    int widthToFit() const;  // Minimum width that can represent this number (~== log2(num)+1)
-    bool sized() const VL_MT_SAFE { return m_data.m_sized; }
-    bool autoExtend() const VL_MT_SAFE { return m_data.m_autoExtend; }
-    bool isFromString() const { return m_data.m_fromString; }
-    bool hasOrigParamName() const { return m_data.m_hasOrigParamName; }
-    void hasOrigParamName(bool flag) { m_data.m_hasOrigParamName = flag; }
-    V3NumberDataType dataType() const VL_MT_SAFE { return m_data.type(); }
-    void dataType(V3NumberDataType newType) {
-        if (dataType() == newType) return;
-        UASSERT(newType != V3NumberDataType::UNINITIALIZED, "Can't set type to UNINITIALIZED.");
-        switch (newType) {
-        case V3NumberDataType::STRING: m_data.setString(); break;
-        case V3NumberDataType::DOUBLE: m_data.setDouble(); break;
-        case V3NumberDataType::LOGIC: m_data.setLogic(); break;
-        case V3NumberDataType::UNINITIALIZED: break;
+    string ascii(bool prefixed = true, bool cleanVerilog = false) ಧ್ರುವ VL_MT_STABLE;
+    string displayed(ಧ್ರುವ Ast_ಗಂಟು* nodep, ಧ್ರುವ string& vformat,
+                     ಧ್ರುವ VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) ಧ್ರುವ VL_MT_STABLE;
+    string displayed(File_ಸಾಲು* fl, ಧ್ರುವ string& vformat,
+                     ಧ್ರುವ VFormatAttr& formatAttr = VFormatAttr::UNSIGNED) ಧ್ರುವ VL_MT_STABLE;
+    string displayedEnum(ಧ್ರುವ AstSFormatArg* argp, ಧ್ರುವ string& vformat) ಧ್ರುವ VL_MT_STABLE;
+    string displayedEnumName(ಧ್ರುವ AstEnumDType* dtypep) ಧ್ರುವ VL_MT_STABLE;
+    ಸ್ಥಿರ string displayedEnumName(ಧ್ರುವ AstEnumItem* itemp);
+    ಸ್ಥಿರ bool displayedFmtHasArg(ವರ್ಣ format, bool isScan);
+    string emitC() ಧ್ರುವ VL_MT_STABLE;
+    ಪೂರ್ಣಾಙ್ಕ width() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.width(); }
+    ಪೂರ್ಣಾಙ್ಕ widthToFit() ಧ್ರುವ;  // Minimum width that can represent this number (~== log2(num)+1)
+    bool sized() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.m_sized; }
+    bool autoExtend() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.m_autoExtend; }
+    bool isFromString() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_data.m_fromString; }
+    bool hasOrigParamName() ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ m_data.m_hasOrigParamName; }
+    ಶೂನ್ಯ hasOrigParamName(bool flag) { m_data.m_hasOrigParamName = flag; }
+    V3_ಸಂಖ್ಯೆ_Data_Type dataType() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.type(); }
+    ಶೂನ್ಯ dataType(V3_ಸಂಖ್ಯೆ_Data_Type newType) {
+        ಯದಿ (dataType() == newType) ಪ್ರತ್ಯಾಗಮ;
+        UASSERT(newType != V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED, "Can't set type to UNINITIALIZED.");
+        ವಿಕಲ್ಪ (newType) {
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::STRING: m_data.setString(); ಭಙ್ಗ;
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE: m_data.setDouble(); ಭಙ್ಗ;
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC: m_data.setLogic(); ಭಙ್ಗ;
+        ಪಕ್ಷ V3_ಸಂಖ್ಯೆ_Data_Type::UNINITIALIZED: ಭಙ್ಗ;
         }
     }
     // Only correct for parsing of numbers from strings, otherwise not used
     // (use AstConst::isSigned())
-    bool isSigned() const VL_MT_SAFE { return m_data.m_signed; }
-    void isSigned(bool ssigned) { m_data.m_signed = ssigned; }
-    bool isDouble() const VL_MT_SAFE { return dataType() == V3NumberDataType::DOUBLE; }
-    bool isString() const VL_MT_SAFE { return dataType() == V3NumberDataType::STRING; }
-    bool isOpaque() const VL_MT_SAFE { return isDouble() || isString(); }
-    bool isNumber() const VL_MT_SAFE {
-        return m_data.type() == V3NumberDataType::LOGIC
-               || m_data.type() == V3NumberDataType::DOUBLE;
+    bool isSigned() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.m_signed; }
+    ಶೂನ್ಯ isSigned(bool ssigned) { m_data.m_signed = ssigned; }
+    bool isDouble() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ dataType() == V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE; }
+    bool isString() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ dataType() == V3_ಸಂಖ್ಯೆ_Data_Type::STRING; }
+    bool isOpaque() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ isDouble() || isString(); }
+    bool is_ಸಂಖ್ಯೆ() ಧ್ರುವ VL_MT_SAFE {
+        ಪ್ರತ್ಯಾಗಮ m_data.type() == V3_ಸಂಖ್ಯೆ_Data_Type::LOGIC
+               || m_data.type() == V3_ಸಂಖ್ಯೆ_Data_Type::DOUBLE;
     }
-    bool isNegative() const VL_MT_SAFE {
+    bool isNegative() ಧ್ರುವ VL_MT_SAFE {
         // Correct number of zero bits/width matters
-        return !isString() && bitIs1(width() - 1);
+        ಪ್ರತ್ಯಾಗಮ !isString() && bitIs1(width() - 1);
     }
-    bool is1Step() const VL_MT_SAFE { return m_data.m_is1Step; }
-    bool isNull() const VL_MT_SAFE { return m_data.m_isNull; }
-    bool isFourState() const VL_MT_SAFE;
-    bool hasZ() const {
-        if (isString()) return false;
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            if ((~v.m_value) & v.m_valueX) return true;
+    bool is1Step() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.m_is1Step; }
+    bool isNull() ಧ್ರುವ VL_MT_SAFE { ಪ್ರತ್ಯಾಗಮ m_data.m_isNull; }
+    bool isFourState() ಧ್ರುವ VL_MT_SAFE;
+    bool hasZ() ಧ್ರುವ {
+        ಯದಿ (isString()) ಪ್ರತ್ಯಾಗಮ false;
+        ಪ್ರತಿ (ಪೂರ್ಣಾಙ್ಕ i = 0; i < ಪದಗಳು(); ++i) {
+            ಧ್ರುವ ಮೌಲ್ಯ_And_X v = m_data.ಅಂಕೆ()[i];
+            ಯದಿ ((~v.m_ಮೌಲ್ಯ) & v.m_ಮೌಲ್ಯ_X) ಪ್ರತ್ಯಾಗಮ true;
         }
-        return false;
+        ಪ್ರತ್ಯಾಗಮ false;
     }
-    bool isAllZ() const VL_MT_SAFE;
-    bool isAllX() const VL_MT_SAFE;
-    bool isEqZero() const VL_MT_SAFE;
-    bool isNeqZero() const;
-    bool isBitsZero(int msb, int lsb) const;
-    bool isBroken(int vwidth) const;
-    bool isEqOne() const;
-    bool isEqAllOnes(int optwidth = 0) const;
-    bool isCaseEq(const V3Number& rhs) const;  // operator==
-    bool isLtXZ(const V3Number& rhs) const;  // operator< with XZ compared
-    bool isAnyX() const VL_MT_SAFE;
-    bool isAnyXZ() const;
-    bool isAnyZ() const VL_MT_SAFE;
-    bool isMsbXZ() const {
+    bool isAllZ() ಧ್ರುವ VL_MT_SAFE;
+    bool isAllX() ಧ್ರುವ VL_MT_SAFE;
+    bool isEqZero() ಧ್ರುವ VL_MT_SAFE;
+    bool isNeqZero() ಧ್ರುವ;
+    bool isBitsZero(ಪೂರ್ಣಾಙ್ಕ msb, ಪೂರ್ಣಾಙ್ಕ lsb) ಧ್ರುವ;
+    bool isBroken(ಪೂರ್ಣಾಙ್ಕ vwidth) ಧ್ರುವ;
+    bool isEqOne() ಧ್ರುವ;
+    bool isEqAllOnes(ಪೂರ್ಣಾಙ್ಕ optwidth = 0) ಧ್ರುವ;
+    bool isCaseEq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs) ಧ್ರುವ;  // operator==
+    bool isLtXZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs) ಧ್ರುವ;  // operator< with XZ compared
+    bool isAnyX() ಧ್ರುವ VL_MT_SAFE;
+    bool isAnyXZ() ಧ್ರುವ;
+    bool isAnyZ() ಧ್ರುವ VL_MT_SAFE;
+    bool isMsbXZ() ಧ್ರುವ {
         // Correct number of zero bits/width matters
-        return bitIsXZ(width() - 1);
+        ಪ್ರತ್ಯಾಗಮ bitIsXZ(width() - 1);
     }
-    bool fitsInUInt() const VL_MT_SAFE;
-    uint32_t toUInt() const VL_MT_SAFE;
-    int32_t toSInt() const VL_MT_SAFE;
-    uint64_t toUQuad() const VL_MT_SAFE;
-    int64_t toSQuad() const VL_MT_SAFE;
-    string toString() const VL_MT_SAFE;
-    string toDecimalS() const VL_MT_STABLE;  // return ASCII signed decimal number
-    string toDecimalU() const VL_MT_STABLE;  // return ASCII unsigned decimal number
+    bool fitsInUInt() ಧ್ರುವ VL_MT_SAFE;
+    uint32_t toUInt() ಧ್ರುವ VL_MT_SAFE;
+    int32_t toSInt() ಧ್ರುವ VL_MT_SAFE;
+    uint64_t toUQuad() ಧ್ರುವ VL_MT_SAFE;
+    int64_t toSQuad() ಧ್ರುವ VL_MT_SAFE;
+    string toString() ಧ್ರುವ VL_MT_SAFE;
+    string toDecimalS() ಧ್ರುವ VL_MT_STABLE;  // return ASCII signed decimal number
+    string toDecimalU() ಧ್ರುವ VL_MT_STABLE;  // return ASCII unsigned decimal number
     // return ASCII real number, with the fewest of 15 or 17 digits that is exact
-    string toRealString() const VL_MT_STABLE;
-    double toDouble() const VL_MT_SAFE;
-    V3Hash toHash() const;
-    uint32_t edataWord(int eword) const;
-    uint8_t dataByte(int byte) const;
-    uint32_t countBits(const V3Number& ctrl) const;
-    uint32_t countBits(const V3Number& ctrl1, const V3Number& ctrl2, const V3Number& ctrl3) const;
-    uint32_t countOnes() const;
-    uint32_t mostSetBitP1() const;  // Highest bit set + 1, e.g. for 16 return 5, for 0 return 0
-    uint32_t leastSetBitP1() const;  // Lowest bit set + 1, e.g. for 14 return 2, for 0 return 0
+    string toRealString() ಧ್ರುವ VL_MT_STABLE;
+    ದ್ವಿಗುಣ toDouble() ಧ್ರುವ VL_MT_SAFE;
+    V3Hash toHash() ಧ್ರುವ;
+    uint32_t edataWord(ಪೂರ್ಣಾಙ್ಕ eword) ಧ್ರುವ;
+    uint8_t dataByte(ಪೂರ್ಣಾಙ್ಕ byte) ಧ್ರುವ;
+    uint32_t ಎಣಿಕೆ_Bits(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl) ಧ್ರುವ;
+    uint32_t ಎಣಿಕೆ_Bits(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl1, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl2, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl3) ಧ್ರುವ;
+    uint32_t ಎಣಿಕೆ_Ones() ಧ್ರುವ;
+    uint32_t mostSetBitP1() ಧ್ರುವ;  // Highest bit set + 1, e.g. for 16 return 5, for 0 return 0
+    uint32_t leastSetBitP1() ಧ್ರುವ;  // Lowest bit set + 1, e.g. for 14 return 2, for 0 return 0
 
     // Operators
-    bool operator<(const V3Number& rhs) const { return isLtXZ(rhs); }
+    bool operator<(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs) ಧ್ರುವ { ಪ್ರತ್ಯಾಗಮ isLtXZ(rhs); }
 
     // STATICS
-    static bool epsilonEqual(double a, double b);  // True if number within Epsilon of the other
-    static bool epsilonIntegral(double a);  // True if number rounds to integer within Epsilon
-    static int log2b(uint32_t num);
-    static int log2bQuad(uint64_t num);
-    static void selfTest();
+    ಸ್ಥಿರ bool epsilonEqual(ದ್ವಿಗುಣ a, ದ್ವಿಗುಣ b);  // True if number within Epsilon of the other
+    ಸ್ಥಿರ bool epsilonIntegral(ದ್ವಿಗುಣ a);  // True if number rounds to integer within Epsilon
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ log2b(uint32_t ಅಂಕೆ);
+    ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ log2bQuad(uint64_t ಅಂಕೆ);
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest();
 
     // MATH
     // "this" is the output, as we need the output width before some computations
-    V3Number& opBitsNonXZ(const V3Number& lhs);  // 0/1->1, X/Z->0
-    V3Number& opBitsOne(const V3Number& lhs);  // 1->1, 0/X/Z->0
-    V3Number& opBitsXZ(const V3Number& lhs);  // 0/1->0, X/Z->1
-    V3Number& opBitsZ(const V3Number& lhs);  // Z->1, 0/1/X->0
+    V3_ಸಂಖ್ಯೆ& opBitsNonXZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);  // 0/1->1, X/Z->0
+    V3_ಸಂಖ್ಯೆ& opBitsOne(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);  // 1->1, 0/X/Z->0
+    V3_ಸಂಖ್ಯೆ& opBitsXZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);  // 0/1->0, X/Z->1
+    V3_ಸಂಖ್ಯೆ& opBitsZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);  // Z->1, 0/1/X->0
     //
-    V3Number& opAssign(const V3Number& lhs);
-    V3Number& opAssignNonXZ(const V3Number& lhs, bool ignoreXZ = true);
-    V3Number& opExtendS(const V3Number& lhs, uint32_t lbits);  // Sign extension
-    V3Number& opExtendXZ(const V3Number& lhs, uint32_t lbits);  // X/Z extension
-    V3Number& opRedOr(const V3Number& lhs);
-    V3Number& opRedAnd(const V3Number& lhs);
-    V3Number& opRedXor(const V3Number& lhs);
-    V3Number& opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                          const V3Number& ctrl3);
-    V3Number& opCountOnes(const V3Number& lhs);
-    V3Number& opIsUnknown(const V3Number& lhs);
-    V3Number& opOneHot(const V3Number& lhs);
-    V3Number& opOneHot0(const V3Number& lhs);
-    V3Number& opCLog2(const V3Number& lhs);
-    V3Number& opMostSetBitP1(const V3Number& lhs);
-    V3Number& opClean(const V3Number& lhs, uint32_t bits);
-    V3Number& opConcat(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLenN(const V3Number& lhs);
-    V3Number& opRepl(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opRepl(const V3Number& lhs, uint32_t rhsval);
-    V3Number& opStreamL(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb);
-    V3Number& opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval);
-    V3Number& opSelInto(const V3Number& lhs, const V3Number& lsb, int width);
-    V3Number& opSelInto(const V3Number& lhs, int lsbval, int width);
-    V3Number& opCvtPackString(const V3Number& lhs);
-    V3Number& opToLowerN(const V3Number& lhs);
-    V3Number& opToUpperN(const V3Number& lhs);
-    V3Number& opCaseEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opCaseNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opWildEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opWildNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opBufIf1(const V3Number& ens, const V3Number& if1s);
-    V3Number& opSetRange(uint32_t lsb, uint32_t width, char bitValue);
+    V3_ಸಂಖ್ಯೆ& opAssign(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opAssignNonXZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, bool ignoreXZ = true);
+    V3_ಸಂಖ್ಯೆ& opExtendS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t lbits);  // Sign extension
+    V3_ಸಂಖ್ಯೆ& opExtendXZ(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t lbits);  // X/Z extension
+    V3_ಸಂಖ್ಯೆ& opRedOr(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opRedAnd(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opRedXor(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& op_ಎಣಿಕೆ_Bits(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ಅಭಿವ್ಯಕ್ತಿ, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl1, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl2,
+                          ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ctrl3);
+    V3_ಸಂಖ್ಯೆ& op_ಎಣಿಕೆ_Ones(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opIsUnknown(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opOneHot(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opOneHot0(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opCLog2(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opMostSetBitP1(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opClean(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t bits);
+    V3_ಸಂಖ್ಯೆ& opConcat(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLenN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opRepl(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opRepl(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t rhsval);
+    V3_ಸಂಖ್ಯೆ& opStreamL(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opSel(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& msb, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lsb);
+    V3_ಸಂಖ್ಯೆ& opSel(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t msbval, uint32_t lsbval);
+    V3_ಸಂಖ್ಯೆ& opSelInto(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lsb, ಪೂರ್ಣಾಙ್ಕ width);
+    V3_ಸಂಖ್ಯೆ& opSelInto(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಪೂರ್ಣಾಙ್ಕ lsbval, ಪೂರ್ಣಾಙ್ಕ width);
+    V3_ಸಂಖ್ಯೆ& opCvtPackString(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opToLowerN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opToUpperN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opCaseEq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opCaseNeq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opWildEq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opWildNeq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opBufIf1(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ens, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& if1s);
+    V3_ಸಂಖ್ಯೆ& opSetRange(uint32_t lsb, uint32_t width, ವರ್ಣ bit_ಮೌಲ್ಯ);
     // "standard" math
-    V3Number& opNot(const V3Number& lhs);
-    V3Number& opLogNot(const V3Number& lhs);
-    V3Number& opLogAnd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogOr(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLogIf(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNegate(const V3Number& lhs);
-    V3Number& opAdd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSub(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMul(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMulS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opDiv(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opDivS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opModDiv(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opModDivS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opPow(const V3Number& lhs, const V3Number& rhs, bool lsign = false,
+    V3_ಸಂಖ್ಯೆ& opNot(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opLogNot(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opLogAnd(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLogOr(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLogEq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLogIf(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opNegate(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opAdd(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opSub(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opMul(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opMulS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opDiv(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opDivS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opModDiv(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opModDivS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opPow(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs, bool lsign = false,
                     bool rsign = false);
-    V3Number& opPowSU(const V3Number& lhs, const V3Number& rhs);  // Signed lhs, unsigned rhs
-    V3Number& opPowSS(const V3Number& lhs, const V3Number& rhs);  // Signed lhs, signed rhs
-    V3Number& opPowUS(const V3Number& lhs, const V3Number& rhs);  // Unsigned lhs, signed rhs
-    V3Number& opAnd(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opXor(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opOr(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opShiftR(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opShiftRS(const V3Number& lhs, const V3Number& rhs,  // Arithmetic w/carry
+    V3_ಸಂಖ್ಯೆ& opPowSU(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed lhs, unsigned rhs
+    V3_ಸಂಖ್ಯೆ& opPowSS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed lhs, signed rhs
+    V3_ಸಂಖ್ಯೆ& opPowUS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Unsigned lhs, signed rhs
+    V3_ಸಂಖ್ಯೆ& opAnd(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opXor(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opOr(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opShiftR(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opShiftRS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs,  // Arithmetic w/carry
                         uint32_t lbits);
-    V3Number& opShiftL(const V3Number& lhs, const V3Number& rhs);
+    V3_ಸಂಖ್ಯೆ& opShiftL(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
     // Comparisons
-    V3Number& opEq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeq(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGt(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opGte(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opLt(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtS(const V3Number& lhs, const V3Number& rhs);  // Signed
-    V3Number& opLte(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteS(const V3Number& lhs, const V3Number& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opEq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opNeq(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGt(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGtS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opGte(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGteS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opLt(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLtS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
+    V3_ಸಂಖ್ಯೆ& opLte(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLteS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);  // Signed
 
     // "D" - double (aka real) math
-    V3Number& opIToRD(const V3Number& lhs, bool isSigned = false);
-    V3Number& opISToRD(const V3Number& lhs) { return opIToRD(lhs, true); }
-    V3Number& opRToIS(const V3Number& lhs);
-    V3Number& opRToIRoundS(const V3Number& lhs);
-    V3Number& opRealToBits(const V3Number& lhs);
-    V3Number& opBitsToRealD(const V3Number& lhs);
-    V3Number& opNegateD(const V3Number& lhs);
-    V3Number& opAddD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSubD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opMulD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opDivD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opPowD(const V3Number& lhs, const V3Number& rhs);
+    V3_ಸಂಖ್ಯೆ& opIToRD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, bool isSigned = false);
+    V3_ಸಂಖ್ಯೆ& opISToRD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs) { ಪ್ರತ್ಯಾಗಮ opIToRD(lhs, true); }
+    V3_ಸಂಖ್ಯೆ& opRToIS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opRToIRoundS(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opRealToBits(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opBitsToRealD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opNegateD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opAddD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opSubD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opMulD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opDivD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opPowD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
     // Comparisons
-    V3Number& opEqD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeqD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtD(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteD(const V3Number& lhs, const V3Number& rhs);
+    V3_ಸಂಖ್ಯೆ& opEqD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opNeqD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGtD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGteD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLtD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLteD(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
 
     // "N" - string operations
-    V3Number& opAtoN(const V3Number& lhs, int base);
-    V3Number& opNToI(const V3Number& lhs);
-    V3Number& opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths);
-    V3Number& opGetcN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths);
-    V3Number& opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase);
-    V3Number& opConcatN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opReplN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opReplN(const V3Number& lhs, uint32_t rhsval);
-    V3Number& opEqN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opNeqN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGtN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opGteN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLtN(const V3Number& lhs, const V3Number& rhs);
-    V3Number& opLteN(const V3Number& lhs, const V3Number& rhs);
+    V3_ಸಂಖ್ಯೆ& opAtoN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಪೂರ್ಣಾಙ್ಕ base);
+    V3_ಸಂಖ್ಯೆ& opNToI(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs);
+    V3_ಸಂಖ್ಯೆ& opPutcN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ths);
+    V3_ಸಂಖ್ಯೆ& opGetcN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opSubstrN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& ths);
+    V3_ಸಂಖ್ಯೆ& opCompareNN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs, bool ignoreCase);
+    V3_ಸಂಖ್ಯೆ& opConcatN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opReplN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opReplN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, uint32_t rhsval);
+    V3_ಸಂಖ್ಯೆ& opEqN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opNeqN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGtN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opGteN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLtN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
+    V3_ಸಂಖ್ಯೆ& opLteN(ಧ್ರುವ V3_ಸಂಖ್ಯೆ& lhs, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs);
 };
-inline std::ostream& operator<<(std::ostream& os, const V3Number& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+ಅನ್ತಃಸ್ಥ std::ostream& operator<<(std::ostream& os, ಧ್ರುವ V3_ಸಂಖ್ಯೆ& rhs) VL_MT_SAFE {
+    ಪ್ರತ್ಯಾಗಮ os << rhs.ascii();
 }
 
 #endif  // Guard
