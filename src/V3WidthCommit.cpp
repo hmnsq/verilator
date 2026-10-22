@@ -20,24 +20,24 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3WidthCommit.h"
+#अन्तर्भाव "V3WidthCommit.h"
 
-#include "V3MemberMap.h"
+#अन्तर्भाव "V3MemberMap.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
 // Hash a std::pair automatically
-struct PairHash final {
+संरचना PairHash final {
     template <typename T, typename U>
-    std::size_t operator()(const std::pair<T, U>& x) const {
-        return std::hash<T>()(x.first) + std::hash<U>()(x.second);
+    std::size_t operator()(ध्रुव std::pair<T, U>& x) ध्रुव {
+        प्रत्यागम std::hash<T>()(x.first) + std::hash<U>()(x.second);
     }
 };
 
@@ -45,38 +45,38 @@ struct PairHash final {
 // Now that all widthing is complete,
 // Copy all width() to widthMin().  V3Const expects this
 
-class WidthCommitVisitor final : public VNVisitor {
+वर्ग WidthCommitVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     //  AstVar::user1p           -> bool.  Processed
     //  AstNodeFTask::user2()    -> uint64_t. Non-zero if ever referenced (called)
     //  AstNew::user2()          -> uint64_t. Count of number of references, minus references in
     //  functions never called
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ध्रुव VNUser1InUse m_inuser1;
+    ध्रुव VNUser2InUse m_inuser2;
 
     // STATE
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const char* m_contNbap = nullptr;  // In continuous- or non-blocking assignment
-    bool m_contReads = false;  // Check read continuous automatic variables
-    bool m_dynsizedelem = false;  // Writing dynamically-sized array element, not the array itself
+    Ast_ग्रन्थिः_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_ग्रन्थिः_Module* m_modp = nullptr;  // Current module
+    ध्रुव वर्ण* m_contNbap = nullptr;  // In continuous- or non-blocking assignment
+    तार्किक m_contReads = मिच्छ;  // Check read continuous automatic variables
+    तार्किक m_dynsizedelem = मिच्छ;  // Writing dynamically-sized array element, not the array itself
     VMemberMap m_memberMap;  // Member names cached for fast lookup
-    bool m_taskRefWarn = true;  // Allow task reference warnings
-    bool m_underSel = false;  // Under AstMemberSel or AstSel
-    bool m_underAlwaysEdged = false;  // Under always with sequential SenTree
+    तार्किक m_taskRefWarn = सच्च;  // Allow task reference warnings
+    तार्किक m_underSel = मिच्छ;  // Under AstMemberSel or AstSel
+    तार्किक m_underAlwaysEdged = मिच्छ;  // Under always with sequential SenTree
     std::vector<AstNew*> m_virtualNewsp;  // Instantiations of virtual classes
-    std::vector<AstNodeFTask*> m_tasksp;  // All the tasks, we will check if they are ever called
+    std::vector<Ast_ग्रन्थिः_FTask*> m_tasksp;  // All the tasks, we will check if they are ever called
 
-public:
+सार्वजनिक:
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-private:
+गुप्त:
     // METHODS
-    void editDType(AstNode* nodep) {
+    शून्य editDType(Ast_ग्रन्थिः* nodep) {
         // Called by every visitor. Edit dtypes for this node, also check for some warnings
         nodep->dtypep(editOneDType(nodep->dtypep()));
-        if (m_ftaskp && m_ftaskp->verilogFunction() && m_taskRefWarn && nodep->isTimingControl())
+        जइ (m_ftaskp && m_ftaskp->verilogFunction() && m_taskRefWarn && nodep->isTimingControl())
             nodep->v3warn(
                 FUNCTIMECTL,
                 "Functions cannot contain time-controlling statements (IEEE 1800-2023 13.4)\n"
@@ -85,68 +85,68 @@ private:
                     << m_ftaskp->prettyName() << "' a task\n"
                     << m_ftaskp->warnContextSecondary());
     }
-    AstNodeDType* editOneDType(AstNodeDType* nodep) {
+    Ast_ग्रन्थिः_DType* editOneDType(Ast_ग्रन्थिः_DType* nodep) {
         // See if the dtype/refDType can be converted to a standard one
         // This reduces the number of dtypes in the system, and since
         // dtypep() figures into sameTree() results in better optimizations
-        if (!nodep) return nullptr;
+        जइ (!nodep) प्रत्यागम nullptr;
         // Recurse to handle the data type, as may change the size etc of this type
-        if (!nodep->user1()) iterate(nodep);
+        जइ (!nodep->user1()) iterate(nodep);
         // Look for duplicate
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
-            AstBasicDType* const newp = nodep->findInsertSameDType(bdtypep);
-            if (newp != bdtypep && debug() >= 9) {
+        जइ (AstBasicDType* ध्रुव bdtypep = VN_CAST(nodep, BasicDType)) {
+            AstBasicDType* ध्रुव newp = nodep->find_निवेशय_Same_DType(bdtypep);
+            जइ (newp != bdtypep && debug() >= 9) {
                 UINFO_PREFIX("dtype replacement ");
                 nodep->dumpSmall(std::cout);
                 std::cout << "  ---->  ";
                 newp->dumpSmall(std::cout);
                 std::cout << '\n';
             }
-            return newp;
+            प्रत्यागम newp;
         }
-        return nodep;
+        प्रत्यागम nodep;
     }
-    void classEncapCheck(AstNode* nodep, AstNode* defp, AstClass* defClassp) {
+    शून्य classEncapCheck(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः* defp, AstClass* defClassp) {
         // Check local/protected status and complain
-        bool local = false;
-        bool prot = false;
-        if (!defp) {
+        तार्किक local = मिच्छ;
+        तार्किक prot = मिच्छ;
+        जइ (!defp) {
             // rand_mode() / constraint_mode() handled in V3Randomize
             UASSERT_OBJ(nodep->name() == "rand_mode" || nodep->name() == "constraint_mode", nodep,
                         "Only rand_mode() and constraint_mode() can have no def");
-            return;
+            प्रत्यागम;
         }
-        if (const auto anodep = VN_CAST(defp, Var)) {
+        जइ (ध्रुव auto anodep = VN_CAST(defp, Var)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else if (const auto anodep = VN_CAST(defp, NodeFTask)) {
+        } अण्णहा जइ (ध्रुव auto anodep = VN_CAST(defp, ग्रन्थिः_FTask)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else if (const auto anodep = VN_CAST(defp, Typedef)) {
+        } अण्णहा जइ (ध्रुव auto anodep = VN_CAST(defp, Typedef)) {
             local = anodep->isHideLocal();
             prot = anodep->isHideProtected();
-        } else {
+        } अण्णहा {
             nodep->v3fatalSrc("ref to unhandled definition type " << defp->prettyTypeName());
         }
-        if (local || prot) {
+        जइ (local || prot) {
             // In case of covergroup, the reference is to the enclosing class, not the covergroup
             // itself
-            const AstClass* refClassp = VN_CAST(m_modp, Class);
-            if (refClassp && refClassp->isCovergroup())
+            ध्रुव AstClass* refClassp = VN_CAST(m_modp, Class);
+            जइ (refClassp && refClassp->isCovergroup())
                 refClassp = refClassp->covergroupEnclosingClassp();
-            const char* how = nullptr;
+            ध्रुव वर्ण* how = nullptr;
             // Inner nested classes can access `local` or `protected` members of their outer class
-            const auto nestedAccess = [refClassp](const AstClass*, const AstNode* memberp) {
-                return memberp == refClassp;
+            ध्रुव auto nestedAccess = [refClassp](ध्रुव AstClass*, ध्रुव Ast_ग्रन्थिः* memberp) {
+                प्रत्यागम memberp == refClassp;
             };
-            if (local && defClassp
+            जइ (local && defClassp
                 && ((refClassp != defClassp) && !(defClassp->existsMember(nestedAccess)))) {
                 how = "'local'";
-            } else if (prot && defClassp && !AstClass::isClassExtendedFrom(refClassp, defClassp)
+            } अण्णहा जइ (prot && defClassp && !AstClass::isClassExtendedFrom(refClassp, defClassp)
                        && !(defClassp->existsMember(nestedAccess))) {
                 how = "'protected'";
             }
-            if (how) {
+            जइ (how) {
                 UINFO(9, "refclass " << refClassp);
                 UINFO(9, "defclass " << defClassp);
                 nodep->v3warn(ENCAPSULATED, nodep->prettyNameQ()
@@ -159,21 +159,21 @@ private:
             }
         }
     }
-    void varLifetimeCheck(AstNode* nodep, AstVar* varp) {
+    शून्य varLifetimeCheck(Ast_ग्रन्थिः* nodep, AstVar* varp) {
         // Skip if we are under a member select (lhs of a dot)
         // We don't care about lifetime of anything else than rhs of a dot
-        if (!m_underSel && m_contNbap) {
+        जइ (!m_underSel && m_contNbap) {
             std::string varType;
-            const AstNodeDType* const varDtp = varp->dtypep()->skipRefp();
-            if (varp->lifetime().isAutomatic() && !VN_IS(varDtp, IfaceRefDType)
+            ध्रुव Ast_ग्रन्थिः_DType* ध्रुव varDtp = varp->dtypep()->skipRefp();
+            जइ (varp->lifetime().isAutomatic() && !VN_IS(varDtp, IfaceRefDType)
                 && !(varp->isFuncLocal() && varp->isIO()))
                 varType = "Automatic lifetime";
-            else if (varp->isClassMember() && !varp->lifetime().isStatic()
+            अण्णहा जइ (varp->isClassMember() && !varp->lifetime().isStatic()
                      && !VN_IS(varDtp, IfaceRefDType))
                 varType = "Class non-static";
-            else if (varDtp->isDynamicallySized() && m_dynsizedelem)
+            अण्णहा जइ (varDtp->isDynamicallySized() && m_dynsizedelem)
                 varType = "Dynamically-sized";
-            if (!varType.empty()) {
+            जइ (!varType.empty()) {
                 UINFO(1, "    Related var dtype: " << varDtp);
                 nodep->v3error(varType
                                << " variable not allowed in " << m_contNbap
@@ -183,72 +183,72 @@ private:
     }
     // Like varLifetimeCheck, for a member or element, which can be a dynamically-sized array too,
     // named by the given node
-    void selLifetimeCheck(AstNodeExpr* nodep, const AstNode* namep) {
-        if (m_underSel || !m_contNbap || !m_dynsizedelem) return;
-        if (!nodep->isLValue() && !m_contReads) return;
-        if (!nodep->dtypep()->skipRefp()->isDynamicallySized()) return;
+    शून्य selLifetimeCheck(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, ध्रुव Ast_ग्रन्थिः* namep) {
+        जइ (m_underSel || !m_contNbap || !m_dynsizedelem) प्रत्यागम;
+        जइ (!nodep->isLValue() && !m_contReads) प्रत्यागम;
+        जइ (!nodep->dtypep()->skipRefp()->isDynamicallySized()) प्रत्यागम;
         nodep->v3error("Dynamically-sized variable not allowed in "
                        << m_contNbap
                        << " assignment (IEEE 1800-2023 6.21): " << namep->prettyNameQ());
     }
 
-    void deadCheckTasks() {
-        for (AstNodeFTask* taskp : m_tasksp) {
-            if (!taskp->user2()) {
+    शून्य deadCheckTasks() {
+        प्रति (Ast_ग्रन्थिः_FTask* taskp : m_tasksp) {
+            जइ (!taskp->user2()) {
                 taskp->foreach([](AstNew* newp) { newp->user2Inc(-1); });
             }
         }
-        for (AstNew* newp : m_virtualNewsp) {
-            if (newp->user2() > 0)
+        प्रति (AstNew* newp : m_virtualNewsp) {
+            जइ (newp->user2() > 0)
                 newp->v3error("Illegal to call 'new' using an abstract virtual class "
-                              + AstNode::prettyNameQ(newp->classOrPackagep()->origName())
+                              + Ast_ग्रन्थिः::prettyNameQ(newp->classOrPackagep()->origName())
                               + " (IEEE 1800-2023 8.21)");
         }
     }
 
-    void virtualRecurse(AstNodeFTask* nodep, const AstClass* classp, bool& isVirtualr) {
-        static std::unordered_map<std::pair<const AstClass*, const AstNodeFTask*>, bool, PairHash>
+    शून्य virtualRecurse(Ast_ग्रन्थिः_FTask* nodep, ध्रुव AstClass* classp, तार्किक& isVirtualr) {
+        स्थिर std::unordered_map<std::pair<ध्रुव AstClass*, ध्रुव Ast_ग्रन्थिः_FTask*>, तार्किक, PairHash>
             s_classFuncsChecked;  // Track what was recursed to avoid O(class*funcs^2)
         // IEEE doesn't require virtual marking at derived classes' functions.
         // Propagate virtual marking from base class function upwards.
         auto pair = s_classFuncsChecked.emplace(std::make_pair(classp, nodep), isVirtualr);
-        if (!pair.second) {
-            if (pair.first->second) isVirtualr = true;
-            return;
+        जइ (!pair.second) {
+            जइ (pair.first->second) isVirtualr = सच्च;
+            प्रत्यागम;
         }
         //
-        if (nodep->isVirtual()) isVirtualr = true;
+        जइ (nodep->isVirtual()) isVirtualr = सच्च;
         // Propagate value from extends/implements
-        for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+        प्रति (AstClassExtends* extendsp = classp->extendsp(); extendsp;
              extendsp = VN_AS(extendsp->nextp(), ClassExtends)) {
-            const AstClass* const eclassp = extendsp->classp();
-            if (AstNodeFTask* const fbasep
-                = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), NodeFTask)) {
-                if (fbasep != nodep) {
+            ध्रुव AstClass* ध्रुव eclassp = extendsp->classp();
+            जइ (Ast_ग्रन्थिः_FTask* ध्रुव fbasep
+                = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), ग्रन्थिः_FTask)) {
+                जइ (fbasep != nodep) {
                     virtualRecurse(fbasep, eclassp, isVirtualr);
-                    continue;
+                    अनुवर्त;
                 }
             }
             virtualRecurse(nodep, eclassp, isVirtualr);
         }
-        if (isVirtualr) {
-            nodep->isVirtual(true);
+        जइ (isVirtualr) {
+            nodep->isVirtual(सच्च);
             // Update memoize map in case had a false when first created
             s_classFuncsChecked[std::make_pair(classp, nodep)] = isVirtualr;
         }
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
         editDType(nodep);
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+        जइ (AstClass* ध्रुव classp = VN_CAST(nodep, Class)) {
+            प्रति (AstClassExtends* extendsp = classp->extendsp(); extendsp;
                  extendsp = extendsp->classp()->extendsp()) {
-                const AstClass* const ebasep = extendsp->classp();
-                if (ebasep->baseOverride().isFinal()) {
+                ध्रुव AstClass* ध्रुव ebasep = extendsp->classp();
+                जइ (ebasep->baseOverride().isFinal()) {
                     extendsp->v3error("Class " << nodep->prettyNameQ()
                                                << " is being extended from class marked ':final'"
                                                   " (IEEE 1800-2023 8.20)\n"
@@ -260,19 +260,19 @@ private:
             }
         }
     }
-    void visit(AstAlways* nodep) override {
+    शून्य visit(AstAlways* nodep) override {
         // As have not optimized SenTrees yet, an 'always .*' will be on first and only SenItem
-        if (nodep->sentreep() && nodep->sentreep()->sensesp()
+        जइ (nodep->sentreep() && nodep->sentreep()->sensesp()
             && nodep->sentreep()->sensesp()->isComboStar()) {
-            const bool noReads = nodep->forall(
-                [&](const AstNodeVarRef* refp) { return !refp->access().isReadOrRW(); });
-            if (noReads) {
+            ध्रुव तार्किक noReads = nodep->forall(
+                [&](ध्रुव Ast_ग्रन्थिः_Var_Ref* refp) { प्रत्यागम !refp->access().isReadOrRW(); });
+            जइ (noReads) {
                 nodep->v3warn(ALWNEVER, "'always @*' will never execute as expression list is "
                                         "empty (no variables read)\n"
                                             << nodep->warnMore()
                                             << "... Suggest use 'always_comb'");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
+                प्रत्यागम;
             }
         }
         VL_RESTORER(m_underAlwaysEdged);
@@ -282,139 +282,139 @@ private:
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstFork* nodep) override {
+    शून्य visit(AstFork* nodep) override {
         VL_RESTORER(m_taskRefWarn);
         // fork..join_any is allowed to call tasks, and UVM does this
-        if (!nodep->isTimingControl()) m_taskRefWarn = false;
+        जइ (!nodep->isTimingControl()) m_taskRefWarn = मिच्छ;
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        if (nodep->sensesp() && nodep->sensesp()->isComboStar()) {
+    शून्य visit(Ast_Sen_वृक्षः* nodep) override {
+        जइ (nodep->sensesp() && nodep->sensesp()->isComboStar()) {
             UASSERT_OBJ(!nodep->sensesp()->nextp(), nodep, "Shouldn't be senitems after .*");
             // Make look like standalone always
             // (Rest of code assumed this before .* existed)
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
+            प्रत्यागम;
         }
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstAttrOf* nodep) override {
-        switch (nodep->attrType()) {
-        case VAttrType::FUNC_ARG_PROTO:  // FALLTHRU
-        case VAttrType::FUNC_RETURN_PROTO:
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
-        default:;
+    शून्य visit(AstAttrOf* nodep) override {
+        विकल्प (nodep->attrType()) {
+        पक्ष VAttrType::FUNC_ARG_PROTO:  // FALLTHRU
+        पक्ष VAttrType::FUNC_RETURN_PROTO:
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
+            प्रत्यागम;
+        स्वभाव:;
         }
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstClassExtends* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    शून्य visit(AstClassExtends* nodep) override {
+        जइ (nodep->user1SetOnce()) प्रत्यागम;  // Process once
         // Extend arguments were converted to super.new arguments in V3LinkDot
-        if (nodep->argsp()) pushDeletep(nodep->argsp()->unlinkFrBackWithNext());
+        जइ (nodep->argsp()) प्रक्षिप_Deletep(nodep->argsp()->unlinkFrBackWithNext());
         iterateChildren(nodep);
     }
-    void visit(AstConst* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    शून्य visit(AstConst* nodep) override {
+        जइ (nodep->user1SetOnce()) प्रत्यागम;  // Process once
         UASSERT_OBJ(nodep->dtypep(), nodep, "No dtype");
         iterate(nodep->dtypep());  // Do datatype first
-        if (AstConst* const newp = V3WidthCommit::newIfConstCommitSize(nodep)) {
+        जइ (AstConst* ध्रुव newp = V3WidthCommit::newIfConstCommitSize(nodep)) {
             nodep->replaceWith(newp);
-            AstNode* const oldp = nodep;
+            Ast_ग्रन्थिः* ध्रुव oldp = nodep;
             nodep = newp;
             // UINFOTREE(5, oldp, "", "fixConstSize_old");
             // UINFOTREE(5, newp, "", "_new");
-            VL_DO_DANGLING(pushDeletep(oldp), oldp);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(oldp), oldp);
         }
         editDType(nodep);
     }
-    void visit(AstCastWrap* nodep) override {
+    शून्य visit(AstCastWrap* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         UINFO(6, " Replace " << nodep << " w/ " << nodep->lhsp());
         nodep->replaceWith(nodep->lhsp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
     }
-    void visit(AstConstraint* nodep) override {
+    शून्य visit(AstConstraint* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         {
-            const AstClass* const classp = VN_CAST(m_modp, Class);
-            if (nodep->isKwdPure()
+            ध्रुव AstClass* ध्रुव classp = VN_CAST(m_modp, Class);
+            जइ (nodep->isKwdPure()
                 && (!classp || (!classp->isInterfaceClass() && !classp->isVirtual()))) {
                 nodep->v3error("Illegal to have 'pure constraint' in non-abstract class"
                                " (IEEE 1800-2023 18.5.2)");
             }
         }
     }
-    void visit(AstNodeDType* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_DType* nodep) override {
         // Note some specific dtypes have unique visitors
-        visitIterateNodeDType(nodep);
+        visit_Iterate_ग्रन्थिः_DType(nodep);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        visitIterateNodeDType(nodep);
+    शून्य visit(Ast_ग्रन्थिः_UOr_Struct_DType* nodep) override {
+        जइ (nodep->user1SetOnce()) प्रत्यागम;  // Process once
+        visit_Iterate_ग्रन्थिः_DType(nodep);
     }
-    void visit(AstParamTypeDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        visitIterateNodeDType(nodep);
+    शून्य visit(AstParamTypeDType* nodep) override {
+        जइ (nodep->user1SetOnce()) प्रत्यागम;  // Process once
+        visit_Iterate_ग्रन्थिः_DType(nodep);
         // Move to type table as all dtype pointers must resolve there
         nodep->unlinkFrBack();  // Make non-child
         v3Global.rootp()->typeTablep()->addTypesp(nodep);
     }
-    void visit(AstRefDType* nodep) override {
-        visitIterateNodeDType(nodep);
-        if (!nodep->typedefp()) return;  // Already checked and cleared
+    शून्य visit(AstRefDType* nodep) override {
+        visit_Iterate_ग्रन्थिः_DType(nodep);
+        जइ (!nodep->typedefp()) प्रत्यागम;  // Already checked and cleared
         classEncapCheck(nodep, nodep->typedefp(), VN_CAST(nodep->classOrPackagep(), Class));
         nodep->typedefp(nullptr);  // No longer needed
     }
-    void visitIterateNodeDType(AstNodeDType* nodep) {
+    शून्य visit_Iterate_ग्रन्थिः_DType(Ast_ग्रन्थिः_DType* nodep) {
         // Rather than use dtypeChg which may make new nodes, we edit in place,
         // as we don't need to preserve any widthMin's, and every dtype with the same width
         // gets an identical edit.
-        if (nodep->user1SetOnce()) return;  // Process once
+        जइ (nodep->user1SetOnce()) प्रत्यागम;  // Process once
         nodep->widthMinFromWidth();
         // Too late to any unspecified sign to be anything but unsigned
-        if (nodep->numeric().isNosign()) nodep->numeric(VSigning::UNSIGNED);
+        जइ (nodep->numeric().isNosign()) nodep->numeric(VSigning::UNSIGNED);
         iterateChildren(nodep);
         nodep->virtRefDTypep(editOneDType(nodep->virtRefDTypep()));
         nodep->virtRefDType2p(editOneDType(nodep->virtRefDType2p()));
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (!nodep->taskPublic() && !nodep->dpiExport() && !nodep->dpiImport())
-            m_tasksp.push_back(nodep);
+    शून्य visit(Ast_ग्रन्थिः_FTask* nodep) override {
+        जइ (!nodep->taskPublic() && !nodep->dpiExport() && !nodep->dpiImport())
+            m_tasksp.प्रक्षिप_back(nodep);
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
         editDType(nodep);
-        bool isVirtual = false;
-        if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+        तार्किक isVirtual = मिच्छ;
+        जइ (ध्रुव AstClass* ध्रुव classp = VN_CAST(m_modp, Class)) {
             virtualRecurse(nodep, classp, isVirtual /*ref*/);
         }
-        if (nodep->isStatic() && nodep->isVirtual())  // After propagated isVirtual
+        जइ (nodep->isStatic() && nodep->isVirtual())  // After propagated isVirtual
             nodep->v3error("Static methods cannot be virtual");
         {
-            const AstClass* const classp = VN_CAST(m_modp, Class);
-            if (nodep->classMethod() && nodep->pureVirtual() && classp
+            ध्रुव AstClass* ध्रुव classp = VN_CAST(m_modp, Class);
+            जइ (nodep->classMethod() && nodep->pureVirtual() && classp
                 && !classp->isInterfaceClass() && !classp->isVirtual()) {
                 nodep->v3error(
                     "Illegal to have 'pure virtual' in non-virtual class (IEEE 1800-2023 8.21)");
             }
         }
-        bool extended = false;
-        if (const AstClass* const classp = VN_CAST(m_modp, Class)) {
+        तार्किक extended = मिच्छ;
+        जइ (ध्रुव AstClass* ध्रुव classp = VN_CAST(m_modp, Class)) {
             // Walk down inheritance
-            for (AstClassExtends* extendsp = classp->extendsp(); extendsp;
+            प्रति (AstClassExtends* extendsp = classp->extendsp(); extendsp;
                  extendsp = extendsp->classp()->extendsp()) {
-                const AstClass* const eclassp = extendsp->classp();
-                if (AstNodeFTask* const fbasep
-                    = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), NodeFTask)) {
-                    if (fbasep != nodep) {
-                        extended = true;
-                        if (nodep->baseOverride().isInitial()) {
+                ध्रुव AstClass* ध्रुव eclassp = extendsp->classp();
+                जइ (Ast_ग्रन्थिः_FTask* ध्रुव fbasep
+                    = VN_CAST(m_memberMap.findMember(eclassp, nodep->name()), ग्रन्थिः_FTask)) {
+                    जइ (fbasep != nodep) {
+                        extended = सच्च;
+                        जइ (nodep->baseOverride().isInitial()) {
                             nodep->v3error("Member "
                                            << nodep->prettyNameQ()
                                            << " is marked ':initial' but is being extended"
@@ -424,7 +424,7 @@ private:
                                            << "... Location of declaration being extended\n"
                                            << fbasep->warnContextSecondary());
                         }
-                        if (fbasep->baseOverride().isFinal()) {
+                        जइ (fbasep->baseOverride().isFinal()) {
                             nodep->v3error(
                                 "Member "
                                 << nodep->prettyNameQ()
@@ -439,35 +439,35 @@ private:
                 }
             }
         }
-        if (!extended && nodep->baseOverride().isExtends()) {
+        जइ (!extended && nodep->baseOverride().isExtends()) {
             nodep->v3error("Member " << nodep->prettyNameQ()
                                      << " marked ':extends' but no base class function is"
                                         " being extend (IEEE 1800-2023 8.20)");
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_Var_Ref* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         classEncapCheck(nodep, nodep->varp(), VN_CAST(nodep->classOrPackagep(), Class));
-        if (nodep->access().isWriteOrRW() || m_contReads) varLifetimeCheck(nodep, nodep->varp());
-        if (VN_IS(nodep, VarRef))
+        जइ (nodep->access().isWriteOrRW() || m_contReads) varLifetimeCheck(nodep, nodep->varp());
+        जइ (VN_IS(nodep, VarRef))
             nodep->name("");  // Clear to save memory; nodep->name() will work via nodep->varp()
     }
-    void visit(AstAssign* nodep) override {
+    शून्य visit(AstAssign* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         // Lint
-        if (m_underAlwaysEdged) {
-            const bool ignore = nodep->lhsp()->forall([&](const AstVarRef* refp) {
+        जइ (m_underAlwaysEdged) {
+            ध्रुव तार्किक ignore = nodep->lhsp()->forall([&](ध्रुव AstVarRef* refp) {
                 // Ignore reads (e.g.: index expressions)
-                if (refp->access().isReadOnly()) return true;
-                const AstVar* const varp = refp->varp();
+                जइ (refp->access().isReadOnly()) प्रत्यागम सच्च;
+                ध्रुव AstVar* ध्रुव varp = refp->varp();
                 // Ignore ...
-                return varp->isUsedLoopIdx()  // ... loop indices
+                प्रत्यागम varp->isUsedLoopIdx()  // ... loop indices
                        || varp->isTemp()  // ... temporaries
                        || varp->fileline()->warnIsOff(V3ErrorCode::BLKSEQ);  // ... user said so
             });
-            if (!ignore) {
+            जइ (!ignore) {
                 nodep->v3warn(BLKSEQ,
                               "Blocking assignment '=' in sequential logic process\n"
                                   << nodep->warnMore()  //
@@ -475,47 +475,47 @@ private:
             }
         }
     }
-    void visit(AstAssignCont* nodep) override {
+    शून्य visit(AstAssignCont* nodep) override {
         iterateAndNextNull(nodep->timingControlp());
         {
             VL_RESTORER(m_contNbap);
             VL_RESTORER(m_contReads);
             m_contNbap = "continuous";
-            m_contReads = true;
+            m_contReads = सच्च;
             iterateAndNextNull(nodep->lhsp());
             iterateAndNextNull(nodep->rhsp());
         }
         editDType(nodep);
     }
-    void visit(AstAssignDly* nodep) override {
+    शून्य visit(AstAssignDly* nodep) override {
         iterateAndNextNull(nodep->timingControlp());
         iterateAndNextNull(nodep->rhsp());
         {
             VL_RESTORER(m_contNbap);
             VL_RESTORER(m_contReads);
             m_contNbap = "nonblocking";
-            m_contReads = false;
+            m_contReads = मिच्छ;
             iterateAndNextNull(nodep->lhsp());
         }
         editDType(nodep);
     }
-    void visit(AstAssignW* nodep) override {
+    शून्य visit(AstAssignW* nodep) override {
         iterateAndNextNull(nodep->timingControlp());
         iterateAndNextNull(nodep->rhsp());
         {
             VL_RESTORER(m_contNbap);
             VL_RESTORER(m_contReads);
             m_contNbap = "continuous";
-            m_contReads = false;
+            m_contReads = मिच्छ;
             iterateAndNextNull(nodep->lhsp());
         }
         editDType(nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः_FTask_Ref* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         classEncapCheck(nodep, nodep->taskp(), VN_CAST(nodep->classOrPackagep(), Class));
-        if (nodep->taskp() && nodep->taskp()->verilogTask() && m_ftaskp
+        जइ (nodep->taskp() && nodep->taskp()->verilogTask() && m_ftaskp
             && m_ftaskp->verilogFunction() && m_taskRefWarn) {
             nodep->v3warn(FUNCTIMECTL,
                           "Functions cannot invoke tasks (IEEE 1800-2023 13.4)\n"
@@ -527,101 +527,101 @@ private:
                               << nodep->taskp()->prettyName() << "' a function void\n"
                               << nodep->taskp()->warnContextSecondary());
         }
-        if (nodep->taskp()) nodep->taskp()->user2(1);
-        if (AstNew* const newp = VN_CAST(nodep, New)) {
-            if (!VN_IS(newp->backp(), Assign)) return;
-            if (AstClass* const classp = VN_CAST(newp->classOrPackagep(), Class)) {
-                if (classp->isVirtual() || classp->isInterfaceClass()) {
-                    m_virtualNewsp.push_back(newp);
+        जइ (nodep->taskp()) nodep->taskp()->user2(1);
+        जइ (AstNew* ध्रुव newp = VN_CAST(nodep, New)) {
+            जइ (!VN_IS(newp->backp(), Assign)) प्रत्यागम;
+            जइ (AstClass* ध्रुव classp = VN_CAST(newp->classOrPackagep(), Class)) {
+                जइ (classp->isVirtual() || classp->isInterfaceClass()) {
+                    m_virtualNewsp.प्रक्षिप_back(newp);
                     newp->user2Inc();
                 }
             }
         }
     }
-    void visit(AstMemberSel* nodep) override {
+    शून्य visit(AstMemberSel* nodep) override {
         {
             VL_RESTORER(m_underSel);
-            m_underSel = true;
+            m_underSel = सच्च;
             iterateChildren(nodep);
         }
         editDType(nodep);
-        if (AstClassRefDType* const classrefp = VN_CAST(nodep->fromp()->dtypep(), ClassRefDType)) {
+        जइ (AstClassRefDType* ध्रुव classrefp = VN_CAST(nodep->fromp()->dtypep(), ClassRefDType)) {
             classEncapCheck(nodep, nodep->varp(), classrefp->classp());
         }  // else might be struct, etc
         varLifetimeCheck(nodep, nodep->varp());
     }
-    void visit(AstVar* nodep) override {
+    शून्य visit(AstVar* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
-        if (nodep->isFuncLocal() && nodep->direction() == VDirection::INPUT && nodep->valuep()) {
+        जइ (nodep->isFuncLocal() && nodep->direction() == VDirection::निवेशः && nodep->valuep()) {
             // It's the default value of optional argument.
             // Such values are added to function calls in V3Width so can be removed now
-            pushDeletep(nodep->valuep()->unlinkFrBack());
+            प्रक्षिप_Deletep(nodep->valuep()->unlinkFrBack());
         }
     }
-    void visit(AstNodePreSel* nodep) override {  // LCOV_EXCL_LINE
+    शून्य visit(Ast_ग्रन्थिः_Pre_Sel* nodep) override {  // LCOV_EXCL_LINE
         // This check could go anywhere after V3Param
         nodep->v3fatalSrc("Presels should have been removed before this point");
     }
-    void visit(AstCMethodHard* nodep) override {
+    शून्य visit(AstCMethodHard* nodep) override {
         VL_RESTORER(m_dynsizedelem);
-        if (nodep->method() == VCMethod::ARRAY_AT || nodep->method() == VCMethod::ARRAY_AT_WRITE
+        जइ (nodep->method() == VCMethod::ARRAY_AT || nodep->method() == VCMethod::ARRAY_AT_WRITE
             || nodep->method() == VCMethod::DYN_AT_WRITE_APPEND)
-            m_dynsizedelem = true;
+            m_dynsizedelem = सच्च;
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstAssocSel* nodep) override {
+    शून्य visit(AstAssocSel* nodep) override {
         VL_RESTORER(m_dynsizedelem);
-        m_dynsizedelem = true;
+        m_dynsizedelem = सच्च;
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstWildcardSel* nodep) override {
+    शून्य visit(AstWildcardSel* nodep) override {
         VL_RESTORER(m_dynsizedelem);
-        m_dynsizedelem = true;
+        m_dynsizedelem = सच्च;
         iterateChildren(nodep);
         editDType(nodep);
     }
-    void visit(AstStructSel* nodep) override {
+    शून्य visit(AstStructSel* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
         selLifetimeCheck(nodep, nodep);
     }
-    void visit(AstArraySel* nodep) override {
+    शून्य visit(AstArraySel* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
-        selLifetimeCheck(nodep, nodep->baseFromp(/* overMembers: */ false));
+        selLifetimeCheck(nodep, nodep->baseFromp(/* overMembers: */ मिच्छ));
     }
-    void visit(AstSel* nodep) override {
+    शून्य visit(AstSel* nodep) override {
         {
             VL_RESTORER(m_underSel);
-            m_underSel = true;
+            m_underSel = सच्च;
             iterateChildren(nodep);
         }
         editDType(nodep);
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    शून्य visit(AstClassOrPackageRef* nodep) override {
         // Reference must have been resolved, can delete these
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstNode* nodep) override {
+    शून्य visit(Ast_ग्रन्थिः* nodep) override {
         iterateChildren(nodep);
         editDType(nodep);
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit WidthCommitVisitor(AstNetlist* nodep) {
         {
             // Name classes and interfaces while they have their parameter types, as this visit
             // moves those to the type table, maybe from another module's types before their own,
             // with the scopes declaring them indexed, as a class may be named with others
-            const VDTypeNameScopes scopes{nodep};
-            nodep->foreach([](AstNodeModule* modp) {
-                if (AstClass* const classp = VN_CAST(modp, Class)) {
+            ध्रुव VDTypeNameScopes scopes{nodep};
+            nodep->foreach([](Ast_ग्रन्थिः_Module* modp) {
+                जइ (AstClass* ध्रुव classp = VN_CAST(modp, Class)) {
                     classp->dtypeNameFreeze();
-                } else if (AstIface* const ifacep = VN_CAST(modp, Iface)) {
+                } अण्णहा जइ (AstIface* ध्रुव ifacep = VN_CAST(modp, Iface)) {
                     ifacep->dtypeNameFreeze();
                 }
             });
@@ -634,14 +634,14 @@ public:
         // have been added back in; a repair would prevent dead nodes from
         // being detected
     }
-    ~WidthCommitVisitor() override = default;
+    ~WidthCommitVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // V3WidthCommit class functions
 
-void V3WidthCommit::widthCommit(AstNetlist* nodep) {
+शून्य V3WidthCommit::widthCommit(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { WidthCommitVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("widthcommit", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_वृक्षः("widthcommit", 0, dump_वृक्षः_Either_Level() >= 6);
 }

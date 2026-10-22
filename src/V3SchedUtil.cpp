@@ -18,121 +18,121 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitCBase.h"
-#include "V3EmitV.h"
-#include "V3Order.h"
-#include "V3Sched.h"
-#include "V3SenExprBuilder.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3EmitCBase.h"
+#अन्तर्भाव "V3EmitV.h"
+#अन्तर्भाव "V3Order.h"
+#अन्तर्भाव "V3Sched.h"
+#अन्तर्भाव "V3SenExprBuilder.h"
+#अन्तर्भाव "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
-namespace util {
+नामाकाश V3Sched {
+नामाकाश util {
 
-AstCFunc* makeSubFunction(AstNetlist* netlistp, const string& name, bool slow) {
-    AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-    AstCFunc* const funcp = new AstCFunc{netlistp->fileline(), name, scopeTopp, ""};
-    funcp->dontCombine(true);
-    funcp->isStatic(false);
-    funcp->isLoose(true);
+AstCFunc* makeSubFunction(AstNetlist* netlistp, ध्रुव string& name, तार्किक slow) {
+    AstScope* ध्रुव scopeTopp = netlistp->शिखरम्_Scopep()->scopep();
+    AstCFunc* ध्रुव funcp = नूतन AstCFunc{netlistp->fileline(), name, scopeTopp, ""};
+    funcp->dontCombine(सच्च);
+    funcp->isStatic(मिच्छ);
+    funcp->isLoose(सच्च);
     funcp->slow(slow);
-    funcp->isConst(false);
-    funcp->declPrivate(true);
+    funcp->isConst(मिच्छ);
+    funcp->declPrivate(सच्च);
     scopeTopp->addBlocksp(funcp);
-    return funcp;
+    प्रत्यागम funcp;
 }
 
-AstVarScope* newArgument(AstCFunc* funcp, AstNodeDType* dtypep, const string& name,
+AstVarScope* newArgument(AstCFunc* funcp, Ast_ग्रन्थिः_DType* dtypep, ध्रुव string& name,
                          VDirection direction) {
-    FileLine* const flp = funcp->fileline();
-    AstScope* const scopep = funcp->scopep();
-    AstVar* const varp = new AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
-    varp->funcLocal(true);
+    File_पङ्क्तिः* ध्रुव flp = funcp->fileline();
+    AstScope* ध्रुव scopep = funcp->scopep();
+    AstVar* ध्रुव varp = नूतन AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
+    varp->funcLocal(सच्च);
     varp->direction(direction);
     funcp->addArgsp(varp);
-    AstVarScope* const vscp = new AstVarScope{flp, scopep, varp};
+    AstVarScope* ध्रुव vscp = नूतन AstVarScope{flp, scopep, varp};
     scopep->addVarsp(vscp);
-    return vscp;
+    प्रत्यागम vscp;
 }
 
-AstNodeStmt* setVar(AstVarScope* vscp, uint32_t val) {
-    FileLine* const flp = vscp->fileline();
-    AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::WRITE};
-    AstConst* const valp = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
-    valp->num().setLong(val);
-    return new AstAssign{flp, refp, valp};
+Ast_ग्रन्थिः_Stmt* setVar(AstVarScope* vscp, uint32_t val) {
+    File_पङ्क्तिः* ध्रुव flp = vscp->fileline();
+    AstVarRef* ध्रुव refp = नूतन AstVarRef{flp, vscp, VAccess::WRITE};
+    AstConst* ध्रुव valp = नूतन AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
+    valp->अङ्कः().setLong(val);
+    प्रत्यागम नूतन AstAssign{flp, refp, valp};
 }
 
-AstNodeStmt* incrementVar(AstVarScope* vscp) {
-    FileLine* const flp = vscp->fileline();
-    AstVarRef* const wrefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-    AstVarRef* const rrefp = new AstVarRef{flp, vscp, VAccess::READ};
-    AstConst* const onep = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
-    onep->num().setLong(1);
-    return new AstAssign{flp, wrefp, new AstAdd{flp, rrefp, onep}};
+Ast_ग्रन्थिः_Stmt* incrementVar(AstVarScope* vscp) {
+    File_पङ्क्तिः* ध्रुव flp = vscp->fileline();
+    AstVarRef* ध्रुव wrefp = नूतन AstVarRef{flp, vscp, VAccess::WRITE};
+    AstVarRef* ध्रुव rrefp = नूतन AstVarRef{flp, vscp, VAccess::READ};
+    AstConst* ध्रुव onep = नूतन AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
+    onep->अङ्कः().setLong(1);
+    प्रत्यागम नूतन AstAssign{flp, wrefp, नूतन AstAdd{flp, rrefp, onep}};
 }
 
-AstNodeStmt* callVoidFunc(AstCFunc* funcp) {
-    if (!funcp) return nullptr;
-    AstCCall* const callp = new AstCCall{funcp->fileline(), funcp};
+Ast_ग्रन्थिः_Stmt* callVoidFunc(AstCFunc* funcp) {
+    जइ (!funcp) प्रत्यागम nullptr;
+    AstCCall* ध्रुव callp = नूतन AstCCall{funcp->fileline(), funcp};
     callp->dtypeSetVoid();
-    return callp->makeStmt();
+    प्रत्यागम callp->makeStmt();
 }
 
-static AstCFunc* splitCheckCreateNewSubFunc(AstCFunc* ofuncp) {
-    static std::map<AstCFunc*, uint32_t> s_funcNums;  // What split number to attach to a function
-    const uint32_t funcNum = s_funcNums[ofuncp]++;
-    const std::string name = ofuncp->name() + "__" + cvtToStr(funcNum);
-    AstScope* const scopep = ofuncp->scopep();
-    AstCFunc* const subFuncp = new AstCFunc{ofuncp->fileline(), name, scopep};
+स्थिर AstCFunc* splitCheckCreateNewSubFunc(AstCFunc* ofuncp) {
+    स्थिर std::map<AstCFunc*, uint32_t> s_funcNums;  // What split number to attach to a function
+    ध्रुव uint32_t func_अङ्कः = s_funcNums[ofuncp]++;
+    ध्रुव std::string name = ofuncp->name() + "__" + cvtToStr(func_अङ्कः);
+    AstScope* ध्रुव scopep = ofuncp->scopep();
+    AstCFunc* ध्रुव subFuncp = नूतन AstCFunc{ofuncp->fileline(), name, scopep};
     scopep->addBlocksp(subFuncp);
-    subFuncp->dontCombine(true);
+    subFuncp->dontCombine(सच्च);
     subFuncp->isStatic(ofuncp->isStatic());
-    subFuncp->isLoose(true);
+    subFuncp->isLoose(सच्च);
     subFuncp->slow(ofuncp->slow());
     subFuncp->declPrivate(ofuncp->declPrivate());
-    if (ofuncp->needProcess()) subFuncp->setNeedProcess();
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
-        AstVar* const clonep = argp->cloneTree(false);
+    जइ (ofuncp->needProcess()) subFuncp->setNeedProcess();
+    प्रति (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+        AstVar* ध्रुव clonep = argp->clone_वृक्षः(मिच्छ);
         subFuncp->addArgsp(clonep);
-        AstVarScope* const vscp = new AstVarScope{clonep->fileline(), scopep, clonep};
+        AstVarScope* ध्रुव vscp = नूतन AstVarScope{clonep->fileline(), scopep, clonep};
         scopep->addVarsp(vscp);
         argp->user3p(vscp);
     }
-    return subFuncp;
+    प्रत्यागम subFuncp;
 };
 
-void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
-                             const std::unordered_map<const AstVar*, AstVarScope*>& argVscps) {
-    FileLine* const flp = subFuncp->fileline();
-    AstCCall* const callp = new AstCCall{subFuncp->fileline(), subFuncp};
+शून्य splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
+                             ध्रुव std::unordered_map<ध्रुव AstVar*, AstVarScope*>& argVscps) {
+    File_पङ्क्तिः* ध्रुव flp = subFuncp->fileline();
+    AstCCall* ध्रुव callp = नूतन AstCCall{subFuncp->fileline(), subFuncp};
     callp->dtypeSetVoid();
     // Pass arguments through to subfunction
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    प्रति (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         UASSERT_OBJ(argp->direction() == VDirection::CONSTREF, argp, "Unexpected direction");
-        callp->addArgsp(new AstVarRef{flp, argVscps.at(argp), VAccess::READ});
+        callp->addArgsp(नूतन AstVarRef{flp, argVscps.at(argp), VAccess::READ});
     }
 
-    bool containsAwait = false;
-    subFuncp->foreach([&](AstNode* nodep) {
+    तार्किक containsAwait = मिच्छ;
+    subFuncp->foreach([&](Ast_ग्रन्थिः* nodep) {
         // Record if it has a CAwait
-        if (VN_IS(nodep, CAwait)) containsAwait = true;
+        जइ (VN_IS(nodep, CAwait)) containsAwait = सच्च;
         // Redirect references to arguments to the clone in the sub-function
-        if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            if (AstVarScope* const vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
+        जइ (AstVarRef* ध्रुव refp = VN_CAST(nodep, VarRef)) {
+            जइ (AstVarScope* ध्रुव vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
                 refp->varp(vscp->varp());
                 refp->varScopep(vscp);
             }
         }
     });
 
-    if (ofuncp->isCoroutine() && containsAwait) {  // Wrap call with co_await
+    जइ (ofuncp->isCoroutine() && containsAwait) {  // Wrap call with co_await
         subFuncp->rtnType("VlCoroutine");
-        ofuncp->addStmtsp(new AstCAwait{flp, callp});
-    } else {
+        ofuncp->addStmtsp(नूतन AstCAwait{flp, callp});
+    } अण्णहा {
         ofuncp->addStmtsp(callp->makeStmt());
     }
 }
@@ -142,84 +142,84 @@ void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
 // storage. A function-local AstVar declared among the top level statements must therefore end up
 // in the same sub-function as every reference to it, otherwise the emitted C++ refers to an
 // undeclared identifier (and the AstVar can be deleted from under the still-live references).
-static std::vector<bool> splitCheckBreakable(const AstCFunc* ofuncp) {
+स्थिर std::vector<तार्किक> splitCheckBreakable(ध्रुव AstCFunc* ofuncp) {
     // Gather the top level statements, and where each locally declared variable is declared
-    std::vector<const AstNode*> stmtps;
-    std::unordered_map<const AstVar*, size_t> declIdx;  // Local var -> index it is declared at
-    for (const AstNode* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.size());
-        stmtps.push_back(nodep);
+    std::vector<ध्रुव Ast_ग्रन्थिः*> stmtps;
+    std::unordered_map<ध्रुव AstVar*, size_t> declIdx;  // Local var -> index it is declared at
+    प्रति (ध्रुव Ast_ग्रन्थिः* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        जइ (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.size());
+        stmtps.प्रक्षिप_back(nodep);
     }
 
     // Find the last statement referencing each locally declared variable
     std::vector<size_t> lastUse(stmtps.size());
-    for (size_t i = 0; i < stmtps.size(); ++i) {
+    प्रति (size_t i = 0; i < stmtps.size(); ++i) {
         lastUse[i] = i;  // A declaration is live at least where it is declared
-        stmtps[i]->foreach([&](const AstNodeVarRef* refp) {
-            const auto it = declIdx.find(refp->varp());  // 'end()' if not one of our locals
-            if (it != declIdx.end()) lastUse[it->second] = std::max(lastUse[it->second], i);
+        stmtps[i]->foreach([&](ध्रुव Ast_ग्रन्थिः_Var_Ref* refp) {
+            ध्रुव auto it = declIdx.find(refp->varp());  // 'end()' if not one of our locals
+            जइ (it != declIdx.end()) lastUse[it->second] = std::max(lastUse[it->second], i);
         });
     }
 
     // A break before statement 'i' is allowed only if no local declared before 'i' is still live
-    std::vector<bool> breakable(stmtps.size(), true);
+    std::vector<तार्किक> breakable(stmtps.size(), सच्च);
     size_t liveEnd = 0;  // Last index any so far declared local is referenced at
-    for (size_t i = 0; i < stmtps.size(); ++i) {
+    प्रति (size_t i = 0; i < stmtps.size(); ++i) {
         breakable[i] = liveEnd < i;
-        if (VN_IS(stmtps[i], Var)) liveEnd = std::max(liveEnd, lastUse[i]);
+        जइ (VN_IS(stmtps[i], Var)) liveEnd = std::max(liveEnd, lastUse[i]);
     }
-    return breakable;
+    प्रत्यागम breakable;
 }
 
 // Split large function according to --output-split-cfuncs
-void splitCheck(AstCFunc* const ofuncp) {
-    if (!ofuncp) return;
+शून्य splitCheck(AstCFunc* ध्रुव ofuncp) {
+    जइ (!ofuncp) प्रत्यागम;
     UASSERT_OBJ(!ofuncp->varsp(), ofuncp, "Can't split function with local variables");
-    if (!v3Global.opt.outputSplitCFuncs() || !ofuncp->stmtsp()) return;
-    if (ofuncp->nodeCount() < v3Global.opt.outputSplitCFuncs()) return;
+    जइ (!v3Global.opt.outputSplitCFuncs() || !ofuncp->stmtsp()) प्रत्यागम;
+    जइ (ofuncp->ग्रन्थिः_गणनम्() < v3Global.opt.outputSplitCFuncs()) प्रत्यागम;
 
     // Statement boundaries that would separate a local declaration from a reference to it
-    const std::vector<bool> breakable = splitCheckBreakable(ofuncp);
+    ध्रुव std::vector<तार्किक> breakable = splitCheckBreakable(ofuncp);
 
     // Need to find the AstVarScopes for the function arguments. They should be in the same Scope.
-    std::unordered_map<const AstVar*, AstVarScope*> argVscps;
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    std::unordered_map<ध्रुव AstVar*, AstVarScope*> argVscps;
+    प्रति (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         UASSERT_OBJ(argVscps.size() < 2, argp, "There should be at most 2 arguments, or O(n^2)");
-        bool found = false;
-        for (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
+        तार्किक found = मिच्छ;
+        प्रति (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
             nextp = VN_AS(vscp->nextp(), VarScope);
-            if (vscp->varp() != argp) continue;
+            जइ (vscp->varp() != argp) अनुवर्त;
             argVscps[argp] = vscp;
-            found = true;
-            break;
+            found = सच्च;
+            भङ्ग;
         }
         UASSERT_OBJ(found, argp, "Can't find VarScope for function argument");
     }
 
     // AstVar::user3p(): AstVarScope for function argument in clone
-    const VNUser3InUse user3InUse;
+    ध्रुव VNUser3InUse user3InUse;
 
     size_t size = 0;
     AstCFunc* subFuncp = nullptr;
 
     // Move statements one by one to the new sub-functions
-    AstNode* stmtsp = ofuncp->stmtsp()->unlinkFrBackWithNext();
-    for (size_t index = 0; AstNode* const itemp = stmtsp; ++index) {
+    Ast_ग्रन्थिः* stmtsp = ofuncp->stmtsp()->unlinkFrBackWithNext();
+    प्रति (size_t index = 0; Ast_ग्रन्थिः* ध्रुव itemp = stmtsp; ++index) {
         stmtsp = stmtsp->nextp();
-        if (stmtsp) stmtsp->unlinkFrBackWithNext();
-        const size_t itemSize = static_cast<size_t>(itemp->nodeCount());
+        जइ (stmtsp) stmtsp->unlinkFrBackWithNext();
+        ध्रुव size_t itemSize = static_cast<size_t>(itemp->ग्रन्थिः_गणनम्());
         size += itemSize;
 
-        if (size > static_cast<size_t>(v3Global.opt.outputSplitCFuncs()) && breakable[index]) {
-            if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
+        जइ (size > static_cast<size_t>(v3Global.opt.outputSplitCFuncs()) && breakable[index]) {
+            जइ (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
             subFuncp = nullptr;
             size = itemSize;
         }
 
-        if (!subFuncp) subFuncp = splitCheckCreateNewSubFunc(ofuncp);
+        जइ (!subFuncp) subFuncp = splitCheckCreateNewSubFunc(ofuncp);
         subFuncp->addStmtsp(itemp);
     }
-    if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
+    जइ (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
 }
 
 }  // namespace util

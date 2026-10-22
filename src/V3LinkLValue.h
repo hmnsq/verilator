@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3LINKLVALUE_H_
 #define VERILATOR_V3LINKLVALUE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
+#अन्तर्भाव "V3Ast.h"
 
 //============================================================================
 
 class V3LinkLValue final {
-public:
-    static void linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkLValueSet(AstNode* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य linkLValueSet(Ast_ग्रन्थिः* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
 };
 
 #endif  // Guard

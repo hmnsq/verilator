@@ -15,7 +15,7 @@
 //*************************************************************************
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#जइ defined(_WIN32) || defined(__MINGW32__)
 # ifndef PSAPI_VERSION
 #  define PSAPI_VERSION 1  // Needed for compatibility with Windows 7
 # endif
@@ -25,44 +25,44 @@
 #endif
 // clang-format on
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Os.h"
-#include "V3String.h"
+#अन्तर्भाव "V3Os.h"
+#अन्तर्भाव "V3String.h"
 
 #ifndef V3ERROR_NO_GLOBAL_
-#include "V3Global.h"
+#अन्तर्भाव "V3Global.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
 #endif
 
-#include <cerrno>
-#include <climits>  // PATH_MAX (especially on FreeBSD)
-#include <cstdarg>
+#अन्तर्भाव <cerrno>
+#अन्तर्भाव <climits>  // PATH_MAX (especially on FreeBSD)
+#अन्तर्भाव <cstdarg>
 #ifdef _MSC_VER
-#include <filesystem>  // C++17
+#अन्तर्भाव <filesystem>  // C++17
 #define PATH_MAX MAX_PATH
-#else
-#include <dirent.h>
-#include <utime.h>
+#अण्णहा
+#अन्तर्भाव <dirent.h>
+#अन्तर्भाव <utime.h>
 #endif
-#include <fcntl.h>
-#include <fstream>
-#include <memory>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <fstream>
+#अन्तर्भाव <memory>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <sys/types.h>
 
 #ifdef HAVE_TCMALLOC
-#include <gperftools/malloc_extension.h>
+#अन्तर्भाव <gperftools/malloc_extension.h>
 #endif
 #ifdef HAVE_JEMALLOC
-#include <jemalloc/jemalloc.h>
+#अन्तर्भाव <jemalloc/jemalloc.h>
 #endif
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#जइ defined(_WIN32) || defined(__MINGW32__)
 # include <windows.h>   // LONG for bcrypt.h on MINGW
 # include <algorithm>  // replace
 # include <bcrypt.h>  // BCryptGenRandom
@@ -75,12 +75,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #  ifdef __MINGW32__
 #   define WIFEXITED(w) (((w) & 0xC0000000) == 0)
 #   define WEXITSTATUS(w) ((w) & ~0xC0000000)
-#  else
+#  अण्णहा
 #   define WIFEXITED(w) (((w) & 0377) == 0)
 #   define WEXITSTATUS(w) (((w) >> 8) & 0377)
 #  endif
 # endif
-#else
+#अण्णहा
 # include <sys/time.h>
 # ifndef __wasi__
 #  include <sys/wait.h>  // Needed on FreeBSD for WIFEXITED
@@ -90,29 +90,29 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // clang-format on
 
 #define VL_ALLOW_VERILATEDOS_C
-#include "verilatedos_c.h"
+#अन्तर्भाव "verilatedos_c.h"
 
 //######################################################################
 // Environment
 
-string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+string V3Os::getenvStr(ध्रुव string& envvar, ध्रुव string& default_मानम्) {
+    प्रत्यागम VString::escapeStringForPath(VlOs::getenvStr(envvar, default_मानम्));
 }
 
-void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
-    if (why != "") {
-        UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
-    } else {
-        UINFO(1, "export " << envvar << "='" << value << "'");
+शून्य V3Os::setenvStr(ध्रुव string& envvar, ध्रुव string& मानम्, ध्रुव string& why) {
+    जइ (why != "") {
+        UINFO(1, "export " << envvar << "='" << मानम् << "'  # " << why);
+    } अण्णहा {
+        UINFO(1, "export " << envvar << "='" << मानम् << "'");
     }
-#if defined(_WIN32) || defined(__MINGW32__)
-    _putenv_s(envvar.c_str(), value.c_str());
-#elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
-    setenv(envvar.c_str(), value.c_str(), true);
-#else
+#जइ defined(_WIN32) || defined(__MINGW32__)
+    _putenv_s(envvar.c_str(), मानम्.c_str());
+#नोचेद्यदि defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
+    setenv(envvar.c_str(), मानम्.c_str(), सच्च);
+#अण्णहा
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
-    const string vareq = envvar + "=" + value;
+    ध्रुव string vareq = envvar + "=" + मानम्;
     putenv(strdup(vareq.c_str()));  // will leak if setting the same variable again
 #endif
 }
@@ -120,290 +120,290 @@ void V3Os::setenvStr(const string& envvar, const string& value, const string& wh
 //######################################################################
 // Generic filename utilities
 
-#if defined(_WIN32) || defined(__MINGW32__)
-static constexpr char V3OS_SLASH = '\\';
-#else
-static constexpr char V3OS_SLASH = '/';
+#जइ defined(_WIN32) || defined(__MINGW32__)
+स्थिर constexpr वर्ण V3OS_SLASH = '\\';
+#अण्णहा
+स्थिर constexpr वर्ण V3OS_SLASH = '/';
 #endif
 
-static bool isSlash(char ch) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    return ch == '/' || ch == '\\';
-#else
-    return ch == '/';
+स्थिर तार्किक isSlash(वर्ण ch) VL_PURE {
+#जइ defined(_WIN32) || defined(__MINGW32__)
+    प्रत्यागम ch == '/' || ch == '\\';
+#अण्णहा
+    प्रत्यागम ch == '/';
 #endif
 }
 
-string V3Os::filenameCleanup(const string& filename) VL_PURE {
+string V3Os::filenameCleanup(ध्रुव string& filename) VL_PURE {
     string str;
     str.reserve(filename.length());
-    bool lastIsSlash = false;
-    for (const char ch : filename) {
-        const bool lastIsSlashOld = lastIsSlash;
+    तार्किक lastIsSlash = मिच्छ;
+    प्रति (ध्रुव वर्ण ch : filename) {
+        ध्रुव तार्किक lastIsSlashOld = lastIsSlash;
         lastIsSlash = isSlash(ch);
-        if (lastIsSlash && lastIsSlashOld) continue;
+        जइ (lastIsSlash && lastIsSlashOld) अनुवर्त;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
-    while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
-    return str;
+    जइ (str.size() > 1 && isSlash(str.back())) str.निष्कासय_back();
+    जाव (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
+    प्रत्यागम str;
 }
 
-string V3Os::filenameJoin(std::initializer_list<const std::string> paths) VL_PURE {
+string V3Os::filenameJoin(std::initializer_list<ध्रुव std::string> paths) VL_PURE {
     string fullpath;
-    for (const auto& item : paths) {
-        if (item.empty() || item == ".") continue;
-        if (!fullpath.empty()) fullpath += V3OS_SLASH;
+    प्रति (ध्रुव auto& item : paths) {
+        जइ (item.empty() || item == ".") अनुवर्त;
+        जइ (!fullpath.empty()) fullpath += V3OS_SLASH;
         fullpath += item;
     }
-    return fullpath;
+    प्रत्यागम fullpath;
 }
 
-string V3Os::filenameDir(const string& filename) VL_PURE {
+string V3Os::filenameDir(ध्रुव string& filename) VL_PURE {
     // std::filesystem::path::parent_path
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    प्रति (; it != filename.rend(); ++it) {
+        जइ (isSlash(*it)) भङ्ग;
     }
-    if (it.base() == filename.begin()) return ".";
-    return string{filename.begin(), (++it).base()};
+    जइ (it.base() == filename.begin()) प्रत्यागम ".";
+    प्रत्यागम string{filename.begin(), (++it).base()};
 }
 
-string V3Os::filenameExt(const string& filename) VL_PURE {
+string V3Os::filenameExt(ध्रुव string& filename) VL_PURE {
     string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) {
+    ध्रुव string::size_type pos = base.find('.');
+    जइ (pos != string::npos) {
         base.erase(0, pos);
-        return base;
+        प्रत्यागम base;
     }
-    return "";
+    प्रत्यागम "";
 }
 
-string V3Os::filenameNonDir(const string& filename) VL_PURE {
+string V3Os::filenameNonDir(ध्रुव string& filename) VL_PURE {
     // std::filesystem::path::filename
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    प्रति (; it != filename.rend(); ++it) {
+        जइ (isSlash(*it)) भङ्ग;
     }
-    return string{it.base(), filename.end()};
+    प्रत्यागम string{it.base(), filename.end()};
 }
 
-string V3Os::filenameNonDirExt(const string& filename) VL_PURE {
+string V3Os::filenameNonDirExt(ध्रुव string& filename) VL_PURE {
     string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) base.erase(pos);
-    return base;
+    ध्रुव string::size_type pos = base.find('.');
+    जइ (pos != string::npos) base.erase(pos);
+    प्रत्यागम base;
 }
 
-string V3Os::filenameSubstitute(const string& filename) {
+string V3Os::filenameSubstitute(ध्रुव string& filename) {
     string result;
     // cppcheck-has-bug-suppress unusedLabel
-    enum : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
-    for (string::size_type pos = 0; pos < filename.length(); ++pos) {
-        if ((filename[pos] == '$') && (pos + 1 < filename.length())) {
-            switch (filename[pos + 1]) {
-            case '{': brackets = CURLY; break;
-            case '(': brackets = PAREN; break;
-            default: brackets = NONE; break;
+    गणना : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
+    प्रति (string::size_type pos = 0; pos < filename.length(); ++pos) {
+        जइ ((filename[pos] == '$') && (pos + 1 < filename.length())) {
+            विकल्प (filename[pos + 1]) {
+            पक्ष '{': brackets = CURLY; भङ्ग;
+            पक्ष '(': brackets = PAREN; भङ्ग;
+            स्वभाव: brackets = NONE; भङ्ग;
             }
-            if (brackets != NONE) pos = pos + 1;
+            जइ (brackets != NONE) pos = pos + 1;
             string::size_type endpos = pos + 1;
-            while (((endpos + 1) < filename.length())
+            जाव (((endpos + 1) < filename.length())
                    && (((brackets == NONE)
                         && (std::isalnum(filename[endpos + 1]) || filename[endpos + 1] == '_'))
                        || ((brackets == CURLY) && (filename[endpos + 1] != '}'))
                        || ((brackets == PAREN) && (filename[endpos + 1] != ')'))))
                 ++endpos;
             // Catch bracket errors
-            if (((brackets == CURLY) && (filename[endpos + 1] != '}'))
+            जइ (((brackets == CURLY) && (filename[endpos + 1] != '}'))
                 || ((brackets == PAREN) && (filename[endpos + 1] != ')'))) {
                 v3fatal("Unmatched brackets in variable substitution in file: " + filename);
             }
-            const string envvar = filename.substr(pos + 1, endpos - pos);
+            ध्रुव string envvar = filename.substr(pos + 1, endpos - pos);
             string envvalue;
-            if (!envvar.empty()) envvalue = getenvStr(envvar, "");
-            if (!envvalue.empty()) {
+            जइ (!envvar.empty()) envvalue = getenvStr(envvar, "");
+            जइ (!envvalue.empty()) {
                 result += envvalue;
-                if (brackets == NONE) {
+                जइ (brackets == NONE) {
                     pos = endpos;
-                } else {
+                } अण्णहा {
                     pos = endpos + 1;
                 }
-            } else {
+            } अण्णहा {
                 result += filename[pos];  // *pos == '$'
             }
-        } else {
+        } अण्णहा {
             result += filename[pos];
         }
     }
-    return result;
+    प्रत्यागम result;
 }
 
-string V3Os::filenameRealPath(const string& filename) VL_PURE {
+string V3Os::filenameRealPath(ध्रुव string& filename) VL_PURE {
     // Get rid of all the ../ behavior in the middle of the paths.
     // If there is a ../ that goes down from the 'root' of this path it is preserved.
-    char retpath[PATH_MAX];
-    if (
-#if defined(_WIN32) || defined(__MINGW32__)
+    वर्ण retpath[PATH_MAX];
+    जइ (
+#जइ defined(_WIN32) || defined(__MINGW32__)
         _fullpath(retpath, filename.c_str(), PATH_MAX)
-#else
+#अण्णहा
         realpath(filename.c_str(), retpath)
 #endif
     ) {
-        return std::string{retpath};
+        प्रत्यागम std::string{retpath};
     }
-    return filename;
+    प्रत्यागम filename;
 }
 
-string V3Os::filenameAbsolutePath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+string V3Os::filenameAbsolutePath(ध्रुव string& filename) VL_PURE {
+#जइ defined(_WIN32) || defined(__MINGW32__)
     // _fullpath does not resolve symlinks
-    return filenameRealPath(filename);
-#else
-    if (!filenameIsRel(filename)) return filename;
-    return filenameJoin(filenameRealPath("."), filename);
+    प्रत्यागम filenameRealPath(filename);
+#अण्णहा
+    जइ (!filenameIsRel(filename)) प्रत्यागम filename;
+    प्रत्यागम filenameJoin(filenameRealPath("."), filename);
 #endif
 }
 
-string V3Os::filenameRelativePath(const string& filename, const string& base) VL_PURE {
-    const string a = V3Os::filenameRealPath(filename);
-    const string b = V3Os::filenameRealPath(base);
+string V3Os::filenameRelativePath(ध्रुव string& filename, ध्रुव string& base) VL_PURE {
+    ध्रुव string a = V3Os::filenameRealPath(filename);
+    ध्रुव string b = V3Os::filenameRealPath(base);
     string result;
-    if (a == b) return ".";
+    जइ (a == b) प्रत्यागम ".";
 
     auto aIt = a.begin();
     auto bIt = b.begin();
-    while (aIt != a.end() && bIt != b.end()) {
+    जाव (aIt != a.end() && bIt != b.end()) {
         // UINFO(9, "fnrp scan " << (aIt - a.begin()) << " " << a.substr(aIt - a.begin()));
         // UINFO(9, "fnrp scan " << (bIt - b.begin()) << " " << b.substr(bIt - b.begin()));
         auto aWordIt = aIt;  // position of next slash
-        for (; aWordIt != a.end(); ++aWordIt) {
-            if (isSlash(*aWordIt)) break;
+        प्रति (; aWordIt != a.end(); ++aWordIt) {
+            जइ (isSlash(*aWordIt)) भङ्ग;
         }
 
         auto bWordIt = bIt;  // position of next slash
-        for (; bWordIt != b.end(); ++bWordIt) {
-            if (isSlash(*bWordIt)) break;
+        प्रति (; bWordIt != b.end(); ++bWordIt) {
+            जइ (isSlash(*bWordIt)) भङ्ग;
         }
 
-        const string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
-        const string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
-        if (aWord != bWord) break;
+        ध्रुव string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
+        ध्रुव string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
+        जइ (aWord != bWord) भङ्ग;
         aIt = aWordIt;
         bIt = bWordIt;
-        if (aIt != a.end()) ++aIt;  // Skip slash
-        if (bIt != b.end()) ++bIt;  // Skip slash
+        जइ (aIt != a.end()) ++aIt;  // Skip slash
+        जइ (bIt != b.end()) ++bIt;  // Skip slash
     }
 
-    while (bIt != b.end()) {
-        for (; bIt != b.end(); ++bIt) {
-            if (isSlash(*bIt)) {
+    जाव (bIt != b.end()) {
+        प्रति (; bIt != b.end(); ++bIt) {
+            जइ (isSlash(*bIt)) {
                 ++bIt;
-                break;
+                भङ्ग;
             }
         }
-        if (!result.empty()) result += "/";
+        जइ (!result.empty()) result += "/";
         result += "..";
     }
 
-    const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
-        if (!result.empty()) result += "/";
-        result += aLeft;
+    ध्रुव string a_वामः = a.substr(aIt - a.begin());
+    जइ (!a_वामः.empty()) {
+        जइ (!result.empty()) result += "/";
+        result += a_वामः;
     }
-    return filenameCleanup(result);
+    प्रत्यागम filenameCleanup(result);
 }
 
-bool V3Os::filenameIsRel(const string& filename) VL_PURE {
-#if defined(_MSC_VER)
-    return std::filesystem::path(filename).is_relative();
-#else
-    return (filename.length() > 0 && filename[0] != '/');
+तार्किक V3Os::filenameIsRel(ध्रुव string& filename) VL_PURE {
+#जइ defined(_MSC_VER)
+    प्रत्यागम std::filesystem::path(filename).is_relative();
+#अण्णहा
+    प्रत्यागम (filename.length() > 0 && filename[0] != '/');
 #endif
 }
 
-string V3Os::filenameSlashPath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+string V3Os::filenameSlashPath(ध्रुव string& filename) VL_PURE {
+#जइ defined(_WIN32) || defined(__MINGW32__)
     string slashedPath = filename;
     std::replace(slashedPath.begin(), slashedPath.end(), '\\', '/');
-    return slashedPath;
-#else
-    return filename;
+    प्रत्यागम slashedPath;
+#अण्णहा
+    प्रत्यागम filename;
 #endif
 }
 
 //######################################################################
 // File utilities
 
-string V3Os::getline(std::istream& is, char delim) {
-    string line;
+string V3Os::getline(std::istream& is, वर्ण delim) {
+    string पङ्क्तिः;
 #ifdef __CYGWIN__  // Work around buggy implementation of getline
-    char buf[65536];
+    वर्ण buf[65536];
     is.getline(buf, 65535, delim);
-    line = buf;
-#else
-    std::getline(is, line, delim);
+    पङ्क्तिः = buf;
+#अण्णहा
+    std::getline(is, पङ्क्तिः, delim);
 #endif
-    return line;
+    प्रत्यागम पङ्क्तिः;
 }
 
 //######################################################################
 // Directory utilities
 
-void V3Os::createDir(const string& dirname) {
-#if defined(_WIN32) || defined(__MINGW32__)
+शून्य V3Os::createDir(ध्रुव string& dirname) {
+#जइ defined(_WIN32) || defined(__MINGW32__)
     _mkdir(dirname.c_str());
-#else
+#अण्णहा
     mkdir(dirname.c_str(), 0777);
 #endif
 }
 
-void V3Os::filesystemFlush(const string& dirname) {
+शून्य V3Os::filesystemFlush(ध्रुव string& dirname) {
     // NFS caches stat() calls so to get up-to-date information must
     // do a open or opendir on the filename.
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    if (int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+#जइ defined(_MSC_VER) || defined(__MINGW32__)
+    जइ (पूर्णाङ्क fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        जइ (fd > 0) ::close(fd);
     }
-#else
+#अण्णहा
     // Faster to just try both rather than check if a file is a dir.
-    if (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
+    जइ (DIR* ध्रुव dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
         closedir(dirp);  // LCOV_EXCL_LINE
-    } else if (const int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+    } अण्णहा जइ (ध्रुव पूर्णाङ्क fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        जइ (fd > 0) ::close(fd);
     }
 #endif
 }
 
-void V3Os::filesystemFlushBuildDir(const string& dirname) {
+शून्य V3Os::filesystemFlushBuildDir(ध्रुव string& dirname) {
     // Attempt to force out written directory, for NFS like file systems.
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#जइ !defined(_MSC_VER) && !defined(__MINGW32__)
     // Linux kernel may not reread from NFS unless timestamp modified
-    const int err = utimes(dirname.c_str(), nullptr);
+    ध्रुव पूर्णाङ्क err = utimes(dirname.c_str(), nullptr);
     // Not an error
-    if (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
+    जइ (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
 #endif
     filesystemFlush(dirname);
 }
 
-void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
+शून्य V3Os::unlinkRegexp(ध्रुव string& dir, ध्रुव string& regexp) {
 #ifdef _MSC_VER
-    try {
-        for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
-            if (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
-                const string fullname = dir + "/" + dirEntry.path().filename().string();
+    यत्न {
+        प्रति (ध्रुव auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
+            जइ (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
+                ध्रुव string fullname = dir + "/" + dirEntry.path().filename().string();
                 _unlink(fullname.c_str());
             }
         }
-    } catch (std::filesystem::filesystem_error const& ex) {}
-#else
-    if (DIR* const dirp = opendir(dir.c_str())) {
-        while (struct dirent* const direntp = readdir(dirp)) {
-            if (VString::wildmatch(direntp->d_name, regexp.c_str())) {
-                const string fullname = dir + "/" + std::string{direntp->d_name};
-#if defined(_WIN32) || defined(__MINGW32__)
+    } गृहाण (std::filesystem::filesystem_error ध्रुव& ex) {}
+#अण्णहा
+    जइ (DIR* ध्रुव dirp = opendir(dir.c_str())) {
+        जाव (संरचना dirent* ध्रुव direntp = readdir(dirp)) {
+            जइ (VString::wildmatch(direntp->d_name, regexp.c_str())) {
+                ध्रुव string fullname = dir + "/" + std::string{direntp->d_name};
+#जइ defined(_WIN32) || defined(__MINGW32__)
                 _unlink(fullname.c_str());
-#else
+#अण्णहा
                 unlink(fullname.c_str());
 #endif
             }
@@ -416,20 +416,20 @@ void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
 //######################################################################
 // METHODS (memory)
 
-void V3Os::releaseMemory() {
+शून्य V3Os::releaseMemory() {
 #ifdef HAVE_TCMALLOC
     MallocExtension::instance()->ReleaseFreeMemory();
 #endif
 #ifdef HAVE_JEMALLOC
     // Purge all unused dirty pages across all arenas
     unsigned narenas = 0;
-    size_t sz = sizeof(narenas);
-    if (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
-        return;  // Failed to get number of arenas, give up
+    size_t sz = परिमाण(narenas);
+    जइ (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
+        प्रत्यागम;  // Failed to get number of arenas, give up
     }
-    char buf[64];
+    वर्ण buf[64];
     // Index equal to narenas represents all arenas
-    (void)VL_SNPRINTF(buf, sizeof(buf), "arena.%u.purge", narenas);
+    (शून्य)VL_SNPRINTF(buf, परिमाण(buf), "arena.%u.purge", narenas);
     mallctl(buf, nullptr, nullptr, nullptr, 0);
 #endif
 }
@@ -439,67 +439,67 @@ void V3Os::releaseMemory() {
 
 uint64_t V3Os::rand64(std::array<uint64_t, 2>& stater) {
     // Xoroshiro128+ algorithm
-    const uint64_t result = stater[0] + stater[1];
+    ध्रुव uint64_t result = stater[0] + stater[1];
     stater[1] ^= stater[0];
     stater[0] = (((stater[0] << 55) | (stater[0] >> 9)) ^ stater[1] ^ (stater[1] << 14));
     stater[1] = (stater[1] << 36) | (stater[1] >> 28);
-    return result;
+    प्रत्यागम result;
 }
 
 string V3Os::trueRandom(size_t size) VL_MT_SAFE {
     string result(size, '\xFF');
-    char* const data = const_cast<char*>(result.data());
+    वर्ण* ध्रुव data = const_cast<वर्ण*>(result.data());
     // Note: std::string.data() returns a non-const Char* from C++17 onwards.
     // For pre-C++17, this cast is OK in practice, even though it's UB.
-#if defined(_WIN32) || defined(__MINGW32__)
-    const NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
+#जइ defined(_WIN32) || defined(__MINGW32__)
+    ध्रुव NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    if (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
+    जइ (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#elif defined(__wasi__)
+#नोचेद्यदि defined(__wasi__)
     // WASI has no /dev/urandom. getentropy() rejects sizes over 256 bytes,
     // which is more than any caller asks for, and errors rather than truncates.
-    if (VL_UNCOVERABLE(getentropy(data, size))) {
+    जइ (VL_UNCOVERABLE(getentropy(data, size))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#else
-    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
+#अण्णहा
+    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::द्विमान};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
-    if (VL_UNCOVERABLE(!is.read(data, size))) {
+    जइ (VL_UNCOVERABLE(!is.पठ(data, size))) {
         v3fatal("Could not open /dev/urandom, no source of randomness. "  // LCOV_EXCL_LINE
                 "Try specifying a key instead.");
     }
 #endif
-    return result;
+    प्रत्यागम result;
 }
 
 //######################################################################
 // METHODS (performance)
 
 uint64_t V3Os::timeUsecs() {
-#if defined(_WIN32) || defined(__MINGW32__)
+#जइ defined(_WIN32) || defined(__MINGW32__)
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
-    static constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
+    स्थिर constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
 
     FILETIME ft;  // contains number of 0.1us intervals since the beginning of 1601 UTC.
     GetSystemTimeAsFileTime(&ft);
-    const uint64_t us
-        = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
-    return us - EPOCH_DIFFERENCE_USECS;
-#else
+    ध्रुव uint64_t us
+        = ((static_cast<uint64_t>(ft.dw_उच्चः_Date_Time) << 32) + ft.dw_नीचः_Date_Time + 5ULL) / 10ULL;
+    प्रत्यागम us - EPOCH_DIFFERENCE_USECS;
+#अण्णहा
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     timeval tv;
-    if (gettimeofday(&tv, nullptr) < 0) return 0;
-    return static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
+    जइ (gettimeofday(&tv, nullptr) < 0) प्रत्यागम 0;
+    प्रत्यागम static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 
-void V3Os::u_sleep(int64_t usec) {
-#if defined(_WIN32) || defined(__MINGW32__)
+शून्य V3Os::u_sleep(int64_t usec) {
+#जइ defined(_WIN32) || defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::microseconds(usec));
-#else
+#अण्णहा
     // cppcheck-suppress obsoleteFunctionsusleep
     // Flawfinder: ignore
     ::usleep(usec);
@@ -509,28 +509,28 @@ void V3Os::u_sleep(int64_t usec) {
 //######################################################################
 // METHODS (sub command)
 
-int V3Os::system(const string& command) {
+पूर्णाङ्क V3Os::system(ध्रुव string& command) {
 #ifdef __wasi__
     // WASI has no process spawning
     v3fatal("Running subcommands is not supported on this platform: " << command);
-    return -1;
-#else
+    प्रत्यागम -1;
+#अण्णहा
     UINFO(1, "Running system: " << command);
-    const int ret = ::system(command.c_str());
-    if (VL_UNCOVERABLE(ret == -1)) {
+    ध्रुव पूर्णाङ्क ret = ::system(command.c_str());
+    जइ (VL_UNCOVERABLE(ret == -1)) {
         v3fatal("Failed to execute command:"  // LCOV_EXCL_LINE
                 << command << " " << std::strerror(errno));  // LCOV_EXCL_LINE
-        return -1;  // LCOV_EXCL_LINE
+        प्रत्यागम -1;  // LCOV_EXCL_LINE
     }
     UASSERT(WIFEXITED(ret), "system(" << command << ") returned unexpected value of " << ret);
-    const int exit_code = WEXITSTATUS(ret);
+    ध्रुव पूर्णाङ्क exit_code = WEXITSTATUS(ret);
     UINFO(1, command << " returned exit code of " << exit_code);
     UASSERT(exit_code >= 0, "exit code must not be negative");
-    return exit_code;
+    प्रत्यागम exit_code;
 #endif
 }
 
-void V3Os::selfTest() {
+शून्य V3Os::selfTest() {
 #ifdef VL_DEBUG
     UASSERT_SELFTEST(filenameCleanup(""), "");
     UASSERT_SELFTEST(filenameCleanup("."), ".");

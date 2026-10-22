@@ -17,12 +17,12 @@
 #ifndef VERILATOR_V3DFGPASSES_H_
 #define VERILATOR_V3DFGPASSES_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Dfg.h"
-#include "V3DfgContext.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Dfg.h"
+#अन्तर्भाव "V3DfgContext.h"
 
 class AstModule;
 class DfgGraph;
@@ -37,33 +37,33 @@ namespace V3DfgPasses {
 // Returns the constructed DfgGraph.
 std::unique_ptr<DfgGraph> astToDfg(AstNetlist&, V3DfgContext&) VL_MT_DISABLED;
 // Remove unobservable variabels and logic that drives only such variables
-void removeUnobservable(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
+शून्य removeUnobservable(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
 // Synthesize DfgLogic vertices into primitive operations.
 // Removes all DfgLogic (even those that were not synthesized).
-void synthesize(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
+शून्य synthesize(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
 // Remove redundant selects
-void removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) VL_MT_DISABLED;
+शून्य removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) VL_MT_DISABLED;
 // Make the given cyclic graph into an acyclic one, by tracing drivers, and
 // if that is unsuccessful, by inserting Prev vertices. The given graph will
 // always become acyclic after this pass.
-void breakCycles(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
+शून्य breakCycles(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
 // Construct binary to oneHot decoders
-void binToOneHot(DfgGraph&, V3DfgBinToOneHotContext&) VL_MT_DISABLED;
+शून्य binToOneHot(DfgGraph&, V3DfgBinToOneHotContext&) VL_MT_DISABLED;
 // Common subexpression elimination
-void cse(DfgGraph&, V3DfgCseContext&) VL_MT_DISABLED;
+शून्य cse(DfgGraph&, V3DfgCseContext&) VL_MT_DISABLED;
 // Inline fully driven variables
-void inlineVars(DfgGraph&) VL_MT_DISABLED;
+शून्य inlineVars(DfgGraph&) VL_MT_DISABLED;
 // Push down selects through concatenations
-void pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) VL_MT_DISABLED;
+शून्य प्रक्षिप_Down_Sels(DfgGraph& dfg, V3_Dfg_प्रक्षिप_Down_Sels_Context& ctx) VL_MT_DISABLED;
 // Peephole optimizations
-void peephole(DfgGraph&, V3DfgPeepholeContext&) VL_MT_DISABLED;
+शून्य peephole(DfgGraph&, V3DfgPeepholeContext&) VL_MT_DISABLED;
 // Regularize graph. This must be run before converting back to Ast.
-void regularize(DfgGraph&, V3DfgRegularizeContext&) VL_MT_DISABLED;
+शून्य regularize(DfgGraph&, V3DfgRegularizeContext&) VL_MT_DISABLED;
 // Convert DfgGraph back into Ast, and insert converted graph back into the Ast.
-void dfgToAst(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
+शून्य dfgToAst(DfgGraph&, V3DfgContext&) VL_MT_DISABLED;
 // Dump the patterns in the given graphs
-void dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>&,
-                  const std::string& suffix = "") VL_MT_DISABLED;
+शून्य dumpPatterns(ध्रुव std::vector<std::unique_ptr<DfgGraph>>&,
+                  ध्रुव std::string& suffix = "") VL_MT_DISABLED;
 
 //===========================================================================
 // Intermediate/internal operations
@@ -72,7 +72,7 @@ void dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>&,
 // Add DfgVertexAst to the given DfgGraph for all references in the given AstNode.
 // The function 'getVarVertex' is used to get the DfgVertexVar for an AstVarScope.
 // If it returns nullptr, the reference will be ignored.
-void addAstRefs(DfgGraph& dfg, AstNode* nodep,
+शून्य addAstRefs(DfgGraph& dfg, Ast_ग्रन्थिः* nodep,
                 std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) VL_MT_DISABLED;
 // Populates the given DfgUserMap for all vertext to:
 // - 0, if the vertex is not part of a non-trivial strongly connected component
@@ -81,11 +81,11 @@ void addAstRefs(DfgGraph& dfg, AstNode* nodep,
 //   That is: each set of vertices that are reachable from each other will have the same
 //   non-zero value assigned.
 // Returns the number of non-trivial SCCs (distinct cycles)
-uint32_t colorStronglyConnectedComponents(const DfgGraph&, DfgUserMap<uint64_t>&) VL_MT_DISABLED;
+uint32_t colorStronglyConnectedComponents(ध्रुव DfgGraph&, DfgUserMap<uint64_t>&) VL_MT_DISABLED;
 // Remove unused nodes
-void removeUnused(DfgGraph&) VL_MT_DISABLED;
+शून्य removeUnused(DfgGraph&) VL_MT_DISABLED;
 // Check all types are consistent. This will not return if there is a type error.
-void typeCheck(const DfgGraph&) VL_MT_DISABLED;
+शून्य typeCheck(ध्रुव DfgGraph&) VL_MT_DISABLED;
 
 }  // namespace V3DfgPasses
 

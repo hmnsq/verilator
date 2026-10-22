@@ -14,116 +14,116 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Os.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3File.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3Os.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <iomanip>
-#include <unordered_map>
+#अन्तर्भाव <iomanip>
+#अन्तर्भाव <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Stats dumping
 
-class StatsReport final {
+वर्ग StatsReport final {
     // TYPES
     using StatColl = std::vector<V3Statistic>;
 
     // STATE
     std::ofstream& os;  ///< Output stream
-    static StatColl s_allStats;  ///< All statistics
+    स्थिर StatColl s_allStats;  ///< All statistics
 
-    static void sumit() {
+    स्थिर शून्य sumit() {
         // If sumit is set on a statistic, combine with others of same name
         std::multimap<std::string, V3Statistic*> byName;
         // * is always first
-        for (auto& itr : s_allStats) {
+        प्रति (auto& itr : s_allStats) {
             V3Statistic* repp = &itr;
             byName.emplace(repp->name(), repp);
         }
 
         // Process duplicates
         V3Statistic* lastp = nullptr;
-        for (const auto& itr : byName) {
+        प्रति (ध्रुव auto& itr : byName) {
             V3Statistic* repp = itr.second;
-            if (lastp && lastp->sumit() && lastp->printit() && repp->printit()
+            जइ (lastp && lastp->sumit() && lastp->printit() && repp->printit()
                 && lastp->name() == repp->name() && lastp->stage() == repp->stage()) {
                 lastp->combineWith(repp);
-            } else {
+            } अण्णहा {
                 lastp = repp;
             }
         }
     }
 
-    void stars() {
+    शून्य stars() {
         // Find all stages
         size_t maxWidth = 0;
-        std::multimap<std::string, const V3Statistic*> byName;
+        std::multimap<std::string, ध्रुव V3Statistic*> byName;
         // * is always first
-        for (const auto& itr : s_allStats) {
-            const V3Statistic* repp = &itr;
-            if (repp->stage() == "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
+        प्रति (ध्रुव auto& itr : s_allStats) {
+            ध्रुव V3Statistic* repp = &itr;
+            जइ (repp->stage() == "*" && repp->printit()) {
+                जइ (maxWidth < repp->name().length()) maxWidth = repp->name().length();
                 byName.emplace(repp->name(), repp);
             }
         }
 
         // Print organized by stage
         os << "\nGlobal Statistics:\n\n";
-        for (const auto& itr : byName) {
-            const V3Statistic* repp = itr.second;
-            if (repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+        प्रति (ध्रुव auto& itr : byName) {
+            ध्रुव V3Statistic* repp = itr.second;
+            जइ (repp->perf()) अनुवर्त;
+            os << "  " << std::वामः << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
         }
 
         // Print organized by stage
         os << "\nPerformance Statistics:\n\n";
-        for (const auto& itr : byName) {
-            const V3Statistic* repp = itr.second;
-            if (!repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+        प्रति (ध्रुव auto& itr : byName) {
+            ध्रुव V3Statistic* repp = itr.second;
+            जइ (!repp->perf()) अनुवर्त;
+            os << "  " << std::वामः << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
         }
         os << '\n';
     }
 
-    void stages() {
+    शून्य stages() {
         os << "Stage Statistics:\n";
 
         // Find all stages
-        int stage = 0;
+        पूर्णाङ्क stage = 0;
         size_t maxWidth = 0;
         std::vector<std::string> stages;
-        std::unordered_map<string, int> stageInt;
-        std::multimap<std::string, const V3Statistic*> byName;
+        std::unordered_map<string, पूर्णाङ्क> stageInt;
+        std::multimap<std::string, ध्रुव V3Statistic*> byName;
         // * is always first
-        for (auto it = s_allStats.begin(); it != s_allStats.end(); ++it) {
-            const V3Statistic* repp = &(*it);
-            if (repp->stage() != "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
-                const auto itFoundPair = stageInt.emplace(repp->stage(), stage);
-                if (itFoundPair.second) {
+        प्रति (auto it = s_allStats.begin(); it != s_allStats.end(); ++it) {
+            ध्रुव V3Statistic* repp = &(*it);
+            जइ (repp->stage() != "*" && repp->printit()) {
+                जइ (maxWidth < repp->name().length()) maxWidth = repp->name().length();
+                ध्रुव auto itFoundPair = stageInt.emplace(repp->stage(), stage);
+                जइ (itFoundPair.second) {
                     ++stage;
-                    stages.push_back(repp->stage());
+                    stages.प्रक्षिप_back(repp->stage());
                 }
                 byName.emplace(repp->name(), repp);
             }
         }
 
         // Header
-        os << "  Stat     " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (const string& i : stages) os << " " << std::left << std::setw(9) << i;
+        os << "  Stat     " << std::वामः << std::setw(maxWidth - 5 - 2) << "";
+        प्रति (ध्रुव string& i : stages) os << " " << std::वामः << std::setw(9) << i;
         os << '\n';
-        os << "  -------- " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (auto it = stages.begin(); it != stages.end(); ++it) {
-            os << " " << std::left << std::setw(9) << "-------";
+        os << "  -------- " << std::वामः << std::setw(maxWidth - 5 - 2) << "";
+        प्रति (auto it = stages.begin(); it != stages.end(); ++it) {
+            os << " " << std::वामः << std::setw(9) << "-------";
         }
         // os<<endl;
 
@@ -131,24 +131,24 @@ class StatsReport final {
         string lastName = "__NONE__";
         string lastCommaName = "__NONE__";
         unsigned col = 0;
-        for (auto it = byName.cbegin(); it != byName.cend(); ++it) {
-            const V3Statistic* repp = it->second;
-            if (lastName != repp->name()) {
+        प्रति (auto it = byName.cbegin(); it != byName.cend(); ++it) {
+            ध्रुव V3Statistic* repp = it->second;
+            जइ (lastName != repp->name()) {
                 lastName = repp->name();
                 {
                     string commaName = lastName;
                     string::size_type pos = commaName.find(',');
-                    if (pos != string::npos) commaName.erase(pos);
-                    if (lastCommaName != commaName) {
+                    जइ (pos != string::npos) commaName.erase(pos);
+                    जइ (lastCommaName != commaName) {
                         lastCommaName = commaName;
                         os << '\n';
                     }
                 }
                 os << '\n';
                 col = 0;
-                os << "  " << std::left << std::setw(maxWidth) << repp->name();
+                os << "  " << std::वामः << std::setw(maxWidth) << repp->name();
             }
-            while (col < stages.size() && stages.at(col) != repp->stage()) {
+            जाव (col < stages.size() && stages.at(col) != repp->stage()) {
                 os << std::setw(10) << "";
                 col++;
             }
@@ -158,20 +158,20 @@ class StatsReport final {
         os << '\n';
     }
 
-public:
+सार्वजनिक:
     // METHODS
-    static void addStat(const V3Statistic& stat) { s_allStats.push_back(stat); }
+    स्थिर शून्य addStat(ध्रुव V3Statistic& stat) { s_allStats.प्रक्षिप_back(stat); }
 
-    static double getStatSum(const string& name) {
+    स्थिर द्विगुण getStatSum(ध्रुव string& name) {
         // O(n^2) if called a lot; present assumption is only a small call count
-        for (const V3Statistic& itr : s_allStats) {
-            const V3Statistic* const repp = &itr;
-            if (repp->name() == name) return repp->value();
+        प्रति (ध्रुव V3Statistic& itr : s_allStats) {
+            ध्रुव V3Statistic* ध्रुव repp = &itr;
+            जइ (repp->name() == name) प्रत्यागम repp->मानम्();
         }
-        return 0.0;
+        प्रत्यागम 0.0;
     }
 
-    static void calculate() { sumit(); }
+    स्थिर शून्य calculate() { sumit(); }
 
     // CONSTRUCTORS
     explicit StatsReport(std::ofstream* aofp)
@@ -182,7 +182,7 @@ public:
         stars();
         stages();
     }
-    ~StatsReport() = default;
+    ~StatsReport() = स्वभाव;
 };
 
 StatsReport::StatColl StatsReport::s_allStats;
@@ -190,27 +190,27 @@ StatsReport::StatColl StatsReport::s_allStats;
 //######################################################################
 // V3Statstic class
 
-void V3Statistic::dump(std::ofstream& os) const {
-    os << " " << std::right << std::fixed << std::setprecision(precision()) << std::setw(9)
-       << value();
+शून्य V3Statistic::dump(std::ofstream& os) ध्रुव {
+    os << " " << std::दक्षिणः << std::fixed << std::setprecision(precision()) << std::setw(9)
+       << मानम्();
 }
 
 //######################################################################
 // Top Stats class
 
-void V3Stats::addStat(const V3Statistic& stat) { StatsReport::addStat(stat); }
+शून्य V3Stats::addStat(ध्रुव V3Statistic& stat) { StatsReport::addStat(stat); }
 
-double V3Stats::getStatSum(const string& name) { return StatsReport::getStatSum(name); }
+द्विगुण V3Stats::getStatSum(ध्रुव string& name) { प्रत्यागम StatsReport::getStatSum(name); }
 
-void V3Stats::statsStage(const string& name) {
-    static double s_lastWallTime = -1;
-    static int s_fileNumber = 0;
+शून्य V3Stats::statsStage(ध्रुव string& name) {
+    स्थिर द्विगुण s_lastWallTime = -1;
+    स्थिर पूर्णाङ्क s_file_सङ्ख्या = 0;
 
-    const string digitName = V3Global::digitsFilename(++s_fileNumber) + "_" + name;
+    ध्रुव string digitName = V3Global::digitsFilename(++s_file_सङ्ख्या) + "_" + name;
 
-    const double wallTime = V3Os::timeUsecs() / 1.0e6;
-    if (s_lastWallTime < 0) s_lastWallTime = wallTime;
-    const double wallTimeDelta = wallTime - s_lastWallTime;
+    ध्रुव द्विगुण wallTime = V3Os::timeUsecs() / 1.0e6;
+    जइ (s_lastWallTime < 0) s_lastWallTime = wallTime;
+    ध्रुव द्विगुण wallTimeDelta = wallTime - s_lastWallTime;
     s_lastWallTime = wallTime;
     V3Stats::addStatPerf("Stage, Elapsed time (sec), " + digitName, wallTimeDelta);
     V3Stats::addStatPerf("Stage, Elapsed time (sec), TOTAL", wallTimeDelta);
@@ -222,7 +222,7 @@ void V3Stats::statsStage(const string& name) {
     V3Stats::addStatPerf("Stage, Memory peak (MB), " + digitName, memPeak / 1024.0 / 1024.0);
 }
 
-void V3Stats::infoHeader(std::ofstream& os, const string& prefix) {
+शून्य V3Stats::infoHeader(std::ofstream& os, ध्रुव string& prefix) {
     os << prefix << "Information:\n";
     os << prefix << "  Version: " << V3Options::version() << '\n';
     os << prefix << "  Arguments: " << v3Global.opt.allArgsString() << '\n';
@@ -230,20 +230,20 @@ void V3Stats::infoHeader(std::ofstream& os, const string& prefix) {
     os << prefix << "  Verilate jobs: " << v3Global.opt.verilateJobs() << '\n';
 }
 
-void V3Stats::statsReport() {
+शून्य V3Stats::statsReport() {
     UINFO(2, __FUNCTION__ << ":");
 
     uint64_t memPeak;
     uint64_t memCurrent;
     VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
-    const double memory = memPeak / 1024.0 / 1024.0;
+    ध्रुव द्विगुण memory = memPeak / 1024.0 / 1024.0;
     V3Stats::addStat("Peak Memory Usage (MB)", memory);
 
     // Open stats file
-    const string filename
-        = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix() + "__stats.txt";
+    ध्रुव string filename
+        = v3Global.opt.hier_शिखरम्_Data_Dir() + "/" + v3Global.opt.prefix() + "__stats.txt";
     std::ofstream* ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    जइ (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     { StatsReport{ofp}; }  // Destruct before cleanup
 
@@ -252,25 +252,25 @@ void V3Stats::statsReport() {
     VL_DO_DANGLING(delete ofp, ofp);
 }
 
-void V3Stats::summaryReport() {
+शून्य V3Stats::summaryReport() {
     StatsReport::calculate();
     std::cout << "- V e r i l a t i o n   R e p o r t: " << V3Options::version() << "\n";
 
     std::cout << std::setprecision(3) << std::fixed;
-    const double sourceCharsMB = V3Stats::getStatSumQ(STAT_SOURCE_CHARS) / 1024.0 / 1024.0;
-    const double cppCharsMB = V3Stats::getStatSumQ(STAT_CPP_CHARS) / 1024.0 / 1024.0;
-    const uint64_t sourceModules = V3Stats::getStatSumQ(STAT_SOURCE_MODULES);
-    const uint64_t cppFiles = V3Stats::getStatSumQ(STAT_CPP_FILES);
-    const double modelMB = V3Stats::getStatSum(STAT_MODEL_SIZE) / 1024.0 / 1024.0;
+    ध्रुव द्विगुण sourceCharsMB = V3Stats::getStatSumQ(STAT_SOURCE_CHARS) / 1024.0 / 1024.0;
+    ध्रुव द्विगुण cppCharsMB = V3Stats::getStatSumQ(STAT_CPP_CHARS) / 1024.0 / 1024.0;
+    ध्रुव uint64_t sourceModules = V3Stats::getStatSumQ(STAT_SOURCE_MODULES);
+    ध्रुव uint64_t cppFiles = V3Stats::getStatSumQ(STAT_CPP_FILES);
+    ध्रुव द्विगुण modelMB = V3Stats::getStatSum(STAT_MODEL_SIZE) / 1024.0 / 1024.0;
     std::cout << "- Verilator: Built from " << sourceCharsMB << " MB sources in " << sourceModules
               << " modules, into " << cppCharsMB << " MB in " << cppFiles << " C++ files needing "
               << modelMB << " MB\n";
 
-    const double walltime = V3Stats::getStatSum(STAT_WALLTIME);
-    const double walltimeElab = V3Stats::getStatSum(STAT_WALLTIME_ELAB);
-    const double walltimeCvt = V3Stats::getStatSum(STAT_WALLTIME_CVT);
-    const double walltimeBuild = V3Stats::getStatSum(STAT_WALLTIME_BUILD);
-    const double cputime = V3Stats::getStatSum(STAT_CPUTIME);
+    ध्रुव द्विगुण walltime = V3Stats::getStatSum(STAT_WALLTIME);
+    ध्रुव द्विगुण walltimeElab = V3Stats::getStatSum(STAT_WALLTIME_ELAB);
+    ध्रुव द्विगुण walltimeCvt = V3Stats::getStatSum(STAT_WALLTIME_CVT);
+    ध्रुव द्विगुण walltimeBuild = V3Stats::getStatSum(STAT_WALLTIME_BUILD);
+    ध्रुव द्विगुण cputime = V3Stats::getStatSum(STAT_CPUTIME);
     std::cout << "- Verilator: Walltime " << walltime << " s (elab=" << walltimeElab
               << ", cvt=" << walltimeCvt << ", bld=" << walltimeBuild << "); cpu " << cputime
               << " s on " << std::max(v3Global.opt.verilateJobs(), v3Global.opt.buildJobs())
@@ -278,7 +278,7 @@ void V3Stats::summaryReport() {
     uint64_t memPeak;
     uint64_t memCurrent;
     VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
-    const double memory = memPeak / 1024.0 / 1024.0;
-    if (VL_UNCOVERABLE(memory != 0.0)) std::cout << "; allocated " << memory << " MB";
+    ध्रुव द्विगुण memory = memPeak / 1024.0 / 1024.0;
+    जइ (VL_UNCOVERABLE(memory != 0.0)) std::cout << "; allocated " << memory << " MB";
     std::cout << "\n";
 }

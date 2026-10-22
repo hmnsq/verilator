@@ -17,41 +17,41 @@
 #ifndef VERILATOR_V3CONST_H_
 #define VERILATOR_V3CONST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
+#अन्तर्भाव "V3Ast.h"
 
 //============================================================================
 
 class V3Const final {
-public:
-    static void constifyParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyParamsNoWarnEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य constifyParamsEdit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyParamsNoWarnEdit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyGenerateParamsEdit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
     // Only do constant pushing, without removing dead logic
-    static void constifyAllLive(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyAllLive(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
-    static void constifyAll(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyAll(AstNetlist* nodep) VL_MT_DISABLED;
     // Also, warn
-    static void constifyAllLint(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyAllLint(AstNetlist* nodep) VL_MT_DISABLED;
     // C++ datatypes
-    static void constifyCpp(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य constifyCpp(AstNetlist* nodep) VL_MT_DISABLED;
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEditCpp(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEditCpp(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
+    स्थिर Ast_ग्रन्थिः* constifyEditCpp(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* constifyEditCpp(Ast_ग्रन्थिः_व्यञ्जकम्* exprp) VL_MT_DISABLED {
+        प्रत्यागम VN_AS(constifyEditCpp(static_cast<Ast_ग्रन्थिः*>(exprp)), ग्रन्थिः_व्यञ्जकम्);
     }
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEdit(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
+    स्थिर Ast_ग्रन्थिः* constifyEdit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* constifyEdit(Ast_ग्रन्थिः_व्यञ्जकम्* exprp) VL_MT_DISABLED {
+        प्रत्यागम VN_AS(constifyEdit(static_cast<Ast_ग्रन्थिः*>(exprp)), ग्रन्थिः_व्यञ्जकम्);
     }
     // Only the current node and lower, with special SenTree optimization
     // Return new node that may have replaced nodep
-    static AstNode* constifyExpensiveEdit(AstNode* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः* constifyExpensiveEdit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

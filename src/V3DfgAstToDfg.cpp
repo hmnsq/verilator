@@ -21,83 +21,83 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Cfg.h"
-#include "V3Const.h"
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#अन्तर्भाव "V3Cfg.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Dfg.h"
+#अन्तर्भाव "V3DfgPasses.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class AstToDfgAddAstRefs final : public VNVisitorConst {
+वर्ग AstToDfgAddAstRefs final : सार्वजनिक VNVisitorConst {
     // STATE
     DfgGraph& m_dfg;  // The graph being processed
     // Function to get the DfgVertexVar for a AstVarScope
-    const std::function<DfgVertexVar*(AstVarScope*)> m_getVarVertex;
-    bool m_inSenItem = false;  // Inside an AstSenItem
-    bool m_inLoop = false;  // Inside an AstLoop
+    ध्रुव std::function<DfgVertexVar*(AstVarScope*)> m_getVarVertex;
+    तार्किक m_inSenItem = मिच्छ;  // Inside an AstSenItem
+    तार्किक m_inLoop = मिच्छ;  // Inside an AstLoop
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { iterateChildrenConst(nodep); }
 
-    void visit(AstSenItem* nodep) override {
+    शून्य visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSenItem);
-        m_inSenItem = true;
+        m_inSenItem = सच्च;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstLoop* nodep) override {
+    शून्य visit(AstLoop* nodep) override {
         VL_RESTORER(m_inLoop);
-        m_inLoop = true;
+        m_inLoop = सच्च;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstVarRef* nodep) override {
+    शून्य visit(AstVarRef* nodep) override {
         // Disguised hierarchical reference handled as external reference, ignore
-        if (nodep->classOrPackagep()) return;
+        जइ (nodep->classOrPackagep()) प्रत्यागम;
         // If target is not supported, ignore
-        AstVarScope* const vscp = nodep->varScopep();
-        if (!V3Dfg::isSupported(vscp)) return;
+        AstVarScope* ध्रुव vscp = nodep->varScopep();
+        जइ (!V3Dfg::isSupported(vscp)) प्रत्यागम;
         // V3Dfg::isSupported should reject vars with READWRITE references
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "AstVarScope with READWRITE ref not rejected");
         // Get target variable vergtex, ignore if not given one
-        DfgVertexVar* const varp = m_getVarVertex(vscp);
-        if (!varp) return;
+        DfgVertexVar* ध्रुव varp = m_getVarVertex(vscp);
+        जइ (!varp) प्रत्यागम;
         // Create Ast reference vertices
-        if (nodep->access().isReadOnly()) {
-            DfgAstRd* const astp = new DfgAstRd{m_dfg, nodep, m_inSenItem, m_inLoop};
+        जइ (nodep->access().isReadOnly()) {
+            DfgAstRd* ध्रुव astp = नूतन DfgAstRd{m_dfg, nodep, m_inSenItem, m_inLoop};
             astp->srcp(varp);
-            return;
+            प्रत्यागम;
         }
         // Mark as written from non-DFG logic
         DfgVertexVar::setHasModWrRefs(vscp);
     }
 
-    AstToDfgAddAstRefs(DfgGraph& dfg, AstNode* nodep,
+    AstToDfgAddAstRefs(DfgGraph& dfg, Ast_ग्रन्थिः* nodep,
                        std::function<DfgVertexVar*(AstVarScope*)> getVarVertex)
         : m_dfg{dfg}
         , m_getVarVertex{getVarVertex} {
         iterateConst(nodep);
     }
 
-public:
-    static void apply(DfgGraph& dfg, AstNode* nodep,
+सार्वजनिक:
+    स्थिर शून्य apply(DfgGraph& dfg, Ast_ग्रन्थिः* nodep,
                       std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
         AstToDfgAddAstRefs{dfg, nodep, getVarVertex};
     }
 };
 
-void V3DfgPasses::addAstRefs(DfgGraph& dfg, AstNode* nodep,
+शून्य V3DfgPasses::addAstRefs(DfgGraph& dfg, Ast_ग्रन्थिः* nodep,
                              std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
     AstToDfgAddAstRefs::apply(dfg, nodep, getVarVertex);
 }
 
-class AstToDfgVisitor final : public VNVisitor {
+वर्ग AstToDfgVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     // AstVarScope::user2() -> DfgVertexVar* : the corresponding variable vertex
     // AstVarScope::user3() -> bool : Already gathered - used fine grained below
-    const VNUser2InUse m_user2InUse;
+    ध्रुव VNUser2InUse m_user2InUse;
 
     // STATE
     DfgGraph& m_dfg;  // The graph being built
@@ -107,214 +107,214 @@ class AstToDfgVisitor final : public VNVisitor {
     // METHODS
 
     // Mark variables referenced under node
-    void markReferenced(AstNode* nodep) {
-        V3DfgPasses::addAstRefs(m_dfg, nodep, [this](AstVarScope* vscp) {  //
-            return getVarVertex(vscp);
+    शून्य markReferenced(Ast_ग्रन्थिः* nodep) {
+        V3DfgPasses::addAstRefs(m_dfg, nodep, [एतत्](AstVarScope* vscp) {  //
+            प्रत्यागम getVarVertex(vscp);
         });
     }
 
     DfgVertexVar* getVarVertex(AstVarScope* varp) {
-        if (!varp->user2p()) {
+        जइ (!varp->user2p()) {
             // TODO: fix this up when removing the different flavours of DfgVar
-            const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-            DfgVertexVar* const vtxp
+            ध्रुव Ast_ग्रन्थिः_DType* ध्रुव dtypep = varp->dtypep()->skipRefp();
+            DfgVertexVar* ध्रुव vtxp
                 = VN_IS(dtypep, UnpackArrayDType)
-                      ? static_cast<DfgVertexVar*>(new DfgVarArray{m_dfg, varp})
-                      : static_cast<DfgVertexVar*>(new DfgVarPacked{m_dfg, varp});
+                      ? static_cast<DfgVertexVar*>(नूतन DfgVarArray{m_dfg, varp})
+                      : static_cast<DfgVertexVar*>(नूतन DfgVarPacked{m_dfg, varp});
             varp->user2p(vtxp);
         }
-        return varp->user2u().template to<DfgVertexVar*>();
+        प्रत्यागम varp->user2u().template to<DfgVertexVar*>();
     }
 
     // Gather variables written by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherWritten(const AstNode* nodep) {
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
-        const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isReadOnly()) return false;
-            AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+    std::unique_ptr<std::vector<DfgVertexVar*>> gatherWritten(ध्रुव Ast_ग्रन्थिः* nodep) {
+        ध्रुव VNUser3InUse user3InUse;
+        std::unique_ptr<std::vector<DfgVertexVar*>> resp{नूतन std::vector<DfgVertexVar*>{}};
+        ध्रुव तार्किक abort = nodep->exists([&](ध्रुव AstVarRef* refp) -> तार्किक {
+            जइ (refp->access().isReadOnly()) प्रत्यागम मिच्छ;
+            AstVarScope* ध्रुव vscp = refp->varScopep();
+            जइ (!V3Dfg::isSupported(vscp)) प्रत्यागम सच्च;
+            जइ (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
+            प्रत्यागम मिच्छ;
         });
-        if (abort) {
+        जइ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            प्रत्यागम nullptr;
         }
-        return resp;
+        प्रत्यागम resp;
     }
 
     // Gather variables read by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherRead(const AstNode* nodep) {
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
-        const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isWriteOnly()) return false;
-            AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+    std::unique_ptr<std::vector<DfgVertexVar*>> gatherRead(ध्रुव Ast_ग्रन्थिः* nodep) {
+        ध्रुव VNUser3InUse user3InUse;
+        std::unique_ptr<std::vector<DfgVertexVar*>> resp{नूतन std::vector<DfgVertexVar*>{}};
+        ध्रुव तार्किक abort = nodep->exists([&](ध्रुव AstVarRef* refp) -> तार्किक {
+            जइ (refp->access().isWriteOnly()) प्रत्यागम मिच्छ;
+            AstVarScope* ध्रुव vscp = refp->varScopep();
+            जइ (!V3Dfg::isSupported(vscp)) प्रत्यागम सच्च;
+            जइ (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
+            प्रत्यागम मिच्छ;
         });
-        if (abort) {
+        जइ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            प्रत्यागम nullptr;
         }
-        return resp;
+        प्रत्यागम resp;
     }
 
     // Gather variables live in to the given CFG.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherLive(const CfgGraph& cfg) {
+    std::unique_ptr<std::vector<DfgVertexVar*>> gatherLive(ध्रुव CfgGraph& cfg) {
         // Run analysis
         std::unique_ptr<std::vector<AstVarScope*>> varps = V3Cfg::liveVarScopes(cfg);
-        if (!varps) {
+        जइ (!varps) {
             ++m_ctx.m_nonRepLive;
-            return nullptr;
+            प्रत्यागम nullptr;
         }
 
         // Convert to vertics
-        const VNUser3InUse user3InUse;
-        std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
+        ध्रुव VNUser3InUse user3InUse;
+        std::unique_ptr<std::vector<DfgVertexVar*>> resp{नूतन std::vector<DfgVertexVar*>{}};
         resp->reserve(varps->size());
-        for (AstVarScope* const varp : *varps) {
-            if (!V3Dfg::isSupported(varp)) {
+        प्रति (AstVarScope* ध्रुव varp : *varps) {
+            जइ (!V3Dfg::isSupported(varp)) {
                 ++m_ctx.m_nonRepVar;
-                return nullptr;
+                प्रत्यागम nullptr;
             }
             UASSERT_OBJ(!varp->user3SetOnce(), varp, "Live variables should be unique");
             resp->emplace_back(getVarVertex(varp));
         }
-        return resp;
+        प्रत्यागम resp;
     }
 
     // Connect inputs and outputs of a DfgLogic
-    void connect(DfgLogic& vtx, const std::vector<DfgVertexVar*>& iVarps,
-                 const std::vector<DfgVertexVar*>& oVarps) {
+    शून्य connect(DfgLogic& vtx, ध्रुव std::vector<DfgVertexVar*>& iVarps,
+                 ध्रुव std::vector<DfgVertexVar*>& oVarps) {
         // Connect inputs
-        for (DfgVertexVar* const iVarp : iVarps) vtx.addInput(iVarp);
+        प्रति (DfgVertexVar* ध्रुव iVarp : iVarps) vtx.add_निवेशः(iVarp);
         // Connect outputs
-        for (DfgVertexVar* const oVarp : oVarps) {
-            if (!oVarp->srcp()) oVarp->srcp(new DfgUnresolved{m_dfg, oVarp});
+        प्रति (DfgVertexVar* ध्रुव oVarp : oVarps) {
+            जइ (!oVarp->srcp()) oVarp->srcp(नूतन DfgUnresolved{m_dfg, oVarp});
             oVarp->srcp()->as<DfgUnresolved>()->addDriver(&vtx);
         }
     }
 
     // Convert AstAlways to DfgLogic, return true if successful.
-    bool convert(AstAlways* nodep) {
-        const VAlwaysKwd kwd = nodep->keyword();
-        if (kwd == VAlwaysKwd::CONT_ASSIGN) {
+    तार्किक convert(AstAlways* nodep) {
+        ध्रुव VAlwaysKwd kwd = nodep->keyword();
+        जइ (kwd == VAlwaysKwd::CONT_ASSIGN) {
             // TODO: simplify once CFG analysis can handle arrays
-            if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-                if (ap->nextp()) return false;
+            जइ (ध्रुव AstAssignW* ध्रुव ap = VN_CAST(nodep->stmtsp(), AssignW)) {
+                जइ (ap->nextp()) प्रत्यागम मिच्छ;
                 // Cannot handle assignment with timing control
-                if (ap->timingControlp()) return false;
+                जइ (ap->timingControlp()) प्रत्यागम मिच्छ;
                 // Potentially convertible block
                 ++m_ctx.m_inputs;
                 // Gather written variables, give up if any are not supported
-                const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(ap);
-                if (!oVarpsp) return false;
+                ध्रुव std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(ap);
+                जइ (!oVarpsp) प्रत्यागम मिच्छ;
                 // Gather read variables, give up if any are not supported
-                const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherRead(ap);
-                if (!iVarpsp) return false;
+                ध्रुव std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherRead(ap);
+                जइ (!iVarpsp) प्रत्यागम मिच्छ;
                 // Create the DfgLogic
-                DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, nullptr};
+                DfgLogic* ध्रुव logicp = नूतन DfgLogic{m_dfg, nodep, m_scopep, nullptr};
                 // Connect it up
                 connect(*logicp, *iVarpsp, *oVarpsp);
                 // Done
                 ++m_ctx.m_representable;
-                return true;
+                प्रत्यागम सच्च;
             }
         }
 
         // Can only handle combinational logic
-        if (nodep->sentreep()) return false;
-        if (kwd != VAlwaysKwd::ALWAYS  //
+        जइ (nodep->sentreep()) प्रत्यागम मिच्छ;
+        जइ (kwd != VAlwaysKwd::ALWAYS  //
             && kwd != VAlwaysKwd::ALWAYS_COMB  //
             && kwd != VAlwaysKwd::CONT_ASSIGN) {
-            return false;
+            प्रत्यागम मिच्छ;
         }
 
         // Potentially convertible block
         ++m_ctx.m_inputs;
         // Attempt to build CFG of AstAlways, give up if failed
         std::unique_ptr<CfgGraph> cfgp = CfgGraph::build(nodep->stmtsp());
-        if (!cfgp) {
+        जइ (!cfgp) {
             ++m_ctx.m_nonRepCfg;
-            return false;
+            प्रत्यागम मिच्छ;
         }
         // Gather written variables, give up if any are not supported
-        const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(nodep);
-        if (!oVarpsp) return false;
+        ध्रुव std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(nodep);
+        जइ (!oVarpsp) प्रत्यागम मिच्छ;
         // Gather read variables, give up if any are not supported
-        const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherLive(*cfgp);
-        if (!iVarpsp) return false;
+        ध्रुव std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherLive(*cfgp);
+        जइ (!iVarpsp) प्रत्यागम मिच्छ;
         // Create the DfgLogic
-        DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, std::move(cfgp)};
+        DfgLogic* ध्रुव logicp = नूतन DfgLogic{m_dfg, nodep, m_scopep, std::move(cfgp)};
         // Connect it up
         connect(*logicp, *iVarpsp, *oVarpsp);
         // Done
         ++m_ctx.m_representable;
-        return true;
+        प्रत्यागम सच्च;
     }
 
     // VISITORS
     // Unhandled node
-    void visit(AstNode* nodep) override { markReferenced(nodep); }
+    शून्य visit(Ast_ग्रन्थिः* nodep) override { markReferenced(nodep); }
 
     // Containers to descend through to find logic constructs
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
-    void visit(AstModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
-    void visit(AstIface* nodep) override {
-        if (!nodep->hasVirtualRef()) {
+    शून्य visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
+    शून्य visit(AstModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
+    शून्य visit(AstIface* nodep) override {
+        जइ (!nodep->hasVirtualRef()) {
             iterateAndNextNull(nodep->stmtsp());
-        } else {
+        } अण्णहा {
             markReferenced(nodep);
         }
     }
-    void visit(AstTopScope* nodep) override { iterate(nodep->scopep()); }
-    void visit(AstScope* nodep) override {
+    शून्य visit(Ast_शिखरम्_Scope* nodep) override { iterate(nodep->scopep()); }
+    शून्य visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
-        if (nodep->hasCombo()) {
+    शून्य visit(AstActive* nodep) override {
+        जइ (nodep->hasCombo()) {
             iterateChildren(nodep);
-        } else {
+        } अण्णहा {
             markReferenced(nodep);
         }
     }
 
     // Non-representable constructs
-    void visit(AstCell* nodep) override { markReferenced(nodep); }
-    void visit(AstNodeProcedure* nodep) override { markReferenced(nodep); }
+    शून्य visit(AstCell* nodep) override { markReferenced(nodep); }
+    शून्य visit(Ast_ग्रन्थिः_Procedure* nodep) override { markReferenced(nodep); }
 
     // Potentially representable constructs
-    void visit(AstAlways* nodep) override {
-        if (!convert(nodep)) markReferenced(nodep);
+    शून्य visit(AstAlways* nodep) override {
+        जइ (!convert(nodep)) markReferenced(nodep);
     }
 
     // CONSTRUCTOR
-    AstToDfgVisitor(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx)
+    AstToDfgVisitor(DfgGraph& dfg, AstNetlist& मूलम्, V3DfgAstToDfgContext& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
-        iterate(&root);
+        iterate(&मूलम्);
     }
     VL_UNCOPYABLE(AstToDfgVisitor);
     VL_UNMOVABLE(AstToDfgVisitor);
 
-public:
-    static void apply(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx) {
+सार्वजनिक:
+    स्थिर शून्य apply(DfgGraph& dfg, AstNetlist& मूलम्, V3DfgAstToDfgContext& ctx) {
         // Convert all logic under 'root'
-        AstToDfgVisitor{dfg, root, ctx};
+        AstToDfgVisitor{dfg, मूलम्, ctx};
         // Remove unread and undriven variables (created when something failed to convert)
-        for (DfgVertexVar* const varp : dfg.varVertices().unlinkable()) {
-            if (varp->srcp()) continue;
-            const bool keep = varp->foreachSink([&](DfgVertex& d) { return !d.is<DfgAstRd>(); });
-            if (!keep) {
-                while (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
+        प्रति (DfgVertexVar* ध्रुव varp : dfg.varVertices().unlinkable()) {
+            जइ (varp->srcp()) अनुवर्त;
+            ध्रुव तार्किक keep = varp->foreachSink([&](DfgVertex& d) { प्रत्यागम !d.is<DfgAstRd>(); });
+            जइ (!keep) {
+                जाव (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
                 VL_DO_DANGLING(varp->unlinkDelete(dfg), varp);
             }
         }
@@ -322,7 +322,7 @@ public:
 };
 
 std::unique_ptr<DfgGraph> V3DfgPasses::astToDfg(AstNetlist& netlist, V3DfgContext& ctx) {
-    DfgGraph* const dfgp = new DfgGraph{ctx, "netlist"};
+    DfgGraph* ध्रुव dfgp = नूतन DfgGraph{ctx, "netlist"};
     AstToDfgVisitor::apply(*dfgp, netlist, ctx.m_ast2DfgContext);
-    return std::unique_ptr<DfgGraph>{dfgp};
+    प्रत्यागम std::unique_ptr<DfgGraph>{dfgp};
 }
